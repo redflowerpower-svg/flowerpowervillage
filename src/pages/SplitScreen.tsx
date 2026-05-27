@@ -11,12 +11,31 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
   const [userMoved, setUserMoved] = useState(false);
   const [activePanel, setActivePanel] = useState<'none' | 'village' | 'pizza'>('none');
 
+  // Real-time pixel position of the divider, read from DOM each frame
+  const [dividerPos, setDividerPos] = useState<number>(-1);
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const villageRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const dragStartPos = useRef(0);
   const hasDragged = useRef(false);
+  const rafRef = useRef<number>(0);
 
   const handleTouchDetect = useCallback(() => setIsMobile(true), []);
+
+  // rAF loop: read the real border between panels from the DOM every frame
+  useEffect(() => {
+    const loop = () => {
+      if (villageRef.current) {
+        const rect = villageRef.current.getBoundingClientRect();
+        const isHoriz = window.innerWidth >= 768;
+        setDividerPos(isHoriz ? rect.right : rect.bottom);
+      }
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
 
   const computeRatio = useCallback((clientX: number, clientY: number) => {
     if (!containerRef.current) return;
@@ -29,32 +48,17 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     setUserMoved(true);
   }, []);
 
-  // Current divider fraction (0..1) for rendering the fixed overlay
-  const getDividerFraction = useCallback(() => {
-    if (userMoved) return splitRatio;
-    const expandRatio = 1.6;
-    const collapseRatio = 0.4;
-    if (activePanel === 'village') return expandRatio / (expandRatio + 1);
-    if (activePanel === 'pizza') return collapseRatio / (collapseRatio + 1);
-    return 0.5;
-  }, [userMoved, splitRatio, activePanel]);
-
-  // Touch on the whole container: detect if finger starts near divider line
+  // Touch on the whole container: detect if finger starts near the real divider line
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const GRAB_ZONE = 30;
 
     const onTouchStart = (e: TouchEvent) => {
-      const rect = container.getBoundingClientRect();
       const isHoriz = window.innerWidth >= 768;
-      const fraction = getDividerFraction();
-      const dividerPx = isHoriz
-        ? rect.left + rect.width * fraction
-        : rect.top + rect.height * fraction;
       const touchPos = isHoriz ? e.touches[0].clientX : e.touches[0].clientY;
 
-      if (Math.abs(touchPos - dividerPx) <= GRAB_ZONE) {
+      if (Math.abs(touchPos - dividerPos) <= GRAB_ZONE) {
         isDragging.current = true;
         hasDragged.current = false;
         dragStartPos.current = touchPos;
@@ -76,7 +80,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
 
     const onTouchEnd = () => {
       isDragging.current = false;
-      // Reset so the next tap on a logo works correctly
       hasDragged.current = false;
     };
 
@@ -89,7 +92,7 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
       container.removeEventListener('touchmove', onTouchMove);
       container.removeEventListener('touchend', onTouchEnd);
     };
-  }, [computeRatio, getDividerFraction]);
+  }, [computeRatio, dividerPos]);
 
   // Mouse drag (desktop)
   useEffect(() => {
@@ -126,7 +129,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
   const villageExpanded = !userMoved && activePanel === 'village';
   const pizzaExpanded = !userMoved && activePanel === 'pizza';
 
-  // Panel handlers — always reset userMoved so automatic animation works
   const handleVillageMouseEnter = () => {
     if (isMobile || isDragging.current) return;
     setUserMoved(false);
@@ -149,7 +151,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     if (!isMobile && !hasDragged.current) onSelectPizza();
   };
 
-  // Mobile tap on panel: first tap expands, second tap navigates
   const handleVillageTouch = (e: React.TouchEvent) => {
     if (isDragging.current) return;
     e.preventDefault();
@@ -180,23 +181,27 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     dragStartPos.current = e.clientX;
   };
 
-  // Divider fraction for the fixed overlay position
-  const fraction = getDividerFraction();
-  const dividerLineStyle: React.CSSProperties = isMobile
-    ? { top: `${fraction * 100}%`, left: 0, width: '100%', height: '1px' }
-    : { left: `${fraction * 100}%`, top: 0, width: '1px', height: '100%' };
-  const dividerCircleStyle: React.CSSProperties = isMobile
-    ? { top: `${fraction * 100}%`, left: '50%', transform: 'translate(-50%, -50%)' }
-    : { left: `${fraction * 100}%`, top: '50%', transform: 'translate(-50%, -50%)' };
-  const grabStripStyle: React.CSSProperties = isMobile
-    ? { top: `${fraction * 100}%`, left: 0, width: '100%', height: '44px', transform: 'translateY(-50%)', cursor: 'ns-resize' }
-    : { left: `${fraction * 100}%`, top: 0, width: '44px', height: '100%', transform: 'translateX(-50%)', cursor: 'ew-resize' };
-  const arrowsDesktopStyle: React.CSSProperties = {
-    left: `${fraction * 100}%`, top: '50%', transform: 'translate(-50%, -50%)',
-  };
-  const arrowsMobileStyle: React.CSSProperties = {
-    top: `${fraction * 100}%`, left: '50%', transform: 'translate(-50%, -50%)',
-  };
+  // Overlay styles derived from real pixel position
+  const isHorizLayout = typeof window !== 'undefined' && window.innerWidth >= 768;
+
+  const dividerLineStyle: React.CSSProperties = isHorizLayout
+    ? { left: `${dividerPos}px`, top: 0, width: '1px', height: '100%' }
+    : { top: `${dividerPos}px`, left: 0, width: '100%', height: '1px' };
+
+  const dividerCircleStyle: React.CSSProperties = isHorizLayout
+    ? { left: `${dividerPos}px`, top: '50%', transform: 'translate(-50%, -50%)' }
+    : { top: `${dividerPos}px`, left: '50%', transform: 'translate(-50%, -50%)' };
+
+  const grabStripStyle: React.CSSProperties = isHorizLayout
+    ? { left: `${dividerPos}px`, top: 0, width: '44px', height: '100%', transform: 'translateX(-50%)', cursor: 'ew-resize' }
+    : { top: `${dividerPos}px`, left: 0, width: '100%', height: '44px', transform: 'translateY(-50%)', cursor: 'ns-resize' };
+
+  const arrowsStyle: React.CSSProperties = isHorizLayout
+    ? { left: `${dividerPos}px`, top: '50%', transform: 'translate(-50%, -50%)' }
+    : { top: `${dividerPos}px`, left: '50%', transform: 'translate(-50%, -50%)' };
+
+  // Hide overlay until we have a real measurement
+  const overlayVisible = dividerPos >= 0;
 
   return (
     <div
@@ -206,6 +211,7 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     >
       {/* Village panel */}
       <div
+        ref={villageRef}
         className="relative overflow-hidden"
         style={{ flex: villageFlex, transition, backgroundColor: '#4a5a2e', cursor: isMobile ? 'default' : 'pointer' }}
         onMouseEnter={handleVillageMouseEnter}
@@ -286,62 +292,58 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
         )}
       </div>
 
-      {/* Divider overlay — fixed to viewport so circle is always centered */}
-      <div
-        className="fixed inset-0 z-20 pointer-events-none"
-        style={{ background: 'transparent' }}
-      >
-        {/* 1px visible line */}
-        <div
-          className="absolute pointer-events-none"
-          style={{ ...dividerLineStyle, background: 'rgba(255,255,255,0.3)', transition: isDragging.current ? 'none' : 'top 0.7s cubic-bezier(0.4,0,0.2,1), left 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-        />
+      {/* Divider overlay — pixel position read from DOM every frame via rAF */}
+      {overlayVisible && (
+        <div className="fixed inset-0 z-20 pointer-events-none">
+          {/* 1px visible line */}
+          <div className="absolute pointer-events-none" style={{ ...dividerLineStyle, background: 'rgba(255,255,255,0.3)' }} />
 
-        {/* Invisible grab strip — pointer-events:auto */}
-        <div
-          className="absolute pointer-events-auto"
-          style={{ ...grabStripStyle, background: 'transparent' }}
-          onMouseDown={handleDividerMouseDown}
-        />
+          {/* Invisible grab strip */}
+          <div
+            className="absolute pointer-events-auto"
+            style={{ ...grabStripStyle, background: 'transparent' }}
+            onMouseDown={handleDividerMouseDown}
+          />
 
-        {/* Circle handle */}
-        <div
-          className="absolute pointer-events-none flex items-center justify-center"
-          style={{
-            ...dividerCircleStyle,
-            width: '28px',
-            height: '28px',
-            borderRadius: '50%',
-            border: '1px solid rgba(255,255,255,0.5)',
-            background: 'rgba(15,15,15,0.6)',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 2px 14px rgba(0,0,0,0.45)',
-            transition: isDragging.current ? 'none' : 'top 0.7s cubic-bezier(0.4,0,0.2,1), left 0.7s cubic-bezier(0.4,0,0.2,1)',
-          }}
-        >
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(255,255,255,0.75)' }} />
+          {/* Circle handle */}
+          <div
+            className="absolute pointer-events-none flex items-center justify-center"
+            style={{
+              ...dividerCircleStyle,
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              border: '1px solid rgba(255,255,255,0.5)',
+              background: 'rgba(15,15,15,0.6)',
+              backdropFilter: 'blur(8px)',
+              boxShadow: '0 2px 14px rgba(0,0,0,0.45)',
+            }}
+          >
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(255,255,255,0.75)' }} />
+          </div>
+
+          {/* Arrows */}
+          {isHorizLayout ? (
+            <svg
+              className="absolute pointer-events-none"
+              width="44" height="14" viewBox="0 0 44 14" fill="none"
+              style={{ ...arrowsStyle, opacity: 0.4 }}
+            >
+              <path d="M15 7 L5 7 M5 7 L9 4 M5 7 L9 10" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M29 7 L39 7 M39 7 L35 4 M39 7 L35 10" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          ) : (
+            <svg
+              className="absolute pointer-events-none"
+              width="14" height="44" viewBox="0 0 14 44" fill="none"
+              style={{ ...arrowsStyle, opacity: 0.4 }}
+            >
+              <path d="M7 15 L7 5 M7 5 L4 9 M7 5 L10 9" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M7 29 L7 39 M7 39 L4 35 M7 39 L10 35" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
         </div>
-
-        {/* Desktop arrows */}
-        <svg
-          className="absolute pointer-events-none hidden md:block"
-          width="44" height="14" viewBox="0 0 44 14" fill="none"
-          style={{ ...arrowsDesktopStyle, opacity: 0.4, transition: isDragging.current ? 'none' : 'left 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-        >
-          <path d="M15 7 L5 7 M5 7 L9 4 M5 7 L9 10" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M29 7 L39 7 M39 7 L35 4 M39 7 L35 10" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-
-        {/* Mobile arrows */}
-        <svg
-          className="absolute pointer-events-none block md:hidden"
-          width="14" height="44" viewBox="0 0 14 44" fill="none"
-          style={{ ...arrowsMobileStyle, opacity: 0.4, transition: isDragging.current ? 'none' : 'top 0.7s cubic-bezier(0.4,0,0.2,1)' }}
-        >
-          <path d="M7 15 L7 5 M7 5 L4 9 M7 5 L10 9" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M7 29 L7 39 M7 39 L4 35 M7 39 L10 35" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
+      )}
 
       <style>{`
         @keyframes pulse-cta {
