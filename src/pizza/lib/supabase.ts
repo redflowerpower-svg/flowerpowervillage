@@ -25,6 +25,7 @@ export interface PizzaOrder {
   items: CartItemSaved[];
   total: number;
   status: 'new' | 'preparing' | 'ready';
-  receipt_url: string;
+  payment_method: 'promptpay' | 'cash';
+  receipt_url: string | null;
   telegram_notified?: boolean;
 }
