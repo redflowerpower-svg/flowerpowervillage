@@ -27,6 +27,8 @@ async function sendTelegramNotification(order: PizzaOrder) {
     return `• ${item.quantity}x ${item.name}${variant} — ${item.itemTotal}฿${extras}`;
   }).join('\n');
 
+  const paymentLabel = order.payment_method === 'cash' ? 'Contanti alla consegna' : 'PromptPay';
+
   const message = [
     '🍕 *NEW ORDER — Flower Power Pizza*',
     '',
@@ -38,6 +40,7 @@ async function sendTelegramNotification(order: PizzaOrder) {
     itemLines,
     '',
     `💰 *Total: ${order.total} ฿*`,
+    `💳 *Metodo di pagamento: ${paymentLabel}*`,
     '',
     order.receipt_url ? `🧾 [View Receipt](${order.receipt_url})` : '🧾 No receipt uploaded',
   ].join('\n');
@@ -59,6 +62,7 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [deliveryType, setDeliveryType] = useState<'delivery' | 'pickup'>('delivery');
+  const [paymentMethod, setPaymentMethod] = useState<'promptpay' | 'cash'>('promptpay');
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -77,22 +81,28 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
     reader.readAsDataURL(file);
   };
 
+  const canSubmit = paymentMethod === 'cash' || receiptFile !== null;
+
   const handleSubmit = async () => {
-    if (!receiptFile) return;
+    if (!canSubmit) return;
     setLoading(true);
     setError(null);
 
     try {
-      const ext = receiptFile.name.split('.').pop() ?? 'jpg';
-      const fileName = `receipt-${Date.now()}.${ext}`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('receipts')
-        .upload(fileName, receiptFile, { contentType: receiptFile.type });
+      let receiptUrl: string | null = null;
 
-      if (uploadError) throw uploadError;
+      if (paymentMethod === 'promptpay' && receiptFile) {
+        const ext = receiptFile.name.split('.').pop() ?? 'jpg';
+        const fileName = `receipt-${Date.now()}.${ext}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('receipts')
+          .upload(fileName, receiptFile, { contentType: receiptFile.type });
 
-      const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path);
-      const receiptUrl = urlData.publicUrl;
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path);
+        receiptUrl = urlData.publicUrl;
+      }
 
       const savedItems: CartItemSaved[] = items.map((item) => ({
         productId: item.productId,
@@ -112,6 +122,7 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
         items: savedItems,
         total,
         status: 'new',
+        payment_method: paymentMethod,
         receipt_url: receiptUrl,
         telegram_notified: false,
       };
@@ -295,61 +306,102 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
 
             {step === 2 && (
               <div className="space-y-5">
-                <div className="text-center">
-                  <p className="text-white font-light mb-1" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.3rem' }}>
-                    Pay via PromptPay
-                  </p>
-                  <p className="text-stone-400 text-xs">
-                    Scan the QR code and transfer exactly <span className="text-red-400 font-medium">{total} ฿</span>
-                  </p>
-                </div>
-
-                <div className="flex justify-center">
-                  <div className="bg-white p-4" style={{ maxWidth: '260px', width: '100%' }}>
-                    <img src={PROMPTPAY_QR} alt="PromptPay QR Code" className="w-full h-auto block" />
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-stone-400 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>Payment Method *</p>
+                  <div className="flex gap-2">
+                    {([
+                      { value: 'promptpay', label: 'PromptPay (QR)' },
+                      { value: 'cash', label: 'Cash on Delivery' },
+                    ] as const).map(({ value, label }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setPaymentMethod(value)}
+                        className="flex-1 py-3 text-xs uppercase tracking-widest transition-all"
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          background: paymentMethod === value ? 'rgba(185,28,28,0.15)' : 'transparent',
+                          border: paymentMethod === value ? '1px solid #b91c1c' : '1px solid rgba(255,255,255,0.1)',
+                          color: paymentMethod === value ? '#fca5a5' : 'rgba(255,255,255,0.5)',
+                        }}
+                      >
+                        {label}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                <div className="border border-stone-800 p-4 space-y-2 text-xs text-stone-400">
-                  {[
-                    `Open your banking app and scan the QR code above`,
-                    `Transfer exactly ${total} ฿ to confirm your order`,
-                    `Take a screenshot of your payment confirmation`,
-                    `Upload the screenshot below to complete your order`,
-                  ].map((step, i) => (
-                    <p key={i} className="flex items-start gap-2">
-                      <span className="text-red-500 font-bold flex-shrink-0">{i + 1}.</span>
-                      {step}
-                    </p>
-                  ))}
-                </div>
-
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-stone-400 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
-                    Upload Payment Screenshot *
-                  </p>
-                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
-                  {receiptPreview ? (
-                    <div className="relative">
-                      <img src={receiptPreview} alt="Receipt preview" className="w-full object-contain border border-stone-700" style={{ maxHeight: '200px' }} />
-                      <button
-                        onClick={() => { setReceiptFile(null); setReceiptPreview(null); }}
-                        className="absolute top-2 right-2 w-7 h-7 bg-red-700 flex items-center justify-center text-white"
-                      >
-                        <X size={14} />
-                      </button>
+                {paymentMethod === 'promptpay' && (
+                  <>
+                    <div className="text-center">
+                      <p className="text-white font-light mb-1" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.3rem' }}>
+                        Pay via PromptPay
+                      </p>
+                      <p className="text-stone-400 text-xs">
+                        Scan the QR code and transfer exactly <span className="text-red-400 font-medium">{total} ฿</span>
+                      </p>
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="w-full border-2 border-dashed border-stone-700 p-8 flex flex-col items-center gap-3 hover:border-red-800 transition-colors"
-                    >
-                      <Upload size={28} className="text-stone-500" />
-                      <span className="text-stone-500 text-xs">Tap to upload screenshot</span>
-                      <span className="text-stone-600 text-xs">JPG, PNG or WEBP</span>
-                    </button>
-                  )}
-                </div>
+
+                    <div className="flex justify-center">
+                      <div className="bg-white p-4" style={{ maxWidth: '260px', width: '100%' }}>
+                        <img src={PROMPTPAY_QR} alt="PromptPay QR Code" className="w-full h-auto block" />
+                      </div>
+                    </div>
+
+                    <div className="border border-stone-800 p-4 space-y-2 text-xs text-stone-400">
+                      {[
+                        `Open your banking app and scan the QR code above`,
+                        `Transfer exactly ${total} ฿ to confirm your order`,
+                        `Take a screenshot of your payment confirmation`,
+                        `Upload the screenshot below to complete your order`,
+                      ].map((s, i) => (
+                        <p key={i} className="flex items-start gap-2">
+                          <span className="text-red-500 font-bold flex-shrink-0">{i + 1}.</span>
+                          {s}
+                        </p>
+                      ))}
+                    </div>
+
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-stone-400 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+                        Upload Payment Screenshot *
+                      </p>
+                      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
+                      {receiptPreview ? (
+                        <div className="relative">
+                          <img src={receiptPreview} alt="Receipt preview" className="w-full object-contain border border-stone-700" style={{ maxHeight: '200px' }} />
+                          <button
+                            onClick={() => { setReceiptFile(null); setReceiptPreview(null); }}
+                            className="absolute top-2 right-2 w-7 h-7 bg-red-700 flex items-center justify-center text-white"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full border-2 border-dashed border-stone-700 p-8 flex flex-col items-center gap-3 hover:border-red-800 transition-colors"
+                        >
+                          <Upload size={28} className="text-stone-500" />
+                          <span className="text-stone-500 text-xs">Tap to upload screenshot</span>
+                          <span className="text-stone-600 text-xs">JPG, PNG or WEBP</span>
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {paymentMethod === 'cash' && (
+                  <div className="border border-stone-800 p-5 space-y-3 text-center">
+                    <p className="text-white font-light" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.3rem' }}>
+                      Pay on Delivery
+                    </p>
+                    <p className="text-stone-400 text-xs leading-relaxed">
+                      Please have <span className="text-red-400 font-medium">{total} ฿</span> ready in cash when the delivery arrives.
+                    </p>
+                    <p className="text-stone-500 text-xs">No upload required — your order will be confirmed immediately.</p>
+                  </div>
+                )}
 
                 {error && (
                   <div className="flex items-center gap-2 p-3 border border-red-800 bg-red-900 bg-opacity-20">
@@ -359,14 +411,14 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
                 )}
 
                 <button
-                  disabled={!receiptFile || loading}
+                  disabled={!canSubmit || loading}
                   onClick={handleSubmit}
                   className="w-full flex items-center justify-center gap-2 py-4 text-xs tracking-widest uppercase transition-all"
                   style={{
                     fontFamily: 'Inter, sans-serif',
-                    background: receiptFile && !loading ? '#b91c1c' : 'rgba(255,255,255,0.05)',
-                    color: receiptFile && !loading ? 'white' : 'rgba(255,255,255,0.3)',
-                    cursor: receiptFile && !loading ? 'pointer' : 'not-allowed',
+                    background: canSubmit && !loading ? '#b91c1c' : 'rgba(255,255,255,0.05)',
+                    color: canSubmit && !loading ? 'white' : 'rgba(255,255,255,0.3)',
+                    cursor: canSubmit && !loading ? 'pointer' : 'not-allowed',
                   }}>
                   {loading ? (
                     <span className="flex items-center gap-2">
@@ -404,7 +456,8 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
                     ? <p className="text-stone-400 text-xs">📍 Delivery to: <span className="text-white">{address}</span></p>
                     : <p className="text-stone-400 text-xs">🏠 Pickup at restaurant</p>
                   }
-                  <p className="text-stone-400 text-xs">💰 Total paid: <span className="text-red-400">{total} ฿</span></p>
+                  <p className="text-stone-400 text-xs">💰 Total: <span className="text-red-400">{total} ฿</span></p>
+                  <p className="text-stone-400 text-xs">💳 Payment: <span className="text-white">{paymentMethod === 'cash' ? 'Cash on Delivery' : 'PromptPay'}</span></p>
                 </div>
                 <button onClick={onSuccess}
                   className="w-full py-4 bg-red-700 text-white text-xs tracking-widest uppercase hover:bg-red-800 transition-colors"
