@@ -28,19 +28,23 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
     try {
       let receiptUrl = null;
 
-      // Caricamento opzionale su Supabase Storage
-      if (paymentMethod === 'promptpay' && receiptFile) {
+      // Se c'è un file, proviamo a caricarlo
+      if (receiptFile) {
         const fileName = `receipts/${Date.now()}-${receiptFile.name}`;
         const { data, error: uploadError } = await supabase.storage
           .from('receipts')
           .upload(fileName, receiptFile);
         
-        if (!uploadError && data) {
+        if (uploadError) {
+          console.error("Errore upload:", uploadError);
+          // Non blocchiamo l'ordine se l'upload fallisce, avvisiamo solo
+        } else if (data) {
           receiptUrl = data.path;
         }
       }
 
-      const order = {
+      // Invio ordine con i dati minimi indispensabili
+      const orderData = {
         customer_name: name || 'Cliente',
         phone: phone || '0000000000',
         address: address || 'Nessun indirizzo',
@@ -48,17 +52,21 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
         total: total,
         status: 'new',
         payment_method: paymentMethod,
-        receipt_url: receiptUrl
+        receipt_url: receiptUrl // Questo campo accetta null
       };
 
-      const { error } = await supabase.from('pizza_orders').insert([order]);
-      if (error) throw error;
+      const { error } = await supabase.from('pizza_orders').insert([orderData]);
+      
+      if (error) {
+        console.error("Errore Database:", error);
+        throw error;
+      }
 
       clearCart();
       setStep(3);
     } catch (err) {
       console.error(err);
-      alert('Errore invio ordine.');
+      alert('Errore nell\'invio. Controlla la connessione.');
     } finally {
       setLoading(false);
     }
@@ -72,9 +80,9 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
         {step === 1 && (
           <div className="space-y-4">
             <h2 className="text-xl font-light">I Tuoi Dati</h2>
-            <input className="w-full bg-stone-800 p-3" placeholder="Nome" value={name} onChange={e => setName(e.target.value)} />
-            <input className="w-full bg-stone-800 p-3" placeholder="Telefono" value={phone} onChange={e => setPhone(e.target.value)} />
-            <textarea className="w-full bg-stone-800 p-3" placeholder="Indirizzo di consegna" value={address} onChange={e => setAddress(e.target.value)} />
+            <input className="w-full bg-stone-800 p-3 text-white" placeholder="Nome" value={name} onChange={e => setName(e.target.value)} />
+            <input className="w-full bg-stone-800 p-3 text-white" placeholder="Telefono" value={phone} onChange={e => setPhone(e.target.value)} />
+            <textarea className="w-full bg-stone-800 p-3 text-white" placeholder="Indirizzo di consegna" value={address} onChange={e => setAddress(e.target.value)} />
             <button onClick={() => setStep(2)} className="w-full bg-red-700 p-3">Continua</button>
           </div>
         )}
@@ -84,12 +92,10 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
             <h2 className="text-xl font-light">Riepilogo e Pagamento</h2>
             
             <div className="bg-stone-800 p-3 text-sm space-y-1 border-l-2 border-red-700">
-              <p><strong>Nome:</strong> {name || 'Non specificato'}</p>
-              <p><strong>Telefono:</strong> {phone || 'Non specificato'}</p>
               <p><strong>Totale:</strong> {total.toFixed(2)} ฿</p>
             </div>
 
-            <select className="w-full bg-stone-800 p-3 border border-stone-700" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
+            <select className="w-full bg-stone-800 p-3 border border-stone-700 text-white" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
               <option value="promptpay">PromptPay (QR)</option>
               <option value="cash">Contanti alla consegna</option>
             </select>
@@ -99,15 +105,10 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
                 <div className="bg-white p-4 flex justify-center border border-stone-700">
                   <img src={QR_URL} alt="QR Code" className="w-48 h-48 object-contain" />
                 </div>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  className="hidden" 
-                  onChange={(e) => setReceiptFile(e.target.files?.[0] || null)} 
-                />
+                <input type="file" ref={fileInputRef} className="hidden" onChange={(e) => setReceiptFile(e.target.files?.[0] || null)} />
                 <button 
                   onClick={() => fileInputRef.current?.click()} 
-                  className="w-full border border-dashed border-stone-600 p-3 text-xs flex items-center justify-center gap-2 hover:border-white transition-colors"
+                  className="w-full border border-dashed border-stone-600 p-3 text-xs flex items-center justify-center gap-2 hover:border-white"
                 >
                   <Upload size={16} /> {receiptFile ? receiptFile.name : 'Carica ricevuta pagamento (opzionale)'}
                 </button>
