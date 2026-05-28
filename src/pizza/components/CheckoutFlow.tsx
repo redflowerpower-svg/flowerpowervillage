@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, ArrowRight, Upload, CheckCircle, AlertCircle, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Upload, CheckCircle, AlertCircle, X, MapPin, Loader2 } from 'lucide-react';
 import { useCartStore, calcItemTotal } from '../store/cartStore';
+import { useLocationStore } from '../store/locationStore';
 import { supabase } from '../lib/supabase';
 import type { PizzaOrder, CartItemSaved } from '../lib/supabase';
 
@@ -51,6 +52,7 @@ async function sendTelegramNotification(order: PizzaOrder) {
 export default function CheckoutFlow({ onClose, onSuccess }: Props) {
   const { items, getTotal, clearCart } = useCartStore();
   const total = getTotal();
+  const { requestLocation, isLoading: locationLoading, distanceKm, isDeliverable, error: locationError } = useLocationStore();
 
   const [step, setStep] = useState<Step>(1);
   const [name, setName] = useState('');
@@ -63,7 +65,8 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const step1Valid = name.trim() && phone.trim() && (deliveryType === 'pickup' || address.trim());
+  const locationVerified = deliveryType === 'pickup' || distanceKm !== null;
+  const step1Valid = name.trim() && phone.trim() && (deliveryType === 'pickup' || address.trim()) && locationVerified && isDeliverable;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -194,11 +197,53 @@ export default function CheckoutFlow({ onClose, onSuccess }: Props) {
                   </div>
                 </div>
                 {deliveryType === 'delivery' && (
-                  <div>
-                    <label className="text-xs uppercase tracking-widest text-stone-400 block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Delivery Address *</label>
-                    <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Full delivery address..." rows={3}
-                      className="w-full bg-stone-800 border border-stone-700 text-white text-sm px-4 py-3 focus:outline-none focus:border-red-700 placeholder-stone-600 transition-colors resize-none" />
-                  </div>
+                  <>
+                    <div>
+                      <label className="text-xs uppercase tracking-widest text-stone-400 block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Delivery Address *</label>
+                      <textarea value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Full delivery address..." rows={3}
+                        className="w-full bg-stone-800 border border-stone-700 text-white text-sm px-4 py-3 focus:outline-none focus:border-red-700 placeholder-stone-600 transition-colors resize-none" />
+                    </div>
+                    <div className="border border-stone-800 p-4 space-y-3">
+                      <p className="text-xs uppercase tracking-widest text-stone-500" style={{ fontFamily: 'Inter, sans-serif' }}>Delivery Area Check</p>
+                      <button
+                        type="button"
+                        onClick={requestLocation}
+                        disabled={locationLoading}
+                        className="w-full flex items-center justify-center gap-2 py-3 text-xs tracking-widest uppercase transition-all"
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          border: '1px solid rgba(255,255,255,0.12)',
+                          background: locationLoading ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.05)',
+                          color: locationLoading ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.7)',
+                          cursor: locationLoading ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {locationLoading
+                          ? <><Loader2 size={14} className="animate-spin" /> Verifica in corso...</>
+                          : <><MapPin size={14} /> Verifica la mia posizione</>
+                        }
+                      </button>
+                      {distanceKm !== null && (
+                        <p className="text-xs text-center" style={{ color: isDeliverable ? '#86efac' : '#fca5a5' }}>
+                          Sei a <span className="font-medium">{distanceKm.toFixed(1)} km</span> dal ristorante
+                        </p>
+                      )}
+                      {distanceKm !== null && !isDeliverable && (
+                        <div className="flex items-start gap-2 p-3 border border-red-800 bg-red-900 bg-opacity-20">
+                          <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
+                          <p className="text-red-400 text-xs leading-relaxed">
+                            Ci dispiace, la tua posizione è fuori dalla nostra area di copertura di consegna.
+                          </p>
+                        </div>
+                      )}
+                      {locationError && distanceKm === null && (
+                        <div className="flex items-start gap-2 p-3 border border-red-800 bg-red-900 bg-opacity-20">
+                          <AlertCircle size={15} className="text-red-400 flex-shrink-0 mt-0.5" />
+                          <p className="text-red-400 text-xs">{locationError}</p>
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
                 <div className="border border-stone-800 p-4 space-y-2">
                   <p className="text-xs uppercase tracking-widest text-stone-500 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>Order Summary</p>
