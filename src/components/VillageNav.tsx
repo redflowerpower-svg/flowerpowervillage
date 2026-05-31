@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { Menu, X, ArrowLeft } from 'lucide-react';
 
 interface Props {
-  onBack: () => void;
   activePage: string;
   onNavigate: (page: string) => void;
 }
@@ -17,7 +17,8 @@ const navItems = [
   { label: 'Contact', id: 'contact' },
 ];
 
-export default function VillageNav({ onBack, activePage, onNavigate }: Props) {
+export default function VillageNav({ activePage, onNavigate }: Props) {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -39,28 +40,22 @@ export default function VillageNav({ onBack, activePage, onNavigate }: Props) {
         }}
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          {/* Back */}
           <button
-            onClick={onBack}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 text-xs tracking-widest uppercase transition-colors duration-200 hover:opacity-70"
-            style={{ color: scrolled ? '#78716c' : 'rgba(255,255,255,0.8)' }}
+            style={{ color: scrolled ? '#78716c' : 'rgba(255,255,255,0.8)', fontFamily: 'Inter, sans-serif' }}
           >
             <ArrowLeft size={14} />
             <span className="hidden sm:inline">Home</span>
           </button>
 
-          {/* Logo */}
           <button
             onClick={() => onNavigate('home')}
             className="absolute left-1/2 -translate-x-1/2 text-center"
           >
             <div
               className="text-sm font-light tracking-[0.2em] uppercase leading-tight transition-colors duration-300"
-              style={{
-                fontFamily: 'Cormorant Garamond, Georgia, serif',
-                color: scrolled ? '#44403c' : 'white',
-                fontSize: 'clamp(0.6rem, 1.5vw, 0.75rem)',
-              }}
+              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', color: scrolled ? '#44403c' : 'white', fontSize: 'clamp(0.6rem, 1.5vw, 0.75rem)' }}
             >
               Flower Power
               <br />
@@ -68,7 +63,6 @@ export default function VillageNav({ onBack, activePage, onNavigate }: Props) {
             </div>
           </button>
 
-          {/* Desktop nav */}
           <div className="hidden lg:flex items-center gap-7">
             {navItems.filter(i => i.id !== 'home').map(item => (
               <button
@@ -87,7 +81,6 @@ export default function VillageNav({ onBack, activePage, onNavigate }: Props) {
             ))}
           </div>
 
-          {/* Mobile menu */}
           <button
             className="lg:hidden transition-colors duration-200"
             style={{ color: scrolled ? '#44403c' : 'white' }}
@@ -98,10 +91,8 @@ export default function VillageNav({ onBack, activePage, onNavigate }: Props) {
         </div>
       </nav>
 
-      {/* Mobile drawer */}
       {menuOpen && (
         <div className="fixed inset-0 z-40 bg-stone-900 bg-opacity-97 flex flex-col items-center justify-center">
-          {/* Pulsante di chiusura con area touch adeguata */}
           <button
             className="absolute top-4 right-5 text-white w-11 h-11 flex items-center justify-center"
             onClick={() => setMenuOpen(false)}

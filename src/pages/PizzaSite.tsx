@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useNavigate as useRRNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Menu, X, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart } from 'lucide-react';
 import DeliveryMenu from '../pizza/pages/DeliveryMenu';
 import { useCartStore } from '../pizza/store/cartStore';
 
-interface Props {
-  onBack: () => void;
-}
-
 type PizzaPage = 'home' | 'menu' | 'order' | 'about' | 'contact';
+
+const subPathToPage: Record<string, PizzaPage> = {
+  menu: 'menu',
+  order: 'order',
+  about: 'about',
+  contact: 'contact',
+};
 
 const pizzaMenu = [
   {
@@ -50,7 +54,8 @@ const pizzaMenu = [
   },
 ];
 
-function PizzaNav({ activePage, onNavigate, onBack }: { activePage: PizzaPage; onNavigate: (p: PizzaPage) => void; onBack: () => void }) {
+function PizzaNav({ activePage, onNavigate }: { activePage: PizzaPage; onNavigate: (p: PizzaPage) => void }) {
+  const rrNavigate = useRRNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const cartCount = useCartStore((s) => s.getCount());
@@ -74,7 +79,7 @@ function PizzaNav({ activePage, onNavigate, onBack }: { activePage: PizzaPage; o
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <button
-            onClick={onBack}
+            onClick={() => rrNavigate('/')}
             className="flex items-center gap-2 text-xs tracking-widest uppercase transition-opacity hover:opacity-60"
             style={{ color: 'rgba(255,255,255,0.7)', fontFamily: 'Inter, sans-serif' }}
           >
@@ -525,17 +530,26 @@ function PizzaHomePage({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
   );
 }
 
-export default function PizzaSite({ onBack }: Props) {
-  const [activePage, setActivePage] = useState<PizzaPage>('home');
+export default function PizzaSite() {
+  const rrNavigate = useRRNavigate();
+  const location = useLocation();
 
-  const navigate = (page: PizzaPage) => {
-    setActivePage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const getPageFromPath = (): PizzaPage => {
+    const sub = location.pathname.replace('/pizza', '').replace(/^\//, '');
+    return subPathToPage[sub] ?? 'home';
   };
 
+  const [activePage, setActivePage] = useState<PizzaPage>(getPageFromPath);
+
   useEffect(() => {
+    setActivePage(getPageFromPath());
     window.scrollTo(0, 0);
-  }, [activePage]);
+  }, [location.pathname]);
+
+  const navigate = (page: PizzaPage) => {
+    const path = page === 'home' ? '/pizza' : `/pizza/${page}`;
+    rrNavigate(path);
+  };
 
   const renderPage = () => {
     switch (activePage) {
@@ -549,7 +563,7 @@ export default function PizzaSite({ onBack }: Props) {
 
   return (
     <div className="min-h-screen" style={{ background: '#1c1917' }}>
-      <PizzaNav activePage={activePage} onNavigate={navigate} onBack={onBack} />
+      <PizzaNav activePage={activePage} onNavigate={navigate} />
       <main>{renderPage()}</main>
 
       <footer className="bg-stone-950 border-t border-stone-900 py-10">
