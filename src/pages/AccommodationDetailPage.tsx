@@ -1,6 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Check, Users, BedDouble, Bath, ArrowLeft, Home } from 'lucide-react';
-import { getAccommodationBySlug, typeLabels } from '../data/accommodationsData';
+import { Check, Users, BedDouble, Bath, ArrowLeft, Home, Loader2 } from 'lucide-react';
+import { fetchAccommodationBySlug, type Accommodation, typeLabels } from '../data/accommodationsData';
 
 const typeTagColor: Record<string, string> = {
   villa: 'bg-amber-600',
@@ -12,9 +13,24 @@ const typeTagColor: Record<string, string> = {
 
 export default function AccommodationDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const accommodation = slug ? getAccommodationBySlug(slug) : undefined;
+  const [accommodation, setAccommodation] = useState<Accommodation | null | undefined>(undefined);
 
-  if (!accommodation) {
+  useEffect(() => {
+    if (!slug) { setAccommodation(null); return; }
+    fetchAccommodationBySlug(slug)
+      .then(setAccommodation)
+      .catch(() => setAccommodation(null));
+  }, [slug]);
+
+  if (accommodation === undefined) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 size={28} className="text-amber-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (accommodation === null) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 text-center">
         <p
@@ -85,7 +101,7 @@ export default function AccommodationDetailPage() {
                 {accommodation.name}
               </h1>
             </div>
-            {accommodation.pricePerNight > 0 && (
+            {accommodation.price_per_night > 0 && (
               <div className="text-right">
                 <p className="text-xs text-stone-400 uppercase tracking-wide mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>
                   From
@@ -94,11 +110,9 @@ export default function AccommodationDetailPage() {
                   className="text-stone-800"
                   style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '2rem', fontWeight: 400 }}
                 >
-                  ฿{accommodation.pricePerNight.toLocaleString()}
+                  ฿{accommodation.price_per_night.toLocaleString()}
                 </p>
-                <p className="text-xs text-stone-400" style={{ fontFamily: 'Inter, sans-serif' }}>
-                  per night
-                </p>
+                <p className="text-xs text-stone-400" style={{ fontFamily: 'Inter, sans-serif' }}>per night</p>
               </div>
             )}
           </div>
