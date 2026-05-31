@@ -1,4 +1,5 @@
-import { Check, Clock } from 'lucide-react';
+import { Check, Clock, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface Props {
   onNavigate: (page: string) => void;
@@ -12,22 +13,25 @@ const units = [
     desc: 'Cosy, fully private bungalows nestled among tropical gardens. Perfect for couples seeking seclusion and nature.',
     features: ['Private bathroom', 'Hot shower', 'Outdoor terrace', 'Garden views'],
     tag: 'Most Popular',
+    exampleSlug: 'yellow-bungalow',
   },
   {
     type: 'Villa',
-    count: 4,
+    count: 5,
     image: 'https://images.pexels.com/photos/2029665/pexels-photo-2029665.jpeg?auto=compress&cs=tinysrgb&w=800',
     desc: 'Spacious, premium villas with elevated comfort for families or guests wanting extra space and privacy.',
     features: ['Private bathroom', 'Hot shower', 'Living area', 'Pool access'],
     tag: 'Premium',
+    exampleSlug: 'jungle-villa',
   },
   {
-    type: 'Room',
+    type: 'Room & Lodge',
     count: 8,
     image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=800',
-    desc: 'Comfortable guesthouse-style rooms, ideal for solo travellers or budget-conscious guests who want a great base.',
+    desc: 'Comfortable guesthouse-style rooms and lodges, ideal for solo travellers or guests who want a great base.',
     features: ['Private bathroom', 'Hot shower', 'WiFi included', 'Daily housekeeping'],
     tag: 'Great Value',
+    exampleSlug: 'room-1',
   },
 ];
 
@@ -43,7 +47,7 @@ export default function AccommodationsSection({ onNavigate }: Props) {
             className="text-stone-800 mb-4"
             style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 300 }}
           >
-            17 Units Across Three Categories
+            18 Units Across Three Categories
           </h2>
           <div className="w-12 h-px bg-amber-500 mx-auto mb-6" />
           <p className="text-stone-500 text-sm max-w-xl mx-auto leading-relaxed">
@@ -81,7 +85,6 @@ export default function AccommodationsSection({ onNavigate }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {units.map((unit, i) => (
             <div key={i} className="group overflow-hidden border border-stone-100 hover:border-amber-200 hover:shadow-xl transition-all duration-400">
-              {/* Altezza fluida tramite aspect-ratio per non distorcere le immagini su mobile */}
               <div className="relative aspect-[4/3] overflow-hidden">
                 <img
                   src={unit.image}
@@ -116,13 +119,22 @@ export default function AccommodationsSection({ onNavigate }: Props) {
                     </li>
                   ))}
                 </ul>
-                <button
-                  onClick={() => onNavigate('contact')}
-                  className="w-full py-3 border border-stone-300 text-stone-600 text-xs tracking-[0.15em] uppercase hover:border-amber-500 hover:text-amber-600 transition-all duration-300"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
-                >
-                  Book Now
-                </button>
+                <div className="flex gap-3">
+                  <Link
+                    to={`/rooms/${unit.exampleSlug}`}
+                    className="flex-1 py-3 border border-amber-500 text-amber-600 text-xs tracking-[0.15em] uppercase hover:bg-amber-50 transition-all duration-300 flex items-center justify-center gap-2"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    View Rooms <ArrowRight size={12} />
+                  </Link>
+                  <button
+                    onClick={() => onNavigate('contact')}
+                    className="flex-1 py-3 border border-stone-300 text-stone-600 text-xs tracking-[0.15em] uppercase hover:border-amber-500 hover:text-amber-600 transition-all duration-300"
+                    style={{ fontFamily: 'Inter, sans-serif' }}
+                  >
+                    Book Now
+                  </button>
+                </div>
               </div>
             </div>
           ))}

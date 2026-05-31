@@ -1,17 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-interface Props {
-  onSelectVillage: () => void;
-  onSelectPizza: () => void;
-}
-
-export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
+export default function SplitScreen() {
+  const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(false);
   const [splitRatio, setSplitRatio] = useState(0.5);
   const [userMoved, setUserMoved] = useState(false);
   const [activePanel, setActivePanel] = useState<'none' | 'village' | 'pizza'>('none');
-
-  // Real-time pixel position of the divider, read from DOM each frame
   const [dividerPos, setDividerPos] = useState<number>(-1);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -23,7 +18,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
 
   const handleTouchDetect = useCallback(() => setIsMobile(true), []);
 
-  // rAF loop: read the real border between panels from the DOM every frame
   useEffect(() => {
     const loop = () => {
       if (villageRef.current) {
@@ -48,7 +42,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     setUserMoved(true);
   }, []);
 
-  // Touch on the whole container: detect if finger starts near the real divider line
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -57,7 +50,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     const onTouchStart = (e: TouchEvent) => {
       const isHoriz = window.innerWidth >= 768;
       const touchPos = isHoriz ? e.touches[0].clientX : e.touches[0].clientY;
-
       if (Math.abs(touchPos - dividerPos) <= GRAB_ZONE) {
         isDragging.current = true;
         hasDragged.current = false;
@@ -71,9 +63,7 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
       if (!isDragging.current) return;
       const isHoriz = window.innerWidth >= 768;
       const pos = isHoriz ? e.touches[0].clientX : e.touches[0].clientY;
-      if (Math.abs(pos - dragStartPos.current) > 5) {
-        hasDragged.current = true;
-      }
+      if (Math.abs(pos - dragStartPos.current) > 5) hasDragged.current = true;
       e.preventDefault();
       computeRatio(e.touches[0].clientX, e.touches[0].clientY);
     };
@@ -86,7 +76,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     container.addEventListener('touchstart', onTouchStart, { passive: true });
     container.addEventListener('touchmove', onTouchMove, { passive: false });
     container.addEventListener('touchend', onTouchEnd, { passive: true });
-
     return () => {
       container.removeEventListener('touchstart', onTouchStart);
       container.removeEventListener('touchmove', onTouchMove);
@@ -94,7 +83,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     };
   }, [computeRatio, dividerPos]);
 
-  // Mouse drag (desktop)
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
@@ -113,7 +101,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     };
   }, [computeRatio]);
 
-  // Flex values
   let villageFlex: string;
   let pizzaFlex: string;
   if (userMoved) {
@@ -129,47 +116,22 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
   const villageExpanded = !userMoved && activePanel === 'village';
   const pizzaExpanded = !userMoved && activePanel === 'pizza';
 
-  const handleVillageMouseEnter = () => {
-    if (isMobile || isDragging.current) return;
-    setUserMoved(false);
-    setActivePanel('village');
-  };
-  const handlePizzaMouseEnter = () => {
-    if (isMobile || isDragging.current) return;
-    setUserMoved(false);
-    setActivePanel('pizza');
-  };
-  const handleMouseLeave = () => {
-    if (isMobile || isDragging.current) return;
-    setActivePanel('none');
-  };
+  const handleVillageMouseEnter = () => { if (isMobile || isDragging.current) return; setUserMoved(false); setActivePanel('village'); };
+  const handlePizzaMouseEnter = () => { if (isMobile || isDragging.current) return; setUserMoved(false); setActivePanel('pizza'); };
+  const handleMouseLeave = () => { if (isMobile || isDragging.current) return; setActivePanel('none'); };
 
-  const handleVillageClick = () => {
-    if (!isMobile && !hasDragged.current) onSelectVillage();
-  };
-  const handlePizzaClick = () => {
-    if (!isMobile && !hasDragged.current) onSelectPizza();
-  };
+  const handleVillageClick = () => { if (!isMobile && !hasDragged.current) navigate('/village'); };
+  const handlePizzaClick = () => { if (!isMobile && !hasDragged.current) navigate('/pizza'); };
 
   const handleVillageTouch = (e: React.TouchEvent) => {
     if (isDragging.current) return;
     e.preventDefault();
-    if (activePanel === 'village') {
-      onSelectVillage();
-    } else {
-      setUserMoved(false);
-      setActivePanel('village');
-    }
+    if (activePanel === 'village') { navigate('/village'); } else { setUserMoved(false); setActivePanel('village'); }
   };
   const handlePizzaTouch = (e: React.TouchEvent) => {
     if (isDragging.current) return;
     e.preventDefault();
-    if (activePanel === 'pizza') {
-      onSelectPizza();
-    } else {
-      setUserMoved(false);
-      setActivePanel('pizza');
-    }
+    if (activePanel === 'pizza') { navigate('/pizza'); } else { setUserMoved(false); setActivePanel('pizza'); }
   };
 
   const transition = isDragging.current ? 'none' : 'flex 0.7s cubic-bezier(0.4, 0, 0.2, 1)';
@@ -181,7 +143,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     dragStartPos.current = e.clientX;
   };
 
-  // Overlay styles derived from real pixel position
   const isHorizLayout = typeof window !== 'undefined' && window.innerWidth >= 768;
 
   const dividerLineStyle: React.CSSProperties = isHorizLayout
@@ -200,7 +161,6 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
     ? { left: `${dividerPos}px`, top: '50%', transform: 'translate(-50%, -50%)' }
     : { top: `${dividerPos}px`, left: '50%', transform: 'translate(-50%, -50%)' };
 
-  // Hide overlay until we have a real measurement
   const overlayVisible = dividerPos >= 0;
 
   return (
@@ -292,52 +252,27 @@ export default function SplitScreen({ onSelectVillage, onSelectPizza }: Props) {
         )}
       </div>
 
-      {/* Divider overlay — pixel position read from DOM every frame via rAF */}
       {overlayVisible && (
         <div className="fixed inset-0 z-20 pointer-events-none">
-          {/* 1px visible line */}
           <div className="absolute pointer-events-none" style={{ ...dividerLineStyle, background: 'rgba(255,255,255,0.3)' }} />
-
-          {/* Invisible grab strip */}
           <div
             className="absolute pointer-events-auto"
             style={{ ...grabStripStyle, background: 'transparent' }}
             onMouseDown={handleDividerMouseDown}
           />
-
-          {/* Circle handle */}
           <div
             className="absolute pointer-events-none flex items-center justify-center"
-            style={{
-              ...dividerCircleStyle,
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              border: '1px solid rgba(255,255,255,0.5)',
-              background: 'rgba(15,15,15,0.6)',
-              backdropFilter: 'blur(8px)',
-              boxShadow: '0 2px 14px rgba(0,0,0,0.45)',
-            }}
+            style={{ ...dividerCircleStyle, width: '28px', height: '28px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.5)', background: 'rgba(15,15,15,0.6)', backdropFilter: 'blur(8px)', boxShadow: '0 2px 14px rgba(0,0,0,0.45)' }}
           >
             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'rgba(255,255,255,0.75)' }} />
           </div>
-
-          {/* Arrows */}
           {isHorizLayout ? (
-            <svg
-              className="absolute pointer-events-none"
-              width="44" height="14" viewBox="0 0 44 14" fill="none"
-              style={{ ...arrowsStyle, opacity: 0.4 }}
-            >
+            <svg className="absolute pointer-events-none" width="44" height="14" viewBox="0 0 44 14" fill="none" style={{ ...arrowsStyle, opacity: 0.4 }}>
               <path d="M15 7 L5 7 M5 7 L9 4 M5 7 L9 10" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M29 7 L39 7 M39 7 L35 4 M39 7 L35 10" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           ) : (
-            <svg
-              className="absolute pointer-events-none"
-              width="14" height="44" viewBox="0 0 14 44" fill="none"
-              style={{ ...arrowsStyle, opacity: 0.4 }}
-            >
+            <svg className="absolute pointer-events-none" width="14" height="44" viewBox="0 0 14 44" fill="none" style={{ ...arrowsStyle, opacity: 0.4 }}>
               <path d="M7 15 L7 5 M7 5 L4 9 M7 5 L10 9" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M7 29 L7 39 M7 39 L4 35 M7 39 L10 35" stroke="white" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
