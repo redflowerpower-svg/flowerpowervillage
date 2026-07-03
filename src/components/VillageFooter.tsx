@@ -30,12 +30,12 @@ export default function VillageFooter({ onNavigate }: Props) {
           <h4 className="text-white text-xs tracking-[0.25em] uppercase mb-5">Explore</h4>
           <ul className="space-y-3">
             {[
-              { label: 'Accommodations', id: 'accommodations' },
-              { label: 'Restaurant & Menu', id: 'restaurant' },
-              { label: 'Spa & Treatments', id: 'spa' },
-              { label: 'Activities', id: 'activities' },
-              { label: 'Photo Gallery', id: 'gallery' },
-              { label: 'Contact Us', id: 'contact' },
+              { label: 'Alloggi', id: 'accommodations' },
+              { label: 'Ristorante & Pizzeria', id: 'restaurant' },
+              { label: 'Spa', id: 'spa' },
+              { label: 'Galleria', id: 'gallery' },
+              { label: 'Come raggiungerci', id: 'directions' },
+              { label: 'Contatti', id: 'contact' },
             ].map(item => (
               <li key={item.id}>
                 <button
@@ -53,13 +53,21 @@ export default function VillageFooter({ onNavigate }: Props) {
         <div>
           <h4 className="text-white text-xs tracking-[0.25em] uppercase mb-5">Contact</h4>
           <div className="space-y-3 mb-6">
-            <a
-              href="tel:+66958825573"
-              className="flex items-center gap-3 text-sm text-stone-400 hover:text-amber-500 transition-colors"
-            >
-              <Phone size={14} className="text-amber-600" />
-              +66 95 882 5573
-            </a>
+            <div className="flex flex-col gap-1.5 pl-6 relative">
+              <Phone size={14} className="text-amber-600 absolute left-0 top-1" />
+              <a
+                href="tel:+66958825573"
+                className="text-sm text-stone-400 hover:text-amber-500 transition-colors"
+              >
+                +66 95 882 5573 <span className="text-stone-500 text-xs">(EN/IT)</span>
+              </a>
+              <a
+                href="tel:+66834512741"
+                className="text-sm text-stone-400 hover:text-amber-500 transition-colors"
+              >
+                +66 83 451 2741 <span className="text-stone-500 text-xs">(TH)</span>
+              </a>
+            </div>
             <a
               href="mailto:flowerpowerphayam@gmail.com"
               className="flex items-center gap-3 text-sm text-stone-400 hover:text-amber-500 transition-colors"

@@ -2,29 +2,53 @@ import { Clock, UtensilsCrossed } from 'lucide-react';
 
 const menu = [
   {
-    category: 'Breakfast',
+    category: 'Breakfast & Starters',
     items: [
-      { name: 'Italian Colazione', desc: 'Espresso, cornetto, fresh orange juice — the authentic Italian morning start.' },
-      { name: 'Full English / Irish Breakfast', desc: 'Eggs, bacon, sausages, toast, tomato, and beans for a hearty start.' },
-      { name: 'Fresh Fruit Platter', desc: 'Seasonal tropical fruits — mango, papaya, pineapple, and more.' },
+      { name: 'Italian Colazione', desc: 'Espresso o cappuccino, cornetto caldo e succo d\'arancia fresco — l\'inizio perfetto.' },
+      { name: 'Full English Breakfast', desc: 'Uova, bacon, salsiccia, toast, pomodori alla piastra e fagioli.' },
+      { name: 'Fresh Fruit Platter', desc: 'Selezione stagionale di frutta tropicale fresca dell\'isola (mango, papaya, ananas).' },
     ],
   },
   {
-    category: 'Pizza',
+    category: 'Le Nostre Pizze',
     items: [
-      { name: 'Margherita', desc: 'San Marzano tomato, fresh fior di latte, basil, extra virgin olive oil.' },
-      { name: 'Diavola', desc: 'Spicy salami, mozzarella, tomato, chilli.' },
-      { name: 'Quattro Stagioni', desc: 'Artichoke, ham, mushrooms, olives — four seasons on one pizza.' },
-      { name: 'Vegetariana', desc: 'Seasonal grilled vegetables, mozzarella, fresh tomato.' },
+      { name: 'Margherita DOC', desc: 'Pomodori San Marzano, fior di latte fresco, basilico, olio extravergine d\'oliva.' },
+      { name: 'Diavola', desc: 'Salame piccante italiano, fior di latte, pomodoro, peperoncino fresco.' },
+      { name: 'Quattro Stagioni', desc: 'Carciofi, prosciutto cotto, funghi, olive nere su base margherita.' },
+      { name: 'Vegetariana', desc: 'Verdure grigliate di stagione dall\'orto, mozzarella, pomodoro fresco.' },
     ],
   },
   {
-    category: 'Pasta & Mains',
+    category: 'Primi e Secondi Italiani',
     items: [
-      { name: 'Spaghetti al Pomodoro', desc: 'Classic tomato sauce with fresh basil and parmesan.' },
-      { name: 'Penne all\'Arrabbiata', desc: 'Spicy tomato and garlic sauce — Roman tradition.' },
-      { name: 'Risotto ai Funghi', desc: 'Creamy arborio rice with forest mushrooms and white wine.' },
-      { name: 'Branzino al Forno', desc: 'Oven-baked sea bass, herbs, lemon, and capers.' },
+      { name: 'Spaghetti al Pomodoro & Basilico', desc: 'Pasta artigianale con sugo di pomodori freschi, basilico e parmigiano.' },
+      { name: 'Penne all\'Arrabbiata', desc: 'Salsa piccante al pomodoro, aglio e peperoncino — tradizione romana.' },
+      { name: 'Risotto ai Funghi Selvatici', desc: 'Riso Arborio cremoso cotto lentamente con funghi, vino bianco e parmigiano.' },
+      { name: 'Filetto di Branzino al Forno', desc: 'Filetto di branzino cotto al forno con erbe aromatiche, limone e capperi.' },
+    ],
+  },
+  {
+    category: 'Specialità Thai & Burmese',
+    items: [
+      { name: 'Classic Pad Thai', desc: 'Tagliatelle di riso saltate con salsa al tamarindo, tofu, uovo, germogli di soia e arachidi.' },
+      { name: 'Burmese Tea Leaf Salad (Lahpet Thoke)', desc: 'Foglie di tè fermentate, mix croccante di frutta secca tostata, aglio fritto, peperoncino e lime. Piatto tradizionale birmano.' },
+      { name: 'Green Curry (Gaeng Keow Wan)', desc: 'Curry verde aromatico a base di latte di cocco con germogli di bambù, melanzane thai e basilico dolce.' },
+    ],
+  },
+  {
+    category: 'Scelte Vegane & Healthy',
+    items: [
+      { name: 'Vegan Margherita', desc: 'Pizza cotta nel forno a legna con mozzarella alternativa vegetale, pomodoro e basilico fresco.' },
+      { name: 'Stufato di Ceci e Cocco', desc: 'Ceci cotti a fuoco lento con spinaci novelli e patate dolci in un profumato brodo di latte di cocco e spezie.' },
+      { name: 'Avocado Garden Toast', desc: 'Pane a lievitazione naturale fatto in casa, avocado schiacciato, pomodorini e germogli freschi.' },
+    ],
+  },
+  {
+    category: 'Dolci & Bevande Fresche',
+    items: [
+      { name: 'Tiramisù della Casa', desc: 'Il classico dolce italiano con savoiardi bagnati nel caffè espresso, crema al mascarpone e cacao.' },
+      { name: 'Mango Sticky Rice', desc: 'Il dolce thai più amato: mango dolce maturo servito con riso glutinosre tiepido e latte di cocco.' },
+      { name: 'Fresh Coconut Shake', desc: 'Frullato cremoso a base di acqua e polpa di cocco fresco dell\'isola, super rinfrescante.' },
     ],
   },
 ];
@@ -37,17 +61,17 @@ export default function RestaurantSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-16 lg:mb-20">
           <div>
             <p className="text-xs tracking-[0.4em] uppercase text-amber-600 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Authentic Italian Cuisine
+              Autentica Cucina Italiana & Sapori Locali
             </p>
             <h2
               className="text-stone-800 mb-5"
               style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2rem, 4vw, 3.2rem)', fontWeight: 300, lineHeight: 1.1 }}
             >
-              Italy on the<br /><em>shores of Koh Phayam</em>
+              L'Italia incontra le<br /><em>spiagge di Koh Phayam</em>
             </h2>
             <div className="w-10 h-px bg-amber-500 mb-6" />
             <p className="text-stone-500 text-sm leading-relaxed mb-6">
-              Our restaurant serves 100% authentic Italian cuisine — from wood-fired pizza to handmade pasta and classic mains. Open daily for breakfast, lunch, and dinner all year round.
+              Il ristorante del Flower Power è un crocevia di culture culinarie. Proponiamo piatti della tradizione italiana al 100% — con pizza cotta nel forno a legna e pasta fatta in casa — affiancati da specialità tipiche tailandesi e birmane e un intero menu dedicato a ricette vegane e salutari.
             </p>
             <div className="flex flex-wrap gap-6">
               <div className="flex items-center gap-2 text-sm text-stone-600">
