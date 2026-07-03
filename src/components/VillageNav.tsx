@@ -8,13 +8,12 @@ interface Props {
 }
 
 const navItems = [
-  { label: 'Home', id: 'home' },
-  { label: 'Accommodations', id: 'accommodations' },
-  { label: 'Restaurant', id: 'restaurant' },
+  { label: 'Alloggi', id: 'accommodations' },
+  { label: 'Ristorante & Pizzeria', id: 'restaurant' },
   { label: 'Spa', id: 'spa' },
-  { label: 'Activities', id: 'activities' },
-  { label: 'Gallery', id: 'gallery' },
-  { label: 'Contact', id: 'contact' },
+  { label: 'Galleria', id: 'gallery' },
+  { label: 'Come raggiungerci', id: 'directions' },
+  { label: 'Contatti', id: 'contact' },
 ];
 
 export default function VillageNav({ activePage, onNavigate }: Props) {
@@ -50,7 +49,7 @@ export default function VillageNav({ activePage, onNavigate }: Props) {
           </button>
 
           <button
-            onClick={() => onNavigate('home')}
+            onClick={() => onNavigate('accommodations')}
             className="absolute left-1/2 -translate-x-1/2 text-center"
           >
             <div
@@ -64,7 +63,7 @@ export default function VillageNav({ activePage, onNavigate }: Props) {
           </button>
 
           <div className="hidden lg:flex items-center gap-7">
-            {navItems.filter(i => i.id !== 'home').map(item => (
+            {navItems.map(item => (
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}

@@ -49,11 +49,11 @@ export default function AccommodationDetailPage() {
           This accommodation doesn't exist or may have been renamed. Browse all available rooms below.
         </p>
         <Link
-          to="/village/accommodations"
+          to="/village"
           className="inline-flex items-center gap-2 px-6 py-3 bg-amber-600 text-white text-xs tracking-[0.15em] uppercase hover:bg-amber-700 transition-colors"
           style={{ fontFamily: 'Inter, sans-serif' }}
         >
-          View All Accommodations
+          Tutti gli Alloggi
         </Link>
       </div>
     );
@@ -66,12 +66,12 @@ export default function AccommodationDetailPage() {
       {/* Top nav bar */}
       <nav className="sticky top-0 z-50 bg-white border-b border-stone-100 px-6 py-4 flex items-center justify-between">
         <Link
-          to="/village/accommodations"
+          to="/village"
           className="inline-flex items-center gap-2 text-stone-500 hover:text-stone-800 transition-colors text-sm"
           style={{ fontFamily: 'Inter, sans-serif' }}
         >
           <ArrowLeft size={16} />
-          All Accommodations
+          Tutti gli Alloggi
         </Link>
         <Link
           to="/"
