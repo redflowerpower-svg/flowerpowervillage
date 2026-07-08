@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Clock, Phone, MapPin, ChevronRight, RefreshCw, LogOut, ExternalLink } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import type { PizzaOrder, CartItemSaved } from '../lib/supabase';
+import type { Session } from '@supabase/supabase-js';
+import { Clock, Phone, MapPin, ChevronRight, RefreshCw, LogOut, ExternalLink, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import type { PizzaOrder, CartItemSaved } from '../types';
 
-const ADMIN_PIN = '1234';
 const POLL_INTERVAL = 10000;
 
 function usePing() {
@@ -39,70 +39,85 @@ function usePing() {
   }, []);
 }
 
-function PinScreen({ onUnlock }: { onUnlock: () => void }) {
-  const [pin, setPin] = useState('');
-  const [error, setError] = useState(false);
+function LoginForm({ onLogin }: { onLogin: () => void }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleDigit = (d: string) => {
-    if (pin.length >= 4) return;
-    const next = pin + d;
-    setPin(next);
-    setError(false);
-    if (next.length === 4) {
-      if (next === ADMIN_PIN) {
-        onUnlock();
-      } else {
-        setTimeout(() => { setPin(''); setError(true); }, 400);
-      }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (authError) {
+      setError('Invalid credentials. Please try again.');
+      setLoading(false);
+    } else {
+      onLogin();
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: '#0c0a09' }}>
-      <div className="text-center mb-10">
-        <p className="text-white font-light mb-1" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '2rem' }}>
-          Staff Dashboard
-        </p>
-        <p className="text-stone-500 text-xs tracking-widest uppercase" style={{ fontFamily: 'Inter, sans-serif' }}>
-          Flower Power Pizza · Ranong
-        </p>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#0c0a09' }}>
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-10">
+          <p className="text-white font-light mb-1" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '2rem' }}>
+            Staff Dashboard
+          </p>
+          <p className="text-stone-500 text-xs tracking-widest uppercase" style={{ fontFamily: 'Inter, sans-serif' }}>
+            Flower Power Pizza · Ranong
+          </p>
+        </div>
 
-      <div className="flex gap-3 mb-8">
-        {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="w-4 h-4 rounded-full transition-all duration-200"
-            style={{
-              background: pin.length > i ? (error ? '#ef4444' : '#b91c1c') : 'rgba(255,255,255,0.15)',
-              transform: pin.length > i ? 'scale(1.2)' : 'scale(1)',
-            }}
-          />
-        ))}
-      </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs text-stone-500 uppercase tracking-widest mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Email
+            </label>
+            <input
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-stone-900 border border-stone-700 px-4 py-3 text-white text-sm focus:outline-none focus:border-red-700 transition-colors"
+              style={{ fontFamily: 'Inter, sans-serif' }}
+            />
+          </div>
 
-      {error && (
-        <p className="text-red-400 text-xs mb-4 tracking-widest" style={{ fontFamily: 'Inter, sans-serif' }}>
-          Incorrect PIN
-        </p>
-      )}
+          <div>
+            <label className="block text-xs text-stone-500 uppercase tracking-widest mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              Password
+            </label>
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-stone-900 border border-stone-700 px-4 py-3 text-white text-sm focus:outline-none focus:border-red-700 transition-colors"
+              style={{ fontFamily: 'Inter, sans-serif' }}
+            />
+          </div>
 
-      <div className="grid grid-cols-3 gap-3 w-64">
-        {['1','2','3','4','5','6','7','8','9','','0','⌫'].map((d, i) => (
+          {error && (
+            <p className="text-red-400 text-xs text-center tracking-wide" style={{ fontFamily: 'Inter, sans-serif' }}>
+              {error}
+            </p>
+          )}
+
           <button
-            key={i}
-            onClick={() => d === '⌫' ? setPin((p) => p.slice(0, -1)) : d ? handleDigit(d) : undefined}
-            className="h-16 flex items-center justify-center text-xl text-white transition-all duration-150 hover:bg-stone-800 active:scale-95"
-            style={{
-              fontFamily: d === '⌫' ? 'Inter, sans-serif' : 'Cormorant Garamond, Georgia, serif',
-              background: d ? 'rgba(255,255,255,0.05)' : 'transparent',
-              border: d ? '1px solid rgba(255,255,255,0.08)' : 'none',
-              visibility: d === '' ? 'hidden' : 'visible',
-            }}
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-red-800 text-white text-xs tracking-widest uppercase hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            style={{ fontFamily: 'Inter, sans-serif' }}
           >
-            {d}
+            {loading ? <><Loader2 size={14} className="animate-spin" /> Signing in…</> : 'Sign In'}
           </button>
-        ))}
+        </form>
       </div>
     </div>
   );
@@ -191,12 +206,29 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
 }
 
 export default function AdminDashboard() {
-  const [unlocked, setUnlocked] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
   const [orders, setOrders] = useState<PizzaOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastFetch, setLastFetch] = useState<Date | null>(null);
   const knownIdsRef = useRef<Set<string>>(new Set());
   const ping = usePing();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+      setSessionLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      (async () => {
+        setSession(s);
+        setSessionLoading(false);
+      })();
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -218,18 +250,30 @@ export default function AdminDashboard() {
   }, [ping]);
 
   useEffect(() => {
-    if (!unlocked) return;
+    if (!session) return;
     fetchOrders();
     const interval = setInterval(fetchOrders, POLL_INTERVAL);
     return () => clearInterval(interval);
-  }, [unlocked, fetchOrders]);
+  }, [session, fetchOrders]);
 
   const handleAdvance = async (id: string, status: PizzaOrder['status']) => {
     await supabase.from('pizza_orders').update({ status }).eq('id', id);
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
   };
 
-  if (!unlocked) return <PinScreen onUnlock={() => setUnlocked(true)} />;
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
+  if (sessionLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0c0a09' }}>
+        <Loader2 size={28} className="text-red-700 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!session) return <LoginForm onLogin={() => {}} />;
 
   const newOrders = orders.filter((o) => o.status === 'new');
   const preparingOrders = orders.filter((o) => o.status === 'preparing');
@@ -256,7 +300,7 @@ export default function AdminDashboard() {
           <button onClick={fetchOrders} disabled={loading} className="text-stone-500 hover:text-white transition-colors">
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
           </button>
-          <button onClick={() => setUnlocked(false)} className="text-stone-500 hover:text-red-400 transition-colors">
+          <button onClick={handleLogout} className="text-stone-500 hover:text-red-400 transition-colors">
             <LogOut size={18} />
           </button>
         </div>
