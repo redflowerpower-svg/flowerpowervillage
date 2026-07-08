@@ -1,3 +1,5 @@
+-- ARCHIVIATO: contiene credenziali in chiaro non più valide, sostituite da
+-- creazione utente via dashboard Supabase. Non applicare.
 
 /*
 # Delete and recreate admin user from scratch
