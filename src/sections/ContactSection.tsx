@@ -61,9 +61,14 @@ export default function ContactSection() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-stone-700 mb-0.5">Phone / WhatsApp</p>
-                  <a href="tel:+66958825573" className="text-sm text-amber-600 hover:text-amber-700">
-                    +66 95 882 5573
-                  </a>
+                  <div className="flex flex-col gap-1">
+                    <a href="tel:+66958825573" className="text-sm text-amber-600 hover:text-amber-700">
+                      +66 95 882 5573 <span className="text-stone-400 text-xs">(English / Italian)</span>
+                    </a>
+                    <a href="tel:+66834512741" className="text-sm text-amber-600 hover:text-amber-700">
+                      +66 83 451 2741 <span className="text-stone-400 text-xs">(Thai)</span>
+                    </a>
+                  </div>
                 </div>
               </div>
               <div className="flex items-start gap-4">
