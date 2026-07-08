@@ -88,7 +88,7 @@ These create the following tables and storage buckets:
 
 The kitchen dashboard is at `/admin`. It requires a Supabase Auth login.
 
-**Credentials:** `admin@flowerpowerphayam.com` — password stored in your password manager.
+**Credentials:** see password manager (admin account configured in Supabase Auth — do not commit credentials to this file).
 
 To change the password at any time: Supabase dashboard → Authentication → Users → find the account → Send Password Reset, or edit the password directly from the Users table. No code change needed.
 
