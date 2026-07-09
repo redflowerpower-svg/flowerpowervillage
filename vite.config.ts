@@ -8,6 +8,14 @@ export default defineConfig({
   },
   server: {
     historyApiFallback: true,
+    proxy: {
+      '/api-octorate': {
+        target: 'https://api.octorate.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api-octorate/, ''),
+      },
+    },
   },
   preview: {
     port: 4173,

@@ -1,148 +1,314 @@
-import { Clock, UtensilsCrossed } from 'lucide-react';
+import { useState } from 'react';
+import { Clock, UtensilsCrossed, ChevronLeft, ChevronRight, Maximize2, X, ZoomIn, ZoomOut } from 'lucide-react';
 
-const menu = [
-  {
-    category: 'Breakfast & Starters',
-    items: [
-      { name: 'Italian Colazione', desc: 'Espresso o cappuccino, cornetto caldo e succo d\'arancia fresco — l\'inizio perfetto.' },
-      { name: 'Full English Breakfast', desc: 'Uova, bacon, salsiccia, toast, pomodori alla piastra e fagioli.' },
-      { name: 'Fresh Fruit Platter', desc: 'Selezione stagionale di frutta tropicale fresca dell\'isola (mango, papaya, ananas).' },
-    ],
-  },
-  {
-    category: 'Le Nostre Pizze',
-    items: [
-      { name: 'Margherita DOC', desc: 'Pomodori San Marzano, fior di latte fresco, basilico, olio extravergine d\'oliva.' },
-      { name: 'Diavola', desc: 'Salame piccante italiano, fior di latte, pomodoro, peperoncino fresco.' },
-      { name: 'Quattro Stagioni', desc: 'Carciofi, prosciutto cotto, funghi, olive nere su base margherita.' },
-      { name: 'Vegetariana', desc: 'Verdure grigliate di stagione dall\'orto, mozzarella, pomodoro fresco.' },
-    ],
-  },
-  {
-    category: 'Primi e Secondi Italiani',
-    items: [
-      { name: 'Spaghetti al Pomodoro & Basilico', desc: 'Pasta artigianale con sugo di pomodori freschi, basilico e parmigiano.' },
-      { name: 'Penne all\'Arrabbiata', desc: 'Salsa piccante al pomodoro, aglio e peperoncino — tradizione romana.' },
-      { name: 'Risotto ai Funghi Selvatici', desc: 'Riso Arborio cremoso cotto lentamente con funghi, vino bianco e parmigiano.' },
-      { name: 'Filetto di Branzino al Forno', desc: 'Filetto di branzino cotto al forno con erbe aromatiche, limone e capperi.' },
-    ],
-  },
-  {
-    category: 'Specialità Thai & Burmese',
-    items: [
-      { name: 'Classic Pad Thai', desc: 'Tagliatelle di riso saltate con salsa al tamarindo, tofu, uovo, germogli di soia e arachidi.' },
-      { name: 'Burmese Tea Leaf Salad (Lahpet Thoke)', desc: 'Foglie di tè fermentate, mix croccante di frutta secca tostata, aglio fritto, peperoncino e lime. Piatto tradizionale birmano.' },
-      { name: 'Green Curry (Gaeng Keow Wan)', desc: 'Curry verde aromatico a base di latte di cocco con germogli di bambù, melanzane thai e basilico dolce.' },
-    ],
-  },
-  {
-    category: 'Scelte Vegane & Healthy',
-    items: [
-      { name: 'Vegan Margherita', desc: 'Pizza cotta nel forno a legna con mozzarella alternativa vegetale, pomodoro e basilico fresco.' },
-      { name: 'Stufato di Ceci e Cocco', desc: 'Ceci cotti a fuoco lento con spinaci novelli e patate dolci in un profumato brodo di latte di cocco e spezie.' },
-      { name: 'Avocado Garden Toast', desc: 'Pane a lievitazione naturale fatto in casa, avocado schiacciato, pomodorini e germogli freschi.' },
-    ],
-  },
-  {
-    category: 'Dolci & Bevande Fresche',
-    items: [
-      { name: 'Tiramisù della Casa', desc: 'Il classico dolce italiano con savoiardi bagnati nel caffè espresso, crema al mascarpone e cacao.' },
-      { name: 'Mango Sticky Rice', desc: 'Il dolce thai più amato: mango dolce maturo servito con riso glutinosre tiepido e latte di cocco.' },
-      { name: 'Fresh Coconut Shake', desc: 'Frullato cremoso a base di acqua e polpa di cocco fresco dell\'isola, super rinfrescante.' },
-    ],
-  },
+const menuPages = [
+  { file: '01 - Cover.jpg', title: 'Flower Power Menu' },
+  { file: '02 - Coffee.jpg', title: 'Caffetteria' },
+  { file: '03 - Drinks.jpg', title: 'Bevande & Cocktails' },
+  { file: '04 - Bruschetta.jpg', title: 'Antipasti & Bruschette' },
+  { file: '05 - Pasta.jpg', title: 'Primi Piatti (Pasta)' },
+  { file: '06 - Focaccia.jpg', title: 'Le Nostre Focacce' },
+  { file: '07 - Sandwich.jpg', title: 'Panini & Sandwich' },
+  { file: '08 - Italian.jpg', title: 'Cucina Italiana' },
+  { file: '09 - Fish.jpg', title: 'Secondi di Pesce' },
+  { file: '10 - Fusion.jpg', title: 'Cucina Fusion' },
+  { file: '11 - Pizza.jpg', title: 'Le Nostre Pizze' },
+  { file: '12 - Myanmar.jpg', title: 'Specialità Birmane' },
+  { file: '13 - Thai.jpg', title: 'Cucina Thailandese' },
+  { file: '14 - Vegan.jpg', title: 'Opzioni Vegane' },
+  { file: '15 - BnB.jpg', title: 'Bed & Breakfast & Snack' },
+];
+
+const categories = [
+  { name: 'Flower Power Menu', pageIndex: 0 },
+  { name: 'Caffetteria & Drink', pageIndex: 1 },
+  { name: 'Antipasti & Primi', pageIndex: 3 },
+  { name: 'Pizze & Focacce', pageIndex: 5 },
+  { name: 'Cucina Internazionale', pageIndex: 6 },
+  { name: 'Cucina Orientale', pageIndex: 11 },
+  { name: 'Vegan & Snack', pageIndex: 13 },
 ];
 
 export default function RestaurantSection() {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [zoomScale, setZoomScale] = useState(1);
+
+  const getImageUrl = (fileName: string) => {
+    return `https://htmnjjzxpybpbumtbqic.supabase.co/storage/v1/object/public/Menu/${encodeURIComponent(fileName)}`;
+  };
+
+  const handlePrev = () => {
+    setCurrentPage((prev) => (prev === 0 ? menuPages.length - 1 : prev - 1));
+    setZoomScale(1);
+  };
+
+  const handleNext = () => {
+    setCurrentPage((prev) => (prev === menuPages.length - 1 ? 0 : prev + 1));
+    setZoomScale(1);
+  };
+
+  const handleCategoryClick = (pageIndex: number) => {
+    setCurrentPage(pageIndex);
+    setZoomScale(1);
+  };
+
+  const handleZoomIn = () => {
+    setZoomScale((prev) => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoomScale((prev) => Math.max(prev - 0.25, 1));
+  };
   return (
-    <section className="py-16 md:py-24 bg-stone-50">
+    <section className="py-8 md:py-12 bg-[#FAF6F0]">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center mb-16 lg:mb-20">
-          <div>
-            <p className="text-xs tracking-[0.4em] uppercase text-amber-600 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Autentica Cucina Italiana & Sapori Locali
-            </p>
-            <h2
-              className="text-stone-800 mb-5"
-              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2rem, 4vw, 3.2rem)', fontWeight: 300, lineHeight: 1.1 }}
-            >
-              L'Italia incontra le<br /><em>spiagge di Koh Phayam</em>
-            </h2>
-            <div className="w-10 h-px bg-amber-500 mb-6" />
-            <p className="text-stone-500 text-sm leading-relaxed mb-6">
-              Il ristorante del Flower Power è un crocevia di culture culinarie. Proponiamo piatti della tradizione italiana al 100% — con pizza cotta nel forno a legna e pasta fatta in casa — affiancati da specialità tipiche tailandesi e birmane e un intero menu dedicato a ricette vegane e salutari.
-            </p>
-            <div className="flex flex-wrap gap-6">
-              <div className="flex items-center gap-2 text-sm text-stone-600">
-                <Clock size={14} className="text-amber-600" />
+        <div className="bg-[#F3EAE0]/70 border border-[#E6DACF] rounded-3xl p-5 md:p-6 shadow-sm mb-6 flex flex-col md:flex-row items-center md:items-stretch gap-6 md:gap-8">
+          <img
+            src="https://htmnjjzxpybpbumtbqic.supabase.co/storage/v1/object/public/assets/logo_flower_power_pizza.png"
+            alt="Flower Power Pizza Logo"
+            className="w-24 h-24 md:w-28 md:h-28 object-contain flex-shrink-0 self-center hover:scale-105 transition-transform duration-300"
+          />
+          <div className="flex-1 text-center md:text-left flex flex-col justify-between">
+            <div>
+              <p className="text-[10px] tracking-[0.3em] uppercase text-amber-600 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>
+                Autentica Cucina Italiana & Sapori Locali
+              </p>
+              <h2
+                className="text-stone-850 mb-2 text-xl md:text-2xl font-light"
+                style={{ fontFamily: 'Outfit, sans-serif' }}
+              >
+                L'Italia incontra le <em>spiagge di Koh Phayam</em>
+              </h2>
+              <p className="text-stone-550 text-xs leading-relaxed mb-3">
+                Il ristorante del Flower Power è un crocevia di culture culinarie. Proponiamo piatti della tradizione italiana al 100% — con pizza cotta nel forno a legna e pasta fatta in casa — affiancati da specialità tipiche tailandesi e birmane e un intero menu dedicato a ricette vegane e salutari.
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center md:justify-start gap-4">
+              <div className="flex items-center gap-1.5 text-xs text-stone-600">
+                <Clock size={12} className="text-amber-600" />
                 <span>08:00 – 21:15 daily</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-stone-600">
-                <UtensilsCrossed size={14} className="text-amber-600" />
+              <div className="flex items-center gap-1.5 text-xs text-stone-600">
+                <UtensilsCrossed size={12} className="text-amber-600" />
                 <span>Breakfast · Lunch · Dinner</span>
               </div>
             </div>
           </div>
-          {/* Contenitore immagini: su mobile layout verticale, su desktop overlay */}
-          <div className="relative mt-8 lg:mt-0">
-            <img
-              src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800"
-              alt="Italian cuisine"
-              className="w-full aspect-[4/3] object-cover"
-            />
-            {/* Immagine secondaria: visibile su mobile sotto la principale, su lg in overlay */}
-            <div className="flex lg:hidden mt-3 gap-3">
+        </div>
+
+        {/* Digital Menu Book Section */}
+        <div className="mt-8 bg-[#F3EAE0]/40 border border-[#E6DACF] rounded-3xl p-5 md:p-6 shadow-sm">
+          <div className="text-center mb-5">
+            <h3
+              className="text-stone-850 mb-2 text-2xl md:text-3xl font-semibold tracking-tight uppercase"
+              style={{ fontFamily: 'Outfit, sans-serif' }}
+            >
+              Sfoglia il Nostro <span className="text-amber-700 font-bold">Menù Digitale</span>
+            </h3>
+            <p className="text-stone-550 text-xs max-w-lg mx-auto">
+              Clicca sulle categorie in alto per saltare direttamente alle sezioni, usa le frecce per sfogliare le pagine, o tocca l'immagine per aprirla a schermo intero.
+            </p>
+          </div>
+
+          {/* Quick Categories Navigation */}
+          <div className="flex flex-wrap justify-center gap-2 mb-5 pb-3 border-b border-stone-150">
+            {categories.map((cat, idx) => {
+              const isActive = currentPage === cat.pageIndex;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => handleCategoryClick(cat.pageIndex)}
+                  className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all duration-300 ${
+                    isActive
+                      ? 'bg-amber-600 text-white shadow-sm'
+                      : 'bg-stone-100 hover:bg-stone-200 text-stone-750'
+                  }`}
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Main Book Viewer */}
+          <div className="relative max-w-2xl mx-auto border border-stone-250 bg-stone-100/50 rounded-2xl p-2 shadow-inner flex flex-col items-center">
+            {/* Viewport page container */}
+            <div className="relative w-full aspect-[1/1.4] overflow-hidden rounded-xl bg-white shadow-md group">
               <img
-                src="https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=400"
-                alt="Wood fired pizza"
-                className="w-1/3 aspect-square object-cover border-2 border-white shadow-md"
+                src={getImageUrl(menuPages[currentPage].file)}
+                alt={menuPages[currentPage].title}
+                className="w-full h-full object-contain select-none"
               />
-              <p className="text-stone-400 text-xs leading-relaxed self-center italic">
-                Autentica pizza cotta nel forno a legna — una tradizione napoletana sull'isola di Koh Phayam.
-              </p>
+              
+              {/* Image Interaction Layer */}
+              <div 
+                onClick={() => setIsLightboxOpen(true)}
+                className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300 cursor-zoom-in flex items-center justify-center"
+              >
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 text-white text-xs px-4 py-2 rounded-xl flex items-center gap-2 backdrop-blur-sm border border-white/20">
+                  <Maximize2 size={12} />
+                  <span>Schermo Intero</span>
+                </div>
+              </div>
             </div>
-            <img
-              src="https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=400"
-              alt="Wood fired pizza"
-              className="absolute -bottom-8 -left-8 w-40 h-40 object-cover border-4 border-white shadow-xl hidden lg:block"
-            />
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between w-full mt-4 px-2">
+              <button
+                onClick={handlePrev}
+                className="p-3 bg-stone-850 hover:bg-stone-900 text-white rounded-xl transition-colors duration-300 shadow-md"
+              >
+                <ChevronLeft size={18} />
+              </button>
+
+              <div className="text-center">
+                <span className="text-xs uppercase tracking-[0.25em] text-amber-700 font-bold block mb-0.5">
+                  {menuPages[currentPage].title}
+                </span>
+                <span className="text-[11px] text-stone-500 font-medium">
+                  Pagina {currentPage + 1} di {menuPages.length}
+                </span>
+              </div>
+
+              <button
+                onClick={handleNext}
+                className="p-3 bg-stone-850 hover:bg-stone-900 text-white rounded-xl transition-colors duration-300 shadow-md"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+          </div>
+
+          {/* Thumbnail preview strip */}
+          <div className="mt-6">
+            <h4 className="text-center text-xs text-stone-500 font-semibold mb-2.5 uppercase tracking-wider">Tutte le Pagine</h4>
+            <div className="flex gap-3 overflow-x-auto pb-4 pt-1 px-2 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
+              {menuPages.map((page, idx) => {
+                const isActive = currentPage === idx;
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => { setCurrentPage(idx); setZoomScale(1); }}
+                    className={`flex-shrink-0 w-16 aspect-[1/1.4] rounded-lg overflow-hidden border-2 transition-all duration-300 shadow-sm ${
+                      isActive ? 'border-amber-600 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={getImageUrl(page.file)}
+                      alt={page.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Menu highlights */}
-        <div className="mt-16">
-          <h3
-            className="text-center text-stone-700 mb-10"
-            style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.8rem', fontWeight: 300 }}
-          >
-            Menu Highlights
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
-            {menu.map((cat, i) => (
-              <div key={i} className="bg-white p-6 md:p-8 border border-stone-100">
-                <h4
-                  className="text-amber-700 mb-5 pb-3 border-b border-stone-100"
-                  style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.1rem', fontWeight: 400, letterSpacing: '0.05em' }}
-                >
-                  {cat.category}
-                </h4>
-                <ul className="space-y-5">
-                  {cat.items.map((item, j) => (
-                    <li key={j}>
-                      <p className="text-stone-800 text-sm font-medium mb-0.5">{item.name}</p>
-                      <p className="text-stone-400 text-xs leading-relaxed">{item.desc}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-stone-400 text-xs mt-8 italic">
-            Menu items are indicative. Seasonal availability may vary. Ask our team for daily specials.
-          </p>
-        </div>
+        {/* Informative Note Footer */}
+        <p className="text-center text-stone-400 text-xs mt-6 italic">
+          Le proposte ed i prezzi del menù sono soggetti a variazioni in base alla stagionalità ed alla reperibilità degli ingredienti locali freschi dell'isola.
+        </p>
       </div>
+
+      {/* Lightbox / Zoomable Fullscreen Modal */}
+      {isLightboxOpen && (
+        <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col justify-between p-4 md:p-6 backdrop-blur-md">
+          {/* Lightbox Topbar */}
+          <div className="flex items-center justify-between text-white w-full max-w-7xl mx-auto border-b border-white/10 pb-3">
+            <div>
+              <h4 className="text-sm font-semibold tracking-wide text-amber-500">{menuPages[currentPage].title}</h4>
+              <p className="text-[10px] text-stone-400">Pagina {currentPage + 1} di {menuPages.length}</p>
+            </div>
+            
+            {/* Zoom & Action Controls */}
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handleZoomOut} 
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200"
+                title="Zoom Out"
+              >
+                <ZoomOut size={16} />
+              </button>
+              <span className="text-xs text-stone-400 font-mono w-10 text-center">
+                {Math.round(zoomScale * 100)}%
+              </span>
+              <button 
+                onClick={handleZoomIn} 
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200"
+                title="Zoom In"
+              >
+                <ZoomIn size={16} />
+              </button>
+              <div className="w-px h-5 bg-white/10 mx-1" />
+              <button
+                onClick={() => { setIsLightboxOpen(false); setZoomScale(1); }}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200 text-stone-300 hover:text-white"
+                title="Chiudi"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Lightbox Main Container */}
+          <div className="flex-1 w-full flex items-center justify-center overflow-hidden my-4 relative">
+            {/* Nav Arrows inside modal */}
+            <button
+              onClick={handlePrev}
+              className="absolute left-2 md:left-6 z-10 p-3.5 bg-black/60 hover:bg-black/95 text-white rounded-full border border-white/10 transition-colors shadow-lg"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            <div className="w-full h-full max-w-3xl flex items-center justify-center p-2 md:p-6 overflow-auto">
+              <div 
+                className="transition-transform duration-200 ease-out max-h-full aspect-[1/1.4] relative flex justify-center items-center"
+                style={{ transform: `scale(${zoomScale})` }}
+              >
+                <img
+                  src={getImageUrl(menuPages[currentPage].file)}
+                  alt={menuPages[currentPage].title}
+                  className="max-w-full max-h-[80vh] object-contain rounded shadow-2xl"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleNext}
+              className="absolute right-2 md:right-6 z-10 p-3.5 bg-black/60 hover:bg-black/95 text-white rounded-full border border-white/10 transition-colors shadow-lg"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+
+          {/* Lightbox Footer Navigation */}
+          <div className="w-full max-w-4xl mx-auto flex gap-2 overflow-x-auto py-2 border-t border-white/10 px-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+            {menuPages.map((page, idx) => {
+              const isActive = currentPage === idx;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => { setCurrentPage(idx); setZoomScale(1); }}
+                  className={`flex-shrink-0 w-12 aspect-[1/1.4] rounded overflow-hidden border-2 transition-all duration-300 ${
+                    isActive ? 'border-amber-500 scale-105 shadow-lg' : 'border-transparent opacity-40 hover:opacity-85'
+                  }`}
+                >
+                  <img
+                    src={getImageUrl(page.file)}
+                    alt={page.title}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

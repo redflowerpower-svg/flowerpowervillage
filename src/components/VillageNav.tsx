@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
 import { Menu, X, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   activePage: string;
@@ -12,106 +12,132 @@ const navItems = [
   { label: 'Ristorante & Pizzeria', id: 'restaurant' },
   { label: 'Spa', id: 'spa' },
   { label: 'Galleria', id: 'gallery' },
-  { label: 'Come raggiungerci', id: 'directions' },
+  { label: 'Come Raggiungerci', id: 'directions' },
   { label: 'Contatti', id: 'contact' },
 ];
 
 export default function VillageNav({ activePage, onNavigate }: Props) {
   const navigate = useNavigate();
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 60);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleNavClick = (id: string) => {
+    onNavigate(id);
+    setMenuOpen(false);
+  };
+
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
-        style={{
-          background: scrolled ? 'rgba(255,255,255,0.97)' : 'transparent',
-          backdropFilter: scrolled ? 'blur(12px)' : 'none',
-          borderBottom: scrolled ? '1px solid rgba(0,0,0,0.08)' : 'none',
-          boxShadow: scrolled ? '0 1px 20px rgba(0,0,0,0.08)' : 'none',
-        }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          scrolled
+            ? 'bg-[#3b3530]/95 backdrop-blur-md shadow-md border-b border-stone-700/50 py-3'
+            : 'bg-[#3b3530] border-b border-stone-800 py-4'
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <button
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-xs tracking-widest uppercase transition-colors duration-200 hover:opacity-70"
-            style={{ color: scrolled ? '#78716c' : 'rgba(255,255,255,0.8)', fontFamily: 'Inter, sans-serif' }}
-          >
-            <ArrowLeft size={14} />
-            <span className="hidden sm:inline">Home</span>
-          </button>
-
-          <button
-            onClick={() => onNavigate('accommodations')}
-            className="absolute left-1/2 -translate-x-1/2 text-center"
-          >
-            <div
-              className="text-sm font-light tracking-[0.2em] uppercase leading-tight transition-colors duration-300"
-              style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', color: scrolled ? '#44403c' : 'white', fontSize: 'clamp(0.6rem, 1.5vw, 0.75rem)' }}
+        <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
+          {/* Logo / Brand Name & Back to SplitScreen */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-1.5 text-stone-400 hover:text-white transition-colors duration-200 text-xs font-semibold uppercase tracking-wider cursor-pointer"
+              title="Torna alla Home"
             >
-              Flower Power
-              <br />
-              <span className="italic">Farm Village & Spa</span>
-            </div>
-          </button>
-
-          <div className="hidden lg:flex items-center gap-7">
-            {navItems.map(item => (
-              <button
-                key={item.id}
-                onClick={() => onNavigate(item.id)}
-                className="text-xs tracking-widest uppercase transition-all duration-200 hover:opacity-70 pb-0.5"
-                style={{
-                  color: scrolled ? (activePage === item.id ? '#44403c' : '#78716c') : 'rgba(255,255,255,0.85)',
-                  borderBottom: activePage === item.id ? `1px solid ${scrolled ? '#c5a572' : 'rgba(255,255,255,0.6)'}` : '1px solid transparent',
-                  fontFamily: 'Inter, sans-serif',
-                  fontWeight: 400,
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
+              <ArrowLeft size={16} />
+              <span className="hidden sm:inline">Home</span>
+            </button>
+            <div className="h-4 w-px bg-stone-700/60 hidden sm:block" />
+            <button
+              onClick={() => handleNavClick('accommodations')}
+              className="flex items-center gap-2 text-left cursor-pointer group"
+            >
+              <span className="font-sans font-black tracking-tight text-white text-base md:text-lg group-hover:text-emerald-400 transition-colors">
+                Flower Power <span className="font-light italic text-[#a2b997]">Village</span>
+              </span>
+            </button>
           </div>
 
+          {/* Desktop Nav Items */}
+          <div className="hidden md:flex items-center gap-6">
+            {navItems.map((item) => {
+              const isActive = activePage === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavClick(item.id)}
+                  className={`text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer pb-0.5 border-b-2 hover:text-white ${
+                    isActive
+                      ? 'text-emerald-400 border-emerald-400 font-bold'
+                      : 'text-stone-300 border-transparent hover:border-stone-400/50'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Mobile Hamburger Button */}
           <button
-            className="lg:hidden transition-colors duration-200"
-            style={{ color: scrolled ? '#44403c' : 'white' }}
+            className="md:hidden text-white hover:text-emerald-400 transition-colors cursor-pointer"
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
           >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </nav>
 
+      {/* Mobile Drawer Menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40 bg-stone-900 bg-opacity-97 flex flex-col items-center justify-center">
-          <button
-            className="absolute top-4 right-5 text-white w-11 h-11 flex items-center justify-center"
+        <>
+          {/* Backdrop Overlay */}
+          <div
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden animate-fadeIn"
             onClick={() => setMenuOpen(false)}
-            aria-label="Chiudi menu"
-          >
-            <X size={24} />
-          </button>
-          <div className="flex flex-col items-center gap-7 px-6 w-full max-w-xs">
-            {navItems.map(item => (
+          />
+          {/* Drawer Panel */}
+          <div className="fixed top-0 right-0 bottom-0 z-50 w-72 bg-[#3b3530] border-l border-stone-700 p-6 flex flex-col shadow-2xl md:hidden animate-slideLeft">
+            <div className="flex items-center justify-between border-b border-stone-700/50 pb-4 mb-6">
+              <span className="font-sans font-black text-white text-md">
+                Menu
+              </span>
               <button
-                key={item.id}
-                onClick={() => { onNavigate(item.id); setMenuOpen(false); }}
-                className="text-white text-xl tracking-[0.25em] uppercase font-light hover:opacity-60 transition-opacity py-1 w-full text-center"
-                style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}
+                onClick={() => setMenuOpen(false)}
+                className="text-stone-400 hover:text-white cursor-pointer"
               >
-                {item.label}
+                <X size={22} />
               </button>
-            ))}
+            </div>
+
+            <div className="flex flex-col gap-4">
+              {navItems.map((item) => {
+                const isActive = activePage === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`text-left text-sm font-semibold uppercase tracking-wider py-2.5 px-3 rounded-xl transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-emerald-800/40 text-emerald-400 font-bold border-l-4 border-emerald-400'
+                        : 'text-stone-300 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );

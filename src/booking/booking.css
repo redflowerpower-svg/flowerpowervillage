@@ -1,0 +1,190 @@
+/* =============================================================================
+   BOOKING ENGINE — CSS ISOLATO
+   Questo file ripristina esattamente l'ambiente grafico originale di
+   Booking_Engine_Drawers, isolando il Booking Engine dai conflitti con
+   il sito madre (font, variabili CSS, animazioni).
+   La classe .booking-engine-root fa da boundary scope.
+   ============================================================================= */
+
+/* Import font originale del Booking Engine */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* ─── CSS Design Tokens (shadcn/ui vars) originali del Booking Engine ─── */
+.booking-engine-root {
+  /* Warm Gray Relaxing Theme */
+  --background: 33 5% 90%;
+  --foreground: 33 10% 15%;
+
+  --card: 33 5% 97%;
+  --card-foreground: 33 10% 15%;
+
+  --popover: 33 5% 95%;
+  --popover-foreground: 33 10% 15%;
+
+  --primary: 160 40% 30%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 33 5% 90%;
+  --secondary-foreground: 33 10% 15%;
+
+  --muted: 33 5% 85%;
+  --muted-foreground: 33 5% 45%;
+
+  --accent: 160 20% 92%;
+  --accent-foreground: 160 40% 25%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 33 5% 82%;
+  --input: 33 5% 90%;
+  --ring: 160 40% 30%;
+
+  --radius: 0.75rem;
+
+  /* Reset font al corretto Outfit (sovrascrive Inter/Cormorant del sito madre) */
+  font-family: 'Outfit', system-ui, sans-serif !important;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* Propaga font a tutti i discendenti diretti */
+.booking-engine-root *,
+.booking-engine-root *::before,
+.booking-engine-root *::after {
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* Override esplicito sugli elementi più sensibili al font */
+.booking-engine-root h1,
+.booking-engine-root h2,
+.booking-engine-root h3,
+.booking-engine-root h4,
+.booking-engine-root h5,
+.booking-engine-root h6,
+.booking-engine-root p,
+.booking-engine-root span,
+.booking-engine-root button,
+.booking-engine-root input,
+.booking-engine-root label,
+.booking-engine-root a {
+  font-family: 'Outfit', system-ui, sans-serif !important;
+}
+
+/* ─── Animazioni originali del Booking Engine ─── */
+
+/* Animazione di apertura del calendario (fadeIn) */
+@keyframes booking-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.booking-engine-root .animate-fadeIn {
+  animation: booking-fadeIn 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Green Glow Calendar Highlight Animation (pulse-highlight) */
+@keyframes booking-pulse-highlight {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(16, 185, 129, 0.4);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    transform: scale(1);
+  }
+}
+
+.booking-engine-root .pulse-highlight,
+#booking-search-form.pulse-highlight {
+  animation: booking-pulse-highlight 1s ease-in-out 2;
+  outline: 2px solid rgba(16, 185, 129, 0.5);
+  transition: all 0.3s ease-in-out;
+}
+
+/* ─── Glassmorphism utilities ─── */
+.booking-engine-root .glass-badge {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.booking-engine-root .glass-badge-dark {
+  background: rgba(28, 25, 23, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ─── No scrollbar utilities ─── */
+.booking-engine-root .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.booking-engine-root .no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ─── Tailwind CSS vars mapping (bg-background, text-foreground, bg-primary, ecc.) ─── */
+/* 
+  Tailwind nel sito madre non conosce queste utility vars.
+  Le definiamo esplicitamente come fallback scoped.
+*/
+.booking-engine-root .bg-background  { background-color: hsl(33 5% 90%) !important; }
+.booking-engine-root .text-foreground { color: hsl(33 10% 15%) !important; }
+.booking-engine-root .bg-primary      { background-color: hsl(160 40% 30%) !important; }
+.booking-engine-root .text-primary    { color: hsl(160 40% 30%) !important; }
+.booking-engine-root .border-primary  { border-color: hsl(160 40% 30%) !important; }
+.booking-engine-root .bg-primary\/10  { background-color: hsla(160, 40%, 30%, 0.1) !important; }
+.booking-engine-root .text-primary-foreground { color: hsl(0 0% 100%) !important; }
+.booking-engine-root .bg-secondary    { background-color: hsl(33 5% 90%) !important; }
+.booking-engine-root .bg-muted        { background-color: hsl(33 5% 85%) !important; }
+.booking-engine-root .text-muted-foreground { color: hsl(33 5% 45%) !important; }
+.booking-engine-root .bg-accent       { background-color: hsl(160 20% 92%) !important; }
+.booking-engine-root .text-accent-foreground { color: hsl(160 40% 25%) !important; }
+.booking-engine-root .selection\:bg-accent *::selection { background-color: hsl(160 20% 92%); }
+.booking-engine-root .bg-card         { background-color: hsl(33 5% 97%) !important; }
+.booking-engine-root .text-card-foreground { color: hsl(33 10% 15%) !important; }
+.booking-engine-root .bg-popover      { background-color: hsl(33 5% 95%) !important; }
+.booking-engine-root .bg-border       { background-color: hsl(33 5% 82%) !important; }
+.booking-engine-root .border-border   { border-color: hsl(33 5% 82%) !important; }
+.booking-engine-root .border-input    { border-color: hsl(33 5% 90%) !important; }
+.booking-engine-root .bg-input        { background-color: hsl(33 5% 90%) !important; }
+.booking-engine-root .ring-ring       { --tw-ring-color: hsl(160 40% 30%) !important; }
+
+/* Border radius CSS var */
+.booking-engine-root .rounded-lg  { border-radius: 0.75rem !important; }
+.booking-engine-root .rounded-md  { border-radius: calc(0.75rem - 2px) !important; }
+.booking-engine-root .rounded-sm  { border-radius: calc(0.75rem - 4px) !important; }
+
+/* ─── Scrollbar scoped (sovrascrive quella globale del sito madre) ─── */
+.booking-engine-root ::-webkit-scrollbar {
+  width: 6px;
+}
+.booking-engine-root ::-webkit-scrollbar-track {
+  background: hsl(33 5% 85%);
+}
+.booking-engine-root ::-webkit-scrollbar-thumb {
+  background: hsl(160 40% 50%);
+  border-radius: 3px;
+}
+
+/* ─── Isolation: previene che le regole globali (font-serif, .font-display) 
+       del sito madre penetrino nel booking engine ─── */
+.booking-engine-root .font-serif,
+.booking-engine-root .font-display {
+  font-family: 'Outfit', system-ui, sans-serif !important;
+}
+

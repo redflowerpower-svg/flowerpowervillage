@@ -49,13 +49,13 @@ export default function GallerySection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 md:mb-14">
           <p className="text-xs tracking-[0.4em] uppercase text-amber-600 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
-            Photo Gallery
+            Galleria Fotografica
           </p>
           <h2
-            className="text-stone-800 mb-4"
-            style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 300 }}
+            className="text-stone-850 mb-4"
+            style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 300 }}
           >
-            Life at Flower Power
+            La Vita al Flower Power
           </h2>
           <div className="w-12 h-px bg-amber-500 mx-auto" />
         </div>
@@ -65,12 +65,12 @@ export default function GallerySection() {
           {images.map((img, i) => (
             <div
               key={i}
-              className={`${img.spanMd} overflow-hidden group cursor-pointer aspect-square md:aspect-auto`}
+              className={`${img.spanMd} overflow-hidden group cursor-pointer aspect-square md:aspect-auto rounded-xl`}
             >
               <img
                 src={img.src}
                 alt={img.alt}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 rounded-xl"
               />
             </div>
           ))}
@@ -81,10 +81,10 @@ export default function GallerySection() {
             href="https://www.instagram.com/flowerpowerphayam"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-stone-500 hover:text-amber-600 transition-colors border-b border-stone-200 hover:border-amber-400 pb-1"
+            className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-stone-500 hover:text-amber-600 transition-colors border-b border-stone-200 hover:border-amber-400 pb-1 font-semibold"
             style={{ fontFamily: 'Inter, sans-serif' }}
           >
-            Follow @flowerpowerphayam on Instagram
+            Segui @flowerpowerphayam su Instagram
           </a>
         </div>
       </div>

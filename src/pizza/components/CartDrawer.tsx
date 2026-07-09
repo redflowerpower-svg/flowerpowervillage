@@ -3,109 +3,155 @@ import { useCartStore, calcItemTotal } from '../store/cartStore';
 
 interface Props {
   onCheckout: () => void;
+  lang: 'IT' | 'EN' | 'TH' | 'DE';
 }
 
-export default function CartDrawer({ onCheckout }: Props) {
+const labels = {
+  IT: {
+    title: 'Il Tuo Ordine',
+    emptyTitle: 'Il tuo carrello è vuoto',
+    emptyDesc: 'Aggiungi le nostre specialità dal menu online',
+    totalText: 'Totale Ordine',
+    checkoutBtn: 'Procedi al Checkout',
+    footerInfo: 'Pagamento tramite PromptPay • Carica screenshot di conferma',
+  },
+  EN: {
+    title: 'Your Order',
+    emptyTitle: 'Your cart is empty',
+    emptyDesc: 'Add items from our online menu',
+    totalText: 'Order Total',
+    checkoutBtn: 'Proceed to Checkout',
+    footerInfo: 'Payment via PromptPay • Upload confirmation screenshot',
+  },
+  TH: {
+    title: 'รายการของคุณ',
+    emptyTitle: 'ไม่มีสินค้าในตะกร้า',
+    emptyDesc: 'เพิ่มเมนูอร่อยจากเมนูออนไลน์ของเรา',
+    totalText: 'ยอดรวมทั้งหมด',
+    checkoutBtn: 'ดำเนินการชำระเงิน',
+    footerInfo: 'ชำระเงินผ่าน PromptPay • โปรดอัปโหลดภาพหน้าจอเพื่อยืนยัน',
+  },
+  DE: {
+    title: 'Ihre Bestellung',
+    emptyTitle: 'Ihr Warenkorb ist leer',
+    emptyDesc: 'Fügen Sie Spezialitäten aus unserer Online-Speisekarte hinzu',
+    totalText: 'Gesamtsumme',
+    checkoutBtn: 'Zur Kasse gehen',
+    footerInfo: 'Zahlung per PromptPay • Quittungs-Screenshot hochladen',
+  },
+};
+
+export default function CartDrawer({ onCheckout, lang }: Props) {
   const { items, isOpen, closeCart, removeItem, updateQuantity, getTotal } = useCartStore();
   const total = getTotal();
+  const t = labels[lang];
+
+  const getTranslatedName = (o: { name: string; nameTh?: string }) => {
+    if (lang === 'TH' && o.nameTh) return o.nameTh;
+    return o.name;
+  };
 
   return (
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-40"
-          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(2px)' }}
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm animate-fadeIn"
           onClick={closeCart}
         />
       )}
 
       <div
-        className="fixed top-0 right-0 h-full z-50 flex flex-col w-full max-w-[420px]"
+        className="fixed top-0 right-0 h-full z-50 flex flex-col w-full max-w-[420px] bg-stone-50 border-l border-stone-300 shadow-2xl transition-transform duration-300 ease-out"
         style={{
-          background: '#1c1917',
-          borderLeft: '1px solid rgba(255,255,255,0.08)',
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1)',
         }}
       >
-        <div className="flex items-center justify-between px-4 sm:px-6 py-5 border-b border-stone-800">
+        {/* DRAWER HEADER */}
+        <div className="flex items-center justify-between px-5 py-5 border-b border-stone-200 bg-white">
           <div className="flex items-center gap-2">
-            <ShoppingBag size={18} className="text-red-500" />
-            <span className="text-white text-sm tracking-widest uppercase" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Your Order
+            <ShoppingBag size={18} className="text-[#8B1E1E]" />
+            <span className="text-stone-850 text-xs sm:text-sm font-bold tracking-widest uppercase" style={{ fontFamily: 'Inter, sans-serif' }}>
+              {t.title}
             </span>
             {items.length > 0 && (
-              <span className="w-5 h-5 rounded-full bg-red-700 flex items-center justify-center text-white text-xs">
+              <span className="w-5 h-5 rounded-full bg-[#8B1E1E] flex items-center justify-center text-white text-[10px] font-extrabold ml-1">
                 {items.length}
               </span>
             )}
           </div>
-          <button onClick={closeCart} className="text-stone-500 hover:text-white transition-colors">
-            <X size={20} />
+          <button
+            onClick={closeCart}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-705 hover:bg-stone-100 transition-all cursor-pointer"
+          >
+            <X size={18} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4">
+        {/* DRAWER CONTENT */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
           {items.length === 0 ? (
-            <div className="text-center py-20">
-              <ShoppingBag size={36} className="text-stone-700 mx-auto mb-4" />
-              <p className="text-stone-500 text-sm">Your cart is empty</p>
-              <p className="text-stone-600 text-xs mt-1">Add items from our menu</p>
+            <div className="text-center py-24 px-4">
+              <ShoppingBag size={44} className="text-stone-300 mx-auto mb-4" />
+              <p className="text-stone-600 text-sm font-semibold">{t.emptyTitle}</p>
+              <p className="text-stone-400 text-xs mt-1">{t.emptyDesc}</p>
             </div>
           ) : (
             items.map((item) => {
               const lineTotal = calcItemTotal(item);
               return (
-                <div key={item.cartId} className="border border-stone-800 p-4">
+                <div key={item.cartId} className="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm">
                   <div className="flex gap-3">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover flex-shrink-0" />
+                    <img src={item.image} alt={getTranslatedName(item)} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className="text-white text-sm" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1rem' }}>
-                            {item.name}
+                          <p className="text-stone-850 font-bold text-sm leading-snug" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.05rem' }}>
+                            {getTranslatedName(item)}
                           </p>
-                          <p className="text-stone-500 text-xs">{item.nameTh}</p>
                         </div>
-                        <button onClick={() => removeItem(item.cartId)} className="text-stone-600 hover:text-red-500 transition-colors flex-shrink-0 mt-0.5">
+                        <button
+                          onClick={() => removeItem(item.cartId)}
+                          className="text-stone-400 hover:text-[#8B1E1E] transition-colors flex-shrink-0 p-1 hover:bg-stone-50 rounded cursor-pointer"
+                        >
                           <Trash2 size={14} />
                         </button>
                       </div>
 
                       {item.selectedVariant && (
-                        <p className="text-stone-500 text-xs mt-1">
-                          {item.selectedVariant.name}
-                          {item.selectedVariant.priceModifier > 0 && ` +${item.selectedVariant.priceModifier}฿`}
+                        <p className="text-stone-500 text-xs mt-1.5 font-medium">
+                          Size: {getTranslatedName(item.selectedVariant)}
+                          {item.selectedVariant.priceModifier > 0 && ` (+${item.selectedVariant.priceModifier} ฿)`}
                         </p>
                       )}
 
                       {item.selectedExtras.length > 0 && (
-                        <div className="mt-1 space-y-0.5">
+                        <div className="mt-1.5 space-y-0.5">
                           {item.selectedExtras.map((e) => (
-                            <p key={e.id} className="text-stone-600 text-xs">
-                              + {e.name} {e.price > 0 ? `+${e.price}฿` : ''}
+                            <p key={e.id} className="text-stone-400 text-xs font-normal">
+                              + {getTranslatedName(e)} {e.price > 0 ? `(+${e.price} ฿)` : ''}
                             </p>
                           ))}
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-stone-100">
+                        {/* Quantity selector */}
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
-                            className="w-6 h-6 border border-stone-700 flex items-center justify-center text-stone-400 hover:border-red-700 hover:text-red-400 transition-all"
+                            className="w-6.5 h-6.5 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-500 hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 active:scale-95 transition-all cursor-pointer"
                           >
                             <Minus size={10} />
                           </button>
-                          <span className="text-white text-xs w-4 text-center">{item.quantity}</span>
+                          <span className="text-stone-850 font-bold text-xs w-4 text-center">{item.quantity}</span>
                           <button
                             onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
-                            className="w-6 h-6 border border-stone-700 flex items-center justify-center text-stone-400 hover:border-red-700 hover:text-red-400 transition-all"
+                            className="w-6.5 h-6.5 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-500 hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 active:scale-95 transition-all cursor-pointer"
                           >
                             <Plus size={10} />
                           </button>
                         </div>
-                        <p className="text-red-400 text-sm">{lineTotal} ฿</p>
+                        <p className="text-[#8B1E1E] font-extrabold text-sm">{lineTotal} ฿</p>
                       </div>
                     </div>
                   </div>
@@ -115,25 +161,27 @@ export default function CartDrawer({ onCheckout }: Props) {
           )}
         </div>
 
+        {/* DRAWER FOOTER */}
         {items.length > 0 && (
-          <div className="border-t border-stone-800 px-4 sm:px-6 py-5 space-y-4">
+          <div className="border-t border-stone-200 px-5 py-5 space-y-4 bg-white">
             <div className="flex justify-between items-center gap-2">
-              <span className="text-stone-400 text-xs uppercase tracking-widest flex-shrink-0" style={{ fontFamily: 'Inter, sans-serif' }}>
-                Total
+              <span className="text-stone-500 text-xs uppercase tracking-widest flex-shrink-0" style={{ fontFamily: 'Inter, sans-serif' }}>
+                {t.totalText}
               </span>
-              <span className="text-white text-lg font-light text-right" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
+              <span className="text-[#8B1E1E] text-xl font-extrabold text-right" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
                 {total} ฿
               </span>
             </div>
+            
             <button
               onClick={() => { closeCart(); onCheckout(); }}
-              className="w-full py-4 bg-red-700 text-white text-xs tracking-widest uppercase hover:bg-red-800 transition-colors"
+              className="w-full py-3.5 bg-[#8B1E1E] hover:bg-[#721818] text-white text-xs tracking-widest uppercase font-bold rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer duration-200 transform active:scale-[0.98]"
               style={{ fontFamily: 'Inter, sans-serif' }}
             >
-              Proceed to Checkout
+              {t.checkoutBtn}
             </button>
-            <p className="text-center text-stone-600 text-xs">
-              Payment via PromptPay · Photo confirmation required
+            <p className="text-center text-stone-400 text-[10px] leading-relaxed">
+              {t.footerInfo}
             </p>
           </div>
         )}

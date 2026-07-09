@@ -1,13 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Sito madre: variabili font ─── */
 :root {
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* ─── Booking Engine: CSS design tokens (shadcn/ui) ─── */
+/* Definiti in :root per renderli disponibili alle utility Tailwind generate dal build */
+:root {
+  --background: 33 5% 90%;
+  --foreground: 33 10% 15%;
+  --card: 33 5% 97%;
+  --card-foreground: 33 10% 15%;
+  --popover: 33 5% 95%;
+  --popover-foreground: 33 10% 15%;
+  --primary: 160 40% 30%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 33 5% 90%;
+  --secondary-foreground: 33 10% 15%;
+  --muted: 33 5% 85%;
+  --muted-foreground: 33 5% 45%;
+  --accent: 160 20% 92%;
+  --accent-foreground: 160 40% 25%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 33 5% 82%;
+  --input: 33 5% 90%;
+  --ring: 160 40% 30%;
+  --radius: 0.75rem;
 }
 
 * {
@@ -16,14 +42,14 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
   font-family: var(--font-sans);
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .font-serif {
@@ -34,7 +60,7 @@ body {
   font-family: var(--font-display);
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar (sito madre) */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -79,4 +105,18 @@ body {
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }
 .delay-400 { animation-delay: 0.4s; }
-.delay-500 { animation-delay: 0.5s; }
+.delay-550 { animation-delay: 0.55s; }
+
+/* Custom navigation drawer animations */
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-slideLeft {
+  animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
