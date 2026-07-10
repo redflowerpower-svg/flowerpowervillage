@@ -91,7 +91,7 @@ export interface OAuthTokens {
 
 let cachedTokens: OAuthTokens | null = null;
 
-async function getStoredTokens(): Promise<OAuthTokens | null> {
+export async function getStoredTokens(): Promise<OAuthTokens | null> {
   if (cachedTokens) return cachedTokens;
 
   try {

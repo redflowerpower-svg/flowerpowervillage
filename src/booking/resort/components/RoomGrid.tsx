@@ -116,64 +116,63 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
 
   // Load live prices from Octorate (mock API routes)
   useEffect(() => {
-    const rawTokens = localStorage.getItem('octorate_tokens');
-    if (rawTokens) {
-      try {
-        const tokens = JSON.parse(rawTokens);
-        const structureId = import.meta.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
-        console.log(`[Octorate Debug] Fetching roomrates for structure ID: ${structureId}`);
-        
-        const fetchRates = async () => {
-          let res = await fetch(`/api-octorate/connect/rest/v1/roomrates/${structureId}`, {
-            headers: {
-              "Accept": "application/json",
-              "Authorization": `Bearer ${tokens.access_token}`,
-            },
-          });
-          
-          if (res.status === 401 || res.status === 403) {
-            console.log("[Octorate Debug] Roomrates fetch returned 401/403, attempting to refresh token...");
-            try {
-              const { refreshAccessToken } = await import('../../lib/octorate');
-              const newTokens = await refreshAccessToken();
-              res = await fetch(`/api-octorate/connect/rest/v1/roomrates/${structureId}`, {
-                headers: {
-                  "Accept": "application/json",
-                  "Authorization": `Bearer ${newTokens.access_token}`,
-                },
-              });
-            } catch (refreshErr) {
-              console.error("[Octorate Debug] Failed to refresh token during roomrates fetch:", refreshErr);
-            }
-          }
-          
-          console.log(`[Octorate Debug] Response status: ${res.status}`);
-          if (!res.ok) {
-            throw new Error(`HTTP error! Status: ${res.status}`);
-          }
-          
-          const data = await res.json();
-          console.log("[Octorate Debug] Received roomrates data:", data);
-          if (Array.isArray(data)) {
-            setOctorateRooms(data);
-          } else {
-            console.warn("[Octorate Debug] Data is not an array:", data);
-          }
-        };
+    if (oauthConnected) {
+      const structureId = import.meta.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
+      console.log(`[Octorate Debug] Fetching roomrates for structure ID: ${structureId}`);
+      
+      const fetchRates = async () => {
+        const { getStoredTokens, refreshAccessToken } = await import('../../lib/octorate');
+        const tokens = await getStoredTokens();
+        if (!tokens) {
+          console.warn("[Octorate Debug] oauthConnected is true but getStoredTokens returned null");
+          return;
+        }
 
-        fetchRates().catch((err) => console.error("[Octorate Debug] Error loading roomrates:", err));
-      } catch (e) {
-        console.error("[Octorate Debug] Error parsing tokens:", e);
-      }
+        let res = await fetch(`/api-octorate/connect/rest/v1/roomrates/${structureId}`, {
+          headers: {
+            "Accept": "application/json",
+            "Authorization": `Bearer ${tokens.access_token}`,
+          },
+        });
+        
+        if (res.status === 401 || res.status === 403) {
+          console.log("[Octorate Debug] Roomrates fetch returned 401/403, attempting to refresh token...");
+          try {
+            const newTokens = await refreshAccessToken();
+            res = await fetch(`/api-octorate/connect/rest/v1/roomrates/${structureId}`, {
+              headers: {
+                "Accept": "application/json",
+                "Authorization": `Bearer ${newTokens.access_token}`,
+              },
+            });
+          } catch (refreshErr) {
+            console.error("[Octorate Debug] Failed to refresh token during roomrates fetch:", refreshErr);
+          }
+        }
+        
+        console.log(`[Octorate Debug] Response status: ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        console.log("[Octorate Debug] Received roomrates data:", data);
+        if (Array.isArray(data)) {
+          setOctorateRooms(data);
+        } else {
+          console.warn("[Octorate Debug] Data is not an array:", data);
+        }
+      };
+
+      fetchRates().catch((err) => console.error("[Octorate Debug] Error loading roomrates:", err));
     } else {
-      console.log("[Octorate Debug] No tokens found in localStorage");
+      console.log("[Octorate Debug] Octorate is not connected (oauthConnected is false)");
     }
   }, [oauthConnected]);
 
   // Load dynamic date-specific availability and pricing from Octorate
   useEffect(() => {
-    const rawTokens = localStorage.getItem('octorate_tokens');
-    if (rawTokens && checkIn && checkOut && stayDays > 0) {
+    if (oauthConnected && checkIn && checkOut && stayDays > 0) {
       console.log(`[Octorate Debug] Querying availability: CheckIn: ${checkIn}, CheckOut: ${checkOut}, Guests: ${guests}`);
       setLoadingAvailability(true);
       setAvailabilityChecked(false);
@@ -202,10 +201,10 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     } else {
       setAvailabilityResults([]);
       setIsOctorateOffline(false);
-      setAvailabilityChecked(false);
+      setAvailabilityChecked(checkIn && checkOut && stayDays > 0 ? true : false);
       setLoadingAvailability(false);
     }
-  }, [checkIn, checkOut, guests, stayDays]);
+  }, [oauthConnected, checkIn, checkOut, guests, stayDays]);
 
   // Gallery keyboard controls
   useEffect(() => {
@@ -740,7 +739,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
       </div>
 
       {/* OCTORATE DEV MAPPING HELPER */}
-      {localStorage.getItem('octorate_tokens') && (
+      {oauthConnected && (
         <div className="max-w-6xl mx-auto mt-8 p-6 bg-stone-900 border border-stone-850 rounded-3xl text-stone-300 shadow-xl">
           <div className="flex items-center justify-between border-b border-stone-800 pb-3 mb-4">
             <div className="flex items-center gap-2">

@@ -1509,8 +1509,8 @@ export default function BookingEngine() {
               <span className="text-[10px] text-emerald-600 font-semibold">API Octorate Connesse</span>
               <button
                 type="button"
-                onClick={() => {
-                  clearTokens();
+                onClick={async () => {
+                  await clearTokens();
                   window.location.reload();
                 }}
                 className="px-2 py-0.5 text-[9px] bg-red-800 hover:bg-red-750 text-white rounded transition-colors cursor-pointer font-bold ml-1"
