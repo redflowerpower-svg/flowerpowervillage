@@ -185,20 +185,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Discounted price per night
-    const discountedRoomPricePerNight = Math.round(baseRoomPricePerNight * (1 - discount));
-    const baseRoomTotal = discountedRoomPricePerNight * nights;
-
     // Extra guest calculation
     const extraGuestsCount = Math.min(room.maxExtraGuests, Math.max(0, guests - room.baseGuests));
-    const extraGuestsTotal = extraGuestsCount * PRICE_CONFIG.EXTRA_GUEST_PRICE * nights;
+    const extraGuestsTotalLordo = extraGuestsCount * PRICE_CONFIG.EXTRA_GUEST_PRICE * nights;
 
-    // Extras
+    // Room and extra guests total (Lordo)
+    const roomAndGuestsTotalLordo = (baseRoomPricePerNight * nights) + extraGuestsTotalLordo;
+
+    // Discount on room and extra guests
+    const discountAmount = Math.round(roomAndGuestsTotalLordo * discount);
+    const roomAndGuestsTotalNetto = roomAndGuestsTotalLordo - discountAmount;
+
+    // Extras (undiscounted)
     const breakfastTotal = extraBreakfast ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * nights) : 0;
     const acTotal = extraAC ? PRICE_CONFIG.AC_SURCHARGE : 0;
 
     // Grand final total
-    const finalTotal = baseRoomTotal + extraGuestsTotal + breakfastTotal + acTotal;
+    const finalTotal = roomAndGuestsTotalNetto + breakfastTotal + acTotal;
 
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({

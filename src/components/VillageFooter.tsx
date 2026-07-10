@@ -1,4 +1,4 @@
-import { Phone, Mail, Instagram, Facebook, MapPin } from 'lucide-react';
+import { Mail, Instagram, Facebook, MapPin } from 'lucide-react';
 
 const TiktokIcon = ({ className, size = 16 }: { className?: string; size?: number }) => (
   <svg

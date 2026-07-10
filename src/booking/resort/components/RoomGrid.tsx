@@ -395,24 +395,20 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
           const breakfastPrice = extras.breakfast ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * stayDays) : 0;
           const acPrice = extras.ac ? PRICE_CONFIG.AC_SURCHARGE : 0;
           
-          // Pricing hierarchy matching: Totale = ((Prezzo_Base * Notti) + Costi_Extra) * (1 - Sconto)
+          // Pricing hierarchy matching: apply discount only to room rate + extra guests. Breakfast and AC are added undiscounted.
           const discountRate = discountInfo.discount; // e.g. 0.10, 0.15, or 0.20
           
-          // Prezzo Base Lordo totalizzato per le notti
-          const baseRoomTotalLordo = pricing.basePriceLordo * stayDays;
+          // Room and extra guests total (Lordo)
+          const roomAndGuestsTotalLordo = (pricing.basePriceLordo + extraGuestsPricePerNight) * stayDays;
           
-          // Somma extra totali (inclusi ospiti aggiuntivi e servizi selezionati)
-          const extraCostsTotalLordo = extraGuestsPrice + breakfastPrice + acPrice;
+          // Discount on room and extra guests
+          const discountAmount = Math.round(roomAndGuestsTotalLordo * discountRate);
+          const roomAndGuestsTotalNetto = roomAndGuestsTotalLordo - discountAmount;
           
-          // Totale Lordo complessivo
-          const totalLordo = baseRoomTotalLordo + extraCostsTotalLordo;
-          
-          // Calcolo sconto del 10% (o sconti long-stay progressivi) sul totale lordo
-          const discountAmount = Math.round(totalLordo * discountRate);
-          const finalTotalPrice = totalLordo - discountAmount;
+          // Grand total with extras (breakfast and AC surcharges added undiscounted)
+          const finalTotalPrice = roomAndGuestsTotalNetto + breakfastPrice + acPrice;
           
           // Prezzo per notte scontato comprensivo di supplemento ospiti extra (per il compact view)
-          // (Prezzo_Base + Extra_Ospiti) * (1 - Sconto)
           const finalNightlyPrice = Math.round((pricing.basePriceLordo + extraGuestsPricePerNight) * (1 - discountRate));
           
           const pricingWithExtras = {
@@ -422,8 +418,9 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
             breakfast: breakfastPrice,
             ac: acPrice,
             total: finalTotalPrice,
+            roomAndGuestsTotalNetto: roomAndGuestsTotalNetto,
             discountAmount: discountAmount,
-            totalLordo: totalLordo
+            totalLordo: roomAndGuestsTotalLordo + breakfastPrice + acPrice
           };
 
           const toggleExtra = (roomId: string, type: 'breakfast' | 'ac') => {
@@ -601,7 +598,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                           <div className="space-y-1.5 text-stone-600 font-medium">
                             <div className="flex justify-between">
                               <span>Alloggio ({stayDays} {stayDays === 1 ? 'notte' : 'notti'}):</span>
-                              <span>{formatPrice(baseRoomTotalLordo)}</span>
+                              <span>{formatPrice(pricing.basePriceLordo * stayDays)}</span>
                             </div>
                             
                             {extraGuests > 0 && (
@@ -625,10 +622,10 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                               </div>
                             )}
 
-                            <div className="flex justify-between font-bold border-t border-dashed border-stone-300 pt-1.5 text-stone-700">
-                              <span>Subtotale Lordo:</span>
-                              <span>{formatPrice(totalLordo)}</span>
-                            </div>
+                             <div className="flex justify-between font-bold border-t border-dashed border-stone-300 pt-1.5 text-stone-700">
+                               <span>Subtotale Lordo:</span>
+                               <span>{formatPrice(pricingWithExtras.totalLordo)}</span>
+                             </div>
 
                             <div className="flex justify-between text-emerald-700 font-bold">
                               <span>Sconto Diretto (-{Math.round(discountRate * 100)}%):</span>

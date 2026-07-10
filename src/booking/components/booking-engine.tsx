@@ -20,7 +20,7 @@ import {
   HelpingHand,
   Wind
 } from "lucide-react"
-import { fetchAccommodations, getAuthorizationUrl, isAuthenticated, exchangeToken, createReservation, clearTokens } from "../lib/octorate"
+import { getAuthorizationUrl, isAuthenticated, exchangeToken, createReservation, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
 import { ACCOMMODATIONS, PRICE_CONFIG } from "../resort/config/accommodations"
 import { translations, Language } from "../lib/translations"
@@ -455,12 +455,12 @@ export default function BookingEngine() {
     const breakfast = extraBreakfast ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * stayDays) : 0;
     const ac = extraAC ? PRICE_CONFIG.AC_SURCHARGE : 0;
 
-    // Subtract any card-level extras already in selectedPricing.total to get base + extraGuests
-    const baseRoomAndGuestsTotal = selectedPricing.total - (selectedPricing.breakfast || 0) - (selectedPricing.ac || 0);
+    // Use pre-calculated discounted room & guests price from pricing object
+    const baseRoomAndGuestsTotal = selectedPricing.roomAndGuestsTotalNetto ?? (selectedPricing.total - (selectedPricing.breakfast || 0) - (selectedPricing.ac || 0));
     const finalTotal = baseRoomAndGuestsTotal + breakfast + ac;
 
     return {
-      original: selectedPricing.original * stayDays,
+      original: (selectedPricing.basePriceLordo ?? selectedPricing.original) * stayDays,
       savings: selectedPricing.savings,
       total: baseRoomAndGuestsTotal,
       breakfast,
@@ -1251,7 +1251,7 @@ export default function BookingEngine() {
                   <div className="flex justify-between">
                     <span className="text-stone-500 font-medium">{lang === 'IT' ? "Tariffa Base" : "Base Rate"} ({stayDays} notti)</span>
                     <span className="font-bold text-stone-750">
-                      {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(selectedPricing.original * stayDays)}
+                      {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format((selectedPricing.basePriceLordo ?? selectedPricing.original) * stayDays)}
                     </span>
                   </div>
 

@@ -22,7 +22,7 @@ const TiktokIcon = ({ className, size = 14 }: { className?: string; size?: numbe
   </svg>
 );
 
-type PizzaPage = 'home' | 'order' | 'about' | 'contact';
+type PizzaPage = 'home' | 'order' | 'about' | 'contact' | 'menu';
 
 const subPathToPage: Record<string, PizzaPage> = {
   order: 'order',
@@ -30,7 +30,7 @@ const subPathToPage: Record<string, PizzaPage> = {
   contact: 'contact',
 };
 
-const pizzaMenu = [
+export const pizzaMenu = [
   {
     category: 'Antipasti',
     items: [
@@ -459,7 +459,7 @@ function PizzaContactPage() {
   );
 }
 
-function PizzaHomePage({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
+export function PizzaHomePage({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
   return (
     <>
       <PizzaHero onNavigate={onNavigate} />

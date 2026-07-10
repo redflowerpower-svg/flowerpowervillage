@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Minus, ShoppingCart } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
 
