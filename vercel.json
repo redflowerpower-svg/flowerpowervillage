@@ -1,11 +1,16 @@
 {
+  "functions": {
+    "api/**/*.ts": {
+      "runtime": "@vercel/node@5"
+    }
+  },
   "rewrites": [
     {
       "source": "/api-octorate/:path*",
       "destination": "https://api.octorate.com/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ]

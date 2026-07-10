@@ -2,16 +2,11 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Stripe with secret key
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
-const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: "2023-10-16" as any,
-});
-
 // Initialize Supabase
 const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = createClient(supabaseUrl, supabaseKey);
+
 
 // Room configurations matching accommodations.ts
 const MOCK_ACCOMMODATIONS = [
@@ -46,7 +41,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  // Validate Stripe key
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
+  if (!stripeSecretKey || stripeSecretKey === "sk_test_placeholder") {
+    console.error("[Stripe API] STRIPE_SECRET_KEY is not configured in environment variables.");
+    return res.status(500).json({ error: "Stripe non è configurato. Contattare l'amministratore." });
+  }
+
+  const stripe = new Stripe(stripeSecretKey, {
+    apiVersion: "2023-10-16" as any,
+  });
+
   try {
+
     const {
       accommodationId,
       checkIn,
