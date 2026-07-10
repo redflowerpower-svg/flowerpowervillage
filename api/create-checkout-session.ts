@@ -64,6 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       guestPhone,
       extraBreakfast,
       extraAC,
+      lang,
       origin
     } = req.body;
 
@@ -236,7 +237,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         extraAC: String(extraAC),
         totalPrice: String(finalTotal),
         depositPaid: String(depositPaid),
-        balanceDue: String(balanceDue)
+        balanceDue: String(balanceDue),
+        lang: String(lang || "EN")
       },
       success_url: `${origin}/village?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/village`,

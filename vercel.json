@@ -1,11 +1,16 @@
 {
+  "functions": {
+    "api/*.ts": {
+      "includeFiles": "public/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/api-octorate/:path*",
       "destination": "https://api.octorate.com/:path*"
     },
     {
-      "source": "/((?!api/|@|src/|node_modules/|.*\\.).*)",
+      "source": "/((?!api/|api-octorate/|@|src/|node_modules/|.*\\.).*)",
       "destination": "/index.html"
     }
   ]

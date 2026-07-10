@@ -20,7 +20,7 @@ import {
   HelpingHand,
   Wind
 } from "lucide-react"
-import { getAuthorizationUrl, isAuthenticated, exchangeToken, createReservation, clearTokens } from "../lib/octorate"
+import { getAuthorizationUrl, isAuthenticated, exchangeToken, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
 import { ACCOMMODATIONS, PRICE_CONFIG } from "../resort/config/accommodations"
 import { translations, Language } from "../lib/translations"
@@ -103,6 +103,7 @@ export default function BookingEngine() {
   const [bookingLoading, setBookingLoading] = useState(false)
   const [isBooked, setIsBooked] = useState(false)
   const [bookingId, setBookingId] = useState("")
+  const [stripeSessionId, setStripeSessionId] = useState("")
   const [verifyingPayment, setVerifyingPayment] = useState(false)
   const [confirmedTotalPrice, setConfirmedTotalPrice] = useState<number | null>(null)
 
@@ -136,7 +137,8 @@ export default function BookingEngine() {
   }, []);
 
   // Verify Stripe payment session and register reservation in Octorate
-  const verifyAndConfirmBooking = async (sessionId: string) => {
+  // Returns the resolved bookingId (Octorate ID or STRIPE-fallback)
+  const verifyAndConfirmBooking = async (sessionId: string): Promise<string | null> => {
     try {
       setVerifyingPayment(true)
       setBookingLoading(true)
@@ -148,7 +150,8 @@ export default function BookingEngine() {
       }
 
       const verifyData = await verifyRes.json()
-      const { bookingData, stripeSessionId } = verifyData
+      const { bookingData, stripeSessionId: verifiedSessionId, octorateReservationId, octorateStatus, octorateError } = verifyData
+      setStripeSessionId(verifiedSessionId || sessionId)
 
       // Find the room type based on the octorate ID
       const matchedRoom = ACCOMMODATIONS.find(
@@ -172,22 +175,18 @@ export default function BookingEngine() {
       })
       setConfirmedTotalPrice(Number(bookingData.totalPrice))
 
-      // Create the reservation in Octorate (client-side, goes through Vite proxy)
-      const response = await createReservation({
-        accommodationId: bookingData.accommodationId,
-        checkIn: bookingData.checkIn,
-        checkOut: bookingData.checkOut,
-        guests: bookingData.guests,
-        guestName: bookingData.guestName,
-        guestEmail: bookingData.guestEmail,
-        phone: bookingData.guestPhone,
-        note: `PAGATO ACCONTO 30% via Stripe (฿${Math.round(bookingData.totalPrice * 0.3)}). Saldo del 70% dovuto all'arrivo: ฿${bookingData.totalPrice - Math.round(bookingData.totalPrice * 0.3)}. ID Transazione: ${stripeSessionId}`,
-        totalPrice: bookingData.totalPrice
-      })
-
-      if (response && response.status === "confirmed") {
-        setBookingId(response.reservationId)
+      // Octorate reservation is now handled server-side in verify-checkout-session.ts
+      if (octorateReservationId && octorateStatus === "confirmed") {
+        setBookingId(octorateReservationId)
         setIsBooked(true)
+        return octorateReservationId
+      } else if (octorateError) {
+        // Octorate failed but payment went through — still show success with Stripe ID
+        console.warn("[Verify API] Octorate warning:", octorateError)
+        const fallbackId = `STRIPE-${stripeSessionId}`
+        setBookingId(fallbackId)
+        setIsBooked(true)
+        return fallbackId
       } else {
         throw new Error("Errore durante la registrazione della prenotazione su Octorate.")
       }
@@ -197,6 +196,7 @@ export default function BookingEngine() {
         ? `Impossibile verificare il pagamento: ${err.message}`
         : `Could not verify payment: ${err.message}`
       )
+      return null
     } finally {
       setVerifyingPayment(false)
       setBookingLoading(false)
@@ -208,9 +208,32 @@ export default function BookingEngine() {
     const params = new URLSearchParams(window.location.search)
     const sessionId = params.get('session_id')
     if (sessionId) {
-      // Clean query parameters from URL so refreshes don't double-verify
+      // Clean query parameters from URL immediately so refreshes don't re-trigger
       window.history.replaceState({}, document.title, window.location.pathname)
-      verifyAndConfirmBooking(sessionId)
+
+      // Guard: prevent duplicate Octorate registration if same session already verified
+      const storedId = sessionStorage.getItem(`verified_${sessionId}`)
+      if (storedId) {
+        console.log('[BookingEngine] Session already verified, restoring from cache:', sessionId)
+        setBookingId(storedId)
+        setStripeSessionId(sessionId)
+        setIsBooked(true)
+        return
+      }
+
+      // Mark as in-progress immediately to block concurrent retries on same session
+      sessionStorage.setItem(`verified_${sessionId}`, `PENDING_${sessionId}`)
+
+      setStripeSessionId(sessionId)
+      verifyAndConfirmBooking(sessionId).then((resolvedId) => {
+        if (resolvedId) {
+          // Update with real bookingId (overwrites PENDING marker)
+          sessionStorage.setItem(`verified_${sessionId}`, resolvedId)
+        } else {
+          // Verification failed — remove the PENDING marker so user can retry manually
+          sessionStorage.removeItem(`verified_${sessionId}`)
+        }
+      })
     }
   }, [])
 
@@ -508,6 +531,7 @@ export default function BookingEngine() {
           guestPhone: checkoutData.phone,
           extraBreakfast,
           extraAC,
+          lang,
           origin: window.location.origin
         })
       })
@@ -971,82 +995,97 @@ export default function BookingEngine() {
             </p>
           </div>
         ) : isBooked ? (
-          /* --- SUCCESS SCREEN --- */
-          <div className="max-w-xl mx-auto bg-stone-50 border border-stone-300 rounded-3xl p-8 text-center shadow-lg my-12 animate-fadeIn">
-            <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-300">
-              <ShieldCheck className="w-8 h-8" />
-            </div>
-            <h2 className="text-2xl font-black text-stone-850 mb-2">
-              {lang === 'IT' ? "Prenotazione Confermata!" : "Reservation Confirmed!"}
-            </h2>
-            <p className="text-stone-500 text-sm mb-6 leading-relaxed">
-              {lang === 'IT'
-                ? `Grazie! La tua richiesta per ${selectedRoom?.category} è stata inoltrata a sistema. Ti abbiamo inviato un'email con i dettagli.`
-                : `Thank you! Your request for ${selectedRoom?.category} has been submitted. We've sent you an email with details.`
-              }
-            </p>
+          /* --- SUCCESS SCREEN (CENTERED OVERLAY) --- */
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-sm p-4 overflow-y-auto animate-fadeIn">
+            <div className="max-w-xl w-full bg-stone-50 border border-stone-300 rounded-3xl p-8 text-center shadow-2xl my-8">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-300">
+                <ShieldCheck className="w-8 h-8" />
+              </div>
+              <h2 className="text-2xl font-black text-stone-850 mb-2">
+                {lang === 'IT' ? "Prenotazione Confermata!" : "Reservation Confirmed!"}
+              </h2>
+              <p className="text-stone-550 text-sm mb-6 leading-relaxed">
+                {lang === 'IT'
+                  ? `Grazie! La tua richiesta per ${selectedRoom?.category} è stata inoltrata a sistema. Ti abbiamo inviato un'email con i dettagli.`
+                  : `Thank you! Your request for ${selectedRoom?.category} has been submitted. We've sent you an email with details.`
+                }
+              </p>
 
-            <div className="bg-stone-200/50 rounded-2xl p-5 border border-stone-300 text-left space-y-3 mb-8 text-xs">
-              <div className="flex justify-between">
-                <span className="text-stone-500 font-semibold uppercase">ID PRENOTAZIONE:</span>
-                <span className="font-extrabold text-stone-850">{bookingId}</span>
-              </div>
-              <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                <span className="text-stone-500 font-semibold uppercase">CHECK-IN / OUT:</span>
-                <span className="font-bold text-stone-700">{checkIn} ➔ {checkOut}</span>
-              </div>
-              <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                <span className="text-stone-500 font-semibold uppercase">ALLOGGIO:</span>
-                <span className="font-bold text-stone-700">{selectedRoom?.category}</span>
-              </div>
-              <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                <span className="text-stone-500 font-semibold uppercase">PAGAMENTO:</span>
-                <span className="font-bold text-stone-700 uppercase">
-                  {lang === 'IT' ? 'Acconto 30% Pagato via Stripe' : '30% Deposit Paid via Stripe'}
-                </span>
-              </div>
-              {confirmedTotalPrice !== null && (
-                <>
-                  <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                    <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'TOTALE SOGGIORNO:' : 'TOTAL STAY PRICE:'}</span>
-                    <span className="font-bold text-stone-750">
-                      {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(confirmedTotalPrice)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between border-t border-stone-300/50 pt-2 text-emerald-850 bg-emerald-500/5 p-2 rounded-lg border border-emerald-700/10">
-                    <span className="font-bold uppercase">{lang === 'IT' ? 'ACCONTO PAGATO (30%):' : 'DEPOSIT PAID (30%):'}</span>
-                    <span className="font-black">
-                      {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(Math.round(confirmedTotalPrice * 0.3))}
-                    </span>
-                  </div>
-                  <div className="flex flex-col border-t border-stone-300/50 pt-2 text-stone-700 bg-stone-200/40 p-2 rounded-lg border border-stone-300/30 gap-1">
-                    <div className="flex justify-between w-full">
-                      <span className="font-semibold uppercase">{lang === 'IT' ? 'SALDO DOVUTO ALL\'ARRIVO (70%):' : 'BALANCE DUE AT CHECK-IN (70%):'}</span>
-                      <span className="font-bold">
-                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(confirmedTotalPrice - Math.round(confirmedTotalPrice * 0.3))}
+              <div className="bg-stone-200/50 rounded-2xl p-5 border border-stone-300 text-left space-y-3 mb-8 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-stone-500 font-semibold uppercase">ID PRENOTAZIONE:</span>
+                  <span className="font-extrabold text-stone-850">{bookingId}</span>
+                </div>
+                <div className="flex justify-between border-t border-stone-300/50 pt-2">
+                  <span className="text-stone-500 font-semibold uppercase">CHECK-IN / OUT:</span>
+                  <span className="font-bold text-stone-700">{checkIn} ➔ {checkOut}</span>
+                </div>
+                <div className="flex justify-between border-t border-stone-300/50 pt-2">
+                  <span className="text-stone-500 font-semibold uppercase">ALLOGGIO:</span>
+                  <span className="font-bold text-stone-700">{selectedRoom?.category}</span>
+                </div>
+                <div className="flex justify-between border-t border-stone-300/50 pt-2">
+                  <span className="text-stone-500 font-semibold uppercase">PAGAMENTO:</span>
+                  <span className="font-bold text-stone-700 uppercase">
+                    {lang === 'IT' ? 'Acconto 30% Pagato via Stripe' : '30% Deposit Paid via Stripe'}
+                  </span>
+                </div>
+                {confirmedTotalPrice !== null && (
+                  <>
+                    <div className="flex justify-between border-t border-stone-300/50 pt-2">
+                      <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'TOTALE SOGGIORNO:' : 'TOTAL STAY PRICE:'}</span>
+                      <span className="font-bold text-stone-750">
+                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(confirmedTotalPrice)}
                       </span>
                     </div>
-                    <span className="block text-[10px] text-stone-500 font-normal leading-relaxed mt-1">
-                      {t('balanceMethods' as any)}
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
+                    <div className="flex justify-between border-t border-stone-300/50 pt-2 text-emerald-850 bg-emerald-500/5 p-2 rounded-lg border border-emerald-700/10">
+                      <span className="font-bold uppercase">{lang === 'IT' ? 'ACCONTO PAGATO (30%):' : 'DEPOSIT PAID (30%):'}</span>
+                      <span className="font-black">
+                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(Math.round(confirmedTotalPrice * 0.3))}
+                      </span>
+                    </div>
+                    <div className="flex flex-col border-t border-stone-300/50 pt-2 text-stone-700 bg-stone-200/40 p-2 rounded-lg border border-stone-300/30 gap-1">
+                      <div className="flex justify-between w-full">
+                        <span className="font-semibold uppercase">{lang === 'IT' ? 'SALDO DOVUTO ALL\'ARRIVO (70%):' : 'BALANCE DUE AT CHECK-IN (70%):'}</span>
+                        <span className="font-bold">
+                          {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(confirmedTotalPrice - Math.round(confirmedTotalPrice * 0.3))}
+                        </span>
+                      </div>
+                      <span className="block text-[10px] text-stone-500 font-normal leading-relaxed mt-1">
+                        {t('balanceMethods' as any)}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
 
-            <button
-              onClick={() => {
-                setIsBooked(false)
-                setSelectedRoom(null)
-                setSelectedPricing(null)
-                setCheckoutData({ name: "", email: "", phone: "", requests: "" })
-                setExtraBreakfast(false)
-                setExtraAC(false)
-              }}
-              className="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-8 py-3.5 rounded-full shadow transition-all cursor-pointer"
-            >
-              {t('checkoutBackBtn')}
-            </button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                {stripeSessionId && (
+                  <a
+                    href={`/api/download-confirmation?session_id=${stripeSessionId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-8 py-3.5 rounded-full shadow transition-all cursor-pointer inline-flex items-center gap-2 decoration-none"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    {lang === 'IT' ? 'Scarica la tua prenotazione' : 'Download confirmation (PDF)'}
+                  </a>
+                )}
+                <button
+                  onClick={() => {
+                    setIsBooked(false)
+                    setSelectedRoom(null)
+                    setSelectedPricing(null)
+                    setCheckoutData({ name: "", email: "", phone: "", requests: "" })
+                    setExtraBreakfast(false)
+                    setExtraAC(false)
+                  }}
+                  className="bg-stone-300 hover:bg-stone-400 text-stone-750 font-bold text-xs px-8 py-3.5 rounded-full shadow transition-all cursor-pointer"
+                >
+                  {t('checkoutBackBtn')}
+                </button>
+              </div>
+            </div>
           </div>
         ) : selectedRoom ? (
           /* --- CUSTOM CHECKOUT INTERFACE --- */
