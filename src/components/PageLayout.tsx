@@ -29,7 +29,7 @@ export default function PageLayout({ children }: { children: React.ReactNode }) 
               {/* Left Side: Logo + Title */}
               <div className="flex flex-col lg:flex-row items-center gap-3.5 lg:gap-6 text-center lg:text-left w-full lg:w-auto">
                 <img
-                  src="https://htmnjjzxpybpbumtbqic.supabase.co/storage/v1/object/public/assets/logo_flower_power_village.png"
+                  src="/FP_04_-_LOGO_OFFICIAL_HD.png"
                   alt="Logo Flower Power Village"
                   width={200}
                   height={200}

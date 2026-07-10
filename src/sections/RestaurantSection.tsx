@@ -66,7 +66,7 @@ export default function RestaurantSection() {
         {/* Header */}
         <div className="bg-[#F3EAE0]/70 border border-[#E6DACF] rounded-3xl p-5 md:p-6 shadow-sm mb-6 flex flex-col md:flex-row items-center md:items-stretch gap-6 md:gap-8">
           <img
-            src="https://htmnjjzxpybpbumtbqic.supabase.co/storage/v1/object/public/assets/logo_flower_power_pizza.png"
+            src="/Flower_Power_Pizza_-_HotSpring.png"
             alt="Flower Power Pizza Logo"
             className="w-24 h-24 md:w-28 md:h-28 object-contain flex-shrink-0 self-center hover:scale-105 transition-transform duration-300"
           />
@@ -120,11 +120,10 @@ export default function RestaurantSection() {
                 <button
                   key={idx}
                   onClick={() => handleCategoryClick(cat.pageIndex)}
-                  className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all duration-300 ${
-                    isActive
+                  className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all duration-300 ${isActive
                       ? 'bg-emerald-700 text-white shadow-sm'
                       : 'bg-stone-100 hover:bg-stone-200 text-stone-750'
-                  }`}
+                    }`}
                   style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   {cat.name}
@@ -142,9 +141,9 @@ export default function RestaurantSection() {
                 alt={menuPages[currentPage].title}
                 className="w-full h-full object-contain select-none"
               />
-              
+
               {/* Image Interaction Layer */}
-              <div 
+              <div
                 onClick={() => setIsLightboxOpen(true)}
                 className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300 cursor-zoom-in flex items-center justify-center"
               >
@@ -192,9 +191,8 @@ export default function RestaurantSection() {
                   <button
                     key={idx}
                     onClick={() => { setCurrentPage(idx); setZoomScale(1); }}
-                    className={`flex-shrink-0 w-16 aspect-[1/1.4] rounded-lg overflow-hidden border-2 transition-all duration-300 shadow-sm ${
-                      isActive ? 'border-emerald-700 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
-                    }`}
+                    className={`flex-shrink-0 w-16 aspect-[1/1.4] rounded-lg overflow-hidden border-2 transition-all duration-300 shadow-sm ${isActive ? 'border-emerald-700 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
+                      }`}
                   >
                     <img
                       src={getImageUrl(page.file)}
@@ -224,11 +222,11 @@ export default function RestaurantSection() {
               <h4 className="text-sm font-semibold tracking-wide text-emerald-500">{menuPages[currentPage].title}</h4>
               <p className="text-[10px] text-stone-400">Pagina {currentPage + 1} di {menuPages.length}</p>
             </div>
-            
+
             {/* Zoom & Action Controls */}
             <div className="flex items-center gap-3">
-              <button 
-                onClick={handleZoomOut} 
+              <button
+                onClick={handleZoomOut}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200"
                 title="Zoom Out"
               >
@@ -237,8 +235,8 @@ export default function RestaurantSection() {
               <span className="text-xs text-stone-400 font-mono w-10 text-center">
                 {Math.round(zoomScale * 100)}%
               </span>
-              <button 
-                onClick={handleZoomIn} 
+              <button
+                onClick={handleZoomIn}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200"
                 title="Zoom In"
               >
@@ -264,9 +262,9 @@ export default function RestaurantSection() {
             >
               <ChevronLeft size={20} />
             </button>
-            
+
             <div className="w-full h-full max-w-3xl flex items-center justify-center p-2 md:p-6 overflow-auto">
-              <div 
+              <div
                 className="transition-transform duration-200 ease-out max-h-full aspect-[1/1.4] relative flex justify-center items-center"
                 style={{ transform: `scale(${zoomScale})` }}
               >
@@ -294,9 +292,8 @@ export default function RestaurantSection() {
                 <button
                   key={idx}
                   onClick={() => { setCurrentPage(idx); setZoomScale(1); }}
-                  className={`flex-shrink-0 w-12 aspect-[1/1.4] rounded overflow-hidden border-2 transition-all duration-300 ${
-                    isActive ? 'border-emerald-600 scale-105 shadow-lg' : 'border-transparent opacity-40 hover:opacity-85'
-                  }`}
+                  className={`flex-shrink-0 w-12 aspect-[1/1.4] rounded overflow-hidden border-2 transition-all duration-300 ${isActive ? 'border-emerald-600 scale-105 shadow-lg' : 'border-transparent opacity-40 hover:opacity-85'
+                    }`}
                 >
                   <img
                     src={getImageUrl(page.file)}

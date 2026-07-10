@@ -289,12 +289,12 @@ export async function fetchAccommodations(): Promise<EnrichedAccommodation[]> {
     // Use the database-provided slug (Storage folder name) to list files in 'accommodations' bucket
     const folder = item.slug;
     let images: string[] = [];
-    
+
     try {
       const { data: files, error: storageError } = await supabase.storage
         .from('accommodations')
         .list(folder, { sortBy: { column: 'name', order: 'asc' } });
-      
+
       if (!storageError && files) {
         images = files
           .filter(file => file.id !== null) // only files
@@ -302,9 +302,9 @@ export async function fetchAccommodations(): Promise<EnrichedAccommodation[]> {
             const { data } = supabase.storage
               .from('accommodations')
               .getPublicUrl(`${folder}/${file.name}`);
-            
-            const timestamp = `?t=${Date.now()}`;
-            return `${data.publicUrl}${timestamp}`;
+
+            // No cache buster — let browser cache handle images
+            return data.publicUrl;
           });
       }
     } catch (err) {
@@ -335,10 +335,10 @@ export async function fetchAccommodations(): Promise<EnrichedAccommodation[]> {
   enrichedList.sort((a, b) => {
     const indexA = PREFERRED_ORDER.indexOf(a.name);
     const indexB = PREFERRED_ORDER.indexOf(b.name);
-    
+
     const valA = indexA !== -1 ? indexA : 999;
     const valB = indexB !== -1 ? indexB : 999;
-    
+
     if (valA !== valB) {
       return valA - valB;
     }

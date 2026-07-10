@@ -95,7 +95,7 @@ export default function BookingEngine() {
   const [checkOut, setCheckOut] = useState("")
   const [guests, setGuests] = useState(1)
   const [selectedCategory, setSelectedCategory] = useState("Tutti")
-  
+
   // Checkout & Payment states
   const [selectedRoom, setSelectedRoom] = useState<any | null>(null)
   const [selectedPricing, setSelectedPricing] = useState<any | null>(null)
@@ -104,7 +104,7 @@ export default function BookingEngine() {
   const [isBooked, setIsBooked] = useState(false)
   const [bookingId, setBookingId] = useState("")
   const [verifyingPayment, setVerifyingPayment] = useState(false)
-  
+
   // Custom extra services options (Breakfast & AC)
   const [extraBreakfast, setExtraBreakfast] = useState(false)
   const [extraAC, setExtraAC] = useState(false)
@@ -247,25 +247,11 @@ export default function BookingEngine() {
     }
   }
 
+  // No fetch needed here — RoomGrid handles its own data loading
+  // via fetchAccommodations() internally.
   useEffect(() => {
-    let cancelled = false
-    setLoading(true)
+    setLoading(false)
     setError(null)
-
-    fetchAccommodations()
-      .then(() => {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Errore nel caricamento degli alloggi")
-          setLoading(false)
-        }
-      })
-
-    return () => { cancelled = true }
   }, [])
 
   const stayDays = useMemo(() => calculateStayDays(checkIn, checkOut), [checkIn, checkOut])
@@ -280,7 +266,7 @@ export default function BookingEngine() {
     const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
     const thaiTime = new Date(utc + (3600000 * 7));
     const thaiHour = thaiTime.getHours();
-    
+
     const minDate = new Date(thaiTime);
     if (thaiHour >= 9) {
       minDate.setDate(minDate.getDate() + 1);
@@ -355,7 +341,7 @@ export default function BookingEngine() {
       TH: ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"],
       DE: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]
     };
-    
+
     const curMonthName = monthNames[lang]?.[month] || monthNames['IT'][month];
 
     const prevMonth = () => {
@@ -372,24 +358,24 @@ export default function BookingEngine() {
       TH: ["จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส.", "อา."],
       DE: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
     };
-    
+
     const headers = weekdayHeaders[lang] || weekdayHeaders['IT'];
     const dayCells: React.ReactNode[] = [];
-    
+
     for (let i = 0; i < firstDayOfWeek; i++) {
       dayCells.push(<div key={`empty-${i}`} className="w-9 h-9" />);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      
+
       const isDisabled = minDateStr ? (dateStr < minDateStr) : false;
       const isSelected = selectedDateStr === dateStr;
       const isCheckInMarker = type === 'out' && checkIn === dateStr;
       const isRangeDay = checkIn && checkOut && dateStr > checkIn && dateStr < checkOut;
 
       let btnClass = "w-9 h-9 flex items-center justify-center text-xs font-semibold rounded-full transition-all duration-200 ";
-      
+
       if (isDisabled) {
         btnClass += "text-stone-300 cursor-not-allowed pointer-events-none line-through opacity-40";
       } else if (isSelected) {
@@ -424,7 +410,7 @@ export default function BookingEngine() {
       : "right-0 left-auto md:left-0 md:right-auto";
 
     return (
-      <div 
+      <div
         onClick={(e) => e.stopPropagation()}
         className={`absolute top-full mt-2 bg-stone-50 border border-stone-300 rounded-3xl p-4 shadow-2xl z-[100] animate-fadeIn w-[280px] ${positionClass}`}
       >
@@ -468,11 +454,11 @@ export default function BookingEngine() {
     if (!selectedRoom || !selectedPricing) return { original: 0, savings: 0, total: 0, breakfast: 0, ac: 0, finalTotal: 0 };
     const breakfast = extraBreakfast ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * stayDays) : 0;
     const ac = extraAC ? PRICE_CONFIG.AC_SURCHARGE : 0;
-    
+
     // Subtract any card-level extras already in selectedPricing.total to get base + extraGuests
     const baseRoomAndGuestsTotal = selectedPricing.total - (selectedPricing.breakfast || 0) - (selectedPricing.ac || 0);
     const finalTotal = baseRoomAndGuestsTotal + breakfast + ac;
-    
+
     return {
       original: selectedPricing.original * stayDays,
       savings: selectedPricing.savings,
@@ -503,7 +489,7 @@ export default function BookingEngine() {
     }
     try {
       setBookingLoading(true)
-      
+
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
@@ -558,7 +544,7 @@ export default function BookingEngine() {
       return
     }
     setHasSearched(true)
-    
+
     // Smooth scroll viewport down to the rooms grid immediately
     const grid = document.getElementById("rooms-grid")
     const searchForm = document.getElementById("booking-search-form")
@@ -608,9 +594,8 @@ export default function BookingEngine() {
                         setLang(l)
                         setIsLangOpen(false)
                       }}
-                      className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer ${
-                        lang === l ? "text-emerald-400 bg-white/5" : "text-stone-300"
-                      }`}
+                      className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer ${lang === l ? "text-emerald-400 bg-white/5" : "text-stone-300"
+                        }`}
                     >
                       {l === 'IT' && '🇮🇹 IT'}
                       {l === 'EN' && '🇬🇧 EN'}
@@ -628,7 +613,7 @@ export default function BookingEngine() {
               {/* Left Side: Logo + Title (Centered column on mobile, Row layout on desktop) */}
               <div className="flex flex-col lg:flex-row items-center gap-3.5 lg:gap-6 text-center lg:text-left w-full lg:w-auto">
                 <img
-                  src="https://htmnjjzxpybpbumtbqic.supabase.co/storage/v1/object/public/assets/logo_flower_power_village.png"
+                  src="/FP_04_-_LOGO_OFFICIAL_HD.png"
                   alt="Flower Power Village Logo"
                   width={200}
                   height={200}
@@ -672,10 +657,10 @@ export default function BookingEngine() {
           >
             {/* Check-In */}
             <div className="date-picker-container relative col-span-1 lg:flex-1 flex items-center justify-center lg:justify-start gap-1.5 md:gap-3 px-2 md:px-4 py-1.5 md:py-3 bg-stone-50 rounded-lg md:rounded-xl border border-stone-300 focus-within:border-stone-500 focus-within:ring-1 focus-within:ring-stone-500 transition-all cursor-pointer"
-                 onClick={() => {
-                   setIsCheckInOpen(!isCheckInOpen);
-                   setIsCheckOutOpen(false);
-                 }}
+              onClick={() => {
+                setIsCheckInOpen(!isCheckInOpen);
+                setIsCheckOutOpen(false);
+              }}
             >
               <div className="absolute left-2.5 top-1/2 -translate-y-1/2 lg:static lg:transform-none p-1 lg:p-2.5 bg-stone-200 text-primary rounded-lg lg:rounded-xl flex-shrink-0 shadow-sm flex">
                 <Calendar className="w-4 h-4 lg:w-6 lg:h-6" />
@@ -688,7 +673,7 @@ export default function BookingEngine() {
                   {checkIn ? formatDateForDisplay(checkIn) : (lang === 'IT' ? 'Scegli data' : 'Choose date')}
                 </span>
               </div>
-              
+
               {/* Dropdown Calendar */}
               {renderCalendarDropdown(
                 'in',
@@ -704,10 +689,10 @@ export default function BookingEngine() {
 
             {/* Check-Out */}
             <div className="date-picker-container relative col-span-1 lg:flex-1 flex items-center justify-center lg:justify-start gap-1.5 md:gap-3 px-2 md:px-4 py-1.5 md:py-3 bg-stone-50 rounded-lg md:rounded-xl border border-stone-300 focus-within:border-stone-500 focus-within:ring-1 focus-within:ring-stone-500 transition-all cursor-pointer"
-                 onClick={() => {
-                   setIsCheckOutOpen(!isCheckOutOpen);
-                   setIsCheckInOpen(false);
-                 }}
+              onClick={() => {
+                setIsCheckOutOpen(!isCheckOutOpen);
+                setIsCheckInOpen(false);
+              }}
             >
               <div className="absolute left-2.5 top-1/2 -translate-y-1/2 lg:static lg:transform-none p-1 lg:p-2.5 bg-stone-200 text-primary rounded-lg lg:rounded-xl flex-shrink-0 shadow-sm flex">
                 <Calendar className="w-4 h-4 lg:w-6 lg:h-6" />
@@ -791,9 +776,9 @@ export default function BookingEngine() {
         <div className="bg-emerald-800 rounded-2xl py-2 md:py-3.5 px-4 md:px-5 text-white shadow-xl border border-emerald-700/20 relative overflow-hidden">
           {/* Ambient decorative glow */}
           <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-10 divide-y md:divide-y-0 md:divide-x divide-white/10 items-stretch">
-            
+
             {/* Left Column: Digital Nomads (HUBit@) */}
             <div className="flex flex-col justify-between gap-2 py-1 md:py-0 md:space-y-2.5">
               <div className="flex items-center justify-center md:justify-start gap-2.5 md:gap-3 w-full">
@@ -814,7 +799,7 @@ export default function BookingEngine() {
                   </p>
                 </div>
               </div>
-              
+
               {/* Clear Discount Info for Digital Nomads */}
               <div className="grid grid-cols-2 gap-1.5 md:gap-2 text-center text-xs">
                 <div className="bg-black/15 py-1 md:py-2 px-2 rounded-lg border border-white/5 flex flex-col justify-center">
@@ -851,7 +836,7 @@ export default function BookingEngine() {
                   </p>
                 </div>
               </div>
-              
+
               {/* Clear Discount Info for Direct Bookings */}
               <div className="grid grid-cols-1 gap-1.5 md:gap-2 text-center text-xs">
                 <div className="bg-black/15 py-1 md:py-2 px-2 rounded-lg border border-white/5 flex items-center justify-center gap-1.5 md:gap-2">
@@ -971,7 +956,7 @@ export default function BookingEngine() {
               {lang === 'IT' ? "Verifica del pagamento..." : "Verifying payment..."}
             </h3>
             <p className="text-stone-500 text-sm leading-relaxed max-w-xs">
-              {lang === 'IT' 
+              {lang === 'IT'
                 ? "Stiamo verificando la transazione Stripe e registrando la tua prenotazione su Octorate."
                 : "We are verifying the Stripe transaction and registering your booking with Octorate."
               }
@@ -987,12 +972,12 @@ export default function BookingEngine() {
               {lang === 'IT' ? "Prenotazione Confermata!" : "Reservation Confirmed!"}
             </h2>
             <p className="text-stone-500 text-sm mb-6 leading-relaxed">
-              {lang === 'IT' 
+              {lang === 'IT'
                 ? `Grazie! La tua richiesta per ${selectedRoom?.category} è stata inoltrata a sistema. Ti abbiamo inviato un'email con i dettagli.`
                 : `Thank you! Your request for ${selectedRoom?.category} has been submitted. We've sent you an email with details.`
               }
             </p>
-            
+
             <div className="bg-stone-200/50 rounded-2xl p-5 border border-stone-300 text-left space-y-3 mb-8 text-xs">
               <div className="flex justify-between">
                 <span className="text-stone-500 font-semibold uppercase">ID PRENOTAZIONE:</span>
@@ -1050,7 +1035,7 @@ export default function BookingEngine() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               {/* Form & Payment methods (Left) */}
               <form onSubmit={handleConfirmBooking} className="lg:col-span-7 space-y-6">
-                
+
                 {/* Personal Information */}
                 <div className="bg-stone-50 border border-stone-300 rounded-2xl p-6 shadow-sm space-y-4">
                   <h3 className="font-bold text-stone-800 text-sm uppercase tracking-wider border-b border-stone-300/50 pb-2">
@@ -1120,15 +1105,13 @@ export default function BookingEngine() {
                     {/* Breakfast Card */}
                     <div
                       onClick={() => setExtraBreakfast(!extraBreakfast)}
-                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer select-none ${
-                        extraBreakfast
-                          ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
-                          : "bg-white border-stone-300 hover:bg-stone-100/40"
-                      }`}
+                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer select-none ${extraBreakfast
+                        ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
+                        : "bg-white border-stone-300 hover:bg-stone-100/40"
+                        }`}
                     >
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 ${
-                        extraBreakfast ? "bg-emerald-800 text-white" : "bg-stone-200 text-primary"
-                      }`}>
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 ${extraBreakfast ? "bg-emerald-800 text-white" : "bg-stone-200 text-primary"
+                        }`}>
                         <Coffee className="w-5 h-5" />
                       </div>
                       <div className="flex-1 text-xs">
@@ -1139,7 +1122,7 @@ export default function BookingEngine() {
                           <input
                             type="checkbox"
                             checked={extraBreakfast}
-                            onChange={() => {}}
+                            onChange={() => { }}
                             className="accent-emerald-750 cursor-pointer pointer-events-none"
                           />
                         </div>
@@ -1155,15 +1138,13 @@ export default function BookingEngine() {
                     {/* AC Card */}
                     <div
                       onClick={() => setExtraAC(!extraAC)}
-                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer select-none ${
-                        extraAC
-                          ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
-                          : "bg-white border-stone-300 hover:bg-stone-100/40"
-                      }`}
+                      className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer select-none ${extraAC
+                        ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
+                        : "bg-white border-stone-300 hover:bg-stone-100/40"
+                        }`}
                     >
-                      <div className={`p-2.5 rounded-xl flex-shrink-0 ${
-                        extraAC ? "bg-emerald-800 text-white" : "bg-stone-200 text-primary"
-                      }`}>
+                      <div className={`p-2.5 rounded-xl flex-shrink-0 ${extraAC ? "bg-emerald-800 text-white" : "bg-stone-200 text-primary"
+                        }`}>
                         <Wind className="w-5 h-5" />
                       </div>
                       <div className="flex-1 text-xs">
@@ -1174,7 +1155,7 @@ export default function BookingEngine() {
                           <input
                             type="checkbox"
                             checked={extraAC}
-                            onChange={() => {}}
+                            onChange={() => { }}
                             className="accent-emerald-750 cursor-pointer pointer-events-none"
                           />
                         </div>
@@ -1194,7 +1175,7 @@ export default function BookingEngine() {
                   <h3 className="font-bold text-stone-800 text-sm uppercase tracking-wider border-b border-stone-300/50 pb-2">
                     {t('checkoutPaymentTitle' as any)}
                   </h3>
-                  
+
                   <div className="space-y-2.5">
                     <div className="flex items-start gap-3 p-4 rounded-xl border bg-emerald-500/5 border-emerald-750/35 shadow-sm">
                       <div className="text-xs">
@@ -1353,24 +1334,23 @@ export default function BookingEngine() {
               {CATEGORY_ITEMS.map((item) => {
                 const Icon = item.icon
                 const isSelected = selectedCategory === item.name
-                
-                const labelKey = 
+
+                const labelKey =
                   item.name === "Tutti" ? 'filterCompass' :
-                  item.name === "Ville" ? 'filterVilla' :
-                  item.name === "Bungalow" ? 'filterBungalow' :
-                  item.name === "Tende Glamping" ? 'filterGlamping' :
-                  'filterGuesthouse';
+                    item.name === "Ville" ? 'filterVilla' :
+                      item.name === "Bungalow" ? 'filterBungalow' :
+                        item.name === "Tende Glamping" ? 'filterGlamping' :
+                          'filterGuesthouse';
 
                 return (
                   <button
                     key={item.name}
                     type="button"
                     onClick={() => setSelectedCategory(item.name)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 border text-xs font-bold whitespace-nowrap snap-align-start cursor-pointer shadow-sm ${
-                      isSelected
-                        ? "bg-emerald-800 border-emerald-800 text-white"
-                        : "bg-stone-50 border-stone-300 text-stone-600 active:bg-stone-100"
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 border text-xs font-bold whitespace-nowrap snap-align-start cursor-pointer shadow-sm ${isSelected
+                      ? "bg-emerald-800 border-emerald-800 text-white"
+                      : "bg-stone-50 border-stone-300 text-stone-600 active:bg-stone-100"
+                      }`}
                   >
                     <Icon className={`w-4 h-4 ${isSelected ? "text-emerald-400" : "text-primary"}`} />
                     <span>{t(labelKey as any)}</span>
@@ -1384,43 +1364,40 @@ export default function BookingEngine() {
               {CATEGORY_ITEMS.map((item) => {
                 const Icon = item.icon
                 const isSelected = selectedCategory === item.name
-                
-                const labelKey = 
+
+                const labelKey =
                   item.name === "Tutti" ? 'filterCompass' :
-                  item.name === "Ville" ? 'filterVilla' :
-                  item.name === "Bungalow" ? 'filterBungalow' :
-                  item.name === "Tende Glamping" ? 'filterGlamping' :
-                  'filterGuesthouse';
-     
-                const descKey = 
+                    item.name === "Ville" ? 'filterVilla' :
+                      item.name === "Bungalow" ? 'filterBungalow' :
+                        item.name === "Tende Glamping" ? 'filterGlamping' :
+                          'filterGuesthouse';
+
+                const descKey =
                   item.name === "Tutti" ? 'filterCompassDesc' :
-                  item.name === "Ville" ? 'filterVillaDesc' :
-                  item.name === "Bungalow" ? 'filterBungalowDesc' :
-                  item.name === "Tende Glamping" ? 'filterGlampingDesc' :
-                  'filterGuesthouseDesc';
-     
+                    item.name === "Ville" ? 'filterVillaDesc' :
+                      item.name === "Bungalow" ? 'filterBungalowDesc' :
+                        item.name === "Tende Glamping" ? 'filterGlampingDesc' :
+                          'filterGuesthouseDesc';
+
                 return (
                   <button
                     key={item.name}
                     type="button"
                     onClick={() => setSelectedCategory(item.name)}
-                    className={`flex flex-col items-center justify-center p-5 rounded-2xl transition-all duration-300 border text-center group cursor-pointer ${
-                      isSelected
-                        ? "bg-emerald-800 border-emerald-800 text-white shadow-md"
-                        : "bg-stone-50 border-stone-300 text-stone-600 hover:border-stone-400 hover:bg-stone-100/50"
-                    }`}
+                    className={`flex flex-col items-center justify-center p-5 rounded-2xl transition-all duration-300 border text-center group cursor-pointer ${isSelected
+                      ? "bg-emerald-800 border-emerald-800 text-white shadow-md"
+                      : "bg-stone-50 border-stone-300 text-stone-600 hover:border-stone-400 hover:bg-stone-100/50"
+                      }`}
                   >
-                    <div className={`p-3 rounded-xl mb-3 transition-colors ${
-                      isSelected ? "bg-emerald-500/20 text-emerald-400" : "bg-stone-200/50 text-primary group-hover:bg-stone-200"
-                    }`}>
+                    <div className={`p-3 rounded-xl mb-3 transition-colors ${isSelected ? "bg-emerald-500/20 text-emerald-400" : "bg-stone-200/50 text-primary group-hover:bg-stone-200"
+                      }`}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <span className="text-xs font-bold tracking-wider">
                       {t(labelKey as any)}
                     </span>
-                    <span className={`text-[10px] mt-1 font-light ${
-                      isSelected ? "text-stone-300" : "text-stone-400"
-                    }`}>
+                    <span className={`text-[10px] mt-1 font-light ${isSelected ? "text-stone-300" : "text-stone-400"
+                      }`}>
                       {t(descKey as any)}
                     </span>
                   </button>
