@@ -104,6 +104,7 @@ export default function BookingEngine() {
   const [isBooked, setIsBooked] = useState(false)
   const [bookingId, setBookingId] = useState("")
   const [verifyingPayment, setVerifyingPayment] = useState(false)
+  const [confirmedTotalPrice, setConfirmedTotalPrice] = useState<number | null>(null)
 
   // Custom extra services options (Breakfast & AC)
   const [extraBreakfast, setExtraBreakfast] = useState(false)
@@ -168,6 +169,7 @@ export default function BookingEngine() {
         phone: bookingData.guestPhone,
         requests: ""
       })
+      setConfirmedTotalPrice(Number(bookingData.totalPrice))
 
       // Create the reservation in Octorate
       const response = await createReservation({
@@ -178,7 +180,7 @@ export default function BookingEngine() {
         guestName: bookingData.guestName,
         guestEmail: bookingData.guestEmail,
         phone: bookingData.guestPhone,
-        note: `Pagato con Stripe. ID Sessione: ${stripeSessionId}`,
+        note: `PAGATO ACCONTO 30% via Stripe (฿${Math.round(bookingData.totalPrice * 0.3)}). Saldo del 70% dovuto all'arrivo: ฿${bookingData.totalPrice - Math.round(bookingData.totalPrice * 0.3)}. ID Transazione: ${stripeSessionId}`,
         totalPrice: bookingData.totalPrice
       })
 
@@ -644,6 +646,27 @@ export default function BookingEngine() {
                 </div>
               </div>
             </div>
+
+            {/* Payment Copy Promo Banner */}
+            <div className="mt-8 bg-emerald-950/65 border border-emerald-800/40 rounded-2xl p-4 flex flex-col md:flex-row items-center gap-4 text-left shadow-lg backdrop-blur-sm">
+              <div className="bg-emerald-900 text-emerald-300 p-2.5 rounded-xl flex-shrink-0 flex items-center justify-center border border-emerald-700/30">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div className="space-y-1 flex-1">
+                <h4 className="text-sm font-black tracking-wide text-white uppercase flex items-center gap-2 flex-wrap">
+                  {lang === 'IT' ? 'Prenota Diretto - Paga solo il 30% oggi' : 'Book Direct - Pay Only 30% Today'}
+                  <span className="bg-emerald-800 text-emerald-200 border border-emerald-600/30 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                    {lang === 'IT' ? 'Cancellazione Flessibile' : 'Flexible Cancellation'}
+                  </span>
+                </h4>
+                <p className="text-stone-300 text-xs leading-relaxed font-light">
+                  {lang === 'IT'
+                    ? 'Riserva il tuo soggiorno versando solo il 30% oggi. Il restante 70% lo pagherai comodamente al check-in (in contanti, Wise, Revolut o via PayPal). Cancellazione gratuita con rimborso totale del deposito fino a 10 giorni prima dell\'arrivo.'
+                    : 'Reserve your stay by paying just 30% today. The remaining 70% balance is due at check-in (via cash, Wise, Revolut, or PayPal). Free cancellation and full refund of your deposit up to 10 days before arrival.'
+                  }
+                </p>
+              </div>
+            </div>
           </div>
         </header>
       </div>
@@ -837,17 +860,22 @@ export default function BookingEngine() {
                 </div>
               </div>
 
-              {/* Clear Discount Info for Direct Bookings */}
-              <div className="grid grid-cols-1 gap-1.5 md:gap-2 text-center text-xs">
-                <div className="bg-black/15 py-1 md:py-2 px-2 rounded-lg border border-white/5 flex items-center justify-center gap-1.5 md:gap-2">
-                  <span className="text-[8px] text-emerald-300 font-extrabold uppercase tracking-wider md:hidden">
-                    {lang === 'IT' ? 'Soggiorni:' : 'Short stay:'}
+              {/* Clear Discount & Deposit Info for Direct Bookings */}
+              <div className="grid grid-cols-2 gap-1.5 md:gap-2 text-center text-xs">
+                <div className="bg-black/15 py-1 md:py-2 px-2 rounded-lg border border-white/5 flex flex-col justify-center">
+                  <span className="block text-[8px] md:text-[9px] text-emerald-300 font-extrabold uppercase tracking-wider">
+                    {lang === 'IT' ? 'Sconto Diretto' : 'Direct discount'}
                   </span>
-                  <span className="text-[10px] text-emerald-300 font-extrabold uppercase tracking-wider hidden md:inline">
-                    {lang === 'IT' ? 'Qualsiasi soggiorno:' : 'Any stay:'}
+                  <span className="block text-[11px] md:text-sm font-black text-white md:mt-0.5">
+                    -10% {lang === 'IT' ? 'Garantito' : 'Guaranteed'}
                   </span>
-                  <span className="text-[11px] md:text-sm font-black text-white">
-                    {lang === 'IT' ? '-10% Garantito' : '-10% Guaranteed'}
+                </div>
+                <div className="bg-black/25 py-1 md:py-2.5 px-2.5 md:px-2.5 rounded-lg border border-white/5 flex flex-col justify-center">
+                  <span className="block text-[8px] md:text-[9px] text-emerald-300 font-extrabold uppercase tracking-wider">
+                    {lang === 'IT' ? 'Caparra' : 'Deposit'}
+                  </span>
+                  <span className="block text-[11px] md:text-sm font-black text-white md:mt-0.5">
+                    {lang === 'IT' ? 'Solo 30% oggi' : 'Only 30% today'}
                   </span>
                 </div>
               </div>
@@ -992,11 +1020,38 @@ export default function BookingEngine() {
                 <span className="font-bold text-stone-700">{selectedRoom?.category}</span>
               </div>
               <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                <span className="text-stone-500 font-semibold uppercase">PAGAMENTO SCELTO:</span>
+                <span className="text-stone-500 font-semibold uppercase">PAGAMENTO:</span>
                 <span className="font-bold text-stone-700 uppercase">
-                  {t('paymentCard' as any)}
+                  {lang === 'IT' ? 'Acconto 30% Pagato via Stripe' : '30% Deposit Paid via Stripe'}
                 </span>
               </div>
+              {confirmedTotalPrice !== null && (
+                <>
+                  <div className="flex justify-between border-t border-stone-300/50 pt-2">
+                    <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'TOTALE SOGGIORNO:' : 'TOTAL STAY PRICE:'}</span>
+                    <span className="font-bold text-stone-750">
+                      {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(confirmedTotalPrice)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-t border-stone-300/50 pt-2 text-emerald-850 bg-emerald-500/5 p-2 rounded-lg border border-emerald-700/10">
+                    <span className="font-bold uppercase">{lang === 'IT' ? 'ACCONTO PAGATO (30%):' : 'DEPOSIT PAID (30%):'}</span>
+                    <span className="font-black">
+                      {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(Math.round(confirmedTotalPrice * 0.3))}
+                    </span>
+                  </div>
+                  <div className="flex flex-col border-t border-stone-300/50 pt-2 text-stone-700 bg-stone-200/40 p-2 rounded-lg border border-stone-300/30 gap-1">
+                    <div className="flex justify-between w-full">
+                      <span className="font-semibold uppercase">{lang === 'IT' ? 'SALDO DOVUTO ALL\'ARRIVO (70%):' : 'BALANCE DUE AT CHECK-IN (70%):'}</span>
+                      <span className="font-bold">
+                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(confirmedTotalPrice - Math.round(confirmedTotalPrice * 0.3))}
+                      </span>
+                    </div>
+                    <span className="block text-[10px] text-stone-500 font-normal leading-relaxed mt-1">
+                      {t('balanceMethods' as any)}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
 
             <button
@@ -1178,15 +1233,29 @@ export default function BookingEngine() {
 
                   <div className="space-y-2.5">
                     <div className="flex items-start gap-3 p-4 rounded-xl border bg-emerald-500/5 border-emerald-750/35 shadow-sm">
-                      <div className="text-xs">
+                      <div className="text-xs space-y-2">
                         <span className="font-bold text-stone-850 block">
-                          {t('paymentCard' as any)}
+                          {t('paymentCard' as any)} (Stripe)
                         </span>
-                        <span className="text-stone-500 block mt-1 leading-relaxed">
+                        <p className="text-stone-600 leading-relaxed">
                           {lang === 'IT'
-                            ? "Al click su 'Conferma', sarai reindirizzato al server sicuro di Stripe per completare la transazione con Visa, Mastercard o American Express."
-                            : "Upon clicking 'Confirm', you will be securely redirected to Stripe to finalize your payment with Visa, Mastercard, or American Express."}
-                        </span>
+                            ? "Paga solo il 30% oggi tramite Stripe Checkout per garantire la tua prenotazione."
+                            : "Pay only a 30% deposit today via Stripe Checkout to secure your reservation."}
+                        </p>
+                        <div className="bg-stone-200/50 rounded-xl p-3 border border-stone-300 space-y-1.5 text-stone-700 leading-normal">
+                          <span className="block font-bold text-stone-850 uppercase text-[9px] tracking-wider">
+                            {t('paymentPolicyTitle' as any)}
+                          </span>
+                          <p className="text-[11px]">
+                            <strong>{lang === 'IT' ? 'Acconto:' : 'Deposit:'}</strong> {lang === 'IT' ? '30% addebito immediato su carta.' : '30% charged today on your credit card.'}
+                          </p>
+                          <p className="text-[11px]">
+                            <strong>{lang === 'IT' ? 'Saldo (70%):' : 'Balance (70%):'}</strong> {lang === 'IT' ? 'da pagare al check-in in Contanti (Thai Baht), Wise o Revolut (senza commissioni), oppure via PayPal (+10% commissione).' : 'due at check-in via Cash (THB), Wise or Revolut (no fees), or PayPal (+10% processing fee).'}
+                          </p>
+                          <p className="text-[11px]">
+                            <strong>{lang === 'IT' ? 'Cancellazione:' : 'Cancellation:'}</strong> {t('cancellationPolicyDesc' as any)}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1304,11 +1373,41 @@ export default function BookingEngine() {
                   </div>
 
                   <div className="flex justify-between items-baseline pt-2 border-t border-stone-300/50">
-                    <span className="font-black text-stone-800 text-sm uppercase">
-                      {t('paymentTotal' as any)}
+                    <span className="font-bold text-stone-600 text-xs uppercase">
+                      {lang === 'IT' ? 'Totale Soggiorno' : 'Total Stay'}
                     </span>
-                    <span className="text-2xl font-black text-emerald-800">
+                    <span className="text-lg font-bold text-stone-750">
                       {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(checkoutPricing.finalTotal)}
+                    </span>
+                  </div>
+
+                  {/* 30% Deposit Card */}
+                  <div className="bg-emerald-500/5 border border-emerald-750/35 rounded-xl p-3.5 mt-2 space-y-1">
+                    <div className="flex justify-between items-baseline">
+                      <span className="font-extrabold text-emerald-800 text-xs uppercase tracking-wide">
+                        {t('depositToday' as any)}
+                      </span>
+                      <span className="text-xl font-black text-emerald-800">
+                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(Math.round(checkoutPricing.finalTotal * 0.3))}
+                      </span>
+                    </div>
+                    <span className="block text-[10px] text-emerald-850 font-medium leading-normal">
+                      {t('cancellationPolicyDesc' as any)}
+                    </span>
+                  </div>
+
+                  {/* 70% Balance Box */}
+                  <div className="bg-stone-200/50 border border-stone-300/80 rounded-xl p-3.5 space-y-1">
+                    <div className="flex justify-between items-baseline">
+                      <span className="font-bold text-stone-600 text-xs uppercase tracking-wide">
+                        {t('balanceAtCheckIn' as any)}
+                      </span>
+                      <span className="text-lg font-extrabold text-stone-850">
+                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(checkoutPricing.finalTotal - Math.round(checkoutPricing.finalTotal * 0.3))}
+                      </span>
+                    </div>
+                    <span className="block text-[10px] text-stone-500 font-medium leading-normal">
+                      {t('balanceMethods' as any)}
                     </span>
                   </div>
                 </div>

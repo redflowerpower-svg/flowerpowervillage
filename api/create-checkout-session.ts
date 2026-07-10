@@ -203,6 +203,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Grand final total
     const finalTotal = roomAndGuestsTotalNetto + breakfastTotal + acTotal;
 
+    // 30% deposit and 70% balance calculation
+    const depositPaid = Math.round(finalTotal * 0.3);
+    const balanceDue = finalTotal - depositPaid;
+
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -211,10 +215,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           price_data: {
             currency: "thb",
             product_data: {
-              name: `Soggiorno presso ${room.name}`,
-              description: `${checkIn} ➔ ${checkOut} (${nights} notti, ${guests} ospiti)`
+              name: `Acconto 30% - ${room.name}`,
+              description: `${checkIn} ➔ ${checkOut} (${nights} notti, ${guests} ospiti). Saldo del 70% (฿${balanceDue}) da pagare al check-in.`
             },
-            unit_amount: finalTotal * 100, // Stripe expects amount in satang/cents
+            unit_amount: depositPaid * 100, // Stripe expects amount in satang/cents
           },
           quantity: 1,
         },
@@ -230,7 +234,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         guestPhone,
         extraBreakfast: String(extraBreakfast),
         extraAC: String(extraAC),
-        totalPrice: String(finalTotal)
+        totalPrice: String(finalTotal),
+        depositPaid: String(depositPaid),
+        balanceDue: String(balanceDue)
       },
       success_url: `${origin}/village?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/village`,

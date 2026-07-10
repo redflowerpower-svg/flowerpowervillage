@@ -76,7 +76,15 @@ export const translations = {
     extraACDesc: "Attiva l'aria condizionata in camera per un soggiorno fresco (altrimenti ventilatore).",
     perDay: "giorno",
     perPerson: "persona",
-    checkoutPaymentTitle: "3. Metodo di Pagamento"
+    checkoutPaymentTitle: "3. Metodo di Pagamento",
+    paymentPolicyTitle: "Politica di Pagamento",
+    paymentPolicyBadge: "Paga solo il 30% oggi",
+    paymentPolicyDesc: "Prenota con il 30% oggi. Il restante 70% si paga all'arrivo.",
+    cancellationPolicyTitle: "Politica di Cancellazione",
+    cancellationPolicyDesc: "Cancellazione gratuita con rimborso totale del deposito fino a 10 giorni prima dell'arrivo. Oltre tale termine il deposito non è rimborsabile.",
+    depositToday: "Acconto da pagare oggi (30%)",
+    balanceAtCheckIn: "Saldo all'arrivo (70%)",
+    balanceMethods: "Metodi di pagamento per il saldo all'arrivo: Contanti (THB), Wise (senza commissioni), Revolut (senza commissioni), o PayPal (+10% commissione)."
   },
   EN: {
     heroTitle: "Flower Power Village",
@@ -153,7 +161,15 @@ export const translations = {
     extraACDesc: "Activate AC in your room for extra comfort (fan is otherwise included).",
     perDay: "day",
     perPerson: "person",
-    checkoutPaymentTitle: "3. Payment Method"
+    checkoutPaymentTitle: "3. Payment Method",
+    paymentPolicyTitle: "Payment Policy",
+    paymentPolicyBadge: "Pay Only 30% Today",
+    paymentPolicyDesc: "Book with just 30% today. The remaining 70% balance is due at check-in.",
+    cancellationPolicyTitle: "Cancellation Policy",
+    cancellationPolicyDesc: "Free cancellation and full refund of your deposit up to 10 days before check-in. Within 10 days, the deposit is non-refundable.",
+    depositToday: "Deposit to pay today (30%)",
+    balanceAtCheckIn: "Remaining balance at check-in (70%)",
+    balanceMethods: "Balance payment methods at arrival: Cash (THB), Wise (no fees), Revolut (no fees), or PayPal (+10% processing fee)."
   },
   TH: {
     heroTitle: "ฟลาวเวอร์ พาวเวอร์ วิลเลจ",
@@ -230,7 +246,15 @@ export const translations = {
     extraACDesc: "เปิดใช้งานเครื่องปรับอากาศในห้องพักเพื่อความสะดวกสบายเป็นพิเศษ (ปกติจะมีพัดลมให้)",
     perDay: "วัน",
     perPerson: "คน",
-    checkoutPaymentTitle: "3. วิธีการชำระเงิน"
+    checkoutPaymentTitle: "3. วิธีการชำระเงิน",
+    paymentPolicyTitle: "นโยบายการชำระเงิน",
+    paymentPolicyBadge: "ชำระเพียง 30% วันนี้",
+    paymentPolicyDesc: "จองโดยชำระเงินมัดจำเพียง 30% วันนี้ ยอดส่วนที่เหลืออีก 70% จะชำระตอนเช็คอิน",
+    cancellationPolicyTitle: "นโยบายการยกเลิก",
+    cancellationPolicyDesc: "ยกเลิกฟรีและคืนเงินมัดจำเต็มจำนวนเมื่อแจ้งล่วงหน้าอย่างน้อย 10 วันก่อนวันเช็คอิน หากน้อยกว่า 10 วันจะไม่คืนเงินมัดจำ",
+    depositToday: "เงินมัดจำที่ต้องชำระวันนี้ (30%)",
+    balanceAtCheckIn: "ยอดค้างชำระตอนเช็คอิน (70%)",
+    balanceMethods: "วิธีการชำระยอดค้างชำระตอนเช็คอิน: เงินสด (บาท), Wise, Revolut (ไม่มีค่าธรรมเนียม) หรือ PayPal (มีค่าธรรมเนียม 10%)"
   },
   DE: {
     heroTitle: "Flower Power Village",
@@ -307,6 +331,14 @@ export const translations = {
     extraACDesc: "Aktivieren Sie die Klimaanlage in Ihrem Zimmer für kühlen Komfort (andernfalls Ventilator).",
     perDay: "Tag",
     perPerson: "Person",
-    checkoutPaymentTitle: "3. Zahlungsmethode"
+    checkoutPaymentTitle: "3. Zahlungsmethode",
+    paymentPolicyTitle: "Zahlungsbedingungen",
+    paymentPolicyBadge: "Zahlen Sie heute nur 30%",
+    paymentPolicyDesc: "Buchen Sie heute mit nur 30% Anzahlung. Der Restbetrag von 70% ist beim Check-in fällig.",
+    cancellationPolicyTitle: "Stornierungsbedingungen",
+    cancellationPolicyDesc: "Kostenlose Stornierung und volle Rückerstattung der Anzahlung bis zu 10 Tage vor Anreise. Innerhalb von 10 Tagen ist die Anzahlung nicht erstattbar.",
+    depositToday: "Heute fällige Anzahlung (30%)",
+    balanceAtCheckIn: "Restbetrag beim Check-in (70%)",
+    balanceMethods: "Zahlungsmethoden für den Restbetrag bei Anreise: Bar (THB), Wise (ohne Gebühren), Revolut (ohne Gebühren) oder PayPal (+10% Gebühr)."
   }
 };
