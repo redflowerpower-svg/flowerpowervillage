@@ -342,10 +342,14 @@ export default function BookingEngine() {
       );
     }
 
+    const positionClass = type === 'in'
+      ? "left-0"
+      : "right-0 left-auto md:left-0 md:right-auto";
+
     return (
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="absolute top-full left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 mt-2 bg-stone-50 border border-stone-300 rounded-3xl p-4 shadow-2xl z-[100] animate-fadeIn w-[280px]"
+        className={`absolute top-full mt-2 bg-stone-50 border border-stone-300 rounded-3xl p-4 shadow-2xl z-[100] animate-fadeIn w-[280px] ${positionClass}`}
       >
         <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-200">
           <button
