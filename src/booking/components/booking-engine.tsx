@@ -136,8 +136,18 @@ export default function BookingEngine() {
 
 
   const [oauthUrl, setOauthUrl] = useState("")
-  const [oauthConnected, setOauthConnected] = useState(isAuthenticated())
+  const [oauthConnected, setOauthConnected] = useState(false)
   const [oauthLoading, setOauthLoading] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    isAuthenticated().then((authed) => {
+      if (active) {
+        setOauthConnected(authed)
+      }
+    })
+    return () => { active = false }
+  }, [])
 
   async function handleSaveToken() {
     if (!oauthUrl.trim()) return

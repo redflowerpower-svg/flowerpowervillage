@@ -12,6 +12,8 @@
 // - createReservation()   -> Client-side con Bearer token
 // =============================================================================
 
+import { supabase } from "../../lib/supabase";
+
 // --- ENV CONFIG ---
 const OCTORATE_CLIENT_ID = import.meta.env.VITE_OCTORATE_CLIENT_ID || ""
 const OCTORATE_SECRET_KEY = import.meta.env.VITE_OCTORATE_SECRET_KEY || ""
@@ -87,28 +89,78 @@ export interface OAuthTokens {
 // OAuth 3-Legged Flow
 // =============================================================================
 
-const TOKEN_STORAGE_KEY = "octorate_tokens"
+let cachedTokens: OAuthTokens | null = null;
 
-function getStoredTokens(): OAuthTokens | null {
+async function getStoredTokens(): Promise<OAuthTokens | null> {
+  if (cachedTokens) return cachedTokens;
+
   try {
-    const raw = localStorage.getItem(TOKEN_STORAGE_KEY)
-    if (!raw) return null
-    return JSON.parse(raw) as OAuthTokens
-  } catch {
-    return null
+    const { data, error } = await supabase
+      .from("octorate_tokens")
+      .select("access_token, refresh_token, expires_in")
+      .eq("id", "singleton")
+      .maybeSingle();
+
+    if (error) {
+      console.error("[Octorate] Error fetching tokens from Supabase:", error);
+      return null;
+    }
+
+    if (!data) return null;
+
+    cachedTokens = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      token_type: "Bearer",
+      expires_in: data.expires_in,
+    };
+    return cachedTokens;
+  } catch (err) {
+    console.error("[Octorate] Exception fetching tokens from Supabase:", err);
+    return null;
   }
 }
 
-function storeTokens(tokens: OAuthTokens): void {
-  localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(tokens))
+async function storeTokens(tokens: OAuthTokens): Promise<void> {
+  cachedTokens = tokens;
+  try {
+    const { error } = await supabase
+      .from("octorate_tokens")
+      .upsert({
+        id: "singleton",
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        expires_in: tokens.expires_in,
+        updated_at: new Date().toISOString()
+      });
+
+    if (error) {
+      console.error("[Octorate] Error saving tokens to Supabase:", error);
+    }
+  } catch (err) {
+    console.error("[Octorate] Exception saving tokens to Supabase:", err);
+  }
 }
 
-export function clearTokens(): void {
-  localStorage.removeItem(TOKEN_STORAGE_KEY)
+export async function clearTokens(): Promise<void> {
+  cachedTokens = null;
+  try {
+    const { error } = await supabase
+      .from("octorate_tokens")
+      .delete()
+      .eq("id", "singleton");
+
+    if (error) {
+      console.error("[Octorate] Error clearing tokens from Supabase:", error);
+    }
+  } catch (err) {
+    console.error("[Octorate] Exception clearing tokens from Supabase:", err);
+  }
 }
 
-export function isAuthenticated(): boolean {
-  return getStoredTokens() !== null
+export async function isAuthenticated(): Promise<boolean> {
+  const tokens = await getStoredTokens();
+  return tokens !== null;
 }
 
 /**
@@ -164,7 +216,7 @@ export async function exchangeToken(authorizationCode: string): Promise<OAuthTok
   }
 
   const tokens: OAuthTokens = await res.json()
-  storeTokens(tokens)
+  await storeTokens(tokens)
   return tokens
 }
 
@@ -173,7 +225,7 @@ export async function exchangeToken(authorizationCode: string): Promise<OAuthTok
  * Anche questa funzione migrera' su Edge Function.
  */
 export async function refreshAccessToken(): Promise<OAuthTokens> {
-  const current = getStoredTokens()
+  const current = await getStoredTokens()
   if (!current?.refresh_token) {
     throw new Error("No refresh token available")
   }
@@ -195,12 +247,12 @@ export async function refreshAccessToken(): Promise<OAuthTokens> {
   })
 
   if (!res.ok) {
-    clearTokens()
+    await clearTokens()
     throw new Error(`Token refresh failed (${res.status})`)
   }
 
   const tokens: OAuthTokens = await res.json()
-  storeTokens(tokens)
+  await storeTokens(tokens)
   return tokens
 }
 
@@ -208,13 +260,13 @@ export async function refreshAccessToken(): Promise<OAuthTokens> {
 // Authenticated API Headers
 // =============================================================================
 
-function getAuthHeaders(): HeadersInit {
+async function getAuthHeaders(): Promise<HeadersInit> {
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     "Accept": "application/json",
   }
 
-  const tokens = getStoredTokens()
+  const tokens = await getStoredTokens()
   if (tokens?.access_token) {
     headers["Authorization"] = `Bearer ${tokens.access_token}`
   }
@@ -454,7 +506,7 @@ const ACCOMMODATIONS_MOCK: Accommodation[] = [
  * Se il token manca o la chiamata fallisce, restituisce i dati mockati.
  */
 export async function fetchAccommodations(): Promise<Accommodation[]> {
-  const tokens = getStoredTokens()
+  const tokens = await getStoredTokens()
 
   if (tokens?.access_token) {
     try {
@@ -482,7 +534,7 @@ export async function checkAvailability(
   checkOut: string,
   guests: number
 ): Promise<AvailabilityResult[]> {
-  const tokens = getStoredTokens()
+  const tokens = await getStoredTokens()
   if (tokens?.access_token) {
     try {
       const structureId = import.meta.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
@@ -494,11 +546,11 @@ export async function checkAvailability(
       while (page < MAX_PAGES_SAFETY_CAP && foundIds.size < WHITELISTED_RATEPLAN_IDS.length) {
         const url = `${OCTORATE_API_BASE}/calendar/${structureId}?dateFrom=${checkIn}&dateTo=${checkOut}&size=${PAGE_SIZE}&${PAGINATION_PARAM_NAME}=${page}`;
 
-        let res = await fetch(url, { method: "GET", headers: getAuthHeaders() });
+        let res = await fetch(url, { method: "GET", headers: await getAuthHeaders() });
 
         if (res.status === 401 || res.status === 403) {
           await refreshAccessToken();
-          res = await fetch(url, { method: "GET", headers: getAuthHeaders() });
+          res = await fetch(url, { method: "GET", headers: await getAuthHeaders() });
         }
 
         if (!res.ok) {
@@ -637,13 +689,13 @@ function getMockAvailability(checkIn: string, checkOut: string, guests: number):
 export async function createReservation(
   payload: ReservationPayload
 ): Promise<ReservationResponse> {
-  const tokens = getStoredTokens()
+  const tokens = await getStoredTokens()
 
   if (tokens?.access_token) {
     try {
       const res = await fetch(`${OCTORATE_API_BASE}/reservations`, {
         method: "POST",
-        headers: getAuthHeaders(),
+        headers: await getAuthHeaders(),
         body: JSON.stringify(payload),
       })
 
@@ -651,7 +703,7 @@ export async function createReservation(
         await refreshAccessToken()
         const retryRes = await fetch(`${OCTORATE_API_BASE}/reservations`, {
           method: "POST",
-          headers: getAuthHeaders(),
+          headers: await getAuthHeaders(),
           body: JSON.stringify(payload),
         })
         if (retryRes.ok) return await retryRes.json()
