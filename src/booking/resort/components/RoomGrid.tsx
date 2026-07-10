@@ -864,7 +864,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
 
       {/* STYLISH GALLERY POPUP MODAL */}
       {activeGalleryRoom && activeGalleryRoom.images && activeGalleryRoom.images.length > 0 && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-start pt-12 pb-4 px-2 md:justify-center md:p-6 bg-stone-950/95 backdrop-blur-md select-none transition-all duration-300 overflow-hidden h-screen">
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center py-4 px-2 md:p-6 bg-stone-950/95 backdrop-blur-md select-none transition-all duration-300 overflow-hidden h-screen">
           
           {/* Close button */}
           <button
@@ -903,21 +903,8 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
             </button>
           </div>
 
-          {/* Info Caption */}
-          <div className="w-full max-w-3xl text-center mt-2 mb-1 md:mt-4 md:mb-3 px-4 flex-shrink-0">
-            <h4 className="text-white text-lg md:text-2xl font-sans tracking-tight mb-1 font-bold">
-              {activeGalleryRoom.title}
-            </h4>
-            <p className="text-stone-300 text-[11px] md:text-sm max-w-xl mx-auto font-normal leading-relaxed line-clamp-2 md:line-clamp-none">
-              {activeGalleryRoom.description}
-            </p>
-            <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-stone-900/80 text-[9px] md:text-[10px] text-stone-400 border border-stone-800/50 uppercase font-bold tracking-widest">
-              Foto {activeImageIndex + 1} di {activeGalleryRoom.images.length}
-            </span>
-          </div>
-
-          {/* Thumbnails list */}
-          <div className="w-full max-w-3xl flex items-center justify-start md:justify-center gap-2 overflow-x-auto py-2 px-4 no-scrollbar flex-shrink-0">
+          {/* Thumbnails list (placed ABOVE caption) */}
+          <div className="w-full max-w-3xl flex items-center justify-start md:justify-center gap-2 overflow-x-auto py-2 px-4 no-scrollbar flex-shrink-0 mb-2 md:mb-4">
             {activeGalleryRoom.images.map((src, i) => (
               <button
                 key={i}
@@ -935,6 +922,19 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                 />
               </button>
             ))}
+          </div>
+
+          {/* Info Caption (placed BELOW thumbnails) */}
+          <div className="w-full max-w-3xl text-center px-4 flex-shrink-0 mb-2 md:mb-4">
+            <h4 className="text-white text-xl md:text-3xl font-sans tracking-tight mb-1 md:mb-2 font-bold">
+              {activeGalleryRoom.title}
+            </h4>
+            <p className="text-stone-300 text-xs sm:text-sm md:text-base max-w-xl mx-auto font-normal leading-relaxed line-clamp-3 md:line-clamp-none">
+              {activeGalleryRoom.description}
+            </p>
+            <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-stone-900/80 text-[9px] md:text-[10px] text-stone-400 border border-stone-800/50 uppercase font-bold tracking-widest">
+              Foto {activeImageIndex + 1} di {activeGalleryRoom.images.length}
+            </span>
           </div>
 
         </div>
