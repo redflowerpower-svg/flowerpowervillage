@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api-octorate/:path*",
+      "destination": "https://api.octorate.com/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
