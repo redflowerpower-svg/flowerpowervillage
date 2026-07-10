@@ -5,7 +5,7 @@
       "destination": "https://api.octorate.com/:path*"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/|@|src/|node_modules/).*)",
       "destination": "/index.html"
     }
   ]

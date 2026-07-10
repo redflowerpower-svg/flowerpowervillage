@@ -31,3 +31,4 @@ Desktop.ini
 # ─── Misc ───────────────────────────────────────────────
 *.local
 .eslintcache
+.vercel
