@@ -864,14 +864,14 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
 
       {/* STYLISH GALLERY POPUP MODAL */}
       {activeGalleryRoom && activeGalleryRoom.images && activeGalleryRoom.images.length > 0 && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 md:p-6 bg-stone-950/95 backdrop-blur-md select-none transition-all duration-300 overflow-hidden h-screen">
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center py-4 px-2 md:p-6 bg-stone-950/95 backdrop-blur-md select-none transition-all duration-300 overflow-hidden h-screen">
           
           {/* Close button */}
           <button
             onClick={closeGallery}
-            className="absolute top-6 right-6 p-3 rounded-full bg-stone-900/80 hover:bg-stone-800 border border-stone-800 text-stone-300 hover:text-white cursor-pointer transition-all duration-200 z-[110]"
+            className="absolute top-4 right-4 md:top-6 md:right-6 p-2 md:p-3 rounded-full bg-stone-900/80 hover:bg-stone-800 border border-stone-800 text-stone-300 hover:text-white cursor-pointer transition-all duration-200 z-[110]"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
 
           {/* Main image container */}
@@ -882,7 +882,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
               onClick={prevImage}
               className="absolute left-2 md:left-4 p-2 md:p-3 rounded-full bg-stone-900/60 hover:bg-stone-800/80 text-white border border-stone-800/50 cursor-pointer transition-all duration-200 z-10 hover:scale-105 active:scale-95"
             >
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
+              <ChevronLeft className="w-4 h-4 md:w-6 md:h-6" />
             </button>
 
             {/* Main Image */}
@@ -899,30 +899,30 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
               onClick={nextImage}
               className="absolute right-2 md:right-4 p-2 md:p-3 rounded-full bg-stone-900/60 hover:bg-stone-800/80 text-white border border-stone-800/50 cursor-pointer transition-all duration-200 z-10 hover:scale-105 active:scale-95"
             >
-              <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
+              <ChevronRight className="w-4 h-4 md:w-6 md:h-6" />
             </button>
           </div>
 
           {/* Info Caption */}
-          <div className="w-full max-w-3xl text-center mt-3 mb-2 md:mt-4 md:mb-3 px-4 flex-shrink-0">
-            <h4 className="text-white text-xl md:text-2xl font-sans tracking-tight mb-1.5 font-bold">
+          <div className="w-full max-w-3xl text-center mt-2 mb-1 md:mt-4 md:mb-3 px-4 flex-shrink-0">
+            <h4 className="text-white text-lg md:text-2xl font-sans tracking-tight mb-1 font-bold">
               {activeGalleryRoom.title}
             </h4>
-            <p className="text-stone-300 text-xs md:text-sm max-w-xl mx-auto font-normal leading-relaxed line-clamp-2 md:line-clamp-none">
+            <p className="text-stone-300 text-xs md:text-sm max-w-xl mx-auto font-normal leading-relaxed hidden md:block">
               {activeGalleryRoom.description}
             </p>
-            <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-full bg-stone-900/80 text-[9px] md:text-[10px] text-stone-400 border border-stone-800/50 uppercase font-bold tracking-widest">
+            <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-stone-900/80 text-[9px] md:text-[10px] text-stone-400 border border-stone-800/50 uppercase font-bold tracking-widest">
               Foto {activeImageIndex + 1} di {activeGalleryRoom.images.length}
             </span>
           </div>
 
           {/* Thumbnails list */}
-          <div className="w-full max-w-3xl flex items-center justify-center gap-1.5 md:gap-2 overflow-x-auto py-1 md:py-2 px-4 scrollbar-thin scrollbar-thumb-stone-800 flex-shrink-0">
+          <div className="w-full max-w-3xl flex items-center justify-start md:justify-center gap-2 overflow-x-auto py-2 px-4 no-scrollbar flex-shrink-0">
             {activeGalleryRoom.images.map((src, i) => (
               <button
                 key={i}
                 onClick={() => setActiveImageIndex(i)}
-                className={`relative w-12 h-9 md:w-16 md:h-12 flex-shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
+                className={`relative w-16 h-12 md:w-20 md:h-15 flex-shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
                   i === activeImageIndex
                     ? "border-emerald-500 scale-105 shadow-md shadow-emerald-500/20 opacity-100"
                     : "border-stone-800 opacity-40 hover:opacity-100 hover:scale-102"
