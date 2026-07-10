@@ -148,7 +148,7 @@ export default function BookingEngine() {
       }
 
       const verifyData = await verifyRes.json()
-      const { bookingData, stripeSessionId, octorateReservationId, octorateStatus, octorateError } = verifyData
+      const { bookingData, stripeSessionId } = verifyData
 
       // Find the room type based on the octorate ID
       const matchedRoom = ACCOMMODATIONS.find(
@@ -172,16 +172,21 @@ export default function BookingEngine() {
       })
       setConfirmedTotalPrice(Number(bookingData.totalPrice))
 
-      // Octorate reservation is now handled server-side in verify-checkout-session.ts
-      // The response includes octorateReservationId and octorateStatus
+      // Create the reservation in Octorate (client-side, goes through Vite proxy)
+      const response = await createReservation({
+        accommodationId: bookingData.accommodationId,
+        checkIn: bookingData.checkIn,
+        checkOut: bookingData.checkOut,
+        guests: bookingData.guests,
+        guestName: bookingData.guestName,
+        guestEmail: bookingData.guestEmail,
+        phone: bookingData.guestPhone,
+        note: `PAGATO ACCONTO 30% via Stripe (฿${Math.round(bookingData.totalPrice * 0.3)}). Saldo del 70% dovuto all'arrivo: ฿${bookingData.totalPrice - Math.round(bookingData.totalPrice * 0.3)}. ID Transazione: ${stripeSessionId}`,
+        totalPrice: bookingData.totalPrice
+      })
 
-      if (octorateReservationId && octorateStatus === "confirmed") {
-        setBookingId(octorateReservationId)
-        setIsBooked(true)
-      } else if (octorateError) {
-        // Octorate failed but payment went through — still show success
-        console.warn("[Verify API] Octorate warning:", octorateError)
-        setBookingId(`STRIPE-${stripeSessionId}`)
+      if (response && response.status === "confirmed") {
+        setBookingId(response.reservationId)
         setIsBooked(true)
       } else {
         throw new Error("Errore durante la registrazione della prenotazione su Octorate.")
