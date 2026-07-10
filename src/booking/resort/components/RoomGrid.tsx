@@ -904,12 +904,12 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
           </div>
 
           {/* Thumbnails list (placed ABOVE caption) */}
-          <div className="w-full max-w-3xl flex items-center justify-start md:justify-center gap-2 overflow-x-auto py-2 px-4 no-scrollbar flex-shrink-0 mt-6 mb-3 md:mt-8 md:mb-4">
+          <div className="w-full max-w-3xl flex items-center justify-start md:justify-center gap-2 overflow-x-auto py-2 px-4 no-scrollbar flex-shrink-0 mt-8 mb-4 md:mt-10 md:mb-6">
             {activeGalleryRoom.images.map((src, i) => (
               <button
                 key={i}
                 onClick={() => setActiveImageIndex(i)}
-                className={`relative w-16 h-12 md:w-20 md:h-15 flex-shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
+                className={`relative w-20 h-14 md:w-24 md:h-18 flex-shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
                   i === activeImageIndex
                     ? "border-emerald-500 scale-105 shadow-md shadow-emerald-500/20 opacity-100"
                     : "border-stone-800 opacity-40 hover:opacity-100 hover:scale-102"
@@ -925,14 +925,14 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
           </div>
 
           {/* Info Caption (placed BELOW thumbnails) */}
-          <div className="w-full max-w-3xl text-center px-4 flex-shrink-0 mb-2 md:mb-4">
-            <h4 className="text-white text-lg md:text-2xl font-sans tracking-tight mb-1 font-bold">
+          <div className="w-full max-w-3xl text-center px-4 flex-shrink-0 mb-4 md:mb-6">
+            <h4 className="text-white text-2xl md:text-4xl font-sans tracking-tight mb-2 font-bold">
               {activeGalleryRoom.title}
             </h4>
-            <p className="text-stone-300 text-[11px] sm:text-xs md:text-sm max-w-xl mx-auto font-normal leading-relaxed line-clamp-2 md:line-clamp-none">
+            <p className="text-stone-300 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-normal leading-relaxed line-clamp-3 md:line-clamp-none">
               {activeGalleryRoom.description}
             </p>
-            <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-stone-900/80 text-[9px] md:text-[10px] text-stone-400 border border-stone-800/50 uppercase font-bold tracking-widest">
+            <span className="inline-block mt-3 px-2.5 py-0.5 rounded-full bg-stone-900/80 text-[10px] md:text-xs text-stone-400 border border-stone-800/50 uppercase font-bold tracking-widest">
               Foto {activeImageIndex + 1} di {activeGalleryRoom.images.length}
             </span>
           </div>
