@@ -66,6 +66,9 @@ export interface ReservationPayload {
   guests: number
   guestName: string
   guestEmail: string
+  phone?: string
+  note?: string
+  totalPrice?: number
 }
 
 export interface ReservationResponse {
@@ -728,7 +731,7 @@ export async function createReservation(
     accommodationId: payload.accommodationId,
     checkIn: payload.checkIn,
     checkOut: payload.checkOut,
-    totalPrice: (acc?.base_price_high ?? 0) * nights,
+    totalPrice: payload.totalPrice || (acc?.base_price_high ?? 0) * nights,
     currency: "THB",
   }
 }

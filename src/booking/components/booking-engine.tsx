@@ -100,10 +100,10 @@ export default function BookingEngine() {
   const [selectedRoom, setSelectedRoom] = useState<any | null>(null)
   const [selectedPricing, setSelectedPricing] = useState<any | null>(null)
   const [checkoutData, setCheckoutData] = useState({ name: "", email: "", phone: "", requests: "" })
-  const [paymentMethod, setPaymentMethod] = useState("card")
   const [bookingLoading, setBookingLoading] = useState(false)
   const [isBooked, setIsBooked] = useState(false)
   const [bookingId, setBookingId] = useState("")
+  const [verifyingPayment, setVerifyingPayment] = useState(false)
   
   // Custom extra services options (Breakfast & AC)
   const [extraBreakfast, setExtraBreakfast] = useState(false)
@@ -133,6 +133,83 @@ export default function BookingEngine() {
     window.addEventListener('click', handleOutsideClick);
     return () => window.removeEventListener('click', handleOutsideClick);
   }, []);
+
+  // Verify Stripe payment session and register reservation in Octorate
+  const verifyAndConfirmBooking = async (sessionId: string) => {
+    try {
+      setVerifyingPayment(true)
+      setBookingLoading(true)
+
+      const verifyRes = await fetch(`/api/verify-checkout-session?session_id=${sessionId}`)
+      if (!verifyRes.ok) {
+        const errorData = await verifyRes.json()
+        throw new Error(errorData.error || "Impossibile verificare la sessione di pagamento.")
+      }
+
+      const { bookingData, stripeSessionId } = await verifyRes.json()
+
+      // Find the room type based on the octorate ID
+      const matchedRoom = ACCOMMODATIONS.find(
+        (r) => r.octorateId === bookingData.accommodationId
+      )
+
+      // Restore states to render the success screen properly
+      if (matchedRoom) {
+        setSelectedRoom(matchedRoom as any)
+      }
+      setCheckIn(bookingData.checkIn)
+      setCheckOut(bookingData.checkOut)
+      setGuests(bookingData.guests)
+      setExtraBreakfast(bookingData.extraBreakfast)
+      setExtraAC(bookingData.extraAC)
+      setCheckoutData({
+        name: bookingData.guestName,
+        email: bookingData.guestEmail,
+        phone: bookingData.guestPhone,
+        requests: ""
+      })
+
+      // Create the reservation in Octorate
+      const response = await createReservation({
+        accommodationId: bookingData.accommodationId,
+        checkIn: bookingData.checkIn,
+        checkOut: bookingData.checkOut,
+        guests: bookingData.guests,
+        guestName: bookingData.guestName,
+        guestEmail: bookingData.guestEmail,
+        phone: bookingData.guestPhone,
+        note: `Pagato con Stripe. ID Sessione: ${stripeSessionId}`,
+        totalPrice: bookingData.totalPrice
+      })
+
+      if (response && response.status === "confirmed") {
+        setBookingId(response.reservationId)
+        setIsBooked(true)
+      } else {
+        throw new Error("Errore durante la registrazione della prenotazione su Octorate.")
+      }
+    } catch (err: any) {
+      console.error("[Stripe Verify Error]", err)
+      alert(lang === 'IT'
+        ? `Impossibile verificare il pagamento: ${err.message}`
+        : `Could not verify payment: ${err.message}`
+      )
+    } finally {
+      setVerifyingPayment(false)
+      setBookingLoading(false)
+    }
+  }
+
+  // Check for Stripe Checkout redirect callback on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const sessionId = params.get('session_id')
+    if (sessionId) {
+      // Clean query parameters from URL so refreshes don't double-verify
+      window.history.replaceState({}, document.title, window.location.pathname)
+      verifyAndConfirmBooking(sessionId)
+    }
+  }, [])
 
 
   const [oauthUrl, setOauthUrl] = useState("")
@@ -427,24 +504,42 @@ export default function BookingEngine() {
     try {
       setBookingLoading(true)
       
-      const response = await createReservation({
-        accommodationId: selectedRoom.id,
-        checkIn,
-        checkOut,
-        guests,
-        guestName: checkoutData.name,
-        guestEmail: checkoutData.email
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          accommodationId: selectedRoom.octorateId || selectedRoom.id,
+          checkIn,
+          checkOut,
+          guests,
+          guestName: checkoutData.name,
+          guestEmail: checkoutData.email,
+          guestPhone: checkoutData.phone,
+          extraBreakfast,
+          extraAC,
+          origin: window.location.origin
+        })
       })
 
-      if (response && response.status === "confirmed") {
-        setBookingId(response.reservationId)
-        setIsBooked(true)
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Impossibile avviare la sessione di pagamento.")
+      }
+
+      const session = await response.json()
+      if (session.url) {
+        window.location.href = session.url
       } else {
-        throw new Error("Errore durante la creazione della prenotazione")
+        throw new Error("Stripe Checkout URL non trovato nella risposta.")
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
-      alert(`Errore prenotazione: ${msg}`)
+      alert(lang === 'IT'
+        ? `Errore durante l'avvio del pagamento: ${msg}`
+        : `Error starting payment: ${msg}`
+      )
     } finally {
       setBookingLoading(false)
     }
@@ -868,7 +963,21 @@ export default function BookingEngine() {
 
       {/* --- FILTER SEGMENTS --- */}
       <main className="max-w-6xl mx-auto px-4 pt-4 pb-6">
-        {isBooked ? (
+        {verifyingPayment ? (
+          /* --- VERIFYING PAYMENT SCREEN --- */
+          <div className="min-h-[40vh] flex flex-col items-center justify-center p-8 bg-stone-50 border border-stone-300 rounded-3xl text-center shadow-lg my-12 animate-fadeIn max-w-xl mx-auto">
+            <div className="w-12 h-12 border-4 border-stone-200 border-t-emerald-800 rounded-full animate-spin mb-6"></div>
+            <h3 className="text-xl font-black text-stone-850 mb-2">
+              {lang === 'IT' ? "Verifica del pagamento..." : "Verifying payment..."}
+            </h3>
+            <p className="text-stone-500 text-sm leading-relaxed max-w-xs">
+              {lang === 'IT' 
+                ? "Stiamo verificando la transazione Stripe e registrando la tua prenotazione su Octorate."
+                : "We are verifying the Stripe transaction and registering your booking with Octorate."
+              }
+            </p>
+          </div>
+        ) : isBooked ? (
           /* --- SUCCESS SCREEN --- */
           <div className="max-w-xl mx-auto bg-stone-50 border border-stone-300 rounded-3xl p-8 text-center shadow-lg my-12 animate-fadeIn">
             <div className="w-16 h-16 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto mb-6 border border-emerald-300">
@@ -900,9 +1009,7 @@ export default function BookingEngine() {
               <div className="flex justify-between border-t border-stone-300/50 pt-2">
                 <span className="text-stone-500 font-semibold uppercase">PAGAMENTO SCELTO:</span>
                 <span className="font-bold text-stone-700 uppercase">
-                  {paymentMethod === "card" && t('paymentCard' as any)}
-                  {paymentMethod === "transfer" && t('paymentTransfer' as any)}
-                  {paymentMethod === "resort" && t('paymentResort' as any)}
+                  {t('paymentCard' as any)}
                 </span>
               </div>
             </div>
@@ -1089,102 +1196,18 @@ export default function BookingEngine() {
                   </h3>
                   
                   <div className="space-y-2.5">
-                    {/* Stripe Card Option */}
-                    <label className={`flex items-start gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-                      paymentMethod === "card"
-                        ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
-                        : "bg-stone-100/30 border-stone-300 hover:bg-stone-100/70"
-                    }`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="card"
-                        checked={paymentMethod === "card"}
-                        onChange={() => setPaymentMethod("card")}
-                        className="mt-1 accent-emerald-750 cursor-pointer"
-                      />
+                    <div className="flex items-start gap-3 p-4 rounded-xl border bg-emerald-500/5 border-emerald-750/35 shadow-sm">
                       <div className="text-xs">
                         <span className="font-bold text-stone-850 block">
                           {t('paymentCard' as any)}
                         </span>
-                        <span className="text-stone-500 block mt-0.5 leading-relaxed">
-                          Paga in sicurezza con Visa, Mastercard o American Express via Stripe.
-                        </span>
-                        {paymentMethod === "card" && (
-                          <div className="mt-4 pt-3 border-t border-emerald-600/10 grid grid-cols-1 gap-3 max-w-sm animate-fadeIn">
-                            <input
-                              type="text"
-                              placeholder="Numero Carta"
-                              className="w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-750"
-                              disabled
-                              value="••••  ••••  ••••  4242 (Demo)"
-                            />
-                            <div className="grid grid-cols-2 gap-2">
-                              <input
-                                type="text"
-                                placeholder="MM/AA"
-                                className="w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-750"
-                                disabled
-                              />
-                              <input
-                                type="text"
-                                placeholder="CVC"
-                                className="w-full bg-white border border-stone-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-750"
-                                disabled
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </label>
-
-                    {/* PromptPay Transfer Option */}
-                    <label className={`flex items-start gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-                      paymentMethod === "transfer"
-                        ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
-                        : "bg-stone-100/30 border-stone-300 hover:bg-stone-100/70"
-                    }`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="transfer"
-                        checked={paymentMethod === "transfer"}
-                        onChange={() => setPaymentMethod("transfer")}
-                        className="mt-1 accent-emerald-750 cursor-pointer"
-                      />
-                      <div className="text-xs">
-                        <span className="font-bold text-stone-850 block">
-                          {t('paymentTransfer' as any)}
-                        </span>
-                        <span className="text-stone-500 block mt-0.5 leading-relaxed">
-                          Effettua un trasferimento istantaneo PromptPay con QR Code o bonifico tailandese. Riceverai le istruzioni via email.
+                        <span className="text-stone-500 block mt-1 leading-relaxed">
+                          {lang === 'IT'
+                            ? "Al click su 'Conferma', sarai reindirizzato al server sicuro di Stripe per completare la transazione con Visa, Mastercard o American Express."
+                            : "Upon clicking 'Confirm', you will be securely redirected to Stripe to finalize your payment with Visa, Mastercard, or American Express."}
                         </span>
                       </div>
-                    </label>
-
-                    {/* Pay at Resort Option */}
-                    <label className={`flex items-start gap-3 p-4 rounded-xl border transition-all cursor-pointer ${
-                      paymentMethod === "resort"
-                        ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
-                        : "bg-stone-100/30 border-stone-300 hover:bg-stone-100/70"
-                    }`}>
-                      <input
-                        type="radio"
-                        name="payment"
-                        value="resort"
-                        checked={paymentMethod === "resort"}
-                        onChange={() => setPaymentMethod("resort")}
-                        className="mt-1 accent-emerald-750 cursor-pointer"
-                      />
-                      <div className="text-xs">
-                        <span className="font-bold text-stone-850 block">
-                          {t('paymentResort' as any)}
-                        </span>
-                        <span className="text-stone-500 block mt-0.5 leading-relaxed">
-                          Garantisci la prenotazione oggi e salda direttamente in reception all'arrivo in contanti o carta.
-                        </span>
-                      </div>
-                    </label>
+                    </div>
                   </div>
                 </div>
 
