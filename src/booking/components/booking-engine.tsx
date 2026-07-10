@@ -644,32 +644,11 @@ export default function BookingEngine() {
                   <span className="text-stone-400">•</span>
                   <span>{t('heroLine4')}</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Payment Copy Promo Banner */}
-            <div className="mt-8 bg-emerald-950/65 border border-emerald-800/40 rounded-2xl p-4 flex flex-col md:flex-row items-center gap-4 text-left shadow-lg backdrop-blur-sm">
-              <div className="bg-emerald-900 text-emerald-300 p-2.5 rounded-xl flex-shrink-0 flex items-center justify-center border border-emerald-700/30">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div className="space-y-1 flex-1">
-                <h4 className="text-sm font-black tracking-wide text-white uppercase flex items-center gap-2 flex-wrap">
-                  {lang === 'IT' ? 'Prenota Diretto - Paga solo il 30% oggi' : 'Book Direct - Pay Only 30% Today'}
-                  <span className="bg-emerald-800 text-emerald-200 border border-emerald-600/30 text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider">
-                    {lang === 'IT' ? 'Cancellazione Flessibile' : 'Flexible Cancellation'}
-                  </span>
-                </h4>
-                <p className="text-stone-300 text-xs leading-relaxed font-light">
-                  {lang === 'IT'
-                    ? 'Riserva il tuo soggiorno versando solo il 30% oggi. Il restante 70% lo pagherai comodamente al check-in (in contanti, Wise, Revolut o via PayPal). Cancellazione gratuita con rimborso totale del deposito fino a 10 giorni prima dell\'arrivo.'
-                    : 'Reserve your stay by paying just 30% today. The remaining 70% balance is due at check-in (via cash, Wise, Revolut, or PayPal). Free cancellation and full refund of your deposit up to 10 days before arrival.'
-                  }
-                </p>
-              </div>
             </div>
           </div>
-        </header>
-      </div>
+        </div>
+      </header>
+    </div>
 
       <section className="sticky top-0 z-50 bg-stone-300/95 backdrop-blur-md shadow-md border-b border-stone-400 py-4 md:py-3 transition-all">
         <div className="max-w-6xl mx-auto px-4">
