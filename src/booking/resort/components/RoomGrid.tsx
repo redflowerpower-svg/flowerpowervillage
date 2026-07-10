@@ -864,7 +864,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
 
       {/* STYLISH GALLERY POPUP MODAL */}
       {activeGalleryRoom && activeGalleryRoom.images && activeGalleryRoom.images.length > 0 && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center py-4 px-2 md:p-6 bg-stone-950/95 backdrop-blur-md select-none transition-all duration-300 overflow-hidden h-screen">
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-start pt-12 pb-4 px-2 md:justify-center md:p-6 bg-stone-950/95 backdrop-blur-md select-none transition-all duration-300 overflow-hidden h-screen">
           
           {/* Close button */}
           <button
@@ -908,7 +908,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
             <h4 className="text-white text-lg md:text-2xl font-sans tracking-tight mb-1 font-bold">
               {activeGalleryRoom.title}
             </h4>
-            <p className="text-stone-300 text-xs md:text-sm max-w-xl mx-auto font-normal leading-relaxed hidden md:block">
+            <p className="text-stone-300 text-[11px] md:text-sm max-w-xl mx-auto font-normal leading-relaxed line-clamp-2 md:line-clamp-none">
               {activeGalleryRoom.description}
             </p>
             <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-stone-900/80 text-[9px] md:text-[10px] text-stone-400 border border-stone-800/50 uppercase font-bold tracking-widest">
@@ -922,7 +922,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
               <button
                 key={i}
                 onClick={() => setActiveImageIndex(i)}
-                className={`relative w-16 h-12 md:w-20 md:h-15 flex-shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
+                className={`relative w-20 h-14 md:w-24 md:h-18 flex-shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
                   i === activeImageIndex
                     ? "border-emerald-500 scale-105 shadow-md shadow-emerald-500/20 opacity-100"
                     : "border-stone-800 opacity-40 hover:opacity-100 hover:scale-102"
