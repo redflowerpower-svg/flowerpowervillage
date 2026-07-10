@@ -302,6 +302,7 @@ export async function fetchAccommodations(): Promise<EnrichedAccommodation[]> {
             const { data } = supabase.storage
               .from('accommodations')
               .getPublicUrl(`${folder}/${file.name}`);
+            
             const timestamp = `?t=${Date.now()}`;
             return `${data.publicUrl}${timestamp}`;
           });

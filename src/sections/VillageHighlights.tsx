@@ -38,7 +38,7 @@ export default function VillageHighlights() {
     <section className="py-24 bg-stone-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <p className="text-xs tracking-[0.4em] uppercase text-amber-600 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <p className="text-xs tracking-[0.4em] uppercase text-emerald-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
             Why Choose Us
           </p>
           <h2
@@ -47,7 +47,7 @@ export default function VillageHighlights() {
           >
             A Complete Island Escape
           </h2>
-          <div className="w-12 h-px bg-amber-500 mx-auto" />
+          <div className="w-12 h-px bg-emerald-600 mx-auto" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -56,10 +56,10 @@ export default function VillageHighlights() {
             return (
               <div
                 key={i}
-                className="group p-8 bg-white border border-stone-100 hover:border-amber-200 hover:shadow-lg transition-all duration-300"
+                className="group p-8 bg-white border border-stone-100 hover:border-emerald-200 hover:shadow-lg transition-all duration-300"
               >
-                <div className="w-12 h-12 flex items-center justify-center bg-amber-50 group-hover:bg-amber-100 transition-colors duration-300 mb-5">
-                  <Icon size={20} className="text-amber-600" />
+                <div className="w-12 h-12 flex items-center justify-center bg-emerald-50 group-hover:bg-emerald-100 transition-colors duration-300 mb-5">
+                  <Icon size={20} className="text-emerald-700" />
                 </div>
                 <h3
                   className="text-stone-800 mb-3"

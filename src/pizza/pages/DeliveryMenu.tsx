@@ -11,46 +11,62 @@ const translations = {
   IT: {
     title: 'Flower Power Pizza',
     subtitle: 'Ranong, Thailandia',
-    tagline1: 'Pizza Italiana & Delivery',
-    tagline2: 'Forno a Legna • Ingredienti Importati',
+    tagline1: 'PIZZA & CUCINA ITALIANA',
+    tagline2: 'Cuoca Italiana • Ingredienti Importati',
     info1: 'Aperto tutti i giorni',
-    info2: '08:00 – 21:15',
+    info2: '11:00 – 21:30',
     info3: 'Consegna & Ritiro',
     cartItems: 'prodotti nel carrello',
     cartItem: 'prodotto nel carrello',
+    promoTitle: 'Promozioni & Consegna a Domicilio',
+    deliveryLimit: 'Le consegne si effettuano esclusivamente per la città di Ranong.',
+    promoFreeDelivery: 'Consegna GRATIS per ordini sopra i 200฿',
+    promoFirstOrder: '10% di sconto sul tuo primo ordine',
   },
   EN: {
     title: 'Flower Power Pizza',
     subtitle: 'Ranong, Thailand',
-    tagline1: 'Italian Pizza & Delivery',
-    tagline2: 'Wood-fired Oven • Imported Ingredients',
+    tagline1: 'PIZZA & ITALIAN CUISINE',
+    tagline2: 'Italian Chef • Imported Ingredients',
     info1: 'Open Daily',
-    info2: '08:00 – 21:15',
+    info2: '11:00 – 21:30',
     info3: 'Delivery & Pickup',
     cartItems: 'items in cart',
     cartItem: 'item in cart',
+    promoTitle: 'Promotions & Delivery Info',
+    deliveryLimit: 'Deliveries are made exclusively within the city of Ranong.',
+    promoFreeDelivery: 'FREE delivery for orders over 200฿',
+    promoFirstOrder: '10% discount on your first order',
   },
   TH: {
     title: 'ฟลาวเวอร์ พาวเวอร์ พิซซ่า',
     subtitle: 'ระนอง, ประเทศไทย',
-    tagline1: 'พิซซ่าอิตาเลียนและการจัดส่ง',
-    tagline2: 'เตาอบฟืนไม้ • วัตถุดิบนำเข้า',
+    tagline1: 'พิซซ่าและอาหารอิตาเลียน',
+    tagline2: 'เชฟหญิงชาวอิตาลี • วัตถุดิบนำเข้า',
     info1: 'เปิดบริการทุกวัน',
-    info2: '08:00 – 21:15',
+    info2: '11:00 – 21:30',
     info3: 'บริการจัดส่งและรับที่ร้าน',
     cartItems: 'รายการในรถเข็น',
     cartItem: 'รายการในรถเข็น',
+    promoTitle: 'โปรโมชั่นและข้อมูลการจัดส่ง',
+    deliveryLimit: 'บริการจัดส่งเฉพาะในเขตตัวเมืองระนองเท่านั้น',
+    promoFreeDelivery: 'จัดส่งฟรี เมื่อสั่งซื้อครบ 200฿ ขึ้นไป',
+    promoFirstOrder: 'ส่วนลด 10% สำหรับการสั่งซื้อครั้งแรก',
   },
   DE: {
     title: 'Flower Power Pizza',
     subtitle: 'Ranong, Thailand',
-    tagline1: 'Italienische Pizza & Lieferung',
-    tagline2: 'Holzofen • Importierte Zutaten',
+    tagline1: 'PIZZA & ITALIENISCHE KÜCHE',
+    tagline2: 'Italienische Köchin • Importierte Zutaten',
     info1: 'Täglich geöffnet',
-    info2: '08:00 – 21:15',
+    info2: '11:00 – 21:30',
     info3: 'Lieferung & Abholung',
     cartItems: 'Artikel im Warenkorb',
     cartItem: 'Artikel im Warenkorb',
+    promoTitle: 'Aktionen & Lieferbedingungen',
+    deliveryLimit: 'Lieferungen erfolgen ausschließlich innerhalb der Stadt Ranong.',
+    promoFreeDelivery: 'KOSTENLOSE Lieferung ab 200฿ Bestellwert',
+    promoFirstOrder: '10% Rabatt auf Ihre erste Bestellung',
   },
 };
 
@@ -111,16 +127,16 @@ export default function DeliveryMenu() {
   const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
 
   return (
-    <div className="min-h-screen bg-[#e7e5e4] pb-12 antialiased">
+    <div className="min-h-screen bg-[#e7e5e4] pb-12 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
       <div className="max-w-6xl mx-auto px-4 mt-20 md:mt-24">
         
-        {/* Symmetrical Pizza Oven Header Card */}
-        <header className="relative text-stone-100 py-5 lg:py-10 px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg mb-6" style={{ backgroundColor: '#3b3530' }}>
+        {/* Italian Chef Header Card */}
+        <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg mb-6" style={{ backgroundColor: '#3b3530' }}>
           <div
             className="absolute inset-0 opacity-40 bg-cover bg-center"
             style={{
               backgroundImage:
-                "url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1600&q=80')",
+                "url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1600&q=80')",
             }}
           />
           <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
@@ -171,15 +187,15 @@ export default function DeliveryMenu() {
                 <img
                   src="/Flower_Power_Pizza_-_HotSpring.png"
                   alt="Flower Power Pizza Logo"
-                  width={150}
-                  height={150}
-                  className="h-16 lg:h-28 w-auto drop-shadow-md mx-auto lg:mx-0 flex-shrink-0 object-contain"
+                  width={200}
+                  height={200}
+                  className="h-16 lg:h-48 w-auto drop-shadow-md mx-auto lg:mx-0 flex-shrink-0 object-contain"
                 />
-                <div className="flex flex-col items-center lg:items-start lg:pl-2">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-sans font-black tracking-tight text-stone-100 leading-tight text-center lg:text-left">
+                <div className="flex flex-col items-center lg:items-start lg:pl-8 lg:translate-y-4">
+                  <h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-sans font-black tracking-tight text-stone-100 leading-tight text-center lg:text-left">
                     {t.title}
                   </h1>
-                  <span className="text-[#fca5a5] font-bold tracking-widest text-[9px] md:text-xs uppercase mt-1 lg:mt-2 text-center lg:text-left">
+                  <span className="text-[#fca5a5] font-bold tracking-widest text-[9px] md:text-xs uppercase mt-1 lg:mt-2.5 text-center lg:text-left">
                     {t.subtitle}
                   </span>
                 </div>
@@ -187,7 +203,7 @@ export default function DeliveryMenu() {
 
               {/* Right Side: Information Details */}
               <div className="flex flex-col items-center lg:items-end gap-1.5 text-center lg:text-right max-w-md w-full lg:w-auto mt-2 lg:mt-0">
-                <span className="text-xs sm:text-sm md:text-xl font-extrabold text-stone-100 tracking-tight block uppercase bg-white/10 lg:bg-transparent px-3 py-0.5 rounded-full lg:p-0">
+                <span className="text-xs sm:text-sm md:text-xl lg:text-2xl font-extrabold text-stone-100 tracking-tight block uppercase bg-white/10 lg:bg-transparent px-3 py-0.5 rounded-full lg:p-0">
                   {t.tagline1}
                 </span>
                 <span className="text-[8px] md:text-xs lg:text-sm font-bold text-[#fca5a5] tracking-widest block uppercase">
@@ -205,17 +221,42 @@ export default function DeliveryMenu() {
           </div>
         </header>
 
-        {/* Category Tabs Wrapper */}
-        <div className="bg-white border border-stone-300 rounded-2xl shadow-sm p-4 mb-6">
+        {/* Red Promotions & Delivery Banner (Solid Red background) */}
+        <div className="p-5 md:p-6 bg-[#8B1E1E] text-stone-100 rounded-3xl max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-6 shadow-md mb-8 mt-2 border border-[#721818]">
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 rounded-full text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </div>
+          <div className="flex-1 text-center md:text-left space-y-1">
+            <h4 className="text-white font-extrabold text-sm md:text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              {t.promoTitle}
+            </h4>
+            <p className="text-stone-200 text-xs leading-relaxed">
+              📍 <span className="font-semibold">{t.deliveryLimit}</span>
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-x-6 gap-y-1 pt-1.5">
+              <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold">
+                <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                {t.promoFreeDelivery}
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold">
+                <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                {t.promoFirstOrder}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Category Tabs directly on background */}
+        <div className="mb-6">
           <CategoryTabs categories={menuData} activeId={activeCategoryId} onChange={setActiveCategoryId} lang={lang} />
         </div>
 
         {/* Section Title */}
         <div className="mt-8 mb-6 px-2 flex items-center justify-between">
           <div>
-            <h3 className="text-stone-850 font-black tracking-tight text-xl md:text-2xl" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
+            <h2 className="font-sans text-xl md:text-2xl font-black tracking-tight text-stone-900" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
               {activeCategoryName}
-            </h3>
+            </h2>
             <div className="w-8 h-0.5 bg-[#8B1E1E] mt-2" />
           </div>
         </div>
@@ -236,11 +277,11 @@ export default function DeliveryMenu() {
           >
             <div className="flex items-center gap-2 flex-1">
               <ShoppingCart size={18} />
-              <span className="text-xs tracking-widest uppercase" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <span className="text-xs tracking-widest uppercase" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
                 {count} {count === 1 ? t.cartItem : t.cartItems}
               </span>
             </div>
-            <span className="font-light">{total} ฿</span>
+            <span className="font-light" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>{total} ฿</span>
           </button>
         </div>
       )}

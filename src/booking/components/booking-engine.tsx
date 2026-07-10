@@ -480,7 +480,7 @@ export default function BookingEngine() {
   return (
     <div className="booking-engine-root min-h-screen text-foreground font-sans antialiased selection:bg-accent" style={{ backgroundColor: '#e7e5e4', minHeight: hasSearched ? '2500px' : 'auto' }}>
       <div className="max-w-6xl mx-auto px-4 mt-20 md:mt-24">
-        <header className="relative text-stone-100 py-5 lg:py-12 px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg" style={{ backgroundColor: '#3b3530' }}>
+        <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg" style={{ backgroundColor: '#3b3530' }}>
           <div
             className="absolute inset-0 opacity-45 bg-cover bg-center"
             style={{
@@ -804,7 +804,7 @@ export default function BookingEngine() {
                 })()}
               </span>
               {isMaxSavings && (
-                <span className="bg-amber-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm animate-pulse">
+                <span className="bg-emerald-650 text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm animate-pulse">
                   {t('lowSeasonBanner')}
                 </span>
               )}

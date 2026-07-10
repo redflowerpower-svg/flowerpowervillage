@@ -72,7 +72,7 @@ export default function RestaurantSection() {
           />
           <div className="flex-1 text-center md:text-left flex flex-col justify-between">
             <div>
-              <p className="text-[10px] tracking-[0.3em] uppercase text-amber-600 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <p className="text-[10px] tracking-[0.3em] uppercase text-emerald-700 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>
                 Autentica Cucina Italiana & Sapori Locali
               </p>
               <h2
@@ -87,11 +87,11 @@ export default function RestaurantSection() {
             </div>
             <div className="flex flex-wrap justify-center md:justify-start gap-4">
               <div className="flex items-center gap-1.5 text-xs text-stone-600">
-                <Clock size={12} className="text-amber-600" />
+                <Clock size={12} className="text-emerald-700" />
                 <span>08:00 – 21:15 daily</span>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-stone-600">
-                <UtensilsCrossed size={12} className="text-amber-600" />
+                <UtensilsCrossed size={12} className="text-emerald-700" />
                 <span>Breakfast · Lunch · Dinner</span>
               </div>
             </div>
@@ -105,7 +105,7 @@ export default function RestaurantSection() {
               className="text-stone-850 mb-2 text-2xl md:text-3xl font-semibold tracking-tight uppercase"
               style={{ fontFamily: 'Outfit, sans-serif' }}
             >
-              Sfoglia il Nostro <span className="text-amber-700 font-bold">Menù Digitale</span>
+              Sfoglia il Nostro <span className="text-emerald-800 font-bold">Menù Digitale</span>
             </h3>
             <p className="text-stone-550 text-xs max-w-lg mx-auto">
               Clicca sulle categorie in alto per saltare direttamente alle sezioni, usa le frecce per sfogliare le pagine, o tocca l'immagine per aprirla a schermo intero.
@@ -122,7 +122,7 @@ export default function RestaurantSection() {
                   onClick={() => handleCategoryClick(cat.pageIndex)}
                   className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all duration-300 ${
                     isActive
-                      ? 'bg-amber-600 text-white shadow-sm'
+                      ? 'bg-emerald-700 text-white shadow-sm'
                       : 'bg-stone-100 hover:bg-stone-200 text-stone-750'
                   }`}
                   style={{ fontFamily: 'Inter, sans-serif' }}
@@ -165,7 +165,7 @@ export default function RestaurantSection() {
               </button>
 
               <div className="text-center">
-                <span className="text-xs uppercase tracking-[0.25em] text-amber-700 font-bold block mb-0.5">
+                <span className="text-xs uppercase tracking-[0.25em] text-emerald-800 font-bold block mb-0.5">
                   {menuPages[currentPage].title}
                 </span>
                 <span className="text-[11px] text-stone-500 font-medium">
@@ -193,7 +193,7 @@ export default function RestaurantSection() {
                     key={idx}
                     onClick={() => { setCurrentPage(idx); setZoomScale(1); }}
                     className={`flex-shrink-0 w-16 aspect-[1/1.4] rounded-lg overflow-hidden border-2 transition-all duration-300 shadow-sm ${
-                      isActive ? 'border-amber-600 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
+                      isActive ? 'border-emerald-700 scale-105 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
                     <img
@@ -221,7 +221,7 @@ export default function RestaurantSection() {
           {/* Lightbox Topbar */}
           <div className="flex items-center justify-between text-white w-full max-w-7xl mx-auto border-b border-white/10 pb-3">
             <div>
-              <h4 className="text-sm font-semibold tracking-wide text-amber-500">{menuPages[currentPage].title}</h4>
+              <h4 className="text-sm font-semibold tracking-wide text-emerald-500">{menuPages[currentPage].title}</h4>
               <p className="text-[10px] text-stone-400">Pagina {currentPage + 1} di {menuPages.length}</p>
             </div>
             
@@ -295,7 +295,7 @@ export default function RestaurantSection() {
                   key={idx}
                   onClick={() => { setCurrentPage(idx); setZoomScale(1); }}
                   className={`flex-shrink-0 w-12 aspect-[1/1.4] rounded overflow-hidden border-2 transition-all duration-300 ${
-                    isActive ? 'border-amber-500 scale-105 shadow-lg' : 'border-transparent opacity-40 hover:opacity-85'
+                    isActive ? 'border-emerald-600 scale-105 shadow-lg' : 'border-transparent opacity-40 hover:opacity-85'
                   }`}
                 >
                   <img

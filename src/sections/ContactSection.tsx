@@ -1,6 +1,24 @@
 import { Phone, Mail, Instagram, Facebook, MapPin, Clock } from 'lucide-react';
 import { useState } from 'react';
 
+// Custom TikTok Icon
+const TiktokIcon = ({ className, size = 14 }: { className?: string; size?: number }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+  </svg>
+);
+
 export default function ContactSection() {
   const [form, setForm] = useState({ name: '', email: '', checkin: '', checkout: '', guests: '', message: '' });
   const [sent, setSent] = useState(false);
@@ -19,7 +37,7 @@ export default function ContactSection() {
     <section className="py-16 md:py-24 bg-stone-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <p className="text-xs tracking-[0.4em] uppercase text-amber-600 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <p className="text-xs tracking-[0.4em] uppercase text-emerald-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
             Contattaci
           </p>
           <h2
@@ -28,8 +46,8 @@ export default function ContactSection() {
           >
             Prenota il Tuo Soggiorno Diretto
           </h2>
-          <div className="w-12 h-px bg-amber-500 mx-auto mb-5" />
-          <p className="text-stone-500 text-sm max-w-md mx-auto leading-relaxed">
+          <div className="w-12 h-px bg-emerald-600 mx-auto mb-5" />
+          <p className="text-stone-550 text-sm max-w-md mx-auto leading-relaxed">
             Prenota direttamente con noi per ottenere un risparmio garantito del 10% rispetto a tutte le piattaforme di prenotazione online.
           </p>
         </div>
@@ -45,8 +63,8 @@ export default function ContactSection() {
             </h3>
             <div className="space-y-5 mb-10">
               <div className="flex items-start gap-4">
-                <div className="w-9 h-9 bg-amber-50 flex items-center justify-center shrink-0 rounded-lg">
-                  <MapPin size={15} className="text-amber-600" />
+                <div className="w-9 h-9 bg-emerald-50 flex items-center justify-center shrink-0 rounded-lg">
+                  <MapPin size={15} className="text-emerald-700" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-stone-800 mb-0.5">Indirizzo</p>
@@ -57,7 +75,7 @@ export default function ContactSection() {
                     href="https://maps.app.goo.gl/62jFof8xt6Fj5nwT7"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-amber-600 hover:text-amber-700 font-semibold inline-flex items-center gap-1 transition-colors"
+                    className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold inline-flex items-center gap-1 transition-colors"
                   >
                     <span>Vedi su Google Maps</span>
                     <span className="text-[10px]">↗</span>
@@ -65,35 +83,35 @@ export default function ContactSection() {
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-9 h-9 bg-amber-50 flex items-center justify-center shrink-0 rounded-lg">
-                  <Phone size={15} className="text-amber-600" />
+                <div className="w-9 h-9 bg-emerald-50 flex items-center justify-center shrink-0 rounded-lg">
+                  <Phone size={15} className="text-emerald-700" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-stone-800 mb-0.5">Telefono / WhatsApp</p>
                   <div className="flex flex-col gap-1">
-                    <a href="tel:+66958825573" className="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                    <a href="tel:+66958825573" className="text-sm text-emerald-700 hover:text-emerald-800 font-medium">
                       +66 95 882 5573 <span className="text-stone-400 text-xs font-normal">(Inglese / Italiano)</span>
                     </a>
-                    <a href="tel:+66834512741" className="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                    <a href="tel:+66834512741" className="text-sm text-emerald-700 hover:text-emerald-800 font-medium">
                       +66 83 451 2741 <span className="text-stone-400 text-xs font-normal">(Thai)</span>
                     </a>
                   </div>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-9 h-9 bg-amber-50 flex items-center justify-center shrink-0 rounded-lg">
-                  <Mail size={15} className="text-amber-600" />
+                <div className="w-9 h-9 bg-emerald-50 flex items-center justify-center shrink-0 rounded-lg">
+                  <Mail size={15} className="text-emerald-700" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-stone-800 mb-0.5">Email</p>
-                  <a href="mailto:flowerpowerphayam@gmail.com" className="text-sm text-amber-600 hover:text-amber-700 font-medium">
+                  <a href="mailto:flowerpowerphayam@gmail.com" className="text-sm text-emerald-700 hover:text-emerald-800 font-medium">
                     flowerpowerphayam@gmail.com
                   </a>
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-9 h-9 bg-amber-50 flex items-center justify-center shrink-0 rounded-lg">
-                  <Clock size={15} className="text-amber-600" />
+                <div className="w-9 h-9 bg-emerald-50 flex items-center justify-center shrink-0 rounded-lg">
+                  <Clock size={15} className="text-emerald-700" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-stone-800 mb-0.5">Orari Check-in / Check-out</p>
@@ -105,23 +123,32 @@ export default function ContactSection() {
             <h4 className="text-stone-600 text-xs tracking-widest uppercase mb-4 font-semibold" style={{ fontFamily: 'Inter, sans-serif' }}>
               Seguici
             </h4>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2">
+              <a
+                href="https://www.tiktok.com/@flowerpowerphayam"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-3.5 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-emerald-600 hover:text-emerald-700 transition-all rounded-xl font-medium bg-white shadow-sm"
+              >
+                <TiktokIcon size={14} className="text-emerald-700" />
+                TikTok
+              </a>
               <a
                 href="https://www.instagram.com/flowerpowerphayam"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-amber-400 hover:text-amber-600 transition-all rounded-xl font-medium bg-white shadow-sm"
+                className="flex items-center gap-2 px-3.5 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-emerald-600 hover:text-emerald-700 transition-all rounded-xl font-medium bg-white shadow-sm"
               >
-                <Instagram size={14} />
-                @flowerpowerphayam
+                <Instagram size={14} className="text-emerald-700" />
+                Instagram
               </a>
               <a
                 href="https://www.facebook.com/flowerpowerphayam"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-amber-400 hover:text-amber-600 transition-all rounded-xl font-medium bg-white shadow-sm"
+                className="flex items-center gap-2 px-3.5 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-emerald-600 hover:text-emerald-700 transition-all rounded-xl font-medium bg-white shadow-sm"
               >
-                <Facebook size={14} />
+                <Facebook size={14} className="text-emerald-700" />
                 Facebook
               </a>
             </div>
@@ -131,8 +158,8 @@ export default function ContactSection() {
           <div className="bg-white p-6 sm:p-8 border border-stone-200 rounded-3xl shadow-sm">
             {sent ? (
               <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                <div className="w-12 h-12 bg-amber-50 flex items-center justify-center mb-4 rounded-xl">
-                  <Mail size={20} className="text-amber-600" />
+                <div className="w-12 h-12 bg-emerald-50 flex items-center justify-center mb-4 rounded-xl">
+                  <Mail size={20} className="text-emerald-700" />
                 </div>
                 <h3
                   className="text-stone-850 mb-2 font-semibold"
@@ -158,7 +185,7 @@ export default function ContactSection() {
                       required
                       value={form.name}
                       onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-amber-500 transition-all bg-stone-50/50"
+                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
                       placeholder="John Doe"
                     />
                   </div>
@@ -169,7 +196,7 @@ export default function ContactSection() {
                       required
                       value={form.email}
                       onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-amber-500 transition-all bg-stone-50/50"
+                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
                       placeholder="john@example.com"
                     />
                   </div>
@@ -182,7 +209,7 @@ export default function ContactSection() {
                       required
                       value={form.checkin}
                       onChange={e => setForm(f => ({ ...f, checkin: e.target.value }))}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-amber-500 transition-all bg-stone-50/50"
+                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
                     />
                   </div>
                   <div className="space-y-1">
@@ -192,7 +219,7 @@ export default function ContactSection() {
                       required
                       value={form.checkout}
                       onChange={e => setForm(f => ({ ...f, checkout: e.target.value }))}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-amber-500 transition-all bg-stone-50/50"
+                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
                     />
                   </div>
                 </div>
@@ -202,7 +229,7 @@ export default function ContactSection() {
                     required
                     value={form.guests}
                     onChange={e => setForm(f => ({ ...f, guests: e.target.value }))}
-                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-amber-500 transition-all bg-stone-50/50"
+                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
                   >
                     <option value="">Seleziona</option>
                     {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
@@ -219,12 +246,12 @@ export default function ContactSection() {
                     value={form.message}
                     onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                     placeholder="Eventuali richieste speciali o domande..."
-                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-amber-500 transition-all bg-stone-50/50 resize-none"
+                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50 resize-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white text-xs tracking-[0.2em] uppercase transition-colors duration-300 font-semibold rounded-xl shadow-sm cursor-pointer"
+                  className="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs tracking-[0.2em] uppercase transition-colors duration-300 font-semibold rounded-xl shadow-sm cursor-pointer"
                   style={{ fontFamily: 'Inter, sans-serif' }}
                 >
                   Invia Richiesta (Sconto Diretto 10%)

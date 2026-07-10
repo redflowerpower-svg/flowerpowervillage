@@ -50,7 +50,7 @@ export default function VillageHero({ onNavigate }: Props) {
         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <button
             onClick={() => onNavigate('accommodations')}
-            className="px-9 py-3.5 bg-amber-600 text-white text-xs tracking-[0.2em] uppercase hover:bg-amber-700 transition-colors duration-300"
+            className="px-9 py-3.5 bg-emerald-700 text-white text-xs tracking-[0.2em] uppercase hover:bg-emerald-800 transition-colors duration-300"
             style={{ fontFamily: 'Inter, sans-serif' }}
           >
             Book Your Stay

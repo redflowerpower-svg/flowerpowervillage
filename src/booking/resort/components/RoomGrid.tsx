@@ -482,15 +482,18 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
               {/* IMAGE HEADER - CLICKABLE GALLERY POPUP */}
               <div 
                 onClick={() => openGallery(item)}
-                className="relative h-56 bg-stone-300 overflow-hidden flex-shrink-0 rounded-t-[2rem] cursor-pointer group/image"
+                className="relative h-64 bg-stone-300 overflow-hidden flex-shrink-0 rounded-t-[2rem] cursor-pointer group/image"
               >
                 {item.images && item.images.length > 0 ? (
                   <>
                     <img
                       src={item.images[0]}
                       alt={item.title}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover w-full h-full group-hover:scale-105 transition-all duration-500 brightness-[0.96] contrast-[1.03]"
                     />
+                    {/* Vertical gradient overlay: darkens only the edges (top/bottom) for badges legibility, keeping center clear and bright */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/35 pointer-events-none transition-opacity duration-300 group-hover/image:opacity-80" />
+                    
                     {/* Stylish Hover Gallery Overlay */}
                     <div className="absolute inset-0 bg-stone-950/40 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white gap-2 font-semibold text-xs backdrop-blur-[2px]">
                       <div className="p-3 bg-stone-900/90 rounded-full border border-stone-700 shadow-lg scale-90 group-hover/image:scale-100 transition-transform duration-300">
@@ -506,16 +509,16 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                     </span>
                   </div>
                 )}
-                <span className={`absolute top-4 left-4 glass-badge text-stone-800 text-[9px] font-bold tracking-wider px-3 py-1.5 rounded-xl shadow-sm ${item.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
+                <span className={`absolute top-4 left-4 glass-badge-dark text-white text-[9px] font-bold tracking-wider px-3 py-1.5 rounded-xl shadow-sm ${item.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
                   {item.category.toUpperCase() === "THE HUB GUESTHOUSE" ? "HUBit@" : item.category}
                 </span>
-
+ 
                 {/* Capacity badge — bottom right of image */}
-                <span className="absolute bottom-4 right-4 glass-badge text-stone-800 text-[9px] font-bold tracking-wider px-3 py-1.5 rounded-xl shadow-sm flex items-center gap-1">
+                <span className="absolute bottom-4 right-4 glass-badge-dark text-white text-[9px] font-bold tracking-wider px-3 py-1.5 rounded-xl shadow-sm flex items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                   {lang === 'IT' ? `Fino a ${item.capacity} ospiti` : `Up to ${item.capacity} guests`}
                 </span>
-
+ 
                 {isUnlocked && discountInfo.label && (
                   <span className={`absolute top-4 right-4 ${discountInfo.color} text-white text-[9px] font-bold tracking-wider px-3 py-1.5 rounded-xl shadow-sm uppercase`}>
                     {discountInfo.label.split(' ')[0]} {discountInfo.label.match(/\(-?\d+%\)/)?.[0]}

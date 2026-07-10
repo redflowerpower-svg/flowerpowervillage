@@ -48,7 +48,7 @@ export default function GallerySection() {
     <section className="py-16 md:py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 md:mb-14">
-          <p className="text-xs tracking-[0.4em] uppercase text-amber-600 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <p className="text-xs tracking-[0.4em] uppercase text-emerald-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
             Galleria Fotografica
           </p>
           <h2
@@ -57,7 +57,7 @@ export default function GallerySection() {
           >
             La Vita al Flower Power
           </h2>
-          <div className="w-12 h-px bg-amber-500 mx-auto" />
+          <div className="w-12 h-px bg-emerald-600 mx-auto" />
         </div>
 
         {/* Griglia mobile: 2 colonne con aspect-ratio naturale; md+: 4 colonne con layout masonry */}
@@ -81,7 +81,7 @@ export default function GallerySection() {
             href="https://www.instagram.com/flowerpowerphayam"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-stone-500 hover:text-amber-600 transition-colors border-b border-stone-200 hover:border-amber-400 pb-1 font-semibold"
+            className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-stone-500 hover:text-emerald-700 transition-colors border-b border-stone-200 hover:border-emerald-500 pb-1 font-semibold"
             style={{ fontFamily: 'Inter, sans-serif' }}
           >
             Segui @flowerpowerphayam su Instagram

@@ -110,7 +110,7 @@ export default function SpaSection() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-10">
-          <p className="text-xs tracking-[0.4em] uppercase text-amber-600 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <p className="text-xs tracking-[0.4em] uppercase text-emerald-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
             Spa & Centro Benessere
           </p>
           <h2
@@ -119,13 +119,13 @@ export default function SpaSection() {
           >
             Benessere e Sport a <em>Flower Power</em>
           </h2>
-          <div className="w-12 h-px bg-amber-500 mx-auto" />
+          <div className="w-12 h-px bg-emerald-600 mx-auto" />
         </div>
 
         {/* Seasonality Callout Box */}
         <div className="max-w-4xl mx-auto mb-16 bg-stone-50 border border-stone-200 rounded-3xl p-6 md:p-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <Calendar className="text-amber-600 w-5 h-5 flex-shrink-0" />
+            <Calendar className="text-emerald-700 w-5 h-5 flex-shrink-0" />
             <h3 className="text-stone-800 font-bold text-sm uppercase tracking-wider">
               Disponibilità Stagionale & Servizi
             </h3>
@@ -133,7 +133,7 @@ export default function SpaSection() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 divide-y md:divide-y-0 md:divide-x divide-stone-200 items-stretch">
             {/* Column 1: Operators */}
             <div className="space-y-3 pb-6 md:pb-0">
-              <div className="flex items-center gap-2 text-amber-800 font-semibold text-sm">
+              <div className="flex items-center gap-2 text-emerald-800 font-semibold text-sm">
                 <Sparkles size={16} />
                 <span>Servizi con Operatore (Dicembre – Aprile)</span>
               </div>
@@ -157,7 +157,7 @@ export default function SpaSection() {
         {/* Treatments Section */}
         <div className="mb-20">
           <div className="flex items-center gap-2.5 mb-8 pb-2 border-b border-stone-200">
-            <Sparkles className="text-amber-600" size={18} />
+            <Sparkles className="text-emerald-750" size={18} />
             <h3
               className="text-stone-750 font-light text-xl"
               style={{ fontFamily: 'Outfit, sans-serif' }}
@@ -202,7 +202,7 @@ export default function SpaSection() {
         {/* Beauty Services Section */}
         <div className="mb-20">
           <div className="flex items-center gap-2.5 mb-8 pb-2 border-b border-stone-200">
-            <Sparkles className="text-amber-600" size={18} />
+            <Sparkles className="text-emerald-750" size={18} />
             <h3
               className="text-stone-750 font-light text-xl"
               style={{ fontFamily: 'Outfit, sans-serif' }}
@@ -247,7 +247,7 @@ export default function SpaSection() {
         {/* Facilities Section */}
         <div className="mb-16">
           <div className="flex items-center gap-2 mb-8 pb-2 border-b border-stone-200">
-            <Dumbbell className="text-amber-600" size={18} />
+            <Dumbbell className="text-emerald-750" size={18} />
             <h3
               className="text-stone-750 font-light text-xl"
               style={{ fontFamily: 'Outfit, sans-serif' }}
@@ -273,11 +273,11 @@ export default function SpaSection() {
                     className="text-stone-850 mb-3 font-semibold text-[1.3rem] flex items-center gap-2"
                     style={{ fontFamily: 'Outfit, sans-serif' }}
                   >
-                    <Dumbbell className="text-amber-600 w-5 h-5" />
+                    <Dumbbell className="text-emerald-700 w-5 h-5" />
                     Area Fitness & Palestra all'Aperto
                   </h3>
                   <p className="text-xs text-stone-500 leading-relaxed mb-6">
-                    Uno spazio attrezzato all\'aperto per l\'allenamento quotidiano, circondato dalla rigogliosa natura del resort. Accessibile liberamente e gratuitamente per tutti gli ospiti per sessioni individuali tutto l\'anno.
+                    Uno spazio attrezzato all'aperto per l'allenamento quotidiano, circondato dalla rigogliosa natura del resort. Accessibile liberamente e gratuitamente per tutti gli ospiti per sessioni individuali tutto l'anno.
                   </p>
                   
                   {/* Equipment list */}
@@ -294,7 +294,7 @@ export default function SpaSection() {
                       'Bilanciere'
                     ].map((equip, idx) => (
                       <div key={idx} className="flex items-center gap-2 text-stone-600 text-xs">
-                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full flex-shrink-0" />
+                        <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full flex-shrink-0" />
                         <span>{equip}</span>
                       </div>
                     ))}
@@ -319,7 +319,7 @@ export default function SpaSection() {
                     className="text-stone-850 mb-3 font-semibold text-[1.3rem] flex items-center gap-2"
                     style={{ fontFamily: 'Outfit, sans-serif' }}
                   >
-                    <Flower className="text-amber-600 w-5 h-5" />
+                    <Flower className="text-emerald-700 w-5 h-5" />
                     Tempio dello Yoga (Yoga Temple)
                   </h3>
                   <p className="text-xs text-stone-500 leading-relaxed mb-4">
@@ -350,7 +350,7 @@ export default function SpaSection() {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a
               href="mailto:flowerpowerphayam@gmail.com?subject=Prenotazione trattamenti Spa"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-amber-600 hover:bg-amber-700 text-white text-xs tracking-[0.2em] uppercase transition-colors duration-300 font-semibold rounded-xl shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs tracking-[0.2em] uppercase transition-colors duration-300 font-semibold rounded-xl shadow-sm"
               style={{ fontFamily: 'Inter, sans-serif' }}
             >
               <Sparkles size={14} />

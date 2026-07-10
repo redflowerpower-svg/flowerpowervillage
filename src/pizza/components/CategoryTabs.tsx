@@ -79,7 +79,7 @@ export default function CategoryTabs({ categories, activeId, onChange, lang }: P
               style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
             >
               <Icon className="w-4 h-4" />
-              <span>{details.name}</span>
+              <span className="uppercase">{details.name}</span>
             </button>
           );
         })}
@@ -111,7 +111,7 @@ export default function CategoryTabs({ categories, activeId, onChange, lang }: P
               >
                 <Icon className="w-5 h-5" />
               </div>
-              <span className="text-xs font-bold tracking-wider">
+              <span className="text-xs font-bold tracking-wider uppercase">
                 {details.name}
               </span>
               <span
