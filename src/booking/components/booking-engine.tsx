@@ -20,7 +20,7 @@ import {
   HelpingHand,
   Wind
 } from "lucide-react"
-import { fetchAccommodations, getAuthorizationUrl, isAuthenticated, exchangeToken, createReservation, checkAvailability, clearTokens } from "../lib/octorate"
+import { fetchAccommodations, getAuthorizationUrl, isAuthenticated, exchangeToken, createReservation, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
 import { ACCOMMODATIONS, PRICE_CONFIG } from "../resort/config/accommodations"
 import { translations, Language } from "../lib/translations"
@@ -446,7 +446,7 @@ export default function BookingEngine() {
     }
   }
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (!checkIn || !checkOut) {
       alert(lang === 'IT' ? "Seleziona le date di check-in e check-out." : "Please select check-in and check-out dates.")
@@ -458,32 +458,16 @@ export default function BookingEngine() {
       alert(lang === 'IT' ? "La data di check-out deve essere successiva a quella di check-in." : "Check-out date must be after check-in date.")
       return
     }
-    const stayNights = calculateStayDays(checkIn, checkOut);
     setHasSearched(true)
-    try {
-      setLoading(true)
-      // Queries Octorate API or local mock fallback
-      await checkAvailability(checkIn, checkOut, guests)
-      
-      // Delay to exhibit premium skeleton loaders and simulate API search
-      await new Promise(resolve => setTimeout(resolve, 800))
-    } catch (err) {
-      console.error("Availability check error:", err)
-    } finally {
-      setLoading(false)
-      // Smooth scroll viewport down to the rooms grid, leaving the sticky form visible at the top
-      // Scheduled after setLoading(false) to let React render the actual cards and stabilize DOM coordinates
-      setTimeout(() => {
-        const grid = document.getElementById("rooms-grid")
-        const searchForm = document.getElementById("booking-search-form")
-        if (grid) {
-          const stickySection = searchForm ? searchForm.closest("section") : null;
-          const stickyHeight = stickySection ? stickySection.offsetHeight : 120;
-          // Dynamically set the scroll margin top to match the sticky header height exactly
-          grid.style.scrollMarginTop = `${stickyHeight}px`;
-          grid.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }, 300)
+    
+    // Smooth scroll viewport down to the rooms grid immediately
+    const grid = document.getElementById("rooms-grid")
+    const searchForm = document.getElementById("booking-search-form")
+    if (grid) {
+      const stickySection = searchForm ? searchForm.closest("section") : null;
+      const stickyHeight = stickySection ? stickySection.offsetHeight : 120;
+      grid.style.scrollMarginTop = `${stickyHeight}px`;
+      grid.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
 
