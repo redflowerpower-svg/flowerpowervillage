@@ -35,7 +35,8 @@ export default function RestaurantSection() {
   const [zoomScale, setZoomScale] = useState(1);
 
   const getImageUrl = (fileName: string) => {
-    return `https://htmnjjzxpybpbumtbqic.supabase.co/storage/v1/object/public/Menu/${encodeURIComponent(fileName)}`;
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "https://htmnjjzxpybpbumtbqic.supabase.co";
+    return `${supabaseUrl}/storage/v1/object/public/Menu/${encodeURIComponent(fileName)}`;
   };
 
   const handlePrev = () => {
