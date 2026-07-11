@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
-import { generateConfirmationPDF, sendConfirmationEmail } from "./helpers/booking-confirmation";
+import { generateConfirmationPDF, sendConfirmationEmail } from "./helpers/booking-confirmation.js";
 
 // Initialize Supabase
 const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
