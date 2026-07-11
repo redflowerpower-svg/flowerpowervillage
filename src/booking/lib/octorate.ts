@@ -696,7 +696,7 @@ export async function createReservation(
 
   if (tokens?.access_token) {
     try {
-      const res = await fetch(`${OCTORATE_API_BASE}/reservations`, {
+      const res = await fetch(`${OCTORATE_API_BASE}/reservation`, {
         method: "POST",
         headers: await getAuthHeaders(),
         body: JSON.stringify(payload),
@@ -704,7 +704,7 @@ export async function createReservation(
 
       if (res.status === 401 || res.status === 403) {
         await refreshAccessToken()
-        const retryRes = await fetch(`${OCTORATE_API_BASE}/reservations`, {
+        const retryRes = await fetch(`${OCTORATE_API_BASE}/reservation`, {
           method: "POST",
           headers: await getAuthHeaders(),
           body: JSON.stringify(payload),

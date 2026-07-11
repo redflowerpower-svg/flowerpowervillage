@@ -260,7 +260,13 @@ const PREFERRED_ORDER = [
   'Lodge 2'
 ];
 
-export async function fetchAccommodations(): Promise<EnrichedAccommodation[]> {
+let cachedAccommodations: EnrichedAccommodation[] | null = null;
+
+export async function fetchAccommodations(bypassCache = false): Promise<EnrichedAccommodation[]> {
+  if (cachedAccommodations && !bypassCache) {
+    return cachedAccommodations;
+  }
+
   // Query Supabase selecting 'id', 'name', and 'slug'
   const { data: dbItems, error: dbError } = await supabase
     .from('accommodations')
@@ -276,17 +282,14 @@ export async function fetchAccommodations(): Promise<EnrichedAccommodation[]> {
     return [];
   }
 
-  const enrichedList: EnrichedAccommodation[] = [];
-
-  for (const item of dbItems as DbAccommodation[]) {
-    // Lookup metadata for this accommodation by its name
+  // Map each DB item to a promise so we fetch storage images concurrently
+  const promises = (dbItems as DbAccommodation[]).map(async (item) => {
     const metadata = ROOM_METADATA[item.name];
     if (!metadata) {
       console.warn(`No metadata found for accommodation name: ${item.name}`);
-      continue;
+      return null;
     }
 
-    // Use the database-provided slug (Storage folder name) to list files in 'accommodations' bucket
     const folder = item.slug;
     let images: string[] = [];
 
@@ -303,15 +306,17 @@ export async function fetchAccommodations(): Promise<EnrichedAccommodation[]> {
               .from('accommodations')
               .getPublicUrl(`${folder}/${file.name}`);
 
-            // No cache buster — let browser cache handle images
-            return data.publicUrl;
+            const publicUrl = data.publicUrl;
+            // Optimize image size and format dynamically using wsrv.nl proxy
+            // Converts to compressed WebP and caches on Cloudflare CDN for free.
+            return `https://wsrv.nl/?url=${encodeURIComponent(publicUrl)}&w=800&output=webp&q=80`;
           });
       }
     } catch (err) {
       console.error(`Error listing storage images for folder ${folder}:`, err);
     }
 
-    enrichedList.push({
+    return {
       id: item.id,
       slug: metadata.slug,
       name: item.name,
@@ -328,8 +333,11 @@ export async function fetchAccommodations(): Promise<EnrichedAccommodation[]> {
       octorateId: octorateIds[item.name],
       images,
       isLive: false // Will be set in RoomGrid.tsx
-    });
-  }
+    } as EnrichedAccommodation;
+  });
+
+  const results = await Promise.all(promises);
+  const enrichedList = results.filter((item): item is EnrichedAccommodation => item !== null);
 
   // Sort the enrichedList by their position in PREFERRED_ORDER
   enrichedList.sort((a, b) => {
@@ -345,5 +353,6 @@ export async function fetchAccommodations(): Promise<EnrichedAccommodation[]> {
     return a.name.localeCompare(b.name);
   });
 
+  cachedAccommodations = enrichedList;
   return enrichedList;
 }

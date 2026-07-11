@@ -32,7 +32,15 @@ export async function fetchAccommodations(): Promise<Accommodation[]> {
     .order('name');
 
   if (error) throw error;
-  return data as Accommodation[];
+
+  const items = data as any[];
+  // Safeguard: Ensure images array is initialized so consumers do not crash
+  for (const item of items) {
+    if (!item.images) {
+      item.images = [];
+    }
+  }
+  return items as Accommodation[];
 }
 
 export async function fetchAccommodationBySlug(slug: string): Promise<Accommodation | null> {
@@ -44,5 +52,36 @@ export async function fetchAccommodationBySlug(slug: string): Promise<Accommodat
     .maybeSingle();
 
   if (error) throw error;
-  return data as Accommodation | null;
+  if (!data) return null;
+
+  const item = data as any;
+  let images: string[] = [];
+
+  try {
+    const folder = item.slug;
+    const { data: files, error: storageError } = await supabase.storage
+      .from('accommodations')
+      .list(folder, { sortBy: { column: 'name', order: 'asc' } });
+
+    if (!storageError && files) {
+      images = files
+        .filter(file => file.id !== null) // only files
+        .map(file => {
+          const { data: urlData } = supabase.storage
+            .from('accommodations')
+            .getPublicUrl(`${folder}/${file.name}`);
+
+          const publicUrl = urlData.publicUrl;
+          // Optimize and cache detail page images with wsrv.nl at 1200px width
+          return `https://wsrv.nl/?url=${encodeURIComponent(publicUrl)}&w=1200&output=webp&q=85`;
+        });
+    }
+  } catch (err) {
+    console.error(`Error fetching storage images for slug ${slug}:`, err);
+  }
+
+  return {
+    ...item,
+    images
+  } as Accommodation;
 }
