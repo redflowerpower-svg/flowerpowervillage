@@ -32,3 +32,4 @@ Desktop.ini
 *.local
 .eslintcache
 .vercel
+.env*
