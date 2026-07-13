@@ -12,11 +12,8 @@
 // - createReservation()   -> Client-side con Bearer token
 // =============================================================================
 
-import { supabase } from "../../lib/supabase";
-
 // --- ENV CONFIG ---
 const OCTORATE_CLIENT_ID = import.meta.env.VITE_OCTORATE_CLIENT_ID || ""
-const OCTORATE_SECRET_KEY = import.meta.env.VITE_OCTORATE_SECRET_KEY || ""
 const getRedirectUri = (): string => {
   if (typeof window !== "undefined" && window.location) {
     const origin = window.location.origin;
@@ -98,67 +95,34 @@ export async function getStoredTokens(): Promise<OAuthTokens | null> {
   if (cachedTokens) return cachedTokens;
 
   try {
-    const { data, error } = await supabase
-      .from("octorate_tokens")
-      .select("access_token, refresh_token, expires_in")
-      .eq("id", "singleton")
-      .maybeSingle();
-
-    if (error) {
-      console.error("[Octorate] Error fetching tokens from Supabase:", error);
+    const res = await fetch("/api/octorate-client-get");
+    if (!res.ok) {
+      console.error("[Octorate] Failed to fetch tokens from server-get endpoint");
       return null;
     }
-
-    if (!data) return null;
-
-    cachedTokens = {
-      access_token: data.access_token,
-      refresh_token: data.refresh_token,
-      token_type: "Bearer",
-      expires_in: data.expires_in,
-    };
-    return cachedTokens;
+    const json = await res.json();
+    if (json && json.data) {
+      cachedTokens = {
+        access_token: json.data.access_token,
+        refresh_token: json.data.refresh_token,
+        token_type: "Bearer",
+        expires_in: json.data.expires_in,
+      };
+      return cachedTokens;
+    }
+    return null;
   } catch (err) {
-    console.error("[Octorate] Exception fetching tokens from Supabase:", err);
+    console.error("[Octorate] Exception fetching tokens from server-get:", err);
     return null;
   }
 }
 
 async function storeTokens(tokens: OAuthTokens): Promise<void> {
   cachedTokens = tokens;
-  try {
-    const { error } = await supabase
-      .from("octorate_tokens")
-      .upsert({
-        id: "singleton",
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        expires_in: tokens.expires_in,
-        updated_at: new Date().toISOString()
-      });
-
-    if (error) {
-      console.error("[Octorate] Error saving tokens to Supabase:", error);
-    }
-  } catch (err) {
-    console.error("[Octorate] Exception saving tokens to Supabase:", err);
-  }
 }
 
 export async function clearTokens(): Promise<void> {
   cachedTokens = null;
-  try {
-    const { error } = await supabase
-      .from("octorate_tokens")
-      .delete()
-      .eq("id", "singleton");
-
-    if (error) {
-      console.error("[Octorate] Error clearing tokens from Supabase:", error);
-    }
-  } catch (err) {
-    console.error("[Octorate] Exception clearing tokens from Supabase:", err);
-  }
 }
 
 export async function isAuthenticated(): Promise<boolean> {
@@ -192,71 +156,46 @@ export function getAuthorizationUrl(state?: string): string {
  * eseguita server-side (Supabase Edge Function).
  * E' isolata qui per facilitare la futura migrazione.
  */
-export async function exchangeToken(authorizationCode: string): Promise<OAuthTokens> {
-  const url = OCTORATE_TOKEN_URL
-  console.log('Tentativo scambio token verso:', url)
-
-  const body = new URLSearchParams({
-    grant_type: "code",
-    code: authorizationCode,
-    client_id: OCTORATE_CLIENT_ID,
-    client_secret: OCTORATE_SECRET_KEY,
-    redirect_uri: OCTORATE_REDIRECT_URI,
-  })
-
-  const res = await fetch(url, {
+export async function exchangeToken(authorizationCode: string): Promise<any> {
+  console.log('Tentativo scambio token tramite endpoint sicuro...');
+  const res = await fetch("/api/octorate-exchange", {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Accept": "application/json",
+      "Content-Type": "application/json",
     },
-    body: body.toString(),
-  })
+    body: JSON.stringify({
+      code: authorizationCode,
+      redirectUri: OCTORATE_REDIRECT_URI
+    }),
+  });
 
   if (!res.ok) {
-    const errorBody = await res.text()
-    throw new Error(`OAuth token exchange failed (${res.status}): ${errorBody}`)
+    const errorBody = await res.text();
+    throw new Error(`OAuth token exchange via server failed: ${errorBody}`);
   }
 
-  const tokens: OAuthTokens = await res.json()
-  await storeTokens(tokens)
-  return tokens
+  return await res.json();
 }
 
 /**
  * Rinnova l'Access Token usando il Refresh Token.
  * Anche questa funzione migrera' su Edge Function.
  */
-export async function refreshAccessToken(): Promise<OAuthTokens> {
-  const current = await getStoredTokens()
-  if (!current?.refresh_token) {
-    throw new Error("No refresh token available")
-  }
-
-  const body = new URLSearchParams({
-    grant_type: "refresh_token",
-    refresh_token: current.refresh_token,
-    client_id: OCTORATE_CLIENT_ID,
-    client_secret: OCTORATE_SECRET_KEY,
-  })
-
-  const res = await fetch(`${OCTORATE_API_BASE}/identity/refresh`, {
+export async function refreshAccessToken(): Promise<any> {
+  console.log('Tentativo rinnovo token tramite endpoint sicuro...');
+  const res = await fetch("/api/octorate-refresh", {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Accept": "application/json",
-    },
-    body: body.toString(),
-  })
+      "Content-Type": "application/json",
+    }
+  });
 
   if (!res.ok) {
-    await clearTokens()
-    throw new Error(`Token refresh failed (${res.status})`)
+    const errorBody = await res.text();
+    throw new Error(`Token refresh via server failed: ${errorBody}`);
   }
 
-  const tokens: OAuthTokens = await res.json()
-  await storeTokens(tokens)
-  return tokens
+  return await res.json();
 }
 
 // =============================================================================
