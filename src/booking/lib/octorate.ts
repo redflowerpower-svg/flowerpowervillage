@@ -175,6 +175,7 @@ export function getAuthorizationUrl(state?: string): string {
  */
 export async function exchangeToken(authorizationCode: string): Promise<any> {
   console.log('Tentativo scambio token tramite endpoint sicuro...');
+  const dynamicRedirectUri = `${window.location.origin}/village`;
   const res = await fetch("/api/octorate-exchange", {
     method: "POST",
     headers: {
@@ -182,7 +183,7 @@ export async function exchangeToken(authorizationCode: string): Promise<any> {
     },
     body: JSON.stringify({
       code: authorizationCode,
-      redirectUri: OCTORATE_REDIRECT_URI
+      redirectUri: dynamicRedirectUri
     }),
   });
 
