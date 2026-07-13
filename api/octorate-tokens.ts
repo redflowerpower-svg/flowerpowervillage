@@ -6,6 +6,11 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabaseAdmin = createClient(supabaseUrl as string, serviceRoleKey as string);
 
 export default async function handler(req: any, res: any) {
+  const internalSecret = req.headers['x-internal-secret'];
+  if (!process.env.INTERNAL_API_SECRET || internalSecret !== process.env.INTERNAL_API_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   if (req.method === 'GET') {
     const { data, error } = await supabaseAdmin
       .from('octorate_tokens')
