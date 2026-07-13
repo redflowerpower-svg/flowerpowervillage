@@ -71,17 +71,11 @@ const translations = {
 };
 
 const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
-  'pizze-classiche': {
+  'traditional-italian-pizza': {
     IT: { name: 'Pizze Classiche', desc: 'Impasto a fermentazione naturale' },
     EN: { name: 'Classic Pizzas', desc: 'Slow-fermented Italian dough' },
     TH: { name: 'พิซซ่าคลาสสิค', desc: 'แป้งหมักธรรมชาติสูตรดั้งเดิม' },
     DE: { name: 'Klassische Pizzas', desc: 'Natursauerteig-Pizzaboden' },
-  },
-  'antipasti': {
-    IT: { name: 'Antipasti', desc: 'Bruschette e taglieri misti' },
-    EN: { name: 'Starters', desc: 'Bruschetta and mixed platters' },
-    TH: { name: 'อาหารเรียกน้ำย่อย', desc: 'บรูสเก็ตต้าและถาดรวมชีส' },
-    DE: { name: 'Vorspeisen', desc: 'Bruschetta und Aufschnittteller' },
   },
   'pasta': {
     IT: { name: 'Pasta', desc: 'Primi piatti della tradizione' },
@@ -89,17 +83,71 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'พาสต้า', desc: 'เมนูพาสต้าอิตาเลียนดั้งเดิม' },
     DE: { name: 'Pasta', desc: 'Traditionelle italienische Pasta' },
   },
-  'dolci': {
+  'italian-salads': {
+    IT: { name: 'Insalate Italiane', desc: 'Verdure fresche e ingredienti sani' },
+    EN: { name: 'Italian Salads', desc: 'Fresh salads with olive oil' },
+    TH: { name: 'สลัดอิตาเลียน', desc: 'ผักสดและน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิน' },
+    DE: { name: 'Italienische Salate', desc: 'Frische Salate mit Olivenöl' },
+  },
+  'pizza-sandwich': {
+    IT: { name: 'Pizza Sandwich', desc: 'Pane appena sfornato farcito' },
+    EN: { name: 'Pizza Sandwich', desc: 'Freshly baked sandwich' },
+    TH: { name: 'พิตซ่าแซนด์วิช', desc: 'อบใหม่ร้อนๆ ไส้แน่น' },
+    DE: { name: 'Pizza Sandwich', desc: 'Frisch gebackenes Sandwich' },
+  },
+  'pizza-burgers': {
+    IT: { name: 'Pizza Burger', desc: 'Hamburger in stile italiano' },
+    EN: { name: 'Pizza Burgers', desc: 'Italian-style burgers' },
+    TH: { name: 'พิซซ่าเบอร์เกอร์', desc: 'เบอร์เกอร์โฮมเมดสไตล์อิตาเลียน' },
+    DE: { name: 'Pizza Burger', desc: 'Burger nach italienischer Art' },
+  },
+  'french-fries': {
+    IT: { name: 'Patatine Fritte', desc: 'Dorate e croccanti' },
+    EN: { name: 'French Fries', desc: 'Crispy and golden' },
+    TH: { name: 'มันฝรั่งทอด', desc: 'เฟรนช์ฟรายส์ทอดสดใหม่' },
+    DE: { name: 'Pommes Frites', desc: 'Knusprig und goldbraun' },
+  },
+  'desserts': {
     IT: { name: 'Dolci', desc: 'Tiramisù e dessert artigianali' },
     EN: { name: 'Desserts', desc: 'Tiramisù and homemade desserts' },
     TH: { name: 'ของหวาน', desc: 'ทิรามิสุและขนมหวานโฮมเมด' },
     DE: { name: 'Desserts', desc: 'Tiramisù und hausgemachte Desserts' },
   },
-  'bevande': {
-    IT: { name: 'Bevande', desc: 'Bibite e shake rinfrescanti' },
-    EN: { name: 'Drinks & Beverages', desc: 'Soft drinks and fresh shakes' },
-    TH: { name: 'เครื่องดื่ม', desc: 'เครื่องดื่มและมิลค์เชคผลไม้สด' },
-    DE: { name: 'Getränke', desc: 'Softdrinks und frische Shakes' },
+  'breakfast-and-snacks': {
+    IT: { name: 'Colazione & Snack', desc: 'Per iniziare la giornata' },
+    EN: { name: 'Breakfast & Snacks', desc: 'To start your day' },
+    TH: { name: 'อาหารเช้าและของว่าง', desc: 'เริ่มต้นวันใหม่ด้วยพลังงาน' },
+    DE: { name: 'Frühstück & Snacks', desc: 'Für einen guten Start in den Tag' },
+  },
+  'coffee-shop': {
+    IT: { name: 'Caffetteria', desc: 'Caffè espresso italiano' },
+    EN: { name: 'Coffee Shop', desc: 'Italian espresso coffee' },
+    TH: { name: 'ร้านกาแฟ', desc: 'เอสเพรสโซ่อิตาเลียนแท้' },
+    DE: { name: 'Kaffeeshop', desc: 'Italienischer Espresso' },
+  },
+  'fruit-drinks': {
+    IT: { name: 'Bevande alla Frutta', desc: 'Frullati e shake freschi' },
+    EN: { name: 'Fruit Drinks', desc: 'Fresh fruit shakes' },
+    TH: { name: 'เครื่องดื่มผลไม้', desc: 'ผลไม้สดปั่นสดใหม่' },
+    DE: { name: 'Fruchtgetränke', desc: 'Frische Frucht-Shakes' },
+  },
+  'soft-drinks': {
+    IT: { name: 'Bibite', desc: 'Bibite rinfrescanti' },
+    EN: { name: 'Soft Drinks', desc: 'Refreshing drinks' },
+    TH: { name: 'น้ำอัดลม', desc: 'เครื่องดื่มไร้แอลกอฮอล์' },
+    DE: { name: 'Alkoholfreie Getränke', desc: 'Erfrischungsgetränke' },
+  },
+  'beers': {
+    IT: { name: 'Birre', desc: 'Birre tailandesi fresche' },
+    EN: { name: 'Beers', desc: 'Chilled Thai beers' },
+    TH: { name: 'เบียร์', desc: 'เบียร์ไทยเย็นๆ' },
+    DE: { name: 'Biere', desc: 'Gekühlte thailändische Biere' },
+  },
+  'wines': {
+    IT: { name: 'Vini', desc: 'Selezione di vini italiani' },
+    EN: { name: 'Wines', desc: 'Italian wine selection' },
+    TH: { name: 'รายการไวน์', desc: 'ไวน์อิตาเลียนคัดสรร' },
+    DE: { name: 'Weine', desc: 'Ausgewählte italienische Weine' },
   },
 };
 
@@ -252,13 +300,16 @@ export default function DeliveryMenu() {
         </div>
 
         {/* Section Title */}
-        <div className="mt-8 mb-6 px-2 flex items-center justify-between">
-          <div>
-            <h2 className="font-sans text-xl md:text-2xl font-black tracking-tight text-stone-900" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-              {activeCategoryName}
-            </h2>
-            <div className="w-8 h-0.5 bg-[#8B1E1E] mt-2" />
-          </div>
+        <div className="mt-8 mb-6 px-2">
+          <h2 className="font-sans text-xl md:text-2xl font-black tracking-tight text-stone-900" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+            {activeCategoryName}
+          </h2>
+          {categoryDetails[activeCategory.id]?.[lang]?.desc && (
+            <p className="text-stone-500 text-xs mt-1 font-light italic">
+              {categoryDetails[activeCategory.id][lang].desc}
+            </p>
+          )}
+          <div className="w-8 h-0.5 bg-[#8B1E1E] mt-2.5" />
         </div>
 
         {/* Products Grid */}
