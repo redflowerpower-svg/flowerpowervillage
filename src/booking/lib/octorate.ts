@@ -123,6 +123,23 @@ async function storeTokens(tokens: OAuthTokens): Promise<void> {
 
 export async function clearTokens(): Promise<void> {
   cachedTokens = null;
+  try {
+    const res = await fetch("/api/octorate-client-clear", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    });
+
+    if (!res.ok) {
+      const errorBody = await res.text();
+      console.error(`[Octorate] Failed to clear tokens via server: ${errorBody}`);
+    } else {
+      console.log("[Octorate] Tokens successfully cleared from server and cache");
+    }
+  } catch (err) {
+    console.error("[Octorate] Exception clearing tokens:", err);
+  }
 }
 
 export async function isAuthenticated(): Promise<boolean> {
