@@ -21,8 +21,7 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
   'coffee-shop': Coffee,
   'fruit-drinks': Coffee,
   'soft-drinks': Coffee,
-  'beers': Beer,
-  'wines': Wine,
+  'beers-and-wines': Beer,
 };
 
 const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
@@ -92,17 +91,11 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'น้ำอัดลม', desc: 'เครื่องดื่มไร้แอลกอฮอล์' },
     DE: { name: 'Alkoholfreie Getränke', desc: 'Erfrischungsgetränke' },
   },
-  'beers': {
-    IT: { name: 'Birre', desc: 'Birre tailandesi fresche' },
-    EN: { name: 'Beers', desc: 'Chilled Thai beers' },
-    TH: { name: 'เบียร์', desc: 'เบียร์ไทยเย็นๆ' },
-    DE: { name: 'Biere', desc: 'Gekühlte thailändische Biere' },
-  },
-  'wines': {
-    IT: { name: 'Vini', desc: 'Selezione di vini italiani' },
-    EN: { name: 'Wines', desc: 'Italian wine selection' },
-    TH: { name: 'รายการไวน์', desc: 'ไวน์อิตาเลียนคัดสรร' },
-    DE: { name: 'Weine', desc: 'Ausgewählte italienische Weine' },
+  'beers-and-wines': {
+    IT: { name: 'Birre & Vini', desc: 'Birre fresche e selezione di vini italiani' },
+    EN: { name: 'Beers & Wines', desc: 'Chilled beers and Italian wine selection' },
+    TH: { name: 'เบียร์และไวน์', desc: 'เบียร์เย็นๆ และไวน์อิตาเลียนคัดสรร' },
+    DE: { name: 'Biere & Weine', desc: 'Gekühlte Biere und ausgewählte italienische Weine' },
   },
 };
 
@@ -142,7 +135,7 @@ export default function CategoryTabs({ categories, activeId, onChange, lang }: P
       </div>
 
       {/* DESKTOP CATEGORY SELECTOR (Rectangular cards grid) */}
-      <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 gap-4 mb-4">
+      <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6 gap-4 mb-4">
         {categories.map((item) => {
           const isSelected = item.id === activeId;
           const details = categoryDetails[item.id]?.[lang] || { name: item.name, desc: '' };

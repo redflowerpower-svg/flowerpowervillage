@@ -215,7 +215,7 @@ export default function MenuGrid({ items, lang }: Props) {
                         <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold mb-2" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
                           {lang === 'TH' ? 'เครื่องปรุงเพิ่มเติม' : lang === 'DE' ? 'Zutaten' : lang === 'EN' ? 'Extras' : 'Ingredienti Extra'}
                         </p>
-                        <div className="space-y-1.5">
+                        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
                           {item.extras.map((extra) => {
                             const checked = !!selectedExtras.find((e) => e.id === extra.id);
                             return (
@@ -223,7 +223,7 @@ export default function MenuGrid({ items, lang }: Props) {
                                 key={extra.id}
                                 type="button"
                                 onClick={() => toggleExtra(extra)}
-                                className={`w-full flex items-center justify-between px-3 py-2.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                className={`w-full flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
                                   checked
                                     ? 'border-[#8B1E1E] bg-[#8B1E1E]/5'
                                     : 'border-stone-200 bg-white hover:border-stone-300'

@@ -12,6 +12,10 @@ const labels = {
     emptyTitle: 'Il tuo carrello è vuoto',
     emptyDesc: 'Aggiungi le nostre specialità dal menu online',
     totalText: 'Totale Ordine',
+    subtotalText: 'Subtotale',
+    deliveryText: 'Consegna',
+    freeText: 'Gratis',
+    freeDeliveryApplied: 'Consegna gratuita applicata! (Ordine > 200฿)',
     checkoutBtn: 'Procedi al Checkout',
     footerInfo: 'Pagamento tramite PromptPay • Carica screenshot di conferma',
   },
@@ -20,6 +24,10 @@ const labels = {
     emptyTitle: 'Your cart is empty',
     emptyDesc: 'Add items from our online menu',
     totalText: 'Order Total',
+    subtotalText: 'Subtotal',
+    deliveryText: 'Delivery',
+    freeText: 'Free',
+    freeDeliveryApplied: 'Free delivery applied! (Order > 200฿)',
     checkoutBtn: 'Proceed to Checkout',
     footerInfo: 'Payment via PromptPay • Upload confirmation screenshot',
   },
@@ -28,6 +36,10 @@ const labels = {
     emptyTitle: 'ไม่มีสินค้าในตะกร้า',
     emptyDesc: 'เพิ่มเมนูอร่อยจากเมนูออนไลน์ของเรา',
     totalText: 'ยอดรวมทั้งหมด',
+    subtotalText: 'ยอดรวมสินค้า',
+    deliveryText: 'ค่าจัดส่ง',
+    freeText: 'ฟรี',
+    freeDeliveryApplied: 'จัดส่งฟรี! (ยอดสั่งซื้อ > 200฿)',
     checkoutBtn: 'ดำเนินการชำระเงิน',
     footerInfo: 'ชำระเงินผ่าน PromptPay • โปรดอัปโหลดภาพหน้าจอเพื่อยืนยัน',
   },
@@ -36,6 +48,10 @@ const labels = {
     emptyTitle: 'Ihr Warenkorb ist leer',
     emptyDesc: 'Fügen Sie Spezialitäten aus unserer Online-Speisekarte hinzu',
     totalText: 'Gesamtsumme',
+    subtotalText: 'Zwischensumme',
+    deliveryText: 'Lieferung',
+    freeText: 'Gratis',
+    freeDeliveryApplied: 'Kostenlose Lieferung angewendet! (Bestellung > 200฿)',
     checkoutBtn: 'Zur Kasse gehen',
     footerInfo: 'Zahlung per PromptPay • Quittungs-Screenshot hochladen',
   },
@@ -44,6 +60,8 @@ const labels = {
 export default function CartDrawer({ onCheckout, lang }: Props) {
   const { items, isOpen, closeCart, removeItem, updateQuantity, getTotal } = useCartStore();
   const total = getTotal();
+  const deliveryFee = total >= 200 ? 0 : 30;
+  const finalTotal = total + deliveryFee;
   const t = labels[lang];
 
   const getTranslatedName = (o: { name: string; nameTh?: string }) => {
@@ -164,12 +182,36 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
         {/* DRAWER FOOTER */}
         {items.length > 0 && (
           <div className="border-t border-stone-200 px-5 py-5 space-y-4 bg-white">
-            <div className="flex justify-between items-center gap-2">
-              <span className="text-stone-500 text-xs uppercase tracking-widest flex-shrink-0" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <div className="space-y-1.5 text-stone-600 text-xs" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+              <div className="flex justify-between items-center">
+                <span>{t.subtotalText}</span>
+                <span className="font-semibold">{total} ฿</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>{t.deliveryText}</span>
+                <span className="font-semibold">
+                  {deliveryFee === 0 ? (
+                    <span className="text-emerald-600 font-extrabold">{t.freeText}</span>
+                  ) : (
+                    `${deliveryFee} ฿`
+                  )}
+                </span>
+              </div>
+            </div>
+
+            {deliveryFee === 0 && (
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] py-2 px-3 rounded-xl font-extrabold flex items-center gap-1.5 animate-fadeIn" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                <span>{t.freeDeliveryApplied}</span>
+              </div>
+            )}
+
+            <div className="flex justify-between items-center gap-2 border-t border-stone-100 pt-3">
+              <span className="text-stone-500 text-xs uppercase tracking-widest flex-shrink-0 font-bold" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
                 {t.totalText}
               </span>
-              <span className="text-[#8B1E1E] text-xl font-extrabold text-right" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
-                {total} ฿
+              <span className="text-[#8B1E1E] text-xl font-black text-right" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                {finalTotal} ฿
               </span>
             </div>
             

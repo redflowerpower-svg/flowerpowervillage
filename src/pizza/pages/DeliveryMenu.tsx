@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Globe, ChevronDown } from 'lucide-react';
 import { menuData } from '../data/menuData';
 import CategoryTabs from '../components/CategoryTabs';
@@ -137,21 +138,16 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'น้ำอัดลม', desc: 'เครื่องดื่มไร้แอลกอฮอล์' },
     DE: { name: 'Alkoholfreie Getränke', desc: 'Erfrischungsgetränke' },
   },
-  'beers': {
-    IT: { name: 'Birre', desc: 'Birre tailandesi fresche' },
-    EN: { name: 'Beers', desc: 'Chilled Thai beers' },
-    TH: { name: 'เบียร์', desc: 'เบียร์ไทยเย็นๆ' },
-    DE: { name: 'Biere', desc: 'Gekühlte thailändische Biere' },
-  },
-  'wines': {
-    IT: { name: 'Vini', desc: 'Selezione di vini italiani' },
-    EN: { name: 'Wines', desc: 'Italian wine selection' },
-    TH: { name: 'รายการไวน์', desc: 'ไวน์อิตาเลียนคัดสรร' },
-    DE: { name: 'Weine', desc: 'Ausgewählte italienische Weine' },
+  'beers-and-wines': {
+    IT: { name: 'Birre & Vini', desc: 'Birre fresche e selezione di vini italiani' },
+    EN: { name: 'Beers & Wines', desc: 'Chilled beers and Italian wine selection' },
+    TH: { name: 'เบียร์และไวน์', desc: 'เบียร์เย็นๆ และไวน์อิตาเลียนคัดสรร' },
+    DE: { name: 'Biere & Weine', desc: 'Gekühlte Biere und ausgewählte italienische Weine' },
   },
 };
 
 export default function DeliveryMenu() {
+  const navigate = useNavigate();
   const [activeCategoryId, setActiveCategoryId] = useState(menuData[0].id);
   const [showCheckout, setShowCheckout] = useState(false);
   const { getCount, getTotal, openCart } = useCartStore();
@@ -341,6 +337,16 @@ export default function DeliveryMenu() {
 
       {showCheckout && (
         <CheckoutFlow onClose={() => setShowCheckout(false)} onSuccess={() => setShowCheckout(false)} lang={lang} />
+      )}
+
+      {import.meta.env.DEV && (
+        <button
+          onClick={() => navigate('/admin')}
+          className="fixed bottom-6 right-6 z-40 bg-stone-900/95 hover:bg-stone-850 text-[#c5a572] hover:text-white px-4 py-3 rounded-full border border-[#c5a572]/40 shadow-2xl flex items-center justify-center gap-1.5 transition-all text-xs uppercase tracking-widest font-extrabold cursor-pointer hover:scale-105 active:scale-95 animate-fadeIn"
+          style={{ fontFamily: 'Outfit, sans-serif' }}
+        >
+          <span>⚙️ Dashboard Admin</span>
+        </button>
       )}
 
       {count > 0 && <div className="h-24" />}

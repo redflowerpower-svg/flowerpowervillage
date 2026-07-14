@@ -1,45 +1,60 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Session } from '@supabase/supabase-js';
-import { Clock, Phone, MapPin, ChevronRight, RefreshCw, LogOut, ExternalLink, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import type { PizzaOrder, CartItemSaved } from '../types';
+import Dashboard from '../../admin/components/Dashboard';
 
-const POLL_INTERVAL = 10000;
-
-function usePing() {
-  const audioCtxRef = useRef<AudioContext | null>(null);
-
-  return useCallback(() => {
-    try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new AudioContext();
-      }
-      const ctx = audioCtxRef.current;
-
-      const playTone = (freq: number, startTime: number, endFreq: number, duration: number, volume: number) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, startTime);
-        osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + duration * 0.8);
-        gain.gain.setValueAtTime(volume, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-        osc.start(startTime);
-        osc.stop(startTime + duration);
-      };
-
-      const now = ctx.currentTime;
-      playTone(880, now, 440, 0.6, 0.8);
-      playTone(1320, now + 0.2, 660, 0.4, 0.6);
-    } catch {
-      // AudioContext not supported
-    }
-  }, []);
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
 }
 
-function LoginForm({ onLogin }: { onLogin: () => void }) {
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center bg-stone-950 p-6 text-stone-200" style={{ fontFamily: 'Inter, sans-serif' }}>
+          <div className="max-w-md w-full bg-stone-900 border border-stone-800 rounded-3xl p-8 shadow-xl text-center space-y-4">
+            <h2 className="text-[#fbbf24] font-bold text-lg">⚠️ Errore rilevato nel componente</h2>
+            <p className="text-xs text-stone-400 font-medium">Si è verificato un problema imprevisto durante il rendering della Dashboard.</p>
+            <div className="bg-stone-950/80 border border-stone-850 p-4 rounded-xl text-left overflow-auto max-h-[200px]">
+              <code className="text-red-400 text-[10px] whitespace-pre-wrap break-words">
+                {this.state.error?.toString() || 'Errore sconosciuto'}
+              </code>
+            </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-5 py-2.5 bg-stone-800 text-stone-200 border border-stone-700 hover:border-stone-500 rounded-xl text-xs uppercase tracking-wider font-extrabold cursor-pointer transition-all"
+            >
+              Ricarica la Pagina
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+function LoginForm({ onLogin, onBypass }: { onLogin: () => void; onBypass?: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -83,7 +98,7 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-stone-900 border border-stone-700 px-4 py-3 text-white text-sm focus:outline-none focus:border-red-700 transition-colors"
+              className="w-full bg-stone-900 border border-stone-700 px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c5a572] transition-colors"
               style={{ fontFamily: 'Inter, sans-serif' }}
             />
           </div>
@@ -98,7 +113,7 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-stone-900 border border-stone-700 px-4 py-3 text-white text-sm focus:outline-none focus:border-red-700 transition-colors"
+              className="w-full bg-stone-900 border border-stone-700 px-4 py-3 text-white text-sm focus:outline-none focus:border-[#c5a572] transition-colors"
               style={{ fontFamily: 'Inter, sans-serif' }}
             />
           </div>
@@ -112,95 +127,24 @@ function LoginForm({ onLogin }: { onLogin: () => void }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-red-800 text-white text-xs tracking-widest uppercase hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#8B1E1E] text-white text-xs tracking-widest uppercase hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
             style={{ fontFamily: 'Inter, sans-serif' }}
           >
             {loading ? <><Loader2 size={14} className="animate-spin" /> Signing in…</> : 'Sign In'}
           </button>
+
+          {import.meta.env.DEV && onBypass && (
+            <button
+              type="button"
+              onClick={onBypass}
+              className="w-full py-2.5 mt-2 bg-stone-900 border border-stone-700 hover:border-stone-500 hover:bg-stone-850 text-stone-400 hover:text-stone-200 text-xs tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5 cursor-pointer rounded-lg"
+              style={{ fontFamily: 'Inter, sans-serif' }}
+            >
+              🔓 Accesso Rapido Test
+            </button>
+          )}
         </form>
       </div>
-    </div>
-  );
-}
-
-function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: string, status: PizzaOrder['status']) => void }) {
-  const items = order.items as CartItemSaved[];
-  const createdAt = order.created_at ? new Date(order.created_at) : null;
-  const timeStr = createdAt ? createdAt.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) : '';
-
-  const nextStatus: Record<string, PizzaOrder['status']> = { new: 'preparing', preparing: 'ready' };
-  const nextLabel: Record<string, string> = { new: 'Start Preparing', preparing: 'Mark Ready' };
-
-  return (
-    <div
-      className="border p-4 space-y-3 transition-all duration-300"
-      style={{
-        borderColor: order.status === 'new' ? '#b91c1c' : order.status === 'preparing' ? '#d97706' : '#16a34a',
-        background: order.status === 'new' ? 'rgba(185,28,28,0.05)' : 'rgba(255,255,255,0.02)',
-      }}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-white font-medium text-sm">{order.customer_name}</p>
-          <div className="flex items-center gap-3 mt-1">
-            <span className="flex items-center gap-1 text-stone-500 text-xs"><Clock size={11} /> {timeStr}</span>
-            <span className="flex items-center gap-1 text-stone-500 text-xs"><Phone size={11} /> {order.phone}</span>
-          </div>
-        </div>
-        <span className="text-red-400 text-sm font-light flex-shrink-0">{order.total} ฿</span>
-      </div>
-
-      {order.address && order.address !== 'Pickup at restaurant' && (
-        <div className="flex items-start gap-1.5 text-xs text-stone-400">
-          <MapPin size={11} className="mt-0.5 flex-shrink-0" />
-          {order.address}
-        </div>
-      )}
-      {order.address === 'Pickup at restaurant' && <p className="text-xs text-amber-500">🏠 Pickup</p>}
-
-      <div className="space-y-1.5">
-        {items.map((item, i) => (
-          <div key={i} className="text-xs">
-            <span className="text-white">
-              {item.quantity}x {item.name}{item.selectedVariant ? ` (${item.selectedVariant})` : ''}
-            </span>
-            {item.selectedExtras.length > 0 && (
-              <div className="pl-3 text-stone-500 space-y-0.5 mt-0.5">
-                {item.selectedExtras.map((e, j) => (
-                  <p key={j}>+ {e.name} {e.price > 0 ? `+${e.price}฿` : ''}</p>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {order.receipt_url && (
-        <a href={order.receipt_url} target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-300 transition-colors">
-          <ExternalLink size={10} /> View Receipt
-        </a>
-      )}
-
-      {order.status !== 'ready' && (
-        <button
-          onClick={() => onAdvance(order.id!, nextStatus[order.status])}
-          className="w-full flex items-center justify-center gap-2 py-2.5 text-xs uppercase tracking-widest transition-all"
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            background: order.status === 'new' ? 'rgba(217,119,6,0.15)' : 'rgba(22,163,74,0.15)',
-            border: order.status === 'new' ? '1px solid #d97706' : '1px solid #16a34a',
-            color: order.status === 'new' ? '#fbbf24' : '#4ade80',
-          }}>
-          {nextLabel[order.status]} <ChevronRight size={14} />
-        </button>
-      )}
-
-      {order.status === 'ready' && (
-        <p className="text-center text-green-500 text-xs tracking-widest uppercase" style={{ fontFamily: 'Inter, sans-serif' }}>
-          ✓ Ready
-        </p>
-      )}
     </div>
   );
 }
@@ -208,11 +152,6 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
 export default function AdminDashboard() {
   const [session, setSession] = useState<Session | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
-  const [orders, setOrders] = useState<PizzaOrder[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [lastFetch, setLastFetch] = useState<Date | null>(null);
-  const knownIdsRef = useRef<Set<string>>(new Set());
-  const ping = usePing();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: s } }) => {
@@ -221,48 +160,30 @@ export default function AdminDashboard() {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
-      (async () => {
-        setSession(s);
-        setSessionLoading(false);
-      })();
+      setSession(s);
+      setSessionLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  const fetchOrders = useCallback(async () => {
-    setLoading(true);
-    const { data } = await supabase
-      .from('pizza_orders')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
-
-    if (data) {
-      const incoming = data as PizzaOrder[];
-      const hasNew = incoming.some((o) => o.status === 'new' && o.id && !knownIdsRef.current.has(o.id));
-      if (hasNew && knownIdsRef.current.size > 0) ping();
-      incoming.forEach((o) => { if (o.id) knownIdsRef.current.add(o.id); });
-      setOrders(incoming);
-      setLastFetch(new Date());
-    }
-    setLoading(false);
-  }, [ping]);
-
-  useEffect(() => {
-    if (!session) return;
-    fetchOrders();
-    const interval = setInterval(fetchOrders, POLL_INTERVAL);
-    return () => clearInterval(interval);
-  }, [session, fetchOrders]);
-
-  const handleAdvance = async (id: string, status: PizzaOrder['status']) => {
-    await supabase.from('pizza_orders').update({ status }).eq('id', id);
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    setSession(null);
+  };
+
+  const handleBypass = () => {
+    const mockSession = {
+      access_token: 'mock-token',
+      token_type: 'bearer',
+      expires_in: 3600,
+      user: {
+        id: 'mock-user-id',
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      }
+    } as any;
+    setSession(mockSession);
   };
 
   if (sessionLoading) {
@@ -273,59 +194,11 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!session) return <LoginForm onLogin={() => {}} />;
-
-  const newOrders = orders.filter((o) => o.status === 'new');
-  const preparingOrders = orders.filter((o) => o.status === 'preparing');
-  const readyOrders = orders.filter((o) => o.status === 'ready');
-
-  const columns = [
-    { label: 'New', color: '#ef4444', pulse: true, count: newOrders.length, items: newOrders },
-    { label: 'In Preparation', color: '#f59e0b', pulse: false, count: preparingOrders.length, items: preparingOrders },
-    { label: 'Ready', color: '#22c55e', pulse: false, count: readyOrders.length, items: readyOrders },
-  ];
+  if (!session) return <LoginForm onLogin={() => {}} onBypass={handleBypass} />;
 
   return (
-    <div className="min-h-screen" style={{ background: '#0c0a09' }}>
-      <div className="sticky top-0 z-10 px-6 py-4 border-b border-stone-800 flex items-center justify-between" style={{ background: '#0c0a09' }}>
-        <div>
-          <p className="text-white font-light" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.3rem' }}>
-            Kitchen Dashboard
-          </p>
-          <p className="text-stone-600 text-xs">
-            {lastFetch ? `Updated ${lastFetch.toLocaleTimeString('th-TH')}` : 'Loading...'}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={fetchOrders} disabled={loading} className="text-stone-500 hover:text-white transition-colors">
-            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-          </button>
-          <button onClick={handleLogout} className="text-stone-500 hover:text-red-400 transition-colors">
-            <LogOut size={18} />
-          </button>
-        </div>
-      </div>
-
-      <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-        {columns.map((col) => (
-          <div key={col.label}>
-            <div className="flex items-center gap-2 mb-4">
-              <div className={`w-3 h-3 rounded-full ${col.pulse ? 'animate-pulse' : ''}`} style={{ background: col.color }} />
-              <p className="text-white text-xs uppercase tracking-widest" style={{ fontFamily: 'Inter, sans-serif' }}>
-                {col.label}
-              </p>
-              <span className="ml-auto text-xs" style={{ color: col.color }}>{col.count}</span>
-            </div>
-            <div className="space-y-3">
-              {col.items.length === 0 ? (
-                <p className="text-stone-700 text-xs text-center py-8">No orders</p>
-              ) : (
-                col.items.map((o) => <OrderCard key={o.id} order={o} onAdvance={handleAdvance} />)
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <ErrorBoundary>
+      <Dashboard onLogout={handleLogout} />
+    </ErrorBoundary>
   );
 }

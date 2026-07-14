@@ -51,7 +51,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่ามารีนาร่า มังสวิรัติ",
         "description": "Tomato Sauce, Garlic, Olive Oil",
         "descriptionTh": "ซอสมะเขือเทศ, กระเทียม, น้ำมันมะกอก",
-        "price": 170.0,
+        "price": 170,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/01-pizza-marinara-vegan.png",
         "image_file": "01-Pizza/01-pizza-marinara-vegan.png",
         "sku": "",
@@ -61,16 +61,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10000",
-            "price": 170.0,
-            "priceModifier": 0.0
+            "price": 170,
+            "priceModifier": 0
           },
           {
             "id": "10136",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10136",
-            "price": 100.0,
-            "priceModifier": -70.0
+            "price": 100,
+            "priceModifier": -70
           }
         ],
         "extras": [
@@ -79,175 +79,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -258,7 +258,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่ามาร์การิต้า",
         "description": "Tomato Sauce, Olive Oil, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ชีสมอซซาเรลล่า",
-        "price": 190.0,
+        "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/02-pizza-margherita.png",
         "image_file": "01-Pizza/02-pizza-margherita.png",
         "sku": "",
@@ -268,16 +268,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10001",
-            "price": 190.0,
-            "priceModifier": 0.0
+            "price": 190,
+            "priceModifier": 0
           },
           {
             "id": "10119",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10119",
-            "price": 120.0,
-            "priceModifier": -70.0
+            "price": 120,
+            "priceModifier": -70
           }
         ],
         "extras": [
@@ -286,175 +286,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -465,7 +465,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าพริกหวานมังสวิรัติ",
         "description": "Tomato Sauce, Olive Oil, Sweet Bell Peppers",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, พริกหวาน",
-        "price": 230.0,
+        "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/03-pizza-sweet-bell-pepper-vegan.png",
         "image_file": "01-Pizza/03-pizza-sweet-bell-pepper-vegan.png",
         "sku": "",
@@ -475,16 +475,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10002",
-            "price": 230.0,
-            "priceModifier": 0.0
+            "price": 230,
+            "priceModifier": 0
           },
           {
             "id": "10234",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10234",
-            "price": 130.0,
-            "priceModifier": -100.0
+            "price": 130,
+            "priceModifier": -100
           }
         ],
         "extras": [
@@ -493,175 +493,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -672,7 +672,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "คัลโซเน่",
         "description": "Tomato Sauce, Olive Oil, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ชีสมอสซาเรลล่า",
-        "price": 210.0,
+        "price": 210,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/04-calzone.png",
         "image_file": "01-Pizza/04-calzone.png",
         "sku": "",
@@ -682,32 +682,32 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10003",
-            "price": 210.0,
-            "priceModifier": 0.0
+            "price": 210,
+            "priceModifier": 0
           },
           {
             "id": "10014",
             "name": "12\" (Ham & Cheese)",
             "nameTh": "12\" (Ham & Cheese)",
             "sku": "10014",
-            "price": 250.0,
-            "priceModifier": 40.0
+            "price": 250,
+            "priceModifier": 40
           },
           {
             "id": "10041",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10041",
-            "price": 140.0,
-            "priceModifier": -70.0
+            "price": 140,
+            "priceModifier": -70
           },
           {
             "id": "10066",
             "name": "8\" (Ham & Cheese)",
             "nameTh": "8\" (Ham & Cheese)",
             "sku": "10066",
-            "price": 165.0,
-            "priceModifier": -45.0
+            "price": 165,
+            "priceModifier": -45
           }
         ],
         "extras": [
@@ -716,175 +716,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -895,7 +895,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าบิสมาร์ก",
         "description": "Tomato Sauce, Olive Oil, Egg, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ไข่, ชีสมอซซาเรลล่า",
-        "price": 240.0,
+        "price": 240,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/05-pizza-bismark.png",
         "image_file": "01-Pizza/05-pizza-bismark.png",
         "sku": "",
@@ -905,16 +905,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10004",
-            "price": 240.0,
-            "priceModifier": 0.0
+            "price": 240,
+            "priceModifier": 0
           },
           {
             "id": "10104",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10104",
-            "price": 150.0,
-            "priceModifier": -90.0
+            "price": 150,
+            "priceModifier": -90
           }
         ],
         "extras": [
@@ -923,175 +923,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -1102,7 +1102,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าแฮมและชีส",
         "description": "Tomato Sauce, Olive Oil, Ham, Egg, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, ชีสมอซซาเรลล่า",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/06-pizza-ham-and-cheese.png",
         "image_file": "01-Pizza/06-pizza-ham-and-cheese.png",
         "sku": "",
@@ -1112,16 +1112,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10005",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10110",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10110",
-            "price": 165.0,
-            "priceModifier": -85.0
+            "price": 165,
+            "priceModifier": -85
           }
         ],
         "extras": [
@@ -1130,175 +1130,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -1309,7 +1309,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าเห็ดและเต้าหู้มังสวิรัติ",
         "description": "Tomato Sauce, Mushrooms, Tofu",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, เห็ด, เต้าหู้",
-        "price": 230.0,
+        "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/07-pizza-mushrooms-and-tofu-vegan.png",
         "image_file": "01-Pizza/07-pizza-mushrooms-and-tofu-vegan.png",
         "sku": "",
@@ -1319,16 +1319,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10006",
-            "price": 230.0,
-            "priceModifier": 0.0
+            "price": 230,
+            "priceModifier": 0
           },
           {
             "id": "10137",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10137",
-            "price": 150.0,
-            "priceModifier": -80.0
+            "price": 150,
+            "priceModifier": -80
           }
         ],
         "extras": [
@@ -1337,175 +1337,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -1516,7 +1516,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่านูเทลล่า",
         "description": "Nutella",
         "descriptionTh": "นูเทลล่า",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/08-pizza-nutella.png",
         "image_file": "01-Pizza/08-pizza-nutella.png",
         "sku": "",
@@ -1526,16 +1526,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10007",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10139",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10139",
-            "price": 160.0,
-            "priceModifier": -90.0
+            "price": 160,
+            "priceModifier": -90
           }
         ],
         "extras": [
@@ -1544,175 +1544,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -1723,7 +1723,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าผัก",
         "description": "Tomato Sauce, Olive Oil, Vegetables, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ผัก, ชีสมอซซาเรลล่า",
-        "price": 230.0,
+        "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/09-pizza-vegetables.png",
         "image_file": "01-Pizza/09-pizza-vegetables.png",
         "sku": "",
@@ -1733,16 +1733,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10008",
-            "price": 230.0,
-            "priceModifier": 0.0
+            "price": 230,
+            "priceModifier": 0
           },
           {
             "id": "10243",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10243",
-            "price": 150.0,
-            "priceModifier": -80.0
+            "price": 150,
+            "priceModifier": -80
           }
         ],
         "extras": [
@@ -1751,175 +1751,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -1930,7 +1930,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าอาร์ติโชค",
         "description": "Tomato Sauce, Olive Oil, Artichokes, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, อาร์ติโชค, ชีสมอซซาเรลล่า",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/10-pizza-artichokes.png",
         "image_file": "01-Pizza/10-pizza-artichokes.png",
         "sku": "",
@@ -1940,16 +1940,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10009",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10090",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10090",
-            "price": 160.0,
-            "priceModifier": -90.0
+            "price": 160,
+            "priceModifier": -90
           }
         ],
         "extras": [
@@ -1958,175 +1958,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -2137,7 +2137,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าเบคอน",
         "description": "Tomato Sauce, Olive Oil, Bacon, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, เบคอน, ชีสมอซซาเรลล่า",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/11-pizza-bacon.png",
         "image_file": "01-Pizza/11-pizza-bacon.png",
         "sku": "",
@@ -2147,32 +2147,32 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10010",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10018",
             "name": "12\" (Bismark)",
             "nameTh": "12\" (Bismark)",
             "sku": "10018",
-            "price": 270.0,
-            "priceModifier": 20.0
+            "price": 270,
+            "priceModifier": 20
           },
           {
             "id": "10091",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10091",
-            "price": 160.0,
-            "priceModifier": -90.0
+            "price": 160,
+            "priceModifier": -90
           },
           {
             "id": "10101",
             "name": "8\" (Bismark)",
             "nameTh": "8\" (Bismark)",
             "sku": "10101",
-            "price": 170.0,
-            "priceModifier": -80.0
+            "price": 170,
+            "priceModifier": -80
           }
         ],
         "extras": [
@@ -2181,175 +2181,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -2360,7 +2360,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าสับปะรด",
         "description": "Tomato Sauce, Olive Oil, Pineapple, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, สับปะรด, ชีสมอซซาเรลล่า",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/12-pizza-pineapple.png",
         "image_file": "01-Pizza/12-pizza-pineapple.png",
         "sku": "",
@@ -2370,16 +2370,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10011",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10240",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10240",
-            "price": 160.0,
-            "priceModifier": -90.0
+            "price": 160,
+            "priceModifier": -90
           }
         ],
         "extras": [
@@ -2388,175 +2388,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -2567,7 +2567,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าพริกหวานและชีส",
         "description": "Tomato Sauce, Olive Oil, Sweet Bell Peppers, Mozzarella",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, พริกหวาน, ชีสมอซซาเรลล่า",
-        "price": 270.0,
+        "price": 270,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/13-pizza-sweet-bell-pepper-cheese.png",
         "image_file": "01-Pizza/13-pizza-sweet-bell-pepper-cheese.png",
         "sku": "",
@@ -2577,16 +2577,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10012",
-            "price": 270.0,
-            "priceModifier": 0.0
+            "price": 270,
+            "priceModifier": 0
           },
           {
             "id": "10244",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10244",
-            "price": 180.0,
-            "priceModifier": -90.0
+            "price": 180,
+            "priceModifier": -90
           }
         ],
         "extras": [
@@ -2595,175 +2595,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -2774,7 +2774,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าใส้กรอกเยอรมัน",
         "description": "Tomato Sauce, German Sausage, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, ไส้กรอกเยอรมัน, ชีสมอซซาเรลล่า",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/14-pizza-wurstel.png",
         "image_file": "01-Pizza/14-pizza-wurstel.png",
         "sku": "",
@@ -2784,16 +2784,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10013",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10245",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10245",
-            "price": 160.0,
-            "priceModifier": -90.0
+            "price": 160,
+            "priceModifier": -90
           }
         ],
         "extras": [
@@ -2802,175 +2802,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -2981,7 +2981,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "คัลโซเน่แฮมและชีส",
         "description": "Tomato Sauce, Ham, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, แฮม, ชีสมอสซาเรลล่า",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/15-calzone-ham-and-cheese.png",
         "image_file": "01-Pizza/15-calzone-ham-and-cheese.png",
         "sku": "",
@@ -2991,16 +2991,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10014",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10066",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10066",
-            "price": 165.0,
-            "priceModifier": -85.0
+            "price": 165,
+            "priceModifier": -85
           }
         ],
         "extras": [
@@ -3009,175 +3009,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -3188,7 +3188,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าสลามี",
         "description": "Tomato Sauce, Olive Oil, Salame, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, สลามี, ชีสมอซซาเรลล่า",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/16-pizza-salame.png",
         "image_file": "01-Pizza/16-pizza-salame.png",
         "sku": "",
@@ -3198,48 +3198,48 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10015",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10024",
             "name": "12\" (Gorgonzola)",
             "nameTh": "12\" (Gorgonzola)",
             "sku": "10024",
-            "price": 320.0,
-            "priceModifier": 70.0
+            "price": 320,
+            "priceModifier": 70
           },
           {
             "id": "10016",
             "name": "12\" (Calabrese)",
             "nameTh": "12\" (Calabrese)",
             "sku": "10016",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10247",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10247",
-            "price": 160.0,
-            "priceModifier": -90.0
+            "price": 160,
+            "priceModifier": -90
           },
           {
             "id": "10256",
             "name": "8\" (Gorgonzola)",
             "nameTh": "8\" (Gorgonzola)",
             "sku": "10256",
-            "price": 210.0,
-            "priceModifier": -40.0
+            "price": 210,
+            "priceModifier": -40
           },
           {
             "id": "10248",
             "name": "8\" (Calabrese)",
             "nameTh": "8\" (Calabrese)",
             "sku": "10248",
-            "price": 160.0,
-            "priceModifier": -90.0
+            "price": 160,
+            "priceModifier": -90
           }
         ],
         "extras": [
@@ -3248,175 +3248,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -3427,7 +3427,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าสลามีคาลาเบรี",
         "description": "Tomato Sauce, Olive Oil, Spicy Salame, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, สลามีเผ็ด, ชีสมอซซาเรลล่า",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/17-pizza-salame-calabrese.png",
         "image_file": "01-Pizza/17-pizza-salame-calabrese.png",
         "sku": "",
@@ -3437,16 +3437,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10016",
-            "price": 250.0,
-            "priceModifier": 0.0
+            "price": 250,
+            "priceModifier": 0
           },
           {
             "id": "10248",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10248",
-            "price": 160.0,
-            "priceModifier": -90.0
+            "price": 160,
+            "priceModifier": -90
           }
         ],
         "extras": [
@@ -3455,175 +3455,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -3634,7 +3634,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าแฮมและอาร์ติโชค",
         "description": "Tomato Sauce, Olive Oil, Ham, Artichokes, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, อาร์ติโชค, ชีสมอซซาเรลล่า",
-        "price": 290.0,
+        "price": 290,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/18-pizza-ham-and-artichokes.png",
         "image_file": "01-Pizza/18-pizza-ham-and-artichokes.png",
         "sku": "",
@@ -3644,16 +3644,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10017",
-            "price": 290.0,
-            "priceModifier": 0.0
+            "price": 290,
+            "priceModifier": 0
           },
           {
             "id": "10109",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10109",
-            "price": 190.0,
-            "priceModifier": -100.0
+            "price": 190,
+            "priceModifier": -100
           }
         ],
         "extras": [
@@ -3662,175 +3662,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -3841,7 +3841,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าเบคอนบิสมาร์ก",
         "description": "Tomato Sauce, Olive Oil, Bacon, Egg, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, เบคอน, ไข่, ชีสมอซซาเรลล่า",
-        "price": 270.0,
+        "price": 270,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/19-pizza-bacon-bismark.png",
         "image_file": "01-Pizza/19-pizza-bacon-bismark.png",
         "sku": "",
@@ -3851,16 +3851,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10018",
-            "price": 270.0,
-            "priceModifier": 0.0
+            "price": 270,
+            "priceModifier": 0
           },
           {
             "id": "10101",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10101",
-            "price": 170.0,
-            "priceModifier": -100.0
+            "price": 170,
+            "priceModifier": -100
           }
         ],
         "extras": [
@@ -3869,175 +3869,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -4048,7 +4048,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าแฮมและเห็ด",
         "description": "Tomato Sauce, Olive Oil, Ham, Mushrooms, Mozzarella",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, เห็ด, ชีสมอซซาเรลล่า",
-        "price": 260.0,
+        "price": 260,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/20-pizza-ham-and-mushrooms.png",
         "image_file": "01-Pizza/20-pizza-ham-and-mushrooms.png",
         "sku": "",
@@ -4058,16 +4058,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10019",
-            "price": 260.0,
-            "priceModifier": 0.0
+            "price": 260,
+            "priceModifier": 0
           },
           {
             "id": "10112",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10112",
-            "price": 170.0,
-            "priceModifier": -90.0
+            "price": 170,
+            "priceModifier": -90
           }
         ],
         "extras": [
@@ -4076,175 +4076,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -4255,7 +4255,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าแฮมและพริกหวาน",
         "description": "Tomato Sauce, Olive Oil, Ham, Sweet Bell Peppers, Mozzarella",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, พริกหวาน, ชีสมอซซาเรลล่า",
-        "price": 290.0,
+        "price": 290,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/21-pizza-ham-and-sweet-bell-pepper.png",
         "image_file": "01-Pizza/21-pizza-ham-and-sweet-bell-pepper.png",
         "sku": "",
@@ -4265,16 +4265,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10020",
-            "price": 290.0,
-            "priceModifier": 0.0
+            "price": 290,
+            "priceModifier": 0
           },
           {
             "id": "10115",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10115",
-            "price": 190.0,
-            "priceModifier": -100.0
+            "price": 190,
+            "priceModifier": -100
           }
         ],
         "extras": [
@@ -4283,175 +4283,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -4462,7 +4462,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าเพสโต้",
         "description": "Pesto Basil Sauce, Olive Oil, Mozzarella Cheese",
         "descriptionTh": "ซอสเพสโต้, น้ำมันมะกอก, ชีสมอซซาเรลล่า",
-        "price": 280.0,
+        "price": 280,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/22-pizza-pesto.png",
         "image_file": "01-Pizza/22-pizza-pesto.png",
         "sku": "",
@@ -4472,16 +4472,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10021",
-            "price": 280.0,
-            "priceModifier": 0.0
+            "price": 280,
+            "priceModifier": 0
           },
           {
             "id": "10140",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10140",
-            "price": 180.0,
-            "priceModifier": -100.0
+            "price": 180,
+            "priceModifier": -100
           }
         ],
         "extras": [
@@ -4490,175 +4490,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -4669,7 +4669,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าทูน่า",
         "description": "Tomato Sauce, Olive Oil, Garlic, Onions, Tuna, Mozzarella",
         "descriptionTh": "ซอสมะเขือเทศ, กระเทียม, หัวหอม, ปลาทูน่า, ชีสมอซซาเรลล่า",
-        "price": 280.0,
+        "price": 280,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/23-pizza-tuna.png",
         "image_file": "01-Pizza/23-pizza-tuna.png",
         "sku": "",
@@ -4679,16 +4679,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10022",
-            "price": 280.0,
-            "priceModifier": 0.0
+            "price": 280,
+            "priceModifier": 0
           },
           {
             "id": "10254",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10254",
-            "price": 180.0,
-            "priceModifier": -100.0
+            "price": 180,
+            "priceModifier": -100
           }
         ],
         "extras": [
@@ -4697,175 +4697,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -4876,7 +4876,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าฮาวายเอี้ยน",
         "description": "Tomato Sauce, Olive Oil, Ham, Pineapple, Mozzarella Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, สับปะรด, ชีสมอซซาเรลล่า",
-        "price": 290.0,
+        "price": 290,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/24-pizza-hawaiian.png",
         "image_file": "01-Pizza/24-pizza-hawaiian.png",
         "sku": "",
@@ -4886,16 +4886,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10023",
-            "price": 290.0,
-            "priceModifier": 0.0
+            "price": 290,
+            "priceModifier": 0
           },
           {
             "id": "10117",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10117",
-            "price": 190.0,
-            "priceModifier": -100.0
+            "price": 190,
+            "priceModifier": -100
           }
         ],
         "extras": [
@@ -4904,175 +4904,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -5083,7 +5083,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าสลามีกอร์กอนโซล่า",
         "description": "Tomato Sauce, Olive Oil, Salame, Gorgonzola, Mozzarella",
         "descriptionTh": "ซอสมะเขือเทศ, สลามี, กอร์กอนโซล่า, ชีสมอซซาเรลล่า",
-        "price": 320.0,
+        "price": 320,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/25-pizza-salame-and-gorgonzola.png",
         "image_file": "01-Pizza/25-pizza-salame-and-gorgonzola.png",
         "sku": "",
@@ -5093,16 +5093,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10024",
-            "price": 320.0,
-            "priceModifier": 0.0
+            "price": 320,
+            "priceModifier": 0
           },
           {
             "id": "10256",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10256",
-            "price": 210.0,
-            "priceModifier": -110.0
+            "price": 210,
+            "priceModifier": -110
           }
         ],
         "extras": [
@@ -5111,175 +5111,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -5290,7 +5290,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าชีสสี่ชนิด",
         "description": "Mozzarella Cheese, Cheddar, Gorgonzola Cheese, Parmesan",
         "descriptionTh": "ชีสมอสซาเรลล่า,เชดดาร์, ชีสกอร์กอนโซล่า, พาร์เมซาน",
-        "price": 330.0,
+        "price": 330,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/26-pizza-4-formaggi.png",
         "image_file": "01-Pizza/26-pizza-4-formaggi.png",
         "sku": "",
@@ -5300,16 +5300,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\" (4)",
             "nameTh": "12\" (4)",
             "sku": "10025",
-            "price": 330.0,
-            "priceModifier": 0.0
+            "price": 330,
+            "priceModifier": 0
           },
           {
             "id": "10067",
             "name": "8\" (4)",
             "nameTh": "8\" (4)",
             "sku": "10067",
-            "price": 220.0,
-            "priceModifier": -110.0
+            "price": 220,
+            "priceModifier": -110
           }
         ],
         "extras": [
@@ -5318,175 +5318,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -5497,7 +5497,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าคาโวร์สตาจิโอเน",
         "description": "Tomato Sauce, Ham, Mushrooms, Artichokes, Olives, Mozzarella",
         "descriptionTh": "ซอสมะเขือเทศ, แฮม, เห็ด, อาร์ติโชค, มะกอก, ชีสมอซซาเรลล่า",
-        "price": 350.0,
+        "price": 350,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/27-pizza-4-stagioni.png",
         "image_file": "01-Pizza/27-pizza-4-stagioni.png",
         "sku": "",
@@ -5507,16 +5507,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\" (4)",
             "nameTh": "12\" (4)",
             "sku": "10026",
-            "price": 350.0,
-            "priceModifier": 0.0
+            "price": 350,
+            "priceModifier": 0
           },
           {
             "id": "10089",
             "name": "8\" (4)",
             "nameTh": "8\" (4)",
             "sku": "10089",
-            "price": 240.0,
-            "priceModifier": -110.0
+            "price": 240,
+            "priceModifier": -110
           }
         ],
         "extras": [
@@ -5525,175 +5525,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -5704,7 +5704,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าคาปริโชซ่า",
         "description": "Tomato Sauce, Ham, Mushrooms, Artichokes, Olives, Mozzarella",
         "descriptionTh": "ซอสมะเขือเทศ, แฮม, เห็ด, อาร์ติโชค, มะกอก, ชีสมอซซาเรลล่า",
-        "price": 350.0,
+        "price": 350,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/28-pizza-capricciosa.png",
         "image_file": "01-Pizza/28-pizza-capricciosa.png",
         "sku": "",
@@ -5714,16 +5714,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10027",
-            "price": 350.0,
-            "priceModifier": 0.0
+            "price": 350,
+            "priceModifier": 0
           },
           {
             "id": "10106",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10106",
-            "price": 240.0,
-            "priceModifier": -110.0
+            "price": 240,
+            "priceModifier": -110
           }
         ],
         "extras": [
@@ -5732,175 +5732,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -5911,7 +5911,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าฟลาวเวอร์พาวเวอร์",
         "description": "Italian Sausage, Artichokes, Gorgonzola, Mozzarella",
         "descriptionTh": "ไส้กรอกอิตาลี, อาร์ติโชค, ชีสกอร์กอนโซล่า, ชีสมอสซาเรลล่า",
-        "price": 350.0,
+        "price": 350,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/29-pizza-flower-power.png",
         "image_file": "01-Pizza/29-pizza-flower-power.png",
         "sku": "",
@@ -5921,16 +5921,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10028",
-            "price": 350.0,
-            "priceModifier": 0.0
+            "price": 350,
+            "priceModifier": 0
           },
           {
             "id": "10108",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10108",
-            "price": 240.0,
-            "priceModifier": -110.0
+            "price": 240,
+            "priceModifier": -110
           }
         ],
         "extras": [
@@ -5939,175 +5939,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -6118,7 +6118,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าพุตตาเนสกา",
         "description": "Tomato Sauce, Salty Anchovies, Capers, Olives, Mozzarella",
         "descriptionTh": "มะเขือเทศ, ปลาแอนโชวี่เค็ม,เคเปอร์, มะกอก, ชีสมอสซาเรลล่า",
-        "price": 350.0,
+        "price": 350,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/30-pizza-puttanesca.png",
         "image_file": "01-Pizza/30-pizza-puttanesca.png",
         "sku": "",
@@ -6128,16 +6128,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10029",
-            "price": 350.0,
-            "priceModifier": 0.0
+            "price": 350,
+            "priceModifier": 0
           },
           {
             "id": "10261",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10261",
-            "price": 240.0,
-            "priceModifier": -110.0
+            "price": 240,
+            "priceModifier": -110
           }
         ],
         "extras": [
@@ -6146,175 +6146,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -6325,7 +6325,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าซีฟู้ด",
         "description": "Tomato Sauce, Olive Oil, Garlic, Seafood",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, กระเทียม, ซีฟู้ด",
-        "price": 350.0,
+        "price": 350,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/31-pizza-seafood.png",
         "image_file": "01-Pizza/31-pizza-seafood.png",
         "sku": "",
@@ -6335,16 +6335,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10030",
-            "price": 350.0,
-            "priceModifier": 0.0
+            "price": 350,
+            "priceModifier": 0
           },
           {
             "id": "10262",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10262",
-            "price": 240.0,
-            "priceModifier": -110.0
+            "price": 240,
+            "priceModifier": -110
           }
         ],
         "extras": [
@@ -6353,175 +6353,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -6532,7 +6532,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าดาว",
         "description": "German Sausage, Bacon, Gorgonzola, Egg, Mozzarella",
         "descriptionTh": "ฮ็อตด็อก, เบคอน, ชีสกอร์กอนโซล่า, ไข่, ชีสมอสซาเรลล่า",
-        "price": 350.0,
+        "price": 350,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/32-pizza-stella.png",
         "image_file": "01-Pizza/32-pizza-stella.png",
         "sku": "",
@@ -6542,16 +6542,16 @@ export const menuData: MenuCategory[] = [
             "name": "12\"",
             "nameTh": "12\"",
             "sku": "10031",
-            "price": 350.0,
-            "priceModifier": 0.0
+            "price": 350,
+            "priceModifier": 0
           },
           {
             "id": "10263",
             "name": "8\"",
             "nameTh": "8\"",
             "sku": "10263",
-            "price": 240.0,
-            "priceModifier": -110.0
+            "price": 240,
+            "priceModifier": -110
           }
         ],
         "extras": [
@@ -6560,175 +6560,175 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40.0
+            "price": 40
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10171",
             "name": "Parmesan cheese 🧀",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20.0
+            "price": 20
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60.0
+            "price": 60
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30.0
+            "price": 30
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50.0
+            "price": 50
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50.0
+            "price": 50
           }
         ],
         "allowed_extras_group": "Pizza Extras"
@@ -6747,7 +6747,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สปาเกตตี้ อาลิโอ เอ โอลิโอ",
         "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
         "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
-        "price": 110.0,
+        "price": 110,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/01-spaghetti-aglio-e-olio.png",
         "image_file": "02-Pasta/Garlic, Oil & Chili/01-spaghetti-aglio-e-olio.png",
         "sku": "10153",
@@ -6761,7 +6761,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เพนเน่ อาลิโอ เอ โอลิโอ",
         "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
         "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
-        "price": 110.0,
+        "price": 110,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/02-penne-aglio-e-olio.png",
         "image_file": "02-Pasta/Garlic, Oil & Chili/02-penne-aglio-e-olio.png",
         "sku": "10184",
@@ -6775,7 +6775,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ทาเกรียเทลล่า พริกกระเทียม",
         "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
         "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
-        "price": 130.0,
+        "price": 130,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/03-tagliatelle-aglio-e-olio.png",
         "image_file": "02-Pasta/Garlic, Oil & Chili/03-tagliatelle-aglio-e-olio.png",
         "sku": "10200",
@@ -6789,7 +6789,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ญอคคี พริกกระเทียม",
         "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
         "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
-        "price": 150.0,
+        "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/04-gnocchi-aglio-e-olio.png",
         "image_file": "02-Pasta/Garlic, Oil & Chili/04-gnocchi-aglio-e-olio.png",
         "sku": "10180",
@@ -6803,7 +6803,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ราวิโอลี พริกกระเทียม",
         "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
         "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
-        "price": 190.0,
+        "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/05-ravioli-aglio-e-olio.png",
         "image_file": "02-Pasta/Garlic, Oil & Chili/05-ravioli-aglio-e-olio.png",
         "sku": "10050",
@@ -6817,7 +6817,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สปาเกตตี้ อัล โพโมโดโร่",
         "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
-        "price": 150.0,
+        "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/06-spaghetti-al-pomodoro.png",
         "image_file": "02-Pasta/Tomato Sauce/06-spaghetti-al-pomodoro.png",
         "sku": "10185",
@@ -6831,7 +6831,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เพนเน่ อัล โพโมโดโร่",
         "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
-        "price": 150.0,
+        "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/07-penne-al-pomodoro.png",
         "image_file": "02-Pasta/Tomato Sauce/07-penne-al-pomodoro.png",
         "sku": "10170",
@@ -6845,7 +6845,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ทาเกรียเทลล่า อัล มะเขือเทศ",
         "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
-        "price": 170.0,
+        "price": 170,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/08-tagliatelle-al-pomodoro.png",
         "image_file": "02-Pasta/Tomato Sauce/08-tagliatelle-al-pomodoro.png",
         "sku": "10198",
@@ -6859,7 +6859,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ญอคคี อัล มะเขือเทศ",
         "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
-        "price": 190.0,
+        "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/09-gnocchi-al-pomodoro.png",
         "image_file": "02-Pasta/Tomato Sauce/09-gnocchi-al-pomodoro.png",
         "sku": "10179",
@@ -6873,7 +6873,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ราวิโอลี อัล มะเขือเทศ",
         "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
-        "price": 230.0,
+        "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/10-ravioli-al-pomodoro.png",
         "image_file": "02-Pasta/Tomato Sauce/10-ravioli-al-pomodoro.png",
         "sku": "10051",
@@ -6887,7 +6887,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สปาเกตตี้ อัล เพสโต้",
         "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 150.0,
+        "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/11-spaghetti-al-pesto.png",
         "image_file": "02-Pasta/Pesto Genovese/11-spaghetti-al-pesto.png",
         "sku": "10158",
@@ -6901,7 +6901,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เพนเน่ อัล เพสโต้",
         "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 150.0,
+        "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/12-penne-al-pesto.png",
         "image_file": "02-Pasta/Pesto Genovese/12-penne-al-pesto.png",
         "sku": "10173",
@@ -6915,7 +6915,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ทาเกรียเทลล่า อัล เพสโต้",
         "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 170.0,
+        "price": 170,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/13-tagliatelle-al-pesto.png",
         "image_file": "02-Pasta/Pesto Genovese/13-tagliatelle-al-pesto.png",
         "sku": "10194",
@@ -6929,7 +6929,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ญอคคี อัล เพสโต้",
         "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 190.0,
+        "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/14-gnocchi-al-pesto.png",
         "image_file": "02-Pasta/Pesto Genovese/14-gnocchi-al-pesto.png",
         "sku": "10175",
@@ -6943,7 +6943,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ราวิโอลี อัล เพสโต้",
         "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 230.0,
+        "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/15-ravioli-al-pesto.png",
         "image_file": "02-Pasta/Pesto Genovese/15-ravioli-al-pesto.png",
         "sku": "10052",
@@ -6957,7 +6957,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สปาเกตตี้ อามาทริเซียน่า",
         "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 160.0,
+        "price": 160,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/16-spaghetti-amatriciana.png",
         "image_file": "02-Pasta/Amatriciana/16-spaghetti-amatriciana.png",
         "sku": "10152",
@@ -6971,7 +6971,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เพนเน่ อามาทริเซียน่า",
         "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 160.0,
+        "price": 160,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/17-penne-amatriciana.png",
         "image_file": "02-Pasta/Amatriciana/17-penne-amatriciana.png",
         "sku": "10181",
@@ -6985,7 +6985,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ทาเกรียเทลล่า อามาทริเซียน่า",
         "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 180.0,
+        "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/18-tagliatelle-amatriciana.png",
         "image_file": "02-Pasta/Amatriciana/18-tagliatelle-amatriciana.png",
         "sku": "10196",
@@ -6999,7 +6999,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ญอคคี อามาทริเซียน่า",
         "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 200.0,
+        "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/19-gnocchi-amatriciana.png",
         "image_file": "02-Pasta/Amatriciana/19-gnocchi-amatriciana.png",
         "sku": "10177",
@@ -7013,7 +7013,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ราวิโอลี อามาทริเซียน่า",
         "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 240.0,
+        "price": 240,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/20-ravioli-amatriciana.png",
         "image_file": "02-Pasta/Amatriciana/20-ravioli-amatriciana.png",
         "sku": "10053",
@@ -7027,7 +7027,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สปาเกตตี้ อัลลา โบโลเนเซ่",
         "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
         "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
-        "price": 180.0,
+        "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/21-spaghetti-alla-bolognese.png",
         "image_file": "21-spaghetti-alla-bolognese.png",
         "sku": "10160",
@@ -7041,7 +7041,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เพนเน่ อัลลา โบโลเนเซ่",
         "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
         "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
-        "price": 180.0,
+        "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/22-penne-alla-bolognese.png",
         "image_file": "22-penne-alla-bolognese.png",
         "sku": "10155",
@@ -7055,7 +7055,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ทาเกรียเทลล่า อัลลา โบโลเนส",
         "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
         "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
-        "price": 200.0,
+        "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/23-tagliatelle-alla-bolognese.png",
         "image_file": "23-tagliatelle-alla-bolognese.png",
         "sku": "10197",
@@ -7069,7 +7069,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ญอคคี อัลลา โบโลเนส",
         "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
         "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
-        "price": 220.0,
+        "price": 220,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/24-gnocchi-alla-bolognese.png",
         "image_file": "24-gnocchi-alla-bolognese.png",
         "sku": "10178",
@@ -7083,7 +7083,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ราวิโอลี อัลลา โบโลเนส",
         "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
         "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
-        "price": 260.0,
+        "price": 260,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/25-ravioli-alla-bolognese.png",
         "image_file": "25-ravioli-alla-bolognese.png",
         "sku": "10054",
@@ -7097,7 +7097,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สปาเกตตี้ อัลลา คาร์โบนารา",
         "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 180.0,
+        "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/26-spaghetti-alla-carbonara.png",
         "image_file": "02-Pasta/Carbonara/26-spaghetti-alla-carbonara.png",
         "sku": "10151",
@@ -7111,7 +7111,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เพนเน่ อัลลา คาร์โบนารา",
         "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 180.0,
+        "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/27-penne-alla-carbonara.png",
         "image_file": "02-Pasta/Carbonara/27-penne-alla-carbonara.png",
         "sku": "10182",
@@ -7125,7 +7125,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ทาเกรียเทลล่า อัลลา คาร์โบนารา",
         "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 200.0,
+        "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/28-tagliatelle-alla-carbonara.png",
         "image_file": "02-Pasta/Carbonara/28-tagliatelle-alla-carbonara.png",
         "sku": "10195",
@@ -7139,7 +7139,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ญอคคี อัลลา คาร์โบนารา",
         "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 220.0,
+        "price": 220,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/29-gnocchi-alla-carbonara.png",
         "image_file": "02-Pasta/Carbonara/29-gnocchi-alla-carbonara.png",
         "sku": "10176",
@@ -7153,7 +7153,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ราวิโอลี อัลลา คาร์โบนารา",
         "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
         "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
-        "price": 260.0,
+        "price": 260,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/30-ravioli-alla-carbonara.png",
         "image_file": "02-Pasta/Carbonara/30-ravioli-alla-carbonara.png",
         "sku": "10055",
@@ -7167,7 +7167,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สปาเก็ตตี้ 4 ชีส",
         "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
         "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
-        "price": 200.0,
+        "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/31-spaghetti-4-formaggi.png",
         "image_file": "02-Pasta/Four Cheeses/31-spaghetti-4-formaggi.png",
         "sku": "10188",
@@ -7181,7 +7181,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เพนเน่ 4 ชีส",
         "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
         "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
-        "price": 200.0,
+        "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/32-penne-4-formaggi.png",
         "image_file": "02-Pasta/Four Cheeses/32-penne-4-formaggi.png",
         "sku": "10187",
@@ -7195,7 +7195,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ทาเกรียเทลล่า 4 ชีส",
         "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
         "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
-        "price": 220.0,
+        "price": 220,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/33-tagliatelle-4-formaggi.png",
         "image_file": "02-Pasta/Four Cheeses/33-tagliatelle-4-formaggi.png",
         "sku": "10199",
@@ -7209,7 +7209,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ญอคคี 4 ชีส",
         "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
         "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
-        "price": 240.0,
+        "price": 240,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/34-gnocchi-4-formaggi.png",
         "image_file": "02-Pasta/Four Cheeses/34-gnocchi-4-formaggi.png",
         "sku": "10186",
@@ -7223,7 +7223,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ราวิโอลี 4 ชีส",
         "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
         "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
-        "price": 280.0,
+        "price": 280,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/35-ravioli-4-formaggi.png",
         "image_file": "02-Pasta/Four Cheeses/35-ravioli-4-formaggi.png",
         "sku": "10056",
@@ -7237,7 +7237,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สปาเกตตี้ ฟลาวเวอร์ พาวเวอร์",
         "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
         "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
-        "price": 230.0,
+        "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/36-spaghetti-flower-power.png",
         "image_file": "02-Pasta/Flower Power/36-spaghetti-flower-power.png",
         "sku": "10159",
@@ -7251,7 +7251,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เพนเน่ ฟลาวเวอร์ พาวเวอร์",
         "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
         "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
-        "price": 230.0,
+        "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/37-penne-flower-power.png",
         "image_file": "02-Pasta/Flower Power/37-penne-flower-power.png",
         "sku": "10183",
@@ -7265,7 +7265,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ทาเกรียเทลล่า ฟลาวเวอร์ พาวเวอร์",
         "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
         "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/38-tagliatelle-flower-power.png",
         "image_file": "02-Pasta/Flower Power/38-tagliatelle-flower-power.png",
         "sku": "10192",
@@ -7279,7 +7279,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ญอคคี ฟลาวเวอร์ พาวเวอร์",
         "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
         "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
-        "price": 270.0,
+        "price": 270,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/39-gnocchi-flower-power.png",
         "image_file": "02-Pasta/Flower Power/39-gnocchi-flower-power.png",
         "sku": "10174",
@@ -7293,7 +7293,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ราวิโอลี ฟลาวเวอร์ พาวเวอร์",
         "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
         "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
-        "price": 310.0,
+        "price": 310,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/40-ravioli-flower-power.png",
         "image_file": "02-Pasta/Flower Power/40-ravioli-flower-power.png",
         "sku": "10057",
@@ -7307,7 +7307,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ลาซานญ่าอบซอสโบโลเนส",
         "description": "Béchamel, Bolognese Sauce, Parmesan",
         "descriptionTh": "เบชาเมล, ซอสโบโลเนส, พาร์เมซาน",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Lasagne/01-baked-bolognese-lasagna.png",
         "image_file": "03-Lasagne/01-baked-bolognese-lasagna.png",
         "sku": "10038",
@@ -7321,7 +7321,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ลาซานญ่าอบเพสโต้",
         "description": "Béchamel, Pesto Sauce, Parmesan",
         "descriptionTh": "เบชาเมล, ซอสเพสโต้, พาร์เมซาน",
-        "price": 270.0,
+        "price": 270,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Lasagne/02-baked-pesto-lasagna.png",
         "image_file": "03-Lasagne/02-baked-pesto-lasagna.png",
         "sku": "10302",
@@ -7335,7 +7335,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ลาซานญ่าอบซีฟู้ด",
         "description": "Béchamel, Seafood, Parmesan",
         "descriptionTh": "เบชาเมล, ซีฟู้ด, พาร์เมซาน",
-        "price": 290.0,
+        "price": 290,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Lasagne/03-baked-seafood-lasagna.png",
         "image_file": "03-Lasagne/03-baked-seafood-lasagna.png",
         "sku": "10303",
@@ -7357,7 +7357,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สลัดไข่และผัก",
         "description": "2 Boiled Eggs, Cabbage, Cucumber, Tomato, Onions, Mayonnaise, Yogurt Dressing",
         "descriptionTh": "ไข่ต้มสุก 2 ฟอง, กะหล่ำปลี, แตงกวา, มะเขือเทศ, หัวหอม, มายองเนส, น้ำสลัดโยเกิร์ต",
-        "price": 130.0,
+        "price": 130,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/04-Italian-Salads/01-egg-and-vegetable-salad.png",
         "image_file": "04-Italian-Salads/01-egg-and-vegetable-salad.png",
         "sku": "10206",
@@ -7368,7 +7368,7 @@ export const menuData: MenuCategory[] = [
             "name": "Chicken Extra",
             "nameTh": "ไก่เพิ่ม",
             "sku": "10035",
-            "price": 40.0
+            "price": 40
           }
         ],
         "allowed_extras_group": "Salad Extras"
@@ -7379,7 +7379,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สลัดมันฝรั่ง",
         "description": "Tuna, Boiled Potatoes, 1 Boiled Egg, Cabbage, Tomato, Onions, Yogurt Dressing",
         "descriptionTh": "ทูน่า, มันฝรั่งต้ม, ไข่ต้ม 1 ฟอง, กะหล่ำปลี, มะเขือเทศ, หัวหอม, น้ำสลัดโยเกิร์ต",
-        "price": 160.0,
+        "price": 160,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/04-Italian-Salads/02-potato-salad.png",
         "image_file": "04-Italian-Salads/02-potato-salad.png",
         "sku": "10207",
@@ -7390,7 +7390,7 @@ export const menuData: MenuCategory[] = [
             "name": "Chicken Extra",
             "nameTh": "ไก่เพิ่ม",
             "sku": "10035",
-            "price": 40.0
+            "price": 40
           }
         ],
         "allowed_extras_group": "Salad Extras"
@@ -7401,7 +7401,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สลัดไก่",
         "description": "Boiled Chicken, Tomato, Cabbage, Carrots, Cucumber, Mustard, Yogurt Dressing",
         "descriptionTh": "ไก่ต้ม, มะเขือเทศ, กะหล่ำปลี, แครอท, แตงกวา, มัสตาร์ด, เสิร์ฟพร้อมน้ำสลัดโยเกิร์ต",
-        "price": 190.0,
+        "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/04-Italian-Salads/03-chicken-salad.png",
         "image_file": "04-Italian-Salads/03-chicken-salad.png",
         "sku": "10205",
@@ -7412,7 +7412,7 @@ export const menuData: MenuCategory[] = [
             "name": "Chicken Extra",
             "nameTh": "ไก่เพิ่ม",
             "sku": "10035",
-            "price": 40.0
+            "price": 40
           }
         ],
         "allowed_extras_group": "Salad Extras"
@@ -7423,7 +7423,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สลัดทูน่าและไข่",
         "description": "Tuna, 2 Boiled Eggs, Cabbage, Tomato, Cucumber, Onion, Yogurt Dressing",
         "descriptionTh": "ทูน่า, ไข่ต้ม 2 ฟอง, กะหล่ำปลี, มะเขือเทศ, แตงกวา, หัวหอม, โยเกิร์ต, น้ำสลัด",
-        "price": 190.0,
+        "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/04-Italian-Salads/04-tuna-and-egg-salad.png",
         "image_file": "04-Italian-Salads/04-tuna-and-egg-salad.png",
         "sku": "10208",
@@ -7434,7 +7434,7 @@ export const menuData: MenuCategory[] = [
             "name": "Chicken Extra",
             "nameTh": "ไก่เพิ่ม",
             "sku": "10035",
-            "price": 40.0
+            "price": 40
           }
         ],
         "allowed_extras_group": "Salad Extras"
@@ -7453,7 +7453,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าแซนด์วิช พาร์ม่าแฮม",
         "description": "Parma Cooked Ham, Mozzarella Cheese, Lettuce, Fresh Tomato, Sauces",
         "descriptionTh": "แฮมอบสไตล์พาร์ม่า, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก",
-        "price": 180.0,
+        "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/05-Pizza-Sandwiches/01-pizza-sandwich-parma-ham.png",
         "image_file": "05-Pizza-Sandwiches/01-pizza-sandwich-parma-ham.png",
         "sku": "10045",
@@ -7467,7 +7467,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าแซนด์วิช ซาลามี่",
         "description": "Salami, Mozzarella Cheese, Lettuce, Fresh Tomato, Sauces",
         "descriptionTh": "ซาลามี่, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก",
-        "price": 180.0,
+        "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/05-Pizza-Sandwiches/02-pizza-sandwich-salame.png",
         "image_file": "05-Pizza-Sandwiches/02-pizza-sandwich-salame.png",
         "sku": "10046",
@@ -7481,7 +7481,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าแซนด์วิช ซาลามี่เผ็ด",
         "description": "Spicy Salami, Mozzarella Cheese, Lettuce, Fresh Tomato, Sauces",
         "descriptionTh": "ซาลามี่เผ็ด, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก",
-        "price": 200.0,
+        "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/05-Pizza-Sandwiches/03-pizza-sandwich-spicy-salame.png",
         "image_file": "05-Pizza-Sandwiches/03-pizza-sandwich-spicy-salame.png",
         "sku": "10047",
@@ -7503,7 +7503,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าเบอร์เกอร์ไก่พร้อมมันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 180.0,
+        "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/06-Pizza-Burgers/01-chicken-pizza-burger-with-french-fries.png",
         "image_file": "06-Pizza-Burgers/01-chicken-pizza-burger-with-french-fries.png",
         "sku": "10168",
@@ -7517,7 +7517,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าเบอร์เกอร์หมูพร้อมมันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 180.0,
+        "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/06-Pizza-Burgers/02-pork-pizza-burger-with-french-fries.png",
         "image_file": "06-Pizza-Burgers/02-pork-pizza-burger-with-french-fries.png",
         "sku": "10168",
@@ -7531,7 +7531,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าเบอร์เกอร์เนื้อวัวพร้อมมันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 220.0,
+        "price": 220,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/06-Pizza-Burgers/03-beef-pizza-burger-with-french-fries.png",
         "image_file": "06-Pizza-Burgers/03-beef-pizza-burger-with-french-fries.png",
         "sku": "10167",
@@ -7545,7 +7545,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าเบอร์เกอร์ปลา พร้อมมันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 210.0,
+        "price": 210,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/06-Pizza-Burgers/04-fish-pizza-burger-with-french-fries.png",
         "image_file": "06-Pizza-Burgers/04-fish-pizza-burger-with-french-fries.png",
         "sku": "10304",
@@ -7559,7 +7559,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "พิซซ่าเบอร์เกอร์ชีสพร้อมมันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 210.0,
+        "price": 210,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/06-Pizza-Burgers/05-cheese-pizza-burger-with-french-fries.png",
         "image_file": "06-Pizza-Burgers/05-cheese-pizza-burger-with-french-fries.png",
         "sku": "10049",
@@ -7581,7 +7581,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "มันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/07-French-Fries/01-french-fries.png",
         "image_file": "07-French-Fries/01-french-fries.png",
         "sku": "10154",
@@ -7595,7 +7595,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ไส้กรอก & มันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 160.0,
+        "price": 160,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/07-French-Fries/02-sausages-and-french-fries.png",
         "image_file": "07-French-Fries/02-sausages-and-french-fries.png",
         "sku": "10042",
@@ -7609,7 +7609,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "หอมทอดกรอบ & มันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 190.0,
+        "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/07-French-Fries/03-onion-rings-and-french-fries.png",
         "image_file": "07-French-Fries/03-onion-rings-and-french-fries.png",
         "sku": "10034",
@@ -7623,7 +7623,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "นักเก็ตไก่ & มันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 220.0,
+        "price": 220,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/07-French-Fries/04-chicken-nuggets-and-french-fries.png",
         "image_file": "07-French-Fries/04-chicken-nuggets-and-french-fries.png",
         "sku": "10036",
@@ -7637,7 +7637,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "นักเก็ตปลา & มันฝรั่งทอด",
         "description": "",
         "descriptionTh": "",
-        "price": 250.0,
+        "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/07-French-Fries/05-fish-nuggets-and-french-fries.png",
         "image_file": "07-French-Fries/05-fish-nuggets-and-french-fries.png",
         "sku": "10043",
@@ -7659,7 +7659,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "อัฟโฟกาโต้อัลคาเฟ่",
         "description": "",
         "descriptionTh": "",
-        "price": 130.0,
+        "price": 130,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/01-affogato-al-caffe.png",
         "image_file": "08-Desserts/01-affogato-al-caffe.png",
         "sku": "10201",
@@ -7673,7 +7673,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เค้กประจำวัน",
         "description": "",
         "descriptionTh": "",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/02-cake-of-the-day.png",
         "image_file": "08-Desserts/02-cake-of-the-day.png",
         "sku": "10032",
@@ -7687,7 +7687,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ทีรามิสุ",
         "description": "",
         "descriptionTh": "",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/03-tiramisu.png",
         "image_file": "08-Desserts/03-tiramisu.png",
         "sku": "10135",
@@ -7701,7 +7701,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เครป",
         "description": "",
         "descriptionTh": "",
-        "price": 150.0,
+        "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/04-crepes.png",
         "image_file": "08-Desserts/04-crepes.png",
         "sku": "",
@@ -7711,16 +7711,16 @@ export const menuData: MenuCategory[] = [
             "name": "Banana",
             "nameTh": "กล้วย",
             "sku": "10291",
-            "price": 150.0,
-            "priceModifier": 0.0
+            "price": 150,
+            "priceModifier": 0
           },
           {
             "id": "10290",
             "name": "Normal",
             "nameTh": "ธรรมดา",
             "sku": "10290",
-            "price": 120.0,
-            "priceModifier": -30.0
+            "price": 120,
+            "priceModifier": -30
           }
         ],
         "extras": [],
@@ -7732,7 +7732,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "แพนเค้ก",
         "description": "",
         "descriptionTh": "",
-        "price": 210.0,
+        "price": 210,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/05-pancake.png",
         "image_file": "08-Desserts/05-pancake.png",
         "sku": "",
@@ -7742,16 +7742,16 @@ export const menuData: MenuCategory[] = [
             "name": "Banana",
             "nameTh": "กล้วย",
             "sku": "10293",
-            "price": 210.0,
-            "priceModifier": 0.0
+            "price": 210,
+            "priceModifier": 0
           },
           {
             "id": "10292",
             "name": "Normal",
             "nameTh": "ธรรมดา",
             "sku": "10292",
-            "price": 180.0,
-            "priceModifier": -30.0
+            "price": 180,
+            "priceModifier": -30
           }
         ],
         "extras": [],
@@ -7771,7 +7771,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "อาหารเช้าแบบอิตาเลียน",
         "description": "Cake of the Day, Cappuccino, Fruit Juice",
         "descriptionTh": "เค้กประจำวัน, คาปูชิโน่, น้ำผลไม้",
-        "price": 170.0,
+        "price": 170,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/01-italian-breakfast.png",
         "image_file": "09-Breakfast-and-Snacks/01-italian-breakfast.png",
         "sku": "10224",
@@ -7785,7 +7785,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "อาหารเช้าแบบอเมริกัน",
         "description": "2 Fried Eggs, Bacon, Butter, Jam, Coffee, Fruit Juice, 2 Toasted Slices",
         "descriptionTh": "ไข่ดาว 2 ฟอง, เบคอน, เนย, แยม, กาแฟ, น้ำผลไม้, ขนมปัง 2 แผ่น",
-        "price": 190.0,
+        "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/02-american-breakfast.png",
         "image_file": "09-Breakfast-and-Snacks/02-american-breakfast.png",
         "sku": "10223",
@@ -7799,7 +7799,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ไข่และเบคอน",
         "description": "2 Fried Eggs, Bacon, 1 Toasted Slice",
         "descriptionTh": "ไข่ดาว 2 ฟอง, เบคอน, ขนมปัง 1 แผ่น",
-        "price": 110.0,
+        "price": 110,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/03-eggs-and-bacon.png",
         "image_file": "09-Breakfast-and-Snacks/03-eggs-and-bacon.png",
         "sku": "10268",
@@ -7813,7 +7813,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เนยและแยม",
         "description": "2 Toasted Slices, Jam and Butter",
         "descriptionTh": "ขนมปัง 2 แผ่น, แยม และ เนย",
-        "price": 70.0,
+        "price": 70,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/04-butter-and-jam.png",
         "image_file": "09-Breakfast-and-Snacks/04-butter-and-jam.png",
         "sku": "10267",
@@ -7827,7 +7827,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ขนมปังนูเทลล่า",
         "description": "2 Toasted Slices Spread With Nutella",
         "descriptionTh": "ขนมปัง 2 แผ่น ทานูเทลล่า",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/05-nutella-bread.png",
         "image_file": "09-Breakfast-and-Snacks/05-nutella-bread.png",
         "sku": "10266",
@@ -7841,7 +7841,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "อิตาเลียนโทสต์",
         "description": "2 Toasted Slices Filled With Ham And Cheese",
         "descriptionTh": "ขนมปัง 2 แผ่น สอดไส้แฮมและชีส",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/06-italian-toast.png",
         "image_file": "09-Breakfast-and-Snacks/06-italian-toast.png",
         "sku": "10229",
@@ -7855,7 +7855,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เฟรนช์โทสต์",
         "description": "2 Fried Toasts With Milk and Egg, Honey",
         "descriptionTh": "ขนมปัง 2 แผ่น ชุบในนมและไข่ ทอด ราดน้ำผึ้ง",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/07-french-toast.png",
         "image_file": "09-Breakfast-and-Snacks/07-french-toast.png",
         "sku": "10227",
@@ -7869,7 +7869,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เฟรนช์โรล",
         "description": "3 Fried Toasts with Milk And Egg, Filled with Ham & Cheese",
         "descriptionTh": "ขนมปัง 3 แผ่นชุบในนมและไข่ทอดและสอดไส้แฮมและชีส",
-        "price": 130.0,
+        "price": 130,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/08-french-rolls.png",
         "image_file": "09-Breakfast-and-Snacks/08-french-rolls.png",
         "sku": "10228",
@@ -7883,7 +7883,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ขนมอบ",
         "description": "Fresh Pastries of the Day, Ask the Staff (+30฿ Nutella)",
         "descriptionTh": "ขนมอบสดประจำวัน สอบถามพนักงาน (+30฿ นูเทลล่า)",
-        "price": 0.0,
+        "price": 0,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/09-pastries.png",
         "image_file": "09-Breakfast-and-Snacks/09-pastries.png",
         "sku": "10249",
@@ -7894,7 +7894,7 @@ export const menuData: MenuCategory[] = [
             "name": "Nutella Extra",
             "nameTh": "นูเทลล่าเพิ่ม",
             "sku": "",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Croissant Modifiers"
@@ -7905,7 +7905,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "มาซิโดเนียผลไม้",
         "description": "Seasonal Fresh Fruit Salad (+30฿ Yogurt)",
         "descriptionTh": "มาซิโดเนียผลไม้สดตามฤดูกาล (+30฿ โยเกิร์ต)",
-        "price": 120.0,
+        "price": 120,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/09-Breakfast-and-Snacks/10-fruit-salad.png",
         "image_file": "09-Breakfast-and-Snacks/10-fruit-salad.png",
         "sku": "",
@@ -7915,16 +7915,16 @@ export const menuData: MenuCategory[] = [
             "name": "Normal",
             "nameTh": "ธรรมดา",
             "sku": "10132",
-            "price": 120.0,
-            "priceModifier": 0.0
+            "price": 120,
+            "priceModifier": 0
           },
           {
             "id": "10231",
             "name": "Yogurt",
             "nameTh": "โยเกิร์ต",
             "sku": "10231",
-            "price": 150.0,
-            "priceModifier": 30.0
+            "price": 150,
+            "priceModifier": 30
           }
         ],
         "extras": [],
@@ -7944,7 +7944,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เอสเพรสโซ่",
         "description": "",
         "descriptionTh": "",
-        "price": 40.0,
+        "price": 40,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/01-caffe-espresso.png",
         "image_file": "10-Coffee-Shop/01-caffe-espresso.png",
         "sku": "10093",
@@ -7955,7 +7955,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -7966,7 +7966,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "กาแฟอเมริกาโน",
         "description": "",
         "descriptionTh": "",
-        "price": 50.0,
+        "price": 50,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/02-americano.png",
         "image_file": "10-Coffee-Shop/02-americano.png",
         "sku": "",
@@ -7976,16 +7976,16 @@ export const menuData: MenuCategory[] = [
             "name": "Hot",
             "nameTh": "ร้อน",
             "sku": "10219",
-            "price": 50.0,
-            "priceModifier": 0.0
+            "price": 50,
+            "priceModifier": 0
           },
           {
             "id": "10222",
             "name": "Iced",
             "nameTh": "เย็น",
             "sku": "10222",
-            "price": 70.0,
-            "priceModifier": 20.0
+            "price": 70,
+            "priceModifier": 20
           }
         ],
         "extras": [
@@ -7994,7 +7994,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -8005,7 +8005,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "คาปูชิโน่",
         "description": "",
         "descriptionTh": "",
-        "price": 60.0,
+        "price": 60,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/03-cappuccino.png",
         "image_file": "10-Coffee-Shop/03-cappuccino.png",
         "sku": "",
@@ -8015,16 +8015,16 @@ export const menuData: MenuCategory[] = [
             "name": "Hot",
             "nameTh": "ร้อน",
             "sku": "10220",
-            "price": 60.0,
-            "priceModifier": 0.0
+            "price": 60,
+            "priceModifier": 0
           },
           {
             "id": "10221",
             "name": "Iced",
             "nameTh": "เย็น",
             "sku": "10221",
-            "price": 80.0,
-            "priceModifier": 20.0
+            "price": 80,
+            "priceModifier": 20
           }
         ],
         "extras": [
@@ -8033,7 +8033,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -8044,7 +8044,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ลาเต้ มัคคิอาโต้",
         "description": "",
         "descriptionTh": "",
-        "price": 70.0,
+        "price": 70,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/04-latte-macchiato.png",
         "image_file": "10-Coffee-Shop/04-latte-macchiato.png",
         "sku": "",
@@ -8054,16 +8054,16 @@ export const menuData: MenuCategory[] = [
             "name": "Hot",
             "nameTh": "ร้อน",
             "sku": "10044",
-            "price": 70.0,
-            "priceModifier": 0.0
+            "price": 70,
+            "priceModifier": 0
           },
           {
             "id": "10164",
             "name": "Iced",
             "nameTh": "เย็น",
             "sku": "10164",
-            "price": 90.0,
-            "priceModifier": 20.0
+            "price": 90,
+            "priceModifier": 20
           }
         ],
         "extras": [
@@ -8072,7 +8072,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -8083,7 +8083,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "มินิ อัฟโฟกาโต กาแฟ",
         "description": "",
         "descriptionTh": "",
-        "price": 60.0,
+        "price": 60,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/05-mini-affogato-al-caffe.png",
         "image_file": "10-Coffee-Shop/05-mini-affogato-al-caffe.png",
         "sku": "10092",
@@ -8094,7 +8094,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -8105,7 +8105,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "กาแฟมอคคาครีม",
         "description": "",
         "descriptionTh": "",
-        "price": 65.0,
+        "price": 65,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/06-marocchino.png",
         "image_file": "10-Coffee-Shop/06-marocchino.png",
         "sku": "",
@@ -8115,16 +8115,16 @@ export const menuData: MenuCategory[] = [
             "name": "Hot",
             "nameTh": "ร้อน",
             "sku": "10163",
-            "price": 65.0,
-            "priceModifier": 0.0
+            "price": 65,
+            "priceModifier": 0
           },
           {
             "id": "10216",
             "name": "Iced",
             "nameTh": "เย็น",
             "sku": "10216",
-            "price": 85.0,
-            "priceModifier": 20.0
+            "price": 85,
+            "priceModifier": 20
           }
         ],
         "extras": [
@@ -8133,7 +8133,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -8144,7 +8144,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ช็อกโกแลตร้อน",
         "description": "",
         "descriptionTh": "",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/07-hot-chocolate.png",
         "image_file": "10-Coffee-Shop/07-hot-chocolate.png",
         "sku": "10214",
@@ -8155,7 +8155,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -8166,7 +8166,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "นมและน้ำผึ้ง",
         "description": "",
         "descriptionTh": "",
-        "price": 70.0,
+        "price": 70,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/08-milk-and-honey.png",
         "image_file": "10-Coffee-Shop/08-milk-and-honey.png",
         "sku": "",
@@ -8176,16 +8176,16 @@ export const menuData: MenuCategory[] = [
             "name": "Hot",
             "nameTh": "ร้อน",
             "sku": "10264",
-            "price": 70.0,
-            "priceModifier": 0.0
+            "price": 70,
+            "priceModifier": 0
           },
           {
             "id": "10273",
             "name": "Iced",
             "nameTh": "เย็น",
             "sku": "10273",
-            "price": 90.0,
-            "priceModifier": 20.0
+            "price": 90,
+            "priceModifier": 20
           }
         ],
         "extras": [
@@ -8194,7 +8194,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -8205,7 +8205,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ชาแดงไทย",
         "description": "",
         "descriptionTh": "",
-        "price": 50.0,
+        "price": 50,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/09-red-thai-tea.png",
         "image_file": "10-Coffee-Shop/09-red-thai-tea.png",
         "sku": "",
@@ -8215,16 +8215,16 @@ export const menuData: MenuCategory[] = [
             "name": "Hot",
             "nameTh": "ร้อน",
             "sku": "10213",
-            "price": 50.0,
-            "priceModifier": 0.0
+            "price": 50,
+            "priceModifier": 0
           },
           {
             "id": "10217",
             "name": "Iced",
             "nameTh": "เย็น",
             "sku": "10217",
-            "price": 70.0,
-            "priceModifier": 20.0
+            "price": 70,
+            "priceModifier": 20
           }
         ],
         "extras": [
@@ -8233,7 +8233,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -8244,7 +8244,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ชาเขียวไทย",
         "description": "",
         "descriptionTh": "",
-        "price": 50.0,
+        "price": 50,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/10-Coffee-Shop/10-green-thai-tea.png",
         "image_file": "10-Coffee-Shop/10-green-thai-tea.png",
         "sku": "",
@@ -8254,16 +8254,16 @@ export const menuData: MenuCategory[] = [
             "name": "Hot",
             "nameTh": "ร้อน",
             "sku": "10215",
-            "price": 50.0,
-            "priceModifier": 0.0
+            "price": 50,
+            "priceModifier": 0
           },
           {
             "id": "10218",
             "name": "Iced",
             "nameTh": "เย็น",
             "sku": "10218",
-            "price": 70.0,
-            "priceModifier": 20.0
+            "price": 70,
+            "priceModifier": 20
           }
         ],
         "extras": [
@@ -8272,7 +8272,7 @@ export const menuData: MenuCategory[] = [
             "name": "Extra Coffee",
             "nameTh": "ช็อตกาแฟเพิ่ม",
             "sku": "10166",
-            "price": 30.0
+            "price": 30
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers"
@@ -8291,7 +8291,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "น้ำผลไม้ปั่น (ผลไม้ตามเลือก)",
         "description": "",
         "descriptionTh": "",
-        "price": 70.0,
+        "price": 70,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/11-Fruit-Drinks/01-fruit-shakes-choice-of-fruit.png",
         "image_file": "11-Fruit-Drinks/01-fruit-shakes-choice-of-fruit.png",
         "sku": "10146",
@@ -8305,7 +8305,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "สมูทตี้ (ผลไม้ตามเลือก)",
         "description": "",
         "descriptionTh": "",
-        "price": 80.0,
+        "price": 80,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/11-Fruit-Drinks/02-smoothies-choice-of-fruit.png",
         "image_file": "11-Fruit-Drinks/02-smoothies-choice-of-fruit.png",
         "sku": "10147",
@@ -8319,7 +8319,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ลัสซี่ (ผลไม้ตามเลือก)",
         "description": "",
         "descriptionTh": "",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/11-Fruit-Drinks/03-lassis-choice-of-fruit.png",
         "image_file": "11-Fruit-Drinks/03-lassis-choice-of-fruit.png",
         "sku": "10149",
@@ -8333,7 +8333,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เฟรปเป้ (ผลไม้ตามเลือก)",
         "description": "",
         "descriptionTh": "",
-        "price": 100.0,
+        "price": 100,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/11-Fruit-Drinks/04-frappes-choice-of-fruit.png",
         "image_file": "11-Fruit-Drinks/04-frappes-choice-of-fruit.png",
         "sku": "10148",
@@ -8347,7 +8347,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "น้ำสกัดเย็น (ผลไม้ตามเลือก)",
         "description": "",
         "descriptionTh": "",
-        "price": 110.0,
+        "price": 110,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/11-Fruit-Drinks/05-cold-pressed-juice-choice-of-fruit.png",
         "image_file": "11-Fruit-Drinks/05-cold-pressed-juice-choice-of-fruit.png",
         "sku": "10306",
@@ -8369,7 +8369,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "น้ำโซดา",
         "description": "",
         "descriptionTh": "",
-        "price": 20.0,
+        "price": 20,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/12-Soft-Drinks/01-soda-water.png",
         "image_file": "12-Soft-Drinks/01-soda-water.png",
         "sku": "10070",
@@ -8383,7 +8383,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "กระป๋องน้ำอัดลม",
         "description": "Fanta, Sprite, Coca-Cola",
         "descriptionTh": "แฟนต้า, สไปรท์, โคคา-โคล่า",
-        "price": 30.0,
+        "price": 30,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/12-Soft-Drinks/02-coca-cola.png",
         "image_file": "12-Soft-Drinks/02-coca-cola.png",
         "sku": "",
@@ -8393,32 +8393,32 @@ export const menuData: MenuCategory[] = [
             "name": "Coke",
             "nameTh": "Coke",
             "sku": "10071",
-            "price": 30.0,
-            "priceModifier": 0.0
+            "price": 30,
+            "priceModifier": 0
           },
           {
             "id": "10082",
             "name": "Coke Zero",
             "nameTh": "Coke Zero",
             "sku": "10082",
-            "price": 30.0,
-            "priceModifier": 0.0
+            "price": 30,
+            "priceModifier": 0
           },
           {
             "id": "10072",
             "name": "Fanta",
             "nameTh": "Fanta",
             "sku": "10072",
-            "price": 30.0,
-            "priceModifier": 0.0
+            "price": 30,
+            "priceModifier": 0
           },
           {
             "id": "10073",
             "name": "Sprite Can",
             "nameTh": "Sprite Can",
             "sku": "10073",
-            "price": 30.0,
-            "priceModifier": 0.0
+            "price": 30,
+            "priceModifier": 0
           }
         ],
         "extras": [],
@@ -8430,7 +8430,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "น้ำดื่ม",
         "description": "",
         "descriptionTh": "",
-        "price": 30.0,
+        "price": 30,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/12-Soft-Drinks/06-drinking-water.png",
         "image_file": "12-Soft-Drinks/06-drinking-water.png",
         "sku": "",
@@ -8440,16 +8440,16 @@ export const menuData: MenuCategory[] = [
             "name": "Big",
             "nameTh": "ใหญ่",
             "sku": "10105",
-            "price": 30.0,
-            "priceModifier": 0.0
+            "price": 30,
+            "priceModifier": 0
           },
           {
             "id": "10069",
             "name": "Small",
             "nameTh": "เล็ก",
             "sku": "10069",
-            "price": 20.0,
-            "priceModifier": -10.0
+            "price": 20,
+            "priceModifier": -10
           }
         ],
         "extras": [],
@@ -8458,10 +8458,10 @@ export const menuData: MenuCategory[] = [
     ]
   },
   {
-    "id": "beers",
-    "name": "Beers",
-    "nameTh": "เบียร์",
-    "icon": "🍺",
+    "id": "beers-and-wines",
+    "name": "Beers & Wines",
+    "nameTh": "เบียร์และไวน์",
+    "icon": "🍻",
     "items": [
       {
         "id": "chang-beer",
@@ -8469,7 +8469,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เบียร์ช้าง",
         "description": "",
         "descriptionTh": "",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/13-Beers/01-chang-beer-big.png",
         "image_file": "13-Beers/01-chang-beer-big.png",
         "sku": "",
@@ -8479,16 +8479,16 @@ export const menuData: MenuCategory[] = [
             "name": "Big",
             "nameTh": "ใหญ่",
             "sku": "10084",
-            "price": 90.0,
-            "priceModifier": 0.0
+            "price": 90,
+            "priceModifier": 0
           },
           {
             "id": "10074",
             "name": "Small",
             "nameTh": "เล็ก",
             "sku": "10074",
-            "price": 60.0,
-            "priceModifier": -30.0
+            "price": 60,
+            "priceModifier": -30
           }
         ],
         "extras": [],
@@ -8500,7 +8500,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เบียร์ลีโอ",
         "description": "",
         "descriptionTh": "",
-        "price": 90.0,
+        "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/13-Beers/03-leo-beer-big.png",
         "image_file": "13-Beers/03-leo-beer-big.png",
         "sku": "",
@@ -8510,16 +8510,16 @@ export const menuData: MenuCategory[] = [
             "name": "Big",
             "nameTh": "ใหญ่",
             "sku": "10083",
-            "price": 90.0,
-            "priceModifier": 0.0
+            "price": 90,
+            "priceModifier": 0
           },
           {
             "id": "10075",
             "name": "Small",
             "nameTh": "เล็ก",
             "sku": "10075",
-            "price": 60.0,
-            "priceModifier": -30.0
+            "price": 60,
+            "priceModifier": -30
           }
         ],
         "extras": [],
@@ -8531,7 +8531,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "เบียร์สิงห์",
         "description": "",
         "descriptionTh": "",
-        "price": 100.0,
+        "price": 100,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/13-Beers/05-singha-beer-big.png",
         "image_file": "13-Beers/05-singha-beer-big.png",
         "sku": "",
@@ -8541,36 +8541,28 @@ export const menuData: MenuCategory[] = [
             "name": "Big",
             "nameTh": "ใหญ่",
             "sku": "10085",
-            "price": 100.0,
-            "priceModifier": 0.0
+            "price": 100,
+            "priceModifier": 0
           },
           {
             "id": "10076",
             "name": "Small",
             "nameTh": "เล็ก",
             "sku": "10076",
-            "price": 70.0,
-            "priceModifier": -30.0
+            "price": 70,
+            "priceModifier": -30
           }
         ],
         "extras": [],
         "allowed_extras_group": "None"
-      }
-    ]
-  },
-  {
-    "id": "wines",
-    "name": "Wines",
-    "nameTh": "รายการไวน์",
-    "icon": "🍷",
-    "items": [
+      },
       {
         "id": "italian-wines",
         "name": "ITALIAN WINES",
         "nameTh": "ไวน์อิตาเลียน",
         "description": "",
         "descriptionTh": "",
-        "price": 1190.0,
+        "price": 1190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/14-Wines/01-italian-wines.png",
         "image_file": "14-Wines/01-italian-wines.png",
         "sku": "",
@@ -8580,64 +8572,64 @@ export const menuData: MenuCategory[] = [
             "name": "Chardonnay",
             "nameTh": "Chardonnay",
             "sku": "10079",
-            "price": 1190.0,
-            "priceModifier": 0.0
+            "price": 1190,
+            "priceModifier": 0
           },
           {
             "id": "10125",
             "name": "Glass (of Red Wine)",
             "nameTh": "แก้ว (of Red Wine)",
             "sku": "10125",
-            "price": 120.0,
-            "priceModifier": -1070.0
+            "price": 120,
+            "priceModifier": -1070
           },
           {
             "id": "10124",
             "name": "Glass (of White Wine)",
             "nameTh": "แก้ว (of White Wine)",
             "sku": "10124",
-            "price": 120.0,
-            "priceModifier": -1070.0
+            "price": 120,
+            "priceModifier": -1070
           },
           {
             "id": "10308",
             "name": "Open Wine",
             "nameTh": "Open Wine",
             "sku": "10308",
-            "price": 100.0,
-            "priceModifier": -1090.0
+            "price": 100,
+            "priceModifier": -1090
           },
           {
             "id": "10078",
             "name": "Primitivo",
             "nameTh": "Primitivo",
             "sku": "10078",
-            "price": 1190.0,
-            "priceModifier": 0.0
+            "price": 1190,
+            "priceModifier": 0
           },
           {
             "id": "10144",
             "name": "Prosecco",
             "nameTh": "Prosecco",
             "sku": "10144",
-            "price": 1290.0,
-            "priceModifier": 100.0
+            "price": 1290,
+            "priceModifier": 100
           },
           {
             "id": "10130",
             "name": "Red Poggio alto",
             "nameTh": "Red Poggio alto",
             "sku": "10130",
-            "price": 1190.0,
-            "priceModifier": 0.0
+            "price": 1190,
+            "priceModifier": 0
           },
           {
             "id": "10157",
             "name": "White​ Poggio alto",
             "nameTh": "White​ Poggio alto",
             "sku": "10157",
-            "price": 1190.0,
-            "priceModifier": 0.0
+            "price": 1190,
+            "priceModifier": 0
           }
         ],
         "extras": [],
@@ -8649,7 +8641,7 @@ export const menuData: MenuCategory[] = [
         "nameTh": "ไวน์จากทั่วโลก",
         "description": "",
         "descriptionTh": "",
-        "price": 1290.0,
+        "price": 1290,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/14-Wines/02-wines-from-around-the-world.png",
         "image_file": "14-Wines/02-wines-from-around-the-world.png",
         "sku": "",
@@ -8659,56 +8651,56 @@ export const menuData: MenuCategory[] = [
             "name": "Brut",
             "nameTh": "Brut",
             "sku": "10145",
-            "price": 1290.0,
-            "priceModifier": 0.0
+            "price": 1290,
+            "priceModifier": 0
           },
           {
             "id": "10127",
             "name": "Fruit wine Rosé de france",
             "nameTh": "Fruit wine Rosé de france",
             "sku": "10127",
-            "price": 990.0,
-            "priceModifier": -300.0
+            "price": 990,
+            "priceModifier": -300
           },
           {
             "id": "10131",
             "name": "Graziosa rose",
             "nameTh": "Graziosa rose",
             "sku": "10131",
-            "price": 950.0,
-            "priceModifier": -340.0
+            "price": 950,
+            "priceModifier": -340
           },
           {
             "id": "10080",
             "name": "Red Birchgrove",
             "nameTh": "Red Birchgrove",
             "sku": "10080",
-            "price": 790.0,
-            "priceModifier": -500.0
+            "price": 790,
+            "priceModifier": -500
           },
           {
             "id": "10063",
             "name": "Red ViñaToldos",
             "nameTh": "Red ViñaToldos",
             "sku": "10063",
-            "price": 690.0,
-            "priceModifier": -600.0
+            "price": 690,
+            "priceModifier": -600
           },
           {
             "id": "10081",
             "name": "White Viña Toldos",
             "nameTh": "White Viña Toldos",
             "sku": "10081",
-            "price": 790.0,
-            "priceModifier": -500.0
+            "price": 790,
+            "priceModifier": -500
           },
           {
             "id": "10099",
             "name": "White​ Birchgrove",
             "nameTh": "White​ Birchgrove",
             "sku": "10099",
-            "price": 690.0,
-            "priceModifier": -600.0
+            "price": 690,
+            "priceModifier": -600
           }
         ],
         "extras": [],
