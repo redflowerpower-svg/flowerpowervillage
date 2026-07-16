@@ -445,8 +445,8 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
       {/* Header bar */}
       <header className="sticky top-0 z-20 px-6 py-4 border-b border-stone-800 flex items-center justify-between backdrop-blur-md bg-[#0c0a09]/95">
         <div>
-          <h1 className="text-xl font-light text-white flex items-center gap-2" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.6rem' }}>
-            <Pizza className="text-[#c5a572] w-5 h-5 animate-pulse" /> Kitchen & Delivery Dashboard
+          <h1 className="text-xl font-light text-white flex items-center gap-2.5" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.6rem' }}>
+            <img src="/Flower_Power_Pizza_-_HotSpring.png" alt="Flower Power Logo" className="w-8 h-8 object-contain" /> Kitchen & Delivery Dashboard
           </h1>
           <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">
             Flower Power Pizza · Ranong
