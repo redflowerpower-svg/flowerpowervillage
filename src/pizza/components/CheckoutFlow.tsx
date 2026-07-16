@@ -843,22 +843,6 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      if (confirm("Vuoi impostare la posizione del Pin Rosso come sede ufficiale della pizzeria?")) {
-                        localStorage.setItem('pizza_restaurant_lat', markerPos.lat.toString());
-                        localStorage.setItem('pizza_restaurant_lng', markerPos.lng.toString());
-                        alert("Sede salvata con successo! Ricarica per applicare.");
-                        window.location.reload();
-                      }
-                    }}
-                    className="absolute top-2 left-2 z-[400] bg-white hover:bg-stone-50 text-[#8B1E1E] px-2 py-1 text-[8px] font-black rounded-lg border border-stone-300 shadow-md flex items-center justify-center transition-all cursor-pointer"
-                    title="Imposta come sede ufficiale pizzeria"
-                  >
-                    Imposta Sede
-                  </button>
-
-                  <button
-                    type="button"
                     onClick={detectUserGPS}
                     className="absolute bottom-2 right-2 z-[400] bg-white hover:bg-stone-55 text-stone-700 p-1.5 rounded-lg border border-stone-300 shadow-md flex items-center justify-center transition-all cursor-pointer"
                     title={t.detectLocBtn}
