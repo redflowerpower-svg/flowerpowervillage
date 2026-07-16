@@ -712,7 +712,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-white w-full max-w-md h-[600px] p-5 border border-stone-300 text-stone-850 relative rounded-[2rem] shadow-2xl flex flex-col justify-between overflow-hidden">
+      <div className="bg-white w-full max-w-md h-[630px] p-5 border border-stone-300 text-stone-850 relative rounded-[2rem] shadow-2xl flex flex-col justify-between overflow-hidden">
         
         {/* Flower Power Pizza Logo at the top of all states */}
         <div className="flex justify-center w-full border-b border-stone-100 pb-3 flex-shrink-0">
@@ -734,7 +734,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         )}
 
         {submitPhase === 'idle' && step === 1 && (
-          <div className="flex-grow flex flex-col justify-between overflow-y-auto mt-2.5 space-y-3">
+          <div className="flex-grow flex flex-col justify-between overflow-hidden mt-2.5 space-y-3">
             <div className="space-y-2.5 px-0.5">
               <h2 className="text-lg font-black tracking-tight text-stone-850" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
                 {t.step1Title}
@@ -940,7 +940,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
               {paymentMethod === 'promptpay' ? (
                 /* ── BANNER 1: SCELTA METODO DI PAGAMENTO (PROMPTPAY) ── */
                 <div className="space-y-2.5 pt-0.5 animate-fadeIn flex flex-col items-center">
-                  <div className="bg-white border border-stone-200 p-1.5 rounded-xl shadow-sm max-w-[115px] mx-auto">
+                  <div className="bg-white border border-stone-200 p-1.5 rounded-xl shadow-sm max-w-[160px] mx-auto">
                     <img src={QR_URL} alt="QR PromptPay" className="w-full h-auto object-contain" />
                   </div>
 
