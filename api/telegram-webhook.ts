@@ -14,6 +14,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const update = req.body;
+
+  // Handle live location updates (both new shared location and edited location updates)
+  const locMessage = update.message || update.edited_message;
+  if (locMessage && locMessage.location) {
+    const { latitude, longitude } = locMessage.location;
+    console.log(`[Telegram Webhook] Received location update: lat=${latitude}, lng=${longitude}`);
+    
+    // Update all active tracking orders
+    const { error: locError } = await supabase
+      .from("pizza_orders")
+      .update({
+        driver_latitude: latitude,
+        driver_longitude: longitude
+      })
+      .eq("tracking_active", true);
+
+    if (locError) {
+      console.error("[Telegram Webhook] Error updating driver location:", locError);
+    }
+    
+    return res.status(200).json({ status: "location_updated", latitude, longitude });
+  }
   
   // If this is a confirmation webhook query
   if (!update.callback_query) {
@@ -42,7 +64,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Parse action and orderId
-  const match = callbackData.match(/^(prepare|deliver|reject|complete)_(.+)$/);
+  const match = callbackData.match(/^(prepare|deliver|reject|complete|start_track|stop_track)_(.+)$/);
   if (!match) {
     console.warn(`[Telegram Webhook] Invalid callback data: ${callbackData}`);
     return res.status(200).json({ status: "invalid_data" });
@@ -56,9 +78,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     : callbackQuery.from?.first_name || "Sconosciuto";
 
   try {
-    // Map callback action to Supabase status field
+    // Map callback action to Supabase status field or check if it is tracking action
     let targetStatus: "preparing" | "delivering" | "rejected" | "completed" | null = null;
     let answerText = "";
+    let isTrackingAction = false;
 
     if (action === "prepare") {
       targetStatus = "preparing";
@@ -68,26 +91,61 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       answerText = "Consegna avviata! 🛵";
     } else if (action === "reject") {
       targetStatus = "rejected";
-      answerText = "Ordine rifiutato! ✖";
+      answerText = "Ordine Rifiutato! ✖";
     } else if (action === "complete") {
       targetStatus = "completed";
       answerText = "Ordine completato! 🏁";
+    } else if (action === "start_track") {
+      isTrackingAction = true;
+      answerText = "Tracciamento GPS avviato! 🛵";
+    } else if (action === "stop_track") {
+      isTrackingAction = true;
+      answerText = "Tracciamento GPS interrotto! 🏁";
     }
 
-    if (!targetStatus) {
+    if (!targetStatus && !isTrackingAction) {
       return res.status(200).json({ status: "invalid_action" });
     }
 
-    // 1. Update the order status in Supabase database
-    const { data: updatedOrder, error: updateError } = await supabase
-      .from("pizza_orders")
-      .update({ status: targetStatus })
-      .eq("id", orderId)
-      .select()
-      .single();
+    let updatedOrder: any = null;
+    let updateError: any = null;
+
+    // 1. Update the order in Supabase database
+    if (isTrackingAction) {
+      const updateData: any = {};
+      if (action === "start_track") {
+        updateData.tracking_active = true;
+        updateData.tracking_completed = false;
+      } else {
+        updateData.tracking_active = false;
+        updateData.tracking_completed = true;
+        updateData.driver_latitude = null;
+        updateData.driver_longitude = null;
+      }
+
+      const { data, error } = await supabase
+        .from("pizza_orders")
+        .update(updateData)
+        .eq("id", orderId)
+        .select()
+        .single();
+      
+      updatedOrder = data;
+      updateError = error;
+    } else {
+      const { data, error } = await supabase
+        .from("pizza_orders")
+        .update({ status: targetStatus })
+        .eq("id", orderId)
+        .select()
+        .single();
+
+      updatedOrder = data;
+      updateError = error;
+    }
 
     if (updateError || !updatedOrder) {
-      console.error("[Telegram Webhook] Error updating status in database:", updateError);
+      console.error("[Telegram Webhook] Error updating database:", updateError);
       
       // Let Telegram user know it failed
       await fetch(`https://api.telegram.org/bot${botToken}/answerCallbackQuery`, {
@@ -157,33 +215,53 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .filter((line) => line !== null)
       .join("\n");
 
-    // Append status line and build new reply keyboard
-    let inlineKeyboard: any = { inline_keyboard: [] };
+    // Reconstruct status lines text
+    let statusText = "";
+    if (updatedOrder.status === "preparing") {
+      statusText = `\n\n👨‍🍳 <b>Stato: In Preparazione</b>`;
+    } else if (updatedOrder.status === "delivering") {
+      statusText = `\n\n🛵 <b>Stato: In Consegna</b>`;
+    } else if (updatedOrder.status === "rejected") {
+      statusText = `\n\n❌ <b>Stato: Rifiutato</b>`;
+    } else if (updatedOrder.status === "completed") {
+      statusText = `\n\n✅ <b>Stato: Consegnato</b>`;
+    }
 
-    if (targetStatus === "preparing") {
-      messageText += `\n\n👨‍🍳 <b>Stato: In Preparazione</b>\n<i>Confermato da ${actor}</i>`;
-      inlineKeyboard = {
-        inline_keyboard: [
-          [
-            { text: "🛫 PARTENZA", callback_data: `deliver_${updatedOrder.id}` }
-          ]
-        ]
-      };
-    } else if (targetStatus === "delivering") {
-      messageText += `\n\n🛵 <b>Stato: In Consegna</b>\n<i>Consegna avviata da ${actor}</i>`;
-      inlineKeyboard = {
-        inline_keyboard: [
-          [
-            { text: "🛬 ARRIVO", callback_data: `complete_${updatedOrder.id}` }
-          ]
-        ]
-      };
-    } else if (targetStatus === "rejected") {
-      messageText += `\n\n❌ <b>Stato: Rifiutato</b>\n<i>Rifiutato da ${actor}</i>`;
-      inlineKeyboard = { inline_keyboard: [] };
-    } else if (targetStatus === "completed") {
-      messageText += `\n\n✅ <b>Stato: Consegnato</b>\n<i>Completato da ${actor}</i>`;
-      inlineKeyboard = { inline_keyboard: [] };
+    let actorText = "";
+    if (!isTrackingAction) {
+      if (action === "prepare") actorText = `\n<i>Confermato da ${actor}</i>`;
+      else if (action === "deliver") actorText = `\n<i>Consegna avviata da ${actor}</i>`;
+      else if (action === "reject") actorText = `\n<i>Rifiutato da ${actor}</i>`;
+      else if (action === "complete") actorText = `\n<i>Completato da ${actor}</i>`;
+    }
+    
+    // We append the current status and actor text
+    messageText += statusText + actorText;
+
+    // Rebuild Inline Keyboard Buttons
+    const statusRow: any[] = [];
+    if (updatedOrder.status === "new") {
+      statusRow.push({ text: "🟢 Conferma Ordine", callback_data: `prepare_${updatedOrder.id}` });
+      statusRow.push({ text: "✖ Rifiuta Ordine", callback_data: `reject_${updatedOrder.id}` });
+    } else if (updatedOrder.status === "preparing") {
+      statusRow.push({ text: "🛵 Fai Partire la Delivery", callback_data: `deliver_${updatedOrder.id}` });
+    } else if (updatedOrder.status === "delivering") {
+      statusRow.push({ text: "🏁 Conferma Consegnato", callback_data: `complete_${updatedOrder.id}` });
+    }
+
+    const trackingRow: any[] = [];
+    const isOrderActive = updatedOrder.status !== "completed" && updatedOrder.status !== "rejected";
+    if (isOrderActive && !updatedOrder.tracking_completed) {
+      trackingRow.push({ text: "🛫 PARTENZA", callback_data: `start_track_${updatedOrder.id}` });
+      trackingRow.push({ text: "🛬 ARRIVO", callback_data: `stop_track_${updatedOrder.id}` });
+    }
+
+    const inlineKeyboard: any = { inline_keyboard: [] };
+    if (statusRow.length > 0) {
+      inlineKeyboard.inline_keyboard.push(statusRow);
+    }
+    if (trackingRow.length > 0) {
+      inlineKeyboard.inline_keyboard.push(trackingRow);
     }
 
     // 4. Update the Telegram message text and keyboard reply markup
@@ -201,8 +279,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       })
     });
 
-    // If transitioning to delivering, send the push notification reminder to the driver
-    if (targetStatus === "delivering") {
+    // If starting tracking, send the push notification reminder to the driver
+    if (action === "start_track") {
       const pushUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
       await fetch(pushUrl, {
         method: "POST",

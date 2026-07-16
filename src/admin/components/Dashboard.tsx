@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useAdminOrderStore } from '../store/adminOrderStore';
 import { supabase } from '../../lib/supabase';
 import { RESTAURANT_LAT, RESTAURANT_LNG } from '../../pizza/store/locationStore';
+import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 import type { PizzaOrder, CartItemSaved } from '../../pizza/types';
 import { 
   Clock, 
@@ -554,11 +555,11 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </section>
 
-        {/* Column 2: In Preparazione */}
+        {/* Column 2: In Consegna */}
         <section className="bg-stone-900/40 border border-stone-800/80 rounded-3xl p-4 flex flex-col min-h-[500px]">
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-stone-800">
             <span className="w-2 h-2 rounded-full bg-amber-500" />
-            <h2 className="text-xs uppercase tracking-widest font-extrabold text-amber-400">In Preparazione</h2>
+            <h2 className="text-xs uppercase tracking-widest font-extrabold text-amber-400">In Consegna</h2>
             <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-amber-950/40 text-amber-400 border border-amber-900/30">{colDelivering.length}</span>
           </div>
 
@@ -566,7 +567,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             {colDelivering.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-stone-600 text-xs">
                 <Pizza size={24} className="opacity-10 stroke-1 mb-2" />
-                Nessun ordine in preparazione
+                Nessun ordine in consegna
               </div>
             ) : (
               colDelivering.map(order => (
@@ -576,11 +577,11 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </section>
 
-        {/* Column 3: In Consegna */}
+        {/* Column 3: Consegnato */}
         <section className="bg-stone-900/40 border border-stone-800/80 rounded-3xl p-4 flex flex-col min-h-[500px]">
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-stone-800">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <h2 className="text-xs uppercase tracking-widest font-extrabold text-emerald-400">In Consegna</h2>
+            <h2 className="text-xs uppercase tracking-widest font-extrabold text-emerald-400">Consegnato</h2>
             <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-emerald-950/40 text-emerald-400 border border-emerald-900/30">{colDone.length}</span>
           </div>
 
@@ -588,7 +589,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             {colDone.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-stone-600 text-xs">
                 <Pizza size={24} className="opacity-10 stroke-1 mb-2" />
-                Nessun ordine in consegna
+                Nessun ordine consegnato oggi
               </div>
             ) : (
               colDone.map(order => (
@@ -597,6 +598,68 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             )}
           </div>
         </section>
+
+      {/* Real-time Delivery Tracking Map */}
+      {orders.some(o => o.tracking_active) && (
+        <section className="col-span-1 lg:col-span-3 bg-stone-900/40 border border-stone-800/80 rounded-3xl p-6 mt-6">
+          <div className="flex items-center gap-2 mb-4 pb-2 border-b border-stone-800">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <h2 className="text-xs uppercase tracking-widest font-extrabold text-emerald-400">Mappa Consegne in Tempo Reale</h2>
+            <span className="ml-auto text-xs text-stone-500">Tracciamento motorino attivo (🛵)</span>
+          </div>
+
+          <div className="relative w-full h-[400px] rounded-2xl border border-stone-800 overflow-hidden bg-stone-950">
+            <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''}>
+              <Map
+                defaultCenter={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }}
+                defaultZoom={14}
+                disableDefaultUI={false}
+                gestureHandling="cooperative"
+                style={{ height: '100%', width: '100%' }}
+              >
+                {/* 1. Marker della Pizzeria */}
+                <Marker
+                  position={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }}
+                  title="Flower Power Pizza"
+                  icon={{
+                    url: '/Flower_Power_Pizza_-_HotSpring.png',
+                    scaledSize: (typeof google !== 'undefined' && google.maps && google.maps.Size) ? new google.maps.Size(36, 36) : undefined
+                  }}
+                />
+
+                {/* 2. Marker per ciascun Ordine in Tracciamento */}
+                {orders.filter(o => o.tracking_active).map(order => {
+                  const coords = parseAddressAndCoords(order.address || "");
+                  const hasCustomerCoords = coords.hasCoords;
+                  const hasDriverCoords = order.driver_latitude && order.driver_longitude;
+                  
+                  return (
+                    <div key={order.id}>
+                      {/* Marker Cliente */}
+                      {hasCustomerCoords && (
+                        <Marker
+                          position={{ lat: coords.lat, lng: coords.lng }}
+                          title={`Cliente: ${order.customer_name} (Ordine #${order.id})`}
+                          label={{ text: "👤", fontSize: "16px" }}
+                        />
+                      )}
+
+                      {/* Marker Motorino / Driver */}
+                      {hasDriverCoords && (
+                        <Marker
+                          position={{ lat: Number(order.driver_latitude), lng: Number(order.driver_longitude) }}
+                          title={`Motorino: Ordine #${order.id} (${order.customer_name})`}
+                          label={{ text: "🛵", fontSize: "24px" }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </Map>
+            </APIProvider>
+          </div>
+        </section>
+      )}
 
       </main>
 
@@ -1172,7 +1235,7 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
                 }}
                 className="flex-grow flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-[#c5a572]/15 border border-[#c5a572]/40 text-[#c5a572] hover:bg-[#c5a572]/20 transition-all cursor-pointer animate-pulse font-sans"
               >
-                👨‍🍳 CONFERMA IN CUCINA <ChevronRight size={14} />
+                CONFERMA <ChevronRight size={14} />
               </button>
               <button
                 onClick={() => {
@@ -1192,7 +1255,7 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
                 className="flex items-center justify-center gap-1 py-2.5 px-3 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-red-950/30 border border-red-800/40 text-red-400 hover:bg-red-950/50 transition-all cursor-pointer font-sans"
                 title="Rifiuta e notifica il cliente"
               >
-                ✖ RIFIUTA ORDINE
+                Rifiuta Ordine
               </button>
             </div>
           )}
@@ -1216,7 +1279,7 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
               }}
               className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-amber-600/15 border border-amber-600/40 text-amber-400 hover:bg-amber-600/20 transition-all cursor-pointer animate-pulse font-sans"
             >
-              🛫 PARTENZA
+              🛵 FAI PARTIRE LA DELIVERY
             </button>
           )}
 
@@ -1226,7 +1289,7 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
               onClick={() => onAdvance(order.id!, 'completed')}
               className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-emerald-600/15 border border-emerald-600/40 text-emerald-400 hover:bg-emerald-600/20 transition-all cursor-pointer font-sans"
             >
-              🛬 ARRIVO <CheckCircle size={14} className="ml-1" />
+              CONSEGNATO <CheckCircle size={14} className="ml-1" />
             </button>
           )}
 

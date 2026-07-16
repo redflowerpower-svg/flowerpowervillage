@@ -92,8 +92,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const inlineKeyboard = {
       inline_keyboard: [
         [
-          { text: "👨‍🍳 CONFERMA IN CUCINA", callback_data: `prepare_${order.id}` },
-          { text: "✖ RIFIUTA ORDINE", callback_data: `reject_${order.id}` }
+          { text: "🟢 Conferma Ordine", callback_data: `prepare_${order.id}` },
+          { text: "✖ Rifiuta Ordine", callback_data: `reject_${order.id}` }
+        ],
+        [
+          { text: "🛫 PARTENZA", callback_data: `start_track_${order.id}` },
+          { text: "🛬 ARRIVO", callback_data: `stop_track_${order.id}` }
         ]
       ]
     };

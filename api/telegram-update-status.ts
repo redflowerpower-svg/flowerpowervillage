@@ -90,35 +90,49 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .filter((line) => line !== null)
       .join("\n");
 
-    // Append status line and build new reply keyboard
-    let inlineKeyboard: any = { inline_keyboard: [] };
-
+    // Append status line
     const actor = "Flower Power Pizza";
-
+    let statusText = "";
+    let actorText = "";
     if (status === "preparing") {
-      messageText += `\n\n👨‍🍳 <b>Stato: In Preparazione</b>\n<i>Confermato da ${actor}</i>`;
-      inlineKeyboard = {
-        inline_keyboard: [
-          [
-            { text: "🛫 PARTENZA", callback_data: `deliver_${order.id}` }
-          ]
-        ]
-      };
+      statusText = `\n\n👨‍🍳 <b>Stato: In Preparazione</b>`;
+      actorText = `\n<i>Confermato da ${actor}</i>`;
     } else if (status === "delivering") {
-      messageText += `\n\n🛵 <b>Stato: In Consegna</b>\n<i>Consegna avviata da ${actor}</i>`;
-      inlineKeyboard = {
-        inline_keyboard: [
-          [
-            { text: "🛬 ARRIVO", callback_data: `complete_${order.id}` }
-          ]
-        ]
-      };
+      statusText = `\n\n🛵 <b>Stato: In Consegna</b>`;
+      actorText = `\n<i>Consegna avviata da ${actor}</i>`;
     } else if (status === "rejected") {
-      messageText += `\n\n❌ <b>Stato: Rifiutato</b>\n<i>Rifiutato da ${actor}</i>`;
-      inlineKeyboard = { inline_keyboard: [] };
+      statusText = `\n\n❌ <b>Stato: Rifiutato</b>`;
+      actorText = `\n<i>Rifiutato da ${actor}</i>`;
     } else if (status === "completed") {
-      messageText += `\n\n✅ <b>Stato: Consegnato</b>\n<i>Completato da ${actor}</i>`;
-      inlineKeyboard = { inline_keyboard: [] };
+      statusText = `\n\n✅ <b>Stato: Consegnato</b>`;
+      actorText = `\n<i>Completato da ${actor}</i>`;
+    }
+    messageText += statusText + actorText;
+
+    // Rebuild Inline Keyboard Buttons
+    const statusRow: any[] = [];
+    if (status === "new") {
+      statusRow.push({ text: "🟢 Conferma Ordine", callback_data: `prepare_${order.id}` });
+      statusRow.push({ text: "✖ Rifiuta Ordine", callback_data: `reject_${order.id}` });
+    } else if (status === "preparing") {
+      statusRow.push({ text: "🛵 Fai Partire la Delivery", callback_data: `deliver_${order.id}` });
+    } else if (status === "delivering") {
+      statusRow.push({ text: "🏁 Conferma Consegnato", callback_data: `complete_${order.id}` });
+    }
+
+    const trackingRow: any[] = [];
+    const isOrderActive = status !== "completed" && status !== "rejected";
+    if (isOrderActive && !order.tracking_completed) {
+      trackingRow.push({ text: "🛫 PARTENZA", callback_data: `start_track_${order.id}` });
+      trackingRow.push({ text: "🛬 ARRIVO", callback_data: `stop_track_${order.id}` });
+    }
+
+    const inlineKeyboard: any = { inline_keyboard: [] };
+    if (statusRow.length > 0) {
+      inlineKeyboard.inline_keyboard.push(statusRow);
+    }
+    if (trackingRow.length > 0) {
+      inlineKeyboard.inline_keyboard.push(trackingRow);
     }
 
     // 4. Update the Telegram message text and inline keyboard
@@ -143,19 +157,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: "Telegram API error", details: result });
     }
 
-    // If transitioning to delivering, send the push notification reminder to the driver
-    if (status === "delivering") {
-      const pushUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-      await fetch(pushUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: `🛵 <b>PARTENZA! (Ordine #${orderId})</b>\nFattorino, ricordati di attivare la <b>Live Location</b> nativa su Telegram! 📍`,
-          parse_mode: "HTML"
-        })
-      }).catch(err => console.error("[Telegram Update Status] Failed to send push reminder to driver:", err));
-    }
+
 
     return res.status(200).json({ success: true, messageId: Number(order.telegram_message_id) });
   } catch (err: any) {
