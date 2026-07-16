@@ -54,7 +54,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
   }
 }
 
-function LoginForm({ onLogin, onBypass }: { onLogin: () => void; onBypass?: () => void }) {
+function LoginForm({ onLogin }: { onLogin: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -133,16 +133,6 @@ function LoginForm({ onLogin, onBypass }: { onLogin: () => void; onBypass?: () =
             {loading ? <><Loader2 size={14} className="animate-spin" /> Signing in…</> : 'Sign In'}
           </button>
 
-          {import.meta.env.DEV && onBypass && (
-            <button
-              type="button"
-              onClick={onBypass}
-              className="w-full py-2.5 mt-2 bg-stone-900 border border-stone-700 hover:border-stone-500 hover:bg-stone-850 text-stone-400 hover:text-stone-200 text-xs tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5 cursor-pointer rounded-lg"
-              style={{ fontFamily: 'Inter, sans-serif' }}
-            >
-              🔓 Accesso Rapido Test
-            </button>
-          )}
         </form>
       </div>
     </div>
@@ -172,20 +162,6 @@ export default function AdminDashboard() {
     setSession(null);
   };
 
-  const handleBypass = () => {
-    const mockSession = {
-      access_token: 'mock-token',
-      token_type: 'bearer',
-      expires_in: 3600,
-      user: {
-        id: 'mock-user-id',
-        aud: 'authenticated',
-        created_at: new Date().toISOString(),
-      }
-    } as any;
-    setSession(mockSession);
-  };
-
   if (sessionLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0c0a09' }}>
@@ -194,7 +170,7 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!session) return <LoginForm onLogin={() => {}} onBypass={handleBypass} />;
+  if (!session) return <LoginForm onLogin={() => {}} />;
 
   return (
     <ErrorBoundary>
