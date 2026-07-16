@@ -603,12 +603,14 @@ export default function PizzaSite() {
                 {p === 'order' ? 'ORDINA ONLINE' : p === 'about' ? 'CHI SIAMO' : p.toUpperCase()}
               </button>
             ))}
-            <button 
-              onClick={() => rrNavigate('/admin')}
+            <a 
+              href="/admin"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-xs text-stone-600 uppercase tracking-wide hover:text-red-400 transition-colors uppercase font-semibold"
             >
               PRIVATE AREA
-            </button>
+            </a>
           </div>
           <p className="text-xs text-stone-700">© {new Date().getFullYear()} Flower Power · Ranong, Thailand</p>
         </div>
