@@ -282,6 +282,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   const [countdownSeconds, setCountdownSeconds] = useState(300);
   // Tracks the ID of the order currently waiting for confirmation
   const currentOrderIdRef = useRef<string | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   const [isDeliveringActive, setIsDeliveringActive] = useState(false);
 
@@ -355,6 +356,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
           setIsDeliveringActive(false);
         } else if (type === 'ORDER_REJECTED') {
           currentOrderIdRef.current = null;
+          setOrderId(null);
           setLoading(false);
           setSubmitPhase('rejected');
         } else if (type === 'ORDER_DELIVERING') {
@@ -390,17 +392,18 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
   // Poll order status from Supabase to handle cross-device/server-side status updates (e.g. from Telegram webhook)
   useEffect(() => {
-    if (!currentOrderIdRef.current) return;
+    const activeOrderId = orderId || currentOrderIdRef.current;
+    if (!activeOrderId) return;
 
     const interval = setInterval(async () => {
-      const orderId = currentOrderIdRef.current;
-      if (!orderId) return;
+      const currentId = orderId || currentOrderIdRef.current;
+      if (!currentId) return;
 
       try {
         const { data, error } = await supabase
           .from('pizza_orders')
           .select('status')
-          .eq('id', orderId)
+          .eq('id', currentId)
           .single();
 
         if (error) {
@@ -410,7 +413,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
         if (data) {
           const status = data.status;
-          console.log(`[CheckoutFlow Polling] Order status check: ${status} for ID: ${orderId}`);
+          console.log(`[CheckoutFlow Polling] Order status check: ${status} for ID: ${currentId}`);
 
           if (status === 'preparing' && (submitPhase === 'sending' || step !== 3)) {
             setSubmitPhase('idle');
@@ -420,12 +423,12 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
             try {
               const ch = new BroadcastChannel('pizza_orders_channel');
-              ch.postMessage({ type: 'ORDER_ACCEPTED', orderId });
+              ch.postMessage({ type: 'ORDER_ACCEPTED', orderId: currentId });
               ch.close();
             } catch (e) {}
             try {
               const ch = new BroadcastChannel('flower_power_orders_channel');
-              ch.postMessage({ type: 'ORDER_ACCEPTED', orderId });
+              ch.postMessage({ type: 'ORDER_ACCEPTED', orderId: currentId });
               ch.close();
             } catch (e) {}
           } else if (status === 'delivering' && !isDeliveringActive) {
@@ -436,27 +439,28 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
             try {
               const ch = new BroadcastChannel('pizza_orders_channel');
-              ch.postMessage({ type: 'ORDER_DELIVERING', orderId });
+              ch.postMessage({ type: 'ORDER_DELIVERING', orderId: currentId });
               ch.close();
             } catch (e) {}
             try {
               const ch = new BroadcastChannel('flower_power_orders_channel');
-              ch.postMessage({ type: 'ORDER_DELIVERING', orderId });
+              ch.postMessage({ type: 'ORDER_DELIVERING', orderId: currentId });
               ch.close();
             } catch (e) {}
           } else if (status === 'rejected' && submitPhase !== 'rejected') {
             currentOrderIdRef.current = null;
+            setOrderId(null);
             setLoading(false);
             setSubmitPhase('rejected');
 
             try {
               const ch = new BroadcastChannel('pizza_orders_channel');
-              ch.postMessage({ type: 'ORDER_REJECTED', orderId });
+              ch.postMessage({ type: 'ORDER_REJECTED', orderId: currentId });
               ch.close();
             } catch (e) {}
             try {
               const ch = new BroadcastChannel('flower_power_orders_channel');
-              ch.postMessage({ type: 'ORDER_REJECTED', orderId });
+              ch.postMessage({ type: 'ORDER_REJECTED', orderId: currentId });
               ch.close();
             } catch (e) {}
           }
@@ -467,7 +471,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [submitPhase, step, isDeliveringActive]);
+  }, [orderId, submitPhase, step, isDeliveringActive]);
 
   useEffect(() => {
     if (isEditingAddress && addressInputRef.current) {
@@ -596,6 +600,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
           // Register the order ID so the stable listener can match it
           currentOrderIdRef.current = simulatedInserted.id;
+          setOrderId(simulatedInserted.id);
 
           try {
             const { useAdminOrderStore } = await import('../../admin/store/adminOrderStore');
@@ -616,7 +621,9 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         }
       } else if (insertedRows && insertedRows[0]) {
         // Register the real DB order ID so the stable listener can match it
-        currentOrderIdRef.current = String(insertedRows[0].id);
+        const orderIdStr = String(insertedRows[0].id);
+        currentOrderIdRef.current = orderIdStr;
+        setOrderId(orderIdStr);
 
         try {
           const { useAdminOrderStore } = await import('../../admin/store/adminOrderStore');
@@ -647,6 +654,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     } catch (err) {
       console.error('Checkout submission crash caught:', err);
       currentOrderIdRef.current = null;
+      setOrderId(null);
       setLoading(false);
       // Show timeout/failure UI with retry button — never silently bypass in any mode
       setSubmitPhase('timeout');
