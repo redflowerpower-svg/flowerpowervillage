@@ -54,7 +54,7 @@ const getDriverMessageEncoded = (order: PizzaOrder, lat: number, lng: number) =>
   
   const { address } = parseAddressAndCoords(order.address);
   const timeStr = order.created_at ? new Date(order.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '';
-  const orderId = order.id ? order.id.substring(0, 8).toUpperCase() : 'N/A';
+  const orderId = order.id ? String(order.id).substring(0, 8).toUpperCase() : 'N/A';
   
   const text = `🛵 *CONSEGNA ORDINE FLOWER POWER*\n` +
                `-------------------------------\n` +
@@ -251,7 +251,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
       csvContent += headers.join(';') + '\n';
 
       exportOrders.forEach((order: any) => {
-        const orderId = order.id ? order.id.substring(0, 8).toUpperCase() : 'N/A';
+        const orderId = order.id ? String(order.id).substring(0, 8).toUpperCase() : 'N/A';
         const dateStr = order.created_at ? new Date(order.created_at).toLocaleString('it-IT') : 'N/A';
         const clientName = (order.customer_name || 'Cliente').replace(/;/g, ' ');
         const phoneNum = (order.phone || '').replace(/;/g, ' ');
@@ -825,7 +825,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
                     const query = archiveSearchQuery.toLowerCase().trim();
                     if (!query) return true;
                     
-                    const orderId = order.id ? order.id.substring(0, 8).toLowerCase() : '';
+                    const orderId = order.id ? String(order.id).substring(0, 8).toLowerCase() : '';
                     const customer = (order.customer_name || '').toLowerCase();
                     const phone = (order.phone || '').toLowerCase();
                     const address = (order.address || '').toLowerCase();
@@ -858,7 +858,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
                           </div>
                         ) : (
                           filtered.map((order: any) => {
-                            const orderId = order.id ? order.id.substring(0, 8).toUpperCase() : 'N/A';
+                            const orderId = order.id ? String(order.id).substring(0, 8).toUpperCase() : 'N/A';
                             const dateStr = order.created_at ? new Date(order.created_at).toLocaleDateString('it-IT', {
                               day: '2-digit',
                               month: '2-digit',

@@ -586,18 +586,6 @@ export default function PizzaSite() {
     }
   };
 
-  const handlePrivateAreaClick = () => {
-    const pw = prompt("Inserisci la password per accedere all'area privata:");
-    if (pw) {
-      const clean = pw.trim().toLowerCase();
-      if (clean === 'flowerpower' || clean === 'pizza') {
-        rrNavigate('/admin');
-        return;
-      }
-      alert("Password errata!");
-    }
-  };
-
   return (
     <div className="min-h-screen" style={{ background: '#1c1917' }}>
       <PizzaNav activePage={activePage} onNavigate={navigate} />
@@ -616,7 +604,7 @@ export default function PizzaSite() {
               </button>
             ))}
             <button 
-              onClick={handlePrivateAreaClick}
+              onClick={() => rrNavigate('/admin')}
               className="text-xs text-stone-600 uppercase tracking-wide hover:text-red-400 transition-colors uppercase font-semibold"
             >
               PRIVATE AREA
