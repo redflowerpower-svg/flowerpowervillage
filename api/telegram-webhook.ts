@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
-import { getTelegramCredentials, getWhatsAppLink, getLineLink } from "./_helpers/telegram.js";
+import { getTelegramCredentials, buildContactLines } from "./_helpers/telegram.js";
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
@@ -135,7 +135,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       `📦 <b>NUOVO ORDINE PIZZA</b>`,
       ``,
       `<b>Cliente:</b> ${updatedOrder.customer_name}`,
-      `<b>Telefono:</b> ${updatedOrder.phone} (WhatsApp: ${updatedOrder.has_whatsapp ? `<a href="${getWhatsAppLink(updatedOrder.phone)}">Sì</a>` : "No"} | LINE: ${updatedOrder.has_line ? `<a href="${getLineLink(updatedOrder.phone)}">Sì</a>` : "No"})`,
+      ...buildContactLines(updatedOrder.phone, updatedOrder.has_whatsapp, updatedOrder.has_line),
       `<b>Indirizzo:</b> ${cleanAddress}`,
       ``,
       `<b>Articoli:</b>`,

@@ -84,25 +84,37 @@ export async function updateTelegramCredentials(botToken: string, chatId: string
 }
 
 /**
- * Formats a WhatsApp link from a phone number.
- * Standardizes Thai local prefix (0) to country code (66).
+ * Normalizes a Thai phone number to international format (66xxxxxxxxx).
  */
-export function getWhatsAppLink(phone: string): string {
+function normalizeThaiPhone(phone: string): string {
   let cleaned = phone.replace(/\D/g, "");
   if (cleaned.startsWith("0")) {
     cleaned = "66" + cleaned.substring(1);
   }
-  return `https://wa.me/${cleaned}`;
+  return cleaned;
 }
 
 /**
- * Formats a LINE link from a phone number.
- * Standardizes Thai local prefix (0) to country code (66).
+ * Builds Telegram HTML contact lines for phone, WhatsApp, and LINE.
+ * Returns an array of lines to spread into the message array.
  */
-export function getLineLink(phone: string): string {
-  let cleaned = phone.replace(/\D/g, "");
-  if (cleaned.startsWith("0")) {
-    cleaned = "66" + cleaned.substring(1);
+export function buildContactLines(phone: string, hasWhatsApp: boolean, hasLine: boolean): string[] {
+  const normalized = normalizeThaiPhone(phone);
+  const lines: string[] = [];
+  lines.push(`📞 <b>Telefono:</b> ${phone}`);
+  if (hasWhatsApp) {
+    lines.push(`💬 <a href="https://wa.me/${normalized}">Scrivi su WhatsApp</a>`);
   }
-  return `https://line.me/ti/p/~${cleaned}`;
+  if (hasLine) {
+    lines.push(`🟩 <a href="https://line.me/ti/p/~${normalized}">Contatta su LINE</a>`);
+  }
+  return lines;
+}
+
+// Keep legacy exports for backward compatibility
+export function getWhatsAppLink(phone: string): string {
+  return `https://wa.me/${normalizeThaiPhone(phone)}`;
+}
+export function getLineLink(phone: string): string {
+  return `https://line.me/ti/p/~${normalizeThaiPhone(phone)}`;
 }
