@@ -120,8 +120,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         updateData.driver_longitude = null;
       } else {
         updateData.tracking_active = false;
-        updateData.driver_latitude = -999;
-        updateData.driver_longitude = -999;
+        updateData.driver_latitude = -99;
+        updateData.driver_longitude = -99;
       }
 
       const { data, error } = await supabase
@@ -251,9 +251,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const trackingRow: any[] = [];
-    const isOrderActive = updatedOrder.status !== "completed" && updatedOrder.status !== "rejected";
-    const isTrackingCompleted = updatedOrder.driver_latitude === -999;
-    if (isOrderActive && !isTrackingCompleted) {
+    const isTrackingCompleted = updatedOrder.driver_latitude === -99;
+    if (!isTrackingCompleted) {
       trackingRow.push({ text: "🛫 PARTENZA", callback_data: `start_track_${updatedOrder.id}` });
       trackingRow.push({ text: "🛬 ARRIVO", callback_data: `stop_track_${updatedOrder.id}` });
     }

@@ -121,9 +121,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const trackingRow: any[] = [];
-    const isOrderActive = status !== "completed" && status !== "rejected";
-    const isTrackingCompleted = order.driver_latitude === -999;
-    if (isOrderActive && !isTrackingCompleted) {
+    const isTrackingCompleted = order.driver_latitude === -99;
+    if (!isTrackingCompleted) {
       trackingRow.push({ text: "🛫 PARTENZA", callback_data: `start_track_${order.id}` });
       trackingRow.push({ text: "🛬 ARRIVO", callback_data: `stop_track_${order.id}` });
     }
