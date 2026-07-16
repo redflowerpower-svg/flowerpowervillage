@@ -82,3 +82,27 @@ export async function updateTelegramCredentials(botToken: string, chatId: string
     return false;
   }
 }
+
+/**
+ * Formats a WhatsApp link from a phone number.
+ * Standardizes Thai local prefix (0) to country code (66).
+ */
+export function getWhatsAppLink(phone: string): string {
+  let cleaned = phone.replace(/\D/g, "");
+  if (cleaned.startsWith("0")) {
+    cleaned = "66" + cleaned.substring(1);
+  }
+  return `https://wa.me/${cleaned}`;
+}
+
+/**
+ * Formats a LINE link from a phone number.
+ * Standardizes Thai local prefix (0) to country code (66).
+ */
+export function getLineLink(phone: string): string {
+  let cleaned = phone.replace(/\D/g, "");
+  if (cleaned.startsWith("0")) {
+    cleaned = "66" + cleaned.substring(1);
+  }
+  return `https://line.me/ti/p/~${cleaned}`;
+}
