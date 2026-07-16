@@ -98,17 +98,13 @@ function normalizeThaiPhone(phone: string): string {
  * Builds Telegram HTML contact lines for phone, WhatsApp, and LINE.
  * Returns an array of lines to spread into the message array.
  */
-export function buildContactLines(phone: string, hasWhatsApp: boolean, hasLine: boolean): string[] {
+export function buildContactLines(phone: string, _hasWhatsApp?: boolean, _hasLine?: boolean): string[] {
   const normalized = normalizeThaiPhone(phone);
-  const lines: string[] = [];
-  lines.push(`📞 <b>Telefono:</b> ${phone}`);
-  if (hasWhatsApp) {
-    lines.push(`💬 <a href="https://wa.me/${normalized}">Scrivi su WhatsApp</a>`);
-  }
-  if (hasLine) {
-    lines.push(`🟩 <a href="https://line.me/ti/p/~${normalized}">Contatta su LINE</a>`);
-  }
-  return lines;
+  return [
+    `📞 <b>Telefono:</b> ${phone}`,
+    `💬 <a href="https://wa.me/${normalized}">Scrivi su WhatsApp</a>`,
+    `🟩 <a href="https://line.me/ti/p/~${normalized}">Contatta su LINE</a>`
+  ];
 }
 
 // Keep legacy exports for backward compatibility
