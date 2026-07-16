@@ -390,88 +390,77 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     };
   }, []);
 
-  // Poll order status from Supabase to handle cross-device/server-side status updates (e.g. from Telegram webhook)
+  // Realtime + polling hybrid: handles cross-device status updates (Telegram webhook → DB → client)
+  // Uses refs to avoid stale closure issues in the polling interval
+  const stepRef = useRef(step);
+  const submitPhaseRef = useRef(submitPhase);
+  const isDeliveringActiveRef = useRef(isDeliveringActive);
+  useEffect(() => { stepRef.current = step; }, [step]);
+  useEffect(() => { submitPhaseRef.current = submitPhase; }, [submitPhase]);
+  useEffect(() => { isDeliveringActiveRef.current = isDeliveringActive; }, [isDeliveringActive]);
+
   useEffect(() => {
     const activeOrderId = orderId || currentOrderIdRef.current;
     if (!activeOrderId) return;
 
-    const interval = setInterval(async () => {
-      const currentId = orderId || currentOrderIdRef.current;
-      if (!currentId) return;
+    const applyStatus = (status: string) => {
+      console.log(`[CheckoutFlow] Status update received: ${status} for ID: ${activeOrderId}`);
+      if (status === 'preparing' && (submitPhaseRef.current === 'sending' || stepRef.current !== 3)) {
+        setSubmitPhase('idle');
+        setLoading(false);
+        setStep(3);
+        setIsDeliveringActive(false);
+        try { const ch = new BroadcastChannel('pizza_orders_channel'); ch.postMessage({ type: 'ORDER_ACCEPTED', orderId: activeOrderId }); ch.close(); } catch (e) {}
+        try { const ch = new BroadcastChannel('flower_power_orders_channel'); ch.postMessage({ type: 'ORDER_ACCEPTED', orderId: activeOrderId }); ch.close(); } catch (e) {}
+      } else if (status === 'delivering' && !isDeliveringActiveRef.current) {
+        setIsDeliveringActive(true);
+        setSubmitPhase('idle');
+        setLoading(false);
+        setStep(3);
+        try { const ch = new BroadcastChannel('pizza_orders_channel'); ch.postMessage({ type: 'ORDER_DELIVERING', orderId: activeOrderId }); ch.close(); } catch (e) {}
+        try { const ch = new BroadcastChannel('flower_power_orders_channel'); ch.postMessage({ type: 'ORDER_DELIVERING', orderId: activeOrderId }); ch.close(); } catch (e) {}
+      } else if (status === 'rejected' && submitPhaseRef.current !== 'rejected') {
+        currentOrderIdRef.current = null;
+        setOrderId(null);
+        setLoading(false);
+        setSubmitPhase('rejected');
+        try { const ch = new BroadcastChannel('pizza_orders_channel'); ch.postMessage({ type: 'ORDER_REJECTED', orderId: activeOrderId }); ch.close(); } catch (e) {}
+        try { const ch = new BroadcastChannel('flower_power_orders_channel'); ch.postMessage({ type: 'ORDER_REJECTED', orderId: activeOrderId }); ch.close(); } catch (e) {}
+      }
+    };
 
+    // 1. Supabase Realtime subscription (instant push on DB change)
+    const channel = supabase
+      .channel(`order-status-${activeOrderId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'pizza_orders',
+        filter: `id=eq.${activeOrderId}`
+      }, (payload: any) => {
+        if (payload.new?.status) applyStatus(payload.new.status);
+      })
+      .subscribe();
+
+    // 2. Polling fallback every 6 seconds (in case Realtime misses an update)
+    const interval = setInterval(async () => {
       try {
         const { data, error } = await supabase
           .from('pizza_orders')
           .select('status')
-          .eq('id', currentId)
+          .eq('id', activeOrderId)
           .single();
-
-        if (error) {
-          console.warn('[CheckoutFlow Polling] Error fetching order status:', error);
-          return;
-        }
-
-        if (data) {
-          const status = data.status;
-          console.log(`[CheckoutFlow Polling] Order status check: ${status} for ID: ${currentId}`);
-
-          if (status === 'preparing' && (submitPhase === 'sending' || step !== 3)) {
-            setSubmitPhase('idle');
-            setLoading(false);
-            setStep(3);
-            setIsDeliveringActive(false);
-
-            try {
-              const ch = new BroadcastChannel('pizza_orders_channel');
-              ch.postMessage({ type: 'ORDER_ACCEPTED', orderId: currentId });
-              ch.close();
-            } catch (e) {}
-            try {
-              const ch = new BroadcastChannel('flower_power_orders_channel');
-              ch.postMessage({ type: 'ORDER_ACCEPTED', orderId: currentId });
-              ch.close();
-            } catch (e) {}
-          } else if (status === 'delivering' && !isDeliveringActive) {
-            setIsDeliveringActive(true);
-            setSubmitPhase('idle');
-            setLoading(false);
-            setStep(3);
-
-            try {
-              const ch = new BroadcastChannel('pizza_orders_channel');
-              ch.postMessage({ type: 'ORDER_DELIVERING', orderId: currentId });
-              ch.close();
-            } catch (e) {}
-            try {
-              const ch = new BroadcastChannel('flower_power_orders_channel');
-              ch.postMessage({ type: 'ORDER_DELIVERING', orderId: currentId });
-              ch.close();
-            } catch (e) {}
-          } else if (status === 'rejected' && submitPhase !== 'rejected') {
-            currentOrderIdRef.current = null;
-            setOrderId(null);
-            setLoading(false);
-            setSubmitPhase('rejected');
-
-            try {
-              const ch = new BroadcastChannel('pizza_orders_channel');
-              ch.postMessage({ type: 'ORDER_REJECTED', orderId: currentId });
-              ch.close();
-            } catch (e) {}
-            try {
-              const ch = new BroadcastChannel('flower_power_orders_channel');
-              ch.postMessage({ type: 'ORDER_REJECTED', orderId: currentId });
-              ch.close();
-            } catch (e) {}
-          }
-        }
+        if (!error && data?.status) applyStatus(data.status);
       } catch (err) {
-        console.error('[CheckoutFlow Polling] Crash during status check:', err);
+        console.error('[CheckoutFlow Polling] Error:', err);
       }
-    }, 4000);
+    }, 6000);
 
-    return () => clearInterval(interval);
-  }, [orderId, submitPhase, step, isDeliveringActive]);
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(interval);
+    };
+  }, [orderId]);
 
   useEffect(() => {
     if (isEditingAddress && addressInputRef.current) {
