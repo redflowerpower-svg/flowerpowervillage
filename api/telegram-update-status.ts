@@ -93,9 +93,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Append status line and build new reply keyboard
     let inlineKeyboard: any = { inline_keyboard: [] };
 
+    const actor = "Flower Power Pizza";
+
     if (status === "preparing") {
-      messageText += `\n\n👨‍🍳 <b>Stato: In Preparazione</b>`;
-      // Replace buttons with "Fai Partire la Delivery"
+      messageText += `\n\n👨‍🍳 <b>Stato: In Preparazione</b>\n<i>Confermato da ${actor}</i>`;
       inlineKeyboard = {
         inline_keyboard: [
           [
@@ -104,8 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ]
       };
     } else if (status === "delivering") {
-      messageText += `\n\n🛵 <b>Stato: In Consegna</b>`;
-      // Replace buttons with "Conferma Consegnato"
+      messageText += `\n\n🛵 <b>Stato: In Consegna</b>\n<i>Consegna avviata da ${actor}</i>`;
       inlineKeyboard = {
         inline_keyboard: [
           [
@@ -114,10 +114,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ]
       };
     } else if (status === "rejected") {
-      messageText += `\n\n❌ <b>Stato: Rifiutato</b>`;
+      messageText += `\n\n❌ <b>Stato: Rifiutato</b>\n<i>Rifiutato da ${actor}</i>`;
       inlineKeyboard = { inline_keyboard: [] };
     } else if (status === "completed") {
-      messageText += `\n\n✅ <b>Stato: Consegnato</b>`;
+      messageText += `\n\n✅ <b>Stato: Consegnato</b>\n<i>Completato da ${actor}</i>`;
       inlineKeyboard = { inline_keyboard: [] };
     }
 
