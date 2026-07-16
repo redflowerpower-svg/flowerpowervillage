@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, ZoomIn, X } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
 
@@ -63,6 +63,7 @@ export default function MenuGrid({ items, lang }: Props) {
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [selectedExtras, setSelectedExtras] = useState<ExtraOption[]>([]);
   const [quantity, setQuantity] = useState(1);
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
 
   const t = labels[lang];
 
@@ -111,7 +112,8 @@ export default function MenuGrid({ items, lang }: Props) {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {items.map((item) => {
         const isExpanded = expandedId === item.id;
 
@@ -127,8 +129,14 @@ export default function MenuGrid({ items, lang }: Props) {
             className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col overflow-hidden cursor-pointer will-change-transform"
             onClick={() => handleExpand(item)}
           >
-            {/* IMAGE CONTAINER */}
-            <div className="relative h-48 bg-stone-100 overflow-hidden flex-shrink-0 rounded-t-[2rem]">
+            {/* IMAGE CONTAINER WITH ZOOM HOOK */}
+            <div 
+              className="relative h-48 bg-stone-100 overflow-hidden flex-shrink-0 rounded-t-[2rem] cursor-zoom-in"
+              onClick={(e) => {
+                e.stopPropagation();
+                setZoomedImage(item.image);
+              }}
+            >
               <img
                 src={item.image}
                 alt={getTranslatedName(item)}
@@ -137,10 +145,10 @@ export default function MenuGrid({ items, lang }: Props) {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div
-                className="absolute inset-0 bg-stone-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[1px]"
+                className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[1px]"
               >
-                <div className="p-3.5 bg-stone-900/90 rounded-full border border-stone-700 shadow-lg scale-90 group-hover:scale-100 transition-transform duration-300">
-                  <Plus size={20} className="text-white" />
+                <div className="p-3 bg-stone-900/90 rounded-full border border-stone-700 shadow-lg scale-90 group-hover:scale-100 transition-transform duration-300">
+                  <ZoomIn size={20} className="text-white" />
                 </div>
               </div>
             </div>
@@ -325,5 +333,28 @@ export default function MenuGrid({ items, lang }: Props) {
         );
       })}
     </div>
+
+      {/* Lightbox Zoom Modal */}
+      {zoomedImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-stone-950/90 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out animate-fadeIn"
+          onClick={() => setZoomedImage(null)}
+        >
+          <button
+            onClick={() => setZoomedImage(null)}
+            className="absolute top-6 right-6 w-12 h-12 bg-stone-900/80 border border-stone-800 rounded-full flex items-center justify-center text-stone-300 hover:text-white hover:bg-stone-800 transition-all cursor-pointer shadow-xl"
+          >
+            <X size={24} />
+          </button>
+          <div className="relative max-w-4xl max-h-[85vh] overflow-hidden rounded-[2rem] shadow-2xl border border-stone-800/50 bg-stone-900 cursor-default" onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={zoomedImage} 
+              alt="Zoomed preview" 
+              className="max-w-full max-h-[80vh] object-contain rounded-[2rem]"
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
