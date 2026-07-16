@@ -631,7 +631,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
                 {orders.filter(o => o.tracking_active).map(order => {
                   const coords = parseAddressAndCoords(order.address || "");
                   const hasCustomerCoords = coords.hasCoords;
-                  const hasDriverCoords = order.driver_latitude && order.driver_longitude;
+                  const hasDriverCoords = order.driver_latitude && order.driver_longitude && order.driver_latitude !== -999;
                   
                   return (
                     <div key={order.id}>
