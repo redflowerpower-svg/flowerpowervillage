@@ -375,11 +375,26 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
     setEndDate(today);
   };
 
-  // Poll orders every 10 seconds
+  // Poll orders every 10 seconds (fallback) and listen to Supabase Realtime changes
   useEffect(() => {
     fetchOrders();
     const interval = setInterval(fetchOrders, 10000);
-    return () => clearInterval(interval);
+
+    const channel = supabase
+      .channel('pizza_orders_realtime_changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pizza_orders' },
+        () => {
+          fetchOrders();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearInterval(interval);
+      supabase.removeChannel(channel);
+    };
   }, [fetchOrders]);
 
   // Audio warning sound loop for new orders
