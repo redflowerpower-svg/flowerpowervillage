@@ -102,7 +102,7 @@ export function buildContactLines(phone: string, _hasWhatsApp?: boolean, _hasLin
   const normalized = normalizeThaiPhone(phone);
   return [
     `📞 <b>Telefono:</b> ${phone}`,
-    `💬 <a href="https://wa.me/${normalized}">Scrivi su WhatsApp</a>`,
+    `🟢 <a href="https://wa.me/${normalized}">Scrivi su WhatsApp</a>`,
     `🟩 <a href="https://line.me/ti/p/~${normalized}">Contatta su LINE</a>`
   ];
 }
