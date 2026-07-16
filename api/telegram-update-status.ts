@@ -128,7 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
-        message_id: order.telegram_message_id,
+        message_id: Number(order.telegram_message_id),
         text: messageText,
         parse_mode: "HTML",
         reply_markup: inlineKeyboard,
@@ -143,7 +143,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: "Telegram API error", details: result });
     }
 
-    return res.status(200).json({ success: true, messageId: order.telegram_message_id });
+    return res.status(200).json({ success: true, messageId: Number(order.telegram_message_id) });
   } catch (err: any) {
     console.error("[Telegram Update Server Error]:", err);
     return res.status(500).json({ error: "Internal Server Error", message: err.message });
