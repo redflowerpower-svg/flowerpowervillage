@@ -122,7 +122,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Flag the order as notified in Supabase
     await supabase
       .from("pizza_orders")
-      .update({ telegram_notified: true })
+      .update({ 
+        telegram_notified: true,
+        telegram_message_id: result.result?.message_id
+      })
       .eq("id", order.id);
 
     return res.status(200).json({ success: true, messageId: result.result?.message_id });

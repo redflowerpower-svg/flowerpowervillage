@@ -222,6 +222,13 @@ export const useAdminOrderStore = create<AdminOrderState>((set, get) => {
           } else {
             // Rimuovi l'override se l'aggiornamento remoto ha successo
             localStorage.removeItem(`pizza-order-status-override-${id}`);
+
+            // Aggiorna lo stato su Telegram in background
+            fetch('/api/telegram-update-status', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId: id, status })
+            }).catch(err => console.error('Telegram status update fetch failed:', err));
           }
         }
         
