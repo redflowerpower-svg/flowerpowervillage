@@ -100,7 +100,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       inlineKeyboard = {
         inline_keyboard: [
           [
-            { text: "🛵 Fai Partire la Delivery", callback_data: `deliver_${order.id}` }
+            { text: "🛫 PARTENZA", callback_data: `deliver_${order.id}` }
           ]
         ]
       };
@@ -109,7 +109,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       inlineKeyboard = {
         inline_keyboard: [
           [
-            { text: "🏁 Conferma Consegnato", callback_data: `complete_${order.id}` }
+            { text: "🛬 ARRIVO", callback_data: `complete_${order.id}` }
           ]
         ]
       };
@@ -141,6 +141,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!response.ok || !result.ok) {
       console.error("[Telegram Update API Error] Failed to edit message:", result);
       return res.status(500).json({ error: "Telegram API error", details: result });
+    }
+
+    // If transitioning to delivering, send the push notification reminder to the driver
+    if (status === "delivering") {
+      const pushUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+      await fetch(pushUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: `🛵 <b>PARTENZA! (Ordine #${orderId})</b>\nFattorino, ricordati di attivare la <b>Live Location</b> nativa su Telegram! 📍`,
+          parse_mode: "HTML"
+        })
+      }).catch(err => console.error("[Telegram Update Status] Failed to send push reminder to driver:", err));
     }
 
     return res.status(200).json({ success: true, messageId: Number(order.telegram_message_id) });

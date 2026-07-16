@@ -165,7 +165,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       inlineKeyboard = {
         inline_keyboard: [
           [
-            { text: "🛵 Fai Partire la Delivery", callback_data: `deliver_${updatedOrder.id}` }
+            { text: "🛫 PARTENZA", callback_data: `deliver_${updatedOrder.id}` }
           ]
         ]
       };
@@ -174,7 +174,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       inlineKeyboard = {
         inline_keyboard: [
           [
-            { text: "🏁 Conferma Consegnato", callback_data: `complete_${updatedOrder.id}` }
+            { text: "🛬 ARRIVO", callback_data: `complete_${updatedOrder.id}` }
           ]
         ]
       };
@@ -200,6 +200,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         disable_web_page_preview: false
       })
     });
+
+    // If transitioning to delivering, send the push notification reminder to the driver
+    if (targetStatus === "delivering") {
+      const pushUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+      await fetch(pushUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: messageChatId,
+          text: `🛵 <b>PARTENZA! (Ordine #${orderId})</b>\nFattorino, ricordati di attivare la <b>Live Location</b> nativa su Telegram! 📍`,
+          parse_mode: "HTML"
+        })
+      }).catch(err => console.error("[Telegram Webhook] Failed to send push reminder to driver:", err));
+    }
 
     return res.status(200).json({ status: "success", action, orderId });
   } catch (err: any) {

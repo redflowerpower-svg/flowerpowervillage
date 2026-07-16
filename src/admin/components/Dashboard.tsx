@@ -554,11 +554,11 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </section>
 
-        {/* Column 2: In Consegna */}
+        {/* Column 2: In Preparazione */}
         <section className="bg-stone-900/40 border border-stone-800/80 rounded-3xl p-4 flex flex-col min-h-[500px]">
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-stone-800">
             <span className="w-2 h-2 rounded-full bg-amber-500" />
-            <h2 className="text-xs uppercase tracking-widest font-extrabold text-amber-400">In Consegna</h2>
+            <h2 className="text-xs uppercase tracking-widest font-extrabold text-amber-400">In Preparazione</h2>
             <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-amber-950/40 text-amber-400 border border-amber-900/30">{colDelivering.length}</span>
           </div>
 
@@ -566,7 +566,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             {colDelivering.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-stone-600 text-xs">
                 <Pizza size={24} className="opacity-10 stroke-1 mb-2" />
-                Nessun ordine in consegna
+                Nessun ordine in preparazione
               </div>
             ) : (
               colDelivering.map(order => (
@@ -576,11 +576,11 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </section>
 
-        {/* Column 3: Consegnato */}
+        {/* Column 3: In Consegna */}
         <section className="bg-stone-900/40 border border-stone-800/80 rounded-3xl p-4 flex flex-col min-h-[500px]">
           <div className="flex items-center gap-2 mb-4 pb-2 border-b border-stone-800">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <h2 className="text-xs uppercase tracking-widest font-extrabold text-emerald-400">Consegnato</h2>
+            <h2 className="text-xs uppercase tracking-widest font-extrabold text-emerald-400">In Consegna</h2>
             <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-emerald-950/40 text-emerald-400 border border-emerald-900/30">{colDone.length}</span>
           </div>
 
@@ -588,7 +588,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
             {colDone.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-stone-600 text-xs">
                 <Pizza size={24} className="opacity-10 stroke-1 mb-2" />
-                Nessun ordine consegnato oggi
+                Nessun ordine in consegna
               </div>
             ) : (
               colDone.map(order => (
@@ -1170,9 +1170,9 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
                   } catch (e) {}
                   onAdvance(order.id!, 'preparing');
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-[#c5a572]/15 border border-[#c5a572]/40 text-[#c5a572] hover:bg-[#c5a572]/20 transition-all cursor-pointer animate-pulse"
+                className="flex-grow flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-[#c5a572]/15 border border-[#c5a572]/40 text-[#c5a572] hover:bg-[#c5a572]/20 transition-all cursor-pointer animate-pulse font-sans"
               >
-                CONFERMA <ChevronRight size={14} />
+                👨‍🍳 CONFERMA IN CUCINA <ChevronRight size={14} />
               </button>
               <button
                 onClick={() => {
@@ -1189,10 +1189,10 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
                   } catch (e) {}
                   onAdvance(order.id!, 'rejected');
                 }}
-                className="flex items-center justify-center gap-1 py-2.5 px-3 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-red-950/30 border border-red-800/40 text-red-400 hover:bg-red-950/50 transition-all cursor-pointer"
+                className="flex items-center justify-center gap-1 py-2.5 px-3 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-red-950/30 border border-red-800/40 text-red-400 hover:bg-red-950/50 transition-all cursor-pointer font-sans"
                 title="Rifiuta e notifica il cliente"
               >
-                Rifiuta Ordine
+                ✖ RIFIUTA ORDINE
               </button>
             </div>
           )}
@@ -1214,9 +1214,9 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
                 } catch (e) {}
                 onAdvance(order.id!, 'delivering');
               }}
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-amber-600/15 border border-amber-600/40 text-amber-400 hover:bg-amber-600/20 transition-all cursor-pointer animate-pulse"
+              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-amber-600/15 border border-amber-600/40 text-amber-400 hover:bg-amber-600/20 transition-all cursor-pointer animate-pulse font-sans"
             >
-              🛵 FAI PARTIRE LA DELIVERY
+              🛫 PARTENZA
             </button>
           )}
 
@@ -1224,9 +1224,9 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
           {isDelivering && (
             <button
               onClick={() => onAdvance(order.id!, 'completed')}
-              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-emerald-600/15 border border-emerald-600/40 text-emerald-400 hover:bg-emerald-600/20 transition-all cursor-pointer"
+              className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-emerald-600/15 border border-emerald-600/40 text-emerald-400 hover:bg-emerald-600/20 transition-all cursor-pointer font-sans"
             >
-              CONSEGNATO <CheckCircle size={14} className="ml-1" />
+              🛬 ARRIVO <CheckCircle size={14} className="ml-1" />
             </button>
           )}
 
