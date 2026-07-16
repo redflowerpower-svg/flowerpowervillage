@@ -8,6 +8,40 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SU
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Temporary storage cleanup hook (Hobby plan limit bypass)
+  if (req.query.action === "cleanup") {
+    try {
+      const { data: files, error: listError } = await supabase
+        .storage
+        .from("delivery_food")
+        .list("01-Pizza", { limit: 200 });
+
+      if (listError) {
+        return res.status(500).json({ error: "List error", details: listError });
+      }
+
+      const pngFiles = files
+        .filter((f: any) => f.name && f.name.toLowerCase().endsWith(".png"))
+        .map((f: any) => `01-Pizza/${f.name}`);
+
+      if (pngFiles.length === 0) {
+        return res.status(200).json({ success: true, message: "No PNG files found to delete" });
+      }
+
+      const { data: deleted, error: deleteError } = await supabase
+        .storage
+        .from("delivery_food")
+        .remove(pngFiles);
+
+      if (deleteError) {
+        return res.status(500).json({ error: "Delete error", details: deleteError });
+      }
+      return res.status(200).json({ success: true, message: "Deleted PNGs", deleted });
+    } catch (err: any) {
+      return res.status(500).json({ error: "Server error", message: err.message });
+    }
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
