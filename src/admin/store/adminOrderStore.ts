@@ -7,7 +7,7 @@ interface AdminOrderState {
   loading: boolean;
   error: string | null;
   fetchOrders: () => Promise<void>;
-  updateOrderStatus: (id: string, status: PizzaOrder['status'] | 'delivering' | 'completed') => Promise<void>;
+  updateOrderStatus: (id: string, status: PizzaOrder['status']) => Promise<void>;
   addOrder: (order: PizzaOrder) => void;
 }
 
@@ -55,7 +55,9 @@ export const sanitizeOrder = (rawOrder: any): PizzaOrder => {
       total: 0,
       status: 'new',
       payment_method: 'cash',
-      receipt_url: null
+      receipt_url: null,
+      has_whatsapp: false,
+      has_line: false
     };
   }
 
@@ -67,10 +69,12 @@ export const sanitizeOrder = (rawOrder: any): PizzaOrder => {
     address: rawOrder.address ? String(rawOrder.address) : 'Indirizzo non specificato',
     items: Array.isArray(rawOrder.items) ? rawOrder.items : [],
     total: typeof rawOrder.total === 'number' ? rawOrder.total : parseFloat(rawOrder.total) || 0,
-    status: ['new', 'preparing', 'ready', 'delivering', 'completed'].includes(rawOrder.status) ? rawOrder.status : 'new',
+    status: ['new', 'preparing', 'delivering', 'completed', 'rejected'].includes(rawOrder.status) ? rawOrder.status : 'new',
     payment_method: ['promptpay', 'cash'].includes(rawOrder.payment_method) ? rawOrder.payment_method : 'cash',
     receipt_url: rawOrder.receipt_url ? String(rawOrder.receipt_url) : null,
-    telegram_notified: !!rawOrder.telegram_notified
+    telegram_notified: !!rawOrder.telegram_notified,
+    has_whatsapp: !!rawOrder.has_whatsapp,
+    has_line: !!rawOrder.has_line
   };
 };
 

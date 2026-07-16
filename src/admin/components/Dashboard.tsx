@@ -90,6 +90,61 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [viewLoading, setViewLoading] = useState(false);
   const [archiveSearchQuery, setArchiveSearchQuery] = useState('');
 
+  const [syncingWebhook, setSyncingWebhook] = useState(false);
+  const [toastMessage, setToastMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [inputBotToken, setInputBotToken] = useState('');
+  const [inputChatId, setInputChatId] = useState('');
+
+  const showToast = (text: string, isError = false) => {
+    setToastMessage({ text, isError });
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4500);
+  };
+
+  const handleSyncWebhook = async () => {
+    if (!inputBotToken.trim()) {
+      showToast("Errore: Inserisci il token del Bot prima di procedere.", true);
+      return;
+    }
+
+    setSyncingWebhook(true);
+    try {
+      // Determine the protocol and host from the current window location
+      const host = window.location.host;
+      const protocol = window.location.protocol; // http: or https:
+      const webhookUrl = `${protocol}//${host}/api/telegram-webhook`;
+
+      // Get user session JWT token to authenticate database upsert in API route
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch('/api/admin/sync-telegram-webhook', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({
+          botToken: inputBotToken.trim(),
+          chatId: inputChatId.trim(),
+          webhookUrl
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`Webhook Telegram sincronizzato con successo!\nURL: ${data.webhookUrl}`, false);
+      } else {
+        showToast(`Errore: ${data.error || 'Risposta non valida'}`, true);
+      }
+    } catch (err: any) {
+      showToast(`Errore di rete: ${err.message}`, true);
+    } finally {
+      setSyncingWebhook(false);
+    }
+  };
+
   // Load contacts from localStorage (strictly for today's orders)
   const loadContacts = () => {
     try {
@@ -377,14 +432,12 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
   }, [newOrdersCount, isMuted]);
 
   // Kanban status lists filtering
-  // Column 1: New orders — kitchen has not yet confirmed
+  // Column 1: Nuovi Ordini — shows only status === 'new'
   const colNew = orders.filter(o => o.status === 'new');
-  // Column 2: In Consegna — confirmed, rider dispatched
+  // Column 2: In Consegna — shows only status === 'preparing'
   const colDelivering = orders.filter(o => o.status === 'preparing');
-  // Column 3: Consegnato — delivered or archived
-  const colDone = orders.filter(o =>
-    o.status === 'delivering' || o.status === 'ready' || o.status === 'completed'
-  );
+  // Column 3: Consegnato — shows only status === 'delivering'
+  const colDone = orders.filter(o => o.status === 'delivering');
 
   return (
     <div className="min-h-screen text-stone-100 flex flex-col font-sans" style={{ background: '#0c0a09' }}>
@@ -432,6 +485,8 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
           >
             <Users size={16} />
           </button>
+
+
 
           {/* Export Orders Calendar */}
           <button 
@@ -857,6 +912,69 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
           </div>
         </div>
       )}
+
+      {/* Sezione Nuovo Dominio */}
+      <div className="mx-6 mb-6 p-6 bg-stone-900/30 border border-red-950/50 rounded-3xl space-y-4">
+        <div>
+          <h3 className="text-sm font-extrabold uppercase tracking-widest text-[#c5a572]" style={{ fontFamily: 'Inter, sans-serif' }}>
+            Nuovo Dominio
+          </h3>
+          <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">
+            Configurazione rapida del Bot Telegram per cambi di dominio in produzione
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
+              TELEGRAM_BOT_TOKEN
+            </label>
+            <input
+              type="text"
+              placeholder="Inserisci il token del Bot da @BotFather"
+              value={inputBotToken}
+              onChange={(e) => setInputBotToken(e.target.value)}
+              className="w-full bg-stone-950 border border-stone-850 p-2.5 rounded-xl text-stone-200 placeholder-stone-650 focus:outline-none focus:border-red-900 focus:ring-1 focus:ring-inset focus:ring-red-900 transition-all text-xs"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[10px] uppercase font-bold tracking-wider text-stone-400">
+              TELEGRAM_CHAT_ID
+            </label>
+            <input
+              type="text"
+              placeholder="Inserisci l'ID del gruppo privato (es. -100...)"
+              value={inputChatId}
+              onChange={(e) => setInputChatId(e.target.value)}
+              className="w-full bg-stone-950 border border-stone-850 p-2.5 rounded-xl text-stone-200 placeholder-stone-650 focus:outline-none focus:border-red-900 focus:ring-1 focus:ring-inset focus:ring-red-900 transition-all text-xs"
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button 
+            onClick={handleSyncWebhook} 
+            disabled={syncingWebhook} 
+            className="px-5 py-2.5 bg-red-950/20 border border-red-800/40 text-red-400 hover:bg-red-950/30 rounded-xl transition-all cursor-pointer disabled:opacity-50 flex items-center gap-2 text-xs uppercase font-extrabold tracking-wider"
+          >
+            <RefreshCw size={14} className={syncingWebhook ? 'animate-spin' : ''} />
+            Sincronizza Webhook Telegram
+          </button>
+        </div>
+      </div>
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 animate-fadeIn pointer-events-none">
+          <div className={`px-5 py-3 rounded-2xl shadow-2xl border text-xs max-w-sm backdrop-blur-md flex items-center gap-2 ${
+            toastMessage.isError 
+              ? 'bg-red-950/90 border-red-800/60 text-red-200' 
+              : 'bg-emerald-950/90 border-emerald-800/60 text-emerald-200'
+          }`}>
+            <span className="font-semibold break-all leading-relaxed whitespace-pre-line">{toastMessage.text}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -875,7 +993,7 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
     // Status mapping logic
     const isNew = order.status === 'new';
     const isPreparing = order.status === 'preparing';
-    const isDelivering = order.status === 'delivering' || order.status === 'ready';
+    const isDelivering = order.status === 'delivering';
     const isCompleted = order.status === 'completed';
 
     return (
@@ -899,8 +1017,8 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
           </span>
         </div>
 
-        {/* Cart Items — full detail for new/preparing, compact one-liner for delivering/completed */}
-        {(isNew || isPreparing) ? (
+        {/* Cart Items — full detail for new orders, compact one-liner for delivering/completed */}
+        {isNew ? (
           <div className="space-y-2">
             {items.length === 0 ? (
               <p className="text-stone-500 text-[10px] italic">Dettaglio piatti non disponibile</p>
@@ -1002,8 +1120,8 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
           </>
         )}
 
-        {/* ── PREPARING ONLY: keep receipt link for payment verification ── */}
-        {isPreparing && order.receipt_url && (
+        {/* ── PREPARING/DELIVERING ONLY: keep receipt link for payment verification ── */}
+        {(isPreparing || isDelivering) && order.receipt_url && (
           <div className="flex items-center justify-between text-[10px] bg-[#c5a572]/5 border border-[#c5a572]/20 p-2 rounded-xl">
             <span className="text-stone-400">PromptPay (Ricevuta)</span>
             <a 
@@ -1019,12 +1137,11 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
 
         {/* ── State Advancing Buttons ── */}
         <div className="pt-1">
-          {/* NEW → Accetta (+ broadcast ORDER_ACCEPTED) / Rifiuta (+ broadcast ORDER_REJECTED) */}
+          {/* NEW → CONFERMA / Rifiuta Ordine */}
           {isNew && (
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  // Notify the customer's checkout overlay that the order is accepted (using both channels)
                   const data = { type: 'ORDER_ACCEPTED', orderId: order.id };
                   try {
                     const ch = new BroadcastChannel('flower_power_orders_channel');
@@ -1038,9 +1155,9 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
                   } catch (e) {}
                   onAdvance(order.id!, 'preparing');
                 }}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-[#c5a572]/15 border border-[#c5a572]/40 text-[#c5a572] hover:bg-[#c5a572]/20 transition-all cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-[#c5a572]/15 border border-[#c5a572]/40 text-[#c5a572] hover:bg-[#c5a572]/20 transition-all cursor-pointer animate-pulse"
               >
-                Accetta <ChevronRight size={14} />
+                CONFERMA <ChevronRight size={14} />
               </button>
               <button
                 onClick={() => {
@@ -1055,12 +1172,12 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
                     ch.postMessage(data);
                     ch.close();
                   } catch (e) {}
-                  onAdvance(order.id!, 'completed');
+                  onAdvance(order.id!, 'rejected');
                 }}
                 className="flex items-center justify-center gap-1 py-2.5 px-3 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-red-950/30 border border-red-800/40 text-red-400 hover:bg-red-950/50 transition-all cursor-pointer"
                 title="Rifiuta e notifica il cliente"
               >
-                ✖
+                Rifiuta Ordine
               </button>
             </div>
           )}
@@ -1084,7 +1201,7 @@ function OrderCard({ order, onAdvance }: { order: PizzaOrder; onAdvance: (id: st
               }}
               className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs uppercase tracking-widest font-extrabold bg-amber-600/15 border border-amber-600/40 text-amber-400 hover:bg-amber-600/20 transition-all cursor-pointer animate-pulse"
             >
-              PRONTO PER CONSEGNA <Truck size={14} className="ml-1" />
+              🛵 FAI PARTIRE LA DELIVERY
             </button>
           )}
 

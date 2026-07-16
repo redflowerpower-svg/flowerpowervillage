@@ -352,12 +352,15 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
           setSubmitPhase('idle');
           setLoading(false);
           setStep(3);
+          setIsDeliveringActive(false);
         } else if (type === 'ORDER_REJECTED') {
           currentOrderIdRef.current = null;
           setLoading(false);
           setSubmitPhase('rejected');
         } else if (type === 'ORDER_DELIVERING') {
-          // Live Delivery Tracker: kitchen marked preparing -> delivering
+          setSubmitPhase('idle');
+          setLoading(false);
+          setStep(3);
           setIsDeliveringActive(true);
         }
       } catch (e) {
@@ -384,6 +387,87 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
       try { channel2?.close(); } catch (_) {}
     };
   }, []);
+
+  // Poll order status from Supabase to handle cross-device/server-side status updates (e.g. from Telegram webhook)
+  useEffect(() => {
+    if (!currentOrderIdRef.current) return;
+
+    const interval = setInterval(async () => {
+      const orderId = currentOrderIdRef.current;
+      if (!orderId) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('pizza_orders')
+          .select('status')
+          .eq('id', orderId)
+          .single();
+
+        if (error) {
+          console.warn('[CheckoutFlow Polling] Error fetching order status:', error);
+          return;
+        }
+
+        if (data) {
+          const status = data.status;
+          console.log(`[CheckoutFlow Polling] Order status check: ${status} for ID: ${orderId}`);
+
+          if (status === 'preparing' && (submitPhase === 'sending' || step !== 3)) {
+            setSubmitPhase('idle');
+            setLoading(false);
+            setStep(3);
+            setIsDeliveringActive(false);
+
+            try {
+              const ch = new BroadcastChannel('pizza_orders_channel');
+              ch.postMessage({ type: 'ORDER_ACCEPTED', orderId });
+              ch.close();
+            } catch (e) {}
+            try {
+              const ch = new BroadcastChannel('flower_power_orders_channel');
+              ch.postMessage({ type: 'ORDER_ACCEPTED', orderId });
+              ch.close();
+            } catch (e) {}
+          } else if (status === 'delivering' && !isDeliveringActive) {
+            setIsDeliveringActive(true);
+            setSubmitPhase('idle');
+            setLoading(false);
+            setStep(3);
+
+            try {
+              const ch = new BroadcastChannel('pizza_orders_channel');
+              ch.postMessage({ type: 'ORDER_DELIVERING', orderId });
+              ch.close();
+            } catch (e) {}
+            try {
+              const ch = new BroadcastChannel('flower_power_orders_channel');
+              ch.postMessage({ type: 'ORDER_DELIVERING', orderId });
+              ch.close();
+            } catch (e) {}
+          } else if (status === 'rejected' && submitPhase !== 'rejected') {
+            currentOrderIdRef.current = null;
+            setLoading(false);
+            setSubmitPhase('rejected');
+
+            try {
+              const ch = new BroadcastChannel('pizza_orders_channel');
+              ch.postMessage({ type: 'ORDER_REJECTED', orderId });
+              ch.close();
+            } catch (e) {}
+            try {
+              const ch = new BroadcastChannel('flower_power_orders_channel');
+              ch.postMessage({ type: 'ORDER_REJECTED', orderId });
+              ch.close();
+            } catch (e) {}
+          }
+        }
+      } catch (err) {
+        console.error('[CheckoutFlow Polling] Crash during status check:', err);
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [submitPhase, step, isDeliveringActive]);
 
   useEffect(() => {
     if (isEditingAddress && addressInputRef.current) {
@@ -489,6 +573,10 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         status: 'new',
         payment_method: paymentMethod,
         receipt_url: receiptUrl,
+        latitude: markerPos ? markerPos.lat : null,
+        longitude: markerPos ? markerPos.lng : null,
+        has_whatsapp: whatsAppActive,
+        has_line: lineActive
       };
 
       const { data: insertedRows, error } = await supabase
@@ -544,8 +632,17 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         } catch (e) {
           console.warn('BroadcastChannel error:', e);
         }
-        // Overlay stays open — countdown continues, waiting for ORDER_ACCEPTED from Dashboard.
-        // If the Dashboard tab is not open, the countdown will expire and show the timeout/retry screen.
+
+        // Trigger Telegram notification asynchronously (failsafe)
+        try {
+          fetch('/api/telegram-notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: insertedRows[0].id })
+          }).catch(e => console.error('Telegram notify fetch failed:', e));
+        } catch (e) {
+          console.warn('Failed triggering Telegram notify call:', e);
+        }
       }
     } catch (err) {
       console.error('Checkout submission crash caught:', err);
@@ -554,7 +651,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
       // Show timeout/failure UI with retry button — never silently bypass in any mode
       setSubmitPhase('timeout');
     }
-  }, [paymentMethod, receiptFile, address, markerPos, name, phone, items, finalTotal]);
+  }, [paymentMethod, receiptFile, address, markerPos, name, phone, items, finalTotal, whatsAppActive, lineActive]);
 
   const handleSubmit = () => {
     doSubmit();
@@ -657,6 +754,27 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                 onChange={e => setPhone(e.target.value)}
               />
 
+              <div className="flex gap-4 px-1 py-1">
+                <label className="flex items-center gap-1.5 text-[11px] text-stone-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={whatsAppActive}
+                    onChange={(e) => setWhatsAppActive(e.target.checked)}
+                    className="accent-[#8B1E1E]"
+                  />
+                  WhatsApp
+                </label>
+                <label className="flex items-center gap-1.5 text-[11px] text-stone-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={lineActive}
+                    onChange={(e) => setLineActive(e.target.checked)}
+                    className="accent-[#8B1E1E]"
+                  />
+                  LINE
+                </label>
+              </div>
+
               {isEditingAddress ? (
                 <textarea
                   ref={addressInputRef}
@@ -702,7 +820,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                         position={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG + 0.00005 }}
                         icon={{
                           url: '/Flower_Power_Pizza_-_HotSpring.png',
-                          scaledSize: typeof google !== 'undefined' ? new google.maps.Size(32, 32) : undefined
+                          scaledSize: (typeof google !== 'undefined' && google.maps && google.maps.Size) ? new google.maps.Size(32, 32) : undefined
                         }}
                       />
 

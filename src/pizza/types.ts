@@ -17,8 +17,10 @@ export interface PizzaOrder {
   address: string;
   items: CartItemSaved[];
   total: number;
-  status: 'new' | 'preparing' | 'ready';
+  status: 'new' | 'preparing' | 'delivering' | 'completed' | 'rejected';
   payment_method: 'promptpay' | 'cash';
   receipt_url: string | null;
   telegram_notified?: boolean;
+  has_whatsapp?: boolean;
+  has_line?: boolean;
 }

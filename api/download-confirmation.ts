@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import Stripe from "stripe";
-import { generateConfirmationPDF } from "./helpers/booking-confirmation.js";
+import { createClient } from "@supabase/supabase-js";
+import { generateConfirmationPDF } from "./_helpers/booking-confirmation.js";
 
 // Initialize Stripe with secret key
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
