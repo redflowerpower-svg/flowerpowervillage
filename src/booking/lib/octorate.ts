@@ -30,7 +30,6 @@ const getRedirectUri = (): string => {
 const OCTORATE_REDIRECT_URI = getRedirectUri();
 
 const OCTORATE_AUTH_URL = "https://admin.octorate.com/octobook/identity/oauth.xhtml"
-const OCTORATE_TOKEN_URL = "/api-octorate/connect/rest/v1/identity/token"
 const OCTORATE_API_BASE = "/api-octorate/connect/rest/v1"
 
 // --- TYPES ---
@@ -117,9 +116,6 @@ export async function getStoredTokens(): Promise<OAuthTokens | null> {
   }
 }
 
-async function storeTokens(tokens: OAuthTokens): Promise<void> {
-  cachedTokens = tokens;
-}
 
 export async function clearTokens(): Promise<void> {
   cachedTokens = null;
@@ -212,6 +208,9 @@ export async function refreshAccessToken(): Promise<any> {
     const errorBody = await res.text();
     throw new Error(`Token refresh via server failed: ${errorBody}`);
   }
+
+  // Clear client-side token cache so the next request retrieves fresh tokens
+  cachedTokens = null;
 
   return await res.json();
 }
@@ -590,12 +589,13 @@ function mapCalendarDataToAvailability(
     let isAvailable = days.length >= nights;
     let totalPrice = 0;
     
-    const checkInTime = new Date(checkIn).getTime();
-    const checkOutTime = new Date(checkOut).getTime();
+    const checkInTime = new Date(checkIn + "T00:00:00").getTime();
+    const checkOutTime = new Date(checkOut + "T00:00:00").getTime();
     let activeDaysCount = 0;
 
     days.forEach((day: any) => {
-      const dayTime = new Date(day.date).getTime();
+      const dateStr = String(day.date).substring(0, 10);
+      const dayTime = new Date(dateStr + "T00:00:00").getTime();
       if (dayTime >= checkInTime && dayTime < checkOutTime) {
         activeDaysCount++;
         totalPrice += day.price || 0;

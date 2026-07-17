@@ -357,6 +357,25 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     );
   }
 
+  if (stayDays > 0 && stayDays < 2) {
+    return (
+      <div className="text-center py-16 bg-amber-50/40 rounded-2xl border border-amber-200 p-8 w-full">
+        <p className="text-amber-800 text-lg font-bold">
+          {lang === 'IT' ? "Soggiorno minimo di 2 notti" : 
+           lang === 'EN' ? "Minimum stay of 2 nights" :
+           lang === 'TH' ? "ระยะเวลาเข้าพักขั้นต่ำคือ 2 คืน" :
+           "Mindestaufenthalt von 2 Nächten"}
+        </p>
+        <p className="text-amber-700/80 text-sm mt-2 max-w-md mx-auto">
+          {lang === 'IT' ? "La nostra struttura accetta solo prenotazioni con un soggiorno minimo di 2 notti. Si prega di modificare le date selezionate." :
+           lang === 'EN' ? "Our resort requires a minimum stay of 2 nights. Please change your selected dates." :
+           lang === 'TH' ? "รีสอร์ทของเรากำหนดระยะเวลาเข้าพักขั้นต่ำ 2 คืน โปรดเปลี่ยนวันที่ที่คุณเลือก" :
+           "Unser Resort erfordert einen Mindestaufenthalt von 2 Nächten. Bitte ändern Sie Ihre ausgewählten Daten."}
+        </p>
+      </div>
+    );
+  }
+
   if (filteredRooms.length === 0) {
     return (
       <div className="text-center py-16 bg-stone-50 rounded-2xl border border-stone-300 p-8 w-full">

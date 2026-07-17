@@ -6,6 +6,7 @@ export interface CartItem {
   productId: string;
   name: string;
   nameTh: string;
+  nameIt?: string;
   quantity: number;
   basePrice: number;
   selectedVariant: Variant | null;

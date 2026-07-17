@@ -29,7 +29,7 @@ export default async function handler(req: any, res: any) {
     }
 
     // 2. Prepara la chiamata verso Octorate
-    const octorateUrl = "https://api.octorate.com/octobook/rest/v1/identity/refresh";
+    const octorateUrl = "https://api.octorate.com/connect/rest/v1/identity/refresh";
     
     const bodyParams = new URLSearchParams({
       grant_type: "refresh_token",

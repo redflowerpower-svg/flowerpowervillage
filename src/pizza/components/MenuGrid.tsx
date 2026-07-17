@@ -73,17 +73,133 @@ export default function MenuGrid({ items, lang }: Props) {
     } else {
       setExpandedId(item.id);
       setSelectedVariant(item.variants?.[0] ?? null);
-      setSelectedExtras([]);
+      
+      const defaults: ExtraOption[] = [];
+      if (item.extras) {
+        const defaultSpicy = item.extras.find(e => e.id === 'spicy-no');
+        if (defaultSpicy) defaults.push(defaultSpicy);
+        const defaultSugar = item.extras.find(e => e.id === 'sugar-regular');
+        if (defaultSugar) defaults.push(defaultSugar);
+        const defaultSauce = item.extras.find(e => e.id === 'sauce-none');
+        if (defaultSauce) defaults.push(defaultSauce);
+        const defaultFruit = item.extras.find(e => e.id.startsWith('fruit-'));
+        if (defaultFruit) defaults.push(defaultFruit);
+      }
+      setSelectedExtras(defaults);
       setQuantity(1);
     }
   };
 
   const toggleExtra = (extra: ExtraOption) => {
-    setSelectedExtras((prev) =>
-      prev.find((e) => e.id === extra.id)
+    setSelectedExtras((prev) => {
+      // 1. Spiciness group (radio-button behavior)
+      if (extra.id.startsWith('spicy-')) {
+        const filtered = prev.filter((e) => !e.id.startsWith('spicy-'));
+        return [...filtered, extra];
+      }
+
+      // 2. Sugar group (radio-button behavior)
+      if (extra.id.startsWith('sugar-')) {
+        const filtered = prev.filter((e) => !e.id.startsWith('sugar-'));
+        return [...filtered, extra];
+      }
+
+      // 3. Fruit group (radio-button behavior)
+      if (extra.id.startsWith('fruit-')) {
+        const filtered = prev.filter((e) => !e.id.startsWith('fruit-'));
+        return [...filtered, extra];
+      }
+
+      // 4. Sauce group (max 2 choices)
+      if (extra.id.startsWith('sauce-')) {
+        const isSel = prev.some((e) => e.id === extra.id);
+        if (isSel) {
+          return prev.filter((e) => e.id !== extra.id);
+        }
+
+        if (extra.id === 'sauce-none') {
+          return [...prev.filter((e) => !e.id.startsWith('sauce-')), extra];
+        }
+
+        let filtered = prev.filter((e) => e.id !== 'sauce-none');
+        const currentSauces = filtered.filter((e) => e.id.startsWith('sauce-'));
+        if (currentSauces.length >= 2) {
+          const firstSauce = currentSauces[0];
+          filtered = filtered.filter((e) => e.id !== firstSauce.id);
+        }
+        return [...filtered, extra];
+      }
+
+      return prev.find((e) => e.id === extra.id)
         ? prev.filter((e) => e.id !== extra.id)
-        : [...prev, extra]
-    );
+        : [...prev, extra];
+    });
+  };
+
+  const getGroupedExtras = (item: MenuItem) => {
+    const groups: { title: string; maxSelection?: number; items: ExtraOption[]; type: 'option' | 'extra'; idPrefix: string }[] = [];
+    
+    const spicyItems = item.extras?.filter((e) => e.id.startsWith('spicy-')) ?? [];
+    const sugarItems = item.extras?.filter((e) => e.id.startsWith('sugar-')) ?? [];
+    const fruitItems = item.extras?.filter((e) => e.id.startsWith('fruit-')) ?? [];
+    const sauceItems = item.extras?.filter((e) => e.id.startsWith('sauce-')) ?? [];
+    const regularItems = item.extras?.filter((e) => 
+      !e.id.startsWith('spicy-') && 
+      !e.id.startsWith('sugar-') && 
+      !e.id.startsWith('fruit-') && 
+      !e.id.startsWith('sauce-')
+    ) ?? [];
+
+    if (spicyItems.length > 0) {
+      groups.push({
+        title: lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level',
+        maxSelection: 1,
+        items: spicyItems,
+        type: 'option',
+        idPrefix: 'spicy-'
+      });
+    }
+
+    if (sugarItems.length > 0) {
+      groups.push({
+        title: lang === 'TH' ? 'ระดับความหวาน' : lang === 'IT' ? 'Livello di Zucchero' : 'Sugar Level',
+        maxSelection: 1,
+        items: sugarItems,
+        type: 'option',
+        idPrefix: 'sugar-'
+      });
+    }
+
+    if (fruitItems.length > 0) {
+      groups.push({
+        title: lang === 'TH' ? 'เลือกผลไม้' : lang === 'IT' ? 'Scelta della Frutta' : 'Choose Fruit',
+        maxSelection: 1,
+        items: fruitItems,
+        type: 'option',
+        idPrefix: 'fruit-'
+      });
+    }
+
+    if (sauceItems.length > 0) {
+      groups.push({
+        title: lang === 'TH' ? 'เลือกซอส (สูงสุด 2 ชนิด)' : lang === 'IT' ? 'Seleziona Salse (max 2)' : 'Select Sauces (max 2)',
+        maxSelection: 2,
+        items: sauceItems,
+        type: 'option',
+        idPrefix: 'sauce-'
+      });
+    }
+
+    if (regularItems.length > 0) {
+      groups.push({
+        title: lang === 'TH' ? 'เครื่องปรุงเพิ่มเติม' : lang === 'IT' ? 'Ingredienti Extra' : 'Extra Ingredients',
+        items: regularItems,
+        type: 'extra',
+        idPrefix: 'regular'
+      });
+    }
+
+    return groups;
   };
 
   const handleAdd = (item: MenuItem) => {
@@ -91,6 +207,7 @@ export default function MenuGrid({ items, lang }: Props) {
       productId: item.id,
       name: item.name,
       nameTh: item.nameTh,
+      nameIt: item.nameIt,
       quantity,
       basePrice: item.price,
       selectedVariant,
@@ -101,13 +218,37 @@ export default function MenuGrid({ items, lang }: Props) {
     openCart();
   };
 
-  const getTranslatedName = (item: { name: string; nameTh?: string }) => {
+  const getTranslatedName = (item: { name: string; nameTh?: string; nameIt?: string }) => {
     if (lang === 'TH' && item.nameTh) return item.nameTh;
+    if (lang === 'IT' && item.nameIt) return item.nameIt;
     return item.name;
+  };
+
+  const formatProductName = (name: string) => {
+    if (!name) return "";
+    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
+    const upperName = name.toUpperCase();
+    for (const kw of splitKeywords) {
+      if (upperName.includes(kw)) {
+        const idx = upperName.indexOf(kw);
+        const part1 = name.substring(0, idx);
+        const matchWord = name.substring(idx, idx + kw.length);
+        const part2 = name.substring(idx + kw.length);
+        return (
+          <>
+            {part1}
+            <br />
+            {matchWord.trimStart()}{part2}
+          </>
+        );
+      }
+    }
+    return name;
   };
 
   const getTranslatedDesc = (item: MenuItem) => {
     if (lang === 'TH' && item.descriptionTh) return item.descriptionTh;
+    if (lang === 'IT' && item.descriptionIt) return item.descriptionIt;
     return item.description;
   };
 
@@ -160,7 +301,7 @@ export default function MenuGrid({ items, lang }: Props) {
                   className="font-sans text-lg font-bold text-stone-900 leading-tight tracking-tight"
                   style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
                 >
-                  {getTranslatedName(item)}
+                  {formatProductName(getTranslatedName(item))}
                 </h3>
 
                 <p
@@ -217,52 +358,151 @@ export default function MenuGrid({ items, lang }: Props) {
                       </div>
                     )}
 
-                    {/* Extras Checkboxes */}
-                    {item.extras && item.extras.length > 0 && (
-                      <div>
-                        <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold mb-2" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                          {lang === 'TH' ? 'เครื่องปรุงเพิ่มเติม' : lang === 'DE' ? 'Zutaten' : lang === 'EN' ? 'Extras' : 'Ingredienti Extra'}
-                        </p>
-                        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
-                          {item.extras.map((extra) => {
+                    {/* Spiciness Section (Differenziata dal resto con bordo ed evidenza visiva) */}
+                    {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.idPrefix === 'spicy-') && (
+                      <div className="bg-[#8B1E1E]/5 border border-[#8B1E1E]/10 rounded-2xl p-3.5 space-y-2 mb-4">
+                        <div className="flex justify-between items-center">
+                          <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#8B1E1E] flex items-center gap-1" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                            <span>🌶️</span>
+                            {lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level'}
+                          </h4>
+                          <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                            {lang === 'TH' ? 'เลือกได้ 1 อย่าง' : lang === 'IT' ? 'scegli 1 opzione' : 'select 1 option'}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {item.extras.filter(e => e.id.startsWith('spicy-')).map((extra) => {
                             const checked = !!selectedExtras.find((e) => e.id === extra.id);
                             return (
                               <button
                                 key={extra.id}
                                 type="button"
                                 onClick={() => toggleExtra(extra)}
-                                className={`w-full flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
                                   checked
-                                    ? 'border-[#8B1E1E] bg-[#8B1E1E]/5'
-                                    : 'border-stone-200 bg-white hover:border-stone-300'
+                                    ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white shadow-sm font-bold'
+                                    : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
                                 }`}
                               >
-                                <div className="flex items-center gap-2">
-                                  <div
-                                    className={`w-3.5 h-3.5 flex items-center justify-center rounded transition-all flex-shrink-0 ${
-                                      checked
-                                        ? 'border-[#8B1E1E] bg-[#8B1E1E]'
-                                        : 'border-stone-300 bg-stone-100'
-                                    }`}
-                                    style={{ borderWidth: '1px' }}
-                                  >
-                                    {checked && (
-                                      <svg width="7" height="6" viewBox="0 0 10 8" fill="none">
-                                        <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                      </svg>
-                                    )}
-                                  </div>
-                                  <span className="text-stone-850 text-xs font-semibold">{getTranslatedName(extra)}</span>
-                                </div>
-                                {extra.price > 0 ? (
-                                  <span className="text-[#8B1E1E] text-xs font-extrabold">+{extra.price} ฿</span>
-                                ) : (
-                                  <span className="text-stone-400 text-[10px]">{t.freeText}</span>
+                                <span className="text-[11px] font-semibold">{getTranslatedName(extra)}</span>
+                                {checked && (
+                                  <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 ml-1.5" />
                                 )}
                               </button>
                             );
                           })}
                         </div>
+                      </div>
+                    )}
+
+                    {/* Customization Options (Sugar, Fruit, Sauces - escludendo Spiciness) */}
+                    {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.type === 'option' && g.idPrefix !== 'spicy-') && (
+                      <div className="space-y-4 mb-4">
+                        {getGroupedExtras(item).filter(g => g.type === 'option' && g.idPrefix !== 'spicy-').map((group, idx) => (
+                          <div key={idx} className="space-y-1.5">
+                            <div className="flex justify-between items-center">
+                              <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                                {group.title}
+                              </p>
+                              {group.maxSelection && (
+                                <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                                  {lang === 'TH' ? `เลือกได้สูงสุด ${group.maxSelection}` : lang === 'IT' ? `scegli max ${group.maxSelection}` : `select max ${group.maxSelection}`}
+                                </span>
+                              )}
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                              {group.items.map((extra) => {
+                                const checked = !!selectedExtras.find((e) => e.id === extra.id);
+                                return (
+                                  <button
+                                    key={extra.id}
+                                    type="button"
+                                    onClick={() => toggleExtra(extra)}
+                                    className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                      checked
+                                        ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold'
+                                        : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-1.5">
+                                      <div
+                                        className={`w-3.5 h-3.5 flex items-center justify-center rounded-full transition-all flex-shrink-0 ${
+                                          checked
+                                            ? 'border-[#8B1E1E] bg-[#8B1E1E]'
+                                            : 'border-stone-300 bg-stone-100'
+                                        }`}
+                                        style={{ borderWidth: '1px' }}
+                                      >
+                                        {checked && (
+                                          <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                                        )}
+                                      </div>
+                                      <span className="text-stone-850 text-[11px] font-semibold">{getTranslatedName(extra)}</span>
+                                    </div>
+                                    {extra.price > 0 ? (
+                                      <span className="text-[#8B1E1E] text-[11px] font-extrabold">+{extra.price} ฿</span>
+                                    ) : (
+                                      <span className="text-stone-450 text-[10px]">{t.freeText}</span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Extra Ingredients Section (Double Cheese, Bacon, Mozzarella) */}
+                    {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.type === 'extra') && (
+                      <div className="space-y-4 mb-4">
+                        {getGroupedExtras(item).filter(g => g.type === 'extra').map((group, idx) => (
+                          <div key={idx} className="space-y-1.5">
+                            <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                              {group.title}
+                            </p>
+                            <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
+                              {group.items.map((extra) => {
+                                const checked = !!selectedExtras.find((e) => e.id === extra.id);
+                                return (
+                                  <button
+                                    key={extra.id}
+                                    type="button"
+                                    onClick={() => toggleExtra(extra)}
+                                    className={`w-full flex items-center justify-between px-3 py-2.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                      checked
+                                        ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold'
+                                        : 'border-stone-200 bg-white hover:border-stone-300'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <div
+                                        className={`w-3.5 h-3.5 flex items-center justify-center rounded transition-all flex-shrink-0 ${
+                                          checked
+                                            ? 'border-[#8B1E1E] bg-[#8B1E1E]'
+                                            : 'border-stone-300 bg-stone-100'
+                                        }`}
+                                        style={{ borderWidth: '1px' }}
+                                      >
+                                        {checked && (
+                                          <svg width="7" height="6" viewBox="0 0 10 8" fill="none">
+                                            <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                          </svg>
+                                        )}
+                                      </div>
+                                      <span className="text-stone-850 text-xs font-semibold">{getTranslatedName(extra)}</span>
+                                    </div>
+                                    {extra.price > 0 ? (
+                                      <span className="text-[#8B1E1E] text-xs font-extrabold">+{extra.price} ฿</span>
+                                    ) : (
+                                      <span className="text-stone-400 text-[10px]">{t.freeText}</span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
 

@@ -1,10 +1,27 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { updateTelegramCredentials } from "../_helpers/telegram.js";
+import { updateTelegramCredentials, getSupabaseClient } from "../_helpers/telegram.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Allow only POST requests for security
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  // Verify JWT authorization token to ensure the request is from a logged-in admin
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: "Unauthorized: Missing Authorization header" });
+  }
+
+  try {
+    const client = getSupabaseClient(authHeader);
+    const { data: { user }, error: authError } = await client.auth.getUser();
+    if (authError || !user) {
+      return res.status(401).json({ error: "Unauthorized: Invalid session" });
+    }
+  } catch (err) {
+    console.error("[Sync Webhook Auth Error]:", err);
+    return res.status(401).json({ error: "Unauthorized: Authentication check failed" });
   }
 
   const { botToken, chatId, webhookUrl } = req.body;

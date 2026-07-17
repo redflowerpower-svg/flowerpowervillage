@@ -2,6 +2,7 @@ export interface CartItemSaved {
   productId: string;
   name: string;
   nameTh: string;
+  nameIt?: string;
   quantity: number;
   basePrice: number;
   selectedVariant: string | null;
@@ -23,4 +24,8 @@ export interface PizzaOrder {
   telegram_notified?: boolean;
   has_whatsapp?: boolean;
   has_line?: boolean;
+  tracking_active?: boolean;
+  driver_latitude?: number;
+  driver_longitude?: number;
+  telegram_message_id?: string | number;
 }

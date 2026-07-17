@@ -17,7 +17,6 @@ import {
   ChevronRight, 
   Send,
   CheckCircle,
-  Truck,
   Pizza,
   Users,
   X,
@@ -73,12 +72,12 @@ const getDriverMessageEncoded = (order: PizzaOrder, lat: number, lng: number) =>
 };
 
 export default function Dashboard({ onLogout }: { onLogout: () => void }) {
-  const { orders, loading, error, fetchOrders, updateOrderStatus } = useAdminOrderStore();
+  const { orders, loading, fetchOrders, updateOrderStatus } = useAdminOrderStore();
   const [isMuted, setIsMuted] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
   
   const [showContacts, setShowContacts] = useState(false);
-  const [contacts, setContacts] = useState<Array<{ id: string; name: string; phone: string; address: string; date: string }>>([]);
+  const [contacts, setContacts] = useState<Array<{ id: string; name: string; phone: string; address: string; date: string; itemsText?: string; total?: number }>>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [showExportModal, setShowExportModal] = useState(false);
@@ -211,7 +210,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
         }
       }
     }
-    await updateOrderStatus(id, status);
+    await updateOrderStatus(id, status as any);
   };
 
   const handleExportExcel = async () => {

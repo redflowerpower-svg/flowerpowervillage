@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCartStore } from '../store/cartStore';
 import { useLocationStore, RESTAURANT_LAT, RESTAURANT_LNG } from '../store/locationStore';
 import { supabase } from '../../lib/supabase';
-import { X, MapPin, Loader2 } from 'lucide-react';
+import { X, MapPin } from 'lucide-react';
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
 
 type SubmitPhase = 'idle' | 'sending' | 'timeout' | 'rejected';
@@ -193,7 +193,7 @@ function MapCircle({ center, radius }: { center: { lat: number; lng: number }; r
 }
 
 // Helper to format and clean Google address data
-const formatGoogleAddress = (result: google.maps.GeocoderResult, lang: string): string => {
+const formatGoogleAddress = (result: google.maps.GeocoderResult, _lang: string): string => {
   if (!result || !result.address_components) return '';
   const addressComponents = result.address_components;
 
@@ -244,10 +244,8 @@ const formatGoogleAddress = (result: google.maps.GeocoderResult, lang: string): 
 export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   const { items, getTotal, clearCart } = useCartStore();
   const {
-    requestLocation,
     setConfirmedLocation,
     setSimulatedLocation,
-    isLoading: locationLoading,
     distanceKm,
     maxRadiusKm,
     isDeliverable,
@@ -654,7 +652,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     doSubmit();
   };
 
-  const renderCountdownCircle = (totalSeconds: number, strokeColor: string = "#8B1E1E") => {
+  const renderCountdownCircle = (_totalSeconds: number, strokeColor: string = "#8B1E1E") => {
     const formatted = formatMMSS(countdownSeconds);
     return (
       <div className="relative w-24 h-24 mx-auto flex-shrink-0 flex items-center justify-center">

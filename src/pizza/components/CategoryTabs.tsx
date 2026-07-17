@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import type { MenuCategory } from '../data/menuData';
-import { Pizza, Salad, UtensilsCrossed, Cake, Coffee, Beer, Wine, Sandwich } from 'lucide-react';
+import { Pizza, Salad, UtensilsCrossed, Cake, Coffee, Beer, Sandwich } from 'lucide-react';
 
 interface Props {
   categories: MenuCategory[];
@@ -162,13 +162,6 @@ export default function CategoryTabs({ categories, activeId, onChange, lang }: P
               </div>
               <span className="text-xs font-bold tracking-wider uppercase">
                 {details.name}
-              </span>
-              <span
-                className={`text-[10px] mt-1 font-light ${
-                  isSelected ? 'text-stone-200' : 'text-stone-400'
-                }`}
-              >
-                {details.desc}
               </span>
             </button>
           );

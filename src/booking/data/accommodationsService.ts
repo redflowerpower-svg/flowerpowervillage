@@ -1,4 +1,15 @@
-import { supabase } from '../../lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+// Dedicated public client to bypass localStorage session pollution from admin login
+const publicSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false
+  }
+});
 
 export interface DbAccommodation {
   id: string;
@@ -268,7 +279,7 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
   }
 
   // Query Supabase selecting 'id', 'name', and 'slug'
-  const { data: dbItems, error: dbError } = await supabase
+  const { data: dbItems, error: dbError } = await publicSupabase
     .from('accommodations')
     .select('id, name, slug')
     .order('name');
@@ -294,7 +305,7 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
     let images: string[] = [];
 
     try {
-      const { data: files, error: storageError } = await supabase.storage
+      const { data: files, error: storageError } = await publicSupabase.storage
         .from('accommodations')
         .list(folder, { sortBy: { column: 'name', order: 'asc' } });
 
@@ -302,7 +313,7 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
         images = files
           .filter(file => file.id !== null) // only files
           .map(file => {
-            const { data } = supabase.storage
+            const { data } = publicSupabase.storage
               .from('accommodations')
               .getPublicUrl(`${folder}/${file.name}`);
 

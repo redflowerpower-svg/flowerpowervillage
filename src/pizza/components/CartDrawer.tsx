@@ -64,9 +64,32 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
   const finalTotal = total + deliveryFee;
   const t = labels[lang];
 
-  const getTranslatedName = (o: { name: string; nameTh?: string }) => {
+  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string }) => {
     if (lang === 'TH' && o.nameTh) return o.nameTh;
+    if (lang === 'IT' && o.nameIt) return o.nameIt;
     return o.name;
+  };
+
+  const formatProductName = (name: string) => {
+    if (!name) return "";
+    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
+    const upperName = name.toUpperCase();
+    for (const kw of splitKeywords) {
+      if (upperName.includes(kw)) {
+        const idx = upperName.indexOf(kw);
+        const part1 = name.substring(0, idx);
+        const matchWord = name.substring(idx, idx + kw.length);
+        const part2 = name.substring(idx + kw.length);
+        return (
+          <>
+            {part1}
+            <br />
+            {matchWord.trimStart()}{part2}
+          </>
+        );
+      }
+    }
+    return name;
   };
 
   return (
@@ -124,7 +147,7 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <p className="text-stone-850 font-bold text-sm leading-snug" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.05rem' }}>
-                            {getTranslatedName(item)}
+                            {formatProductName(getTranslatedName(item))}
                           </p>
                         </div>
                         <button

@@ -84,7 +84,8 @@ export const translations = {
     cancellationPolicyDesc: "Cancellazione gratuita con rimborso totale del deposito fino a 10 giorni prima dell'arrivo. Oltre tale termine il deposito non è rimborsabile.",
     depositToday: "Acconto da pagare oggi (30%)",
     balanceAtCheckIn: "Saldo all'arrivo (70%)",
-    balanceMethods: "Metodi di pagamento per il saldo all'arrivo: Contanti (THB), Wise (senza commissioni), Revolut (senza commissioni), o PayPal (+10% commissione)."
+    balanceMethods: "Metodi di pagamento per il saldo all'arrivo: Contanti (THB), Wise (senza commissioni), Revolut (senza commissioni), o PayPal (+10% commissione).",
+    minStayAlert: "Il soggiorno minimo è di 2 notti. Si prega di selezionare almeno 2 notti."
   },
   EN: {
     heroTitle: "Flower Power Village",
@@ -169,7 +170,8 @@ export const translations = {
     cancellationPolicyDesc: "Free cancellation and full refund of your deposit up to 10 days before check-in. Within 10 days, the deposit is non-refundable.",
     depositToday: "Deposit to pay today (30%)",
     balanceAtCheckIn: "Remaining balance at check-in (70%)",
-    balanceMethods: "Balance payment methods at arrival: Cash (THB), Wise (no fees), Revolut (no fees), or PayPal (+10% processing fee)."
+    balanceMethods: "Balance payment methods at arrival: Cash (THB), Wise (no fees), Revolut (no fees), or PayPal (+10% processing fee).",
+    minStayAlert: "Minimum stay is 2 nights. Please select at least 2 nights."
   },
   TH: {
     heroTitle: "ฟลาวเวอร์ พาวเวอร์ วิลเลจ",
@@ -254,7 +256,8 @@ export const translations = {
     cancellationPolicyDesc: "ยกเลิกฟรีและคืนเงินมัดจำเต็มจำนวนเมื่อแจ้งล่วงหน้าอย่างน้อย 10 วันก่อนวันเช็คอิน หากน้อยกว่า 10 วันจะไม่คืนเงินมัดจำ",
     depositToday: "เงินมัดจำที่ต้องชำระวันนี้ (30%)",
     balanceAtCheckIn: "ยอดค้างชำระตอนเช็คอิน (70%)",
-    balanceMethods: "วิธีการชำระยอดค้างชำระตอนเช็คอิน: เงินสด (บาท), Wise, Revolut (ไม่มีค่าธรรมเนียม) หรือ PayPal (มีค่าธรรมเนียม 10%)"
+    balanceMethods: "วิธีการชำระยอดค้างชำระตอนเช็คอิน: เงินสด (บาท), Wise, Revolut (ไม่มีค่าธรรมเนียม) หรือ PayPal (มีค่าธรรมเนียม 10%)",
+    minStayAlert: "ระยะเวลาเข้าพักขั้นต่ำคือ 2 คืน โปรดเลือกอย่างน้อย 2 คืน"
   },
   DE: {
     heroTitle: "Flower Power Village",
@@ -339,6 +342,7 @@ export const translations = {
     cancellationPolicyDesc: "Kostenlose Stornierung und volle Rückerstattung der Anzahlung bis zu 10 Tage vor Anreise. Innerhalb von 10 Tagen ist die Anzahlung nicht erstattbar.",
     depositToday: "Heute fällige Anzahlung (30%)",
     balanceAtCheckIn: "Restbetrag beim Check-in (70%)",
-    balanceMethods: "Zahlungsmethoden für den Restbetrag bei Anreise: Bar (THB), Wise (ohne Gebühren), Revolut (ohne Gebühren) oder PayPal (+10% Gebühr)."
+    balanceMethods: "Zahlungsmethoden für den Restbetrag bei Anreise: Bar (THB), Wise (ohne Gebühren), Revolut (ohne Gebühren) oder PayPal (+10% Gebühr).",
+    minStayAlert: "Mindestaufenthalt beträgt 2 Nächte. Bitte wählen Sie mindestens 2 Nächte."
   }
 };

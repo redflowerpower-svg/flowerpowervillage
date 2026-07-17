@@ -146,6 +146,176 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
   },
 };
 
+const PASTA_SAUCES = [
+  { 
+    id: 'aglio-olio', 
+    name: { 
+      IT: 'Aglio, Olio e Peperoncino', 
+      EN: 'Garlic, Oil & Chili', 
+      TH: 'อากลิโอ โอลิโอ พริกแห้ง', 
+      DE: 'Knoblauch, Öl & Chili' 
+    }, 
+    desc: {
+      IT: 'Un classico italiano semplice e saporito preparato con aglio, olio extravergine d\'oliva e peperoncino, con un gusto intenso e aromatico che delizia ogni singolo morso.',
+      EN: 'A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite',
+      TH: 'พาสต้าผัดกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติเข้มข้นจัดจ้านสไตล์อิตาเลียน',
+      DE: 'Ein einfacher und geschmackvoller italienischer Klassiker aus Knoblauch, Olivenöl und Chili, mit einem intensiven, aromatischen Geschmack, der jeden Bissen begeistert.'
+    },
+    pattern: 'Garlic, Oil' 
+  },
+  { 
+    id: 'pomodoro', 
+    name: { 
+      IT: 'Salsa di Pomodoro', 
+      EN: 'Tomato Sauce', 
+      TH: 'ซอสมะเขือเทศ', 
+      DE: 'Tomatensauce' 
+    }, 
+    desc: {
+      IT: 'Salsa di pomodoro all\'italiana preparata con pomodori maturi, olio d\'oliva, aglio o cipolla, sale e basilico. È il cuore pulsante della cucina italiana.',
+      EN: 'Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It\'s the heart of Italian cuisine',
+      TH: 'ซอสมะเขือเทศอิตาเลียนรสเข้มข้น เคี่ยวกับกระเทียม หอมใหญ่ และใบโหระพาอิตาเลียน',
+      DE: 'Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Sie ist das Herz der italienischen Küche.'
+    },
+    pattern: 'Tomato Sauce' 
+  },
+  { 
+    id: 'pesto', 
+    name: { 
+      IT: 'Pesto Genovese', 
+      EN: 'Pesto Genovese', 
+      TH: 'ซอสเพสโต้', 
+      DE: 'Pesto Genovese' 
+    }, 
+    desc: {
+      IT: 'Salsa fresca al basilico con anacardi, parmigiano, aglio e olio d\'oliva, con un sapore ricco e aromatico che evoca i profumi di Genova.',
+      EN: 'Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa',
+      TH: 'ซอสใบโหระพาอิตาเลียนปั่นสดใหม่ ใส่เม็ดมะม่วงหิมพานต์ พาเมซานชีส กระเทียม และน้ำมันมะกอก',
+      DE: 'Frische Basilikumsauce mit Cashewnüssen, Parmesankäse, Knoblauch und Olivenöl, mit einem reichen, aromatischen Geschmack, der an Genua erinnert.'
+    },
+    pattern: 'Pesto Genovese' 
+  },
+  { 
+    id: 'amatriciana', 
+    name: { 
+      IT: 'Salsa Amatriciana', 
+      EN: 'Amatriciana', 
+      TH: 'ซอสอามาริเชียนา', 
+      DE: 'Amatriciana' 
+    }, 
+    desc: {
+      IT: 'Salsa in stile romano con pomodoro, guanciale e pecorino, cotta lentamente per ottenere un sapore dolce e sapido bilanciato, un classico della tradizione italiana.',
+      EN: 'Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition',
+      TH: 'ซอสมะเขือเทศเข้มข้นปรุงรสด้วยเบคอน หอมใหญ่ และใบโหระพา รสชาติกลมกล่อม',
+      DE: 'Römische Sauce mit Tomaten, gereifter Schweinebacke und Pecorino, langsam gekocht für einen ausgewogenen süß-salzigen Geschmack, ein Klassiker der italienischen Tradition.'
+    },
+    pattern: 'Amatriciana' 
+  },
+  { 
+    id: 'bolognese', 
+    name: { 
+      IT: 'Salsa Ragù Bolognese', 
+      EN: 'Bolognese Ragù', 
+      TH: 'ซอสเนื้อโบโลเนส', 
+      DE: 'Bolognese-Ragù' 
+    }, 
+    desc: {
+      IT: 'Un ricco ragù cotto lentamente con carne macinata, pomodori, verdure e vino rosso. Un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.',
+      EN: 'A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna\'s tradition',
+      TH: 'ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม',
+      DE: 'Eine reichhaltige, langsam gekochte Sauce mit Hackfleisch, Tomaten, Gemüse und Rotwein. Voller, einhüllender und unwiderstehlicher Geschmack, ein Symbol der Tradition von Bologna.'
+    },
+    pattern: 'Bolognese Ragu' 
+  },
+  { 
+    id: 'carbonara', 
+    name: { 
+      IT: 'Carbonara', 
+      EN: 'Carbonara', 
+      TH: 'ซอสคาร์โบนาร่า', 
+      DE: 'Carbonara' 
+    }, 
+    desc: {
+      IT: 'Uno dei piatti più amati d\'Italia, preparato con guanciale, uova fresche, pecorino romano e pepe nero. Cremoso e autentico, dal sapore ricco e tradizionale.',
+      EN: 'One of Italy\'s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor',
+      TH: 'ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ',
+      DE: 'Eines der beliebtesten Gerichte Italiens, zubereitet mit gereifter Schweinebacke, Eiern, Pecorino-Käse und schwarzem Pfeffer. Cremig und authentisch, mit einem reichen, traditionellen Geschmack.'
+    },
+    pattern: 'Carbonara' 
+  },
+  { 
+    id: 'quattro-formaggi', 
+    name: { 
+      IT: 'Quattro Formaggi', 
+      EN: 'Four Cheeses', 
+      TH: 'ซอสโฟร์ชีส', 
+      DE: 'Vier Käse' 
+    }, 
+    desc: {
+      IT: 'Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi perfettamente insieme per creare un sapore ricco, deciso e avvolgente ad ogni morso.',
+      EN: 'A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite',
+      TH: 'ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม',
+      DE: 'Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichen und kräftigen Geschmack zu kreieren.'
+    },
+    pattern: 'Four Cheeses' 
+  },
+  { 
+    id: 'flower-power', 
+    name: { 
+      IT: 'Flower Power', 
+      EN: 'Flower Power', 
+      TH: 'พาสต้าฟลาวเวอร์เพาเวอร์', 
+      DE: 'Flower Power' 
+    }, 
+    desc: {
+      IT: 'Salsa per pasta artigianale preparata in casa con gorgonzola, salsiccia italiana e carciofi. Cremosa, ricca e dal sapore unico, perfetta per gli amanti dei gusti decisi.',
+      EN: 'House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes',
+      TH: 'พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม',
+      DE: 'Hausgemachte Nudelsauce mit Gorgonzola, italienischer Wurst und Artischocken. Cremig, reichhaltig und voller einzigartigem Geschmack, perfekt für Liebhaber kräftiger Aromen.'
+    },
+    pattern: 'Flower Power' 
+  },
+  { 
+    id: 'lasagne', 
+    name: { 
+      IT: 'Lasagne', 
+      EN: 'Baked Lasagna', 
+      TH: 'ลาซานญ่า', 
+      DE: 'Lasagne' 
+    }, 
+    desc: {
+      IT: 'Le lasagne fatte in casa sono un classico della cucina italiana, preparate con besciamella, ragù e parmigiano. Si prega di ordinare con un giorno di anticipo (minimo due porzioni) o chiedere allo staff. Tempo di cottura circa 30 minuti.',
+      EN: 'Homemade Lasagne Are A Classic Of Italian Cuisine, Made With Béchamel, Sauces, And Parmesan. Pre-Order One Day In Advance, Minimum Two Portions, Or Ask The Staff. Cooking Time About 30 Minutes.',
+      TH: 'ลาซานญ่าอบร้อนๆ สลับชั้นด้วยพาสต้า ซอสเนื้อรสเข้มข้น และชีสเยิ้มๆ',
+      DE: 'Hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (mindestens zwei Portionen) oder das Personal fragen. Garzeit ca. 30 Minuten.'
+    },
+    pattern: 'Lasagne' 
+  }
+];
+
+const BEER_AND_WINE_SECTIONS = [
+  { 
+    id: 'beers', 
+    name: { IT: 'Birre', EN: 'Beers', TH: 'เบียร์', DE: 'Biere' },
+    desc: {
+      IT: 'Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché le bottiglie in vetro preservano ed esaltano il sapore per un\'esperienza completa.',
+      EN: 'The Best Thai Beer Brands Served In Large And Small Bottles, Because Glass Bottles Enhance The Flavor, Bringing Out The Full Beer Experience',
+      TH: 'เบียร์ไทยคุณภาพเยี่ยม เสิร์ฟในขวดแก้วทั้งขนาดเล็กและใหญ่เพื่อรสชาติที่ดีที่สุด',
+      DE: 'Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen, da Glasflaschen den Geschmack verbessern und das volle Biererlebnis entfalten.'
+    }
+  },
+  { 
+    id: 'wines', 
+    name: { IT: 'Vini', EN: 'Wines', TH: 'ไวน์', DE: 'Weine' },
+    desc: {
+      IT: 'L\'Italia è rinomata in tutto il mondo per i suoi vini pregiati e la sua antica tradizione. Per questo offriamo una selezione accurata di vini rossi e bianchi italiani, scelti per esaltare i sapori di ogni piatto del nostro menù. Chiedi al nostro staff per il miglior abbinamento del giorno.',
+      EN: 'Italy Is World-Renowned For Its High-Quality Wines With A Long-Standing Tradition. That\'s Why We Offer A Carefully Curated Selection Of Italian Red And White Wines, Chosen To Enhance The Flavors Of Every Dish On Our Menu. For The Best And Most Suitable Option At The Moment, Feel Free To Ask Our Staff',
+      TH: 'ไวน์แดงและไวน์ขาวนำเข้าจากอิตาลี คัดสรรอย่างดีเพื่อเพิ่มอรรถรสในการทานคู่กับอาหาร',
+      DE: 'Italien ist weltberühmt für seine qualitativ hochwertigen Weine mit einer langen tradition. Deshalb bieten wir eine sorgfältig zusammengestellte Auswahl an italienischen Rot- und Weißweinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte zu unterstreichen. Fragen Sie unser Personal nach der besten Empfehlung.'
+    }
+  }
+];
+
 export default function DeliveryMenu() {
   const navigate = useNavigate();
   const [activeCategoryId, setActiveCategoryId] = useState(menuData[0].id);
@@ -169,6 +339,27 @@ export default function DeliveryMenu() {
   const t = translations[lang];
   const activeCategory = menuData.find((c) => c.id === activeCategoryId) ?? menuData[0];
   const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
+
+  const groupedPasta = activeCategoryId === 'pasta' ? PASTA_SAUCES.map(sauce => {
+    const items = activeCategory.items.filter((item: any) => {
+      const path = item.image_file || "";
+      const name = item.id || "";
+      if (path.includes(sauce.pattern)) return true;
+      if (sauce.id === 'lasagne' && name.includes('lasagna')) return true;
+      return false;
+    });
+    return { ...sauce, items };
+  }).filter(group => group.items.length > 0) : [];
+
+  const groupedBeersAndWines = activeCategoryId === 'beers-and-wines' ? BEER_AND_WINE_SECTIONS.map(sec => {
+    const items = activeCategory.items.filter((item: any) => {
+      const isBeer = item.id.includes('beer');
+      if (sec.id === 'beers') return isBeer;
+      if (sec.id === 'wines') return !isBeer;
+      return false;
+    });
+    return { ...sec, name: sec.name[lang], items };
+  }).filter(group => group.items.length > 0) : [];
 
   return (
     <div className="min-h-screen bg-[#e7e5e4] pb-12 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
@@ -305,12 +496,120 @@ export default function DeliveryMenu() {
               {categoryDetails[activeCategory.id][lang].desc}
             </p>
           )}
-          <div className="w-8 h-0.5 bg-[#8B1E1E] mt-2.5" />
+          <div className="w-8 h-0.5 bg-[#8B1E1E] mt-2.5 mb-4" />
+
+          {/* Submenu for Pasta Sauces */}
+          {activeCategoryId === 'pasta' && (
+            <div 
+              className="flex items-center gap-2 overflow-x-auto pb-3 pt-2 -mx-2 px-2 mask-gradient-horizontal animate-fadeIn"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {PASTA_SAUCES.map(sauce => (
+                <button
+                  key={sauce.id}
+                  onClick={() => {
+                    const el = document.getElementById(`sauce-${sauce.id}`);
+                    if (el) {
+                      const offset = 90;
+                      const bodyRect = document.body.getBoundingClientRect().top;
+                      const elementRect = el.getBoundingClientRect().top;
+                      const elementPosition = elementRect - bodyRect;
+                      const offsetPosition = elementPosition - offset;
+                      window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                      });
+                    }
+                  }}
+                  className="px-4 py-2 bg-stone-100 hover:bg-[#8B1E1E] hover:text-white text-stone-700 text-xs font-semibold rounded-full border border-stone-200 transition-all duration-300 whitespace-nowrap cursor-pointer hover:shadow-sm"
+                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                >
+                  {sauce.name[lang]}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Submenu for Beers & Wines */}
+          {activeCategoryId === 'beers-and-wines' && (
+            <div 
+              className="flex items-center gap-2 overflow-x-auto pb-3 pt-2 -mx-2 px-2 mask-gradient-horizontal animate-fadeIn"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {BEER_AND_WINE_SECTIONS.map(sec => (
+                <button
+                  key={sec.id}
+                  onClick={() => {
+                    const el = document.getElementById(`sec-${sec.id}`);
+                    if (el) {
+                      const offset = 90;
+                      const bodyRect = document.body.getBoundingClientRect().top;
+                      const elementRect = el.getBoundingClientRect().top;
+                      const elementPosition = elementRect - bodyRect;
+                      const offsetPosition = elementPosition - offset;
+                      window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                      });
+                    }
+                  }}
+                  className="px-4 py-2 bg-stone-100 hover:bg-[#8B1E1E] hover:text-white text-stone-700 text-xs font-semibold rounded-full border border-stone-200 transition-all duration-300 whitespace-nowrap cursor-pointer hover:shadow-sm"
+                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                >
+                  {sec.name[lang]}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Products Grid */}
         <div className="px-1">
-          <MenuGrid items={activeCategory.items} lang={lang} />
+          {activeCategoryId === 'pasta' ? (
+            <div className="space-y-12">
+              {groupedPasta.map(group => (
+                <div key={group.id} id={`sauce-${group.id}`} className="scroll-mt-24">
+                  <div className="px-2 mb-6">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-sans text-lg font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {group.name[lang]}
+                      </h3>
+                      <div className="flex-1 h-px bg-stone-300/60" />
+                    </div>
+                    {group.desc && (
+                      <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {group.desc[lang]}
+                      </p>
+                    )}
+                  </div>
+                  <MenuGrid items={group.items} lang={lang} />
+                </div>
+              ))}
+            </div>
+          ) : activeCategoryId === 'beers-and-wines' ? (
+            <div className="space-y-12">
+              {groupedBeersAndWines.map(group => (
+                <div key={group.id} id={`sec-${group.id}`} className="scroll-mt-24">
+                  <div className="px-2 mb-6">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-sans text-lg font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {group.name}
+                      </h3>
+                      <div className="flex-1 h-px bg-stone-300/60" />
+                    </div>
+                    {group.desc && (
+                      <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {group.desc[lang]}
+                      </p>
+                    )}
+                  </div>
+                  <MenuGrid items={group.items} lang={lang} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <MenuGrid items={activeCategory.items} lang={lang} />
+          )}
         </div>
       </div>
 

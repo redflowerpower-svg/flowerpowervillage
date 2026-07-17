@@ -570,6 +570,14 @@ export default function BookingEngine() {
       alert(lang === 'IT' ? "La data di check-out deve essere successiva a quella di check-in." : "Check-out date must be after check-in date.")
       return
     }
+
+    const diffTime = end.getTime() - start.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    if (diffDays < 2) {
+      alert(t('minStayAlert'))
+      return
+    }
+
     setHasSearched(true)
 
     // Smooth scroll viewport down to the rooms grid immediately
