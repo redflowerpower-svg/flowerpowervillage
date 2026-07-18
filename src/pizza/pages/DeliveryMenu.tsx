@@ -336,6 +336,11 @@ export default function DeliveryMenu() {
     }
   }, []);
 
+  // Sync lang → <html data-lang="..."> so CSS applies IBM Plex Sans Thai for TH
+  useEffect(() => {
+    document.documentElement.setAttribute('data-lang', lang);
+  }, [lang]);
+
   const t = translations[lang];
   const activeCategory = menuData.find((c) => c.id === activeCategoryId) ?? menuData[0];
   const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;

@@ -3,6 +3,8 @@ import { useNavigate as useRRNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Menu, X, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart } from 'lucide-react';
 import DeliveryMenu from '../pizza/pages/DeliveryMenu';
 import { useCartStore } from '../pizza/store/cartStore';
+import PizzaSlideshow from '../components/PizzaSlideshow';
+
 
 // Custom robust TikTok SVG icon matching Lucide style
 const TiktokIcon = ({ className, size = 14 }: { className?: string; size?: number }) => (
@@ -141,7 +143,7 @@ function PizzaNav({ activePage, onNavigate }: { activePage: PizzaPage; onNavigat
                       ? 'text-[#fca5a5] border-[#fca5a5] font-bold'
                       : 'text-stone-300 border-transparent hover:border-stone-400/50'
                   }`}
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                 >
                   {item.label}
                 </button>
@@ -237,13 +239,10 @@ function PizzaNav({ activePage, onNavigate }: { activePage: PizzaPage; onNavigat
 function PizzaHero({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
   return (
     <section className="relative h-screen min-h-[600px] overflow-hidden">
-      <img
-        src="https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=1920"
-        alt="Flower Power Pizza Ranong"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%)' }} />
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">
+      <PizzaSlideshow />
+      <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%)' }} />
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-6">
+
         <p
           className="text-xs tracking-[0.45em] uppercase mb-5 animate-fade-in-up"
           style={{ fontFamily: 'Inter, sans-serif', opacity: 0.75, animationDelay: '0.1s' }}
@@ -293,7 +292,7 @@ function PizzaHero({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
 
 function PizzaAboutPage() {
   return (
-    <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+    <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
       <div className="max-w-4xl mx-auto px-6">
         <div className="text-center mb-14">
           <p className="text-xs tracking-[0.4em] uppercase text-[#8B1E1E] mb-3 font-semibold">
@@ -361,7 +360,7 @@ function PizzaAboutPage() {
 
 function PizzaContactPage() {
   return (
-    <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+    <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
       <div className="max-w-4xl mx-auto px-6">
         <div className="text-center mb-14">
           <p className="text-xs tracking-[0.4em] uppercase text-[#8B1E1E] mb-3 font-semibold">

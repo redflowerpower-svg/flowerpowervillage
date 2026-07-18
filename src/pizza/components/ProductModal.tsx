@@ -191,6 +191,7 @@ export default function ProductModal({ item, onClose, lang }: Props) {
       name: item.name,
       nameTh: item.nameTh,
       nameIt: item.nameIt,
+      nameDe: item.nameDe,
       quantity,
       basePrice: item.price,
       selectedVariant,
@@ -201,9 +202,10 @@ export default function ProductModal({ item, onClose, lang }: Props) {
     openCart();
   };
 
-  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string }) => {
+  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string; nameDe?: string }) => {
     if (lang === 'TH' && o.nameTh) return o.nameTh;
     if (lang === 'IT' && o.nameIt) return o.nameIt;
+    if (lang === 'DE' && o.nameDe) return o.nameDe;
     return o.name;
   };
 

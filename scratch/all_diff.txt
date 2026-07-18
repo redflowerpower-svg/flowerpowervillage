@@ -1,0 +1,1146 @@
+﻿diff --git a/.agents/AGENTS.md b/.agents/AGENTS.md
+index a47b1c2..f287bf6 100644
+--- a/.agents/AGENTS.md
++++ b/.agents/AGENTS.md
+@@ -1,3 +1,29 @@
++# Definitions
++- **RedSkill1**: La regola per rimanere costantemente aggiornato su tutti i servizi utilizzati (Octorate, Supabase, Stripe, Telegram Bot, Nodemailer, Google Maps) andando a scaricare automaticamente le specifiche del servizio ogni mese e mantenendole attive nel nostro workspace a ogni sessione di sviluppo per risparmiare token e lavorare con la massima fluidità.
++- **/pizze**: Indica che lavoreremo nel reparto stagno dedicato alla delivery food e alla pizzeria a Ranong (codice sorgente in `/src/pizza` e `/api` relativi alla pizzeria).
++- **/villaggio**: Indica che lavoreremo nel reparto stagno dedicato al booking engine e al villaggio a Koh Phayam (codice sorgente in `/src/booking` e `/api` relativi alle prenotazioni e alloggi).
+ 
+ # Supabase Storage & Vercel API Limits
+ - Due to Vercel Hobby plan limits, we cannot add more than 12 serverless functions. To perform custom database or storage tasks (like bulk deletes), temporarily inject a query parameter action hook (e.g. \?action=cleanup\) into an existing API route like \	elegram-notify.ts\, trigger it once, and then revert the file.
++
++
++# Agent-Ready Web Development (Chrome DevTools 150 Guidelines)
++To ensure the application is optimized for web agents (including Antigravity, search bots, and accessibility tools) and fully compatible with DevTools 150 debugging features:
++- **Semantic HTML & ARIA Roles**: Use native semantic HTML elements (e.g., `<button>`, `<nav>`, `<main>`) for all structural and interactive elements. Avoid wrapping everything in generic `<div>` tags. Provide descriptive `aria-label` or `aria-describedby` tags to clarify interactive behaviors.
++- **Unique & Stable IDs**: Ensure all interactive elements have unique, stable, and human-readable `id` attributes. Do not rely on dynamically generated hash classes (like CSS Modules) for script selectors.
++- **Accessible Assets**: Avoid embedding important text inside images. Always provide high-quality `alt` descriptions for images to assist vision models and screen readers.
++- **Responsive Layouts**: Utilize modern CSS `@container` queries instead of absolute positions or complex grid hacks, facilitating live styling and responsive overrides.
++- **Clean Interactions**: Keep layouts simple and minimize nested pointer-events to prevent agents or testers from getting stuck on overlapping invisible layers.
++
++# New Services Integration & Onboarding
++- **New Services Integration & API Specs**: Whenever a new external service, SDK, API, or library is introduced to the project, the agent **MUST** first perform a comprehensive web search of its official documentation, endpoints, request/response formats, and security guidelines.
++- **Local Documentation**: Before writing any implementation code, the agent must create a dedicated local reference file (e.g., `.agents/docs_servicename.md`) containing the service's base specifications.
++- **Monthly Scheduler Inclusion**: Once documented, this new service must be automatically appended to the checklist of the monthly scheduler for updates, deprecations, and changelog verification.
++
++# Pizzeria / Delivery Food Design Rules
++- **Product Name Line Breaking (Double Line Layout)**: Per tutti i prodotti del reparto delivery food (`/pizza`), i nomi dei prodotti che contengono connettori logici devono essere mandati a capo per visualizzarsi sempre su due righe. La logica di formattazione a capo (`formatProductName` nei componenti React) deve dividere il nome prima dei seguenti connettori:
++  - ` CON ` (in tutte le lingue)
++  - ` & ` (in tutte le lingue, specialmente per le patatine fritte)
++  - ` WITH ` (in inglese)
++  - ` พร้อม` (in tailandese)
++
+diff --git a/api/admin/sync-telegram-webhook.ts b/api/admin/sync-telegram-webhook.ts
+index fca1df0..fadc0e6 100644
+--- a/api/admin/sync-telegram-webhook.ts
++++ b/api/admin/sync-telegram-webhook.ts
+@@ -1,5 +1,5 @@
+ import { VercelRequest, VercelResponse } from "@vercel/node";
+-import { updateTelegramCredentials } from "../_helpers/telegram.js";
++import { updateTelegramCredentials, getSupabaseClient } from "../_helpers/telegram.js";
+ 
+ export default async function handler(req: VercelRequest, res: VercelResponse) {
+   // Allow only POST requests for security
+@@ -7,6 +7,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
+     return res.status(405).json({ error: "Method not allowed" });
+   }
+ 
++  // Verify JWT authorization token to ensure the request is from a logged-in admin
++  const authHeader = req.headers.authorization;
++  if (!authHeader) {
++    return res.status(401).json({ error: "Unauthorized: Missing Authorization header" });
++  }
++
++  try {
++    const client = getSupabaseClient(authHeader);
++    const { data: { user }, error: authError } = await client.auth.getUser();
++    if (authError || !user) {
++      return res.status(401).json({ error: "Unauthorized: Invalid session" });
++    }
++  } catch (err) {
++    console.error("[Sync Webhook Auth Error]:", err);
++    return res.status(401).json({ error: "Unauthorized: Authentication check failed" });
++  }
++
+   const { botToken, chatId, webhookUrl } = req.body;
+ 
+   if (!botToken) {
+diff --git a/api/octorate-refresh.ts b/api/octorate-refresh.ts
+index def2be1..23122fa 100644
+--- a/api/octorate-refresh.ts
++++ b/api/octorate-refresh.ts
+@@ -29,7 +29,7 @@ export default async function handler(req: any, res: any) {
+     }
+ 
+     // 2. Prepara la chiamata verso Octorate
+-    const octorateUrl = "https://api.octorate.com/octobook/rest/v1/identity/refresh";
++    const octorateUrl = "https://api.octorate.com/connect/rest/v1/identity/refresh";
+     
+     const bodyParams = new URLSearchParams({
+       grant_type: "refresh_token",
+diff --git a/src/booking/components/booking-engine.tsx b/src/booking/components/booking-engine.tsx
+index a2a6777..37d47f6 100644
+--- a/src/booking/components/booking-engine.tsx
++++ b/src/booking/components/booking-engine.tsx
+@@ -570,6 +570,14 @@ export default function BookingEngine() {
+       alert(lang === 'IT' ? "La data di check-out deve essere successiva a quella di check-in." : "Check-out date must be after check-in date.")
+       return
+     }
++
++    const diffTime = end.getTime() - start.getTime()
++    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
++    if (diffDays < 2) {
++      alert(t('minStayAlert'))
++      return
++    }
++
+     setHasSearched(true)
+ 
+     // Smooth scroll viewport down to the rooms grid immediately
+diff --git a/src/booking/data/accommodationsService.ts b/src/booking/data/accommodationsService.ts
+index 6b33f2c..c9bc378 100644
+--- a/src/booking/data/accommodationsService.ts
++++ b/src/booking/data/accommodationsService.ts
+@@ -1,4 +1,15 @@
+-import { supabase } from '../../lib/supabase';
++import { createClient } from '@supabase/supabase-js';
++
++const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
++const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
++
++// Dedicated public client to bypass localStorage session pollution from admin login
++const publicSupabase = createClient(supabaseUrl, supabaseAnonKey, {
++  auth: {
++    persistSession: false,
++    autoRefreshToken: false
++  }
++});
+ 
+ export interface DbAccommodation {
+   id: string;
+@@ -268,7 +279,7 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
+   }
+ 
+   // Query Supabase selecting 'id', 'name', and 'slug'
+-  const { data: dbItems, error: dbError } = await supabase
++  const { data: dbItems, error: dbError } = await publicSupabase
+     .from('accommodations')
+     .select('id, name, slug')
+     .order('name');
+@@ -294,7 +305,7 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
+     let images: string[] = [];
+ 
+     try {
+-      const { data: files, error: storageError } = await supabase.storage
++      const { data: files, error: storageError } = await publicSupabase.storage
+         .from('accommodations')
+         .list(folder, { sortBy: { column: 'name', order: 'asc' } });
+ 
+@@ -302,7 +313,7 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
+         images = files
+           .filter(file => file.id !== null) // only files
+           .map(file => {
+-            const { data } = supabase.storage
++            const { data } = publicSupabase.storage
+               .from('accommodations')
+               .getPublicUrl(`${folder}/${file.name}`);
+ 
+diff --git a/src/booking/lib/octorate.ts b/src/booking/lib/octorate.ts
+index 7bd0e9d..a78b731 100644
+--- a/src/booking/lib/octorate.ts
++++ b/src/booking/lib/octorate.ts
+@@ -213,6 +213,9 @@ export async function refreshAccessToken(): Promise<any> {
+     throw new Error(`Token refresh via server failed: ${errorBody}`);
+   }
+ 
++  // Clear client-side token cache so the next request retrieves fresh tokens
++  cachedTokens = null;
++
+   return await res.json();
+ }
+ 
+@@ -590,12 +593,13 @@ function mapCalendarDataToAvailability(
+     let isAvailable = days.length >= nights;
+     let totalPrice = 0;
+     
+-    const checkInTime = new Date(checkIn).getTime();
+-    const checkOutTime = new Date(checkOut).getTime();
++    const checkInTime = new Date(checkIn + "T00:00:00").getTime();
++    const checkOutTime = new Date(checkOut + "T00:00:00").getTime();
+     let activeDaysCount = 0;
+ 
+     days.forEach((day: any) => {
+-      const dayTime = new Date(day.date).getTime();
++      const dateStr = String(day.date).substring(0, 10);
++      const dayTime = new Date(dateStr + "T00:00:00").getTime();
+       if (dayTime >= checkInTime && dayTime < checkOutTime) {
+         activeDaysCount++;
+         totalPrice += day.price || 0;
+diff --git a/src/booking/lib/translations.ts b/src/booking/lib/translations.ts
+index 520811b..e313951 100644
+--- a/src/booking/lib/translations.ts
++++ b/src/booking/lib/translations.ts
+@@ -84,7 +84,8 @@ export const translations = {
+     cancellationPolicyDesc: "Cancellazione gratuita con rimborso totale del deposito fino a 10 giorni prima dell'arrivo. Oltre tale termine il deposito non è rimborsabile.",
+     depositToday: "Acconto da pagare oggi (30%)",
+     balanceAtCheckIn: "Saldo all'arrivo (70%)",
+-    balanceMethods: "Metodi di pagamento per il saldo all'arrivo: Contanti (THB), Wise (senza commissioni), Revolut (senza commissioni), o PayPal (+10% commissione)."
++    balanceMethods: "Metodi di pagamento per il saldo all'arrivo: Contanti (THB), Wise (senza commissioni), Revolut (senza commissioni), o PayPal (+10% commissione).",
++    minStayAlert: "Il soggiorno minimo è di 2 notti. Si prega di selezionare almeno 2 notti."
+   },
+   EN: {
+     heroTitle: "Flower Power Village",
+@@ -169,7 +170,8 @@ export const translations = {
+     cancellationPolicyDesc: "Free cancellation and full refund of your deposit up to 10 days before check-in. Within 10 days, the deposit is non-refundable.",
+     depositToday: "Deposit to pay today (30%)",
+     balanceAtCheckIn: "Remaining balance at check-in (70%)",
+-    balanceMethods: "Balance payment methods at arrival: Cash (THB), Wise (no fees), Revolut (no fees), or PayPal (+10% processing fee)."
++    balanceMethods: "Balance payment methods at arrival: Cash (THB), Wise (no fees), Revolut (no fees), or PayPal (+10% processing fee).",
++    minStayAlert: "Minimum stay is 2 nights. Please select at least 2 nights."
+   },
+   TH: {
+     heroTitle: "ฟลาวเวอร์ พาวเวอร์ วิลเลจ",
+@@ -254,7 +256,8 @@ export const translations = {
+     cancellationPolicyDesc: "ยกเลิกฟรีและคืนเงินมัดจำเต็มจำนวนเมื่อแจ้งล่วงหน้าอย่างน้อย 10 วันก่อนวันเช็คอิน หากน้อยกว่า 10 วันจะไม่คืนเงินมัดจำ",
+     depositToday: "เงินมัดจำที่ต้องชำระวันนี้ (30%)",
+     balanceAtCheckIn: "ยอดค้างชำระตอนเช็คอิน (70%)",
+-    balanceMethods: "วิธีการชำระยอดค้างชำระตอนเช็คอิน: เงินสด (บาท), Wise, Revolut (ไม่มีค่าธรรมเนียม) หรือ PayPal (มีค่าธรรมเนียม 10%)"
++    balanceMethods: "วิธีการชำระยอดค้างชำระตอนเช็คอิน: เงินสด (บาท), Wise, Revolut (ไม่มีค่าธรรมเนียม) หรือ PayPal (มีค่าธรรมเนียม 10%)",
++    minStayAlert: "ระยะเวลาเข้าพักขั้นต่ำคือ 2 คืน โปรดเลือกอย่างน้อย 2 คืน"
+   },
+   DE: {
+     heroTitle: "Flower Power Village",
+@@ -339,6 +342,7 @@ export const translations = {
+     cancellationPolicyDesc: "Kostenlose Stornierung und volle Rückerstattung der Anzahlung bis zu 10 Tage vor Anreise. Innerhalb von 10 Tagen ist die Anzahlung nicht erstattbar.",
+     depositToday: "Heute fällige Anzahlung (30%)",
+     balanceAtCheckIn: "Restbetrag beim Check-in (70%)",
+-    balanceMethods: "Zahlungsmethoden für den Restbetrag bei Anreise: Bar (THB), Wise (ohne Gebühren), Revolut (ohne Gebühren) oder PayPal (+10% Gebühr)."
++    balanceMethods: "Zahlungsmethoden für den Restbetrag bei Anreise: Bar (THB), Wise (ohne Gebühren), Revolut (ohne Gebühren) oder PayPal (+10% Gebühr).",
++    minStayAlert: "Mindestaufenthalt beträgt 2 Nächte. Bitte wählen Sie mindestens 2 Nächte."
+   }
+ };
+diff --git a/src/booking/resort/components/RoomGrid.tsx b/src/booking/resort/components/RoomGrid.tsx
+index ea9a213..4bb3c8f 100644
+--- a/src/booking/resort/components/RoomGrid.tsx
++++ b/src/booking/resort/components/RoomGrid.tsx
+@@ -357,6 +357,25 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
+     );
+   }
+ 
++  if (stayDays > 0 && stayDays < 2) {
++    return (
++      <div className="text-center py-16 bg-amber-50/40 rounded-2xl border border-amber-200 p-8 w-full">
++        <p className="text-amber-800 text-lg font-bold">
++          {lang === 'IT' ? "Soggiorno minimo di 2 notti" : 
++           lang === 'EN' ? "Minimum stay of 2 nights" :
++           lang === 'TH' ? "ระยะเวลาเข้าพักขั้นต่ำคือ 2 คืน" :
++           "Mindestaufenthalt von 2 Nächten"}
++        </p>
++        <p className="text-amber-700/80 text-sm mt-2 max-w-md mx-auto">
++          {lang === 'IT' ? "La nostra struttura accetta solo prenotazioni con un soggiorno minimo di 2 notti. Si prega di modificare le date selezionate." :
++           lang === 'EN' ? "Our resort requires a minimum stay of 2 nights. Please change your selected dates." :
++           lang === 'TH' ? "รีสอร์ทของเรากำหนดระยะเวลาเข้าพักขั้นต่ำ 2 คืน โปรดเปลี่ยนวันที่ที่คุณเลือก" :
++           "Unser Resort erfordert einen Mindestaufenthalt von 2 Nächten. Bitte ändern Sie Ihre ausgewählten Daten."}
++        </p>
++      </div>
++    );
++  }
++
+   if (filteredRooms.length === 0) {
+     return (
+       <div className="text-center py-16 bg-stone-50 rounded-2xl border border-stone-300 p-8 w-full">
+diff --git a/src/pizza/components/CartDrawer.tsx b/src/pizza/components/CartDrawer.tsx
+index cb39e1f..65ab181 100644
+--- a/src/pizza/components/CartDrawer.tsx
++++ b/src/pizza/components/CartDrawer.tsx
+@@ -64,11 +64,34 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
+   const finalTotal = total + deliveryFee;
+   const t = labels[lang];
+ 
+-  const getTranslatedName = (o: { name: string; nameTh?: string }) => {
++  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string }) => {
+     if (lang === 'TH' && o.nameTh) return o.nameTh;
++    if (lang === 'IT' && o.nameIt) return o.nameIt;
+     return o.name;
+   };
+ 
++  const formatProductName = (name: string) => {
++    if (!name) return "";
++    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
++    const upperName = name.toUpperCase();
++    for (const kw of splitKeywords) {
++      if (upperName.includes(kw)) {
++        const idx = upperName.indexOf(kw);
++        const part1 = name.substring(0, idx);
++        const matchWord = name.substring(idx, idx + kw.length);
++        const part2 = name.substring(idx + kw.length);
++        return (
++          <>
++            {part1}
++            <br />
++            {matchWord.trimStart()}{part2}
++          </>
++        );
++      }
++    }
++    return name;
++  };
++
+   return (
+     <>
+       {isOpen && (
+@@ -124,7 +147,7 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
+                       <div className="flex items-start justify-between gap-2">
+                         <div>
+                           <p className="text-stone-850 font-bold text-sm leading-snug" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.05rem' }}>
+-                            {getTranslatedName(item)}
++                            {formatProductName(getTranslatedName(item))}
+                           </p>
+                         </div>
+                         <button
+diff --git a/src/pizza/components/CategoryTabs.tsx b/src/pizza/components/CategoryTabs.tsx
+index 39650e3..553a93d 100644
+--- a/src/pizza/components/CategoryTabs.tsx
++++ b/src/pizza/components/CategoryTabs.tsx
+@@ -163,13 +163,6 @@ export default function CategoryTabs({ categories, activeId, onChange, lang }: P
+               <span className="text-xs font-bold tracking-wider uppercase">
+                 {details.name}
+               </span>
+-              <span
+-                className={`text-[10px] mt-1 font-light ${
+-                  isSelected ? 'text-stone-200' : 'text-stone-400'
+-                }`}
+-              >
+-                {details.desc}
+-              </span>
+             </button>
+           );
+         })}
+diff --git a/src/pizza/components/MenuGrid.tsx b/src/pizza/components/MenuGrid.tsx
+index 98796a9..7d2837e 100644
+--- a/src/pizza/components/MenuGrid.tsx
++++ b/src/pizza/components/MenuGrid.tsx
+@@ -73,17 +73,133 @@ export default function MenuGrid({ items, lang }: Props) {
+     } else {
+       setExpandedId(item.id);
+       setSelectedVariant(item.variants?.[0] ?? null);
+-      setSelectedExtras([]);
++      
++      const defaults: ExtraOption[] = [];
++      if (item.extras) {
++        const defaultSpicy = item.extras.find(e => e.id === 'spicy-no');
++        if (defaultSpicy) defaults.push(defaultSpicy);
++        const defaultSugar = item.extras.find(e => e.id === 'sugar-regular');
++        if (defaultSugar) defaults.push(defaultSugar);
++        const defaultSauce = item.extras.find(e => e.id === 'sauce-none');
++        if (defaultSauce) defaults.push(defaultSauce);
++        const defaultFruit = item.extras.find(e => e.id.startsWith('fruit-'));
++        if (defaultFruit) defaults.push(defaultFruit);
++      }
++      setSelectedExtras(defaults);
+       setQuantity(1);
+     }
+   };
+ 
+   const toggleExtra = (extra: ExtraOption) => {
+-    setSelectedExtras((prev) =>
+-      prev.find((e) => e.id === extra.id)
++    setSelectedExtras((prev) => {
++      // 1. Spiciness group (radio-button behavior)
++      if (extra.id.startsWith('spicy-')) {
++        const filtered = prev.filter((e) => !e.id.startsWith('spicy-'));
++        return [...filtered, extra];
++      }
++
++      // 2. Sugar group (radio-button behavior)
++      if (extra.id.startsWith('sugar-')) {
++        const filtered = prev.filter((e) => !e.id.startsWith('sugar-'));
++        return [...filtered, extra];
++      }
++
++      // 3. Fruit group (radio-button behavior)
++      if (extra.id.startsWith('fruit-')) {
++        const filtered = prev.filter((e) => !e.id.startsWith('fruit-'));
++        return [...filtered, extra];
++      }
++
++      // 4. Sauce group (max 2 choices)
++      if (extra.id.startsWith('sauce-')) {
++        const isSel = prev.some((e) => e.id === extra.id);
++        if (isSel) {
++          return prev.filter((e) => e.id !== extra.id);
++        }
++
++        if (extra.id === 'sauce-none') {
++          return [...prev.filter((e) => !e.id.startsWith('sauce-')), extra];
++        }
++
++        let filtered = prev.filter((e) => e.id !== 'sauce-none');
++        const currentSauces = filtered.filter((e) => e.id.startsWith('sauce-'));
++        if (currentSauces.length >= 2) {
++          const firstSauce = currentSauces[0];
++          filtered = filtered.filter((e) => e.id !== firstSauce.id);
++        }
++        return [...filtered, extra];
++      }
++
++      return prev.find((e) => e.id === extra.id)
+         ? prev.filter((e) => e.id !== extra.id)
+-        : [...prev, extra]
+-    );
++        : [...prev, extra];
++    });
++  };
++
++  const getGroupedExtras = (item: MenuItem) => {
++    const groups: { title: string; maxSelection?: number; items: ExtraOption[]; type: 'option' | 'extra'; idPrefix: string }[] = [];
++    
++    const spicyItems = item.extras?.filter((e) => e.id.startsWith('spicy-')) ?? [];
++    const sugarItems = item.extras?.filter((e) => e.id.startsWith('sugar-')) ?? [];
++    const fruitItems = item.extras?.filter((e) => e.id.startsWith('fruit-')) ?? [];
++    const sauceItems = item.extras?.filter((e) => e.id.startsWith('sauce-')) ?? [];
++    const regularItems = item.extras?.filter((e) => 
++      !e.id.startsWith('spicy-') && 
++      !e.id.startsWith('sugar-') && 
++      !e.id.startsWith('fruit-') && 
++      !e.id.startsWith('sauce-')
++    ) ?? [];
++
++    if (spicyItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level',
++        maxSelection: 1,
++        items: spicyItems,
++        type: 'option',
++        idPrefix: 'spicy-'
++      });
++    }
++
++    if (sugarItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'ระดับความหวาน' : lang === 'IT' ? 'Livello di Zucchero' : 'Sugar Level',
++        maxSelection: 1,
++        items: sugarItems,
++        type: 'option',
++        idPrefix: 'sugar-'
++      });
++    }
++
++    if (fruitItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'เลือกผลไม้' : lang === 'IT' ? 'Scelta della Frutta' : 'Choose Fruit',
++        maxSelection: 1,
++        items: fruitItems,
++        type: 'option',
++        idPrefix: 'fruit-'
++      });
++    }
++
++    if (sauceItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'เลือกซอส (สูงสุด 2 ชนิด)' : lang === 'IT' ? 'Seleziona Salse (max 2)' : 'Select Sauces (max 2)',
++        maxSelection: 2,
++        items: sauceItems,
++        type: 'option',
++        idPrefix: 'sauce-'
++      });
++    }
++
++    if (regularItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'เครื่องปรุงเพิ่มเติม' : lang === 'IT' ? 'Ingredienti Extra' : 'Extra Ingredients',
++        items: regularItems,
++        type: 'extra',
++        idPrefix: 'regular'
++      });
++    }
++
++    return groups;
+   };
+ 
+   const handleAdd = (item: MenuItem) => {
+@@ -91,6 +207,7 @@ export default function MenuGrid({ items, lang }: Props) {
+       productId: item.id,
+       name: item.name,
+       nameTh: item.nameTh,
++      nameIt: item.nameIt,
+       quantity,
+       basePrice: item.price,
+       selectedVariant,
+@@ -101,13 +218,37 @@ export default function MenuGrid({ items, lang }: Props) {
+     openCart();
+   };
+ 
+-  const getTranslatedName = (item: { name: string; nameTh?: string }) => {
++  const getTranslatedName = (item: { name: string; nameTh?: string; nameIt?: string }) => {
+     if (lang === 'TH' && item.nameTh) return item.nameTh;
++    if (lang === 'IT' && item.nameIt) return item.nameIt;
+     return item.name;
+   };
+ 
++  const formatProductName = (name: string) => {
++    if (!name) return "";
++    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
++    const upperName = name.toUpperCase();
++    for (const kw of splitKeywords) {
++      if (upperName.includes(kw)) {
++        const idx = upperName.indexOf(kw);
++        const part1 = name.substring(0, idx);
++        const matchWord = name.substring(idx, idx + kw.length);
++        const part2 = name.substring(idx + kw.length);
++        return (
++          <>
++            {part1}
++            <br />
++            {matchWord.trimStart()}{part2}
++          </>
++        );
++      }
++    }
++    return name;
++  };
++
+   const getTranslatedDesc = (item: MenuItem) => {
+     if (lang === 'TH' && item.descriptionTh) return item.descriptionTh;
++    if (lang === 'IT' && item.descriptionIt) return item.descriptionIt;
+     return item.description;
+   };
+ 
+@@ -160,7 +301,7 @@ export default function MenuGrid({ items, lang }: Props) {
+                   className="font-sans text-lg font-bold text-stone-900 leading-tight tracking-tight"
+                   style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                 >
+-                  {getTranslatedName(item)}
++                  {formatProductName(getTranslatedName(item))}
+                 </h3>
+ 
+                 <p
+@@ -217,47 +358,35 @@ export default function MenuGrid({ items, lang }: Props) {
+                       </div>
+                     )}
+ 
+-                    {/* Extras Checkboxes */}
+-                    {item.extras && item.extras.length > 0 && (
+-                      <div>
+-                        <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold mb-2" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+-                          {lang === 'TH' ? 'เครื่องปรุงเพิ่มเติม' : lang === 'DE' ? 'Zutaten' : lang === 'EN' ? 'Extras' : 'Ingredienti Extra'}
+-                        </p>
+-                        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
+-                          {item.extras.map((extra) => {
++                    {/* Spiciness Section (Differenziata dal resto con bordo ed evidenza visiva) */}
++                    {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.idPrefix === 'spicy-') && (
++                      <div className="bg-[#8B1E1E]/5 border border-[#8B1E1E]/10 rounded-2xl p-3.5 space-y-2 mb-4">
++                        <div className="flex justify-between items-center">
++                          <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#8B1E1E] flex items-center gap-1" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
++                            <span>🌶️</span>
++                            {lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level'}
++                          </h4>
++                          <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
++                            {lang === 'TH' ? 'เลือกได้ 1 อย่าง' : lang === 'IT' ? 'scegli 1 opzione' : 'select 1 option'}
++                          </span>
++                        </div>
++                        <div className="grid grid-cols-2 gap-1.5">
++                          {item.extras.filter(e => e.id.startsWith('spicy-')).map((extra) => {
+                             const checked = !!selectedExtras.find((e) => e.id === extra.id);
+                             return (
+                               <button
+                                 key={extra.id}
+                                 type="button"
+                                 onClick={() => toggleExtra(extra)}
+-                                className={`w-full flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
++                                className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                   checked
+-                                    ? 'border-[#8B1E1E] bg-[#8B1E1E]/5'
+-                                    : 'border-stone-200 bg-white hover:border-stone-300'
++                                    ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white shadow-sm font-bold'
++                                    : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                                 }`}
+                               >
+-                                <div className="flex items-center gap-2">
+-                                  <div
+-                                    className={`w-3.5 h-3.5 flex items-center justify-center rounded transition-all flex-shrink-0 ${
+-                                      checked
+-                                        ? 'border-[#8B1E1E] bg-[#8B1E1E]'
+-                                        : 'border-stone-300 bg-stone-100'
+-                                    }`}
+-                                    style={{ borderWidth: '1px' }}
+-                                  >
+-                                    {checked && (
+-                                      <svg width="7" height="6" viewBox="0 0 10 8" fill="none">
+-                                        <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+-                                      </svg>
+-                                    )}
+-                                  </div>
+-                                  <span className="text-stone-850 text-xs font-semibold">{getTranslatedName(extra)}</span>
+-                                </div>
+-                                {extra.price > 0 ? (
+-                                  <span className="text-[#8B1E1E] text-xs font-extrabold">+{extra.price} ฿</span>
+-                                ) : (
+-                                  <span className="text-stone-400 text-[10px]">{t.freeText}</span>
++                                <span className="text-[11px] font-semibold">{getTranslatedName(extra)}</span>
++                                {checked && (
++                                  <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 ml-1.5" />
+                                 )}
+                               </button>
+                             );
+@@ -266,6 +395,117 @@ export default function MenuGrid({ items, lang }: Props) {
+                       </div>
+                     )}
+ 
++                    {/* Customization Options (Sugar, Fruit, Sauces - escludendo Spiciness) */}
++                    {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.type === 'option' && g.idPrefix !== 'spicy-') && (
++                      <div className="space-y-4 mb-4">
++                        {getGroupedExtras(item).filter(g => g.type === 'option' && g.idPrefix !== 'spicy-').map((group, idx) => (
++                          <div key={idx} className="space-y-1.5">
++                            <div className="flex justify-between items-center">
++                              <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
++                                {group.title}
++                              </p>
++                              {group.maxSelection && (
++                                <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
++                                  {lang === 'TH' ? `เลือกได้สูงสุด ${group.maxSelection}` : lang === 'IT' ? `scegli max ${group.maxSelection}` : `select max ${group.maxSelection}`}
++                                </span>
++                              )}
++                            </div>
++                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
++                              {group.items.map((extra) => {
++                                const checked = !!selectedExtras.find((e) => e.id === extra.id);
++                                return (
++                                  <button
++                                    key={extra.id}
++                                    type="button"
++                                    onClick={() => toggleExtra(extra)}
++                                    className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
++                                      checked
++                                        ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold'
++                                        : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
++                                    }`}
++                                  >
++                                    <div className="flex items-center gap-1.5">
++                                      <div
++                                        className={`w-3.5 h-3.5 flex items-center justify-center rounded-full transition-all flex-shrink-0 ${
++                                          checked
++                                            ? 'border-[#8B1E1E] bg-[#8B1E1E]'
++                                            : 'border-stone-300 bg-stone-100'
++                                        }`}
++                                        style={{ borderWidth: '1px' }}
++                                      >
++                                        {checked && (
++                                          <div className="w-1.5 h-1.5 bg-white rounded-full" />
++                                        )}
++                                      </div>
++                                      <span className="text-stone-850 text-[11px] font-semibold">{getTranslatedName(extra)}</span>
++                                    </div>
++                                    {extra.price > 0 ? (
++                                      <span className="text-[#8B1E1E] text-[11px] font-extrabold">+{extra.price} ฿</span>
++                                    ) : (
++                                      <span className="text-stone-450 text-[10px]">{t.freeText}</span>
++                                    )}
++                                  </button>
++                                );
++                              })}
++                            </div>
++                          </div>
++                        ))}
++                      </div>
++                    )}
++
++                    {/* Extra Ingredients Section (Double Cheese, Bacon, Mozzarella) */}
++                    {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.type === 'extra') && (
++                      <div className="space-y-4 mb-4">
++                        {getGroupedExtras(item).filter(g => g.type === 'extra').map((group, idx) => (
++                          <div key={idx} className="space-y-1.5">
++                            <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
++                              {group.title}
++                            </p>
++                            <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
++                              {group.items.map((extra) => {
++                                const checked = !!selectedExtras.find((e) => e.id === extra.id);
++                                return (
++                                  <button
++                                    key={extra.id}
++                                    type="button"
++                                    onClick={() => toggleExtra(extra)}
++                                    className={`w-full flex items-center justify-between px-3 py-2.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
++                                      checked
++                                        ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold'
++                                        : 'border-stone-200 bg-white hover:border-stone-300'
++                                    }`}
++                                  >
++                                    <div className="flex items-center gap-2">
++                                      <div
++                                        className={`w-3.5 h-3.5 flex items-center justify-center rounded transition-all flex-shrink-0 ${
++                                          checked
++                                            ? 'border-[#8B1E1E] bg-[#8B1E1E]'
++                                            : 'border-stone-300 bg-stone-100'
++                                        }`}
++                                        style={{ borderWidth: '1px' }}
++                                      >
++                                        {checked && (
++                                          <svg width="7" height="6" viewBox="0 0 10 8" fill="none">
++                                            <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
++                                          </svg>
++                                        )}
++                                      </div>
++                                      <span className="text-stone-850 text-xs font-semibold">{getTranslatedName(extra)}</span>
++                                    </div>
++                                    {extra.price > 0 ? (
++                                      <span className="text-[#8B1E1E] text-xs font-extrabold">+{extra.price} ฿</span>
++                                    ) : (
++                                      <span className="text-stone-400 text-[10px]">{t.freeText}</span>
++                                    )}
++                                  </button>
++                                );
++                              })}
++                            </div>
++                          </div>
++                        ))}
++                      </div>
++                    )}
++
+                     {/* Quantity Selector Box */}
+                     <div className="flex items-center gap-2 bg-stone-100 p-1.5 rounded-full border border-stone-200 justify-between">
+                       <span className="text-stone-500 text-[9.5px] font-extrabold uppercase tracking-wider pl-2" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+diff --git a/src/pizza/components/ProductModal.tsx b/src/pizza/components/ProductModal.tsx
+index 2d3b149..89764bc 100644
+--- a/src/pizza/components/ProductModal.tsx
++++ b/src/pizza/components/ProductModal.tsx
+@@ -41,7 +41,20 @@ export default function ProductModal({ item, onClose, lang }: Props) {
+   const openCart = useCartStore((s) => s.openCart);
+ 
+   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(item.variants?.[0] ?? null);
+-  const [selectedExtras, setSelectedExtras] = useState<ExtraOption[]>([]);
++  const [selectedExtras, setSelectedExtras] = useState<ExtraOption[]>(() => {
++    const defaults: ExtraOption[] = [];
++    if (item.extras) {
++      const defaultSpicy = item.extras.find(e => e.id === 'spicy-no');
++      if (defaultSpicy) defaults.push(defaultSpicy);
++      const defaultSugar = item.extras.find(e => e.id === 'sugar-regular');
++      if (defaultSugar) defaults.push(defaultSugar);
++      const defaultSauce = item.extras.find(e => e.id === 'sauce-none');
++      if (defaultSauce) defaults.push(defaultSauce);
++      const defaultFruit = item.extras.find(e => e.id.startsWith('fruit-'));
++      if (defaultFruit) defaults.push(defaultFruit);
++    }
++    return defaults;
++  });
+   const [quantity, setQuantity] = useState(1);
+ 
+   const variantMod = selectedVariant?.priceModifier ?? 0;
+@@ -55,11 +68,121 @@ export default function ProductModal({ item, onClose, lang }: Props) {
+   }, []);
+ 
+   const toggleExtra = (extra: ExtraOption) => {
+-    setSelectedExtras((prev) =>
+-      prev.find((e) => e.id === extra.id)
++    setSelectedExtras((prev) => {
++      // 1. Spiciness group (radio-button behavior: always exactly one selected)
++      if (extra.id.startsWith('spicy-')) {
++        const filtered = prev.filter((e) => !e.id.startsWith('spicy-'));
++        return [...filtered, extra];
++      }
++
++      // 2. Sugar group (radio-button behavior: always exactly one selected)
++      if (extra.id.startsWith('sugar-')) {
++        const filtered = prev.filter((e) => !e.id.startsWith('sugar-'));
++        return [...filtered, extra];
++      }
++
++      // 3. Fruit group (radio-button behavior: always exactly one selected)
++      if (extra.id.startsWith('fruit-')) {
++        const filtered = prev.filter((e) => !e.id.startsWith('fruit-'));
++        return [...filtered, extra];
++      }
++
++      // 4. Sauce group (max 2 choices)
++      if (extra.id.startsWith('sauce-')) {
++        const isSel = prev.some((e) => e.id === extra.id);
++        if (isSel) {
++          return prev.filter((e) => e.id !== extra.id);
++        }
++
++        // Selecting "No Sauces" clears all other sauces
++        if (extra.id === 'sauce-none') {
++          return [...prev.filter((e) => !e.id.startsWith('sauce-')), extra];
++        }
++
++        // Selecting a sauce removes "No Sauces"
++        let filtered = prev.filter((e) => e.id !== 'sauce-none');
++
++        // Check if there are already 2 sauces selected
++        const currentSauces = filtered.filter((e) => e.id.startsWith('sauce-'));
++        if (currentSauces.length >= 2) {
++          // Remove the first selected sauce to make space
++          const firstSauce = currentSauces[0];
++          filtered = filtered.filter((e) => e.id !== firstSauce.id);
++        }
++        return [...filtered, extra];
++      }
++
++      // Default toggle logic for other extras
++      return prev.find((e) => e.id === extra.id)
+         ? prev.filter((e) => e.id !== extra.id)
+-        : [...prev, extra]
+-    );
++        : [...prev, extra];
++    });
++  };
++
++  const getGroupedExtras = () => {
++    const groups: { title: string; maxSelection?: number; items: ExtraOption[]; type: 'option' | 'extra'; idPrefix: string }[] = [];
++    
++    const spicyItems = item.extras?.filter((e) => e.id.startsWith('spicy-')) ?? [];
++    const sugarItems = item.extras?.filter((e) => e.id.startsWith('sugar-')) ?? [];
++    const fruitItems = item.extras?.filter((e) => e.id.startsWith('fruit-')) ?? [];
++    const sauceItems = item.extras?.filter((e) => e.id.startsWith('sauce-')) ?? [];
++    const regularItems = item.extras?.filter((e) => 
++      !e.id.startsWith('spicy-') && 
++      !e.id.startsWith('sugar-') && 
++      !e.id.startsWith('fruit-') && 
++      !e.id.startsWith('sauce-')
++    ) ?? [];
++
++    if (spicyItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level',
++        maxSelection: 1,
++        items: spicyItems,
++        type: 'option',
++        idPrefix: 'spicy-'
++      });
++    }
++
++    if (sugarItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'ระดับความหวาน' : lang === 'IT' ? 'Livello di Zucchero' : 'Sugar Level',
++        maxSelection: 1,
++        items: sugarItems,
++        type: 'option',
++        idPrefix: 'sugar-'
++      });
++    }
++
++    if (fruitItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'เลือกผลไม้' : lang === 'IT' ? 'Scelta della Frutta' : 'Choose Fruit',
++        maxSelection: 1,
++        items: fruitItems,
++        type: 'option',
++        idPrefix: 'fruit-'
++      });
++    }
++
++    if (sauceItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'เลือกซอส (สูงสุด 2 ชนิด)' : lang === 'IT' ? 'Seleziona Salse (max 2)' : 'Select Sauces (max 2)',
++        maxSelection: 2,
++        items: sauceItems,
++        type: 'option',
++        idPrefix: 'sauce-'
++      });
++    }
++
++    if (regularItems.length > 0) {
++      groups.push({
++        title: lang === 'TH' ? 'เครื่องปรุงเพิ่มเติม' : lang === 'IT' ? 'Ingredienti Extra' : 'Extra Ingredients',
++        items: regularItems,
++        type: 'extra',
++        idPrefix: 'regular'
++      });
++    }
++
++    return groups;
+   };
+ 
+   const handleAdd = () => {
+@@ -67,6 +190,7 @@ export default function ProductModal({ item, onClose, lang }: Props) {
+       productId: item.id,
+       name: item.name,
+       nameTh: item.nameTh,
++      nameIt: item.nameIt,
+       quantity,
+       basePrice: item.price,
+       selectedVariant,
+@@ -77,13 +201,37 @@ export default function ProductModal({ item, onClose, lang }: Props) {
+     openCart();
+   };
+ 
+-  const getTranslatedName = (o: { name: string; nameTh?: string }) => {
++  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string }) => {
+     if (lang === 'TH' && o.nameTh) return o.nameTh;
++    if (lang === 'IT' && o.nameIt) return o.nameIt;
+     return o.name;
+   };
+ 
++  const formatProductName = (name: string) => {
++    if (!name) return "";
++    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
++    const upperName = name.toUpperCase();
++    for (const kw of splitKeywords) {
++      if (upperName.includes(kw)) {
++        const idx = upperName.indexOf(kw);
++        const part1 = name.substring(0, idx);
++        const matchWord = name.substring(idx, idx + kw.length);
++        const part2 = name.substring(idx + kw.length);
++        return (
++          <>
++            {part1}
++            <br />
++            {matchWord.trimStart()}{part2}
++          </>
++        );
++      }
++    }
++    return name;
++  };
++
+   const getTranslatedDesc = (i: MenuItem) => {
+     if (lang === 'TH' && i.descriptionTh) return i.descriptionTh;
++    if (lang === 'IT' && i.descriptionIt) return i.descriptionIt;
+     return i.description;
+   };
+ 
+@@ -116,7 +264,7 @@ export default function ProductModal({ item, onClose, lang }: Props) {
+           
+           <div className="absolute bottom-4 left-5 right-5">
+             <h2 className="text-white font-black tracking-tight text-xl sm:text-2xl" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
+-              {getTranslatedName(item)}
++              {formatProductName(getTranslatedName(item))}
+             </h2>
+           </div>
+         </div>
+@@ -158,52 +306,163 @@ export default function ProductModal({ item, onClose, lang }: Props) {
+             </div>
+           )}
+ 
+-          {/* Extra Options */}
+-          {item.extras && item.extras.length > 0 && (
+-            <div>
+-              <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+-                {t.extraTitle}
+-              </p>
+-              <div className="space-y-2">
+-                {item.extras.map((extra) => {
+-                  const checked = !!selectedExtras.find((e) => e.id === extra.id);
+-                  return (
+-                    <button
+-                      key={extra.id}
+-                      onClick={() => toggleExtra(extra)}
+-                      className={`w-full flex items-center justify-between px-4 py-3.5 text-left rounded-2xl border transition-all duration-150 cursor-pointer ${
+-                        checked
+-                          ? 'border-[#8B1E1E] bg-[#8B1E1E]/5'
+-                          : 'border-stone-200 bg-white hover:border-stone-300'
+-                      }`}
+-                    >
+-                      <div className="flex items-center gap-3">
+-                        <div
+-                          className={`w-4.5 h-4.5 flex items-center justify-center rounded transition-all flex-shrink-0 ${
+-                            checked
+-                              ? 'border-[#8B1E1E] bg-[#8B1E1E]'
+-                              : 'border-stone-300 bg-stone-100'
+-                          }`}
+-                          style={{ borderWidth: '1px' }}
+-                        >
+-                          {checked && (
+-                            <svg width="9" height="7" viewBox="0 0 10 8" fill="none">
+-                              <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+-                            </svg>
+-                          )}
+-                        </div>
+-                        <div>
+-                          <span className="text-stone-800 text-xs sm:text-sm font-semibold">{getTranslatedName(extra)}</span>
+-                        </div>
++          {/* Spiciness Section (Differenziata dal resto con bordo ed evidenza visiva) */}
++          {item.extras && item.extras.length > 0 && getGroupedExtras().some(g => g.idPrefix === 'spicy-') && (
++            <div className="pt-4 border-t border-stone-200/60 first:border-t-0 first:pt-0">
++              <div className="bg-[#8B1E1E]/5 border border-[#8B1E1E]/10 rounded-2xl p-4 space-y-3 shadow-sm">
++                <div className="flex justify-between items-center">
++                  <h4 className="text-[11px] font-extrabold uppercase tracking-widest text-[#8B1E1E] flex items-center gap-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>
++                    <span>🌶️</span>
++                    {lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level'}
++                  </h4>
++                  <span className="text-[10px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Inter, sans-serif' }}>
++                    {lang === 'TH' ? 'เลือกได้ 1 อย่าง' : lang === 'IT' ? 'scegli 1 opzione' : 'select 1 option'}
++                  </span>
++                </div>
++                <div className="grid grid-cols-2 gap-2">
++                  {item.extras.filter(e => e.id.startsWith('spicy-')).map((extra) => {
++                    const checked = !!selectedExtras.find((e) => e.id === extra.id);
++                    return (
++                      <button
++                        key={extra.id}
++                        onClick={() => toggleExtra(extra)}
++                        className={`flex items-center justify-between px-4 py-3 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
++                          checked
++                            ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white shadow-sm'
++                            : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
++                        }`}
++                      >
++                        <span className="text-xs font-semibold">{getTranslatedName(extra)}</span>
++                        {checked && (
++                          <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 ml-2" />
++                        )}
++                      </button>
++                    );
++                  })}
++                </div>
++              </div>
++            </div>
++          )}
++
++          {/* Grouped Options (Sugar, Fruit, Sauces - escludendo Spiciness) */}
++          {item.extras && item.extras.length > 0 && getGroupedExtras().some(g => g.type === 'option' && g.idPrefix !== 'spicy-') && (
++            <div className="space-y-6 pt-4 border-t border-stone-200/60 first:border-t-0 first:pt-0">
++              <div>
++                <h4 className="text-[11px] font-extrabold uppercase tracking-widest text-[#8B1E1E] mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
++                  {lang === 'TH' ? 'ตัวเลือกสินค้า' : lang === 'IT' ? 'Opzioni di Personalizzazione' : 'Customization Options'}
++                </h4>
++                <div className="space-y-5">
++                  {getGroupedExtras().filter(g => g.type === 'option' && g.idPrefix !== 'spicy-').map((group, idx) => (
++                    <div key={idx} className="space-y-2.5">
++                      <div className="flex justify-between items-center">
++                        <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Inter, sans-serif' }}>
++                          {group.title}
++                        </p>
++                        {group.maxSelection && (
++                          <span className="text-[10px] text-stone-400 font-semibold lowercase" style={{ fontFamily: 'Inter, sans-serif' }}>
++                            {lang === 'TH' ? `เลือกได้สูงสุด ${group.maxSelection}` : lang === 'IT' ? `scegli max ${group.maxSelection}` : `select max ${group.maxSelection}`}
++                          </span>
++                        )}
+                       </div>
+-                      {extra.price > 0 ? (
+-                        <span className="text-[#8B1E1E] text-xs sm:text-sm font-extrabold">+{extra.price} ฿</span>
+-                      ) : (
+-                        <span className="text-stone-400 text-xs">{t.freeText}</span>
+-                      )}
+-                    </button>
+-                  );
+-                })}
++                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
++                        {group.items.map((extra) => {
++                          const checked = !!selectedExtras.find((e) => e.id === extra.id);
++                          return (
++                            <button
++                              key={extra.id}
++                              onClick={() => toggleExtra(extra)}
++                              className={`flex items-center justify-between px-4 py-3.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
++                                checked
++                                  ? 'border-[#8B1E1E] bg-[#8B1E1E]/5'
++                                  : 'border-stone-200 bg-white hover:border-stone-300'
++                              }`}
++                            >
++                              <div className="flex items-center gap-2.5">
++                                <div
++                                  className={`w-4 h-4 flex items-center justify-center rounded-full transition-all flex-shrink-0 ${
++                                    checked
++                                      ? 'border-[#8B1E1E] bg-[#8B1E1E]'
++                                      : 'border-stone-300 bg-stone-100'
++                                  }`}
++                                  style={{ borderWidth: '1px' }}
++                                >
++                                  {checked && (
++                                    <div className="w-1.5 h-1.5 bg-white rounded-full" />
++                                  )}
++                                </div>
++                                <span className="text-stone-850 text-xs font-semibold">{getTranslatedName(extra)}</span>
++                              </div>
++                              {extra.price > 0 ? (
++                                <span className="text-[#8B1E1E] text-xs font-extrabold">+{extra.price} ฿</span>
++                              ) : (
++                                <span className="text-stone-400 text-xs">{t.freeText}</span>
++                              )}
++                            </button>
++                          );
++                        })}
++                      </div>
++                    </div>
++                  ))}
++                </div>
++              </div>
++            </div>
++          )}
++
++          {/* Grouped Paid Extras (Double Cheese, Bacon, Mozzarella) */}
++          {item.extras && item.extras.length > 0 && getGroupedExtras().some(g => g.type === 'extra') && (
++            <div className="space-y-6 pt-4 border-t border-stone-200/60 mt-4">
++              <div>
++                <h4 className="text-[11px] font-extrabold uppercase tracking-widest text-[#8B1E1E] mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
++                  {lang === 'TH' ? 'ส่วนผสมเพิ่มเติม' : lang === 'IT' ? 'Ingredienti Extra (Aggiuntivi)' : 'Extra Ingredients'}
++                </h4>
++                <div className="space-y-5">
++                  {getGroupedExtras().filter(g => g.type === 'extra').map((group, idx) => (
++                    <div key={idx} className="space-y-2.5">
++                      <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Inter, sans-serif' }}>
++                        {group.title}
++                      </p>
++                      <div className="space-y-2">
++                        {group.items.map((extra) => {
++                          const checked = !!selectedExtras.find((e) => e.id === extra.id);
++                          return (
++                            <button
++                              key={extra.id}
++                              onClick={() => toggleExtra(extra)}
++                              className={`w-full flex items-center justify-between px-4 py-3.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
++                                checked
++                                  ? 'border-[#8B1E1E] bg-[#8B1E1E]/5'
++                                  : 'border-stone-200 bg-white hover:border-stone-300'
++                              }`}
++                            >
++                              <div className="flex items-center gap-3">
++                                <div
++                                  className={`w-4 h-4 flex items-center justify-center rounded transition-all flex-shrink-0 ${
++                                    checked
++                                      ? 'border-[#8B1E1E] bg-[#8B1E1E]'
++                                      : 'border-stone-300 bg-stone-100'
++                                  }`}
++                                  style={{ borderWidth: '1px' }}
++                                >
++                                  {checked && (
++                                    <svg width="8" height="6" viewBox="0 0 10 8" fill="none">
++                                      <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
++                                    </svg>
++                                  )}
++                                </div>
++                                <span className="text-stone-850 text-xs sm:text-sm font-semibold">{getTranslatedName(extra)}</span>
++                              </div>
++                              {extra.price > 0 ? (
++                                <span className="text-[#8B1E1E] text-xs sm:text-sm font-extrabold">+{extra.price} ฿</span>
++                              ) : (
++                                <span className="text-stone-400 text-xs">{t.freeText}</span>
++                              )}
++                            </button>
++                          );
++                        })}
++                      </div>
++                    </div>
++                  ))}
++                </div>
+               </div>
+             </div>
+           )}
+diff --git a/src/pizza/store/cartStore.ts b/src/pizza/store/cartStore.ts
+index 306bf8e..b395b28 100644
+--- a/src/pizza/store/cartStore.ts
++++ b/src/pizza/store/cartStore.ts
+@@ -6,6 +6,7 @@ export interface CartItem {
+   productId: string;
+   name: string;
+   nameTh: string;
++  nameIt?: string;
+   quantity: number;
+   basePrice: number;
+   selectedVariant: Variant | null;
+diff --git a/src/pizza/types.ts b/src/pizza/types.ts
+index 98d49a9..d17c469 100644
+--- a/src/pizza/types.ts
++++ b/src/pizza/types.ts
+@@ -2,6 +2,7 @@ export interface CartItemSaved {
+   productId: string;
+   name: string;
+   nameTh: string;
++  nameIt?: string;
+   quantity: number;
+   basePrice: number;
+   selectedVariant: string | null;

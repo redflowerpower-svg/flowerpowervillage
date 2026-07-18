@@ -1,5 +1,4 @@
 # Definitions
-- **RedSkill1**: La regola per rimanere costantemente aggiornato su tutti i servizi utilizzati (Octorate, Supabase, Stripe, Telegram Bot, Nodemailer, Google Maps) andando a scaricare automaticamente le specifiche del servizio ogni mese e mantenendole attive nel nostro workspace a ogni sessione di sviluppo per risparmiare token e lavorare con la massima fluidità.
 - **/pizze**: Indica che lavoreremo nel reparto stagno dedicato alla delivery food e alla pizzeria a Ranong (codice sorgente in `/src/pizza` e `/api` relativi alla pizzeria).
 - **/villaggio**: Indica che lavoreremo nel reparto stagno dedicato al booking engine e al villaggio a Koh Phayam (codice sorgente in `/src/booking` e `/api` relativi alle prenotazioni e alloggi).
 

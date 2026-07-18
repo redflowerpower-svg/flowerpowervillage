@@ -1,0 +1,738 @@
+﻿diff --git a/src/pizza/pages/DeliveryMenu.tsx b/src/pizza/pages/DeliveryMenu.tsx
+index d906844..0f83259 100644
+--- a/src/pizza/pages/DeliveryMenu.tsx
++++ b/src/pizza/pages/DeliveryMenu.tsx
+@@ -13,139 +13,439 @@ const translations = {
+     title: 'Flower Power Pizza',
+     subtitle: 'Ranong, Thailandia',
+     tagline1: 'PIZZA & CUCINA ITALIANA',
+-    tagline2: 'Cuoca Italiana • Ingredienti Importati',
++    tagline2: 'Cuoca Italiana â€¢ Ingredienti Importati',
+     info1: 'Aperto tutti i giorni',
+-    info2: '11:00 – 21:30',
++    info2: '11:00 â€“ 21:30',
+     info3: 'Consegna & Ritiro',
+     cartItems: 'prodotti nel carrello',
+     cartItem: 'prodotto nel carrello',
+     promoTitle: 'Promozioni & Consegna a Domicilio',
+-    deliveryLimit: 'Le consegne si effettuano esclusivamente per la città di Ranong.',
+-    promoFreeDelivery: 'Consegna GRATIS per ordini sopra i 200฿',
++    deliveryLimit: 'Le consegne si effettuano esclusivamente per la cittÃ  di Ranong.',
++    promoFreeDelivery: 'Consegna GRATIS per ordini sopra i 200à¸¿',
+     promoFirstOrder: '10% di sconto sul tuo primo ordine',
+   },
+   EN: {
+     title: 'Flower Power Pizza',
+     subtitle: 'Ranong, Thailand',
+     tagline1: 'PIZZA & ITALIAN CUISINE',
+-    tagline2: 'Italian Chef • Imported Ingredients',
++    tagline2: 'Italian Chef â€¢ Imported Ingredients',
+     info1: 'Open Daily',
+-    info2: '11:00 – 21:30',
++    info2: '11:00 â€“ 21:30',
+     info3: 'Delivery & Pickup',
+     cartItems: 'items in cart',
+     cartItem: 'item in cart',
+     promoTitle: 'Promotions & Delivery Info',
+     deliveryLimit: 'Deliveries are made exclusively within the city of Ranong.',
+-    promoFreeDelivery: 'FREE delivery for orders over 200฿',
++    promoFreeDelivery: 'FREE delivery for orders over 200à¸¿',
+     promoFirstOrder: '10% discount on your first order',
+   },
+   TH: {
+-    title: 'ฟลาวเวอร์ พาวเวอร์ พิซซ่า',
+-    subtitle: 'ระนอง, ประเทศไทย',
+-    tagline1: 'พิซซ่าและอาหารอิตาเลียน',
+-    tagline2: 'เชฟหญิงชาวอิตาลี • วัตถุดิบนำเข้า',
+-    info1: 'เปิดบริการทุกวัน',
+-    info2: '11:00 – 21:30',
+-    info3: 'บริการจัดส่งและรับที่ร้าน',
+-    cartItems: 'รายการในรถเข็น',
+-    cartItem: 'รายการในรถเข็น',
+-    promoTitle: 'โปรโมชั่นและข้อมูลการจัดส่ง',
+-    deliveryLimit: 'บริการจัดส่งเฉพาะในเขตตัวเมืองระนองเท่านั้น',
+-    promoFreeDelivery: 'จัดส่งฟรี เมื่อสั่งซื้อครบ 200฿ ขึ้นไป',
+-    promoFirstOrder: 'ส่วนลด 10% สำหรับการสั่งซื้อครั้งแรก',
++    title: 'à¸Ÿà¸¥à¸²à¸§à¹€à¸§à¸­à¸£à¹Œ à¸žà¸²à¸§à¹€à¸§à¸­à¸£à¹Œ à¸žà¸´à¸‹à¸‹à¹ˆà¸²',
++    subtitle: 'à¸£à¸°à¸™à¸­à¸‡, à¸›à¸£à¸°à¹€à¸—à¸¨à¹„à¸—à¸¢',
++    tagline1: 'à¸žà¸´à¸‹à¸‹à¹ˆà¸²à¹�à¸¥à¸°à¸­à¸²à¸«à¸²à¸£à¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™',
++    tagline2: 'à¹€à¸Šà¸Ÿà¸«à¸�à¸´à¸‡à¸Šà¸²à¸§à¸­à¸´à¸•à¸²à¸¥à¸µ â€¢ à¸§à¸±à¸•à¸–à¸¸à¸”à¸´à¸šà¸™à¸³à¹€à¸‚à¹‰à¸²',
++    info1: 'à¹€à¸›à¸´à¸”à¸šà¸£à¸´à¸�à¸²à¸£à¸—à¸¸à¸�à¸§à¸±à¸™',
++    info2: '11:00 â€“ 21:30',
++    info3: 'à¸šà¸£à¸´à¸�à¸²à¸£à¸ˆà¸±à¸”à¸ªà¹ˆà¸‡à¹�à¸¥à¸°à¸£à¸±à¸šà¸—à¸µà¹ˆà¸£à¹‰à¸²à¸™',
++    cartItems: 'à¸£à¸²à¸¢à¸�à¸²à¸£à¹ƒà¸™à¸£à¸–à¹€à¸‚à¹‡à¸™',
++    cartItem: 'à¸£à¸²à¸¢à¸�à¸²à¸£à¹ƒà¸™à¸£à¸–à¹€à¸‚à¹‡à¸™',
++    promoTitle: 'à¹‚à¸›à¸£à¹‚à¸¡à¸Šà¸±à¹ˆà¸™à¹�à¸¥à¸°à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸�à¸²à¸£à¸ˆà¸±à¸”à¸ªà¹ˆà¸‡',
++    deliveryLimit: 'à¸šà¸£à¸´à¸�à¸²à¸£à¸ˆà¸±à¸”à¸ªà¹ˆà¸‡à¹€à¸‰à¸žà¸²à¸°à¹ƒà¸™à¹€à¸‚à¸•à¸•à¸±à¸§à¹€à¸¡à¸·à¸­à¸‡à¸£à¸°à¸™à¸­à¸‡à¹€à¸—à¹ˆà¸²à¸™à¸±à¹‰à¸™',
++    promoFreeDelivery: 'à¸ˆà¸±à¸”à¸ªà¹ˆà¸‡à¸Ÿà¸£à¸µ à¹€à¸¡à¸·à¹ˆà¸­à¸ªà¸±à¹ˆà¸‡à¸‹à¸·à¹‰à¸­à¸„à¸£à¸š 200à¸¿ à¸‚à¸¶à¹‰à¸™à¹„à¸›',
++    promoFirstOrder: 'à¸ªà¹ˆà¸§à¸™à¸¥à¸” 10% à¸ªà¸³à¸«à¸£à¸±à¸šà¸�à¸²à¸£à¸ªà¸±à¹ˆà¸‡à¸‹à¸·à¹‰à¸­à¸„à¸£à¸±à¹‰à¸‡à¹�à¸£à¸�',
+   },
+   DE: {
+-    title: 'Flower Power Pizza',
+-    subtitle: 'Ranong, Thailand',
+-    tagline1: 'PIZZA & ITALIENISCHE KÜCHE',
+-    tagline2: 'Italienische Köchin • Importierte Zutaten',
+-    info1: 'Täglich geöffnet',
+-    info2: '11:00 – 21:30',
+-    info3: 'Lieferung & Abholung',
+-    cartItems: 'Artikel im Warenkorb',
+-    cartItem: 'Artikel im Warenkorb',
+-    promoTitle: 'Aktionen & Lieferbedingungen',
+-    deliveryLimit: 'Lieferungen erfolgen ausschließlich innerhalb der Stadt Ranong.',
+-    promoFreeDelivery: 'KOSTENLOSE Lieferung ab 200฿ Bestellwert',
+-    promoFirstOrder: '10% Rabatt auf Ihre erste Bestellung',
+-  },
+-};
+-
+-const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
++    title: 'Flower Power Piconst categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
+   'traditional-italian-pizza': {
+-    IT: { name: 'Pizze Classiche', desc: 'Impasto a fermentazione naturale' },
+-    EN: { name: 'Classic Pizzas', desc: 'Slow-fermented Italian dough' },
+-    TH: { name: 'พิซซ่าคลาสสิค', desc: 'แป้งหมักธรรมชาติสูตรดั้งเดิม' },
+-    DE: { name: 'Klassische Pizzas', desc: 'Natursauerteig-Pizzaboden' },
++    IT: { 
++      name: 'Pizze Classiche', 
++      desc: 'La pizza Ã¨ il cuore del nostro ristorante. Utilizziamo solo ingredienti italiani selezionati, dalla farina al pomodoro, dai formaggi ai salumi, senza compromessi sulla qualitÃ . La nostra pizza tradizionale italiana ad alta idratazione Ã¨ realizzata con un impasto al 90% di acqua, maturato lentamente per almeno 36 ore. Il risultato Ã¨ una pizza croccante, leggera, altamente digeribile e ricca di sapore.' 
++    },
++    EN: { 
++      name: 'Traditional Italian Pizza', 
++      desc: 'Pizza Is The Heart Of Our Restaurant. We Use Only Selected Italian Ingredients, From Flour To Tomato, From Cheeses To Cold Cuts, With No Compromise On Quality. Our Traditional High-Hydration Italian Pizza Is Made With A 90% Water Dough, Slowly Matured For At Least 36 Hours. The Result Is A Crispy, Light, Highly Digestible Pizza, Full Of Flavor' 
++    },
++    TH: { 
++      name: 'à¸žà¸´à¸‹à¸‹à¹ˆà¸²à¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™à¹�à¸šà¸šà¸”à¸±à¹‰à¸‡à¹€à¸”à¸´à¸¡', 
++      desc: 'à¸žà¸´à¸‹à¸‹à¹ˆà¸²à¸„à¸·à¸­à¸«à¸±à¸§à¹ƒà¸ˆà¸‚à¸­à¸‡à¸£à¹‰à¸²à¸™à¸­à¸²à¸«à¸²à¸£à¸‚à¸­à¸‡à¹€à¸£à¸² à¹€à¸£à¸²à¹ƒà¸Šà¹‰à¹€à¸‰à¸žà¸²à¸°à¸§à¸±à¸•à¸–à¸¸à¸”à¸´à¸šà¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™à¸—à¸µà¹ˆà¸„à¸±à¸”à¸ªà¸£à¸£à¸¡à¸²à¸­à¸¢à¹ˆà¸²à¸‡à¸”à¸µ à¸•à¸±à¹‰à¸‡à¹�à¸•à¹ˆà¹�à¸›à¹‰à¸‡ à¸¡à¸°à¹€à¸‚à¸·à¸­à¹€à¸—à¸¨ à¸Šà¸µà¸ª à¹„à¸›à¸ˆà¸™à¸–à¸¶à¸‡à¹‚à¸„à¸¥à¸”à¹Œà¸„à¸±à¸• à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¸›à¸£à¸°à¸™à¸µà¸›à¸£à¸°à¸™à¸­à¸¡à¸”à¹‰à¸²à¸™à¸„à¸¸à¸“à¸ à¸²à¸ž à¸žà¸´à¸‹à¸‹à¹ˆà¸²à¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™à¹�à¸šà¸šà¸”à¸±à¹‰à¸‡à¹€à¸”à¸´à¸¡à¸‚à¸­à¸‡à¹€à¸£à¸²à¹€à¸›à¹‡à¸™à¹�à¸›à¹‰à¸‡à¹„à¸®à¹€à¸”à¸£à¸Šà¸±à¸™à¸ªà¸¹à¸‡ à¸œà¸ªà¸¡à¸™à¹‰à¸³à¸–à¸¶à¸‡ 90% à¹�à¸¥à¸°à¸«à¸¡à¸±à¸�à¸­à¸¢à¹ˆà¸²à¸‡à¸Šà¹‰à¸²à¹† à¸­à¸¢à¹ˆà¸²à¸‡à¸™à¹‰à¸­à¸¢ 36 à¸Šà¸±à¹ˆà¸§à¹‚à¸¡à¸‡ à¸œà¸¥à¸¥à¸±à¸žà¸˜à¹Œà¸„à¸·à¸­à¸žà¸´à¸‹à¸‹à¹ˆà¸²à¸—à¸µà¹ˆà¸�à¸£à¸­à¸š à¹€à¸šà¸² à¸¢à¹ˆà¸­à¸¢à¸‡à¹ˆà¸²à¸¢ à¹�à¸¥à¸°à¹€à¸•à¹‡à¸¡à¹„à¸›à¸”à¹‰à¸§à¸¢à¸£à¸ªà¸Šà¸²à¸•à¸´' 
++    },
++    DE: { 
++      name: 'Klassische Pizzas', 
++      desc: 'Pizza ist das Herz unseres Restaurants. Wir verwenden nur ausgewÃ¤hlte italienische Zutaten, vom Mehl bis zur Tomate, vom KÃ¤se bis zum Aufschnitt, ohne Kompromisse bei der QualitÃ¤t. Unsere traditionelle italienische Pizza mit hoher Hydratation wird aus einem Teig mit 90 % Wasser hergestellt und reift mindestens 36 Stunden langsam. Das Ergebnis ist eine knusprige, leichte, hochverdauliche Pizza voller Geschmack.' 
++    },
+   },
+   'pasta': {
+     IT: { name: 'Pasta', desc: 'Primi piatti della tradizione' },
+-    EN: { name: 'Pasta Dishes', desc: 'Traditional Italian pasta' },
+-    TH: { name: 'พาสต้า', desc: 'เมนูพาสต้าอิตาเลียนดั้งเดิม' },
++    EN: { name: 'Pasta', desc: 'Traditional Italian pasta' },
++    TH: { name: 'à¸žà¸²à¸ªà¸•à¹‰à¸²', desc: 'à¹€à¸¡à¸™à¸¹à¸žà¸²à¸ªà¸•à¹‰à¸²à¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™à¸”à¸±à¹‰à¸‡à¹€à¸”à¸´à¸¡' },
+     DE: { name: 'Pasta', desc: 'Traditionelle italienische Pasta' },
+   },
+   'italian-salads': {
+-    IT: { name: 'Insalate Italiane', desc: 'Verdure fresche e ingredienti sani' },
+-    EN: { name: 'Italian Salads', desc: 'Fresh salads with olive oil' },
+-    TH: { name: 'สลัดอิตาเลียน', desc: 'ผักสดและน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิน' },
+-    DE: { name: 'Italienische Salate', desc: 'Frische Salate mit Olivenöl' },
++    IT: { 
++      name: 'Insalate Italiane', 
++      desc: 'Insalate in stile italiano con verdure fresche e ingredienti sani e di alta qualitÃ . Servite con gustose salse fatte in casa e olio extravergine d\'oliva. Fresche, deliziose e salutari.' 
++    },
++    EN: { 
++      name: 'Italian Salads', 
++      desc: 'Italian-style salads with fresh vegetables and healthy, high-quality ingredients. Served with tasty homemade sauces, extra virgin olive oil. Fresh, delicious and healthy' 
++    },
++    TH: { 
++      name: 'à¸ªà¸¥à¸±à¸”à¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™', 
++      desc: 'à¸ªà¸¥à¸±à¸”à¸ªà¹„à¸•à¸¥à¹Œà¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™ à¸—à¸³à¸ˆà¸²à¸�à¸œà¸±à¸�à¸ªà¸”à¹�à¸¥à¸°à¸§à¸±à¸•à¸–à¸¸à¸”à¸´à¸šà¹€à¸žà¸·à¹ˆà¸­à¸ªà¸¸à¸‚à¸ à¸²à¸žà¸„à¸¸à¸“à¸ à¸²à¸žà¸ªà¸¹à¸‡ à¹€à¸ªà¸´à¸£à¹Œà¸Ÿà¸žà¸£à¹‰à¸­à¸¡à¸‹à¸­à¸ªà¹‚à¸®à¸¡à¹€à¸¡à¸”à¸£à¸ªà¸­à¸£à¹ˆà¸­à¸¢à¹�à¸¥à¸°à¸™à¹‰à¸³à¸¡à¸±à¸™à¸¡à¸°à¸�à¸­à¸�à¹€à¸­à¹‡à¸�à¸‹à¹Œà¸•à¸£à¹‰à¸²à¹€à¸§à¸­à¸£à¹Œà¸ˆà¸´à¸™ à¸ªà¸”à¹ƒà¸«à¸¡à¹ˆ à¸­à¸£à¹ˆà¸­à¸¢ à¹�à¸¥à¸°à¸”à¸µà¸•à¹ˆà¸­à¸ªà¸¸à¸‚à¸ à¸²à¸ž' 
++    },
++    DE: { 
++      name: 'Italienische Salate', 
++      desc: 'Salate nach italienischer Art mit frischem GemÃ¼se und gesunden, hochwertigen Zutaten. Serviert mit leckeren hausgemachten Saucen und nativem OlivenÃ¶l extra. Frisch, lecker und gesund.' 
++    },
+   },
+   'pizza-sandwich': {
+-    IT: { name: 'Pizza Sandwich', desc: 'Pane appena sfornato farcito' },
+-    EN: { name: 'Pizza Sandwich', desc: 'Freshly baked sandwich' },
+-    TH: { name: 'พิตซ่าแซนด์วิช', desc: 'อบใหม่ร้อนๆ ไส้แน่น' },
+-    DE: { name: 'Pizza Sandwich', desc: 'Frisch gebackenes Sandwich' },
++    IT: { 
++      name: 'Pizza Sandwich', 
++      desc: 'Preparato con pane caldo appena sfornato e farcito con salumi autentici importati direttamente dall\'Italia.' 
++    },
++    EN: { 
++      name: 'Pizza Sandwich', 
++      desc: 'Made with warm, freshly baked bread and filled with authentic cold cuts imported directly from Italy' 
++    },
++    TH: { 
++      name: 'à¸žà¸´à¸•à¸‹à¹ˆà¸²à¹�à¸‹à¸™à¸”à¹Œà¸§à¸´à¸Š', 
++      desc: 'à¸—à¸³à¸ˆà¸²à¸�à¸‚à¸™à¸¡à¸›à¸±à¸‡à¸­à¸šà¹ƒà¸«à¸¡à¹ˆà¹† à¸£à¹‰à¸­à¸™à¹† à¹„à¸ªà¹‰à¹�à¸™à¹ˆà¸™à¸”à¹‰à¸§à¸¢à¹‚à¸„à¸¥à¸”à¹Œà¸„à¸±à¸—à¹�à¸—à¹‰à¸ªà¹ˆà¸‡à¸•à¸£à¸‡à¸ˆà¸²à¸�à¸­à¸´à¸•à¸²à¸¥à¸µ' 
++    },
++    DE: { 
++      name: 'Pizza Sandwich', 
++      desc: 'Frisch gebackenes, warmes Brot gefÃ¼llt mit echtem, direkt aus Italien importiertem Aufschnitt.' 
++    },
+   },
+   'pizza-burgers': {
+-    IT: { name: 'Pizza Burger', desc: 'Hamburger in stile italiano' },
+-    EN: { name: 'Pizza Burgers', desc: 'Italian-style burgers' },
+-    TH: { name: 'พิซซ่าเบอร์เกอร์', desc: 'เบอร์เกอร์โฮมเมดสไตล์อิตาเลียน' },
+-    DE: { name: 'Pizza Burger', desc: 'Burger nach italienischer Art' },
++    IT: { 
++      name: 'Pizza Burger', 
++      desc: 'Preparato con burger bun appena sfornati e hamburger fatti in casa in stile italiano, servito con patatine fritte, ketchup e maionese. Fresco, gustoso e soddisfacente.' 
++    },
++    EN: { 
++      name: 'Pizza Burgers', 
++      desc: 'Prepared With Freshly Baked Burger Buns And Homemade Italian-Style Hamburgers, Served With French Fries, Ketchup And Mayonnaise. Fresh, Tasty And Satisfying' 
++    },
++    TH: { 
++      name: 'à¸žà¸´à¸‹à¸‹à¹ˆà¸²à¹€à¸šà¸­à¸£à¹Œà¹€à¸�à¸­à¸£à¹Œ', 
++      desc: 'à¸—à¸³à¸ˆà¸²à¸�à¹€à¸šà¸­à¸£à¹Œà¹€à¸�à¸­à¸£à¹Œà¸šà¸±à¸™à¸­à¸šà¸ªà¸”à¹ƒà¸«à¸¡à¹ˆ à¹�à¸¥à¸°à¹�à¸®à¸¡à¹€à¸šà¸­à¸£à¹Œà¹€à¸�à¸­à¸£à¹Œà¹‚à¸®à¸¡à¹€à¸¡à¸”à¸ªà¹„à¸•à¸¥à¹Œà¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™ à¹€à¸ªà¸´à¸£à¹Œà¸Ÿà¸žà¸£à¹‰à¸­à¸¡à¹€à¸Ÿà¸£à¸™à¸Šà¹Œà¸Ÿà¸£à¸²à¸¢à¸ªà¹Œ à¸‹à¸­à¸ªà¸¡à¸°à¹€à¸‚à¸·à¸­à¹€à¸—à¸¨à¹�à¸¥à¸°à¸¡à¸²à¸¢à¸­à¸‡à¹€à¸™à¸ª à¸ªà¸”à¹ƒà¸«à¸¡à¹ˆà¸—à¸¸à¸�à¸ˆà¸²à¸™' 
++    },
++    DE: { 
++      name: 'Pizza Burger', 
++      desc: 'Zubereitet mit frisch gebackenen BurgerbrÃ¶tchen und hausgemachten Frikadellen nach italienischer Art, serviert mit Pommes Frites, Ketchup und Mayonnaise. Frisch, lecker und sÃ¤ttigend.' 
++    },
+   },
+   'french-fries': {
+-    IT: { name: 'Patatine Fritte', desc: 'Dorate e croccanti' },
+-    EN: { name: 'French Fries', desc: 'Crispy and golden' },
+-    TH: { name: 'มันฝรั่งทอด', desc: 'เฟรนช์ฟรายส์ทอดสดใหม่' },
+-    DE: { name: 'Pommes Frites', desc: 'Knusprig und goldbraun' },
++    IT: { 
++      name: 'Patatine Fritte', 
++      desc: 'Le patatine fritte sono preparate al momento su ordinazione, croccanti e deliziose, e servite con ketchup e maionese. Scegli la tua versione preferita e gustala.' 
++    },
++    EN: { 
++      name: 'French Fries', 
++      desc: 'French Fries Are Freshly Prepared To Order, Crispy And Delicious, And Served With Ketchup And Mayonnaise. Choose Your Favorite Version And Enjoy' 
++    },
++    TH: { 
++      name: 'à¸¡à¸±à¸™à¸�à¸£à¸±à¹ˆà¸‡à¸—à¸­à¸”', 
++      desc: 'à¹€à¸Ÿà¸£à¸™à¸Šà¹Œà¸Ÿà¸£à¸²à¸¢à¸ªà¹Œà¸—à¸­à¸”à¸ªà¸”à¹ƒà¸«à¸¡à¹ˆà¸•à¸²à¸¡à¸­à¸­à¹€à¸”à¸­à¸£à¹Œ à¸�à¸£à¸­à¸šà¸™à¸­à¸�à¸™à¸¸à¹ˆà¸¡ in à¹€à¸ªà¸´à¸£à¹Œà¸Ÿà¸žà¸£à¹‰à¸­à¸¡à¸‹à¸­à¸ªà¸¡à¸°à¹€à¸‚à¸·à¸­à¹€à¸—à¸¨à¹�à¸¥à¸°à¸¡à¸²à¸¢à¸­à¸‡à¹€à¸™à¸ª à¹�à¸ªà¸™à¸­à¸£à¹ˆà¸­à¸¢ à¹€à¸¥à¸·à¸­à¸�à¹€à¸§à¸­à¸£à¹Œà¸Šà¸±à¹ˆà¸™à¸—à¸µà¹ˆà¸„à¸¸à¸“à¸Šà¸­à¸šà¹„à¸”à¹‰à¹€à¸¥à¸¢' 
++    },
++    DE: { 
++      name: 'Pommes Frites', 
++      desc: 'Pommes Frites werden auf Bestellung frisch zubereitet, knusprig und lecker, serviert mit Ketchup und Mayonnaise. WÃ¤hlen Sie Ihre Lieblingsversion und genieÃŸen Sie.' 
++    },
+   },
+   'desserts': {
+-    IT: { name: 'Dolci', desc: 'Tiramisù e dessert artigianali' },
+-    EN: { name: 'Desserts', desc: 'Tiramisù and homemade desserts' },
+-    TH: { name: 'ของหวาน', desc: 'ทิรามิสุและขนมหวานโฮมเมด' },
+-    DE: { name: 'Desserts', desc: 'Tiramisù und hausgemachte Desserts' },
++    IT: { 
++      name: 'Dolci', 
++      desc: 'Il dessert Ã¨ il momento in cui il pasto diventa il massimo piacere. I nostri dolci sono fatti a mano, preparati con ingredienti freschi e genuini e tanta passione fatta in casa.' 
++    },
++    EN: { 
++      name: 'Desserts', 
++      desc: 'Dessert Is The Moment When A Meal Becomes The Ultimate Pleasure. Our Sweets Are Handmade, Prepared With Fresh, Genuine Ingredients And Homemade Passion' 
++    },
++    TH: { 
++      name: 'à¸‚à¸­à¸‡à¸«à¸§à¸²à¸™', 
++      desc: 'à¸‚à¸­à¸‡à¸«à¸§à¸²à¸™à¸„à¸·à¸­à¸Šà¹ˆà¸§à¸‡à¹€à¸§à¸¥à¸²à¸—à¸µà¹ˆà¸¡à¸·à¹‰à¸­à¸­à¸²à¸«à¸²à¸£à¸�à¸¥à¸²à¸¢à¹€à¸›à¹‡à¸™à¸„à¸§à¸²à¸¡à¸ªà¸¸à¸‚à¸ªà¸¹à¸‡à¸ªà¸¸à¸” à¸‚à¸™à¸¡à¸‚à¸­à¸‡à¹€à¸£à¸²à¸—à¸³à¹�à¸šà¸šà¹‚à¸®à¸¡à¹€à¸¡à¸” à¹ƒà¸Šà¹‰à¸§à¸±à¸•à¸–à¸¸à¸”à¸´à¸šà¸ªà¸”à¹ƒà¸«à¸¡à¹ˆà¹�à¸¥à¸°à¹�à¸—à¹‰à¸ˆà¸£à¸´à¸‡ à¸žà¸£à¹‰à¸­à¸¡à¸„à¸§à¸²à¸¡à¸«à¸¥à¸‡à¹ƒà¸«à¸¥à¹ƒà¸™à¸�à¸²à¸£à¸—à¸³à¸”à¹‰à¸§à¸¢à¸¡à¸·à¸­' 
++    },
++    DE: { 
++      name: 'Desserts', 
++      desc: 'Das Dessert ist der Moment, in dem eine Mahlzeit zum ultimativen VergnÃ¼gen wird. Unsere SÃ¼ÃŸspeisen sind handgemacht, zubereitet mit frischen, echten Zutaten und hausgemachter Leidenschaft.' 
++    },
+   },
+   'breakfast-and-snacks': {
+-    IT: { name: 'Colazione & Snack', desc: 'Per iniziare la giornata' },
+-    EN: { name: 'Breakfast & Snacks', desc: 'To start your day' },
+-    TH: { name: 'อาหารเช้าและของว่าง', desc: 'เริ่มต้นวันใหม่ด้วยพลังงาน' },
+-    DE: { name: 'Frühstück & Snacks', desc: 'Für einen guten Start in den Tag' },
++    IT: { 
++      name: 'Colazione & Snack', 
++      desc: 'La colazione Ã¨ il pasto piÃ¹ importante della giornata, il momento che dÃ  il tono e il ritmo a tutto ciÃ² che segue. Iniziare la giornata con ingredienti freschi, genuini e di alta qualitÃ , preparati con cura al momento, fa davvero la differenza, offrendo sapori autentici, energia duratura e un piacevole inizio di giornata.' 
++    },
++    EN: { 
++      name: 'Breakfast & Snacks', 
++      desc: 'Breakfast Is The Most Important Meal Of The Day, The Moment That Sets The Tone And Rhythm For Everything That Follows. Starting Your Day With Fresh, Genuine, High-Quality Ingredients, Carefully Prepared To Order, Truly Makes All The Difference, Offering Real Flavor, Lasting Energy, And An Enjoyable Start To The Day' 
++    },
++    TH: { 
++      name: 'à¸­à¸²à¸«à¸²à¸£à¹€à¸Šà¹‰à¸²à¹�à¸¥à¸°à¸‚à¸­à¸‡à¸§à¹ˆà¸²à¸‡', 
++      desc: 'à¸�à¸²à¸£à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™à¸§à¸±à¸™à¹ƒà¸«à¸¡à¹ˆà¸”à¹‰à¸§à¸¢à¸­à¸²à¸«à¸²à¸£à¹€à¸Šà¹‰à¸²à¹€à¸›à¹‡à¸™à¸ªà¸´à¹ˆà¸‡à¸ªà¸³à¸„à¸±à¸�à¸—à¸µà¹ˆà¸ªà¸¸à¸”à¸‚à¸­à¸‡à¸§à¸±à¸™ à¹€à¸›à¹‡à¸™à¸Šà¹ˆà¸§à¸‡à¹€à¸§à¸¥à¸²à¸—à¸µà¹ˆà¸�à¸³à¸«à¸™à¸”à¸ˆà¸±à¸‡à¸«à¸§à¸°à¹�à¸¥à¸°à¸­à¸²à¸£à¸¡à¸“à¹Œà¸‚à¸­à¸‡à¸—à¸±à¹‰à¸‡à¸§à¸±à¸™ à¸�à¸²à¸£à¹€à¸¥à¸·à¸­à¸�à¹ƒà¸Šà¹‰à¸§à¸±à¸•à¸–à¸¸à¸”à¸´à¸šà¸—à¸µà¹ˆà¸ªà¸”à¹ƒà¸«à¸¡à¹ˆ à¹€à¸›à¹‡à¸™à¸˜à¸£à¸£à¸¡à¸Šà¸²à¸•à¸´ à¹�à¸¥à¸°à¸¡à¸µà¸„à¸¸à¸“à¸ à¸²à¸ž à¸‹à¸¶à¹ˆà¸‡à¸›à¸£à¸¸à¸‡à¸ªà¸”à¹ƒà¸«à¸¡à¹ˆà¸—à¸¸à¸�à¸ˆà¸²à¸™à¸”à¹‰à¸§à¸¢à¸„à¸§à¸²à¸¡à¹ƒà¸ªà¹ˆà¹ƒà¸ˆ à¸ˆà¸°à¸Šà¹ˆà¸§à¸¢à¹€à¸•à¸´à¸¡à¸žà¸¥à¸±à¸‡ à¸ªà¸£à¹‰à¸²à¸‡à¸„à¸§à¸²à¸¡à¸ªà¸¸à¸‚ à¸¡à¸­à¸šà¸£à¸ªà¸Šà¸²à¸•à¸´à¸—à¸µà¹ˆà¹�à¸—à¹‰à¸ˆà¸£à¸´à¸‡ à¹�à¸¥à¸°à¸ªà¸£à¹‰à¸²à¸‡à¸ˆà¸±à¸‡à¸«à¸§à¸°à¸—à¸µà¹ˆà¸”à¸µà¹ƒà¸«à¹‰à¸„à¸¸à¸“à¹€à¸£à¸´à¹ˆà¸¡à¸•à¹‰à¸™à¸§à¸±à¸™à¹„à¸”à¹‰à¸­à¸¢à¹ˆà¸²à¸‡à¸ªà¸¡à¸šà¸¹à¸£à¸“à¹Œà¹�à¸šà¸šà¸¡à¸²à¸�à¸¢à¸´à¹ˆà¸‡à¸‚à¸¶à¹‰à¸™' 
++    },
++    DE: { 
++      name: 'FrÃ¼hstÃ¼ck & Snacks', 
++      desc: 'Das FrÃ¼hstÃ¼ck ist die wichtigste Mahlzeit des Tages, der Moment, der den Ton und den Rhythmus fÃ¼r alles Weitere angibt. Den Tag mit frischen, echten und hochwertigen Zutaten zu beginnen, die sorgfÃ¤ltig auf Bestellung zubereitet werden, macht wirklich den Unterschied und bietet echten Geschmack, anhaltende Energie und einen angenehmen Start in den Tag.' 
++    },
+   },
+   'coffee-shop': {
+-    IT: { name: 'Caffetteria', desc: 'Caffè espresso italiano' },
+-    EN: { name: 'Coffee Shop', desc: 'Italian espresso coffee' },
+-    TH: { name: 'ร้านกาแฟ', desc: 'เอสเพรสโซ่อิตาเลียนแท้' },
+-    DE: { name: 'Kaffeeshop', desc: 'Italienischer Espresso' },
++    IT: { 
++      name: 'Caffetteria', 
++      desc: 'Il caffÃ¨ Ã¨ il cuore della cultura italiana. Non Ã¨ solo una bevanda, ma un rito quotidiano di pausa e piacere, da gustare lentamente con un sorriso, ogni giorno. Dall\'espresso alle versioni piÃ¹ golose, ogni tazza offre un\'esperienza autentica, semplice, fatta di gusto e piccoli dettagli curati con passione.' 
++    },
++    EN: { 
++      name: 'Coffee Shop', 
++      desc: 'Coffee Is The Heart Of Italian Culture. It Is Not Just A Drink, But A Daily Ritual Of Pause And Pleasure, To Be Enjoyed Slowly With A Smile, Every Day. From Espresso To More Indulgent Versions, Every Cup Offers An Authentic Experience, Simple, Made Of Flavor And Small Details Crafted With Passion' 
++    },
++    TH: { 
++      name: 'à¸£à¹‰à¸²à¸™à¸�à¸²à¹�à¸Ÿ', 
++      desc: 'à¸�à¸²à¹�à¸Ÿà¸„à¸·à¸­à¸«à¸±à¸§à¹ƒà¸ˆà¸‚à¸­à¸‡à¸§à¸±à¸’à¸™à¸˜à¸£à¸£à¸¡à¸­à¸´à¸•à¸²à¸¥à¸µ à¹„à¸¡à¹ˆà¹ƒà¸Šà¹ˆà¹�à¸„à¹ˆà¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸”à¸·à¹ˆà¸¡ à¹�à¸•à¹ˆà¸„à¸·à¸­à¸žà¸´à¸˜à¸µà¸�à¸£à¸£à¸¡à¸›à¸£à¸°à¸ˆà¸³à¸§à¸±à¸™à¸‚à¸­à¸‡à¸�à¸²à¸£à¸«à¸¢à¸¸à¸”à¸žà¸±à¸� à¸„à¸§à¸²à¸¡à¸œà¹ˆà¸­à¸™à¸„à¸¥à¸²à¸¢ à¹�à¸¥à¸°à¸„à¸§à¸²à¸¡à¸ªà¸¸à¸‚à¹€à¸¥à¹‡à¸�à¹† à¸—à¸µà¹ˆà¸„à¸§à¸£à¸”à¸·à¹ˆà¸¡à¸”à¹ˆà¸³à¸­à¸¢à¹ˆà¸²à¸‡à¸ªà¸šà¸²à¸¢à¹ƒà¸ˆ à¸žà¸£à¹‰à¸­à¸¡à¸£à¸­à¸¢à¸¢à¸´à¹‰à¸¡ in à¸—à¸¸à¸�à¹† à¸§à¸±à¸™ à¸•à¸±à¹‰à¸‡à¹�à¸•à¹ˆà¹€à¸­à¸ªà¹€à¸žà¸£à¸ªà¹‚à¸‹à¹„à¸›à¸ˆà¸™à¸–à¸¶à¸‡à¸ªà¸¹à¸•à¸£à¸—à¸µà¹ˆà¹€à¸‚à¹‰à¸¡à¸‚à¹‰à¸™à¸¢à¸´à¹ˆà¸‡à¸‚à¸¶à¹‰à¸™ à¸—à¸¸à¸�à¸–à¹‰à¸§à¸¢à¸¡à¸­à¸šà¸›à¸£à¸°à¸ªà¸šà¸�à¸²à¸£à¸“à¹Œà¸—à¸µà¹ˆà¹�à¸—à¹‰à¸ˆà¸£à¸´à¸‡ à¹€à¸£à¸µà¸¢à¸šà¸‡à¹ˆà¸²à¸¢ à¹€à¸•à¹‡à¸¡à¹„à¸›à¸”à¹‰à¸§à¸¢à¸£à¸ªà¸Šà¸²à¸•à¸´ à¹�à¸¥à¸°à¸£à¸²à¸¢à¸¥à¸°à¹€à¸­à¸µà¸¢à¸”à¹€à¸¥à¹‡à¸�à¹† à¸—à¸µà¹ˆà¹€à¸›à¸µà¹ˆà¸¢à¸¡à¸”à¹‰à¸§à¸¢à¸„à¸§à¸²à¸¡à¸«à¸¥à¸‡à¹ƒà¸«à¸¥' 
++    },
++    DE: { 
++      name: 'Kaffeeshop', 
++      desc: 'Kaffee ist das Herz der italienischen Kultur. Er ist nicht nur ein GetrÃ¤nk, sondern ein tÃ¤gliches Ritual des Innehaltens und des Genusses, das man jeden Tag langsam und mit einem LÃ¤cheln genieÃŸen sollte. Vom Espresso bis hin zu genussvolleren Varianten bietet jede Tasse ein authentisches, einfaches Erlebnis, das von Geschmack und kleinen, mit Leidenschaft gepflegten Details geprÃ¤gt ist.' 
++    },
+   },
+   'fruit-drinks': {
+-    IT: { name: 'Bevande alla Frutta', desc: 'Frullati e shake freschi' },
+-    EN: { name: 'Fruit Drinks', desc: 'Fresh fruit shakes' },
+-    TH: { name: 'เครื่องดื่มผลไม้', desc: 'ผลไม้สดปั่นสดใหม่' },
+-    DE: { name: 'Fruchtgetränke', desc: 'Frische Frucht-Shakes' },
++    IT: { 
++      name: 'Bevande alla Frutta', 
++      desc: 'Tutte le nostre bevande alla frutta sono preparate fresche al momento con frutta fresca e ingredienti di alta qualitÃ  accuratamente selezionati, offrendo un gusto pieno e rinfrescante.' 
++    },
++    EN: { 
++      name: 'Fruit Drinks', 
++      desc: 'All Our Fruit Drinks Are Made Fresh To Order With Fresh Fruit And Carefully Selected High-Quality Ingredients, Delivering A Full And Refreshing Flavor' 
++    },
++    TH: { 
++      name: 'à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸”à¸·à¹ˆà¸¡à¸œà¸¥à¹„à¸¡à¹‰', 
++      desc: 'à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸”à¸·à¹ˆà¸¡à¸œà¸¥à¹„à¸¡à¹‰à¸‚à¸­à¸‡à¹€à¸£à¸²à¸—à¸±à¹‰à¸‡à¸«à¸¡à¸”à¸—à¸³à¸ªà¸”à¹ƒà¸«à¸¡à¹ˆà¸—à¸¸à¸�à¹�à¸�à¹‰à¸§ à¸ˆà¸²à¸�à¸œà¸¥à¹„à¸¡à¹‰à¸ªà¸”à¹�à¸¥à¸°à¸§à¸±à¸•à¸–à¸¸à¸”à¸´à¸šà¸„à¸±à¸”à¸ªà¸£à¸£à¸„à¸¸à¸“à¸ à¸²à¸žà¹€à¸¢à¸µà¹ˆà¸¢à¸¡ à¹ƒà¸«à¹‰à¸£à¸ªà¸Šà¸²à¸•à¸´à¸ªà¸”à¸Šà¸·à¹ˆà¸™à¹€à¸•à¹‡à¸¡à¹€à¸›à¸µà¹ˆà¸¢à¸¡' 
++    },
++    DE: { 
++      name: 'FruchtgetrÃ¤nke', 
++      desc: 'Alle unsere FruchtgetrÃ¤nke werden auf Bestellung frisch aus frischen FrÃ¼chten und sorgfÃ¤ltig ausgewÃ¤hlten, hochwertigen Zutaten zubereitet und bieten einen vollen und erfrischenden Geschmack.' 
++    },
+   },
+   'soft-drinks': {
+-    IT: { name: 'Bibite', desc: 'Bibite rinfrescanti' },
+-    EN: { name: 'Soft Drinks', desc: 'Refreshing drinks' },
+-    TH: { name: 'น้ำอัดลม', desc: 'เครื่องดื่มไร้แอลกอฮอล์' },
+-    DE: { name: 'Alkoholfreie Getränke', desc: 'Erfrischungsgetränke' },
++    IT: { 
++      name: 'Bibite', 
++      desc: 'Bevande fresche e analcoliche accuratamente servite in bicchiere, perfette per accompagnare il pasto o per rinfrescarsi, ideali in qualsiasi momento della giornata.' 
++    },
++    EN: { 
++      name: 'Soft Drinks', 
++      desc: 'Fresh, Non-Alcoholic Drinks Carefully Served In A Glass, Perfect To Accompany Your Meal Or Refresh You, Ideal For Any Moment Of The Day' 
++    },
++    TH: { 
++      name: 'à¸™à¹‰à¸³à¸­à¸±à¸”à¸¥à¸¡', 
++      desc: 'à¹€à¸„à¸£à¸·à¹ˆà¸­à¸‡à¸”à¸·à¹ˆà¸¡à¹„à¸£à¹‰à¹�à¸­à¸¥à¸�à¸­à¸®à¸­à¸¥à¹Œà¸ªà¸”à¸Šà¸·à¹ˆà¸™ à¹€à¸ªà¸´à¸£à¹Œà¸Ÿà¹ƒà¸™à¹�à¸�à¹‰à¸§à¸­à¸¢à¹ˆà¸²à¸‡à¸žà¸´à¸–à¸µà¸žà¸´à¸–à¸±à¸™ à¹€à¸«à¸¡à¸²à¸°à¸ªà¸³à¸«à¸£à¸±à¸šà¸—à¸²à¸™à¸„à¸¹à¹ˆà¸¡à¸·à¹‰à¸­à¸­à¸²à¸«à¸²à¸£à¸«à¸£à¸·à¸­à¹€à¸•à¸´à¸¡à¸„à¸§à¸²à¸¡à¸ªà¸”à¸Šà¸·à¹ˆà¸™à¸•à¸¥à¸­à¸”à¸§à¸±à¸™' 
++    },
++    DE: { 
++      name: 'Alkoholfreie GetrÃ¤nke', 
++      desc: 'Frische, alkoholfreie GetrÃ¤nke, sorgfÃ¤ltig im Glas serviert, perfekt als Begleitung zu Ihrer Mahlzeit oder zur Erfrischung, ideal fÃ¼r jeden Moment des Tages.' 
++    },
++  },
++  'beers-and-wines': {
++    IT: { name: 'Birre & Vini', desc: 'Birre fresche e selezione di vini italiani' },
++    EN: { name: 'Beers & Wines', desc: 'Chilled beers and Italian wine selection' },
++    TH: { name: 'à¹€à¸šà¸µà¸¢à¸£à¹Œà¹�à¸¥à¸°à¹„à¸§à¸™à¹Œ', desc: 'à¹€à¸šà¸µà¸¢à¸£à¹Œà¹€à¸¢à¹‡à¸™à¹† à¹�à¸¥à¸°à¹„à¸§à¸™à¹Œà¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™à¸„à¸±à¸”à¸ªà¸£à¸£' },
++    DE: { name: 'Biere & Weine', desc: 'GekÃ¼hlte Biere und ausgewÃ¤hlte italienische Weine' },
++  },
++};
++
++const PASTA_SAUCES = [
++  { 
++    id: 'aglio-olio', 
++    name: { 
++      IT: 'Aglio, Olio e Peperoncino', 
++      EN: 'Garlic, Oil & Chili', 
++      TH: 'à¸­à¸±à¸¥à¹‚à¸¢ à¹‚à¸­à¸¥à¸µà¹‚à¸­ à¸žà¸£à¸´à¸�à¹�à¸«à¹‰à¸‡', 
++      DE: 'Knoblauch, Ã–l & Chili' 
++    }, 
++    desc: {
++      IT: 'Un classico italiano semplice e saporito preparato con aglio, olio extravergine d\'oliva e peperoncino, con un gusto intenso e aromatico che delizia ogni singolo morso.',
++      EN: 'A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite',
++      TH: 'à¹€à¸¡à¸™à¸¹à¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™à¸ªà¸¸à¸”à¸„à¸¥à¸²à¸ªà¸ªà¸´à¸�à¸—à¸µà¹ˆà¹€à¸£à¸µà¸¢à¸šà¸‡à¹ˆà¸²à¸¢à¹�à¸•à¹ˆà¸£à¸ªà¸Šà¸²à¸•à¸´à¹€à¸‚à¹‰à¸¡à¸‚à¹‰à¸™ à¸—à¸³à¸ˆà¸²à¸�à¸�à¸£à¸°à¹€à¸—à¸µà¸¢à¸¡ à¸™à¹‰à¸³à¸¡à¸±à¸™à¸¡à¸°à¸�à¸­à¸� à¹�à¸¥à¸°à¸žà¸£à¸´à¸�à¹�à¸«à¹‰à¸‡ à¸£à¸ªà¸Šà¸²à¸•à¸´à¸«à¸­à¸¡à¸¡à¸±à¸™à¹�à¸¥à¸°à¹‚à¸”à¸”à¹€à¸”à¹ˆà¸™à¹ƒà¸™à¸—à¸¸à¸�à¸„à¸³',
++      DE: 'Ein einfacher und geschmackvoller italienischer Klassiker aus Knoblauch, OlivenÃ¶l und Chili, mit einem intensiven, aromatischen Geschmack, der jeden Bissen begeistert.'
++    },
++    pattern: 'Garlic, Oil' 
++  },
++  { 
++    id: 'pomodoro', 
++    name: { 
++      IT: 'Salsa di Pomodoro', 
++      EN: 'Tomato Sauce', 
++      TH: 'à¸‹à¸­à¸ªà¸¡à¸°à¹€à¸‚à¸·à¸­à¹€à¸—à¸¨', 
++      DE: 'Tomatensauce' 
++    }, 
++    desc: {
++      IT: 'Salsa di pomodoro all\'italiana preparata con pomodori maturi, olio d\'oliva, aglio o cipolla, sale e basilico. Ãˆ il cuore pulsante della cucina italiana.',
++      EN: 'Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. Itâ€™s the heart of Italian cuisine',
++      TH: 'à¸‹à¸­à¸ªà¸¡à¸°à¹€à¸‚à¸·à¸­à¹€à¸—à¸¨à¹�à¸šà¸šà¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™ à¸—à¸³à¸ˆà¸²à¸�à¸¡à¸°à¹€à¸‚à¸·à¸­à¹€à¸—à¸¨à¸ªà¸¸à¸� à¸™à¹‰à¸³à¸¡à¸±à¸™à¸¡à¸°à¸�à¸­à¸� à¸�à¸£à¸°à¹€à¸—à¸µà¸¢à¸¡à¸«à¸£à¸·à¸­à¸«à¸±à¸§à¸«à¸­à¸¡ à¹€à¸�à¸¥à¸·à¸­ à¹�à¸¥à¸°à¹ƒà¸šà¹‚à¸«à¸£à¸°à¸žà¸² à¹€à¸›à¹‡à¸™à¸«à¸±à¸§à¹ƒà¸ˆà¸‚à¸­à¸‡à¸­à¸²à¸«à¸²à¸£à¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™',
++      DE: 'Italienische Tomatensauce aus reifen Tomaten, OlivenÃ¶l, Knoblauch oder Zwiebeln, Salz und Basilikum. Sie ist das Herz der italienischen KÃ¼che.'
++    },
++    pattern: 'Tomato Sauce' 
++  },
++  { 
++    id: 'pesto', 
++    name: { 
++      IT: 'Pesto Genovese', 
++      EN: 'Pesto Genovese', 
++      TH: 'à¹€à¸žà¸ªà¹‚à¸•à¹‰ à¹€à¸ˆà¹‚à¸™à¹€à¸§à¹€à¸‹', 
++      DE: 'Pesto Genovese' 
++    }, 
++    desc: {
++      IT: 'Salsa fresca al basilico con anacardi, parmigiano, aglio e olio d\'oliva, con un sapore ricco e aromatico che evoca i profumi di Genova.',
++      EN: 'Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa',
++      TH: 'à¸‹à¸­à¸ªà¸ªà¸”à¸ˆà¸²à¸�à¹ƒà¸šà¹‚à¸«à¸£à¸°à¸žà¸² à¹€à¸¡à¹‡à¸”à¸¡à¸°à¸¡à¹ˆà¸§à¸‡à¸«à¸´à¸¡à¸žà¸²à¸™à¸•à¹Œ à¸Šà¸µà¸ªà¸žà¸²à¸£à¹Œà¸¡à¸µà¸‹à¸²à¸™ à¸�à¸£à¸°à¹€à¸—à¸µà¸¢à¸¡ à¹�à¸¥à¸°à¸™à¹‰à¸³à¸¡à¸±à¸™à¸¡à¸°à¸�à¸­à¸� à¸£à¸ªà¸Šà¸²à¸•à¸´à¹€à¸‚à¹‰à¸¡à¸‚à¹‰à¸™à¹�à¸¥à¸°à¸¡à¸µà¸�à¸¥à¸´à¹ˆà¸™à¸«à¸­à¸¡à¹€à¸‰à¸žà¸²à¸°à¸•à¸±à¸§à¸‚à¸­à¸‡à¹€à¸¡à¸·à¸­à¸‡à¹€à¸ˆà¸™à¸±à¸§',
++      DE: 'Frische Basilikumsauce mit CashewnÃ¼ssen, ParmesankÃ¤se, Knoblauch und OlivenÃ¶l, mit einem reichen, aromatischen Geschmack, der an Genua erinnert.'
++    },
++    pattern: 'Pesto Genovese' 
++  },
++  { 
++    id: 'amatriciana', 
++    name: { 
++      IT: 'Salsa Amatriciana', 
++      EN: 'Amatriciana', 
++      TH: 'à¸­à¸²à¸¡à¸²à¸—à¸£à¸´à¹€à¸‹à¸µà¸¢à¸™à¹ˆà¸²', 
++      DE: 'Amatriciana' 
++    }, 
++    desc: {
++      IT: 'Salsa in stile romano con pomodoro, guanciale e pecorino, cotta lentamente per ottenere un sapore dolce e sapido bilanciato, un classico della tradizione italiana.',
++      EN: 'Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition',
++      TH: 'à¸‹à¸­à¸ªà¸ªà¹„à¸•à¸¥à¹Œà¹‚à¸£à¸¡à¸±à¸™ à¸—à¸³à¸ˆà¸²à¸�à¸¡à¸°à¹€à¸‚à¸·à¸­à¹€à¸—à¸¨ à¹�à¸�à¹‰à¸¡à¸«à¸¡à¸¹à¸£à¸¡à¸„à¸§à¸±à¸™ à¹�à¸¥à¸°à¸Šà¸µà¸ªà¹€à¸›à¹‚à¸„à¸£à¸´à¹‚à¸™ à¹€à¸„à¸µà¹ˆà¸¢à¸§à¸Šà¹‰à¸²à¹€à¸žà¸·à¹ˆà¸­à¸£à¸ªà¸Šà¸²à¸•à¸´à¸—à¸µà¹ˆà¸ªà¸¡à¸”à¸¸à¸¥à¸£à¸°à¸«à¸§à¹ˆà¸²à¸‡à¸«à¸§à¸²à¸™à¹�à¸¥à¸°à¹€à¸„à¹‡à¸¡ à¹€à¸›à¹‡à¸™à¹€à¸¡à¸™à¸¹à¸„à¸¥à¸²à¸ªà¸ªà¸´à¸�à¸‚à¸­à¸‡à¸­à¸´à¸•à¸²à¸¥à¸µ',
++      DE: 'RÃ¶mische Sauce mit Tomaten, gereifter Schweinebacke und Pecorino, langsam gekocht fÃ¼r einen ausgewogenen sÃ¼ÃŸ-salzigen Geschmack, ein Klassiker der italienischen Tradition.'
++    },
++    pattern: 'Amatriciana' 
++  },
++  { 
++    id: 'bolognese', 
++    name: { 
++      IT: 'Salsa RagÃ¹ Bolognese', 
++      EN: 'Bolognese RagÃ¹', 
++      TH: 'à¹‚à¸šà¹‚à¸¥à¹€à¸™à¸ª à¸£à¸²à¸�à¸¹', 
++      DE: 'Bolognese-RagÃ¹' 
++    }, 
++    desc: {
++      IT: 'Un ricco ragÃ¹ cotto lentamente con carne macinata, pomodori, verdure e vino rosso. Un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.',
++      EN: 'A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bolognaâ€™s tradition',
++      TH: 'à¸‹à¸­à¸ªà¹€à¸™à¸·à¹‰à¸­à¹€à¸‚à¹‰à¸¡à¸‚à¹‰à¸™ à¹€à¸„à¸µà¹ˆà¸¢à¸§à¸Šà¹‰à¸²à¹† à¸”à¹‰à¸§à¸¢à¹€à¸™à¸·à¹‰à¸­à¸šà¸” à¸¡à¸°à¹€à¸‚à¸·à¸­à¹€à¸—à¸¨ à¸œà¸±à¸�à¸ªà¸” à¹�à¸¥à¸°à¹„à¸§à¸™à¹Œà¹�à¸”à¸‡ à¸£à¸ªà¸Šà¸²à¸•à¸´à¹€à¸•à¹‡à¸¡à¹† à¸¥à¸°à¸¡à¸¸à¸™ à¹�à¸¥à¸°à¹‚à¸”à¸”à¹€à¸”à¹ˆà¸™ à¹€à¸›à¹‡à¸™à¹€à¸­à¸�à¸¥à¸±à¸�à¸©à¸“à¹Œà¸‚à¸­à¸‡à¹‚à¸šà¹‚à¸¥à¸�à¸�à¸²',
++      DE: 'Eine reichhaltige, langsam gekochte Sauce mit Hackfleisch, Tomaten, GemÃ¼se und Rotwein. Voller, einhÃ¼llender und unwiderstehlicher Geschmack, ein Symbol der Tradition von Bologna.'
++    },
++    pattern: 'Bolognese Ragu' 
++  },
++  { 
++    id: 'carbonara', 
++    name: { 
++      IT: 'Carbonara', 
++      EN: 'Carbonara', 
++      TH: 'à¸„à¸²à¸£à¹Œà¹‚à¸šà¸™à¸²à¸£à¸²', 
++      DE: 'Carbonara' 
++    }, 
++    desc: {
++      IT: 'Uno dei piatti piÃ¹ amati d\'Italia, preparato con guanciale, uova fresche, pecorino romano e pepe nero. Cremoso e autentico, dal sapore ricco e tradizionale.',
++      EN: 'One of Italyâ€™s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor',
++      TH: 'à¹€à¸¡à¸™à¸¹à¸¢à¸­à¸”à¸™à¸´à¸¢à¸¡à¸‚à¸­à¸‡à¸­à¸´à¸•à¸²à¸¥à¸µ à¸—à¸³à¸ˆà¸²à¸�à¹�à¸�à¹‰à¸¡à¸«à¸¡à¸¹à¸£à¸¡à¸„à¸§à¸±à¸™ à¹„à¸‚à¹ˆ à¸Šà¸µà¸ªà¹€à¸›à¹‚à¸„à¸£à¸´à¹‚à¸™ à¹�à¸¥à¸°à¸žà¸£à¸´à¸�à¹„à¸—à¸¢à¸”à¸³ à¹€à¸‚à¹‰à¸¡à¸‚à¹‰à¸™ à¹‚à¸”à¸¢à¹„à¸¡à¹ˆà¹ƒà¸Šà¹‰à¸„à¸£à¸µà¸¡ à¸£à¸ªà¸Šà¸²à¸•à¸´à¹�à¸—à¹‰à¹�à¸¥à¸°à¸™à¹ˆà¸²à¸«à¸¥à¸‡à¹ƒà¸«à¸¥',
++      DE: 'Eines der beliebtesten Gerichte Italiens, zubereitet mit gereifter Schweinebacke, Eiern, Pecorino-KÃ¤se und schwarzem Pfeffer. Cremig und authentisch, mit einem reichen, traditionellen Geschmack.'
++    },
++    pattern: 'Carbonara' 
++  },
++  { 
++    id: 'quattro-formaggi', 
++    name: { 
++      IT: 'Quattro Formaggi', 
++      EN: 'Four Cheeses', 
++      TH: 'à¸Šà¸µà¸ªà¹‚à¸Ÿà¸£à¹Œà¸Ÿà¸­à¸£à¹Œà¸¡à¸²à¸ˆ', 
++      DE: 'Vier KÃ¤se' 
++    }, 
++    desc: {
++      IT: 'Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi perfettamente insieme per creare un sapore ricco, deciso e avvolgente ad ogni morso.',
++      EN: 'A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite',
++      TH: 'à¸£à¸§à¸¡à¸Šà¸µà¸ªà¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™ 4 à¸Šà¸™à¸´à¸”à¸—à¸µà¹ˆà¸„à¸±à¸”à¸ªà¸£à¸£à¸¡à¸²à¸­à¸¢à¹ˆà¸²à¸‡à¸”à¸µ à¸¥à¸°à¸¥à¸²à¸¢à¹€à¸‚à¹‰à¸²à¸�à¸±à¸™à¸­à¸¢à¹ˆà¸²à¸‡à¸¥à¸‡à¸•à¸±à¸§ à¸£à¸ªà¸Šà¸²à¸•à¸´à¹€à¸‚à¹‰à¸¡à¸‚à¹‰à¸™ à¸«à¸­à¸¡à¸¡à¸±à¸™ à¹�à¸¥à¸°à¸¥à¸°à¸¡à¸¸à¸™à¹ƒà¸™à¸—à¸¸à¸�à¸„à¸³',
++      DE: 'Eine cremige Mischung aus vier sorgfÃ¤ltig ausgewÃ¤hlten italienischen KÃ¤sesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichen und krÃ¤ftigen Geschmack zu kreieren.'
++    },
++    pattern: 'Four Cheeses' 
++  },
++  { 
++    id: 'flower-power', 
++    name: { 
++      IT: 'Flower Power', 
++      EN: 'Flower Power', 
++      TH: 'à¸Ÿà¸¥à¸²à¸§à¹€à¸§à¸­à¸£à¹Œ à¸žà¸²à¸§à¹€à¸§à¸­à¸£à¹Œ', 
++      DE: 'Flower Power' 
++    }, 
++    desc: {
++      IT: 'Salsa per pasta artigianale preparata in casa con gorgonzola, salsiccia italiana e carciofi. Cremosa, ricca e dal sapore unico, perfetta per gli amanti dei gusti decisi.',
++      EN: 'House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes',
++      TH: 'à¸‹à¸­à¸ªà¸žà¸²à¸ªà¸•à¹‰à¸²à¹‚à¸®à¸¡à¹€à¸¡à¸” à¸£à¸§à¸¡à¸�à¸­à¸£à¹Œà¸�à¸­à¸™à¹‚à¸‹à¸¥à¹ˆà¸² à¹„à¸ªà¹‰à¸�à¸£à¸­à¸�à¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™ à¹�à¸¥à¸°à¸­à¸²à¸•à¸´à¹‚à¸Šà¹Šà¸„ à¸£à¸ªà¸Šà¸²à¸•à¸´à¹€à¸‚à¹‰à¸¡à¸‚à¹‰à¸™ à¸�à¸¥à¸¡à¸�à¸¥à¹ˆà¸­à¸¡ à¹€à¸«à¸¡à¸²à¸°à¸ªà¸³à¸«à¸£à¸±à¸šà¸„à¸™à¸—à¸µà¹ˆà¸Šà¸­à¸šà¸£à¸ªà¸ˆà¸±à¸”',
++      DE: 'Hausgemachte Nudelsauce mit Gorgonzola, italienischer Wurst und Artischocken. Cremig, reichhaltig und voller einzigartigem Geschmack, perfekt fÃ¼r Liebhaber krÃ¤ftiger Aromen.'
++    },
++    pattern: 'Flower Power' 
++  },
++  { 
++    id: 'lasagne', 
++    name: { 
++      IT: 'Lasagne', 
++      EN: 'Baked Lasagna', 
++      TH: 'à¸¥à¸²à¸‹à¸²à¸™à¸�à¹ˆà¸²à¸­à¸š', 
++      DE: 'Lasagne' 
++    }, 
++    desc: {
++      IT: 'Le lasagne fatte in casa sono un classico della cucina italiana, preparate con besciamella, ragÃ¹ e parmigiano. Si prega di ordinare con un giorno di anticipo (minimo due porzioni) o chiedere allo staff. Tempo di cottura circa 30 minuti.',
++      EN: 'Homemade Lasagne Are A Classic Of Italian Cuisine, Made With BÃ©chamel, Sauces, And Parmesan. Pre-Order One Day In Advance, Minimum Two Portions, Or Ask The Staff. Cooking Time About 30 Minutes.',
++      TH: 'à¸¥à¸²à¸‹à¸²à¸™à¸�à¹ˆà¸²à¹‚à¸®à¸¡à¹€à¸¡à¸”à¹€à¸›à¹‡à¸™à¹€à¸¡à¸™à¸¹à¸„à¸¥à¸²à¸ªà¸ªà¸´à¸�à¸‚à¸­à¸‡à¸­à¸²à¸«à¸²à¸£à¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™ à¸—à¸³à¸ˆà¸²à¸�à¹€à¸šà¸Šà¸²à¹€à¸¡à¸¥ à¸‹à¸­à¸ªà¸•à¹ˆà¸²à¸‡à¹† à¹�à¸¥à¸°à¸žà¸²à¸£à¹Œà¹€à¸¡à¸‹à¸²à¸™ à¸ªà¸±à¹ˆà¸‡à¸¥à¹ˆà¸§à¸‡à¸«à¸™à¹‰à¸²à¸­à¸¢à¹ˆà¸²à¸‡à¸™à¹‰à¸­à¸¢ 1 à¸§à¸±à¸™ à¸‚à¸±à¹‰à¸™à¸•à¹ˆà¸³ 2 à¸—à¸µà¹ˆ à¸«à¸£à¸·à¸­à¸ªà¸­à¸šà¸–à¸²à¸¡à¸žà¸™à¸±à¸�à¸‡à¸²à¸™ à¹€à¸§à¸¥à¸²à¸­à¸šà¸›à¸£à¸°à¸¡à¸²à¸“ 30 à¸™à¸²à¸—à¸µ',
++      DE: 'Hausgemachte Lasagne ist ein Klassiker der italienischen KÃ¼che, zubereitet mit BÃ©chamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (mindestens zwei Portionen) oder das Personal fragen. Garzeit ca. 30 Minuten.'
++    },
++    pattern: 'Lasagne' 
++  }
++];
++
++const BEER_AND_WINE_SECTIONS = [
++  { 
++    id: 'beers', 
++    name: { IT: 'Birre', EN: 'Beers', TH: 'à¹€à¸šà¸µà¸¢à¸£à¹Œ', DE: 'Biere' },
++    desc: {
++      IT: 'Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poichÃ© le bottiglie in vetro preservano ed esaltano il sapore per un\'esperienza completa.',
++      EN: 'The Best Thai Beer Brands Served In Large And Small Bottles, Because Glass Bottles Enhance The Flavor, Bringing Out The Full Beer Experience',
++      TH: 'à¹€à¸šà¸µà¸¢à¸£à¹Œà¹„à¸—à¸¢à¸„à¸¸à¸“à¸ à¸²à¸žà¸”à¸µà¸—à¸µà¹ˆà¸ªà¸¸à¸” à¹€à¸ªà¸´à¸£à¹Œà¸Ÿà¸—à¸±à¹‰à¸‡à¸‚à¸§à¸”à¹ƒà¸«à¸�à¹ˆà¹�à¸¥à¸°à¸‚à¸§à¸”à¹€à¸¥à¹‡à¸� à¹€à¸žà¸£à¸²à¸°à¸‚à¸§à¸”à¹�à¸�à¹‰à¸§à¸Šà¹ˆà¸§à¸¢à¹ƒà¸«à¹‰à¸£à¸ªà¸Šà¸²à¸•à¸´à¹€à¸”à¹ˆà¸™à¸Šà¸±à¸” à¹€à¸•à¹‡à¸¡à¸­à¸£à¸£à¸–à¸£à¸ªà¸‚à¸­à¸‡à¹€à¸šà¸µà¸¢à¸£à¹Œà¹�à¸—à¹‰',
++      DE: 'Die besten thailÃ¤ndischen Biermarken, serviert in groÃŸen und kleinen Flaschen, da Glasflaschen den Geschmack verbessern und das volle Biererlebnis entfalten.'
++    }
++  },
++  { 
++    id: 'wines', 
++    name: { IT: 'Vini', EN: 'Wines', TH: 'à¹„à¸§à¸™à¹Œ', DE: 'Weine' },
++    desc: {
++      IT: 'L\'Italia Ã¨ rinomata in tutto il mondo per i suoi vini pregiati e la sua antica tradizione. Per questo offriamo una selezione accurata di vini rossi e bianchi italiani, scelti per esaltare i sapori di ogni piatto del nostro menÃ¹. Chiedi al nostro staff per il miglior abbinamento del giorno.',
++      EN: 'Italy Is World-Renowned For Its High-Quality Wines With A Long-Standing Tradition. Thatâ€™s Why We Offer A Carefully Curated Selection Of Italian Red And White Wines, Chosen To Enhance The Flavors Of Every Dish On Our Menu. For The Best And Most Suitable Option At The Moment, Feel Free To Ask Our Staff',
++      TH: 'à¸­à¸´à¸•à¸²à¸¥à¸µà¸¡à¸µà¸Šà¸·à¹ˆà¸­à¹€à¸ªà¸µà¸¢à¸‡à¸”à¹‰à¸²à¸™à¹„à¸§à¸™à¹Œà¸„à¸¸à¸“à¸ à¸²à¸žà¸£à¸°à¸”à¸±à¸šà¹‚à¸¥à¸�à¸¡à¸²à¸­à¸¢à¹ˆà¸²à¸‡à¸¢à¸²à¸§à¸™à¸²à¸™ à¹€à¸£à¸²à¸ˆà¸¶à¸‡à¸„à¸±à¸”à¸ªà¸£à¸£à¹„à¸§à¸™à¹Œà¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™à¸—à¸±à¹‰à¸‡à¹�à¸”à¸‡ & à¸‚à¸²à¸§à¸­à¸¢à¹ˆà¸²à¸‡à¸žà¸´à¸–à¸µà¸žà¸´à¸–à¸±à¸™ à¹€à¸žà¸·à¹ˆà¸­à¹€à¸ªà¸£à¸´à¸¡à¸£à¸ªà¸Šà¸²à¸•à¸´à¸‚à¸­à¸‡à¸—à¸¸à¸�à¹€à¸¡à¸™à¸¹à¹ƒà¸«à¹‰à¹‚à¸”à¸”à¹€à¸”à¹ˆà¸™à¹�à¸¥à¸°à¸ªà¸¡à¸”à¸¸à¸¥à¸¢à¸´à¹ˆà¸‡à¸‚à¸¶à¹‰à¸™ à¸«à¸²à¸�à¸•à¹‰à¸­à¸‡à¸�à¸²à¸£à¸—à¸£à¸²à¸šà¸§à¹ˆà¸²à¹ƒà¸™à¸‚à¸“à¸°à¸™à¸µà¹‰à¹„à¸§à¸™à¹Œà¸Šà¸™à¸´à¸”à¹ƒà¸”à¹€à¸«à¸¡à¸²à¸°à¸—à¸µà¹ˆà¸ªà¸¸à¸”à¸�à¸±à¸šà¸­à¸²à¸«à¸²à¸£ à¸ªà¸­à¸šà¸–à¸²à¸¡à¸—à¸µà¹ˆà¸žà¸™à¸±à¸�à¸‡à¸²à¸™à¸‚à¸­à¸‡à¹€à¸£à¸²à¹„à¸”à¹‰à¸­à¸¢à¹ˆà¸²à¸‡à¸¡à¸±à¹ˆà¸™à¹ƒà¸ˆ',
++      DE: 'Italien ist weltberÃ¼hmt fÃ¼r seine qualitativ hochwertigen Weine mit einer langen Tradition. Deshalb bieten wir eine sorgfÃ¤ltig zusammengestellte Auswahl an italienischen Rot- und WeiÃŸweinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte zu unterstreichen. Fragen Sie unser Personal nach der besten Empfehlung.'
++    }
++  }
++];„à¸£à¸·à¹ˆà¸­à¸‡à¸”à¸·à¹ˆà¸¡à¹„à¸£à¹‰à¹�à¸­à¸¥à¸�à¸­à¸®à¸­à¸¥à¹Œ' },
++    DE: { name: 'Alkoholfreie GetrÃ¤nke', desc: 'ErfrischungsgetrÃ¤nke' },
+   },
+   'beers-and-wines': {
+     IT: { name: 'Birre & Vini', desc: 'Birre fresche e selezione di vini italiani' },
+     EN: { name: 'Beers & Wines', desc: 'Chilled beers and Italian wine selection' },
+-    TH: { name: 'เบียร์และไวน์', desc: 'เบียร์เย็นๆ และไวน์อิตาเลียนคัดสรร' },
+-    DE: { name: 'Biere & Weine', desc: 'Gekühlte Biere und ausgewählte italienische Weine' },
++    TH: { name: 'à¹€à¸šà¸µà¸¢à¸£à¹Œà¹�à¸¥à¸°à¹„à¸§à¸™à¹Œ', desc: 'à¹€à¸šà¸µà¸¢à¸£à¹Œà¹€à¸¢à¹‡à¸™à¹† à¹�à¸¥à¸°à¹„à¸§à¸™à¹Œà¸­à¸´à¸•à¸²à¹€à¸¥à¸µà¸¢à¸™à¸„à¸±à¸”à¸ªà¸£à¸£' },
++    DE: { name: 'Biere & Weine', desc: 'GekÃ¼hlte Biere und ausgewÃ¤hlte italienische Weine' },
+   },
+ };
+ 
++const PASTA_SAUCES = [
++  { id: 'aglio-olio', name: 'Aglio, Olio e Peperoncino', pattern: 'Garlic, Oil' },
++  { id: 'pomodoro', name: 'Salsa di Pomodoro', pattern: 'Tomato Sauce' },
++  { id: 'pesto', name: 'Pesto Genovese', pattern: 'Pesto Genovese' },
++  { id: 'amatriciana', name: 'Salsa Amatriciana', pattern: 'Amatriciana' },
++  { id: 'bolognese', name: 'Salsa RagÃ¹ Bolognese', pattern: 'Bolognese Ragu' },
++  { id: 'carbonara', name: 'Carbonara', pattern: 'Carbonara' },
++  { id: 'quattro-formaggi', name: 'Quattro Formaggi', pattern: 'Four Cheeses' },
++  { id: 'flower-power', name: 'Flower Power', pattern: 'Flower Power' },
++  { id: 'lasagne', name: 'Lasagne', pattern: 'Lasagne' }
++];
++
++const BEER_AND_WINE_SECTIONS = [
++  { id: 'beers', name: { IT: 'Birre', EN: 'Beers', TH: 'à¹€à¸šà¸µà¸¢à¸£à¹Œ', DE: 'Biere' } },
++  { id: 'wines', name: { IT: 'Vini', EN: 'Wines', TH: 'à¹„à¸§à¸™à¹Œ', DE: 'Weine' } }
++];
++
+ export default function DeliveryMenu() {
+   const navigate = useNavigate();
+   const [activeCategoryId, setActiveCategoryId] = useState(menuData[0].id);
+@@ -170,6 +470,27 @@ export default function DeliveryMenu() {
+   const activeCategory = menuData.find((c) => c.id === activeCategoryId) ?? menuData[0];
+   const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
+ 
++  const groupedPasta = activeCategoryId === 'pasta' ? PASTA_SAUCES.map(sauce => {
++    const items = activeCategory.items.filter((item: any) => {
++      const path = item.image_file || "";
++      const name = item.id || "";
++      if (path.includes(sauce.pattern)) return true;
++      if (sauce.id === 'lasagne' && name.includes('lasagna')) return true;
++      return false;
++    });
++    return { ...sauce, items };
++  }).filter(group => group.items.length > 0) : [];
++
++  const groupedBeersAndWines = activeCategoryId === 'beers-and-wines' ? BEER_AND_WINE_SECTIONS.map(sec => {
++    const items = activeCategory.items.filter((item: any) => {
++      const isBeer = item.id.includes('beer');
++      if (sec.id === 'beers') return isBeer;
++      if (sec.id === 'wines') return !isBeer;
++      return false;
++    });
++    return { ...sec, name: sec.name[lang], items };
++  }).filter(group => group.items.length > 0) : [];
++
+   return (
+     <div className="min-h-screen bg-[#e7e5e4] pb-12 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+       <div className="max-w-6xl mx-auto px-4 mt-20 md:mt-24">
+@@ -213,10 +534,10 @@ export default function DeliveryMenu() {
+                         lang === l ? "text-[#fca5a5] bg-white/5" : "text-stone-300"
+                       }`}
+                     >
+-                      {l === 'IT' && '🇮🇹 IT'}
+-                      {l === 'EN' && '🇬🇧 EN'}
+-                      {l === 'TH' && '🇹🇭 TH'}
+-                      {l === 'DE' && '🇩🇪 DE'}
++                      {l === 'IT' && 'ðŸ‡®ðŸ‡¹ IT'}
++                      {l === 'EN' && 'ðŸ‡¬ðŸ‡§ EN'}
++                      {l === 'TH' && 'ðŸ‡¹ðŸ‡­ TH'}
++                      {l === 'DE' && 'ðŸ‡©ðŸ‡ª DE'}
+                     </button>
+                   ))}
+                 </div>
+@@ -255,9 +576,9 @@ export default function DeliveryMenu() {
+                 </span>
+                 <div className="flex flex-row flex-wrap justify-center lg:justify-end gap-x-2 gap-y-0.5 text-[8px] md:text-xs font-light text-stone-200 mt-0.5">
+                   <span>{t.info1}</span>
+-                  <span className="text-stone-400">•</span>
++                  <span className="text-stone-400">â€¢</span>
+                   <span>{t.info2}</span>
+-                  <span className="text-stone-400">•</span>
++                  <span className="text-stone-400">â€¢</span>
+                   <span>{t.info3}</span>
+                 </div>
+               </div>
+@@ -275,7 +596,7 @@ export default function DeliveryMenu() {
+               {t.promoTitle}
+             </h4>
+             <p className="text-stone-200 text-xs leading-relaxed">
+-              📍 <span className="font-semibold">{t.deliveryLimit}</span>
++              ðŸ“� <span className="font-semibold">{t.deliveryLimit}</span>
+             </p>
+             <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-x-6 gap-y-1 pt-1.5">
+               <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold">
+@@ -301,16 +622,127 @@ export default function DeliveryMenu() {
+             {activeCategoryName}
+           </h2>
+           {categoryDetails[activeCategory.id]?.[lang]?.desc && (
+-            <p className="text-stone-500 text-xs mt-1 font-light italic">
++            <p 
++              className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed"
++              style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
++            >
+               {categoryDetails[activeCategory.id][lang].desc}
+             </p>
+           )}
+-          <div className="w-8 h-0.5 bg-[#8B1E1E] mt-2.5" />
++          <div className="w-8 h-0.5 bg-[#8B1E1E] mt-2.5 mb-4" />
++
++          {/* Submenu for Pasta Sauces */}
++          {activeCategoryId === 'pasta' && (
++            <div 
++              className="flex items-center gap-2 overflow-x-auto pb-3 pt-2 -mx-2 px-2 mask-gradient-horizontal"
++              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
++            >
++              {PASTA_SAUCES.map(sauce => (
++                <button
++                  key={sauce.id}
++                  onClick={() => {
++                    const el = document.getElementById(`sauce-${sauce.id}`);
++                    if (el) {
++                      const offset = 90;
++                      const bodyRect = document.body.getBoundingClientRect().top;
++                      const elementRect = el.getBoundingClientRect().top;
++                      const elementPosition = elementRect - bodyRect;
++                      const offsetPosition = elementPosition - offset;
++                      window.scrollTo({
++                        top: offsetPosition,
++                        behavior: 'smooth'
++                      });
++                    }
++                  }}
++                  className="px-4 py-2 bg-stone-100 hover:bg-[#8B1E1E] hover:text-white text-stone-700 text-xs font-semibold rounded-full border border-stone-200 transition-all duration-300 whitespace-nowrap cursor-pointer hover:shadow-sm"
++                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
++                >
++                  {sauce.name[lang]}
++                </button>
++              ))}
++            </div>
++          )}
++
++          {/* Submenu for Beers & Wines */}
++          {activeCategoryId === 'beers-and-wines' && (
++            <div 
++              className="flex items-center gap-2 overflow-x-auto pb-3 pt-2 -mx-2 px-2 mask-gradient-horizontal"
++              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
++            >
++              {BEER_AND_WINE_SECTIONS.map(sec => (
++                <button
++                  key={sec.id}
++                  onClick={() => {
++                    const el = document.getElementById(`sec-${sec.id}`);
++                    if (el) {
++                      const offset = 90;
++                      const bodyRect = document.body.getBoundingClientRect().top;
++                      const elementRect = el.getBoundingClientRect().top;
++                      const elementPosition = elementRect - bodyRect;
++                      const offsetPosition = elementPosition - offset;
++                      window.scrollTo({
++                        top: offsetPosition,
++                        behavior: 'smooth'
++                      });
++                    }
++                  }}
++                  className="px-4 py-2 bg-stone-100 hover:bg-[#8B1E1E] hover:text-white text-stone-700 text-xs font-semibold rounded-full border border-stone-200 transition-all duration-300 whitespace-nowrap cursor-pointer hover:shadow-sm"
++                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
++                >
++                  {sec.name[lang]}
++                </button>
++              ))}
++            </div>
++          )}
+         </div>
+ 
+         {/* Products Grid */}
+         <div className="px-1">
+-          <MenuGrid items={activeCategory.items} lang={lang} />
++          {activeCategoryId === 'pasta' ? (
++            <div className="space-y-12">
++              {groupedPasta.map(group => (
++                <div key={group.id} id={`sauce-${group.id}`} className="scroll-mt-24">
++                  <div className="px-2 mb-6">
++                    <div className="flex items-center gap-3">
++                      <h3 className="font-sans text-lg font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
++                        {group.name[lang]}
++                      </h3>
++                      <div className="flex-1 h-px bg-stone-300/60" />
++                    </div>
++                    {group.desc && (
++                      <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
++                        {group.desc[lang]}
++                      </p>
++                    )}
++                  </div>
++                  <MenuGrid items={group.items} lang={lang} />
++                </div>
++              ))}
++            </div>
++          ) : activeCategoryId === 'beers-and-wines' ? (
++            <div className="space-y-12">
++              {groupedBeersAndWines.map(group => (
++                <div key={group.id} id={`sec-${group.id}`} className="scroll-mt-24">
++                  <div className="px-2 mb-6">
++                    <div className="flex items-center gap-3">
++                      <h3 className="font-sans text-lg font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
++                        {group.name}
++                      </h3>
++                      <div className="flex-1 h-px bg-stone-300/60" />
++                    </div>
++                    {group.desc && (
++                      <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
++                        {group.desc[lang]}
++                      </p>
++                    )}
++                  </div>
++                  <MenuGrid items={group.items} lang={lang} />
++                </div>
++              ))}
++            </div>
++          ) : (
++            <MenuGrid items={activeCategory.items} lang={lang} />
++          )}
+         </div>
+       </div>
+ 
+@@ -328,7 +760,7 @@ export default function DeliveryMenu() {
+                 {count} {count === 1 ? t.cartItem : t.cartItems}
+               </span>
+             </div>
+-            <span className="font-light" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>{total} ฿</span>
++            <span className="font-light" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>{total} à¸¿</span>
+           </button>
+         </div>
+       )}
+@@ -345,7 +777,7 @@ export default function DeliveryMenu() {
+           className="fixed bottom-6 right-6 z-40 bg-stone-900/95 hover:bg-stone-850 text-[#c5a572] hover:text-white px-4 py-3 rounded-full border border-[#c5a572]/40 shadow-2xl flex items-center justify-center gap-1.5 transition-all text-xs uppercase tracking-widest font-extrabold cursor-pointer hover:scale-105 active:scale-95 animate-fadeIn"
+           style={{ fontFamily: 'Outfit, sans-serif' }}
+         >
+-          <span>⚙️ Dashboard Admin</span>
++          <span>âš™ï¸� Dashboard Admin</span>
+         </button>
+       )}
+ 

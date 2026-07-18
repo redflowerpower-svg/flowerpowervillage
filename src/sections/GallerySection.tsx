@@ -53,7 +53,7 @@ export default function GallerySection() {
           </p>
           <h2
             className="text-stone-850 mb-4"
-            style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 300 }}
+            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 300 }}
           >
             La Vita al Flower Power
           </h2>

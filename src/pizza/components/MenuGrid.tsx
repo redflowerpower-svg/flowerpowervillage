@@ -208,6 +208,7 @@ export default function MenuGrid({ items, lang }: Props) {
       name: item.name,
       nameTh: item.nameTh,
       nameIt: item.nameIt,
+      nameDe: item.nameDe,
       quantity,
       basePrice: item.price,
       selectedVariant,
@@ -218,9 +219,10 @@ export default function MenuGrid({ items, lang }: Props) {
     openCart();
   };
 
-  const getTranslatedName = (item: { name: string; nameTh?: string; nameIt?: string }) => {
+  const getTranslatedName = (item: { name: string; nameTh?: string; nameIt?: string; nameDe?: string }) => {
     if (lang === 'TH' && item.nameTh) return item.nameTh;
     if (lang === 'IT' && item.nameIt) return item.nameIt;
+    if (lang === 'DE' && item.nameDe) return item.nameDe;
     return item.name;
   };
 
@@ -249,6 +251,7 @@ export default function MenuGrid({ items, lang }: Props) {
   const getTranslatedDesc = (item: MenuItem) => {
     if (lang === 'TH' && item.descriptionTh) return item.descriptionTh;
     if (lang === 'IT' && item.descriptionIt) return item.descriptionIt;
+    if (lang === 'DE' && item.descriptionDe) return item.descriptionDe;
     return item.description;
   };
 
@@ -299,14 +302,14 @@ export default function MenuGrid({ items, lang }: Props) {
               <div>
                 <h3
                   className="font-sans text-lg font-bold text-stone-900 leading-tight tracking-tight"
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                 >
                   {formatProductName(getTranslatedName(item))}
                 </h3>
 
                 <p
                   className="text-stone-500 text-xs font-light leading-relaxed mb-4 flex-grow mt-1.5"
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                 >
                   {getTranslatedDesc(item)}
                 </p>
@@ -331,7 +334,7 @@ export default function MenuGrid({ items, lang }: Props) {
                     {/* Size Options */}
                     {item.variants && item.variants.length > 0 && (
                       <div>
-                        <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold mb-2" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold mb-2" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                           {lang === 'TH' ? 'ขนาด' : lang === 'DE' ? 'Größe' : lang === 'EN' ? 'Size' : 'Taglia'}
                         </p>
                         <div className="flex gap-2 flex-wrap">
@@ -347,7 +350,7 @@ export default function MenuGrid({ items, lang }: Props) {
                                     ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] font-bold shadow-sm'
                                     : 'border-stone-300 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-850'
                                 }`}
-                                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                               >
                                 {getTranslatedName(v)}
                                 {v.priceModifier > 0 && <span className="ml-1 text-stone-400">+{v.priceModifier} ฿</span>}
@@ -362,11 +365,11 @@ export default function MenuGrid({ items, lang }: Props) {
                     {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.idPrefix === 'spicy-') && (
                       <div className="bg-[#8B1E1E]/5 border border-[#8B1E1E]/10 rounded-2xl p-3.5 space-y-2 mb-4">
                         <div className="flex justify-between items-center">
-                          <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#8B1E1E] flex items-center gap-1" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                          <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#8B1E1E] flex items-center gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                             <span>🌶️</span>
                             {lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level'}
                           </h4>
-                          <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                          <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                             {lang === 'TH' ? 'เลือกได้ 1 อย่าง' : lang === 'IT' ? 'scegli 1 opzione' : 'select 1 option'}
                           </span>
                         </div>
@@ -401,11 +404,11 @@ export default function MenuGrid({ items, lang }: Props) {
                         {getGroupedExtras(item).filter(g => g.type === 'option' && g.idPrefix !== 'spicy-').map((group, idx) => (
                           <div key={idx} className="space-y-1.5">
                             <div className="flex justify-between items-center">
-                              <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                              <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                                 {group.title}
                               </p>
                               {group.maxSelection && (
-                                <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                                <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                                   {lang === 'TH' ? `เลือกได้สูงสุด ${group.maxSelection}` : lang === 'IT' ? `scegli max ${group.maxSelection}` : `select max ${group.maxSelection}`}
                                 </span>
                               )}
@@ -458,7 +461,7 @@ export default function MenuGrid({ items, lang }: Props) {
                       <div className="space-y-4 mb-4">
                         {getGroupedExtras(item).filter(g => g.type === 'extra').map((group, idx) => (
                           <div key={idx} className="space-y-1.5">
-                            <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                            <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                               {group.title}
                             </p>
                             <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1.5 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
@@ -508,7 +511,7 @@ export default function MenuGrid({ items, lang }: Props) {
 
                     {/* Quantity Selector Box */}
                     <div className="flex items-center gap-2 bg-stone-100 p-1.5 rounded-full border border-stone-200 justify-between">
-                      <span className="text-stone-500 text-[9.5px] font-extrabold uppercase tracking-wider pl-2" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                      <span className="text-stone-500 text-[9.5px] font-extrabold uppercase tracking-wider pl-2" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                         {lang === 'TH' ? 'จำนวน' : lang === 'DE' ? 'Menge' : lang === 'EN' ? 'Quantity' : 'Quantità'}:
                       </span>
                       <div className="flex items-center gap-2">
@@ -539,13 +542,13 @@ export default function MenuGrid({ items, lang }: Props) {
                 <div>
                   <span
                     className="block text-[10.5px] uppercase tracking-wider text-stone-400 font-bold"
-                    style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                   >
                     {isExpanded ? t.totalFinito : t.startingAt}
                   </span>
                   <span
                     className={`text-xl font-extrabold transition-colors duration-300 ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`}
-                    style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                   >
                     {isExpanded ? `${currentTotalPrice} ฿` : `${item.price} ฿`}
                   </span>
@@ -562,7 +565,7 @@ export default function MenuGrid({ items, lang }: Props) {
                     }
                   }}
                   className="text-xs font-semibold px-6 py-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 hover:px-7 cursor-pointer border-0 bg-[#8B1E1E] text-white hover:bg-[#721818]"
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                 >
                   {isExpanded ? t.confirmText : (item.extras?.length || item.variants?.length ? t.customizeText : t.chooseText)}
                 </button>

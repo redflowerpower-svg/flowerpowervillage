@@ -7,6 +7,9 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
+    watch: {
+      ignored: ['**/dist/**', '**/.vercel/**', '**/.git/**', '**/.agents/**'],
+    },
     historyApiFallback: true,
     proxy: {
       '/api-octorate': {

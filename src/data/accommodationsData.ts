@@ -1,4 +1,6 @@
 import { supabase } from '../lib/supabase';
+import { getOptimizedMediaUrl } from '../lib/mediaConfig';
+
 
 export interface Accommodation {
   id: string;
@@ -72,8 +74,7 @@ export async function fetchAccommodationBySlug(slug: string): Promise<Accommodat
             .getPublicUrl(`${folder}/${file.name}`);
 
           const publicUrl = urlData.publicUrl;
-          // Optimize and cache detail page images with wsrv.nl at 1200px width
-          return `https://wsrv.nl/?url=${encodeURIComponent(publicUrl)}&w=1200&output=webp&q=85`;
+          return getOptimizedMediaUrl(publicUrl, 'detail');
         });
     }
   } catch (err) {

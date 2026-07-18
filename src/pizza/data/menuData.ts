@@ -3,8 +3,13 @@ export interface ExtraOption {
   name: string;
   nameTh: string;
   nameIt?: string;
+  nameDe?: string;
+  name_it?: string;
+  name_de?: string;
   sku: string;
   price: number;
+  description_it?: string;
+  description_de?: string;
 }
 
 export interface Variant {
@@ -12,9 +17,14 @@ export interface Variant {
   name: string;
   nameTh: string;
   nameIt?: string;
+  nameDe?: string;
+  name_it?: string;
+  name_de?: string;
   sku: string;
   price: number;
   priceModifier: number;
+  description_it?: string;
+  description_de?: string;
 }
 
 export interface MenuItem {
@@ -22,9 +32,15 @@ export interface MenuItem {
   name: string;
   nameTh: string;
   nameIt?: string;
+  nameDe?: string;
+  name_it?: string;
+  name_de?: string;
   description: string;
   descriptionTh: string;
   descriptionIt?: string;
+  descriptionDe?: string;
+  description_it?: string;
+  description_de?: string;
   price: number;
   image: string;
   image_file?: string;
@@ -38,6 +54,16 @@ export interface MenuCategory {
   id: string;
   name: string;
   nameTh: string;
+  nameIt?: string;
+  nameDe?: string;
+  name_it?: string;
+  name_de?: string;
+  description?: string;
+  descriptionTh?: string;
+  descriptionIt?: string;
+  descriptionDe?: string;
+  description_it?: string;
+  description_de?: string;
   icon: string;
   items: MenuItem[];
 }
@@ -66,7 +92,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10000",
             "price": 170,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10136",
@@ -74,7 +106,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10136",
             "price": 100,
-            "priceModifier": -70
+            "priceModifier": -70,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -83,175 +121,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -259,7 +447,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -267,12 +460,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, aglio, olio d'oliva",
-        "nameIt": "PIZZA MARINARA VEGANA"
+        "descriptionIt": "Salsa di pomodoro, aglio, olio extravergine d'oliva",
+        "nameIt": "PIZZA MARINARA VEGANA",
+        "description_it": "Salsa di pomodoro, aglio, olio extravergine d'oliva",
+        "description_de": "Tomatensauce, Knoblauch, Olivenöl",
+        "name_it": "PIZZA MARINARA VEGANA",
+        "name_de": "PIZZA MARINARA VEGAN",
+        "nameDe": "PIZZA MARINARA VEGAN",
+        "descriptionDe": "Tomatensauce, Knoblauch, Olivenöl"
       },
       {
         "id": "pizza-margherita",
@@ -291,7 +495,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10001",
             "price": 190,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10119",
@@ -299,7 +509,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10119",
             "price": 120,
-            "priceModifier": -70
+            "priceModifier": -70,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -308,175 +524,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -484,7 +850,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -492,11 +863,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, mozzarella",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Mozzarella",
+        "name_it": "PIZZA MARGHERITA",
+        "nameIt": "PIZZA MARGHERITA",
+        "name_de": "PIZZA MARGHERITA",
+        "nameDe": "PIZZA MARGHERITA",
+        "descriptionDe": "Tomatensauce, Olivenöl, Mozzarella"
       },
       {
         "id": "pizza-sweet-bell-pepper-vegan",
@@ -515,7 +898,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10002",
             "price": 230,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10234",
@@ -523,7 +912,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10234",
             "price": 130,
-            "priceModifier": -100
+            "priceModifier": -100,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -532,175 +927,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -708,7 +1253,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -716,12 +1266,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, peperoni dolci",
-        "nameIt": "PIZZA AI PEPERONI VEGANA"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, peperoni dolci",
+        "nameIt": "PIZZA AI PEPERONI VEGANA",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, peperoni dolci",
+        "description_de": "Tomatensauce, Olivenöl, milde Paprika",
+        "name_it": "PIZZA AI PEPERONI VEGANA",
+        "name_de": "PIZZA PAPRIKA VEGAN",
+        "nameDe": "PIZZA PAPRIKA VEGAN",
+        "descriptionDe": "Tomatensauce, Olivenöl, milde Paprika"
       },
       {
         "id": "calzone",
@@ -740,7 +1301,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10003",
             "price": 210,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10014",
@@ -748,7 +1315,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\" (Ham & Cheese)",
             "sku": "10014",
             "price": 250,
-            "priceModifier": 40
+            "priceModifier": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\" (Ham & Cheese)",
+            "nameIt": "12\" (Ham & Cheese)",
+            "name_de": "12\" (Ham & Cheese)",
+            "nameDe": "12\" (Ham & Cheese)"
           },
           {
             "id": "10041",
@@ -756,7 +1329,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10041",
             "price": 140,
-            "priceModifier": -70
+            "priceModifier": -70,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           },
           {
             "id": "10066",
@@ -764,7 +1343,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\" (Ham & Cheese)",
             "sku": "10066",
             "price": 165,
-            "priceModifier": -45
+            "priceModifier": -45,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\" (Ham & Cheese)",
+            "nameIt": "8\" (Ham & Cheese)",
+            "name_de": "8\" (Ham & Cheese)",
+            "nameDe": "8\" (Ham & Cheese)"
           }
         ],
         "extras": [
@@ -773,175 +1358,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -949,7 +1684,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -957,11 +1697,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, mozzarella",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Mozzarella",
+        "name_it": "CALZONE",
+        "nameIt": "CALZONE",
+        "name_de": "CALZONE",
+        "nameDe": "CALZONE",
+        "descriptionDe": "Tomatensauce, Olivenöl, Mozzarella"
       },
       {
         "id": "pizza-bismark",
@@ -980,7 +1732,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10004",
             "price": 240,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10104",
@@ -988,7 +1746,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10104",
             "price": 150,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -997,175 +1761,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -1173,7 +2087,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -1181,11 +2100,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, uovo, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, uovo, mozzarella",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, uovo, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Ei, Mozzarella",
+        "name_it": "PIZZA BISMARCK",
+        "nameIt": "PIZZA BISMARCK",
+        "name_de": "PIZZA BISMARCK",
+        "nameDe": "PIZZA BISMARCK",
+        "descriptionDe": "Tomatensauce, Olivenöl, Ei, Mozzarella"
       },
       {
         "id": "pizza-ham-and-cheese",
@@ -1204,7 +2135,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10005",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10110",
@@ -1212,7 +2149,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10110",
             "price": 165,
-            "priceModifier": -85
+            "priceModifier": -85,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -1221,175 +2164,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -1397,7 +2490,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -1405,12 +2503,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, prosciutto, uovo, mozzarella",
-        "nameIt": "PIZZA PROSCIUTTO E FORMAGGIO"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, uovo, mozzarella",
+        "nameIt": "PIZZA PROSCIUTTO E FORMAGGIO",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, uovo, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Schinken, Ei, Mozzarella",
+        "name_it": "PIZZA PROSCIUTTO E FORMAGGIO",
+        "name_de": "PIZZA SCHINKEN & KÄSE",
+        "nameDe": "PIZZA SCHINKEN & KÄSE",
+        "descriptionDe": "Tomatensauce, Olivenöl, Schinken, Ei, Mozzarella"
       },
       {
         "id": "pizza-mushrooms-and-tofu-vegan",
@@ -1429,7 +2538,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10006",
             "price": 230,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10137",
@@ -1437,7 +2552,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10137",
             "price": 150,
-            "priceModifier": -80
+            "priceModifier": -80,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -1446,175 +2567,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -1622,7 +2893,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -1630,12 +2906,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
         "descriptionIt": "Salsa di pomodoro, funghi, tofu",
-        "nameIt": "PIZZA FUNGHI E TOFU VEGANA"
+        "nameIt": "PIZZA FUNGHI E TOFU VEGANA",
+        "description_it": "Salsa di pomodoro, funghi, tofu",
+        "description_de": "Tomatensauce, Pilze, Tofu",
+        "name_it": "PIZZA FUNGHI E TOFU VEGANA",
+        "name_de": "PIZZA PILZE & TOFU VEGAN",
+        "nameDe": "PIZZA PILZE & TOFU VEGAN",
+        "descriptionDe": "Tomatensauce, Pilze, Tofu"
       },
       {
         "id": "pizza-nutella",
@@ -1654,7 +2941,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10007",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10139",
@@ -1662,7 +2955,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10139",
             "price": 160,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -1671,175 +2970,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -1847,7 +3296,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -1855,11 +3309,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Nutella"
+        "descriptionIt": "Nutella",
+        "description_it": "Nutella",
+        "description_de": "Nutella",
+        "name_it": "PIZZA ALLA NUTELLA",
+        "nameIt": "PIZZA ALLA NUTELLA",
+        "name_de": "PIZZA NUTELLA",
+        "nameDe": "PIZZA NUTELLA",
+        "descriptionDe": "Nutella"
       },
       {
         "id": "pizza-vegetables",
@@ -1878,7 +3344,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10008",
             "price": 230,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10243",
@@ -1886,7 +3358,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10243",
             "price": 150,
-            "priceModifier": -80
+            "priceModifier": -80,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -1895,175 +3373,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -2071,7 +3699,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -2079,12 +3712,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, verdure, mozzarella",
-        "nameIt": "PIZZA VEGETARIANA"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, verdure miste, mozzarella",
+        "nameIt": "PIZZA VEGETARIANA",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, verdure miste, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Gemüse, Mozzarella",
+        "name_it": "PIZZA VEGETARIANA",
+        "name_de": "PIZZA GEMÜSE",
+        "nameDe": "PIZZA GEMÜSE",
+        "descriptionDe": "Tomatensauce, Olivenöl, Gemüse, Mozzarella"
       },
       {
         "id": "pizza-artichokes",
@@ -2103,7 +3747,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10009",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10090",
@@ -2111,7 +3761,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10090",
             "price": 160,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -2120,175 +3776,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -2296,7 +4102,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -2304,12 +4115,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, carciofi, mozzarella",
-        "nameIt": "PIZZA AI CARCIOFI"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, carciofi, mozzarella",
+        "nameIt": "PIZZA AI CARCIOFI",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, carciofi, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Artischocken, Mozzarella",
+        "name_it": "PIZZA AI CARCIOFI",
+        "name_de": "PIZZA ARTISCHOCKEN",
+        "nameDe": "PIZZA ARTISCHOCKEN",
+        "descriptionDe": "Tomatensauce, Olivenöl, Artischocken, Mozzarella"
       },
       {
         "id": "pizza-bacon",
@@ -2328,7 +4150,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10010",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10018",
@@ -2336,7 +4164,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\" (Bismark)",
             "sku": "10018",
             "price": 270,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\" (Bismark)",
+            "nameIt": "12\" (Bismark)",
+            "name_de": "12\" (Bismark)",
+            "nameDe": "12\" (Bismark)"
           },
           {
             "id": "10091",
@@ -2344,7 +4178,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10091",
             "price": 160,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           },
           {
             "id": "10101",
@@ -2352,7 +4192,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\" (Bismark)",
             "sku": "10101",
             "price": 170,
-            "priceModifier": -80
+            "priceModifier": -80,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\" (Bismark)",
+            "nameIt": "8\" (Bismark)",
+            "name_de": "8\" (Bismark)",
+            "nameDe": "8\" (Bismark)"
           }
         ],
         "extras": [
@@ -2361,175 +4207,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -2537,7 +4533,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -2545,11 +4546,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, pancetta, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, pancetta, mozzarella",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, pancetta, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Speck (Bacon), Mozzarella",
+        "name_it": "PIZZA CON BACON",
+        "nameIt": "PIZZA CON BACON",
+        "name_de": "PIZZA SPECK",
+        "nameDe": "PIZZA SPECK",
+        "descriptionDe": "Tomatensauce, Olivenöl, Speck (Bacon), Mozzarella"
       },
       {
         "id": "pizza-pineapple",
@@ -2568,7 +4581,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10011",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10240",
@@ -2576,7 +4595,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10240",
             "price": 160,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -2585,175 +4610,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -2761,7 +4936,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -2769,12 +4949,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, ananas, mozzarella",
-        "nameIt": "PIZZA ALL'ANANAS"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, ananas, mozzarella",
+        "nameIt": "PIZZA ALL'ANANAS",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, ananas, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Ananas, Mozzarella",
+        "name_it": "PIZZA ALL'ANANAS",
+        "name_de": "PIZZA ANANAS",
+        "nameDe": "PIZZA ANANAS",
+        "descriptionDe": "Tomatensauce, Olivenöl, Ananas, Mozzarella"
       },
       {
         "id": "pizza-sweet-bell-pepper-cheese",
@@ -2793,7 +4984,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10012",
             "price": 270,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10244",
@@ -2801,7 +4998,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10244",
             "price": 180,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -2810,175 +5013,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -2986,7 +5339,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -2994,12 +5352,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, peperoni dolci, mozzarella",
-        "nameIt": "PIZZA AI PEPERONI E FORMAGGIO"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, peperoni dolci, mozzarella",
+        "nameIt": "PIZZA AI PEPERONI E FORMAGGIO",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, peperoni dolci, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, milde Paprika, Mozzarella",
+        "name_it": "PIZZA AI PEPERONI E FORMAGGIO",
+        "name_de": "PIZZA PAPRIKA & KÄSE",
+        "nameDe": "PIZZA PAPRIKA & KÄSE",
+        "descriptionDe": "Tomatensauce, Olivenöl, milde Paprika, Mozzarella"
       },
       {
         "id": "pizza-wurstel",
@@ -3018,7 +5387,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10013",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10245",
@@ -3026,7 +5401,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10245",
             "price": 160,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -3035,175 +5416,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -3211,7 +5742,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -3219,11 +5755,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, würstel, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, würstel, mozzarella",
+        "description_it": "Salsa di pomodoro, würstel, mozzarella",
+        "description_de": "Tomatensauce, Würstchen, Mozzarella",
+        "name_it": "PIZZA CON WÜRSTEL",
+        "nameIt": "PIZZA CON WÜRSTEL",
+        "name_de": "PIZZA WÜRSTEL",
+        "nameDe": "PIZZA WÜRSTEL",
+        "descriptionDe": "Tomatensauce, Würstchen, Mozzarella"
       },
       {
         "id": "calzone-ham-and-cheese",
@@ -3242,7 +5790,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10014",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10066",
@@ -3250,7 +5804,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10066",
             "price": 165,
-            "priceModifier": -85
+            "priceModifier": -85,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -3259,175 +5819,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -3435,7 +6145,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -3443,12 +6158,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, prosciutto, mozzarella",
-        "nameIt": "CALZONE PROSCIUTTO E FORMAGGIO"
+        "descriptionIt": "Salsa di pomodoro, prosciutto cotto, mozzarella",
+        "nameIt": "CALZONE PROSCIUTTO E FORMAGGIO",
+        "description_it": "Salsa di pomodoro, prosciutto cotto, mozzarella",
+        "description_de": "Tomatensauce, Schinken, Mozzarella",
+        "name_it": "CALZONE PROSCIUTTO E FORMAGGIO",
+        "name_de": "CALZONE SCHINKEN & KÄSE",
+        "nameDe": "CALZONE SCHINKEN & KÄSE",
+        "descriptionDe": "Tomatensauce, Schinken, Mozzarella"
       },
       {
         "id": "pizza-salame",
@@ -3467,7 +6193,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10015",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10024",
@@ -3475,7 +6207,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\" (Gorgonzola)",
             "sku": "10024",
             "price": 320,
-            "priceModifier": 70
+            "priceModifier": 70,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\" (Gorgonzola)",
+            "nameIt": "12\" (Gorgonzola)",
+            "name_de": "12\" (Gorgonzola)",
+            "nameDe": "12\" (Gorgonzola)"
           },
           {
             "id": "10016",
@@ -3483,7 +6221,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\" (Calabrese)",
             "sku": "10016",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\" (Calabrese)",
+            "nameIt": "12\" (Calabrese)",
+            "name_de": "12\" (Calabrese)",
+            "nameDe": "12\" (Calabrese)"
           },
           {
             "id": "10247",
@@ -3491,7 +6235,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10247",
             "price": 160,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           },
           {
             "id": "10256",
@@ -3499,7 +6249,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\" (Gorgonzola)",
             "sku": "10256",
             "price": 210,
-            "priceModifier": -40
+            "priceModifier": -40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\" (Gorgonzola)",
+            "nameIt": "8\" (Gorgonzola)",
+            "name_de": "8\" (Gorgonzola)",
+            "nameDe": "8\" (Gorgonzola)"
           },
           {
             "id": "10248",
@@ -3507,7 +6263,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\" (Calabrese)",
             "sku": "10248",
             "price": 160,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\" (Calabrese)",
+            "nameIt": "8\" (Calabrese)",
+            "name_de": "8\" (Calabrese)",
+            "nameDe": "8\" (Calabrese)"
           }
         ],
         "extras": [
@@ -3516,175 +6278,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -3692,7 +6604,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -3700,11 +6617,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, salame, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, salame, mozzarella",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, salame, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Salami, Mozzarella",
+        "name_it": "PIZZA AL SALAME",
+        "nameIt": "PIZZA AL SALAME",
+        "name_de": "PIZZA SALAMI",
+        "nameDe": "PIZZA SALAMI",
+        "descriptionDe": "Tomatensauce, Olivenöl, Salami, Mozzarella"
       },
       {
         "id": "pizza-salame-calabrese",
@@ -3723,7 +6652,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10016",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10248",
@@ -3731,7 +6666,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10248",
             "price": 160,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -3740,175 +6681,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -3916,7 +7007,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -3924,11 +7020,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, salame piccante, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, salame piccante, mozzarella",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, salame piccante, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, scharfe Salami, Mozzarella",
+        "name_it": "PIZZA ALLA DIAVOLA",
+        "nameIt": "PIZZA ALLA DIAVOLA",
+        "name_de": "PIZZA SALAMI CALABRESE",
+        "nameDe": "PIZZA SALAMI CALABRESE",
+        "descriptionDe": "Tomatensauce, Olivenöl, scharfe Salami, Mozzarella"
       },
       {
         "id": "pizza-ham-and-artichokes",
@@ -3947,7 +7055,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10017",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10109",
@@ -3955,7 +7069,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10109",
             "price": 190,
-            "priceModifier": -100
+            "priceModifier": -100,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -3964,175 +7084,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -4140,7 +7410,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -4148,12 +7423,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, prosciutto, carciofi, mozzarella",
-        "nameIt": "PIZZA PROSCIUTTO E CARCIOFI"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, carciofi, mozzarella",
+        "nameIt": "PIZZA PROSCIUTTO E CARCIOFI",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, carciofi, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Schinken, Artischocken, Mozzarella",
+        "name_it": "PIZZA PROSCIUTTO E CARCIOFI",
+        "name_de": "PIZZA SCHINKEN & ARTISCHOCKEN",
+        "nameDe": "PIZZA SCHINKEN & ARTISCHOCKEN",
+        "descriptionDe": "Tomatensauce, Olivenöl, Schinken, Artischocken, Mozzarella"
       },
       {
         "id": "pizza-bacon-bismark",
@@ -4172,7 +7458,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10018",
             "price": 270,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10101",
@@ -4180,7 +7472,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10101",
             "price": 170,
-            "priceModifier": -100
+            "priceModifier": -100,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -4189,175 +7487,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -4365,7 +7813,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -4373,11 +7826,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, pancetta, uovo, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, pancetta, uovo, mozzarella",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, pancetta, uovo, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Speck (Bacon), Ei, Mozzarella",
+        "name_it": "PIZZA BACON E UOVO",
+        "nameIt": "PIZZA BACON E UOVO",
+        "name_de": "PIZZA SPECK & EI",
+        "nameDe": "PIZZA SPECK & EI",
+        "descriptionDe": "Tomatensauce, Olivenöl, Speck (Bacon), Ei, Mozzarella"
       },
       {
         "id": "pizza-ham-and-mushrooms",
@@ -4396,7 +7861,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10019",
             "price": 260,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10112",
@@ -4404,7 +7875,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10112",
             "price": 170,
-            "priceModifier": -90
+            "priceModifier": -90,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -4413,175 +7890,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -4589,7 +8216,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -4597,12 +8229,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, prosciutto, funghi, mozzarella",
-        "nameIt": "PIZZA PROSCIUTTO E FUNGHI"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, funghi, mozzarella",
+        "nameIt": "PIZZA PROSCIUTTO E FUNGHI",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, funghi, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Schinken, Pilze, Mozzarella",
+        "name_it": "PIZZA PROSCIUTTO E FUNGHI",
+        "name_de": "PIZZA SCHINKEN & PILZE",
+        "nameDe": "PIZZA SCHINKEN & PILZE",
+        "descriptionDe": "Tomatensauce, Olivenöl, Schinken, Pilze, Mozzarella"
       },
       {
         "id": "pizza-ham-and-sweet-bell-pepper",
@@ -4621,7 +8264,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10020",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10115",
@@ -4629,7 +8278,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10115",
             "price": 190,
-            "priceModifier": -100
+            "priceModifier": -100,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -4638,175 +8293,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -4814,7 +8619,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -4822,12 +8632,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, prosciutto, peperoni dolci, mozzarella",
-        "nameIt": "PIZZA PROSCIUTTO E PEPERONI"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, peperoni dolci, mozzarella",
+        "nameIt": "PIZZA PROSCIUTTO E PEPERONI",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, peperoni dolci, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Schinken, milde Paprika, Mozzarella",
+        "name_it": "PIZZA PROSCIUTTO E PEPERONI",
+        "name_de": "PIZZA SCHINKEN & PAPRIKA",
+        "nameDe": "PIZZA SCHINKEN & PAPRIKA",
+        "descriptionDe": "Tomatensauce, Olivenöl, Schinken, milde Paprika, Mozzarella"
       },
       {
         "id": "pizza-pesto",
@@ -4846,7 +8667,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10021",
             "price": 280,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10140",
@@ -4854,7 +8681,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10140",
             "price": 180,
-            "priceModifier": -100
+            "priceModifier": -100,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -4863,175 +8696,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -5039,7 +9022,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -5047,11 +9035,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Pesto al basilico, olio d'oliva, mozzarella"
+        "descriptionIt": "Pesto al basilico, olio extravergine d'oliva, mozzarella",
+        "description_it": "Pesto al basilico, olio extravergine d'oliva, mozzarella",
+        "description_de": "Basilikumpesto, Olivenöl, Mozzarella",
+        "name_it": "PIZZA AL PESTO",
+        "nameIt": "PIZZA AL PESTO",
+        "name_de": "PIZZA PESTO",
+        "nameDe": "PIZZA PESTO",
+        "descriptionDe": "Basilikumpesto, Olivenöl, Mozzarella"
       },
       {
         "id": "pizza-tuna",
@@ -5070,7 +9070,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10022",
             "price": 280,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10254",
@@ -5078,7 +9084,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10254",
             "price": 180,
-            "priceModifier": -100
+            "priceModifier": -100,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -5087,175 +9099,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -5263,7 +9425,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -5271,12 +9438,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, aglio, cipolla, tonno, mozzarella",
-        "nameIt": "PIZZA AL TONNO"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, aglio, cipolla, tonno, mozzarella",
+        "nameIt": "PIZZA AL TONNO",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, aglio, cipolla, tonno, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Knoblauch, Zwiebeln, Thunfisch, Mozzarella",
+        "name_it": "PIZZA AL TONNO",
+        "name_de": "PIZZA THUNFISCH",
+        "nameDe": "PIZZA THUNFISCH",
+        "descriptionDe": "Tomatensauce, Olivenöl, Knoblauch, Zwiebeln, Thunfisch, Mozzarella"
       },
       {
         "id": "pizza-hawaiian",
@@ -5295,7 +9473,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10023",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10117",
@@ -5303,7 +9487,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10117",
             "price": 190,
-            "priceModifier": -100
+            "priceModifier": -100,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -5312,175 +9502,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -5488,7 +9828,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -5496,12 +9841,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, prosciutto, ananas, mozzarella",
-        "nameIt": "PIZZA HAWAIANA"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, ananas, mozzarella",
+        "nameIt": "PIZZA HAWAIANA",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, prosciutto cotto, ananas, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Schinken, Ananas, Mozzarella",
+        "name_it": "PIZZA HAWAIANA",
+        "name_de": "PIZZA HAWAI",
+        "nameDe": "PIZZA HAWAI",
+        "descriptionDe": "Tomatensauce, Olivenöl, Schinken, Ananas, Mozzarella"
       },
       {
         "id": "pizza-salame-and-gorgonzola",
@@ -5520,7 +9876,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10024",
             "price": 320,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10256",
@@ -5528,7 +9890,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10256",
             "price": 210,
-            "priceModifier": -110
+            "priceModifier": -110,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -5537,175 +9905,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -5713,7 +10231,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -5721,12 +10244,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, salame, gorgonzola, mozzarella",
-        "nameIt": "PIZZA SALAME E GORGONZOLA"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, salame, gorgonzola, mozzarella",
+        "nameIt": "PIZZA SALAME E GORGONZOLA",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, salame, gorgonzola, mozzarella",
+        "description_de": "Tomatensauce, Olivenöl, Salami, Gorgonzola, Mozzarella",
+        "name_it": "PIZZA SALAME E GORGONZOLA",
+        "name_de": "PIZZA SALAMI & GORGONZOLA",
+        "nameDe": "PIZZA SALAMI & GORGONZOLA",
+        "descriptionDe": "Tomatensauce, Olivenöl, Salami, Gorgonzola, Mozzarella"
       },
       {
         "id": "pizza-4-formaggi",
@@ -5745,7 +10279,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\" (4)",
             "sku": "10025",
             "price": 330,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\" (4)",
+            "nameIt": "12\" (4)",
+            "name_de": "12\" (4)",
+            "nameDe": "12\" (4)"
           },
           {
             "id": "10067",
@@ -5753,7 +10293,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\" (4)",
             "sku": "10067",
             "price": 220,
-            "priceModifier": -110
+            "priceModifier": -110,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\" (4)",
+            "nameIt": "8\" (4)",
+            "name_de": "8\" (4)",
+            "nameDe": "8\" (4)"
           }
         ],
         "extras": [
@@ -5762,175 +10308,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -5938,7 +10634,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -5946,11 +10647,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Mozzarella, cheddar, gorgonzola, parmigiano"
+        "descriptionIt": "Mozzarella, cheddar, gorgonzola, parmigiano",
+        "description_it": "Mozzarella, cheddar, gorgonzola, parmigiano",
+        "description_de": "Mozzarella, Cheddar, Gorgonzola, Parmesan",
+        "name_it": "PIZZA AI QUATTRO FORMAGGI",
+        "nameIt": "PIZZA AI QUATTRO FORMAGGI",
+        "name_de": "PIZZA VIER KÄSE",
+        "nameDe": "PIZZA VIER KÄSE",
+        "descriptionDe": "Mozzarella, Cheddar, Gorgonzola, Parmesan"
       },
       {
         "id": "pizza-4-stagioni",
@@ -5969,7 +10682,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\" (4)",
             "sku": "10026",
             "price": 350,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\" (4)",
+            "nameIt": "12\" (4)",
+            "name_de": "12\" (4)",
+            "nameDe": "12\" (4)"
           },
           {
             "id": "10089",
@@ -5977,7 +10696,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\" (4)",
             "sku": "10089",
             "price": 240,
-            "priceModifier": -110
+            "priceModifier": -110,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\" (4)",
+            "nameIt": "8\" (4)",
+            "name_de": "8\" (4)",
+            "nameDe": "8\" (4)"
           }
         ],
         "extras": [
@@ -5986,175 +10711,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -6162,7 +11037,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -6170,11 +11050,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, prosciutto, funghi, carciofi, olive, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, prosciutto cotto, funghi, carciofi, olive, mozzarella",
+        "description_it": "Salsa di pomodoro, prosciutto cotto, funghi, carciofi, olive, mozzarella",
+        "description_de": "Tomatensauce, Schinken, Pilze, Artischocken, Oliven, Mozzarella",
+        "name_it": "PIZZA QUATTRO STAGIONI",
+        "nameIt": "PIZZA QUATTRO STAGIONI",
+        "name_de": "PIZZA VIER JAHRESZEITEN",
+        "nameDe": "PIZZA VIER JAHRESZEITEN",
+        "descriptionDe": "Tomatensauce, Schinken, Pilze, Artischocken, Oliven, Mozzarella"
       },
       {
         "id": "pizza-capricciosa",
@@ -6193,7 +11085,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10027",
             "price": 350,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10106",
@@ -6201,7 +11099,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10106",
             "price": 240,
-            "priceModifier": -110
+            "priceModifier": -110,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -6210,175 +11114,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -6386,7 +11440,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -6394,11 +11453,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, prosciutto, funghi, carciofi, olive, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, prosciutto cotto, funghi, carciofi, olive, mozzarella",
+        "description_it": "Salsa di pomodoro, prosciutto cotto, funghi, carciofi, olive, mozzarella",
+        "description_de": "Tomatensauce, Schinken, Pilze, Artischocken, Oliven, Mozzarella",
+        "name_it": "PIZZA CAPRICCIOSA",
+        "nameIt": "PIZZA CAPRICCIOSA",
+        "name_de": "PIZZA CAPRICCIOSA",
+        "nameDe": "PIZZA CAPRICCIOSA",
+        "descriptionDe": "Tomatensauce, Schinken, Pilze, Artischocken, Oliven, Mozzarella"
       },
       {
         "id": "pizza-flower-power",
@@ -6417,7 +11488,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10028",
             "price": 350,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10108",
@@ -6425,7 +11502,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10108",
             "price": 240,
-            "priceModifier": -110
+            "priceModifier": -110,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -6434,175 +11517,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -6610,7 +11843,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -6618,11 +11856,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsiccia italiana, carciofi, gorgonzola, mozzarella"
+        "descriptionIt": "Salsiccia italiana, carciofi, gorgonzola, mozzarella",
+        "description_it": "Salsiccia italiana, carciofi, gorgonzola, mozzarella",
+        "description_de": "Italienische Salsiccia-Wurst, Artischocken, Gorgonzola, Mozzarella",
+        "name_it": "PIZZA FLOWER POWER",
+        "nameIt": "PIZZA FLOWER POWER",
+        "name_de": "PIZZA FLOWER POWER",
+        "nameDe": "PIZZA FLOWER POWER",
+        "descriptionDe": "Italienische Salsiccia-Wurst, Artischocken, Gorgonzola, Mozzarella"
       },
       {
         "id": "pizza-puttanesca",
@@ -6641,7 +11891,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10029",
             "price": 350,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10261",
@@ -6649,7 +11905,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10261",
             "price": 240,
-            "priceModifier": -110
+            "priceModifier": -110,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -6658,175 +11920,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -6834,7 +12246,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -6842,11 +12259,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, acciughe salate, capperi, olive, mozzarella"
+        "descriptionIt": "Salsa di pomodoro, acciughe salate, capperi, olive, mozzarella",
+        "description_it": "Salsa di pomodoro, acciughe salate, capperi, olive, mozzarella",
+        "description_de": "Tomatensauce, gesalzene Sardellen, Kapern, Oliven, Mozzarella",
+        "name_it": "PIZZA PUTTANESCA",
+        "nameIt": "PIZZA PUTTANESCA",
+        "name_de": "PIZZA PUTTANESCA",
+        "nameDe": "PIZZA PUTTANESCA",
+        "descriptionDe": "Tomatensauce, gesalzene Sardellen, Kapern, Oliven, Mozzarella"
       },
       {
         "id": "pizza-seafood",
@@ -6865,7 +12294,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10030",
             "price": 350,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10262",
@@ -6873,7 +12308,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10262",
             "price": 240,
-            "priceModifier": -110
+            "priceModifier": -110,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -6882,175 +12323,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -7058,7 +12649,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -7066,12 +12662,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, aglio, frutti di mare",
-        "nameIt": "PIZZA AI FRUTTI DI MARE"
+        "descriptionIt": "Salsa di pomodoro, olio extravergine d'oliva, aglio, frutti di mare",
+        "nameIt": "PIZZA AI FRUTTI DI MARE",
+        "description_it": "Salsa di pomodoro, olio extravergine d'oliva, aglio, frutti di mare",
+        "description_de": "Tomatensauce, Olivenöl, Knoblauch, Meeresfrüchte",
+        "name_it": "PIZZA AI FRUTTI DI MARE",
+        "name_de": "PIZZA MEERESFRÜCHTE",
+        "nameDe": "PIZZA MEERESFRÜCHTE",
+        "descriptionDe": "Tomatensauce, Olivenöl, Knoblauch, Meeresfrüchte"
       },
       {
         "id": "pizza-stella",
@@ -7090,7 +12697,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "12\"",
             "sku": "10031",
             "price": 350,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10263",
@@ -7098,7 +12711,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "8\"",
             "sku": "10263",
             "price": 240,
-            "priceModifier": -110
+            "priceModifier": -110,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -7107,175 +12726,325 @@ export const menuData: MenuCategory[] = [
             "name": "1 Egg Extra",
             "nameTh": "ไข่ไก่เพิ่ม",
             "sku": "10122",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Uovo Extra",
+            "nameIt": "Uovo Extra",
+            "name_de": "Extra Ei",
+            "nameDe": "Extra Ei"
           },
           {
             "id": "10285",
             "name": "Anchovies Extra",
             "nameTh": "แองโชวี่เพิ่ม",
             "sku": "10285",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Acciughe Extra",
+            "nameIt": "Acciughe Extra",
+            "name_de": "Extra Sardellen",
+            "nameDe": "Extra Sardellen"
           },
           {
             "id": "10096",
             "name": "Artichoke Extra",
             "nameTh": "อาร์ติโชคเพิ่ม",
             "sku": "10096",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Carciofi Extra",
+            "nameIt": "Carciofi Extra",
+            "name_de": "Extra Artischocken",
+            "nameDe": "Extra Artischocken"
           },
           {
             "id": "10111",
             "name": "Bacon Extra",
             "nameTh": "เบคอนเพิ่ม",
             "sku": "10111",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pancetta Extra",
+            "nameIt": "Pancetta Extra",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck"
           },
           {
             "id": "10138",
             "name": "Black Olives Extra",
             "nameTh": "มะกอกดำเพิ่ม",
             "sku": "10138",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Olive Nere Extra",
+            "nameIt": "Olive Nere Extra",
+            "name_de": "Extra schwarze Oliven",
+            "nameDe": "Extra schwarze Oliven"
           },
           {
             "id": "10121",
             "name": "Capers Extra",
             "nameTh": "เคเปอร์เพิ่ม",
             "sku": "10121",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Capperi Extra",
+            "nameIt": "Capperi Extra",
+            "name_de": "Extra Kapern",
+            "nameDe": "Extra Kapern"
           },
           {
             "id": "10129",
             "name": "Chicken Ham Extra",
             "nameTh": "แฮมไก่เพิ่ม",
             "sku": "10129",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto di Pollo Extra",
+            "nameIt": "Prosciutto di Pollo Extra",
+            "name_de": "Extra Hähnchenschinken",
+            "nameDe": "Extra Hähnchenschinken"
           },
           {
             "id": "10141",
             "name": "Chicken Salame Extra",
             "nameTh": "ซาลามี่ไก่เพิ่ม",
             "sku": "10141",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame di Pollo Extra",
+            "nameIt": "Salame di Pollo Extra",
+            "name_de": "Extra Hähnchensalami",
+            "nameDe": "Extra Hähnchensalami"
           },
           {
             "id": "10102",
             "name": "Extra \" Mozzarella Cheese",
             "nameTh": "ชีสมอซซาเรลล่าเพิ่ม",
             "sku": "10102",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Doppia Mozzarella",
+            "nameIt": "Doppia Mozzarella",
+            "name_de": "Doppelt Mozzarella",
+            "nameDe": "Doppelt Mozzarella"
           },
           {
             "id": "10191",
             "name": "Fresh Tomato Extra",
             "nameTh": "มะเขือเทศสดเพิ่ม",
             "sku": "10191",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pomodoro Fresco Extra",
+            "nameIt": "Pomodoro Fresco Extra",
+            "name_de": "Extra frische Tomaten",
+            "nameDe": "Extra frische Tomaten"
           },
           {
             "id": "10118",
             "name": "Gorgonzola Extra",
             "nameTh": "ชีสกอร์กอนโซล่าเพิ่ม",
             "sku": "10118",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Gorgonzola Extra",
+            "nameIt": "Gorgonzola Extra",
+            "name_de": "Extra Gorgonzola",
+            "nameDe": "Extra Gorgonzola"
           },
           {
             "id": "10113",
             "name": "Ham Extra",
             "nameTh": "แฮมเพิ่ม",
             "sku": "10113",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosciutto Cotto Extra",
+            "nameIt": "Prosciutto Cotto Extra",
+            "name_de": "Extra Schinken",
+            "nameDe": "Extra Schinken"
           },
           {
             "id": "10236",
             "name": "Hotdog Extra",
             "nameTh": "ฮอทดอกเพิ่ม",
             "sku": "10236",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10094",
             "name": "Mushrooms Extra",
             "nameTh": "เห็ดเพิ่ม",
             "sku": "10094",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Funghi Extra",
+            "nameIt": "Funghi Extra",
+            "name_de": "Extra Pilze",
+            "nameDe": "Extra Pilze"
           },
           {
             "id": "10068",
             "name": "Onion/Garlic Extra",
             "nameTh": "หอมใหญ่/กระเทียมเพิ่ม",
             "sku": "10068",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Aglio/Cipolla Extra",
+            "nameIt": "Aglio/Cipolla Extra",
+            "name_de": "Extra Zwiebeln/Knoblauch",
+            "nameDe": "Extra Zwiebeln/Knoblauch"
           },
           {
             "id": "10171",
-            "name": "Parmesan cheese 🧀",
+            "name": "Parmesan cheese",
             "nameTh": "พาร์เมซานชีสเพิ่ม",
             "sku": "10171",
-            "price": 20
+            "price": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Parmigiano Extra",
+            "nameIt": "Parmigiano Extra",
+            "name_de": "Extra Parmesan",
+            "nameDe": "Extra Parmesan"
           },
           {
             "id": "10062",
             "name": "Pesto Sauce Extra",
             "nameTh": "ซอสเพสโต้เพิ่ม",
             "sku": "10062",
-            "price": 60
+            "price": 60,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salsa al Pesto Extra",
+            "nameIt": "Salsa al Pesto Extra",
+            "name_de": "Extra Pestosauce",
+            "nameDe": "Extra Pestosauce"
           },
           {
             "id": "10095",
             "name": "Pineapple Extra",
             "nameTh": "สับปะรดเพิ่ม",
             "sku": "10095",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas Extra",
+            "nameIt": "Ananas Extra",
+            "name_de": "Extra Ananas",
+            "nameDe": "Extra Ananas"
           },
           {
             "id": "10088",
             "name": "Salame Calabrese Extra",
             "nameTh": "ซาลามี่คาลาเบรียเพิ่ม",
             "sku": "10088",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Piccante Extra",
+            "nameIt": "Salame Piccante Extra",
+            "name_de": "Extra scharfe Salami",
+            "nameDe": "Extra scharfe Salami"
           },
           {
             "id": "10087",
             "name": "Salame Extra",
             "nameTh": "ซาลามี่เพิ่ม",
             "sku": "10087",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Salame Extra",
+            "nameIt": "Salame Extra",
+            "name_de": "Extra Salami",
+            "nameDe": "Extra Salami"
           },
           {
             "id": "10086",
             "name": "Sausage Extra",
             "nameTh": "ไส้กรอกเพิ่ม",
             "sku": "10086",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Würstel Extra",
+            "nameIt": "Würstel Extra",
+            "name_de": "Extra Würstchen",
+            "nameDe": "Extra Würstchen"
           },
           {
             "id": "10107",
             "name": "Sweet Bell Peppers Extra",
             "nameTh": "พริกหวานเพิ่ม",
             "sku": "10107",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Peperoni Dolci Extra",
+            "nameIt": "Peperoni Dolci Extra",
+            "name_de": "Extra milde Paprika",
+            "nameDe": "Extra milde Paprika"
           },
           {
             "id": "10172",
             "name": "Tofu Extra",
             "nameTh": "เต้าหู้เพิ่ม",
             "sku": "10172",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tofu Extra",
+            "nameIt": "Tofu Extra",
+            "name_de": "Extra Tofu",
+            "nameDe": "Extra Tofu"
           },
           {
             "id": "10120",
             "name": "Tuna Extra",
             "nameTh": "ทูน่าเพิ่ม",
             "sku": "10120",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Tonno Extra",
+            "nameIt": "Tonno Extra",
+            "name_de": "Extra Thunfisch",
+            "nameDe": "Extra Thunfisch"
           },
           {
             "id": "10100",
             "name": "Vegetables Extra",
             "nameTh": "ผักเพิ่ม",
             "sku": "10100",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Verdure Extra",
+            "nameIt": "Verdure Extra",
+            "name_de": "Extra Gemüse",
+            "nameDe": "Extra Gemüse"
           },
           {
             "id": "ext-ketchup",
@@ -7283,7 +13052,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศพิเศษ",
             "nameIt": "Ketchup Extra",
             "sku": "ext-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Ketchup",
+            "nameDe": "Extra Ketchup",
+            "name_it": "Ketchup Extra"
           },
           {
             "id": "ext-chilisauce",
@@ -7291,13 +13065,35 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสพริกพิเศษ",
             "nameIt": "Salsa Piccante Extra",
             "sku": "ext-chilisauce",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Chilisauce",
+            "nameDe": "Extra Chilisauce",
+            "name_it": "Salsa Piccante Extra"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
-        "descriptionIt": "Würstel, bacon, gorgonzola, uovo, mozzarella"
+        "descriptionIt": "Würstel, pancetta, gorgonzola, uovo, mozzarella",
+        "description_it": "Würstel, pancetta, gorgonzola, uovo, mozzarella",
+        "description_de": "Würstchen, Speck (Bacon), Gorgonzola, Ei, Mozzarella",
+        "name_it": "PIZZA STELLA",
+        "nameIt": "PIZZA STELLA",
+        "name_de": "PIZZA STELLA",
+        "nameDe": "PIZZA STELLA",
+        "descriptionDe": "Würstchen, Speck (Bacon), Gorgonzola, Ei, Mozzarella"
       }
-    ]
+    ],
+    "name_it": "Pizza Italiana Tradizionale",
+    "nameIt": "Pizza Italiana Tradizionale",
+    "name_de": "Traditionelle Italienische Pizza",
+    "nameDe": "Traditionelle Italienische Pizza",
+    "description": "Pizza Is The Heart Of Our Restaurant. We Use Only Selected Italian Ingredients, From Flour To Tomato, From Cheeses To Cold Cuts, With No Compromise On Quality. Our Traditional High-Hydration Italian Pizza Is Made With A 90% Water Dough, Slowly Matured For At Least 36 Hours. The Result Is A Crispy, Light, Highly Digestible Pizza, Full Of Flavor.",
+    "descriptionTh": "พิซซ่าคือหัวใจของร้านอาหารของเรา เราใช้เฉพาะวัตถุดิบอิตาเลียนที่คัดสรรมาอย่างดี ตั้งแต่แป้ง มะเขือเทศ ชีส ไปจนถึงโคลด์คัต โดยไม่ประนีประนอมด้านคุณภาพ พิซซ่าอิตาเลียนแบบดั้งเดิมของเราเป็นแป้งไฮเดรชันสูง ผสมน้ำถึง 90% และหมักอย่างช้าๆ อย่างน้อย 36 ชั่วโมง ผลลัพธ์คือพิซซ่าที่กรอบ เบา ย่อยง่าย และเต็มไปด้วยรสชาติ",
+    "description_it": "La pizza è il cuore del nostro locale. Utilizziamo solo ingredienti italiani selezionati di prima qualità: dalla farina al pomodoro, dai formaggi ai salumi, senza scendere a compromessi. La nostra pizza tradizionale ad alta idratazione è realizzata con un impasto al 90% d'acqua, fatto maturare lentamente per almeno 36 ore. Il risultato è una pizza croccante, leggera, altamente digeribile e ricca di sapore.",
+    "descriptionIt": "La pizza è il cuore del nostro locale. Utilizziamo solo ingredienti italiani selezionati di prima qualità: dalla farina al pomodoro, dai formaggi ai salumi, senza scendere a compromessi. La nostra pizza tradizionale ad alta idratazione è realizzata con un impasto al 90% d'acqua, fatto maturare lentamente per almeno 36 ore. Il risultato è una pizza croccante, leggera, altamente digeribile e ricca di sapore.",
+    "description_de": "Die Pizza ist das Herzstück unseres Restaurants. Wir verwenden ausschließlich ausgewählte italienische Zutaten bester Qualität: vom Mehl bis zu den Tomaten, vom Käse bis zum Aufschnitt, ohne Kompromisse. Unsere traditionelle italienische Pizza mit hohem Feuchtigkeitsgehalt wird aus einem Teig mit 90 % Wasseranteil hergestellt, der mindestens 36 Stunden lang langsam reift. Das Ergebnis ist eine knusprige, leichte, besonders bekömmliche und geschmacksintensive Pizza.",
+    "descriptionDe": "Die Pizza ist das Herzstück unseres Restaurants. Wir verwenden ausschließlich ausgewählte italienische Zutaten bester Qualität: vom Mehl bis zu den Tomaten, vom Käse bis zum Aufschnitt, ohne Kompromisse. Unsere traditionelle italienische Pizza mit hohem Feuchtigkeitsgehalt wird aus einem Teig mit 90 % Wasseranteil hergestellt, der mindestens 36 Stunden lang langsam reift. Das Ergebnis ist eine knusprige, leichte, besonders bekömmliche und geschmacksintensive Pizza."
   },
   {
     "id": "pasta",
@@ -7309,8 +13105,8 @@ export const menuData: MenuCategory[] = [
         "id": "spaghetti-aglio-e-olio",
         "name": "SPAGHETTI AGLIO E OLIO",
         "nameTh": "สปาเกตตี้ อาลิโอ เอ โอลิโอ",
-        "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
-        "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
+        "description": "A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite",
+        "descriptionTh": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
         "price": 110,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/01-spaghetti-aglio-e-olio.webp",
         "image_file": "02-Pasta/Garlic, Oil & Chili/01-spaghetti-aglio-e-olio.webp",
@@ -7321,41 +13117,66 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "ext-bacon",
             "name": "Bacon",
             "nameTh": "เบคอน",
-            "nameIt": "Bacon",
+            "nameIt": "Pancetta Extra",
             "sku": "ext-bacon",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck",
+            "name_it": "Pancetta Extra"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7363,18 +13184,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Olio d'oliva, aglio, peperoncino fresco, parmigiano"
+        "descriptionIt": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_it": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_de": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
+        "name_it": "SPAGHETTI AGLIO, OLIO E PEPERONCINO",
+        "nameIt": "SPAGHETTI AGLIO, OLIO E PEPERONCINO",
+        "name_de": "Spaghetti mit Knoblauch, Öl & Chili",
+        "nameDe": "Spaghetti mit Knoblauch, Öl & Chili",
+        "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert."
       },
       {
         "id": "penne-aglio-e-olio",
         "name": "PENNE AGLIO E OLIO",
         "nameTh": "เพนเน่ อาลิโอ เอ โอลิโอ",
-        "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
-        "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
+        "description": "A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite",
+        "descriptionTh": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
         "price": 110,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/02-penne-aglio-e-olio.webp",
         "image_file": "02-Pasta/Garlic, Oil & Chili/02-penne-aglio-e-olio.webp",
@@ -7385,41 +13218,66 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "ext-bacon",
             "name": "Bacon",
             "nameTh": "เบคอน",
-            "nameIt": "Bacon",
+            "nameIt": "Pancetta Extra",
             "sku": "ext-bacon",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck",
+            "name_it": "Pancetta Extra"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7427,18 +13285,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Olio d'oliva, aglio, peperoncino fresco, parmigiano"
+        "descriptionIt": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_it": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_de": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
+        "name_it": "PENNE AGLIO, OLIO E PEPERONCINO",
+        "nameIt": "PENNE AGLIO, OLIO E PEPERONCINO",
+        "name_de": "Penne mit Knoblauch, Öl & Chili",
+        "nameDe": "Penne mit Knoblauch, Öl & Chili",
+        "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert."
       },
       {
         "id": "tagliatelle-aglio-e-olio",
         "name": "TAGLIATELLE AGLIO E OLIO",
         "nameTh": "ทาเกรียเทลล่า พริกกระเทียม",
-        "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
-        "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
+        "description": "A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite",
+        "descriptionTh": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
         "price": 130,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/03-tagliatelle-aglio-e-olio.webp",
         "image_file": "02-Pasta/Garlic, Oil & Chili/03-tagliatelle-aglio-e-olio.webp",
@@ -7449,41 +13319,66 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "ext-bacon",
             "name": "Bacon",
             "nameTh": "เบคอน",
-            "nameIt": "Bacon",
+            "nameIt": "Pancetta Extra",
             "sku": "ext-bacon",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck",
+            "name_it": "Pancetta Extra"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7491,18 +13386,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Olio d'oliva, aglio, peperoncino fresco, parmigiano"
+        "descriptionIt": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_it": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_de": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
+        "name_it": "TAGLIATELLE AGLIO, OLIO E PEPERONCINO",
+        "nameIt": "TAGLIATELLE AGLIO, OLIO E PEPERONCINO",
+        "name_de": "Tagliatelle mit Knoblauch, Öl & Chili",
+        "nameDe": "Tagliatelle mit Knoblauch, Öl & Chili",
+        "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert."
       },
       {
         "id": "gnocchi-aglio-e-olio",
         "name": "GNOCCHI AGLIO E OLIO",
         "nameTh": "ญอคคี พริกกระเทียม",
-        "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
-        "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
+        "description": "A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite",
+        "descriptionTh": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
         "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/04-gnocchi-aglio-e-olio.webp",
         "image_file": "02-Pasta/Garlic, Oil & Chili/04-gnocchi-aglio-e-olio.webp",
@@ -7513,41 +13420,66 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "ext-bacon",
             "name": "Bacon",
             "nameTh": "เบคอน",
-            "nameIt": "Bacon",
+            "nameIt": "Pancetta Extra",
             "sku": "ext-bacon",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck",
+            "name_it": "Pancetta Extra"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7555,18 +13487,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Olio d'oliva, aglio, peperoncino fresco, parmigiano"
+        "descriptionIt": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_it": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_de": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
+        "name_it": "GNOCCHI AGLIO, OLIO E PEPERONCINO",
+        "nameIt": "GNOCCHI AGLIO, OLIO E PEPERONCINO",
+        "name_de": "Gnocchi mit Knoblauch, Öl & Chili",
+        "nameDe": "Gnocchi mit Knoblauch, Öl & Chili",
+        "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert."
       },
       {
         "id": "ravioli-aglio-e-olio",
         "name": "RAVIOLI AGLIO E OLIO",
         "nameTh": "ราวิโอลี พริกกระเทียม",
-        "description": "Olive Oil, Garlic, Fresh Chili, Parmesan Cheese",
-        "descriptionTh": "น้ำมันมะกอก, กระเทียม, พริกสด, ชีสพาร์เมซาน",
+        "description": "A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite",
+        "descriptionTh": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
         "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Garlic, Oil & Chili/05-ravioli-aglio-e-olio.webp",
         "image_file": "02-Pasta/Garlic, Oil & Chili/05-ravioli-aglio-e-olio.webp",
@@ -7577,41 +13521,66 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "ext-bacon",
             "name": "Bacon",
             "nameTh": "เบคอน",
-            "nameIt": "Bacon",
+            "nameIt": "Pancetta Extra",
             "sku": "ext-bacon",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Extra Speck",
+            "nameDe": "Extra Speck",
+            "name_it": "Pancetta Extra"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7619,18 +13588,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Olio d'oliva, aglio, peperoncino fresco, parmigiano"
+        "descriptionIt": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_it": "Un grande classico italiano, tanto semplice quanto saporito, preparato con aglio, olio extravergine d'oliva e peperoncino: un gusto intenso e aromatico che delizia ogni singolo boccone.",
+        "description_de": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
+        "name_it": "RAVIOLI AGLIO, OLIO E PEPERONCINO",
+        "nameIt": "RAVIOLI AGLIO, OLIO E PEPERONCINO",
+        "name_de": "Ravioli mit Knoblauch, Öl & Chili",
+        "nameDe": "Ravioli mit Knoblauch, Öl & Chili",
+        "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert."
       },
       {
         "id": "spaghetti-al-pomodoro",
         "name": "SPAGHETTI AL POMODORO",
         "nameTh": "สปาเกตตี้ อัล โพโมโดโร่",
-        "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
+        "description": "Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It’s the heart of Italian cuisine",
+        "descriptionTh": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
         "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/06-spaghetti-al-pomodoro.webp",
         "image_file": "02-Pasta/Tomato Sauce/06-spaghetti-al-pomodoro.webp",
@@ -7641,33 +13622,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7675,18 +13676,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, origano, basilico, parmigiano"
+        "descriptionIt": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_it": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_de": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
+        "name_it": "SPAGHETTI AL POMODORO",
+        "nameIt": "SPAGHETTI AL POMODORO",
+        "name_de": "Spaghetti mit Tomatensoße",
+        "nameDe": "Spaghetti mit Tomatensoße",
+        "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche."
       },
       {
         "id": "penne-al-pomodoro",
         "name": "PENNE AL POMODORO",
         "nameTh": "เพนเน่ อัล โพโมโดโร่",
-        "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
+        "description": "Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It’s the heart of Italian cuisine",
+        "descriptionTh": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
         "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/07-penne-al-pomodoro.webp",
         "image_file": "02-Pasta/Tomato Sauce/07-penne-al-pomodoro.webp",
@@ -7697,33 +13710,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7731,18 +13764,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, origano, basilico, parmigiano"
+        "descriptionIt": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_it": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_de": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
+        "name_it": "PENNE AL POMODORO",
+        "nameIt": "PENNE AL POMODORO",
+        "name_de": "Penne mit Tomatensoße",
+        "nameDe": "Penne mit Tomatensoße",
+        "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche."
       },
       {
         "id": "tagliatelle-al-pomodoro",
         "name": "TAGLIATELLE AL POMODORO",
         "nameTh": "ทาเกรียเทลล่า อัล มะเขือเทศ",
-        "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
+        "description": "Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It’s the heart of Italian cuisine",
+        "descriptionTh": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
         "price": 170,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/08-tagliatelle-al-pomodoro.webp",
         "image_file": "02-Pasta/Tomato Sauce/08-tagliatelle-al-pomodoro.webp",
@@ -7753,33 +13798,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7787,18 +13852,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, origano, basilico, parmigiano"
+        "descriptionIt": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_it": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_de": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
+        "name_it": "TAGLIATELLE AL POMODORO",
+        "nameIt": "TAGLIATELLE AL POMODORO",
+        "name_de": "Tagliatelle mit Tomatensoße",
+        "nameDe": "Tagliatelle mit Tomatensoße",
+        "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche."
       },
       {
         "id": "gnocchi-al-pomodoro",
         "name": "GNOCCHI AL POMODORO",
         "nameTh": "ญอคคี อัล มะเขือเทศ",
-        "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
+        "description": "Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It’s the heart of Italian cuisine",
+        "descriptionTh": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
         "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/09-gnocchi-al-pomodoro.webp",
         "image_file": "02-Pasta/Tomato Sauce/09-gnocchi-al-pomodoro.webp",
@@ -7809,33 +13886,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7843,18 +13940,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, origano, basilico, parmigiano"
+        "descriptionIt": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_it": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_de": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
+        "name_it": "GNOCCHI AL POMODORO",
+        "nameIt": "GNOCCHI AL POMODORO",
+        "name_de": "Gnocchi mit Tomatensoße",
+        "nameDe": "Gnocchi mit Tomatensoße",
+        "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche."
       },
       {
         "id": "ravioli-al-pomodoro",
         "name": "RAVIOLI AL POMODORO",
         "nameTh": "ราวิโอลี อัล มะเขือเทศ",
-        "description": "Tomato Sauce, Olive Oil, Oregano, Basil, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, น้ำมันมะกอก, ออริกาโน, โหระพา, พาร์เมซานชีส",
+        "description": "Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It’s the heart of Italian cuisine",
+        "descriptionTh": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
         "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato Sauce/10-ravioli-al-pomodoro.webp",
         "image_file": "02-Pasta/Tomato Sauce/10-ravioli-al-pomodoro.webp",
@@ -7865,33 +13974,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -7899,18 +14028,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, olio d'oliva, origano, basilico, parmigiano"
+        "descriptionIt": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_it": "Salsa di pomodoro all'italiana, preparata con pomodori maturi, olio d'oliva, aglio o cipolla, sale e basilico fresco. Il vero cuore della cucina italiana.",
+        "description_de": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
+        "name_it": "RAVIOLI AL POMODORO",
+        "nameIt": "RAVIOLI AL POMODORO",
+        "name_de": "Ravioli mit Tomatensoße",
+        "nameDe": "Ravioli mit Tomatensoße",
+        "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche."
       },
       {
         "id": "spaghetti-al-pesto",
         "name": "SPAGHETTI AL PESTO",
         "nameTh": "สปาเกตตี้ อัล เพสโต้",
-        "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa",
+        "descriptionTh": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
         "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/11-spaghetti-al-pesto.webp",
         "image_file": "02-Pasta/Pesto Genovese/11-spaghetti-al-pesto.webp",
@@ -7921,20 +14062,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Basilico, aglio, anacardi, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_it": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_de": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
+        "name_it": "SPAGHETTI AL PESTO GENOVESE",
+        "nameIt": "SPAGHETTI AL PESTO GENOVESE",
+        "name_de": "Spaghetti mit Pesto Genovese",
+        "nameDe": "Spaghetti mit Pesto Genovese",
+        "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört."
       },
       {
         "id": "penne-al-pesto",
         "name": "PENNE AL PESTO",
         "nameTh": "เพนเน่ อัล เพสโต้",
-        "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa",
+        "descriptionTh": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
         "price": 150,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/12-penne-al-pesto.webp",
         "image_file": "02-Pasta/Pesto Genovese/12-penne-al-pesto.webp",
@@ -7945,20 +14098,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Basilico, aglio, anacardi, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_it": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_de": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
+        "name_it": "PENNE AL PESTO GENOVESE",
+        "nameIt": "PENNE AL PESTO GENOVESE",
+        "name_de": "Penne mit Pesto Genovese",
+        "nameDe": "Penne mit Pesto Genovese",
+        "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört."
       },
       {
         "id": "tagliatelle-al-pesto",
         "name": "TAGLIATELLE AL PESTO",
         "nameTh": "ทาเกรียเทลล่า อัล เพสโต้",
-        "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa",
+        "descriptionTh": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
         "price": 170,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/13-tagliatelle-al-pesto.webp",
         "image_file": "02-Pasta/Pesto Genovese/13-tagliatelle-al-pesto.webp",
@@ -7969,20 +14134,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Basilico, aglio, anacardi, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_it": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_de": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
+        "name_it": "TAGLIATELLE AL PESTO GENOVESE",
+        "nameIt": "TAGLIATELLE AL PESTO GENOVESE",
+        "name_de": "Tagliatelle mit Pesto Genovese",
+        "nameDe": "Tagliatelle mit Pesto Genovese",
+        "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört."
       },
       {
         "id": "gnocchi-al-pesto",
         "name": "GNOCCHI AL PESTO",
         "nameTh": "ญอคคี อัล เพสโต้",
-        "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa",
+        "descriptionTh": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
         "price": 190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/14-gnocchi-al-pesto.webp",
         "image_file": "02-Pasta/Pesto Genovese/14-gnocchi-al-pesto.webp",
@@ -7993,20 +14170,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Basilico, aglio, anacardi, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_it": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_de": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
+        "name_it": "GNOCCHI AL PESTO GENOVESE",
+        "nameIt": "GNOCCHI AL PESTO GENOVESE",
+        "name_de": "Gnocchi mit Pesto Genovese",
+        "nameDe": "Gnocchi mit Pesto Genovese",
+        "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört."
       },
       {
         "id": "ravioli-al-pesto",
         "name": "RAVIOLI AL PESTO",
         "nameTh": "ราวิโอลี อัล เพสโต้",
-        "description": "Basil, Garlic, Cashew Nuts, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "โหระพา, กระเทียม, เม็ดมะม่วง, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa",
+        "descriptionTh": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
         "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto Genovese/15-ravioli-al-pesto.webp",
         "image_file": "02-Pasta/Pesto Genovese/15-ravioli-al-pesto.webp",
@@ -8017,20 +14206,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Basilico, aglio, anacardi, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_it": "Fresca salsa al basilico con anacardi, parmigiano, aglio e olio d'oliva: un sapore ricco e aromatico che rievoca i profumi di Genova.",
+        "description_de": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
+        "name_it": "RAVIOLI AL PESTO GENOVESE",
+        "nameIt": "RAVIOLI AL PESTO GENOVESE",
+        "name_de": "Ravioli mit Pesto Genovese",
+        "nameDe": "Ravioli mit Pesto Genovese",
+        "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört."
       },
       {
         "id": "spaghetti-amatriciana",
         "name": "SPAGHETTI AMATRICIANA",
         "nameTh": "สปาเกตตี้ อามาทริเซียน่า",
-        "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition",
+        "descriptionTh": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
         "price": 160,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/16-spaghetti-amatriciana.webp",
         "image_file": "02-Pasta/Amatriciana/16-spaghetti-amatriciana.webp",
@@ -8041,33 +14242,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8075,18 +14296,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_it": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_de": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
+        "name_it": "SPAGHETTI ALL'AMATRICIANA",
+        "nameIt": "SPAGHETTI ALL'AMATRICIANA",
+        "name_de": "Spaghetti Amatriciana",
+        "nameDe": "Spaghetti Amatriciana",
+        "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition."
       },
       {
         "id": "penne-amatriciana",
         "name": "PENNE AMATRICIANA",
         "nameTh": "เพนเน่ อามาทริเซียน่า",
-        "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition",
+        "descriptionTh": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
         "price": 160,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/17-penne-amatriciana.webp",
         "image_file": "02-Pasta/Amatriciana/17-penne-amatriciana.webp",
@@ -8097,33 +14330,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8131,18 +14384,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_it": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_de": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
+        "name_it": "PENNE ALL'AMATRICIANA",
+        "nameIt": "PENNE ALL'AMATRICIANA",
+        "name_de": "Penne Amatriciana",
+        "nameDe": "Penne Amatriciana",
+        "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition."
       },
       {
         "id": "tagliatelle-amatriciana",
         "name": "TAGLIATELLE AMATRICIANA",
         "nameTh": "ทาเกรียเทลล่า อามาทริเซียน่า",
-        "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition",
+        "descriptionTh": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
         "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/18-tagliatelle-amatriciana.webp",
         "image_file": "02-Pasta/Amatriciana/18-tagliatelle-amatriciana.webp",
@@ -8153,33 +14418,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8187,18 +14472,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_it": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_de": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
+        "name_it": "TAGLIATELLE ALL'AMATRICIANA",
+        "nameIt": "TAGLIATELLE ALL'AMATRICIANA",
+        "name_de": "Tagliatelle Amatriciana",
+        "nameDe": "Tagliatelle Amatriciana",
+        "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition."
       },
       {
         "id": "gnocchi-amatriciana",
         "name": "GNOCCHI AMATRICIANA",
         "nameTh": "ญอคคี อามาทริเซียน่า",
-        "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition",
+        "descriptionTh": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
         "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/19-gnocchi-amatriciana.webp",
         "image_file": "02-Pasta/Amatriciana/19-gnocchi-amatriciana.webp",
@@ -8209,33 +14506,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8243,18 +14560,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_it": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_de": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
+        "name_it": "GNOCCHI ALL'AMATRICIANA",
+        "nameIt": "GNOCCHI ALL'AMATRICIANA",
+        "name_de": "Gnocchi Amatriciana",
+        "nameDe": "Gnocchi Amatriciana",
+        "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition."
       },
       {
         "id": "ravioli-amatriciana",
         "name": "RAVIOLI AMATRICIANA",
         "nameTh": "ราวิโอลี อามาทริเซียน่า",
-        "description": "Tomato Sauce, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition",
+        "descriptionTh": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
         "price": 240,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Amatriciana/20-ravioli-amatriciana.webp",
         "image_file": "02-Pasta/Amatriciana/20-ravioli-amatriciana.webp",
@@ -8265,33 +14594,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8299,18 +14648,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_it": "Salsa in stile romano con pomodoro, guanciale e pecorino romano, cotta a fuoco lento per un perfetto equilibrio di sapori. Un classico della tradizione italiana.",
+        "description_de": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
+        "name_it": "RAVIOLI ALL'AMATRICIANA",
+        "nameIt": "RAVIOLI ALL'AMATRICIANA",
+        "name_de": "Ravioli Amatriciana",
+        "nameDe": "Ravioli Amatriciana",
+        "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition."
       },
       {
         "id": "spaghetti-alla-bolognese",
         "name": "SPAGHETTI ALLA BOLOGNESE",
         "nameTh": "สปาเกตตี้ อัลลา โบโลเนเซ่",
-        "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
+        "description": "A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna’s tradition",
+        "descriptionTh": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
         "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Bolognese Ragu/21-spaghetti-alla-bolognese.webp",
         "image_file": "02-Pasta/Bolognese Ragu/21-spaghetti-alla-bolognese.webp",
@@ -8321,33 +14682,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8355,18 +14736,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, maiale, olio d'oliva, parmigiano, spezie"
+        "descriptionIt": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_it": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_de": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
+        "name_it": "SPAGHETTI AL RAGÙ BOLOGNESE",
+        "nameIt": "SPAGHETTI AL RAGÙ BOLOGNESE",
+        "name_de": "Spaghetti mit Bolognese-Ragù",
+        "nameDe": "Spaghetti mit Bolognese-Ragù",
+        "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche."
       },
       {
         "id": "penne-alla-bolognese",
         "name": "PENNE ALLA BOLOGNESE",
         "nameTh": "เพนเน่ อัลลา โบโลเนเซ่",
-        "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
+        "description": "A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna’s tradition",
+        "descriptionTh": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
         "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Bolognese Ragu/22-penne-alla-bolognese.webp",
         "image_file": "02-Pasta/Bolognese Ragu/22-penne-alla-bolognese.webp",
@@ -8377,33 +14770,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8411,18 +14824,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, maiale, olio d'oliva, parmigiano, spezie"
+        "descriptionIt": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_it": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_de": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
+        "name_it": "PENNE AL RAGÙ BOLOGNESE",
+        "nameIt": "PENNE AL RAGÙ BOLOGNESE",
+        "name_de": "Penne mit Bolognese-Ragù",
+        "nameDe": "Penne mit Bolognese-Ragù",
+        "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche."
       },
       {
         "id": "tagliatelle-alla-bolognese",
         "name": "TAGLIATELLE ALLA BOLOGNESE",
         "nameTh": "ทาเกรียเทลล่า อัลลา โบโลเนส",
-        "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
+        "description": "A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna’s tradition",
+        "descriptionTh": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
         "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Bolognese Ragu/23-tagliatelle-alla-bolognese.webp",
         "image_file": "02-Pasta/Bolognese Ragu/23-tagliatelle-alla-bolognese.webp",
@@ -8433,33 +14858,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8467,18 +14912,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, maiale, olio d'oliva, parmigiano, spezie"
+        "descriptionIt": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_it": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_de": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
+        "name_it": "TAGLIATELLE AL RAGÙ BOLOGNESE",
+        "nameIt": "TAGLIATELLE AL RAGÙ BOLOGNESE",
+        "name_de": "Tagliatelle mit Bolognese-Ragù",
+        "nameDe": "Tagliatelle mit Bolognese-Ragù",
+        "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche."
       },
       {
         "id": "gnocchi-alla-bolognese",
         "name": "GNOCCHI ALLA BOLOGNESE",
         "nameTh": "ญอคคี อัลลา โบโลเนส",
-        "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
+        "description": "A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna’s tradition",
+        "descriptionTh": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
         "price": 220,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Bolognese Ragu/24-gnocchi-alla-bolognese.webp",
         "image_file": "02-Pasta/Bolognese Ragu/24-gnocchi-alla-bolognese.webp",
@@ -8489,33 +14946,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8523,18 +15000,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, maiale, olio d'oliva, parmigiano, spezie"
+        "descriptionIt": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_it": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_de": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
+        "name_it": "GNOCCHI AL RAGÙ BOLOGNESE",
+        "nameIt": "GNOCCHI AL RAGÙ BOLOGNESE",
+        "name_de": "Gnocchi mit Bolognese-Ragù",
+        "nameDe": "Gnocchi mit Bolognese-Ragù",
+        "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche."
       },
       {
         "id": "ravioli-alla-bolognese",
         "name": "RAVIOLI ALLA BOLOGNESE",
         "nameTh": "ราวิโอลี อัลลา โบโลเนส",
-        "description": "Tomato Sauce, Pork, Olive Oil, Parmesan Cheese, Spices",
-        "descriptionTh": "ซอสมะเขือเทศ, หมูสับ, น้ำมันมะกอก, ชีสพาร์เมซาน, เครื่องเทศ",
+        "description": "A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna’s tradition",
+        "descriptionTh": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
         "price": 260,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Bolognese Ragu/25-ravioli-alla-bolognese.webp",
         "image_file": "02-Pasta/Bolognese Ragu/25-ravioli-alla-bolognese.webp",
@@ -8545,33 +15034,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8579,18 +15088,30 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsa di pomodoro, maiale, olio d'oliva, parmigiano, spezie"
+        "descriptionIt": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_it": "Un ragù ricco e cotto lentamente con carne macinata, pomodori, verdure fresche e vino rosso: un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.",
+        "description_de": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
+        "name_it": "RAVIOLI AL RAGÙ BOLOGNESE",
+        "nameIt": "RAVIOLI AL RAGÙ BOLOGNESE",
+        "name_de": "Ravioli mit Bolognese-Ragù",
+        "nameDe": "Ravioli mit Bolognese-Ragù",
+        "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche."
       },
       {
         "id": "spaghetti-alla-carbonara",
         "name": "SPAGHETTI ALLA CARBONARA",
         "nameTh": "สปาเกตตี้ อัลลา คาร์โบนารา",
-        "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "One of Italy’s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor",
+        "descriptionTh": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
         "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/26-spaghetti-alla-carbonara.webp",
         "image_file": "02-Pasta/Carbonara/26-spaghetti-alla-carbonara.webp",
@@ -8601,20 +15122,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Uovo, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_it": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_de": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
+        "name_it": "SPAGHETTI ALLA CARBONARA",
+        "nameIt": "SPAGHETTI ALLA CARBONARA",
+        "name_de": "Spaghetti Carbonara",
+        "nameDe": "Spaghetti Carbonara",
+        "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack."
       },
       {
         "id": "penne-alla-carbonara",
         "name": "PENNE ALLA CARBONARA",
         "nameTh": "เพนเน่ อัลลา คาร์โบนารา",
-        "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "One of Italy’s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor",
+        "descriptionTh": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
         "price": 180,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/27-penne-alla-carbonara.webp",
         "image_file": "02-Pasta/Carbonara/27-penne-alla-carbonara.webp",
@@ -8625,20 +15158,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Uovo, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_it": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_de": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
+        "name_it": "PENNE ALLA CARBONARA",
+        "nameIt": "PENNE ALLA CARBONARA",
+        "name_de": "Penne Carbonara",
+        "nameDe": "Penne Carbonara",
+        "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack."
       },
       {
         "id": "tagliatelle-alla-carbonara",
         "name": "TAGLIATELLE ALLA CARBONARA",
         "nameTh": "ทาเกรียเทลล่า อัลลา คาร์โบนารา",
-        "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "One of Italy’s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor",
+        "descriptionTh": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
         "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/28-tagliatelle-alla-carbonara.webp",
         "image_file": "02-Pasta/Carbonara/28-tagliatelle-alla-carbonara.webp",
@@ -8649,20 +15194,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Uovo, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_it": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_de": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
+        "name_it": "TAGLIATELLE ALLA CARBONARA",
+        "nameIt": "TAGLIATELLE ALLA CARBONARA",
+        "name_de": "Tagliatelle Carbonara",
+        "nameDe": "Tagliatelle Carbonara",
+        "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack."
       },
       {
         "id": "gnocchi-alla-carbonara",
         "name": "GNOCCHI ALLA CARBONARA",
         "nameTh": "ญอคคี อัลลา คาร์โบนารา",
-        "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "One of Italy’s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor",
+        "descriptionTh": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
         "price": 220,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/29-gnocchi-alla-carbonara.webp",
         "image_file": "02-Pasta/Carbonara/29-gnocchi-alla-carbonara.webp",
@@ -8673,20 +15230,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Uovo, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_it": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_de": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
+        "name_it": "GNOCCHI ALLA CARBONARA",
+        "nameIt": "GNOCCHI ALLA CARBONARA",
+        "name_de": "Gnocchi Carbonara",
+        "nameDe": "Gnocchi Carbonara",
+        "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack."
       },
       {
         "id": "ravioli-alla-carbonara",
         "name": "RAVIOLI ALLA CARBONARA",
         "nameTh": "ราวิโอลี อัลลา คาร์โบนารา",
-        "description": "Egg, Guanciale, Olive Oil, Pecorino Romano, Parmesan Cheese",
-        "descriptionTh": "ไข่, หมูแก้ม, น้ำมันมะกอก, ชีสเปโคริโน, ชีสพาร์เมซาน",
+        "description": "One of Italy’s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor",
+        "descriptionTh": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
         "price": 260,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Carbonara/30-ravioli-alla-carbonara.webp",
         "image_file": "02-Pasta/Carbonara/30-ravioli-alla-carbonara.webp",
@@ -8697,20 +15266,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Uovo, guanciale, olio d'oliva, Pecorino Romano, Parmigiano"
+        "descriptionIt": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_it": "Uno dei piatti italiani più amati al mondo, preparato con guanciale, uova, pecorino romano e pepe nero: cremosa, autentica e dal sapore ricco e tradizionale.",
+        "description_de": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
+        "name_it": "RAVIOLI ALLA CARBONARA",
+        "nameIt": "RAVIOLI ALLA CARBONARA",
+        "name_de": "Ravioli Carbonara",
+        "nameDe": "Ravioli Carbonara",
+        "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack."
       },
       {
         "id": "spaghetti-4-formaggi",
         "name": "SPAGHETTI 4 FORMAGGI",
         "nameTh": "สปาเก็ตตี้ 4 ชีส",
-        "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
-        "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
+        "description": "A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite",
+        "descriptionTh": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
         "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/31-spaghetti-4-formaggi2.webp",
         "image_file": "02-Pasta/Four Cheeses/31-spaghetti-4-formaggi2.webp",
@@ -8721,20 +15302,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Gorgonzola, parmigiano, mozzarella, panna da cucina"
+        "descriptionIt": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_it": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_de": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
+        "name_it": "SPAGHETTI AI QUATTRO FORMAGGI",
+        "nameIt": "SPAGHETTI AI QUATTRO FORMAGGI",
+        "name_de": "Spaghetti mit vier Käsesorten",
+        "nameDe": "Spaghetti mit vier Käsesorten",
+        "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten."
       },
       {
         "id": "penne-4-formaggi",
         "name": "PENNE 4 FORMAGGI",
         "nameTh": "เพนเน่ 4 ชีส",
-        "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
-        "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
+        "description": "A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite",
+        "descriptionTh": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
         "price": 200,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/32-penne-4-formaggi.webp",
         "image_file": "02-Pasta/Four Cheeses/32-penne-4-formaggi.webp",
@@ -8745,20 +15338,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Gorgonzola, parmigiano, mozzarella, panna da cucina"
+        "descriptionIt": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_it": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_de": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
+        "name_it": "PENNE AI QUATTRO FORMAGGI",
+        "nameIt": "PENNE AI QUATTRO FORMAGGI",
+        "name_de": "Penne mit vier Käsesorten",
+        "nameDe": "Penne mit vier Käsesorten",
+        "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten."
       },
       {
         "id": "tagliatelle-4-formaggi",
         "name": "TAGLIATELLE 4 FORMAGGI",
         "nameTh": "ทาเกรียเทลล่า 4 ชีส",
-        "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
-        "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
+        "description": "A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite",
+        "descriptionTh": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
         "price": 220,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/33-tagliatelle-4-formaggi.webp",
         "image_file": "02-Pasta/Four Cheeses/33-tagliatelle-4-formaggi.webp",
@@ -8769,20 +15374,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Gorgonzola, parmigiano, mozzarella, panna da cucina"
+        "descriptionIt": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_it": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_de": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
+        "name_it": "TAGLIATELLE AI QUATTRO FORMAGGI",
+        "nameIt": "TAGLIATELLE AI QUATTRO FORMAGGI",
+        "name_de": "Tagliatelle mit vier Käsesorten",
+        "nameDe": "Tagliatelle mit vier Käsesorten",
+        "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten."
       },
       {
         "id": "gnocchi-4-formaggi",
         "name": "GNOCCHI 4 FORMAGGI",
         "nameTh": "ญอคคี 4 ชีส",
-        "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
-        "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
+        "description": "A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite",
+        "descriptionTh": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
         "price": 240,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/34-gnocchi-4-formaggi.webp",
         "image_file": "02-Pasta/Four Cheeses/34-gnocchi-4-formaggi.webp",
@@ -8793,20 +15410,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Gorgonzola, parmigiano, mozzarella, panna da cucina"
+        "descriptionIt": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_it": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_de": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
+        "name_it": "GNOCCHI AI QUATTRO FORMAGGI",
+        "nameIt": "GNOCCHI AI QUATTRO FORMAGGI",
+        "name_de": "Gnocchi mit vier Käsesorten",
+        "nameDe": "Gnocchi mit vier Käsesorten",
+        "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten."
       },
       {
         "id": "ravioli-4-formaggi",
         "name": "RAVIOLI 4 FORMAGGI",
         "nameTh": "ราวิโอลี 4 ชีส",
-        "description": "Gorgonzola Cheese, Parmisan, Mozzarella, Kitchen Cream",
-        "descriptionTh": "กอร์กอนโซลา, พาร์มีจาโน, มอซซาเรลลา, ครีมทำอาหาร",
+        "description": "A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite",
+        "descriptionTh": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
         "price": 280,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/35-ravioli-4-formaggi.webp",
         "image_file": "02-Pasta/Four Cheeses/35-ravioli-4-formaggi.webp",
@@ -8817,20 +15446,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Gorgonzola, parmigiano, mozzarella, panna da cucina"
+        "descriptionIt": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_it": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi alla perfezione per regalare un sapore ricco, intenso e avvolgente in ogni boccone.",
+        "description_de": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
+        "name_it": "RAVIOLI AI QUATTRO FORMAGGI",
+        "nameIt": "RAVIOLI AI QUATTRO FORMAGGI",
+        "name_de": "Ravioli mit vier Käsesorten",
+        "nameDe": "Ravioli mit vier Käsesorten",
+        "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten."
       },
       {
         "id": "spaghetti-flower-power",
         "name": "SPAGHETTI FLOWER POWER",
         "nameTh": "สปาเกตตี้ ฟลาวเวอร์ พาวเวอร์",
-        "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
-        "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
+        "description": "House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes",
+        "descriptionTh": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
         "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/36-spaghetti-flower-power.webp",
         "image_file": "02-Pasta/Flower Power/36-spaghetti-flower-power.webp",
@@ -8841,20 +15482,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsiccia italiana, carciofi, gorgonzola, pepe nero"
+        "descriptionIt": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_it": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_de": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
+        "name_it": "SPAGHETTI FLOWER POWER",
+        "nameIt": "SPAGHETTI FLOWER POWER",
+        "name_de": "Spaghetti Flower Power",
+        "nameDe": "Spaghetti Flower Power",
+        "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen."
       },
       {
         "id": "penne-flower-power",
         "name": "PENNE FLOWER POWER",
         "nameTh": "เพนเน่ ฟลาวเวอร์ พาวเวอร์",
-        "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
-        "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
+        "description": "House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes",
+        "descriptionTh": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
         "price": 230,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/37-penne-flower-power.webp",
         "image_file": "02-Pasta/Flower Power/37-penne-flower-power.webp",
@@ -8865,20 +15518,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsiccia italiana, carciofi, gorgonzola, pepe nero"
+        "descriptionIt": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_it": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_de": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
+        "name_it": "PENNE FLOWER POWER",
+        "nameIt": "PENNE FLOWER POWER",
+        "name_de": "Penne Flower Power",
+        "nameDe": "Penne Flower Power",
+        "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen."
       },
       {
         "id": "tagliatelle-flower-power",
         "name": "TAGLIATELLE FLOWER POWER",
         "nameTh": "ทาเกรียเทลล่า ฟลาวเวอร์ พาวเวอร์",
-        "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
-        "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
+        "description": "House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes",
+        "descriptionTh": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
         "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/38-tagliatelle-flower-power.webp",
         "image_file": "02-Pasta/Flower Power/38-tagliatelle-flower-power.webp",
@@ -8889,20 +15554,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsiccia italiana, carciofi, gorgonzola, pepe nero"
+        "descriptionIt": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_it": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_de": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
+        "name_it": "TAGLIATELLE FLOWER POWER",
+        "nameIt": "TAGLIATELLE FLOWER POWER",
+        "name_de": "Tagliatelle Flower Power",
+        "nameDe": "Tagliatelle Flower Power",
+        "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen."
       },
       {
         "id": "gnocchi-flower-power",
         "name": "GNOCCHI FLOWER POWER",
         "nameTh": "ญอคคี ฟลาวเวอร์ พาวเวอร์",
-        "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
-        "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
+        "description": "House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes",
+        "descriptionTh": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
         "price": 270,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/39-gnocchi-flower-power.webp",
         "image_file": "02-Pasta/Flower Power/39-gnocchi-flower-power.webp",
@@ -8913,20 +15590,32 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsiccia italiana, carciofi, gorgonzola, pepe nero"
+        "descriptionIt": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_it": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_de": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
+        "name_it": "GNOCCHI FLOWER POWER",
+        "nameIt": "GNOCCHI FLOWER POWER",
+        "name_de": "Gnocchi Flower Power",
+        "nameDe": "Gnocchi Flower Power",
+        "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen."
       },
       {
         "id": "ravioli-flower-power",
         "name": "RAVIOLI FLOWER POWER",
         "nameTh": "ราวิโอลี ฟลาวเวอร์ พาวเวอร์",
-        "description": "Italian Sausage, Artichokes, Gorgonzola Cheese, Black Pepper",
-        "descriptionTh": "ไส้กรอกอิตาเลียน, อาติโช๊ค, กอร์กอนโซล่าชีส, พริกไทยดำ",
+        "description": "House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes",
+        "descriptionTh": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
         "price": 310,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Flower Power/40-ravioli-flower-power.webp",
         "image_file": "02-Pasta/Flower Power/40-ravioli-flower-power.webp",
@@ -8937,23 +15626,35 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salsiccia italiana, carciofi, gorgonzola, pepe nero"
+        "descriptionIt": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_it": "Salsa per pasta fatta in casa con gorgonzola, salsiccia italiana e carciofi: cremosa, ricca e dal sapore unico, ideale per gli amanti dei gusti decisi.",
+        "description_de": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
+        "name_it": "RAVIOLI FLOWER POWER",
+        "nameIt": "RAVIOLI FLOWER POWER",
+        "name_de": "Ravioli Flower Power",
+        "nameDe": "Ravioli Flower Power",
+        "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen."
       },
       {
         "id": "baked-bolognese-lasagna",
         "name": "BAKED BOLOGNESE LASAGNA",
         "nameTh": "ลาซานญ่าอบซอสโบโลเนส",
-        "description": "Béchamel, Bolognese Sauce, Parmesan",
-        "descriptionTh": "เบชาเมล, ซอสโบโลเนส, พาร์เมซาน",
+        "description": "Homemade Lasagne Are A Classic Of Italian Cuisine, Made With Béchamel, Sauces, And Parmesan. Pre-Order One Day In Advance, Minimum Two Portions, Or Ask The Staff. Cooking Time About 30 Minutes.",
+        "descriptionTh": "ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที",
         "price": 250,
-        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Lasagne/01-baked-bolognese-lasagna.png",
-        "image_file": "03-Lasagne/01-baked-bolognese-lasagna.png",
+        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Lasagne/01-baked-bolognese-lasagna.webp",
+        "image_file": "03-Lasagne/01-baked-bolognese-lasagna.webp",
         "sku": "10038",
         "variants": [],
         "extras": [
@@ -8961,33 +15662,53 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           },
           {
             "id": "spicy-no",
             "name": "Not Spicy",
             "nameTh": "ไม่เผ็ด",
-            "nameIt": "No Piccante",
+            "nameIt": "Non Piccante",
             "sku": "spicy-no",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Nicht scharf",
+            "nameDe": "Nicht scharf",
+            "name_it": "Non Piccante"
           },
           {
             "id": "spicy-light",
             "name": "Mildly Spicy",
             "nameTh": "เผ็ดน้อย",
-            "nameIt": "Leggermente Piccante",
+            "nameIt": "Poco Piccante",
             "sku": "spicy-light",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mild scharf",
+            "nameDe": "Mild scharf",
+            "name_it": "Poco Piccante"
           },
           {
             "id": "spicy-medium",
             "name": "Medium Spicy",
             "nameTh": "เผ็ดปานกลาง",
-            "nameIt": "Mediamente Piccante",
+            "nameIt": "Medio Piccante",
             "sku": "spicy-medium",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mittelscharf",
+            "nameDe": "Mittelscharf",
+            "name_it": "Medio Piccante"
           },
           {
             "id": "spicy-very",
@@ -8995,22 +15716,33 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เผ็ดมาก",
             "nameIt": "Molto Piccante",
             "sku": "spicy-very",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Sehr scharf",
+            "nameDe": "Sehr scharf",
+            "name_it": "Molto Piccante"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Besciamella, ragù alla bolognese, Parmigiano",
-        "nameIt": "LASAGNE AL FORNO ALLA BOLOGNESE"
+        "descriptionIt": "La lasagna fatta in casa è un grande classico della cucina italiana, preparata con besciamella, ragù e parmigiano. Si prega di ordinarla con un giorno di anticipo (ordine minimo 2 porzioni) o di chiedere allo staff. Tempo di cottura: circa 30 minuti.",
+        "nameIt": "Lasagna al Forno alla Bolognese",
+        "description_it": "La lasagna fatta in casa è un grande classico della cucina italiana, preparata con besciamella, ragù e parmigiano. Si prega di ordinarla con un giorno di anticipo (ordine minimo 2 porzioni) o di chiedere allo staff. Tempo di cottura: circa 30 minuti.",
+        "description_de": "Unsere hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (Mindestbestellmenge 2 Portionen) oder beim Personal nachfragen. Die Backzeit beträgt ca. 30 Minuten.",
+        "name_it": "Lasagna al Forno alla Bolognese",
+        "name_de": "Überbackene Lasagne Bolognese",
+        "nameDe": "Überbackene Lasagne Bolognese",
+        "descriptionDe": "Unsere hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (Mindestbestellmenge 2 Portionen) oder beim Personal nachfragen. Die Backzeit beträgt ca. 30 Minuten."
       },
       {
         "id": "baked-pesto-lasagna",
         "name": "BAKED PESTO LASAGNA",
         "nameTh": "ลาซานญ่าอบเพสโต้",
-        "description": "Béchamel, Pesto Sauce, Parmesan",
-        "descriptionTh": "เบชาเมล, ซอสเพสโต้, พาร์เมซาน",
+        "description": "Homemade Lasagne Are A Classic Of Italian Cuisine, Made With Béchamel, Sauces, And Parmesan. Pre-Order One Day In Advance, Minimum Two Portions, Or Ask The Staff. Cooking Time About 30 Minutes.",
+        "descriptionTh": "ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที",
         "price": 270,
-        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Lasagne/02-baked-pesto-lasagna.png",
-        "image_file": "03-Lasagne/02-baked-pesto-lasagna.png",
+        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Lasagne/02-baked-pesto-lasagna.webp",
+        "image_file": "03-Lasagne/02-baked-pesto-lasagna.webp",
         "sku": "10302",
         "variants": [],
         "extras": [
@@ -9018,24 +15750,35 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Besciamella, salsa al pesto, Parmigiano",
-        "nameIt": "LASAGNE AL FORNO AL PESTO"
+        "descriptionIt": "La lasagna fatta in casa è un grande classico della cucina italiana, preparata con besciamella, ragù e parmigiano. Si prega di ordinarla con un giorno di anticipo (ordine minimo 2 porzioni) o di chiedere allo staff. Tempo di cottura: circa 30 minuti.",
+        "nameIt": "Lasagna al Forno al Pesto",
+        "description_it": "La lasagna fatta in casa è un grande classico della cucina italiana, preparata con besciamella, ragù e parmigiano. Si prega di ordinarla con un giorno di anticipo (ordine minimo 2 porzioni) o di chiedere allo staff. Tempo di cottura: circa 30 minuti.",
+        "description_de": "Unsere hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (Mindestbestellmenge 2 Portionen) oder beim Personal nachfragen. Die Backzeit beträgt ca. 30 Minuten.",
+        "name_it": "Lasagna al Forno al Pesto",
+        "name_de": "Überbackene Lasagne mit Pesto",
+        "nameDe": "Überbackene Lasagne mit Pesto",
+        "descriptionDe": "Unsere hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (Mindestbestellmenge 2 Portionen) oder beim Personal nachfragen. Die Backzeit beträgt ca. 30 Minuten."
       },
       {
         "id": "baked-seafood-lasagna",
         "name": "BAKED SEAFOOD LASAGNA",
         "nameTh": "ลาซานญ่าอบซีฟู้ด",
-        "description": "Béchamel, Seafood, Parmesan",
-        "descriptionTh": "เบชาเมล, ซีฟู้ด, พาร์เมซาน",
+        "description": "Homemade Lasagne Are A Classic Of Italian Cuisine, Made With Béchamel, Sauces, And Parmesan. Pre-Order One Day In Advance, Minimum Two Portions, Or Ask The Staff. Cooking Time About 30 Minutes.",
+        "descriptionTh": "ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที",
         "price": 290,
-        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Lasagne/03-baked-seafood-lasagna.png",
-        "image_file": "03-Lasagne/03-baked-seafood-lasagna.png",
+        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Lasagne/03-baked-seafood-lasagna.webp",
+        "image_file": "03-Lasagne/03-baked-seafood-lasagna.webp",
         "sku": "10303",
         "variants": [],
         "extras": [
@@ -9043,14 +15786,25 @@ export const menuData: MenuCategory[] = [
             "id": "ext-double-parmesan",
             "name": "Double Parmesan",
             "nameTh": "ชีสพาร์เมซานสองเท่า",
-            "nameIt": "Parmigiano Doppio",
+            "nameIt": "Doppio Parmigiano",
             "sku": "ext-double-parmesan",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelt Parmesan",
+            "nameDe": "Doppelt Parmesan",
+            "name_it": "Doppio Parmigiano"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Besciamella, frutti di mare, Parmigiano",
-        "nameIt": "LASAGNE AL FORNO AI FRUTTI DI MARE"
+        "descriptionIt": "La lasagna fatta in casa è un grande classico della cucina italiana, preparata con besciamella, ragù e parmigiano. Si prega di ordinarla con un giorno di anticipo (ordine minimo 2 porzioni) o di chiedere allo staff. Tempo di cottura: circa 30 minuti.",
+        "nameIt": "Lasagna al Forno ai Frutti di Mare",
+        "description_it": "La lasagna fatta in casa è un grande classico della cucina italiana, preparata con besciamella, ragù e parmigiano. Si prega di ordinarla con un giorno di anticipo (ordine minimo 2 porzioni) o di chiedere allo staff. Tempo di cottura: circa 30 minuti.",
+        "description_de": "Unsere hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (Mindestbestellmenge 2 Portionen) oder beim Personal nachfragen. Die Backzeit beträgt ca. 30 Minuten.",
+        "name_it": "Lasagna al Forno ai Frutti di Mare",
+        "name_de": "Überbackene Lasagne mit Meeresfrüchten",
+        "nameDe": "Überbackene Lasagne mit Meeresfrüchten",
+        "descriptionDe": "Unsere hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (Mindestbestellmenge 2 Portionen) oder beim Personal nachfragen. Die Backzeit beträgt ca. 30 Minuten."
       }
     ]
   },
@@ -9077,12 +15831,24 @@ export const menuData: MenuCategory[] = [
             "name": "Chicken Extra",
             "nameTh": "ไก่เพิ่ม",
             "sku": "10035",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pollo Extra",
+            "nameIt": "Pollo Extra",
+            "name_de": "Extra Hähnchen",
+            "nameDe": "Extra Hähnchen"
           }
         ],
         "allowed_extras_group": "Salad Extras",
-        "descriptionIt": "2 uova sode, cavolo, cetriolo, pomodoro, cipolle, maionese, salsa allo yogurt",
-        "nameIt": "INSALATA CON UOVA E VERDURE"
+        "descriptionIt": "Uova sode, verdure miste, salse fatte in casa",
+        "nameIt": "INSALATA CON UOVA E VERDURE",
+        "description_it": "Uova sode, verdure miste, salse fatte in casa",
+        "description_de": "Gekochte Eier, gemischtes Gemüse, hausgemachte Dressings",
+        "name_it": "INSALATA CON UOVA E VERDURE",
+        "name_de": "EI & GEMÜSESALAT",
+        "nameDe": "EI & GEMÜSESALAT",
+        "descriptionDe": "Gekochte Eier, gemischtes Gemüse, hausgemachte Dressings"
       },
       {
         "id": "potato-salad",
@@ -9101,12 +15867,24 @@ export const menuData: MenuCategory[] = [
             "name": "Chicken Extra",
             "nameTh": "ไก่เพิ่ม",
             "sku": "10035",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pollo Extra",
+            "nameIt": "Pollo Extra",
+            "name_de": "Extra Hähnchen",
+            "nameDe": "Extra Hähnchen"
           }
         ],
         "allowed_extras_group": "Salad Extras",
-        "descriptionIt": "Tonno, patate bollite, 1 uovo sodo, cavolo, pomodoro, cipolle, salsa allo yogurt",
-        "nameIt": "INSALATA DI PATATE"
+        "descriptionIt": "Patate lesse, verdure miste, salse fatte in casa",
+        "nameIt": "INSALATA DI PATATE",
+        "description_it": "Patate lesse, verdure miste, salse fatte in casa",
+        "description_de": "Kartoffeln, gemischtes Gemüse, hausgemachte Dressings",
+        "name_it": "INSALATA DI PATATE",
+        "name_de": "KARTOFFELSALAT",
+        "nameDe": "KARTOFFELSALAT",
+        "descriptionDe": "Kartoffeln, gemischtes Gemüse, hausgemachte Dressings"
       },
       {
         "id": "chicken-salad",
@@ -9125,12 +15903,23 @@ export const menuData: MenuCategory[] = [
             "name": "Chicken Extra",
             "nameTh": "ไก่เพิ่ม",
             "sku": "10035",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pollo Extra",
+            "nameIt": "Pollo Extra",
+            "name_de": "Extra Hähnchen",
+            "nameDe": "Extra Hähnchen"
           }
         ],
         "allowed_extras_group": "Salad Extras",
         "descriptionIt": "Pollo bollito, pomodoro, cavolo, carote, cetriolo, senape, salsa allo yogurt",
-        "nameIt": "INSALATA CON POLLO"
+        "nameIt": "INSALATA CON POLLO",
+        "description_it": "",
+        "description_de": "Boiled Chicken, Tomato, Cabbage, Carrots, Cucumber, Mustard, Yogurt Dressing",
+        "name_de": "CHICKEN SALAD",
+        "nameDe": "CHICKEN SALAD",
+        "descriptionDe": "Boiled Chicken, Tomato, Cabbage, Carrots, Cucumber, Mustard, Yogurt Dressing"
       },
       {
         "id": "tuna-and-egg-salad",
@@ -9149,14 +15938,35 @@ export const menuData: MenuCategory[] = [
             "name": "Chicken Extra",
             "nameTh": "ไก่เพิ่ม",
             "sku": "10035",
-            "price": 40
+            "price": 40,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Pollo Extra",
+            "nameIt": "Pollo Extra",
+            "name_de": "Extra Hähnchen",
+            "nameDe": "Extra Hähnchen"
           }
         ],
         "allowed_extras_group": "Salad Extras",
         "descriptionIt": "Tonno, 2 uova sode, cavolo, pomodoro, cetriolo, cipolla, salsa allo yogurt",
-        "nameIt": "INSALATA CON TONNO E UOVA"
+        "nameIt": "INSALATA CON TONNO E UOVA",
+        "description_it": "",
+        "description_de": "Tuna, 2 Boiled Eggs, Cabbage, Tomato, Cucumber, Onion, Yogurt Dressing",
+        "name_de": "TUNA AND EGG SALAD",
+        "nameDe": "TUNA AND EGG SALAD",
+        "descriptionDe": "Tuna, 2 Boiled Eggs, Cabbage, Tomato, Cucumber, Onion, Yogurt Dressing"
       }
-    ]
+    ],
+    "name_it": "Insalate Italiane",
+    "nameIt": "Insalate Italiane",
+    "name_de": "Italienische Salate",
+    "nameDe": "Italienische Salate",
+    "description": "Italian-style salads with fresh vegetables and healthy, high-quality ingredients. Served with tasty homemade sauces, extra virgin olive oil. Fresh, delicious and healthy",
+    "descriptionTh": "สลัดสไตล์อิตาเลียน ทำจากผักสดและวัตถุดิบเพื่อสุขภาพคุณภาพสูง เสิร์ฟพร้อมซอสโฮมเมดรสอร่อยและน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิน สดใหม่ อร่อย และดีต่อสุขภาพ",
+    "description_it": "Insalate in stile italiano con verdure fresche e ingredienti sani e di alta qualità. Servite con gustose salse fatte in casa e olio extravergine d'oliva: fresche, deliziose e salutari.",
+    "descriptionIt": "Insalate in stile italiano con verdure fresche e ingredienti sani e di alta qualità. Servite con gustose salse fatte in casa e olio extravergine d'oliva: fresche, deliziose e salutari.",
+    "description_de": "Salate nach italienischer Art mit frischem Gemüse und gesunden, hochwertigen Zutaten. Serviert mit schmackhaften hausgemachten Dressings und nativem Olivenöl extra: Frisch, köstlich und gesund.",
+    "descriptionDe": "Salate nach italienischer Art mit frischem Gemüse und gesunden, hochwertigen Zutaten. Serviert mit schmackhaften hausgemachten Dressings und nativem Olivenöl extra: Frisch, köstlich und gesund."
   },
   {
     "id": "pizza-sandwich",
@@ -9168,7 +15978,7 @@ export const menuData: MenuCategory[] = [
         "id": "pizza-sandwich-parma-ham",
         "name": "PIZZA SANDWICH PARMA HAM",
         "nameTh": "พิซซ่าแซนด์วิช พาร์ม่าแฮม",
-        "nameIt": "PIZZA SANDWICH CON PROSCIUTTO DI PARMA",
+        "nameIt": "PIZZA SANDWICH PROSCIUTTO DI PARMA",
         "description": "Parma Cooked Ham, Mozzarella Cheese, Lettuce, Fresh Tomato, Sauces",
         "descriptionTh": "แฮมอบสไตล์พาร์ม่า, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก",
         "price": 180,
@@ -9183,15 +15993,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มอสซาเรลล่าชีส",
             "nameIt": "Mozzarella",
             "sku": "ext-mozzarella",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mozzarella",
+            "nameDe": "Mozzarella",
+            "name_it": "Mozzarella"
           },
           {
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9199,7 +16019,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9207,15 +16032,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9223,7 +16058,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9231,11 +16071,22 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Prosciutto cotto tipo Parma, mozzarella, lattuga, pomodoro fresco, salse"
+        "descriptionIt": "Prosciutto di Parma, mozzarella, lattuga, pomodoro fresco, salse",
+        "description_it": "Prosciutto di Parma, mozzarella, lattuga, pomodoro fresco, salse",
+        "description_de": "Parmaschinken, Mozzarella, Blattsalat, frische Tomaten, Saucen",
+        "name_it": "PIZZA SANDWICH PROSCIUTTO DI PARMA",
+        "name_de": "PIZZA SANDWICH PARMASCHINKEN",
+        "nameDe": "PIZZA SANDWICH PARMASCHINKEN",
+        "descriptionDe": "Parmaschinken, Mozzarella, Blattsalat, frische Tomaten, Saucen"
       },
       {
         "id": "pizza-sandwich-salame",
@@ -9256,15 +16107,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มอสซาเรลล่าชีส",
             "nameIt": "Mozzarella",
             "sku": "ext-mozzarella",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mozzarella",
+            "nameDe": "Mozzarella",
+            "name_it": "Mozzarella"
           },
           {
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9272,7 +16133,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9280,15 +16146,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9296,7 +16172,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9304,11 +16185,22 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salame, mozzarella, lattuga, pomodoro fresco, salse"
+        "descriptionIt": "Salame, mozzarella, lattuga, pomodoro fresco, salse",
+        "description_it": "Salame, mozzarella, lattuga, pomodoro fresco, salse",
+        "description_de": "Salami, Mozzarella, Blattsalat, frische Tomaten, Saucen",
+        "name_it": "PIZZA SANDWICH CON SALAME",
+        "name_de": "PIZZA SANDWICH SALAMI",
+        "nameDe": "PIZZA SANDWICH SALAMI",
+        "descriptionDe": "Salami, Mozzarella, Blattsalat, frische Tomaten, Saucen"
       },
       {
         "id": "pizza-sandwich-spicy-salame",
@@ -9329,15 +16221,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มอสซาเรลล่าชีส",
             "nameIt": "Mozzarella",
             "sku": "ext-mozzarella",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mozzarella",
+            "nameDe": "Mozzarella",
+            "name_it": "Mozzarella"
           },
           {
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9345,7 +16247,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9353,15 +16260,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9369,7 +16286,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9377,13 +16299,34 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
         "allowed_extras_group": "None",
-        "descriptionIt": "Salame piccante, mozzarella, lattuga, pomodoro fresco, salse"
+        "descriptionIt": "Salame piccante, mozzarella, lattuga, pomodoro fresco, salse",
+        "description_it": "Salame piccante, mozzarella, lattuga, pomodoro fresco, salse",
+        "description_de": "Scharfe Salami, Mozzarella, Blattsalat, frische Tomaten, Saucen",
+        "name_it": "PIZZA SANDWICH CON SALAME PICCANTE",
+        "name_de": "PIZZA SANDWICH SCHARFE SALAMI",
+        "nameDe": "PIZZA SANDWICH SCHARFE SALAMI",
+        "descriptionDe": "Scharfe Salami, Mozzarella, Blattsalat, frische Tomaten, Saucen"
       }
-    ]
+    ],
+    "name_it": "Panino Focaccia",
+    "nameIt": "Panino Focaccia",
+    "name_de": "Focaccia Sandwich",
+    "nameDe": "Focaccia Sandwich",
+    "description": "Focaccia Is A Italian Traditional Delicius Bread From Genoa. Fill It With Your Favorite Ingredients And Create Your Custom Sandwich",
+    "descriptionTh": "ฟอคคาเซียเป็นขนมปังดั้งเดิมแสนอร่อยจากเมืองเจนัว เติมไส้ด้วยวัตถุดิบที่คุณชอบและสร้างแซนด์วิชในแบบของคุณ",
+    "description_it": "La focaccia è un delizioso pane tradizionale italiano originario di Genova. Farciscila con i tuoi ingredienti preferiti e crea il tuo panino personalizzato.",
+    "descriptionIt": "La focaccia è un delizioso pane tradizionale italiano originario di Genova. Farciscila con i tuoi ingredienti preferiti e crea il tuo panino personalizzato.",
+    "description_de": "Die Focaccia ist ein köstliches traditionelles italienisches Brot aus Genua. Belegen Sie sie mit Ihren Lieblingszutaten und kreieren Sie Ihr ganz persönliches Sandwich.",
+    "descriptionDe": "Die Focaccia ist ein köstliches traditionelles italienisches Brot aus Genua. Belegen Sie sie mit Ihren Lieblingszutaten und kreieren Sie Ihr ganz persönliches Sandwich."
   },
   {
     "id": "pizza-burgers",
@@ -9410,15 +16353,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มอสซาเรลล่าชีส",
             "nameIt": "Mozzarella",
             "sku": "ext-mozzarella",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mozzarella",
+            "nameDe": "Mozzarella",
+            "name_it": "Mozzarella"
           },
           {
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9426,7 +16379,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9434,15 +16392,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9450,7 +16418,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9458,10 +16431,22 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Pollo, formaggio, lattuga, pomodoro, servito con patatine fritte",
+        "description_de": "Hähnchen, Käse, Blattsalat, Tomate, serviert mit Pommes frites",
+        "name_it": "PIZZA BURGER DI POLLO CON PATATINE FRITTE",
+        "name_de": "HÄHNCHEN PIZZA BURGER MIT POMMES FRITES",
+        "nameDe": "HÄHNCHEN PIZZA BURGER MIT POMMES FRITES",
+        "descriptionIt": "Pollo, formaggio, lattuga, pomodoro, servito con patatine fritte",
+        "descriptionDe": "Hähnchen, Käse, Blattsalat, Tomate, serviert mit Pommes frites"
       },
       {
         "id": "pork-pizza-burger-with-french-fries",
@@ -9482,15 +16467,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มอสซาเรลล่าชีส",
             "nameIt": "Mozzarella",
             "sku": "ext-mozzarella",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mozzarella",
+            "nameDe": "Mozzarella",
+            "name_it": "Mozzarella"
           },
           {
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9498,7 +16493,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9506,15 +16506,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9522,7 +16532,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9530,10 +16545,22 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Maiale, formaggio, lattuga, pomodoro, servito con patatine fritte",
+        "description_de": "Schweinefleisch, Käse, Blattsalat, Tomate, serviert mit Pommes frites",
+        "name_it": "PIZZA BURGER DI MAIALE CON PATATINE FRITTE",
+        "name_de": "SCHWEINE PIZZA BURGER MIT POMMES FRITES",
+        "nameDe": "SCHWEINE PIZZA BURGER MIT POMMES FRITES",
+        "descriptionIt": "Maiale, formaggio, lattuga, pomodoro, servito con patatine fritte",
+        "descriptionDe": "Schweinefleisch, Käse, Blattsalat, Tomate, serviert mit Pommes frites"
       },
       {
         "id": "beef-pizza-burger-with-french-fries",
@@ -9554,15 +16581,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มอสซาเรลล่าชีส",
             "nameIt": "Mozzarella",
             "sku": "ext-mozzarella",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mozzarella",
+            "nameDe": "Mozzarella",
+            "name_it": "Mozzarella"
           },
           {
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9570,7 +16607,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9578,15 +16620,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9594,7 +16646,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9602,10 +16659,22 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Manzo, formaggio, lattuga, pomodoro, servito con patatine fritte",
+        "description_de": "Rindfleisch, Käse, Blattsalat, Tomate, serviert mit Pommes frites",
+        "name_it": "PIZZA BURGER DI MANZO CON PATATINE FRITTE",
+        "name_de": "RINDER PIZZA BURGER MIT POMMES FRITES",
+        "nameDe": "RINDER PIZZA BURGER MIT POMMES FRITES",
+        "descriptionIt": "Manzo, formaggio, lattuga, pomodoro, servito con patatine fritte",
+        "descriptionDe": "Rindfleisch, Käse, Blattsalat, Tomate, serviert mit Pommes frites"
       },
       {
         "id": "fish-pizza-burger-with-french-fries",
@@ -9626,15 +16695,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มอสซาเรลล่าชีส",
             "nameIt": "Mozzarella",
             "sku": "ext-mozzarella",
-            "price": 50
+            "price": 50,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mozzarella",
+            "nameDe": "Mozzarella",
+            "name_it": "Mozzarella"
           },
           {
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9642,7 +16721,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9650,15 +16734,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9666,7 +16760,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9674,12 +16773,34 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Pesce, formaggio, lattuga, pomodoro, servito con patatine fritte",
+        "description_de": "Fisch, Käse, Blattsalat, Tomate, serviert mit Pommes frites",
+        "name_it": "PIZZA BURGER DI PESCE CON PATATINE FRITTE",
+        "name_de": "FISCH PIZZA BURGER MIT POMMES FRITES",
+        "nameDe": "FISCH PIZZA BURGER MIT POMMES FRITES",
+        "descriptionIt": "Pesce, formaggio, lattuga, pomodoro, servito con patatine fritte",
+        "descriptionDe": "Fisch, Käse, Blattsalat, Tomate, serviert mit Pommes frites"
       }
-    ]
+    ],
+    "name_it": "Pizza Burger",
+    "nameIt": "Pizza Burger",
+    "name_de": "Pizza Burger",
+    "nameDe": "Pizza Burger",
+    "description": "Prepared With Freshly Baked Burger Buns And Homemade Italian-Style Hamburgers, Served With French Fries, Ketchup And Mayonnaise. Fresh, Tasty And Satisfying",
+    "descriptionTh": "ทำจากเบอร์เกอร์บันอบสดใหม่ และแฮมเบอร์เกอร์โฮมเมดสไตล์อิตาเลียน เสิร์ฟพร้อมเฟรนช์ฟรายส์ ซอสมะเขือเทศและมายองเนส สดใหม่ทุกจาน",
+    "description_it": "Preparati con pane per hamburger appena sfornato e hamburger fatti in casa in stile italiano, serviti con patatine fritte, ketchup e maionese: freschi, gustosi e soddisfacenti.",
+    "descriptionIt": "Preparati con pane per hamburger appena sfornato e hamburger fatti in casa in stile italiano, serviti con patatine fritte, ketchup e maionese: freschi, gustosi e soddisfacenti.",
+    "description_de": "Zubereitet mit frisch gebackenen Burger-Brötchen und hausgemachten Hamburger-Patties nach italienischer Art, serviert mit Pommes frites, Ketchup und Mayonnaise: Frisch, lecker und sättigend.",
+    "descriptionDe": "Zubereitet mit frisch gebackenen Burger-Brötchen und hausgemachten Hamburger-Patties nach italienischer Art, serviert mit Pommes frites, Ketchup und Mayonnaise: Frisch, lecker und sättigend."
   },
   {
     "id": "french-fries",
@@ -9704,9 +16825,14 @@ export const menuData: MenuCategory[] = [
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9714,7 +16840,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9722,15 +16853,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9738,7 +16879,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9746,10 +16892,22 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Patatine fritte dorate e croccanti",
+        "description_de": "Knusprige goldbraune Pommes frites",
+        "name_it": "PATATINE FRITTE",
+        "name_de": "POMMES FRITES",
+        "nameDe": "POMMES FRITES",
+        "descriptionIt": "Patatine fritte dorate e croccanti",
+        "descriptionDe": "Knusprige goldbraune Pommes frites"
       },
       {
         "id": "sausages-and-french-fries",
@@ -9768,9 +16926,14 @@ export const menuData: MenuCategory[] = [
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9778,7 +16941,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9786,15 +16954,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9802,7 +16980,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9810,10 +16993,22 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Patatine fritte servite con würstel croccanti",
+        "description_de": "Pommes frites serviert mit knusprigen Würstchen",
+        "name_it": "PATATINE FRITTE CON WÜRSTEL",
+        "name_de": "POMMES FRITES & WÜRSTCHEN",
+        "nameDe": "POMMES FRITES & WÜRSTCHEN",
+        "descriptionIt": "Patatine fritte servite con würstel croccanti",
+        "descriptionDe": "Pommes frites serviert mit knusprigen Würstchen"
       },
       {
         "id": "onion-rings-and-french-fries",
@@ -9832,9 +17027,14 @@ export const menuData: MenuCategory[] = [
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9842,7 +17042,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9850,15 +17055,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9866,7 +17081,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9874,10 +17094,22 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Patatine fritte servite con anelli di cipolla dorati",
+        "description_de": "Pommes frites serviert mit knusprigen Zwiebelringen",
+        "name_it": "PATATINE FRITTE CON ANELLI DI CIPOLLA",
+        "name_de": "POMMES FRITES & ZWIEBELRINGE",
+        "nameDe": "POMMES FRITES & ZWIEBELRINGE",
+        "descriptionIt": "Patatine fritte servite con anelli di cipolla dorati",
+        "descriptionDe": "Pommes frites serviert mit knusprigen Zwiebelringen"
       },
       {
         "id": "chicken-nuggets-and-french-fries",
@@ -9896,9 +17128,14 @@ export const menuData: MenuCategory[] = [
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9906,7 +17143,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9914,15 +17156,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9930,7 +17182,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -9938,10 +17195,22 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Patatine fritte servite con crocchette di pollo dorate",
+        "description_de": "Pommes frites serviert mit goldbraunen Chicken Nuggets",
+        "name_it": "PATATINE FRITTE CON CROCCHETTE DI POLLO",
+        "name_de": "POMMES FRITES & CHICKEN NUGGETS",
+        "nameDe": "POMMES FRITES & CHICKEN NUGGETS",
+        "descriptionIt": "Patatine fritte servite con crocchette di pollo dorate",
+        "descriptionDe": "Pommes frites serviert mit goldbraunen Chicken Nuggets"
       },
       {
         "id": "fish-nuggets-and-french-fries",
@@ -9960,9 +17229,14 @@ export const menuData: MenuCategory[] = [
             "id": "sauce-none",
             "name": "No Sauces",
             "nameTh": "ไม่ใส่ซอส",
-            "nameIt": "Niente Salse",
+            "nameIt": "Senza Salse",
             "sku": "sauce-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ohne Saucen",
+            "nameDe": "Ohne Saucen",
+            "name_it": "Senza Salse"
           },
           {
             "id": "sauce-ketchup",
@@ -9970,7 +17244,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
             "sku": "sauce-ketchup",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Ketchup",
+            "nameDe": "Ketchup",
+            "name_it": "Ketchup"
           },
           {
             "id": "sauce-mayo",
@@ -9978,15 +17257,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มายองเนส",
             "nameIt": "Maionese",
             "sku": "sauce-mayo",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Mayonnaise",
+            "nameDe": "Mayonnaise",
+            "name_it": "Maionese"
           },
           {
             "id": "sauce-chili",
             "name": "Chilli Sauce",
             "nameTh": "ซอสพริก",
-            "nameIt": "Chilli Sauce",
+            "nameIt": "Salsa Piccante",
             "sku": "sauce-chili",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Chilisauce",
+            "nameDe": "Chilisauce",
+            "name_it": "Salsa Piccante"
           },
           {
             "id": "sauce-mustard",
@@ -9994,7 +17283,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มัสตาร์ด",
             "nameIt": "Senape",
             "sku": "sauce-mustard",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Senf",
+            "nameDe": "Senf",
+            "name_it": "Senape"
           },
           {
             "id": "sauce-yogurt",
@@ -10002,12 +17296,34 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "nameIt": "Yogurt",
             "sku": "sauce-yogurt",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt",
+            "name_it": "Yogurt"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Patatine fritte servite con crocchette di pesce dorate",
+        "description_de": "Pommes frites serviert mit goldbraunen Fisch Nuggets",
+        "name_it": "PATATINE FRITTE CON CROCCHETTE DI PESCE",
+        "name_de": "POMMES FRITES & FISCH NUGGETS",
+        "nameDe": "POMMES FRITES & FISCH NUGGETS",
+        "descriptionIt": "Patatine fritte servite con crocchette di pesce dorate",
+        "descriptionDe": "Pommes frites serviert mit goldbraunen Fisch Nuggets"
       }
-    ]
+    ],
+    "name_it": "Patatine Fritte",
+    "nameIt": "Patatine Fritte",
+    "name_de": "Pommes Frites",
+    "nameDe": "Pommes Frites",
+    "description": "French Fries Are Freshly Prepared To Order, Crispy And Delicious, And Served With Ketchup And Mayonnaise. Choose Your Favorite Version And Enjoy",
+    "descriptionTh": "เฟรนช์ฟรายส์ทอดสดใหม่ตามออเดอร์ กรอบนอกนุ่มใน เสิร์ฟพร้อมซอสมะเขือเทศและมายองเนส แสนอร่อย เลือกเวอร์ชั่นที่คุณชอบได้เลย",
+    "description_it": "Le patatine fritte sono preparate al momento su ordinazione, croccanti e deliziose, e vengono servite con ketchup e maionese. Scegli la tua versione preferita e gustale.",
+    "descriptionIt": "Le patatine fritte sono preparate al momento su ordinazione, croccanti e deliziose, e vengono servite con ketchup e maionese. Scegli la tua versione preferita e gustale.",
+    "description_de": "Unsere Pommes frites werden frisch auf Bestellung zubereitet, sind knusprig und lecker und werden mit Ketchup und Mayonnaise serviert. Wählen Sie Ihre Lieblingsvariante und genießen Sie.",
+    "descriptionDe": "Unsere Pommes frites werden frisch auf Bestellung zubereitet, sind knusprig und lecker und werden mit Ketchup und Mayonnaise serviert. Wählen Sie Ihre Lieblingsvariante und genießen Sie."
   },
   {
     "id": "desserts",
@@ -10027,7 +17343,15 @@ export const menuData: MenuCategory[] = [
         "sku": "10201",
         "variants": [],
         "extras": [],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Gelato alla vaniglia affogato in un caffè espresso caldo",
+        "description_de": "Vanilleeis übergossen mit heißem Espresso",
+        "name_it": "AFFOGATO AL CAFFÈ",
+        "nameIt": "AFFOGATO AL CAFFÈ",
+        "name_de": "AFFOGATO AL CAFFÈ",
+        "nameDe": "AFFOGATO AL CAFFÈ",
+        "descriptionIt": "Gelato alla vaniglia affogato in un caffè espresso caldo",
+        "descriptionDe": "Vanilleeis übergossen mit heißem Espresso"
       },
       {
         "id": "cake-of-the-day",
@@ -10042,7 +17366,14 @@ export const menuData: MenuCategory[] = [
         "variants": [],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "TORTA DEL GIORNO"
+        "nameIt": "TORTA DEL GIORNO",
+        "description_it": "Una deliziosa fetta di torta artigianale fresca di giornata",
+        "description_de": "Ein köstliches Stück frischer hausgemachter Kuchen",
+        "name_it": "TORTA DEL GIORNO",
+        "name_de": "KUCHEN DES TAGES",
+        "nameDe": "KUCHEN DES TAGES",
+        "descriptionIt": "Una deliziosa fetta di torta artigianale fresca di giornata",
+        "descriptionDe": "Ein köstliches Stück frischer hausgemachter Kuchen"
       },
       {
         "id": "tiramisu",
@@ -10056,7 +17387,15 @@ export const menuData: MenuCategory[] = [
         "sku": "10135",
         "variants": [],
         "extras": [],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "description_it": "Il classico dessert italiano con savoiardi, mascarpone e caffè",
+        "description_de": "Der klassische italienische Desserttraum aus Löffelbiskuits, Mascarpone und Kaffee",
+        "name_it": "TIRAMISÙ",
+        "nameIt": "TIRAMISÙ",
+        "name_de": "TIRAMISU",
+        "nameDe": "TIRAMISU",
+        "descriptionIt": "Il classico dessert italiano con savoiardi, mascarpone e caffè",
+        "descriptionDe": "Der klassische italienische Desserttraum aus Löffelbiskuits, Mascarpone und Kaffee"
       },
       {
         "id": "crepes",
@@ -10075,7 +17414,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "กล้วย",
             "sku": "10291",
             "price": 150,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Banana",
+            "nameIt": "Banana",
+            "name_de": "Banane",
+            "nameDe": "Banane"
           },
           {
             "id": "10290",
@@ -10083,12 +17428,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ธรรมดา",
             "sku": "10290",
             "price": 120,
-            "priceModifier": -30
+            "priceModifier": -30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Normal",
+            "nameIt": "Normal",
+            "name_de": "Normal",
+            "nameDe": "Normal"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "CRÊPES"
+        "nameIt": "CRÊPES",
+        "description_it": "Sottili crêpes dolci fatte a mano, servite con il tuo ripieno preferito",
+        "description_de": "Hauchdünne süße hausgemachte Crêpes mit Füllung nach Wahl",
+        "name_it": "CRÊPES",
+        "name_de": "CRÊPES",
+        "nameDe": "CRÊPES",
+        "descriptionIt": "Sottili crêpes dolci fatte a mano, servite con il tuo ripieno preferito",
+        "descriptionDe": "Hauchdünne süße hausgemachte Crêpes mit Füllung nach Wahl"
       },
       {
         "id": "pancake",
@@ -10107,7 +17465,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "กล้วย",
             "sku": "10293",
             "price": 210,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Banana",
+            "nameIt": "Banana",
+            "name_de": "Banane",
+            "nameDe": "Banane"
           },
           {
             "id": "10292",
@@ -10115,14 +17479,37 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ธรรมดา",
             "sku": "10292",
             "price": 180,
-            "priceModifier": -30
+            "priceModifier": -30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Normal",
+            "nameIt": "Normal",
+            "name_de": "Normal",
+            "nameDe": "Normal"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "PANCAKE"
+        "nameIt": "PANCAKE",
+        "description_it": "Soffici pancake caldi, serviti con miele, sciroppo o Nutella",
+        "description_de": "Fluffige warme Pancakes, serviert mit Honig, Sirup oder Nutella",
+        "name_it": "PANCAKE",
+        "name_de": "PFANNKUCHEN",
+        "nameDe": "PFANNKUCHEN",
+        "descriptionIt": "Soffici pancake caldi, serviti con miele, sciroppo o Nutella",
+        "descriptionDe": "Fluffige warme Pancakes, serviert mit Honig, Sirup oder Nutella"
       }
-    ]
+    ],
+    "name_it": "Dolci",
+    "nameIt": "Dolci",
+    "name_de": "Desserts",
+    "nameDe": "Desserts",
+    "description": "Dessert Is The Moment When A Meal Becomes The Ultimate Pleasure. Our Sweets Are Handmade, Prepared With Fresh, Genuine Ingredients And Homemade Passion",
+    "descriptionTh": "ของหวานคือช่วงเวลาที่มื้ออาหารกลายเป็นความสุขสูงสุด ขนมของเราทำแบบโฮมเมด ใช้วัตถุดิบสดใหม่และแท้จริง พร้อมความหลงใหลในการทำด้วยมือ",
+    "description_it": "Il dessert è il momento in cui il pasto si trasforma in puro piacere. I nostri dolci sono fatti a mano, preparati con ingredienti freschi e genuini e tutta la passione della cucina casalinga.",
+    "descriptionIt": "Il dessert è il momento in cui il pasto si trasforma in puro piacere. I nostri dolci sono fatti a mano, preparati con ingredienti freschi e genuini e tutta la passione della cucina casalinga.",
+    "description_de": "Das Dessert ist der Moment, in dem ein Essen zum ultimativen Genuss wird. Unsere Süßspeisen sind handgemacht, zubereitet aus frischen, natürlichen Zutaten und mit einer großen Portion Leidenschaft.",
+    "descriptionDe": "Das Dessert ist der Moment, in dem ein Essen zum ultimativen Genuss wird. Unsere Süßspeisen sind handgemacht, zubereitet aus frischen, natürlichen Zutaten und mit einer großen Portion Leidenschaft."
   },
   {
     "id": "breakfast-and-snacks",
@@ -10144,7 +17531,12 @@ export const menuData: MenuCategory[] = [
         "extras": [],
         "allowed_extras_group": "None",
         "descriptionIt": "Torta del giorno, cappuccino, succo di frutta",
-        "nameIt": "COLAZIONE ITALIANA"
+        "nameIt": "COLAZIONE ITALIANA",
+        "description_it": "",
+        "description_de": "Cake of the Day, Cappuccino, Fruit Juice",
+        "name_de": "ITALIAN BREAKFAST",
+        "nameDe": "ITALIAN BREAKFAST",
+        "descriptionDe": "Cake of the Day, Cappuccino, Fruit Juice"
       },
       {
         "id": "american-breakfast",
@@ -10160,7 +17552,12 @@ export const menuData: MenuCategory[] = [
         "extras": [],
         "allowed_extras_group": "None",
         "descriptionIt": "2 uova al tegamino, bacon, burro, marmellata, caffè, succo di frutta, 2 fette di pane tostato",
-        "nameIt": "COLAZIONE AMERICANA"
+        "nameIt": "COLAZIONE AMERICANA",
+        "description_it": "",
+        "description_de": "2 Fried Eggs, Bacon, Butter, Jam, Coffee, Fruit Juice, 2 Toasted Slices",
+        "name_de": "AMERICAN BREAKFAST",
+        "nameDe": "AMERICAN BREAKFAST",
+        "descriptionDe": "2 Fried Eggs, Bacon, Butter, Jam, Coffee, Fruit Juice, 2 Toasted Slices"
       },
       {
         "id": "eggs-and-bacon",
@@ -10176,7 +17573,12 @@ export const menuData: MenuCategory[] = [
         "extras": [],
         "allowed_extras_group": "None",
         "descriptionIt": "2 uova al tegamino, bacon, 1 fetta di pane tostato",
-        "nameIt": "UOVA E BACON"
+        "nameIt": "UOVA E BACON",
+        "description_it": "",
+        "description_de": "2 Fried Eggs, Bacon, 1 Toasted Slice",
+        "name_de": "EGGS & BACON",
+        "nameDe": "EGGS & BACON",
+        "descriptionDe": "2 Fried Eggs, Bacon, 1 Toasted Slice"
       },
       {
         "id": "butter-and-jam",
@@ -10192,7 +17594,12 @@ export const menuData: MenuCategory[] = [
         "extras": [],
         "allowed_extras_group": "None",
         "descriptionIt": "2 fette di pane tostato, marmellata e burro",
-        "nameIt": "BURRO E MARMELLATA"
+        "nameIt": "BURRO E MARMELLATA",
+        "description_it": "",
+        "description_de": "2 Toasted Slices, Jam and Butter",
+        "name_de": "BUTTER & JAM",
+        "nameDe": "BUTTER & JAM",
+        "descriptionDe": "2 Toasted Slices, Jam and Butter"
       },
       {
         "id": "nutella-bread",
@@ -10208,7 +17615,12 @@ export const menuData: MenuCategory[] = [
         "extras": [],
         "allowed_extras_group": "None",
         "descriptionIt": "2 fette di pane tostato spalmate con Nutella",
-        "nameIt": "PANE E NUTELLA"
+        "nameIt": "PANE E NUTELLA",
+        "description_it": "",
+        "description_de": "2 Toasted Slices Spread With Nutella",
+        "name_de": "NUTELLA BREAD",
+        "nameDe": "NUTELLA BREAD",
+        "descriptionDe": "2 Toasted Slices Spread With Nutella"
       },
       {
         "id": "italian-toast",
@@ -10224,7 +17636,12 @@ export const menuData: MenuCategory[] = [
         "extras": [],
         "allowed_extras_group": "None",
         "descriptionIt": "2 fette di pane tostato ripiene di prosciutto e formaggio",
-        "nameIt": "TOAST ALL'ITALIANA"
+        "nameIt": "TOAST ALL'ITALIANA",
+        "description_it": "",
+        "description_de": "2 Toasted Slices Filled With Ham And Cheese",
+        "name_de": "ITALIAN TOAST",
+        "nameDe": "ITALIAN TOAST",
+        "descriptionDe": "2 Toasted Slices Filled With Ham And Cheese"
       },
       {
         "id": "french-toast",
@@ -10240,7 +17657,12 @@ export const menuData: MenuCategory[] = [
         "extras": [],
         "allowed_extras_group": "None",
         "descriptionIt": "2 toast fritti con latte e uova, miele",
-        "nameIt": "TOAST ALLA FRANCESE"
+        "nameIt": "TOAST ALLA FRANCESE",
+        "description_it": "",
+        "description_de": "2 Fried Toasts With Milk and Egg, Honey",
+        "name_de": "FRENCH TOAST",
+        "nameDe": "FRENCH TOAST",
+        "descriptionDe": "2 Fried Toasts With Milk and Egg, Honey"
       },
       {
         "id": "french-rolls",
@@ -10256,7 +17678,12 @@ export const menuData: MenuCategory[] = [
         "extras": [],
         "allowed_extras_group": "None",
         "descriptionIt": "3 toast fritti con latte e uovo, ripieni di prosciutto e formaggio",
-        "nameIt": "PANINI ALLA FRANCESE"
+        "nameIt": "PANINI ALLA FRANCESE",
+        "description_it": "",
+        "description_de": "3 Fried Toasts with Milk And Egg, Filled with Ham & Cheese",
+        "name_de": "FRENCH ROLLS",
+        "nameDe": "FRENCH ROLLS",
+        "descriptionDe": "3 Fried Toasts with Milk And Egg, Filled with Ham & Cheese"
       },
       {
         "id": "pastries",
@@ -10275,12 +17702,23 @@ export const menuData: MenuCategory[] = [
             "name": "Nutella Extra",
             "nameTh": "นูเทลล่าเพิ่ม",
             "sku": "",
-            "price": 30
+            "price": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Nutella Extra",
+            "nameIt": "Nutella Extra",
+            "name_de": "Extra Nutella",
+            "nameDe": "Extra Nutella"
           }
         ],
         "allowed_extras_group": "Croissant Modifiers",
         "descriptionIt": "Pasticceria fresca del giorno, chiedi allo staff (+30฿ Nutella)",
-        "nameIt": "PASTICCERIA"
+        "nameIt": "PASTICCERIA",
+        "description_it": "",
+        "description_de": "Fresh Pastries of the Day, Ask the Staff (+30฿ Nutella)",
+        "name_de": "PASTRIES",
+        "nameDe": "PASTRIES",
+        "descriptionDe": "Fresh Pastries of the Day, Ask the Staff (+30฿ Nutella)"
       },
       {
         "id": "fruit-salad",
@@ -10299,7 +17737,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ธรรมดา",
             "sku": "10132",
             "price": 120,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Normal",
+            "nameIt": "Normal",
+            "name_de": "Normal",
+            "nameDe": "Normal"
           },
           {
             "id": "10231",
@@ -10307,15 +17751,36 @@ export const menuData: MenuCategory[] = [
             "nameTh": "โยเกิร์ต",
             "sku": "10231",
             "price": 150,
-            "priceModifier": 30
+            "priceModifier": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Yogurt",
+            "nameIt": "Yogurt",
+            "name_de": "Joghurt",
+            "nameDe": "Joghurt"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
         "descriptionIt": "Macedonia di frutta fresca di stagione (+30฿ yogurt)",
-        "nameIt": "MACEDONIA DI FRUTTA"
+        "nameIt": "MACEDONIA DI FRUTTA",
+        "description_it": "",
+        "description_de": "Seasonal Fresh Fruit Salad (+30฿ Yogurt)",
+        "name_de": "FRUIT SALAD",
+        "nameDe": "FRUIT SALAD",
+        "descriptionDe": "Seasonal Fresh Fruit Salad (+30฿ Yogurt)"
       }
-    ]
+    ],
+    "name_it": "Colazione e Snack",
+    "nameIt": "Colazione e Snack",
+    "name_de": "Frühstück und Snacks",
+    "nameDe": "Frühstück und Snacks",
+    "description": "Breakfast Is The Most Important Meal Of The Day, The Moment That Sets The Tone And Rhythm For Everything That Follows. Starting Your Day With Fresh, Genuine, High-Quality Ingredients, Carefully Prepared To Order, Truly Makes All The Difference, Offering Real Flavor, Lasting Energy, And An Enjoyable Start To The Day",
+    "descriptionTh": "การเริ่มต้นวันใหม่ด้วยอาหารเช้าเป็นสิ่งสำคัญที่สุดของวัน เป็นช่วงเวลาที่กำหนดจังหวะและอารมณ์ของทั้งวัน การเลือกใช้วัตถุดิบที่สดใหม่ เป็นธรรมชาติ และมีคุณภาพ ซึ่งปรุงสดใหม่ทุกจานด้วยความใส่ใจ จะช่วยเติมพลัง สร้างความสุข มอบรสชาติที่แท้จริง และสร้างจังหวะที่ดีให้คุณเริ่มต้นวันได้อย่างสมบูรณ์แบบมากยิ่งขึ้น",
+    "description_it": "La colazione è il pasto più importante della giornata, il momento che detta il ritmo a tutto ciò che segue. Iniziare la giornata con ingredienti freschi, genuini e di alta qualità, preparati al momento con cura, fa davvero la differenza, offrendo un sapore autentico, energia duratura e un piacevole inizio.",
+    "descriptionIt": "La colazione è il pasto più importante della giornata, il momento che detta il ritmo a tutto ciò che segue. Iniziare la giornata con ingredienti freschi, genuini e di alta qualità, preparati al momento con cura, fa davvero la differenza, offrendo un sapore autentico, energia duratura e un piacevole inizio.",
+    "description_de": "Das Frühstück ist die wichtigste Mahlzeit des Tages – der Moment, der den Rhythmus für alles Kommende vorgeibt. Starten Sie Ihren Tag mit frischen, natürlichen und hochwertigen Zutaten, die sorgfältig auf Bestellung zubereitet werden. Das macht den Unterschied und bietet echten Geschmack, lang anhaltende Energie und einen rundum gelungenen Start in den Tag.",
+    "descriptionDe": "Das Frühstück ist die wichtigste Mahlzeit des Tages – der Moment, der den Rhythmus für alles Kommende vorgeibt. Starten Sie Ihren Tag mit frischen, natürlichen und hochwertigen Zutaten, die sorgfältig auf Bestellung zubereitet werden. Das macht den Unterschied und bietet echten Geschmack, lang anhaltende Energie und einen rundum gelungenen Start in den Tag."
   },
   {
     "id": "coffee-shop",
@@ -10341,7 +17806,11 @@ export const menuData: MenuCategory[] = [
             "nameIt": "Caldo",
             "sku": "espresso-hot",
             "price": 40,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Hot",
+            "nameDe": "Hot"
           },
           {
             "id": "espresso-iced",
@@ -10350,7 +17819,11 @@ export const menuData: MenuCategory[] = [
             "nameIt": "Freddo",
             "sku": "espresso-iced",
             "price": 70,
-            "priceModifier": 30
+            "priceModifier": 30,
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Iced",
+            "nameDe": "Iced"
           }
         ],
         "extras": [
@@ -10360,10 +17833,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ช็อตกาแฟดับเบิ้ล",
             "sku": "10166",
             "price": 40,
-            "nameIt": "Doppio Caffè"
+            "nameIt": "Caffè Doppio",
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelter Kaffee",
+            "nameDe": "Doppelter Kaffee",
+            "name_it": "Caffè Doppio"
           }
         ],
-        "allowed_extras_group": "Coffee Shop Modifiers"
+        "allowed_extras_group": "Coffee Shop Modifiers",
+        "description_it": "Il classico espresso italiano dal sapore ricco e aroma intenso",
+        "description_de": "Klassischer italienischer Espresso mit vollem Aroma und intensivem Geschmack",
+        "name_it": "CAFFÈ ESPRESSO",
+        "nameIt": "CAFFÈ ESPRESSO",
+        "name_de": "CAFFÈ ESPRESSO",
+        "nameDe": "CAFFÈ ESPRESSO",
+        "descriptionIt": "Il classico espresso italiano dal sapore ricco e aroma intenso",
+        "descriptionDe": "Klassischer italienischer Espresso mit vollem Aroma und intensivem Geschmack"
       },
       {
         "id": "americano",
@@ -10382,7 +17868,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ร้อน",
             "sku": "10219",
             "price": 50,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Hot",
+            "nameIt": "Hot",
+            "name_de": "Hot",
+            "nameDe": "Hot"
           },
           {
             "id": "10222",
@@ -10390,7 +17882,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เย็น",
             "sku": "10222",
             "price": 70,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Iced",
+            "nameIt": "Iced",
+            "name_de": "Iced",
+            "nameDe": "Iced"
           }
         ],
         "extras": [
@@ -10400,10 +17898,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ช็อตกาแฟดับเบิ้ล",
             "sku": "10166",
             "price": 40,
-            "nameIt": "Doppio Caffè"
+            "nameIt": "Caffè Doppio",
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelter Kaffee",
+            "nameDe": "Doppelter Kaffee",
+            "name_it": "Caffè Doppio"
           }
         ],
-        "allowed_extras_group": "Coffee Shop Modifiers"
+        "allowed_extras_group": "Coffee Shop Modifiers",
+        "description_it": "Espresso allungato con acqua calda",
+        "description_de": "Mit heißem Wasser verlängerter Espresso",
+        "name_it": "CAFFÈ AMERICANO",
+        "nameIt": "CAFFÈ AMERICANO",
+        "name_de": "CAFFÈ AMERICANO",
+        "nameDe": "CAFFÈ AMERICANO",
+        "descriptionIt": "Espresso allungato con acqua calda",
+        "descriptionDe": "Mit heißem Wasser verlängerter Espresso"
       },
       {
         "id": "cappuccino",
@@ -10422,7 +17933,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ร้อน",
             "sku": "10220",
             "price": 60,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Hot",
+            "nameIt": "Hot",
+            "name_de": "Hot",
+            "nameDe": "Hot"
           },
           {
             "id": "10221",
@@ -10430,7 +17947,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เย็น",
             "sku": "10221",
             "price": 80,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Iced",
+            "nameIt": "Iced",
+            "name_de": "Iced",
+            "nameDe": "Iced"
           }
         ],
         "extras": [
@@ -10440,10 +17963,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ช็อตกาแฟดับเบิ้ล",
             "sku": "10166",
             "price": 40,
-            "nameIt": "Doppio Caffè"
+            "nameIt": "Caffè Doppio",
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelter Kaffee",
+            "nameDe": "Doppelter Kaffee",
+            "name_it": "Caffè Doppio"
           }
         ],
-        "allowed_extras_group": "Coffee Shop Modifiers"
+        "allowed_extras_group": "Coffee Shop Modifiers",
+        "description_it": "Espresso con latte caldo e una soffice schiuma di latte",
+        "description_de": "Espresso mit heißer Milch und cremigem Milchschaum",
+        "name_it": "CAPPUCCINO",
+        "nameIt": "CAPPUCCINO",
+        "name_de": "CAPPUCCINO",
+        "nameDe": "CAPPUCCINO",
+        "descriptionIt": "Espresso con latte caldo e una soffice schiuma di latte",
+        "descriptionDe": "Espresso mit heißer Milch und cremigem Milchschaum"
       },
       {
         "id": "latte-macchiato",
@@ -10462,7 +17998,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ร้อน",
             "sku": "10044",
             "price": 70,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Hot",
+            "nameIt": "Hot",
+            "name_de": "Hot",
+            "nameDe": "Hot"
           },
           {
             "id": "10164",
@@ -10470,7 +18012,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เย็น",
             "sku": "10164",
             "price": 90,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Iced",
+            "nameIt": "Iced",
+            "name_de": "Iced",
+            "nameDe": "Iced"
           }
         ],
         "extras": [
@@ -10480,10 +18028,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ช็อตกาแฟดับเบิ้ล",
             "sku": "10166",
             "price": 40,
-            "nameIt": "Doppio Caffè"
+            "nameIt": "Caffè Doppio",
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelter Kaffee",
+            "nameDe": "Doppelter Kaffee",
+            "name_it": "Caffè Doppio"
           }
         ],
-        "allowed_extras_group": "Coffee Shop Modifiers"
+        "allowed_extras_group": "Coffee Shop Modifiers",
+        "description_it": "Latte caldo macchiato con un espresso",
+        "description_de": "Heiße Milch mit einem Schuss Espresso",
+        "name_it": "LATTE MACCHIATO",
+        "nameIt": "LATTE MACCHIATO",
+        "name_de": "LATTE MACCHIATO",
+        "nameDe": "LATTE MACCHIATO",
+        "descriptionIt": "Latte caldo macchiato con un espresso",
+        "descriptionDe": "Heiße Milch mit einem Schuss Espresso"
       },
       {
         "id": "mini-affogato-al-caffé",
@@ -10503,10 +18064,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ช็อตกาแฟดับเบิ้ล",
             "sku": "10166",
             "price": 40,
-            "nameIt": "Doppio Caffè"
+            "nameIt": "Caffè Doppio",
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelter Kaffee",
+            "nameDe": "Doppelter Kaffee",
+            "name_it": "Caffè Doppio"
           }
         ],
-        "allowed_extras_group": "Coffee Shop Modifiers"
+        "allowed_extras_group": "Coffee Shop Modifiers",
+        "description_it": "Una versione ridotta del classico gelato affogato nel caffè",
+        "description_de": "Eine kleine Portion Vanilleeis übergossen mit heißem Espresso",
+        "name_it": "MINI AFFOGATO AL CAFFÈ",
+        "nameIt": "MINI AFFOGATO AL CAFFÈ",
+        "name_de": "MINI AFFOGATO AL CAFFÈ",
+        "nameDe": "MINI AFFOGATO AL CAFFÈ",
+        "descriptionIt": "Una versione ridotta del classico gelato affogato nel caffè",
+        "descriptionDe": "Eine kleine Portion Vanilleeis übergossen mit heißem Espresso"
       },
       {
         "id": "marocchino",
@@ -10525,7 +18099,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ร้อน",
             "sku": "10163",
             "price": 65,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Hot",
+            "nameIt": "Hot",
+            "name_de": "Hot",
+            "nameDe": "Hot"
           },
           {
             "id": "10216",
@@ -10533,7 +18113,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เย็น",
             "sku": "10216",
             "price": 85,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Iced",
+            "nameIt": "Iced",
+            "name_de": "Iced",
+            "nameDe": "Iced"
           }
         ],
         "extras": [
@@ -10543,10 +18129,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ช็อตกาแฟดับเบิ้ล",
             "sku": "10166",
             "price": 40,
-            "nameIt": "Doppio Caffè"
+            "nameIt": "Caffè Doppio",
+            "description_it": "",
+            "description_de": "",
+            "name_de": "Doppelter Kaffee",
+            "nameDe": "Doppelter Kaffee",
+            "name_it": "Caffè Doppio"
           }
         ],
-        "allowed_extras_group": "Coffee Shop Modifiers"
+        "allowed_extras_group": "Coffee Shop Modifiers",
+        "description_it": "Espresso, polvere di cacao e schiuma di latte",
+        "description_de": "Espresso mit Kakaopulver und cremiger Milchschaumhaube",
+        "name_it": "MAROCCHINO",
+        "nameIt": "MAROCCHINO",
+        "name_de": "MAROCCHINO",
+        "nameDe": "MAROCCHINO",
+        "descriptionIt": "Espresso, polvere di cacao e schiuma di latte",
+        "descriptionDe": "Espresso mit Kakaopulver und cremiger Milchschaumhaube"
       },
       {
         "id": "hot-chocolate",
@@ -10561,7 +18160,14 @@ export const menuData: MenuCategory[] = [
         "variants": [],
         "extras": [],
         "allowed_extras_group": "Coffee Shop Modifiers",
-        "nameIt": "CIOCCOLATA CALDA"
+        "nameIt": "CIOCCOLATA CALDA",
+        "description_it": "Densa e golosa cioccolata calda servita in tazza",
+        "description_de": "Cremig-süße heiße Schokolade",
+        "name_it": "CIOCCOLATA CALDA",
+        "name_de": "HEISSE SCHOKOLADE",
+        "nameDe": "HEISSE SCHOKOLADE",
+        "descriptionIt": "Densa e golosa cioccolata calda servita in tazza",
+        "descriptionDe": "Cremig-süße heiße Schokolade"
       },
       {
         "id": "milk-and-honey",
@@ -10580,7 +18186,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ร้อน",
             "sku": "10264",
             "price": 70,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Hot",
+            "nameIt": "Hot",
+            "name_de": "Hot",
+            "nameDe": "Hot"
           },
           {
             "id": "10273",
@@ -10588,12 +18200,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เย็น",
             "sku": "10273",
             "price": 90,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Iced",
+            "nameIt": "Iced",
+            "name_de": "Iced",
+            "nameDe": "Iced"
           }
         ],
         "extras": [],
         "allowed_extras_group": "Coffee Shop Modifiers",
-        "nameIt": "LATTE E MIELE"
+        "nameIt": "LATTE E MIELE",
+        "description_it": "Latte caldo servito con miele biologico",
+        "description_de": "Warme Milch serviert mit Bio-Honig",
+        "name_it": "LATTE E MIELE",
+        "name_de": "MILCH UND HONIG",
+        "nameDe": "MILCH UND HONIG",
+        "descriptionIt": "Latte caldo servito con miele biologico",
+        "descriptionDe": "Warme Milch serviert mit Bio-Honig"
       },
       {
         "id": "red-thai-tea",
@@ -10612,7 +18237,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ร้อน",
             "sku": "10213",
             "price": 50,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Hot",
+            "nameIt": "Hot",
+            "name_de": "Hot",
+            "nameDe": "Hot"
           },
           {
             "id": "10217",
@@ -10620,12 +18251,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เย็น",
             "sku": "10217",
             "price": 70,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Iced",
+            "nameIt": "Iced",
+            "name_de": "Iced",
+            "nameDe": "Iced"
           }
         ],
         "extras": [],
         "allowed_extras_group": "Coffee Shop Modifiers",
-        "nameIt": "TÈ ROSSO TAILANDESE"
+        "nameIt": "TÈ ROSSO TAILANDESE",
+        "description_it": "Tè tradizionale tailandese dal colore ambrato e profumo speziato",
+        "description_de": "Traditioneller thailändischer Eistee mit Gewürzen",
+        "name_it": "TÈ ROSSO TAILANDESE",
+        "name_de": "ROTER THAI-TEE",
+        "nameDe": "ROTER THAI-TEE",
+        "descriptionIt": "Tè tradizionale tailandese dal colore ambrato e profumo speziato",
+        "descriptionDe": "Traditioneller thailändischer Eistee mit Gewürzen"
       },
       {
         "id": "green-thai-tea",
@@ -10644,7 +18288,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ร้อน",
             "sku": "10215",
             "price": 50,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Hot",
+            "nameIt": "Hot",
+            "name_de": "Hot",
+            "nameDe": "Hot"
           },
           {
             "id": "10218",
@@ -10652,14 +18302,37 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เย็น",
             "sku": "10218",
             "price": 70,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Iced",
+            "nameIt": "Iced",
+            "name_de": "Iced",
+            "nameDe": "Iced"
           }
         ],
         "extras": [],
         "allowed_extras_group": "Coffee Shop Modifiers",
-        "nameIt": "TÈ VERDE TAILANDESE"
+        "nameIt": "TÈ VERDE TAILANDESE",
+        "description_it": "Tè verde tailandese cremoso e rinfrescante",
+        "description_de": "Cremig-erfrischender thailändischer grüner Eistee",
+        "name_it": "TÈ VERDE TAILANDESE",
+        "name_de": "GRÜNER THAI-TEE",
+        "nameDe": "GRÜNER THAI-TEE",
+        "descriptionIt": "Tè verde tailandese cremoso e rinfrescante",
+        "descriptionDe": "Cremig-erfrischender thailändischer grüner Eistee"
       }
-    ]
+    ],
+    "name_it": "Caffetteria",
+    "nameIt": "Caffetteria",
+    "name_de": "Kaffeehaus",
+    "nameDe": "Kaffeehaus",
+    "description": "Coffee Is The Heart Of Italian Culture. It Is Not Just A Drink, But A Daily Ritual Of Pause And Pleasure, To Be Enjoyed Slowly With A Smile, Every Day. From Espresso To More Indulgent Versions, Every Cup Offers An Authentic Experience, Simple, Made Of Flavor And Small Details Crafted With Passion",
+    "descriptionTh": "กาแฟคือหัวใจของวัฒนธรรมอิตาลี ไม่ใช่แค่เครื่องดื่ม แต่คือพิธีกรรมประจำวันของการหยุดพัก ความผ่อนคลาย และความสุขเล็กๆ ที่ควรดื่มด่ำอย่างสบายใจ พร้อมรอยยิ้ม in ทุกๆ วัน ตั้งแต่เอสเพรสโซไปจนถึงสูตรที่เข้มข้นยิ่งขึ้น ทุกถ้วยมอบประสบการณ์ที่แท้จริง เรียบง่าย เต็มไปด้วยรสชาติ และรายละเอียดเล็กๆ ที่เปี่ยมด้วยความหลงใหล",
+    "description_it": "Il caffè è il cuore della cultura italiana. Non è solo una bevanda, ma un rituale quotidiano di pausa e piacere, da gustare lentamente e con un sorriso, ogni giorno. Dall'espresso alle versioni più golose, ogni tazza offre un'esperienza autentica e semplice, fatta di sapore e piccoli dettagli curati con passione.",
+    "descriptionIt": "Il caffè è il cuore della cultura italiana. Non è solo una bevanda, ma un rituale quotidiano di pausa e piacere, da gustare lentamente e con un sorriso, ogni giorno. Dall'espresso alle versioni più golose, ogni tazza offre un'esperienza autentica e semplice, fatta di sapore e piccoli dettagli curati con passione.",
+    "description_de": "Kaffee ist das Herzstück der italienischen Kultur. Er ist nicht nur ein Getraenk, sondern ein tägliches Ritual der Pause und des Genusses, das man jeden Tag in aller Ruhe und mit einem Lächeln zelebrieren sollte. Vom klassischen Espresso bis hin zu feinen Kaffeespezialitäten bietet jede Tasse ein authentisches, einfaches Erlebnis, geprägt von vollem Aroma und liebevollen Details.",
+    "descriptionDe": "Kaffee ist das Herzstück der italienischen Kultur. Er ist nicht nur ein Getraenk, sondern ein tägliches Ritual der Pause und des Genusses, das man jeden Tag in aller Ruhe und mit einem Lächeln zelebrieren sollte. Vom klassischen Espresso bis hin zu feinen Kaffeespezialitäten bietet jede Tasse ein authentisches, einfaches Erlebnis, geprägt von vollem Aroma und liebevollen Details."
   },
   {
     "id": "fruit-drinks",
@@ -10685,7 +18358,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ไม่หวาน",
             "nameIt": "Senza Zucchero",
             "sku": "sugar-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Senza Zucchero",
+            "name_de": "Ohne Zucker",
+            "nameDe": "Ohne Zucker"
           },
           {
             "id": "sugar-low",
@@ -10693,15 +18371,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "หวานน้อย",
             "nameIt": "Poco Zucchero",
             "sku": "sugar-low",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Poco Zucchero",
+            "name_de": "Wenig Zucker",
+            "nameDe": "Wenig Zucker"
           },
           {
             "id": "sugar-regular",
             "name": "Regular Sugar",
             "nameTh": "หวานปกติ",
-            "nameIt": "Zuccherato",
+            "nameIt": "Zucchero Classico",
             "sku": "sugar-regular",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Zucchero Classico",
+            "name_de": "Normaler Zucker",
+            "nameDe": "Normaler Zucker"
           },
           {
             "id": "fruit-lime",
@@ -10709,15 +18397,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มะนาว",
             "nameIt": "Lime",
             "sku": "fruit-lime",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Lime",
+            "name_de": "Limette",
+            "nameDe": "Limette"
           },
           {
             "id": "fruit-papaya",
             "name": "Papaya",
             "nameTh": "มะละกอ",
-            "nameIt": "Papaia",
+            "nameIt": "Papaya",
             "sku": "fruit-papaya",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Papaya",
+            "name_de": "Papaya",
+            "nameDe": "Papaya"
           },
           {
             "id": "fruit-watermelon",
@@ -10725,7 +18423,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "แตงโม",
             "nameIt": "Anguria",
             "sku": "fruit-watermelon",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Anguria",
+            "name_de": "Wassermelone",
+            "nameDe": "Wassermelone"
           },
           {
             "id": "fruit-pineapple",
@@ -10733,7 +18436,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "สับปะรด",
             "nameIt": "Ananas",
             "sku": "fruit-pineapple",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas",
+            "name_de": "Ananas",
+            "nameDe": "Ananas"
           },
           {
             "id": "fruit-banana",
@@ -10741,11 +18449,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "กล้วย",
             "nameIt": "Banana",
             "sku": "fruit-banana",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Banana",
+            "name_de": "Banane",
+            "nameDe": "Banane"
           }
         ],
         "allowed_extras_group": "None",
-        "nameIt": "FRULLATI DI FRUTTA (a scelta)"
+        "nameIt": "FRULLATI DI FRUTTA (a scelta)",
+        "description_it": "Preparati al momento con frutta fresca a tua scelta",
+        "description_de": "Frisch zubereitet aus Früchten Ihrer Wahl",
+        "name_it": "FRULLATI DI FRUTTA (a scelta)",
+        "name_de": "FRUCHT-SHAKES (Frucht nach Wahl)",
+        "nameDe": "FRUCHT-SHAKES (Frucht nach Wahl)",
+        "descriptionIt": "Preparati al momento con frutta fresca a tua scelta",
+        "descriptionDe": "Frisch zubereitet aus Früchten Ihrer Wahl"
       },
       {
         "id": "smoothies-(choice-of-fruit)",
@@ -10765,7 +18485,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ไม่หวาน",
             "nameIt": "Senza Zucchero",
             "sku": "sugar-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Senza Zucchero",
+            "name_de": "Ohne Zucker",
+            "nameDe": "Ohne Zucker"
           },
           {
             "id": "sugar-low",
@@ -10773,15 +18498,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "หวานน้อย",
             "nameIt": "Poco Zucchero",
             "sku": "sugar-low",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Poco Zucchero",
+            "name_de": "Wenig Zucker",
+            "nameDe": "Wenig Zucker"
           },
           {
             "id": "sugar-regular",
             "name": "Regular Sugar",
             "nameTh": "หวานปกติ",
-            "nameIt": "Zuccherato",
+            "nameIt": "Zucchero Classico",
             "sku": "sugar-regular",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Zucchero Classico",
+            "name_de": "Normaler Zucker",
+            "nameDe": "Normaler Zucker"
           },
           {
             "id": "fruit-lime",
@@ -10789,15 +18524,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มะนาว",
             "nameIt": "Lime",
             "sku": "fruit-lime",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Lime",
+            "name_de": "Limette",
+            "nameDe": "Limette"
           },
           {
             "id": "fruit-papaya",
             "name": "Papaya",
             "nameTh": "มะละกอ",
-            "nameIt": "Papaia",
+            "nameIt": "Papaya",
             "sku": "fruit-papaya",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Papaya",
+            "name_de": "Papaya",
+            "nameDe": "Papaya"
           },
           {
             "id": "fruit-watermelon",
@@ -10805,7 +18550,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "แตงโม",
             "nameIt": "Anguria",
             "sku": "fruit-watermelon",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Anguria",
+            "name_de": "Wassermelone",
+            "nameDe": "Wassermelone"
           },
           {
             "id": "fruit-pineapple",
@@ -10813,7 +18563,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "สับปะรด",
             "nameIt": "Ananas",
             "sku": "fruit-pineapple",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas",
+            "name_de": "Ananas",
+            "nameDe": "Ananas"
           },
           {
             "id": "fruit-banana",
@@ -10821,11 +18576,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "กล้วย",
             "nameIt": "Banana",
             "sku": "fruit-banana",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Banana",
+            "name_de": "Banane",
+            "nameDe": "Banane"
           }
         ],
         "allowed_extras_group": "None",
-        "nameIt": "SMOOTHIE DI FRUTTA (a scelta)"
+        "nameIt": "SMOOTHIE DI FRUTTA (a scelta)",
+        "description_it": "Smoothie cremoso con frutta fresca a tua scelta",
+        "description_de": "Cremiger Smoothie aus Früchten Ihrer Wahl",
+        "name_it": "SMOOTHIE DI FRUTTA (a scelta)",
+        "name_de": "SMOOTHIES (Frucht nach Wahl)",
+        "nameDe": "SMOOTHIES (Frucht nach Wahl)",
+        "descriptionIt": "Smoothie cremoso con frutta fresca a tua scelta",
+        "descriptionDe": "Cremiger Smoothie aus Früchten Ihrer Wahl"
       },
       {
         "id": "lassis-(choice-of-fruit)",
@@ -10845,7 +18612,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ไม่หวาน",
             "nameIt": "Senza Zucchero",
             "sku": "sugar-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Senza Zucchero",
+            "name_de": "Ohne Zucker",
+            "nameDe": "Ohne Zucker"
           },
           {
             "id": "sugar-low",
@@ -10853,15 +18625,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "หวานน้อย",
             "nameIt": "Poco Zucchero",
             "sku": "sugar-low",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Poco Zucchero",
+            "name_de": "Wenig Zucker",
+            "nameDe": "Wenig Zucker"
           },
           {
             "id": "sugar-regular",
             "name": "Regular Sugar",
             "nameTh": "หวานปกติ",
-            "nameIt": "Zuccherato",
+            "nameIt": "Zucchero Classico",
             "sku": "sugar-regular",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Zucchero Classico",
+            "name_de": "Normaler Zucker",
+            "nameDe": "Normaler Zucker"
           },
           {
             "id": "fruit-lime",
@@ -10869,15 +18651,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มะนาว",
             "nameIt": "Lime",
             "sku": "fruit-lime",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Lime",
+            "name_de": "Limette",
+            "nameDe": "Limette"
           },
           {
             "id": "fruit-papaya",
             "name": "Papaya",
             "nameTh": "มะละกอ",
-            "nameIt": "Papaia",
+            "nameIt": "Papaya",
             "sku": "fruit-papaya",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Papaya",
+            "name_de": "Papaya",
+            "nameDe": "Papaya"
           },
           {
             "id": "fruit-watermelon",
@@ -10885,7 +18677,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "แตงโม",
             "nameIt": "Anguria",
             "sku": "fruit-watermelon",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Anguria",
+            "name_de": "Wassermelone",
+            "nameDe": "Wassermelone"
           },
           {
             "id": "fruit-pineapple",
@@ -10893,7 +18690,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "สับปะรด",
             "nameIt": "Ananas",
             "sku": "fruit-pineapple",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas",
+            "name_de": "Ananas",
+            "nameDe": "Ananas"
           },
           {
             "id": "fruit-banana",
@@ -10901,11 +18703,23 @@ export const menuData: MenuCategory[] = [
             "nameTh": "กล้วย",
             "nameIt": "Banana",
             "sku": "fruit-banana",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Banana",
+            "name_de": "Banane",
+            "nameDe": "Banane"
           }
         ],
         "allowed_extras_group": "None",
-        "nameIt": "LASSI DI FRUTTA (a scelta)"
+        "nameIt": "LASSI DI FRUTTA (a scelta)",
+        "description_it": "Bevanda rinfrescante a base di yogurt e frutta fresca",
+        "description_de": "Erfrischendes Joghurtgetränk mit Früchten Ihrer Wahl",
+        "name_it": "LASSI DI FRUTTA (a scelta)",
+        "name_de": "LASSI (Frucht nach Wahl)",
+        "nameDe": "LASSI (Frucht nach Wahl)",
+        "descriptionIt": "Bevanda rinfrescante a base di yogurt e frutta fresca",
+        "descriptionDe": "Erfrischendes Joghurtgetränk mit Früchten Ihrer Wahl"
       },
       {
         "id": "frappés-(choice-of-fruit)",
@@ -10925,7 +18739,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ไม่หวาน",
             "nameIt": "Senza Zucchero",
             "sku": "sugar-none",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Senza Zucchero",
+            "name_de": "Ohne Zucker",
+            "nameDe": "Ohne Zucker"
           },
           {
             "id": "sugar-low",
@@ -10933,15 +18752,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "หวานน้อย",
             "nameIt": "Poco Zucchero",
             "sku": "sugar-low",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Poco Zucchero",
+            "name_de": "Wenig Zucker",
+            "nameDe": "Wenig Zucker"
           },
           {
             "id": "sugar-regular",
             "name": "Regular Sugar",
             "nameTh": "หวานปกติ",
-            "nameIt": "Zuccherato",
+            "nameIt": "Zucchero Classico",
             "sku": "sugar-regular",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Zucchero Classico",
+            "name_de": "Normaler Zucker",
+            "nameDe": "Normaler Zucker"
           },
           {
             "id": "fruit-lime",
@@ -10949,15 +18778,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "มะนาว",
             "nameIt": "Lime",
             "sku": "fruit-lime",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Lime",
+            "name_de": "Limette",
+            "nameDe": "Limette"
           },
           {
             "id": "fruit-papaya",
             "name": "Papaya",
             "nameTh": "มะละกอ",
-            "nameIt": "Papaia",
+            "nameIt": "Papaya",
             "sku": "fruit-papaya",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Papaya",
+            "name_de": "Papaya",
+            "nameDe": "Papaya"
           },
           {
             "id": "fruit-watermelon",
@@ -10965,7 +18804,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "แตงโม",
             "nameIt": "Anguria",
             "sku": "fruit-watermelon",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Anguria",
+            "name_de": "Wassermelone",
+            "nameDe": "Wassermelone"
           },
           {
             "id": "fruit-pineapple",
@@ -10973,7 +18817,12 @@ export const menuData: MenuCategory[] = [
             "nameTh": "สับปะรด",
             "nameIt": "Ananas",
             "sku": "fruit-pineapple",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Ananas",
+            "name_de": "Ananas",
+            "nameDe": "Ananas"
           },
           {
             "id": "fruit-banana",
@@ -10981,93 +18830,34 @@ export const menuData: MenuCategory[] = [
             "nameTh": "กล้วย",
             "nameIt": "Banana",
             "sku": "fruit-banana",
-            "price": 0
+            "price": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Banana",
+            "name_de": "Banane",
+            "nameDe": "Banane"
           }
         ],
-        "allowed_extras_group": "None",
-        "nameIt": "FRAPPÈ DI FRUTTA (a scelta)"
-      },
-      {
-        "id": "cold-pressed-juice-(choice-of-fruit)",
-        "name": "COLD-PRESSED JUICE (Choice of Fruit)",
-        "nameTh": "น้ำสกัดเย็น (ผลไม้ตามเลือก)",
-        "description": "",
-        "descriptionTh": "",
-        "price": 110,
-        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/11-Fruit-Drinks/05-cold-pressed-juice-choice-of-fruit.webp",
-        "image_file": "11-Fruit-Drinks/05-cold-pressed-juice-choice-of-fruit.webp",
-        "sku": "10306",
-        "variants": [],
-        "extras": [
-          {
-            "id": "sugar-none",
-            "name": "No Sugar",
-            "nameTh": "ไม่หวาน",
-            "nameIt": "Senza Zucchero",
-            "sku": "sugar-none",
-            "price": 0
-          },
-          {
-            "id": "sugar-low",
-            "name": "Low Sugar",
-            "nameTh": "หวานน้อย",
-            "nameIt": "Poco Zucchero",
-            "sku": "sugar-low",
-            "price": 0
-          },
-          {
-            "id": "sugar-regular",
-            "name": "Regular Sugar",
-            "nameTh": "หวานปกติ",
-            "nameIt": "Zuccherato",
-            "sku": "sugar-regular",
-            "price": 0
-          },
-          {
-            "id": "fruit-lime",
-            "name": "Lime",
-            "nameTh": "มะนาว",
-            "nameIt": "Lime",
-            "sku": "fruit-lime",
-            "price": 0
-          },
-          {
-            "id": "fruit-papaya",
-            "name": "Papaya",
-            "nameTh": "มะละกอ",
-            "nameIt": "Papaia",
-            "sku": "fruit-papaya",
-            "price": 0
-          },
-          {
-            "id": "fruit-watermelon",
-            "name": "Watermelon",
-            "nameTh": "แตงโม",
-            "nameIt": "Anguria",
-            "sku": "fruit-watermelon",
-            "price": 0
-          },
-          {
-            "id": "fruit-pineapple",
-            "name": "Pineapple",
-            "nameTh": "สับปะรด",
-            "nameIt": "Ananas",
-            "sku": "fruit-pineapple",
-            "price": 0
-          },
-          {
-            "id": "fruit-banana",
-            "name": "Banana",
-            "nameTh": "กล้วย",
-            "nameIt": "Banana",
-            "sku": "fruit-banana",
-            "price": 0
-          }
-        ],
-        "allowed_extras_group": "None",
-        "nameIt": "ESTRATTI A FREDDO (a scelta)"
+        "nameIt": "FRAPPÈ DI FRUTTA (a scelta)",
+        "description_it": "Frappè goloso con gelato e frutta fresca a tua scelta",
+        "description_de": "Köstlicher Milchshake mit Eis und Früchten Ihrer Wahl",
+        "name_it": "FRAPPÈ DI FRUTTA (a scelta)",
+        "name_de": "FRAPPÉS (Frucht nach Wahl)",
+        "nameDe": "FRAPPÉS (Frucht nach Wahl)",
+        "descriptionIt": "Frappè goloso con gelato e frutta fresca a tua scelta",
+        "descriptionDe": "Köstlicher Milchshake mit Eis und Früchten Ihrer Wahl"
       }
-    ]
+    ],
+    "name_it": "Bevande alla Frutta",
+    "nameIt": "Bevande alla Frutta",
+    "name_de": "Fruchtgetränke",
+    "nameDe": "Fruchtgetränke",
+    "description": "All Our Fruit Drinks Are Made Fresh To Order With Fresh Fruit And Carefully Selected High-Quality Ingredients, Delivering A Full And Refreshing Flavor",
+    "descriptionTh": "เครื่องดื่มผลไม้ของเราทั้งหมดทำสดใหม่ทุกแก้ว จากผลไม้สดและวัตถุดิบคัดสรรคุณภาพเยี่ยม ให้รสชาติสดชื่นเต็มเปี่ยม",
+    "description_it": "Tutte le nostre bevande alla frutta sono preparate fresche al momento con frutta fresca e ingredienti di alta qualità accuratamente selezionati, per offrire un sapore pieno e rinfrescante.",
+    "descriptionIt": "Tutte le nostre bevande alla frutta sono preparate fresche al momento con frutta fresca e ingredienti di alta qualità accuratamente selezionati, per offrire un sapore pieno e rinfrescante.",
+    "description_de": "Alle unsere Fruchtgetränke werden frisch auf Bestellung aus frischen Früchten und sorgfältig ausgewählten, hochwertigen Zutaten zubereitet und bieten einen vollen, erfrischenden Geschmack.",
+    "descriptionDe": "Alle unsere Fruchtgetränke werden frisch auf Bestellung aus frischen Früchten und sorgfältig ausgewählten, hochwertigen Zutaten zubereitet und bieten einen vollen, erfrischenden Geschmack."
   },
   {
     "id": "soft-drinks",
@@ -11088,7 +18878,14 @@ export const menuData: MenuCategory[] = [
         "variants": [],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "ACQUA GASSATA"
+        "nameIt": "ACQUA GASSATA",
+        "description_it": "Acqua gassata servita fredda",
+        "description_de": "Kalt serviertes kohlensäurehaltiges Sodawasser",
+        "name_it": "ACQUA GASSATA",
+        "name_de": "SODA WASSER",
+        "nameDe": "SODA WASSER",
+        "descriptionIt": "Acqua gassata servita fredda",
+        "descriptionDe": "Kalt serviertes kohlensäurehaltiges Sodawasser"
       },
       {
         "id": "soft-drink-cans",
@@ -11097,8 +18894,8 @@ export const menuData: MenuCategory[] = [
         "description": "Fanta, Sprite, Coca-Cola",
         "descriptionTh": "แฟนต้า, สไปรท์, โคคา-โคล่า",
         "price": 30,
-        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/12-Soft-Drinks/02-coca-cola.webp",
-        "image_file": "12-Soft-Drinks/02-coca-cola.webp",
+        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/12-Soft-Drinks/02-Can-Drinks.webp",
+        "image_file": "12-Soft-Drinks/02-Can-Drinks.webp",
         "sku": "",
         "variants": [
           {
@@ -11107,7 +18904,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Coke",
             "sku": "10071",
             "price": 30,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Coke",
+            "nameIt": "Coke",
+            "name_de": "Cola",
+            "nameDe": "Cola"
           },
           {
             "id": "10082",
@@ -11115,7 +18918,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Coke Zero",
             "sku": "10082",
             "price": 30,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Coke Zero",
+            "nameIt": "Coke Zero",
+            "name_de": "Cola Zero",
+            "nameDe": "Cola Zero"
           },
           {
             "id": "10072",
@@ -11123,7 +18932,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Fanta",
             "sku": "10072",
             "price": 30,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Fanta",
+            "nameIt": "Fanta",
+            "name_de": "Fanta",
+            "nameDe": "Fanta"
           },
           {
             "id": "10073",
@@ -11131,13 +18946,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Sprite Can",
             "sku": "10073",
             "price": 30,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Sprite",
+            "nameIt": "Sprite",
+            "name_de": "Sprite",
+            "nameDe": "Sprite"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
-        "descriptionIt": "Fanta, Sprite, Coca-Cola",
-        "nameIt": "BIBITE IN LATTINA"
+        "descriptionIt": "Fanta, Sprite o Coca-Cola in lattina",
+        "nameIt": "BIBITE IN LATTINA",
+        "description_it": "Fanta, Sprite o Coca-Cola in lattina",
+        "description_de": "Kohlensäurehaltige Erfrischungsgetränke in der Dose",
+        "name_it": "BIBITE IN LATTINA",
+        "name_de": "ERFRISCHUNGSGETRÄNKE",
+        "nameDe": "ERFRISCHUNGSGETRÄNKE",
+        "descriptionDe": "Kohlensäurehaltige Erfrischungsgetränke in der Dose"
       },
       {
         "id": "drinking-water",
@@ -11146,8 +18973,8 @@ export const menuData: MenuCategory[] = [
         "description": "",
         "descriptionTh": "",
         "price": 30,
-        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/12-Soft-Drinks/06-drinking-water.webp",
-        "image_file": "12-Soft-Drinks/06-drinking-water.webp",
+        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/12-Soft-Drinks/03-drinking-water.webp",
+        "image_file": "12-Soft-Drinks/03-drinking-water.webp",
         "sku": "",
         "variants": [
           {
@@ -11156,7 +18983,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ใหญ่",
             "sku": "10105",
             "price": 30,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Grande",
+            "nameIt": "Grande",
+            "name_de": "Groß",
+            "nameDe": "Groß"
           },
           {
             "id": "10069",
@@ -11164,14 +18997,37 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เล็ก",
             "sku": "10069",
             "price": 20,
-            "priceModifier": -10
+            "priceModifier": -10,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Piccola",
+            "nameIt": "Piccola",
+            "name_de": "Klein",
+            "nameDe": "Klein"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "ACQUA NATURALE"
+        "nameIt": "ACQUA MINERALE NATURALE",
+        "description_it": "Acqua minerale naturale in bottiglia",
+        "description_de": "Stilles Mineralwasser in der Flasche",
+        "name_it": "ACQUA MINERALE NATURALE",
+        "name_de": "TISCHWASSER",
+        "nameDe": "TISCHWASSER",
+        "descriptionIt": "Acqua minerale naturale in bottiglia",
+        "descriptionDe": "Stilles Mineralwasser in der Flasche"
       }
-    ]
+    ],
+    "name_it": "Bibite",
+    "nameIt": "Bibite",
+    "name_de": "Alkoholfreie Getränke",
+    "nameDe": "Alkoholfreie Getränke",
+    "description": "Fresh, Non-Alcoholic Drinks Carefully Served In A Glass, Perfect To Accompany Your Meal Or Refresh You, Ideal For Any Moment Of The Day",
+    "descriptionTh": "เครื่องดื่มไร้แอลกอฮอล์สดชื่น เสิร์ฟในแก้วอย่างพิถีพิถัน เหมาะสำหรับทานคู่มื้ออาหารหรือเติมความสดชื่นตลอดวัน",
+    "description_it": "Bibite fresche e analcoliche accuratamente servite in bicchiere, ideali per accompagnare il tuo pasto o per rinfrescarti in qualsiasi momento della giornata.",
+    "descriptionIt": "Bibite fresche e analcoliche accuratamente servite in bicchiere, ideali per accompagnare il tuo pasto o per rinfrescarti in qualsiasi momento della giornata.",
+    "description_de": "Erfrischende, alkoholfreie Getränke, die sorgfältig im Glas serviert werden – perfekt als Begleitung zu Ihrem Essen oder als Erfrischung für zwischendurch zu jeder Tageszeit.",
+    "descriptionDe": "Erfrischende, alkoholfreie Getränke, die sorgfältig im Glas serviert werden – perfekt als Begleitung zu Ihrem Essen oder als Erfrischung für zwischendurch zu jeder Tageszeit."
   },
   {
     "id": "beers-and-wines",
@@ -11183,8 +19039,8 @@ export const menuData: MenuCategory[] = [
         "id": "chang-beer",
         "name": "CHANG BEER",
         "nameTh": "เบียร์ช้าง",
-        "description": "",
-        "descriptionTh": "",
+        "description": "The Best Thai Beer Brands Served In Large And Small Bottles, Because Glass Bottles Enhance The Flavor, Bringing Out The Full Beer Experience",
+        "descriptionTh": "เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้",
         "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/13-Beers/01-chang-beer-big.webp",
         "image_file": "13-Beers/01-chang-beer-big.webp",
@@ -11196,7 +19052,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ใหญ่",
             "sku": "10084",
             "price": 90,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Grande",
+            "nameIt": "Grande",
+            "name_de": "Groß",
+            "nameDe": "Groß"
           },
           {
             "id": "10074",
@@ -11204,19 +19066,32 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เล็ก",
             "sku": "10074",
             "price": 60,
-            "priceModifier": -30
+            "priceModifier": -30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Piccola",
+            "nameIt": "Piccola",
+            "name_de": "Klein",
+            "nameDe": "Klein"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "BIRRA CHANG"
+        "nameIt": "CHANG BEER",
+        "description_it": "Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché il vetro preservano ed esaltano il sapore per un'esperienza di degustazione completa.",
+        "description_de": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis.",
+        "name_it": "CHANG BEER",
+        "name_de": "CHANG BEER",
+        "nameDe": "CHANG BEER",
+        "descriptionIt": "Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché il vetro preservano ed esaltano il sapore per un'esperienza di degustazione completa.",
+        "descriptionDe": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis."
       },
       {
         "id": "leo-beer",
         "name": "LEO BEER",
         "nameTh": "เบียร์ลีโอ",
-        "description": "",
-        "descriptionTh": "",
+        "description": "The Best Thai Beer Brands Served In Large And Small Bottles, Because Glass Bottles Enhance The Flavor, Bringing Out The Full Beer Experience",
+        "descriptionTh": "เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้",
         "price": 90,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/13-Beers/03-leo-beer-big.webp",
         "image_file": "13-Beers/03-leo-beer-big.webp",
@@ -11228,7 +19103,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ใหญ่",
             "sku": "10083",
             "price": 90,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Grande",
+            "nameIt": "Grande",
+            "name_de": "Groß",
+            "nameDe": "Groß"
           },
           {
             "id": "10075",
@@ -11236,19 +19117,32 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เล็ก",
             "sku": "10075",
             "price": 60,
-            "priceModifier": -30
+            "priceModifier": -30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Piccola",
+            "nameIt": "Piccola",
+            "name_de": "Klein",
+            "nameDe": "Klein"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "BIRRA LEO"
+        "nameIt": "LEO BEER",
+        "description_it": "Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché il vetro preservano ed esaltano il sapore per un'esperienza di degustazione completa.",
+        "description_de": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis.",
+        "name_it": "LEO BEER",
+        "name_de": "LEO BEER",
+        "nameDe": "LEO BEER",
+        "descriptionIt": "Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché il vetro preservano ed esaltano il sapore per un'esperienza di degustazione completa.",
+        "descriptionDe": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis."
       },
       {
         "id": "singha-beer",
         "name": "SINGHA BEER",
         "nameTh": "เบียร์สิงห์",
-        "description": "",
-        "descriptionTh": "",
+        "description": "The Best Thai Beer Brands Served In Large And Small Bottles, Because Glass Bottles Enhance The Flavor, Bringing Out The Full Beer Experience",
+        "descriptionTh": "เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้",
         "price": 100,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/13-Beers/05-singha-beer-big.webp",
         "image_file": "13-Beers/05-singha-beer-big.webp",
@@ -11260,7 +19154,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "ใหญ่",
             "sku": "10085",
             "price": 100,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Grande",
+            "nameIt": "Grande",
+            "name_de": "Groß",
+            "nameDe": "Groß"
           },
           {
             "id": "10076",
@@ -11268,19 +19168,32 @@ export const menuData: MenuCategory[] = [
             "nameTh": "เล็ก",
             "sku": "10076",
             "price": 70,
-            "priceModifier": -30
+            "priceModifier": -30,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Piccola",
+            "nameIt": "Piccola",
+            "name_de": "Klein",
+            "nameDe": "Klein"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "BIRRA SINGHA"
+        "nameIt": "SINGHA BEER",
+        "description_it": "Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché il vetro preservano ed esaltano il sapore per un'esperienza di degustazione completa.",
+        "description_de": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis.",
+        "name_it": "SINGHA BEER",
+        "name_de": "SINGHA BEER",
+        "nameDe": "SINGHA BEER",
+        "descriptionIt": "Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché il vetro preservano ed esaltano il sapore per un'esperienza di degustazione completa.",
+        "descriptionDe": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis."
       },
       {
         "id": "italian-wines",
         "name": "ITALIAN WINES",
         "nameTh": "ไวน์อิตาเลียน",
-        "description": "",
-        "descriptionTh": "",
+        "description": "Italy Is World-Renowned For Its High-Quality Wines With A Long-Standing Tradition. That’s Why We Offer A Carefully Curated Selection Of Italian Red And White Wines, Chosen To Enhance The Flavors Of Every Dish On Our Menu. For The Best And Most Suitable Option At The Moment, Feel Free To Ask Our Staff",
+        "descriptionTh": "อิตาลีมีชื่อเสียงด้านไวน์คุณภาพระดับโลกมาอย่างยาวนาน เราจึงคัดสรรไวน์อิตาเลียนทั้งแดงและขาวอย่างพิถีพิถัน เพื่อเสริมรสชาติของทุกเมนูให้โดดเด่นและสมดุลยิ่งขึ้น หากต้องการทราบว่าในขณะนี้ไวน์ชนิดใดเหมาะที่สุดกับอาหาร สอบถามที่พนักงานของเราได้อย่างมั่นใจ",
         "price": 1190,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/14-Wines/01-italian-wines.webp",
         "image_file": "14-Wines/01-italian-wines.webp",
@@ -11292,7 +19205,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Chardonnay",
             "sku": "10079",
             "price": 1190,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Chardonnay",
+            "nameIt": "Chardonnay",
+            "name_de": "Chardonnay",
+            "nameDe": "Chardonnay"
           },
           {
             "id": "10125",
@@ -11300,7 +19219,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "แก้ว (of Red Wine)",
             "sku": "10125",
             "price": 120,
-            "priceModifier": -1070
+            "priceModifier": -1070,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Calice (Rosso)",
+            "nameIt": "Calice (Rosso)",
+            "name_de": "Glas (Rotwein)",
+            "nameDe": "Glas (Rotwein)"
           },
           {
             "id": "10124",
@@ -11308,7 +19233,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "แก้ว (of White Wine)",
             "sku": "10124",
             "price": 120,
-            "priceModifier": -1070
+            "priceModifier": -1070,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Calice (Bianco)",
+            "nameIt": "Calice (Bianco)",
+            "name_de": "Glas (Weißwein)",
+            "nameDe": "Glas (Weißwein)"
           },
           {
             "id": "10308",
@@ -11316,7 +19247,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Open Wine",
             "sku": "10308",
             "price": 100,
-            "priceModifier": -1090
+            "priceModifier": -1090,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Vino della Casa",
+            "nameIt": "Vino della Casa",
+            "name_de": "Hauswein",
+            "nameDe": "Hauswein"
           },
           {
             "id": "10078",
@@ -11324,7 +19261,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Primitivo",
             "sku": "10078",
             "price": 1190,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Primitivo",
+            "nameIt": "Primitivo",
+            "name_de": "Primitivo",
+            "nameDe": "Primitivo"
           },
           {
             "id": "10144",
@@ -11332,7 +19275,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Prosecco",
             "sku": "10144",
             "price": 1290,
-            "priceModifier": 100
+            "priceModifier": 100,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Prosecco",
+            "nameIt": "Prosecco",
+            "name_de": "Prosecco",
+            "nameDe": "Prosecco"
           },
           {
             "id": "10130",
@@ -11340,7 +19289,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Red Poggio alto",
             "sku": "10130",
             "price": 1190,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Poggio Alto Rosso",
+            "nameIt": "Poggio Alto Rosso",
+            "name_de": "Poggio Alto Rot",
+            "nameDe": "Poggio Alto Rot"
           },
           {
             "id": "10157",
@@ -11348,19 +19303,32 @@ export const menuData: MenuCategory[] = [
             "nameTh": "White​ Poggio alto",
             "sku": "10157",
             "price": 1190,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Poggio Alto Bianco",
+            "nameIt": "Poggio Alto Bianco",
+            "name_de": "Poggio Alto Weiß",
+            "nameDe": "Poggio Alto Weiß"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "VINI ITALIANI"
+        "nameIt": "ITALIAN WINES",
+        "description_it": "L'Italia è rinomata in tutto il mondo per i suoi vini pregiati e la sua antica tradizione. Per questo offriamo una selezione accurata di vini rossi e bianchi italiani, scelti per esaltare i sapori di ogni piatto del nostro menù. Chiedi al nostro staff per il miglior abbinamento del giorno.",
+        "description_de": "Italien ist weltweit berühmt für seine erstklassigen Weine mit langer Tradition. Deshalb bieten wir eine sorgfältig zusammengestellte Auswahl an italienischen Rot- und Weißweinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben. Fragen Sie unser Personal nach der besten Empfehlung für Ihr aktuelles Gericht.",
+        "name_it": "ITALIAN WINES",
+        "name_de": "ITALIAN WINES",
+        "nameDe": "ITALIAN WINES",
+        "descriptionIt": "L'Italia è rinomata in tutto il mondo per i suoi vini pregiati e la sua antica tradizione. Per questo offriamo una selezione accurata di vini rossi e bianchi italiani, scelti per esaltare i sapori di ogni piatto del nostro menù. Chiedi al nostro staff per il miglior abbinamento del giorno.",
+        "descriptionDe": "Italien ist weltweit berühmt für seine erstklassigen Weine mit langer Tradition. Deshalb bieten wir eine sorgfältig zusammengestellte Auswahl an italienischen Rot- und Weißweinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben. Fragen Sie unser Personal nach der besten Empfehlung für Ihr aktuelles Gericht."
       },
       {
         "id": "wines-from-around-the-world",
         "name": "WINES FROM AROUND THE WORLD",
         "nameTh": "ไวน์จากทั่วโลก",
-        "description": "",
-        "descriptionTh": "",
+        "description": "Italy Is World-Renowned For Its High-Quality Wines With A Long-Standing Tradition. That’s Why We Offer A Carefully Curated Selection Of Italian Red And White Wines, Chosen To Enhance The Flavors Of Every Dish On Our Menu. For The Best And Most Suitable Option At The Moment, Feel Free To Ask Our Staff",
+        "descriptionTh": "อิตาลีมีชื่อเสียงด้านไวน์คุณภาพระดับโลกมาอย่างยาวนาน เราจึงคัดสรรไวน์อิตาเลียนทั้งแดงและขาวอย่างพิถีพิถัน เพื่อเสริมรสชาติของทุกเมนูให้โดดเด่นและสมดุลยิ่งขึ้น หากต้องการทราบว่าในขณะนี้ไวน์ชนิดใดเหมาะที่สุดกับอาหาร สอบถามที่พนักงานของเราได้อย่างมั่นใจ",
         "price": 1290,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/14-Wines/02-wines-from-around-the-world.webp",
         "image_file": "14-Wines/02-wines-from-around-the-world.webp",
@@ -11372,7 +19340,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Brut",
             "sku": "10145",
             "price": 1290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Brut",
+            "nameIt": "Brut",
+            "name_de": "Brut",
+            "nameDe": "Brut"
           },
           {
             "id": "10127",
@@ -11380,7 +19354,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Fruit wine Rosé de france",
             "sku": "10127",
             "price": 990,
-            "priceModifier": -300
+            "priceModifier": -300,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Rosé de France",
+            "nameIt": "Rosé de France",
+            "name_de": "Rosé de France",
+            "nameDe": "Rosé de France"
           },
           {
             "id": "10131",
@@ -11388,7 +19368,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Graziosa rose",
             "sku": "10131",
             "price": 950,
-            "priceModifier": -340
+            "priceModifier": -340,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Graziosa Rosé",
+            "nameIt": "Graziosa Rosé",
+            "name_de": "Graziosa Rosé",
+            "nameDe": "Graziosa Rosé"
           },
           {
             "id": "10080",
@@ -11396,7 +19382,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Red Birchgrove",
             "sku": "10080",
             "price": 790,
-            "priceModifier": -500
+            "priceModifier": -500,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Birchgrove Rosso",
+            "nameIt": "Birchgrove Rosso",
+            "name_de": "Birchgrove Rot",
+            "nameDe": "Birchgrove Rot"
           },
           {
             "id": "10063",
@@ -11404,7 +19396,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "Red ViñaToldos",
             "sku": "10063",
             "price": 690,
-            "priceModifier": -600
+            "priceModifier": -600,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Viña Toldos Rosso",
+            "nameIt": "Viña Toldos Rosso",
+            "name_de": "Viña Toldos Rot",
+            "nameDe": "Viña Toldos Rot"
           },
           {
             "id": "10081",
@@ -11412,7 +19410,13 @@ export const menuData: MenuCategory[] = [
             "nameTh": "White Viña Toldos",
             "sku": "10081",
             "price": 790,
-            "priceModifier": -500
+            "priceModifier": -500,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Viña Toldos Bianco",
+            "nameIt": "Viña Toldos Bianco",
+            "name_de": "Viña Toldos Weiß",
+            "nameDe": "Viña Toldos Weiß"
           },
           {
             "id": "10099",
@@ -11420,12 +19424,25 @@ export const menuData: MenuCategory[] = [
             "nameTh": "White​ Birchgrove",
             "sku": "10099",
             "price": 690,
-            "priceModifier": -600
+            "priceModifier": -600,
+            "description_it": "",
+            "description_de": "",
+            "name_it": "Birchgrove Bianco",
+            "nameIt": "Birchgrove Bianco",
+            "name_de": "Birchgrove Weiß",
+            "nameDe": "Birchgrove Weiß"
           }
         ],
         "extras": [],
         "allowed_extras_group": "None",
-        "nameIt": "VINI DAL MONDO"
+        "nameIt": "WINES FROM AROUND THE WORLD",
+        "description_it": "L'Italia è rinomata in tutto il mondo per i suoi vini pregiati e la sua antica tradizione. Per questo offriamo una selezione accurata di vini rossi e bianchi italiani, scelti per esaltare i sapori di ogni piatto del nostro menù. Chiedi al nostro staff per il miglior abbinamento del giorno.",
+        "description_de": "Italien ist weltweit berühmt für seine erstklassigen Weine mit langer Tradition. Deshalb bieten wir eine sorgfältig zusammengestellte Auswahl an italienischen Rot- und Weißweinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben. Fragen Sie unser Personal nach der besten Empfehlung für Ihr aktuelles Gericht.",
+        "name_it": "WINES FROM AROUND THE WORLD",
+        "name_de": "WINES FROM AROUND THE WORLD",
+        "nameDe": "WINES FROM AROUND THE WORLD",
+        "descriptionIt": "L'Italia è rinomata in tutto il mondo per i suoi vini pregiati e la sua antica tradizione. Per questo offriamo una selezione accurata di vini rossi e bianchi italiani, scelti per esaltare i sapori di ogni piatto del nostro menù. Chiedi al nostro staff per il miglior abbinamento del giorno.",
+        "descriptionDe": "Italien ist weltweit berühmt für seine erstklassigen Weine mit langer Tradition. Deshalb bieten wir eine sorgfältig zusammengestellte Auswahl an italienischen Rot- und Weißweinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben. Fragen Sie unser Personal nach der besten Empfehlung für Ihr aktuelles Gericht."
       }
     ]
   }

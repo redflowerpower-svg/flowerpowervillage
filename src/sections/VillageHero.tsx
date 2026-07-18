@@ -1,4 +1,6 @@
 import { ChevronDown } from 'lucide-react';
+import VillageSlideshow from '../components/VillageSlideshow';
+
 
 interface Props {
   onNavigate: (page: string) => void;
@@ -8,12 +10,10 @@ export default function VillageHero({ onNavigate }: Props) {
   return (
     <section className="relative h-screen min-h-[600px] overflow-hidden">
       {/* Background */}
-      <img
-        src="https://images.pexels.com/photos/1450360/pexels-photo-1450360.jpeg?auto=compress&cs=tinysrgb&w=1920"
-        alt="Koh Phayam paradise"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.55) 100%)' }} />
+      <VillageSlideshow />
+      <div className="absolute inset-0 bg-stone-950/20 mix-blend-multiply" />
+      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/30 via-transparent to-stone-950/70" />
+
 
       {/* Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-6">

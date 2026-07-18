@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
+import VillageSlideshow from "../../components/VillageSlideshow"
 import '../booking.css'
+
 import {
   Wifi,
   Users,
@@ -64,9 +66,16 @@ function getDiscountInfo(days: number): { label: string; discount: number; color
 }
 
 
-export default function BookingEngine() {
+interface BookingEngineProps {
+  lang?: Language;
+  setLang?: (l: Language) => void;
+}
 
-  const [lang, setLang] = useState<Language>('IT')
+export default function BookingEngine({ lang: propLang, setLang: propSetLang }: BookingEngineProps = {}) {
+
+  const [localLang, setLocalLang] = useState<Language>('IT');
+  const lang = propLang || localLang;
+  const setLang = propSetLang || setLocalLang;
 
   const t = (key: keyof typeof translations['IT'], variables?: Record<string, string | number>) => {
     let text = translations[lang][key] || translations['IT'][key] || '';
@@ -595,14 +604,11 @@ export default function BookingEngine() {
     <div className="booking-engine-root min-h-screen text-foreground font-sans antialiased selection:bg-accent" style={{ backgroundColor: '#e7e5e4', minHeight: hasSearched ? '2500px' : 'auto' }}>
       <div className="max-w-6xl mx-auto px-4 mt-20 md:mt-24">
         <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg" style={{ backgroundColor: '#3b3530' }}>
-          <div
-            className="absolute inset-0 opacity-45 bg-cover bg-center"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80')",
-            }}
-          />
+          <div className="absolute inset-0 opacity-45">
+            <VillageSlideshow />
+          </div>
           <div className="absolute inset-0 bg-stone-950/30 backdrop-blur-[0.5px]" />
+
 
           {/* Collapsible Dropdown Language Selector (Absolutely positioned top-right) */}
           <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">

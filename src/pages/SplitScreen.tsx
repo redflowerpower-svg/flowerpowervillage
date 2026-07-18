@@ -1,5 +1,30 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import VillageSlideshow from '../components/VillageSlideshow';
+import PizzaSlideshow from '../components/PizzaSlideshow';
+
+const translations: Record<string, { exploreVillage: string; seeMenu: string; tapEnter: string }> = {
+  IT: {
+    exploreVillage: 'Esplora il Villaggio',
+    seeMenu: 'Vedi il Menù',
+    tapEnter: 'Tocca per Entrare',
+  },
+  EN: {
+    exploreVillage: 'Explore Village',
+    seeMenu: 'See Our Menu',
+    tapEnter: 'Tap to Enter',
+  },
+  TH: {
+    exploreVillage: 'เข้าชมวิลเลจ',
+    seeMenu: 'ดูเมนูของเรา',
+    tapEnter: 'แตะเพื่อเข้าชม',
+  },
+  DE: {
+    exploreVillage: 'Dorf erkunden',
+    seeMenu: 'Menü ansehen',
+    tapEnter: 'Tippen zum Eintreten',
+  }
+};
 
 export default function SplitScreen() {
   const navigate = useNavigate();
@@ -15,6 +40,13 @@ export default function SplitScreen() {
   const dragStartPos = useRef(0);
   const hasDragged = useRef(false);
   const rafRef = useRef<number>(0);
+
+  const [lang] = useState(() => {
+    const browserLang = navigator.language.slice(0, 2).toUpperCase();
+    return ['IT', 'EN', 'TH', 'DE'].includes(browserLang) ? browserLang : 'EN';
+  });
+
+  const t = translations[lang] || translations['EN'];
 
   const handleTouchDetect = useCallback(() => setIsMobile(true), []);
 
@@ -179,7 +211,10 @@ export default function SplitScreen() {
         onClick={handleVillageClick}
         onTouchEnd={handleVillageTouch}
       >
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, #6b7f3a 0%, #3a4820 60%, #2a3415 100%)' }} />
+        <VillageSlideshow />
+        <div className="absolute inset-0 bg-stone-950/40 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-stone-950/30" />
+
         <div
           className="absolute inset-0 flex items-center justify-center"
           style={{ transform: villageExpanded ? 'scale(1.05)' : 'scale(1)', transition: 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)' }}
@@ -192,21 +227,41 @@ export default function SplitScreen() {
           />
         </div>
         <div
-          className="absolute bottom-0 left-0 right-0 flex flex-col items-center pb-8 md:pb-10"
+          className="absolute bottom-0 left-0 right-0 flex flex-col items-center pb-8 md:pb-10 z-10"
           style={{ opacity: pizzaExpanded ? 0 : 1, pointerEvents: pizzaExpanded ? 'none' : 'auto', transition: 'opacity 0.4s ease', background: 'linear-gradient(to top, rgba(42,52,21,0.85) 0%, transparent 100%)', paddingTop: '48px' }}
         >
-          <p className="text-xs tracking-[0.3em] uppercase mb-3 font-light" style={{ fontFamily: 'Inter, sans-serif', color: 'rgba(255,255,255,0.75)' }}>Koh Phayam · Thailand</p>
-          <button className="hidden md:block px-7 py-2.5 border border-white text-white text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-stone-800 transition-all duration-300" style={{ fontFamily: 'Inter, sans-serif' }}>Explore Village</button>
+          <p className="text-xs tracking-[0.3em] uppercase mb-3 font-light" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', color: 'rgba(255,255,255,0.75)' }}>Koh Phayam · Thailand</p>
+          <button 
+            className="hidden md:block px-7 py-2.5 border border-white text-white text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-stone-800 transition-all duration-300 cursor-pointer rounded-xl font-semibold" 
+            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+          >
+            {t.exploreVillage}
+          </button>
           {villageExpanded && isMobile && (
-            <button className="md:hidden px-10 py-3 bg-white text-stone-800 text-sm tracking-[0.2em] uppercase font-semibold shadow-lg" style={{ fontFamily: 'Inter, sans-serif', animation: 'pulse-cta 1.8s ease-in-out infinite' }}>Tap to Enter</button>
+            <button 
+              className="md:hidden px-10 py-3 bg-white text-stone-800 text-sm tracking-[0.2em] uppercase font-semibold shadow-lg rounded-xl" 
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', animation: 'pulse-cta 1.8s ease-in-out infinite' }}
+            >
+              {t.tapEnter}
+            </button>
           )}
           {!villageExpanded && isMobile && (
-            <button className="md:hidden px-7 py-2.5 border border-white text-white text-xs tracking-[0.2em] uppercase" style={{ fontFamily: 'Inter, sans-serif' }}>Explore Village</button>
+            <button 
+              className="md:hidden px-7 py-2.5 border border-white text-white text-xs tracking-[0.2em] uppercase rounded-xl font-semibold" 
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+            >
+              {t.exploreVillage}
+            </button>
           )}
         </div>
         {pizzaExpanded && (
           <div className="absolute inset-0 items-center justify-center hidden md:flex">
-            <span className="text-white text-sm tracking-[0.3em] uppercase" style={{ writingMode: 'vertical-rl', fontFamily: 'Inter, sans-serif', fontWeight: 300, opacity: 0.5 }}>Village & Spa</span>
+            <span 
+              className="text-white text-sm tracking-[0.3em] uppercase" 
+              style={{ writingMode: 'vertical-rl', fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', fontWeight: 300, opacity: 0.5 }}
+            >
+              {lang === 'TH' ? 'จองห้องพัก' : 'Village & Spa'}
+            </span>
           </div>
         )}
       </div>
@@ -220,7 +275,10 @@ export default function SplitScreen() {
         onClick={handlePizzaClick}
         onTouchEnd={handlePizzaTouch}
       >
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, #4a4538 0%, #2c2820 60%, #1a1810 100%)' }} />
+        <PizzaSlideshow />
+        <div className="absolute inset-0 bg-stone-950/40 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-transparent to-stone-950/30" />
+
         <div
           className="absolute inset-0 flex items-center justify-center"
           style={{ transform: pizzaExpanded ? 'scale(1.05)' : 'scale(1)', transition: 'transform 0.9s cubic-bezier(0.4, 0, 0.2, 1)' }}
@@ -233,21 +291,41 @@ export default function SplitScreen() {
           />
         </div>
         <div
-          className="absolute bottom-0 left-0 right-0 flex flex-col items-center pb-8 md:pb-10"
+          className="absolute bottom-0 left-0 right-0 flex flex-col items-center pb-8 md:pb-10 z-10"
           style={{ opacity: villageExpanded ? 0 : 1, pointerEvents: villageExpanded ? 'none' : 'auto', transition: 'opacity 0.4s ease', background: 'linear-gradient(to top, rgba(26,24,16,0.85) 0%, transparent 100%)', paddingTop: '48px' }}
         >
-          <p className="text-xs tracking-[0.3em] uppercase mb-3 font-light" style={{ fontFamily: 'Inter, sans-serif', color: 'rgba(255,255,255,0.75)' }}>Ranong · Thailand</p>
-          <button className="hidden md:block px-7 py-2.5 border border-white text-white text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-stone-800 transition-all duration-300" style={{ fontFamily: 'Inter, sans-serif' }}>See Our Menu</button>
+          <p className="text-xs tracking-[0.3em] uppercase mb-3 font-light" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', color: 'rgba(255,255,255,0.75)' }}>Ranong · Thailand</p>
+          <button 
+            className="hidden md:block px-7 py-2.5 border border-white text-white text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-stone-800 transition-all duration-300 cursor-pointer rounded-xl font-semibold" 
+            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+          >
+            {t.seeMenu}
+          </button>
           {pizzaExpanded && isMobile && (
-            <button className="md:hidden px-10 py-3 bg-white text-stone-800 text-sm tracking-[0.2em] uppercase font-semibold shadow-lg" style={{ fontFamily: 'Inter, sans-serif', animation: 'pulse-cta 1.8s ease-in-out infinite' }}>Tap to Enter</button>
+            <button 
+              className="md:hidden px-10 py-3 bg-white text-stone-800 text-sm tracking-[0.2em] uppercase font-semibold shadow-lg rounded-xl" 
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', animation: 'pulse-cta 1.8s ease-in-out infinite' }}
+            >
+              {t.tapEnter}
+            </button>
           )}
           {!pizzaExpanded && isMobile && (
-            <button className="md:hidden px-7 py-2.5 border border-white text-white text-xs tracking-[0.2em] uppercase" style={{ fontFamily: 'Inter, sans-serif' }}>See Our Menu</button>
+            <button 
+              className="md:hidden px-7 py-2.5 border border-white text-white text-xs tracking-[0.2em] uppercase rounded-xl font-semibold" 
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+            >
+              {t.seeMenu}
+            </button>
           )}
         </div>
         {villageExpanded && (
           <div className="absolute inset-0 items-center justify-center hidden md:flex">
-            <span className="text-white text-sm tracking-[0.3em] uppercase" style={{ writingMode: 'vertical-rl', fontFamily: 'Inter, sans-serif', fontWeight: 300, opacity: 0.5 }}>Pizza Ranong</span>
+            <span 
+              className="text-white text-sm tracking-[0.3em] uppercase" 
+              style={{ writingMode: 'vertical-rl', fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', fontWeight: 300, opacity: 0.5 }}
+            >
+              {lang === 'TH' ? 'ร้านอาหาร & พิซซ่า' : 'Pizza Ranong'}
+            </span>
           </div>
         )}
       </div>

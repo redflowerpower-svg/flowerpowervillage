@@ -1,5 +1,6 @@
-import { Phone, Mail, Instagram, Facebook, MapPin, Clock } from 'lucide-react';
+import { Phone, Instagram, Facebook, MapPin, Clock } from 'lucide-react';
 import { useState } from 'react';
+import { Language } from '../booking/lib/translations';
 
 // Custom TikTok Icon
 const TiktokIcon = ({ className, size = 14 }: { className?: string; size?: number }) => (
@@ -19,13 +20,122 @@ const TiktokIcon = ({ className, size = 14 }: { className?: string; size?: numbe
   </svg>
 );
 
-export default function ContactSection() {
+const translations = {
+  "IT": {
+    "tag": "Contattaci",
+    "title": "Prenota il Tuo Soggiorno Diretto",
+    "desc": "Prenota direttamente con noi per ottenere un risparmio garantito del 10% rispetto a tutte le piattaforme di prenotazione online.",
+    "infoTitle": "Informazioni di Contatto",
+    "addressLabel": "Indirizzo",
+    "addressText": "14/32 Moo 1, Than Boun, Koh Phayam, Amphoe Muang, Ranong 85000, Thailandia",
+    "mapsLink": "Vedi su Google Maps",
+    "phoneLabel": "Telefono / WhatsApp",
+    "hoursLabel": "Orari di Apertura",
+    "hoursText": "Tutti i giorni: 08:00 – 22:00",
+    "socialLabel": "Seguici sui Social",
+    "formTitle": "Richiesta di Disponibilità",
+    "fieldName": "Nome e Cognome",
+    "fieldEmail": "Email",
+    "fieldCheckin": "Data di Arrivo",
+    "fieldCheckout": "Data di Partenza",
+    "fieldGuests": "Numero di Ospiti",
+    "selectGuests": "Seleziona numero",
+    "fieldMessage": "Messaggio / Richieste speciali",
+    "messagePlaceholder": "Esempio: preferenze per la tipologia di letto, orario di arrivo stimato, ecc.",
+    "submitBtn": "Invia Richiesta via Email",
+    "successMsg": "Richiesta creata con successo! Il tuo client email si aprirà tra un attimo per confermare l'invio.",
+    "emailSubject": "Richiesta di prenotazione da"
+  },
+  "EN": {
+    "tag": "Contact Us",
+    "title": "Book Your Direct Stay",
+    "desc": "Book directly with us to obtain a guaranteed 10% savings compared to all online booking platforms.",
+    "infoTitle": "Contact Information",
+    "addressLabel": "Address",
+    "addressText": "14/32 Moo 1, Than Boun, Koh Phayam, Amphoe Muang, Ranong 85000, Thailand",
+    "mapsLink": "View on Google Maps",
+    "phoneLabel": "Phone / WhatsApp",
+    "hoursLabel": "Opening Hours",
+    "hoursText": "Every day: 08:00 – 22:00",
+    "socialLabel": "Follow Us on Socials",
+    "formTitle": "Request Availability",
+    "fieldName": "Full Name",
+    "fieldEmail": "Email Address",
+    "fieldCheckin": "Arrival Date",
+    "fieldCheckout": "Departure Date",
+    "fieldGuests": "Number of Guests",
+    "selectGuests": "Select number",
+    "fieldMessage": "Message / Special requests",
+    "messagePlaceholder": "Example: bed preferences, estimated arrival time, extra requirements, etc.",
+    "submitBtn": "Send Request via Email",
+    "successMsg": "Request generated successfully! Your email client will open in a moment to complete sending.",
+    "emailSubject": "Booking request from"
+  },
+  "TH": {
+    "tag": "ติดต่อเรา",
+    "title": "จองห้องพักตรงเพื่อข้อเสนอที่ดีที่สุด",
+    "desc": "จองโดยตรงกับเราเพื่อรับส่วนลดการจองพิเศษ 10% ทันที เมื่อเทียบกับแพลตฟอร์มการจองออนไลน์ทั่วไป",
+    "infoTitle": "ข้อมูลการติดต่อ",
+    "addressLabel": "ที่อยู่ของรีสอร์ท",
+    "addressText": "14/32 หมู่ 1, ตำบลปากน้ำ, เกาะพยาม, อำเภอเมือง, ระนอง 85000, ประเทศไทย",
+    "mapsLink": "เปิดใน Google Maps",
+    "phoneLabel": "เบอร์โทรศัพท์ / WhatsApp",
+    "hoursLabel": "เวลาทำการติดต่อ",
+    "hoursText": "ทุกวัน: 08:00 – 22:00 น.",
+    "socialLabel": "ติดตามเราบนโซเชียลมีเดีย",
+    "formTitle": "ส่งคำขอตรวจสอบห้องว่าง",
+    "fieldName": "ชื่อ - นามสกุล",
+    "fieldEmail": "ที่อยู่อีเมล",
+    "fieldCheckin": "วันที่เข้าพัก (Check-in)",
+    "fieldCheckout": "วันที่เช็คเอาท์ (Check-out)",
+    "fieldGuests": "จำนวนผู้เข้าพัก",
+    "selectGuests": "กรุณาเลือกจำนวนคน",
+    "fieldMessage": "ข้อความเพิ่มเติม / คำขอพิเศษ",
+    "messagePlaceholder": "ตัวอย่าง: รูปแบบเตียงที่ต้องการ, เวลาเดินทางมาถึงโดยประมาณ, ความช่วยเหลือพิเศษ ฯลฯ",
+    "submitBtn": "ส่งคำขอผ่านอีเมล",
+    "successMsg": "สร้างคำขอจองตรงสำเร็จแล้ว! ระบบจะเปิดแอปอีเมลของคุณขึ้นมาเพื่อกดส่งยืนยันในอีกสักครู่",
+    "emailSubject": "คำขอจองห้องพักจากคุณ"
+  },
+  "DE": {
+    "tag": "Kontakt",
+    "title": "Buchen Sie Ihren Aufenthalt Direkt",
+    "desc": "Buchen Sie direkt bei uns, um eine garantierte Ersparnis von 10% gegenüber allen Online-Buchungsplattformen zu erhalten.",
+    "infoTitle": "Kontaktinformationen",
+    "addressLabel": "Adresse",
+    "addressText": "14/32 Moo 1, Than Boun, Koh Phayam, Amphoe Muang, Ranong 85000, Thailand",
+    "mapsLink": "Auf Google Maps anzeigen",
+    "phoneLabel": "Telefon / WhatsApp",
+    "hoursLabel": "Öffnungszeiten",
+    "hoursText": "Täglich: 08:00 – 22:00 Uhr",
+    "socialLabel": "Folgen Sie uns",
+    "formTitle": "Verfügbarkeit anfragen",
+    "fieldName": "Vollständiger Name",
+    "fieldEmail": "E-Mail-Adresse",
+    "fieldCheckin": "Ankunftsdatum",
+    "fieldCheckout": "Abreisedatum",
+    "fieldGuests": "Anzahl der Gäste",
+    "selectGuests": "Anzahl auswählen",
+    "fieldMessage": "Nachricht / Besondere Wünsche",
+    "messagePlaceholder": "Beispiel: Bettpräferenzen, geschätzte Ankunftszeit, Extrawünsche usw.",
+    "submitBtn": "Anfrage per E-Mail senden",
+    "successMsg": "Anfrage erfolgreich erstellt! Ihr E-Mail-Programm öffnet sich in Kürze, um den Versand zu bestätigen.",
+    "emailSubject": "Buchungsanfrage von"
+  }
+};
+
+interface Props {
+  lang?: Language;
+}
+
+export default function ContactSection({ lang = 'IT' }: Props) {
   const [form, setForm] = useState({ name: '', email: '', checkin: '', checkout: '', guests: '', message: '' });
   const [sent, setSent] = useState(false);
 
+  const t = translations[lang] || translations['IT'];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const subject = encodeURIComponent(`Richiesta di prenotazione da ${form.name}`);
+    const subject = encodeURIComponent(`${t.emailSubject} ${form.name}`);
     const body = encodeURIComponent(
       `Nome: ${form.name}\nEmail: ${form.email}\nCheck-in: ${form.checkin}\nCheck-out: ${form.checkout}\nOspiti: ${form.guests}\n\nMessaggio:\n${form.message}`
     );
@@ -34,21 +144,27 @@ export default function ContactSection() {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-stone-50">
+    <section className="py-16 md:py-24 bg-stone-50 animate-fadeIn">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-16">
-          <p className="text-xs tracking-[0.4em] uppercase text-emerald-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
-            Contattaci
+          <p 
+            className="text-xs tracking-[0.4em] uppercase text-emerald-700 mb-3" 
+            style={{ fontFamily: 'Inter, sans-serif' }}
+          >
+            {t.tag}
           </p>
           <h2
-            className="text-stone-850 mb-4"
-            style={{ fontFamily: 'Outfit, sans-serif', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 300 }}
+            className="text-stone-850 mb-4 font-light"
+            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', fontSize: 'clamp(2rem, 4vw, 3rem)' }}
           >
-            Prenota il Tuo Soggiorno Diretto
+            {t.title.split(' Soggiorno ')[0].split(' Direct ')[0].split('ตรงเพื่อ')[0].split(' Aufenthalt ')[0]} <em>{lang === 'IT' ? 'il Tuo Soggiorno Diretto' : lang === 'EN' ? 'Your Direct Stay' : lang === 'TH' ? 'ตรงเพื่อข้อเสนอที่ดีที่สุด' : 'Ihren Aufenthalt direkt'}</em>
           </h2>
           <div className="w-12 h-px bg-emerald-600 mx-auto mb-5" />
-          <p className="text-stone-550 text-sm max-w-md mx-auto leading-relaxed">
-            Prenota direttamente con noi per ottenere un risparmio garantito del 10% rispetto a tutte le piattaforme di prenotazione online.
+          <p 
+            className="text-stone-550 text-sm max-w-md mx-auto leading-relaxed font-light"
+            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+          >
+            {t.desc}
           </p>
         </div>
 
@@ -57,9 +173,9 @@ export default function ContactSection() {
           <div>
             <h3
               className="text-stone-750 mb-7 font-light text-xl"
-              style={{ fontFamily: 'Outfit, sans-serif' }}
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
             >
-              Informazioni di Contatto
+              {t.infoTitle}
             </h3>
             <div className="space-y-5 mb-10">
               <div className="flex items-start gap-4">
@@ -67,17 +183,26 @@ export default function ContactSection() {
                   <MapPin size={15} className="text-emerald-700" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-stone-800 mb-0.5">Indirizzo</p>
-                  <p className="text-sm text-stone-500 leading-relaxed mb-1.5">
-                    14/32 Moo 1, Than Boun,<br />Koh Phayam, Amphoe Muang,<br />Ranong 85000, Thailandia
+                  <p 
+                    className="text-sm font-semibold text-stone-800 mb-0.5"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  >
+                    {t.addressLabel}
+                  </p>
+                  <p 
+                    className="text-sm text-stone-550 leading-relaxed mb-1.5 font-light"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  >
+                    {t.addressText}
                   </p>
                   <a
                     href="https://maps.app.goo.gl/62jFof8xt6Fj5nwT7"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-emerald-700 hover:text-emerald-800 font-semibold inline-flex items-center gap-1 transition-colors"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                   >
-                    <span>Vedi su Google Maps</span>
+                    <span>{t.mapsLink}</span>
                     <span className="text-[10px]">↗</span>
                   </a>
                 </div>
@@ -87,26 +212,20 @@ export default function ContactSection() {
                   <Phone size={15} className="text-emerald-700" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-stone-800 mb-0.5">Telefono / WhatsApp</p>
+                  <p 
+                    className="text-sm font-semibold text-stone-800 mb-0.5"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  >
+                    {t.phoneLabel}
+                  </p>
                   <div className="flex flex-col gap-1">
                     <a href="tel:+66958825573" className="text-sm text-emerald-700 hover:text-emerald-800 font-medium">
-                      +66 95 882 5573 <span className="text-stone-400 text-xs font-normal">(Inglese / Italiano)</span>
+                      +66 95 882 5573 <span className="text-stone-450 text-xs font-normal">(English / Italiano)</span>
                     </a>
                     <a href="tel:+66834512741" className="text-sm text-emerald-700 hover:text-emerald-800 font-medium">
-                      +66 83 451 2741 <span className="text-stone-400 text-xs font-normal">(Thai)</span>
+                      +66 83 451 2741 <span className="text-stone-450 text-xs font-normal">(Thai)</span>
                     </a>
                   </div>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-9 h-9 bg-emerald-50 flex items-center justify-center shrink-0 rounded-lg">
-                  <Mail size={15} className="text-emerald-700" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-stone-800 mb-0.5">Email</p>
-                  <a href="mailto:flowerpowerphayam@gmail.com" className="text-sm text-emerald-700 hover:text-emerald-800 font-medium">
-                    flowerpowerphayam@gmail.com
-                  </a>
                 </div>
               </div>
               <div className="flex items-start gap-4">
@@ -114,147 +233,179 @@ export default function ContactSection() {
                   <Clock size={15} className="text-emerald-700" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-stone-800 mb-0.5">Orari Check-in / Check-out</p>
-                  <p className="text-sm text-stone-500">Check-in: 13:00 – 21:30 · Check-out: 11:00</p>
+                  <p 
+                    className="text-sm font-semibold text-stone-800 mb-0.5"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  >
+                    {t.hoursLabel}
+                  </p>
+                  <p 
+                    className="text-sm text-stone-550 leading-relaxed font-light"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  >
+                    {t.hoursText}
+                  </p>
                 </div>
               </div>
             </div>
 
-            <h4 className="text-stone-600 text-xs tracking-widest uppercase mb-4 font-semibold" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Seguici
-            </h4>
-            <div className="flex flex-wrap gap-2">
+            <h3
+              className="text-stone-750 mb-4 font-light text-xl"
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+            >
+              {t.socialLabel}
+            </h3>
+            <div className="flex gap-4">
               <a
                 href="https://www.tiktok.com/@flowerpowerphayam"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3.5 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-emerald-600 hover:text-emerald-700 transition-all rounded-xl font-medium bg-white shadow-sm"
+                className="w-11 h-11 border border-stone-250 flex items-center justify-center rounded-xl hover:border-emerald-700 hover:text-emerald-700 transition-colors text-stone-500"
               >
-                <TiktokIcon size={14} className="text-emerald-700" />
-                TikTok
+                <TiktokIcon size={16} />
               </a>
               <a
                 href="https://www.instagram.com/flowerpowerphayam"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3.5 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-emerald-600 hover:text-emerald-700 transition-all rounded-xl font-medium bg-white shadow-sm"
+                className="w-11 h-11 border border-stone-250 flex items-center justify-center rounded-xl hover:border-emerald-700 hover:text-emerald-700 transition-colors text-stone-500"
               >
-                <Instagram size={14} className="text-emerald-700" />
-                Instagram
+                <Instagram size={16} />
               </a>
               <a
                 href="https://www.facebook.com/flowerpowerphayam"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3.5 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-emerald-600 hover:text-emerald-700 transition-all rounded-xl font-medium bg-white shadow-sm"
+                className="w-11 h-11 border border-stone-250 flex items-center justify-center rounded-xl hover:border-emerald-700 hover:text-emerald-700 transition-colors text-stone-500"
               >
-                <Facebook size={14} className="text-emerald-700" />
-                Facebook
+                <Facebook size={16} />
               </a>
             </div>
           </div>
 
-          {/* Booking form */}
-          <div className="bg-white p-6 sm:p-8 border border-stone-200 rounded-3xl shadow-sm">
+          {/* Form */}
+          <div className="bg-white p-6 md:p-8 border border-stone-200 rounded-3xl shadow-sm">
+            <h3
+              className="text-stone-850 mb-6 font-semibold text-lg"
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+            >
+              {t.formTitle}
+            </h3>
             {sent ? (
-              <div className="flex flex-col items-center justify-center h-full text-center py-12">
-                <div className="w-12 h-12 bg-emerald-50 flex items-center justify-center mb-4 rounded-xl">
-                  <Mail size={20} className="text-emerald-700" />
-                </div>
-                <h3
-                  className="text-stone-850 mb-2 font-semibold"
-                  style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem' }}
-                >
-                  Richiesta Inviata!
-                </h3>
-                <p className="text-sm text-stone-500">Ti risponderemo via email il prima possibile per darti conferma.</p>
+              <div 
+                className="p-4 bg-emerald-50 border border-emerald-250 text-emerald-850 text-sm rounded-2xl"
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+              >
+                {t.successMsg}
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <h3
-                  className="text-stone-750 mb-6 font-semibold"
-                  style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.4rem' }}
-                >
-                  Invia una Richiesta di Prenotazione
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-stone-400 uppercase font-semibold tracking-wider block">Nome e Cognome *</label>
-                    <input
-                      type="text"
-                      required
-                      value={form.name}
-                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-stone-400 uppercase font-semibold tracking-wider block">Indirizzo Email *</label>
-                    <input
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
-                      placeholder="john@example.com"
-                    />
-                  </div>
+                <div>
+                  <label 
+                    className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  >
+                    {t.fieldName}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-sm focus:outline-none focus:border-emerald-600 transition-colors"
+                  />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-stone-400 uppercase font-semibold tracking-wider block">Arrivo (Check-in) *</label>
+                <div>
+                  <label 
+                    className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  >
+                    {t.fieldEmail}
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-sm focus:outline-none focus:border-emerald-600 transition-colors"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label 
+                      className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                    >
+                      {t.fieldCheckin}
+                    </label>
                     <input
                       type="date"
                       required
                       value={form.checkin}
-                      onChange={e => setForm(f => ({ ...f, checkin: e.target.value }))}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
+                      onChange={(e) => setForm({ ...form, checkin: e.target.value })}
+                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-sm focus:outline-none focus:border-emerald-600 transition-colors"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-stone-400 uppercase font-semibold tracking-wider block">Partenza (Check-out) *</label>
+                  <div>
+                    <label 
+                      className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                    >
+                      {t.fieldCheckout}
+                    </label>
                     <input
                       type="date"
                       required
                       value={form.checkout}
-                      onChange={e => setForm(f => ({ ...f, checkout: e.target.value }))}
-                      className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
+                      onChange={(e) => setForm({ ...form, checkout: e.target.value })}
+                      className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-sm focus:outline-none focus:border-emerald-600 transition-colors"
                     />
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] text-stone-400 uppercase font-semibold tracking-wider block">Numero di Ospiti *</label>
+                <div>
+                  <label 
+                    className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  >
+                    {t.fieldGuests}
+                  </label>
                   <select
                     required
                     value={form.guests}
-                    onChange={e => setForm(f => ({ ...f, guests: e.target.value }))}
-                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50"
+                    onChange={(e) => setForm({ ...form, guests: e.target.value })}
+                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-750 text-sm focus:outline-none focus:border-emerald-600 transition-colors cursor-pointer font-light"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                   >
-                    <option value="">Seleziona</option>
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
+                    <option value="">{t.selectGuests}</option>
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
                       <option key={n} value={n}>
-                        {n} {n === 1 ? 'persona' : 'persone'}
+                        {n}
                       </option>
                     ))}
                   </select>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] text-stone-400 uppercase font-semibold tracking-wider block">Messaggio / Richieste Particolari</label>
+                <div>
+                  <label 
+                    className="block text-xs font-semibold text-stone-500 uppercase tracking-wider mb-2"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                  >
+                    {t.fieldMessage}
+                  </label>
                   <textarea
-                    rows={3}
+                    rows={4}
                     value={form.message}
-                    onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
-                    placeholder="Eventuali richieste speciali o domande..."
-                    className="w-full border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-stone-850 font-medium focus:outline-none focus:border-emerald-600 transition-all bg-stone-50/50 resize-none"
+                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    placeholder={t.messagePlaceholder}
+                    className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-sm focus:outline-none focus:border-emerald-600 transition-colors resize-none font-light"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs tracking-[0.2em] uppercase transition-colors duration-300 font-semibold rounded-xl shadow-sm cursor-pointer"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                  className="w-full py-4 bg-emerald-700 hover:bg-emerald-800 text-white text-xs tracking-[0.2em] uppercase font-bold rounded-xl transition-colors cursor-pointer"
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
                 >
-                  Invia Richiesta (Sconto Diretto 10%)
+                  {t.submitBtn}
                 </button>
               </form>
             )}

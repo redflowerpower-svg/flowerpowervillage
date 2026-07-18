@@ -64,9 +64,10 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
   const finalTotal = total + deliveryFee;
   const t = labels[lang];
 
-  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string }) => {
+  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string; nameDe?: string }) => {
     if (lang === 'TH' && o.nameTh) return o.nameTh;
     if (lang === 'IT' && o.nameIt) return o.nameIt;
+    if (lang === 'DE' && o.nameDe) return o.nameDe;
     return o.name;
   };
 
@@ -205,7 +206,7 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
         {/* DRAWER FOOTER */}
         {items.length > 0 && (
           <div className="border-t border-stone-200 px-5 py-5 space-y-4 bg-white">
-            <div className="space-y-1.5 text-stone-600 text-xs" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+            <div className="space-y-1.5 text-stone-600 text-xs" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
               <div className="flex justify-between items-center">
                 <span>{t.subtotalText}</span>
                 <span className="font-semibold">{total} ฿</span>
@@ -223,17 +224,17 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
             </div>
 
             {deliveryFee === 0 && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] py-2 px-3 rounded-xl font-extrabold flex items-center gap-1.5 animate-fadeIn" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] py-2 px-3 rounded-xl font-extrabold flex items-center gap-1.5 animate-fadeIn" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
                 <span>{t.freeDeliveryApplied}</span>
               </div>
             )}
 
             <div className="flex justify-between items-center gap-2 border-t border-stone-100 pt-3">
-              <span className="text-stone-500 text-xs uppercase tracking-widest flex-shrink-0 font-bold" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+              <span className="text-stone-500 text-xs uppercase tracking-widest flex-shrink-0 font-bold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                 {t.totalText}
               </span>
-              <span className="text-[#8B1E1E] text-xl font-black text-right" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+              <span className="text-[#8B1E1E] text-xl font-black text-right" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                 {finalTotal} ฿
               </span>
             </div>

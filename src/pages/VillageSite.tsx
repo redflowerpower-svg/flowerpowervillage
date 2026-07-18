@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate as useRRNavigate, useLocation } from 'react-router-dom';
+import { Language } from '../booking/lib/translations';
 import VillageNav from '../components/VillageNav';
 import VillageFooter from '../components/VillageFooter';
 import PageLayout from '../components/PageLayout';
@@ -35,6 +36,15 @@ export default function VillageSite() {
   };
 
   const [activePage, setActivePage] = useState<Page>(getPageFromPath);
+  const [lang, setLang] = useState<Language>(() => {
+    const browserLang = navigator.language.slice(0, 2).toUpperCase();
+    return ['IT', 'EN', 'TH', 'DE'].includes(browserLang) ? (browserLang as Language) : 'EN';
+  });
+
+  // Sync lang to <html data-lang="..."> so CSS can apply IBM Plex Sans Thai for TH
+  useEffect(() => {
+    document.documentElement.setAttribute('data-lang', lang);
+  }, [lang]);
 
   useEffect(() => {
     setActivePage(getPageFromPath());
@@ -55,17 +65,17 @@ export default function VillageSite() {
   const renderPage = () => {
     switch (activePage) {
       case 'accommodations':
-        return <BookingEngine />;
+        return <BookingEngine lang={lang} setLang={setLang} />;
       case 'restaurant':
         return (
           <PageLayout>
-            <RestaurantSection />
+            <RestaurantSection lang={lang} />
           </PageLayout>
         );
       case 'spa':
         return (
           <PageLayout>
-            <SpaSection />
+            <SpaSection lang={lang} />
           </PageLayout>
         );
       case 'gallery':
@@ -77,25 +87,25 @@ export default function VillageSite() {
       case 'directions':
         return (
           <PageLayout>
-            <DirectionsSection />
+            <DirectionsSection lang={lang} />
           </PageLayout>
         );
       case 'contact':
         return (
           <PageLayout>
-            <ContactSection />
+            <ContactSection lang={lang} />
           </PageLayout>
         );
       default:
-        return <BookingEngine />;
+        return <BookingEngine lang={lang} setLang={setLang} />;
     }
   };
 
   return (
     <div className="min-h-screen bg-[#e7e5e4]">
-      <VillageNav activePage={activePage} onNavigate={navigatePage} />
+      <VillageNav activePage={activePage} onNavigate={navigatePage} lang={lang} setLang={setLang} />
       <main>{renderPage()}</main>
-      <VillageFooter onNavigate={navigatePage} />
+      <VillageFooter onNavigate={navigatePage} lang={lang} />
     </div>
   );
 }

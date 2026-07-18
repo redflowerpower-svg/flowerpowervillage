@@ -3,6 +3,7 @@ export interface CartItemSaved {
   name: string;
   nameTh: string;
   nameIt?: string;
+  nameDe?: string;
   quantity: number;
   basePrice: number;
   selectedVariant: string | null;
