@@ -2,11 +2,15 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabaseAdmin = createClient(supabaseUrl as string, serviceRoleKey as string);
+const supabaseAdmin = (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl, serviceRoleKey) : null as any;
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (!supabaseAdmin) {
+    return res.status(500).json({ error: 'Supabase configuration missing (URL or Service Role Key)' });
   }
 
   const { code, redirectUri } = req.body;
@@ -16,6 +20,7 @@ export default async function handler(req: any, res: any) {
 
   const clientId = process.env.VITE_OCTORATE_CLIENT_ID;
   const clientSecret = process.env.OCTORATE_SECRET_KEY;
+
 
   if (!clientId || !clientSecret) {
     return res.status(500).json({ error: 'Server configuration missing (Client ID or Secret)' });
