@@ -2,6 +2,36 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { stripe } from "./_helpers/stripe.js";
 import { createClient } from "@supabase/supabase-js";
 import { generateConfirmationPDF, sendConfirmationEmail } from "./_helpers/booking-confirmation.js";
+import * as https from "https";
+
+// Robust HTTP POST using Node built-in https — avoids global fetch() issues in vercel dev on Windows
+function httpsPost(url: string, body: object, headers: Record<string, string>): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    const payload = JSON.stringify(body);
+    const options = {
+      hostname: parsed.hostname,
+      path: parsed.pathname + parsed.search,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Content-Length": Buffer.byteLength(payload),
+        ...headers
+      },
+      timeout: 20000
+    };
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => { data += chunk; });
+      res.on("end", () => resolve({ status: res.statusCode || 0, body: data }));
+    });
+    req.on("error", reject);
+    req.on("timeout", () => { req.destroy(new Error("Octorate request timed out after 20s")); });
+    req.write(payload);
+    req.end();
+  });
+}
 
 // Initialize Supabase (use service role key to bypass RLS and read octorate_tokens)
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -153,38 +183,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         let currentToken = tokenData.access_token;
 
-        // Helper to build fetch options
-        const buildFetchOpts = (token: string) => ({
-          method: "POST" as const,
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify(reservationBody)
-        });
-
-        // Reservation endpoint: POST /rest/v1/reservation/{accommodation} (where {accommodation} is Property ID)
-        let octRes = await fetch(`${OCTORATE_API_BASE}/reservation/${OCTORATE_STRUCTURE_ID}`, buildFetchOpts(currentToken));
-
-        console.log("[Verify API] Octorate initial response status:", octRes.status);
-
-        // Only refresh on 401 (expired token) — 403 is a permission/scope issue, not expiration
-        if (octRes.status === 401 && tokenData.refresh_token) {
-          console.log("[Verify API] 401 - Octorate token expired, attempting refresh...");
-          const refreshRes = await fetch(`${OCTORATE_API_BASE}/identity/refresh`, {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({
-              grant_type: "refresh_token",
-              refresh_token: tokenData.refresh_token,
-              client_id: process.env.VITE_OCTORATE_CLIENT_ID || "",
-              client_secret: process.env.VITE_OCTORATE_SECRET_KEY || "",
-            })
+        // Helper to send form-encoded POST (for refresh token endpoint) via https module
+        const httpsPostForm = (url: string, params: Record<string, string>, hdrs: Record<string, string> = {}): Promise<{ status: number; body: string }> =>
+          new Promise((resolve, reject) => {
+            const payload = new URLSearchParams(params).toString();
+            const parsed = new URL(url);
+            const req = https.request({
+              hostname: parsed.hostname, path: parsed.pathname + parsed.search, method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded", "Content-Length": Buffer.byteLength(payload), ...hdrs },
+              timeout: 15000
+            }, (res) => { let d = ""; res.on("data", c => d += c); res.on("end", () => resolve({ status: res.statusCode || 0, body: d })); });
+            req.on("error", reject);
+            req.on("timeout", () => req.destroy(new Error("refresh token timeout")));
+            req.write(payload); req.end();
           });
 
-          if (refreshRes.ok) {
-            const newTokens = await refreshRes.json();
+        // Reservation endpoint: POST /rest/v1/reservation/{structureId}
+        let octRaw = await httpsPost(`${OCTORATE_API_BASE}/reservation/${OCTORATE_STRUCTURE_ID}`, reservationBody, { "Authorization": `Bearer ${currentToken}` });
+
+        console.log("[Verify API] Octorate initial response status:", octRaw.status);
+
+        // Only refresh on 401 (expired token) — 403 is a permission/scope issue, not expiration
+        if (octRaw.status === 401 && tokenData.refresh_token) {
+          console.log("[Verify API] 401 - Octorate token expired, attempting refresh...");
+          const refreshRaw = await httpsPostForm(`${OCTORATE_API_BASE}/identity/refresh`, {
+            grant_type: "refresh_token",
+            refresh_token: tokenData.refresh_token,
+            client_id: process.env.VITE_OCTORATE_CLIENT_ID || "",
+            client_secret: process.env.VITE_OCTORATE_SECRET_KEY || "",
+          });
+
+          if (refreshRaw.status >= 200 && refreshRaw.status < 300) {
+            const newTokens = JSON.parse(refreshRaw.body);
             console.log("[Verify API] Refresh successful, new token starts with:", String(newTokens.access_token).substring(0, 10));
             currentToken = newTokens.access_token;
             await supabase.from("octorate_tokens").upsert({
@@ -194,16 +224,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               expires_in: newTokens.expires_in,
               updated_at: new Date().toISOString()
             });
-            octRes = await fetch(`${OCTORATE_API_BASE}/reservation/${OCTORATE_STRUCTURE_ID}`, buildFetchOpts(currentToken));
-            console.log("[Verify API] Octorate retry response status:", octRes.status);
+            octRaw = await httpsPost(`${OCTORATE_API_BASE}/reservation/${OCTORATE_STRUCTURE_ID}`, reservationBody, { "Authorization": `Bearer ${currentToken}` });
+            console.log("[Verify API] Octorate retry response status:", octRaw.status);
           } else {
-            const refreshErr = await refreshRes.text();
-            console.error("[Verify API] Token refresh FAILED:", refreshRes.status, refreshErr);
+            console.error("[Verify API] Token refresh FAILED:", refreshRaw.status, refreshRaw.body);
           }
         }
 
-        if (octRes.ok) {
-          const octData = await octRes.json();
+        if (octRaw.status >= 200 && octRaw.status < 300) {
+          const octData = JSON.parse(octRaw.body);
           octorateReservationId = String(octData.id || octData.reservationId || "") || null;
           octorateStatus = "confirmed";
           console.log(`[Verify API] Octorate reservation created: ${octorateReservationId}`);
@@ -222,29 +251,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             try {
               console.log(`[Verify API] Registering deposit payment of ฿${depositAmount} in Octorate for reservation ${octorateReservationId}...`);
-              const payRes = await fetch(`${OCTORATE_API_BASE}/reservation/${OCTORATE_STRUCTURE_ID}/${octorateReservationId}/payment`, {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "Accept": "application/json",
-                  "Authorization": `Bearer ${currentToken}`
-                },
-                body: JSON.stringify(paymentBody)
-              });
-
-              if (payRes.ok) {
+              const payRaw = await httpsPost(
+                `${OCTORATE_API_BASE}/reservation/${OCTORATE_STRUCTURE_ID}/${octorateReservationId}/payment`,
+                paymentBody,
+                { "Authorization": `Bearer ${currentToken}` }
+              );
+              if (payRaw.status >= 200 && payRaw.status < 300) {
                 console.log(`[Verify API] Octorate deposit payment successfully registered.`);
               } else {
-                const payErr = await payRes.text();
-                console.warn(`[Verify API] Failed to register deposit payment in Octorate:`, payRes.status, payErr);
+                console.warn(`[Verify API] Failed to register deposit payment in Octorate:`, payRaw.status, payRaw.body);
               }
             } catch (payErr: any) {
               console.error(`[Verify API] Error registering Octorate payment:`, payErr);
             }
           }
         } else {
-          const errorText = await octRes.text();
-          octorateError = `Octorate API error (${octRes.status}): ${errorText}`;
+          octorateError = `Octorate API error (${octRaw.status}): ${octRaw.body}`;
           console.error(`[Verify API] ${octorateError}`);
         }
       } else {
