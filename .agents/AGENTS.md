@@ -26,3 +26,20 @@ To ensure the application is optimized for web agents (including Antigravity, se
   - ` WITH ` (in inglese)
   - ` พร้อม` (in tailandese)
 
+
+# Regole di Chiusura Sessione: Manutenzione Documentazione Gemini Notebook
+L'applicazione possiede una base di conoscenza strutturata in 6 file principali localizzati in `/documentation_reports/` (o nell'artifact folder della conversazione):
+1. architettura_core.md
+2. modulo_pizza_delivery.md
+3. modulo_village.md
+4. integrazione_telegram.md
+5. schema_database.md
+6. motore_prezzi_sconti.md
+
+## Istruzione Mandatoria di Fine Sessione:
+Ogni volta che l'utente dichiara di voler "chiudere la giornata", "terminare la sessione" o chiede un riepilogo delle modifiche, devi:
+1. Analizzare quali file di codice sono stati modificati durante la sessione.
+2. Identificare se le modifiche impattano uno o più dei 6 report sopra elencati.
+3. Invece di rigenerare tutto, proponi all'utente un output mirato:
+   "Oggi abbiamo modificato [X]. Ti consiglio di aggiornare SOLO il file [nome_file.md]. Vuoi che lo aggiorni adesso?"
+
