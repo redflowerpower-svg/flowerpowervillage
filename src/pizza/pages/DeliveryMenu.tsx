@@ -647,9 +647,8 @@ export default function DeliveryMenu() {
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {PASTA_SAUCES.map(sauce => {
-              const Icon = SAUCE_ICONS[sauce.id] ?? PastaGarlicChiliIcon;
+              const Icon = SAUCE_ICONS[sauce.id] ?? PastaChiliIcon;
               const rawLabel = SAUCE_TAB_LABELS[sauce.id]?.[lang] ?? sauce.name[lang];
-              const labelLines = rawLabel.split('\n');
               return (
                 <button
                   key={sauce.id}
@@ -672,7 +671,7 @@ export default function DeliveryMenu() {
                     <Icon className="w-5 h-5" />
                   </div>
                   <span className="text-[8.5px] font-bold tracking-wide uppercase text-center leading-tight px-0.5 break-words hyphens-auto w-full">
-                    {SAUCE_TAB_LABELS[sauce.id]?.[lang] ?? sauce.name[lang]}
+                    {rawLabel}
                   </span>
                 </button>
               );

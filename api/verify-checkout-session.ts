@@ -76,7 +76,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       extraBreakfast,
       extraAC,
       totalPrice,
-      depositPaid
+      depositPaid,
+      balanceDue
     } = session.metadata || {};
 
     if (!accommodationId || !checkIn || !checkOut || !guestName || !guestEmail || !guestPhone) {

@@ -995,18 +995,20 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       {/* --- FILTER SEGMENTS --- */}
       <main className="max-w-6xl mx-auto px-4 pt-4 pb-6">
         {verifyingPayment ? (
-          /* --- VERIFYING PAYMENT SCREEN --- */
-          <div className="min-h-[40vh] flex flex-col items-center justify-center p-8 bg-stone-50 border border-stone-300 rounded-3xl text-center shadow-lg my-12 animate-fadeIn max-w-xl mx-auto">
-            <div className="w-12 h-12 border-4 border-stone-200 border-t-emerald-800 rounded-full animate-spin mb-6"></div>
-            <h3 className="text-xl font-black text-stone-850 mb-2">
-              {lang === 'IT' ? "Verifica del pagamento..." : "Verifying payment..."}
-            </h3>
-            <p className="text-stone-500 text-sm leading-relaxed max-w-xs">
-              {lang === 'IT'
-                ? "Stiamo verificando la transazione Stripe e registrando la tua prenotazione su Octorate."
-                : "We are verifying the Stripe transaction and registering your booking with Octorate."
-              }
-            </p>
+          /* --- VERIFYING PAYMENT SCREEN (CENTERED OVERLAY) --- */
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-sm p-4 overflow-y-auto animate-fadeIn">
+            <div className="max-w-xl w-full bg-stone-50 border border-stone-300 rounded-3xl p-8 text-center shadow-2xl my-8">
+              <div className="w-12 h-12 border-4 border-stone-200 border-t-emerald-800 rounded-full animate-spin mb-6 mx-auto"></div>
+              <h3 className="text-xl font-black text-stone-850 mb-2">
+                {lang === 'IT' ? "Verifica del pagamento..." : "Verifying payment..."}
+              </h3>
+              <p className="text-stone-500 text-sm leading-relaxed max-w-xs mx-auto">
+                {lang === 'IT'
+                  ? "Stiamo verificando la transazione Stripe e registrando la tua prenotazione su Octorate."
+                  : "We are verifying the Stripe transaction and registering your booking with Octorate."
+                }
+              </p>
+            </div>
           </div>
         ) : isBooked ? (
           /* --- SUCCESS SCREEN (CENTERED OVERLAY) --- */
@@ -1081,7 +1083,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     rel="noopener noreferrer"
                     className="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-8 py-3.5 rounded-full shadow transition-all cursor-pointer inline-flex items-center gap-2 decoration-none"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
                     {lang === 'IT' ? 'Scarica la tua prenotazione' : 'Download confirmation (PDF)'}
                   </a>
                 )}
@@ -1104,6 +1106,18 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         ) : selectedRoom ? (
           /* --- CUSTOM CHECKOUT INTERFACE --- */
           <div className="my-6">
+            {/* --- CHECKOUT HEADER BANNER --- */}
+            <div className="bg-emerald-800 rounded-2xl py-4 px-6 text-white shadow-lg mb-6 text-center border border-emerald-700/30">
+              <h2 className="text-xl md:text-2xl font-black tracking-tight">
+                {lang === 'IT' ? 'Completa la tua prenotazione' : 'Complete your booking'}
+              </h2>
+              <p className="text-emerald-200 text-xs md:text-sm mt-1 font-medium">
+                {lang === 'IT'
+                  ? 'Compila i dati e procedi con il pagamento per confermare il soggiorno.'
+                  : 'Fill in your details and proceed with payment to confirm your stay.'}
+              </p>
+            </div>
+
             <button
               onClick={() => {
                 setSelectedRoom(null)
