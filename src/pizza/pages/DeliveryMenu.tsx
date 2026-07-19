@@ -7,6 +7,8 @@ import MenuGrid from '../components/MenuGrid';
 import CartDrawer from '../components/CartDrawer';
 import CheckoutFlow from '../components/CheckoutFlow';
 import { useCartStore } from '../store/cartStore';
+import PizzaSlideshow from '../../components/PizzaSlideshow';
+
 
 const translations = {
   IT: {
@@ -509,14 +511,11 @@ export default function DeliveryMenu() {
         
         {/* Italian Chef Header Card */}
         <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg mb-6" style={{ backgroundColor: '#3b3530' }}>
-          <div
-            className="absolute inset-0 opacity-40 bg-cover bg-center"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1600&q=80')",
-            }}
-          />
+          <div className="absolute inset-0 opacity-40 overflow-hidden pointer-events-none">
+            <PizzaSlideshow />
+          </div>
           <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
+
 
           {/* Symmetrical Language Dropdown Selector */}
           <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
@@ -672,7 +671,7 @@ export default function DeliveryMenu() {
                   <div className="p-2 rounded-xl bg-stone-200/50 group-hover:bg-[#8B1E1E]/10 group-hover:text-[#8B1E1E] transition-colors">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className="text-[8.5px] font-bold tracking-wide uppercase text-center whitespace-nowrap leading-none px-0.5">
+                  <span className="text-[8.5px] font-bold tracking-wide uppercase text-center leading-tight px-0.5 break-words hyphens-auto w-full">
                     {SAUCE_TAB_LABELS[sauce.id]?.[lang] ?? sauce.name[lang]}
                   </span>
                 </button>
