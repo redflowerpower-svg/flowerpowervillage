@@ -5,7 +5,8 @@ import { createClient } from "@supabase/supabase-js";
 // Initialize Supabase
 const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || "";
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null as any;
+
 
 
 // Room configurations matching accommodations.ts

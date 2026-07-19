@@ -35,8 +35,8 @@ const FOOD_CATEGORIES: Record<string, FoodItem[]> = {
     { name: 'Onion Rings & French Fries', filename: '07-French-Fries/03-onion-rings-and-french-fries.webp', origin: '50% 50%' }
   ],
   dolci: [
-    // { name: 'Tiramisu', filename: '08-Desserts/03-tiramisu.webp', origin: '50% 50%' },
-    // { name: 'Pancake', filename: '08-Desserts/05-pancake.webp', origin: '50% 50%' }
+    { name: 'Tiramisu', filename: '08-Desserts/03-tiramisu.webp', origin: '50% 50%' },
+    { name: 'Pancake', filename: '08-Desserts/05-pancake.webp', origin: '50% 50%' }
   ],
   colazioneSnack: [
     { name: 'American Breakfast', filename: '09-Breakfast-and-Snacks/02-american-breakfast.webp', origin: '50% 50%' },
