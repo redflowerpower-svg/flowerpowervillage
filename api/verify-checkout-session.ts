@@ -156,6 +156,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const sessionSuffix = session.id.replace(/^cs_test_|^cs_/, "");
         const refer = (Date.now().toString(36).substring(0, 8) + sessionSuffix.slice(-17)).substring(0, 25);
 
+        // Build rich private notes from metadata
+        const depositPaidAmt  = Number(depositPaid  || 0);
+        const balanceDueAmt   = Number(balanceDue   || 0);
+        const stayNights      = Number(session.metadata?.nights || 0);
+        const discountPct     = Number(session.metadata?.discountPercent || 0);
+        const hasAC           = extraAC === "true";
+        const hasBreakfast    = extraBreakfast === "true";
+        const numGuests       = Number(guests || 1);
+        const breakfastCount  = hasBreakfast ? numGuests * stayNights : 0;
+
+        let discountLine = "";
+        if (discountPct >= 20) {
+          discountLine = `| Discount Applied    : -20% (Long-Stay Coliving ≥ 30 nights)`;
+        } else if (discountPct >= 15) {
+          discountLine = `| Discount Applied    : -15% (Medium-Stay ≥ 15 nights)`;
+        } else if (discountPct > 0) {
+          discountLine = `| Discount Applied    : -10% (Direct Booking Price)`;
+        } else {
+          discountLine = `| Discount Applied    : None`;
+        }
+
+        const privateNotes = [
+          `=== FLOWER POWER VILLAGE — BOOKING SUMMARY ===`,
+          `| Stripe Session      : ${session.id}`,
+          `| Total Amount        : ฿${Number(totalPrice || 0).toLocaleString("en")}`,
+          `| Deposit Paid (30%)  : ฿${depositPaidAmt.toLocaleString("en")} (charged via Stripe)`,
+          `| Balance Due (70%)   : ฿${balanceDueAmt.toLocaleString("en")} (to be paid at check-in)`,
+          `| Stay                : ${stayNights} night${stayNights !== 1 ? "s" : ""} (${checkIn} → ${checkOut})`,
+          discountLine,
+          `| Air Conditioning    : ${hasAC ? "YES — AC surcharge included" : "No"}`,
+          `| Breakfast           : ${hasBreakfast ? `YES — ${breakfastCount} breakfast${breakfastCount !== 1 ? "s" : ""} (${numGuests} guest${numGuests !== 1 ? "s" : ""} × ${stayNights} night${stayNights !== 1 ? "s" : ""})` : "No"}`,
+          `===============================================`,
+        ].join("\n");
+
         const reservationBody = {
           status: "CONFIRMED",
           refer,
@@ -170,7 +204,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           totalGuest,
           totalChildren: 0,
           totalInfants: 0,
-          privateNotes: `PAGATO ACCONTO 30% via Stripe. Saldo 70% all'arrivo. Stripe Session: ${session.id}`
+          privateNotes
         };
 
         console.log("[Verify API] Posting to Octorate:", `${OCTORATE_API_BASE}/reservation/${OCTORATE_STRUCTURE_ID}`);

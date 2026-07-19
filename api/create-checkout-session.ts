@@ -222,6 +222,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         accommodationId: String(accommodationId),
         checkIn,
         checkOut,
+        nights: String(nights),
         guests: String(guests),
         guestName,
         guestEmail,
@@ -231,6 +232,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         totalPrice: String(finalTotal),
         depositPaid: String(depositPaid),
         balanceDue: String(balanceDue),
+        discountPercent: String(Math.round(discount * 100)),
         lang: String(lang || "EN")
       },
       success_url: `${origin}/village?session_id={CHECKOUT_SESSION_ID}`,
