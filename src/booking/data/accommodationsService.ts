@@ -392,24 +392,24 @@ const ROOM_METADATA: Record<string, {
 
 // Octorate IDs for live availability checking
 const octorateIds: Record<string, number> = {
-  'Jungle Villa': 449680,
-  'Jungle Villa Left': 449681,
-  'Jungle Villa Right': 449682,
-  'Peace & Love Villa': 449683,
-  'Villa Penthouse': 449684,
-  'Yellow Bungalow': 449673,
-  'Red Bungalow': 449674,
-  'Green Bungalow': 449672,
+  'Jungle Villa': 529784,
+  'Jungle Villa Left': 495807,
+  'Jungle Villa Right': 495980,
+  'Peace & Love Villa': 495566,
+  'Villa Penthouse': 449348,
+  'Yellow Bungalow': 449385,
+  'Red Bungalow': 449422,
+  'Green Bungalow': 449668,
   'Camel Tent Bungalow': 449675,
-  'Lagoon Tent Bungalow': 449676,
-  'Room 1': 449685,
-  'Room 2': 449686,
-  'Room 3': 449687,
-  'Room 4': 449688,
-  'Room 5': 449689,
-  'Internal Room': 449690,
-  'Lodge 1': 449691,
-  'Lodge 2': 449692
+  'Lagoon Tent Bungalow': 449674,
+  'Room 1': 449678,
+  'Room 2': 449684,
+  'Room 3': 449699,
+  'Room 4': 449724,
+  'Room 5': 449730,
+  'Internal Room': 449742,
+  'Lodge 1': 449736,
+  'Lodge 2': 923905
 };
 
 // Preferred display order
