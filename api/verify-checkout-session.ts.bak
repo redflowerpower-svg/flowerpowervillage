@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { stripe } from "./_helpers/stripe.js";
+import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { generateConfirmationPDF, sendConfirmationEmail } from "./_helpers/booking-confirmation.js";
 
@@ -8,6 +8,12 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null as any;
 
+
+// Initialize Stripe with secret key
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
+const stripe = new Stripe(stripeSecretKey, {
+  apiVersion: "2023-10-16" as any,
+});
 
 // Octorate Structure ID
 const OCTORATE_STRUCTURE_ID = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
