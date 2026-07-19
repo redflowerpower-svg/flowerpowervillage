@@ -316,6 +316,143 @@ const BEER_AND_WINE_SECTIONS = [
   }
 ];
 
+// ─── SVG Icons for pasta sauce submenu tabs ────────────────────────────────
+
+// Chili pepper (single, elongated, pointed)
+const PastaChiliIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    {/* body */}
+    <path d="M12 20 C9 20 7 17 7 13 C7 8 9.5 5 12 4 C14.5 5 17 8 17 13 C17 17 15 20 12 20 Z" />
+    {/* stem */}
+    <path d="M12 4 L12 2" />
+    {/* stem curl */}
+    <path d="M12 2 C13.5 0.5 16 1 15.5 3" />
+    {/* highlight */}
+    <path d="M10 9 C10 8 11 7 12 7" />
+  </svg>
+);
+
+// Tomato: round body + 3-leaf star crown + stem
+const PastaTomatoIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <circle cx="12" cy="14" r="7" />
+    <path d="M12 7 L12 4" />
+    {/* 3-leaf star crown */}
+    <path d="M12 7 C11 5 8 5 8 7" />
+    <path d="M12 7 C13 5 16 5 16 7" />
+    <path d="M12 5 C12 3 14.5 2.5 14.5 4.5" />
+    {/* shine */}
+    <path d="M8 12 A5 5 0 0 1 13 8" />
+  </svg>
+);
+
+// Basil: simple wide oval leaf with single center vein
+const PastaBasilLeafIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M12 21 C6 21 3 16 3 12 C3 7 7 3 12 3 C17 3 21 7 21 12 C21 16 18 21 12 21 Z" />
+    <path d="M12 21 L12 5" />
+    <path d="M12 17 C9 16 7 14 7 12" />
+    <path d="M12 13 C15 12 17 10 17 8" />
+  </svg>
+);
+
+// Bacon: 3 wavy strips (unchanged, it works)
+const PastaBaconIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M3 8c3.5-2.5 5.5 2.5 9 0s5.5-2.5 9 0" />
+    <path d="M3 13c3.5-2.5 5.5 2.5 9 0s5.5-2.5 9 0" />
+    <path d="M3 18c3.5-2.5 5.5 2.5 9 0s5.5-2.5 9 0" />
+  </svg>
+);
+
+// Steak/meat: rounded cut with bone end — like a T-bone sirloin
+const PastaBeefIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    {/* main steak body */}
+    <path d="M4 8 C4 5 7 3 11 3 C16 3 20 5 20 9 C20 14 17 19 12 19 C7 19 4 14 4 10 Z" />
+    {/* bone at bottom-left */}
+    <circle cx="5" cy="18" r="2" />
+    <circle cx="3" cy="20" r="1.5" />
+    <line x1="5" y1="17" x2="4" y2="20" />
+    {/* grain / marbling lines */}
+    <path d="M9 8 C11 7 14 7 16 8" />
+    <path d="M8 11 C10 10 15 10 17 11" />
+    <path d="M9 14 C11 13 14 13 16 14" />
+  </svg>
+);
+
+// Egg (unchanged, works fine)
+const PastaEggIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M12 2C7 2 4 7 4 12s3 10 8 10 8-5 8-10S17 2 12 2z" />
+    <circle cx="12" cy="13.5" r="3" />
+  </svg>
+);
+
+// Cheese wedge: clear triangle + filled bubble holes
+const PastaCheeseIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    {/* wedge outer path */}
+    <path d="M2 20 L12 4 L22 20 Z" />
+    {/* rind / base line */}
+    <line x1="2" y1="20" x2="22" y2="20" />
+    {/* holes — filled so they read as bubbles */}
+    <circle cx="9" cy="15" r="2" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="14" r="1.5" fill="currentColor" stroke="none" />
+    <circle cx="12" cy="18" r="1.5" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+// Artichoke: oval bud with horizontal arc-petal rows + small crown
+const PastaArtichokeIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    {/* bud body */}
+    <path d="M12 20 C7.5 20 5 16.5 5 12.5 C5 8 8 5 12 5 C16 5 19 8 19 12.5 C19 16.5 16.5 20 12 20 Z" />
+    {/* petal scale arcs — 3 rows */}
+    <path d="M8 9 C9.5 7.5 14.5 7.5 16 9" />
+    <path d="M7 13 C9 11 15 11 17 13" />
+    <path d="M8 17 C9.5 15.5 14.5 15.5 16 17" />
+    {/* crown at top */}
+    <path d="M10 5 C11 3 13 3 14 5" />
+    {/* stem */}
+    <line x1="12" y1="20" x2="12" y2="22" />
+  </svg>
+);
+
+// Lasagne: 3 stacked rounded rectangles (unchanged, clear)
+const PastaLasagneIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="2" y="5.5" width="20" height="3.5" rx="1.5" />
+    <rect x="2" y="10.5" width="20" height="3.5" rx="1.5" />
+    <rect x="2" y="15.5" width="20" height="3.5" rx="1.5" />
+  </svg>
+);
+
+const SAUCE_ICONS: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  'aglio-olio':       PastaChiliIcon,
+  'pomodoro':         PastaTomatoIcon,
+  'pesto':            PastaBasilLeafIcon,
+  'amatriciana':      PastaBaconIcon,
+  'bolognese':        PastaBeefIcon,
+  'carbonara':        PastaEggIcon,
+  'quattro-formaggi': PastaCheeseIcon,
+  'flower-power':     PastaArtichokeIcon,
+  'lasagne':          PastaLasagneIcon,
+};
+
+// Short single-line labels for each sauce tab
+const SAUCE_TAB_LABELS: Record<string, Record<'IT'|'EN'|'TH'|'DE', string>> = {
+  'aglio-olio':       { IT: 'Aglio e Pepe',    EN: 'Garlic & Chili',   TH: 'อากลิโอ โอลิโอ',    DE: 'Knoblauch & Chili'  },
+  'pomodoro':         { IT: 'Pomodoro',         EN: 'Tomato',           TH: 'มะเขือเทศ',           DE: 'Pomodoro'           },
+  'pesto':            { IT: 'Pesto',            EN: 'Pesto',            TH: 'เพสโต้',              DE: 'Pesto'              },
+  'amatriciana':      { IT: 'Amatriciana',      EN: 'Amatriciana',      TH: 'อามาริเชียนา',      DE: 'Amatriciana'        },
+  'bolognese':        { IT: 'Ragù Bolognese',  EN: 'Bolognese',        TH: 'โบโลเนส',          DE: 'Bolognese'          },
+  'carbonara':        { IT: 'Carbonara',        EN: 'Carbonara',        TH: 'คาร์โบนาร่า',        DE: 'Carbonara'          },
+  'quattro-formaggi': { IT: '4 Formaggi',       EN: 'Four Cheeses',     TH: 'โฟร์ชีส',           DE: 'Vier Käse'          },
+  'flower-power':     { IT: 'Flower Power',     EN: 'Flower Power',     TH: 'ฟลาวเวอร์',        DE: 'Flower Power'       },
+  'lasagne':          { IT: 'Lasagne',          EN: 'Lasagna',          TH: 'ลาซานญ่า',           DE: 'Lasagne'            },
+};
+
 export default function DeliveryMenu() {
   const navigate = useNavigate();
   const [activeCategoryId, setActiveCategoryId] = useState(menuData[0].id);
@@ -502,71 +639,81 @@ export default function DeliveryMenu() {
             </p>
           )}
           <div className="w-8 h-0.5 bg-[#8B1E1E] mt-2.5 mb-4" />
+        </div>
 
-          {/* Submenu for Pasta Sauces */}
-          {activeCategoryId === 'pasta' && (
-            <div 
-              className="flex items-center gap-2 overflow-x-auto pb-3 pt-2 -mx-2 px-2 mask-gradient-horizontal animate-fadeIn"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {PASTA_SAUCES.map(sauce => (
+        {/* Submenu for Pasta Sauces — CategoryTabs-style rectangular cards */}
+        {activeCategoryId === 'pasta' && (
+          <div
+            className="flex gap-2 overflow-x-auto pb-4 mb-4 px-2 animate-fadeIn"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {PASTA_SAUCES.map(sauce => {
+              const Icon = SAUCE_ICONS[sauce.id] ?? PastaGarlicChiliIcon;
+              const rawLabel = SAUCE_TAB_LABELS[sauce.id]?.[lang] ?? sauce.name[lang];
+              const labelLines = rawLabel.split('\n');
+              return (
                 <button
                   key={sauce.id}
+                  id={`sauce-tab-${sauce.id}`}
+                  type="button"
                   onClick={() => {
                     const el = document.getElementById(`sauce-${sauce.id}`);
                     if (el) {
                       const offset = 90;
                       const bodyRect = document.body.getBoundingClientRect().top;
                       const elementRect = el.getBoundingClientRect().top;
-                      const elementPosition = elementRect - bodyRect;
-                      const offsetPosition = elementPosition - offset;
-                      window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                      });
+                      const offsetPosition = elementRect - bodyRect - offset;
+                      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
                     }
                   }}
-                  className="px-4 py-2 bg-stone-100 hover:bg-[#8B1E1E] hover:text-white text-stone-700 text-xs font-semibold rounded-full border border-stone-200 transition-all duration-300 whitespace-nowrap cursor-pointer hover:shadow-sm"
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                  className="flex-1 min-w-[72px] flex flex-col items-center justify-start gap-2 py-3 px-1 bg-stone-50 border border-stone-300 text-stone-600 rounded-2xl hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 transition-all duration-300 cursor-pointer group shadow-sm"
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                 >
-                  {sauce.name[lang]}
+                  <div className="p-2 rounded-xl bg-stone-200/50 group-hover:bg-[#8B1E1E]/10 group-hover:text-[#8B1E1E] transition-colors">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <span className="text-[8.5px] font-bold tracking-wide uppercase text-center whitespace-nowrap leading-none px-0.5">
+                    {SAUCE_TAB_LABELS[sauce.id]?.[lang] ?? sauce.name[lang]}
+                  </span>
                 </button>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
+        )}
 
-          {/* Submenu for Beers & Wines */}
-          {activeCategoryId === 'beers-and-wines' && (
-            <div 
-              className="flex items-center gap-2 overflow-x-auto pb-3 pt-2 -mx-2 px-2 mask-gradient-horizontal animate-fadeIn"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {BEER_AND_WINE_SECTIONS.map(sec => (
+        {/* Submenu for Beers & Wines */}
+        {activeCategoryId === 'beers-and-wines' && (
+          <div
+            className="flex gap-3 overflow-x-auto pb-4 mb-4 px-2 animate-fadeIn"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {BEER_AND_WINE_SECTIONS.map(sec => {
+              const secIcons: Record<string, string> = { 'beers': '🍺', 'wines': '🍷' };
+              const icon = secIcons[sec.id] ?? '🥂';
+              return (
                 <button
                   key={sec.id}
+                  type="button"
                   onClick={() => {
                     const el = document.getElementById(`sec-${sec.id}`);
                     if (el) {
                       const offset = 90;
                       const bodyRect = document.body.getBoundingClientRect().top;
                       const elementRect = el.getBoundingClientRect().top;
-                      const elementPosition = elementRect - bodyRect;
-                      const offsetPosition = elementPosition - offset;
-                      window.scrollTo({
-                        top: offsetPosition,
-                        behavior: 'smooth'
-                      });
+                      const offsetPosition = elementRect - bodyRect - offset;
+                      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
                     }
                   }}
-                  className="px-4 py-2 bg-stone-100 hover:bg-[#8B1E1E] hover:text-white text-stone-700 text-xs font-semibold rounded-full border border-stone-200 transition-all duration-300 whitespace-nowrap cursor-pointer hover:shadow-sm"
+                  className="flex flex-col items-center justify-center gap-1.5 px-6 py-3 min-w-[90px] bg-stone-50 border border-stone-300 text-stone-600 rounded-2xl hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 transition-all duration-300 cursor-pointer group shadow-sm"
                   style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
                 >
-                  {sec.name[lang]}
+                  <span className="text-xl leading-none">{icon}</span>
+                  <span className="text-[10px] font-bold tracking-wider uppercase text-center leading-tight">{sec.name[lang]}</span>
                 </button>
-              ))}
-            </div>
-          )}
-        </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Products Grid */}
         <div className="px-1">

@@ -176,6 +176,15 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
                         </div>
                       )}
 
+                      {/* Lasagna pre-order date badge */}
+                      {item.lasagnaDate && (
+                        <div className="mt-2 inline-flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1">
+                          <span className="text-amber-700 text-[10px] font-bold">
+                            📅 {item.lasagnaDate}
+                          </span>
+                        </div>
+                      )}
+
                       <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-stone-100">
                         {/* Quantity selector */}
                         <div className="flex items-center gap-2">

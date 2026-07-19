@@ -19,6 +19,11 @@ const labels = {
     customizeText: 'Personalizza',
     chooseText: 'Aggiungi',
     freeText: 'Gratis',
+    lasagnaBadge: '🍝 Min. 2 persone · Prenotazione con 1 giorno di anticipo',
+    lasagnaDateLabel: 'Seleziona data di ritiro / consegna',
+    lasagnaDatePlaceholder: 'Scegli una data...',
+    lasagnaDateRequired: '⚠️ Seleziona una data per procedere',
+    lasagnaWhyLabel: 'La preparazione richiede tempo per garantire il massimo della bontà.',
   },
   EN: {
     sizeOptions: 'Size options',
@@ -30,6 +35,11 @@ const labels = {
     customizeText: 'Customize',
     chooseText: 'Add',
     freeText: 'Free',
+    lasagnaBadge: '🍝 Min. 2 people · Pre-order 1 day in advance',
+    lasagnaDateLabel: 'Select pickup / delivery date',
+    lasagnaDatePlaceholder: 'Choose a date...',
+    lasagnaDateRequired: '⚠️ Please select a date to proceed',
+    lasagnaWhyLabel: 'Preparation takes time to guarantee the best quality.',
   },
   TH: {
     sizeOptions: 'ตัวเลือกขนาด',
@@ -41,6 +51,11 @@ const labels = {
     customizeText: 'ปรับแต่ง',
     chooseText: 'เพิ่ม',
     freeText: 'ฟรี',
+    lasagnaBadge: '🍝 ขั้นต่ำ 2 ที่ · สั่งล่วงหน้า 1 วัน',
+    lasagnaDateLabel: 'เลือกวันที่รับ / จัดส่ง',
+    lasagnaDatePlaceholder: 'เลือกวันที่...',
+    lasagnaDateRequired: '⚠️ กรุณาเลือกวันที่ก่อนดำเนินการ',
+    lasagnaWhyLabel: 'ใช้เวลาเตรียมนานเพื่อให้ได้รสชาติที่ดีที่สุด',
   },
   DE: {
     sizeOptions: 'Größenoptionen',
@@ -52,8 +67,23 @@ const labels = {
     customizeText: 'Konfigurieren',
     chooseText: 'Hinzufügen',
     freeText: 'Gratis',
+    lasagnaBadge: '🍝 Min. 2 Personen · 1 Tag im Voraus bestellen',
+    lasagnaDateLabel: 'Abhol- / Lieferdatum wählen',
+    lasagnaDatePlaceholder: 'Datum auswählen...',
+    lasagnaDateRequired: '⚠️ Bitte ein Datum auswählen, um fortzufahren',
+    lasagnaWhyLabel: 'Die Zubereitung braucht Zeit, um höchste Qualität zu garantieren.',
   },
 };
+
+// Returns tomorrow's date in YYYY-MM-DD (local time)
+function getTomorrowDateString() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 export default function MenuGrid({ items, lang }: Props) {
   const addItem = useCartStore((s) => s.addItem);
@@ -64,8 +94,11 @@ export default function MenuGrid({ items, lang }: Props) {
   const [selectedExtras, setSelectedExtras] = useState<ExtraOption[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [lasagnaDate, setLasagnaDate] = useState<string>('');
 
   const t = labels[lang];
+
+  const isLasagna = (item: MenuItem) => item.id.includes('lasagna');
 
   const handleExpand = (item: MenuItem) => {
     if (expandedId === item.id) {
@@ -86,7 +119,10 @@ export default function MenuGrid({ items, lang }: Props) {
         if (defaultFruit) defaults.push(defaultFruit);
       }
       setSelectedExtras(defaults);
-      setQuantity(1);
+      // Lasagna: minimum 2 portions
+      setQuantity(isLasagna(item) ? 2 : 1);
+      // Reset lasagna date on new expansion
+      setLasagnaDate('');
     }
   };
 
@@ -203,6 +239,7 @@ export default function MenuGrid({ items, lang }: Props) {
   };
 
   const handleAdd = (item: MenuItem) => {
+    if (isLasagna(item) && !lasagnaDate) return; // Block if no date selected
     addItem({
       productId: item.id,
       name: item.name,
@@ -214,6 +251,7 @@ export default function MenuGrid({ items, lang }: Props) {
       selectedVariant,
       selectedExtras,
       image: item.image,
+      lasagnaDate: isLasagna(item) ? lasagnaDate : undefined,
     });
     setExpandedId(null);
     openCart();
@@ -306,6 +344,24 @@ export default function MenuGrid({ items, lang }: Props) {
                 >
                   {formatProductName(getTranslatedName(item))}
                 </h3>
+
+                {/* Lasagna pre-order badge — always visible */}
+                {isLasagna(item) && (
+                  <div className="mt-2 mb-1 flex flex-col gap-1">
+                    <span
+                      className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-800 text-[10px] font-bold px-2.5 py-1.5 rounded-xl leading-tight"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      {t.lasagnaBadge}
+                    </span>
+                    <span
+                      className="text-stone-400 text-[10px] italic leading-tight"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      {t.lasagnaWhyLabel}
+                    </span>
+                  </div>
+                )}
 
                 <p
                   className="text-stone-500 text-xs font-light leading-relaxed mb-4 flex-grow mt-1.5"
@@ -509,6 +565,30 @@ export default function MenuGrid({ items, lang }: Props) {
                       </div>
                     )}
 
+                    {/* Lasagna Date Picker */}
+                    {isLasagna(item) && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 space-y-2">
+                        <p className="text-[9px] uppercase tracking-widest text-amber-700 font-extrabold flex items-center gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                          📅 {t.lasagnaDateLabel}
+                        </p>
+                        <input
+                          id={`lasagna-date-${item.id}`}
+                          type="date"
+                          min={getTomorrowDateString()}
+                          value={lasagnaDate}
+                          onChange={(e) => setLasagnaDate(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="w-full bg-white border border-amber-300 text-stone-800 text-xs font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                        />
+                        {!lasagnaDate && (
+                          <p className="text-amber-600 text-[10px] font-bold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                            {t.lasagnaDateRequired}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     {/* Quantity Selector Box */}
                     <div className="flex items-center gap-2 bg-stone-100 p-1.5 rounded-full border border-stone-200 justify-between">
                       <span className="text-stone-500 text-[9.5px] font-extrabold uppercase tracking-wider pl-2" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
@@ -517,7 +597,7 @@ export default function MenuGrid({ items, lang }: Props) {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          onClick={() => setQuantity(Math.max(isLasagna(item) ? 2 : 1, quantity - 1))}
                           className="w-7 h-7 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-500 hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 active:scale-95 transition-all cursor-pointer"
                         >
                           <Minus size={10} />
@@ -564,7 +644,12 @@ export default function MenuGrid({ items, lang }: Props) {
                       handleExpand(item);
                     }
                   }}
-                  className="text-xs font-semibold px-6 py-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 hover:px-7 cursor-pointer border-0 bg-[#8B1E1E] text-white hover:bg-[#721818]"
+                  disabled={isExpanded && isLasagna(item) && !lasagnaDate}
+                  className={`text-xs font-semibold px-6 py-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 hover:px-7 cursor-pointer border-0 ${
+                    isExpanded && isLasagna(item) && !lasagnaDate
+                      ? 'bg-stone-300 text-stone-500 cursor-not-allowed hover:shadow-md hover:px-6'
+                      : 'bg-[#8B1E1E] text-white hover:bg-[#721818]'
+                  }`}
                   style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                 >
                   {isExpanded ? t.confirmText : (item.extras?.length || item.variants?.length ? t.customizeText : t.chooseText)}

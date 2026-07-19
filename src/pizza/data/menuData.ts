@@ -15293,8 +15293,8 @@ export const menuData: MenuCategory[] = [
         "description": "A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite",
         "descriptionTh": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
         "price": 200,
-        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/31-spaghetti-4-formaggi2.webp",
-        "image_file": "02-Pasta/Four Cheeses/31-spaghetti-4-formaggi2.webp",
+        "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Four Cheeses/31-spaghetti-4-formaggi.webp",
+        "image_file": "02-Pasta/Four Cheeses/31-spaghetti-4-formaggi.webp",
         "sku": "10188",
         "variants": [],
         "extras": [

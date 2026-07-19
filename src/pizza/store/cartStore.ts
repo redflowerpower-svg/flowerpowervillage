@@ -13,6 +13,7 @@ export interface CartItem {
   selectedVariant: Variant | null;
   selectedExtras: ExtraOption[];
   image: string;
+  lasagnaDate?: string; // Pre-order date for lasagna (required, min 1 day in advance)
 }
 
 export function calcItemTotal(item: CartItem): number {
