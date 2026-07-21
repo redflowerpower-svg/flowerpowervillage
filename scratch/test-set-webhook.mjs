@@ -1,5 +1,9 @@
 async function run() {
-  const token = '8069068728:AAH3PDPqjvnUxLGFmKYSQZ8hT79qciP8A';
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) {
+    console.error('ERROR: TELEGRAM_BOT_TOKEN is not defined in environment.');
+    process.exit(1);
+  }
   const webhookUrl = 'https://hope-basket-stat-shall.trycloudflare.com/api/telegram-webhook';
 
   console.log(`Setting webhook...`);
