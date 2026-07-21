@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import VillageSlideshow from "../../components/VillageSlideshow"
 import '../booking.css'
 
@@ -106,6 +106,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   const [selectedCategory, setSelectedCategory] = useState("Tutti")
 
   // Checkout & Payment states
+  const checkoutSectionRef = useRef<HTMLDivElement | null>(null)
   const [selectedRoom, setSelectedRoom] = useState<any | null>(null)
   const [selectedPricing, setSelectedPricing] = useState<any | null>(null)
   const [checkoutData, setCheckoutData] = useState({ name: "", email: "", phone: "", requests: "" })
@@ -113,6 +114,15 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   const [isBooked, setIsBooked] = useState(false)
   const [bookingId, setBookingId] = useState("")
   const [stripeSessionId, setStripeSessionId] = useState("")
+
+  // Auto-scroll to checkout form position when a room is selected
+  useEffect(() => {
+    if (selectedRoom && checkoutSectionRef.current) {
+      setTimeout(() => {
+        checkoutSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+      }, 50)
+    }
+  }, [selectedRoom])
   const [verifyingPayment, setVerifyingPayment] = useState(false)
   const [confirmedTotalPrice, setConfirmedTotalPrice] = useState<number | null>(null)
 
@@ -1105,7 +1115,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           </div>
         ) : selectedRoom ? (
           /* --- CUSTOM CHECKOUT INTERFACE --- */
-          <div className="my-6">
+          <div ref={checkoutSectionRef} className="my-6 scroll-mt-6">
             {/* --- CHECKOUT HEADER BANNER --- */}
             <div className="bg-emerald-800 rounded-2xl py-4 px-6 text-white shadow-lg mb-6 text-center border border-emerald-700/30">
               <h2 className="text-xl md:text-2xl font-black tracking-tight">

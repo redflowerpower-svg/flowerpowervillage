@@ -27,19 +27,38 @@ To ensure the application is optimized for web agents (including Antigravity, se
   - ` พร้อม` (in tailandese)
 
 
-# Regole di Chiusura Sessione: Manutenzione Documentazione Gemini Notebook
-L'applicazione possiede una base di conoscenza strutturata in 6 file principali localizzati in `/documentation_reports/` (o nell'artifact folder della conversazione):
-1. architettura_core.md
-2. modulo_pizza_delivery.md
-3. modulo_village.md
-4. integrazione_telegram.md
-5. schema_database.md
-6. motore_prezzi_sconti.md
+# Vault-Sync & Multi-Workstation Protocol (Koh Phayam <-> Ranong)
 
-## Istruzione Mandatoria di Fine Sessione:
-Ogni volta che l'utente dichiara di voler "chiudere la giornata", "terminare la sessione" o chiede un riepilogo delle modifiche, devi:
-1. Analizzare quali file di codice sono stati modificati durante la sessione.
-2. Identificare se le modifiche impattano uno o più dei 6 report sopra elencati.
-3. Invece di rigenerare tutto, proponi all'utente un output mirato:
-   "Oggi abbiamo modificato [X]. Ti consiglio di aggiornare SOLO il file [nome_file.md]. Vuoi che lo aggiorni adesso?"
+## Vault-Sync & Security (.gitignore)
+- `scratch/vault-sync.mjs` gestisce la cifratura e la decifratura delle chiavi di progetto.
+- Il report in chiaro `.secret_docs/api_credentials_report.md` DEVE rimanere strettamente bloccato da Git (`.secret_docs/*`).
+- Solo il file cifrato `.secret_docs/api_credentials_report.md.enc` viene tracciato da Git (`!.secret_docs/api_credentials_report.md.enc`).
+- I file d'ambiente in chiaro (`.env`, `.env.local`, `.env.*`) DEVONO rimanere strettamente ignorati da Git.
 
+## Mandatory Trigger Words & Workflows
+
+### 1. `VAULT-SYNC` (Post-PULL Workflow)
+Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** (dopo un `git pull` sulla postazione):
+1. **Decifratura Vault**: Esegui `node scratch/vault-sync.mjs decrypt` (usando `MASTER_VAULT_KEY`).
+2. **Allineamento Ambiente**: Rigenera e allinea i file `.env` e `.env.local` locali.
+3. **Verifica Connessioni**: Esegui `node scratch/test-credentials-verification.mjs` per confermare che Supabase, Stripe, Telegram, Octorate, Maps e SMTP siano connessi e operativi.
+4. **Check Sicurezza Git**: Esegui la verifica per confermare che `.secret_docs/api_credentials_report.md` e i file `.env` siano bloccati da `.gitignore`.
+5. **Conferma Operatività**: Mostra un report chiaro dell'esito dei test e dell'allineamento.
+
+### 2. `MARKDOWN-PROJECT` (Pre-PUSH Workflow)
+Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un `git push` a fine sessione):
+1. **Analisi Modifiche**: Ispeziona i file modificati nella sessione corrente (`git status`).
+2. **Aggiornamento Documentazione Tecnica**: Aggiorna miratamente i file interessati in `/documentation_reports/`:
+   - `architettura_core.md`
+   - `modulo_pizza_delivery.md`
+   - `modulo_village.md`
+   - `integrazione_telegram.md`
+   - `schema_database.md`
+   - `motore_prezzi_sconti.md`
+3. **Cifratura Cassaforte**: Esegui `node scratch/vault-sync.mjs encrypt` per aggiornare e cifrare `.secret_docs/api_credentials_report.md` nel file `.secret_docs/api_credentials_report.md.enc`.
+4. **Report HANDOFF a 5 Punti per Gemini Notebook**: Genera il report finale strutturato:
+   - **Punto 1: Riepilogo Modifiche Codice** (Elenco dei componenti e file sorgente modificati).
+   - **Punto 2: Impatto sui Report Tecnici (`/documentation_reports/`)** (Quali file `.md` sono stati aggiornati).
+   - **Punto 3: Stato della Cassaforte Credenziali (`.secret_docs/`)** (Esito cifratura `.md.enc`).
+   - **Punto 4: Stato dei Test di Connessione e Sicurezza Git** (Esito check `test-credentials-verification.mjs` e `.gitignore`).
+   - **Punto 5: Istruzioni per la Nuova Postazione (Koh Phayam / Ranong)** (Promemoria per `git pull` seguito da `VAULT-SYNC`).

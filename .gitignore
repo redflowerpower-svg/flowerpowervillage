@@ -13,6 +13,11 @@ dist/
 .env.local
 .env.production
 .env.development
+.env.*
+
+# ─── Restricted Docs ────────────────────────────────────
+.secret_docs/*
+!.secret_docs/api_credentials_report.md.enc
 
 # ─── OS files ───────────────────────────────────────────
 .DS_Store
