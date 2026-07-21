@@ -98,6 +98,7 @@ function syncEnvFromReport(reportText) {
 
   const stripePublishable = extract(/\*\*Stripe Publishable Key \(TEST\):\*\*\s*`([^`]+)`/);
   const stripeSecret = extract(/\*\*Stripe Secret Key \(TEST\):\*\*\s*`([^`]+)`/);
+  const stripeWebhookSecret = extract(/\*\*Stripe Webhook Secret:\*\*\s*`([^`]+)`/);
 
   const octorateStructureId = extract(/\*\*Structure \(Hotel\) ID:\*\*\s*`([^`]+)`/) || '366879';
   const octorateChannelId = extract(/\*\*Direct Booking Channel ID:\*\*\s*`([^`]+)`/) || '233';
@@ -141,7 +142,7 @@ function syncEnvFromReport(reportText) {
     `VITE_STRIPE_PUBLISHABLE_KEY=${stripePublishable}`,
     `STRIPE_SECRET_KEY=${stripeSecret}`,
     `STRIPE_SECRET_KEY_TEST=${stripeSecret}`,
-    `STRIPE_WEBHOOK_SECRET=whsec_016fd8e46e46155eb18168766738080d4fe61fd608e410bc82c1e2882e2279f4`,
+    `STRIPE_WEBHOOK_SECRET=${stripeWebhookSecret}`,
     ``,
     `# Telegram Bot`,
     `TELEGRAM_BOT_TOKEN=${telegramBotToken}`,
