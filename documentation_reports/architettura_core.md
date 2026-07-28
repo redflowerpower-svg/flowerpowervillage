@@ -121,3 +121,17 @@ Di seguito sono documentate le principali criticità architetturali emerse duran
 ### E. Protocollo di Sincronizzazione Cassaforte (Vault-Sync tra Koh Phayam e Ranong)
 *   **Problema:** Necessità di sincronizzare credenziali e chiavi segrete API (.env, Stripe, Supabase, Telegram, Octorate) in modo sicuro tra postazioni di lavoro multiple senza mai esporre chiavi in chiaro su repository Git pubblici.
 *   **Soluzione:** Implementazione dello script di cifratura/decifratura AES-256-GCM ([scratch/vault-sync.mjs](file:///d:/Antigravity%20-%20Sviluppo%20Website/flower-power-village-bolt/flowerpowervillage/scratch/vault-sync.mjs)). Il report delle credenziali viene cifrato in `.secret_docs/api_credentials_report.md.enc` ed è l'unico file di credenziali tracciato da Git. Tramite i comandi `VAULT-SYNC` (post-pull) e `MARKDOWN-PROJECT` (pre-push), l'ambiente locale si sincronizza automaticamente e aggiorna la documentazione di fine sessione per Gemini Notebook.
+
+### F. Architettura Dashboard Unificata con Bivio (Entry Point)
+*   **Problema:** Necessità di un unico portale amministrativo (`/admin`) che permetta allo staff autenticato di accedere alla gestione sia del reparto Pizzeria (Ranong) che del reparto Resort (Koh Phayam), mantenendo tuttavia una compartimentazione logica, visiva e di stato (Zustand) totale tra i due domini.
+*   **Soluzione:** Implementata la nuova struttura modulare in `src/admin/`:
+    *   **Common (`src/admin/common/`)**: Shell di autenticazione Supabase unificata (`AdminAuth`), header con selettore reparto (`AdminHeader`) e gestione errori isolata (`ErrorBoundary`).
+    *   **Gateway (`src/admin/gateway/`)**: Schermata di ingresso a Bivio (`AdminGateway`) con card interattive per la scelta immediata tra Ranong e Koh Phayam.
+    *   **Pizzeria (`src/admin/pizza/`)**: Modulo Pizzeria isolato con proprio Zustand store (`usePizzaAdminStore`) e componente `PizzaDashboard`.
+    *   **Resort (`src/admin/resort/`)**: Modulo Resort isolato con proprio Zustand store (`useResortAdminStore`) e componente `ResortDashboard`.
+
+### G. Sblocco Permessi di Scrittura Octorate (READWRITE & Bulk Update)
+*   **Problema:** Inizialmente le chiamate di aggiornamento prezzi e disponibilità via API REST v1 restituivano un errore `403 Caller not in requested role` o `403 Forbidden` a causa di permessi `permissions.accommodation = READONLY` a livello di account Octorate.
+*   **Soluzione:** A seguito dell'abilitazione dei permessi da parte di Octorate su ID Struttura `#366879`, è stato eseguito e verificato lo script isolato [`scratch/test-octorate-write-capability.mjs`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scratch/test-octorate-write-capability.mjs). La chiamata `POST /connect/rest/v1/calendar/bulk` ha restituito **HTTP 200 OK** (`success: true`), confermando l'operatività del canale di scrittura.
+
+

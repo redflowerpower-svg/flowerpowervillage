@@ -133,6 +133,15 @@ export default function VillageFooter({ onNavigate, lang = 'IT' }: Props) {
                 </button>
               </li>
             ))}
+            <li>
+              <a
+                href="/admin?dept=resort"
+                className="text-stone-400 hover:text-emerald-400 transition-colors uppercase text-xs font-bold tracking-wider text-left border-0 cursor-pointer inline-flex items-center gap-1 mt-1"
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+              >
+                🔒 {lang === 'IT' ? 'Area Privata' : lang === 'EN' ? 'Staff Portal' : lang === 'TH' ? 'พื้นที่เจ้าหน้าที่' : 'Mitarbeiterbereich'}
+              </a>
+            </li>
           </ul>
         </div>
 

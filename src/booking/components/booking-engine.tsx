@@ -1644,56 +1644,6 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           </>
         )}
       </main>
-
-      {/* --- OCTORATE OAUTH CONNECTION UTILITY --- */}
-      <div className="mt-8 mb-4 py-4 px-4 text-center text-xs text-stone-500">
-        <div className="flex flex-col items-center gap-2">
-          {oauthConnected ? (
-            <div className="flex items-center gap-2 bg-stone-200/40 px-3 py-1.5 rounded-full border border-stone-300/30">
-              <span className="text-[10px] text-emerald-600 font-semibold">API Octorate Connesse</span>
-              <button
-                type="button"
-                onClick={async () => {
-                  await clearTokens();
-                  window.location.reload();
-                }}
-                className="px-2 py-0.5 text-[9px] bg-red-800 hover:bg-red-750 text-white rounded transition-colors cursor-pointer font-bold ml-1"
-              >
-                Disconnetti / Reset
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2 bg-stone-200/50 border border-stone-300/50 rounded-xl p-4 max-w-md w-full">
-              <a
-                href={getAuthorizationUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[10px] text-stone-500 hover:text-stone-750 transition-colors duration-200 cursor-pointer font-bold"
-              >
-                Admin: Connetti API Octorate
-              </a>
-              <div className="flex items-center gap-1.5 w-full">
-                <input
-                  type="text"
-                  value={oauthUrl}
-                  onChange={(e) => setOauthUrl(e.target.value)}
-                  placeholder="Incolla qui il link di localhost..."
-                  className="flex-1 px-2 py-1 text-[10px] bg-white border border-stone-300 rounded text-stone-750 placeholder:text-stone-400 focus:outline-none focus:border-stone-550"
-                />
-                <button
-                  type="button"
-                  onClick={handleSaveToken}
-                  disabled={oauthLoading}
-                  className="px-2.5 py-1 text-[10px] font-medium bg-stone-700 text-stone-100 rounded hover:bg-stone-900 transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {oauthLoading ? "..." : "Salva Token"}
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
     </div>
   )
 }

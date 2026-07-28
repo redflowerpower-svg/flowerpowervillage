@@ -1,0 +1,702 @@
+import { useState, useEffect } from 'react';
+import { useResortAdminStore, ResortBooking } from '../store/useResortAdminStore';
+import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
+import { fetchOctorateMonthlyGrid, OctorateDayData } from '../../../booking/lib/octorate';
+import { getBaselineMinStay } from '../lib/octorateAdmin';
+import { 
+  ChevronLeft, 
+  ChevronRight, 
+  Calendar as CalendarIcon, 
+  Info, 
+  Search, 
+  CheckCircle, 
+  Clock, 
+  X, 
+  Building, 
+  User, 
+  DollarSign, 
+  Globe,
+  RefreshCw,
+  Lock
+} from 'lucide-react';
+
+const MONTH_NAMES_IT = [
+  'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+  'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+];
+
+const DAY_NAMES_IT = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+
+const ROOM_BASE_RATES: Record<string, number> = {
+  'Jungle Villa': 2290,
+  'Jungle Villa Left': 1290,
+  'Jungle Villa Right': 1290,
+  'Peace & Love Villa': 1200,
+  'Villa Penthouse': 1200,
+  'Yellow Bungalow': 990,
+  'Red Bungalow': 790,
+  'Green Bungalow': 790,
+  'Camel Tent Bungalow': 430,
+  'Lagoon Tent Bungalow': 430,
+  'Internal Room': 390,
+  'Room 1': 10000,
+  'Room 2': 10000,
+  'Room 3': 10000,
+  'Room 4': 10000,
+  'Room 5': 10000,
+  'Lodge 1': 10000,
+  'Lodge 2': 10000
+};
+
+const AGENCY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  'Booking.com': { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' },
+  'Expedia': { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' },
+  'Agoda': { bg: 'bg-purple-600 hover:bg-purple-500', text: 'text-white font-extrabold', border: 'border-purple-500' },
+  'Trip.com': { bg: 'bg-rose-600 hover:bg-rose-500', text: 'text-white font-extrabold', border: 'border-rose-500' },
+  'Direct / Website': { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' },
+  'Walk-in / Staff': { bg: 'bg-indigo-600 hover:bg-indigo-500', text: 'text-white font-extrabold', border: 'border-indigo-500' },
+};
+
+const getAgencyStyle = (source?: string) => {
+  if (!source) return { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' };
+  const s = source.toLowerCase();
+  if (s.includes('booking')) return { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' };
+  if (s.includes('expedia')) return { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' };
+  if (s.includes('agoda')) return { bg: 'bg-purple-600 hover:bg-purple-500', text: 'text-white font-extrabold', border: 'border-purple-500' };
+  if (s.includes('trip')) return { bg: 'bg-rose-600 hover:bg-rose-500', text: 'text-white font-extrabold', border: 'border-rose-500' };
+  if (s.includes('direct') || s.includes('diretto') || s.includes('site') || s.includes('stripe')) return { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' };
+  return { bg: 'bg-indigo-600 hover:bg-indigo-500', text: 'text-white font-extrabold', border: 'border-indigo-500' };
+};
+
+/**
+ * Calcola reattivamente il Soggiorno Minimo Dinamico (Gap-Fill a doppio senso)
+ * per ciascun alloggio sulla griglia delle date correnti.
+ */
+function computeGapFillMinStays(
+  roomName: string,
+  roomId: string,
+  roomOctorateId: string,
+  isRoomAvailable: boolean,
+  datesArray: Date[],
+  liveGridData: Record<string, Record<string, OctorateDayData>>,
+  bookings: ResortBooking[],
+  dynamicGapFillEnabled: boolean
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  if (datesArray.length === 0) return result;
+
+  const targetRoomName = roomName.toLowerCase();
+  const targetRoomId = String(roomId);
+  const targetOctId = String(roomOctorateId || '');
+
+  const dailyStates = datesArray.map((cellDate) => {
+    const dateStr = cellDate.toISOString().substring(0, 10);
+    const liveData = (
+      liveGridData[roomName] || 
+      liveGridData[targetRoomName] || 
+      liveGridData[targetOctId] || 
+      liveGridData[targetRoomId]
+    )?.[dateStr];
+
+    const websitePrice = (liveData && liveData.price > 0)
+      ? liveData.price
+      : (ROOM_BASE_RATES[roomName] || 1000);
+
+    const isRoomClosedByStaff = isRoomAvailable === false;
+    const isClosedOrStopSell = 
+      isRoomClosedByStaff || 
+      websitePrice >= 10000 ||
+      (liveData ? (liveData.stopSell || !liveData.available || liveData.price >= 10000) : false);
+
+    const hasBooking = (bookings || []).some((b: any) => {
+      if (b.status === 'cancelled') return false;
+      const bAccName = String(b.accommodation_name || b.roomName || b.room_name || '').toLowerCase();
+      const bAccId = String(b.accommodation_id || b.roomId || b.octorateRoomId || b.octorateId || '');
+
+      const isRoomMatch = 
+        (bAccName.length > 0 && (bAccName.includes(targetRoomName) || targetRoomName.includes(bAccName))) ||
+        (bAccId.length > 0 && (
+          bAccId === targetRoomId || 
+          (targetOctId.length > 0 && bAccId === targetOctId) || 
+          (targetRoomId.length > 0 && Number(bAccId) === Number(targetRoomId)) ||
+          (targetOctId.length > 0 && Number(bAccId) === Number(targetOctId))
+        ));
+
+      if (!isRoomMatch) return false;
+
+      const inDateStr = String(b.check_in || b.checkIn || '').slice(0, 10);
+      const outDateStr = String(b.check_out || b.checkOut || '').slice(0, 10);
+
+      return dateStr >= inDateStr && dateStr < outDateStr;
+    });
+
+    const isFree = !isClosedOrStopSell && !hasBooking;
+
+    // Regola Stagionale del Minimo Notti (Baseline):
+    // - Fino al 20 Dic (compreso): 2 notti
+    // - Dal 21 Dic al 15 Gen (compreso - Altissima Stagione): 5 notti
+    // - Dal 16 Gen in poi (resto dell'anno): 2 notti
+    const baselineMinStay = getBaselineMinStay(dateStr);
+    const standardMinStay = Math.max(baselineMinStay, (liveData?.minStay && liveData.minStay > 0) ? liveData.minStay : 1);
+
+    return { dateStr, isFree, standardMinStay };
+  });
+
+  if (!dynamicGapFillEnabled) {
+    dailyStates.forEach(s => {
+      result[s.dateStr] = s.standardMinStay;
+    });
+    return result;
+  }
+
+  let i = 0;
+  while (i < dailyStates.length) {
+    if (!dailyStates[i].isFree) {
+      result[dailyStates[i].dateStr] = dailyStates[i].standardMinStay;
+      i++;
+      continue;
+    }
+
+    const gapStart = i;
+    while (i < dailyStates.length && dailyStates[i].isFree) {
+      i++;
+    }
+    const gapEnd = i - 1;
+    const gapNights = gapEnd - gapStart + 1;
+
+    for (let k = gapStart; k <= gapEnd; k++) {
+      const s = dailyStates[k];
+      if (gapNights < s.standardMinStay && gapNights > 0) {
+        result[s.dateStr] = gapNights;
+      } else {
+        result[s.dateStr] = s.standardMinStay;
+      }
+    }
+  }
+
+  return result;
+}
+
+export function ResortVisualCalendar() {
+  const { 
+    bookings, 
+    accommodations, 
+    fetchBookings,
+    dynamicMinStayGapFill,
+    setDynamicMinStayGapFill
+  } = useResortAdminStore();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // View mode: 'today_30_days' (starts from today on far left) OR 'full_month'
+  const [viewMode, setViewMode] = useState<'today_30_days' | 'full_month'>('today_30_days');
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth()); // 0-11
+  const [filterCategory, setFilterCategory] = useState<string>('All');
+  const [selectedBooking, setSelectedBooking] = useState<ResortBooking | null>(null);
+  const [liveGridData, setLiveGridData] = useState<Record<string, Record<string, OctorateDayData>>>({});
+  const [loadingLive, setLoadingLive] = useState<boolean>(false);
+
+  // Load bookings on mount
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
+
+  // Compute array of date objects to render in columns
+  const datesArray: Date[] = (() => {
+    if (viewMode === 'today_30_days') {
+      const dates: Date[] = [];
+      const base = new Date(startDate);
+      for (let i = 0; i < 30; i++) {
+        const d = new Date(base);
+        d.setDate(d.getDate() + i);
+        dates.push(d);
+      }
+      return dates;
+    } else {
+      const daysInM = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const dates: Date[] = [];
+      for (let i = 1; i <= daysInM; i++) {
+        dates.push(new Date(currentYear, currentMonth, i));
+      }
+      return dates;
+    }
+  })();
+
+  console.log("[DEBUG PRENOTAZIONI CALENDARIO] Totale prenotazioni disponibili per il matching:", (bookings || []).length, bookings);
+
+  // Load Octorate Live Calendar & active reservations whenever dates range changes
+  const loadLiveGrid = async () => {
+    if (datesArray.length === 0) return;
+    setLoadingLive(true);
+    try {
+      const firstDate = datesArray[0];
+      const lastDate = datesArray[datesArray.length - 1];
+
+      const dateFrom = firstDate.toISOString().substring(0, 10);
+      const dateTo = lastDate.toISOString().substring(0, 10);
+
+      // Execute in parallel: fetch active reservations & monthly grid
+      const [, data] = await Promise.all([
+        fetchBookings(),
+        fetchOctorateMonthlyGrid(dateFrom, dateTo)
+      ]);
+
+      setLiveGridData(data || {});
+    } catch (err) {
+      console.warn('[ResortVisualCalendar] Live grid fetch error:', err);
+    } finally {
+      setLoadingLive(false);
+    }
+  };
+
+  useEffect(() => {
+    loadLiveGrid();
+  }, [viewMode, startDate, currentYear, currentMonth]);
+
+  // Navigation helpers
+  const handlePrev30Days = () => {
+    const newStart = new Date(startDate);
+    newStart.setDate(newStart.getDate() - 30);
+    setStartDate(newStart);
+  };
+
+  const handleNext30Days = () => {
+    const newStart = new Date(startDate);
+    newStart.setDate(newStart.getDate() + 30);
+    setStartDate(newStart);
+  };
+
+  const handleResetToToday = () => {
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    setStartDate(now);
+    setCurrentYear(now.getFullYear());
+    setCurrentMonth(now.getMonth());
+    setViewMode('today_30_days');
+  };
+
+  const handlePrevMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11);
+      setCurrentYear(currentYear - 1);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0);
+      setCurrentYear(currentYear + 1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
+  };
+
+  // Filter accommodations by category
+  const filteredRooms = (accommodations || []).filter((r) => {
+    if (filterCategory === 'All') return true;
+    return r.category && r.category.toLowerCase() === filterCategory.toLowerCase();
+  });
+
+  // Return raw base rate directly without applying any frontend discounts or multipliers
+  const calculateWebsitePriceForRoom = (roomName: string) => {
+    return ROOM_BASE_RATES[roomName] || 1000;
+  };
+
+  return (
+    <div className="space-y-4 text-stone-100 font-sans">
+      
+      {/* Calendar Header Controls */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-stone-900 border border-stone-800 rounded-3xl p-5 shadow-xl">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
+            <CalendarIcon className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
+                Calendario Visivo Alloggi & Prezzi
+              </h3>
+              <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                THB ฿
+              </span>
+            </div>
+            <p className="text-stone-400 text-xs font-medium mt-0.5">
+              Visualizzazione tariffe giornaliere, occupazione e canali OTA (Booking.com, Expedia, Agoda, Diretto)
+            </p>
+          </div>
+        </div>
+
+        {/* View Mode & Date Selector Controls */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-stone-950 p-2 rounded-2xl border border-amber-500/30 shadow-lg w-full md:w-auto">
+          {/* View Mode Switcher */}
+          <div className="flex items-center bg-stone-900 p-1 rounded-xl border border-stone-800">
+            <button
+              type="button"
+              onClick={() => {
+                setViewMode('today_30_days');
+                setStartDate(new Date());
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
+                viewMode === 'today_30_days'
+                  ? 'bg-amber-500 text-stone-950 shadow font-black'
+                  : 'text-stone-400 hover:text-white'
+              }`}
+            >
+              📌 Oggi in 1ª Colonna
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('full_month')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all cursor-pointer ${
+                viewMode === 'full_month'
+                  ? 'bg-amber-500 text-stone-950 shadow font-black'
+                  : 'text-stone-400 hover:text-white'
+              }`}
+            >
+              📅 Mese Solare (1-31)
+            </button>
+          </div>
+
+          {/* Navigation Controls */}
+          {viewMode === 'today_30_days' ? (
+            <div className="flex items-center gap-2 justify-between">
+              <button
+                type="button"
+                onClick={handlePrev30Days}
+                className="px-2.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-amber-400 font-bold text-xs rounded-xl border border-stone-800 cursor-pointer flex items-center gap-1"
+                title="30 Giorni Precedenti"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>30gg Prec</span>
+              </button>
+
+              <span className="font-extrabold text-xs text-white font-mono px-2">
+                {datesArray[0]?.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })} ➔ {datesArray[datesArray.length - 1]?.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
+              </span>
+
+              <button
+                type="button"
+                onClick={handleNext30Days}
+                className="px-2.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-amber-400 font-bold text-xs rounded-xl border border-stone-800 cursor-pointer flex items-center gap-1"
+                title="30 Giorni Successivi"
+              >
+                <span>30gg Succ</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 justify-between">
+              <button
+                type="button"
+                onClick={handlePrevMonth}
+                className="p-2 bg-stone-900 hover:bg-stone-800 text-amber-400 rounded-xl border border-stone-800 cursor-pointer"
+                title="Mese Precedente"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              <select
+                value={currentMonth}
+                onChange={(e) => setCurrentMonth(parseInt(e.target.value))}
+                className="bg-stone-900 text-white font-extrabold text-xs px-2 py-1.5 rounded-xl border border-stone-800 focus:outline-none focus:border-amber-400 cursor-pointer"
+              >
+                {MONTH_NAMES_IT.map((m, idx) => (
+                  <option key={idx} value={idx}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={currentYear}
+                onChange={(e) => setCurrentYear(parseInt(e.target.value))}
+                className="bg-stone-900 text-amber-400 font-mono font-black text-xs px-2 py-1.5 rounded-xl border border-stone-800 focus:outline-none focus:border-amber-400 cursor-pointer"
+              >
+                {[2025, 2026, 2027, 2028].map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={handleNextMonth}
+                className="p-2 bg-stone-900 hover:bg-stone-800 text-amber-400 rounded-xl border border-stone-800 cursor-pointer"
+                title="Mese Successivo"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={loadLiveGrid}
+            disabled={loadingLive}
+            className="px-3 py-1.5 bg-stone-900 hover:bg-stone-850 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-black uppercase tracking-wider shadow transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            title="Sincronizza Tariffe Live da Octorate REST v1"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingLive ? 'animate-spin' : ''}`} />
+            <span>{loadingLive ? 'Sync...' : 'Sync Live'}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleResetToToday}
+            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow transition-all cursor-pointer whitespace-nowrap"
+          >
+            Reset a Oggi
+          </button>
+        </div>
+      </div>
+
+      {/* Category Filters & Legend */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-stone-900/60 p-3 rounded-2xl border border-stone-850">
+        {/* Category Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+          {[
+            { id: 'All', label: 'Tutti gli Alloggi (18)' },
+            { id: 'VILLE', label: '🏡 Ville (4)' },
+            { id: 'BUNGALOW', label: '🛖 Bungalow (3)' },
+            { id: 'TENDE GLAMPING', label: '⛺ Glamping (2)' },
+            { id: 'THE HUB GUESTHOUSE', label: '🏨 Hub Guesthouse (9)' }
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setFilterCategory(cat.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
+                filterCategory === cat.id
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Agency Color Legend */}
+        <div className="flex items-center gap-2 overflow-x-auto text-[10px] font-bold text-stone-400 pt-1 sm:pt-0">
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Booking.com</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Expedia</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Agoda</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Diretto / Stripe</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-600" /> Stop Sell / Chiuso</span>
+        </div>
+      </div>
+
+      {/* Grid Matrix Table Container - Fits on one screen without vertical scrollbar */}
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden shadow-2xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[1250px]">
+            {/* Table Header: Days columns starting from Today or Month 1 */}
+            <thead className="bg-stone-950 sticky top-0 z-20 border-b border-stone-800">
+              <tr>
+                <th className="py-1 px-2 text-[10px] font-black text-stone-300 uppercase tracking-wider sticky left-0 bg-stone-950 z-30 min-w-[170px] shadow-r">
+                  Alloggio / Camera
+                </th>
+                {datesArray.map((cellDate, idx) => {
+                  const dayNum = cellDate.getDate();
+                  const monthShort = MONTH_NAMES_IT[cellDate.getMonth()].substring(0, 3);
+                  const dayOfWeekIdx = cellDate.getDay();
+                  const isWeekend = dayOfWeekIdx === 0 || dayOfWeekIdx === 6;
+                  const isToday = cellDate.getTime() === today.getTime();
+
+                  return (
+                    <th
+                      key={idx}
+                      className={`py-1 px-0.5 text-center border-l border-stone-850 min-w-[54px] ${
+                        isToday 
+                          ? 'bg-amber-500/25 text-amber-300 font-black ring-1 ring-amber-400' 
+                          : isWeekend 
+                            ? 'bg-stone-900 text-stone-300 font-bold' 
+                            : 'text-stone-400 font-medium'
+                      }`}
+                    >
+                      <div className="text-[8px] uppercase font-mono text-stone-400 leading-none">{DAY_NAMES_IT[dayOfWeekIdx]}</div>
+                      <div className={`text-[10px] font-mono font-bold leading-tight ${isToday ? 'text-amber-400 font-black' : ''}`}>
+                        {dayNum} {monthShort}
+                      </div>
+                      {isToday && (
+                        <div className="text-[7px] font-black uppercase text-amber-400 tracking-tighter leading-none">OGGI</div>
+                      )}
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+
+            {/* Table Body: Rooms Rows */}
+            <tbody className="divide-y divide-stone-850/60 text-[10px]">
+              {filteredRooms.map((room) => {
+                const roomPriceBase = ROOM_BASE_RATES[room.name] || (room.basePrice && room.basePrice > 0 ? room.basePrice : 1000);
+                const isRoomBaseClosed = roomPriceBase >= 10000;
+
+                // Calcolo reattivo del Soggiorno Minimo Dinamico (Gap-Fill a doppio senso) per questa riga alloggio
+                const gapFillMinStays = computeGapFillMinStays(
+                  room.name,
+                  room.id,
+                  room.octorateId,
+                  room.isAvailable,
+                  datesArray,
+                  liveGridData,
+                  bookings,
+                  dynamicMinStayGapFill
+                );
+
+                return (
+                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-7">
+                    {/* Room Name & Category Cell (Sticky Column) */}
+                    <td className="py-0.5 px-2 sticky left-0 bg-stone-900 z-10 border-r border-stone-800 shadow-r">
+                      <div className="flex items-center justify-between gap-1">
+                        <div className="font-extrabold text-white text-[10px] leading-none truncate max-w-[110px]" title={room.name}>
+                          {room.name}
+                        </div>
+                        <span className={`text-[9px] font-mono font-bold whitespace-nowrap ${isRoomBaseClosed ? 'text-red-400' : 'text-amber-400'}`}>
+                          {isRoomBaseClosed ? 'Chiuso' : `฿${roomPriceBase.toLocaleString('it-IT')}`}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Days Cells */}
+                    {datesArray.map((cellDate, idx) => {
+                      const dateStr = cellDate.toISOString().substring(0, 10);
+                      
+                      // Raw price for room (Live Octorate price or raw offline base rate)
+                      const liveData = (
+                        liveGridData[room.name] || 
+                        liveGridData[room.name.toLowerCase()] || 
+                        liveGridData[room.octorateId] || 
+                        liveGridData[room.id]
+                      )?.[dateStr];
+
+                      const websitePrice = (liveData && liveData.price > 0)
+                        ? liveData.price
+                        : calculateWebsitePriceForRoom(room.name);
+
+                      // Status check: Closed / Stop Sell / Zero Availability / Price >= 10000 THB
+                      const isRoomClosedByStaff = room.isAvailable === false;
+                      const isClosedOrStopSell = 
+                        isRoomClosedByStaff || 
+                        websitePrice >= 10000 ||
+                        (liveData ? (liveData.stopSell || !liveData.available || liveData.price >= 10000) : false);
+
+                      const isCTA = Boolean(liveData?.closedToArrival);
+                      const minStay = gapFillMinStays[dateStr] || liveData?.minStay;
+
+                      const displayPriceStr = websitePrice >= 10000 ? '10.000' : websitePrice.toLocaleString('it-IT');
+
+                      const cellBgClass = isClosedOrStopSell 
+                        ? 'bg-red-700 hover:bg-red-600 border-red-800/80' 
+                        : 'bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60';
+
+                      return (
+                        <td
+                          key={idx}
+                          className={`py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default ${cellBgClass}`}
+                          title={`${isClosedOrStopSell ? 'Alloggio Chiuso / Stop Sell' : 'Alloggio Libero e Disponibile'} ${isCTA ? '• Solo Check-Out (Closed to Arrival)' : ''} ${minStay && minStay > 1 ? `• Minimo ${minStay} notti` : ''}`}
+                        >
+                          {/* 1. Puntino Indicatore "Solo Check-out" (CTA) a Sinistra */}
+                          {isCTA && (
+                            <span 
+                              className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full bg-amber-400 border border-amber-500/60 shadow-sm" 
+                              title="Solo Check-Out / Closed to Arrival"
+                            />
+                          )}
+
+                          {/* Prezzo Giornaliero Sempre in Chiaro */}
+                          <div className="text-[10px] font-mono font-black text-white leading-none">
+                            {displayPriceStr}
+                          </div>
+
+                          {/* 2. Soggiorno Minimo in Basso a Destra (es. min 2N) */}
+                          {minStay && minStay > 1 && (
+                            <div className="absolute bottom-0.5 right-0.5 text-[7px] font-extrabold text-amber-200/90 leading-none tracking-tighter">
+                              min {minStay}N
+                            </div>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Booking Details Modal Popup */}
+      {selectedBooking && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Building className="w-5 h-5 text-emerald-400" />
+                <h3 className="font-extrabold text-white text-base">Dettaglio Prenotazione</h3>
+              </div>
+              <button
+                onClick={() => setSelectedBooking(null)}
+                className="p-1 text-stone-400 hover:text-white rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-850 space-y-1.5">
+                <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Ospite:</span>
+                <div className="font-extrabold text-white text-sm flex items-center gap-2">
+                  <User className="w-4 h-4 text-amber-400" />
+                  <span>{selectedBooking.guest_name}</span>
+                </div>
+                <div className="text-stone-400">{selectedBooking.guest_email} · {selectedBooking.guest_phone}</div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-stone-950 p-3 rounded-2xl border border-stone-850 space-y-1">
+                  <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Alloggio:</span>
+                  <div className="font-bold text-stone-200">{selectedBooking.accommodation_name}</div>
+                </div>
+
+                <div className="bg-stone-950 p-3 rounded-2xl border border-stone-850 space-y-1">
+                  <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Canale / Agenzia:</span>
+                  <div className="font-bold text-emerald-400">{selectedBooking.source_channel || 'Prenotazione Diretta'}</div>
+                </div>
+              </div>
+
+              <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-850 space-y-2">
+                <div className="flex justify-between items-center text-stone-300">
+                  <span>Periodo Check-in / Out:</span>
+                  <span className="font-mono font-bold text-white">
+                    {selectedBooking.check_in} ➔ {selectedBooking.check_out}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-stone-300 border-t border-stone-850 pt-2">
+                  <span>Totale Prenotazione:</span>
+                  <span className="font-mono font-black text-amber-400 text-sm">
+                    ฿{(selectedBooking.total_price ?? 0).toLocaleString('it-IT')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedBooking(null)}
+              className="w-full py-2.5 bg-stone-800 hover:bg-stone-750 text-white font-bold text-xs rounded-2xl transition-all cursor-pointer"
+            >
+              Chiudi
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

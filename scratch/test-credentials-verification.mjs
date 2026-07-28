@@ -84,15 +84,123 @@ async function testTelegram() {
   }
 }
 
-function testOctorate() {
-  const structureId = envVars.VITE_OCTORATE_STRUCTURE_ID;
-  const clientId = envVars.VITE_OCTORATE_CLIENT_ID;
-  const clientSecret = envVars.OCTORATE_SECRET_KEY || envVars.VITE_OCTORATE_SECRET_KEY;
-  if (structureId && clientId && clientSecret) {
-    console.log(`✅ Octorate PMS: Configurazione trovata (Structure ID: ${structureId}, Client ID: ${clientId.substring(0, 10)}...)`);
+async function testOctorate(opts = { testWrite: false }) {
+  const structureId = envVars.VITE_OCTORATE_STRUCTURE_ID || '366879';
+  const clientId = envVars.VITE_OCTORATE_CLIENT_ID || envVars.OCTORATE_CLIENT_ID || '';
+  const clientSecret = envVars.OCTORATE_SECRET_KEY || envVars.VITE_OCTORATE_SECRET_KEY || '';
+  const url = envVars.VITE_SUPABASE_URL || envVars.SUPABASE_URL;
+  const key = envVars.SUPABASE_SERVICE_ROLE_KEY || envVars.VITE_SUPABASE_ANON_KEY;
+
+  if (!structureId || !url || !key) {
+    console.log('❌ Octorate PMS: Variabili d\'ambiente mancanti');
+    return false;
+  }
+
+  try {
+    const supabase = createClient(url, key);
+    const { data: tokenData, error: tokenError } = await supabase
+      .from('octorate_tokens')
+      .select('access_token, refresh_token')
+      .eq('id', 'singleton')
+      .maybeSingle();
+
+    if (tokenError || !tokenData?.access_token) {
+      console.log(`❌ Octorate PMS: Impostazione token fallita nel DB (${tokenError?.message || 'Token mancante'})`);
+      return false;
+    }
+
+    let accessToken = tokenData.access_token;
+    let refreshToken = tokenData.refresh_token;
+
+    async function refreshAccessToken() {
+      try {
+        const refreshParams = new URLSearchParams();
+        refreshParams.append('client_id', clientId);
+        refreshParams.append('client_secret', clientSecret);
+        refreshParams.append('refresh_token', refreshToken);
+
+        const res = await fetch('https://api.octorate.com/connect/rest/v1/identity/refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: refreshParams.toString()
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          if (json.access_token) {
+            accessToken = json.access_token;
+            if (json.refresh_token) refreshToken = json.refresh_token;
+            await supabase.from('octorate_tokens').upsert({
+              id: 'singleton',
+              access_token: accessToken,
+              refresh_token: refreshToken,
+              expires_in: json.expires_in,
+              updated_at: new Date().toISOString()
+            });
+            return true;
+          }
+        }
+      } catch {}
+      return false;
+    }
+
+    const getHeaders = (t) => {
+      const h = {
+        'Authorization': `Bearer ${t}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      if (clientId) h['Octorate-Api-Key'] = clientId;
+      return h;
+    };
+
+    const todayISO = new Date().toISOString().substring(0, 10);
+    const calendarUrl = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${todayISO}&dateTo=${todayISO}&size=5`;
+
+    let res = await fetch(calendarUrl, { method: 'GET', headers: getHeaders(accessToken) });
+    let text = await res.text();
+    let json = null;
+    try { json = JSON.parse(text); } catch {}
+
+    if ((res.status === 401 || (res.status === 403 && json?.type === 'ApiLoginExpired')) && refreshToken) {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        res = await fetch(calendarUrl, { method: 'GET', headers: getHeaders(accessToken) });
+        text = await res.text();
+        try { json = JSON.parse(text); } catch {}
+      }
+    }
+
+    if (!res.ok) {
+      console.log(`❌ Octorate PMS: Chiamata GET calendar fallita (HTTP ${res.status} ${res.statusText})`);
+      return false;
+    }
+
+    let writeStatusStr = 'non testato';
+    if (opts.testWrite) {
+      const bulkUrl = 'https://api.octorate.com/connect/rest/v1/calendar/bulk';
+      const bulkPayload = [{
+        room: 529773,
+        dateFrom: '2026-12-21',
+        dateTo: '2026-12-21',
+        values: { minstay: 5, price: 120.00, availability: 1, stopSells: false, closeToArrival: false }
+      }];
+      let writeRes = await fetch(bulkUrl, {
+        method: 'POST',
+        headers: getHeaders(accessToken),
+        body: JSON.stringify(bulkPayload)
+      });
+      if (writeRes.ok) {
+        writeStatusStr = 'CONFERMATO (HTTP 200 OK)';
+      } else {
+        writeStatusStr = `FALLITO (HTTP ${writeRes.status})`;
+      }
+    }
+
+    console.log(`✅ Octorate PMS: Connessione OK (Structure ID: ${structureId}) | Permesso READONLY: Confermato | Permesso READWRITE: ${writeStatusStr}`);
     return true;
-  } else {
-    console.log('❌ Octorate PMS: Variabili mancanti');
+  } catch (err) {
+    console.log(`❌ Octorate PMS: Errore exception: ${err.message}`);
     return false;
   }
 }
@@ -125,7 +233,7 @@ async function runAll() {
   await testSupabase();
   await testStripe();
   await testTelegram();
-  testOctorate();
+  await testOctorate();
   testSMTP();
   testGoogleMaps();
   console.log('\n--- VERIFICA COMPLETATA ---');

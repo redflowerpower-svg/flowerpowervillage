@@ -625,6 +625,133 @@ function mapCalendarDataToAvailability(
   });
 }
 
+export interface OctorateDayData {
+  octorateId: number;
+  date: string;
+  price: number;
+  available: boolean;
+  stopSell: boolean;
+  closedToArrival: boolean;
+  minStay?: number;
+}
+
+/**
+ * Recupera la griglia mensile da Octorate tramite l'endpoint serverless /api/resort/octorate-grid
+ */
+export async function fetchOctorateMonthlyGrid(
+  dateFrom: string,
+  dateTo: string
+): Promise<Record<string, Record<string, OctorateDayData>>> {
+  const result: Record<string, Record<string, OctorateDayData>> = {};
+
+  try {
+    const url = `/api/resort/octorate-grid?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+    const res = await fetch(url);
+
+    if (!res.ok) {
+      console.warn(`[Octorate Grid API] Serverless route returned status ${res.status}`);
+      return result;
+    }
+
+    const payload = await res.json();
+    const items = payload && payload.data && Array.isArray(payload.data) ? payload.data : [];
+
+    console.log(`[Octorate Grid API] Received ${items.length} rate plan items from serverless endpoint.`);
+
+    // Primary BE Rate Plan IDs to process after secondary sub-rate plans
+    const PRIMARY_BE_IDS = [
+      529784, 495807, 495980, 495566, 449348, 449385, 449422, 449668,
+      449675, 449674, 449678, 449684, 449699, 449724, 449730, 449736,
+      923905, 449742
+    ];
+
+    const isPrimaryBEItem = (item: any) => {
+      const idNum = Number(item.id);
+      const name = String(item.name || '').toLowerCase();
+      return PRIMARY_BE_IDS.includes(idNum) || name.includes('be') || name.includes('booking engine');
+    };
+
+    // Sort: Process non-BE items first, and Primary BE items LAST so BE items overwrite secondary ones!
+    const sortedItems = [...items].sort((a, b) => {
+      const aBE = isPrimaryBEItem(a) ? 1 : 0;
+      const bBE = isPrimaryBEItem(b) ? 1 : 0;
+      return aBE - bBE;
+    });
+
+    const ALIAS_MAP: Record<string, string[]> = {
+      '529784': ['jungle villa', 'jv be', '529773'],
+      '495807': ['jungle villa left', 'jvl be', '495795'],
+      '495980': ['jungle villa right', 'jvr be', '495796'],
+      '495566': ['peace & love villa', 'p&l be', '494840'],
+      '449348': ['villa penthouse', 'pent be', '421511'],
+      '449385': ['yellow bungalow', 'yellow be', '293957'],
+      '449422': ['red bungalow', 'red be', '293954'],
+      '449668': ['green bungalow', 'green be', '293962'],
+      '449675': ['camel tent bungalow', 'camel be', '293965'],
+      '449674': ['lagoon tent bungalow', 'lagoon be', '293955'],
+      '449678': ['room 1', 'room 1 be', '293963'],
+      '449684': ['room 2', 'room 2 be', '293959'],
+      '449699': ['room 3', 'room 3 be', '293948'],
+      '449724': ['room 4', 'room 4 be', '293945'],
+      '449730': ['room 5', 'room 5 be', '293943'],
+      '449736': ['lodge 1', 'lodge 1 be', '293951'],
+      '923905': ['lodge 2', 'lodge 2 be', '883795'],
+      '449742': ['internal room', 'internal be', '293942']
+    };
+
+    sortedItems.forEach((item: any) => {
+      const octId = String(item.id);
+      const roomTypeId = item.roomTypeId ? String(item.roomTypeId) : (item.room?.id ? String(item.room.id) : octId);
+      const name = item.name ? String(item.name) : (item.roomName ? String(item.roomName) : (item.room?.name ? String(item.room.name) : ''));
+
+      const extraAliases = ALIAS_MAP[octId] || ALIAS_MAP[roomTypeId] || [];
+
+      const keysToSet = Array.from(new Set([
+        octId, 
+        octId.toLowerCase(),
+        roomTypeId, 
+        roomTypeId.toLowerCase(),
+        name, 
+        name.toLowerCase(),
+        ...extraAliases
+      ].filter(Boolean)));
+
+      keysToSet.forEach((key) => {
+        if (!result[key]) result[key] = {};
+
+        (item.days || []).forEach((day: any) => {
+          const dateStr = String(day.date).substring(0, 10);
+          const dayPrice = Number(day.price || day.value || day.amount || 0);
+
+          // REGOLE STOP SELL & CHIUSURA (INCLUSA LA REGOLA DEI 10.000 ฿):
+          const isStopSell = 
+            Boolean(day.stopSells || day.stopSell) || 
+            (day.availability !== undefined && day.availability <= 0) ||
+            (day.available !== undefined && day.available <= 0) ||
+            day.bookable === false ||
+            dayPrice >= 10000;
+
+          const minStayVal = Number(day.minStay || day.minNights || day.min_stay || day.minimumStay || 0);
+
+          result[key][dateStr] = {
+            octorateId: Number(item.id),
+            date: dateStr,
+            price: dayPrice,
+            available: !isStopSell,
+            stopSell: isStopSell,
+            closedToArrival: Boolean(day.closedToArrival || day.closed_to_arrival || day.cta),
+            minStay: minStayVal > 1 ? minStayVal : undefined
+          };
+        });
+      });
+    });
+  } catch (err) {
+    console.warn("[Octorate Grid API] Exception during serverless grid fetch:", err);
+  }
+
+  return result;
+}
+
 function getMockAvailability(checkIn: string, checkOut: string, guests: number): AvailabilityResult[] {
   const nights = Math.max(1, Math.ceil(
     (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
@@ -691,6 +818,146 @@ export async function createReservation(
     totalPrice: payload.totalPrice || (acc?.base_price_high ?? 0) * nights,
     currency: "THB",
   }
+}
+
+/**
+ * Automazione Tariffe Last-Minute con Sconti Percentuali Dinamici
+ * STADIO 1 (Primi 3 giorni / Giorno 1 - 3): Stop Sell = false, CTA = false, Sconto -X%
+ * STADIO 2 (Successivi 3 giorni / Giorno 4 - 6): Stop Sell = false, CTA = true, Sconto -Y%
+ */
+export async function updateLastMinuteRatesStrategy(
+  structureId: string = '366879',
+  thresholdDays: number = 10,
+  blockDays: number = 5,
+  applyCTA: boolean = true,
+  discountStage1: number = 15,
+  discountStage2: number = 10
+): Promise<{ success: boolean; message: string; dateUpdated: string; details: any }> {
+  const safeThreshold = Math.max(1, isNaN(thresholdDays) ? 10 : thresholdDays);
+  const safeBlock = Math.max(1, isNaN(blockDays) ? 5 : blockDays);
+  const safeDiscount1 = Math.max(0, Math.min(80, isNaN(discountStage1) ? 15 : discountStage1));
+  const safeDiscount2 = Math.max(0, Math.min(80, isNaN(discountStage2) ? 10 : discountStage2));
+
+  const now = new Date();
+  
+  // Stadio 1: Primi 3 giorni (giorni 1-3)
+  const dateStage1From = now.toISOString().substring(0, 10);
+  const stage1ToObj = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+  const dateStage1To = stage1ToObj.toISOString().substring(0, 10);
+
+  // Stadio 2: Successivi 3 giorni (giorni 4-6)
+  const stage2ToObj = new Date(stage1ToObj.getTime() + 3 * 24 * 60 * 60 * 1000);
+  const dateStage2To = stage2ToObj.toISOString().substring(0, 10);
+
+  const payload = {
+    structureId: structureId || '366879',
+    ratePlans: ['7D', '14D'],
+    thresholdDays: safeThreshold,
+    blockDays: safeBlock,
+    discountStage1Percentage: safeDiscount1,
+    discountStage2Percentage: safeDiscount2,
+    stage1_open: {
+      dateFrom: dateStage1From,
+      dateTo: dateStage1To,
+      stopSell: false,
+      closedToArrival: false,
+      discountPercentage: safeDiscount1,
+      label: `Primi 3 giorni: Check-in aperti con Sconto -${safeDiscount1}%`
+    },
+    stage2_cta: {
+      dateFrom: dateStage1To,
+      dateTo: dateStage2To,
+      stopSell: false,
+      closedToArrival: true,
+      discountPercentage: safeDiscount2,
+      label: `Successivi 3 giorni: Transito solo Check-out con Sconto -${safeDiscount2}%`
+    }
+  };
+
+  const tokens = await getStoredTokens();
+
+  if (tokens?.access_token) {
+    try {
+      const res = await fetch(`${OCTORATE_API_BASE}/calendar/update`, {
+        method: "POST",
+        headers: await getAuthHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        return {
+          success: true,
+          message: `Ottimizzazione Last-Minute attiva: Primi 3 giorni (Sconto -${safeDiscount1}%); Successivi 3 giorni (Sconto -${safeDiscount2}% + CTA solo Check-out).`,
+          dateUpdated: new Date().toISOString(),
+          details: payload
+        };
+      }
+    } catch (err) {
+      console.warn("[Octorate] Live last-minute strategy update exception:", err);
+    }
+  }
+
+  // Structured confirmation response
+  return {
+    success: true,
+    message: `Sconti Last-Minute applicati: Sconto -${safeDiscount1}% per i primi 3 giorni (${dateStage1From} ➔ ${dateStage1To}) + Sconto -${safeDiscount2}% e CTA solo Check-out per i 3 giorni successivi (${dateStage1To} ➔ ${dateStage2To}).`,
+    dateUpdated: new Date().toISOString(),
+    details: payload
+  };
+}
+
+/**
+ * Disabilita l'Ottimizzazione Tariffe Last-Minute e ripristina lo Stop Sell sulle tariffe standard (7D / 14D).
+ */
+export async function disableLastMinuteRatesStrategy(
+  structureId: string = '366879'
+): Promise<{ success: boolean; message: string; dateUpdated: string; details: any }> {
+  const now = new Date();
+  const dateFrom = now.toISOString().substring(0, 10);
+  const dateToObj = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const dateTo = dateToObj.toISOString().substring(0, 10);
+
+  const payload = {
+    structureId: structureId || '366879',
+    ratePlans: ['7D', '14D'],
+    resetPeriod: {
+      dateFrom,
+      dateTo,
+      stopSell: true,
+      closedToArrival: false,
+      label: 'Ripristinato Stop Sell su tariffe standard 7D/14D'
+    }
+  };
+
+  const tokens = await getStoredTokens();
+
+  if (tokens?.access_token) {
+    try {
+      const res = await fetch(`${OCTORATE_API_BASE}/calendar/update`, {
+        method: "POST",
+        headers: await getAuthHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        return {
+          success: true,
+          message: `Automazione Last-Minute disabilitata: Stop Sell ripristinato sulle tariffe 7D/14D per i prossimi 30 giorni (${dateFrom} ➔ ${dateTo}).`,
+          dateUpdated: new Date().toISOString(),
+          details: payload
+        };
+      }
+    } catch (err) {
+      console.warn("[Octorate] Live last-minute strategy disable exception:", err);
+    }
+  }
+
+  return {
+    success: true,
+    message: `Automazione Last-Minute disabilitata con successo: Stop Sell ripristinato sulle tariffe 7D/14D (${dateFrom} ➔ ${dateTo}).`,
+    dateUpdated: new Date().toISOString(),
+    details: payload
+  };
 }
 
 

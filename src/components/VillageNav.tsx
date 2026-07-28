@@ -130,6 +130,16 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
               );
             })}
 
+            {/* Area Privata Staff Link */}
+            <button
+              onClick={() => navigate('/admin?dept=resort')}
+              className="text-stone-300 hover:text-emerald-400 border border-stone-700/60 hover:border-emerald-500/50 bg-stone-900/50 px-2.5 py-1.5 rounded-xl transition-all duration-200 text-[10px] font-bold uppercase tracking-wider cursor-pointer flex items-center gap-1"
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+              title="Portale Staff / Area Privata"
+            >
+              <span>🔒 {lang === 'IT' ? 'Area Privata' : 'Staff Portal'}</span>
+            </button>
+
             {/* Desktop Language Switcher */}
             <div className="relative z-50">
               <button
@@ -265,6 +275,20 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
                   </button>
                 );
               })}
+
+              <div className="pt-4 border-t border-stone-700/60 mt-2">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    navigate('/admin?dept=resort');
+                  }}
+                  className="w-full text-left text-xs font-bold uppercase tracking-wider py-3 px-3.5 rounded-xl bg-stone-900 border border-stone-700 text-stone-300 hover:text-emerald-400 transition-all flex items-center justify-between cursor-pointer"
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+                >
+                  <span>🔒 {lang === 'IT' ? 'Area Privata Staff' : 'Staff Portal'}</span>
+                  <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">/admin</span>
+                </button>
+              </div>
             </div>
           </div>
         </>

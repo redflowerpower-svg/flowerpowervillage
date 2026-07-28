@@ -1,0 +1,118 @@
+=== CATEGORIES IN SHEET 1 ===
+Row   1: TRADITIONAL ITALIAN PIZZA
+Row   2: พิซซ่าอิตาเลียนแบบดั้งเดิม
+Row   4: Pizza Is The Heart Of Our Restaurant. We Use Only Selected Italian Ingredients, From Flour To Tomato, From Cheeses To Cold Cuts, With No Compromise On Quality. Our Traditional High-Hydration Italian Pizza Is Made With A 90% Water Dough, Slowly Matured For At Least 36 Hours. The Result Is A Crispy, Light, Highly Digestible Pizza, Full Of Flavor
+Row   5: พิซซ่าคือหัวใจของร้านอาหารของเรา เราใช้เฉพาะวัตถุดิบอิตาเลียนที่คัดสรรมาอย่างดี ตั้งแต่แป้ง มะเขือเทศ ชีส ไปจนถึงโคลด์คัต โดยไม่ประนีประนอมด้านคุณภาพ พิซซ่าอิตาเลียนแบบดั้งเดิมของเราเป็นแป้งไฮเดรชันสูง ผสมน้ำถึง 90% และหมักอย่างช้าๆ อย่างน้อย 36 ชั่วโมง ผลลัพธ์คือพิซซ่าที่กรอบ เบา ย่อยง่าย และเต็มไปด้วยรสชาติ
+Row  42: PASTA
+Row  43: พาสต้า
+Row  45: GARLIC, OIL & CHILI
+Row  46: อัลโย โอลีโอ พริกแห้ง
+Row  48: A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite
+Row  49: เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ
+Row  58: TOMATO SAUCE
+Row  59: ซอสมะเขือเทศ
+Row  61: Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It’s the heart of Italian cuisine
+Row  62: ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน
+Row  71: PESTO GENOVESE
+Row  72: เพสโต้ เจโนเวเซ
+Row  74: Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa
+Row  75: ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว
+Row  84: AMATRICIANA
+Row  85: อามาทริเซียน่า
+Row  87: Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition
+Row  88: ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี
+Row  97: BOLOGNESE RAGÙ
+Row  98: โบโลเนส ราก
+Row 100: A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna’s tradition
+Row 101: ซอสเนื้อเข้มข้น เคี่ยวช้าๆ ด้วยเนื้อบด มะเขือเทศ ผักสด และไวน์แดง รสชาติเต็มๆ ละมุน และโดดเด่น เป็นเอกลักษณ์ของโบโลญญา
+Row 110: CARBONARA
+Row 111: คาร์โบนารา
+Row 113: One of Italy’s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor
+Row 114: เมนูยอดนิยมของอิตาลี ทำจากแก้มหมูรมควัน ไข่ ชีสเปโคริโน และพริกไทยดำ เข้มข้น โดยไม่ใช้ครีม รสชาติแท้และน่าหลงใหล
+Row 123: FOUR CHEESES
+Row 124: ชีสโฟร์ฟอร์มาจ
+Row 126: A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite
+Row 127: รวมชีสอิตาเลียน 4 ชนิดที่คัดสรรมาอย่างดี ละลายเข้ากันอย่างลงตัว รสชาติเข้มข้น หอมมัน และละมุนในทุกคำ
+Row 136: FLOWER POWER
+Row 137: ฟลาวเวอร์ พาวเวอร์
+Row 139: House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes
+Row 140: ซอสพาสต้าโฮมเมด รวมกอร์กอนโซล่า ไส้กรอกอิตาเลียน และอาติโช๊ค รสชาติเข้มข้น กลมกล่อม เหมาะสำหรับคนที่ชอบรสจัด
+Row 148: BAKED LASAGNA
+Row 149: ลาซานญ่าอบ
+Row 151: Homemade Lasagne Are A Classic Of Italian Cuisine, Made With Béchamel, Sauces, And Parmesan. Pre-Order One Day In Advance, Minimum Two Portions, Or Ask The Staff. Cooking Time About 30 Minutes.
+Row 152: ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที
+Row 159: ITALIAN SALADS
+Row 160: สลัดอิตาเลียน
+Row 162: Italian-style salads with fresh vegetables and healthy, high-quality ingredients. Served with tasty homemade sauces, extra virgin olive oil. Fresh, delicious and healthy
+Row 163: สลัดสไตล์อิตาเลียน ทำจากผักสดและวัตถุดิบเพื่อสุขภาพคุณภาพสูง เสิร์ฟพร้อมซอสโฮมเมดรสอร่อยและน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิน สดใหม่ อร่อย และดีต่อสุขภาพ
+Row 171: PIZZA SANDWICH
+Row 172: พิตซ่าแซนด์วิช
+Row 174: Made with warm, freshly baked bread and filled with authentic cold cuts imported directly from Italy
+Row 175: ทำจากขนมปังอบใหม่ๆ ร้อนๆ ไส้แน่นด้วยโคลด์คัทแท้ส่งตรงจากอิตาลี
+Row 181: PIZZA BURGERS
+Row 182: พิซซ่าเบอร์เกอร์
+Row 184: Prepared With Freshly Baked Burger Buns And Homemade Italian-Style Hamburgers, Served With French Fries, Ketchup And Mayonnaise. Fresh, Tasty And Satisfying
+Row 185: ทำจากเบอร์เกอร์บันอบสดใหม่ และแฮมเบอร์เกอร์โฮมเมดสไตล์อิตาเลียน เสิร์ฟพร้อมเฟรนช์ฟรายส์ ซอสมะเขือเทศและมายองเนส สดใหม่ทุกจาน
+Row 194: FRENCH FRIES
+Row 195: มันฝรั่งทอด
+Row 197: French Fries Are Freshly Prepared To Order, Crispy And Delicious, And Served With Ketchup And Mayonnaise. Choose Your Favorite Version And Enjoy
+Row 198: เฟรนช์ฟรายส์ทอดสดใหม่ตามออเดอร์ กรอบนอกนุ่มใน เสิร์ฟพร้อมซอสมะเขือเทศและมายองเนส แสนอร่อย เลือกเวอร์ชั่นที่คุณชอบได้เลย
+Row 207: DESSERTS
+Row 208: ของหวาน
+Row 210: Dessert Is The Moment When A Meal Becomes The Ultimate Pleasure. Our Sweets Are Handmade, Prepared With Fresh, Genuine Ingredients And Homemade Passion
+Row 211: ของหวานคือช่วงเวลาที่มื้ออาหารกลายเป็นความสุขสูงสุด ขนมของเราทำแบบโฮมเมด ใช้วัตถุดิบสดใหม่และแท้จริง พร้อมความหลงใหลในการทำด้วยมือ
+Row 220: BREAKFAST AND SNACKS
+Row 221: อาหารเช้าและของว่าง
+Row 223: Breakfast Is The Most Important Meal Of The Day, The Moment That Sets The Tone And Rhythm For Everything That Follows. Starting Your Day With Fresh, Genuine, High-Quality Ingredients, Carefully Prepared To Order, Truly Makes All The Difference, Offering Real Flavor, Lasting Energy, And An Enjoyable Start To The Day
+Row 224: การเริ่มต้นวันใหม่ด้วยอาหารเช้าเป็นสิ่งสำคัญที่สุดของวัน เป็นช่วงเวลาที่กำหนดจังหวะและอารมณ์ของทั้งวัน การเลือกใช้วัตถุดิบที่สดใหม่ เป็นธรรมชาติ และมีคุณภาพ ซึ่งปรุงสดใหม่ทุกจานด้วยความใส่ใจ จะช่วยเติมพลัง สร้างความสุข มอบรสชาติที่แท้จริง และสร้างจังหวะที่ดีให้คุณเริ่มต้นวันได้อย่างสมบูรณ์แบบมากยิ่งขึ้น
+Row 238: COFFEE SHOP
+Row 239: ร้านกาแฟ
+Row 241: Coffee Is The Heart Of Italian Culture. It Is Not Just A Drink, But A Daily Ritual Of Pause And Pleasure, To Be Enjoyed Slowly With A Smile, Every Day. From Espresso To More Indulgent Versions, Every Cup Offers An Authentic Experience, Simple, Made Of Flavor And Small Details Crafted With Passion
+Row 242: กาแฟคือหัวใจของวัฒนธรรมอิตาลี ไม่ใช่แค่เครื่องดื่ม แต่คือพิธีกรรมประจำวันของการหยุดพัก ความผ่อนคลาย และความสุขเล็กๆ ที่ควรดื่มด่ำอย่างสบายใจ พร้อมรอยยิ้มในทุกๆ วัน ตั้งแต่เอสเพรสโซไปจนถึงสูตรที่เข้มข้นยิ่งขึ้น ทุกถ้วยมอบประสบการณ์ที่แท้จริง เรียบง่าย เต็มไปด้วยรสชาติ และรายละเอียดเล็กๆ ที่เปี่ยมด้วยความหลงใหล
+Row 256: FRUIT DRINKS
+Row 257: เครื่องดื่มผลไม้
+Row 259: All Our Fruit Drinks Are Made Fresh To Order With Fresh Fruit And Carefully Selected High-Quality Ingredients, Delivering A Full And Refreshing Flavor
+Row 260: เครื่องดื่มผลไม้ของเราทั้งหมดทำสดใหม่ทุกแก้ว จากผลไม้สดและวัตถุดิบคัดสรรคุณภาพเยี่ยม ให้รสชาติสดชื่นเต็มเปี่ยม
+Row 269: SOFT DRINKS
+Row 270: น้ำอัดลม
+Row 272: Fresh, Non-Alcoholic Drinks Carefully Served In A Glass, Perfect To Accompany Your Meal Or Refresh You, Ideal For Any Moment Of The Day
+Row 273: เครื่องดื่มไร้แอลกอฮอล์สดชื่น เสิร์ฟในแก้วอย่างพิถีพิถัน เหมาะสำหรับทานคู่มื้ออาหารหรือเติมความสดชื่นตลอดวัน
+Row 280: BEERS
+Row 281: เบียร์
+Row 283: The Best Thai Beer Brands Served In Large And Small Bottles, Because Glass Bottles Enhance The Flavor, Bringing Out The Full Beer Experience
+Row 284: เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้
+Row 291: WINES
+Row 292: รายการไวน์
+Row 294: Italy Is World-Renowned For Its High-Quality Wines With A Long-Standing Tradition. That’s Why We Offer A Carefully Curated Selection Of Italian Red And White Wines, Chosen To Enhance The Flavors Of Every Dish On Our Menu. For The Best And Most Suitable Option At The Moment, Feel Free To Ask Our Staff
+Row 295: อิตาลีมีชื่อเสียงด้านไวน์คุณภาพระดับโลกมาอย่างยาวนาน เราจึงคัดสรรไวน์อิตาเลียนทั้งแดงและขาวอย่างพิถีพิถัน เพื่อเสริมรสชาติของทุกเมนูให้โดดเด่นและสมดุลยิ่งขึ้น หากต้องการทราบว่าในขณะนี้ไวน์ชนิดใดเหมาะที่สุดกับอาหาร สอบถามที่พนักงานของเราได้อย่างมั่นใจ
+
+=== EXTRAS & MODIFIERS ===
+Row  1: ['Group Name', 'Name (EN)', 'Name (TH)', 'SKU', 'Price (฿)']
+Row  2: ['Pizza Extras', '1 Egg Extra', 'ไข่ไก่เพิ่ม', '10122', '20.00฿']
+Row  3: ['Pizza Extras', 'Anchovies Extra', 'แองโชวี่เพิ่ม', '10285', '50.00฿']
+Row  4: ['Pizza Extras', 'Artichoke Extra', 'อาร์ติโชคเพิ่ม', '10096', '50.00฿']
+Row  5: ['Pizza Extras', 'Bacon Extra', 'เบคอนเพิ่ม', '10111', '50.00฿']
+Row  6: ['Pizza Extras', 'Black Olives Extra', 'มะกอกดำเพิ่ม', '10138', '40.00฿']
+Row  7: ['Pizza Extras', 'Capers Extra', 'เคเปอร์เพิ่ม', '10121', '40.00฿']
+Row  8: ['Pizza Extras', 'Chicken Ham Extra', 'แฮมไก่เพิ่ม', '10129', '50.00฿']
+Row  9: ['Pizza Extras', 'Chicken Salame Extra', 'ซาลามี่ไก่เพิ่ม', '10141', '50.00฿']
+Row 10: ['Pizza Extras', 'Extra " Mozzarella Cheese', 'ชีสมอซซาเรลล่าเพิ่ม', '10102', '50.00฿']
+Row 11: ['Pizza Extras', 'Fresh Tomato Extra', 'มะเขือเทศสดเพิ่ม', '10191', '20.00฿']
+Row 12: ['Pizza Extras', 'Gorgonzola Extra', 'ชีสกอร์กอนโซล่าเพิ่ม', '10118', '50.00฿']
+Row 13: ['Pizza Extras', 'Ham Extra', 'แฮมเพิ่ม', '10113', '50.00฿']
+Row 14: ['Pizza Extras', 'Hotdog Extra', 'ฮอทดอกเพิ่ม', '10236', '50.00฿']
+Row 15: ['Pizza Extras', 'Mushrooms Extra', 'เห็ดเพิ่ม', '10094', '30.00฿']
+Row 16: ['Pizza Extras', 'Onion/Garlic Extra', 'หอมใหญ่/กระเทียมเพิ่ม', '10068', '20.00฿']
+Row 17: ['Pizza Extras', 'Parmesan cheese 🧀', 'พาร์เมซานชีสเพิ่ม', '10171', '20.00฿']
+Row 18: ['Pizza Extras', 'Pesto Sauce Extra', 'ซอสเพสโต้เพิ่ม', '10062', '60.00฿']
+Row 19: ['Pizza Extras', 'Pineapple Extra', 'สับปะรดเพิ่ม', '10095', '30.00฿']
+Row 20: ['Pizza Extras', 'Salame Calabrese Extra', 'ซาลามี่คาลาเบรียเพิ่ม', '10088', '50.00฿']
+Row 21: ['Pizza Extras', 'Salame Extra', 'ซาลามี่เพิ่ม', '10087', '50.00฿']
+Row 22: ['Pizza Extras', 'Sausage Extra', 'ไส้กรอกเพิ่ม', '10086', '50.00฿']
+Row 23: ['Pizza Extras', 'Sweet Bell Peppers Extra', 'พริกหวานเพิ่ม', '10107', '50.00฿']
+Row 24: ['Pizza Extras', 'Tofu Extra', 'เต้าหู้เพิ่ม', '10172', '50.00฿']
+Row 25: ['Pizza Extras', 'Tuna Extra', 'ทูน่าเพิ่ม', '10120', '50.00฿']
+Row 26: ['Pizza Extras', 'Vegetables Extra', 'ผักเพิ่ม', '10100', '50.00฿']
+Row 27: ['Salad Extras', 'Chicken Extra', 'ไก่เพิ่ม', '10035', '40.00฿']
+Row 28: ['Coffee Shop Modifiers', 'Extra Coffee', 'ช็อตกาแฟเพิ่ม', '10166', '30.00฿']
+Row 29: ['Croissant Modifiers', 'Nutella Extra', 'นูเทลล่าเพิ่ม', 'None', '30.00฿']

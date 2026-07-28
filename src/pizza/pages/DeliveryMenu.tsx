@@ -8,6 +8,7 @@ import CartDrawer from '../components/CartDrawer';
 import CheckoutFlow from '../components/CheckoutFlow';
 import { useCartStore } from '../store/cartStore';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
+import { supabase } from '../../lib/supabase';
 
 
 const translations = {
@@ -480,12 +481,41 @@ export default function DeliveryMenu() {
     document.documentElement.setAttribute('data-lang', lang);
   }, [lang]);
 
+  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
+  const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    supabase
+      .from('pizza_menu_items')
+      .select('id, price, is_available')
+      .then(({ data, error }) => {
+        if (data && Array.isArray(data)) {
+          const unavail = new Set<string>();
+          const prices: Record<string, number> = {};
+          data.forEach(item => {
+            if (item.is_available === false) {
+              unavail.add(item.id);
+            }
+            if (typeof item.price === 'number') {
+              prices[item.id] = item.price;
+            }
+          });
+          setUnavailableIds(unavail);
+          setPriceOverrides(prices);
+        }
+      });
+  }, []);
+
   const t = translations[lang];
   const activeCategory = menuData.find((c) => c.id === activeCategoryId) ?? menuData[0];
   const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
 
+  const filteredCategoryItems = activeCategory.items
+    .filter((item: any) => !unavailableIds.has(item.id))
+    .map((item: any) => priceOverrides[item.id] !== undefined ? { ...item, price: priceOverrides[item.id] } : item);
+
   const groupedPasta = activeCategoryId === 'pasta' ? PASTA_SAUCES.map(sauce => {
-    const items = activeCategory.items.filter((item: any) => {
+    const items = filteredCategoryItems.filter((item: any) => {
       const path = item.image_file || "";
       const name = item.id || "";
       if (path.includes(sauce.pattern)) return true;
@@ -496,7 +526,7 @@ export default function DeliveryMenu() {
   }).filter(group => group.items.length > 0) : [];
 
   const groupedBeersAndWines = activeCategoryId === 'beers-and-wines' ? BEER_AND_WINE_SECTIONS.map(sec => {
-    const items = activeCategory.items.filter((item: any) => {
+    const items = filteredCategoryItems.filter((item: any) => {
       const isBeer = item.id.includes('beer');
       if (sec.id === 'beers') return isBeer;
       if (sec.id === 'wines') return !isBeer;
@@ -758,7 +788,7 @@ export default function DeliveryMenu() {
               ))}
             </div>
           ) : (
-            <MenuGrid items={activeCategory.items} lang={lang} />
+            <MenuGrid items={filteredCategoryItems} lang={lang} />
           )}
         </div>
       </div>
