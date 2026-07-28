@@ -118,9 +118,12 @@ Di seguito sono documentate le principali criticità architetturali emerse duran
 *   **Problema:** A seguito di una modifica per arricchire il campo `privateNotes` inviato ad Octorate con i dettagli finanziari dell'acconto e del saldo, la sincronizzazione falliva silenziosamente. Il server sollevava un `ReferenceError: balanceDue is not defined` poiché la variabile veniva letta ma non era stata estratta tramite destrutturazione dall'oggetto `session.metadata`.
 *   **Soluzione:** La variabile `balanceDue` è stata inserita correttamente nell'assegnazione destrutturata di `session.metadata` all'inizio del modulo di verifica.
 
-### E. Protocollo di Sincronizzazione Cassaforte (Vault-Sync tra Koh Phayam e Ranong)
-*   **Problema:** Necessità di sincronizzare credenziali e chiavi segrete API (.env, Stripe, Supabase, Telegram, Octorate) in modo sicuro tra postazioni di lavoro multiple senza mai esporre chiavi in chiaro su repository Git pubblici.
-*   **Soluzione:** Implementazione dello script di cifratura/decifratura AES-256-GCM ([scratch/vault-sync.mjs](file:///d:/Antigravity%20-%20Sviluppo%20Website/flower-power-village-bolt/flowerpowervillage/scratch/vault-sync.mjs)). Il report delle credenziali viene cifrato in `.secret_docs/api_credentials_report.md.enc` ed è l'unico file di credenziali tracciato da Git. Tramite i comandi `VAULT-SYNC` (post-pull) e `MARKDOWN-PROJECT` (pre-push), l'ambiente locale si sincronizza automaticamente e aggiorna la documentazione di fine sessione per Gemini Notebook.
+### E. Protocollo di Sincronizzazione Cassaforte & Allineamento Notebook (Vault-Sync & MARKDOWN-PROJECT)
+*   **Problema:** Necessità di sincronizzare credenziali e chiavi segrete API (.env, Stripe, Supabase, Telegram, Octorate) in modo sicuro tra postazioni di lavoro multiple senza mai esporre chiavi in chiaro su repository Git pubblici, e garantire che le istruzioni dell'agente assistente siano sempre perfettamente allineate nel Gemini Notebook del taccuino browser.
+*   **Soluzione:**
+    *   Implementato lo script di cifratura/decifratura AES-256-GCM ([scratch/vault-sync.mjs](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scratch/vault-sync.mjs)). Il report delle credenziali viene cifrato in `.secret_docs/api_credentials_report.md.enc` ed è l'unico file di credenziali tracciato da Git.
+    *   Integrazione nel protocollo **`MARKDOWN-PROJECT`** della copia speculare automatica dei file di istruzioni dell'agente: `.agents/AGENTS.md` in `documentation_reports/AGENTS.md` e `.agentinstructions` in `documentation_reports/agentinstructions.txt` (estensione `.txt` per permettere un caricamento fluido nel taccuino browser).
+    *   Se l'utente nota questi file evidenziati in **GIALLO** (Stato: Modificato) nell'IDE a seguito di una sessione, deve trascinarli nel Gemini Notebook per mantenere l'assistente web perfettamente aggiornato.
 
 ### F. Architettura Dashboard Unificata con Bivio (Entry Point)
 *   **Problema:** Necessità di un unico portale amministrativo (`/admin`) che permetta allo staff autenticato di accedere alla gestione sia del reparto Pizzeria (Ranong) che del reparto Resort (Koh Phayam), mantenendo tuttavia una compartimentazione logica, visiva e di stato (Zustand) totale tra i due domini.
@@ -130,8 +133,12 @@ Di seguito sono documentate le principali criticità architetturali emerse duran
     *   **Pizzeria (`src/admin/pizza/`)**: Modulo Pizzeria isolato con proprio Zustand store (`usePizzaAdminStore`) e componente `PizzaDashboard`.
     *   **Resort (`src/admin/resort/`)**: Modulo Resort isolato con proprio Zustand store (`useResortAdminStore`) e componente `ResortDashboard`.
 
-### G. Sblocco Permessi di Scrittura Octorate (READWRITE & Bulk Update)
-*   **Problema:** Inizialmente le chiamate di aggiornamento prezzi e disponibilità via API REST v1 restituivano un errore `403 Caller not in requested role` o `403 Forbidden` a causa di permessi `permissions.accommodation = READONLY` a livello di account Octorate.
-*   **Soluzione:** A seguito dell'abilitazione dei permessi da parte di Octorate su ID Struttura `#366879`, è stato eseguito e verificato lo script isolato [`scratch/test-octorate-write-capability.mjs`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scratch/test-octorate-write-capability.mjs). La chiamata `POST /connect/rest/v1/calendar/bulk` ha restituito **HTTP 200 OK** (`success: true`), confermando l'operatività del canale di scrittura.
+### H. Refactoring API Gateway Catch-All per Limite Vercel Hobby (Max 12 Functions)
+*   **Problema:** Il deployment su Vercel (piano Hobby) falliva con l'errore `"No more than 12 Serverless Functions can be added to a Deployment on the Hobby plan"`. L'applicazione tentava di compilare **14 funzioni serverless distinte** distribuite tra `/api/`, `/api/admin/` e `/api/resort/`.
+*   **Soluzione:** Implementata l'architettura **API Gateway Catch-All**:
+    *   Spostati tutti gli handler delle API nella cartella protetta `api/_handlers/` (`checkout.ts`, `verify.ts`, `download.ts`, `telegram.ts`, `octorate.ts`). I file/cartelle che iniziano con `_` vengono ignorati dal compilatore Vercel e **non conteggiati come serverless functions**.
+    *   Creato un punto di ingresso unico `api/[...route].ts` che gestisce il routing dinamico di tutte le chiamate `/api/*` senza modificare alcun URL lato frontend o webhook.
+    *   Il conteggio delle Serverless Functions è sceso **da 14 a 1 singola funzione**, rispettando al 100% i limiti del piano Vercel Hobby.
+
 
 

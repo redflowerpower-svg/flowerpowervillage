@@ -1,14 +1,11 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { stripe } from "./_helpers/stripe.js";
+import { stripe } from "../_helpers/stripe.js";
 import { createClient } from "@supabase/supabase-js";
-
 
 // Initialize Supabase (use service role key to bypass RLS and read octorate_tokens)
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null as any;
-
-
 
 // Room configurations matching accommodations.ts
 const MOCK_ACCOMMODATIONS = [
@@ -38,15 +35,12 @@ const PRICE_CONFIG = {
   AC_SURCHARGE: 500,       // THB flat per stay
 };
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function handleCreateCheckoutSession(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-
   try {
-
-
     const {
       accommodationId,
       checkIn,
@@ -105,101 +99,62 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (tokenData?.access_token) {
       try {
         const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
-        const calendarUrl = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${checkIn}&dateTo=${checkOut}&size=20`;
-
-        const octRes = await fetch(calendarUrl, {
-          method: "GET",
+        const octUrl = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${checkIn}&dateTo=${checkOut}&size=20`;
+        const octRes = await fetch(octUrl, {
           headers: {
             "Authorization": `Bearer ${tokenData.access_token}`,
+            "Content-Type": "application/json",
             "Accept": "application/json"
           }
         });
 
         if (octRes.ok) {
-          const calendarData = await octRes.json();
-          const pageItems = calendarData && Array.isArray(calendarData.data)
-            ? calendarData.data
-            : (Array.isArray(calendarData) ? calendarData : []);
+          const octJson = await octRes.json();
+          const items = Array.isArray(octJson) ? octJson : (octJson.data || []);
+          const targetRoom = items.find((item: any) => item.id === Number(accommodationId) || item.room === Number(accommodationId));
 
-          const roomMatch = pageItems.find((item: any) => Number(item.id) === Number(accommodationId));
-          if (roomMatch && Array.isArray(roomMatch.days)) {
-            let sum = 0;
-            let count = 0;
-            const checkInTime = start.getTime();
-            const checkOutTime = end.getTime();
-
-            roomMatch.days.forEach((day: any) => {
-              const dayTime = new Date(day.date).getTime();
-              if (dayTime >= checkInTime && dayTime < checkOutTime) {
-                sum += day.price || 0;
-                count++;
-              }
-            });
-
-            if (count >= nights) {
-              baseRoomPricePerNight = Math.round(sum / count);
+          if (targetRoom && targetRoom.days && targetRoom.days.length > 0) {
+            const totalPriceFromOct = targetRoom.days.reduce((acc: number, day: any) => acc + (day.price || 0), 0);
+            if (totalPriceFromOct > 0) {
+              baseRoomPricePerNight = Math.round(totalPriceFromOct / targetRoom.days.length);
               solvedFromOctorate = true;
             }
           }
         }
-      } catch (err) {
-        console.warn("[Stripe API] Failed fetching live rate from Octorate, falling back to mock:", err);
+      } catch (octErr) {
+        console.warn("[Stripe API] Octorate live rate fetch failed, falling back to local prices:", octErr);
       }
     }
 
-    // Mock price fallback
+    // Fallback if Octorate was not available
     if (!solvedFromOctorate) {
-      const isMaxSavings = nights >= 30 && isLowSeason;
-      baseRoomPricePerNight = (isMaxSavings || (nights >= 30 && isLowSeason))
-        ? room.base_price_low
-        : room.base_price_high;
+      baseRoomPricePerNight = isLowSeason ? room.base_price_low : room.base_price_high;
     }
 
-    // Apply safety floor if live from Octorate (fetching minimum selling price)
-    if (solvedFromOctorate && tokenData?.access_token) {
-      try {
-        const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
-        const ratesRes = await fetch(`https://api.octorate.com/connect/rest/v1/roomrates/${structureId}`, {
-          headers: {
-            "Accept": "application/json",
-            "Authorization": `Bearer ${tokenData.access_token}`
-          }
-        });
-        if (ratesRes.ok) {
-          const ratesData = await ratesRes.json();
-          if (Array.isArray(ratesData)) {
-            const matchRate = ratesData.find((r: any) => r.id === room.id);
-            if (matchRate && matchRate.minimumSellingPrice && baseRoomPricePerNight < matchRate.minimumSellingPrice) {
-              baseRoomPricePerNight = matchRate.minimumSellingPrice;
-            }
-          }
-        }
-      } catch (err) {
-        console.warn("[Stripe API] Failed checking minimum safety rate floor:", err);
-      }
-    }
+    // Apply stay discount to room price
+    const discountedRoomPricePerNight = Math.round(baseRoomPricePerNight * (1 - discount));
+    const totalRoomPrice = discountedRoomPricePerNight * nights;
 
-    // Extra guest calculation
-    const extraGuestsCount = Math.min(room.maxExtraGuests, Math.max(0, guests - room.baseGuests));
-    const extraGuestsTotalLordo = extraGuestsCount * PRICE_CONFIG.EXTRA_GUEST_PRICE * nights;
+    // Extra Guests
+    const extraGuestsCount = Math.max(0, guests - room.baseGuests);
+    const totalExtraGuestPrice = extraGuestsCount * PRICE_CONFIG.EXTRA_GUEST_PRICE * nights;
 
-    // Room and extra guests total (Lordo)
-    const roomAndGuestsTotalLordo = (baseRoomPricePerNight * nights) + extraGuestsTotalLordo;
+    // Extra Breakfast
+    const totalBreakfastPrice = extraBreakfast ? (guests * PRICE_CONFIG.BREAKFAST_PRICE * nights) : 0;
 
-    // Discount on room and extra guests
-    const discountAmount = Math.round(roomAndGuestsTotalLordo * discount);
-    const roomAndGuestsTotalNetto = roomAndGuestsTotalLordo - discountAmount;
+    // Extra AC
+    const totalACPrice = extraAC ? PRICE_CONFIG.AC_SURCHARGE : 0;
 
-    // Extras (undiscounted)
-    const breakfastTotal = extraBreakfast ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * nights) : 0;
-    const acTotal = extraAC ? PRICE_CONFIG.AC_SURCHARGE : 0;
+    // Total accommodation price
+    const grandTotal = totalRoomPrice + totalExtraGuestPrice + totalBreakfastPrice + totalACPrice;
 
-    // Grand final total
-    const finalTotal = roomAndGuestsTotalNetto + breakfastTotal + acTotal;
+    // Deposit (30%)
+    const depositAmount = Math.round(grandTotal * 0.30);
+    const balanceDue = grandTotal - depositAmount;
 
-    // 30% deposit and 70% balance calculation
-    const depositPaid = Math.round(finalTotal * 0.3);
-    const balanceDue = finalTotal - depositPaid;
+    // Construct origin URL
+    const requestOrigin = origin || req.headers.origin || req.headers.referer || "https://flowerpower-phayam.com";
+    const cleanOrigin = requestOrigin.replace(/\/$/, "");
 
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
@@ -209,17 +164,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           price_data: {
             currency: "thb",
             product_data: {
-              name: `Acconto 30% - ${room.name}`,
-              description: `${checkIn} ➔ ${checkOut} (${nights} notti, ${guests} ospiti). Saldo del 70% (฿${balanceDue}) da pagare al check-in.`
+              name: `Acconto 30% Prenotazione - ${room.name}`,
+              description: `${nights} notti (${checkIn} / ${checkOut}), ${guests} ospiti. Saldo da pagare all'arrivo: ${balanceDue.toLocaleString()} THB`,
             },
-            unit_amount: depositPaid * 100, // Stripe expects amount in satang/cents
+            unit_amount: depositAmount * 100, // Stripe expects amounts in cents/satoshis (THB in smallest unit)
           },
           quantity: 1,
         },
       ],
       mode: "payment",
+      success_url: `${cleanOrigin}/village?session_id={CHECKOUT_SESSION_ID}&booking=success`,
+      cancel_url: `${cleanOrigin}/village?booking=cancelled`,
+      customer_email: guestEmail,
       metadata: {
         accommodationId: String(accommodationId),
+        accommodationName: room.name,
         checkIn,
         checkOut,
         nights: String(nights),
@@ -229,19 +188,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         guestPhone,
         extraBreakfast: String(extraBreakfast),
         extraAC: String(extraAC),
-        totalPrice: String(finalTotal),
-        depositPaid: String(depositPaid),
+        grandTotal: String(grandTotal),
+        depositAmount: String(depositAmount),
         balanceDue: String(balanceDue),
-        discountPercent: String(Math.round(discount * 100)),
-        lang: String(lang || "EN")
+        discountPercentage: String(Math.round(discount * 100)),
+        isLowSeason: String(isLowSeason),
+        lang: lang || "it"
       },
-      success_url: `${origin}/village?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/village`,
     });
 
-    return res.status(200).json({ id: session.id, url: session.url });
+    return res.status(200).json({
+      sessionId: session.id,
+      url: session.url,
+      depositAmount,
+      balanceDue,
+      grandTotal,
+      nights
+    });
+
   } catch (error: any) {
-    console.error("[Stripe API] Checkout session creation failed:", error);
-    return res.status(500).json({ error: error.message || "Failed to create checkout session" });
+    console.error("[Stripe API] Error creating checkout session:", error);
+    return res.status(500).json({
+      error: error.message || "Failed to create checkout session"
+    });
   }
 }

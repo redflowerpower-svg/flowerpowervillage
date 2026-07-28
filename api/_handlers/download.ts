@@ -1,15 +1,8 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import Stripe from "stripe";
-import { createClient } from "@supabase/supabase-js";
-import { generateConfirmationPDF } from "./_helpers/booking-confirmation.js";
+import { stripe } from "../_helpers/stripe.js";
+import { generateConfirmationPDF } from "../_helpers/booking-confirmation.js";
 
-// Initialize Stripe with secret key
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY || "";
-const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: "2023-10-16" as any,
-});
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function handleDownloadConfirmation(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }

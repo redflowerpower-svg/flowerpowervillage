@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
-import { stripe } from "./_helpers/stripe.js";
+import { stripe } from "../_helpers/stripe.js";
 import { createClient } from "@supabase/supabase-js";
-import { generateConfirmationPDF, sendConfirmationEmail } from "./_helpers/booking-confirmation.js";
+import { generateConfirmationPDF, sendConfirmationEmail } from "../_helpers/booking-confirmation.js";
 import * as https from "https";
 
 // Robust HTTP POST using Node built-in https — avoids global fetch() issues in vercel dev on Windows
@@ -38,13 +38,12 @@ const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL ||
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null as any;
 
-
 // Octorate Structure ID
 const OCTORATE_STRUCTURE_ID = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function handleVerifyCheckoutSession(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
-    return res.status(450).json({ error: "Method not allowed" });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   const { session_id } = req.query;
@@ -128,18 +127,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (tokenData?.access_token) {
         const OCTORATE_API_BASE = "https://api.octorate.com/connect/rest/v1";
 
-        // IMPORTANT: 'accommodation' is a PATH parameter — the accommodationId goes in the URL
-        // The body uses the official ApiReservationReqDTO schema (from openapi.yaml)
-        // Required fields: channelId, checkin, checkout, createTime, guests[], product,
-        //                  refer, roomGross, status, totalChildren, totalGuest, totalInfants, updateTime
-
         const now = new Date().toISOString();
         const [givenName, ...lastNameParts] = (guestName || "Guest Guest").split(" ");
         const familyName = lastNameParts.join(" ") || "Guest";
         const totalGuest = Number(guests || 1);
 
-        // Octorate uses 'givenName'/'familyName' (not firstName/lastName) and full ISO timestamps
-        // sex: only MALE or FEMALE accepted by Octorate enum GuestSex — "U" causes 400
         const guestsList = [{
           type: "BOOKER",
           givenName,
@@ -151,13 +143,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           sex: "MALE"
         }];
 
-        // refer must be globally unique (max 25 chars):
-        // 8-char timestamp base36 (unique per ms) + last 17 chars of session suffix (traceability)
-        // NOTE: slice(-25) was broken — session suffix is 58 chars so it always returned same 25 chars
         const sessionSuffix = session.id.replace(/^cs_test_|^cs_/, "");
         const refer = (Date.now().toString(36).substring(0, 8) + sessionSuffix.slice(-17)).substring(0, 25);
 
-        // Build rich private notes from metadata
         const depositPaidAmt  = Number(depositPaid  || 0);
         const balanceDueAmt   = Number(balanceDue   || 0);
         const stayNights      = Number(session.metadata?.nights || 0);
@@ -194,8 +182,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const reservationBody = {
           status: "CONFIRMED",
           refer,
-          channelId: 233, // Octorate direct booking channel (confirmed working via test)
-          product: Number(accommodationId), // The Octorate product ID (= accommodationId = ratePlan)
+          channelId: 233,
+          product: Number(accommodationId),
           checkin: `${checkIn}T14:00:00Z`,
           checkout: `${checkOut}T12:00:00Z`,
           createTime: now,
@@ -209,16 +197,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         };
 
         console.log("[Verify API] Posting to Octorate:", `${OCTORATE_API_BASE}/reservation/${OCTORATE_STRUCTURE_ID}`);
-        console.log("[Verify API] checkIn:", checkIn, "| checkOut:", checkOut, "| accommodationId:", accommodationId, "| totalPrice:", totalPrice);
-        console.log("[Verify API] Payload (sanitized):", JSON.stringify({
-          ...reservationBody,
-          guests: [{ type: "BOOKER", givenName: "***", familyName: "***", email: "***", phone: "***", checkin: checkIn, checkout: checkOut, sex: "MALE" }]
-        }, null, 2));
-        console.log("[Verify API] channelId:", reservationBody.channelId, "| refer:", refer);
 
         let currentToken = tokenData.access_token;
 
-        // Helper to send form-encoded POST (for refresh token endpoint) via https module
         const httpsPostForm = (url: string, params: Record<string, string>, hdrs: Record<string, string> = {}): Promise<{ status: number; body: string }> =>
           new Promise((resolve, reject) => {
             const payload = new URLSearchParams(params).toString();
@@ -233,12 +214,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             req.write(payload); req.end();
           });
 
-        // Reservation endpoint: POST /rest/v1/reservation/{structureId}
         let octRaw = await httpsPost(`${OCTORATE_API_BASE}/reservation/${OCTORATE_STRUCTURE_ID}`, reservationBody, { "Authorization": `Bearer ${currentToken}` });
 
         console.log("[Verify API] Octorate initial response status:", octRaw.status);
 
-        // Only refresh on 401 (expired token) — 403 is a permission/scope issue, not expiration
         if (octRaw.status === 401 && tokenData.refresh_token) {
           console.log("[Verify API] 401 - Octorate token expired, attempting refresh...");
           const refreshRaw = await httpsPostForm(`${OCTORATE_API_BASE}/identity/refresh`, {
@@ -272,7 +251,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           octorateStatus = "confirmed";
           console.log(`[Verify API] Octorate reservation created: ${octorateReservationId}`);
 
-          // Register Stripe deposit payment in Octorate
           if (octorateReservationId) {
             const depositAmount = depositPaid ? Number(depositPaid) : Math.round(Number(totalPrice || 0) * 0.3);
             const paymentBody = {
@@ -321,7 +299,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const pdfBuffer = await generateConfirmationPDF(session.metadata, octorateReservationId, websiteUrl);
       await sendConfirmationEmail(session.metadata, octorateReservationId, pdfBuffer, websiteUrl);
       
-      // Update Stripe Checkout Session metadata to mark as emailed & save Octorate ID
       console.log(`[Verify API] Updating Stripe Checkout Session ${session.id} metadata...`);
       await stripe.checkout.sessions.update(session.id, {
         metadata: {
@@ -330,7 +307,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       });
     } catch (emailErr: any) {
-      // Don't crash the verification response, just log the error
       console.error("[Verify API] Confirmation email / Stripe metadata update failed:", emailErr);
     }
 
