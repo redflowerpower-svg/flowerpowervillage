@@ -421,26 +421,20 @@ export function ResortVisualCalendar() {
       const dateFrom = firstDate.toISOString().substring(0, 10);
       const dateTo = lastDate.toISOString().substring(0, 10);
 
-      // Execute in parallel: fetch active bookings and monthly grid payload
-      const [, gridData] = await Promise.all([
-        fetchBookings(),
-        fetchOctorateMonthlyGrid(dateFrom, dateTo)
+      // Separation of concerns: parallel fetch for grid prices & reservations
+      const [gridData, bookingsRes] = await Promise.all([
+        fetchOctorateMonthlyGrid(dateFrom, dateTo),
+        fetch(`/api/resort/octorate-bookings?dateFrom=${dateFrom}&dateTo=${dateTo}`)
       ]);
 
       setLiveGridData(gridData || {});
 
-      // Fetch unified payload directly from /api/resort/octorate-grid for live reservations
-      try {
-        const gridRes = await fetch(`/api/resort/octorate-grid?dateFrom=${dateFrom}&dateTo=${dateTo}`);
-        if (gridRes.ok) {
-          const gridJson = await gridRes.json();
-          if (gridJson.reservations && Array.isArray(gridJson.reservations) && gridJson.reservations.length > 0) {
-            const { setBookings } = useResortAdminStore.getState();
-            setBookings(gridJson.reservations);
-          }
+      if (bookingsRes.ok) {
+        const bookingsJson = await bookingsRes.json();
+        if (bookingsJson.data && Array.isArray(bookingsJson.data)) {
+          useResortAdminStore.getState().setBookings(bookingsJson.data);
+          console.log(`[ResortVisualCalendar] Popolate ${bookingsJson.data.length} prenotazioni dallo store per il periodo ${dateFrom} -> ${dateTo}`);
         }
-      } catch (gridErr) {
-        console.warn('[ResortVisualCalendar] Unified reservations fetch warning:', gridErr);
       }
     } catch (err) {
       console.warn('[ResortVisualCalendar] Live grid fetch error:', err);

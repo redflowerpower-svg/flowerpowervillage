@@ -278,6 +278,10 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
       }
     }
 
+    const dateFrom = (req.query.dateFrom as string) || (req.query.startDate as string) || new Date().toISOString().substring(0, 10);
+    const dateToObj = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
+    const dateTo = (req.query.dateTo as string) || (req.query.endDate as string) || dateToObj.toISOString().substring(0, 10);
+
     const { data: tokenData } = await supabaseAdmin
       .from('octorate_tokens')
       .select('access_token')
@@ -287,13 +291,25 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
     let octorateReservations: any[] = [];
     if (tokenData?.access_token) {
       try {
-        const octRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation`, {
+        const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
+        let octRes = await fetch(octUrl, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${tokenData.access_token}`,
             'Accept': 'application/json'
           }
         });
+
+        if (!octRes.ok) {
+          const fallbackUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=366879&type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
+          octRes = await fetch(fallbackUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${tokenData.access_token}`,
+              'Accept': 'application/json'
+            }
+          });
+        }
 
         if (octRes.ok) {
           const octJson = await octRes.json();
@@ -318,6 +334,8 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
             source_channel: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com',
             channelName: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com'
           }));
+        } else {
+          console.warn(`[api/resort/octorate-bookings] Octorate API status ${octRes.status}`);
         }
       } catch (octErr) {
         console.warn('[api/resort/octorate-bookings] Octorate reservations fetch notice:', octErr);
@@ -325,6 +343,7 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
     }
 
     const combinedBookings = [...(sbData || []), ...octorateReservations];
+    console.log(`[BACKEND] Prenotazioni trovate dal ${dateFrom} al ${dateTo}:`, combinedBookings.length);
 
     return res.status(200).json({ success: true, data: combinedBookings });
   } catch (error: any) {
@@ -463,56 +482,12 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       return OFFICIAL_BE_RATE_IDS.has(idNum) || nameStr.endsWith('be') || nameStr.includes('booking engine');
     });
 
-    // Fetch live Octorate & Supabase reservations with dynamic date parameters for unified payload
-    let reservations: any[] = [];
-    try {
-      const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?dateType=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
-      let resResponse = await fetch(resUrl, {
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Accept": "application/json"
-        }
-      });
-
-      if (!resResponse.ok) {
-        const fallbackUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=366879&dateType=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
-        resResponse = await fetch(fallbackUrl, {
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Accept": "application/json"
-          }
-        });
-      }
-
-      if (resResponse.ok) {
-        const resJson = await resResponse.json();
-        const list = Array.isArray(resJson.data) ? resJson.data : (Array.isArray(resJson) ? resJson : (resJson.reservations || []));
-        reservations = Array.isArray(list) ? list : [];
-      } else {
-        console.warn(`[OCTORATE GRID] Octorate reservation fetch status ${resResponse.status}`);
-      }
-    } catch (resErr) {
-      console.warn("[OCTORATE GRID] Reservations fetch warning:", resErr);
-    }
-
-    if (supabaseAdmin) {
-      try {
-        const { data: sbBookings } = await supabaseAdmin.from('resort_bookings').select('*');
-        if (sbBookings && sbBookings.length > 0) {
-          reservations = [...(reservations || []), ...sbBookings];
-        }
-      } catch (sbErr) {
-        console.warn("[OCTORATE GRID] Supabase bookings fetch warning:", sbErr);
-      }
-    }
-
-    console.log(`[BACKEND] Prenotazioni trovate dal ${dateFrom} al ${dateTo}:`, reservations.length);
+    console.log(`[OCTORATE GRID] Scaricati ${allFetchedItems.length} rate plans. Filtrati ${filteredBEItems.length} BE rate plans dal ${dateFrom} al ${dateTo}.`);
 
     return res.status(200).json({
       success: true,
       data: filteredBEItems,
       grid: filteredBEItems,
-      reservations,
       totalFetched: allFetchedItems.length,
       pagesCount: page + 1
     });
