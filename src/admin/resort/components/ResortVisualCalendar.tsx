@@ -80,25 +80,80 @@ function getBookingChannelName(booking: any): string {
   return booking.source || booking.channel || booking.channelName || 'Prenotato';
 }
 
-const ROOM_NAME_ALIASES: Record<string, string[]> = {
-  'green bungalow': ['green bungalow', 'green', '293962', '449668'],
-  'yellow bungalow': ['yellow bungalow', 'yellow 7d', 'yellow', '422422', '293957', '449385'],
-  'red bungalow': ['red bungalow', 'red', '293954', '449422'],
-  'camel tent bungalow': ['camel tent bungalow', 'camel tent', 'camel airbnb', 'camel', '297025', '293965', '449675'],
-  'lagoon tent bungalow': ['lagoon tent bungalow', 'lagoon tent', 'lagoon', '293955', '449674'],
-  'jungle villa': ['jungle villa', '529784', '529773'],
-  'jungle villa left': ['jungle villa left', 'jvl', '495807', '495795'],
-  'jungle villa right': ['jungle villa right', 'jvr', '495980', '495796'],
-  'peace & love villa': ['peace & love villa', 'p&l', 'peace', '495566', '494840'],
-  'villa penthouse': ['villa penthouse', 'penthouse villa', 'pent airbnb', 'penthouse', 'pent', '421532', '449348', '421511'],
-  'room 1': ['room 1', '293963', '449678'],
-  'room 2': ['room 2', '293959', '449684'],
-  'room 3': ['room 3', '293948', '449699'],
-  'room 4': ['room 4', '293945', '449724'],
-  'room 5': ['room 5', '293943', '449730'],
-  'lodge 1': ['lodge 1', '293951', '449736'],
-  'lodge 2': ['lodge 2', '883795', '923905'],
-  'internal room': ['internal room', 'internal', '293942', '449742']
+// Universal All-18 Accommodations ID & Keyword Map for Bidirectional Fuzzy Matching
+const ALL_ACCOMMODATIONS_MAP: Record<string, { ids: string[]; keywords: string[][] }> = {
+  'jungle villa': {
+    ids: ['529784', '529773'],
+    keywords: [['jungle'], ['villa']]
+  },
+  'jungle villa left': {
+    ids: ['495807', '495795'],
+    keywords: [['jungle', 'jv'], ['left', 'l']]
+  },
+  'jungle villa right': {
+    ids: ['495980', '495796'],
+    keywords: [['jungle', 'jv'], ['right', 'r']]
+  },
+  'peace & love villa': {
+    ids: ['495566', '494840'],
+    keywords: [['peace', 'love', 'p&l']]
+  },
+  'villa penthouse': {
+    ids: ['449348', '421511', '421532'],
+    keywords: [['penthouse', 'pent']]
+  },
+  'yellow bungalow': {
+    ids: ['449385', '293957', '422422'],
+    keywords: [['yellow']]
+  },
+  'red bungalow': {
+    ids: ['449422', '293954'],
+    keywords: [['red']]
+  },
+  'green bungalow': {
+    ids: ['449668', '293962'],
+    keywords: [['green']]
+  },
+  'camel tent bungalow': {
+    ids: ['449675', '293965', '297025'],
+    keywords: [['camel']]
+  },
+  'lagoon tent bungalow': {
+    ids: ['449674', '293955'],
+    keywords: [['lagoon']]
+  },
+  'room 1': {
+    ids: ['449678', '293963'],
+    keywords: [['room', 'hub'], ['1', 'one']]
+  },
+  'room 2': {
+    ids: ['449684', '293959'],
+    keywords: [['room', 'hub'], ['2', 'two']]
+  },
+  'room 3': {
+    ids: ['449699', '293948'],
+    keywords: [['room', 'hub'], ['3', 'three']]
+  },
+  'room 4': {
+    ids: ['449724', '293945'],
+    keywords: [['room', 'hub'], ['4', 'four']]
+  },
+  'room 5': {
+    ids: ['449730', '293943'],
+    keywords: [['room', 'hub'], ['5', 'five']]
+  },
+  'lodge 1': {
+    ids: ['449736', '293951'],
+    keywords: [['lodge'], ['1', 'one']]
+  },
+  'lodge 2': {
+    ids: ['923905', '883795'],
+    keywords: [['lodge'], ['2', 'two']]
+  },
+  'internal room': {
+    ids: ['449742', '293942'],
+    keywords: [['internal']]
+  }
 };
 
 function findMatchingBooking(
@@ -115,10 +170,11 @@ function findMatchingBooking(
   const d = String(cellDate.getDate()).padStart(2, '0');
   const targetDateStr = `${y}-${m}-${d}`;
 
-  const nameKey = (roomName || '').toLowerCase().trim();
-  const roomIdStr = String(roomId || '').trim();
-  const octIdStr = String(roomOctId || '').trim();
-  const aliases = ROOM_NAME_ALIASES[nameKey] || [nameKey, roomIdStr, octIdStr];
+  const targetNameLower = (roomName || '').toLowerCase().trim();
+  const targetRoomIdStr = String(roomId || '').trim();
+  const targetOctIdStr = String(roomOctId || '').trim();
+
+  const mapEntry = ALL_ACCOMMODATIONS_MAP[targetNameLower];
 
   return bookings.find((b: any) => {
     const status = String(b.status || '').toLowerCase();
@@ -135,7 +191,7 @@ function findMatchingBooking(
       ''
     ).toLowerCase().trim();
 
-    const bRoomId = String(
+    const bProduct = String(
       b.product || 
       b.pmsProduct || 
       b.accommodation_id || 
@@ -149,28 +205,31 @@ function findMatchingBooking(
 
     let isRoomMatch = false;
 
-    if (bRoomName) {
-      if (bRoomName === nameKey || bRoomName.includes(nameKey) || nameKey.includes(bRoomName)) {
+    // 1. Direct ID Match
+    if (bProduct) {
+      if (bProduct === targetRoomIdStr || bProduct === targetOctIdStr) {
         isRoomMatch = true;
-      } else {
-        for (const alias of aliases) {
-          if (alias.length > 2 && (bRoomName === alias || bRoomName.includes(alias) || alias.includes(bRoomName))) {
-            isRoomMatch = true;
-            break;
-          }
-        }
+      } else if (mapEntry && mapEntry.ids.includes(bProduct)) {
+        isRoomMatch = true;
       }
     }
 
-    if (!isRoomMatch && bRoomId) {
-      if (bRoomId === roomIdStr || bRoomId === octIdStr) {
-        isRoomMatch = true;
-      } else {
-        for (const alias of aliases) {
-          if (bRoomId === alias) {
+    // 2. Smart Bidirectional Keyword Match
+    if (!isRoomMatch && bRoomName) {
+      if (bRoomName === targetNameLower || bRoomName.includes(targetNameLower) || targetNameLower.includes(bRoomName)) {
+        if (targetNameLower === 'jungle villa') {
+          if (!bRoomName.includes('left') && !bRoomName.includes('right') && !bRoomName.includes('jvl') && !bRoomName.includes('jvr')) {
             isRoomMatch = true;
-            break;
           }
+        } else {
+          isRoomMatch = true;
+        }
+      } else if (mapEntry) {
+        const matchesAllGroups = mapEntry.keywords.every((group) =>
+          group.some((kw) => bRoomName.includes(kw))
+        );
+        if (matchesAllGroups) {
+          isRoomMatch = true;
         }
       }
     }
