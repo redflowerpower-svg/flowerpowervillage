@@ -48,6 +48,27 @@ const ROOM_BASE_RATES: Record<string, number> = {
   'Lodge 2': 10000
 };
 
+export const ACCOMMODATION_RATE_PLANS: Record<string, { motherId: number; beId: number }> = {
+  'Jungle Villa': { motherId: 529773, beId: 529784 },
+  'Jungle Villa Left': { motherId: 495795, beId: 495807 },
+  'Jungle Villa Right': { motherId: 495796, beId: 495980 },
+  'Peace & Love Villa': { motherId: 494840, beId: 495566 },
+  'Villa Penthouse': { motherId: 421511, beId: 449348 },
+  'Yellow Bungalow': { motherId: 293957, beId: 449385 },
+  'Red Bungalow': { motherId: 293954, beId: 449422 },
+  'Green Bungalow': { motherId: 293962, beId: 449668 },
+  'Camel Tent Bungalow': { motherId: 293965, beId: 449675 },
+  'Lagoon Tent Bungalow': { motherId: 293955, beId: 449674 },
+  'Room 1': { motherId: 293963, beId: 449678 },
+  'Room 2': { motherId: 293959, beId: 449684 },
+  'Room 3': { motherId: 293948, beId: 449699 },
+  'Room 4': { motherId: 293945, beId: 449724 },
+  'Room 5': { motherId: 293943, beId: 449730 },
+  'Lodge 1': { motherId: 293951, beId: 449736 },
+  'Lodge 2': { motherId: 883795, beId: 923905 },
+  'Internal Room': { motherId: 293942, beId: 449742 }
+};
+
 const AGENCY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   'Booking.com': { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' },
   'Expedia': { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' },
@@ -759,38 +780,42 @@ export function ResortVisualCalendar() {
                     {datesArray.map((cellDate, idx) => {
                       const dateStr = cellDate.toISOString().substring(0, 10);
                       
-                      // 1. Mother Rate Plan Data (Root Rate ID: 529773, 293962, etc.)
-                      const motherRateId = getMotherRatePlanId(room.name);
+                      // Lookup exact Mother Rate ID & BE Rate ID
+                      const ratePlan = ACCOMMODATION_RATE_PLANS[room.name] || {
+                        motherId: getMotherRatePlanId(room.name) || Number(room.octorateId) || Number(room.id),
+                        beId: Number(room.octorateId) || Number(room.id)
+                      };
+
+                      // 1. Mother Rate Plan Data (Octorate Room ID: 529773, 293962, etc.)
                       const motherData = (
-                        (motherRateId ? liveGridData[String(motherRateId)] : null) ||
+                        liveGridData[String(ratePlan.motherId)] ||
+                        (ratePlan.motherId ? liveGridData[ratePlan.motherId] : null) ||
                         liveGridData[room.name] || 
-                        liveGridData[room.name.toLowerCase()] || 
-                        liveGridData[room.octorateId] || 
-                        liveGridData[room.id]
+                        liveGridData[room.name.toLowerCase()]
                       )?.[dateStr];
 
                       // 2. BE Rate Plan Data (Booking Engine Rate ID: 529784, 449668, etc.)
                       const beData = (
+                        liveGridData[String(ratePlan.beId)] ||
+                        (ratePlan.beId ? liveGridData[ratePlan.beId] : null) ||
                         liveGridData[room.octorateId] ||
-                        liveGridData[room.id] ||
-                        liveGridData[room.name] ||
-                        liveGridData[room.name.toLowerCase()]
+                        liveGridData[room.id]
                       )?.[dateStr];
 
-                      // Price from Mother Rate Plan (Top Line)
-                      const motherPriceVal = motherData && motherData.price > 0 ? motherData.price : 0;
+                      // Price from Mother Rate Plan (NO STATIC FALLBACK - Prints N/D if missing)
+                      const motherPriceVal = motherData && typeof motherData.price === 'number' && motherData.price > 0 ? motherData.price : 0;
                       const motherPriceStr = motherPriceVal >= 10000 
                         ? '10.000' 
-                        : (motherPriceVal > 0 ? motherPriceVal.toLocaleString('it-IT') : '---');
+                        : (motherPriceVal > 0 ? motherPriceVal.toLocaleString('it-IT') : 'N/D');
 
-                      // Price from BE Rate Plan (Bottom Line)
-                      const bePriceVal = (beData && beData.price > 0)
-                        ? beData.price
-                        : ((motherData && motherData.price > 0) ? motherData.price : calculateWebsitePriceForRoom(room.name));
-
+                      // Price from BE Rate Plan (NO STATIC FALLBACK - Prints N/D if missing)
+                      const bePriceVal = beData && typeof beData.price === 'number' && beData.price > 0 ? beData.price : 0;
                       const bePriceStr = bePriceVal >= 10000 
                         ? '10.000' 
-                        : (bePriceVal > 0 ? bePriceVal.toLocaleString('it-IT') : '---');
+                        : (bePriceVal > 0 ? bePriceVal.toLocaleString('it-IT') : 'N/D');
+
+                      // Minimum Stay read EXCLUSIVELY from Mother Data (or Gap-Fill fallback)
+                      const motherMinStay = motherData?.minStay && motherData.minStay > 0 ? motherData.minStay : (gapFillMinStays[dateStr] || undefined);
 
                       // 🥇 PRIORITÀ 1: Prenotazione OTA / Diretta
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookings);
@@ -804,13 +829,20 @@ export function ResortVisualCalendar() {
                             key={idx}
                             onClick={() => setSelectedBooking(matchingBooking)}
                             className={`py-1 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-pointer ${style.bg} ${style.border}`}
-                            title={`Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${channelName}) • Madre: ฿${motherPriceStr} • BE: ฿${bePriceStr}`}
+                            title={`Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${channelName}) • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}`}
                           >
+                            {/* Top Right Minimum Stay Badge read EXCLUSIVELY from Mother Data */}
+                            {motherMinStay && motherMinStay > 1 && (
+                              <div className="absolute top-0.5 right-0.5 text-[6.5px] font-black text-amber-300 leading-none tracking-tighter bg-black/60 px-0.5 py-0.2 rounded border border-amber-400/40 shadow-sm z-10">
+                                🌙 {motherMinStay}
+                              </div>
+                            )}
+
                             <div className="text-[8px] font-extrabold uppercase truncate tracking-tighter leading-none text-white opacity-95">
                               {channelName}
                             </div>
-                            <div className="text-[11px] font-mono font-black text-white leading-tight mt-0.5">
-                              {bePriceStr}
+                            <div className="text-[11px] font-mono font-bold text-white leading-tight mt-0.5">
+                              BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
                             </div>
                           </td>
                         );
@@ -822,24 +854,27 @@ export function ResortVisualCalendar() {
                         ? (motherData.stopSell || motherData.available === false || motherData.price >= 10000)
                         : false;
 
-                      const isClosedOrStopSell = 
-                        isRoomClosedByStaff || 
-                        bePriceVal >= 10000 ||
-                        isMotherStopSell ||
-                        (beData ? (beData.stopSell || !beData.available || beData.price >= 10000) : false);
+                      const isClosedOrStopSell = isRoomClosedByStaff || isMotherStopSell;
 
                       if (isClosedOrStopSell) {
                         return (
                           <td
                             key={idx}
                             className="py-1 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-red-700 hover:bg-red-600 border-red-800/80"
-                            title={`Alloggio Chiuso / Stop Sell • Tariffa Madre: ฿${motherPriceStr} • Tariffa BE: ฿${bePriceStr}`}
+                            title={`Alloggio Chiuso / Stop Sell su Tariffa Madre • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}`}
                           >
-                            <div className="text-[9px] font-mono font-medium text-red-200/80 leading-tight">
-                              {motherPriceStr}
+                            {/* Top Right Minimum Stay Badge */}
+                            {motherMinStay && motherMinStay > 1 && (
+                              <div className="absolute top-0.5 right-0.5 text-[6.5px] font-black text-amber-300 leading-none tracking-tighter bg-black/60 px-0.5 py-0.2 rounded border border-amber-400/40 shadow-sm z-10">
+                                🌙 {motherMinStay}
+                              </div>
+                            )}
+
+                            <div className="text-[9px] font-mono font-medium text-red-100/90 leading-tight">
+                              Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'}
                             </div>
-                            <div className="text-[11px] font-mono font-black text-white leading-tight">
-                              {bePriceStr}
+                            <div className="text-[11px] font-mono font-bold text-white leading-tight">
+                              BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
                             </div>
                           </td>
                         );
@@ -852,7 +887,7 @@ export function ResortVisualCalendar() {
                         <td
                           key={idx}
                           className="py-1 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60"
-                          title={`Alloggio Libero • Tariffa Madre: ฿${motherPriceStr} • Tariffa BE: ฿${bePriceStr} ${isCTA ? '• Solo Check-Out' : ''}`}
+                          title={`Alloggio Libero • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'} ${isCTA ? '• Solo Check-Out' : ''}`}
                         >
                           {/* Indicator CTA Solo Check-out */}
                           {isCTA && (
@@ -862,14 +897,21 @@ export function ResortVisualCalendar() {
                             />
                           )}
 
-                          {/* RIGA SUPERIORE: Prezzo Tariffa Madre */}
-                          <div className="text-[9px] font-mono font-medium text-stone-200/80 leading-tight">
-                            {motherPriceStr}
+                          {/* Top Right Minimum Stay Badge read EXCLUSIVELY from Mother Data */}
+                          {motherMinStay && motherMinStay > 1 && (
+                            <div className="absolute top-0.5 right-0.5 text-[6.5px] font-black text-amber-300 leading-none tracking-tighter bg-black/60 px-0.5 py-0.2 rounded border border-amber-400/40 shadow-sm z-10">
+                              🌙 {motherMinStay}
+                            </div>
+                          )}
+
+                          {/* AL CENTRO/ALTO: Prezzo Tariffa Madre */}
+                          <div className="text-[9px] font-mono font-medium text-emerald-100/90 leading-tight">
+                            Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'}
                           </div>
 
-                          {/* RIGA INFERIORE: Prezzo Tariffa BE */}
-                          <div className="text-[11px] font-mono font-black text-white leading-tight">
-                            {bePriceStr}
+                          {/* IN BASSO: Prezzo Tariffa BE */}
+                          <div className="text-[11px] font-mono font-bold text-white leading-tight">
+                            BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
                           </div>
                         </td>
                       );
