@@ -881,6 +881,39 @@ export function ResortVisualCalendar() {
                       // 🥇 PRIORITÀ 1: Prenotazione (Controllo array "bookings")
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookings);
 
+                      // Calcolo Tariffa Reale Giornaliera Pagata dall'Ospite per le celle prenotate
+                      let realDailyPriceStr = 'N/D';
+                      if (matchingBooking) {
+                        const checkInRaw = matchingBooking.check_in || (matchingBooking as any).checkIn || (matchingBooking as any).checkin;
+                        const checkOutRaw = matchingBooking.check_out || (matchingBooking as any).checkOut || (matchingBooking as any).checkout;
+
+                        let nights = 1;
+                        if (checkInRaw && checkOutRaw) {
+                          const cIn = new Date(String(checkInRaw).substring(0, 10));
+                          const cOut = new Date(String(checkOutRaw).substring(0, 10));
+                          const diffMs = cOut.getTime() - cIn.getTime();
+                          if (diffMs > 0) {
+                            nights = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+                          }
+                        }
+
+                        const grossTotal = Number(
+                          (matchingBooking as any).roomGross ||
+                          (matchingBooking as any).totalGross ||
+                          matchingBooking.total_price ||
+                          (matchingBooking as any).totalPrice ||
+                          (matchingBooking as any).totalAmount ||
+                          (matchingBooking as any).totalPaid ||
+                          matchingBooking.deposit_paid ||
+                          0
+                        );
+
+                        if (grossTotal > 0) {
+                          const dailyPrice = Math.round(grossTotal / nights);
+                          realDailyPriceStr = dailyPrice >= 10000 ? '10.000' : dailyPrice.toLocaleString('it-IT');
+                        }
+                      }
+
                       // 🥈 PRIORITÀ 2: Chiusura / Stop Sell (valutata RIGOROSAMENTE sulla Tariffa Madre)
                       const isRoomClosedByStaff = room.isAvailable === false;
                       const isMotherStopSell = motherData
@@ -908,7 +941,7 @@ export function ResortVisualCalendar() {
                           onClick={() => matchingBooking && setSelectedBooking(matchingBooking)}
                           className={`py-1 px-0.5 border-l text-center transition-colors relative w-[100px] min-w-[64px] max-w-[100px] truncate overflow-hidden ${bgStyle}`}
                           title={matchingBooking 
-                            ? `Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${getBookingChannelName(matchingBooking)}) • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
+                            ? `Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
                             : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`}
                         >
                           {/* BADGE MINSTAY (Cerchio Giallo con testo nero) */}
@@ -935,11 +968,11 @@ export function ResortVisualCalendar() {
                               </div>
                               {/* Riga 2: Nome Ospite */}
                               <div className="truncate text-[10px] min-w-0 w-full text-center text-white/95 font-medium">
-                                {matchingBooking.guest_name || matchingBooking.guestName || 'Ospite'}
+                                {matchingBooking.guest_name || (matchingBooking as any).guestName || 'Ospite'}
                               </div>
-                              {/* Prezzo BE Scontato 10% sotto */}
+                              {/* Tariffa Reale Giornaliera Pagata dall'Ospite */}
                               <div className="text-[10px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
-                                BE: {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}
+                                Pagato: {realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}` : 'N/D'}
                               </div>
                             </div>
                           ) : (
