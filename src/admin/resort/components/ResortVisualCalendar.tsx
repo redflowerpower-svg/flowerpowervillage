@@ -819,36 +819,32 @@ export function ResortVisualCalendar() {
                     {datesArray.map((cellDate, idx) => {
                       const dateStr = cellDate.toISOString().substring(0, 10);
                       
-                      // ESTRAZIONE DATI SICURA con cast a String per liveGridData keys
+                      // ESTRAZIONE DATI SICURA tramite .find() sia per Array che per Dictionary
                       const { motherId, beId } = getIdsForRoom(room.name);
 
-                      const motherData = (
-                        liveGridData?.[String(motherId)] ||
-                        (motherId ? liveGridData?.[motherId] : null) ||
-                        liveGridData?.[room.name] || 
-                        liveGridData?.[room.name.toLowerCase()]
-                      )?.[dateStr];
+                      const motherRoom = (Array.isArray(liveGridData) ? liveGridData : []).find((item: any) => String(item.id) === String(motherId));
+                      const motherData = motherRoom 
+                        ? ((motherRoom.days || []).find((d: any) => String(d.date).startsWith(dateStr))) 
+                        : (liveGridData?.[String(motherId)]?.[dateStr] || liveGridData?.[motherId]?.[dateStr] || liveGridData?.[room.name]?.[dateStr]);
 
-                      const beData = (
-                        liveGridData?.[String(beId)] ||
-                        (beId ? liveGridData?.[beId] : null) ||
-                        liveGridData?.[room.octorateId] ||
-                        liveGridData?.[room.id]
-                      )?.[dateStr];
+                      const beRoom = (Array.isArray(liveGridData) ? liveGridData : []).find((item: any) => String(item.id) === String(beId));
+                      const beData = beRoom 
+                        ? ((beRoom.days || []).find((d: any) => String(d.date).startsWith(dateStr))) 
+                        : (liveGridData?.[String(beId)]?.[dateStr] || liveGridData?.[beId]?.[dateStr] || liveGridData?.[room.octorateId]?.[dateStr]);
 
-                      // Prezzi reali (mostra N/D se il dato non c'è, zero inventiva static)
-                      const motherPriceVal = motherData && typeof motherData.price === 'number' && motherData.price > 0 ? motherData.price : 0;
+                      // Prezzi reali (mostra N/D se il dato non c'è)
+                      const motherPriceVal = Number(motherData?.price || motherData?.value || motherData?.amount || 0);
                       const motherPriceStr = motherPriceVal >= 10000 
                         ? '10.000' 
                         : (motherPriceVal > 0 ? motherPriceVal.toLocaleString('it-IT') : 'N/D');
 
-                      const bePriceVal = beData && typeof beData.price === 'number' && beData.price > 0 ? beData.price : 0;
+                      const bePriceVal = Number(beData?.price || beData?.value || beData?.amount || 0);
                       const bePriceStr = bePriceVal >= 10000 
                         ? '10.000' 
                         : (bePriceVal > 0 ? bePriceVal.toLocaleString('it-IT') : 'N/D');
 
                       // Minimum stay letto dalla Tariffa Madre
-                      const motherMinStayNum = motherData?.minStay && motherData.minStay > 0 ? motherData.minStay : (gapFillMinStays[dateStr] || 0);
+                      const motherMinStayNum = Number(motherData?.minStay ?? motherData?.minstay ?? motherData?.minNights ?? motherData?.min_stay ?? gapFillMinStays[dateStr] ?? 0);
 
                       // 🥇 PRIORITÀ 1: Prenotazione (Controllo array "bookings")
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookings);
@@ -885,7 +881,7 @@ export function ResortVisualCalendar() {
                         >
                           {/* BADGE MINSTAY (Cerchio Giallo con testo nero) */}
                           {motherMinStayNum > 0 && (
-                            <div className="absolute top-1 right-1 w-5 h-5 bg-yellow-400 text-black text-xs font-bold rounded-full flex items-center justify-center z-10 shadow-md">
+                            <div className="absolute top-0.5 right-0.5 w-4 h-4 bg-yellow-400 text-black text-[9.5px] font-black rounded-full flex items-center justify-center z-10 shadow-md">
                               {motherMinStayNum}
                             </div>
                           )}
