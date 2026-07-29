@@ -440,7 +440,9 @@ export function ResortVisualCalendar() {
   const [liveGridData, setLiveGridData] = useState<Record<string, Record<string, OctorateDayData>>>({});
   const [loadingLive, setLoadingLive] = useState<boolean>(false);
 
-  console.log("[DEBUG LIVE GRID KEYS]:", Object.keys(liveGridData || {}));
+  console.log("=== DEBUG LIVE GRID ===");
+  console.log("TIPO DI DATO:", Array.isArray(liveGridData) ? "Array" : typeof liveGridData);
+  console.log("CHIAVI DISPONIBILI:", liveGridData ? Object.keys(liveGridData) : "Nessuna");
 
   // Load bookings on mount
   useEffect(() => {
@@ -819,18 +821,11 @@ export function ResortVisualCalendar() {
                     {datesArray.map((cellDate, idx) => {
                       const dateStr = cellDate.toISOString().substring(0, 10);
                       
-                      // ESTRAZIONE DATI SICURA tramite .find() sia per Array che per Dictionary
+                      // ESTRAZIONE DATI SICURA A DIZIONARIO (String Key Casting)
                       const { motherId, beId } = getIdsForRoom(room.name);
 
-                      const motherRoom = (Array.isArray(liveGridData) ? liveGridData : []).find((item: any) => String(item.id) === String(motherId));
-                      const motherData = motherRoom 
-                        ? ((motherRoom.days || []).find((d: any) => String(d.date).startsWith(dateStr))) 
-                        : (liveGridData?.[String(motherId)]?.[dateStr] || liveGridData?.[motherId]?.[dateStr] || liveGridData?.[room.name]?.[dateStr]);
-
-                      const beRoom = (Array.isArray(liveGridData) ? liveGridData : []).find((item: any) => String(item.id) === String(beId));
-                      const beData = beRoom 
-                        ? ((beRoom.days || []).find((d: any) => String(d.date).startsWith(dateStr))) 
-                        : (liveGridData?.[String(beId)]?.[dateStr] || liveGridData?.[beId]?.[dateStr] || liveGridData?.[room.octorateId]?.[dateStr]);
+                      const motherData = liveGridData?.[String(motherId)]?.[dateStr];
+                      const beData = liveGridData?.[String(beId)]?.[dateStr];
 
                       // Prezzi reali (mostra N/D se il dato non c'è)
                       const motherPriceVal = Number(motherData?.price || motherData?.value || motherData?.amount || 0);
