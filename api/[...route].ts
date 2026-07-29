@@ -35,8 +35,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  // Normalize path string (remove leading 'api/' and trailing slashes)
-  const cleanPath = pathname.replace(/^api\//, '').replace(/\/$/, '');
+  // Flexible match for Octorate Webhook (includes query params, typos, trailing slashes)
+  if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook') || req.url?.includes('webhooks/octoraate')) {
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      return res.status(200).json({ status: "Webhook Ready" });
+    }
+    return handleOctorateWebhook(req, res);
+  }
 
   switch (cleanPath) {
     case 'create-checkout-session':
