@@ -78,6 +78,27 @@ function getBookingChannelName(booking: any): string {
   return booking.source || booking.channel || 'Prenotato';
 }
 
+const ROOM_NAME_ALIASES: Record<string, string[]> = {
+  'green bungalow': ['green bungalow', 'green', '293962', '449668'],
+  'yellow bungalow': ['yellow bungalow', 'yellow', '293957', '449385'],
+  'red bungalow': ['red bungalow', 'red', '293954', '449422'],
+  'camel tent bungalow': ['camel tent bungalow', 'camel tent', 'camel airbnb', 'camel', '297025', '293965', '449675'],
+  'lagoon tent bungalow': ['lagoon tent bungalow', 'lagoon tent', 'lagoon', '293955', '449674'],
+  'jungle villa': ['jungle villa', '529784', '529773'],
+  'jungle villa left': ['jungle villa left', 'jvl', '495807', '495795'],
+  'jungle villa right': ['jungle villa right', 'jvr', '495980', '495796'],
+  'peace & love villa': ['peace & love villa', 'p&l', '495566', '494840'],
+  'villa penthouse': ['villa penthouse', 'penthouse', '449348', '421511'],
+  'room 1': ['room 1', '293963', '449678'],
+  'room 2': ['room 2', '293959', '449684'],
+  'room 3': ['room 3', '293948', '449699'],
+  'room 4': ['room 4', '293945', '449724'],
+  'room 5': ['room 5', '293943', '449730'],
+  'lodge 1': ['lodge 1', '293951', '449736'],
+  'lodge 2': ['lodge 2', '883795', '923905'],
+  'internal room': ['internal room', 'internal', '293942', '449742']
+};
+
 function findMatchingBooking(
   roomName: string,
   roomId: string,
@@ -86,29 +107,80 @@ function findMatchingBooking(
   bookings: ResortBooking[]
 ): ResortBooking | null {
   if (!bookings || !Array.isArray(bookings) || bookings.length === 0) return null;
-  const targetDateStr = cellDate.toISOString().substring(0, 10);
 
-  const roomNameLower = (roomName || '').toLowerCase().trim();
+  const y = cellDate.getFullYear();
+  const m = String(cellDate.getMonth() + 1).padStart(2, '0');
+  const d = String(cellDate.getDate()).padStart(2, '0');
+  const targetDateStr = `${y}-${m}-${d}`;
+
+  const nameKey = (roomName || '').toLowerCase().trim();
   const roomIdStr = String(roomId || '').trim();
   const octIdStr = String(roomOctId || '').trim();
+  const aliases = ROOM_NAME_ALIASES[nameKey] || [nameKey, roomIdStr, octIdStr];
 
   return bookings.find((b: any) => {
-    if (b.status === 'cancelled' || b.status === 'CANCELED') return false;
+    const status = String(b.status || '').toLowerCase();
+    if (status === 'cancelled' || status === 'canceled') return false;
 
-    // Room match check
-    const bookingRoom = String(b.accommodation_name || b.room_name || b.accommodation_id || b.room_id || b.room || b.roomName || '').toLowerCase().trim();
-    const isRoomMatch =
-      bookingRoom === roomNameLower ||
-      bookingRoom === roomIdStr ||
-      bookingRoom === octIdStr ||
-      (bookingRoom.length > 3 && roomNameLower.includes(bookingRoom)) ||
-      (roomNameLower.length > 3 && bookingRoom.includes(roomNameLower));
+    // Room ID & Name matching normalization
+    const bRoomName = String(
+      b.roomName || 
+      b.accommodation_name || 
+      b.room_name || 
+      b.productName || 
+      b.product?.name || 
+      b.room?.name || 
+      ''
+    ).toLowerCase().trim();
+
+    const bRoomId = String(
+      b.product || 
+      b.pmsProduct || 
+      b.accommodation_id || 
+      b.room_id || 
+      b.roomId || 
+      b.roomTypeId || 
+      b.product?.id || 
+      b.room?.id || 
+      ''
+    ).trim();
+
+    let isRoomMatch = false;
+
+    if (bRoomName) {
+      if (bRoomName === nameKey || bRoomName.includes(nameKey) || nameKey.includes(bRoomName)) {
+        isRoomMatch = true;
+      } else {
+        for (const alias of aliases) {
+          if (alias.length > 2 && (bRoomName === alias || bRoomName.includes(alias) || alias.includes(bRoomName))) {
+            isRoomMatch = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!isRoomMatch && bRoomId) {
+      if (bRoomId === roomIdStr || bRoomId === octIdStr) {
+        isRoomMatch = true;
+      } else {
+        for (const alias of aliases) {
+          if (bRoomId === alias) {
+            isRoomMatch = true;
+            break;
+          }
+        }
+      }
+    }
 
     if (!isRoomMatch) return false;
 
-    // Date range match check
-    const checkInStr = String(b.check_in || b.checkIn || b.start_date || '').substring(0, 10);
-    const checkOutStr = String(b.check_out || b.checkOut || b.end_date || '').substring(0, 10);
+    // Date YYYY-MM-DD normalization
+    const rawCheckIn = String(b.checkin || b.check_in || b.checkIn || b.start_date || b.startDate || '');
+    const rawCheckOut = String(b.checkout || b.check_out || b.checkOut || b.end_date || b.endDate || '');
+
+    const checkInStr = rawCheckIn.slice(0, 10);
+    const checkOutStr = rawCheckOut.slice(0, 10);
 
     if (!checkInStr || !checkOutStr) return false;
 

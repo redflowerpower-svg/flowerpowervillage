@@ -287,8 +287,7 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
     let octorateReservations: any[] = [];
     if (tokenData?.access_token) {
       try {
-        const dateFrom = (req.query.dateFrom as string) || new Date().toISOString().substring(0, 10);
-        const octRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation?dateFrom=${dateFrom}`, {
+        const octRes = await fetch(`https://api.octorate.com/connect/rest/v1/reservation`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${tokenData.access_token}`,
@@ -298,21 +297,26 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
 
         if (octRes.ok) {
           const octJson = await octRes.json();
-          const items = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : []);
+          const items = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
           octorateReservations = items.map((r: any) => ({
             id: String(r.id || r.reservationId || Math.random()),
-            guest_name: r.guestName || r.guest_name || `${r.first_name || 'Ospite'} ${r.last_name || ''}`.trim(),
-            guest_email: r.email || r.guestEmail || '',
-            guest_phone: r.phone || '',
-            accommodation_id: String(r.roomTypeId || r.roomId || r.accommodation_id || ''),
+            guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
+            guest_email: r.email || r.guestEmail || (r.guests && r.guests[0]?.email) || '',
+            guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',
+            accommodation_id: String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || ''),
             accommodation_name: r.roomName || r.accommodation_name || '',
-            check_in: String(r.checkIn || r.check_in || '').slice(0, 10),
-            check_out: String(r.checkOut || r.check_out || '').slice(0, 10),
-            guests: Number(r.pax || r.guests || 2),
-            total_price: Number(r.totalAmount || r.total_price || 0),
+            product: String(r.product || r.roomTypeId || ''),
+            roomName: r.roomName || r.accommodation_name || '',
+            check_in: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
+            check_out: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
+            checkin: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
+            checkout: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
+            guests: Number(r.totalGuest || r.pax || r.guestsCount || 2),
+            total_price: Number(r.roomGross || r.totalGross || r.totalAmount || 0),
             deposit_paid: Number(r.deposit || 0),
-            status: r.status === 'CANCELLED' ? 'cancelled' : 'confirmed',
-            source_channel: r.ota || r.source_channel || r.channel || 'Booking.com'
+            status: String(r.status || '').toUpperCase() === 'CANCELLED' ? 'cancelled' : 'confirmed',
+            source_channel: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com',
+            channelName: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com'
           }));
         }
       } catch (octErr) {
@@ -462,7 +466,7 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
     // Fetch live Octorate & Supabase reservations for unified payload
     let reservations: any[] = [];
     try {
-      const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/${structureId}?dateType=STAY&startDate=${dateFrom}&endDate=${dateTo}&dateFrom=${dateFrom}&dateTo=${dateTo}`;
+      const resUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=${structureId}`;
       const resResponse = await fetch(resUrl, {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
