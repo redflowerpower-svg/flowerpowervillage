@@ -107,35 +107,69 @@ export function getIdsForRoom(roomName: string): { motherId: number; beId: numbe
 }
 
 const AGENCY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  'WEBSITE': { bg: 'bg-orange-500 hover:bg-orange-400', text: 'text-white font-black', border: 'border-orange-400' },
+  'PRIVATE': { bg: 'bg-gray-700 hover:bg-gray-600', text: 'text-white font-extrabold', border: 'border-gray-600' },
   'Booking.com': { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' },
-  'Expedia': { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' },
   'Agoda': { bg: 'bg-purple-600 hover:bg-purple-500', text: 'text-white font-extrabold', border: 'border-purple-500' },
-  'Trip.com': { bg: 'bg-rose-600 hover:bg-rose-500', text: 'text-white font-extrabold', border: 'border-rose-500' },
-  'Direct / Website': { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' },
-  'Walk-in / Staff': { bg: 'bg-indigo-600 hover:bg-indigo-500', text: 'text-white font-extrabold', border: 'border-indigo-500' },
+  'Airbnb': { bg: 'bg-rose-600 hover:bg-rose-500', text: 'text-white font-extrabold', border: 'border-rose-500' },
+  'Expedia': { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' },
+  'Trip.com': { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' },
 };
 
 const getAgencyStyle = (source?: string) => {
-  if (!source) return { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' };
+  if (!source) return { bg: 'bg-orange-500 hover:bg-orange-400', text: 'text-white font-black', border: 'border-orange-400' };
   const s = source.toLowerCase();
-  if (s.includes('airbnb')) return { bg: 'bg-pink-600 hover:bg-pink-500', text: 'text-white font-extrabold', border: 'border-pink-500' };
-  if (s.includes('booking')) return { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' };
-  if (s.includes('expedia')) return { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' };
-  if (s.includes('agoda')) return { bg: 'bg-purple-600 hover:bg-purple-500', text: 'text-white font-extrabold', border: 'border-purple-500' };
-  if (s.includes('trip')) return { bg: 'bg-rose-600 hover:bg-rose-500', text: 'text-white font-extrabold', border: 'border-rose-500' };
-  if (s.includes('direct') || s.includes('diretto') || s.includes('site') || s.includes('stripe')) return { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' };
+  if (s.includes('octoevo') || s.includes('autosubmit') || s.includes('private')) {
+    return { bg: 'bg-gray-700 hover:bg-gray-600', text: 'text-white font-extrabold', border: 'border-gray-600' };
+  }
+  if (s.includes('stripe') || s.includes('direct') || s.includes('diretto') || s.includes('website') || s.includes('site') || s.includes('booking engine') || s.includes('web')) {
+    return { bg: 'bg-orange-500 hover:bg-orange-400', text: 'text-white font-black', border: 'border-orange-400' };
+  }
+  if (s.includes('booking')) {
+    return { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' };
+  }
+  if (s.includes('expedia')) {
+    return { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' };
+  }
+  if (s.includes('agoda')) {
+    return { bg: 'bg-purple-600 hover:bg-purple-500', text: 'text-white font-extrabold', border: 'border-purple-500' };
+  }
+  if (s.includes('airbnb')) {
+    return { bg: 'bg-rose-600 hover:bg-rose-500', text: 'text-white font-extrabold', border: 'border-rose-500' };
+  }
+  if (s.includes('trip')) {
+    return { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' };
+  }
   return { bg: 'bg-indigo-600 hover:bg-indigo-500', text: 'text-white font-extrabold', border: 'border-indigo-500' };
 };
 
 function getBookingChannelName(booking: any): string {
-  const src = String(booking.source || booking.channel || booking.channelName || booking.source_channel || booking.ota || '').toLowerCase();
-  if (src.includes('airbnb')) return 'Airbnb';
-  if (src.includes('booking')) return 'Booking.com';
-  if (src.includes('expedia')) return 'Expedia';
-  if (src.includes('agoda')) return 'Agoda';
-  if (src.includes('trip')) return 'Trip.com';
-  if (src.includes('direct') || src.includes('site') || src.includes('stripe') || src.includes('diretto')) return 'Diretto';
-  return booking.source || booking.channel || booking.channelName || 'Prenotato';
+  const src = String(
+    booking.channelName || booking.source || booking.agency || booking.channel || booking.source_channel || booking.ota || ''
+  ).toLowerCase();
+
+  if (src.includes('octoevo') || src.includes('autosubmit')) {
+    return 'PRIVATE';
+  }
+  if (src.includes('stripe') || src.includes('direct') || src.includes('diretto') || src.includes('website') || src.includes('site') || src.includes('booking engine')) {
+    return 'WEBSITE';
+  }
+  if (src.includes('booking')) {
+    return 'BOOKING.COM';
+  }
+  if (src.includes('expedia')) {
+    return 'EXPEDIA';
+  }
+  if (src.includes('agoda')) {
+    return 'AGODA';
+  }
+  if (src.includes('airbnb')) {
+    return 'AIRBNB';
+  }
+  if (src.includes('trip')) {
+    return 'TRIP.COM';
+  }
+  return String(booking.channelName || booking.source || booking.agency || booking.channel || 'PRENOTATO').toUpperCase();
 }
 
 // Universal All-18 Accommodations ID & Keyword Map for Bidirectional Fuzzy Matching
@@ -735,12 +769,14 @@ export function ResortVisualCalendar() {
         </div>
 
         {/* Agency Color Legend */}
-        <div className="flex items-center gap-2 overflow-x-auto text-[10px] font-bold text-stone-400 pt-1 sm:pt-0">
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Booking.com</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Expedia</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Agoda</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Diretto / Stripe</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-600" /> Stop Sell / Chiuso</span>
+        <div className="flex items-center gap-2.5 overflow-x-auto text-[10px] font-black text-stone-300 pt-1 sm:pt-0">
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm" /> WEBSITE</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-gray-700 border border-stone-500 shadow-sm" /> PRIVATE</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-sm" /> Booking.com</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-purple-600 shadow-sm" /> Agoda</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-sm" /> Airbnb</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-600 shadow-sm" /> Expedia</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-700 shadow-sm" /> Stop Sell / Chiuso</span>
         </div>
       </div>
 
@@ -833,10 +869,11 @@ export function ResortVisualCalendar() {
                         ? '10.000' 
                         : (motherPriceVal > 0 ? motherPriceVal.toLocaleString('it-IT') : 'N/D');
 
-                      const bePriceVal = Number(beData?.price || beData?.value || beData?.amount || 0);
-                      const bePriceStr = bePriceVal >= 10000 
-                        ? '10.000' 
-                        : (bePriceVal > 0 ? bePriceVal.toLocaleString('it-IT') : 'N/D');
+                      // Prezzo BE con Sconto 10% (arrotondato)
+                      const beDiscountedPrice = beData?.price ? Math.round(beData.price * 0.9) : null;
+                      const beDiscountedStr = beDiscountedPrice !== null 
+                        ? (beDiscountedPrice >= 10000 ? '10.000' : beDiscountedPrice.toLocaleString('it-IT')) 
+                        : 'N/D';
 
                       // Minimum stay letto dalla Tariffa Madre
                       const motherMinStayNum = Number(motherData?.minStay ?? motherData?.minstay ?? motherData?.minNights ?? motherData?.min_stay ?? gapFillMinStays[dateStr] ?? 0);
@@ -871,8 +908,8 @@ export function ResortVisualCalendar() {
                           onClick={() => matchingBooking && setSelectedBooking(matchingBooking)}
                           className={`py-1 px-0.5 border-l text-center transition-colors relative w-[100px] min-w-[64px] max-w-[100px] truncate overflow-hidden ${bgStyle}`}
                           title={matchingBooking 
-                            ? `Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${getBookingChannelName(matchingBooking)}) • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}`
-                            : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`}
+                            ? `Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${getBookingChannelName(matchingBooking)}) • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
+                            : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`}
                         >
                           {/* BADGE MINSTAY (Cerchio Giallo con testo nero) */}
                           {motherMinStayNum > 0 && (
@@ -900,9 +937,9 @@ export function ResortVisualCalendar() {
                               <div className="truncate text-[10px] min-w-0 w-full text-center text-white/95 font-medium">
                                 {matchingBooking.guest_name || matchingBooking.guestName || 'Ospite'}
                               </div>
-                              {/* Prezzo BE sotto */}
+                              {/* Prezzo BE Scontato 10% sotto */}
                               <div className="text-[10px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
-                                BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
+                                BE: {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}
                               </div>
                             </div>
                           ) : (
@@ -912,9 +949,9 @@ export function ResortVisualCalendar() {
                                 Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'}
                               </div>
 
-                              {/* BASSO (in grassetto): Prezzo Tariffa BE */}
+                              {/* BASSO (in grassetto): Prezzo Tariffa BE Scontata 10% */}
                               <div className="text-[11px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
-                                BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
+                                BE: {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}
                               </div>
                             </div>
                           )}
