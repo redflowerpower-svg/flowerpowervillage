@@ -463,16 +463,27 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       return OFFICIAL_BE_RATE_IDS.has(idNum) || nameStr.endsWith('be') || nameStr.includes('booking engine');
     });
 
-    // Fetch live Octorate & Supabase reservations for unified payload
+    // Fetch live Octorate & Supabase reservations with dynamic date parameters for unified payload
     let reservations: any[] = [];
     try {
-      const resUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=${structureId}`;
-      const resResponse = await fetch(resUrl, {
+      const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?dateType=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
+      let resResponse = await fetch(resUrl, {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
           "Accept": "application/json"
         }
       });
+
+      if (!resResponse.ok) {
+        const fallbackUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=366879&dateType=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
+        resResponse = await fetch(fallbackUrl, {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Accept": "application/json"
+          }
+        });
+      }
+
       if (resResponse.ok) {
         const resJson = await resResponse.json();
         const list = Array.isArray(resJson.data) ? resJson.data : (Array.isArray(resJson) ? resJson : (resJson.reservations || []));
@@ -495,7 +506,7 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       }
     }
 
-    console.log(`[OCTORATE GRID] Scaricati ${allFetchedItems.length} rate plans. Filtrati ${filteredBEItems.length} BE rate plans. Trovate ${reservations.length} prenotazioni.`);
+    console.log(`[BACKEND] Prenotazioni trovate dal ${dateFrom} al ${dateTo}:`, reservations.length);
 
     return res.status(200).json({
       success: true,

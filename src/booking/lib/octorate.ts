@@ -676,7 +676,17 @@ export async function fetchOctorateMonthlyGrid(
     const payload = await res.json();
     const items = payload && payload.data && Array.isArray(payload.data) ? payload.data : [];
 
-    console.log(`[Octorate Grid API] Received ${items.length} rate plan items from serverless endpoint.`);
+    // Extract unified reservations array and save into Zustand store
+    if (payload && payload.reservations && Array.isArray(payload.reservations) && payload.reservations.length > 0) {
+      try {
+        const { useResortAdminStore } = await import('../../admin/resort/store/useResortAdminStore');
+        useResortAdminStore.getState().setBookings(payload.reservations);
+      } catch (stErr) {
+        console.warn('[Octorate Grid API] Store update warning:', stErr);
+      }
+    }
+
+    console.log(`[Octorate Grid API] Received ${items.length} rate plan items and ${(payload?.reservations || []).length} reservations from serverless endpoint.`);
 
     // Primary BE Rate Plan IDs to process after secondary sub-rate plans
     const PRIMARY_BE_IDS = [
