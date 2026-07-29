@@ -742,9 +742,9 @@ export function ResortVisualCalendar() {
                 );
 
                 return (
-                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-7">
+                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-10">
                     {/* Room Name & Category Cell (Sticky Column) */}
-                    <td className="py-0.5 px-2 sticky left-0 bg-stone-900 z-10 border-r border-stone-800 shadow-r">
+                    <td className="py-1 px-2 sticky left-0 bg-stone-900 z-10 border-r border-stone-800 shadow-r">
                       <div className="flex items-center justify-between gap-1">
                         <div className="font-extrabold text-white text-[10px] leading-none truncate max-w-[110px]" title={room.name}>
                           {room.name}
@@ -759,7 +759,7 @@ export function ResortVisualCalendar() {
                     {datesArray.map((cellDate, idx) => {
                       const dateStr = cellDate.toISOString().substring(0, 10);
                       
-                      // 1. Mother Rate Plan Data (Octorate Room ID: 529773, 293962, etc.)
+                      // 1. Mother Rate Plan Data (Root Rate ID: 529773, 293962, etc.)
                       const motherRateId = getMotherRatePlanId(room.name);
                       const motherData = (
                         (motherRateId ? liveGridData[String(motherRateId)] : null) ||
@@ -777,15 +777,20 @@ export function ResortVisualCalendar() {
                         liveGridData[room.name.toLowerCase()]
                       )?.[dateStr];
 
-                      // Website Price from BE Rate Plan (or fallback to Mother price / base price)
-                      const websitePrice = (beData && beData.price > 0)
+                      // Price from Mother Rate Plan (Top Line)
+                      const motherPriceVal = motherData && motherData.price > 0 ? motherData.price : 0;
+                      const motherPriceStr = motherPriceVal >= 10000 
+                        ? '10.000' 
+                        : (motherPriceVal > 0 ? motherPriceVal.toLocaleString('it-IT') : '---');
+
+                      // Price from BE Rate Plan (Bottom Line)
+                      const bePriceVal = (beData && beData.price > 0)
                         ? beData.price
                         : ((motherData && motherData.price > 0) ? motherData.price : calculateWebsitePriceForRoom(room.name));
 
-                      const displayPriceStr = websitePrice >= 10000 ? '10.000' : websitePrice.toLocaleString('it-IT');
-
-                      // Minimum Stay read from Mother Rate Plan (or gap-fill fallback)
-                      const motherMinStay = motherData?.minStay ?? gapFillMinStays[dateStr] ?? beData?.minStay;
+                      const bePriceStr = bePriceVal >= 10000 
+                        ? '10.000' 
+                        : (bePriceVal > 0 ? bePriceVal.toLocaleString('it-IT') : '---');
 
                       // 🥇 PRIORITÀ 1: Prenotazione OTA / Diretta
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookings);
@@ -798,20 +803,15 @@ export function ResortVisualCalendar() {
                           <td
                             key={idx}
                             onClick={() => setSelectedBooking(matchingBooking)}
-                            className={`py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-pointer ${style.bg} ${style.border}`}
-                            title={`Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${channelName}) • Prezzo BE: ฿${displayPriceStr} ${motherMinStay ? `• MinStay Madre: ${motherMinStay}N` : ''}`}
+                            className={`py-1 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-pointer ${style.bg} ${style.border}`}
+                            title={`Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${channelName}) • Madre: ฿${motherPriceStr} • BE: ฿${bePriceStr}`}
                           >
-                            <div className="text-[7.5px] font-extrabold uppercase truncate tracking-tighter leading-none text-white opacity-95">
+                            <div className="text-[8px] font-extrabold uppercase truncate tracking-tighter leading-none text-white opacity-95">
                               {channelName}
                             </div>
-                            <div className="text-[9.5px] font-mono font-black text-white leading-tight mt-0.5">
-                              {displayPriceStr}
+                            <div className="text-[11px] font-mono font-black text-white leading-tight mt-0.5">
+                              {bePriceStr}
                             </div>
-                            {motherMinStay && motherMinStay > 1 && (
-                              <div className="absolute bottom-0.5 right-0.5 text-[6.5px] font-extrabold text-white/90 leading-none tracking-tighter opacity-80">
-                                🌙 min {motherMinStay}N
-                              </div>
-                            )}
                           </td>
                         );
                       }
@@ -824,7 +824,7 @@ export function ResortVisualCalendar() {
 
                       const isClosedOrStopSell = 
                         isRoomClosedByStaff || 
-                        websitePrice >= 10000 ||
+                        bePriceVal >= 10000 ||
                         isMotherStopSell ||
                         (beData ? (beData.stopSell || !beData.available || beData.price >= 10000) : false);
 
@@ -832,32 +832,27 @@ export function ResortVisualCalendar() {
                         return (
                           <td
                             key={idx}
-                            className="py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-red-700 hover:bg-red-600 border-red-800/80"
-                            title={`Alloggio Chiuso / Stop Sell su Tariffa Madre (${motherRateId || 'Root'}) • Prezzo BE: ฿${displayPriceStr}`}
+                            className="py-1 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-red-700 hover:bg-red-600 border-red-800/80"
+                            title={`Alloggio Chiuso / Stop Sell • Tariffa Madre: ฿${motherPriceStr} • Tariffa BE: ฿${bePriceStr}`}
                           >
-                            <div className="text-[7.5px] font-extrabold uppercase tracking-tighter leading-none text-red-100">
-                              🔒 Chiuso
+                            <div className="text-[9px] font-mono font-medium text-red-200/80 leading-tight">
+                              {motherPriceStr}
                             </div>
-                            <div className="text-[9.5px] font-mono font-black text-white leading-tight mt-0.5">
-                              {displayPriceStr}
+                            <div className="text-[11px] font-mono font-black text-white leading-tight">
+                              {bePriceStr}
                             </div>
-                            {motherMinStay && motherMinStay > 1 && (
-                              <div className="absolute bottom-0.5 right-0.5 text-[6.5px] font-extrabold text-red-200/90 leading-none tracking-tighter">
-                                🌙 min {motherMinStay}N
-                              </div>
-                            )}
                           </td>
                         );
                       }
 
-                      // 🥉 PRIORITÀ 3: Libera (Minimum Stay letto dalla Tariffa Madre)
+                      // 🥉 PRIORITÀ 3: Libera (Doppia Tariffa Incolonnata: Madre sopra, BE sotto)
                       const isCTA = Boolean(motherData?.closedToArrival || beData?.closedToArrival);
 
                       return (
                         <td
                           key={idx}
-                          className="py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60"
-                          title={`Alloggio Libero • Prezzo BE: ฿${displayPriceStr} ${isCTA ? '• Solo Check-Out' : ''} ${motherMinStay ? `• MinStay Tariffa Madre: ${motherMinStay}N` : ''}`}
+                          className="py-1 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60"
+                          title={`Alloggio Libero • Tariffa Madre: ฿${motherPriceStr} • Tariffa BE: ฿${bePriceStr} ${isCTA ? '• Solo Check-Out' : ''}`}
                         >
                           {/* Indicator CTA Solo Check-out */}
                           {isCTA && (
@@ -867,17 +862,15 @@ export function ResortVisualCalendar() {
                             />
                           )}
 
-                          {/* Prezzo BE in Basso */}
-                          <div className="text-[10px] font-mono font-black text-white leading-none">
-                            {displayPriceStr}
+                          {/* RIGA SUPERIORE: Prezzo Tariffa Madre */}
+                          <div className="text-[9px] font-mono font-medium text-stone-200/80 leading-tight">
+                            {motherPriceStr}
                           </div>
 
-                          {/* Minimum Stay Badge letto dalla Tariffa Madre */}
-                          {motherMinStay && motherMinStay > 1 && (
-                            <div className="absolute bottom-0.5 right-0.5 text-[7px] font-extrabold text-amber-200/90 leading-none tracking-tighter">
-                              🌙 min {motherMinStay}N
-                            </div>
-                          )}
+                          {/* RIGA INFERIORE: Prezzo Tariffa BE */}
+                          <div className="text-[11px] font-mono font-black text-white leading-tight">
+                            {bePriceStr}
+                          </div>
                         </td>
                       );
                     })}
