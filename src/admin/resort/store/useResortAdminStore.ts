@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { supabase } from '../../../lib/supabase';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { updateLastMinuteRatesStrategy, disableLastMinuteRatesStrategy, fetchOctorateLiveReservations } from '../../../booking/lib/octorate';
 import { calculateDynamicMinStay } from '../lib/octorateAdmin';
