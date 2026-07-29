@@ -651,6 +651,9 @@ export interface OctorateDayData {
   price: number;
   available: boolean;
   stopSell: boolean;
+  // Flag nativi Octorate — usati come unica fonte di verit\u00e0 per la chiusura
+  stopSells?: boolean;
+  availability?: number;
   closedToArrival: boolean;
   minStay?: number;
 }
@@ -753,13 +756,14 @@ export async function fetchOctorateMonthlyGrid(
           const dateStr = String(day.date).substring(0, 10);
           const dayPrice = Number(day.price || day.value || day.amount || 0);
 
-          // REGOLE STOP SELL & CHIUSURA (INCLUSA LA REGOLA DEI 10.000 ฿):
-          const isStopSell = 
-            Boolean(day.stopSells || day.stopSell) || 
-            (day.availability !== undefined && day.availability <= 0) ||
-            (day.available !== undefined && day.available <= 0) ||
-            day.bookable === false ||
-            dayPrice >= 10000;
+          // FLAG NATIVI OCTORATE — la chiusura dipende SOLO da stopSells e availability.
+          // Il prezzo non è mai un indicatore di disponibilità.
+          const isStopSell =
+            Boolean(day.stopSells || day.stopSell) ||
+            (day.availability !== undefined && Number(day.availability) <= 0) ||
+            (day.available !== undefined && Number(day.available) <= 0);
+            // NOTA: day.bookable===false RIMOSSO intenzionalmente
+            // NOTA: dayPrice>=10000 RIMOSSO intenzionalmente — il prezzo non governa la chiusura
 
           const minStayVal = Number(
             day.minStay ?? day.minstay ?? day.minNights ?? day.min_stay ?? day.minimumStay ??
@@ -772,6 +776,9 @@ export async function fetchOctorateMonthlyGrid(
             price: dayPrice,
             available: !isStopSell,
             stopSell: isStopSell,
+            // Flag nativi Octorate passati direttamente per la lettura nel calendario
+            stopSells: Boolean(day.stopSells || day.stopSell),
+            availability: Number(day.availability ?? day.available ?? (isStopSell ? 0 : 1)),
             closedToArrival: Boolean(day.closedToArrival || day.closed_to_arrival || day.cta),
             minStay: minStayVal > 0 ? minStayVal : undefined
           };
@@ -781,6 +788,11 @@ export async function fetchOctorateMonthlyGrid(
   } catch (err) {
     console.warn("[Octorate Grid API] Exception during serverless grid fetch:", err);
   }
+
+  // Log diagnostico: verifica giorni estratti per Jungle Villa BE (ID 529784)
+  const jvBeKey = '529784';
+  console.log('[DEBUG FRONTEND GRID] Chiavi disponibili in result:', Object.keys(result).slice(0, 10));
+  console.log('[DEBUG FRONTEND GRID] Giorni estratti per Jungle Villa BE (529784):', Object.keys(result[jvBeKey] || {}).join(', ') || 'NESSUNO');
 
   return result;
 }

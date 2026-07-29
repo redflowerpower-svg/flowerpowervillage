@@ -251,6 +251,24 @@ export async function handleOctorateClientClear(req: VercelRequest, res: VercelR
   }
 }
 
+// ─── Monthly chunk generator helper ──────────────────────────────────────────
+function generateMonthlyChunks(from: string, to: string): Array<{ chunkFrom: string; chunkTo: string }> {
+  const result: Array<{ chunkFrom: string; chunkTo: string }> = [];
+  const start = new Date(from + 'T00:00:00Z');
+  const end   = new Date(to   + 'T00:00:00Z');
+  let cursor = new Date(start);
+  while (cursor <= end) {
+    const chunkFrom = cursor.toISOString().substring(0, 10);
+    const lastDayOfMonth = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 0));
+    const chunkTo = lastDayOfMonth <= end
+      ? lastDayOfMonth.toISOString().substring(0, 10)
+      : end.toISOString().substring(0, 10);
+    result.push({ chunkFrom, chunkTo });
+    cursor = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 1));
+  }
+  return result;
+}
+
 // 6. handleOctorateBookings
 export async function handleOctorateBookings(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -267,9 +285,12 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
       .select('*')
       .order('created_at', { ascending: false });
 
-    const dateFrom = (req.query.dateFrom as string) || (req.query.startDate as string) || new Date().toISOString().substring(0, 10);
-    const dateToObj = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
-    const dateTo = (req.query.dateTo as string) || (req.query.endDate as string) || dateToObj.toISOString().substring(0, 10);
+    const reqDateFrom = (req.query.dateFrom as string) || (req.query.startDate as string) || new Date().toISOString().substring(0, 10);
+    const dateToObj = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+    const reqDateTo = (req.query.dateTo as string) || (req.query.endDate as string) || dateToObj.toISOString().substring(0, 10);
+
+    const bookingChunks = generateMonthlyChunks(reqDateFrom, reqDateTo);
+    console.log(`[api/resort/octorate-bookings] Query split in ${bookingChunks.length} chunk mensili: ${bookingChunks.map(c => `${c.chunkFrom}->${c.chunkTo}`).join(', ')}`);
 
     const { data: tokenData } = await supabaseAdmin
       .from('octorate_tokens')
@@ -280,59 +301,91 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
     let octorateReservations: any[] = [];
     if (tokenData?.access_token) {
       try {
-        const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
-        let octRes = await fetch(octUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${tokenData.access_token}`,
-            'Accept': 'application/json'
-          }
-        });
+        const PAGE_SIZE = 200;
+        // Map per deduplicare le prenotazioni a cavallo di più mesi (chiave: id o refer)
+        const rawMap = new Map<string, any>();
 
-        if (!octRes.ok) {
-          const fallbackUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=366879&type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
-          octRes = await fetch(fallbackUrl, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${tokenData.access_token}`,
-              'Accept': 'application/json'
+        for (const chunk of bookingChunks) {
+          let page = 0;
+          let hasMore = true;
+
+          while (hasMore && page < 5) {
+            const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?startDate=${chunk.chunkFrom}&endDate=${chunk.chunkTo}&type=STAY&size=${PAGE_SIZE}&page=${page}`;
+            let octRes = await fetch(octUrl, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${tokenData.access_token}`,
+                'Accept': 'application/json'
+              }
+            });
+
+            if (!octRes.ok) {
+              const fallbackUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=366879&startDate=${chunk.chunkFrom}&endDate=${chunk.chunkTo}&type=STAY&size=${PAGE_SIZE}&page=${page}`;
+              octRes = await fetch(fallbackUrl, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${tokenData.access_token}`,
+                  'Accept': 'application/json'
+                }
+              });
             }
-          });
+
+            if (octRes.ok) {
+              const octJson = await octRes.json();
+              const items = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
+              if (items.length === 0) {
+                hasMore = false;
+                break;
+              }
+
+              for (const item of items) {
+                const resKey = String(item.id || item.refer || item.reservationId || Math.random());
+                if (!rawMap.has(resKey)) {
+                  rawMap.set(resKey, item);
+                }
+              }
+
+              console.log(`[api/resort/octorate-bookings] Chunk ${chunk.chunkFrom}->${chunk.chunkTo} Page ${page}: scaricate ${items.length} prenotazioni (totali uniche finora: ${rawMap.size}).`);
+              if (items.length < PAGE_SIZE) {
+                hasMore = false;
+              } else {
+                page++;
+              }
+            } else {
+              console.warn(`[api/resort/octorate-bookings] Chunk ${chunk.chunkFrom}->${chunk.chunkTo} Page ${page} status ${octRes.status}`);
+              hasMore = false;
+            }
+          }
         }
 
-        if (octRes.ok) {
-          const octJson = await octRes.json();
-          const items = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
-          octorateReservations = items.map((r: any) => ({
-            id: String(r.id || r.reservationId || Math.random()),
-            guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
-            guest_email: r.email || r.guestEmail || (r.guests && r.guests[0]?.email) || '',
-            guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',
-            accommodation_id: String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || ''),
-            accommodation_name: r.roomName || r.accommodation_name || '',
-            product: String(r.product || r.roomTypeId || ''),
-            roomName: r.roomName || r.accommodation_name || '',
-            check_in: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
-            check_out: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
-            checkin: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
-            checkout: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
-            guests: Number(r.totalGuest || r.pax || r.guestsCount || 2),
-            total_price: Number(r.roomGross || r.totalGross || r.totalAmount || 0),
-            deposit_paid: Number(r.deposit || 0),
-            status: String(r.status || '').toUpperCase() === 'CANCELLED' ? 'cancelled' : 'confirmed',
-            source_channel: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com',
-            channelName: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com'
-          }));
-        } else {
-          console.warn(`[api/resort/octorate-bookings] Octorate API status ${octRes.status}`);
-        }
+        const rawOctorateItems = Array.from(rawMap.values());
+        octorateReservations = rawOctorateItems.map((r: any) => ({
+          id: String(r.id || r.reservationId || r.refer || Math.random()),
+          guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
+          guest_email: r.email || r.guestEmail || (r.guests && r.guests[0]?.email) || '',
+          guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',
+          accommodation_id: String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || ''),
+          accommodation_name: r.roomName || r.accommodation_name || '',
+          product: String(r.product || r.roomTypeId || ''),
+          roomName: r.roomName || r.accommodation_name || '',
+          check_in: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
+          check_out: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
+          checkin: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
+          checkout: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
+          guests: Number(r.totalGuest || r.pax || r.guestsCount || 2),
+          total_price: Number(r.roomGross || r.totalGross || r.totalAmount || 0),
+          deposit_paid: Number(r.deposit || 0),
+          status: String(r.status || '').toUpperCase() === 'CANCELLED' ? 'cancelled' : 'confirmed',
+          source_channel: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com',
+          channelName: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com'
+        }));
       } catch (octErr) {
         console.warn('[api/resort/octorate-bookings] Octorate reservations fetch notice:', octErr);
       }
     }
 
     const combinedBookings = [...(sbData || []), ...octorateReservations];
-    console.log(`[BACKEND] Prenotazioni trovate dal ${dateFrom} al ${dateTo}:`, combinedBookings.length);
+    console.log(`[BACKEND] Prenotazioni trovate dal ${reqDateFrom} al ${reqDateTo}:`, combinedBookings.length);
 
     return res.status(200).json({ success: true, data: combinedBookings });
   } catch (error: any) {
@@ -373,39 +426,22 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
     let accessToken = tokenData.access_token;
     let refreshToken = tokenData.refresh_token;
 
-    const fetchCalendarPage = async (token: string, pageNum: number) => {
-      const url = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${dateFrom}&dateTo=${dateTo}&size=20&page=${pageNum}`;
-      return await fetch(url, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/json"
-        }
-      });
-    };
-
-    const tryRefreshToken = async () => {
+    // ─── Token refresh helper ────────────────────────────────────────────────
+    const tryRefreshToken = async (): Promise<string | null> => {
       const clientId = process.env.VITE_OCTORATE_CLIENT_ID;
       const clientSecret = process.env.OCTORATE_SECRET_KEY;
-
       if (!refreshToken || !clientId || !clientSecret) return null;
-
       try {
-        const refreshUrl = "https://api.octorate.com/connect/rest/v1/identity/refresh";
-        const refreshRes = await fetch(refreshUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Accept": "application/json"
-          },
+        const refreshRes = await fetch('https://api.octorate.com/connect/rest/v1/identity/refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json' },
           body: new URLSearchParams({
-            grant_type: "refresh_token",
+            grant_type: 'refresh_token',
             refresh_token: refreshToken,
             client_id: clientId,
             client_secret: clientSecret
           }).toString()
         });
-
         if (refreshRes.ok) {
           const newTokens = await refreshRes.json();
           await supabaseAdmin.from('octorate_tokens').upsert({
@@ -418,78 +454,148 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
           return newTokens.access_token;
         }
       } catch (err) {
-        console.warn("[api/resort/octorate-grid] Token refresh failed:", err);
+        console.warn('[api/resort/octorate-grid] Token refresh failed:', err);
       }
       return null;
     };
 
+    // ─── Rate plan ID sets ───────────────────────────────────────────────────
     const MOTHER_RATE_IDS = new Set([
       529773, 495795, 495796, 494840, 421511, 293957, 293954, 293962,
       293965, 293955, 293963, 293959, 293948, 293945, 293943, 293951,
       883795, 293942
     ]);
-
     const targetIds = new Set([...OFFICIAL_BE_RATE_IDS, ...MOTHER_RATE_IDS]);
 
-    const allFetchedItems: any[] = [];
-    let page = 0;
+    // ─── Monthly chunk generator ─────────────────────────────────────────────
+    // Octorate tronca le risposte al confine mensile.
+    // Spezziamo la richiesta in chunk mensili e paghiniamo separatamente ognuno.
+    const generateMonthlyChunks = (from: string, to: string): Array<{ chunkFrom: string; chunkTo: string }> => {
+      const result: Array<{ chunkFrom: string; chunkTo: string }> = [];
+      const start = new Date(from + 'T00:00:00Z');
+      const end   = new Date(to   + 'T00:00:00Z');
+      let cursor = new Date(start);
+      while (cursor <= end) {
+        const chunkFrom = cursor.toISOString().substring(0, 10);
+        const lastDayOfMonth = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 0));
+        const chunkTo = lastDayOfMonth <= end
+          ? lastDayOfMonth.toISOString().substring(0, 10)
+          : end.toISOString().substring(0, 10);
+        result.push({ chunkFrom, chunkTo });
+        cursor = new Date(Date.UTC(cursor.getUTCFullYear(), cursor.getUTCMonth() + 1, 1));
+      }
+      return result;
+    };
+
+    // ─── Esegui chunk per chunk con reset esplicito della paginazione (page=0) ───
+    const chunks = generateMonthlyChunks(dateFrom, dateTo);
+    console.log(`[OCTORATE GRID] Split in ${chunks.length} chunk/i: ${chunks.map(c => `${c.chunkFrom}->${c.chunkTo}`).join(', ')}`);
+
+    const productQuery = [...targetIds].map(id => `product[]=${id}`).join('&');
     const PAGE_SIZE = 20;
-    const MAX_PAGES = 25;
 
-    while (page < MAX_PAGES) {
-      let response = await fetchCalendarPage(accessToken, page);
+    const mergedMap = new Map<string, { base: any; days: Map<string, any> }>();
 
-      if ((response.status === 401 || response.status === 403) && page === 0) {
-        const newTok = await tryRefreshToken();
-        if (newTok) {
-          accessToken = newTok;
-          response = await fetchCalendarPage(accessToken, page);
+    for (const chunk of chunks) {
+      let page = 0; // DEVE ripartire da 0 per ogni mese/chunk!
+      const chunkProducts: any[] = [];
+      let hasMorePages = true;
+
+      while (hasMorePages) {
+        const url = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${chunk.chunkFrom}&dateTo=${chunk.chunkTo}&size=${PAGE_SIZE}&page=${page}&${productQuery}`;
+
+        if (page === 0) {
+          console.log(`[DEBUG OCTORATE CHUNK]: ${chunk.chunkFrom}->${chunk.chunkTo} (page 0) URL: ${url}`);
+        }
+
+        let response = await fetch(url, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${accessToken}`, 'Accept': 'application/json' }
+        });
+
+        // Tenta refresh token al primo 401/403 (solo prima pagina del primo chunk)
+        if ((response.status === 401 || response.status === 403) && page === 0 && chunk === chunks[0]) {
+          const newTok = await tryRefreshToken();
+          if (newTok) {
+            accessToken = newTok;
+            response = await fetch(url, {
+              method: 'GET',
+              headers: { 'Authorization': `Bearer ${newTok}`, 'Accept': 'application/json' }
+            });
+          }
+        }
+
+        if (!response.ok) {
+          console.warn(`[OCTORATE GRID] Chunk ${chunk.chunkFrom}->${chunk.chunkTo} page ${page} status ${response.status}`);
+          hasMorePages = false;
+          break;
+        }
+
+        const payload = await response.json();
+        const pageItems: any[] = Array.isArray(payload.data) ? payload.data : (Array.isArray(payload) ? payload : []);
+        console.log(`[DEBUG OCTORATE RESPONSE]: Chunk ${chunk.chunkFrom}->${chunk.chunkTo} Page ${page} - Trovati ${pageItems.length} elementi.`);
+
+        if (pageItems.length === 0) {
+          hasMorePages = false;
+          break;
+        }
+
+        // Accumula i rate plan di tutte le pagine (pagina 0 = BE, pagina 1 = Madre)
+        chunkProducts.push(...pageItems);
+
+        if (pageItems.length < PAGE_SIZE) {
+          hasMorePages = false;
+        } else {
+          page++;
         }
       }
 
-      if (!response.ok) {
-        console.warn(`[api/resort/octorate-grid] Page ${page} returned status ${response.status}`);
-        break;
+      // Merge di tutti i `chunkProducts` trovati per questo mese nel master map
+      for (const item of chunkProducts) {
+        const idStr = String(item.id);
+        if (!mergedMap.has(idStr)) {
+          mergedMap.set(idStr, { base: { ...item, days: undefined }, days: new Map() });
+        }
+        const entry = mergedMap.get(idStr)!;
+        const itemDays: any[] = Array.isArray(item.days) ? item.days : [];
+        for (const day of itemDays) {
+          const dayKey = String(day.date || day.day || '').substring(0, 10);
+          if (dayKey) entry.days.set(dayKey, day);
+        }
       }
-
-      const payload = await response.json();
-      const pageItems = payload && Array.isArray(payload.data) ? payload.data : (Array.isArray(payload) ? payload : []);
-
-      if (pageItems.length === 0) {
-        break;
-      }
-
-      allFetchedItems.push(...pageItems);
-
-      const foundTargetCount = allFetchedItems.filter(item => targetIds.has(Number(item.id))).length;
-      if (foundTargetCount >= targetIds.size) {
-        break;
-      }
-
-      if (pageItems.length < PAGE_SIZE) {
-        break;
-      }
-
-      page++;
     }
 
-    const filteredBEItems = allFetchedItems.filter((item: any) => {
+    // Ricostruisce array finale con days mergiati e ordinati per data
+    const mergedItems: any[] = [];
+    for (const [, entry] of mergedMap) {
+      const sortedDays = Array.from(entry.days.values()).sort((a, b) =>
+        String(a.date || a.day || '').localeCompare(String(b.date || b.day || ''))
+      );
+      mergedItems.push({ ...entry.base, days: sortedDays });
+    }
+
+    const filteredBEItems = mergedItems.filter((item: any) => {
       const idNum = Number(item.id);
       const nameStr = String(item.name || '').toLowerCase();
       return OFFICIAL_BE_RATE_IDS.has(idNum) || MOTHER_RATE_IDS.has(idNum) || nameStr.endsWith('be') || nameStr.includes('booking engine');
     });
 
-    console.log(`[OCTORATE GRID] Scaricati ${allFetchedItems.length} rate plans. Filtrati ${filteredBEItems.length} BE e Mother rate plans dal ${dateFrom} al ${dateTo}.`);
+    const totalDays = filteredBEItems.reduce((acc: number, i: any) => acc + (i.days?.length || 0), 0);
+    console.log(`[OCTORATE GRID] Merge completato. Rate plans: ${filteredBEItems.length}. Giorni totali: ${totalDays}. Periodo: ${dateFrom}->${dateTo}.`);
+
+    // Log diagnostico: verifica giorni disponibili per Jungle Villa BE (ID 529784)
+    const jvBEItem = filteredBEItems.find((i: any) => String(i.id) === '529784');
+    console.log('[DEBUG BACKEND OCTORATE] Giorni estratti per Jungle Villa BE (529784):', jvBEItem ? (jvBEItem.days || []).map((d: any) => d.date).join(', ') : 'RATE PLAN NON TROVATO');
 
     return res.status(200).json({
       success: true,
       data: filteredBEItems,
       grid: filteredBEItems,
-      totalFetched: allFetchedItems.length,
-      pagesCount: page + 1
+      totalFetched: mergedItems.length,
+      chunksCount: chunks.length
     });
   } catch (error: any) {
-    console.error("[OCTORATE GRID ERROR CRITICO]:", error);
+    console.error('[OCTORATE GRID ERROR CRITICO]:', error);
     return res.status(500).json({ error: error.message || 'Error processing grid', stack: error.stack });
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useResortAdminStore, ResortBooking } from '../store/useResortAdminStore';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { fetchOctorateMonthlyGrid, OctorateDayData } from '../../../booking/lib/octorate';
@@ -39,13 +39,13 @@ const ROOM_BASE_RATES: Record<string, number> = {
   'Camel Tent Bungalow': 430,
   'Lagoon Tent Bungalow': 430,
   'Internal Room': 390,
-  'Room 1': 10000,
-  'Room 2': 10000,
-  'Room 3': 10000,
-  'Room 4': 10000,
-  'Room 5': 10000,
-  'Lodge 1': 10000,
-  'Lodge 2': 10000
+  'Room 1': 390,
+  'Room 2': 390,
+  'Room 3': 390,
+  'Room 4': 390,
+  'Room 5': 390,
+  'Lodge 1': 690,
+  'Lodge 2': 690
 };
 
 export const ACCOMMODATION_RATE_PLANS: Record<string, { motherId: number; beId: number }> = {
@@ -109,7 +109,7 @@ export function getIdsForRoom(roomName: string): { motherId: number; beId: numbe
 const AGENCY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   'WEBSITE': { bg: 'bg-orange-500 hover:bg-orange-400', text: 'text-white font-black', border: 'border-orange-400' },
   'PRIVATE': { bg: 'bg-gray-700 hover:bg-gray-600', text: 'text-white font-extrabold', border: 'border-gray-600' },
-  'Booking.com': { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' },
+  'BOOKING': { bg: 'bg-blue-800 hover:bg-blue-700', text: 'text-white font-extrabold', border: 'border-blue-700' },
   'Agoda': { bg: 'bg-purple-600 hover:bg-purple-500', text: 'text-white font-extrabold', border: 'border-purple-500' },
   'Airbnb': { bg: 'bg-rose-600 hover:bg-rose-500', text: 'text-white font-extrabold', border: 'border-rose-500' },
   'Expedia': { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' },
@@ -126,7 +126,7 @@ const getAgencyStyle = (source?: string) => {
     return { bg: 'bg-orange-500 hover:bg-orange-400', text: 'text-white font-black', border: 'border-orange-400' };
   }
   if (s.includes('booking')) {
-    return { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' };
+    return { bg: 'bg-blue-800 hover:bg-blue-700', text: 'text-white font-extrabold', border: 'border-blue-700' };
   }
   if (s.includes('expedia')) {
     return { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' };
@@ -155,7 +155,7 @@ function getBookingChannelName(booking: any): string {
     return 'WEBSITE';
   }
   if (src.includes('booking')) {
-    return 'BOOKING.COM';
+    return 'BOOKING';
   }
   if (src.includes('expedia')) {
     return 'EXPEDIA';
@@ -257,87 +257,80 @@ function findMatchingBooking(
 ): ResortBooking | null {
   if (!bookings || !Array.isArray(bookings) || bookings.length === 0) return null;
 
-  const y = cellDate.getFullYear();
-  const m = String(cellDate.getMonth() + 1).padStart(2, '0');
-  const d = String(cellDate.getDate()).padStart(2, '0');
-  const targetDateStr = `${y}-${m}-${d}`;
-
-  const targetNameLower = (roomName || '').toLowerCase().trim();
-  const targetRoomIdStr = String(roomId || '').trim();
-  const targetOctIdStr = String(roomOctId || '').trim();
-
-  const mapEntry = ALL_ACCOMMODATIONS_MAP[targetNameLower];
+  const room = { name: roomName, id: roomId, octorateId: roomOctId, octorateRoomId: roomId };
 
   return bookings.find((b: any) => {
     const status = String(b.status || '').toLowerCase();
     if (status === 'cancelled' || status === 'canceled') return false;
 
-    // Room ID & Name matching normalization
-    const bRoomName = String(
-      b.roomName || 
-      b.accommodation_name || 
-      b.room_name || 
-      b.productName || 
-      b.product?.name || 
-      b.room?.name || 
-      ''
-    ).toLowerCase().trim();
+    // 1. Normalizzazione Date (Anti-Fuso Orario Locale)
+    const cellYear = cellDate.getFullYear();
+    const cellMonth = String(cellDate.getMonth() + 1).padStart(2, '0');
+    const cellDay = String(cellDate.getDate()).padStart(2, '0');
+    const cellDateStr = `${cellYear}-${cellMonth}-${cellDay}`;
 
-    const bProduct = String(
-      b.product || 
-      b.pmsProduct || 
-      b.accommodation_id || 
-      b.room_id || 
-      b.roomId || 
-      b.roomTypeId || 
-      b.product?.id || 
-      b.room?.id || 
-      ''
-    ).trim();
+    const rawIn = String(b.checkin || b.check_in || b.checkIn || b.startDate || '');
+    const rawOut = String(b.checkout || b.check_out || b.checkOut || b.endDate || '');
+    if (!rawIn || !rawOut) return false;
 
-    let isRoomMatch = false;
+    const inDateStr = rawIn.substring(0, 10);
+    const outDateStr = rawOut.substring(0, 10);
 
-    // 1. Direct ID Match
-    if (bProduct) {
-      if (bProduct === targetRoomIdStr || bProduct === targetOctIdStr) {
-        isRoomMatch = true;
-      } else if (mapEntry && mapEntry.ids.includes(bProduct)) {
-        isRoomMatch = true;
+    // Se la data della cella è fuori dal soggiorno, scarta subito
+    if (cellDateStr < inDateStr || cellDateStr >= outDateStr) return false;
+
+    // 2. Estrazione Sicura ID e Nomi
+    const bProduct = String(b.product || '');
+    const bPmsProduct = String(b.pmsProduct || '');
+    const bRoomId = String(b.roomId || '');
+    const bName = String(b.roomName || b.room_name || b.accommodation_name || '').toLowerCase().trim();
+
+    const rOctorateId = String(room.octorateId || '');
+    const rOctorateRoomId = String(room.octorateRoomId || '');
+    const rId = String(room.id || '');
+    const rName = String(room.name || '').toLowerCase().trim();
+
+    const bIds = [bProduct, bPmsProduct, bRoomId].filter(x => x !== '' && x !== '0');
+    const rIds = [rOctorateId, rOctorateRoomId, rId].filter(x => x !== '');
+
+    // 3. METODO A: Match Diretto per ID
+    const matchById = bIds.some(id => rIds.includes(id));
+
+    // 4. METODO B: Match per Nome Universale (con Scudo Anti-Hijack)
+    let matchByName = false;
+    if (bName && rName && (bName.includes(rName) || rName.includes(bName))) {
+      matchByName = true;
+      if (rName === 'jungle villa' && (bName.includes('left') || bName.includes('right'))) {
+        matchByName = false;
       }
     }
 
-    // 2. Smart Bidirectional Keyword Match
-    if (!isRoomMatch && bRoomName) {
-      if (bRoomName === targetNameLower || bRoomName.includes(targetNameLower) || targetNameLower.includes(bRoomName)) {
-        if (targetNameLower === 'jungle villa') {
-          if (!bRoomName.includes('left') && !bRoomName.includes('right') && !bRoomName.includes('jvl') && !bRoomName.includes('jvr')) {
-            isRoomMatch = true;
-          }
-        } else {
-          isRoomMatch = true;
-        }
-      } else if (mapEntry) {
-        const matchesAllGroups = mapEntry.keywords.every((group) =>
-          group.some((kw) => bRoomName.includes(kw))
-        );
-        if (matchesAllGroups) {
-          isRoomMatch = true;
-        }
-      }
-    }
+    // 5. METODO C: Mappa di Riferimento Infallibile
+    const OCTORATE_MAP: Record<string, string[]> = {
+      'Jungle Villa': ['529784', '529773'],
+      'Jungle Villa Left': ['495807', '495795'],
+      'Jungle Villa Right': ['495980', '495796'],
+      'Peace & Love Villa': ['495566', '494840'],
+      'Villa Penthouse': ['449348', '421511'],
+      'Yellow Bungalow': ['449385', '293957'],
+      'Red Bungalow': ['449422', '293954'],
+      'Green Bungalow': ['449668', '293962'],
+      'Camel Tent Bungalow': ['449675', '293965'],
+      'Lagoon Tent Bungalow': ['449674', '293955'],
+      'Room 1': ['449678', '293963'],
+      'Room 2': ['449684', '293959'],
+      'Room 3': ['449699', '293948'],
+      'Room 4': ['449724', '293945'],
+      'Room 5': ['449730', '293943'],
+      'Lodge 1': ['449736', '293951'],
+      'Lodge 2': ['923905', '883795'],
+      'Internal Room': ['449742', '293942']
+    };
+    const validIds = OCTORATE_MAP[room.name.trim()] || [];
+    const matchByMap = bIds.some(id => validIds.includes(id));
 
-    if (!isRoomMatch) return false;
-
-    // Date YYYY-MM-DD normalization
-    const rawCheckIn = String(b.checkin || b.check_in || b.checkIn || b.start_date || b.startDate || '');
-    const rawCheckOut = String(b.checkout || b.check_out || b.checkOut || b.end_date || b.endDate || '');
-
-    const checkInStr = rawCheckIn.slice(0, 10);
-    const checkOutStr = rawCheckOut.slice(0, 10);
-
-    if (!checkInStr || !checkOutStr) return false;
-
-    return targetDateStr >= checkInStr && targetDateStr < checkOutStr;
+    // Se uno qualsiasi dei 3 metodi trova un match, la prenotazione si aggancia.
+    return matchById || matchByName || matchByMap;
   }) || null;
 }
 
@@ -364,22 +357,27 @@ function computeGapFillMinStays(
 
   const dailyStates = datesArray.map((cellDate) => {
     const dateStr = cellDate.toISOString().substring(0, 10);
+    const liveGrid = liveGridData || {};
     const liveData = (
-      liveGridData[roomName] || 
-      liveGridData[targetRoomName] || 
-      liveGridData[targetOctId] || 
-      liveGridData[targetRoomId]
+      liveGrid[roomName] || 
+      liveGrid[targetRoomName] || 
+      liveGrid[targetOctId] || 
+      liveGrid[targetRoomId]
     )?.[dateStr];
 
-    const websitePrice = (liveData && liveData.price > 0)
-      ? liveData.price
-      : (ROOM_BASE_RATES[roomName] || 1000);
+    // Il prezzo di fallback è solo per visualizzazione nella colonna nome camera.
+    // NON viene usato per determinare apertura/chiusura.
+    const websitePrice = liveData?.price ?? (ROOM_BASE_RATES[roomName] ?? 0);
 
     const isRoomClosedByStaff = isRoomAvailable === false;
-    const isClosedOrStopSell = 
-      isRoomClosedByStaff || 
-      websitePrice >= 10000 ||
-      (liveData ? (liveData.stopSell || !liveData.available || liveData.price >= 10000) : false);
+    // Chiusura basata esclusivamente sui flag nativi Octorate: stopSell e availability
+    // Il prezzo NON determina mai la disponibilità.
+    const isClosedOrStopSell =
+      isRoomClosedByStaff ||
+      Boolean(liveData?.stopSell || liveData?.stopSells) ||
+      (liveData !== undefined && Number(liveData?.availability) <= 0);
+    // Se liveData è undefined (camera senza dati Octorate), è trattata come aperta nel gap-fill
+    // (la chiusura reale viene da stopSells/availability=0 nel render della cella).
 
     const hasBooking = (bookings || []).some((b: any) => {
       if (b.status === 'cancelled') return false;
@@ -397,8 +395,8 @@ function computeGapFillMinStays(
 
       if (!isRoomMatch) return false;
 
-      const inDateStr = String(b.check_in || b.checkIn || '').slice(0, 10);
-      const outDateStr = String(b.check_out || b.checkOut || '').slice(0, 10);
+      const inDateStr = String(b.checkin || b.check_in || b.checkIn || '').slice(0, 10);
+      const outDateStr = String(b.checkout || b.check_out || b.checkOut || '').slice(0, 10);
 
       return dateStr >= inDateStr && dateStr < outDateStr;
     });
@@ -472,16 +470,14 @@ export function ResortVisualCalendar() {
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [selectedBooking, setSelectedBooking] = useState<ResortBooking | null>(null);
   const [liveGridData, setLiveGridData] = useState<Record<string, Record<string, OctorateDayData>>>({});
-  const [loadingLive, setLoadingLive] = useState<boolean>(false);
+  const [loadingLive, setLoadingLive] = useState<boolean>(true);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  // Traccia il range già scaricato nella cache (YYYY-MM-DD)
+  const cachedRangeRef = useRef<{ from: string; to: string } | null>(null);
 
   console.log("=== DEBUG LIVE GRID ===");
   console.log("TIPO DI DATO:", Array.isArray(liveGridData) ? "Array" : typeof liveGridData);
   console.log("CHIAVI DISPONIBILI:", liveGridData ? Object.keys(liveGridData) : "Nessuna");
-
-  // Load bookings on mount
-  useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
 
   // Compute array of date objects to render in columns
   const datesArray: Date[] = (() => {
@@ -506,41 +502,69 @@ export function ResortVisualCalendar() {
 
   console.log("[DEBUG PRENOTAZIONI CALENDARIO] Totale prenotazioni disponibili per il matching:", (bookings || []).length, bookings);
 
-  // Load Octorate Live Calendar & active reservations whenever dates range changes
-  const loadLiveGrid = async () => {
+  // Over-fetch 90 giorni e caching locale: elimina spinner ad ogni scroll
+  // force=true bypassa la cache (usato dal pulsante SYNC LIVE)
+  const loadLiveGrid = async (force = false) => {
     if (datesArray.length === 0) return;
+
+    // ─── Calcola il range visibile corrente (30 giorni o mese solare) ────────
+    const viewFrom = datesArray[0];
+    const viewTo = datesArray[datesArray.length - 1];
+    const viewFromStr = `${viewFrom.getFullYear()}-${String(viewFrom.getMonth()+1).padStart(2,'0')}-${String(viewFrom.getDate()).padStart(2,'0')}`;
+    const viewToStr   = `${viewTo.getFullYear()}-${String(viewTo.getMonth()+1).padStart(2,'0')}-${String(viewTo.getDate()).padStart(2,'0')}`;
+
+    // ─── CACHE CHECK: se i dati sono già presenti e non forziamo il refresh ───
+    // Controlla che liveGridData abbia chiavi E che il range visibile sia coperto dalla cache.
+    if (!force && cachedRangeRef.current && Object.keys(liveGridData).length > 0) {
+      const cache = cachedRangeRef.current;
+      if (viewFromStr >= cache.from && viewToStr <= cache.to) {
+        // Tutti i giorni visibili sono nella cache → rendering istantaneo, nessuno spinner
+        console.log(`[Cache HIT] Range visibile ${viewFromStr}->${viewToStr} già in cache (${cache.from}->${cache.to}). Nessun fetch.`);
+        return;
+      }
+    }
+
+    // ─── FETCH CONGIUNTO: scarica 90 giorni per PREZZI E PRENOTAZIONI ────────
+    // Over-fetching 90 giorni: coprire 3 mesi garantisce che scorrimenti successivi
+    // trovino sia i prezzi sia le prenotazioni in cache senza ulteriori chiamate.
+    const fetchStart = viewFrom;
+    const fetchEnd   = new Date(fetchStart);
+    fetchEnd.setDate(fetchEnd.getDate() + 89); // 90 giorni totali
+    const dateFrom = `${fetchStart.getFullYear()}-${String(fetchStart.getMonth()+1).padStart(2,'0')}-${String(fetchStart.getDate()).padStart(2,'0')}`;
+    const dateTo   = `${fetchEnd.getFullYear()}-${String(fetchEnd.getMonth()+1).padStart(2,'0')}-${String(fetchEnd.getDate()).padStart(2,'0')}`;
+
     setLoadingLive(true);
+    setLiveGridData({});
+    setSyncError(null);
     try {
-      const firstDate = datesArray[0];
-      const lastDate = datesArray[datesArray.length - 1];
-
-      const dateFrom = firstDate.toISOString().substring(0, 10);
-      const dateTo = lastDate.toISOString().substring(0, 10);
-
-      // Separation of concerns: parallel fetch for grid prices & reservations
-      const [gridData, bookingsRes] = await Promise.all([
+      // Chiamata parallela congiunta per lo STESSO IDENTICO range a 90 giorni
+      const [gridData] = await Promise.all([
         fetchOctorateMonthlyGrid(dateFrom, dateTo),
-        fetch(`/api/resort/octorate-bookings?dateFrom=${dateFrom}&dateTo=${dateTo}`)
+        fetchBookings(dateFrom, dateTo)
       ]);
 
-      setLiveGridData(gridData || {});
-
-      if (bookingsRes.ok) {
-        const bookingsJson = await bookingsRes.json();
-        if (bookingsJson.data && Array.isArray(bookingsJson.data)) {
-          useResortAdminStore.getState().setBookings(bookingsJson.data);
-          console.log(`[ResortVisualCalendar] Popolate ${bookingsJson.data.length} prenotazioni dallo store per il periodo ${dateFrom} -> ${dateTo}`);
-        }
+      // 🛡️ FAILSAFE & CACHE PROTECTION: se i dati ricevuti sono vuoti o null, non sovrascrivere la cache
+      if (!gridData || Object.keys(gridData).length === 0) {
+        console.error("Il backend ha restituito un oggetto vuoto. Fetch fallito o dati Octorate non trovati.");
+        setSyncError("Nessun dato ricevuto da Octorate.");
+        setLoadingLive(false);
+        return; // Ferma l'esecuzione, non sovrascrivere la cache con il vuoto
       }
+
+      setLiveGridData(gridData);
+      // Aggiorna il riferimento alla cache con il range effettivamente scaricato
+      cachedRangeRef.current = { from: dateFrom, to: dateTo };
+      console.log(`[Cache MISS] Scaricati 90 giorni per prezzi & prenotazioni: ${dateFrom} -> ${dateTo}. Cache aggiornata.`);
     } catch (err) {
-      console.warn('[ResortVisualCalendar] Live grid fetch error:', err);
+      console.error('[ResortVisualCalendar] Live grid fetch FALLITO:', err);
+      setSyncError('⚠️ Errore di sincronizzazione col Channel Manager. Riprova.');
     } finally {
       setLoadingLive(false);
     }
   };
 
   useEffect(() => {
-    loadLiveGrid();
+    loadLiveGrid(); // Cache check interno: non fa fetch se i dati sono già presenti
   }, [viewMode, startDate, currentYear, currentMonth]);
 
   // Navigation helpers
@@ -562,6 +586,17 @@ export function ResortVisualCalendar() {
     setStartDate(now);
     setCurrentYear(now.getFullYear());
     setCurrentMonth(now.getMonth());
+    setViewMode('today_30_days');
+  };
+
+  // Date Picker: salto diretto alla data scelta, senza sfasamenti TZ
+  const handleDatePickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value; // formato YYYY-MM-DD
+    if (!val) return;
+    const [y, m, d] = val.split('-').map(Number);
+    const picked = new Date(y, m - 1, d); // costruzione locale, nessun TZ offset
+    picked.setHours(0, 0, 0, 0);
+    setStartDate(picked);
     setViewMode('today_30_days');
   };
 
@@ -596,7 +631,25 @@ export function ResortVisualCalendar() {
 
   return (
     <div className="space-y-4 text-stone-100 font-sans">
-      
+
+      {/* Banner errore sincronizzazione */}
+      {syncError && (
+        <div
+          role="alert"
+          className="flex items-center gap-3 bg-red-900/80 border border-red-600/60 text-red-100 text-sm font-semibold px-4 py-3 rounded-2xl shadow-lg animate-pulse"
+        >
+          <span className="text-base">⚠️</span>
+          <span>{syncError}</span>
+          <button
+            type="button"
+            onClick={() => { setSyncError(null); loadLiveGrid(); }}
+            className="ml-auto px-3 py-1 bg-red-700 hover:bg-red-600 text-white text-xs font-black rounded-lg border border-red-500 cursor-pointer transition-colors"
+          >
+            Riprova
+          </button>
+        </div>
+      )}
+
       {/* Calendar Header Controls */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-stone-900 border border-stone-800 rounded-3xl p-5 shadow-xl">
         <div className="flex items-center gap-3">
@@ -651,30 +704,44 @@ export function ResortVisualCalendar() {
 
           {/* Navigation Controls */}
           {viewMode === 'today_30_days' ? (
-            <div className="flex items-center gap-2 justify-between">
-              <button
-                type="button"
-                onClick={handlePrev30Days}
-                className="px-2.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-amber-400 font-bold text-xs rounded-xl border border-stone-800 cursor-pointer flex items-center gap-1"
-                title="30 Giorni Precedenti"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>30gg Prec</span>
-              </button>
+            <div className="flex flex-col sm:flex-row items-center gap-2 justify-between">
+              {/* Riga 1: Prev / Range Label / Next */}
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handlePrev30Days}
+                  className="px-2.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-amber-400 font-bold text-xs rounded-xl border border-stone-800 cursor-pointer flex items-center gap-1"
+                  title="30 Giorni Precedenti"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>30gg Prec</span>
+                </button>
 
-              <span className="font-extrabold text-xs text-white font-mono px-2">
-                {datesArray[0]?.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })} ➔ {datesArray[datesArray.length - 1]?.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
-              </span>
+                <span className="font-extrabold text-xs text-white font-mono px-1">
+                  {datesArray[0]?.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })} ➔ {datesArray[datesArray.length - 1]?.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
+                </span>
 
-              <button
-                type="button"
-                onClick={handleNext30Days}
-                className="px-2.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-amber-400 font-bold text-xs rounded-xl border border-stone-800 cursor-pointer flex items-center gap-1"
-                title="30 Giorni Successivi"
-              >
-                <span>30gg Succ</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
+                <button
+                  type="button"
+                  onClick={handleNext30Days}
+                  className="px-2.5 py-1.5 bg-stone-900 hover:bg-stone-800 text-amber-400 font-bold text-xs rounded-xl border border-stone-800 cursor-pointer flex items-center gap-1"
+                  title="30 Giorni Successivi"
+                >
+                  <span>30gg Succ</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Date Picker: salto a data custom */}
+              <input
+                id="calendar-start-date-picker"
+                type="date"
+                aria-label="Seleziona data di partenza griglia"
+                value={`${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`}
+                onChange={handleDatePickerChange}
+                className="bg-gray-800 text-white border border-gray-600 rounded-lg px-2 py-1.5 text-xs outline-none cursor-pointer hover:bg-gray-700 focus:border-amber-500 transition-colors"
+                title="Salta a una data specifica"
+              />
             </div>
           ) : (
             <div className="flex items-center gap-2 justify-between">
@@ -724,7 +791,7 @@ export function ResortVisualCalendar() {
 
           <button
             type="button"
-            onClick={loadLiveGrid}
+            onClick={() => loadLiveGrid(true)}
             disabled={loadingLive}
             className="px-3 py-1.5 bg-stone-900 hover:bg-stone-850 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-black uppercase tracking-wider shadow transition-all cursor-pointer flex items-center justify-center gap-1.5"
             title="Sincronizza Tariffe Live da Octorate REST v1"
@@ -772,7 +839,7 @@ export function ResortVisualCalendar() {
         <div className="flex items-center gap-2.5 overflow-x-auto text-[10px] font-black text-stone-300 pt-1 sm:pt-0">
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm" /> WEBSITE</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-gray-700 border border-stone-500 shadow-sm" /> PRIVATE</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-sm" /> Booking.com</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-800 shadow-sm" /> BOOKING</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-purple-600 shadow-sm" /> Agoda</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-sm" /> Airbnb</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-600 shadow-sm" /> Expedia</span>
@@ -824,8 +891,9 @@ export function ResortVisualCalendar() {
             {/* Table Body: Rooms Rows */}
             <tbody className="divide-y divide-stone-850/60 text-[10px]">
               {filteredRooms.map((room) => {
-                const roomPriceBase = ROOM_BASE_RATES[room.name] || (room.basePrice && room.basePrice > 0 ? room.basePrice : 1000);
-                const isRoomBaseClosed = roomPriceBase >= 10000;
+                const roomPriceBase = ROOM_BASE_RATES[room.name] || (room.basePrice && room.basePrice > 0 ? room.basePrice : 0);
+                // isRoomBaseClosed ora si basa su room.isAvailable (dato gestionale), non sul prezzo
+                const isRoomBaseClosed = room.isAvailable === false;
 
                 // Calcolo reattivo del Soggiorno Minimo Dinamico (Gap-Fill a doppio senso) per questa riga alloggio
                 const gapFillMinStays = computeGapFillMinStays(
@@ -857,6 +925,21 @@ export function ResortVisualCalendar() {
                     {datesArray.map((cellDate, idx) => {
                       const dateStr = cellDate.toISOString().substring(0, 10);
                       
+                      // ⏳ SKELETON BARRIER: se il fetch è in corso o i dati non sono ancora arrivati,
+                      // restituisce immediatamente una cella spinner senza valutare Priorità 1/2/3.
+                      if (loadingLive || !liveGridData) {
+                        return (
+                          <td
+                            key={idx}
+                            className="min-w-[100px] w-[100px] border border-stone-700/40 bg-stone-800/30 p-1 text-center"
+                          >
+                            <div className="flex h-full w-full items-center justify-center py-1">
+                              <div className="w-3.5 h-3.5 rounded-full border-2 border-stone-500 border-t-amber-400 animate-spin" />
+                            </div>
+                          </td>
+                        );
+                      }
+
                       // ESTRAZIONE DATI SICURA A DIZIONARIO (String Key Casting)
                       const { motherId, beId } = getIdsForRoom(room.name);
 
@@ -914,13 +997,12 @@ export function ResortVisualCalendar() {
                         }
                       }
 
-                      // 🥈 PRIORITÀ 2: Chiusura / Stop Sell (valutata RIGOROSAMENTE sulla Tariffa Madre)
-                      const isRoomClosedByStaff = room.isAvailable === false;
-                      const isMotherStopSell = motherData
-                        ? (Boolean(motherData.stopSell || motherData.stopSells) || motherData.available === false || (motherData.availability !== undefined && motherData.availability <= 0) || motherData.price >= 10000)
-                        : false;
-
-                      const isClosedOrStopSell = isRoomClosedByStaff || isMotherStopSell;
+                      // 🥈 PRIORITÀ 2: Chiusura — governata ESCLUSIVAMENTE dai flag Stop Sell e Availability di Octorate.
+                      // Il prezzo NON è mai un indicatore di disponibilità.
+                      const isClosedOrStopSell =
+                        !motherData ||
+                        motherData.stopSells === true ||
+                        Number(motherData.availability) <= 0;
 
                       // LAYOUT IBRIDO COMPLETO: Sfondo & Stile
                       let bgStyle = 'bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60 cursor-default shadow-inner';
@@ -961,20 +1043,48 @@ export function ResortVisualCalendar() {
 
                           {/* CONTENUTO CELLA STRUTTURATO E TRONCATO */}
                           {matchingBooking ? (
-                            <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden">
-                              {/* Riga 1: Nome OTA */}
-                              <div className="truncate text-xs font-bold min-w-0 w-full text-center text-white uppercase">
-                                {getBookingChannelName(matchingBooking)}
-                              </div>
-                              {/* Riga 2: Nome Ospite */}
-                              <div className="truncate text-[10px] min-w-0 w-full text-center text-white/95 font-medium">
-                                {matchingBooking.guest_name || (matchingBooking as any).guestName || 'Ospite'}
-                              </div>
-                              {/* Tariffa Reale Giornaliera Pagata dall'Ospite */}
-                              <div className="text-[10px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
-                                Pagato: {realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}` : 'N/D'}
-                              </div>
-                            </div>
+                            (() => {
+                              // Override rigido OTA: label e colore sfondo
+                              const _ch = String(
+                                (matchingBooking as any).channelName ||
+                                matchingBooking.source ||
+                                (matchingBooking as any).agency ||
+                                ''
+                              ).toLowerCase();
+                              let otaLabel = 'OTA';
+                              let otaBg = 'bg-indigo-600';
+                              if (_ch.includes('octoevo') || _ch.includes('autosubmit') || _ch.includes('private')) {
+                                otaLabel = 'PRIVATE'; otaBg = 'bg-gray-700';
+                              } else if (_ch.includes('stripe') || _ch.includes('direct') || _ch.includes('diretto') || _ch.includes('website') || _ch.includes('site') || _ch.includes('booking engine')) {
+                                otaLabel = 'WEBSITE'; otaBg = 'bg-orange-500';
+                              } else if (_ch.includes('booking')) {
+                                otaLabel = 'BOOKING'; otaBg = 'bg-blue-800';
+                              } else if (_ch.includes('agoda')) {
+                                otaLabel = 'AGODA'; otaBg = 'bg-purple-600';
+                              } else if (_ch.includes('airbnb')) {
+                                otaLabel = 'AIRBNB'; otaBg = 'bg-rose-600';
+                              } else if (_ch.includes('expedia')) {
+                                otaLabel = 'EXPEDIA'; otaBg = 'bg-amber-600';
+                              } else if (_ch.includes('trip')) {
+                                otaLabel = 'TRIP'; otaBg = 'bg-teal-600';
+                              }
+                              return (
+                                <div className={`flex flex-col items-center justify-center min-w-0 w-full h-full overflow-hidden rounded px-0.5 ${otaBg}`}>
+                                  {/* Riga 1: Nome OTA blindato */}
+                                  <div className="truncate text-xs font-black min-w-0 w-full text-center text-white uppercase tracking-wide">
+                                    {otaLabel}
+                                  </div>
+                                  {/* Riga 2: Nome Ospite */}
+                                  <div className="truncate text-[10px] min-w-0 w-full text-center text-white/95 font-medium">
+                                    {matchingBooking.guest_name || (matchingBooking as any).guestName || 'Ospite'}
+                                  </div>
+                                  {/* Tariffa Reale Giornaliera Pagata dall'Ospite */}
+                                  <div className="text-[10px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
+                                    Pagato: {realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}` : 'N/D'}
+                                  </div>
+                                </div>
+                              );
+                            })()
                           ) : (
                             <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden">
                               {/* CENTRO: Prezzo Tariffa Madre */}

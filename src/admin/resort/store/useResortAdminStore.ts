@@ -58,7 +58,7 @@ interface ResortAdminState {
   lastMinuteResult: { success: boolean; message: string; dateUpdated: string; details?: any } | null;
 
   // Actions
-  fetchBookings: () => Promise<void>;
+  fetchBookings: (dateFrom?: string, dateTo?: string) => Promise<void>;
   setBookings: (bookings: ResortBooking[]) => void;
   toggleRoomAvailability: (octorateId: string, available: boolean) => void;
   checkOctorateConnection: () => Promise<void>;
@@ -157,16 +157,27 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     }
   },
 
-  fetchBookings: async () => {
+  fetchBookings: async (dateFrom?: string, dateTo?: string) => {
     set({ loading: true, error: null });
     try {
-      // 1. Fetch live reservations via serverless endpoint /api/resort/octorate-bookings
-      const res = await fetch('/api/resort/octorate-bookings');
+      // Costruisci l'URL dinamicamente passando i parametri
+      const url = dateFrom && dateTo
+        ? `/api/resort/octorate-bookings?dateFrom=${dateFrom}&dateTo=${dateTo}`
+        : '/api/resort/octorate-bookings';
+
+      // Inserisci questo log spia prima della chiamata
+      console.log("[DEBUG STORE] Fetch Bookings URL:", url);
+
+      const res = await fetch(url);
       if (res.ok) {
         const json = await res.json();
-        if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-          set({ bookings: json.data, loading: false });
-          console.log(`[useResortAdminStore] Popolate ${json.data.length} prenotazioni dall'endpoint serverless octorate-bookings`);
+        const items = json.data && Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
+        
+        // Logga quante ne sono arrivate
+        console.log("[DEBUG STORE] Prenotazioni ricevute dal backend:", items.length);
+
+        if (items.length > 0) {
+          set({ bookings: items, loading: false });
           return;
         }
       }
