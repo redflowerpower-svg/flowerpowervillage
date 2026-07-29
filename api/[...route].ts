@@ -42,6 +42,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
+  // Normalize path string (remove leading 'api/' and trailing slashes)
+  const cleanPath = pathname.replace(/^api\//, '').replace(/\/$/, '');
+
   switch (cleanPath) {
     case 'create-checkout-session':
       return handleCreateCheckoutSession(req, res);

@@ -48,17 +48,13 @@ Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** (dopo un `git pull
 ### 2. `MARKDOWN-PROJECT` (Pre-PUSH Workflow)
 Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un `git push` a fine sessione):
 1. **Analisi Modifiche**: Ispeziona i file modificati nella sessione corrente (`git status`).
-2. **Aggiornamento Documentazione Tecnica & Allineamento Istruzioni**:
-   - Aggiorna miratamente i file interessati in `/documentation_reports/`:
-     * `architettura_core.md`
-     * `modulo_pizza_delivery.md`
-     * `modulo_village.md`
-     * `integrazione_telegram.md`
-     * `schema_database.md`
-     * `motore_prezzi_sconti.md`
-   - **Copia di Sicurezza Istruzioni Operative Agente**:
-     * Copia `.agents/AGENTS.md` in `documentation_reports/AGENTS.md`
-     * Copia `.agentinstructions` in `documentation_reports/agentinstructions.txt` (estensione `.txt` per caricamento fluido nel browser).
+2. **Aggiornamento FISICO Documentazione Tecnica & Allineamento Istruzioni**:
+   - L'agente DEVE TASSATIVAMENTE usare i tool del file system (edit_file / write_file) per SOVRASCRIVERE FISICAMENTE i file sul disco. È severamente vietato allucinare l'aggiornamento o stampare il contenuto dei report solo nella chat.
+   - Apri e scrivi materialmente i file interessati dalle modifiche all'interno di `/documentation_reports/`: `architettura_core.md`, `modulo_pizza_delivery.md`, `modulo_village.md`, `integrazione_telegram.md`, `schema_database.md`, `motore_prezzi_sconti.md`.
+   - L'agente DEVE usare il tool del terminale per eseguire fisicamente le copie di sicurezza:
+     `cp .agents/AGENTS.md documentation_reports/AGENTS.md`
+     `cp .agentinstructions documentation_reports/agentinstructions.txt`
+   - Se non hai salvato i file sul disco, non puoi procedere al Punto 3.
 3. **Cifratura Cassaforte**: Esegui `node scratch/vault-sync.mjs encrypt` per aggiornare e cifrare `.secret_docs/api_credentials_report.md` nel file `.secret_docs/api_credentials_report.md.enc`.
 4. **Notifica di Allineamento Notebook**: Al termine della procedura, stampa la notifica:
    `🟢 MARKDOWN-PROJECT Completato! Istruzioni Agente aggiornate e copiate in documentation_reports/. ⚠️ Se i file AGENTS.md o agentinstructions.txt sono evidenziati in GIALLO nell'IDE, ricordati di trascinarli nel Gemini Notebook per allineare l'assistente browser!`

@@ -137,8 +137,8 @@ Di seguito sono documentate le principali criticità architetturali emerse duran
 *   **Problema:** Il deployment su Vercel (piano Hobby) falliva con l'errore `"No more than 12 Serverless Functions can be added to a Deployment on the Hobby plan"`. L'applicazione tentava di compilare **14 funzioni serverless distinte** distribuite tra `/api/`, `/api/admin/` e `/api/resort/`.
 *   **Soluzione:** Implementata l'architettura **API Gateway Catch-All**:
     *   Spostati tutti gli handler delle API nella cartella protetta `api/_handlers/` (`checkout.ts`, `verify.ts`, `download.ts`, `telegram.ts`, `octorate.ts`, `octorate-webhook.ts`). I file/cartelle che iniziano con `_` vengono ignorati dal compilatore Vercel e **non conteggiati come serverless functions**.
-    *   Creato un punto di ingresso unico `api/[...route].ts` che gestisce il routing dinamico di tutte le chiamate `/api/*` senza modificare alcun URL lato frontend o webhook.
-    *   Il conteggio delle Serverless Functions è sceso **da 14 a 1 singola funzione**, rispettando al 100% i limiti del piano Vercel Hobby.
+    *   Creato un punto di ingresso unico `api/[...route].ts` ed il file dedicato `api/webhooks/octorate.ts` (con Ping Catcher per Octorate e Vercel) che gestiscono il routing di tutte le chiamate `/api/*` senza modificare alcun URL lato frontend o webhook.
+    *   Il conteggio delle Serverless Functions è sceso **da 14 a 2 singole funzioni**, rispettando ampiamente il limite di 12 del piano Vercel Hobby.
 
 #### 5. Checklist di Go-Live (Migrazione Dominio Definitivo)
 - **Aggiornamento Webhook Octorate**: Rieseguire lo script `node scratch/register-octorate-webhooks.mjs` inserendo il nuovo URL `https://www.flowerpowervillage.com/api/webhooks/octorate` per istruire Octorate sulla nuova destinazione delle notifiche in background.
