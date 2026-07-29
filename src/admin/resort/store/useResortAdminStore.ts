@@ -60,6 +60,7 @@ interface ResortAdminState {
 
   // Actions
   fetchBookings: () => Promise<void>;
+  setBookings: (bookings: ResortBooking[]) => void;
   toggleRoomAvailability: (octorateId: string, available: boolean) => void;
   checkOctorateConnection: () => Promise<void>;
   setFilterCategory: (category: string) => void;
@@ -150,6 +151,12 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   applyClosedToArrival: true,
   lastMinuteRunning: false,
   lastMinuteResult: null,
+
+  setBookings: (newBookings: ResortBooking[]) => {
+    if (Array.isArray(newBookings) && newBookings.length > 0) {
+      set({ bookings: newBookings });
+    }
+  },
 
   fetchBookings: async () => {
     set({ loading: true, error: null });

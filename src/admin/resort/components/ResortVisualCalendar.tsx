@@ -68,6 +68,54 @@ const getAgencyStyle = (source?: string) => {
   return { bg: 'bg-indigo-600 hover:bg-indigo-500', text: 'text-white font-extrabold', border: 'border-indigo-500' };
 };
 
+function getBookingChannelName(booking: any): string {
+  const src = String(booking.source || booking.channel || booking.channelName || booking.ota || '').toLowerCase();
+  if (src.includes('booking')) return 'Booking.com';
+  if (src.includes('expedia')) return 'Expedia';
+  if (src.includes('agoda')) return 'Agoda';
+  if (src.includes('trip')) return 'Trip.com';
+  if (src.includes('direct') || src.includes('site') || src.includes('stripe') || src.includes('diretto')) return 'Diretto';
+  return booking.source || booking.channel || 'Prenotato';
+}
+
+function findMatchingBooking(
+  roomName: string,
+  roomId: string,
+  roomOctId: string,
+  cellDate: Date,
+  bookings: ResortBooking[]
+): ResortBooking | null {
+  if (!bookings || !Array.isArray(bookings) || bookings.length === 0) return null;
+  const targetDateStr = cellDate.toISOString().substring(0, 10);
+
+  const roomNameLower = (roomName || '').toLowerCase().trim();
+  const roomIdStr = String(roomId || '').trim();
+  const octIdStr = String(roomOctId || '').trim();
+
+  return bookings.find((b: any) => {
+    if (b.status === 'cancelled' || b.status === 'CANCELED') return false;
+
+    // Room match check
+    const bookingRoom = String(b.accommodation_name || b.room_name || b.accommodation_id || b.room_id || b.room || b.roomName || '').toLowerCase().trim();
+    const isRoomMatch =
+      bookingRoom === roomNameLower ||
+      bookingRoom === roomIdStr ||
+      bookingRoom === octIdStr ||
+      (bookingRoom.length > 3 && roomNameLower.includes(bookingRoom)) ||
+      (roomNameLower.length > 3 && bookingRoom.includes(roomNameLower));
+
+    if (!isRoomMatch) return false;
+
+    // Date range match check
+    const checkInStr = String(b.check_in || b.checkIn || b.start_date || '').substring(0, 10);
+    const checkOutStr = String(b.check_out || b.checkOut || b.end_date || '').substring(0, 10);
+
+    if (!checkInStr || !checkOutStr) return false;
+
+    return targetDateStr >= checkInStr && targetDateStr < checkOutStr;
+  }) || null;
+}
+
 /**
  * Calcola reattivamente il Soggiorno Minimo Dinamico (Gap-Fill a doppio senso)
  * per ciascun alloggio sulla griglia delle date correnti.
@@ -238,13 +286,27 @@ export function ResortVisualCalendar() {
       const dateFrom = firstDate.toISOString().substring(0, 10);
       const dateTo = lastDate.toISOString().substring(0, 10);
 
-      // Execute in parallel: fetch active reservations & monthly grid
-      const [, data] = await Promise.all([
+      // Execute in parallel: fetch active bookings and monthly grid payload
+      const [, gridData] = await Promise.all([
         fetchBookings(),
         fetchOctorateMonthlyGrid(dateFrom, dateTo)
       ]);
 
-      setLiveGridData(data || {});
+      setLiveGridData(gridData || {});
+
+      // Fetch unified payload directly from /api/resort/octorate-grid for live reservations
+      try {
+        const gridRes = await fetch(`/api/resort/octorate-grid?dateFrom=${dateFrom}&dateTo=${dateTo}`);
+        if (gridRes.ok) {
+          const gridJson = await gridRes.json();
+          if (gridJson.reservations && Array.isArray(gridJson.reservations) && gridJson.reservations.length > 0) {
+            const { setBookings } = useResortAdminStore.getState();
+            setBookings(gridJson.reservations);
+          }
+        }
+      } catch (gridErr) {
+        console.warn('[ResortVisualCalendar] Unified reservations fetch warning:', gridErr);
+      }
     } catch (err) {
       console.warn('[ResortVisualCalendar] Live grid fetch error:', err);
     } finally {
@@ -580,29 +642,67 @@ export function ResortVisualCalendar() {
                         ? liveData.price
                         : calculateWebsitePriceForRoom(room.name);
 
-                      // Status check: Closed / Stop Sell / Zero Availability / Price >= 10000 THB
+                      const displayPriceStr = websitePrice >= 10000 ? '10.000' : websitePrice.toLocaleString('it-IT');
+
+                      // 🥇 PRIORITÀ 1: Prenotazione OTA / Diretta
+                      const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookings);
+
+                      if (matchingBooking) {
+                        const channelName = getBookingChannelName(matchingBooking);
+                        const style = getAgencyStyle(channelName);
+
+                        return (
+                          <td
+                            key={idx}
+                            onClick={() => setSelectedBooking(matchingBooking)}
+                            className={`py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-pointer ${style.bg} ${style.border}`}
+                            title={`Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${channelName}) • Prezzo: ฿${displayPriceStr}`}
+                          >
+                            <div className="text-[7.5px] font-extrabold uppercase truncate tracking-tighter leading-none text-white opacity-95">
+                              {channelName}
+                            </div>
+                            <div className="text-[9.5px] font-mono font-black text-white leading-tight mt-0.5">
+                              {displayPriceStr}
+                            </div>
+                          </td>
+                        );
+                      }
+
+                      // 🥈 PRIORITÀ 2: Chiusura / Stop Sell
                       const isRoomClosedByStaff = room.isAvailable === false;
                       const isClosedOrStopSell = 
                         isRoomClosedByStaff || 
                         websitePrice >= 10000 ||
                         (liveData ? (liveData.stopSell || !liveData.available || liveData.price >= 10000) : false);
 
+                      if (isClosedOrStopSell) {
+                        return (
+                          <td
+                            key={idx}
+                            className="py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-red-700 hover:bg-red-600 border-red-800/80"
+                            title={`Alloggio Chiuso / Stop Sell • Prezzo: ฿${displayPriceStr}`}
+                          >
+                            <div className="text-[7.5px] font-extrabold uppercase tracking-tighter leading-none text-red-100">
+                              🔒 Chiuso
+                            </div>
+                            <div className="text-[9.5px] font-mono font-black text-white leading-tight mt-0.5">
+                              {displayPriceStr}
+                            </div>
+                          </td>
+                        );
+                      }
+
+                      // 🥉 PRIORITÀ 3: Libera
                       const isCTA = Boolean(liveData?.closedToArrival);
                       const minStay = gapFillMinStays[dateStr] || liveData?.minStay;
-
-                      const displayPriceStr = websitePrice >= 10000 ? '10.000' : websitePrice.toLocaleString('it-IT');
-
-                      const cellBgClass = isClosedOrStopSell 
-                        ? 'bg-red-700 hover:bg-red-600 border-red-800/80' 
-                        : 'bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60';
 
                       return (
                         <td
                           key={idx}
-                          className={`py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default ${cellBgClass}`}
-                          title={`${isClosedOrStopSell ? 'Alloggio Chiuso / Stop Sell' : 'Alloggio Libero e Disponibile'} ${isCTA ? '• Solo Check-Out (Closed to Arrival)' : ''} ${minStay && minStay > 1 ? `• Minimo ${minStay} notti` : ''}`}
+                          className="py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60"
+                          title={`Alloggio Libero e Disponibile • Prezzo: ฿${displayPriceStr} ${isCTA ? '• Solo Check-Out' : ''} ${minStay && minStay > 1 ? `• Min ${minStay}N` : ''}`}
                         >
-                          {/* 1. Puntino Indicatore "Solo Check-out" (CTA) a Sinistra */}
+                          {/* Indicator CTA Solo Check-out */}
                           {isCTA && (
                             <span 
                               className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full bg-amber-400 border border-amber-500/60 shadow-sm" 
@@ -610,12 +710,12 @@ export function ResortVisualCalendar() {
                             />
                           )}
 
-                          {/* Prezzo Giornaliero Sempre in Chiaro */}
+                          {/* Prezzo in Basso */}
                           <div className="text-[10px] font-mono font-black text-white leading-none">
                             {displayPriceStr}
                           </div>
 
-                          {/* 2. Soggiorno Minimo in Basso a Destra (es. min 2N) */}
+                          {/* MinStay Badge */}
                           {minStay && minStay > 1 && (
                             <div className="absolute bottom-0.5 right-0.5 text-[7px] font-extrabold text-amber-200/90 leading-none tracking-tighter">
                               min {minStay}N

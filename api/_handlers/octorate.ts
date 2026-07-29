@@ -459,9 +459,44 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       return OFFICIAL_BE_RATE_IDS.has(idNum) || nameStr.endsWith('be') || nameStr.includes('booking engine');
     });
 
-    console.log(`[OCTORATE GRID] Scaricati ${allFetchedItems.length} rate plans totali in ${page + 1} pagine. Filtrati ${filteredBEItems.length} rate plans BE ufficiali.`);
+    // Fetch live Octorate & Supabase reservations for unified payload
+    let reservations: any[] = [];
+    try {
+      const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/${structureId}?dateType=STAY&dateFrom=${dateFrom}&dateTo=${dateTo}`;
+      const resResponse = await fetch(resUrl, {
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/json"
+        }
+      });
+      if (resResponse.ok) {
+        const resJson = await resResponse.json();
+        reservations = Array.isArray(resJson.data) ? resJson.data : (Array.isArray(resJson) ? resJson : []);
+      }
+    } catch (resErr) {
+      console.warn("[OCTORATE GRID] Reservations fetch warning:", resErr);
+    }
 
-    return res.status(200).json({ success: true, data: filteredBEItems, totalFetched: allFetchedItems.length, pagesCount: page + 1 });
+    if (supabaseAdmin) {
+      try {
+        const { data: sbBookings } = await supabaseAdmin.from('resort_bookings').select('*');
+        if (sbBookings && sbBookings.length > 0) {
+          reservations = [...(reservations || []), ...sbBookings];
+        }
+      } catch (sbErr) {
+        console.warn("[OCTORATE GRID] Supabase bookings fetch warning:", sbErr);
+      }
+    }
+
+    console.log(`[OCTORATE GRID] Scaricati ${allFetchedItems.length} rate plans. Filtrati ${filteredBEItems.length} BE rate plans. Trovate ${reservations.length} prenotazioni.`);
+
+    return res.status(200).json({
+      success: true,
+      data: filteredBEItems,
+      reservations,
+      totalFetched: allFetchedItems.length,
+      pagesCount: page + 1
+    });
   } catch (error: any) {
     console.error("[api/resort/octorate-grid] Exception:", error);
     return res.status(500).json({ error: error.message });
