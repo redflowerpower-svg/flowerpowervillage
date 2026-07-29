@@ -181,7 +181,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
     let bookingsData: any[] = [];
     if (supabaseAdmin) {
       const { data: sbBookings } = await supabaseAdmin
-        .from('resort_bookings')
+        .from('reservations')
         .select('*')
         .order('created_at', { ascending: false });
 

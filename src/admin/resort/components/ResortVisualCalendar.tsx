@@ -869,7 +869,7 @@ export function ResortVisualCalendar() {
                         <td
                           key={idx}
                           onClick={() => matchingBooking && setSelectedBooking(matchingBooking)}
-                          className={`py-1 px-0.5 border-l text-center transition-colors relative min-w-[64px] max-w-[120px] w-full overflow-hidden ${bgStyle}`}
+                          className={`py-1 px-0.5 border-l text-center transition-colors relative w-[100px] min-w-[64px] max-w-[100px] truncate overflow-hidden ${bgStyle}`}
                           title={matchingBooking 
                             ? `Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${getBookingChannelName(matchingBooking)}) • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}`
                             : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`}

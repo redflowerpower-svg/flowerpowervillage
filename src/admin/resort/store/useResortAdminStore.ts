@@ -161,31 +161,22 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   fetchBookings: async () => {
     set({ loading: true, error: null });
     try {
-      // 1. Fetch live reservations directly from Octorate via proxy/token
-      const liveReservations = await fetchOctorateLiveReservations();
-
-      // 2. Fetch direct Supabase bookings
-      const { data: sbBookings } = await supabase
-        .from('resort_bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      const combined = [...(liveReservations || []), ...(sbBookings || [])];
-
-      if (combined.length > 0) {
-        set({ bookings: combined, loading: false });
-        console.log(`[useResortAdminStore] Popolate ${combined.length} prenotazioni (Live Octorate: ${liveReservations.length}, Supabase: ${(sbBookings || []).length})`);
-        return;
-      }
-
-      // 3. Fallback to /api/resort/octorate-bookings endpoint
+      // 1. Fetch live reservations via serverless endpoint /api/resort/octorate-bookings
       const res = await fetch('/api/resort/octorate-bookings');
       if (res.ok) {
         const json = await res.json();
         if (json.data && Array.isArray(json.data) && json.data.length > 0) {
           set({ bookings: json.data, loading: false });
+          console.log(`[useResortAdminStore] Popolate ${json.data.length} prenotazioni dall'endpoint serverless octorate-bookings`);
           return;
         }
+      }
+
+      // 2. Fallback to fetchOctorateLiveReservations
+      const liveReservations = await fetchOctorateLiveReservations();
+      if (liveReservations && Array.isArray(liveReservations)) {
+        set({ bookings: liveReservations, loading: false });
+        return;
       }
 
       set({ bookings: [], loading: false });

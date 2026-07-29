@@ -262,21 +262,10 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
   }
 
   try {
-    let { data: sbData, error: sbError } = await supabaseAdmin
-      .from('resort_bookings')
+    let { data: sbData } = await supabaseAdmin
+      .from('reservations')
       .select('*')
       .order('created_at', { ascending: false });
-
-    if (sbError || !sbData || sbData.length === 0) {
-      const { data: resData } = await supabaseAdmin
-        .from('reservations')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (resData && resData.length > 0) {
-        sbData = resData;
-      }
-    }
 
     const dateFrom = (req.query.dateFrom as string) || (req.query.startDate as string) || new Date().toISOString().substring(0, 10);
     const dateToObj = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
