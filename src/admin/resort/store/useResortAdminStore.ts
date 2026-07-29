@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { supabase } from '../../../lib/supabase';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { updateLastMinuteRatesStrategy, disableLastMinuteRatesStrategy } from '../../../booking/lib/octorate';
+import { calculateDynamicMinStay } from '../lib/octorateAdmin';
 
 export interface ResortBooking {
   id: string;
@@ -43,8 +44,10 @@ interface ResortAdminState {
   octorateDetails: { structureId: string; channelId: string; lastSync?: string };
   filterCategory: string;
 
-  // Dynamic Minimum Stay (Gap-Fill) State
+  // Dynamic Minimum Stay (Gap-Fill) State & Execution
   dynamicMinStayGapFill: boolean;
+  dynamicMinStayRunning: boolean;
+  dynamicMinStayResult: { success: boolean; dryRun: boolean; message: string; updatesCount: number } | null;
 
   // Last-Minute Channel Strategy Automation State
   lastMinuteThresholdDays: number;
@@ -61,6 +64,7 @@ interface ResortAdminState {
   checkOctorateConnection: () => Promise<void>;
   setFilterCategory: (category: string) => void;
   setDynamicMinStayGapFill: (enabled: boolean) => void;
+  executeDynamicMinStayStrategy: (resetToBaseline?: boolean) => Promise<void>;
 
   // Last-Minute Actions
   setLastMinuteThresholdDays: (days: number) => void;
@@ -94,7 +98,50 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   filterCategory: 'All',
 
   dynamicMinStayGapFill: true,
+  dynamicMinStayRunning: false,
+  dynamicMinStayResult: null,
   setDynamicMinStayGapFill: (enabled: boolean) => set({ dynamicMinStayGapFill: enabled }),
+
+  executeDynamicMinStayStrategy: async (resetToBaseline: boolean = false) => {
+    set({ dynamicMinStayRunning: true });
+    try {
+      const { bookings } = get();
+      const todayISO = new Date().toISOString().substring(0, 10);
+      const next60Days = new Date();
+      next60Days.setDate(next60Days.getDate() + 60);
+      const endISO = next60Days.toISOString().substring(0, 10);
+
+      const updates = calculateDynamicMinStay(bookings, { start: todayISO, end: endISO });
+
+      const apiRes = await fetch('/api/resort/octorate/min-stay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ updates, resetToBaseline })
+      });
+
+      const resJson = await apiRes.json();
+      set({
+        dynamicMinStayResult: {
+          success: resJson.success,
+          dryRun: resJson.dryRun,
+          message: resJson.message || (resJson.success ? 'Calcolo soggiorno minimo dinamico eseguito con successo.' : 'Errore esecuzione'),
+          updatesCount: resJson.updatesCount || 0
+        },
+        dynamicMinStayRunning: false
+      });
+    } catch (err: any) {
+      console.error('[useResortAdminStore] Dynamic MinStay Strategy Error:', err);
+      set({
+        dynamicMinStayResult: {
+          success: false,
+          dryRun: true,
+          message: err.message || 'Errore durante il calcolo del soggiorno minimo dinamico.',
+          updatesCount: 0
+        },
+        dynamicMinStayRunning: false
+      });
+    }
+  },
 
   lastMinuteThresholdDays: 10,
   lastMinuteBlockDays: 5,

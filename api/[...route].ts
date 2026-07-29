@@ -15,8 +15,10 @@ import {
   handleOctorateClientGet,
   handleOctorateClientClear,
   handleOctorateBookings,
-  handleOctorateGrid
+  handleOctorateGrid,
+  handleOctorateMinStay
 } from "./_handlers/octorate.js";
+import { handleOctorateWebhook } from "./_handlers/octorate-webhook.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Extract path from req.url or req.query.route
@@ -33,8 +35,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  // Normalize path string (remove leading 'api/')
-  const cleanPath = pathname.replace(/^api\//, '');
+  // Normalize path string (remove leading 'api/' and trailing slashes)
+  const cleanPath = pathname.replace(/^api\//, '').replace(/\/$/, '');
 
   switch (cleanPath) {
     case 'create-checkout-session':
@@ -78,6 +80,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     case 'resort/octorate-grid':
       return handleOctorateGrid(req, res);
+
+    case 'resort/octorate/min-stay':
+      return handleOctorateMinStay(req, res);
+
+    case 'webhooks/octorate':
+    case 'octorate-webhook':
+    case 'webhooks/octoraate':
+      return handleOctorateWebhook(req, res);
 
     default:
       return res.status(404).json({ error: `Route not found: /api/${cleanPath}` });

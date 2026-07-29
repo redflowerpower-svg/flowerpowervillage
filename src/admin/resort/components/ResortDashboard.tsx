@@ -53,8 +53,12 @@ export function ResortDashboard() {
     setLastMinuteDiscountStage1,
     setLastMinuteDiscountStage2,
     setApplyClosedToArrival,
-    executeLastMinuteStrategy,
-    disableLastMinuteStrategy
+    disableLastMinuteStrategy,
+    dynamicMinStayGapFill,
+    dynamicMinStayRunning,
+    dynamicMinStayResult,
+    setDynamicMinStayGapFill,
+    executeDynamicMinStayStrategy
   } = useResortAdminStore();
 
   const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'rooms' | 'octorate'>('bookings');
@@ -465,6 +469,95 @@ export function ResortDashboard() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* DYNAMIC MINIMUM STAY (GAP-FILLING & DENSITY PRICING) PANEL */}
+      <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-800 pb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 flex-shrink-0">
+              <SlidersHorizontal className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-black text-white tracking-tight flex items-center gap-2">
+                Soggiorno Minimo Dinamico (Gap-Filling & Density Pricing)
+              </h3>
+              <p className="text-stone-400 text-xs font-medium">
+                Calcolo automatico per coprire le bucature inferiori a 7 notti e regolare i soggiorni minimi in base all'occupazione.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="bg-teal-500/10 text-teal-400 border border-teal-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
+              Staging Lock #649669 & #921799
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-stone-950 p-4 rounded-2xl border border-stone-850">
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              id="toggle-dynamic-minstay"
+              checked={dynamicMinStayGapFill}
+              onChange={(e) => setDynamicMinStayGapFill(e.target.checked)}
+              className="w-5 h-5 accent-teal-500 rounded cursor-pointer"
+            />
+            <label htmlFor="toggle-dynamic-minstay" className="text-xs font-bold text-stone-200 cursor-pointer">
+              ⚡ Attiva Soggiorno Minimo Dinamico (Simulazione)
+            </label>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => executeDynamicMinStayStrategy(false)}
+              disabled={dynamicMinStayRunning}
+              className="w-full sm:w-auto py-2.5 px-4 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 shadow transition-all cursor-pointer"
+            >
+              {dynamicMinStayRunning ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Calcolo in corso...</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 text-teal-200" />
+                  <span>Esegui Calcolo Gap-Fill (Simulazione)</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => executeDynamicMinStayStrategy(true)}
+              disabled={dynamicMinStayRunning}
+              className="w-full sm:w-auto py-2.5 px-4 bg-stone-800 hover:bg-stone-750 text-amber-300 border border-stone-700 font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 shadow transition-all cursor-pointer"
+              title="Ripristina i valori di soggiorno minimo stagionali standard su Octorate"
+            >
+              <RefreshCw className="w-4 h-4 text-amber-400" />
+              <span>🔄 Ripristino Valori Stagionali (Rollback)</span>
+            </button>
+          </div>
+        </div>
+
+        {dynamicMinStayResult && (
+          <div className={`p-3.5 rounded-2xl border text-xs leading-relaxed ${
+            dynamicMinStayResult.success
+              ? 'bg-teal-950/40 border-teal-800/60 text-teal-300'
+              : 'bg-red-950/40 border-red-800/60 text-red-300'
+          }`}>
+            <div className="font-bold flex items-center gap-2 mb-1">
+              {dynamicMinStayResult.success ? <CheckCircle className="w-4 h-4 text-teal-400 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
+              <span>{dynamicMinStayResult.message}</span>
+            </div>
+            {dynamicMinStayResult.dryRun && (
+              <span className="text-[10px] text-amber-300/90 font-mono block">
+                🔒 Modalità DRY_RUN Attiva: Nessuna modifica inviata ad Octorate. {dynamicMinStayResult.updatesCount} bucature identificate in memoria.
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Tabs Header */}

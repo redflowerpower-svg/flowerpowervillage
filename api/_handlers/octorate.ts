@@ -467,3 +467,84 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
     return res.status(500).json({ error: error.message });
   }
 }
+
+// Global DRY_RUN mode flag (simulazione in memoria / log per la massima sicurezza)
+const DRY_RUN = true;
+const STAGING_LOCK_IDS = new Set(['649669', '921799']);
+
+// 8. handleOctorateMinStay - Dynamic Minimum Stay (Gap-Filling) & Rollback Handler
+export async function handleOctorateMinStay(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { updates, resetToBaseline } = req.body || {};
+  const updateItems = Array.isArray(updates) ? updates : [];
+
+  // STAGING LOCK CHECK: Se DRY_RUN viene disattivato (false), rifiuta la scrittura se non per i due alloggi fittizi
+  if (!DRY_RUN) {
+    const invalidTarget = updateItems.find((item: any) => {
+      const idStr = String(item.roomTypeId || item.id || item.octorateId || item.room || '');
+      return !STAGING_LOCK_IDS.has(idStr);
+    });
+
+    if (invalidTarget) {
+      const targetId = String(invalidTarget.roomTypeId || invalidTarget.id || invalidTarget.octorateId);
+      console.error(`[STAGING LOCK BLOCKED] Tentativo di scrittura bloccato per l'alloggio non-staging ID ${targetId}`);
+      return res.status(403).json({
+        error: `Staging Lock Attivo: La scrittura reale è consentita esclusivamente per gli alloggi fittizi #649669 e #921799. Target bloccato: ${targetId}`,
+        blockedTarget: invalidTarget
+      });
+    }
+  }
+
+  if (DRY_RUN) {
+    console.log(`[MIN-STAY DRY RUN SIMULATION] Elaborati ${updateItems.length} aggiornamenti dinamici (resetToBaseline: ${Boolean(resetToBaseline)})`);
+    return res.status(200).json({
+      success: true,
+      dryRun: true,
+      message: resetToBaseline
+        ? `Ripristino Notte Stagionale Base (2/5 notti) simulato con successo (${updateItems.length} stanze).`
+        : `Calcolo Soggiorno Minimo Dinamico (Gap-Fill) completato in modalità SIMULAZIONE (${updateItems.length} gap trovati).`,
+      updatesCount: updateItems.length,
+      updates: updateItems
+    });
+  }
+
+  // Esecuzione Scrittura Reale Octorate per gli Alloggi di Staging
+  try {
+    const { data: tokenData } = await supabaseAdmin
+      .from('octorate_tokens')
+      .select('access_token')
+      .eq('id', 'singleton')
+      .maybeSingle();
+
+    if (!tokenData?.access_token) {
+      return res.status(400).json({ error: 'No Octorate access token available in database' });
+    }
+
+    const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
+    const octRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${tokenData.access_token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        structure: Number(structureId),
+        updates: updateItems
+      })
+    });
+
+    if (!octRes.ok) {
+      const errorText = await octRes.text();
+      return res.status(octRes.status).json({ error: `Octorate bulk min-stay update failed: ${errorText}` });
+    }
+
+    const octResult = await octRes.json();
+    return res.status(200).json({ success: true, dryRun: false, octResult });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message || 'Serverless min-stay execution error' });
+  }
+}

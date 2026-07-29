@@ -68,3 +68,19 @@ Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un
    - **Punto 3: Stato della Cassaforte Credenziali (`.secret_docs/`)** (Esito cifratura `.md.enc`).
    - **Punto 4: Stato dei Test di Connessione e Sicurezza Git** (Esito check `test-credentials-verification.mjs` e `.gitignore`).
    - **Punto 5: Istruzioni per la Nuova Postazione (Koh Phayam / Ranong)** (Promemoria per `git pull` seguito da `VAULT-SYNC`).
+
+# Protocollo di Compressione e Frazionamento dei Report (Gemini-Friendly)
+Per evitare che i report generati per l'utente superino i limiti di input di Gemini Notebook (impedendo l'invio del messaggio), l'agente DEVE seguire rigorosamente queste regole di formattazione:
+
+1. **Massima Densità, Zero Log Inutili**: 
+   - Non incollare MAI interi dump di log o file di testo kilometrici nella chat.
+   - Sostituisci i log lunghi con tabelle di sintesi (come la tabella dei test API).
+   - Mostra solo i "diff" (le linee di codice modificate) e non l'intero file corretto, a meno che non sia strettamente richiesto.
+
+2. **Limite di Caratteri Rigido (Max 4000 caratteri per messaggio)**:
+   - Ogni report finale o handoff non deve superare i 4000 caratteri (~600 parole).
+
+3. **Frazionamento Automatico (Splitting)**:
+   - Se un handoff (es. MARKDOWN-PROJECT) o una spiegazione tecnica supera inevitabilmente questo limite, l'agente DEVE dividerlo in blocchi numerati (es. "[Parte 1 di 3]", "[Parte 2 di 3]").
+   - Alla fine di ogni parte, l'agente deve fermarsi e scrivere: 
+     *«⚠️ Il report è troppo lungo per la tua casella di testo. Copia e invia questa prima parte, poi ti scriverò la Parte 2 nel prossimo turno appena rispondi 'continua'.»*

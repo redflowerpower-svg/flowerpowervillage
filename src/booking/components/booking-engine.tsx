@@ -26,6 +26,7 @@ import { getAuthorizationUrl, isAuthenticated, exchangeToken, clearTokens } from
 import { RoomGrid } from "../resort/components/RoomGrid"
 import { ACCOMMODATIONS, PRICE_CONFIG } from "../resort/config/accommodations"
 import { translations, Language } from "../lib/translations"
+import { getBaselineMinStay } from "../../admin/resort/lib/octorateAdmin"
 
 const CATEGORY_ITEMS = [
   { name: "Tutti", label: "TUTTI", desc: "Esplora il villaggio", icon: Grid },
@@ -592,8 +593,12 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
     const diffTime = end.getTime() - start.getTime()
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    if (diffDays < 2) {
-      alert(t('minStayAlert'))
+    const requiredMinStay = getBaselineMinStay(checkIn)
+    if (diffDays < requiredMinStay) {
+      const msg = lang === 'IT'
+        ? `Il soggiorno minimo per il periodo selezionato (${checkIn}) è di ${requiredMinStay} notti. Si prega di selezionare almeno ${requiredMinStay} notti.`
+        : `Minimum stay for the selected period (${checkIn}) is ${requiredMinStay} nights. Please select at least ${requiredMinStay} nights.`
+      alert(msg)
       return
     }
 

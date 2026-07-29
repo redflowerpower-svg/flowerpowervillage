@@ -132,12 +132,11 @@ function computeGapFillMinStays(
 
     const isFree = !isClosedOrStopSell && !hasBooking;
 
-    // Regola Stagionale del Minimo Notti (Baseline):
-    // - Fino al 20 Dic (compreso): 2 notti
-    // - Dal 21 Dic al 15 Gen (compreso - Altissima Stagione): 5 notti
-    // - Dal 16 Gen in poi (resto dell'anno): 2 notti
-    const baselineMinStay = getBaselineMinStay(dateStr);
-    const standardMinStay = Math.max(baselineMinStay, (liveData?.minStay && liveData.minStay > 0) ? liveData.minStay : 1);
+    // Gerarchia Rigida Min Stay:
+    // 1. Se i dati live di Octorate sono disponibili ed esiste minStay > 0, usa tassativamente quello.
+    // 2. Solo se offline o undefined, ripiega sulla regola stagionale interna.
+    const hasLiveMinStay = typeof liveData?.minStay === 'number' && liveData.minStay > 0;
+    const standardMinStay = hasLiveMinStay ? (liveData!.minStay as number) : getBaselineMinStay(dateStr);
 
     return { dateStr, isFree, standardMinStay };
   });

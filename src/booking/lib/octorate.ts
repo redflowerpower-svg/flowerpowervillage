@@ -731,7 +731,10 @@ export async function fetchOctorateMonthlyGrid(
             day.bookable === false ||
             dayPrice >= 10000;
 
-          const minStayVal = Number(day.minStay || day.minNights || day.min_stay || day.minimumStay || 0);
+          const minStayVal = Number(
+            day.minStay ?? day.minstay ?? day.minNights ?? day.min_stay ?? day.minimumStay ??
+            item.minStay ?? item.minstay ?? item.minNights ?? item.min_stay ?? 0
+          );
 
           result[key][dateStr] = {
             octorateId: Number(item.id),
@@ -740,7 +743,7 @@ export async function fetchOctorateMonthlyGrid(
             available: !isStopSell,
             stopSell: isStopSell,
             closedToArrival: Boolean(day.closedToArrival || day.closed_to_arrival || day.cta),
-            minStay: minStayVal > 1 ? minStayVal : undefined
+            minStay: minStayVal > 0 ? minStayVal : undefined
           };
         });
       });
