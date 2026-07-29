@@ -233,6 +233,8 @@ export function ResortVisualCalendar() {
     setDynamicMinStayGapFill
   } = useResortAdminStore();
 
+  console.log("[DEBUG PRENOTAZIONI] Totale ricevute:", bookings?.length);
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 

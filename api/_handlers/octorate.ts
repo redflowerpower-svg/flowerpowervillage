@@ -462,7 +462,7 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
     // Fetch live Octorate & Supabase reservations for unified payload
     let reservations: any[] = [];
     try {
-      const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/${structureId}?dateType=STAY&dateFrom=${dateFrom}&dateTo=${dateTo}`;
+      const resUrl = `https://api.octorate.com/connect/rest/v1/reservation/${structureId}?dateType=STAY&startDate=${dateFrom}&endDate=${dateTo}&dateFrom=${dateFrom}&dateTo=${dateTo}`;
       const resResponse = await fetch(resUrl, {
         headers: {
           "Authorization": `Bearer ${accessToken}`,
@@ -471,7 +471,10 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       });
       if (resResponse.ok) {
         const resJson = await resResponse.json();
-        reservations = Array.isArray(resJson.data) ? resJson.data : (Array.isArray(resJson) ? resJson : []);
+        const list = Array.isArray(resJson.data) ? resJson.data : (Array.isArray(resJson) ? resJson : (resJson.reservations || []));
+        reservations = Array.isArray(list) ? list : [];
+      } else {
+        console.warn(`[OCTORATE GRID] Octorate reservation fetch status ${resResponse.status}`);
       }
     } catch (resErr) {
       console.warn("[OCTORATE GRID] Reservations fetch warning:", resErr);
@@ -493,6 +496,7 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
     return res.status(200).json({
       success: true,
       data: filteredBEItems,
+      grid: filteredBEItems,
       reservations,
       totalFetched: allFetchedItems.length,
       pagesCount: page + 1
