@@ -69,6 +69,43 @@ export const ACCOMMODATION_RATE_PLANS: Record<string, { motherId: number; beId: 
   'Internal Room': { motherId: 293942, beId: 449742 }
 };
 
+export function getIdsForRoom(roomName: string): { motherId: number; beId: number } {
+  if (!roomName) return { motherId: 0, beId: 0 };
+  const nameLower = roomName.trim().toLowerCase();
+
+  const MAPPING: Record<string, { motherId: number; beId: number }> = {
+    'jungle villa': { motherId: 529773, beId: 529784 },
+    'jungle villa left': { motherId: 495795, beId: 495807 },
+    'jungle villa right': { motherId: 495796, beId: 495980 },
+    'peace & love villa': { motherId: 494840, beId: 495566 },
+    'villa penthouse': { motherId: 421511, beId: 449348 },
+    'penthouse villa': { motherId: 421511, beId: 449348 },
+    'yellow bungalow': { motherId: 293957, beId: 449385 },
+    'red bungalow': { motherId: 293954, beId: 449422 },
+    'green bungalow': { motherId: 293962, beId: 449668 },
+    'camel tent bungalow': { motherId: 293965, beId: 449675 },
+    'camel tent': { motherId: 293965, beId: 449675 },
+    'lagoon tent bungalow': { motherId: 293955, beId: 449674 },
+    'lagoon tent': { motherId: 293955, beId: 449674 },
+    'room 1': { motherId: 293963, beId: 449678 },
+    'room 2': { motherId: 293959, beId: 449684 },
+    'room 3': { motherId: 293948, beId: 449699 },
+    'room 4': { motherId: 293945, beId: 449724 },
+    'room 5': { motherId: 293943, beId: 449730 },
+    'lodge 1': { motherId: 293951, beId: 449736 },
+    'lodge 2': { motherId: 883795, beId: 923905 },
+    'internal room': { motherId: 293942, beId: 449742 }
+  };
+
+  for (const key in MAPPING) {
+    if (nameLower === key || nameLower.includes(key) || key.includes(nameLower)) {
+      return MAPPING[key];
+    }
+  }
+
+  return { motherId: 0, beId: 0 };
+}
+
 const AGENCY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   'Booking.com': { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' },
   'Expedia': { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' },
@@ -780,115 +817,77 @@ export function ResortVisualCalendar() {
                     {datesArray.map((cellDate, idx) => {
                       const dateStr = cellDate.toISOString().substring(0, 10);
                       
-                      // Lookup exact Mother Rate ID & BE Rate ID
-                      const ratePlan = ACCOMMODATION_RATE_PLANS[room.name] || {
-                        motherId: getMotherRatePlanId(room.name) || Number(room.octorateId) || Number(room.id),
-                        beId: Number(room.octorateId) || Number(room.id)
-                      };
+                      // ESTRAZIONE DATI SICURA tramite getIdsForRoom
+                      const { motherId, beId } = getIdsForRoom(room.name);
 
-                      // 1. Mother Rate Plan Data (Octorate Room ID: 529773, 293962, etc.)
                       const motherData = (
-                        liveGridData[String(ratePlan.motherId)] ||
-                        (ratePlan.motherId ? liveGridData[ratePlan.motherId] : null) ||
-                        liveGridData[room.name] || 
-                        liveGridData[room.name.toLowerCase()]
+                        (motherId ? liveGridData?.[motherId] : null) ||
+                        (motherId ? liveGridData?.[String(motherId)] : null) ||
+                        liveGridData?.[room.name] || 
+                        liveGridData?.[room.name.toLowerCase()]
                       )?.[dateStr];
 
-                      // 2. BE Rate Plan Data (Booking Engine Rate ID: 529784, 449668, etc.)
                       const beData = (
-                        liveGridData[String(ratePlan.beId)] ||
-                        (ratePlan.beId ? liveGridData[ratePlan.beId] : null) ||
-                        liveGridData[room.octorateId] ||
-                        liveGridData[room.id]
+                        (beId ? liveGridData?.[beId] : null) ||
+                        (beId ? liveGridData?.[String(beId)] : null) ||
+                        liveGridData?.[room.octorateId] ||
+                        liveGridData?.[room.id]
                       )?.[dateStr];
 
-                      // Price from Mother Rate Plan (NO STATIC FALLBACK - Prints N/D if missing)
+                      // Prezzi reali (mostra N/D se il dato non c'è)
                       const motherPriceVal = motherData && typeof motherData.price === 'number' && motherData.price > 0 ? motherData.price : 0;
                       const motherPriceStr = motherPriceVal >= 10000 
                         ? '10.000' 
                         : (motherPriceVal > 0 ? motherPriceVal.toLocaleString('it-IT') : 'N/D');
 
-                      // Price from BE Rate Plan (NO STATIC FALLBACK - Prints N/D if missing)
                       const bePriceVal = beData && typeof beData.price === 'number' && beData.price > 0 ? beData.price : 0;
                       const bePriceStr = bePriceVal >= 10000 
                         ? '10.000' 
                         : (bePriceVal > 0 ? bePriceVal.toLocaleString('it-IT') : 'N/D');
 
-                      // Minimum Stay read EXCLUSIVELY from Mother Data (or Gap-Fill fallback)
-                      const motherMinStay = motherData?.minStay && motherData.minStay > 0 ? motherData.minStay : (gapFillMinStays[dateStr] || undefined);
+                      // Minimum stay letto dalla Tariffa Madre (oppure '-' se manca)
+                      const motherMinStayStr = motherData?.minStay ? String(motherData.minStay) : (gapFillMinStays[dateStr] ? String(gapFillMinStays[dateStr]) : '-');
 
-                      // 🥇 PRIORITÀ 1: Prenotazione OTA / Diretta
+                      // 🥇 PRIORITÀ 1: Prenotazione (Controllo array "bookings")
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookings);
-
-                      if (matchingBooking) {
-                        const channelName = getBookingChannelName(matchingBooking);
-                        const style = getAgencyStyle(channelName);
-
-                        return (
-                          <td
-                            key={idx}
-                            onClick={() => setSelectedBooking(matchingBooking)}
-                            className={`py-1 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-pointer ${style.bg} ${style.border}`}
-                            title={`Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${channelName}) • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}`}
-                          >
-                            {/* Top Right Minimum Stay Badge read EXCLUSIVELY from Mother Data */}
-                            {motherMinStay && motherMinStay > 1 && (
-                              <div className="absolute top-0.5 right-0.5 text-[6.5px] font-black text-amber-300 leading-none tracking-tighter bg-black/60 px-0.5 py-0.2 rounded border border-amber-400/40 shadow-sm z-10">
-                                🌙 {motherMinStay}
-                              </div>
-                            )}
-
-                            <div className="text-[8px] font-extrabold uppercase truncate tracking-tighter leading-none text-white opacity-95">
-                              {channelName}
-                            </div>
-                            <div className="text-[11px] font-mono font-bold text-white leading-tight mt-0.5">
-                              BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
-                            </div>
-                          </td>
-                        );
-                      }
 
                       // 🥈 PRIORITÀ 2: Chiusura / Stop Sell (valutata RIGOROSAMENTE sulla Tariffa Madre)
                       const isRoomClosedByStaff = room.isAvailable === false;
                       const isMotherStopSell = motherData
-                        ? (motherData.stopSell || motherData.available === false || motherData.price >= 10000)
+                        ? (Boolean(motherData.stopSell || motherData.stopSells) || motherData.available === false || (motherData.availability !== undefined && motherData.availability <= 0) || motherData.price >= 10000)
                         : false;
 
                       const isClosedOrStopSell = isRoomClosedByStaff || isMotherStopSell;
 
-                      if (isClosedOrStopSell) {
-                        return (
-                          <td
-                            key={idx}
-                            className="py-1 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-red-700 hover:bg-red-600 border-red-800/80"
-                            title={`Alloggio Chiuso / Stop Sell su Tariffa Madre • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}`}
-                          >
-                            {/* Top Right Minimum Stay Badge */}
-                            {motherMinStay && motherMinStay > 1 && (
-                              <div className="absolute top-0.5 right-0.5 text-[6.5px] font-black text-amber-300 leading-none tracking-tighter bg-black/60 px-0.5 py-0.2 rounded border border-amber-400/40 shadow-sm z-10">
-                                🌙 {motherMinStay}
-                              </div>
-                            )}
+                      // LAYOUT IBRIDO COMPLETO: Sfondo & Stile
+                      let bgStyle = 'bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60 cursor-default shadow-inner';
+                      let channelLabel = '';
 
-                            <div className="text-[9px] font-mono font-medium text-red-100/90 leading-tight">
-                              Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'}
-                            </div>
-                            <div className="text-[11px] font-mono font-bold text-white leading-tight">
-                              BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
-                            </div>
-                          </td>
-                        );
+                      if (matchingBooking) {
+                        const channelName = getBookingChannelName(matchingBooking);
+                        const style = getAgencyStyle(channelName);
+                        bgStyle = `${style.bg} ${style.border} cursor-pointer shadow-lg`;
+                        channelLabel = `${channelName} • ${matchingBooking.guest_name || 'Ospite'}`;
+                      } else if (isClosedOrStopSell) {
+                        bgStyle = 'bg-red-700 hover:bg-red-600 border-red-800/80 cursor-default shadow-inner';
                       }
 
-                      // 🥉 PRIORITÀ 3: Libera (Doppia Tariffa Incolonnata: Madre sopra, BE sotto)
                       const isCTA = Boolean(motherData?.closedToArrival || beData?.closedToArrival);
 
                       return (
                         <td
                           key={idx}
-                          className="py-1 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60"
-                          title={`Alloggio Libero • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'} ${isCTA ? '• Solo Check-Out' : ''}`}
+                          onClick={() => matchingBooking && setSelectedBooking(matchingBooking)}
+                          className={`py-1 px-0.5 border-l text-center transition-colors relative ${bgStyle}`}
+                          title={matchingBooking 
+                            ? `Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${getBookingChannelName(matchingBooking)}) • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}`
+                            : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'} • MinStay: ${motherMinStayStr}`}
                         >
+                          {/* IN ALTO A DESTRA: Badge Minimum Stay ("🌙 min: " + motherMinStayStr) */}
+                          <div className="absolute top-0.5 right-0.5 text-[6.5px] font-black text-amber-300 leading-none tracking-tighter bg-black/70 px-0.5 py-0.2 rounded border border-amber-400/40 shadow-sm z-10">
+                            🌙 min: {motherMinStayStr}
+                          </div>
+
                           {/* Indicator CTA Solo Check-out */}
                           {isCTA && (
                             <span 
@@ -897,20 +896,19 @@ export function ResortVisualCalendar() {
                             />
                           )}
 
-                          {/* Top Right Minimum Stay Badge read EXCLUSIVELY from Mother Data */}
-                          {motherMinStay && motherMinStay > 1 && (
-                            <div className="absolute top-0.5 right-0.5 text-[6.5px] font-black text-amber-300 leading-none tracking-tighter bg-black/60 px-0.5 py-0.2 rounded border border-amber-400/40 shadow-sm z-10">
-                              🌙 {motherMinStay}
+                          {/* CENTRO: Se c'è l'ospite prenotato mostra Nome/OTA in cima alla cella, altrimenti Madre: ฿... */}
+                          {matchingBooking ? (
+                            <div className="text-[8px] font-extrabold uppercase truncate tracking-tighter leading-none text-white opacity-95 pr-7 pl-0.5">
+                              {channelLabel}
+                            </div>
+                          ) : (
+                            <div className="text-[9px] font-mono font-medium text-white/90 leading-tight">
+                              Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'}
                             </div>
                           )}
 
-                          {/* AL CENTRO/ALTO: Prezzo Tariffa Madre */}
-                          <div className="text-[9px] font-mono font-medium text-emerald-100/90 leading-tight">
-                            Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'}
-                          </div>
-
-                          {/* IN BASSO: Prezzo Tariffa BE */}
-                          <div className="text-[11px] font-mono font-bold text-white leading-tight">
+                          {/* BASSO (in grassetto): Prezzo Tariffa BE */}
+                          <div className="text-[11px] font-mono font-black text-white leading-tight mt-0.5">
                             BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
                           </div>
                         </td>
