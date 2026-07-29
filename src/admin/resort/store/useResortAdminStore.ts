@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../../../lib/supabase';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
-import { updateLastMinuteRatesStrategy, disableLastMinuteRatesStrategy } from '../../../booking/lib/octorate';
+import { updateLastMinuteRatesStrategy, disableLastMinuteRatesStrategy, fetchOctorateLiveReservations } from '../../../booking/lib/octorate';
 import { calculateDynamicMinStay } from '../lib/octorateAdmin';
 
 export interface ResortBooking {
@@ -161,7 +161,24 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   fetchBookings: async () => {
     set({ loading: true, error: null });
     try {
-      // 1. Fetch from Serverless route /api/resort/octorate-bookings
+      // 1. Fetch live reservations directly from Octorate via proxy/token
+      const liveReservations = await fetchOctorateLiveReservations();
+
+      // 2. Fetch direct Supabase bookings
+      const { data: sbBookings } = await supabase
+        .from('resort_bookings')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      const combined = [...(liveReservations || []), ...(sbBookings || [])];
+
+      if (combined.length > 0) {
+        set({ bookings: combined, loading: false });
+        console.log(`[useResortAdminStore] Popolate ${combined.length} prenotazioni (Live Octorate: ${liveReservations.length}, Supabase: ${(sbBookings || []).length})`);
+        return;
+      }
+
+      // 3. Fallback to /api/resort/octorate-bookings endpoint
       const res = await fetch('/api/resort/octorate-bookings');
       if (res.ok) {
         const json = await res.json();
@@ -171,22 +188,7 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
         }
       }
 
-      // 2. Direct Supabase fallback query
-      const { data, error } = await supabase
-        .from('resort_bookings')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (data && Array.isArray(data) && data.length > 0) {
-        set({ bookings: data, loading: false });
-      } else {
-        const { data: resData } = await supabase
-          .from('reservations')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        set({ bookings: resData || [], loading: false });
-      }
+      set({ bookings: [], loading: false });
     } catch (err: any) {
       console.error('[useResortAdminStore] Fetch Error:', err);
       set({ error: err.message || 'Impossibile caricare le prenotazioni del resort.', loading: false });

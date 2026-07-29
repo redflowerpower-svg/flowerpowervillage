@@ -84,6 +84,8 @@ export interface OAuthTokens {
   expires_in: number
 }
 
+import { supabase } from '../../lib/supabase';
+
 // =============================================================================
 // OAuth 3-Legged Flow
 // =============================================================================
@@ -93,27 +95,98 @@ let cachedTokens: OAuthTokens | null = null;
 export async function getStoredTokens(): Promise<OAuthTokens | null> {
   if (cachedTokens) return cachedTokens;
 
+  // Direct Supabase query (works client-side without serverless function dependency)
   try {
-    const res = await fetch("/api/octorate-client-get");
-    if (!res.ok) {
-      console.error("[Octorate] Failed to fetch tokens from server-get endpoint");
-      return null;
-    }
-    const json = await res.json();
-    if (json && json.data) {
+    const { data } = await supabase
+      .from('octorate_tokens')
+      .select('access_token, refresh_token, expires_in')
+      .eq('id', 'singleton')
+      .maybeSingle();
+
+    if (data && data.access_token) {
       cachedTokens = {
-        access_token: json.data.access_token,
-        refresh_token: json.data.refresh_token,
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
         token_type: "Bearer",
-        expires_in: json.data.expires_in,
+        expires_in: data.expires_in,
       };
       return cachedTokens;
     }
-    return null;
-  } catch (err) {
-    console.error("[Octorate] Exception fetching tokens from server-get:", err);
-    return null;
+  } catch (sbErr) {
+    console.warn("[Octorate] Supabase direct token fetch warning:", sbErr);
   }
+
+  try {
+    const res = await fetch("/api/octorate-client-get");
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.data) {
+        cachedTokens = {
+          access_token: json.data.access_token,
+          refresh_token: json.data.refresh_token,
+          token_type: "Bearer",
+          expires_in: json.data.expires_in,
+        };
+        return cachedTokens;
+      }
+    }
+  } catch (err) {
+    console.warn("[Octorate] Exception fetching tokens from server-get:", err);
+  }
+
+  return null;
+}
+
+/**
+ * Fetch live Octorate reservations directly from API endpoint using active OAuth token.
+ */
+export async function fetchOctorateLiveReservations(): Promise<any[]> {
+  const tokens = await getStoredTokens();
+  if (!tokens?.access_token) {
+    console.warn("[Octorate Reservations] No access token available");
+    return [];
+  }
+
+  try {
+    const res = await fetch("/api-octorate/connect/rest/v1/reservation?structure=366879", {
+      headers: {
+        "Authorization": `Bearer ${tokens.access_token}`,
+        "Accept": "application/json"
+      }
+    });
+
+    if (res.ok) {
+      const json = await res.json();
+      const items = Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : (json.reservations || []));
+
+      return items.map((r: any) => ({
+        id: String(r.id || r.reservationId || Math.random()),
+        guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
+        guest_email: r.email || r.guestEmail || (r.guests && r.guests[0]?.email) || '',
+        guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',
+        accommodation_id: String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || ''),
+        accommodation_name: r.roomName || r.accommodation_name || '',
+        product: String(r.product || r.roomTypeId || ''),
+        roomName: r.roomName || r.accommodation_name || '',
+        check_in: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
+        check_out: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
+        checkin: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
+        checkout: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
+        guests: Number(r.totalGuest || r.pax || r.guestsCount || 2),
+        total_price: Number(r.roomGross || r.totalGross || r.totalAmount || 0),
+        deposit_paid: Number(r.deposit || 0),
+        status: String(r.status || '').toUpperCase() === 'CANCELLED' ? 'cancelled' : 'confirmed',
+        source_channel: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com',
+        channelName: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com'
+      }));
+    } else {
+      console.warn(`[Octorate Reservations] Live API status ${res.status}`);
+    }
+  } catch (err) {
+    console.warn("[Octorate Reservations] Live API Exception:", err);
+  }
+
+  return [];
 }
 
 

@@ -60,6 +60,7 @@ const AGENCY_COLORS: Record<string, { bg: string; text: string; border: string }
 const getAgencyStyle = (source?: string) => {
   if (!source) return { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' };
   const s = source.toLowerCase();
+  if (s.includes('airbnb')) return { bg: 'bg-pink-600 hover:bg-pink-500', text: 'text-white font-extrabold', border: 'border-pink-500' };
   if (s.includes('booking')) return { bg: 'bg-blue-600 hover:bg-blue-500', text: 'text-white font-extrabold', border: 'border-blue-500' };
   if (s.includes('expedia')) return { bg: 'bg-amber-600 hover:bg-amber-500', text: 'text-white font-extrabold', border: 'border-amber-500' };
   if (s.includes('agoda')) return { bg: 'bg-purple-600 hover:bg-purple-500', text: 'text-white font-extrabold', border: 'border-purple-500' };
@@ -69,26 +70,27 @@ const getAgencyStyle = (source?: string) => {
 };
 
 function getBookingChannelName(booking: any): string {
-  const src = String(booking.source || booking.channel || booking.channelName || booking.ota || '').toLowerCase();
+  const src = String(booking.source || booking.channel || booking.channelName || booking.source_channel || booking.ota || '').toLowerCase();
+  if (src.includes('airbnb')) return 'Airbnb';
   if (src.includes('booking')) return 'Booking.com';
   if (src.includes('expedia')) return 'Expedia';
   if (src.includes('agoda')) return 'Agoda';
   if (src.includes('trip')) return 'Trip.com';
   if (src.includes('direct') || src.includes('site') || src.includes('stripe') || src.includes('diretto')) return 'Diretto';
-  return booking.source || booking.channel || 'Prenotato';
+  return booking.source || booking.channel || booking.channelName || 'Prenotato';
 }
 
 const ROOM_NAME_ALIASES: Record<string, string[]> = {
   'green bungalow': ['green bungalow', 'green', '293962', '449668'],
-  'yellow bungalow': ['yellow bungalow', 'yellow', '293957', '449385'],
+  'yellow bungalow': ['yellow bungalow', 'yellow 7d', 'yellow', '422422', '293957', '449385'],
   'red bungalow': ['red bungalow', 'red', '293954', '449422'],
   'camel tent bungalow': ['camel tent bungalow', 'camel tent', 'camel airbnb', 'camel', '297025', '293965', '449675'],
   'lagoon tent bungalow': ['lagoon tent bungalow', 'lagoon tent', 'lagoon', '293955', '449674'],
   'jungle villa': ['jungle villa', '529784', '529773'],
   'jungle villa left': ['jungle villa left', 'jvl', '495807', '495795'],
   'jungle villa right': ['jungle villa right', 'jvr', '495980', '495796'],
-  'peace & love villa': ['peace & love villa', 'p&l', '495566', '494840'],
-  'villa penthouse': ['villa penthouse', 'penthouse', '449348', '421511'],
+  'peace & love villa': ['peace & love villa', 'p&l', 'peace', '495566', '494840'],
+  'villa penthouse': ['villa penthouse', 'penthouse villa', 'pent airbnb', 'penthouse', 'pent', '421532', '449348', '421511'],
   'room 1': ['room 1', '293963', '449678'],
   'room 2': ['room 2', '293959', '449684'],
   'room 3': ['room 3', '293948', '449699'],
