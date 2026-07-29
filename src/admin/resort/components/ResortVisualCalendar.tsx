@@ -440,6 +440,8 @@ export function ResortVisualCalendar() {
   const [liveGridData, setLiveGridData] = useState<Record<string, Record<string, OctorateDayData>>>({});
   const [loadingLive, setLoadingLive] = useState<boolean>(false);
 
+  console.log("[DEBUG LIVE GRID KEYS]:", Object.keys(liveGridData || {}));
+
   // Load bookings on mount
   useEffect(() => {
     fetchBookings();
@@ -817,24 +819,24 @@ export function ResortVisualCalendar() {
                     {datesArray.map((cellDate, idx) => {
                       const dateStr = cellDate.toISOString().substring(0, 10);
                       
-                      // ESTRAZIONE DATI SICURA tramite getIdsForRoom
+                      // ESTRAZIONE DATI SICURA con cast a String per liveGridData keys
                       const { motherId, beId } = getIdsForRoom(room.name);
 
                       const motherData = (
+                        liveGridData?.[String(motherId)] ||
                         (motherId ? liveGridData?.[motherId] : null) ||
-                        (motherId ? liveGridData?.[String(motherId)] : null) ||
                         liveGridData?.[room.name] || 
                         liveGridData?.[room.name.toLowerCase()]
                       )?.[dateStr];
 
                       const beData = (
+                        liveGridData?.[String(beId)] ||
                         (beId ? liveGridData?.[beId] : null) ||
-                        (beId ? liveGridData?.[String(beId)] : null) ||
                         liveGridData?.[room.octorateId] ||
                         liveGridData?.[room.id]
                       )?.[dateStr];
 
-                      // Prezzi reali (mostra N/D se il dato non c'è)
+                      // Prezzi reali (mostra N/D se il dato non c'è, zero inventiva static)
                       const motherPriceVal = motherData && typeof motherData.price === 'number' && motherData.price > 0 ? motherData.price : 0;
                       const motherPriceStr = motherPriceVal >= 10000 
                         ? '10.000' 
@@ -845,8 +847,8 @@ export function ResortVisualCalendar() {
                         ? '10.000' 
                         : (bePriceVal > 0 ? bePriceVal.toLocaleString('it-IT') : 'N/D');
 
-                      // Minimum stay letto dalla Tariffa Madre (oppure '-' se manca)
-                      const motherMinStayStr = motherData?.minStay ? String(motherData.minStay) : (gapFillMinStays[dateStr] ? String(gapFillMinStays[dateStr]) : '-');
+                      // Minimum stay letto dalla Tariffa Madre
+                      const motherMinStayNum = motherData?.minStay && motherData.minStay > 0 ? motherData.minStay : (gapFillMinStays[dateStr] || 0);
 
                       // 🥇 PRIORITÀ 1: Prenotazione (Controllo array "bookings")
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookings);
@@ -861,13 +863,11 @@ export function ResortVisualCalendar() {
 
                       // LAYOUT IBRIDO COMPLETO: Sfondo & Stile
                       let bgStyle = 'bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60 cursor-default shadow-inner';
-                      let channelLabel = '';
 
                       if (matchingBooking) {
                         const channelName = getBookingChannelName(matchingBooking);
                         const style = getAgencyStyle(channelName);
                         bgStyle = `${style.bg} ${style.border} cursor-pointer shadow-lg`;
-                        channelLabel = `${channelName} • ${matchingBooking.guest_name || 'Ospite'}`;
                       } else if (isClosedOrStopSell) {
                         bgStyle = 'bg-red-700 hover:bg-red-600 border-red-800/80 cursor-default shadow-inner';
                       }
@@ -878,15 +878,17 @@ export function ResortVisualCalendar() {
                         <td
                           key={idx}
                           onClick={() => matchingBooking && setSelectedBooking(matchingBooking)}
-                          className={`py-1 px-0.5 border-l text-center transition-colors relative ${bgStyle}`}
+                          className={`py-1 px-0.5 border-l text-center transition-colors relative min-w-[64px] max-w-[120px] w-full overflow-hidden ${bgStyle}`}
                           title={matchingBooking 
                             ? `Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${getBookingChannelName(matchingBooking)}) • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}`
-                            : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'} • MinStay: ${motherMinStayStr}`}
+                            : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`}
                         >
-                          {/* IN ALTO A DESTRA: Badge Minimum Stay ("🌙 min: " + motherMinStayStr) */}
-                          <div className="absolute top-0.5 right-0.5 text-[6.5px] font-black text-amber-300 leading-none tracking-tighter bg-black/70 px-0.5 py-0.2 rounded border border-amber-400/40 shadow-sm z-10">
-                            🌙 min: {motherMinStayStr}
-                          </div>
+                          {/* BADGE MINSTAY (Cerchio Giallo con testo nero) */}
+                          {motherMinStayNum > 0 && (
+                            <div className="absolute top-1 right-1 w-5 h-5 bg-yellow-400 text-black text-xs font-bold rounded-full flex items-center justify-center z-10 shadow-md">
+                              {motherMinStayNum}
+                            </div>
+                          )}
 
                           {/* Indicator CTA Solo Check-out */}
                           {isCTA && (
@@ -896,21 +898,35 @@ export function ResortVisualCalendar() {
                             />
                           )}
 
-                          {/* CENTRO: Se c'è l'ospite prenotato mostra Nome/OTA in cima alla cella, altrimenti Madre: ฿... */}
+                          {/* CONTENUTO CELLA STRUTTURATO E TRONCATO */}
                           {matchingBooking ? (
-                            <div className="text-[8px] font-extrabold uppercase truncate tracking-tighter leading-none text-white opacity-95 pr-7 pl-0.5">
-                              {channelLabel}
+                            <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden">
+                              {/* Riga 1: Nome OTA */}
+                              <div className="truncate text-xs font-bold min-w-0 w-full text-center text-white uppercase">
+                                {getBookingChannelName(matchingBooking)}
+                              </div>
+                              {/* Riga 2: Nome Ospite */}
+                              <div className="truncate text-[10px] min-w-0 w-full text-center text-white/95 font-medium">
+                                {matchingBooking.guest_name || matchingBooking.guestName || 'Ospite'}
+                              </div>
+                              {/* Prezzo BE sotto */}
+                              <div className="text-[10px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
+                                BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
+                              </div>
                             </div>
                           ) : (
-                            <div className="text-[9px] font-mono font-medium text-white/90 leading-tight">
-                              Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'}
+                            <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden">
+                              {/* CENTRO: Prezzo Tariffa Madre */}
+                              <div className="text-[9px] font-mono font-medium text-white/90 leading-tight truncate min-w-0 w-full text-center">
+                                Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'}
+                              </div>
+
+                              {/* BASSO (in grassetto): Prezzo Tariffa BE */}
+                              <div className="text-[11px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
+                                BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
+                              </div>
                             </div>
                           )}
-
-                          {/* BASSO (in grassetto): Prezzo Tariffa BE */}
-                          <div className="text-[11px] font-mono font-black text-white leading-tight mt-0.5">
-                            BE: {bePriceStr !== 'N/D' ? `฿${bePriceStr}` : 'N/D'}
-                          </div>
                         </td>
                       );
                     })}
