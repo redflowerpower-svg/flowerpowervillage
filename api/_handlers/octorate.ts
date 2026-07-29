@@ -464,25 +464,32 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
 
       allFetchedItems.push(...pageItems);
 
-      const foundBECount = allFetchedItems.filter(item => OFFICIAL_BE_RATE_IDS.has(Number(item.id))).length;
-      if (foundBECount >= OFFICIAL_BE_RATE_IDS.size) {
-        break;
-      }
+    const MOTHER_RATE_IDS = new Set([
+      529773, 495795, 495796, 494840, 421511, 293957, 293954, 293962,
+      293965, 293955, 293963, 293959, 293948, 293945, 293943, 293951,
+      883795, 293942
+    ]);
 
-      if (pageItems.length < PAGE_SIZE) {
-        break;
-      }
-
-      page++;
+    const targetIds = new Set([...OFFICIAL_BE_RATE_IDS, ...MOTHER_RATE_IDS]);
+    const foundTargetCount = allFetchedItems.filter(item => targetIds.has(Number(item.id))).length;
+    if (foundTargetCount >= targetIds.size) {
+      break;
     }
 
-    const filteredBEItems = allFetchedItems.filter((item: any) => {
-      const idNum = Number(item.id);
-      const nameStr = String(item.name || '').toLowerCase();
-      return OFFICIAL_BE_RATE_IDS.has(idNum) || nameStr.endsWith('be') || nameStr.includes('booking engine');
-    });
+    if (pageItems.length < PAGE_SIZE) {
+      break;
+    }
 
-    console.log(`[OCTORATE GRID] Scaricati ${allFetchedItems.length} rate plans. Filtrati ${filteredBEItems.length} BE rate plans dal ${dateFrom} al ${dateTo}.`);
+    page++;
+  }
+
+  const filteredBEItems = allFetchedItems.filter((item: any) => {
+    const idNum = Number(item.id);
+    const nameStr = String(item.name || '').toLowerCase();
+    return OFFICIAL_BE_RATE_IDS.has(idNum) || MOTHER_RATE_IDS.has(idNum) || nameStr.endsWith('be') || nameStr.includes('booking engine');
+  });
+
+  console.log(`[OCTORATE GRID] Scaricati ${allFetchedItems.length} rate plans. Filtrati ${filteredBEItems.length} BE e Mother rate plans dal ${dateFrom} al ${dateTo}.`);
 
     return res.status(200).json({
       success: true,

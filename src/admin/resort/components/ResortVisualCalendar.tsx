@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useResortAdminStore, ResortBooking } from '../store/useResortAdminStore';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { fetchOctorateMonthlyGrid, OctorateDayData } from '../../../booking/lib/octorate';
-import { getBaselineMinStay } from '../lib/octorateAdmin';
+import { getBaselineMinStay, getMotherRatePlanId } from '../lib/octorateAdmin';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -759,19 +759,33 @@ export function ResortVisualCalendar() {
                     {datesArray.map((cellDate, idx) => {
                       const dateStr = cellDate.toISOString().substring(0, 10);
                       
-                      // Raw price for room (Live Octorate price or raw offline base rate)
-                      const liveData = (
+                      // 1. Mother Rate Plan Data (Octorate Room ID: 529773, 293962, etc.)
+                      const motherRateId = getMotherRatePlanId(room.name);
+                      const motherData = (
+                        (motherRateId ? liveGridData[String(motherRateId)] : null) ||
                         liveGridData[room.name] || 
                         liveGridData[room.name.toLowerCase()] || 
                         liveGridData[room.octorateId] || 
                         liveGridData[room.id]
                       )?.[dateStr];
 
-                      const websitePrice = (liveData && liveData.price > 0)
-                        ? liveData.price
-                        : calculateWebsitePriceForRoom(room.name);
+                      // 2. BE Rate Plan Data (Booking Engine Rate ID: 529784, 449668, etc.)
+                      const beData = (
+                        liveGridData[room.octorateId] ||
+                        liveGridData[room.id] ||
+                        liveGridData[room.name] ||
+                        liveGridData[room.name.toLowerCase()]
+                      )?.[dateStr];
+
+                      // Website Price from BE Rate Plan (or fallback to Mother price / base price)
+                      const websitePrice = (beData && beData.price > 0)
+                        ? beData.price
+                        : ((motherData && motherData.price > 0) ? motherData.price : calculateWebsitePriceForRoom(room.name));
 
                       const displayPriceStr = websitePrice >= 10000 ? '10.000' : websitePrice.toLocaleString('it-IT');
+
+                      // Minimum Stay read from Mother Rate Plan (or gap-fill fallback)
+                      const motherMinStay = motherData?.minStay ?? gapFillMinStays[dateStr] ?? beData?.minStay;
 
                       // 🥇 PRIORITÀ 1: Prenotazione OTA / Diretta
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookings);
@@ -785,7 +799,7 @@ export function ResortVisualCalendar() {
                             key={idx}
                             onClick={() => setSelectedBooking(matchingBooking)}
                             className={`py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-pointer ${style.bg} ${style.border}`}
-                            title={`Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${channelName}) • Prezzo: ฿${displayPriceStr}`}
+                            title={`Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${channelName}) • Prezzo BE: ฿${displayPriceStr} ${motherMinStay ? `• MinStay Madre: ${motherMinStay}N` : ''}`}
                           >
                             <div className="text-[7.5px] font-extrabold uppercase truncate tracking-tighter leading-none text-white opacity-95">
                               {channelName}
@@ -793,23 +807,33 @@ export function ResortVisualCalendar() {
                             <div className="text-[9.5px] font-mono font-black text-white leading-tight mt-0.5">
                               {displayPriceStr}
                             </div>
+                            {motherMinStay && motherMinStay > 1 && (
+                              <div className="absolute bottom-0.5 right-0.5 text-[6.5px] font-extrabold text-white/90 leading-none tracking-tighter opacity-80">
+                                🌙 min {motherMinStay}N
+                              </div>
+                            )}
                           </td>
                         );
                       }
 
-                      // 🥈 PRIORITÀ 2: Chiusura / Stop Sell
+                      // 🥈 PRIORITÀ 2: Chiusura / Stop Sell (valutata RIGOROSAMENTE sulla Tariffa Madre)
                       const isRoomClosedByStaff = room.isAvailable === false;
+                      const isMotherStopSell = motherData
+                        ? (motherData.stopSell || motherData.available === false || motherData.price >= 10000)
+                        : false;
+
                       const isClosedOrStopSell = 
                         isRoomClosedByStaff || 
                         websitePrice >= 10000 ||
-                        (liveData ? (liveData.stopSell || !liveData.available || liveData.price >= 10000) : false);
+                        isMotherStopSell ||
+                        (beData ? (beData.stopSell || !beData.available || beData.price >= 10000) : false);
 
                       if (isClosedOrStopSell) {
                         return (
                           <td
                             key={idx}
                             className="py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-red-700 hover:bg-red-600 border-red-800/80"
-                            title={`Alloggio Chiuso / Stop Sell • Prezzo: ฿${displayPriceStr}`}
+                            title={`Alloggio Chiuso / Stop Sell su Tariffa Madre (${motherRateId || 'Root'}) • Prezzo BE: ฿${displayPriceStr}`}
                           >
                             <div className="text-[7.5px] font-extrabold uppercase tracking-tighter leading-none text-red-100">
                               🔒 Chiuso
@@ -817,19 +841,23 @@ export function ResortVisualCalendar() {
                             <div className="text-[9.5px] font-mono font-black text-white leading-tight mt-0.5">
                               {displayPriceStr}
                             </div>
+                            {motherMinStay && motherMinStay > 1 && (
+                              <div className="absolute bottom-0.5 right-0.5 text-[6.5px] font-extrabold text-red-200/90 leading-none tracking-tighter">
+                                🌙 min {motherMinStay}N
+                              </div>
+                            )}
                           </td>
                         );
                       }
 
-                      // 🥉 PRIORITÀ 3: Libera
-                      const isCTA = Boolean(liveData?.closedToArrival);
-                      const minStay = gapFillMinStays[dateStr] || liveData?.minStay;
+                      // 🥉 PRIORITÀ 3: Libera (Minimum Stay letto dalla Tariffa Madre)
+                      const isCTA = Boolean(motherData?.closedToArrival || beData?.closedToArrival);
 
                       return (
                         <td
                           key={idx}
                           className="py-0.5 px-0.5 border-l text-center transition-colors shadow-inner relative cursor-default bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60"
-                          title={`Alloggio Libero e Disponibile • Prezzo: ฿${displayPriceStr} ${isCTA ? '• Solo Check-Out' : ''} ${minStay && minStay > 1 ? `• Min ${minStay}N` : ''}`}
+                          title={`Alloggio Libero • Prezzo BE: ฿${displayPriceStr} ${isCTA ? '• Solo Check-Out' : ''} ${motherMinStay ? `• MinStay Tariffa Madre: ${motherMinStay}N` : ''}`}
                         >
                           {/* Indicator CTA Solo Check-out */}
                           {isCTA && (
@@ -839,15 +867,15 @@ export function ResortVisualCalendar() {
                             />
                           )}
 
-                          {/* Prezzo in Basso */}
+                          {/* Prezzo BE in Basso */}
                           <div className="text-[10px] font-mono font-black text-white leading-none">
                             {displayPriceStr}
                           </div>
 
-                          {/* MinStay Badge */}
-                          {minStay && minStay > 1 && (
+                          {/* Minimum Stay Badge letto dalla Tariffa Madre */}
+                          {motherMinStay && motherMinStay > 1 && (
                             <div className="absolute bottom-0.5 right-0.5 text-[7px] font-extrabold text-amber-200/90 leading-none tracking-tighter">
-                              min {minStay}N
+                              🌙 min {motherMinStay}N
                             </div>
                           )}
                         </td>
