@@ -21,6 +21,13 @@ import {
 import { handleOctorateWebhook } from "./_handlers/octorate-webhook.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
+      if (req.method === 'GET' || req.method === 'HEAD') {
+          return res.status(200).json({ status: "Webhook Ready" });
+      }
+      return handleOctorateWebhook(req, res); 
+  }
+
   // Extract path from req.url or req.query.route
   const rawUrl = req.url || '';
   const pathname = rawUrl.split('?')[0].replace(/^\/+/, ''); // e.g. "api/create-checkout-session" or "api/resort/octorate-grid"
@@ -33,14 +40,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
-  }
-
-  // Flexible match for Octorate Webhook (includes query params, typos, trailing slashes)
-  if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook') || req.url?.includes('webhooks/octoraate')) {
-    if (req.method === 'GET' || req.method === 'HEAD') {
-      return res.status(200).json({ status: "Webhook Ready" });
-    }
-    return handleOctorateWebhook(req, res);
   }
 
   switch (cleanPath) {
