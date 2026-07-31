@@ -131,3 +131,21 @@ Tutti gli alloggi del resort e i relativi piani tariffari (Booking Engine `BE`, 
   * `POST https://api.octorate.com/connect/rest/v1/calendar/bulk`: **`200 OK`** (**Scrittura Sbloccata & Verificata**! Esito server: `{"process": [483635224], "success": true}`). L'errore `403 Caller not in requested role` è superato.
 * **Isolamento e Sicurezza:** Nessuna alterazione non autorizzata al Booking Engine del sito pubblico ([src/booking/](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/)).
 
+---
+
+## 7. Aggiornamenti Calendario Visivo Resort Admin & Fuso Orario Thailandia (31/07/2026)
+
+### A. Fix Fuso Orario Thailandia (`Asia/Bangkok`, GMT+7) & Date Picker
+* **Rimozione `toISOString()`**:
+  - Eliminato l'utilizzo di `.toISOString()` per la generazione delle date delle colonne, sostituito con la funzione locale `formatLocalGridDate` che estrae fisicamente anno, mese e giorno dall'oggetto `Date` senza forzare il fuso orario di Londra (UTC).
+* **Helper Parser Octorate (`cleanOctorateDateStr`)**:
+  - Introdotto l'helper `cleanOctorateDateStr` per ripulire e normalizzare i timestamp inviati da Octorate da eventuali orari `T` o suffissi non standard `[UTC]`.
+* **Selettore a Tendina Native Date Picker (`<input type="date">`)**:
+  - Inserito il selettore rapido di data nella barra di navigazione a 30 giorni, con parsing nativo `YYYY-MM-DD` per prevenire slittamenti temporali durante la ricerca.
+
+### B. Mappatura Canali OTA & Abbreviazioni
+* **Legenda Cromaticamente Distinta per Airbnb**:
+  - Assegnato lo stile rosa vivace **`bg-rose-500`** a tutte le prenotazioni del canale Airbnb per distinguerle visivamente dal rosso scuro (`bg-red-700`) riservato alle chiusure/Stop Sell.
+* **Supporto Abbreviazioni Tariffarie OTA**:
+  - Mappati i codici ID Octorate (es. `529783` per `JV AirBnB`) e le abbreviazioni dei piani tariffari derivati (`jvr`, `jvl`, `pent`, `p&l`, `red`, `inter`) per l'associazione automatica dell'ospite alla relativa stanza nel calendario visivo.
+
