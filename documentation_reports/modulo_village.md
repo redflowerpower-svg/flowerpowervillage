@@ -143,9 +143,10 @@ Tutti gli alloggi del resort e i relativi piani tariffari (Booking Engine `BE`, 
 * **Selettore a Tendina Native Date Picker (`<input type="date">`)**:
   - Inserito il selettore rapido di data nella barra di navigazione a 30 giorni, con parsing nativo `YYYY-MM-DD` per prevenire slittamenti temporali durante la ricerca.
 
-### B. Mappatura Canali OTA & Abbreviazioni
-* **Legenda Cromaticamente Distinta per Airbnb**:
-  - Assegnato lo stile rosa vivace **`bg-rose-500`** a tutte le prenotazioni del canale Airbnb per distinguerle visivamente dal rosso scuro (`bg-red-700`) riservato alle chiusure/Stop Sell.
-* **Supporto Abbreviazioni Tariffarie OTA**:
-  - Mappati i codici ID Octorate (es. `529783` per `JV AirBnB`) e le abbreviazioni dei piani tariffari derivati (`jvr`, `jvl`, `pent`, `p&l`, `red`, `inter`) per l'associazione automatica dell'ospite alla relativa stanza nel calendario visivo.
+### C. Formattazione Nomi Ospiti & Fix Jungle Villa (01/08/2026)
+* **Formattazione Nomi Ospiti (Cognome ➔ Nome)**:
+  - Tutte le prenotazioni sul calendario visivo e nelle risposte delle API backend (`api/_handlers/octorate.ts`) vengono ora renderizzate mettendo **tassativamente prima il Cognome e successivamente il Nome** (es. *Zurschmitten Sarah*, *Meesters Connie*, *Buermans Godefrida*, *Buslei Kira*), in perfetto accordo con lo standard del PMS Octorate.
+* **Fix Jungle Villa Madre & Rimozione Falsi Positivi 'r' / 'l'**:
+  - Mappato l'ID Octorate `529783` (`JV AirBnB`) in via esclusiva a **Jungle Villa Madre** (Riga 1), eliminando la duplicazione dell'ospite su Jungle Villa Left.
+  - Rimosse le singole lettere `'r'` ed `'l'` dalle parole chiave di ricerca per evitare falsi positivi da fuzzy matching su parole o nomi contenenti tali lettere.
 
