@@ -33,8 +33,10 @@ Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un
    - Analizza le modifiche della sessione e genera un messaggio di commit sintetico e descrittivo (es. `"Update Octorate Tree component"` o `"Fix API webhook"`).
    - `git commit -m "<messaggio_generato_da_te>"`
    - `git push`
-5. **Notifica di Allineamento Notebook**: Al termine della procedura, stampa la notifica:
-   `🟢 MARKDOWN-PROJECT Completato! Istruzioni Agente aggiornate, copiate e pubblicate su GitHub (Push OK). ⚠️ Se i file AGENTS.md o agentinstructions.txt sono evidenziati in GIALLO nell'IDE, ricordati di trascinarli nel Gemini Notebook per allineare l'assistente browser!`
+5. **Notifica di Allineamento Notebook**: Al termine della procedura, l'agente DEVE stampare in chat una notifica visivamente evidente elencando ESATTAMENTE quali file (e solo quelli) all'interno della cartella `/documentation_reports/` sono stati modificati o sovrascritti in questa specifica sessione. Il formato richiesto è:
+   `⚠️ ATTENZIONE: Aggiorna le fonti in Gemini Notebook! Elimina le vecchie versioni e trascina nel taccuino i seguenti file appena aggiornati (prendendoli da /documentation_reports/):`
+   `[Nome File 1.md]`
+   `[Nome File 2.md]...`
 6. **Report HANDOFF a 5 Punti per Gemini Notebook**: Genera il report finale strutturato:
    - **Punto 1: Riepilogo Modifiche Codice** (Elenco dei componenti e file sorgente modificati).
    - **Punto 2: Impatto sui Report Tecnici (`/documentation_reports/`)** (Quali file `.md` e `.txt` sono stati aggiornati/copiati).
