@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   GitFork, 
   Search, 
@@ -8,8 +8,15 @@ import {
   ChevronRight,
   Wind,
   Sun,
-  Sparkles
+  Sparkles,
+  Lock,
+  Unlock,
+  AlertTriangle,
+  RefreshCw,
+  Calendar
 } from 'lucide-react';
+import { useResortAdminStore } from '../store/useResortAdminStore';
+import { fetchOctorateMonthlyGrid } from '../../booking/lib/octorate';
 
 export interface AgencyBadge {
   name: string;
@@ -1778,8 +1785,11 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
 ];
 
 export function DerivedRatesTreeSection() {
+  const { rawOctorateGridItems } = useResortAdminStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('All');
+  const [selectedDateISO, setSelectedDateISO] = useState<string>(() => new Date().toISOString().substring(0, 10));
+  const [loadingSync, setLoadingSync] = useState(false);
   const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({
     'Jungle Villa (Madre Intera)': true,
     'Jungle Villa Left': true,
@@ -1800,6 +1810,71 @@ export function DerivedRatesTreeSection() {
     setExpandedRooms({});
   };
 
+  const handleRefreshLiveGrid = async () => {
+    setLoadingSync(true);
+    try {
+      await fetchOctorateMonthlyGrid(selectedDateISO, selectedDateISO);
+    } catch (err) {
+      console.warn('[DerivedRatesTreeSection] Live sync error:', err);
+    } finally {
+      setLoadingSync(false);
+    }
+  };
+
+  useEffect(() => {
+    if (rawOctorateGridItems.length === 0) {
+      handleRefreshLiveGrid();
+    }
+  }, [selectedDateISO]);
+
+  const getNodeLiveData = (nodeId: string) => {
+    if (!rawOctorateGridItems || rawOctorateGridItems.length === 0) return null;
+    const found = rawOctorateGridItems.find(item => String(item.id || item.ratePlanId || item.rate_id) === String(nodeId));
+    if (!found) return null;
+
+    const price = Number(found.price || found.days?.[0]?.price || 0);
+    const minstay = Number(found.minStay || found.minstay || found.days?.[0]?.minStay || 2);
+    const isStopSell = Boolean(
+      found.stopSell || 
+      found.stopSells || 
+      found.days?.[0]?.stopSell || 
+      price >= 10000 || 
+      found.availability === 0 || 
+      found.available === false
+    );
+    const isAvailable = !isStopSell && price > 0 && price < 10000;
+
+    return {
+      price,
+      minstay,
+      isStopSell,
+      isAvailable,
+      rawItem: found
+    };
+  };
+
+  const checkPriceSanity = (parentPrice: number, ruleTag: string, livePrice: number) => {
+    if (!parentPrice || !livePrice || parentPrice <= 0 || livePrice <= 0) {
+      return { isDiscrepancy: false, expectedPrice: 0, diff: 0 };
+    }
+
+    let expectedPrice = parentPrice;
+    if (ruleTag.includes('Sconto 10%') || ruleTag.includes('-10%')) {
+      expectedPrice = Math.round(parentPrice * 0.9);
+    } else if (ruleTag.includes('+200฿')) {
+      expectedPrice = parentPrice + 200;
+    } else if (ruleTag.includes('+400฿')) {
+      expectedPrice = parentPrice + 400;
+    } else if (ruleTag.includes('+500฿')) {
+      expectedPrice = parentPrice + 500;
+    }
+
+    const diff = livePrice - expectedPrice;
+    const isDiscrepancy = Math.abs(diff) > 10;
+
+    return { isDiscrepancy, expectedPrice, diff };
+  };
+
   const filteredTrees = COMPLETE_DERIVATION_SCHEMES.filter(item => {
     const matchesSearch = searchQuery === '' || 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -1817,35 +1892,56 @@ export function DerivedRatesTreeSection() {
   return (
     <div className="space-y-6 text-stone-100 font-sans">
       
-      {/* Header Banner */}
+      {/* Header Banner & Live Sync Bar */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-6 shadow-xl">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
             <GitFork className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
-                Albero delle Tariffe Derivate (Ordine 1:1 Calendario & Sito)
+                Albero delle Tariffe Derivate (Monitor Live PMS)
               </h3>
               <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> Allineamento 18 Alloggi
+                <ShieldCheck className="w-3 h-3" /> Live Sync: {rawOctorateGridItems.length} Rate Plans
               </span>
             </div>
             <p className="text-stone-400 text-xs font-medium mt-0.5">
-              Tutti i 18 alloggi disposti nell'ordine ufficiale del Calendario Visivo e del Sito Web
+              Controllo in tempo reale di tutte le 212 tariffe derivate (Prezzi Live, MinStay, Stop Sell & Discrepanze)
             </p>
           </div>
         </div>
 
-        {/* Global Controls */}
-        <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+        {/* Global Controls & Date Picker */}
+        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
+          <div className="flex items-center gap-1.5 bg-stone-950 px-3 py-1.5 rounded-xl border border-amber-500/40 text-xs font-bold text-amber-400">
+            <Calendar className="w-3.5 h-3.5 text-amber-400" />
+            <span className="text-[10px] text-stone-400 uppercase">Data Live:</span>
+            <input
+              type="date"
+              value={selectedDateISO}
+              onChange={(e) => setSelectedDateISO(e.target.value)}
+              className="bg-transparent text-amber-400 font-mono font-bold text-xs focus:outline-none cursor-pointer [color-scheme:dark]"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleRefreshLiveGrid}
+            disabled={loadingSync}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs rounded-xl shadow transition-all cursor-pointer disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loadingSync ? 'animate-spin' : ''}`} />
+            <span>{loadingSync ? 'Aggiornamento...' : 'Sincronizza Live'}</span>
+          </button>
+
           <button
             type="button"
             onClick={expandAll}
             className="px-3 py-1.5 bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700 text-xs font-bold rounded-xl transition-all cursor-pointer"
           >
-            Espandi Tutti gli Alloggi
+            Espandi Tutti
           </button>
           <button
             type="button"
@@ -1892,6 +1988,8 @@ export function DerivedRatesTreeSection() {
       <div className="space-y-8">
         {filteredTrees.map((scheme) => {
           const isExpanded = expandedRooms[scheme.name] ?? false;
+          const motherLiveData = getNodeLiveData(scheme.motherId);
+          const motherPrice = motherLiveData?.price || scheme.basePrice;
 
           return (
             <div 
@@ -1919,13 +2017,13 @@ export function DerivedRatesTreeSection() {
                       <span className="bg-stone-800 text-stone-300 text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider">
                         {scheme.category}
                       </span>
-                      {scheme.hasAirCon ? (
-                        <span className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1">
-                          <Sun className="w-3 h-3" /> AirCon
+                      {motherLiveData?.isStopSell ? (
+                        <span className="bg-rose-500/20 text-rose-300 border border-rose-500/50 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1">
+                          <Lock className="w-3 h-3 text-rose-400" /> STOP SELL
                         </span>
                       ) : (
-                        <span className="bg-stone-800 text-amber-300 border border-stone-700 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1">
-                          <Wind className="w-3 h-3" /> Solo Fan
+                        <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1">
+                          <Unlock className="w-3 h-3 text-emerald-400" /> VENDIBILE
                         </span>
                       )}
                     </div>
@@ -1935,8 +2033,10 @@ export function DerivedRatesTreeSection() {
 
                 <div className="flex items-center gap-4">
                   <div className="text-right hidden sm:block">
-                    <span className="text-[10px] text-stone-400 uppercase font-semibold block">Prezzo Base Madre</span>
-                    <span className="text-base font-mono font-black text-amber-400">฿{scheme.basePrice.toLocaleString('it-IT')}</span>
+                    <span className="text-[10px] text-stone-400 uppercase font-semibold block">Prezzo Live Madre ({selectedDateISO})</span>
+                    <span className="text-base font-mono font-black text-amber-400">
+                      ฿{motherPrice.toLocaleString('it-IT')}
+                    </span>
                   </div>
                   <div className="bg-stone-950 px-3 py-1.5 rounded-xl border border-stone-800 text-xs text-stone-300 font-mono font-bold">
                     {scheme.level1Nodes.length} Derivate Dirette
@@ -1950,15 +2050,28 @@ export function DerivedRatesTreeSection() {
                   
                   {/* LEVEL 0: TOP CENTERED MOTHER CARD */}
                   <div className="flex flex-col items-center justify-center relative">
-                    <div className="w-64 bg-gradient-to-b from-teal-950 to-stone-900 border-2 border-teal-500/80 text-white rounded-2xl p-3.5 shadow-2xl text-center space-y-1.5 z-10">
+                    <div className={`w-64 border-2 rounded-2xl p-3.5 shadow-2xl text-center space-y-1.5 z-10 transition-colors ${
+                      motherLiveData?.isStopSell
+                        ? 'bg-gradient-to-b from-rose-950 to-stone-900 border-rose-500/80 text-rose-200'
+                        : 'bg-gradient-to-b from-teal-950 to-stone-900 border-teal-500/80 text-white'
+                    }`}>
                       <div className="flex items-center justify-between border-b border-teal-500/40 pb-1">
                         <span className="text-[10px] font-mono font-black text-teal-300 bg-teal-900/80 px-2 py-0.5 rounded border border-teal-400/50">
                           #{scheme.motherId}
                         </span>
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        {motherLiveData?.isStopSell ? (
+                          <span className="text-[9px] font-black bg-rose-900 text-rose-200 px-1.5 py-0.5 rounded border border-rose-500/60 flex items-center gap-0.5">
+                            <Lock className="w-2.5 h-2.5" /> STOP SELL
+                          </span>
+                        ) : (
+                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        )}
                       </div>
                       <h3 className="text-sm font-black tracking-tight text-white">{scheme.name}</h3>
-                      <p className="text-[10px] text-teal-200/90 font-medium">Tariffa Madre Master (Fan Base)</p>
+                      <div className="flex items-center justify-center gap-2 pt-1 font-mono text-xs font-black">
+                        <span className="text-amber-400">฿{motherPrice.toLocaleString('it-IT')}</span>
+                        {motherLiveData && <span className="text-stone-300 text-[10px]">| Min: {motherLiveData.minstay}n</span>}
+                      </div>
                     </div>
 
                     {/* DOWNWARD STEM TO HORIZONTAL BAR */}
@@ -1970,79 +2083,182 @@ export function DerivedRatesTreeSection() {
 
                   {/* LEVEL 1 & LEVEL 2 VISUAL NODES IN RIGID SEQUENCE ORDER */}
                   <div className="flex items-start justify-between gap-2.5 min-w-[1100px] pt-1 px-1">
-                    {scheme.level1Nodes.map((l1) => (
-                      <div key={l1.id} className="flex flex-col items-center flex-1 min-w-[115px] max-w-[145px] space-y-2 relative">
-                        
-                        {/* Vertical line connecting from top trunk */}
-                        <div className="w-0.5 h-4 bg-teal-500/60 -mt-2" />
+                    {scheme.level1Nodes.map((l1) => {
+                      const l1LiveData = getNodeLiveData(l1.id);
+                      const l1Price = l1LiveData?.price || 0;
+                      const l1Sanity = checkPriceSanity(motherPrice, l1.ruleTag, l1Price);
 
-                        {/* DERIVATION RULE TAG PILL OVER LINE */}
-                        <div className="bg-teal-950 border border-teal-500/60 px-2 py-0.5 rounded-full text-[8px] font-mono font-black text-teal-300 shadow shadow-teal-950 z-10 whitespace-nowrap">
-                          {l1.ruleTag}
-                        </div>
+                      const subLiveData = l1.subChild ? getNodeLiveData(l1.subChild.id) : null;
+                      const subPrice = subLiveData?.price || 0;
+                      const subSanity = l1.subChild ? checkPriceSanity(l1Price > 0 ? l1Price : motherPrice, l1.subChild.ruleTag, subPrice) : null;
 
-                        {/* LEVEL 1 CARD */}
-                        <div className="w-full bg-stone-900 border border-stone-700/80 hover:border-amber-400 rounded-xl p-2.5 space-y-2 shadow-lg text-center flex flex-col justify-between transition-colors">
-                          <div className="flex items-center justify-between border-b border-stone-800 pb-1">
-                            <span className="text-[9px] font-mono font-black text-amber-400 bg-stone-950 px-1.5 py-0.5 rounded border border-amber-500/30">
-                              #{l1.id}
-                            </span>
+                      // Level 1 card background style
+                      let l1CardStyle = 'bg-stone-900 border-stone-700/80 hover:border-amber-400 text-stone-200';
+                      if (l1LiveData?.isStopSell) {
+                        l1CardStyle = 'bg-rose-950/80 border-rose-500/80 text-rose-200';
+                      } else if (l1LiveData?.isAvailable) {
+                        l1CardStyle = 'bg-emerald-950/80 border-emerald-500/80 text-emerald-200';
+                      }
+
+                      if (l1Sanity.isDiscrepancy) {
+                        l1CardStyle = 'bg-amber-950/90 border-2 border-amber-400 animate-pulse text-amber-200 shadow-lg shadow-amber-500/30';
+                      }
+
+                      return (
+                        <div key={l1.id} className="flex flex-col items-center flex-1 min-w-[115px] max-w-[145px] space-y-2 relative">
+                          
+                          {/* Vertical line connecting from top trunk */}
+                          <div className="w-0.5 h-4 bg-teal-500/60 -mt-2" />
+
+                          {/* DERIVATION RULE TAG PILL OVER LINE */}
+                          <div className="bg-teal-950 border border-teal-500/60 px-2 py-0.5 rounded-full text-[8px] font-mono font-black text-teal-300 shadow shadow-teal-950 z-10 whitespace-nowrap">
+                            {l1.ruleTag}
                           </div>
-                          <h4 className="text-[11px] font-black text-white leading-tight truncate" title={l1.name}>
-                            {l1.name}
-                          </h4>
 
-                          {/* Agencies Badges */}
-                          <div className="flex flex-wrap items-center justify-center gap-1 pt-0.5">
-                            {l1.agencies.map((ag, aIdx) => (
-                              <span 
-                                key={aIdx}
-                                className={`text-[8px] font-black px-1.5 py-0.5 rounded border ${ag.bg} ${ag.color} ${ag.border} uppercase`}
-                              >
-                                {ag.name}
+                          {/* LEVEL 1 CARD */}
+                          <div className={`w-full border rounded-xl p-2.5 space-y-1.5 shadow-lg text-center flex flex-col justify-between transition-all ${l1CardStyle}`}>
+                            <div className="flex items-center justify-between border-b border-stone-800/80 pb-1">
+                              <span className="text-[9px] font-mono font-black text-amber-400 bg-stone-950 px-1.5 py-0.5 rounded border border-amber-500/30">
+                                #{l1.id}
                               </span>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* LEVEL 2 SUB-CHILD BRANCH (DIRECTLY BELOW PARENT) */}
-                        {l1.subChild && (
-                          <div className="flex flex-col items-center w-full space-y-1 pt-1">
-                            {/* Downward Stem Line */}
-                            <div className="w-0.5 h-5 bg-amber-500/70" />
-
-                            {/* SUB-CHILD DERIVATION RULE TAG */}
-                            <div className="bg-amber-950 border border-amber-500/70 px-2 py-0.5 rounded-full text-[8px] font-mono font-black text-amber-300 shadow z-10 whitespace-nowrap">
-                              {l1.subChild.ruleTag}
-                            </div>
-
-                            {/* LEVEL 2 CARD (SUB-DERIVATA) */}
-                            <div className="w-full bg-stone-950 border-2 border-amber-500/80 rounded-xl p-2.5 space-y-1.5 shadow-xl text-center">
-                              <div className="flex items-center justify-between border-b border-amber-500/30 pb-1">
-                                <span className="text-[9px] font-mono font-black text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-500/50">
-                                  #{l1.subChild.id}
+                              {l1LiveData?.isStopSell ? (
+                                <span className="text-[8px] font-black text-rose-300 flex items-center gap-0.5">
+                                  <Lock className="w-2.5 h-2.5" /> STOP
                                 </span>
-                              </div>
-                              <h5 className="text-[10px] font-black text-amber-200 leading-tight truncate" title={l1.subChild.name}>
-                                {l1.subChild.name}
-                              </h5>
+                              ) : l1LiveData?.isAvailable ? (
+                                <span className="text-[8px] font-black text-emerald-300 flex items-center gap-0.5">
+                                  <Unlock className="w-2.5 h-2.5" /> OK
+                                </span>
+                              ) : null}
+                            </div>
 
-                              {/* Sub-child Agencies Badges */}
-                              <div className="flex flex-wrap items-center justify-center gap-1 pt-0.5">
-                                {l1.subChild.agencies.map((sag, sIdx) => (
-                                  <span 
-                                    key={sIdx}
-                                    className={`text-[8px] font-black px-1.5 py-0.5 rounded border ${sag.bg} ${sag.color} ${sag.border} uppercase`}
-                                  >
-                                    {sag.name}
-                                  </span>
-                                ))}
+                            <h4 className="text-[11px] font-black leading-tight truncate" title={l1.name}>
+                              {l1.name}
+                            </h4>
+
+                            {/* Live Price & MinStay Display */}
+                            {l1LiveData ? (
+                              <div className="bg-stone-950/80 py-1 px-1 rounded border border-stone-800 text-center font-mono space-y-0.5">
+                                <div className="text-[11px] font-black text-amber-300">
+                                  ฿{l1LiveData.price.toLocaleString('it-IT')}
+                                </div>
+                                <div className="text-[9px] text-stone-400 font-bold">
+                                  MinStay: {l1LiveData.minstay}n
+                                </div>
                               </div>
+                            ) : (
+                              <div className="text-[9px] text-stone-500 font-mono italic">
+                                Sincronizzazione...
+                              </div>
+                            )}
+
+                            {/* Price Sanity Warning Badge */}
+                            {l1Sanity.isDiscrepancy && (
+                              <div className="bg-amber-900/90 text-amber-200 border border-amber-400 text-[8px] font-black p-1 rounded uppercase tracking-tighter flex items-center justify-center gap-0.5">
+                                <AlertTriangle className="w-3 h-3 text-amber-300 flex-shrink-0" />
+                                <span>Atteso ฿{l1Sanity.expectedPrice}</span>
+                              </div>
+                            )}
+
+                            {/* Agencies Badges */}
+                            <div className="flex flex-wrap items-center justify-center gap-1 pt-0.5">
+                              {l1.agencies.map((ag, aIdx) => (
+                                <span 
+                                  key={aIdx}
+                                  className={`text-[8px] font-black px-1.5 py-0.5 rounded border ${ag.bg} ${ag.color} ${ag.border} uppercase`}
+                                >
+                                  {ag.name}
+                                </span>
+                              ))}
                             </div>
                           </div>
-                        )}
-                      </div>
-                    ))}
+
+                          {/* LEVEL 2 SUB-CHILD BRANCH (DIRECTLY BELOW PARENT) */}
+                          {l1.subChild && (() => {
+                            let subCardStyle = 'bg-stone-950 border-2 border-amber-500/80 text-amber-200';
+                            if (subLiveData?.isStopSell) {
+                              subCardStyle = 'bg-rose-950/90 border-2 border-rose-500/80 text-rose-200';
+                            } else if (subLiveData?.isAvailable) {
+                              subCardStyle = 'bg-emerald-950/90 border-2 border-emerald-500/80 text-emerald-200';
+                            }
+
+                            if (subSanity?.isDiscrepancy) {
+                              subCardStyle = 'bg-amber-950/95 border-2 border-amber-400 animate-pulse text-amber-200 shadow-lg shadow-amber-500/30';
+                            }
+
+                            return (
+                              <div className="flex flex-col items-center w-full space-y-1 pt-1">
+                                {/* Downward Stem Line */}
+                                <div className="w-0.5 h-5 bg-amber-500/70" />
+
+                                {/* SUB-CHILD DERIVATION RULE TAG */}
+                                <div className="bg-amber-950 border border-amber-500/70 px-2 py-0.5 rounded-full text-[8px] font-mono font-black text-amber-300 shadow z-10 whitespace-nowrap">
+                                  {l1.subChild.ruleTag}
+                                </div>
+
+                                {/* LEVEL 2 CARD (SUB-DERIVATA) */}
+                                <div className={`w-full rounded-xl p-2.5 space-y-1.5 shadow-xl text-center transition-all ${subCardStyle}`}>
+                                  <div className="flex items-center justify-between border-b border-amber-500/30 pb-1">
+                                    <span className="text-[9px] font-mono font-black text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-500/50">
+                                      #{l1.subChild.id}
+                                    </span>
+                                    {subLiveData?.isStopSell ? (
+                                      <span className="text-[8px] font-black text-rose-300 flex items-center gap-0.5">
+                                        <Lock className="w-2.5 h-2.5" /> STOP
+                                      </span>
+                                    ) : subLiveData?.isAvailable ? (
+                                      <span className="text-[8px] font-black text-emerald-300 flex items-center gap-0.5">
+                                        <Unlock className="w-2.5 h-2.5" /> OK
+                                      </span>
+                                    ) : null}
+                                  </div>
+
+                                  <h5 className="text-[10px] font-black leading-tight truncate" title={l1.subChild.name}>
+                                    {l1.subChild.name}
+                                  </h5>
+
+                                  {/* Sub-child Live Price & MinStay Display */}
+                                  {subLiveData ? (
+                                    <div className="bg-stone-950/80 py-1 px-1 rounded border border-amber-500/30 text-center font-mono space-y-0.5">
+                                      <div className="text-[11px] font-black text-amber-300">
+                                        ฿{subLiveData.price.toLocaleString('it-IT')}
+                                      </div>
+                                      <div className="text-[9px] text-stone-400 font-bold">
+                                        MinStay: {subLiveData.minstay}n
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <div className="text-[9px] text-stone-500 font-mono italic">
+                                      Sincronizzazione...
+                                    </div>
+                                  )}
+
+                                  {/* Sub-child Price Sanity Warning Badge */}
+                                  {subSanity?.isDiscrepancy && (
+                                    <div className="bg-amber-900/90 text-amber-200 border border-amber-400 text-[8px] font-black p-1 rounded uppercase tracking-tighter flex items-center justify-center gap-0.5">
+                                      <AlertTriangle className="w-3 h-3 text-amber-300 flex-shrink-0" />
+                                      <span>Atteso ฿{subSanity.expectedPrice}</span>
+                                    </div>
+                                  )}
+
+                                  {/* Sub-child Agencies Badges */}
+                                  <div className="flex flex-wrap items-center justify-center gap-1 pt-0.5">
+                                    {l1.subChild.agencies.map((sag, sIdx) => (
+                                      <span 
+                                        key={sIdx}
+                                        className={`text-[8px] font-black px-1.5 py-0.5 rounded border ${sag.bg} ${sag.color} ${sag.border} uppercase`}
+                                      >
+                                        {sag.name}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      );
+                    })}
                   </div>
 
                 </div>

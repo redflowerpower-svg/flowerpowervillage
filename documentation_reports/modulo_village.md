@@ -187,5 +187,19 @@ Tutti gli alloggi del resort e i relativi piani tariffari (Booking Engine `BE`, 
   - Test con `scratch/test-octorate-bookings-endpoint.mjs`: recuperate **23 prenotazioni reali** (Agoda, Booking.com, Airbnb, etc.) con HTTP 200 OK.
   - Verificato con `npx tsc --noEmit` (**0 errori sui tipi**).
 
+---
+
+## 11. Monitor Visivo Live Tariffe Derivate & Sanity Check Prezzi (01/08/2026)
+
+* **Espansione Serverless Endpoint (`/api/resort/octorate-grid`)**:
+  - Eliminato il blocco anticipato al superamento dei 36 nodi BE: l'endpoint scarica ed espone in `data` tutti i **240 rate plans live** forniti dal PMS Octorate.
+* **Integrazione Store & Feedback Visivo Nodi (`DerivedRatesTreeSection.tsx`)**:
+  - Collegato lo store Zustand (`rawOctorateGridItems`) al componente grafico dell'albero.
+  - Renderizzato per ciascun nodo (Madre, Livello 1, Livello 2) il prezzo live, il MinStay e lo stato colorato: **Verde Smeraldo** per le tariffe aperte e vendibili, **Rosso Vivo (con icona 🔒 STOP SELL)** per le tariffe in stop-sell o chiuse.
+* **Sanity Check Automatico (Discrepanze Prezzi)**:
+  - Implementata la verifica automatica delle regole matematiche (`checkPriceSanity`): confronta il prezzo live con quello atteso dal calcolo con il nodo padre (es. `+200฿`, `+400฿`, `-10%`).
+  - Se viene rilevata una discrepanza, il nodo mostra un **bordo dorato lampeggiante** ed il badge d'avviso `⚠️ Atteso ฿X`.
+
+
 
 

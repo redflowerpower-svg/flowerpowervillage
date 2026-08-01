@@ -42,6 +42,8 @@ interface ResortAdminState {
   octorateStatus: 'connected' | 'checking' | 'error';
   octorateDetails: { structureId: string; channelId: string; lastSync?: string };
   filterCategory: string;
+  rawOctorateGridItems: any[];
+  setRawOctorateGridItems: (items: any[]) => void;
 
   // Dynamic Minimum Stay (Gap-Fill) State & Execution
   dynamicMinStayGapFill: boolean;
@@ -96,6 +98,12 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     lastSync: new Date().toISOString()
   },
   filterCategory: 'All',
+  rawOctorateGridItems: [],
+  setRawOctorateGridItems: (items: any[]) => {
+    if (Array.isArray(items)) {
+      set({ rawOctorateGridItems: items });
+    }
+  },
 
   dynamicMinStayGapFill: true,
   dynamicMinStayRunning: false,

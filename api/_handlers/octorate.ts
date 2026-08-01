@@ -481,11 +481,6 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
 
       allFetchedItems.push(...pageItems);
 
-      const foundTargetCount = allFetchedItems.filter(item => targetIds.has(Number(item.id))).length;
-      if (foundTargetCount >= targetIds.size) {
-        break;
-      }
-
       if (pageItems.length < PAGE_SIZE) {
         break;
       }
@@ -499,12 +494,13 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
       return OFFICIAL_BE_RATE_IDS.has(idNum) || MOTHER_RATE_IDS.has(idNum) || nameStr.endsWith('be') || nameStr.includes('booking engine');
     });
 
-    console.log(`[OCTORATE GRID] Scaricati ${allFetchedItems.length} rate plans. Filtrati ${filteredBEItems.length} BE e Mother rate plans dal ${dateFrom} al ${dateTo}.`);
+    console.log(`[OCTORATE GRID] Scaricati tutti i ${allFetchedItems.length} rate plans. Filtrati ${filteredBEItems.length} BE e Mother rate plans dal ${dateFrom} al ${dateTo}.`);
 
     return res.status(200).json({
       success: true,
-      data: filteredBEItems,
-      grid: filteredBEItems,
+      data: allFetchedItems,
+      grid: allFetchedItems,
+      beGrid: filteredBEItems,
       totalFetched: allFetchedItems.length,
       pagesCount: page + 1
     });

@@ -676,14 +676,17 @@ export async function fetchOctorateMonthlyGrid(
     const payload = await res.json();
     const items = payload && payload.data && Array.isArray(payload.data) ? payload.data : [];
 
-    // Extract unified reservations array and save into Zustand store
-    if (payload && payload.reservations && Array.isArray(payload.reservations) && payload.reservations.length > 0) {
-      try {
-        const { useResortAdminStore } = await import('../../admin/resort/store/useResortAdminStore');
-        useResortAdminStore.getState().setBookings(payload.reservations);
-      } catch (stErr) {
-        console.warn('[Octorate Grid API] Store update warning:', stErr);
+    // Save raw rate plans items (all 240 items) and reservations into Zustand store for tree visual controller
+    try {
+      const { useResortAdminStore } = await import('../../admin/resort/store/useResortAdminStore');
+      if (items.length > 0) {
+        useResortAdminStore.getState().setRawOctorateGridItems(items);
       }
+      if (payload && payload.reservations && Array.isArray(payload.reservations) && payload.reservations.length > 0) {
+        useResortAdminStore.getState().setBookings(payload.reservations);
+      }
+    } catch (stErr) {
+      console.warn('[Octorate Grid API] Store update warning:', stErr);
     }
 
     console.log(`[Octorate Grid API] Received ${items.length} rate plan items and ${(payload?.reservations || []).length} reservations from serverless endpoint.`);
