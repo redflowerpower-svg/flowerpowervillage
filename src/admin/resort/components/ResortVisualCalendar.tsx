@@ -199,16 +199,16 @@ function normalizeOtaRoomName(rawName: string): string {
 // Universal All-18 Accommodations ID & Keyword Map for Bidirectional Fuzzy Matching
 const ALL_ACCOMMODATIONS_MAP: Record<string, { ids: string[]; keywords: string[][] }> = {
   'jungle villa': {
-    ids: ['529784', '529773'],
+    ids: ['529784', '529773', '529783'],
     keywords: [['jungle'], ['villa']]
   },
   'jungle villa left': {
-    ids: ['495807', '495795', '529783'],
-    keywords: [['jungle', 'jv', 'jvl'], ['left', 'l']]
+    ids: ['495807', '495795'],
+    keywords: [['jungle', 'jv', 'jvl'], ['left']]
   },
   'jungle villa right': {
     ids: ['495980', '495796'],
-    keywords: [['jungle', 'jv', 'jvr'], ['right', 'r']]
+    keywords: [['jungle', 'jv', 'jvr'], ['right']]
   },
   'peace & love villa': {
     ids: ['495566', '494840'],
