@@ -133,20 +133,45 @@ Tutti gli alloggi del resort e i relativi piani tariffari (Booking Engine `BE`, 
 
 ---
 
-## 7. Aggiornamenti Calendario Visivo Resort Admin & Fuso Orario Thailandia (31/07/2026)
+## 7. Report Allineamento Fuso Orario Thailandia & Fix Calendario Visivo (30/07/2026)
 
-### A. Fix Fuso Orario Thailandia (`Asia/Bangkok`, GMT+7) & Date Picker
-* **Rimozione `toISOString()`**:
-  - Eliminato l'utilizzo di `.toISOString()` per la generazione delle date delle colonne, sostituito con la funzione locale `formatLocalGridDate` che estrae fisicamente anno, mese e giorno dall'oggetto `Date` senza forzare il fuso orario di Londra (UTC).
-* **Helper Parser Octorate (`cleanOctorateDateStr`)**:
-  - Introdotto l'helper `cleanOctorateDateStr` per ripulire e normalizzare i timestamp inviati da Octorate da eventuali orari `T` o suffissi non standard `[UTC]`.
-* **Selettore a Tendina Native Date Picker (`<input type="date">`)**:
-  - Inserito il selettore rapido di data nella barra di navigazione a 30 giorni, con parsing nativo `YYYY-MM-DD` per prevenire slittamenti temporali durante la ricerca.
+* **Allineamento 1:1 Fuso Orario (`Asia/Bangkok` GMT+7)**:
+  - **Causa slittamento 1 giorno indietro**: I timestamp ISO UTC inviati da Octorate (es. `2026-12-31T17:00:00Z`) venivano tagliati a stringa con `.slice(0, 10)`, estraendo `2026-12-31` anziché la data locale thailandese `2027-01-01`.
+  - **Soluzione**: Applicato l'helper `toThailandDateStr` sia nel backend (`api/_handlers/octorate.ts`) sia nel frontend (`ResortVisualCalendar.tsx`) per forzare la formattazione `Intl.DateTimeFormat` sul fuso `Asia/Bangkok`. Ora le date di check-in e check-out coincidono al 100% con il PMS Octorate.
+* **Fix Matching Room IDs (`getIdsForRoom`)**:
+  - Risolto il problema per cui *"jungle villa"* intercettava per errore *"jungle villa right"*, impostando la priorità per corrispondenza esatta delle chiavi.
+* **Gestione Artefatto Giorno di Check-out (`isCheckoutDay`)**:
+  - Nel giorno di check-out dell'ospite uscente, il blocco di occupazione di Octorate viene trattato come un artefatto: se il resort è aperto ed il prezzo è valido, la cella torna **VERDE (libera)** per il check-in del nuovo ospite.
+* **Selettore Data Nativo (Picker Data)**:
+  - Aggiunto un menu a tendina/picker data accanto al pulsante `30gg Succ` che permette di saltare istantaneamente a qualsiasi data iniziale desiderata.
+* **Personalizzazione Badge Canali OTA**:
+  - Canale `BOOKING`: impostato su testo `BOOKING` in colore blu cobalto (`#003580`).
+  - Canale `Expedia`: impostato in azzurro cielo (`bg-sky-500`).
 
-### C. Formattazione Nomi Ospiti & Fix Jungle Villa (01/08/2026)
-* **Formattazione Nomi Ospiti (Cognome ➔ Nome)**:
-  - Tutte le prenotazioni sul calendario visivo e nelle risposte delle API backend (`api/_handlers/octorate.ts`) vengono ora renderizzate mettendo **tassativamente prima il Cognome e successivamente il Nome** (es. *Zurschmitten Sarah*, *Meesters Connie*, *Buermans Godefrida*, *Buslei Kira*), in perfetto accordo con lo standard del PMS Octorate.
-* **Fix Jungle Villa Madre & Rimozione Falsi Positivi 'r' / 'l'**:
-  - Mappato l'ID Octorate `529783` (`JV AirBnB`) in via esclusiva a **Jungle Villa Madre** (Riga 1), eliminando la duplicazione dell'ospite su Jungle Villa Left.
-  - Rimosse le singole lettere `'r'` ed `'l'` dalle parole chiave di ricerca per evitare falsi positivi da fuzzy matching su parole o nomi contenenti tali lettere.
+---
+
+## 8. Modulo Tariffe Derivate & Albero Canali Octorate 1:1 (30/07/2026)
+
+* **Nuovo Componente Gestione Tariffe Derivate**:
+  - Creata la tab dedicated **"🌳 Tariffe Derivate (Albero Octorate)"** ([`src/admin/resort/components/DerivedRatesTreeSection.tsx`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/components/DerivedRatesTreeSection.tsx)).
+* **Architettura Grafica a 2 Livelli (Octorate Tree Diagram)**:
+  - **Livello 0 (Madre Master)**: Tariffa radice ventilatore base al centro in alto (es. `#529773`, `#293954`).
+  - **Livello 1 (Tratto Orizzontale Trasversale)**: Disposizione rigida ed uniforme a 10 colonne: `BE` (WEBSITE) ➔ `7d` (BOOKING, EXPEDIA, AGODA) ➔ `14d` (BOOKING, EXPEDIA, AGODA) ➔ `Main bnb-14d` (BOOKING, EXPEDIA) ➔ `Main bnb-7d` (BOOKING, EXPEDIA) ➔ `AC7d` (BOOKING, EXPEDIA) ➔ `AC14d` (BOOKING, EXPEDIA) ➔ `AGD AC-7d` (AGODA) ➔ `AGD AC-14d` (AGODA) ➔ `AirBnB` (AIRBNB).
+  - **Livello 2 (Sub-Derivazioni AC Verticali)**: Sub-nodi che derivano direttamente dai padri di 1° livello con stelo di collegamento: `AirBnB AC` (deriva da `AirBnB` con `+400฿ AMR`), `AC bnb-7d` (deriva da `AC7d` con `+200฿ AMR`), `AC bnb-14d` (deriva da `AC14d` con `+200฿ AMR`).
+* **Sincronizzazione Totale 212 Codici Prodotto Octorate**:
+  - Allineati al 100% tutti i **212 codici prodotto univoci Octorate** forniti per i 18 alloggi sia nell'Albero sia nella Mappa di Riconoscimento Automatica del Calendario (`ResortVisualCalendar.tsx`).
+* **Sequenza Canonica Alloggi**:
+  - Tutti i 18 alloggi (Ville, Bungalows, Glamping Tents, Hub Guesthouse Rooms/Lodges) sono disposti nella medesima sequenza del Calendario Visivo e del Sito Web.
+
+---
+
+## 9. Audit Completo Octorate-Supabase & Affinamento Calendario (01/08/2026)
+
+* **Audit & Re-sync ID Prenotazioni (`scratch/audit-all-octorate-bookings.mjs`)**:
+  - Implementato uno script di audit avanzato per scansionare tutte le prenotazioni storiche da Octorate e Supabase, risolvendo discrepanze di ID alloggio e normalizzando i nomi.
+* **Affinamento Logica MinStay Dinamico (`octorateAdmin.ts`)**:
+  - Semplificata la pulizia dei nomi camera in `calculateDynamicMinStay` mantenendo il nome alloggio nativo sanitizzato `(b.accommodation_name || b.accommodation_id || 'unknown').trim()`.
+* **Sincronizzazione Webhook & API Route (`api/_handlers/octorate.ts` e `api/_handlers/octorate-webhook.ts`)**:
+  - Verificato l'allineamento dei payload ricevuti dai webhook Octorate e ottimizzata la conversione delle date nel fuso orario thailandese `Asia/Bangkok`.
+
 

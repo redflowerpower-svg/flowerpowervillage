@@ -87,19 +87,11 @@ export function calculateDynamicMinStay(
   const roomBookingsMap: Record<string, Array<{ in: string; out: string }>> = {};
 
   activeBookings.forEach(b => {
-    let rawKey = String(b.accommodation_name || b.accommodation_id || 'unknown').toLowerCase().trim();
-    if (rawKey === 'jvr' || rawKey.includes('jvr')) rawKey = 'jungle villa right';
-    else if (rawKey === 'jvl' || rawKey.includes('jvl')) rawKey = 'jungle villa left';
-    else if (rawKey === 'pent' || rawKey.includes('pent')) rawKey = 'villa penthouse';
-    else if (rawKey.includes('p&l') || rawKey.includes('p & l')) rawKey = 'peace & love villa';
-    else if (rawKey === 'red' || rawKey.includes('red')) rawKey = 'red bungalow';
-    else if (rawKey === 'inter' || rawKey.includes('inter')) rawKey = 'internal room';
-
-    const key = rawKey;
+    const key = (b.accommodation_name || b.accommodation_id || 'unknown').trim();
     if (!roomBookingsMap[key]) roomBookingsMap[key] = [];
     roomBookingsMap[key].push({
-      in: String(b.check_in || '').slice(0, 10),
-      out: String(b.check_out || '').slice(0, 10)
+      in: b.check_in.slice(0, 10),
+      out: b.check_out.slice(0, 10)
     });
   });
 

@@ -251,6 +251,28 @@ export async function handleOctorateClientClear(req: VercelRequest, res: VercelR
   }
 }
 
+function toThailandDateStr(raw: any): string {
+  if (!raw) return '';
+  const s = String(raw).trim();
+  if (!s) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return s.slice(0, 10);
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Bangkok',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(d);
+  } catch (e) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+}
+
 // 6. handleOctorateBookings
 export async function handleOctorateBookings(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -304,28 +326,21 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
           const octJson = await octRes.json();
           const items = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
           octorateReservations = items.map((r: any) => {
-            const fName = String(r.firstName || r.first_name || '').trim();
-            const lName = String(r.lastName || r.last_name || '').trim();
-            let gName = '';
-            if (lName && fName) {
-              gName = `${lName} ${fName}`;
-            } else {
-              gName = String(r.guestName || r.guest_name || `${lName} ${fName}`.trim() || 'Ospite').trim();
-            }
-
+            const inStr = toThailandDateStr(r.checkin || r.check_in || r.checkIn || r.startDate);
+            const outStr = toThailandDateStr(r.checkout || r.check_out || r.checkOut || r.endDate);
             return {
               id: String(r.id || r.reservationId || Math.random()),
-              guest_name: gName || 'Ospite',
+              guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
               guest_email: r.email || r.guestEmail || (r.guests && r.guests[0]?.email) || '',
               guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',
               accommodation_id: String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || ''),
               accommodation_name: r.roomName || r.accommodation_name || '',
               product: String(r.product || r.roomTypeId || ''),
               roomName: r.roomName || r.accommodation_name || '',
-              check_in: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
-              check_out: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
-              checkin: String(r.checkin || r.check_in || r.checkIn || r.startDate || '').slice(0, 10),
-              checkout: String(r.checkout || r.check_out || r.checkOut || r.endDate || '').slice(0, 10),
+              check_in: inStr,
+              check_out: outStr,
+              checkin: inStr,
+              checkout: outStr,
               guests: Number(r.totalGuest || r.pax || r.guestsCount || 2),
               total_price: Number(r.roomGross || r.totalGross || r.totalAmount || 0),
               deposit_paid: Number(r.deposit || 0),

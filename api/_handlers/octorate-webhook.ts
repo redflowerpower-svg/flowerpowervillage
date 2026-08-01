@@ -122,21 +122,23 @@ function calculateServerDynamicMinStay(
 }
 
 /**
- * Handler Webhook Octorate 24/7 per Automazione Soggiorno Minimo Dinamico (Event-Driven Gap-Filling)
- * Rotta API Gateway Catch-All: POST /api/webhooks/octorate
+ * Handler Webhook Octorate 24/7 per Soggiorno Minimo Dinamico (Gap-Filling)
+ * Rotta API Gateway: POST /api/webhooks/octorate
  */
 export async function handleOctorateWebhook(req: VercelRequest, res: VercelResponse) {
-  // 1. CORS & Security Headers
+  // CORS & Security Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-  // Preflight e verifica PING immediate con HTTP 200 OK
+  // 1. Handle preflight OPTIONS / HEAD requests immediately with HTTP 200 OK
   if (req.method === 'OPTIONS' || req.method === 'HEAD') {
     return res.status(200).send('OK');
   }
 
+  // 2. Handle GET verification requests (Octorate ping tests)
   if (req.method === 'GET') {
+    console.log('[Octorate Webhook GET Ping] Received verification GET request.');
     return res.status(200).json({ status: 'active', message: 'Octorate Webhook Endpoint Ready' });
   }
 
@@ -149,166 +151,94 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
     const rawBody = req.body;
     eventPayload = (typeof rawBody === 'string' ? JSON.parse(rawBody || '{}') : rawBody) || {};
   } catch (parseErr) {
+    console.warn('[Octorate Webhook] Could not parse JSON body, treating as ping test.');
     eventPayload = {};
   }
 
-  // Ping catcher per Octorate
+  // 3. PING CATCHER: Se req.body è vuoto, oppure manca il campo type / event / id, è un ping di validazione Octorate!
   const isPing = !eventPayload || 
                  Object.keys(eventPayload).length === 0 || 
                  (!eventPayload.type && !eventPayload.event && !eventPayload.id && !eventPayload.action && !eventPayload.reservationId);
 
   if (isPing) {
+    console.log('[Octorate Webhook Ping] Ricevuto Ping di test / validazione da Octorate.');
     return res.status(200).json({ status: 'ok', message: 'Octorate Webhook Verification Ping Received' });
   }
 
-  const rawEventType = String(eventPayload.type || eventPayload.event || eventPayload.action || 'UNKNOWN').toUpperCase();
+  const eventType = eventPayload.type || eventPayload.event || 'UNKNOWN_EVENT';
+  console.log(`[OCTORATE WEBHOOK 24/7] Received event: ${eventType}`, JSON.stringify(eventPayload, null, 2));
 
-  // 1. Intercettazione Eventi Octorate (RESERVATION_CREATED, RESERVATION_CHANGE, RESERVATION_CANCELLED)
-  const isTargetEvent = rawEventType.includes('RESERVATION') || 
-                        rawEventType.includes('CREATE') || 
-                        rawEventType.includes('CHANGE') || 
-                        rawEventType.includes('UPDATE') || 
-                        rawEventType.includes('CANCEL');
-
-  console.log(`[OCTORATE WEBHOOK EVENT-DRIVEN] Received event: ${rawEventType} (Target: ${isTargetEvent})`);
-
-  // Rispondi IMMEDIATAMENTE con HTTP 200 OK per prevenire timeout e retry di Octorate
+  // 4. Rispondi subito con HTTP 200 OK al mittente Octorate prima di eseguire qualsiasi elaborazione asincrona
   res.status(200).json({
     received: true,
-    eventType: rawEventType,
+    eventType,
     timestamp: new Date().toISOString(),
-    message: 'Webhook received and processing in background.'
+    message: 'Webhook received. Processing background gap-filling.'
   });
 
-  if (!isTargetEvent) {
-    return;
-  }
-
-  // 2. Controllo Stato (Master Switch) e Ricalcolo Chirurgico in Background
+  // 5. Esecuzione background asincrona protetta da try/catch globale
   try {
-    let isMasterSwitchActive = true;
+    let bookingsData: any[] = [];
     if (supabaseAdmin) {
-      const { data: switchData } = await supabaseAdmin
-        .from('resort_settings')
-        .select('is_dynamic_min_stay_active')
+      const { data: sbBookings } = await supabaseAdmin
+        .from('reservations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (sbBookings && sbBookings.length > 0) {
+        bookingsData = sbBookings;
+      }
+    }
+
+    const todayISO = new Date().toISOString().substring(0, 10);
+    const next60Days = new Date();
+    next60Days.setDate(next60Days.getDate() + 60);
+    const endISO = next60Days.toISOString().substring(0, 10);
+
+    const calculatedUpdates = calculateServerDynamicMinStay(
+      bookingsData,
+      { start: todayISO, end: endISO },
+      50 // Default occupancy rate
+    );
+
+    console.log(`[OCTORATE WEBHOOK 24/7] Calculated ${calculatedUpdates.length} gap-filling minstay updates.`);
+
+    // STAGING LOCK CHECK se DRY_RUN === false
+    if (!DRY_RUN) {
+      const invalidTarget = calculatedUpdates.find(item => !STAGING_LOCK_IDS.has(item.roomTypeId));
+      if (invalidTarget) {
+        console.error(`[STAGING LOCK BLOCKED] Webhook attempted write to non-staging room ID ${invalidTarget.roomTypeId}`);
+        return;
+      }
+
+      // Invio scrittura reale se non bloccata dallo Staging Lock
+      const { data: tokenData } = await supabaseAdmin
+        .from('octorate_tokens')
+        .select('access_token')
         .eq('id', 'singleton')
         .maybeSingle();
 
-      if (switchData && typeof switchData.is_dynamic_min_stay_active === 'boolean') {
-        isMasterSwitchActive = switchData.is_dynamic_min_stay_active;
-      } else {
-        const { data: tokenSwitch } = await supabaseAdmin
-          .from('octorate_tokens')
-          .select('is_dynamic_min_stay_active')
-          .eq('id', 'singleton')
-          .maybeSingle();
-        if (tokenSwitch && typeof tokenSwitch.is_dynamic_min_stay_active === 'boolean') {
-          isMasterSwitchActive = tokenSwitch.is_dynamic_min_stay_active;
-        }
+      if (tokenData?.access_token && calculatedUpdates.length > 0) {
+        const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
+        await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${tokenData.access_token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            structure: Number(structureId),
+            updates: calculatedUpdates
+          })
+        });
+        console.log(`[OCTORATE WEBHOOK 24/7] Real bulk minstay update sent to Octorate for staging bungalows.`);
       }
-    }
-
-    if (!isMasterSwitchActive) {
-      console.log('[Octorate Webhook] Master switch is_dynamic_min_stay_active is FALSE. Skipping automatic gap-filling.');
-      return;
-    }
-
-    // 3. Ricalcolo Chirurgico (Gap-Filling per Stanza Interessata)
-    const resData = eventPayload.reservation || eventPayload.data || eventPayload;
-    const targetProductId = String(resData.product || resData.roomId || resData.octorateRoomId || resData.room_id || resData.accommodation_id || '').trim();
-    const rawCheckIn = String(resData.checkin || resData.check_in || resData.startDate || '').slice(0, 10);
-    const rawCheckOut = String(resData.checkout || resData.check_out || resData.endDate || '').slice(0, 10);
-
-    const todayISO = new Date().toISOString().substring(0, 10);
-    const todayTime = new Date(`${todayISO}T00:00:00Z`).getTime();
-
-    // Range chirurgico: 30 giorni prima e 30 giorni dopo la prenotazione creata/modificata/cancellata
-    let startDateStr = todayISO;
-    let endDateStr = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
-
-    if (rawCheckIn) {
-      const dtStart = new Date(`${rawCheckIn}T00:00:00Z`);
-      dtStart.setUTCDate(dtStart.getUTCDate() - 30);
-      const calcStart = Math.max(dtStart.getTime(), todayTime);
-      startDateStr = new Date(calcStart).toISOString().substring(0, 10);
-
-      const dtEnd = new Date(`${rawCheckOut || rawCheckIn}T00:00:00Z`);
-      dtEnd.setUTCDate(dtEnd.getUTCDate() + 30);
-      endDateStr = dtEnd.toISOString().substring(0, 10);
-    }
-
-    console.log(`[OCTORATE WEBHOOK SURGICAL GAP-FILL] Target Product: ${targetProductId || 'ALL'}, Range: ${startDateStr} ➔ ${endDateStr}`);
-
-    // Estrazione Token Octorate da Supabase
-    const { data: tokenData } = await supabaseAdmin
-      .from('octorate_tokens')
-      .select('access_token')
-      .eq('id', 'singleton')
-      .maybeSingle();
-
-    if (!tokenData?.access_token) {
-      console.error('[Octorate Webhook] No token in database for background gap-filling.');
-      return;
-    }
-
-    // Fetch prenotazioni attive da Octorate REST API per il range chirurgico
-    const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${startDateStr}&endDate=${endDateStr}&size=100`;
-    const octRes = await fetch(octUrl, {
-      headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`,
-        'Accept': 'application/json'
-      }
-    });
-
-    if (!octRes.ok) {
-      console.warn(`[Octorate Webhook] Failed to fetch reservations for surgical range (${octRes.status})`);
-      return;
-    }
-
-    const octJson = await octRes.json();
-    const rawReservations = octJson?.data || octJson || [];
-    const activeReservations = rawReservations.filter((r: any) => String(r.status || '').toUpperCase() !== 'CANCELLED');
-
-    // Esegui la logica di calcolo dinamico gap-filling
-    const calculatedUpdates = calculateServerDynamicMinStay(
-      activeReservations,
-      { start: startDateStr, end: endDateStr },
-      50
-    );
-
-    // Filtra per inviare SOLO gli aggiornamenti chirurgici per la stanza interessata
-    const targetUpdates = targetProductId
-      ? calculatedUpdates.filter(u => String(u.roomTypeId) === targetProductId || String(u.accommodationName).toLowerCase().includes(targetProductId.toLowerCase()))
-      : calculatedUpdates;
-
-    const finalUpdates = targetUpdates.length > 0 ? targetUpdates : calculatedUpdates;
-
-    if (finalUpdates.length === 0) {
-      console.log('[Octorate Webhook] No surgical min-stay updates required after event calculation.');
-      return;
-    }
-
-    console.log(`[OCTORATE WEBHOOK PUSH OTTIMIZZATO] Invio di ${finalUpdates.length} restrizioni chirurgiche ad Octorate bulk calendar.`);
-
-    // 4. Push Ottimizzato ad Octorate (Array JSON Puro)
-    const bulkRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(finalUpdates)
-    });
-
-    if (bulkRes.ok) {
-      console.log(`[OCTORATE WEBHOOK SUCCESS] Sincronizzati ${finalUpdates.length} gap-fill minstay chirurgici con Octorate!`);
     } else {
-      const errTxt = await bulkRes.text();
-      console.error(`[OCTORATE WEBHOOK ERROR] Bulk push failed (${bulkRes.status}): ${errTxt}`);
+      console.log(`[OCTORATE WEBHOOK 24/7 DRY_RUN = true] Simulated update of ${calculatedUpdates.length} gap-fill restrictions in memory.`);
     }
 
   } catch (err: any) {
-    console.error(`[OCTORATE WEBHOOK EVENT-DRIVEN ERROR CRITICO]:`, err);
+    console.error(`[OCTORATE WEBHOOK 24/7 ERROR]:`, err);
   }
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useResortAdminStore } from '../store/useResortAdminStore';
 import { getAuthorizationUrl, getStoredTokens, clearTokens, exchangeToken } from '../../../booking/lib/octorate';
 import { ResortVisualCalendar } from './ResortVisualCalendar';
+import { DerivedRatesTreeSection } from './DerivedRatesTreeSection';
 import { 
   Hotel, 
   Calendar, 
@@ -25,7 +26,8 @@ import {
   Link,
   Zap,
   Loader2,
-  XCircle
+  XCircle,
+  GitFork
 } from 'lucide-react';
 
 export function ResortDashboard() {
@@ -61,7 +63,7 @@ export function ResortDashboard() {
     executeDynamicMinStayStrategy
   } = useResortAdminStore();
 
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'rooms' | 'octorate'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'rooms' | 'derived_rates' | 'octorate'>('bookings');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Octorate Dev Diagnostics State
@@ -594,6 +596,16 @@ export function ResortDashboard() {
             🏨 Alloggi & Disponibilità ({(accommodations || []).length})
           </button>
           <button
+            onClick={() => setActiveTab('derived_rates')}
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'derived_rates'
+                ? 'bg-amber-500 text-stone-950 font-black shadow'
+                : 'text-stone-400 hover:text-white'
+            }`}
+          >
+            🌳 Tariffe Derivate (Albero Octorate)
+          </button>
+          <button
             onClick={() => setActiveTab('octorate')}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'octorate'
@@ -623,6 +635,11 @@ export function ResortDashboard() {
       {/* Tab Visual Calendar */}
       {activeTab === 'calendar' && (
         <ResortVisualCalendar />
+      )}
+
+      {/* Tab Tariffe Derivate & Albero Canali OTA */}
+      {activeTab === 'derived_rates' && (
+        <DerivedRatesTreeSection />
       )}
 
       {/* Tab 1: Bookings List */}

@@ -74,9 +74,9 @@ export function getIdsForRoom(roomName: string): { motherId: number; beId: numbe
   const nameLower = roomName.trim().toLowerCase();
 
   const MAPPING: Record<string, { motherId: number; beId: number }> = {
-    'jungle villa': { motherId: 529773, beId: 529784 },
     'jungle villa left': { motherId: 495795, beId: 495807 },
     'jungle villa right': { motherId: 495796, beId: 495980 },
+    'jungle villa': { motherId: 529773, beId: 529784 },
     'peace & love villa': { motherId: 494840, beId: 495566 },
     'villa penthouse': { motherId: 421511, beId: 449348 },
     'penthouse villa': { motherId: 421511, beId: 449348 },
@@ -97,8 +97,17 @@ export function getIdsForRoom(roomName: string): { motherId: number; beId: numbe
     'internal room': { motherId: 293942, beId: 449742 }
   };
 
+  // 1. Exact match priority
+  if (MAPPING[nameLower]) {
+    return MAPPING[nameLower];
+  }
+
+  // 2. Fallback fuzzy search with protection for directional variants
   for (const key in MAPPING) {
-    if (nameLower === key || nameLower.includes(key) || key.includes(nameLower)) {
+    if (nameLower.includes(key) || key.includes(nameLower)) {
+      if (key === 'jungle villa' && (nameLower.includes('left') || nameLower.includes('right'))) {
+        continue;
+      }
       return MAPPING[key];
     }
   }
@@ -109,14 +118,15 @@ export function getIdsForRoom(roomName: string): { motherId: number; beId: numbe
 const AGENCY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   'WEBSITE': { bg: 'bg-orange-500 hover:bg-orange-400', text: 'text-white font-black', border: 'border-orange-400' },
   'PRIVATE': { bg: 'bg-gray-700 hover:bg-gray-600', text: 'text-white font-extrabold', border: 'border-gray-600' },
-  'BOOKING': { bg: 'bg-blue-800 hover:bg-blue-700', text: 'text-white font-extrabold', border: 'border-blue-700' },
+  'BOOKING': { bg: 'bg-[#003580] hover:bg-[#00255c]', text: 'text-white font-extrabold', border: 'border-[#003580]' },
+  'Booking.com': { bg: 'bg-[#003580] hover:bg-[#00255c]', text: 'text-white font-extrabold', border: 'border-[#003580]' },
   'Agoda': { bg: 'bg-purple-600 hover:bg-purple-500', text: 'text-white font-extrabold', border: 'border-purple-500' },
-  'Airbnb': { bg: 'bg-rose-500 hover:bg-rose-400', text: 'text-white font-extrabold', border: 'border-rose-400' },
+  'Airbnb': { bg: 'bg-rose-600 hover:bg-rose-500', text: 'text-white font-extrabold', border: 'border-rose-500' },
   'Expedia': { bg: 'bg-sky-500 hover:bg-sky-400', text: 'text-white font-extrabold', border: 'border-sky-400' },
   'Trip.com': { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' },
 };
 
-function getAgencyStyle(source?: string) {
+const getAgencyStyle = (source?: string) => {
   if (!source) return { bg: 'bg-orange-500 hover:bg-orange-400', text: 'text-white font-black', border: 'border-orange-400' };
   const s = source.toLowerCase();
   if (s.includes('octoevo') || s.includes('autosubmit') || s.includes('private')) {
@@ -125,8 +135,8 @@ function getAgencyStyle(source?: string) {
   if (s.includes('stripe') || s.includes('direct') || s.includes('diretto') || s.includes('website') || s.includes('site') || s.includes('booking engine') || s.includes('web')) {
     return { bg: 'bg-orange-500 hover:bg-orange-400', text: 'text-white font-black', border: 'border-orange-400' };
   }
-  if (s.includes('booking')) {
-    return { bg: 'bg-blue-800 hover:bg-blue-700', text: 'text-white font-extrabold', border: 'border-blue-700' };
+  if (s.includes('booking') || s.includes('boochin')) {
+    return { bg: 'bg-[#003580] hover:bg-[#00255c]', text: 'text-white font-extrabold', border: 'border-[#003580]' };
   }
   if (s.includes('expedia')) {
     return { bg: 'bg-sky-500 hover:bg-sky-400', text: 'text-white font-extrabold', border: 'border-sky-400' };
@@ -134,16 +144,14 @@ function getAgencyStyle(source?: string) {
   if (s.includes('agoda')) {
     return { bg: 'bg-purple-600 hover:bg-purple-500', text: 'text-white font-extrabold', border: 'border-purple-500' };
   }
-  if (s.includes('airbnb') || s === 'airbnb_xml') {
-    return { bg: 'bg-rose-500 hover:bg-rose-400', text: 'text-white font-extrabold', border: 'border-rose-400' };
+  if (s.includes('airbnb')) {
+    return { bg: 'bg-rose-600 hover:bg-rose-500', text: 'text-white font-extrabold', border: 'border-rose-500' };
   }
   if (s.includes('trip')) {
     return { bg: 'bg-teal-600 hover:bg-teal-500', text: 'text-white font-extrabold', border: 'border-teal-500' };
   }
   return { bg: 'bg-indigo-600 hover:bg-indigo-500', text: 'text-white font-extrabold', border: 'border-indigo-500' };
-}
-
-export const getBookingChannelStyle = getAgencyStyle;
+};
 
 function getBookingChannelName(booking: any): string {
   const src = String(
@@ -156,7 +164,7 @@ function getBookingChannelName(booking: any): string {
   if (src.includes('stripe') || src.includes('direct') || src.includes('diretto') || src.includes('website') || src.includes('site') || src.includes('booking engine')) {
     return 'WEBSITE';
   }
-  if (src.includes('booking')) {
+  if (src.includes('booking') || src.includes('boochin')) {
     return 'BOOKING';
   }
   if (src.includes('expedia')) {
@@ -165,7 +173,7 @@ function getBookingChannelName(booking: any): string {
   if (src.includes('agoda')) {
     return 'AGODA';
   }
-  if (src.includes('airbnb') || src === 'airbnb_xml') {
+  if (src.includes('airbnb')) {
     return 'AIRBNB';
   }
   if (src.includes('trip')) {
@@ -174,132 +182,103 @@ function getBookingChannelName(booking: any): string {
   return String(booking.channelName || booking.source || booking.agency || booking.channel || 'PRENOTATO').toUpperCase();
 }
 
-// Dizionario Abbreviazioni OTA
-const OTA_ABBREVIATIONS: Record<string, string> = {
-  'jvr': 'jungle villa right',
-  'jvl': 'jungle villa left',
-  'pent': 'villa penthouse',
-  'p&l': 'peace & love villa',
-  'p & l': 'peace & love villa',
-  'peace': 'peace & love villa',
-  'red': 'red bungalow',
-  'inter': 'internal room'
-};
-
-function normalizeOtaRoomName(rawName: string): string {
-  let str = (rawName || '').toLowerCase().trim();
-  for (const [abbr, expanded] of Object.entries(OTA_ABBREVIATIONS)) {
-    if (str === abbr || str.includes(` ${abbr} `) || str.startsWith(`${abbr} `) || str.endsWith(` ${abbr}`) || str.includes(`${abbr}-`) || str.includes(` ${abbr}`)) {
-      str = str.replace(abbr, expanded);
-    }
-  }
-  return str;
-}
-
 // Universal All-18 Accommodations ID & Keyword Map for Bidirectional Fuzzy Matching
 const ALL_ACCOMMODATIONS_MAP: Record<string, { ids: string[]; keywords: string[][] }> = {
   'jungle villa': {
-    ids: ['529784', '529773', '529783'],
-    keywords: [['jungle'], ['villa']]
+    ids: ['529773', '529784', '529778', '529779', '529792', '529788', '529780', '916817', '529781', '529801', '921868', '921869', '529783', '529813'],
+    keywords: [["jungle","jv"],["villa","ac"]]
   },
   'jungle villa left': {
-    ids: ['495807', '495795'],
-    keywords: [['jungle', 'jv', 'jvl'], ['left']]
+    ids: ['495795', '495807', '495803', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
+    keywords: [["jungle","jv"],["left","jvl"]]
   },
   'jungle villa right': {
-    ids: ['495980', '495796'],
-    keywords: [['jungle', 'jv', 'jvr'], ['right']]
+    ids: ['495796', '495980', '495976', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
+    keywords: [["jungle","jv"],["right","jvr"]]
   },
   'peace & love villa': {
-    ids: ['495566', '494840'],
-    keywords: [['peace', 'love', 'p&l', 'p & l']]
+    ids: ['494840', '495566', '495549', '495551', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
+    keywords: [["peace","love","p&l"]]
   },
   'villa penthouse': {
-    ids: ['449348', '421511', '421532'],
-    keywords: [['penthouse', 'pent']]
+    ids: ['421511', '449348', '422445', '421513', '421516', '421520', '421522', '421525', '421527', '421530', '921876', '921877', '421532', '421533'],
+    keywords: [["penthouse","pent"]]
   },
   'yellow bungalow': {
-    ids: ['449385', '293957', '422422'],
-    keywords: [['yellow']]
+    ids: ['293957', '449385', '422422', '293958', '332055', '332054', '331921', '332057', '331922', '332060', '921878', '921879', '297022', '340198'],
+    keywords: [["yellow"]]
   },
   'red bungalow': {
-    ids: ['449422', '293954'],
-    keywords: [['red']]
+    ids: ['293954', '449422', '422131', '293953', '332030', '332029', '330964', '332035', '330970', '332036', '921880', '921881', '297021', '340196'],
+    keywords: [["red"]]
   },
   'green bungalow': {
-    ids: ['449668', '293962'],
-    keywords: [['green']]
+    ids: ['293962', '449668', '422402', '293961', '332070', '332066', '331923', '332072', '331924', '332074', '921882', '921883', '297023', '340200'],
+    keywords: [["green"]]
   },
   'camel tent bungalow': {
-    ids: ['449675', '293965', '297025'],
-    keywords: [['camel']]
+    ids: ['293965', '449675', '422325', '293966', '332089', '332084', '297025'],
+    keywords: [["camel"]]
   },
   'lagoon tent bungalow': {
-    ids: ['449674', '293955'],
-    keywords: [['lagoon']]
+    ids: ['293955', '449674', '422351', '293956', '332081', '332077', '297024'],
+    keywords: [["lagoon"]]
   },
   'room 1': {
-    ids: ['449678', '293963'],
-    keywords: [['room', 'hub'], ['1', 'one']]
+    ids: ['293963', '449678', '422300', '293964', '332737', '332735', '331976', '916818', '331977', '916402', '921889', '921890', '297033', '421505'],
+    keywords: [["room","hub"],["1","one"]]
   },
   'room 2': {
-    ids: ['449684', '293959'],
-    keywords: [['room', 'hub'], ['2', 'two']]
+    ids: ['293959', '449684', '422296', '293960', '332741', '332739', '331966', '332119', '331967', '332134', '921891', '921900', '297032', '421506'],
+    keywords: [["room","hub"],["2","two"]]
   },
   'room 3': {
-    ids: ['449699', '293948'],
-    keywords: [['room', 'hub'], ['3', 'three']]
+    ids: ['293948', '449699', '422293', '293947', '332743', '332757', '331968', '332121', '331969', '332136', '921892', '921893', '297028', '421507'],
+    keywords: [["room","hub"],["3","three"]]
   },
   'room 4': {
-    ids: ['449724', '293945'],
-    keywords: [['room', 'hub'], ['4', 'four']]
+    ids: ['293945', '449724', '422265', '293946', '332759', '332746', '331970', '332123', '331971', '332138', '921894', '921895', '297029', '421508'],
+    keywords: [["room","hub"],["4","four"]]
   },
   'room 5': {
-    ids: ['449730', '293943'],
-    keywords: [['room', 'hub'], ['5', 'five']]
+    ids: ['293943', '449730', '422213', '293944', '332765', '332763', '331972', '332125', '331973', '332140', '921896', '921897', '297031', '421509'],
+    keywords: [["room","hub"],["5","five"]]
   },
   'lodge 1': {
-    ids: ['449736', '293951'],
-    keywords: [['lodge'], ['1', 'one']]
+    ids: ['293951', '449736', '422149', '293952', '332769', '332767', '331974', '332129', '422157', '332142', '921884', '921885', '297030', '421510'],
+    keywords: [["lodge"],["1","one"]]
   },
   'lodge 2': {
-    ids: ['923905', '883795'],
-    keywords: [['lodge'], ['2', 'two']]
+    ids: ['883795', '923905', '916110', '916108', '916107', '916109', '916114', '916829', '916105', '916830', '921886', '921887', '916103', '916104'],
+    keywords: [["lodge"],["2","two"]]
   },
   'internal room': {
-    ids: ['449742', '293942'],
-    keywords: [['internal', 'inter']]
-  }
+    ids: ['293942', '449742', '872182', '293941', '332109', '332105', '340367', '916840', '421998', '916838', '921898', '921899', '297027', '422147'],
+    keywords: [["internal","inter"]]
+  },
 };
 
-/**
- * Helper Parser Octorate per Prenotazioni:
- * Pulisce e allinea i timestamp sporchi di Octorate (es. suffissi [UTC], orari T o spazi)
- */
-export const cleanOctorateDateStr = (rawDate: any): string => {
-  if (!rawDate) return '';
-  let str = String(rawDate).replace(/\[UTC\]/gi, '').trim();
-  if (str.includes('T')) {
-    str = str.split('T')[0];
+function toThailandDateStr(raw: any): string {
+  if (!raw) return '';
+  const s = String(raw).trim();
+  if (!s) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const d = new Date(s);
+  if (isNaN(d.getTime())) return s.slice(0, 10);
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Bangkok',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(d);
+  } catch (e) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
-  if (str.includes(' ')) {
-    str = str.split(' ')[0];
-  }
-  return str.slice(0, 10);
-};
-
-/**
- * Costruzione Infallibile Date Griglia (NO toISOString)
- * Estrae fisicamente i dati locali dall'oggetto Date evitando lo slittamento fuso orario.
- */
-export const formatLocalGridDate = (cellDate: Date): string => {
-  const y = cellDate.getFullYear();
-  const m = String(cellDate.getMonth() + 1).padStart(2, '0');
-  const d = String(cellDate.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-};
-
-export const toThailandDateStr = formatLocalGridDate;
+}
 
 function findMatchingBooking(
   roomName: string,
@@ -310,7 +289,10 @@ function findMatchingBooking(
 ): ResortBooking | null {
   if (!bookings || !Array.isArray(bookings) || bookings.length === 0) return null;
 
-  const targetDateStr = formatLocalGridDate(cellDate);
+  const y = cellDate.getFullYear();
+  const m = String(cellDate.getMonth() + 1).padStart(2, '0');
+  const d = String(cellDate.getDate()).padStart(2, '0');
+  const targetDateStr = `${y}-${m}-${d}`;
 
   const targetNameLower = (roomName || '').toLowerCase().trim();
   const targetRoomIdStr = String(roomId || '').trim();
@@ -322,86 +304,68 @@ function findMatchingBooking(
     const status = String(b.status || '').toLowerCase();
     if (status === 'cancelled' || status === 'canceled') return false;
 
-    // Estrazione codici numerici Supabase ed Octorate per Cross-Check Infallibile
-    const bookingIds = [
-      b.accommodation_id,
-      b.roomId,
-      b.octorateRoomId,
-      b.octorateId,
-      b.room_id,
-      b.roomTypeId,
-      b.product,
-      b.pmsProduct,
-      b.product?.id,
-      b.room?.id
-    ].filter(Boolean).map(id => String(id).trim());
+    // Room ID & Name matching normalization
+    const bRoomName = String(
+      b.roomName || 
+      b.accommodation_name || 
+      b.room_name || 
+      b.productName || 
+      b.product?.name || 
+      b.room?.name || 
+      ''
+    ).toLowerCase().trim();
+
+    const bProduct = String(
+      b.product || 
+      b.pmsProduct || 
+      b.accommodation_id || 
+      b.room_id || 
+      b.roomId || 
+      b.roomTypeId || 
+      b.product?.id || 
+      b.room?.id || 
+      ''
+    ).trim();
 
     let isRoomMatch = false;
 
-    // 1. Cross-Check su Codici ID Octorate
-    if (bookingIds.length > 0) {
-      if (bookingIds.some(id => id === targetRoomIdStr || id === targetOctIdStr)) {
+    // 1. Direct ID Match
+    if (bProduct) {
+      if (bProduct === targetRoomIdStr || bProduct === targetOctIdStr) {
         isRoomMatch = true;
-      } else if (mapEntry && bookingIds.some(id => mapEntry.ids.includes(id))) {
+      } else if (mapEntry && mapEntry.ids.includes(bProduct)) {
         isRoomMatch = true;
       }
     }
 
-    // 2. Normalizzazione Nomi ed Abbreviazioni OTA per Riga Specificata
-    if (!isRoomMatch) {
-      const rawRoomName = String(
-        b.roomName || 
-        b.accommodation_name || 
-        b.room_name || 
-        b.productName || 
-        b.product?.name || 
-        b.room?.name || 
-        ''
-      );
-
-      const bRoomNameNormalized = normalizeOtaRoomName(rawRoomName);
-      const rawRoomLower = rawRoomName.toLowerCase().trim();
-      const isJvAirbnb = rawRoomLower.includes('jv airbnb') || bRoomNameNormalized.includes('jv airbnb');
-
-      if (targetNameLower === 'jungle villa') {
-        const isChildRoom = (bRoomNameNormalized.includes('left') || 
-                            bRoomNameNormalized.includes('right') || 
-                            bRoomNameNormalized.includes('jvl') || 
-                            bRoomNameNormalized.includes('jvr')) && !isJvAirbnb;
-
-        if (isJvAirbnb || (!isChildRoom && (bRoomNameNormalized === 'jungle villa' || bRoomNameNormalized === 'jungle'))) {
-          isRoomMatch = true;
-        }
-      } else if (targetNameLower === 'jungle villa left') {
-        if (!isJvAirbnb && (bRoomNameNormalized.includes('left') || bRoomNameNormalized.includes('jvl'))) {
-          isRoomMatch = true;
-        }
-      } else if (targetNameLower === 'jungle villa right') {
-        if (!isJvAirbnb && (bRoomNameNormalized.includes('right') || bRoomNameNormalized.includes('jvr'))) {
-          isRoomMatch = true;
-        }
-      } else {
-        if (bRoomNameNormalized === targetNameLower || bRoomNameNormalized.includes(targetNameLower) || targetNameLower.includes(bRoomNameNormalized)) {
-          isRoomMatch = true;
-        } else if (mapEntry) {
-          const matchesAllGroups = mapEntry.keywords.every((group) =>
-            group.some((kw) => bRoomNameNormalized.includes(kw))
-          );
-          if (matchesAllGroups) {
+    // 2. Smart Bidirectional Keyword Match
+    if (!isRoomMatch && bRoomName) {
+      if (bRoomName === targetNameLower || bRoomName.includes(targetNameLower) || targetNameLower.includes(bRoomName)) {
+        if (targetNameLower === 'jungle villa') {
+          if (!bRoomName.includes('left') && !bRoomName.includes('right') && !bRoomName.includes('jvl') && !bRoomName.includes('jvr')) {
             isRoomMatch = true;
           }
+        } else {
+          isRoomMatch = true;
+        }
+      } else if (mapEntry) {
+        const matchesAllGroups = mapEntry.keywords.every((group) =>
+          group.some((kw) => bRoomName.includes(kw))
+        );
+        if (matchesAllGroups) {
+          isRoomMatch = true;
         }
       }
     }
 
     if (!isRoomMatch) return false;
 
-    // Normalizzazione Date YYYY-MM-DD pulite da suffissi [UTC] ed orari T
-    const rawCheckIn = b.checkin || b.check_in || b.checkIn || b.start_date || b.startDate || '';
-    const rawCheckOut = b.checkout || b.check_out || b.checkOut || b.end_date || b.endDate || '';
+    // Date YYYY-MM-DD normalization with Asia/Bangkok Timezone alignment
+    const rawCheckIn = String(b.checkin || b.check_in || b.checkIn || b.start_date || b.startDate || '');
+    const rawCheckOut = String(b.checkout || b.check_out || b.checkOut || b.end_date || b.endDate || '');
 
-    const checkInStr = cleanOctorateDateStr(rawCheckIn);
-    const checkOutStr = cleanOctorateDateStr(rawCheckOut);
+    const checkInStr = toThailandDateStr(rawCheckIn);
+    const checkOutStr = toThailandDateStr(rawCheckOut);
 
     if (!checkInStr || !checkOutStr) return false;
 
@@ -431,7 +395,7 @@ function computeGapFillMinStays(
   const targetOctId = String(roomOctorateId || '');
 
   const dailyStates = datesArray.map((cellDate) => {
-    const dateStr = formatLocalGridDate(cellDate);
+    const dateStr = toThailandDateStr(cellDate);
     const liveData = (
       liveGridData[roomName] || 
       liveGridData[targetRoomName] || 
@@ -449,7 +413,27 @@ function computeGapFillMinStays(
       websitePrice >= 10000 ||
       (liveData ? (liveData.stopSell || !liveData.available || liveData.price >= 10000) : false);
 
-    const hasBooking = Boolean(findMatchingBooking(roomName, roomId, roomOctorateId, cellDate, bookings));
+    const hasBooking = (bookings || []).some((b: any) => {
+      if (b.status === 'cancelled') return false;
+      const bAccName = String(b.accommodation_name || b.roomName || b.room_name || '').toLowerCase();
+      const bAccId = String(b.accommodation_id || b.roomId || b.octorateRoomId || b.octorateId || '');
+
+      const isRoomMatch = 
+        (bAccName.length > 0 && (bAccName.includes(targetRoomName) || targetRoomName.includes(bAccName))) ||
+        (bAccId.length > 0 && (
+          bAccId === targetRoomId || 
+          (targetOctId.length > 0 && bAccId === targetOctId) || 
+          (targetRoomId.length > 0 && Number(bAccId) === Number(targetRoomId)) ||
+          (targetOctId.length > 0 && Number(bAccId) === Number(targetOctId))
+        ));
+
+      if (!isRoomMatch) return false;
+
+      const inDateStr = String(b.check_in || b.checkIn || '').slice(0, 10);
+      const outDateStr = String(b.check_out || b.checkOut || '').slice(0, 10);
+
+      return dateStr >= inDateStr && dateStr < outDateStr;
+    });
 
     const isFree = !isClosedOrStopSell && !hasBooking;
 
@@ -562,8 +546,8 @@ export function ResortVisualCalendar() {
       const firstDate = datesArray[0];
       const lastDate = datesArray[datesArray.length - 1];
 
-      const dateFrom = firstDate.toISOString().substring(0, 10);
-      const dateTo = lastDate.toISOString().substring(0, 10);
+      const dateFrom = toThailandDateStr(firstDate);
+      const dateTo = toThailandDateStr(lastDate);
 
       // Separation of concerns: parallel fetch for grid prices & reservations
       const [gridData, bookingsRes] = await Promise.all([
@@ -628,6 +612,19 @@ export function ResortVisualCalendar() {
       setCurrentYear(currentYear + 1);
     } else {
       setCurrentMonth(currentMonth + 1);
+    }
+  };
+
+  const startDateISO = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val) {
+      const [y, m, d] = val.split('-').map(Number);
+      if (y && m && d) {
+        const newDate = new Date(y, m - 1, d, 0, 0, 0, 0);
+        setStartDate(newDate);
+      }
     }
   };
 
@@ -699,7 +696,7 @@ export function ResortVisualCalendar() {
 
           {/* Navigation Controls */}
           {viewMode === 'today_30_days' ? (
-            <div className="flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2 justify-between flex-wrap">
               <button
                 type="button"
                 onClick={handlePrev30Days}
@@ -710,24 +707,9 @@ export function ResortVisualCalendar() {
                 <span>30gg Prec</span>
               </button>
 
-              <div className="flex items-center gap-1 bg-stone-900 px-2 py-1 rounded-xl border border-stone-800">
-                <input
-                  type="date"
-                  value={formatLocalGridDate(startDate)}
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      const parts = e.target.value.split('-');
-                      if (parts.length === 3) {
-                        const selected = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-                        selected.setHours(0, 0, 0, 0);
-                        setStartDate(selected);
-                      }
-                    }
-                  }}
-                  className="bg-transparent text-amber-400 font-extrabold text-xs focus:outline-none cursor-pointer [color-scheme:dark]"
-                  title="Scegli Data di Inizio dal Calendario"
-                />
-              </div>
+              <span className="font-extrabold text-xs text-white font-mono px-2">
+                {datesArray[0]?.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })} ➔ {datesArray[datesArray.length - 1]?.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' })}
+              </span>
 
               <button
                 type="button"
@@ -738,6 +720,18 @@ export function ResortVisualCalendar() {
                 <span>30gg Succ</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
+
+              {/* Menu a tendina seleziona data di partenza */}
+              <div className="flex items-center gap-1.5 bg-stone-900 px-2.5 py-1 rounded-xl border border-amber-500/40 text-xs font-bold text-amber-400 hover:border-amber-400 transition-colors shadow-sm">
+                <span className="text-[10px] text-stone-400 font-semibold uppercase tracking-wider hidden sm:inline">Vai a:</span>
+                <input
+                  type="date"
+                  value={startDateISO}
+                  onChange={handleStartDateChange}
+                  className="bg-transparent text-amber-400 font-mono font-bold text-xs focus:outline-none cursor-pointer [color-scheme:dark]"
+                  title="Scegli la data di partenza del calendario"
+                />
+              </div>
             </div>
           ) : (
             <div className="flex items-center gap-2 justify-between">
@@ -835,10 +829,10 @@ export function ResortVisualCalendar() {
         <div className="flex items-center gap-2.5 overflow-x-auto text-[10px] font-black text-stone-300 pt-1 sm:pt-0">
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-sm" /> WEBSITE</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-gray-700 border border-stone-500 shadow-sm" /> PRIVATE</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-800 shadow-sm" /> BOOKING</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#003580] shadow-sm" /> BOOKING</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-purple-600 shadow-sm" /> Agoda</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-sm" /> Airbnb</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-sm" /> EXPEDIA</span>
+          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-sm" /> Expedia</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-700 shadow-sm" /> Stop Sell / Chiuso</span>
         </div>
       </div>
@@ -918,7 +912,7 @@ export function ResortVisualCalendar() {
 
                     {/* Days Cells */}
                     {datesArray.map((cellDate, idx) => {
-                      const dateStr = formatLocalGridDate(cellDate);
+                      const dateStr = toThailandDateStr(cellDate);
                       
                       // ESTRAZIONE DATI SICURA A DIZIONARIO (String Key Casting)
                       const { motherId, beId } = getIdsForRoom(room.name);
@@ -979,9 +973,39 @@ export function ResortVisualCalendar() {
 
                       // 🥈 PRIORITÀ 2: Chiusura / Stop Sell (valutata RIGOROSAMENTE sulla Tariffa Madre)
                       const isRoomClosedByStaff = room.isAvailable === false;
-                      const isMotherStopSell = motherData
+
+                      // Controllo se dateStr è il giorno di CHECKOUT di una prenotazione per questo alloggio
+                      const isCheckoutDay = !matchingBooking && (bookings || []).some((b: any) => {
+                        const status = String(b.status || '').toLowerCase();
+                        if (status === 'cancelled' || status === 'canceled') return false;
+
+                        const outDateStr = toThailandDateStr(b.checkout || b.check_out || b.checkOut || b.endDate);
+                        if (outDateStr !== dateStr) return false;
+
+                        const bProduct = String(b.product || b.pmsProduct || b.accommodation_id || b.roomId || '').trim();
+                        const bName = String(b.roomName || b.accommodation_name || b.room_name || '').toLowerCase().trim();
+                        const rName = room.name.toLowerCase().trim();
+
+                        const matchById = [String(motherId), String(beId), String(room.id), String(room.octorateId)].filter(Boolean).includes(bProduct);
+                        let matchByName = Boolean(bName && rName && (bName.includes(rName) || rName.includes(bName)));
+                        if (rName === 'jungle villa' && (bName.includes('left') || bName.includes('right'))) {
+                          matchByName = false;
+                        }
+
+                        const validIds = ALL_ACCOMMODATIONS_MAP[rName]?.ids || [];
+                        const matchByMap = validIds.includes(bProduct);
+
+                        return matchById || matchByName || matchByMap;
+                      });
+
+                      const rawMotherStopSell = motherData
                         ? (Boolean(motherData.stopSell || motherData.stopSells) || motherData.available === false || (motherData.availability !== undefined && motherData.availability <= 0) || motherData.price >= 10000)
                         : false;
+
+                      // Nel giorno di checkout il blocco disponibilità di Octorate è un artefatto: se il prezzo è valido ed il resort è aperto, la camera è VERDE (libera)
+                      const isMotherStopSell = (isCheckoutDay && motherPriceVal < 10000 && !isRoomClosedByStaff)
+                        ? false
+                        : rawMotherStopSell;
 
                       const isClosedOrStopSell = isRoomClosedByStaff || isMotherStopSell;
 
@@ -1029,7 +1053,7 @@ export function ResortVisualCalendar() {
                               <div className="truncate text-xs font-bold min-w-0 w-full text-center text-white uppercase">
                                 {getBookingChannelName(matchingBooking)}
                               </div>
-                              {/* Riga 2: Nome Ospite (Cognome poi Nome) */}
+                              {/* Riga 2: Nome Ospite */}
                               <div className="truncate text-[10px] min-w-0 w-full text-center text-white/95 font-medium">
                                 {matchingBooking.guest_name || (matchingBooking as any).guestName || 'Ospite'}
                               </div>
