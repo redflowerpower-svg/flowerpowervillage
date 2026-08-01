@@ -218,6 +218,32 @@ Tutti gli alloggi del resort e i relativi piani tariffari (Booking Engine `BE`, 
   - Implementata la verifica automatica delle regole matematiche (`checkPriceSanity`): confronta il prezzo live con quello atteso dal calcolo con il nodo padre (es. `+200฿`, `+400฿`, `-10%`).
   - Se viene rilevata una discrepanza, il nodo mostra un **bordo dorato lampeggiante** ed il badge d'avviso `⚠️ Atteso ฿X`.
 
+## 12. Mappatura Tariffe Derivate Fake Bungalow & Categoria TEST Isolata (01/08/2026)
 
+### ⚠️ REGOLA D'ORO API OCTORATE — Registrata nelle Istruzioni Core
+- La direttiva inderogabile **"Scrivere SOLO sulla Tariffa Madre (Livello 0)"** è stata aggiunta in prima posizione assoluta in `.agentinstructions` e `.agents/AGENTS.md`.
+- Tutte le chiamate `POST`/`PUT`/`PATCH` per prezzi, `min_stay` o availability **devono colpire esclusivamente l'ID Madre** (es. `649669`, `921799`). È vietato scrivere su derivate Livello 1/2.
 
+### Mappatura Completa ID Tariffe Derivate Fake Bungalow (`octorateAdmin.ts`, `ResortVisualCalendar.tsx`)
+- **Fake Bungalow 1** (Madre: `649669`) — 13 derivate mappate: `932243`→`932255`.
+- **Fake Bungalow 2** (Madre: `921799`) — 13 derivate mappate: `932256`→`932268`.
+- Aggiornati gli array `ids[]` in `ALL_ACCOMMODATIONS_MAP` (`octorateAdmin.ts`) e in `ResortVisualCalendar.tsx`.
+
+### Albero Tariffe Derivate (`DerivedRatesTreeSection.tsx`)
+- Aggiunti gli schemi gerarchici completi (Madre → Livello 1 → Livello 2) per **Fake Bungalow 1** e **Fake Bungalow 2** nel `COMPLETE_DERIVATION_SCHEMES`.
+- **Categoria `TEST`** aggiunta al union type `AccommodationTreeScheme`: `'Villa' | 'Bungalow' | 'Glamping' | 'Hub Guesthouse' | 'TEST'`.
+- I Fake Bungalow sono ora classificati `category: 'TEST'` (non più `'BUNGALOW'`), separandoli visivamente dalle unità di produzione.
+
+### Separazione Visiva & Filtro "Ambiente di Test" (`DerivedRatesTreeSection.tsx`, `ResortVisualCalendar.tsx`)
+- **Calendario Visivo**: Aggiunto bottone filtro `🧪 Ambiente di Test (2)` dopo "Hub Guesthouse".
+- **Albero Tariffe**: Aggiunto separatore visivo dedicato `🛠️ AMBIENTE DI SIMULAZIONE E TEST (Scollegato dalle OTA)` prima degli alberi dei Fake Bungalow.
+- **`accommodations.ts`**: Tipo `RoomType.category` esteso con `'TEST'`; Fake Bungalow 1 e 2 ora classificati `'TEST'`.
+
+### Bug Fix Runtime
+- **`ReferenceError: React is not defined`**: Aggiunto `import React` in `DerivedRatesTreeSection.tsx` (necessario per `<React.Fragment key={...}>`).
+- **`ReferenceError: AGENCY_DIRECT is not defined`**: Sostituita la costante inesistente `AGENCY_DIRECT` con `AGENCY_WEBSITE` per le tariffe BE dei Fake Bungalow.
+- **Simbolo `฿` corrotto (`เธฟ`)**: Riscritto il file con PowerShell UTF-8 corretto dopo corruzione encoding; 139 simboli ripristinati.
+- **Blocco codice duplicato**: Rimosso tramite splice PowerShell il doppio blocco Fake Bungalow lasciato da un replace parziale.
+
+---
 

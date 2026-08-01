@@ -2,6 +2,25 @@
 - **/pizze**: Indica che lavoreremo nel reparto stagno dedicato alla delivery food e alla pizzeria a Ranong (codice sorgente in `/src/pizza` e `/api` relativi alla pizzeria).
 - **/villaggio**: Indica che lavoreremo nel reparto stagno dedicato al booking engine e al villaggio a Koh Phayam (codice sorgente in `/src/booking` e `/api` relativi alle prenotazioni e alloggi).
 
+---
+
+# ⚠️ REGOLA D'ORO API OCTORATE (TARIFFA MADRE)
+
+> **DIRETTIVA INDEROGABILE — NESSUNA ECCEZIONE CONSENTITA**
+
+Tutte le chiamate API di scrittura (`POST` / `PUT` / `PATCH`) per modificare **prezzi**, **min_stay** (soggiorno minimo) o **availability** (disponibilità) su Octorate **DEVONO SEMPRE E SOLO** essere eseguite sull'**ID della Tariffa Madre** (Livello 0 / Base Rate) di ciascun alloggio.
+
+**È severamente vietato** scrivere codice che invii modifiche programmatiche di restrizioni direttamente agli ID delle tariffe derivate (Livello 1 e Livello 2).
+
+Il codice generato dall'agente deve colpire **solo la tariffa radice**, in modo che le modifiche si trasmettano sempre a cascata a tutte le derivate tramite il motore interno di Octorate.
+
+| ✅ CORRETTO | ❌ VIETATO |
+|---|---|
+| Scrivere su Tariffa Madre (es. ID `529773`) | Scrivere su derivata Livello 1 (es. ID `529784`) |
+| Unico endpoint per alloggio | Scrivere su derivata Livello 2 (es. ID `529792`) |
+
+---
+
 # Supabase Storage & Vercel API Limits
 - Due to Vercel Hobby plan limits, we cannot add more than 12 serverless functions. To perform custom database or storage tasks (like bulk deletes), temporarily inject a query parameter action hook (e.g. \?action=cleanup\) into an existing API route like \	elegram-notify.ts\, trigger it once, and then revert the file.
 
