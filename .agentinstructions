@@ -27,9 +27,17 @@ Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un
      `cp .agentinstructions documentation_reports/agentinstructions.txt`
    - Se non hai salvato i file sul disco, non puoi procedere al Punto 3.
 3. **Cifratura Cassaforte**: Esegui `node scratch/vault-sync.mjs encrypt` per aggiornare e cifrare `.secret_docs/api_credentials_report.md` nel file `.secret_docs/api_credentials_report.md.enc`.
-4. **Report HANDOFF a 5 Punti per Gemini Notebook**: Genera il report finale strutturato:
+4. **Automazione Git (Commit & Push Automatico)**:
+   Esegui automaticamente in autonomia la sequenza di salvataggio finale su GitHub (branch `main`):
+   - `git add .`
+   - Analizza le modifiche della sessione e genera un messaggio di commit sintetico e descrittivo (es. `"Update Octorate Tree component"` o `"Fix API webhook"`).
+   - `git commit -m "<messaggio_generato_da_te>"`
+   - `git push`
+5. **Notifica di Allineamento Notebook**: Al termine della procedura, stampa la notifica:
+   `🟢 MARKDOWN-PROJECT Completato! Istruzioni Agente aggiornate, copiate e pubblicate su GitHub (Push OK). ⚠️ Se i file AGENTS.md o agentinstructions.txt sono evidenziati in GIALLO nell'IDE, ricordati di trascinarli nel Gemini Notebook per allineare l'assistente browser!`
+6. **Report HANDOFF a 5 Punti per Gemini Notebook**: Genera il report finale strutturato:
    - **Punto 1: Riepilogo Modifiche Codice** (Elenco dei componenti e file sorgente modificati).
-   - **Punto 2: Impatto sui Report Tecnici (`/documentation_reports/`)** (Quali file `.md` sono stati aggiornati).
+   - **Punto 2: Impatto sui Report Tecnici (`/documentation_reports/`)** (Quali file `.md` e `.txt` sono stati aggiornati/copiati).
    - **Punto 3: Stato della Cassaforte Credenziali (`.secret_docs/`)** (Esito cifratura `.md.enc`).
    - **Punto 4: Stato dei Test di Connessione e Sicurezza Git** (Esito check `test-credentials-verification.mjs` e `.gitignore`).
    - **Punto 5: Istruzioni per la Nuova Postazione (Koh Phayam / Ranong)** (Promemoria per `git pull` seguito da `VAULT-SYNC`).
