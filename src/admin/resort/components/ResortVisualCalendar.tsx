@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useResortAdminStore, ResortBooking } from '../store/useResortAdminStore';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { fetchOctorateMonthlyGrid, OctorateDayData } from '../../../booking/lib/octorate';
-import { getBaselineMinStay, getMotherRatePlanId } from '../lib/octorateAdmin';
+import { getBaselineMinStay, getMotherRatePlanId, getCanonicalAccommodation } from '../lib/octorateAdmin';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -26,6 +26,37 @@ const MONTH_NAMES_IT = [
 ];
 
 const DAY_NAMES_IT = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+
+export function formatGuestLastNameFirst(bookingInput: any): string {
+  if (!bookingInput) return 'Ospite';
+
+  if (typeof bookingInput === 'object') {
+    const familyName = bookingInput.guest_last_name || bookingInput.guestLastName || bookingInput.familyName || bookingInput.last_name || bookingInput.lastName;
+    const givenName = bookingInput.guest_first_name || bookingInput.guestFirstName || bookingInput.givenName || bookingInput.first_name || bookingInput.firstName;
+
+    if (familyName && givenName) {
+      return `${familyName} ${givenName}`.trim();
+    }
+  }
+
+  const rawName = typeof bookingInput === 'string' 
+    ? bookingInput 
+    : (bookingInput.guest_name || bookingInput.guestName || bookingInput.customerName || bookingInput.name || '');
+
+  if (!rawName || typeof rawName !== 'string') return 'Ospite';
+  const trimmed = rawName.trim();
+  if (!trimmed) return 'Ospite';
+
+  if (trimmed.includes(',') || trimmed.includes('/')) return trimmed;
+
+  const parts = trimmed.split(/\s+/);
+  if (parts.length < 2) return trimmed;
+
+  const lastName = parts[parts.length - 1];
+  const firstNames = parts.slice(0, parts.length - 1).join(' ');
+
+  return `${lastName} ${firstNames}`;
+}
 
 const ROOM_BASE_RATES: Record<string, number> = {
   'Jungle Villa': 2290,
@@ -255,7 +286,7 @@ const ALL_ACCOMMODATIONS_MAP: Record<string, { ids: string[]; keywords: string[]
   'internal room': {
     ids: ['293942', '449742', '872182', '293941', '332109', '332105', '340367', '916840', '421998', '916838', '921898', '921899', '297027', '422147'],
     keywords: [["internal","inter"]]
-  },
+  }
 };
 
 function toThailandDateStr(raw: any): string {
@@ -304,7 +335,6 @@ function findMatchingBooking(
     const status = String(b.status || '').toLowerCase();
     if (status === 'cancelled' || status === 'canceled') return false;
 
-    // Room ID & Name matching normalization
     const bRoomName = String(
       b.roomName || 
       b.accommodation_name || 
@@ -329,7 +359,6 @@ function findMatchingBooking(
 
     let isRoomMatch = false;
 
-    // 1. Direct ID Match
     if (bProduct) {
       if (bProduct === targetRoomIdStr || bProduct === targetOctIdStr) {
         isRoomMatch = true;
@@ -338,7 +367,6 @@ function findMatchingBooking(
       }
     }
 
-    // 2. Smart Bidirectional Keyword Match
     if (!isRoomMatch && bRoomName) {
       if (bRoomName === targetNameLower || bRoomName.includes(targetNameLower) || targetNameLower.includes(bRoomName)) {
         if (targetNameLower === 'jungle villa') {
@@ -360,7 +388,6 @@ function findMatchingBooking(
 
     if (!isRoomMatch) return false;
 
-    // Date YYYY-MM-DD normalization with Asia/Bangkok Timezone alignment
     const rawCheckIn = String(b.checkin || b.check_in || b.checkIn || b.start_date || b.startDate || '');
     const rawCheckOut = String(b.checkout || b.check_out || b.checkOut || b.end_date || b.endDate || '');
 
@@ -373,10 +400,12 @@ function findMatchingBooking(
   }) || null;
 }
 
-/**
- * Calcola reattivamente il Soggiorno Minimo Dinamico (Gap-Fill a doppio senso)
- * per ciascun alloggio sulla griglia delle date correnti.
- */
+export interface MinStayCellInfo {
+  minStay: number;
+  isGapFill: boolean;
+  isSimulated: boolean;
+}
+
 function computeGapFillMinStays(
   roomName: string,
   roomId: string,
@@ -386,9 +415,9 @@ function computeGapFillMinStays(
   liveGridData: Record<string, Record<string, OctorateDayData>>,
   bookings: ResortBooking[],
   dynamicGapFillEnabled: boolean
-): Record<string, number> {
-  const result: Record<string, number> = {};
-  if (datesArray.length === 0) return result;
+): Record<string, MinStayCellInfo> {
+  const result: Record<string, MinStayCellInfo> = {};
+  if (!datesArray || datesArray.length === 0) return result;
 
   const targetRoomName = roomName.toLowerCase();
   const targetRoomId = String(roomId);
@@ -414,49 +443,47 @@ function computeGapFillMinStays(
       (liveData ? (liveData.stopSell || !liveData.available || liveData.price >= 10000) : false);
 
     const hasBooking = (bookings || []).some((b: any) => {
-      if (b.status === 'cancelled') return false;
+      const status = String(b.status || '').toLowerCase();
+      if (status === 'cancelled' || status === 'canceled') return false;
+
+      const canonical = getCanonicalAccommodation(b);
       const bAccName = String(b.accommodation_name || b.roomName || b.room_name || '').toLowerCase();
       const bAccId = String(b.accommodation_id || b.roomId || b.octorateRoomId || b.octorateId || '');
 
-      const isRoomMatch = 
-        (bAccName.length > 0 && (bAccName.includes(targetRoomName) || targetRoomName.includes(bAccName))) ||
-        (bAccId.length > 0 && (
-          bAccId === targetRoomId || 
-          (targetOctId.length > 0 && bAccId === targetOctId) || 
-          (targetRoomId.length > 0 && Number(bAccId) === Number(targetRoomId)) ||
-          (targetOctId.length > 0 && Number(bAccId) === Number(targetOctId))
-        ));
+      const isRoomMatch = canonical
+        ? (canonical.key === targetRoomName || canonical.name.toLowerCase() === targetRoomName)
+        : (
+            (bAccName.length > 0 && (bAccName.includes(targetRoomName) || targetRoomName.includes(bAccName))) ||
+            (bAccId.length > 0 && (
+              bAccId === targetRoomId || 
+              (targetOctId.length > 0 && bAccId === targetOctId) || 
+              (targetRoomId.length > 0 && Number(bAccId) === Number(targetRoomId)) ||
+              (targetOctId.length > 0 && Number(bAccId) === Number(targetOctId))
+            ))
+          );
 
       if (!isRoomMatch) return false;
 
-      const inDateStr = String(b.check_in || b.checkIn || '').slice(0, 10);
-      const outDateStr = String(b.check_out || b.checkOut || '').slice(0, 10);
+      const inDateStr = toThailandDateStr(b.check_in || b.checkIn || b.checkin || b.start_date);
+      const outDateStr = toThailandDateStr(b.check_out || b.checkOut || b.checkout || b.end_date);
 
       return dateStr >= inDateStr && dateStr < outDateStr;
     });
 
     const isFree = !isClosedOrStopSell && !hasBooking;
-
-    // Gerarchia Rigida Min Stay:
-    // 1. Se i dati live di Octorate sono disponibili ed esiste minStay > 0, usa tassativamente quello.
-    // 2. Solo se offline o undefined, ripiega sulla regola stagionale interna.
-    const hasLiveMinStay = typeof liveData?.minStay === 'number' && liveData.minStay > 0;
-    const standardMinStay = hasLiveMinStay ? (liveData!.minStay as number) : getBaselineMinStay(dateStr);
+    const standardMinStay = getBaselineMinStay(dateStr);
 
     return { dateStr, isFree, standardMinStay };
   });
 
-  if (!dynamicGapFillEnabled) {
-    dailyStates.forEach(s => {
-      result[s.dateStr] = s.standardMinStay;
-    });
-    return result;
-  }
-
   let i = 0;
   while (i < dailyStates.length) {
     if (!dailyStates[i].isFree) {
-      result[dailyStates[i].dateStr] = dailyStates[i].standardMinStay;
+      result[dailyStates[i].dateStr] = { 
+        minStay: dailyStates[i].standardMinStay, 
+        isGapFill: false, 
+        isSimulated: false
+      };
       i++;
       continue;
     }
@@ -471,9 +498,17 @@ function computeGapFillMinStays(
     for (let k = gapStart; k <= gapEnd; k++) {
       const s = dailyStates[k];
       if (gapNights < s.standardMinStay && gapNights > 0) {
-        result[s.dateStr] = gapNights;
+        result[s.dateStr] = {
+          minStay: gapNights,
+          isGapFill: true,
+          isSimulated: !dynamicGapFillEnabled
+        };
       } else {
-        result[s.dateStr] = s.standardMinStay;
+        result[s.dateStr] = { 
+          minStay: s.standardMinStay, 
+          isGapFill: false, 
+          isSimulated: false
+        };
       }
     }
   }
@@ -487,33 +522,22 @@ export function ResortVisualCalendar() {
     accommodations, 
     fetchBookings,
     dynamicMinStayGapFill,
-    setDynamicMinStayGapFill
+    setDynamicMinStayGapFill,
+    dynamicMinStayUpdates
   } = useResortAdminStore();
-
-  console.log("[DEBUG PRENOTAZIONI] Totale ricevute:", bookings?.length);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // View mode: 'today_30_days' (starts from today on far left) OR 'full_month'
   const [viewMode, setViewMode] = useState<'today_30_days' | 'full_month'>('today_30_days');
   const [startDate, setStartDate] = useState<Date>(new Date());
   
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(today.getMonth()); // 0-11
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [selectedBooking, setSelectedBooking] = useState<ResortBooking | null>(null);
   const [liveGridData, setLiveGridData] = useState<Record<string, Record<string, OctorateDayData>>>({});
   const [loadingLive, setLoadingLive] = useState<boolean>(false);
-
-  console.log("=== DEBUG LIVE GRID ===");
-  console.log("TIPO DI DATO:", Array.isArray(liveGridData) ? "Array" : typeof liveGridData);
-  console.log("CHIAVI DISPONIBILI:", liveGridData ? Object.keys(liveGridData) : "Nessuna");
-
-  // Load bookings on mount
-  useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
 
   // Compute array of date objects to render in columns
   const datesArray: Date[] = (() => {
@@ -536,9 +560,6 @@ export function ResortVisualCalendar() {
     }
   })();
 
-  console.log("[DEBUG PRENOTAZIONI CALENDARIO] Totale prenotazioni disponibili per il matching:", (bookings || []).length, bookings);
-
-  // Load Octorate Live Calendar & active reservations whenever dates range changes
   const loadLiveGrid = async () => {
     if (datesArray.length === 0) return;
     setLoadingLive(true);
@@ -549,7 +570,6 @@ export function ResortVisualCalendar() {
       const dateFrom = toThailandDateStr(firstDate);
       const dateTo = toThailandDateStr(lastDate);
 
-      // Separation of concerns: parallel fetch for grid prices & reservations
       const [gridData, bookingsRes] = await Promise.all([
         fetchOctorateMonthlyGrid(dateFrom, dateTo),
         fetch(`/api/resort/octorate-bookings?dateFrom=${dateFrom}&dateTo=${dateTo}`)
@@ -561,7 +581,6 @@ export function ResortVisualCalendar() {
         const bookingsJson = await bookingsRes.json();
         if (bookingsJson.data && Array.isArray(bookingsJson.data)) {
           useResortAdminStore.getState().setBookings(bookingsJson.data);
-          console.log(`[ResortVisualCalendar] Popolate ${bookingsJson.data.length} prenotazioni dallo store per il periodo ${dateFrom} -> ${dateTo}`);
         }
       }
     } catch (err) {
@@ -835,6 +854,23 @@ export function ResortVisualCalendar() {
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-sky-500 shadow-sm" /> Expedia</span>
           <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-700 shadow-sm" /> Stop Sell / Chiuso</span>
         </div>
+
+        {/* MinStay Color Legend */}
+        <div className="flex items-center gap-3 flex-wrap text-[10px] font-black text-stone-300 pt-1 sm:pt-0 border-t sm:border-t-0 sm:border-l border-stone-800 pl-0 sm:pl-3">
+          <span className="text-stone-400 font-bold uppercase tracking-wider">Legenda Soggiorno Minimo:</span>
+          <span className="flex items-center">
+            <span className="bg-yellow-400 w-4 h-4 rounded-full inline-block align-middle mr-1 shadow-sm" />
+            Standard
+          </span>
+          <span className="flex items-center">
+            <span className="bg-red-500 animate-pulse w-4 h-4 rounded-full inline-block align-middle mr-1 shadow-sm" />
+            Simulazione
+          </span>
+          <span className="flex items-center">
+            <span className="bg-green-800 w-4 h-4 rounded-full inline-block align-middle mr-1 shadow-sm border border-green-500/50" />
+            Sincronizzato
+          </span>
+        </div>
       </div>
 
       {/* Grid Matrix Table Container - Fits on one screen without vertical scrollbar */}
@@ -925,15 +961,60 @@ export function ResortVisualCalendar() {
                       const motherPriceStr = motherPriceVal >= 10000 
                         ? '10.000' 
                         : (motherPriceVal > 0 ? motherPriceVal.toLocaleString('it-IT') : 'N/D');
-
-                      // Prezzo BE con Sconto 10% (arrotondato)
                       const beDiscountedPrice = beData?.price ? Math.round(beData.price * 0.9) : null;
                       const beDiscountedStr = beDiscountedPrice !== null 
                         ? (beDiscountedPrice >= 10000 ? '10.000' : beDiscountedPrice.toLocaleString('it-IT')) 
                         : 'N/D';
 
-                      // Minimum stay letto dalla Tariffa Madre
-                      const motherMinStayNum = Number(motherData?.minStay ?? motherData?.minstay ?? motherData?.minNights ?? motherData?.min_stay ?? gapFillMinStays[dateStr] ?? 0);
+                      // TABULA RASA: Baseline stagionale pura calcolata esclusivamente in base alle date
+                      const expectedBaseline = getBaselineMinStay(dateStr);
+
+                      // 🔍 1. RICERCA CORRISPONDENZA NELL'ARRAY dynamicMinStayUpdates DELLO STORE ZUSTAND
+                      const storeUpdateMatch = (dynamicMinStayUpdates || []).find((u: any) => {
+                        const matchRoom = 
+                          String(u.roomTypeId) === String(motherId) ||
+                          String(u.roomTypeId) === String(beId) ||
+                          String(u.roomTypeId) === String(room.id) ||
+                          String(u.roomTypeId) === String(room.octorateId) ||
+                          (u.accommodationName && u.accommodationName.toLowerCase() === room.name.toLowerCase()) ||
+                          (u.roomId && String(u.roomId) === String(room.id));
+
+                        if (!matchRoom) return false;
+
+                        const fromDate = u.dateFrom || u.date || u.from_date || u.startDate;
+                        const toDate = u.dateTo || u.to_date || u.endDate;
+
+                        if (fromDate && toDate) {
+                          return dateStr >= fromDate && dateStr < toDate;
+                        } else if (fromDate) {
+                          return dateStr === fromDate;
+                        }
+                        return false;
+                      });
+
+                      // 🔍 2. RICERCA COMPLEMENTARE IN MEMORIA (computeGapFillMinStays)
+                      const gapFillCellInfo = gapFillMinStays[dateStr];
+
+                      let motherMinStayNum = expectedBaseline;
+                      let isGapFillModified = false;
+                      let isSimulatedMode = false;
+
+                      if (storeUpdateMatch) {
+                        // 🔴/🟢 PRIORITÀ 1: Match in dynamicMinStayUpdates (Generato dal pulsante "Esegui Calcolo Gap-Fill")
+                        motherMinStayNum = Number(storeUpdateMatch.minStay ?? storeUpdateMatch.min_stay ?? expectedBaseline);
+                        isGapFillModified = true;
+                        isSimulatedMode = storeUpdateMatch.isSimulated !== false;
+                      } else if (gapFillCellInfo && (typeof gapFillCellInfo === 'object' ? gapFillCellInfo?.isGapFill : false)) {
+                        // 🔴/🟢 PRIORITÀ 2: Match in memoria per bucatura sulle date visibili
+                        motherMinStayNum = Number(typeof gapFillCellInfo === 'object' ? gapFillCellInfo?.minStay : expectedBaseline);
+                        isGapFillModified = true;
+                        isSimulatedMode = !dynamicMinStayGapFill;
+                      } else {
+                        // 🟡 PRIORITÀ 3: Baseline stagionale pura standard (TABULA RASA su Octorate) -> Cerchio Giallo
+                        motherMinStayNum = expectedBaseline;
+                        isGapFillModified = false;
+                        isSimulatedMode = false;
+                      }
 
                       // 🥇 PRIORITÀ 1: Prenotazione (Controllo array "bookings")
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookings);
@@ -971,47 +1052,13 @@ export function ResortVisualCalendar() {
                         }
                       }
 
-                      // 🥈 PRIORITÀ 2: Chiusura / Stop Sell (valutata RIGOROSAMENTE sulla Tariffa Madre)
                       const isRoomClosedByStaff = room.isAvailable === false;
-
-                      // Controllo se dateStr è il giorno di CHECKOUT di una prenotazione per questo alloggio
-                      const isCheckoutDay = !matchingBooking && (bookings || []).some((b: any) => {
-                        const status = String(b.status || '').toLowerCase();
-                        if (status === 'cancelled' || status === 'canceled') return false;
-
-                        const outDateStr = toThailandDateStr(b.checkout || b.check_out || b.checkOut || b.endDate);
-                        if (outDateStr !== dateStr) return false;
-
-                        const bProduct = String(b.product || b.pmsProduct || b.accommodation_id || b.roomId || '').trim();
-                        const bName = String(b.roomName || b.accommodation_name || b.room_name || '').toLowerCase().trim();
-                        const rName = room.name.toLowerCase().trim();
-
-                        const matchById = [String(motherId), String(beId), String(room.id), String(room.octorateId)].filter(Boolean).includes(bProduct);
-                        let matchByName = Boolean(bName && rName && (bName.includes(rName) || rName.includes(bName)));
-                        if (rName === 'jungle villa' && (bName.includes('left') || bName.includes('right'))) {
-                          matchByName = false;
-                        }
-
-                        const validIds = ALL_ACCOMMODATIONS_MAP[rName]?.ids || [];
-                        const matchByMap = validIds.includes(bProduct);
-
-                        return matchById || matchByName || matchByMap;
-                      });
-
                       const rawMotherStopSell = motherData
                         ? (Boolean(motherData.stopSell || motherData.stopSells) || motherData.available === false || (motherData.availability !== undefined && motherData.availability <= 0) || motherData.price >= 10000)
                         : false;
+                      const isClosedOrStopSell = isRoomClosedByStaff || rawMotherStopSell;
 
-                      // Nel giorno di checkout il blocco disponibilità di Octorate è un artefatto: se il prezzo è valido ed il resort è aperto, la camera è VERDE (libera)
-                      const isMotherStopSell = (isCheckoutDay && motherPriceVal < 10000 && !isRoomClosedByStaff)
-                        ? false
-                        : rawMotherStopSell;
-
-                      const isClosedOrStopSell = isRoomClosedByStaff || isMotherStopSell;
-
-                      // LAYOUT IBRIDO COMPLETO: Sfondo & Stile
                       let bgStyle = 'bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60 cursor-default shadow-inner';
-
                       if (matchingBooking) {
                         const channelName = getBookingChannelName(matchingBooking);
                         const style = getAgencyStyle(channelName);
@@ -1028,12 +1075,27 @@ export function ResortVisualCalendar() {
                           onClick={() => matchingBooking && setSelectedBooking(matchingBooking)}
                           className={`py-1 px-0.5 border-l text-center transition-colors relative w-[100px] min-w-[64px] max-w-[100px] truncate overflow-hidden ${bgStyle}`}
                           title={matchingBooking 
-                            ? `Prenotato: ${matchingBooking.guest_name || 'Ospite'} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
+                            ? `Prenotato: ${formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
                             : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`}
                         >
-                          {/* BADGE MINSTAY (Cerchio Giallo con testo nero) */}
+                          {/* BADGE MINSTAY (Rosso = Simulazione DRY_RUN, Verde Scuro = Sincronizzato PRODUZIONE, Giallo = Standard Baseline) */}
                           {motherMinStayNum > 0 && (
-                            <div className="absolute top-0.5 right-0.5 w-4 h-4 bg-yellow-400 text-black text-[9.5px] font-black rounded-full flex items-center justify-center z-10 shadow-md">
+                            <div 
+                              className={`absolute top-0.5 right-0.5 z-10 font-bold text-[9.5px] rounded-full shadow-md flex items-center justify-center ${
+                                isGapFillModified
+                                  ? (isSimulatedMode
+                                      ? 'bg-red-500 text-white w-5 h-5 border border-red-300 shadow-red-900/50 animate-pulse'
+                                      : 'bg-green-800 text-white w-5 h-5 border border-green-400 shadow-green-950/50')
+                                  : 'bg-yellow-400 text-black w-4 h-4'
+                              }`}
+                              title={
+                                isGapFillModified
+                                  ? (isSimulatedMode
+                                      ? `⚡ Soggiorno Minimo Dinamico (Simulazione Dry-Run: ${motherMinStayNum} notti)`
+                                      : `✅ Soggiorno Minimo Dinamico (Sincronizzato su Octorate PMS: ${motherMinStayNum} notti)`)
+                                  : `Soggiorno Minimo Stagionale Standard: ${motherMinStayNum} notti`
+                              }
+                            >
                               {motherMinStayNum}
                             </div>
                           )}
@@ -1053,9 +1115,9 @@ export function ResortVisualCalendar() {
                               <div className="truncate text-xs font-bold min-w-0 w-full text-center text-white uppercase">
                                 {getBookingChannelName(matchingBooking)}
                               </div>
-                              {/* Riga 2: Nome Ospite */}
+                              {/* Riga 2: Cognome poi Nome Ospite */}
                               <div className="truncate text-[10px] min-w-0 w-full text-center text-white/95 font-medium">
-                                {matchingBooking.guest_name || (matchingBooking as any).guestName || 'Ospite'}
+                                {formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)}
                               </div>
                               {/* Tariffa Reale Giornaliera Pagata dall'Ospite */}
                               <div className="text-[10px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
@@ -1088,11 +1150,11 @@ export function ResortVisualCalendar() {
 
       {/* Booking Details Modal Popup */}
       {selectedBooking && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fadeIn">
-            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex justify-between items-center pb-2 border-b border-stone-800">
               <div className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-emerald-400" />
+                <Info className="w-5 h-5 text-amber-400" />
                 <h3 className="font-extrabold text-white text-base">Dettaglio Prenotazione</h3>
               </div>
               <button
@@ -1105,10 +1167,10 @@ export function ResortVisualCalendar() {
 
             <div className="space-y-3 text-xs">
               <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-850 space-y-1.5">
-                <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Ospite:</span>
+                <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Ospite (Cognome Nome):</span>
                 <div className="font-extrabold text-white text-sm flex items-center gap-2">
                   <User className="w-4 h-4 text-amber-400" />
-                  <span>{selectedBooking.guest_name}</span>
+                  <span>{formatGuestLastNameFirst(selectedBooking.guest_name || (selectedBooking as any).guestName)}</span>
                 </div>
                 <div className="text-stone-400">{selectedBooking.guest_email} · {selectedBooking.guest_phone}</div>
               </div>

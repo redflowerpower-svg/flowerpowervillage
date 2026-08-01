@@ -48,6 +48,7 @@ interface ResortAdminState {
   // Dynamic Minimum Stay (Gap-Fill) State & Execution
   dynamicMinStayGapFill: boolean;
   dynamicMinStayRunning: boolean;
+  dynamicMinStayUpdates: any[];
   dynamicMinStayResult: { success: boolean; dryRun: boolean; message: string; updatesCount: number } | null;
 
   // Last-Minute Channel Strategy Automation State
@@ -66,7 +67,7 @@ interface ResortAdminState {
   checkOctorateConnection: () => Promise<void>;
   setFilterCategory: (category: string) => void;
   setDynamicMinStayGapFill: (enabled: boolean) => void;
-  executeDynamicMinStayStrategy: (resetToBaseline?: boolean) => Promise<void>;
+  executeDynamicMinStayStrategy: (resetToBaseline?: boolean, customRange?: { start: string; end: string }) => Promise<void>;
 
   // Last-Minute Actions
   setLastMinuteThresholdDays: (days: number) => void;
@@ -105,33 +106,75 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     }
   },
 
-  dynamicMinStayGapFill: true,
+  dynamicMinStayGapFill: false,
   dynamicMinStayRunning: false,
+  dynamicMinStayUpdates: [],
   dynamicMinStayResult: null,
   setDynamicMinStayGapFill: (enabled: boolean) => set({ dynamicMinStayGapFill: enabled }),
 
-  executeDynamicMinStayStrategy: async (resetToBaseline: boolean = false) => {
+  executeDynamicMinStayStrategy: async (resetToBaseline: boolean = false, customRange?: { start: string; end: string }) => {
     set({ dynamicMinStayRunning: true });
     try {
-      const { bookings } = get();
-      const todayISO = new Date().toISOString().substring(0, 10);
-      const next60Days = new Date();
-      next60Days.setDate(next60Days.getDate() + 60);
-      const endISO = next60Days.toISOString().substring(0, 10);
+      let { bookings, dynamicMinStayGapFill, fetchBookings } = get();
+
+      // Regola 1: Se l'array prenotazioni è vuoto, recupera automaticamente le prenotazioni live da /api/resort/octorate-bookings
+      if (!bookings || bookings.length === 0) {
+        console.log('[useResortAdminStore] Array bookings vuoto: Eseguo fetchBookings() automatico prima del Gap-Fill...');
+        await fetchBookings();
+        bookings = get().bookings;
+      }
+
+      const todayISO = customRange?.start || new Date().toISOString().substring(0, 10);
+      let endISO = customRange?.end;
+      if (!endISO) {
+        const nextYear = new Date();
+        nextYear.setDate(nextYear.getDate() + 365);
+        endISO = nextYear.toISOString().substring(0, 10);
+      }
 
       const updates = calculateDynamicMinStay(bookings, { start: todayISO, end: endISO });
 
-      const apiRes = await fetch('/api/resort/octorate/min-stay', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ updates, resetToBaseline })
-      });
+      // Se il toggle non è spuntato, la modalità è forzata su Simulazione (dryRun = true)
+      const isDryRun = !dynamicMinStayGapFill;
+      const annotatedUpdates = updates.map(u => ({ ...u, isSimulated: isDryRun }));
+
+      const endpoints = [
+        '/api/resort/octorate-min-stay',
+        '/api/octorate-min-stay',
+        '/api/resort-octorate-min-stay'
+      ];
+
+      let apiRes: Response | null = null;
+      let lastErrText = '';
+
+      for (const endpoint of endpoints) {
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ updates: annotatedUpdates, resetToBaseline, dryRun: isDryRun })
+          });
+          if (res.ok) {
+            apiRes = res;
+            break;
+          } else {
+            lastErrText = await res.text();
+          }
+        } catch (err: any) {
+          lastErrText = err.message;
+        }
+      }
+
+      if (!apiRes) {
+        throw new Error(`Server returned HTTP Error: ${lastErrText.slice(0, 100)}`);
+      }
 
       const resJson = await apiRes.json();
       set({
+        dynamicMinStayUpdates: annotatedUpdates,
         dynamicMinStayResult: {
           success: resJson.success,
-          dryRun: resJson.dryRun,
+          dryRun: resJson.dryRun ?? isDryRun,
           message: resJson.message || (resJson.success ? 'Calcolo soggiorno minimo dinamico eseguito con successo.' : 'Errore esecuzione'),
           updatesCount: resJson.updatesCount || 0
         },

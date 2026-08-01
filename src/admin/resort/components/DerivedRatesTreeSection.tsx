@@ -16,7 +16,7 @@ import {
   Calendar
 } from 'lucide-react';
 import { useResortAdminStore } from '../store/useResortAdminStore';
-import { fetchOctorateMonthlyGrid } from '../../booking/lib/octorate';
+import { fetchOctorateMonthlyGrid } from '../../../booking/lib/octorate';
 
 export interface AgencyBadge {
   name: string;

@@ -520,11 +520,12 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { updates, resetToBaseline } = req.body || {};
+  const { updates, resetToBaseline, dryRun } = req.body || {};
   const updateItems = Array.isArray(updates) ? updates : [];
+  const isSimulation = dryRun !== undefined ? Boolean(dryRun) : DRY_RUN;
 
   // STAGING LOCK CHECK: Se DRY_RUN viene disattivato (false), rifiuta la scrittura se non per i due alloggi fittizi
-  if (!DRY_RUN) {
+  if (!isSimulation) {
     const invalidTarget = updateItems.find((item: any) => {
       const idStr = String(item.roomTypeId || item.id || item.octorateId || item.room || '');
       return !STAGING_LOCK_IDS.has(idStr);
@@ -540,7 +541,7 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
     }
   }
 
-  if (DRY_RUN) {
+  if (isSimulation) {
     console.log(`[MIN-STAY DRY RUN SIMULATION] Elaborati ${updateItems.length} aggiornamenti dinamici (resetToBaseline: ${Boolean(resetToBaseline)})`);
     return res.status(200).json({
       success: true,

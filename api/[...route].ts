@@ -43,7 +43,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // Normalize path string (remove leading 'api/' and trailing slashes)
-  const cleanPath = pathname.replace(/^api\//, '').replace(/\/$/, '');
+  const queryRoute = Array.isArray(req.query?.route) ? req.query.route.join('/') : String(req.query?.route || '');
+  const cleanPath = (pathname || queryRoute || '').replace(/^api\//, '').replace(/\/$/, '');
+
+  if (cleanPath.includes('min-stay') || cleanPath.includes('minstay')) {
+    return handleOctorateMinStay(req, res);
+  }
+
+  if (cleanPath.includes('octorate-bookings') || cleanPath.includes('octorate_bookings')) {
+    return handleOctorateBookings(req, res);
+  }
+
+  if (cleanPath.includes('octorate-grid') || cleanPath.includes('octorate_grid')) {
+    return handleOctorateGrid(req, res);
+  }
 
   switch (cleanPath) {
     case 'create-checkout-session':
@@ -89,6 +102,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return handleOctorateGrid(req, res);
 
     case 'resort/octorate/min-stay':
+    case 'resort/octorate-min-stay':
+    case 'octorate-min-stay':
       return handleOctorateMinStay(req, res);
 
     case 'webhooks/octorate':

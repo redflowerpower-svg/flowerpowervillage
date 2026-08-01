@@ -57,15 +57,14 @@ export interface DynamicMinStayUpdate {
 }
 
 /**
- * Algoritmo Serverless di Calcolo Soggiorno Minimo Dinamico (Gap-Filling & Density Pricing)
+ * Algoritmo Serverless di Calcolo Soggiorno Minimo Dinamico (Puro Gap-Filling)
  */
 function calculateServerDynamicMinStay(
   bookings: Array<{ accommodation_name?: string; accommodation_id?: string; check_in: string; check_out: string; status?: string }>,
-  dateRange: { start: string; end: string },
-  occupancyRatePct: number = 50
+  dateRange: { start: string; end: string }
 ): DynamicMinStayUpdate[] {
   const updates: DynamicMinStayUpdate[] = [];
-  const activeBookings = (bookings || []).filter(b => b.status !== 'cancelled');
+  const activeBookings = (bookings || []).filter(b => b.status !== 'cancelled' && b.status !== 'canceled');
 
   const roomBookingsMap: Record<string, Array<{ in: string; out: string }>> = {};
 
@@ -90,29 +89,20 @@ function calculateServerDynamicMinStay(
         const nextInTime = new Date(nextIn).getTime();
         const gapDays = Math.round((nextInTime - prevOutTime) / (1000 * 60 * 60 * 24));
 
-        if (gapDays > 0 && gapDays < 7) {
-          const baseStay = getBaselineMinStay(prevOut);
+        if (gapDays > 0) {
+          const defaultMinStay = getBaselineMinStay(prevOut);
           
-          let densityStay = baseStay;
-          if (occupancyRatePct >= 75) {
-            densityStay = 5;
-          } else if (occupancyRatePct >= 40) {
-            densityStay = 3;
-          } else {
-            densityStay = 2;
+          if (gapDays < defaultMinStay) {
+            const octRoomId = String(MOTHER_RATE_PLANS[roomName] || roomName);
+            updates.push({
+              roomTypeId: octRoomId,
+              accommodationName: roomName,
+              dateFrom: prevOut,
+              dateTo: nextIn,
+              minStay: gapDays,
+              reason: `Puro Gap-Fill Webhook (${gapDays}d gap < default ${defaultMinStay}d): M=${gapDays}`
+            });
           }
-
-          const gapMinStay = Math.min(gapDays, densityStay);
-
-          const octRoomId = String(MOTHER_RATE_PLANS[roomName] || roomName);
-          updates.push({
-            roomTypeId: octRoomId,
-            accommodationName: roomName,
-            dateFrom: prevOut,
-            dateTo: nextIn,
-            minStay: gapMinStay,
-            reason: `Gap-Fill Webhook (${gapDays}d gap, Density ${occupancyRatePct}%): M=${gapMinStay}`
-          });
         }
       }
     }

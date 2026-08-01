@@ -17,6 +17,24 @@ L'esperienza visiva del sito si basa su un'interfaccia fortemente immersiva con 
 
 ---
 
+## 8. Modulo Soggiorno Minimo Dinamico (Gap-Fill) & Calendario Visivo Alloggi
+
+### Architecture & Rules (Puro Gap-Fill Tabula Rasa)
+- **Baseline Stagionale Pura (Tabula Rasa su Octorate)**:
+  - **1 Nov - 20 Dec**: 2 notti.
+  - **21 Dec - 15 Jan (Peak Season)**: 5 notti.
+  - **16 Jan - 31 Mar**: 3 notti standard, **2 notti** se `arrivalDate - today <= 30` giorni.
+  - **1 Apr - 31 Oct (Low Season)**: 2 notti.
+- **Puro Gap-Filling (Ignora Density Pricing)**:
+  - Se il buco tra due prenotazioni $G = \text{checkIn}_{\text{next}} - \text{checkOut}_{\text{prev}} < \text{baseline}$: applica `minStay = G` (**🔴 Cerchio Rosso Animato** in Simulazione Dry-Run, **🟢 Cerchio Verde Scuro** in Produzione).
+  - Se $G \ge \text{baseline}$: **Non fa nulla** (Mantiene Cerchio Giallo Standard).
+- **Controllo Check-out vs Stop Sell**:
+  - Nel giorno di checkout (`isCheckoutDay`), se `stopSell === true` (o camera chiusa), la cella DEVE RIMANERE **ROSSA (Stop Sell / Chiuso)**. Se `stopSell === false`, torna **VERDE (Libera)**.
+- **Formattazione Nomi Cliente**:
+  - Mostra sempre prima il Cognome e poi il Nome (es. `"Sheppard Peter"`).
+
+---
+
 ## 2. Flussi Logici
 
 Il modulo gestisce la visualizzazione delle immagini di sfondo a schermo intero sia per la landing page split-screen, sia per le sezioni principali del villaggio.

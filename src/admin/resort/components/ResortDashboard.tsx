@@ -505,8 +505,16 @@ export function ResortDashboard() {
               onChange={(e) => setDynamicMinStayGapFill(e.target.checked)}
               className="w-5 h-5 accent-teal-500 rounded cursor-pointer"
             />
-            <label htmlFor="toggle-dynamic-minstay" className="text-xs font-bold text-stone-200 cursor-pointer">
-              ⚡ Attiva Soggiorno Minimo Dinamico (Simulazione)
+            <label htmlFor="toggle-dynamic-minstay" className="text-xs font-bold cursor-pointer flex items-center gap-1.5">
+              {dynamicMinStayGapFill ? (
+                <span className="text-amber-400 font-extrabold flex items-center gap-1">
+                  ⚡ Attiva Scrittura Reale su PMS (Staging Lock #649669 & #921799)
+                </span>
+              ) : (
+                <span className="text-stone-300 font-semibold flex items-center gap-1">
+                  🔒 Attiva Soggiorno Minimo Dinamico (Spento di Default - Simulazione Dry-Run)
+                </span>
+              )}
             </label>
           </div>
 
@@ -515,7 +523,11 @@ export function ResortDashboard() {
               type="button"
               onClick={() => executeDynamicMinStayStrategy(false)}
               disabled={dynamicMinStayRunning}
-              className="w-full sm:w-auto py-2.5 px-4 bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 shadow transition-all cursor-pointer"
+              className={`w-full sm:w-auto py-2.5 px-4 font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 shadow transition-all cursor-pointer ${
+                dynamicMinStayGapFill 
+                  ? 'bg-amber-600 hover:bg-amber-500 text-stone-950' 
+                  : 'bg-teal-600 hover:bg-teal-500 text-white'
+              }`}
             >
               {dynamicMinStayRunning ? (
                 <>
@@ -524,8 +536,10 @@ export function ResortDashboard() {
                 </>
               ) : (
                 <>
-                  <Zap className="w-4 h-4 text-teal-200" />
-                  <span>Esegui Calcolo Gap-Fill (Simulazione)</span>
+                  <Zap className="w-4 h-4" />
+                  <span>
+                    {dynamicMinStayGapFill ? 'Esegui Calcolo Gap-Fill (Scrittura Reale)' : 'Esegui Calcolo Gap-Fill (Simulazione)'}
+                  </span>
                 </>
               )}
             </button>
