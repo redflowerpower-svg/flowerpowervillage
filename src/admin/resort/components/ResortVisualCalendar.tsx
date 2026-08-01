@@ -1029,9 +1029,13 @@ export function ResortVisualCalendar() {
                               <div className="truncate text-xs font-bold min-w-0 w-full text-center text-white uppercase">
                                 {getBookingChannelName(matchingBooking)}
                               </div>
-                              {/* Riga 2: Nome Ospite */}
+                              {/* Riga 2: Nome Ospite (Nome poi Cognome) */}
                               <div className="truncate text-[10px] min-w-0 w-full text-center text-white/95 font-medium">
-                                {matchingBooking.guest_name || (matchingBooking as any).guestName || 'Ospite'}
+                                {(() => {
+                                  const rawName = String(matchingBooking.guest_name || (matchingBooking as any).guestName || 'Ospite').trim();
+                                  const parts = rawName.split(/\s+/);
+                                  return (parts.length === 2) ? `${parts[1]} ${parts[0]}` : rawName;
+                                })()}
                               </div>
                               {/* Tariffa Reale Giornaliera Pagata dall'Ospite */}
                               <div className="text-[10px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
