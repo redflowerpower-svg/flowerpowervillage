@@ -5,27 +5,29 @@
 
 // Mappatura immutabile 1:1 ID TARIFFA MADRE e Codici Derivati per Octorate (212 Prodotti)
 export const MOCK_MOTHER_RATE_PLANS: Record<string, number> = {
-  "Peace & Love Villa": 494840,
-  "Penthouse Villa": 421511,
-  "Villa Penthouse": 421511,
   "Jungle Villa": 529773,
   "Jungle Villa Left": 495795,
   "Jungle Villa Right": 495796,
-  "Lodge 1": 293951,
-  "Lodge 2": 883795,
+  "Peace & Love Villa": 494840,
+  "Penthouse Villa": 421511,
+  "Villa Penthouse": 421511,
+  "Yellow Bungalow": 293957,
   "Red Bungalow": 293954,
   "Green Bungalow": 293962,
-  "Yellow Bungalow": 293957,
-  "Lagoon Tent": 293955,
-  "Lagoon Tent Bungalow": 293955,
   "Camel Tent": 293965,
   "Camel Tent Bungalow": 293965,
+  "Lagoon Tent": 293955,
+  "Lagoon Tent Bungalow": 293955,
+  "Internal Room": 293942,
   "Room 1": 293963,
   "Room 2": 293959,
   "Room 3": 293948,
   "Room 4": 293945,
   "Room 5": 293943,
-  "Internal Room": 293942
+  "Lodge 1": 293951,
+  "Lodge 2": 883795,
+  "Fake Bungalow 1": 649669,
+  "Fake Bungalow 2": 921799
 };
 
 export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: string; ids: string[]; keywords: string[][] }> = {
@@ -89,6 +91,12 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
     ids: ['293955', '449674', '422351', '293956', '332081', '332077', '297024'],
     keywords: [["lagoon"]]
   },
+  'internal room': {
+    motherId: 293942,
+    name: 'Internal Room',
+    ids: ['293942', '449742', '872182', '293941', '332109', '332105', '340367', '916840', '421998', '916838', '921898', '921899', '297027', '422147'],
+    keywords: [["internal", "inter"]]
+  },
   'room 1': {
     motherId: 293963,
     name: 'Room 1',
@@ -131,11 +139,17 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
     ids: ['883795', '923905', '916110', '916108', '916107', '916109', '916114', '916829', '916105', '916830', '921886', '921887', '916103', '916104'],
     keywords: [["lodge"], ["2", "two"]]
   },
-  'internal room': {
-    motherId: 293942,
-    name: 'Internal Room',
-    ids: ['293942', '449742', '872182', '293941', '332109', '332105', '340367', '916840', '421998', '916838', '921898', '921899', '297027', '422147'],
-    keywords: [["internal", "inter"]]
+  'fake bungalow 1': {
+    motherId: 649669,
+    name: 'Fake Bungalow 1',
+    ids: ['649669', '932243', '932244', '932245', '932246', '932247', '932248', '932249', '932250', '932251', '932252', '932253', '932254', '932255'],
+    keywords: [["fake"], ["1", "one"]]
+  },
+  'fake bungalow 2': {
+    motherId: 921799,
+    name: 'Fake Bungalow 2',
+    ids: ['921799', '932256', '932257', '932258', '932259', '932260', '932261', '932262', '932263', '932264', '932265', '932266', '932267', '932268'],
+    keywords: [["fake"], ["2", "two"]]
   }
 };
 

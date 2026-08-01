@@ -1,5 +1,5 @@
 export interface RoomType {
-  category: 'VILLE' | 'BUNGALOW' | 'TENDE GLAMPING' | 'THE HUB GUESTHOUSE';
+  category: 'VILLE' | 'BUNGALOW' | 'TENDE GLAMPING' | 'THE HUB GUESTHOUSE' | 'TEST';
   name: string;
   baseGuests: number;
   maxExtraGuests: number;
@@ -25,6 +25,7 @@ export const ACCOMMODATIONS: RoomType[] = [
   { category: 'BUNGALOW', name: 'Green Bungalow', baseGuests: 2, maxExtraGuests: 1, beds: '1 King Size + 1 Extra Single', pricePerNight: 1800, octorateId: 449668 },
   { category: 'TENDE GLAMPING', name: 'Camel Tent Bungalow', baseGuests: 2, maxExtraGuests: 0, beds: '1 King Size', pricePerNight: 1400, octorateId: 449675 },
   { category: 'TENDE GLAMPING', name: 'Lagoon Tent Bungalow', baseGuests: 2, maxExtraGuests: 0, beds: '1 King Size', pricePerNight: 1400, octorateId: 449674 },
+  { category: 'THE HUB GUESTHOUSE', name: 'Internal Room', baseGuests: 2, maxExtraGuests: 0, beds: '1 King Size', pricePerNight: 1000, octorateId: 449742 },
   { category: 'THE HUB GUESTHOUSE', name: 'Room 1', baseGuests: 2, maxExtraGuests: 1, beds: '1 King Size + 1 Extra Single', pricePerNight: 1200, octorateId: 449678 },
   { category: 'THE HUB GUESTHOUSE', name: 'Room 2', baseGuests: 2, maxExtraGuests: 2, beds: '1 King Size + 1 Sofa Bed King', pricePerNight: 1200, octorateId: 449684 },
   { category: 'THE HUB GUESTHOUSE', name: 'Room 3', baseGuests: 2, maxExtraGuests: 2, beds: '1 King Size + 1 Sofa Bed Queen', pricePerNight: 1200, octorateId: 449699 },
@@ -32,5 +33,6 @@ export const ACCOMMODATIONS: RoomType[] = [
   { category: 'THE HUB GUESTHOUSE', name: 'Room 5', baseGuests: 2, maxExtraGuests: 0, beds: '1 Queen Size', pricePerNight: 1000, octorateId: 449730 },
   { category: 'THE HUB GUESTHOUSE', name: 'Lodge 1', baseGuests: 4, maxExtraGuests: 0, beds: '1 King Size + 1 Sofa Bed King', pricePerNight: 2000, octorateId: 449736 },
   { category: 'THE HUB GUESTHOUSE', name: 'Lodge 2', baseGuests: 4, maxExtraGuests: 0, beds: '1 King Size + 1 Sofa Bed King', pricePerNight: 2000, octorateId: 923905 },
-  { category: 'THE HUB GUESTHOUSE', name: 'Internal Room', baseGuests: 2, maxExtraGuests: 0, beds: '1 King Size', pricePerNight: 1000, octorateId: 449742 }
+  { category: 'TEST', name: 'Fake Bungalow 1', baseGuests: 2, maxExtraGuests: 0, beds: '1 King Size (TEST)', pricePerNight: 1000, octorateId: 649669 },
+  { category: 'TEST', name: 'Fake Bungalow 2', baseGuests: 2, maxExtraGuests: 0, beds: '1 King Size (TEST)', pricePerNight: 1000, octorateId: 921799 }
 ];

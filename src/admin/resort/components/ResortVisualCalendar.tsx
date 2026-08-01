@@ -76,7 +76,9 @@ const ROOM_BASE_RATES: Record<string, number> = {
   'Room 4': 10000,
   'Room 5': 10000,
   'Lodge 1': 10000,
-  'Lodge 2': 10000
+  'Lodge 2': 10000,
+  'Fake Bungalow 1': 1000,
+  'Fake Bungalow 2': 1000
 };
 
 export const ACCOMMODATION_RATE_PLANS: Record<string, { motherId: number; beId: number }> = {
@@ -90,6 +92,7 @@ export const ACCOMMODATION_RATE_PLANS: Record<string, { motherId: number; beId: 
   'Green Bungalow': { motherId: 293962, beId: 449668 },
   'Camel Tent Bungalow': { motherId: 293965, beId: 449675 },
   'Lagoon Tent Bungalow': { motherId: 293955, beId: 449674 },
+  'Internal Room': { motherId: 293942, beId: 449742 },
   'Room 1': { motherId: 293963, beId: 449678 },
   'Room 2': { motherId: 293959, beId: 449684 },
   'Room 3': { motherId: 293948, beId: 449699 },
@@ -97,7 +100,8 @@ export const ACCOMMODATION_RATE_PLANS: Record<string, { motherId: number; beId: 
   'Room 5': { motherId: 293943, beId: 449730 },
   'Lodge 1': { motherId: 293951, beId: 449736 },
   'Lodge 2': { motherId: 883795, beId: 923905 },
-  'Internal Room': { motherId: 293942, beId: 449742 }
+  'Fake Bungalow 1': { motherId: 649669, beId: 649669 },
+  'Fake Bungalow 2': { motherId: 921799, beId: 921799 }
 };
 
 export function getIdsForRoom(roomName: string): { motherId: number; beId: number } {
@@ -118,6 +122,7 @@ export function getIdsForRoom(roomName: string): { motherId: number; beId: numbe
     'camel tent': { motherId: 293965, beId: 449675 },
     'lagoon tent bungalow': { motherId: 293955, beId: 449674 },
     'lagoon tent': { motherId: 293955, beId: 449674 },
+    'internal room': { motherId: 293942, beId: 449742 },
     'room 1': { motherId: 293963, beId: 449678 },
     'room 2': { motherId: 293959, beId: 449684 },
     'room 3': { motherId: 293948, beId: 449699 },
@@ -125,15 +130,14 @@ export function getIdsForRoom(roomName: string): { motherId: number; beId: numbe
     'room 5': { motherId: 293943, beId: 449730 },
     'lodge 1': { motherId: 293951, beId: 449736 },
     'lodge 2': { motherId: 883795, beId: 923905 },
-    'internal room': { motherId: 293942, beId: 449742 }
+    'fake bungalow 1': { motherId: 649669, beId: 649669 },
+    'fake bungalow 2': { motherId: 921799, beId: 921799 }
   };
 
-  // 1. Exact match priority
   if (MAPPING[nameLower]) {
     return MAPPING[nameLower];
   }
 
-  // 2. Fallback fuzzy search with protection for directional variants
   for (const key in MAPPING) {
     if (nameLower.includes(key) || key.includes(nameLower)) {
       if (key === 'jungle villa' && (nameLower.includes('left') || nameLower.includes('right'))) {
@@ -286,6 +290,14 @@ const ALL_ACCOMMODATIONS_MAP: Record<string, { ids: string[]; keywords: string[]
   'internal room': {
     ids: ['293942', '449742', '872182', '293941', '332109', '332105', '340367', '916840', '421998', '916838', '921898', '921899', '297027', '422147'],
     keywords: [["internal","inter"]]
+  },
+  'fake bungalow 1': {
+    ids: ['649669', '932243', '932244', '932245', '932246', '932247', '932248', '932249', '932250', '932251', '932252', '932253', '932254', '932255'],
+    keywords: [["fake"],["1","one"]]
+  },
+  'fake bungalow 2': {
+    ids: ['921799', '932256', '932257', '932258', '932259', '932260', '932261', '932262', '932263', '932264', '932265', '932266', '932267', '932268'],
+    keywords: [["fake"],["2","two"]]
   }
 };
 
@@ -824,11 +836,12 @@ export function ResortVisualCalendar() {
         {/* Category Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
           {[
-            { id: 'All', label: 'Tutti gli Alloggi (18)' },
+            { id: 'All', label: `Tutti gli Alloggi (${(accommodations || []).length || 20})` },
             { id: 'VILLE', label: '🏡 Ville (4)' },
-            { id: 'BUNGALOW', label: '🛖 Bungalow (3)' },
+            { id: 'BUNGALOW', label: `🛖 Bungalow (${(accommodations || []).filter(r => r.category === 'BUNGALOW').length || 5})` },
             { id: 'TENDE GLAMPING', label: '⛺ Glamping (2)' },
-            { id: 'THE HUB GUESTHOUSE', label: '🏨 Hub Guesthouse (9)' }
+            { id: 'THE HUB GUESTHOUSE', label: '🏨 Hub Guesthouse (9)' },
+            { id: 'TEST', label: '🧪 Ambiente di Test (2)' }
           ].map((cat) => (
             <button
               key={cat.id}

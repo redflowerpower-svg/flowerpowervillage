@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   GitFork, 
   Search, 
@@ -45,7 +45,7 @@ export interface Level1Node {
 export interface AccommodationTreeScheme {
   motherId: string;
   name: string;
-  category: 'Villa' | 'Bungalow' | 'Glamping' | 'Hub Guesthouse';
+  category: 'Villa' | 'Bungalow' | 'Glamping' | 'Hub Guesthouse' | 'TEST';
   hasAirCon: boolean;
   basePrice: number;
   description: string;
@@ -169,7 +169,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
     category: 'Villa',
     hasAirCon: true,
     basePrice: 1390,
-    description: 'Sotto-unità Sinistra (Madre Master Fan Base)',
+    description: 'Sotto-unitร  Sinistra (Madre Master Fan Base)',
     level1Nodes: [
       {
         id: '495807',
@@ -270,7 +270,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
     category: 'Villa',
     hasAirCon: true,
     basePrice: 1250,
-    description: 'Sotto-unità Destra (Madre Master Fan Base)',
+    description: 'Sotto-unitร  Destra (Madre Master Fan Base)',
     level1Nodes: [
       {
         id: '495980',
@@ -1782,6 +1782,208 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       },
     ]
   },
+  {
+    motherId: '649669',
+    name: 'Fake Bungalow 1',
+    category: 'TEST',
+    hasAirCon: false,
+    basePrice: 1000,
+    description: 'Unitร  di test isolata dalle OTA โ€” simulazioni MinStay e scrittura sicura',
+    level1Nodes: [
+      {
+        id: '932243',
+        name: 'FB1 BE',
+        ruleTag: 'Master',
+        ruleDesc: 'Booking Engine Master Rate',
+        agencies: [AGENCY_WEBSITE]
+      },
+      {
+        id: '932244',
+        name: 'FB1 7d',
+        ruleTag: '-, AM',
+        ruleDesc: 'Standard Promo 7d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
+      },
+      {
+        id: '932245',
+        name: 'FB1 14d',
+        ruleTag: '-, AM',
+        ruleDesc: 'Standard Promo 14d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
+      },
+      {
+        id: '932246',
+        name: 'FB1 Main bnb-7d',
+        ruleTag: '-, AM',
+        ruleDesc: 'Booking/Expedia Fan 7d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
+      },
+      {
+        id: '932247',
+        name: 'FB1 Main bnb-14d',
+        ruleTag: '+200฿ AM',
+        ruleDesc: 'Booking/Expedia Fan 14d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
+      },
+      {
+        id: '932248',
+        name: 'FB1 AC7d',
+        ruleTag: '+400฿ AM',
+        ruleDesc: 'Master AC 7d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA],
+        subChild: {
+          id: '932254',
+          name: 'FB1 AC bnb-7d',
+          ruleTag: '+200฿ AMR',
+          ruleDesc: 'Booking & Expedia AC 7d',
+          agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
+        }
+      },
+      {
+        id: '932249',
+        name: 'FB1 AC14d',
+        ruleTag: '+500฿ AM',
+        ruleDesc: 'Master AC 14d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA],
+        subChild: {
+          id: '932255',
+          name: 'FB1 AC bnb-14d',
+          ruleTag: '+200฿ AMR',
+          ruleDesc: 'Booking & Expedia AC 14d',
+          agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
+        }
+      },
+      {
+        id: '932250',
+        name: 'FB1 AGD AC-7d',
+        ruleTag: '+500฿ AM',
+        ruleDesc: 'Agoda AC 7d',
+        agencies: [AGENCY_AGODA]
+      },
+      {
+        id: '932251',
+        name: 'FB1 AGD AC-14d',
+        ruleTag: '-, AM',
+        ruleDesc: 'Agoda AC 14d',
+        agencies: [AGENCY_AGODA]
+      },
+      {
+        id: '932252',
+        name: 'FB1 AirBnB',
+        ruleTag: '-, AM',
+        ruleDesc: 'Airbnb Fan',
+        agencies: [AGENCY_AIRBNB],
+        subChild: {
+          id: '932253',
+          name: 'FB1 AirBnB AC',
+          ruleTag: '+400฿ AMR',
+          ruleDesc: 'Airbnb AirCon',
+          agencies: [AGENCY_AIRBNB_AC]
+        }
+      }
+    ]
+  },
+  {
+    motherId: '921799',
+    name: 'Fake Bungalow 2',
+    category: 'TEST',
+    hasAirCon: false,
+    basePrice: 1000,
+    description: 'Unitร  di test isolata dalle OTA โ€” simulazioni MinStay e scrittura sicura',
+    level1Nodes: [
+      {
+        id: '932256',
+        name: 'FB2 BE',
+        ruleTag: 'Master',
+        ruleDesc: 'Booking Engine Master Rate',
+        agencies: [AGENCY_WEBSITE]
+      },
+      {
+        id: '932257',
+        name: 'FB2 7d',
+        ruleTag: '-, AM',
+        ruleDesc: 'Standard Promo 7d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
+      },
+      {
+        id: '932258',
+        name: 'FB2 14d',
+        ruleTag: '-, AM',
+        ruleDesc: 'Standard Promo 14d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
+      },
+      {
+        id: '932259',
+        name: 'FB2 Main bnb-7d',
+        ruleTag: '-, AM',
+        ruleDesc: 'Booking/Expedia Fan 7d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
+      },
+      {
+        id: '932260',
+        name: 'FB2 Main bnb-14d',
+        ruleTag: '+200฿ AM',
+        ruleDesc: 'Booking/Expedia Fan 14d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
+      },
+      {
+        id: '932261',
+        name: 'FB2 AC7d',
+        ruleTag: '+400฿ AM',
+        ruleDesc: 'Master AC 7d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA],
+        subChild: {
+          id: '932267',
+          name: 'FB2 AC bnb-7d',
+          ruleTag: '+200฿ AMR',
+          ruleDesc: 'Booking & Expedia AC 7d',
+          agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
+        }
+      },
+      {
+        id: '932262',
+        name: 'FB2 AC14d',
+        ruleTag: '+500฿ AM',
+        ruleDesc: 'Master AC 14d',
+        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA],
+        subChild: {
+          id: '932268',
+          name: 'FB2 AC bnb-14d',
+          ruleTag: '+200฿ AMR',
+          ruleDesc: 'Booking & Expedia AC 14d',
+          agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
+        }
+      },
+      {
+        id: '932263',
+        name: 'FB2 AGD AC-7d',
+        ruleTag: '+500฿ AM',
+        ruleDesc: 'Agoda AC 7d',
+        agencies: [AGENCY_AGODA]
+      },
+      {
+        id: '932264',
+        name: 'FB2 AGD AC-14d',
+        ruleTag: '-, AM',
+        ruleDesc: 'Agoda AC 14d',
+        agencies: [AGENCY_AGODA]
+      },
+      {
+        id: '932265',
+        name: 'FB2 AirBnB',
+        ruleTag: '-, AM',
+        ruleDesc: 'Airbnb Fan',
+        agencies: [AGENCY_AIRBNB],
+        subChild: {
+          id: '932266',
+          name: 'FB2 AirBnB AC',
+          ruleTag: '+400฿ AMR',
+          ruleDesc: 'Airbnb AirCon',
+          agencies: [AGENCY_AIRBNB_AC]
+        }
+      }
+    ]
+  },
 ];
 
 export function DerivedRatesTreeSection() {
@@ -1885,7 +2087,8 @@ export function DerivedRatesTreeSection() {
         (l1.subChild && (l1.subChild.name.toLowerCase().includes(searchQuery.toLowerCase()) || l1.subChild.id.includes(searchQuery)))
       );
     
-    const matchesCategory = filterCategory === 'All' || item.category.toLowerCase() === filterCategory.toLowerCase();
+    const matchesCategory = filterCategory === 'All' || 
+      (filterCategory === 'TEST' ? item.category === 'TEST' : item.category.toLowerCase() === filterCategory.toLowerCase());
     return matchesSearch && matchesCategory;
   });
 
@@ -1967,7 +2170,7 @@ export function DerivedRatesTreeSection() {
         </div>
 
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {['All', 'Villa', 'Bungalow', 'Glamping', 'Hub Guesthouse'].map((cat) => (
+          {['All', 'Villa', 'Bungalow', 'Glamping', 'Hub Guesthouse', 'TEST'].map((cat) => (
             <button
               key={cat}
               type="button"
@@ -1978,7 +2181,7 @@ export function DerivedRatesTreeSection() {
                   : 'bg-stone-950 text-stone-400 border border-stone-800 hover:text-white'
               }`}
             >
-              {cat === 'All' ? 'Tutti gli Alloggi (18)' : cat}
+              {cat === 'All' ? `Tutti gli Alloggi (${COMPLETE_DERIVATION_SCHEMES.length})` : (cat === 'TEST' ? '🧪 Ambiente di Test (2)' : cat)}
             </button>
           ))}
         </div>
@@ -1986,16 +2189,35 @@ export function DerivedRatesTreeSection() {
 
       {/* FULL VISUAL TREE SCHEMES */}
       <div className="space-y-8">
-        {filteredTrees.map((scheme) => {
+        {filteredTrees.map((scheme, idx) => {
           const isExpanded = expandedRooms[scheme.name] ?? false;
           const motherLiveData = getNodeLiveData(scheme.motherId);
           const motherPrice = motherLiveData?.price || scheme.basePrice;
 
           return (
-            <div 
-              key={scheme.motherId}
-              className="bg-stone-900 border border-stone-800 rounded-3xl overflow-hidden shadow-2xl space-y-4"
-            >
+            <React.Fragment key={scheme.motherId}>
+              {/* SEPARATORE ED INTESTAZIONE DEDICATA PER AMBIENTE DI TEST */}
+              {idx > 0 && scheme.category === 'TEST' && filteredTrees[idx - 1]?.category !== 'TEST' && (
+                <div className="pt-6 pb-2 my-6 border-t-2 border-dashed border-amber-500/40">
+                  <div className="flex items-center gap-3 bg-stone-900 border border-amber-500/30 p-4 rounded-2xl shadow-xl">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 font-black text-lg">
+                      ๐ ๏ธ
+                    </div>
+                    <div>
+                      <h4 className="text-base font-black text-amber-300 uppercase tracking-wider">
+                        AMBIENTE DI SIMULAZIONE E TEST (Scollegato dalle OTA)
+                      </h4>
+                      <p className="text-xs font-medium text-stone-400 mt-0.5">
+                        Unitร  isolate dal canale di vendita pubblico per simulazioni, test di calcolo MinStay e verifiche di scrittura sicure.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div 
+                className="bg-stone-900 border border-stone-800 rounded-3xl overflow-hidden shadow-2xl space-y-4"
+              >
               {/* TOP HEADER CONTROLLER */}
               <div 
                 onClick={() => toggleRoom(scheme.name)}
@@ -2264,8 +2486,9 @@ export function DerivedRatesTreeSection() {
                 </div>
               )}
             </div>
-          );
-        })}
+          </React.Fragment>
+        );
+      })}
       </div>
 
     </div>
