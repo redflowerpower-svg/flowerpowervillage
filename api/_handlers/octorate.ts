@@ -307,12 +307,10 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
             const fName = String(r.firstName || r.first_name || '').trim();
             const lName = String(r.lastName || r.last_name || '').trim();
             let gName = '';
-            if (fName && lName) {
-              gName = `${fName} ${lName}`;
+            if (lName && fName) {
+              gName = `${lName} ${fName}`;
             } else {
-              const raw = String(r.guestName || r.guest_name || `${fName} ${lName}` || 'Ospite').trim();
-              const parts = raw.split(/\s+/);
-              gName = (parts.length === 2) ? `${parts[1]} ${parts[0]}` : raw;
+              gName = String(r.guestName || r.guest_name || `${lName} ${fName}`.trim() || 'Ospite').trim();
             }
 
             return {
