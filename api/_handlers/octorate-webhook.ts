@@ -180,13 +180,31 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
   try {
     let bookingsData: any[] = [];
     if (supabaseAdmin) {
-      const { data: sbBookings } = await supabaseAdmin
-        .from('reservations')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data: tokenData } = await supabaseAdmin
+        .from('octorate_tokens')
+        .select('access_token')
+        .eq('id', 'singleton')
+        .maybeSingle();
 
-      if (sbBookings && sbBookings.length > 0) {
-        bookingsData = sbBookings;
+      if (tokenData?.access_token) {
+        try {
+          const dateFrom = new Date().toISOString().substring(0, 10);
+          const dateToObj = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
+          const dateTo = dateToObj.toISOString().substring(0, 10);
+          const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
+          const octRes = await fetch(octUrl, {
+            headers: {
+              'Authorization': `Bearer ${tokenData.access_token}`,
+              'Accept': 'application/json'
+            }
+          });
+          if (octRes.ok) {
+            const octJson = await octRes.json();
+            bookingsData = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
+          }
+        } catch (octErr) {
+          console.warn('[OCTORATE WEBHOOK] Failed to fetch live bookings from Octorate:', octErr);
+        }
       }
     }
 

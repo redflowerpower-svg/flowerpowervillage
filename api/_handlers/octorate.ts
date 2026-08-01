@@ -284,13 +284,8 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
   }
 
   try {
-    let { data: sbData } = await supabaseAdmin
-      .from('reservations')
-      .select('*')
-      .order('created_at', { ascending: false });
-
     const dateFrom = (req.query.dateFrom as string) || (req.query.startDate as string) || new Date().toISOString().substring(0, 10);
-    const dateToObj = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
+    const dateToObj = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
     const dateTo = (req.query.dateTo as string) || (req.query.endDate as string) || dateToObj.toISOString().substring(0, 10);
 
     const { data: tokenData } = await supabaseAdmin
@@ -357,10 +352,9 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
       }
     }
 
-    const combinedBookings = [...(sbData || []), ...octorateReservations];
-    console.log(`[BACKEND] Prenotazioni trovate dal ${dateFrom} al ${dateTo}:`, combinedBookings.length);
+    console.log(`[BACKEND Octorate Bookings] Trovate ${octorateReservations.length} prenotazioni Octorate dal ${dateFrom} al ${dateTo}`);
 
-    return res.status(200).json({ success: true, data: combinedBookings });
+    return res.status(200).json({ success: true, data: octorateReservations, count: octorateReservations.length });
   } catch (error: any) {
     console.error('[api/resort/octorate-bookings] Exception:', error);
     return res.status(500).json({ error: error.message });
