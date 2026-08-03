@@ -324,6 +324,201 @@ executionMode:
 - **Sfondo cella**: rimane `bg-emerald-600` — NON cambia colore.
 - **Prezzo**: `text-cyan-300` + `👁️ ฿{scontato} 📉`.
 - **Badge**: `bg-cyan-950/90 text-cyan-200 border-cyan-400/80` → `-X% (BE ฿{...})`.
+---
+
+## 6. Calendario Visivo Resort Admin & Diagnostica API Octorate (REST v1)
+
+### A. Dashboard Amministrativa (`ResortVisualCalendar.tsx`)
+* **Architettura Integrata:** Modulo riservato sotto `/admin` con store Zustand locale ([useResortAdminStore.ts](file:///d:/Antigravity%20-%20Sviluppo%20Website/flower-power-village-bolt/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts)) ed helper ([octorateAdmin.ts](file:///d:/Antigravity%20-%20Sviluppo%20Website/flower-power-village-bolt/flowerpowervillage/src/admin/resort/lib/octorateAdmin.ts)).
+* **Baseline Stagionale Soggiorno Minimo:**
+  * Fino al 20 Dicembre: **2 notti**
+  * Dal 21 Dicembre al 15 Gennaio (Altissima Stagione): **5 notti**
+  * Dal 16 Gennaio in poi: **2 notti**
+* **Interfaccia Pulita:** Griglia visiva 18 alloggi con legenda agenzie (Booking.com, Expedia, Agoda, Diretto, Stop Sell) e gestione reattiva locale.
+
+### B. Diagnostica Capacità API Octorate REST v1
+* **Script Diagnostico Isolato:** [`scratch/test-octorate-capabilities.mjs`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scratch/test-octorate-capabilities.mjs) e [`scratch/test-octorate-write-capability.mjs`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scratch/test-octorate-write-capability.mjs) per testare in sicurezza la lettura e le capacità di scrittura del PMS.
+* **Risultati Empirici di Scrittura & Lettura:**
+  * `GET https://api.octorate.com/connect/rest/v1/calendar/366879`: **`200 OK`** (Lettura griglia del calendario e restrizioni `minStay` perfettamente operative).
+  * `GET https://api.octorate.com/connect/rest/v1/api/configuration`: **`200 OK`** (Permessi identificati: `permissions.accommodation = READWRITE`).
+  * `POST https://api.octorate.com/connect/rest/v1/calendar/bulk`: **`200 OK`** (**Scrittura Sbloccata & Verificata**! Esito server: `{"process": [483635224], "success": true}`). L'errore `403 Caller not in requested role` è superato.
+* **Isolamento e Sicurezza:** Nessuna alterazione non autorizzata al Booking Engine del sito pubblico ([src/booking/](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/)).
+
+---
+
+## 7. Report Allineamento Fuso Orario Thailandia & Fix Calendario Visivo (30/07/2026)
+
+* **Allineamento 1:1 Fuso Orario (`Asia/Bangkok` GMT+7)**:
+  - **Causa slittamento 1 giorno indietro**: I timestamp ISO UTC inviati da Octorate (es. `2026-12-31T17:00:00Z`) venivano tagliati a stringa con `.slice(0, 10)`, estraendo `2026-12-31` anziché la data locale thailandese `2027-01-01`.
+  - **Soluzione**: Applicato l'helper `toThailandDateStr` sia nel backend (`api/_handlers/octorate.ts`) sia nel frontend (`ResortVisualCalendar.tsx`) per forzare la formattazione `Intl.DateTimeFormat` sul fuso `Asia/Bangkok`. Ora le date di check-in e check-out coincidono al 100% con il PMS Octorate.
+* **Fix Matching Room IDs (`getIdsForRoom`)**:
+  - Risolto il problema per cui *"jungle villa"* intercettava per errore *"jungle villa right"*, impostando la priorità per corrispondenza esatta delle chiavi.
+* **Gestione Artefatto Giorno di Check-out (`isCheckoutDay`)**:
+  - Nel giorno di check-out dell'ospite uscente, il blocco di occupazione di Octorate viene trattato come un artefatto: se il resort è aperto ed il prezzo è valido, la cella torna **VERDE (libera)** per il check-in del nuovo ospite.
+* **Selettore Data Nativo (Picker Data)**:
+  - Aggiunto un menu a tendina/picker data accanto al pulsante `30gg Succ` che permette di saltare istantaneamente a qualsiasi data iniziale desiderata.
+* **Personalizzazione Badge Canali OTA**:
+  - Canale `BOOKING`: impostato su testo `BOOKING` in colore blu cobalto (`#003580`).
+  - Canale `Expedia`: impostato in azzurro cielo (`bg-sky-500`).
+
+---
+
+## 8. Modulo Tariffe Derivate & Albero Canali Octorate 1:1 (30/07/2026)
+
+* **Nuovo Componente Gestione Tariffe Derivate**:
+  - Creata la tab dedicated **"🌳 Tariffe Derivate (Albero Octorate)"** ([`src/admin/resort/components/DerivedRatesTreeSection.tsx`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/components/DerivedRatesTreeSection.tsx)).
+* **Architettura Grafica a 2 Livelli (Octorate Tree Diagram)**:
+  - **Livello 0 (Madre Master)**: Tariffa radice ventilatore base al centro in alto (es. `#529773`, `#293954`).
+  - **Livello 1 (Tratto Orizzontale Trasversale)**: Disposizione rigida ed uniforme a 10 colonne: `BE` (WEBSITE) ➔ `7d` (BOOKING, EXPEDIA, AGODA) ➔ `14d` (BOOKING, EXPEDIA, AGODA) ➔ `Main bnb-14d` (BOOKING, EXPEDIA) ➔ `Main bnb-7d` (BOOKING, EXPEDIA) ➔ `AC7d` (BOOKING, EXPEDIA) ➔ `AC14d` (BOOKING, EXPEDIA) ➔ `AGD AC-7d` (AGODA) ➔ `AGD AC-14d` (AGODA) ➔ `AirBnB` (AIRBNB).
+  - **Livello 2 (Sub-Derivazioni AC Verticali)**: Sub-nodi che derivano direttamente dai padri di 1° livello con stelo di collegamento: `AirBnB AC` (deriva da `AirBnB` con `+400฿ AMR`), `AC bnb-7d` (deriva da `AC7d` con `+200฿ AMR`), `AC bnb-14d` (deriva da `AC14d` con `+200฿ AMR`).
+* **Sincronizzazione Totale 212 Codici Prodotto Octorate**:
+  - Allineati al 100% tutti i **212 codici prodotto univoci Octorate** forniti per i 18 alloggi sia nell'Albero sia nella Mappa di Riconoscimento Automatica del Calendario (`ResortVisualCalendar.tsx`).
+* **Sequenza Canonica Alloggi**:
+  - Tutti i 18 alloggi (Ville, Bungalows, Glamping Tents, Hub Guesthouse Rooms/Lodges) sono disposti nella medesima sequenza del Calendario Visivo e del Sito Web.
+
+---
+
+## 9. Audit Completo Octorate-Supabase & Affinamento Calendario (01/08/2026)
+
+* **Audit & Re-sync ID Prenotazioni (`scratch/audit-all-octorate-bookings.mjs`)**:
+  - Implementato uno script di audit avanzato per scansionare tutte le prenotazioni storiche da Octorate e Supabase, risolvendo discrepanze di ID alloggio e normalizzando i nomi.
+* **Affinamento Logica MinStay Dinamico (`octorateAdmin.ts`)**:
+  - Semplificata la pulizia dei nomi camera in `calculateDynamicMinStay` mantenendo il nome alloggio nativo sanitizzato `(b.accommodation_name || b.accommodation_id || 'unknown').trim()`.
+* **Sincronizzazione Webhook & API Route (`api/_handlers/octorate.ts` e `api/_handlers/octorate-webhook.ts`)**:
+  - Verificato l'allineamento dei payload ricevuti dai webhook Octorate e ottimizzata la conversione delle date nel fuso orario thailandese `Asia/Bangkok`.
+
+---
+
+## 10. Risoluzione Errore HTTP 404 Supabase `reservations` & Ripristino Fetch Octorate (01/08/2026)
+
+* **Eliminazione Chiamate Errate a Supabase (`reservations`)**:
+  - Rimosse tutte le chiamate `supabaseAdmin.from('reservations')` in `api/_handlers/octorate.ts` e `api/_handlers/octorate-webhook.ts`. La tabella `reservations` non esiste nello schema Supabase.
+* **Refactoring Serverless Endpoint (`/api/resort/octorate-bookings`)**:
+  - L'endpoint backend legge in modo sicuro `access_token` da `octorate_tokens` mediante `SUPABASE_SERVICE_ROLE_KEY`.
+  - Interroga direttamente le API REST v1 ufficiali di Octorate (`GET https://api.octorate.com/connect/rest/v1/reservation/366879`) per recuperare tutte le prenotazioni in tempo reale.
+* **Verifica Empirica & TypeScript**:
+  - Test con `scratch/test-octorate-bookings-endpoint.mjs`: recuperate **23 prenotazioni reali** (Agoda, Booking.com, Airbnb, etc.) con HTTP 200 OK.
+  - Verificato con `npx tsc --noEmit` (**0 errori sui tipi**).
+
+---
+
+## 11. Monitor Visivo Live Tariffe Derivate & Sanity Check Prezzi (01/08/2026)
+
+* **Espansione Serverless Endpoint (`/api/resort/octorate-grid`)**:
+  - Eliminato il blocco anticipato al superamento dei 36 nodi BE: l'endpoint scarica ed espone in `data` tutti i **240 rate plans live** forniti dal PMS Octorate.
+* **Integrazione Store & Feedback Visivo Nodi (`DerivedRatesTreeSection.tsx`)**:
+  - Collegato lo store Zustand (`rawOctorateGridItems`) al componente grafico dell'albero.
+  - Renderizzato per ciascun nodo (Madre, Livello 1, Livello 2) il prezzo live, il MinStay e lo stato colorato: **Verde Smeraldo** per le tariffe aperte e vendibili, **Rosso Vivo (con icona 🔒 STOP SELL)** per le tariffe in stop-sell o chiuse.
+* **Sanity Check Automatico (Discrepanze Prezzi)**:
+  - Implementata la verifica automatica delle regole matematiche (`checkPriceSanity`): confronta il prezzo live con quello atteso dal calcolo con il nodo padre (es. `+200฿`, `+400฿`, `-10%`).
+  - Se viene rilevata una discrepanza, il nodo mostra un **bordo dorato lampeggiante** ed il badge d'avviso `⚠️ Atteso ฿X`.
+
+## 12. Mappatura Tariffe Derivate Fake Bungalow & Categoria TEST Isolata (01/08/2026)
+
+### ⚠️ REGOLA D'ORO API OCTORATE — Registrata nelle Istruzioni Core
+- La direttiva inderogabile **"Scrivere SOLO sulla Tariffa Madre (Livello 0)"** è stata aggiunta in prima posizione assoluta in `.agentinstructions` e `.agents/AGENTS.md`.
+- Tutte le chiamate `POST`/`PUT`/`PATCH` per prezzi, `min_stay` o availability **devono colpire esclusivamente l'ID Madre** (es. `649669`, `921799`). È vietato scrivere su derivate Livello 1/2.
+
+### Mappatura Completa ID Tariffe Derivate Fake Bungalow (`octorateAdmin.ts`, `ResortVisualCalendar.tsx`)
+- **Fake Bungalow 1** (Madre: `649669`) — 13 derivate mappate: `932243`→`932255`.
+- **Fake Bungalow 2** (Madre: `921799`) — 13 derivate mappate: `932256`→`932268`.
+- Aggiornati gli array `ids[]` in `ALL_ACCOMMODATIONS_MAP` (`octorateAdmin.ts`) e in `ResortVisualCalendar.tsx`.
+
+### Albero Tariffe Derivate (`DerivedRatesTreeSection.tsx`)
+- Aggiunti gli schemi gerarchici completi (Madre → Livello 1 → Livello 2) per **Fake Bungalow 1** e **Fake Bungalow 2** nel `COMPLETE_DERIVATION_SCHEMES`.
+- **Categoria `TEST`** aggiunta al union type `AccommodationTreeScheme`: `'Villa' | 'Bungalow' | 'Glamping' | 'Hub Guesthouse' | 'TEST'`.
+- I Fake Bungalow sono ora classificati `category: 'TEST'` (non più `'BUNGALOW'`), separandoli visivamente dalle unità di produzione.
+
+### Separazione Visiva & Filtro "Ambiente di Test" (`DerivedRatesTreeSection.tsx`, `ResortVisualCalendar.tsx`)
+- **Calendario Visivo**: Aggiunto bottone filtro `🧪 Ambiente di Test (2)` dopo "Hub Guesthouse".
+- **Albero Tariffe**: Aggiunto separatore visivo dedicato `🛠️ AMBIENTE DI SIMULAZIONE E TEST (Scollegato dalle OTA)` prima degli alberi dei Fake Bungalow.
+- **`accommodations.ts`**: Tipo `RoomType.category` esteso con `'TEST'`; Fake Bungalow 1 e 2 ora classificati `'TEST'`.
+
+### Bug Fix Runtime
+- **`ReferenceError: React is not defined`**: Aggiunto `import React` in `DerivedRatesTreeSection.tsx` (necessario per `<React.Fragment key={...}>`).
+- **`ReferenceError: AGENCY_DIRECT is not defined`**: Sostituita la costante inesistente `AGENCY_DIRECT` con `AGENCY_WEBSITE` per le tariffe BE dei Fake Bungalow.
+- **Simbolo `฿` corrotto (`เธฟ`)**: Riscritto il file con PowerShell UTF-8 corretto dopo corruzione encoding; 139 simboli ripristinati.
+- **Blocco codice duplicato**: Rimosso tramite splice PowerShell il doppio blocco Fake Bungalow lasciato da un replace parziale.
+
+---
+
+## 13. Refactoring Calendario Visivo Alloggi, Griglia Continua & Sincronizzazione Anti-Freeze (03/08/2026)
+
+### A. Layout a Griglia Continua (Scorrimento Orizzontale da Oggi al 31 Ottobre Y+1)
+- Rimosse le vecchie paginazioni a 30 giorni ("30gg Prec" / "30gg Succ").
+- Il calendario genera una matrice continuativa a scorrimento orizzontale nativo (`overflow-x-auto`) che si estende da **Oggi (Asia/Bangkok)** fino al **31 Ottobre dell'anno successivo** (`year + 1`), coprendo l'intera stagione del resort (~450 giorni).
+
+### B. Download Sequenziale Mese per Mese & Cache in Memoria (`useResortAdminStore.ts`)
+- **Paginazione API Octorate (`size=20`)**: Octorate limita le query massive restituendo errori `errPageSize`. L'endpoint serverless (`/api/resort/octorate-bookings`) cicla sulle pagine (`size=20`, `page=0, 1, 2...`) aggregando i dati lato Node.js.
+- **Download Sequenziale Visivo**: La funzione `downloadSeasonSequential()` scarica le prenotazioni un mese alla volta aggiornando la barra di avanzamento (`0%` → `100%`).
+- **Cache in Memoria (Zero Reload al Cambio Tab)**: Al montaggio del componente, se `seasonDownloadStatus === 'completed'` e i dati sono presenti in memoria (`rawOctorateBookings`), il download viene saltato e la griglia viene renderizzata all'istante.
+- **Pulsante `Sync Live`**: Consente di forzare la pulizia della cache in memoria e riavviare il download sequenziale della stagione.
+
+### C. DatePicker 100% Passivo (Uncontrolled via `useRef`)
+- **Zero React Re-renders**: Rimosse le proprietà `value` e `onChange` legate allo stato React. L'input `<input type="date">` è *uncontrolled* con `ref={dateInputRef}` e `defaultValue={toThailandDateStr(new Date())}`.
+- **Apertura su Intero Campo**: L'evento `onClick={(e) => e.currentTarget.showPicker()}` apre la tendina del calendario nativo al click in qualsiasi punto dell'input.
+- **Ricerca in 2 Step con Tasto `[🔎 Vai]`**: L mevento click del tasto "Vai" legge il valore direttamente dal DOM (`dateInputRef.current?.value`) ed invoca:
+  ```ts
+  colElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+  ```
+  ancorando la colonna selezionata a sinistra.
+
+### D. Scudo Anti-Lag (`React.memo` per `CalendarCell`)
+- Estratta la logica di rendering della singola cella giornaliera nel componente dedicato:
+  ```tsx
+  const CalendarCell = React.memo(function CalendarCell({ ... }) { ... });
+  ```
+- Impedisce il ricalcolo delle oltre 9.000 celle durante lo scroll o l'apertura delle modali, mantenendo l'interfaccia a 60fps.
+
+### E. Overlay Bloccante Assoluto & Sincronizzazione Event Loop (Double rAF)
+- **Overlay Fullscreen Bloccante**: `fixed inset-0 w-screen h-screen z-50 bg-stone-950/95 pointer-events-auto` copre l me intera viewport e blocca ogni interazione accidentale dell me utente durante il montaggio del DOM.
+- **Timing Blindato a 2 Fasi & Event Loop (Doppio rAF)**:
+  - Fase 1: Al completamento del download viene attivato l'overlay (`showOverlay = true`, `mountHeavyGrid = false`).
+  - Fase 2: Un `setTimeout(500ms)` garantisce al browser il tempo di dipingere il sipario scuro.
+  - Fase 3: Scattati i 500ms, si attiva `setMountHeavyGrid(true)` avviando la costruzione del DOM.
+  - Fase 4: La disattivazione dell'overlay è sincronizzata con l'Event Loop nativo tramite doppio `requestAnimationFrame`:
+    ```ts
+    rafId1 = requestAnimationFrame(() => {
+      rafId2 = requestAnimationFrame(() => {
+        timerId = setTimeout(() => setShowOverlay(false), 300);
+      });
+    });
+    ```
+    Se il dispositivo è lento ed impiega diversi secondi per calcolare il layout delle 9.000 celle, `requestAnimationFrame` posticipa l'esecuzione fino al reale completamento del paint, mantenendo l'overlay protettivo per tutto il tempo necessario.
+
+---
+
+## 14. Motore Sconti Last-Minute a Cascata (3 Stadi) & Fix Prezzo Reale (03/08/2026)
+
+### A. Dry-Run Simulation nel Calendario Visivo
+
+- **Fonte Prezzo Corretta**: Il motore Dry-Run legge il prezzo giornaliero reale dalla Tariffa Madre direttamente da `rawOctorateGridItems` (flat array Octorate `{id, name, days:[{date, price}]}`).
+- **Logica Match**: Ricerca l'item il cui `id` corrisponde **esattamente** al `motherId`. Fallback a qualsiasi ID dell'alloggio solo se la madre non è nel download.
+- **Formula**: `discountedPrice = Math.round(realPrice - (realPrice * discountPct / 100))`.
+- **Skip automatico**: Se la data non ha prezzo reale (stop-sell, camera chiusa), la simulazione salta la cella.
+
+### B. Struttura 3 Stadi Sequenziali
+
+| Stadio | Giorni Offset | Durata | Sconto Default | UI |
+|---|---|---|---|---|
+| Stadio 1: Imminente | 0 – 2 | 3 gg | -10% | 🔴 `bg-red-950/30 border-red-500/40` |
+| Stadio 2: Intermedio | 3 – 5 | 3 gg | -5% | 🟠 `bg-orange-950/30 border-orange-500/40` |
+| Stadio 3: Esteso | 6 – 9 | 4 gg | -2.5% | 🟡 `bg-yellow-950/30 border-yellow-600/40` |
+
+### C. Modalità Esecuzione (Bivio a 3 Livelli)
+
+```
+executionMode:
+  'simulation'      → Dry-Run locale, zero API. Anteprima ciano nel Calendario Visivo.
+  'test_bungalows'  → Invia SOLO a Fake Bungalow 1 (649669) e 2 (921799).
+  'production'      → Invia a TUTTE le Tariffe Madri reali del resort.
+```
+
+### D. Feedback Visivo Cella (CalendarCell)
+
+- **Sfondo cella**: rimane `bg-emerald-600` — NON cambia colore.
+- **Prezzo**: `text-cyan-300` + `👁️ ฿{scontato} 📉`.
+- **Badge**: `bg-cyan-950/90 text-cyan-200 border-cyan-400/80` → `-X% (BE ฿{...})`.
 
 ### E. Identità Visiva Pannelli Dashboard
 
@@ -331,3 +526,31 @@ executionMode:
 |---|---|
 | ⚡ Sconti a Cascata | `border-amber-500/40` double, `bg-amber-950/20` |
 | 📏 Soggiorno Minimo Dinamico | `border-violet-500/40` double, `bg-violet-950/20` |
+
+---
+
+## 15. Modulo Messaggi Clienti, Newsletter & Allerta Phishing (03/08/2026)
+
+### A. Architettura & Compartimento Stagno (`messages`)
+- **Isolamento Visivo e DOM**: La tab `📨 Messaggi Clienti` montata in `ResortDashboard.tsx` nasconde rigorosamente tutti i moduli di ottimizzazione (KPI cards, Sconti a Cascata, Min Stay, Albero Tariffe e Calendario).
+- **Tab Dedicata**: Posizionata prima di `🔗 Octorate PMS`.
+
+### B. Gestione Phishing & Sicurezza (`PhishingAlertSection.tsx` & `email-alerts.ts`)
+- Filtra i clienti in base al check-in futuro (`checkin >= oggi`).
+- Genera link **WhatsApp** con messaggio precompilato (normalizzazione numero internazionale `+66`).
+- Supporta l'invio individuale o massivo via email mediante l'handler `/api/resort/email-alerts`.
+
+### C. Campagne Email & Newsletter con Batching Client-Side (`NewsletterCampaignSection.tsx` & `send-newsletter.ts`)
+- **Tracciamento Campagna (`campaignCode`)**: Registra la storia degli invii in `localStorage` (`emailHistory` e `fpv_newsletter_history`).
+- **Raggruppamento Clienti**: Divide visivamente e logicamente i clienti in:
+  - ⏳ **Da avvisare** (email non presenti nella storia della campagna).
+  - ✅ **Già avvisati** (con badge e pulsante di reset dedicato per reinvio).
+- **Batching Client-Side (Anti-Timeout Vercel)**:
+  - Il frontend invia pacchetti leggeri di **25 email** (`BATCH_SIZE = 25`).
+  - Introduce una pausa di **3 secondi sul client** (`setTimeout(3000)`) tra i pacchetti.
+  - Evita blocchi e timeout della serverless function su Vercel Hobby.
+- **Selezione Account Mittente (`senderAccount`)**:
+  - `flowerpowerphayam@gmail.com` (`phayam`) → `SMTP_USER_PHAYAM` / `SMTP_PASS_PHAYAM`.
+  - `redflowerpower@gmail.com` (`red`) → `SMTP_USER_RED` / `SMTP_PASS_RED`.
+  - Fallback automatico su `SMTP_USER` / `SMTP_PASS` di default.
+- **Inoltro Privacy BCC**: Gli indirizzi dei clienti sono inviati in `bcc`, con mittente `to` impostato sull'account stesso per tutelare la riservatezza.

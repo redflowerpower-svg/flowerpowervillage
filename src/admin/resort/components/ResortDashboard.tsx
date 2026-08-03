@@ -3,6 +3,8 @@ import { useResortAdminStore } from '../store/useResortAdminStore';
 import { getAuthorizationUrl, getStoredTokens, clearTokens, exchangeToken } from '../../../booking/lib/octorate';
 import { ResortVisualCalendar } from './ResortVisualCalendar';
 import { DerivedRatesTreeSection } from './DerivedRatesTreeSection';
+import { PhishingAlertSection } from './PhishingAlertSection';
+import { NewsletterCampaignSection } from './NewsletterCampaignSection';
 import { 
   Hotel, 
   Calendar, 
@@ -74,8 +76,10 @@ export function ResortDashboard() {
     executeDynamicMinStayStrategy
   } = useResortAdminStore();
 
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'octorate'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'messages' | 'octorate'>('bookings');
   const [searchQuery, setSearchQuery] = useState('');
+  // Doppio click per Calendario Annuale (componente pesante ~9000 celle)
+  const [calendarConfirm, setCalendarConfirm] = useState(false);
 
   // Octorate Dev Diagnostics State
   const [showDevDiagnostics, setShowDevDiagnostics] = useState(false);
@@ -249,6 +253,13 @@ export function ResortDashboard() {
           </button>
         </div>
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+           COMPARTIMENTO: OTTIMIZZAZIONI & CALENDARIO
+           Nascosto completamente quando si è nella tab Messaggi Clienti
+      ══════════════════════════════════════════════════════════════════ */}
+      {activeTab !== 'messages' && (
+      <>
 
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -711,17 +722,31 @@ export function ResortDashboard() {
                 : 'text-stone-400 hover:text-white'
             }`}
           >
-            📅 Calendario 30gg (Veloce)
+            📅 Calendario 30gg
           </button>
           <button
-            onClick={() => setActiveTab('calendar')}
+            onClick={() => {
+              if (calendarConfirm) {
+                setActiveTab('calendar');
+                setCalendarConfirm(false);
+              } else {
+                setCalendarConfirm(true);
+                // Auto-reset dopo 4 secondi se non confermato
+                setTimeout(() => setCalendarConfirm(false), 4000);
+              }
+            }}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'calendar'
                 ? 'bg-emerald-600 text-white shadow'
+                : calendarConfirm
+                ? 'bg-amber-500 text-stone-950 shadow animate-pulse'
                 : 'text-stone-400 hover:text-white'
             }`}
+            title="Componente pesante: clicca 2 volte per caricare il calendario stagionale completo"
           >
-            📅 Calendario Visivo (Prezzi & Agency)
+            {calendarConfirm && activeTab !== 'calendar'
+              ? '⚠️ Clicca ancora per caricare'
+              : '📅 Calendario Annuale'}
           </button>
           <button
             onClick={() => setActiveTab('rooms')}
@@ -742,6 +767,16 @@ export function ResortDashboard() {
             }`}
           >
             🌳 Tariffe Derivate (Albero Octorate)
+          </button>
+          <button
+            onClick={() => setActiveTab('messages')}
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'messages'
+                ? 'bg-rose-600 text-white shadow'
+                : 'text-stone-400 hover:text-white'
+            }`}
+          >
+            📨 Messaggi Clienti
           </button>
           <button
             onClick={() => setActiveTab('octorate')}
@@ -783,6 +818,23 @@ export function ResortDashboard() {
       {/* Tab Tariffe Derivate & Albero Canali OTA */}
       {activeTab === 'derived_rates' && (
         <DerivedRatesTreeSection />
+      )}
+
+      {/* fine compartimento ottimizzazioni + tabs */}
+      </>
+      )}
+
+
+      {/* ═══════════════════════════════════════════════════════════════
+           COMPARTIMENTO STAGNO: MESSAGGI CLIENTI
+           Visibile SOLO quando activeTab === 'messages'
+           Nessun modulo di ottimizzazione viene montato nel DOM
+      ══════════════════════════════════════════════════════════════════ */}
+      {activeTab === 'messages' && (
+        <div className="max-w-5xl mx-auto space-y-6">
+          <NewsletterCampaignSection />
+          <PhishingAlertSection />
+        </div>
       )}
 
       {/* Tab 1: Bookings List */}

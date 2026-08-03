@@ -19,6 +19,8 @@ import {
   handleOctorateMinStay
 } from "./_handlers/octorate.js";
 import { handleOctorateWebhook } from "./_handlers/octorate-webhook.js";
+import { handleEmailAlerts } from "./_handlers/email-alerts.js";
+import { handleSendNewsletter } from "./_handlers/send-newsletter.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -105,6 +107,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     case 'resort/octorate-min-stay':
     case 'octorate-min-stay':
       return handleOctorateMinStay(req, res);
+
+    case 'resort/email-alerts':
+      return handleEmailAlerts(req, res);
+
+    case 'resort/send-newsletter':
+      return handleSendNewsletter(req, res);
 
     case 'webhooks/octorate':
     case 'octorate-webhook':
