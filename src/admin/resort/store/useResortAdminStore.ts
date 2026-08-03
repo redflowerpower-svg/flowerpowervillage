@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { updateLastMinuteRatesStrategy, disableLastMinuteRatesStrategy, fetchOctorateLiveReservations } from '../../../booking/lib/octorate';
-import { calculateDynamicMinStay } from '../lib/octorateAdmin';
+import { calculateDynamicMinStay, toThailandDateStr, getSeasonalEndDateStr } from '../lib/octorateAdmin';
 
 export interface ResortBooking {
   id: string;
@@ -36,6 +36,7 @@ export interface AccommodationStatus {
 
 interface ResortAdminState {
   bookings: ResortBooking[];
+  rawOctorateBookings: any[];
   accommodations: AccommodationStatus[];
   loading: boolean;
   error: string | null;
@@ -44,12 +45,21 @@ interface ResortAdminState {
   filterCategory: string;
   rawOctorateGridItems: any[];
   setRawOctorateGridItems: (items: any[]) => void;
+  setRawOctorateBookings: (bookings: any[]) => void;
 
-  // Dynamic Minimum Stay (Gap-Fill) State & Execution
+  // Dynamic Minimum Stay (Gap-Fill) State & Manual Trigger Control
+  isDynamicCalculationEnabled: boolean;
+  setIsDynamicCalculationEnabled: (enabled: boolean) => void;
   dynamicMinStayGapFill: boolean;
   dynamicMinStayRunning: boolean;
   dynamicMinStayUpdates: any[];
   dynamicMinStayResult: { success: boolean; dryRun: boolean; message: string; updatesCount: number } | null;
+
+  // Progressive Sequential Timeline Download State
+  seasonDownloadStatus: 'idle' | 'downloading' | 'completed' | 'error';
+  seasonDownloadProgress: number;
+  seasonDownloadMessage: string;
+  downloadSeasonSequential: () => Promise<void>;
 
   // Last-Minute Channel Strategy Automation State
   lastMinuteThresholdDays: number;
@@ -81,6 +91,7 @@ interface ResortAdminState {
 
 export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   bookings: [],
+  rawOctorateBookings: [],
   accommodations: ACCOMMODATIONS.map((room) => ({
     id: String(room.octorateId || room.name),
     name: room.name,
@@ -105,6 +116,14 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       set({ rawOctorateGridItems: items });
     }
   },
+  setRawOctorateBookings: (newBookings: any[]) => {
+    if (Array.isArray(newBookings)) {
+      set({ rawOctorateBookings: newBookings, bookings: newBookings });
+    }
+  },
+
+  isDynamicCalculationEnabled: false,
+  setIsDynamicCalculationEnabled: (enabled: boolean) => set({ isDynamicCalculationEnabled: enabled }),
 
   dynamicMinStayGapFill: false,
   dynamicMinStayRunning: false,
@@ -112,27 +131,131 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   dynamicMinStayResult: null,
   setDynamicMinStayGapFill: (enabled: boolean) => set({ dynamicMinStayGapFill: enabled }),
 
-  executeDynamicMinStayStrategy: async (resetToBaseline: boolean = false, customRange?: { start: string; end: string }) => {
-    set({ dynamicMinStayRunning: true });
-    try {
-      let { bookings, dynamicMinStayGapFill, fetchBookings } = get();
+  seasonDownloadStatus: 'idle',
+  seasonDownloadProgress: 0,
+  seasonDownloadMessage: '',
 
-      // Regola 1: Se l'array prenotazioni è vuoto, recupera automaticamente le prenotazioni live da /api/resort/octorate-bookings
-      if (!bookings || bookings.length === 0) {
-        console.log('[useResortAdminStore] Array bookings vuoto: Eseguo fetchBookings() automatico prima del Gap-Fill...');
-        await fetchBookings();
+  downloadSeasonSequential: async () => {
+    set({
+      seasonDownloadStatus: 'downloading',
+      seasonDownloadProgress: 0,
+      seasonDownloadMessage: 'Avvio download sequenziale stagione...'
+    });
+
+    try {
+      const todayStr = toThailandDateStr(new Date());
+      const parts = todayStr.split('-');
+      const currentYear = parseInt(parts[0], 10) || new Date().getFullYear();
+      const currentMonth = parseInt(parts[1], 10) || (new Date().getMonth() + 1);
+
+      // L'anno di fine stagione per qualsiasi mese dell'anno Y si estende sempre fino al 31 Ottobre dell'anno successivo (Y + 1)
+      const seasonEndYear = currentYear + 1;
+
+      const monthsToFetch: Array<{ year: number; month: number; name: string }> = [];
+
+      let y = currentYear;
+      let m = currentMonth;
+
+      const monthNames = [
+        'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre',
+        'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio'
+      ];
+      
+      const fullMonthNames = [
+        'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+      ];
+
+      while (y < seasonEndYear || (y === seasonEndYear && m <= 10)) {
+        monthsToFetch.push({ year: y, month: m, name: `${fullMonthNames[m - 1]} ${y}` });
+        m++;
+        if (m > 12) {
+          m = 1;
+          y++;
+        }
+      }
+
+      if (monthsToFetch.length === 0) {
+        monthsToFetch.push({ year: currentYear, month: currentMonth, name: `${fullMonthNames[currentMonth - 1]} ${currentYear}` });
+      }
+
+      const accumulatedBookings: any[] = [];
+      const existingIds = new Set<string>();
+
+      for (let i = 0; i < monthsToFetch.length; i++) {
+        const item = monthsToFetch[i];
+        const progressPct = Math.round(((i + 1) / monthsToFetch.length) * 100);
+
+        set({
+          seasonDownloadStatus: 'downloading',
+          seasonDownloadProgress: Math.max(5, progressPct),
+          seasonDownloadMessage: `Scaricamento ${item.name} in corso (${i + 1}/${monthsToFetch.length})...`
+        });
+
+        const firstDayStr = `${item.year}-${String(item.month).padStart(2, '0')}-01`;
+        const lastDayNum = new Date(item.year, item.month, 0).getDate();
+        const lastDayStr = `${item.year}-${String(item.month).padStart(2, '0')}-${String(lastDayNum).padStart(2, '0')}`;
+
+        try {
+          const res = await fetch(`/api/resort/octorate-bookings?dateFrom=${firstDayStr}&dateTo=${lastDayStr}`);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.data && Array.isArray(json.data)) {
+              for (const newItem of json.data) {
+                const bId = String(newItem.id || newItem.octorate_reservation_id || Math.random());
+                if (!existingIds.has(bId)) {
+                  existingIds.add(bId);
+                  accumulatedBookings.push(newItem);
+                }
+              }
+
+              set({
+                rawOctorateBookings: [...accumulatedBookings],
+                bookings: [...accumulatedBookings]
+              });
+            }
+          }
+        } catch (err) {
+          console.warn(`[downloadSeasonSequential] Errore mese ${item.name}:`, err);
+        }
+
+        await new Promise(r => setTimeout(r, 120));
+      }
+
+      set({
+        seasonDownloadStatus: 'completed',
+        seasonDownloadProgress: 100,
+        seasonDownloadMessage: `Caricamento Stagione Completato (100%) - ${accumulatedBookings.length} prenotazioni pronte`
+      });
+    } catch (err: any) {
+      console.error('[downloadSeasonSequential] Exception:', err);
+      set({
+        seasonDownloadStatus: 'error',
+        seasonDownloadProgress: 0,
+        seasonDownloadMessage: err.message || 'Errore durante il caricamento della stagione'
+      });
+    }
+  },
+
+  executeDynamicMinStayStrategy: async (resetToBaseline: boolean = false, customRange?: { start: string; end: string }) => {
+    set({ dynamicMinStayRunning: true, isDynamicCalculationEnabled: true });
+    try {
+      let { rawOctorateBookings, bookings, dynamicMinStayGapFill, fetchBookings, downloadSeasonSequential } = get();
+
+      // Regola 1: Se l'array rawOctorateBookings è vuoto, recupera l'intera stagione
+      if (!rawOctorateBookings || rawOctorateBookings.length === 0) {
+        console.log('[useResortAdminStore] rawOctorateBookings vuoto: Eseguo downloadSeasonSequential() prima del Gap-Fill...');
+        await downloadSeasonSequential();
+        rawOctorateBookings = get().rawOctorateBookings;
         bookings = get().bookings;
       }
 
-      const todayISO = customRange?.start || new Date().toISOString().substring(0, 10);
-      let endISO = customRange?.end;
-      if (!endISO) {
-        const nextYear = new Date();
-        nextYear.setDate(nextYear.getDate() + 365);
-        endISO = nextYear.toISOString().substring(0, 10);
-      }
+      const poolToUse = (rawOctorateBookings && rawOctorateBookings.length > 0) ? rawOctorateBookings : bookings;
+      const todayISO = customRange?.start || toThailandDateStr(new Date());
+      const endISO = customRange?.end || getSeasonalEndDateStr(todayISO);
 
-      const updates = calculateDynamicMinStay(bookings, { start: todayISO, end: endISO });
+      // Calcolo Assoluto basato sulle prenotazioni reali stagionali in memoria con enabled = true
+      const updates = calculateDynamicMinStay(poolToUse, { start: todayISO, end: endISO, enabled: true });
 
       // Se il toggle non è spuntato, la modalità è forzata su Simulazione (dryRun = true)
       const isDryRun = !dynamicMinStayGapFill;
@@ -204,20 +327,23 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
 
   setBookings: (newBookings: ResortBooking[]) => {
     if (Array.isArray(newBookings) && newBookings.length > 0) {
-      set({ bookings: newBookings });
+      set({ bookings: newBookings, rawOctorateBookings: newBookings });
     }
   },
 
   fetchBookings: async () => {
     set({ loading: true, error: null });
     try {
-      // 1. Fetch live reservations via serverless endpoint /api/resort/octorate-bookings
-      const res = await fetch('/api/resort/octorate-bookings');
+      const todayStr = toThailandDateStr(new Date());
+      const seasonEndStr = getSeasonalEndDateStr(todayStr);
+
+      // 1. Download Stagionale in Blocco da oggi al 31 Ottobre nel fuso Asia/Bangkok
+      const res = await fetch(`/api/resort/octorate-bookings?dateFrom=${todayStr}&dateTo=${seasonEndStr}`);
       if (res.ok) {
         const json = await res.json();
         if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-          set({ bookings: json.data, loading: false });
-          console.log(`[useResortAdminStore] Popolate ${json.data.length} prenotazioni dall'endpoint serverless octorate-bookings`);
+          set({ rawOctorateBookings: json.data, bookings: json.data, loading: false });
+          console.log(`[useResortAdminStore] Scaricate ${json.data.length} prenotazioni stagionali in blocco (${todayStr} -> ${seasonEndStr})`);
           return;
         }
       }
@@ -225,11 +351,11 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       // 2. Fallback to fetchOctorateLiveReservations
       const liveReservations = await fetchOctorateLiveReservations();
       if (liveReservations && Array.isArray(liveReservations)) {
-        set({ bookings: liveReservations, loading: false });
+        set({ rawOctorateBookings: liveReservations, bookings: liveReservations, loading: false });
         return;
       }
 
-      set({ bookings: [], loading: false });
+      set({ rawOctorateBookings: [], bookings: [], loading: false });
     } catch (err: any) {
       console.error('[useResortAdminStore] Fetch Error:', err);
       set({ error: err.message || 'Impossibile caricare le prenotazioni del resort.', loading: false });

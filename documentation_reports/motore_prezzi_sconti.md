@@ -90,3 +90,16 @@ graph TD
     *   **Acconto (30%):** Addebitato istantaneamente via Stripe Checkout: `depositPaid = Math.round(finalTotal * 0.3)`.
     *   **Saldo (70%):** Pagato in loco al check-in: `balanceDue = finalTotal - depositPaid`.
 5.  **Passaggio nei Metadati:** Tutti i valori intermedi del calcolo (notti, ospiti, sconti, acconto, saldo) vengono inseriti nei metadati della sessione Stripe. In questo modo, l'handler di convalida finale `/api/verify-checkout-session` estrae i dettagli certificati direttamente da Stripe per sincronizzarli su Octorate e includerli nel PDF/email, escludendo ogni possibilità di alterazione dei dati da parte del client.
+
+---
+
+## 5. Algoritmo Gap-Fill e Uniformità sui Confini Stagionali (03/08/2026)
+
+### Regola del `maxBaselineInGap`
+Quando un "buco" di $G$ notti tra due prenotazioni consecutive (`prev_checkout` e `next_checkin`) attraversa un confine stagionale (ad esempio passando da Peak Season con baseline 5 notti a High Season con baseline 3 notti):
+- **Problema originario**: La valutazione del buco giorno per giorno generava minStay misti (es. `[4, 4, 3, 3]`), consentendo ad un ospite di prenotare 3 notti e frammentare il buco.
+- **Soluzione applicata (`calculateDynamicMinStay` & `computeGapFillMinStays`)**:
+  1. Si calcola il **`maxBaselineInGap`**: il soggiorno minimo più alto richiesto tra tutti i giorni compresi nel buco.
+  2. **Condizione**: Se $G < \text{maxBaselineInGap}$, la regola Gap-Fill si attiva per **TUTTI i giorni** di quel buco, impostando `minStay = G` per ogni singola cella per blindare l'intero blocco (es. `[4, 4, 4, 4]`).
+  3. Se $G \ge \text{maxBaselineInGap}$, ciascun giorno mantiene la propria baseline stagionale standard.
+

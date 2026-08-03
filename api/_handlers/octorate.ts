@@ -297,56 +297,79 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
     let octorateReservations: any[] = [];
     if (tokenData?.access_token) {
       try {
-        const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
-        let octRes = await fetch(octUrl, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${tokenData.access_token}`,
-            'Accept': 'application/json'
-          }
-        });
+        const pageSize = 20;
+        let page = 0;
+        let hasMore = true;
+        const maxPages = 50; // Safety guard for up to 1000 reservations
+        const rawItems: any[] = [];
 
-        if (!octRes.ok) {
-          const fallbackUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=366879&type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
-          octRes = await fetch(fallbackUrl, {
+        while (hasMore && page < maxPages) {
+          const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=${pageSize}&page=${page}`;
+          let octRes = await fetch(octUrl, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${tokenData.access_token}`,
               'Accept': 'application/json'
             }
           });
+
+          if (!octRes.ok) {
+            const fallbackUrl = `https://api.octorate.com/connect/rest/v1/reservation?structure=366879&type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=${pageSize}&page=${page}`;
+            octRes = await fetch(fallbackUrl, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${tokenData.access_token}`,
+                'Accept': 'application/json'
+              }
+            });
+          }
+
+          if (octRes.ok) {
+            const octJson = await octRes.json();
+            const pageItems = octJson && Array.isArray(octJson.data) 
+              ? octJson.data 
+              : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
+
+            if (Array.isArray(pageItems) && pageItems.length > 0) {
+              rawItems.push(...pageItems);
+              if (pageItems.length < pageSize) {
+                hasMore = false; // Reached last page
+              } else {
+                page++;
+              }
+            } else {
+              hasMore = false;
+            }
+          } else {
+            console.warn(`[api/resort/octorate-bookings] Octorate API status ${octRes.status} on page ${page}`);
+            hasMore = false;
+          }
         }
 
-        if (octRes.ok) {
-          const octJson = await octRes.json();
-          const items = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
-          octorateReservations = items.map((r: any) => {
-            const inStr = toThailandDateStr(r.checkin || r.check_in || r.checkIn || r.startDate);
-            const outStr = toThailandDateStr(r.checkout || r.check_out || r.checkOut || r.endDate);
-            return {
-              id: String(r.id || r.reservationId || Math.random()),
-              guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
-              guest_email: r.email || r.guestEmail || (r.guests && r.guests[0]?.email) || '',
-              guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',
-              accommodation_id: String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || ''),
-              accommodation_name: r.roomName || r.accommodation_name || '',
-              product: String(r.product || r.roomTypeId || ''),
-              roomName: r.roomName || r.accommodation_name || '',
-              check_in: inStr,
-              check_out: outStr,
-              checkin: inStr,
-              checkout: outStr,
-              guests: Number(r.totalGuest || r.pax || r.guestsCount || 2),
-              total_price: Number(r.roomGross || r.totalGross || r.totalAmount || 0),
-              deposit_paid: Number(r.deposit || 0),
-              status: String(r.status || '').toUpperCase() === 'CANCELLED' ? 'cancelled' : 'confirmed',
-              source_channel: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com',
-              channelName: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com'
-            };
-          });
-        } else {
-          console.warn(`[api/resort/octorate-bookings] Octorate API status ${octRes.status}`);
-        }
+        octorateReservations = rawItems.map((r: any) => {
+          const inStr = toThailandDateStr(r.checkin || r.check_in || r.checkIn || r.startDate);
+          const outStr = toThailandDateStr(r.checkout || r.check_out || r.checkOut || r.endDate);
+          return {
+            id: String(r.id || r.reservationId || Math.random()),
+            guest_name: r.guestName || r.guest_name || `${r.firstName || r.first_name || 'Ospite'} ${r.lastName || r.last_name || ''}`.trim(),
+            guest_email: r.email || r.guestEmail || (r.guests && r.guests[0]?.email) || '',
+            guest_phone: r.phone || (r.guests && r.guests[0]?.phone) || '',
+            accommodation_id: String(r.product || r.roomTypeId || r.roomId || r.accommodation_id || ''),
+            accommodation_name: r.roomName || r.accommodation_name || '',
+            product: String(r.product || r.roomTypeId || ''),
+            roomName: r.roomName || r.accommodation_name || '',
+            check_in: inStr,
+            check_out: outStr,
+            checkin: inStr,
+            checkout: outStr,
+            guests: Number(r.totalGuest || r.pax || r.guestsCount || 2),
+            total_price: Number(r.roomGross || r.totalGross || r.totalAmount || 0),
+            deposit_paid: Number(r.deposit || 0),
+            status: String(r.status || '').toUpperCase() === 'CANCELLED' ? 'cancelled' : 'confirmed',
+            source_channel: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com',
+            channelName: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com'
+          };
+        });
       } catch (octErr) {
         console.warn('[api/resort/octorate-bookings] Octorate reservations fetch notice:', octErr);
       }

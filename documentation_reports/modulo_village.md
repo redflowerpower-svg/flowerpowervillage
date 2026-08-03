@@ -247,3 +247,48 @@ Tutti gli alloggi del resort e i relativi piani tariffari (Booking Engine `BE`, 
 
 ---
 
+## 13. Refactoring Calendario Visivo Alloggi, Griglia Continua & Sincronizzazione Anti-Freeze (03/08/2026)
+
+### A. Layout a Griglia Continua (Scorrimento Orizzontale da Oggi al 31 Ottobre Y+1)
+- Rimosse le vecchie paginazioni a 30 giorni ("30gg Prec" / "30gg Succ").
+- Il calendario genera una matrice continuativa a scorrimento orizzontale nativo (`overflow-x-auto`) che si estende da **Oggi (Asia/Bangkok)** fino al **31 Ottobre dell'anno successivo** (`year + 1`), coprendo l'intera stagione del resort (~450 giorni).
+
+### B. Download Sequenziale Mese per Mese & Cache in Memoria (`useResortAdminStore.ts`)
+- **Paginazione API Octorate (`size=20`)**: Octorate limita le query massive restituendo errori `errPageSize`. L'endpoint serverless (`/api/resort/octorate-bookings`) cicla sulle pagine (`size=20`, `page=0, 1, 2...`) aggregando i dati lato Node.js.
+- **Download Sequenziale Visivo**: La funzione `downloadSeasonSequential()` scarica le prenotazioni un mese alla volta aggiornando la barra di avanzamento (`0%` → `100%`).
+- **Cache in Memoria (Zero Reload al Cambio Tab)**: Al montaggio del componente, se `seasonDownloadStatus === 'completed'` e i dati sono presenti in memoria (`rawOctorateBookings`), il download viene saltato e la griglia viene renderizzata all'istante.
+- **Pulsante `Sync Live`**: Consente di forzare la pulizia della cache in memoria e riavviare il download sequenziale della stagione.
+
+### C. DatePicker 100% Passivo (Uncontrolled via `useRef`)
+- **Zero React Re-renders**: Rimosse le proprietà `value` e `onChange` legate allo stato React. L'input `<input type="date">` è *uncontrolled* con `ref={dateInputRef}` e `defaultValue={toThailandDateStr(new Date())}`.
+- **Apertura su Intero Campo**: L'evento `onClick={(e) => e.currentTarget.showPicker()}` apre la tendina del calendario nativo al click in qualsiasi punto dell'input.
+- **Ricerca in 2 Step con Tasto `[🔎 Vai]`**: L mevento click del tasto "Vai" legge il valore direttamente dal DOM (`dateInputRef.current?.value`) ed invoca:
+  ```ts
+  colElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+  ```
+  ancorando la colonna selezionata a sinistra.
+
+### D. Scudo Anti-Lag (`React.memo` per `CalendarCell`)
+- Estratta la logica di rendering della singola cella giornaliera nel componente dedicato:
+  ```tsx
+  const CalendarCell = React.memo(function CalendarCell({ ... }) { ... });
+  ```
+- Impedisce il ricalcolo delle oltre 9.000 celle durante lo scroll o l'apertura delle modali, mantenendo l'interfaccia a 60fps.
+
+### E. Overlay Bloccante Assoluto & Sincronizzazione Event Loop (Double rAF)
+- **Overlay Fullscreen Bloccante**: `fixed inset-0 w-screen h-screen z-50 bg-stone-950/95 pointer-events-auto` copre l me intera viewport e blocca ogni interazione accidentale dell me utente durante il montaggio del DOM.
+- **Timing Blindato a 2 Fasi & Event Loop (Doppio rAF)**:
+  - Fase 1: Al completamento del download viene attivato l'overlay (`showOverlay = true`, `mountHeavyGrid = false`).
+  - Fase 2: Un `setTimeout(500ms)` garantisce al browser il tempo di dipingere il sipario scuro.
+  - Fase 3: Scattati i 500ms, si attiva `setMountHeavyGrid(true)` avviando la costruzione del DOM.
+  - Fase 4: La disattivazione dell'overlay è sincronizzata con l'Event Loop nativo tramite doppio `requestAnimationFrame`:
+    ```ts
+    rafId1 = requestAnimationFrame(() => {
+      rafId2 = requestAnimationFrame(() => {
+        timerId = setTimeout(() => setShowOverlay(false), 300);
+      });
+    });
+    ```
+    Se il dispositivo è lento ed impiega diversi secondi per calcolare il layout delle 9.000 celle, `requestAnimationFrame` posticipa l'esecuzione fino al reale completamento del paint, mantenendo l'overlay protettivo per tutto il tempo necessario.
+
+
