@@ -27,7 +27,9 @@ import {
   Zap,
   Loader2,
   XCircle,
-  GitFork
+  GitFork,
+  AlertTriangle,
+  Eye
 } from 'lucide-react';
 
 export function ResortDashboard() {
@@ -42,19 +44,28 @@ export function ResortDashboard() {
     toggleRoomAvailability, 
     checkOctorateConnection,
     filterCategory,
-    setFilterCategory,
-    lastMinuteThresholdDays,
-    lastMinuteBlockDays,
+    executeLastMinuteStrategy,
+    resetLastMinuteStrategy,
+    lastMinuteStage1Days,
     lastMinuteDiscountStage1,
+    lastMinuteStage2Days,
     lastMinuteDiscountStage2,
-    applyClosedToArrival,
+    lastMinuteStage3Days,
+    lastMinuteDiscountStage3,
+    executionMode,
+    isTestEnvironment,
+    isSimulationActive,
+    simulatedOctorateGridItems,
     lastMinuteRunning,
     lastMinuteResult,
-    setLastMinuteThresholdDays,
-    setLastMinuteBlockDays,
+    setLastMinuteStage1Days,
     setLastMinuteDiscountStage1,
+    setLastMinuteStage2Days,
     setLastMinuteDiscountStage2,
-    setApplyClosedToArrival,
+    setLastMinuteStage3Days,
+    setLastMinuteDiscountStage3,
+    setExecutionMode,
+    setIsTestEnvironment,
     disableLastMinuteStrategy,
     dynamicMinStayGapFill,
     dynamicMinStayRunning,
@@ -63,7 +74,7 @@ export function ResortDashboard() {
     executeDynamicMinStayStrategy
   } = useResortAdminStore();
 
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar' | 'rooms' | 'derived_rates' | 'octorate'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'octorate'>('bookings');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Octorate Dev Diagnostics State
@@ -280,183 +291,286 @@ export function ResortDashboard() {
         </div>
       </div>
 
-      {/* LAST-MINUTE DYNAMIC 2-STAGE STRATEGY AUTOMATION PANEL */}
-      <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-5">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-800 pb-4">
+      {/* LAST-MINUTE DYNAMIC 3-STAGE CASCADE DISCOUNT PANEL */}
+      <div className="bg-amber-950/20 border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-xl shadow-amber-950/30 space-y-5 ring-1 ring-amber-500/10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-amber-500/30 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 flex-shrink-0 shadow shadow-amber-900/40">
               <Zap className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base font-black text-white tracking-tight flex items-center gap-2">
-                Strategia Canali & Automazione Last-Minute a 2 Stadi
+                Automazione Sconti a Cascata (3 Stadi Sequenziali)
               </h3>
               <p className="text-stone-400 text-xs font-medium">
-                Sblocco automatico Stop Sell per tariffe standard (7D / 14D) su Booking.com, Expedia & Trip.com
+                Sconti percentuali sequenziali dinamici calcolati sulla data libera imminente dal giorno corrente
               </p>
             </div>
           </div>
           <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
-            Automazione Octorate REST v1
+            Automazione Tariffe Octorate
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Input 1: Threshold Days */}
-          <div className="bg-stone-950 p-4 rounded-2xl border border-stone-850 space-y-2">
-            <label className="text-xs font-bold text-stone-300 block">
-              1. Anticipo Soglia Check-in (Giorni):
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                type="number"
-                min="1"
-                max="60"
-                value={lastMinuteThresholdDays ?? 10}
-                onChange={(e) => setLastMinuteThresholdDays(parseInt(e.target.value))}
-                className="w-24 bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono font-black text-sm text-center focus:outline-none focus:border-amber-400"
-              />
-              <span className="text-stone-400 text-xs font-medium leading-tight">
-                giorni di anticipo dal check-in.
+        {/* REGOLA D'ORO API OCTORATE BADGE */}
+        <div className="p-3 bg-amber-950/30 border border-amber-500/30 rounded-2xl flex items-center gap-2 text-amber-300 text-xs font-semibold">
+          <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <span>
+            <strong>⚠️ REGOLA D'ORO OCTORATE:</strong> Tutte le modifiche di prezzo colpiscono <u>ESCLUSIVAMENTE</u> l'ID della Tariffa Madre (Livello 0).
+          </span>
+        </div>
+
+        {/* 3 Cascade Discount Stages Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Stage 1: 3 Days @ 10% */}
+          <div className="bg-red-950/30 p-4 rounded-2xl border border-red-500/40 space-y-3 shadow shadow-red-950/30">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-red-400 uppercase tracking-wider block flex items-center gap-1.5">
+                🔥 Stadio 1: Imminente
+              </label>
+              <span className="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-md border border-red-500/30 font-mono">
+                Giorni 0 - 2
               </span>
             </div>
-            <p className="text-[11px] text-stone-500 font-light leading-snug pt-1">
-              * Attiva la visibilità last-minute sulle OTA (Booking.com, Expedia, Trip.com).
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-stone-400">Finestra Anticipo:</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min="1"
+                    max="14"
+                    value={lastMinuteStage1Days ?? 3}
+                    onChange={(e) => setLastMinuteStage1Days(parseInt(e.target.value))}
+                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-white font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
+                  />
+                  <span className="text-xs text-stone-400">gg</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-stone-400">Sconto Applicato:</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    max="80"
+                    step="0.5"
+                    value={lastMinuteDiscountStage1 ?? 10}
+                    onChange={(e) => setLastMinuteDiscountStage1(parseFloat(e.target.value))}
+                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-amber-400 font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
+                  />
+                  <span className="text-amber-400 font-black text-xs">%</span>
+                </div>
+              </div>
+            </div>
+            <p className="text-[10px] text-stone-500 leading-snug">
+              Applicato per i primi {lastMinuteStage1Days} giorni di anticipo (Offset 0..2).
             </p>
           </div>
 
-          {/* Input 2: Block Duration Days */}
-          <div className="bg-stone-950 p-4 rounded-2xl border border-stone-850 space-y-2">
-            <label className="text-xs font-bold text-stone-300 block">
-              2. Durata Blocco Aperto (Notti / Giorni):
-            </label>
-            <div className="flex items-center gap-3">
-              <input
-                type="number"
-                min="1"
-                max="30"
-                value={lastMinuteBlockDays ?? 5}
-                onChange={(e) => setLastMinuteBlockDays(parseInt(e.target.value))}
-                className="w-24 bg-stone-900 border border-stone-700 rounded-xl px-3 py-2 text-white font-mono font-black text-sm text-center focus:outline-none focus:border-amber-400"
-              />
-              <span className="text-stone-400 text-xs font-medium leading-tight">
-                giorni aperti per Check-in & Check-out.
+          {/* Stage 2: 3 Next Days @ 5% */}
+          <div className="bg-orange-950/30 p-4 rounded-2xl border border-orange-500/40 space-y-3 shadow shadow-orange-950/30">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-orange-400 uppercase tracking-wider block flex items-center gap-1.5">
+                🏷️ Stadio 2: Intermedio
+              </label>
+              <span className="text-[10px] bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-md border border-orange-500/30 font-mono">
+                Giorni 3 - 5
               </span>
             </div>
-            <p className="text-[11px] text-stone-500 font-light leading-snug pt-1">
-              * Stadio 1: {lastMinuteBlockDays ?? 5} giorni completamente aperti per qualsiasi arrivo.
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-stone-400">Durata Blocco:</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min="1"
+                    max="14"
+                    value={lastMinuteStage2Days ?? 3}
+                    onChange={(e) => setLastMinuteStage2Days(parseInt(e.target.value))}
+                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-white font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
+                  />
+                  <span className="text-xs text-stone-400">gg</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-stone-400">Sconto Applicato:</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    max="80"
+                    step="0.5"
+                    value={lastMinuteDiscountStage2 ?? 5}
+                    onChange={(e) => setLastMinuteDiscountStage2(parseFloat(e.target.value))}
+                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-amber-400 font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
+                  />
+                  <span className="text-amber-400 font-black text-xs">%</span>
+                </div>
+              </div>
+            </div>
+            <p className="text-[10px] text-stone-500 leading-snug">
+              Applicato per i {lastMinuteStage2Days} giorni successivi a Stadio 1.
             </p>
           </div>
 
-          {/* Automatic Stage 2 Indicator */}
-          <div className="bg-stone-950 p-4 rounded-2xl border border-emerald-900/50 space-y-3 flex flex-col justify-between">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-stone-300 block">
-                3. Stadio 2: Transito Automatico (solo Check-out):
+          {/* Stage 3: 4 Next Days @ 2.5% */}
+          <div className="bg-yellow-950/30 p-4 rounded-2xl border border-yellow-600/40 space-y-3 shadow shadow-yellow-950/30">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-yellow-400 uppercase tracking-wider block flex items-center gap-1.5">
+                ⚡ Stadio 3: Esteso
               </label>
-              <p className="text-[11px] text-stone-400 leading-snug">
-                I 3 giorni successivi avranno automaticamente attivo solo il Check-out (CTA = true) per garantire la continuità dei soggiorni a cavallo.
-              </p>
+              <span className="text-[10px] bg-yellow-500/20 text-yellow-300 px-2 py-0.5 rounded-md border border-yellow-600/30 font-mono">
+                Giorni 6 - 9
+              </span>
             </div>
-
-            <div className="w-full py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider flex items-center justify-between bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-              <span>🔒 Solo Check-Out (CTA Automatico)</span>
-              <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-stone-400">Durata Blocco:</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min="1"
+                    max="14"
+                    value={lastMinuteStage3Days ?? 4}
+                    onChange={(e) => setLastMinuteStage3Days(parseInt(e.target.value))}
+                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-white font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
+                  />
+                  <span className="text-xs text-stone-400">gg</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-stone-400">Sconto Applicato:</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    max="80"
+                    step="0.5"
+                    value={lastMinuteDiscountStage3 ?? 2.5}
+                    onChange={(e) => setLastMinuteDiscountStage3(parseFloat(e.target.value))}
+                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-amber-400 font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
+                  />
+                  <span className="text-amber-400 font-black text-xs">%</span>
+                </div>
+              </div>
             </div>
+            <p className="text-[10px] text-stone-500 leading-snug">
+              Placeholder modificabile per i {lastMinuteStage3Days} giorni successivi.
+            </p>
           </div>
         </div>
 
-        {/* Dynamic Discount Regulation Grid */}
-        <div className="bg-stone-950/80 p-4.5 rounded-2xl border border-stone-800 space-y-3">
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-amber-400" />
-            <span className="text-xs font-black text-white uppercase tracking-wider">
-              Regolazione Sconti Percentuali Tariffe Stanze Libere Last-Minute
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-            {/* Discount Stage 1 */}
-            <div className="bg-stone-900 p-3.5 rounded-xl border border-stone-800 space-y-2">
-              <label className="text-xs font-bold text-stone-300 block">
-                🔥 Sconto Primi 3 Giorni (Oggi, Domani, Dopodomani):
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="0"
-                  max="80"
-                  value={lastMinuteDiscountStage1 ?? 15}
-                  onChange={(e) => setLastMinuteDiscountStage1(parseInt(e.target.value))}
-                  className="w-20 bg-stone-950 border border-stone-700 rounded-xl px-3 py-1.5 text-amber-400 font-mono font-black text-sm text-center focus:outline-none focus:border-amber-400"
-                />
-                <span className="text-amber-400 font-black text-sm">% Sconto</span>
-                <span className="text-stone-400 text-xs font-medium ml-2">sulla tariffa base</span>
-              </div>
-              <p className="text-[11px] text-stone-500">
-                Applicato sulle camere libere imminenti nei primi 3 giorni.
-              </p>
+        {/* Simulation Active Visual Banner */}
+        {isSimulationActive && (
+          <div className="p-3 bg-amber-950/60 border border-amber-500/50 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-amber-300 text-xs shadow-lg animate-pulse">
+            <div className="flex items-center gap-2">
+              <Eye className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <span>
+                <strong>👁️ ANTEPRIMA SIMULAZIONE ATTIVA:</strong> Stai visualizzando i prezzi scontati calcolati in memoria (-10%, -5%, -2.5%). Nessun dato è stato inviato ad Octorate.
+              </span>
             </div>
-
-            {/* Discount Stage 2 */}
-            <div className="bg-stone-900 p-3.5 rounded-xl border border-stone-800 space-y-2">
-              <label className="text-xs font-bold text-stone-300 block">
-                🏷️ Sconto 3 Giorni Successivi (Giorni 4 - 6):
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  min="0"
-                  max="80"
-                  value={lastMinuteDiscountStage2 ?? 10}
-                  onChange={(e) => setLastMinuteDiscountStage2(parseInt(e.target.value))}
-                  className="w-20 bg-stone-950 border border-stone-700 rounded-xl px-3 py-1.5 text-amber-400 font-mono font-black text-sm text-center focus:outline-none focus:border-amber-400"
-                />
-                <span className="text-amber-400 font-black text-sm">% Sconto</span>
-                <span className="text-stone-400 text-xs font-medium ml-2">sulla tariffa base</span>
-              </div>
-              <p className="text-[11px] text-stone-500">
-                Applicato nel secondo blocco di 3 giorni (con CTA solo Check-out).
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons & Status Output */}
-        <div className="pt-2 border-t border-stone-850 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
-          <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full xl:w-auto">
             <button
               type="button"
-              onClick={() => executeLastMinuteStrategy()}
-              disabled={lastMinuteRunning}
-              className="w-full sm:w-auto py-3 px-5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+              onClick={() => useResortAdminStore.getState().resetLastMinuteStrategy()}
+              className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 text-[10px] font-extrabold uppercase rounded-xl transition-all cursor-pointer whitespace-nowrap"
             >
-              {lastMinuteRunning ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
-                  <span>Elaborazione in corso...</span>
-                </>
-              ) : (
-                <>
-                  <Zap className="w-4 h-4 text-amber-300" />
-                  <span>Esegui Ottimizzazione Last-Minute</span>
-                </>
-              )}
+              Chiudi Anteprima
             </button>
+          </div>
+        )}
 
-            <button
-              type="button"
-              onClick={() => disableLastMinuteStrategy()}
-              disabled={lastMinuteRunning}
-              className="w-full sm:w-auto py-3 px-5 bg-stone-950 hover:bg-red-950/80 text-stone-300 hover:text-red-300 border border-stone-800 hover:border-red-800/80 font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 shadow transition-all cursor-pointer"
-            >
-              <XCircle className="w-4 h-4 text-red-400" />
-              <span>Disabilita Ottimizzazione</span>
-            </button>
+        {/* Safety Floor Notice */}
+        <p className="text-[11px] text-stone-400 font-mono italic">
+          * Lo sconto percentuale si calcola sul prezzo netto, controllando sempre che non violi il minimumSellingPrice di sicurezza per camera.
+        </p>
+
+        {/* Action Controls + 3-Level Execution Mode Selector + Reset Button */}
+        <div className="pt-3 border-t border-stone-850 flex flex-col space-y-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            {/* 3-Level Execution Mode Selector */}
+            <div className="flex items-center gap-1.5 bg-stone-950 p-1.5 rounded-2xl border border-stone-800">
+              <span className="text-[11px] font-bold text-stone-400 px-2 flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                Modalità:
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setExecutionMode('simulation')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  executionMode === 'simulation'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+                title="Calcolo senza chiamate API"
+              >
+                🟡 Simulazione Dry-Run
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setExecutionMode('test_bungalows')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  executionMode === 'test_bungalows'
+                    ? 'bg-amber-500 text-stone-950 font-extrabold shadow-md'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+                title="Invia modifiche SOLO a Fake Bungalows (ID Madri 649669 e 921799)"
+              >
+                🧪 Ambiente di Test
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setExecutionMode('production')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  executionMode === 'production'
+                    ? 'bg-emerald-600 text-white font-extrabold shadow-md'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+                title="Invia modifiche a tutte le Tariffe Madri di produzione"
+              >
+                🌐 Produzione
+              </button>
+            </div>
+
+            {/* Action Buttons: Execute & Reset */}
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => executeLastMinuteStrategy()}
+                disabled={lastMinuteRunning}
+                className="py-2.5 px-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center gap-2 shadow-lg transition-all cursor-pointer disabled:opacity-50"
+              >
+                {lastMinuteRunning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Elaborazione...</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 text-amber-300" />
+                    <span>Esegui Sconti a Cascata</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => resetLastMinuteStrategy()}
+                disabled={lastMinuteRunning}
+                className="py-2.5 px-4 bg-stone-950 hover:bg-stone-850 text-stone-300 hover:text-white border border-stone-800 hover:border-stone-700 font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center gap-2 shadow transition-all cursor-pointer disabled:opacity-50"
+                title="Ripristina i prezzi al 100% della tariffa base originale senza sconti"
+              >
+                <RefreshCw className={`w-4 h-4 text-amber-400 ${lastMinuteRunning ? 'animate-spin' : ''}`} />
+                <span>🔄 Ripristina Prezzi Originali</span>
+              </button>
+            </div>
           </div>
 
           {lastMinuteResult && (
-            <div className={`p-3 rounded-2xl border text-xs leading-relaxed flex-1 w-full ${
+            <div className={`p-3 rounded-2xl border text-xs leading-relaxed w-full ${
               lastMinuteResult.success
                 ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300'
                 : 'bg-red-950/40 border-red-800/60 text-red-300'
@@ -474,10 +588,10 @@ export function ResortDashboard() {
       </div>
 
       {/* DYNAMIC MINIMUM STAY (GAP-FILLING & DENSITY PRICING) PANEL */}
-      <div className="bg-stone-900 border border-stone-800 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-800 pb-3">
+      <div className="bg-violet-950/20 border-2 border-violet-500/40 rounded-3xl p-5 sm:p-6 shadow-xl shadow-violet-950/30 space-y-4 ring-1 ring-violet-500/10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-violet-500/30 pb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 flex-shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-violet-500/20 border border-violet-400/50 flex items-center justify-center text-violet-300 flex-shrink-0 shadow shadow-violet-900/40">
               <SlidersHorizontal className="w-5 h-5" />
             </div>
             <div>
@@ -490,20 +604,20 @@ export function ResortDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="bg-teal-500/10 text-teal-400 border border-teal-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
+            <span className="bg-violet-500/10 text-violet-300 border border-violet-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
               Staging Lock #649669 & #921799
             </span>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-stone-950 p-4 rounded-2xl border border-stone-850">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-violet-950/20 p-4 rounded-2xl border border-violet-500/25">
           <div className="flex items-center gap-3">
             <input
               type="checkbox"
               id="toggle-dynamic-minstay"
               checked={dynamicMinStayGapFill}
               onChange={(e) => setDynamicMinStayGapFill(e.target.checked)}
-              className="w-5 h-5 accent-teal-500 rounded cursor-pointer"
+              className="w-5 h-5 accent-violet-500 rounded cursor-pointer"
             />
             <label htmlFor="toggle-dynamic-minstay" className="text-xs font-bold cursor-pointer flex items-center gap-1.5">
               {dynamicMinStayGapFill ? (
@@ -526,7 +640,7 @@ export function ResortDashboard() {
               className={`w-full sm:w-auto py-2.5 px-4 font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 shadow transition-all cursor-pointer ${
                 dynamicMinStayGapFill 
                   ? 'bg-amber-600 hover:bg-amber-500 text-stone-950' 
-                  : 'bg-teal-600 hover:bg-teal-500 text-white'
+                  : 'bg-violet-600 hover:bg-violet-500 text-white'
               }`}
             >
               {dynamicMinStayRunning ? (
@@ -590,6 +704,16 @@ export function ResortDashboard() {
             📋 Prenotazioni ({(bookings || []).length})
           </button>
           <button
+            onClick={() => setActiveTab('calendar_30_days')}
+            className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
+              activeTab === 'calendar_30_days'
+                ? 'bg-emerald-600 text-white shadow'
+                : 'text-stone-400 hover:text-white'
+            }`}
+          >
+            📅 Calendario 30gg (Veloce)
+          </button>
+          <button
             onClick={() => setActiveTab('calendar')}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'calendar'
@@ -646,9 +770,14 @@ export function ResortDashboard() {
         )}
       </div>
 
-      {/* Tab Visual Calendar */}
+      {/* Tab Visual Calendar 30gg Veloce */}
+      {activeTab === 'calendar_30_days' && (
+        <ResortVisualCalendar viewMode="30_days" />
+      )}
+
+      {/* Tab Visual Calendar Full Season */}
       {activeTab === 'calendar' && (
-        <ResortVisualCalendar />
+        <ResortVisualCalendar viewMode="full_season" />
       )}
 
       {/* Tab Tariffe Derivate & Albero Canali OTA */}

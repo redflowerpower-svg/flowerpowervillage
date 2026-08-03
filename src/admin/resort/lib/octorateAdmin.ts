@@ -3,6 +3,8 @@
  * Riservato ed isolato dal Booking Engine del sito pubblico per garantire zero regressioni.
  */
 
+import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
+
 // Mappatura immutabile 1:1 ID TARIFFA MADRE e Codici Derivati per Octorate (212 Prodotti)
 export const MOCK_MOTHER_RATE_PLANS: Record<string, number> = {
   "Jungle Villa": 529773,
@@ -364,7 +366,7 @@ export function calculateDynamicMinStay(
   Object.values(roomBookingsMap).forEach(({ motherId, name: roomName, list }) => {
     // Ordina TUTTE le prenotazioni della camera in sequenza temporale per l'intera stagione
     const sorted = list.sort((a, b) => a.in.localeCompare(b.in));
-    
+
     for (let i = 0; i < sorted.length - 1; i++) {
       const prevOut = sorted[i].out;  // VERO prev_checkout di quella camera
       const nextIn = sorted[i + 1].in; // VERO next_checkin della prenotazione successiva
@@ -373,7 +375,7 @@ export function calculateDynamicMinStay(
       if (prevOut >= rangeStartStr && prevOut <= rangeEndStr && prevOut < nextIn) {
         const pParts = parseThailandDateParts(prevOut);
         const nParts = parseThailandDateParts(nextIn);
-        
+
         if (pParts && nParts) {
           const prevOutTime = Date.UTC(pParts.year, pParts.month - 1, pParts.day);
           const nextInTime = Date.UTC(nParts.year, nParts.month - 1, nParts.day);
@@ -383,7 +385,7 @@ export function calculateDynamicMinStay(
             // Calcola il soggiorno minimo stagionale più alto (maxBaselineInGap) tra tutti i giorni che compongono il buco
             let maxBaselineInGap = 0;
             let currentDay = new Date(Date.UTC(pParts.year, pParts.month - 1, pParts.day));
-            
+
             while (currentDay.getTime() < nextInTime) {
               const dStr = toThailandDateStr(currentDay);
               const baseline = getBaselineMinStay(dStr);
@@ -416,4 +418,211 @@ export function calculateDynamicMinStay(
 
   return updates;
 }
+
+export type DiscountExecutionMode = 'simulation' | 'test_bungalows' | 'production';
+
+export interface CascadeDiscountUpdate {
+  motherRateId: number;
+  accommodationName: string;
+  dateStr: string;
+  offsetDays: number;
+  stage: 1 | 2 | 3;
+  basePrice: number;
+  discountPercentage: number;
+  discountedPrice: number;
+  minimumSellingPrice: number;
+  finalPrice: number;
+  reason: string;
+}
+
+export interface CascadeDiscountOptions {
+  stage1Days?: number;        // default 3 (offset 0, 1, 2)
+  stage1Discount?: number;    // default 10%
+  stage2Days?: number;        // default 5 (offset 3, 4, 5)
+  stage2Discount?: number;    // default 5%
+  stage3Days?: number;        // default 2 (offset 6, 7, 8, 9)
+  stage3Discount?: number;    // default 2%
+  executionMode?: DiscountExecutionMode; // 'simulation' | 'test_bungalows' | 'production'
+  isTestEnvironment?: boolean; // legacy fallback
+  rawGridItems?: any[];
+}
+
+export function getTargetAccommodationsForMode(mode: DiscountExecutionMode) {
+  const targetAccommodations: Array<{ motherId: number; name: string; basePrice: number; minSellingPrice: number }> = [];
+
+  if (mode === 'production' || mode === 'simulation') {
+    // Simulazione Dry-Run oppure Produzione: TUTTE le Tariffe Madri reali (Livello 0) di tutti gli alloggi del villaggio
+    Object.values(ALL_ACCOMMODATIONS_MAP).forEach((canonical) => {
+      const configRoom = ACCOMMODATIONS.find(a => a.name.toLowerCase() === canonical.name.toLowerCase() || String(a.octorateId) === String(canonical.motherId));
+      const realBasePrice = configRoom?.pricePerNight || 1800;
+
+      targetAccommodations.push({
+        motherId: canonical.motherId,
+        name: canonical.name,
+        basePrice: realBasePrice,
+        minSellingPrice: 600
+      });
+    });
+    // Includiamo anche i Fake Bungalows di Test
+    targetAccommodations.push(
+      { motherId: 649669, name: 'Fake Bungalow 1', basePrice: 1200, minSellingPrice: 600 },
+      { motherId: 921799, name: 'Fake Bungalow 2', basePrice: 1200, minSellingPrice: 600 }
+    );
+  } else {
+    // Modalità 'test_bungalows' (Invio API in Ambiente di Test): SOLO Fake Bungalow 1 (649669) e Fake Bungalow 2 (921799)
+    targetAccommodations.push(
+      { motherId: 649669, name: 'Fake Bungalow 1', basePrice: 1200, minSellingPrice: 600 },
+      { motherId: 921799, name: 'Fake Bungalow 2', basePrice: 1200, minSellingPrice: 600 }
+    );
+  }
+
+  return targetAccommodations;
+}
+
+/**
+ * Calcola l'algoritmo di Sconto a Cascata su 3 Stadi Sequenziali per la data libera imminente.
+ * - Direttiva Tassativa Octorate: Colpisce SEMPRE E SOLO l'ID della Tariffa Madre (Livello 0).
+ * - Bivio a 3 Livelli (executionMode):
+ *   - 'simulation': Calcolo Dry-run senza invio API.
+ *   - 'test_bungalows': Invia sconti SOLO a Fake Bungalow 1 (649669) e Fake Bungalow 2 (921799).
+ *   - 'production': Invia sconti a tutte le Tariffe Madri reali del resort.
+ */
+export function calculateCascadeDiscountUpdates(options?: CascadeDiscountOptions): CascadeDiscountUpdate[] {
+  const updates: CascadeDiscountUpdate[] = [];
+
+  const s1Days = Math.max(1, options?.stage1Days ?? 3);
+  const s1Discount = Math.max(0, Math.min(80, options?.stage1Discount ?? 10));
+  const s2Days = Math.max(1, options?.stage2Days ?? 3);
+  const s2Discount = Math.max(0, Math.min(80, options?.stage2Discount ?? 5));
+  const s3Days = Math.max(1, options?.stage3Days ?? 4);
+  const s3Discount = Math.max(0, Math.min(80, options?.stage3Discount ?? 2));
+
+  const mode: DiscountExecutionMode = options?.executionMode || (options?.isTestEnvironment === false ? 'production' : 'test_bungalows');
+  const totalDays = s1Days + s2Days + s3Days;
+
+  const targetAccommodations = getTargetAccommodationsForMode(mode);
+
+  const todayStr = toThailandDateStr(new Date());
+  const todayParts = parseThailandDateParts(todayStr);
+  if (!todayParts) return updates;
+
+  const todayTime = Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day);
+
+  targetAccommodations.forEach((room) => {
+    for (let offset = 0; offset < totalDays; offset++) {
+      const targetTime = todayTime + offset * 24 * 60 * 60 * 1000;
+      const targetDate = new Date(targetTime);
+      const dateStr = toThailandDateStr(targetDate);
+
+      let stage: 1 | 2 | 3 = 1;
+      let discountPct = s1Discount;
+
+      if (offset < s1Days) {
+        stage = 1;
+        discountPct = s1Discount;
+      } else if (offset < s1Days + s2Days) {
+        stage = 2;
+        discountPct = s2Discount;
+      } else {
+        stage = 3;
+        discountPct = s3Discount;
+      }
+
+      // Estraiamo il VERO prezzo base della madre direttamente dall'oggetto giornaliero Octorate della cella
+      let dynamicCellBasePrice = room.basePrice;
+      if (options?.rawGridItems && Array.isArray(options.rawGridItems)) {
+        const gridMatch = options.rawGridItems.find((g: any) =>
+          (String(g.id || g.motherRateId || g.ratePlanId || g.rate_id) === String(room.motherId) ||
+           (g.accommodationName && g.accommodationName.toLowerCase() === room.name.toLowerCase()) ||
+           (g.name && g.name.toLowerCase() === room.name.toLowerCase()))
+        );
+
+        if (gridMatch) {
+          let cellDayPrice = 0;
+          if (Array.isArray(gridMatch.days)) {
+            const dayObj = gridMatch.days.find((d: any) => (d.date || d.dateStr) === dateStr);
+            if (dayObj) {
+              cellDayPrice = Number(dayObj.price || dayObj.value || dayObj.amount || 0);
+            }
+          }
+          if (cellDayPrice <= 0) {
+            cellDayPrice = Number(gridMatch.price || gridMatch.value || gridMatch.amount || gridMatch.basePrice || 0);
+          }
+
+          if (cellDayPrice > 0 && cellDayPrice < 10000) {
+            dynamicCellBasePrice = cellDayPrice;
+          }
+        }
+      }
+
+      // Formula tassativa: Math.round(prezzoOriginale - (prezzoOriginale * percentualeSconto / 100))
+      const discountAmount = (dynamicCellBasePrice * discountPct) / 100;
+      const rawDiscounted = Math.round(dynamicCellBasePrice - discountAmount);
+      const finalPrice = Math.max(rawDiscounted, room.minSellingPrice);
+
+      updates.push({
+        motherRateId: room.motherId, // DIRETTIVA OCTORATE: RIGOROSAMENTE LIVELLO 0
+        accommodationName: room.name,
+        dateStr,
+        offsetDays: offset,
+        stage,
+        basePrice: dynamicCellBasePrice,
+        discountPercentage: discountPct,
+        discountedPrice: rawDiscounted,
+        minimumSellingPrice: room.minSellingPrice,
+        finalPrice,
+        reason: `Stadio ${stage} (-${discountPct}%): offset ${offset}d da oggi ${todayStr} (Prezzo Reale Cella: ${dynamicCellBasePrice}฿ ➔ Scontato: ${finalPrice}฿)`
+      });
+    }
+  });
+
+  return updates;
+}
+
+/**
+ * Calcola il Reset dei prezzi riportandoli al 100% della tariffa base originale standard (0% sconto).
+ * - Direttiva Tassativa Octorate: Colpisce SEMPRE E SOLO l'ID della Tariffa Madre (Livello 0).
+ */
+export function calculateOriginalPriceResetUpdates(options?: CascadeDiscountOptions): CascadeDiscountUpdate[] {
+  const updates: CascadeDiscountUpdate[] = [];
+
+  const s1Days = Math.max(1, options?.stage1Days ?? 3);
+  const s2Days = Math.max(1, options?.stage2Days ?? 3);
+  const s3Days = Math.max(1, options?.stage3Days ?? 4);
+  const totalDays = s1Days + s2Days + s3Days;
+
+  const mode: DiscountExecutionMode = options?.executionMode || (options?.isTestEnvironment === false ? 'production' : 'test_bungalows');
+  const targetAccommodations = getTargetAccommodationsForMode(mode);
+
+  const todayStr = toThailandDateStr(new Date());
+  const todayParts = parseThailandDateParts(todayStr);
+  if (!todayParts) return updates;
+
+  const todayTime = Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day);
+
+  targetAccommodations.forEach((room) => {
+    for (let offset = 0; offset < totalDays; offset++) {
+      const targetTime = todayTime + offset * 24 * 60 * 60 * 1000;
+      const targetDate = new Date(targetTime);
+      const dateStr = toThailandDateStr(targetDate);
+
+      updates.push({
+        motherRateId: room.motherId, // DIRETTIVA OCTORATE: RIGOROSAMENTE LIVELLO 0
+        accommodationName: room.name,
+        dateStr,
+        offsetDays: offset,
+        stage: 1,
+        basePrice: room.basePrice,
+        discountPercentage: 0, // RESET A ZERO SCONTO (100% PREZZO BASE)
+        discountedPrice: room.basePrice,
+        minimumSellingPrice: room.minSellingPrice,
+        finalPrice: room.basePrice,
+        reason: `RESET RIPRISTINO: Prezzo base originale 100% (${room.basePrice}฿) per offset ${offset}d`
+      });
+    }
+  });
+
+  return updates;
+}
+
 

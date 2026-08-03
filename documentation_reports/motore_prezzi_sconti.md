@@ -93,13 +93,86 @@ graph TD
 
 ---
 
-## 5. Algoritmo Gap-Fill e Uniformità sui Confini Stagionali (03/08/2026)
+## 5. Algoritmo Gap-Fill e Uniformità sui Confini Stagionali
 
 ### Regola del `maxBaselineInGap`
-Quando un "buco" di $G$ notti tra due prenotazioni consecutive (`prev_checkout` e `next_checkin`) attraversa un confine stagionale (ad esempio passando da Peak Season con baseline 5 notti a High Season con baseline 3 notti):
-- **Problema originario**: La valutazione del buco giorno per giorno generava minStay misti (es. `[4, 4, 3, 3]`), consentendo ad un ospite di prenotare 3 notti e frammentare il buco.
-- **Soluzione applicata (`calculateDynamicMinStay` & `computeGapFillMinStays`)**:
-  1. Si calcola il **`maxBaselineInGap`**: il soggiorno minimo più alto richiesto tra tutti i giorni compresi nel buco.
-  2. **Condizione**: Se $G < \text{maxBaselineInGap}$, la regola Gap-Fill si attiva per **TUTTI i giorni** di quel buco, impostando `minStay = G` per ogni singola cella per blindare l'intero blocco (es. `[4, 4, 4, 4]`).
-  3. Se $G \ge \text{maxBaselineInGap}$, ciascun giorno mantiene la propria baseline stagionale standard.
+Quando un "buco" di $G$ notti tra due prenotazioni consecutive attraversa un confine stagionale:
+- **Soluzione (`calculateDynamicMinStay` & `computeGapFillMinStays`)**: Si calcola `maxBaselineInGap` (il minStay più alto nel buco); se $G < \text{maxBaselineInGap}$, viene impostato `minStay = G` per tutti i giorni del buco.
 
+---
+
+## 6. Automazione Sconti a Cascata Last-Minute (3 Stadi Sequenziali) — 03/08/2026
+
+### ⚠️ REGOLA D'ORO OCTORATE (INDEROGABILE)
+Tutte le scritture API (`POST`/`PUT`) per modificare prezzi o disponibilità su Octorate **DEVONO SEMPRE** colpire l'**ID Tariffa Madre (Livello 0)**. È vietato scrivere su tariffe derivate (Livello 1 o 2).
+
+### Struttura a 3 Stadi Sequenziali
+
+| Stadio | Giorni Offset | Durata | Sconto | Colore UI |
+|--------|---------------|--------|--------|-----------|
+| Stadio 1: Imminente | 0 – 2 | 3 gg | **-10%** | 🔴 Rosso |
+| Stadio 2: Intermedio | 3 – 5 | 3 gg | **-5%** | 🟠 Arancio |
+| Stadio 3: Esteso | 6 – 9 | 4 gg | **-2.5%** | 🟡 Giallo |
+
+### File Coinvolti
+- `src/admin/resort/lib/octorateAdmin.ts` → `calculateCascadeDiscountUpdates()`, `getTargetAccommodationsForMode()`
+- `src/admin/resort/store/useResortAdminStore.ts` → `executeLastMinuteStrategy()` (logica Dry-Run)
+- `src/admin/resort/components/ResortDashboard.tsx` → UI Pannello Cascata (3 sezioni colorate)
+- `src/admin/resort/components/ResortVisualCalendar.tsx` → `CalendarCell` (rendering prezzo ciano)
+
+### Modalità di Esecuzione (Bivio a 3 Livelli)
+
+```
+executionMode:
+  ├── 'simulation'      → Calcolo Dry-Run locale senza API. Anteprima in ciano nel Calendario Visivo.
+  ├── 'test_bungalows'  → Invia SOLO a Fake Bungalow 1 (ID 649669) e Fake Bungalow 2 (ID 921799).
+  └── 'production'      → Invia a TUTTE le Tariffe Madri reali del resort.
+```
+
+### Algoritmo di Calcolo del Prezzo Reale (Fix 03/08/2026)
+
+**Problema risolto**: il vecchio algoritmo usava `room.basePrice` hardcoded (1500฿ o prezzi da config statica). Il prezzo di partenza sbagliato generava sconti su basi errate.
+
+**Soluzione attuale (Dry-Run nello Store)**:
+1. Accede direttamente a `rawOctorateGridItems` (flat array dal PMS).
+2. Per ogni alloggio, cerca il rate plan con ID uguale alla **Tariffa Madre** (`motherId`) — priorità all'ID esatto.
+3. Dal `item.days[]`, estrae il prezzo per la **data specifica** (`day.date === dateStr`).
+4. Formula: `discountedPrice = Math.round(realPrice - (realPrice * discountPct / 100))`.
+5. Lo skip avviene se la data non ha un prezzo reale (stop-sell, camera chiusa, ecc.).
+
+### Mappa Mother Rate IDs (Priorità per Dry-Run)
+
+| Alloggio | Mother Rate ID |
+|---|---|
+| Jungle Villa | 529773 |
+| Jungle Villa Left | 495795 |
+| Jungle Villa Right | 495796 |
+| Peace & Love Villa | 494840 |
+| Villa Penthouse | 421511 |
+| Yellow Bungalow | 293957 |
+| Red Bungalow | 293954 |
+| Green Bungalow | 293962 |
+| Camel Tent Bungalow | 293965 |
+| Lagoon Tent Bungalow | 293955 |
+| Internal Room | 293942 |
+| Room 1–5 | 293963/293959/293948/293945/293943 |
+| Lodge 1–2 | 293951/883795 |
+| Fake Bungalow 1–2 | 649669/921799 |
+
+### Rendering Visivo nel Calendario (CalendarCell)
+- **Sfondo cella**: rimane verde smeraldo (`bg-emerald-600`) — NON cambia colore.
+- **Prezzo scontato**: testo ciano brillante `text-cyan-300` con icona `👁️ ฿{prezzoScontato} 📉`.
+- **Badge sconto**: `bg-cyan-950/90 text-cyan-200 border-cyan-400/80` → `-X% (BE ฿{prezzoScontato})`.
+- **`hasDiscount`**: attivato da `simulatedMatch.isSimulatedDiscount === true`.
+
+---
+
+## 7. Identità Visiva Pannelli Dashboard (03/08/2026)
+
+| Pannello | Colore Bordo | Sfondo |
+|---|---|---|
+| ⚡ Sconti a Cascata | `border-amber-500/40` (doppio) | `bg-amber-950/20` |
+| ↳ Stadio 1 | `border-red-500/40` | `bg-red-950/30` |
+| ↳ Stadio 2 | `border-orange-500/40` | `bg-orange-950/30` |
+| ↳ Stadio 3 | `border-yellow-600/40` | `bg-yellow-950/30` |
+| 📏 Soggiorno Minimo Dinamico | `border-violet-500/40` (doppio) | `bg-violet-950/20` |

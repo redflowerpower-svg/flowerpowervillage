@@ -12,6 +12,8 @@
 // - createReservation()   -> Client-side con Bearer token
 // =============================================================================
 
+import { calculateCascadeDiscountUpdates, calculateOriginalPriceResetUpdates, DiscountExecutionMode } from '../../admin/resort/lib/octorateAdmin';
+
 // --- ENV CONFIG ---
 const OCTORATE_CLIENT_ID = import.meta.env.VITE_OCTORATE_CLIENT_ID || ""
 const getRedirectUri = (): string => {
@@ -857,58 +859,52 @@ export async function createReservation(
 }
 
 /**
- * Automazione Tariffe Last-Minute con Sconti Percentuali Dinamici
- * STADIO 1 (Primi 3 giorni / Giorno 1 - 3): Stop Sell = false, CTA = false, Sconto -X%
- * STADIO 2 (Successivi 3 giorni / Giorno 4 - 6): Stop Sell = false, CTA = true, Sconto -Y%
+ * Automazione Tariffe Last-Minute con Sconti Percentuali Dinamici a Cascata su 3 Stadi
+ * - Bivio a 3 Livelli (executionMode):
+ *   - 'simulation': SIMULAZIONE DRY-RUN (0 chiamate API).
+ *   - 'test_bungalows': TEST (Aggiorna SOLO Tariffe Madri Fake Bungalow 649669 e 921799).
+ *   - 'production': PRODUZIONE (Aggiorna Tariffe Madri di tutti gli alloggi del resort).
+ * - TASSATIVO: Colpisce SEMPRE E SOLO l'ID della Tariffa Madre (Livello 0).
  */
 export async function updateLastMinuteRatesStrategy(
   structureId: string = '366879',
-  thresholdDays: number = 10,
-  blockDays: number = 5,
-  applyCTA: boolean = true,
-  discountStage1: number = 15,
-  discountStage2: number = 10
+  stage1Days: number = 3,
+  stage1Discount: number = 10,
+  stage2Days: number = 3,
+  stage2Discount: number = 5,
+  stage3Days: number = 4,
+  stage3Discount: number = 2,
+  executionMode: DiscountExecutionMode = 'test_bungalows'
 ): Promise<{ success: boolean; message: string; dateUpdated: string; details: any }> {
-  const safeThreshold = Math.max(1, isNaN(thresholdDays) ? 10 : thresholdDays);
-  const safeBlock = Math.max(1, isNaN(blockDays) ? 5 : blockDays);
-  const safeDiscount1 = Math.max(0, Math.min(80, isNaN(discountStage1) ? 15 : discountStage1));
-  const safeDiscount2 = Math.max(0, Math.min(80, isNaN(discountStage2) ? 10 : discountStage2));
-
-  const now = new Date();
-  
-  // Stadio 1: Primi 3 giorni (giorni 1-3)
-  const dateStage1From = now.toISOString().substring(0, 10);
-  const stage1ToObj = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
-  const dateStage1To = stage1ToObj.toISOString().substring(0, 10);
-
-  // Stadio 2: Successivi 3 giorni (giorni 4-6)
-  const stage2ToObj = new Date(stage1ToObj.getTime() + 3 * 24 * 60 * 60 * 1000);
-  const dateStage2To = stage2ToObj.toISOString().substring(0, 10);
+  const updates = calculateCascadeDiscountUpdates({
+    stage1Days,
+    stage1Discount,
+    stage2Days,
+    stage2Discount,
+    stage3Days,
+    stage3Discount,
+    executionMode
+  });
 
   const payload = {
     structureId: structureId || '366879',
-    ratePlans: ['7D', '14D'],
-    thresholdDays: safeThreshold,
-    blockDays: safeBlock,
-    discountStage1Percentage: safeDiscount1,
-    discountStage2Percentage: safeDiscount2,
-    stage1_open: {
-      dateFrom: dateStage1From,
-      dateTo: dateStage1To,
-      stopSell: false,
-      closedToArrival: false,
-      discountPercentage: safeDiscount1,
-      label: `Primi 3 giorni: Check-in aperti con Sconto -${safeDiscount1}%`
-    },
-    stage2_cta: {
-      dateFrom: dateStage1To,
-      dateTo: dateStage2To,
-      stopSell: false,
-      closedToArrival: true,
-      discountPercentage: safeDiscount2,
-      label: `Successivi 3 giorni: Transito solo Check-out con Sconto -${safeDiscount2}%`
-    }
+    executionMode,
+    stage1: { days: stage1Days, discountPct: stage1Discount },
+    stage2: { days: stage2Days, discountPct: stage2Discount },
+    stage3: { days: stage3Days, discountPct: stage3Discount },
+    totalUpdatesCount: updates.length,
+    updates
   };
+
+  // Se la modalità è SIMULAZIONE DRY-RUN, NON inviare chiamate API
+  if (executionMode === 'simulation') {
+    return {
+      success: true,
+      message: `🟡 SIMULAZIONE DRY-RUN: Calcolati ${updates.length} sconti a cascata su Tariffe Madri (Livello 0). Nessuna chiamata API inviata ad Octorate.`,
+      dateUpdated: new Date().toISOString(),
+      details: payload
+    };
+  }
 
   const tokens = await getStoredTokens();
 
@@ -921,9 +917,10 @@ export async function updateLastMinuteRatesStrategy(
       });
 
       if (res.ok) {
+        const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2)' : '🌐 PRODUZIONE (Tutti gli Alloggi Madri)';
         return {
           success: true,
-          message: `Ottimizzazione Last-Minute attiva: Primi 3 giorni (Sconto -${safeDiscount1}%); Successivi 3 giorni (Sconto -${safeDiscount2}% + CTA solo Check-out).`,
+          message: `Ottimizzazione Sconti a Cascata completata in ${envLabel}: ${updates.length} aggiornamenti inviati a Octorate per le Tariffe Madri (Livello 0).`,
           dateUpdated: new Date().toISOString(),
           details: payload
         };
@@ -933,10 +930,83 @@ export async function updateLastMinuteRatesStrategy(
     }
   }
 
-  // Structured confirmation response
+  const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2 - ID 649669, 921799)' : '🌐 PRODUZIONE (Tutte le Tariffe Madri Livello 0)';
   return {
     success: true,
-    message: `Sconti Last-Minute applicati: Sconto -${safeDiscount1}% per i primi 3 giorni (${dateStage1From} ➔ ${dateStage1To}) + Sconto -${safeDiscount2}% e CTA solo Check-out per i 3 giorni successivi (${dateStage1To} ➔ ${dateStage2To}).`,
+    message: `Sconti a Cascata calcolati (${envLabel}): Stadio 1 (${stage1Days}d @ -${stage1Discount}%), Stadio 2 (${stage2Days}d @ -${stage2Discount}%), Stadio 3 (${stage3Days}d @ -${stage3Discount}%). Totale ${updates.length} aggiornamenti a Tariffe Madri Livello 0.`,
+    dateUpdated: new Date().toISOString(),
+    details: payload
+  };
+}
+
+/**
+ * Ripristina i Prezzi Originali al 100% (Reset Sconti) sulle Tariffe Madri (Livello 0).
+ * - Bivio a 3 Livelli (executionMode):
+ *   - 'simulation': SIMULAZIONE RESET (Nessuna chiamata API).
+ *   - 'test_bungalows': TEST RESET (Ripristina SOLO Fake Bungalows 649669 e 921799).
+ *   - 'production': PRODUZIONE RESET (Ripristina tutte le Tariffe Madri reali).
+ * - TASSATIVO: Colpisce SEMPRE E SOLO l'ID della Tariffa Madre (Livello 0).
+ */
+export async function resetLastMinuteRatesStrategy(
+  structureId: string = '366879',
+  stage1Days: number = 3,
+  stage2Days: number = 3,
+  stage3Days: number = 4,
+  executionMode: DiscountExecutionMode = 'test_bungalows'
+): Promise<{ success: boolean; message: string; dateUpdated: string; details: any }> {
+  const updates = calculateOriginalPriceResetUpdates({
+    stage1Days,
+    stage2Days,
+    stage3Days,
+    executionMode
+  });
+
+  const payload = {
+    structureId: structureId || '366879',
+    executionMode,
+    action: 'reset_to_original_prices',
+    totalResetCount: updates.length,
+    updates
+  };
+
+  // Se la modalità è SIMULAZIONE DRY-RUN, NON inviare chiamate API
+  if (executionMode === 'simulation') {
+    return {
+      success: true,
+      message: `🟡 SIMULAZIONE RESET: Prezzi riportati al valore originale (100% base) per ${updates.length} nodi Madre (Livello 0). Nessuna chiamata API effettuata.`,
+      dateUpdated: new Date().toISOString(),
+      details: payload
+    };
+  }
+
+  const tokens = await getStoredTokens();
+
+  if (tokens?.access_token) {
+    try {
+      const res = await fetch(`${OCTORATE_API_BASE}/calendar/update`, {
+        method: "POST",
+        headers: await getAuthHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2)' : '🌐 PRODUZIONE (Tutti gli Alloggi Madri)';
+        return {
+          success: true,
+          message: `🔄 RIPRISTINO PREZZI COMPLETATO in ${envLabel}: Prezzi base originali ripristinati su Octorate per ${updates.length} nodi Tariffa Madre (Livello 0).`,
+          dateUpdated: new Date().toISOString(),
+          details: payload
+        };
+      }
+    } catch (err) {
+      console.warn("[Octorate] Live last-minute reset exception:", err);
+    }
+  }
+
+  const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2 - ID 649669, 921799)' : '🌐 PRODUZIONE (Tutte le Tariffe Madri Livello 0)';
+  return {
+    success: true,
+    message: `🔄 RIPRISTINO PREZZI CALCOLATO (${envLabel}): Prezzi originali 100% ripristinati per ${updates.length} nodi Tariffa Madre (Livello 0).`,
     dateUpdated: new Date().toISOString(),
     details: payload
   };

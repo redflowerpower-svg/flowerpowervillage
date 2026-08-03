@@ -1987,7 +1987,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
 ];
 
 export function DerivedRatesTreeSection() {
-  const { rawOctorateGridItems } = useResortAdminStore();
+  const { rawOctorateGridItems, isSimulationActive, simulatedOctorateGridItems } = useResortAdminStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [selectedDateISO, setSelectedDateISO] = useState<string>(() => new Date().toISOString().substring(0, 10));
@@ -2024,14 +2024,24 @@ export function DerivedRatesTreeSection() {
   };
 
   useEffect(() => {
-    if (rawOctorateGridItems.length === 0) {
+    if (rawOctorateGridItems.length === 0 && !isSimulationActive) {
       handleRefreshLiveGrid();
     }
   }, [selectedDateISO]);
 
   const getNodeLiveData = (nodeId: string) => {
-    if (!rawOctorateGridItems || rawOctorateGridItems.length === 0) return null;
-    const found = rawOctorateGridItems.find(item => String(item.id || item.ratePlanId || item.rate_id) === String(nodeId));
+    let foundSimulated = false;
+    let found = null;
+
+    if (isSimulationActive && simulatedOctorateGridItems && simulatedOctorateGridItems.length > 0) {
+      found = simulatedOctorateGridItems.find(item => String(item.id || item.ratePlanId || item.rate_id) === String(nodeId));
+      if (found) foundSimulated = true;
+    }
+
+    if (!found && rawOctorateGridItems && rawOctorateGridItems.length > 0) {
+      found = rawOctorateGridItems.find(item => String(item.id || item.ratePlanId || item.rate_id) === String(nodeId));
+    }
+
     if (!found) return null;
 
     const price = Number(found.price || found.days?.[0]?.price || 0);
@@ -2044,14 +2054,15 @@ export function DerivedRatesTreeSection() {
       found.availability === 0 || 
       found.available === false
     );
-    const isAvailable = !isStopSell && price > 0 && price < 10000;
+    const isAvailable = !isStopSell && price > 0 && 10000 > price;
 
     return {
       price,
       minstay,
       isStopSell,
       isAvailable,
-      rawItem: found
+      rawItem: found,
+      isSimulated: foundSimulated || Boolean(found.isSimulated || isSimulationActive)
     };
   };
 
@@ -2109,6 +2120,11 @@ export function DerivedRatesTreeSection() {
               <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3" /> Live Sync: {rawOctorateGridItems.length} Rate Plans
               </span>
+              {isSimulationActive && (
+                <span className="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 animate-pulse">
+                  👁️ ANTEPRIMA SIMULATA ATTIVA
+                </span>
+              )}
             </div>
             <p className="text-stone-400 text-xs font-medium mt-0.5">
               Controllo in tempo reale di tutte le 212 tariffe derivate (Prezzi Live, MinStay, Stop Sell & Discrepanze)
@@ -2316,13 +2332,15 @@ export function DerivedRatesTreeSection() {
 
                       // Level 1 card background style
                       let l1CardStyle = 'bg-stone-900 border-stone-700/80 hover:border-amber-400 text-stone-200';
-                      if (l1LiveData?.isStopSell) {
+                      if (l1LiveData?.isSimulated) {
+                        l1CardStyle = 'bg-sky-950/90 border-2 border-sky-400 text-sky-200 shadow-lg shadow-sky-500/30';
+                      } else if (l1LiveData?.isStopSell) {
                         l1CardStyle = 'bg-rose-950/80 border-rose-500/80 text-rose-200';
                       } else if (l1LiveData?.isAvailable) {
                         l1CardStyle = 'bg-emerald-950/80 border-emerald-500/80 text-emerald-200';
                       }
 
-                      if (l1Sanity.isDiscrepancy) {
+                      if (l1Sanity.isDiscrepancy && !l1LiveData?.isSimulated) {
                         l1CardStyle = 'bg-amber-950/90 border-2 border-amber-400 animate-pulse text-amber-200 shadow-lg shadow-amber-500/30';
                       }
 
@@ -2398,13 +2416,15 @@ export function DerivedRatesTreeSection() {
                           {/* LEVEL 2 SUB-CHILD BRANCH (DIRECTLY BELOW PARENT) */}
                           {l1.subChild && (() => {
                             let subCardStyle = 'bg-stone-950 border-2 border-amber-500/80 text-amber-200';
-                            if (subLiveData?.isStopSell) {
+                            if (subLiveData?.isSimulated) {
+                              subCardStyle = 'bg-sky-950/90 border-2 border-sky-400 text-sky-200 shadow-lg shadow-sky-500/30';
+                            } else if (subLiveData?.isStopSell) {
                               subCardStyle = 'bg-rose-950/90 border-2 border-rose-500/80 text-rose-200';
                             } else if (subLiveData?.isAvailable) {
                               subCardStyle = 'bg-emerald-950/90 border-2 border-emerald-500/80 text-emerald-200';
                             }
 
-                            if (subSanity?.isDiscrepancy) {
+                            if (subSanity?.isDiscrepancy && !subLiveData?.isSimulated) {
                               subCardStyle = 'bg-amber-950/95 border-2 border-amber-400 animate-pulse text-amber-200 shadow-lg shadow-amber-500/30';
                             }
 

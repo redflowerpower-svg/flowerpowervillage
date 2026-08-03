@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useResortAdminStore, ResortBooking } from '../store/useResortAdminStore';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { fetchOctorateMonthlyGrid, OctorateDayData } from '../../../booking/lib/octorate';
@@ -549,9 +549,11 @@ interface CalendarCellProps {
   expectedBaseline: number;
   gapFillCellInfo?: MinStayCellInfo | null;
   storeUpdateMatch?: any;
+  simulatedMatch?: any;
   matchingBooking: ResortBooking | null;
   isDynamicCalculationEnabled: boolean;
   dynamicGapFillEnabled: boolean;
+  isSimulationActive: boolean;
   onSelectBooking: (booking: ResortBooking) => void;
 }
 
@@ -567,22 +569,47 @@ const CalendarCell = React.memo(function CalendarCell({
   expectedBaseline,
   gapFillCellInfo,
   storeUpdateMatch,
+  simulatedMatch,
   matchingBooking,
   isDynamicCalculationEnabled,
   dynamicGapFillEnabled,
+  isSimulationActive,
   onSelectBooking
 }: CalendarCellProps) {
-  const motherPriceVal = Number(motherData?.price || motherData?.value || motherData?.amount || 0);
-  const motherPriceStr = motherPriceVal >= 10000 
-    ? '10.000' 
-    : (motherPriceVal > 0 ? motherPriceVal.toLocaleString('it-IT') : 'N/D');
+  let originalPrice = Number(motherData?.price || motherData?.value || motherData?.amount || 0);
+  if (originalPrice === 0 && simulatedMatch?.basePrice) {
+    originalPrice = Number(simulatedMatch.basePrice);
+  }
 
-  const beDiscountedPrice = beData?.price 
+  let currentPrice = originalPrice;
+  let motherPriceStr = originalPrice >= 10000 
+    ? '10.000' 
+    : (originalPrice > 0 ? originalPrice.toLocaleString('it-IT') : 'N/D');
+
+  let beDiscountedPrice = beData?.price 
     ? Math.round(beData.price * 0.9) 
-    : (motherPriceVal > 0 ? Math.round(motherPriceVal * 0.9) : null);
-  const beDiscountedStr = beDiscountedPrice !== null 
+    : (originalPrice > 0 ? Math.round(originalPrice * 0.9) : null);
+  let beDiscountedStr = beDiscountedPrice !== null 
     ? (beDiscountedPrice >= 10000 ? '10.000' : beDiscountedPrice.toLocaleString('it-IT')) 
     : 'N/D';
+
+  if (simulatedMatch) {
+    const simVal = Number(simulatedMatch.finalPrice || simulatedMatch.price || 0);
+    if (simVal > 0) {
+      currentPrice = simVal;
+      motherPriceStr = simVal >= 10000 ? '10.000' : simVal.toLocaleString('it-IT');
+      beDiscountedPrice = Math.round(simVal * 0.9);
+      beDiscountedStr = beDiscountedPrice >= 10000 ? '10.000' : beDiscountedPrice.toLocaleString('it-IT');
+    }
+  }
+
+  const hasSimulatedDiscount = Boolean(
+    isSimulationActive && 
+    (
+      (simulatedMatch && (simulatedMatch.isSimulatedDiscount || currentPrice < originalPrice || (simulatedMatch.discountPercentage && simulatedMatch.discountPercentage > 0)))
+    )
+  );
+  const hasDiscount = Boolean(simulatedMatch?.isSimulatedDiscount || hasSimulatedDiscount);
 
   let motherMinStayNum = expectedBaseline;
   let isGapFillModified = false;
@@ -650,7 +677,10 @@ const CalendarCell = React.memo(function CalendarCell({
       className={`py-1 px-0.5 border-l text-center transition-colors relative w-[100px] min-w-[64px] max-w-[100px] truncate overflow-hidden ${bgStyle}`}
       title={matchingBooking 
         ? `Prenotato: ${formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
-        : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`}
+        : (hasDiscount
+            ? `👁️ SCONTO LAST-MINUTE SIMULATO (-${simulatedMatch?.discountPercentage}%): Originale ฿${originalPrice} ➔ Scontato ฿${currentPrice}`
+            : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`
+          )}
     >
       {/* BADGE MINSTAY */}
       {motherMinStayNum > 0 && (
@@ -682,7 +712,7 @@ const CalendarCell = React.memo(function CalendarCell({
         />
       )}
 
-      {/* CONTENITO CELLA */}
+      {/* CONTENUTO CELLA */}
       {matchingBooking ? (
         <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden">
           <div className="truncate text-xs font-bold min-w-0 w-full text-center text-white uppercase">
@@ -693,6 +723,15 @@ const CalendarCell = React.memo(function CalendarCell({
           </div>
           <div className="text-[10px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
             Pagato: {realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}` : 'N/D'}
+          </div>
+        </div>
+      ) : hasDiscount ? (
+        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden">
+          <div className="text-[9.5px] font-mono font-black text-cyan-300 leading-tight truncate min-w-0 w-full text-center flex items-center justify-center gap-0.5 drop-shadow">
+            👁️ ฿{motherPriceStr} 📉
+          </div>
+          <div className="text-[9px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-1 py-0.5 rounded mt-0.5 truncate min-w-0 text-center shadow">
+            -{simulatedMatch?.discountPercentage}% (BE ฿{beDiscountedStr})
           </div>
         </div>
       ) : (
@@ -709,7 +748,12 @@ const CalendarCell = React.memo(function CalendarCell({
   );
 });
 
-export function ResortVisualCalendar() {
+export interface ResortVisualCalendarProps {
+  viewMode?: 'full_season' | '30_days';
+}
+
+export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualCalendarProps = {}) {
+  const [startIndex, setStartIndex] = useState(0);
   const { 
     bookings, 
     rawOctorateBookings,
@@ -724,10 +768,31 @@ export function ResortVisualCalendar() {
     setDynamicMinStayGapFill,
     executeDynamicMinStayStrategy,
     dynamicMinStayRunning,
-    dynamicMinStayUpdates
+    dynamicMinStayUpdates,
+    isSimulationActive,
+    simulatedOctorateGridItems,
+    rawOctorateGridItems
   } = useResortAdminStore();
 
   const bookingsPool = (rawOctorateBookings && rawOctorateBookings.length > 0) ? rawOctorateBookings : bookings;
+
+  const activeGridItems = (isSimulationActive && simulatedOctorateGridItems && simulatedOctorateGridItems.length > 0) 
+    ? simulatedOctorateGridItems 
+    : (rawOctorateGridItems || []);
+
+  const simulatedMap = useMemo(() => {
+    if (!isSimulationActive || !activeGridItems || activeGridItems.length === 0) return {};
+    const map: Record<string, any> = {};
+    activeGridItems.forEach((item: any) => {
+      const key1 = `${item.motherRateId || item.ratePlanId || item.id}_${item.dateStr}`;
+      const key2 = `${item.accommodationName}_${item.dateStr}`;
+      map[key1] = item;
+      if (item.accommodationName) {
+        map[key2.toLowerCase()] = item;
+      }
+    });
+    return map;
+  }, [isSimulationActive, activeGridItems]);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -820,6 +885,8 @@ export function ResortVisualCalendar() {
     }
     return dates;
   })();
+
+  const visibleDays: Date[] = viewMode === '30_days' ? datesArray.slice(startIndex, startIndex + 30) : datesArray;
 
   // STEP 1 & 2: LETTURA DIRETTA DAL DOM SENZA STATO REACT ALL'ONCLICK DI "VAI"
   const handleExecuteDateJump = () => {
@@ -994,6 +1061,11 @@ export function ResortVisualCalendar() {
               <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                 THB ฿
               </span>
+              {isSimulationActive && (
+                <span className="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 animate-pulse">
+                  👁️ ANTEPRIMA SIMULATA ATTIVA
+                </span>
+              )}
             </div>
             <p className="text-stone-400 text-xs font-medium mt-0.5">
               Scorrimento orizzontale continuo da Oggi fino al 31 Ottobre ({datesArray.length} giorni) • {rawOctorateBookings.length} prenotazioni in memoria
@@ -1003,6 +1075,37 @@ export function ResortVisualCalendar() {
 
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-3 bg-stone-950 p-2 rounded-2xl border border-amber-500/30 shadow-lg w-full md:w-auto justify-end">
+          
+          {/* TASTI DI NAVIGAZIONE PAGINATA 30 GIORNI (SOLO PER VISTA 30GG) */}
+          {viewMode === '30_days' && (
+            <div className="flex items-center gap-2 bg-stone-900 p-1.5 rounded-xl border border-amber-500/40 shadow-md">
+              <button
+                type="button"
+                onClick={() => setStartIndex((prev) => Math.max(0, prev - 30))}
+                disabled={startIndex === 0}
+                className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 disabled:opacity-40 font-extrabold text-xs rounded-xl flex items-center gap-1 transition-all cursor-pointer disabled:cursor-not-allowed"
+                title="Pagina precedente 30 giorni"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                <span>30gg Prec</span>
+              </button>
+
+              <span className="text-xs font-mono font-black text-amber-400 px-2 whitespace-nowrap">
+                Gg {startIndex + 1} - {Math.min(datesArray.length, startIndex + 30)} / {datesArray.length}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setStartIndex((prev) => Math.min(Math.max(0, datesArray.length - 30), prev + 30))}
+                disabled={startIndex + 30 >= datesArray.length}
+                className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 disabled:opacity-40 font-extrabold text-xs rounded-xl flex items-center gap-1 transition-all cursor-pointer disabled:cursor-not-allowed"
+                title="Pagina successiva 30 giorni"
+              >
+                <span>30gg Succ</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
           
           {/* STEP 1: DATEPICKER TOTALE PASSIVO (UNCONTROLLED INPUT VIA useRef) */}
           <div className="flex items-center gap-2 bg-stone-900 p-1.5 rounded-xl border border-stone-800 shadow-md">
@@ -1114,7 +1217,7 @@ export function ResortVisualCalendar() {
                 <th className="py-2 px-3 text-[10px] font-black text-stone-300 uppercase tracking-wider sticky left-0 bg-stone-950 z-50 min-w-[170px] max-w-[170px] border-r border-stone-800 shadow-2xl">
                   Alloggio / Camera
                 </th>
-                {datesArray.map((cellDate, idx) => {
+                {visibleDays.map((cellDate, idx) => {
                   const dateStr = toThailandDateStr(cellDate);
                   const dayOfWeekIdx = cellDate.getDay();
                   const isWeekend = dayOfWeekIdx === 0 || dayOfWeekIdx === 6;
@@ -1135,7 +1238,7 @@ export function ResortVisualCalendar() {
             {/* Table Body: Rooms Rows */}
             <tbody className="divide-y divide-stone-850/60 text-[10px]">
               {filteredRooms.map((room) => {
-                const gapFillMinStays = computeGapFillMinStays(room.name, room.id, room.octorateId, room.isAvailable, datesArray, liveGridData, bookingsPool, dynamicMinStayGapFill);
+                const gapFillMinStays = computeGapFillMinStays(room.name, room.id, room.octorateId, room.isAvailable, visibleDays, liveGridData, bookingsPool, dynamicMinStayGapFill);
 
                 return (
                   <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-10">
@@ -1143,12 +1246,19 @@ export function ResortVisualCalendar() {
                     <td className="py-2 px-3 sticky left-0 bg-stone-900 z-40 border-r border-stone-800 shadow-2xl font-extrabold text-white truncate max-w-[170px] min-w-[170px]">
                       {room.name}
                     </td>
-                    {datesArray.map((cellDate, idx) => {
+                    {visibleDays.map((cellDate, idx) => {
                       const dateStr = toThailandDateStr(cellDate);
                       const { motherId, beId } = getIdsForRoom(room.name);
                       const motherData = liveGridData?.[String(motherId)]?.[dateStr];
                       const beData = liveGridData?.[String(beId)]?.[dateStr];
                       const expectedBaseline = getBaselineMinStay(dateStr);
+
+                      const simulatedMatch = isSimulationActive ? (
+                        simulatedMap[`${motherId}_${dateStr}`] || 
+                        simulatedMap[`${beId}_${dateStr}`] || 
+                        simulatedMap[`${room.id}_${dateStr}`] || 
+                        simulatedMap[`${room.name.toLowerCase()}_${dateStr}`]
+                      ) : undefined;
 
                       const storeUpdateMatch = isDynamicCalculationEnabled ? (dynamicMinStayUpdates || []).find((u: any) => (String(u.roomTypeId) === String(motherId) || String(u.roomTypeId) === String(beId) || String(u.roomTypeId) === String(room.id) || String(u.roomTypeId) === String(room.octorateId) || (u.accommodationName && u.accommodationName.toLowerCase() === room.name.toLowerCase()) || (u.roomId && String(u.roomId) === String(room.id))) && (dateStr >= (u.dateFrom || u.date || u.from_date || u.startDate) && dateStr < (u.dateTo || u.to_date || u.endDate))) : undefined;
                       const gapFillCellInfo = isDynamicCalculationEnabled ? gapFillMinStays[dateStr] : null;
@@ -1157,7 +1267,7 @@ export function ResortVisualCalendar() {
 
                       return (
                         <CalendarCell
-                          key={idx}
+                          key={`${idx}_${isSimulationActive ? 'sim' : 'raw'}_${simulatedMatch?.finalPrice || '0'}`}
                           cellDate={cellDate}
                           dateStr={dateStr}
                           roomName={room.name}
@@ -1169,9 +1279,11 @@ export function ResortVisualCalendar() {
                           expectedBaseline={expectedBaseline}
                           gapFillCellInfo={gapFillCellInfo}
                           storeUpdateMatch={storeUpdateMatch}
+                          simulatedMatch={simulatedMatch}
                           matchingBooking={matchingBooking}
                           isDynamicCalculationEnabled={isDynamicCalculationEnabled}
                           dynamicGapFillEnabled={dynamicMinStayGapFill}
+                          isSimulationActive={isSimulationActive}
                           onSelectBooking={handleSelectBooking}
                         />
                       );

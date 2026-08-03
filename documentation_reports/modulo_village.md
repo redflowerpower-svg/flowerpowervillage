@@ -291,4 +291,43 @@ Tutti gli alloggi del resort e i relativi piani tariffari (Booking Engine `BE`, 
     ```
     Se il dispositivo è lento ed impiega diversi secondi per calcolare il layout delle 9.000 celle, `requestAnimationFrame` posticipa l'esecuzione fino al reale completamento del paint, mantenendo l'overlay protettivo per tutto il tempo necessario.
 
+---
 
+## 14. Motore Sconti Last-Minute a Cascata (3 Stadi) & Fix Prezzo Reale (03/08/2026)
+
+### A. Dry-Run Simulation nel Calendario Visivo
+
+- **Fonte Prezzo Corretta**: Il motore Dry-Run legge il prezzo giornaliero reale dalla Tariffa Madre direttamente da `rawOctorateGridItems` (flat array Octorate `{id, name, days:[{date, price}]}`).
+- **Logica Match**: Ricerca l'item il cui `id` corrisponde **esattamente** al `motherId`. Fallback a qualsiasi ID dell'alloggio solo se la madre non è nel download.
+- **Formula**: `discountedPrice = Math.round(realPrice - (realPrice * discountPct / 100))`.
+- **Skip automatico**: Se la data non ha prezzo reale (stop-sell, camera chiusa), la simulazione salta la cella.
+
+### B. Struttura 3 Stadi Sequenziali
+
+| Stadio | Giorni Offset | Durata | Sconto Default | UI |
+|---|---|---|---|---|
+| Stadio 1: Imminente | 0 – 2 | 3 gg | -10% | 🔴 `bg-red-950/30 border-red-500/40` |
+| Stadio 2: Intermedio | 3 – 5 | 3 gg | -5% | 🟠 `bg-orange-950/30 border-orange-500/40` |
+| Stadio 3: Esteso | 6 – 9 | 4 gg | -2.5% | 🟡 `bg-yellow-950/30 border-yellow-600/40` |
+
+### C. Modalità Esecuzione (Bivio a 3 Livelli)
+
+```
+executionMode:
+  'simulation'      → Dry-Run locale, zero API. Anteprima ciano nel Calendario Visivo.
+  'test_bungalows'  → Invia SOLO a Fake Bungalow 1 (649669) e 2 (921799).
+  'production'      → Invia a TUTTE le Tariffe Madri reali del resort.
+```
+
+### D. Feedback Visivo Cella (CalendarCell)
+
+- **Sfondo cella**: rimane `bg-emerald-600` — NON cambia colore.
+- **Prezzo**: `text-cyan-300` + `👁️ ฿{scontato} 📉`.
+- **Badge**: `bg-cyan-950/90 text-cyan-200 border-cyan-400/80` → `-X% (BE ฿{...})`.
+
+### E. Identità Visiva Pannelli Dashboard
+
+| Pannello | Colore |
+|---|---|
+| ⚡ Sconti a Cascata | `border-amber-500/40` double, `bg-amber-950/20` |
+| 📏 Soggiorno Minimo Dinamico | `border-violet-500/40` double, `bg-violet-950/20` |
