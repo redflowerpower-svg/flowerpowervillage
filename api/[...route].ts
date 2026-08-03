@@ -60,6 +60,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return handleOctorateGrid(req, res);
   }
 
+  if (cleanPath.includes('send-newsletter')) {
+    return handleSendNewsletter(req, res);
+  }
+
   switch (cleanPath) {
     case 'create-checkout-session':
       return handleCreateCheckoutSession(req, res);
