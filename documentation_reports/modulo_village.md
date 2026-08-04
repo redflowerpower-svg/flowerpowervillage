@@ -529,28 +529,51 @@ executionMode:
 
 ---
 
-## 15. Modulo Messaggi Clienti, Newsletter & Allerta Phishing (03/08/2026)
+## 15. Modulo Messaggi Clienti, Newsletter & Gestione Unificata Contatti (04/08/2026)
 
-### A. Architettura & Compartimento Stagno (`messages`)
+### A. Architettura & Plancia Unificata (`NewsletterCampaignSection.tsx`)
+- **Rimozione Doppioni**: Rimosso il vecchio componente duplicato `PhishingAlertSection.tsx` da `ResortDashboard.tsx`. `NewsletterCampaignSection.tsx` è ora l'unica plancia centralizzata per messaggi, newsletter e contatti resort.
 - **Isolamento Visivo e DOM**: La tab `📨 Messaggi Clienti` montata in `ResortDashboard.tsx` nasconde rigorosamente tutti i moduli di ottimizzazione (KPI cards, Sconti a Cascata, Min Stay, Albero Tariffe e Calendario).
-- **Tab Dedicata**: Posizionata prima di `🔗 Octorate PMS`.
 
-### B. Gestione Phishing & Sicurezza (`PhishingAlertSection.tsx` & `email-alerts.ts`)
-- Filtra i clienti in base al check-in futuro (`checkin >= oggi`).
-- Genera link **WhatsApp** con messaggio precompilato (normalizzazione numero internazionale `+66`).
-- Supporta l'invio individuale o massivo via email mediante l'handler `/api/resort/email-alerts`.
+### B. Scudo "Real-Only" & Filtraggio Prenotazioni Fantasma
+- **Verifica Mappatura Camere Fisiche (`isValidPhysicalBooking`)**:
+  - Filtra programmaticamente le prenotazioni in ingresso da Octorate/CSV.
+  - Scarta immediatamente tutte le prenotazioni virtuali/derivate recanti la sigla `BE` (es. *JV BE*, *Red BE*, *Room 1 BE*) o non appartenenti alle 18 camere fisiche reali in `ALL_ACCOMMODATIONS_MAP`.
+  - Solo gli ospiti delle prenotazioni reali presenti nel calendario visivo entrano nella lista contatti.
 
-### C. Campagne Email & Newsletter con Batching Client-Side (`NewsletterCampaignSection.tsx` & `send-newsletter.ts`)
-- **Tracciamento Campagna (`campaignCode`)**: Registra la storia degli invii in `localStorage` (`emailHistory` e `fpv_newsletter_history`).
-- **Raggruppamento Clienti**: Divide visivamente e logicamente i clienti in:
-  - ⏳ **Da avvisare** (email non presenti nella storia della campagna).
-  - ✅ **Già avvisati** (con badge e pulsante di reset dedicato per reinvio).
-- **Batching Client-Side (Anti-Timeout Vercel)**:
-  - Il frontend invia pacchetti leggeri di **25 email** (`BATCH_SIZE = 25`).
-  - Introduce una pausa di **3 secondi sul client** (`setTimeout(3000)`) tra i pacchetti.
-  - Evita blocchi e timeout della serverless function su Vercel Hobby.
-- **Selezione Account Mittente (`senderAccount`)**:
-  - `flowerpowerphayam@gmail.com` (`phayam`) → `SMTP_USER_PHAYAM` / `SMTP_PASS_PHAYAM`.
-  - `redflowerpower@gmail.com` (`red`) → `SMTP_USER_RED` / `SMTP_PASS_RED`.
-  - Fallback automatico su `SMTP_USER` / `SMTP_PASS` di default.
-- **Inoltro Privacy BCC**: Gli indirizzi dei clienti sono inviati in `bcc`, con mittente `to` impostato sull'account stesso per tutelare la riservatezza.
+### C. Formattazione Date Rigida & Compositore "Tabula Rasa"
+- **Formattazione `gg/mm/aa` (`formatDateDDMMYY`)**: Tutte le date visualizzate in tabella, nel Modal Popup e nello storico invii adottano tassativamente il formato standard `gg/mm/aa` (es. `10/08/26`).
+- **Compositore Tabula Rasa**: Tutti gli stati di input iniziali (`subject`, `message`, `campaignCode`, `senderAccount`) sono impostati a stringhe vuote (`""`) per la massima pulizia.
+
+### D. Stato Invio Dinamico & Gestione Contatti Privi di Recapito
+- **Stato Dinamico legato a `campaignCode`**:
+  - Se `campaignCode` è vuoto (`""`), la tabella risponde in modalità "vergine": mostra `⚪ Pronto` per tutti i contatti ed azzera a `0` le card statistiche *"Da Avvisare"* e *"Già Avvisati"*.
+  - Quando viene digitato un codice campagna, lo stato delle righe si aggiorna dinamicamente (`✅ Inviato` / `✉️ Da Avvisare`) riattivando il tracciamento dei contatori.
+- **Gestione Clienti senza Email/Telefono (`hasNoContacts`)**:
+  - Se `!email && !phone`, la checkbox di selezione della Playlist viene disabilitata (`disabled={true}`) con stile opaco (`opacity-30 cursor-not-allowed text-stone-600`), impedendo la selezione o l'invio errato.
+  - La riga assume una tonalità grigia opaca (`opacity-60 bg-stone-950/40`, testo `text-stone-500`), mentre l'evento `onClick` sul nome dell'ospite rimane attivo con cursore `pointer` per l'apertura del Modal Popup.
+  - La logica "Seleziona Tutti" esclude automaticamente i contatti senza email valide.
+
+### E. Gruppo Speciale "TEST / VERIFICA" (Contatti Reali)
+- Posizionato in fondo all'elenco delle OTA in un accordion dedicato stilizzato in viola/indaco (`🧪 TEST / VERIFICA`).
+- Contiene 4 contatti reali sempre visibili che ignorano i filtri temporali per collaudi rapidi:
+  - *Marco 1* (`redflowerpower@gmail.com`)
+  - *Marco 2* (`redflowerpower@hotmail.it`)
+  - *Simona* (`simona.gnani@gmail.com`)
+  - *Kit Suraporn* (`kitsuraporn@gmail.com`)
+
+### F. Modal Popup Dettaglio Prenotazione Intero
+- Cliccando sul nome dell'ospite si apre un popup fluttuante a tutto schermo (`fixed inset-0 bg-black/75 backdrop-blur-md`) che espone:
+  - 📅 **Periodo & Notti**: Check-in → Check-out in `gg/mm/aa` e conteggio notti.
+  - 🛌 **Alloggio & Pax**: Nome alloggio e numero ospiti.
+  - 🔌 **Canale**: Badge della sorgente/OTA.
+  - 🎫 **Codice**: ID/Codice prenotazione Octorate.
+  - 💰 **Finanziario**: Importo Totale THB e Prezzo Netto THB.
+  - 🌍 **Nazione**: Paese di provenienza.
+  - 📝 **Note dell'Ospite**: Box per richieste speciali.
+
+### G. Storico Invii & Cancellazione Multipla Persistente
+- **Espansione Destinatari**: Ogni log di campagna inviato è espandibile per mostrare la griglia completa di Nomi ed Email dei destinatari.
+- **Selezione Multipla & Tasto Elimina (`selectedLogIds`)**:
+  - Checkbox per singola riga di log e tasto *"Seleziona Tutte"*.
+  - Pulsante `🗑️ Elimina Selezionate (N)` per rimuovere le campagne selezionate dallo stato React e da `localStorage` (`fpv_newsletter_logs`, `emailHistory`, `fpv_newsletter_history`).

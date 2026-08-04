@@ -3,7 +3,6 @@ import { useResortAdminStore } from '../store/useResortAdminStore';
 import { getAuthorizationUrl, getStoredTokens, clearTokens, exchangeToken } from '../../../booking/lib/octorate';
 import { ResortVisualCalendar } from './ResortVisualCalendar';
 import { DerivedRatesTreeSection } from './DerivedRatesTreeSection';
-import { PhishingAlertSection } from './PhishingAlertSection';
 import { NewsletterCampaignSection } from './NewsletterCampaignSection';
 import { 
   Hotel, 
@@ -833,7 +832,6 @@ export function ResortDashboard() {
       {activeTab === 'messages' && (
         <div className="max-w-5xl mx-auto space-y-6">
           <NewsletterCampaignSection />
-          <PhishingAlertSection />
         </div>
       )}
 

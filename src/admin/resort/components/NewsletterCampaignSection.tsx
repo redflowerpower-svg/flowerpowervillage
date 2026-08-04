@@ -21,9 +21,72 @@ import {
   Calendar,
   Filter,
   Layers,
-  Phone
+  Phone,
+  ListMusic,
+  CalendarDays,
+  X,
+  FileText,
+  BedDouble,
+  DollarSign,
+  MapPin,
+  Ticket,
+  FlaskConical,
+  Moon
 } from 'lucide-react';
 import { useResortAdminStore } from '../store/useResortAdminStore';
+import { getCanonicalAccommodation, ALL_ACCOMMODATIONS_MAP } from '../lib/octorateAdmin';
+
+// Contatti reali di TEST (Sempre visibili a prescindere dai filtri temporali)
+const TEST_GUESTS = [
+  {
+    Cliente: "Marco 1",
+    email: "redflowerpower@gmail.com",
+    phone: "+66958825573",
+    checkin: "2026-08-04",
+    checkout: "2026-08-11",
+    Sorgente: "test",
+    Camera: "Camera Test Red 1",
+    Pax: 1,
+    Totale: 0,
+    Codice: "TEST_MARCO_1"
+  },
+  {
+    Cliente: "Marco 2",
+    email: "redflowerpower@hotmail.it",
+    phone: "+66964365296",
+    checkin: "2026-08-04",
+    checkout: "2026-08-11",
+    Sorgente: "test",
+    Camera: "Camera Test Red 2",
+    Pax: 1,
+    Totale: 0,
+    Codice: "TEST_MARCO_2"
+  },
+  {
+    Cliente: "Simona",
+    email: "simona.gnani@gmail.com",
+    phone: "+66979345393",
+    checkin: "2026-08-04",
+    checkout: "2026-08-11",
+    Sorgente: "test",
+    Camera: "Camera Test Simona",
+    Pax: 1,
+    Totale: 0,
+    Codice: "TEST_SIMONA"
+  },
+  {
+    Cliente: "Kit Suraporn",
+    email: "kitsuraporn@gmail.com",
+    phone: "",
+    checkin: "2026-08-04",
+    checkout: "2026-08-11",
+    Sorgente: "test",
+    Camera: "Camera Test Kit",
+    Pax: 1,
+    Totale: 0,
+    Codice: "TEST_KIT"
+  }
+];
 
 interface CampaignLogEntry {
   id: string;
@@ -45,49 +108,121 @@ interface UnifiedGuestItem {
   ota: string;
   isNotified: boolean;
   isExcluded: boolean;
+  rawBooking: any;
 }
 
-type TimeFilterOption = 'all' | 'checkin_today' | 'in_house' | 'checkout_today' | 'next_7_days';
+type TimeFilterOption = 'all' | 'past' | 'future' | 'checkin_today' | 'in_house' | 'checkout_today' | 'next_7_days';
 type ContactFilterOption = 'all' | 'email' | 'whatsapp';
 
 /**
+ * Formattazione rigida delle date in formato "gg/mm/aa" (es. 10/08/26).
+ */
+const formatDateDDMMYY = (dateStr: string): string => {
+  if (!dateStr) return '-';
+  const clean = String(dateStr).trim();
+
+  // Caso ISO YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
+    const parts = clean.slice(0, 10).split('-');
+    const year2 = parts[0].slice(-2);
+    return `${parts[2]}/${parts[1]}/${year2}`;
+  }
+
+  // Caso gg/mm/aaaa (con ora opzionale)
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(clean)) {
+    const mainDate = clean.split(',')[0].trim();
+    const parts = mainDate.split('/');
+    const day = parts[0].padStart(2, '0');
+    const month = parts[1].padStart(2, '0');
+    const year2 = parts[2].slice(-2);
+    return `${day}/${month}/${year2}`;
+  }
+
+  // Caso gg/mm/aa
+  if (/^\d{1,2}\/\d{1,2}\/\d{2}/.test(clean)) {
+    const mainDate = clean.split(',')[0].trim();
+    const parts = mainDate.split('/');
+    const day = parts[0].padStart(2, '0');
+    const month = parts[1].padStart(2, '0');
+    return `${day}/${month}/${parts[2]}`;
+  }
+
+  return clean;
+};
+
+/**
+ * Scudo Real-Only: Filtra le prenotazioni fantasma (virtual/derived rate plans es. JV BE, Red BE, Room 1 BE)
+ * consentendo l'ingresso solo alle prenotazioni associate a una delle 18 camere fisiche reali.
+ */
+const isValidPhysicalBooking = (b: any): boolean => {
+  if (!b) return false;
+  const accName = String(b.accommodation_name || b.room_name || b.roomName || '').trim();
+  if (!accName) return false;
+
+  const accNameLower = accName.toLowerCase();
+
+  // Scarta rate plan derivati "BE" (Basic/Executive/Bed Breakfast virtual rate plans)
+  if (/\bbe\b/i.test(accName) || accNameLower.includes('be ') || accNameLower.endsWith(' be')) {
+    return false;
+  }
+
+  // Verifica mappabilità con una delle camere reali
+  const canonical = getCanonicalAccommodation(b);
+  if (canonical) return true;
+
+  // Controllo difensivo tra le 18 camere di ALL_ACCOMMODATIONS_MAP
+  const isMapMatched = Object.values(ALL_ACCOMMODATIONS_MAP).some((entry) => {
+    const entryNameLower = entry.name.toLowerCase();
+    return accNameLower.includes(entryNameLower) || entryNameLower.includes(accNameLower);
+  });
+
+  return isMapMatched;
+};
+
+/**
  * NewsletterCampaignSection — Gestione contatti, newsletter e messaggistica unificata resort.
- * Supporta:
- * - Tabella unificata clienti con pulsanti WhatsApp ed Email singola per ciascun cliente
- * - Raggruppamento per OTA in Accordion collassabili
- * - Filtri Smart Intelligenti (Temporale + Tipo Contatto)
- * - Mittente Phayam di default e deduplica email
- * - Auto-seed dello storico campagna "03-08-26 PHISHING" (102 destinatari)
  * Scope: /src/admin/resort (compartimento stagno).
  */
 export const NewsletterCampaignSection: React.FC = () => {
   const rawOctorateBookings = useResortAdminStore((s) => s.rawOctorateBookings);
 
+  // Compositore "Tabula Rasa": Tutti gli stati di input iniziali a vuoto ("")
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
-  const [campaignCode, setCampaignCode] = useState('03-08-26 PHISHING');
+  const [campaignCode, setCampaignCode] = useState('');
+  const [senderAccount, setSenderAccount] = useState('');
 
-  // Mittente di Default: "phayam" (flowerpowerphayam@gmail.com)
-  const [senderAccount, setSenderAccount] = useState('phayam');
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
 
   // Filtro interattivo sulle card superiori: 'all' | 'warn' | 'already'
   const [activeFilter, setActiveFilter] = useState<'all' | 'warn' | 'already'>('all');
   
-  // Pannello Filtri Smart Intelligenti
+  // Pannello Filtri Smart Intelligenti Esteso
   const [timeFilter, setTimeFilter] = useState<TimeFilterOption>('all');
   const [contactFilter, setContactFilter] = useState<ContactFilterOption>('all');
+  
+  // Intervallo Date Personalizzato (Calendario Da / A)
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const [isListOpen, setIsListOpen] = useState(true);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
+  // Modal Popup Dettaglio Prenotazione
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
+
   // Stato fisarmonica accordion per le OTA (chiave OTA: boolean)
   const [openOtas, setOpenOtas] = useState<Record<string, boolean>>({});
 
-  // Esclusioni manuali e selezioni temporanee per la sessione
+  // Esclusioni manuali temporanee
   const [excludedEmails, setExcludedEmails] = useState<Set<string>>(new Set());
+
+  // PLAYLIST DI INVIO (Array/Set di email selezionate per l'invio attivo)
   const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
+
+  // 1. STATO PER LA SELEZIONE DELLE CAMPAGNE DELLO STORICO (Cancellazione Multipla)
+  const [selectedLogIds, setSelectedLogIds] = useState<Set<string>>(new Set());
 
   // Storia campagne per email: { "email@x.com": ["03-08-26 PHISHING", "PROMO_02"] }
   const [history, setHistory] = useState<Record<string, string[]>>({});
@@ -95,28 +230,29 @@ export const NewsletterCampaignSection: React.FC = () => {
   const [campaignLogs, setCampaignLogs] = useState<CampaignLogEntry[]>([]);
 
   // Helpers difensivi per estrazione dati da prenotazione Octorate
-  const getGuest = (b: any) => b.guest || b.customer || b.reservation?.guest || {};
+  const getGuest = (b: any) => b?.guest || b?.customer || b?.reservation?.guest || {};
   const getEmail = (b: any) => {
     const g = getGuest(b);
-    return (g.email || b.guest_email || '').toLowerCase().trim();
+    return (g.email || b?.guest_email || '').toLowerCase().trim();
   };
   const getGuestName = (b: any) => {
     const g = getGuest(b);
     const given = g.givenName || g.firstName || '';
     const family = g.familyName || g.lastName || '';
-    return `${given} ${family}`.trim() || b.guest_name || 'Ospite';
+    return `${given} ${family}`.trim() || b?.guest_name || 'Ospite';
   };
   const getPhone = (b: any) => {
     const g = getGuest(b);
-    return String(g.phone || g.telephone || g.mobile || b.phone || b.telephone || b.mobile || b.guest_phone || '').trim();
+    return String(g.phone || g.telephone || g.mobile || b?.phone || b?.telephone || b?.mobile || b?.guest_phone || '').trim();
   };
-  const getCheckin = (b: any) => String(b.checkin || b.check_in || b.checkIn || '').slice(0, 10);
-  const getCheckout = (b: any) => String(b.checkout || b.check_out || b.checkOut || '').slice(0, 10);
+  const getCheckin = (b: any) => String(b?.checkin || b?.check_in || b?.checkIn || '').slice(0, 10);
+  const getCheckout = (b: any) => String(b?.checkout || b?.check_out || b?.checkOut || '').slice(0, 10);
 
   // Estrazione e normalizzazione sorgente OTA
   const getOtaSource = (b: any): string => {
-    const src = b.source || b.channel || b.portal || b.sourceName || b.channelName || b.reservation?.source || b.ota || '';
+    const src = b?.source || b?.channel || b?.portal || b?.sourceName || b?.channelName || b?.reservation?.source || b?.ota || '';
     const str = String(src).toLowerCase();
+    if (str.includes('test')) return '🧪 TEST / VERIFICA';
     if (str.includes('booking')) return 'Booking.com';
     if (str.includes('airbnb')) return 'Airbnb';
     if (str.includes('expedia')) return 'Expedia';
@@ -126,7 +262,61 @@ export const NewsletterCampaignSection: React.FC = () => {
     return src ? String(src) : 'Sito/Diretto';
   };
 
-  // Badge colorato per OTA
+  // Helpers per Modal Dettaglio Prenotazione
+  const getBookingAccommodation = (b: any) => {
+    if (!b) return 'Camera Non Specificata';
+    return b.accommodation_name || b.room_name || b.roomType || b.unit_name || b.room?.name || b.Camera || 'Alloggio Standard';
+  };
+
+  const getBookingPax = (b: any) => {
+    if (!b) return 1;
+    return b.guests || b.pax || b.adults || b.num_guests || b.guest_count || b.Pax || 1;
+  };
+
+  const getBookingCode = (b: any) => {
+    if (!b) return '-';
+    return String(b.code || b.booking_code || b.reference || b.id || b.reservationId || b.Codice || '-');
+  };
+
+  const getBookingTotal = (b: any) => {
+    if (!b) return '0';
+    const val = b.total_price ?? b.amount ?? b.total ?? b.price ?? b.Totale ?? 0;
+    return Number(val).toLocaleString('it-IT');
+  };
+
+  const getBookingNet = (b: any) => {
+    if (!b) return '-';
+    const val = b.net_price ?? b.net_amount ?? b.net_total ?? null;
+    if (val === null || val === undefined) return '-';
+    return `${Number(val).toLocaleString('it-IT')} THB`;
+  };
+
+  const getBookingCountry = (b: any) => {
+    if (!b) return 'Non specificata';
+    const g = getGuest(b);
+    return g.country || b.country || b.nationality || 'Italia / Thailandia (Test)';
+  };
+
+  const getBookingNotes = (b: any) => {
+    if (!b) return null;
+    const n = b.notes || b.note || b.remarks || b.customer_notes || b.special_requests || b.comment;
+    return n ? String(n).trim() : null;
+  };
+
+  const getBookingNights = (b: any) => {
+    if (!b) return 1;
+    const inStr = getCheckin(b);
+    const outStr = getCheckout(b);
+    if (inStr && outStr) {
+      const dIn = new Date(inStr);
+      const dOut = new Date(outStr);
+      const diff = Math.round((dOut.getTime() - dIn.getTime()) / (1000 * 3600 * 24));
+      if (!isNaN(diff) && diff > 0) return diff;
+    }
+    return 1;
+  };
+
+  // Badge colorato per OTA (con stile viola/indaco per TEST)
   const getOtaBadgeStyle = (ota: string) => {
     switch (ota) {
       case 'Booking.com':
@@ -139,13 +329,15 @@ export const NewsletterCampaignSection: React.FC = () => {
         return 'bg-purple-950/80 text-purple-300 border-purple-600/50';
       case 'OctoEvo':
         return 'bg-cyan-950/80 text-cyan-300 border-cyan-600/50';
+      case '🧪 TEST / VERIFICA':
+        return 'bg-indigo-950/90 text-indigo-300 border-indigo-500/60 font-black shadow shadow-indigo-950';
       default:
         return 'bg-emerald-950/80 text-emerald-300 border-emerald-600/50';
     }
   };
 
   // --------------------------------------------------------------------------
-  // Auto-Seed Storico Campagna "03-08-26 PHISHING"
+  // Auto-Seed Storico Campagna "03-08-26 PHISHING" (se non presente)
   // --------------------------------------------------------------------------
   useEffect(() => {
     try {
@@ -161,15 +353,15 @@ export const NewsletterCampaignSection: React.FC = () => {
       if (!hasPhishingSeed) {
         const recipients: { name: string; email: string }[] = [];
 
-        // Estrai email e nomi reali dal database prenotazioni
         (rawOctorateBookings || []).forEach((b: any) => {
-          const em = getEmail(b);
-          if (em && em.includes('@') && !recipients.some((r) => r.email === em)) {
-            recipients.push({ name: getGuestName(b), email: em });
+          if (isValidPhysicalBooking(b)) {
+            const em = getEmail(b);
+            if (em && em.includes('@') && !recipients.some((r) => r.email === em)) {
+              recipients.push({ name: getGuestName(b), email: em });
+            }
           }
         });
 
-        // Se le prenotazioni sono meno di 102, aggiungi record simulati fino a raggiungere 102 destinatari
         let seedCounter = 1;
         while (recipients.length < 102) {
           recipients.push({
@@ -191,7 +383,6 @@ export const NewsletterCampaignSection: React.FC = () => {
           recipients: seedRecipients
         };
 
-        // Associa il codice "03-08-26 PHISHING" alla storia di ciascun destinatario
         seedRecipients.forEach((r) => {
           if (!historyObj[r.email]) historyObj[r.email] = [];
           if (!historyObj[r.email].includes('03-08-26 PHISHING')) {
@@ -215,7 +406,7 @@ export const NewsletterCampaignSection: React.FC = () => {
   }, [rawOctorateBookings]);
 
   // --------------------------------------------------------------------------
-  // Filtro Temporale (`timeFilter`) sulle prenotazioni
+  // SCUDO REAL-ONLY & Filtro Temporale (Filtra le prenotazioni fantasma)
   // --------------------------------------------------------------------------
   const filteredBookingsByTime = useMemo(() => {
     const today = new Date().toISOString().slice(0, 10);
@@ -225,28 +416,39 @@ export const NewsletterCampaignSection: React.FC = () => {
     const in7DaysStr = in7DaysDate.toISOString().slice(0, 10);
 
     return (rawOctorateBookings || []).filter((b: any) => {
+      if (!isValidPhysicalBooking(b)) return false;
+
       const checkin = getCheckin(b);
       const checkout = getCheckout(b);
 
+      if (startDate && checkout && checkout < startDate) return false;
+      if (endDate && checkin && checkin > endDate) return false;
+
       switch (timeFilter) {
+        case 'past':
+          return checkout && checkout < today;
+        case 'future':
+          return checkin && checkin >= today;
         case 'checkin_today':
           return checkin === today;
         case 'in_house':
-          return checkin <= today && checkout >= today;
+          return checkin && checkout && checkin <= today && checkout >= today;
         case 'checkout_today':
           return checkout === today;
         case 'next_7_days':
-          return checkin >= today && checkin <= in7DaysStr;
+          return checkin && checkin >= today && checkin <= in7DaysStr;
         case 'all':
         default:
           return true;
       }
     });
-  }, [rawOctorateBookings, timeFilter]);
+  }, [rawOctorateBookings, timeFilter, startDate, endDate]);
 
   // --------------------------------------------------------------------------
-  // Aggregazione e Deduplica Clienti Univoci (Email o Telefono)
+  // STATO INVIO DINAMICO & GRUPPO SPECIALE "TEST" CON CONTATTI REALI
   // --------------------------------------------------------------------------
+  const codeActive = useMemo(() => Boolean(campaignCode.trim()), [campaignCode]);
+
   const allUniqueGuests = useMemo<UnifiedGuestItem[]>(() => {
     const guestMap = new Map<string, UnifiedGuestItem>();
 
@@ -254,14 +456,14 @@ export const NewsletterCampaignSection: React.FC = () => {
       const email = getEmail(b);
       const phone = getPhone(b);
 
-      // Filtro Contatto (`contactFilter`)
       if (contactFilter === 'email' && (!email || !email.includes('@'))) return;
       if (contactFilter === 'whatsapp' && !phone) return;
 
       const key = email && email.includes('@') ? email : (phone ? `phone:${phone}` : String(b.id || Math.random()));
 
+      const currentCode = campaignCode.trim();
       const sentCodes = email ? (history[email] || []) : [];
-      const isNotified = sentCodes.includes(campaignCode.trim());
+      const isNotified = codeActive && currentCode ? sentCodes.includes(currentCode) : false;
       const isExcluded = email ? excludedEmails.has(email) : false;
 
       if (!guestMap.has(key)) {
@@ -274,34 +476,69 @@ export const NewsletterCampaignSection: React.FC = () => {
           checkout: getCheckout(b),
           ota: getOtaSource(b),
           isNotified,
-          isExcluded
+          isExcluded,
+          rawBooking: b
         });
       }
     });
 
+    TEST_GUESTS.forEach((tg) => {
+      const email = tg.email.toLowerCase().trim();
+      const currentCode = campaignCode.trim();
+      const sentCodes = history[email] || [];
+      const isNotified = codeActive && currentCode ? sentCodes.includes(currentCode) : false;
+      const isExcluded = excludedEmails.has(email);
+      const key = email || `test:${tg.Codice}`;
+
+      guestMap.set(key, {
+        id: `test-${tg.Codice}`,
+        email: tg.email,
+        phone: tg.phone,
+        name: tg.Cliente,
+        checkin: tg.checkin,
+        checkout: tg.checkout,
+        ota: '🧪 TEST / VERIFICA',
+        isNotified,
+        isExcluded,
+        rawBooking: {
+          id: tg.Codice,
+          code: tg.Codice,
+          guest_name: tg.Cliente,
+          guest_email: tg.email,
+          phone: tg.phone,
+          checkin: tg.checkin,
+          checkout: tg.checkout,
+          accommodation_name: tg.Camera,
+          guests: tg.Pax,
+          source: '🧪 TEST / VERIFICA',
+          total_price: tg.Totale,
+          net_price: 0,
+          country: 'Italia / Thailandia (Test)',
+          notes: 'Contatto reale di TEST per collaudo rapido invio email e messaggio WhatsApp.'
+        }
+      });
+    });
+
     return Array.from(guestMap.values());
-  }, [filteredBookingsByTime, contactFilter, history, campaignCode, excludedEmails]);
+  }, [filteredBookingsByTime, contactFilter, history, campaignCode, codeActive, excludedEmails]);
 
-  // Clienti da avvisare
-  const pendingGuests = useMemo(() =>
-    allUniqueGuests.filter((g) => !g.isNotified && !g.isExcluded),
-    [allUniqueGuests]
-  );
+  // Clienti da avvisare (0 se campaignCode è vuoto)
+  const pendingGuests = useMemo(() => {
+    if (!codeActive) return [];
+    return allUniqueGuests.filter((g) => !g.isNotified && !g.isExcluded);
+  }, [allUniqueGuests, codeActive]);
 
-  // Clienti già notificati
-  const notifiedGuests = useMemo(() =>
-    allUniqueGuests.filter((g) => g.isNotified),
-    [allUniqueGuests]
-  );
-
-  // Email univoche per l'invio massivo
-  const uniqueEmailsToSend = useMemo(() =>
-    pendingGuests.filter((g) => g.email && g.email.includes('@')).map((g) => g.email),
-    [pendingGuests]
-  );
+  // Clienti già notificati (0 se campaignCode è vuoto)
+  const notifiedGuests = useMemo(() => {
+    if (!codeActive) return [];
+    return allUniqueGuests.filter((g) => g.isNotified);
+  }, [allUniqueGuests, codeActive]);
 
   // Lista clienti filtrata per activeFilter ('all' | 'warn' | 'already')
   const displayedGuests = useMemo(() => {
+    if (!codeActive) {
+      return allUniqueGuests.filter((g) => !g.isExcluded);
+    }
     switch (activeFilter) {
       case 'warn':
         return allUniqueGuests.filter((g) => !g.isNotified && !g.isExcluded);
@@ -311,11 +548,9 @@ export const NewsletterCampaignSection: React.FC = () => {
       default:
         return allUniqueGuests.filter((g) => !g.isExcluded);
     }
-  }, [allUniqueGuests, activeFilter]);
+  }, [allUniqueGuests, activeFilter, codeActive]);
 
-  // --------------------------------------------------------------------------
   // Raggruppamento per Agenzia / OTA
-  // --------------------------------------------------------------------------
   const guestsByOta = useMemo(() => {
     const groups: Record<string, UnifiedGuestItem[]> = {};
     displayedGuests.forEach((g) => {
@@ -326,7 +561,14 @@ export const NewsletterCampaignSection: React.FC = () => {
     return groups;
   }, [displayedGuests]);
 
-  const otaKeys = useMemo(() => Object.keys(guestsByOta).sort(), [guestsByOta]);
+  const otaKeys = useMemo(() => {
+    const keys = Object.keys(guestsByOta);
+    const regularKeys = keys.filter((k) => k !== '🧪 TEST / VERIFICA').sort();
+    if (keys.includes('🧪 TEST / VERIFICA')) {
+      return [...regularKeys, '🧪 TEST / VERIFICA'];
+    }
+    return regularKeys;
+  }, [guestsByOta]);
 
   const toggleOtaAccordion = (ota: string) => {
     setOpenOtas((prev) => ({ ...prev, [ota]: !prev[ota] }));
@@ -340,22 +582,60 @@ export const NewsletterCampaignSection: React.FC = () => {
     setOpenOtas(next);
   };
 
-  // Gestione Selezione Checkbox
-  const isAllSelected = useMemo(() => {
-    if (displayedGuests.length === 0) return false;
-    return displayedGuests.every((g) => selectedEmails.has(g.email));
-  }, [displayedGuests, selectedEmails]);
+  // --------------------------------------------------------------------------
+  // LOGICA "SELEZIONA TUTTI" INTELLIGENTE (Esclude contatti senza email/tel)
+  // --------------------------------------------------------------------------
+  const activePlaylistEmails = useMemo(() => {
+    return Array.from(selectedEmails).filter((em) => em && em.includes('@'));
+  }, [selectedEmails]);
 
+  // Contatti selezionabili reali che hanno almeno un'email valida
+  const selectableGuests = useMemo(() => {
+    return displayedGuests.filter((g) => Boolean(g.email && g.email.includes('@')));
+  }, [displayedGuests]);
+
+  // Check se tutti i contatti selezionabili visibili sono spuntati
+  const isAllSelected = useMemo(() => {
+    if (selectableGuests.length === 0) return false;
+    return selectableGuests.every((g) => selectedEmails.has(g.email));
+  }, [selectableGuests, selectedEmails]);
+
+  // Seleziona / Deseleziona Tutti i visibili (SOLO chi ha recapiti validi)
   const handleToggleSelectAll = () => {
     if (isAllSelected) {
       setSelectedEmails(new Set());
     } else {
       const next = new Set(selectedEmails);
-      displayedGuests.forEach((g) => {
+      selectableGuests.forEach((g) => {
         if (g.email) next.add(g.email);
       });
       setSelectedEmails(next);
     }
+  };
+
+  // Checkbox "Seleziona Tutti" per singola OTA (SOLO chi ha recapiti validi)
+  const isOtaGroupAllSelected = (otaName: string) => {
+    const groupGuests = (guestsByOta[otaName] || []).filter((g) => Boolean(g.email && g.email.includes('@')));
+    if (groupGuests.length === 0) return false;
+    return groupGuests.every((g) => selectedEmails.has(g.email));
+  };
+
+  const handleToggleSelectOtaGroup = (otaName: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const groupGuests = (guestsByOta[otaName] || []).filter((g) => Boolean(g.email && g.email.includes('@')));
+    const allSelected = isOtaGroupAllSelected(otaName);
+
+    const next = new Set(selectedEmails);
+    groupGuests.forEach((g) => {
+      if (g.email) {
+        if (allSelected) {
+          next.delete(g.email);
+        } else {
+          next.add(g.email);
+        }
+      }
+    });
+    setSelectedEmails(next);
   };
 
   const handleToggleSelectOne = (email: string) => {
@@ -369,7 +649,10 @@ export const NewsletterCampaignSection: React.FC = () => {
     setSelectedEmails(next);
   };
 
-  // Esclusione manuale clienti selezionati
+  const handleClearPlaylist = () => {
+    setSelectedEmails(new Set());
+  };
+
   const handleExcludeSelected = () => {
     if (selectedEmails.size === 0) return;
     const nextExcluded = new Set(excludedEmails);
@@ -384,23 +667,87 @@ export const NewsletterCampaignSection: React.FC = () => {
   };
 
   // --------------------------------------------------------------------------
-  // Invio Campagna Newsletter (Batching)
+  // 3. LOGICA DI CANCELLAZIONE PERSISTENTE DELLE CAMPAGNE DALLO STORICO
+  // --------------------------------------------------------------------------
+  const handleToggleSelectLog = (logId: string) => {
+    const next = new Set(selectedLogIds);
+    if (next.has(logId)) {
+      next.delete(logId);
+    } else {
+      next.add(logId);
+    }
+    setSelectedLogIds(next);
+  };
+
+  const handleToggleSelectAllLogs = () => {
+    if (selectedLogIds.size === campaignLogs.length && campaignLogs.length > 0) {
+      setSelectedLogIds(new Set());
+    } else {
+      const next = new Set<string>();
+      campaignLogs.forEach((l) => next.add(l.id));
+      setSelectedLogIds(next);
+    }
+  };
+
+  const handleDeleteSelectedLogs = () => {
+    if (selectedLogIds.size === 0) return;
+    if (!window.confirm(`Confermi di voler eliminare ${selectedLogIds.size} campagne selezionate dallo storico?`)) return;
+
+    // Individua le campagne da cancellare per aggiornare la history
+    const logsToDelete = campaignLogs.filter((log) => selectedLogIds.has(log.id));
+    const codesToDelete = new Set(logsToDelete.map((l) => l.campaignCode));
+
+    const remainingLogs = campaignLogs.filter((log) => !selectedLogIds.has(log.id));
+
+    // Aggiorna lo stato locale React e il localStorage dei log
+    setCampaignLogs(remainingLogs);
+    localStorage.setItem('fpv_newsletter_logs', JSON.stringify(remainingLogs));
+
+    // Aggiorna anche la storia delle email rimuovendo i codici cancellati se non più presenti in altri log
+    const remainingCodes = new Set(remainingLogs.map((l) => l.campaignCode));
+    const newHistory = { ...history };
+    let historyChanged = false;
+
+    codesToDelete.forEach((code) => {
+      if (!remainingCodes.has(code)) {
+        Object.keys(newHistory).forEach((email) => {
+          if (newHistory[email]?.includes(code)) {
+            newHistory[email] = newHistory[email].filter((c) => c !== code);
+            historyChanged = true;
+          }
+        });
+      }
+    });
+
+    if (historyChanged) {
+      setHistory(newHistory);
+      localStorage.setItem('emailHistory', JSON.stringify(newHistory));
+      localStorage.setItem('fpv_newsletter_history', JSON.stringify(newHistory));
+    }
+
+    setSelectedLogIds(new Set());
+    setStatus({ ok: true, text: `✅ Eliminate con successo ${logsToDelete.length} campagne dallo storico.` });
+  };
+
+  // --------------------------------------------------------------------------
+  // Invio Campagna alla PLAYLIST ATTIVA
   // --------------------------------------------------------------------------
   const handleSend = async () => {
-    if (!subject || !message || !campaignCode) {
-      alert('Compila tutti i campi (Codice, Oggetto e Messaggio).');
+    if (!campaignCode || !subject || !message || !senderAccount) {
+      alert('Compila tutti i campi obbligatori: Codice Campagna, Oggetto, Messaggio e Account Mittente.');
       return;
     }
 
-    if (uniqueEmailsToSend.length === 0) {
-      setStatus({ ok: false, text: 'Nessun cliente da avvisare con email valida nella lista.' });
+    if (activePlaylistEmails.length === 0) {
+      setStatus({ ok: false, text: 'Nessun contatto selezionato nella Playlist attiva.' });
+      alert('⚠️ Seleziona almeno un contatto nella Playlist (tramite le checkbox nella tabella o nelle OTA) per procedere con l\'invio.');
       return;
     }
 
     setSending(true);
     setStatus(null);
     const BATCH_SIZE = 25;
-    const totalBatches = Math.ceil(uniqueEmailsToSend.length / BATCH_SIZE);
+    const totalBatches = Math.ceil(activePlaylistEmails.length / BATCH_SIZE);
     let successCount = 0;
     let lastError = '';
 
@@ -409,10 +756,10 @@ export const NewsletterCampaignSection: React.FC = () => {
     for (let i = 0; i < totalBatches; i++) {
       setStatus({
         ok: true,
-        text: `⏳ Invio blocco ${i + 1} di ${totalBatches}...`
+        text: `⏳ Invio Playlist (${i + 1} di ${totalBatches} blocchi)...`
       });
 
-      const batch = uniqueEmailsToSend.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
+      const batch = activePlaylistEmails.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
 
       try {
         const res = await fetch('/api/resort/send-newsletter', {
@@ -444,7 +791,7 @@ export const NewsletterCampaignSection: React.FC = () => {
 
     if (successCount > 0) {
       const newHistory = { ...history };
-      uniqueEmailsToSend.forEach((em) => {
+      activePlaylistEmails.forEach((em) => {
         if (!newHistory[em]) newHistory[em] = [];
         if (!newHistory[em].includes(campaignCode.trim())) {
           newHistory[em].push(campaignCode.trim());
@@ -456,7 +803,7 @@ export const NewsletterCampaignSection: React.FC = () => {
 
       const newLogEntry: CampaignLogEntry = {
         id: String(Date.now()),
-        timestamp: new Date().toLocaleString('it-IT'),
+        timestamp: formatDateDDMMYY(new Date().toISOString()) + `, ${new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`,
         campaignCode: campaignCode.trim(),
         subject: subject.trim(),
         senderAccount,
@@ -469,7 +816,7 @@ export const NewsletterCampaignSection: React.FC = () => {
 
       setStatus({
         ok: true,
-        text: `✅ Finito! Inviato con successo a ${successCount} contatti.${lastError ? ` (Note: ${lastError})` : ''}`
+        text: `✅ Finito! Spedito con successo a ${successCount} contatti della Playlist.${lastError ? ` (Note: ${lastError})` : ''}`
       });
     } else {
       setStatus({ ok: false, text: `Errore: ${lastError || 'Nessun invio riuscito.'}` });
@@ -479,7 +826,11 @@ export const NewsletterCampaignSection: React.FC = () => {
   };
 
   const handleClearHistory = () => {
-    if (!window.confirm(`Cancellare la storia delle campagne per "${campaignCode}"?`)) return;
+    if (!campaignCode) {
+      alert('Inserisci il codice campagna per azzerarne lo stato.');
+      return;
+    }
+    if (!window.confirm(`Cancellare lo stato della campagna per "${campaignCode}"?`)) return;
     const newHistory = { ...history };
     Object.keys(newHistory).forEach((email) => {
       newHistory[email] = newHistory[email].filter((c) => c !== campaignCode.trim());
@@ -493,11 +844,12 @@ export const NewsletterCampaignSection: React.FC = () => {
   const handleClearLogs = () => {
     if (!window.confirm('Cancellare interamente lo storico log invii?')) return;
     setCampaignLogs([]);
+    setSelectedLogIds(new Set());
     localStorage.removeItem('fpv_newsletter_logs');
   };
 
   return (
-    <div className="bg-emerald-950/20 border-2 border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-xl shadow-emerald-950/30 space-y-6 ring-1 ring-emerald-500/10">
+    <div className="bg-emerald-950/20 border-2 border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-xl shadow-emerald-950/30 space-y-6 ring-1 ring-emerald-500/10 relative">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-emerald-500/30 pb-4">
@@ -510,7 +862,7 @@ export const NewsletterCampaignSection: React.FC = () => {
               📧 Gestione Contatti & Newsletter
             </h3>
             <p className="text-stone-400 text-xs font-medium">
-              Invio campagne email, contatto rapido WhatsApp, deduplica e filtri smart per OTA.
+              Compositore invii, selezione Playlist dinamica e filtri avanzati per agenzie OTA.
             </p>
           </div>
         </div>
@@ -519,9 +871,9 @@ export const NewsletterCampaignSection: React.FC = () => {
         </span>
       </div>
 
-      {/* Card Statistiche Superiori con Filtri Interattivi */}
+      {/* Card Statistiche Superiori (Dinamiche su Codice Campagna) */}
       <div className="grid grid-cols-3 gap-3">
-        {/* Card 1: Totale Futuri Univoci */}
+        {/* Card 1: Totale Univoci */}
         <div
           onClick={() => {
             setActiveFilter('all');
@@ -539,157 +891,202 @@ export const NewsletterCampaignSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 2: Da Avvisare */}
+        {/* Card 2: Da Avvisare (Dinamico) */}
         <div
           onClick={() => {
-            setActiveFilter('warn');
-            setIsListOpen(true);
+            if (codeActive) {
+              setActiveFilter('warn');
+              setIsListOpen(true);
+            }
           }}
-          className={`p-3.5 rounded-2xl text-center transition-all cursor-pointer select-none ${
-            activeFilter === 'warn'
+          className={`p-3.5 rounded-2xl text-center transition-all select-none ${
+            codeActive ? 'cursor-pointer hover:opacity-90' : 'opacity-60 cursor-not-allowed'
+          } ${
+            activeFilter === 'warn' && codeActive
               ? 'bg-rose-950/60 border-2 border-amber-400 shadow-lg shadow-rose-950/50 ring-2 ring-amber-500/30 scale-[1.02]'
-              : 'bg-rose-950/30 border border-rose-700/30 hover:bg-rose-950/50 hover:opacity-90'
+              : 'bg-rose-950/30 border border-rose-700/30'
           }`}
+          title={!codeActive ? 'Inserisci un Codice Campagna nel compositore per attivare la verifica' : ''}
         >
-          <div className="text-2xl font-black text-rose-400">{pendingGuests.length}</div>
+          <div className="text-2xl font-black text-rose-400">
+            {codeActive ? pendingGuests.length : 0}
+          </div>
           <div className="text-[10px] text-rose-400 font-extrabold uppercase tracking-wider flex items-center justify-center gap-1 mt-1">
             <Clock className="w-3 h-3 text-rose-400" /> Da Avvisare
           </div>
         </div>
 
-        {/* Card 3: Già Avvisati */}
+        {/* Card 3: Già Avvisati (Dinamico) */}
         <div
           onClick={() => {
-            setActiveFilter('already');
-            setIsListOpen(true);
+            if (codeActive) {
+              setActiveFilter('already');
+              setIsListOpen(true);
+            }
           }}
-          className={`p-3.5 rounded-2xl text-center transition-all cursor-pointer select-none ${
-            activeFilter === 'already'
+          className={`p-3.5 rounded-2xl text-center transition-all select-none ${
+            codeActive ? 'cursor-pointer hover:opacity-90' : 'opacity-60 cursor-not-allowed'
+          } ${
+            activeFilter === 'already' && codeActive
               ? 'bg-emerald-950/60 border-2 border-emerald-400 shadow-lg shadow-emerald-950/50 ring-2 ring-emerald-500/30 scale-[1.02]'
-              : 'bg-emerald-950/30 border border-emerald-700/30 hover:bg-emerald-950/50 hover:opacity-90'
+              : 'bg-emerald-950/30 border border-emerald-700/30'
           }`}
+          title={!codeActive ? 'Inserisci un Codice Campagna nel compositore per attivare la verifica' : ''}
         >
-          <div className="text-2xl font-black text-emerald-400">{notifiedGuests.length}</div>
+          <div className="text-2xl font-black text-emerald-400">
+            {codeActive ? notifiedGuests.length : 0}
+          </div>
           <div className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-wider flex items-center justify-center gap-1 mt-1">
             <CheckCircle className="w-3 h-3 text-emerald-400" /> Già Avvisati
           </div>
         </div>
       </div>
 
-      {/* Form Campagna: Codice + Oggetto + Mittente Phayam (Default) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      {/* ==================================================================== */}
+      {/* COMPOSITORE "TABULA RASA" (Inizialmente vuoto)                        */}
+      {/* ==================================================================== */}
+      <div className="bg-stone-950/90 border border-stone-800 rounded-2xl p-4 sm:p-5 space-y-4 shadow-inner">
+        <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+          <h4 className="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Compositore Campagna Email
+          </h4>
+          <span className="text-[10px] text-stone-500 font-medium italic">
+            Inserisci i dati del messaggio per attivare l'invio
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Tag className="w-3 h-3 text-emerald-400" />
+              Codice Campagna
+            </label>
+            <input
+              type="text"
+              placeholder="Es. PROMO_AGOSTO_2026"
+              value={campaignCode}
+              onChange={(e) => setCampaignCode(e.target.value)}
+              className="w-full bg-stone-900 border border-stone-700 focus:border-emerald-500 rounded-2xl px-4 py-2.5 text-sm text-white font-mono font-bold placeholder:text-stone-600 outline-none transition-colors"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
+              <Mail className="w-3 h-3 text-emerald-400" />
+              Oggetto Email
+            </label>
+            <input
+              type="text"
+              placeholder="Inserisci l'oggetto dell'email..."
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              maxLength={150}
+              className="w-full bg-stone-900 border border-stone-700 focus:border-emerald-500 rounded-2xl px-4 py-2.5 text-sm text-white placeholder:text-stone-600 outline-none transition-colors"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
+              <AtSign className="w-3 h-3 text-emerald-400" />
+              Account Mittente
+            </label>
+            <select
+              value={senderAccount}
+              onChange={(e) => setSenderAccount(e.target.value)}
+              className="w-full bg-stone-900 border border-stone-700 focus:border-emerald-500 rounded-2xl px-4 py-2.5 text-sm text-stone-200 outline-none transition-colors cursor-pointer"
+            >
+              <option value="">-- Seleziona Account Mittente --</option>
+              <option value="phayam">Usa: flowerpowerphayam@gmail.com</option>
+              <option value="red">Usa: redflowerpower@gmail.com</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Messaggio */}
         <div className="space-y-1">
-          <label className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
-            <Tag className="w-3 h-3 text-emerald-400" />
-            Codice Campagna
+          <label className="text-xs font-bold text-stone-300 uppercase tracking-wider">
+            Corpo del Messaggio
           </label>
-          <input
-            type="text"
-            placeholder="Codice Campagna"
-            value={campaignCode}
-            onChange={(e) => setCampaignCode(e.target.value)}
-            className="w-full bg-stone-950/80 border border-stone-700 focus:border-emerald-500/60 rounded-2xl px-4 py-2.5 text-sm text-white font-mono font-bold placeholder:text-stone-600 outline-none transition-colors"
+          <textarea
+            placeholder="Scrivi qui il contenuto dell'email..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={4}
+            className="w-full bg-stone-900 border border-stone-700 focus:border-emerald-500 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-stone-600 outline-none transition-colors resize-y leading-relaxed"
           />
         </div>
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
-            <Mail className="w-3 h-3 text-emerald-400" />
-            Oggetto Email
-          </label>
-          <input
-            type="text"
-            placeholder="Oggetto email"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            maxLength={150}
-            className="w-full bg-stone-950/80 border border-stone-700 focus:border-emerald-500/60 rounded-2xl px-4 py-2.5 text-sm text-white placeholder:text-stone-600 outline-none transition-colors"
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-1.5">
-            <AtSign className="w-3 h-3 text-emerald-400" />
-            Account Mittente
-          </label>
-          <select
-            value={senderAccount}
-            onChange={(e) => setSenderAccount(e.target.value)}
-            className="w-full bg-stone-950/80 border border-stone-700 focus:border-emerald-500/60 rounded-2xl px-4 py-2.5 text-sm text-stone-200 outline-none transition-colors cursor-pointer"
-          >
-            <option value="phayam">Usa: flowerpowerphayam@gmail.com (Default)</option>
-            <option value="red">Usa: redflowerpower@gmail.com</option>
-          </select>
-        </div>
-      </div>
 
-      {/* Messaggio */}
-      <div className="space-y-1">
-        <label className="text-xs font-bold text-stone-300 uppercase tracking-wider">
-          Messaggio
-        </label>
-        <textarea
-          placeholder="Messaggio..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          rows={4}
-          className="w-full bg-stone-950/80 border border-stone-700 focus:border-emerald-500/60 rounded-2xl px-4 py-3 text-sm text-white placeholder:text-stone-600 outline-none transition-colors resize-y leading-relaxed"
-        />
-      </div>
-
-      {/* Pulsanti Azione Campagna */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-emerald-500/20">
-        <div className="flex-1 space-y-1">
-          {status && (
-            <div className={`flex items-start gap-2 text-xs font-bold ${status.ok ? 'text-emerald-400' : 'text-red-400'}`}>
-              {status.ok
-                ? <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                : <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              }
-              <span>{status.text}</span>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {notifiedGuests.length > 0 && (
+        {/* Pulsanti Azione Campagna */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2 border-t border-stone-800">
+          <div className="flex-1 space-y-1">
+            {status && (
+              <div className={`flex items-start gap-2 text-xs font-bold ${status.ok ? 'text-emerald-400' : 'text-red-400'}`}>
+                {status.ok
+                  ? <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  : <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                }
+                <span>{status.text}</span>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {campaignCode && (
+              <button
+                type="button"
+                onClick={handleClearHistory}
+                className="py-2 px-3 bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white border border-stone-700 text-[10px] font-bold uppercase rounded-xl transition-all cursor-pointer"
+                title={`Azzera lo stato per la campagna "${campaignCode}"`}
+              >
+                ↺ Reset Stato Campagna
+              </button>
+            )}
             <button
               type="button"
-              onClick={handleClearHistory}
-              className="py-2 px-3 bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white border border-stone-700 text-[10px] font-bold uppercase rounded-xl transition-all cursor-pointer"
-              title={`Azzera la storia per la campagna "${campaignCode}"`}
+              onClick={handleSend}
+              disabled={sending || activePlaylistEmails.length === 0}
+              className="flex items-center gap-2 py-2.5 px-5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-40 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg transition-all cursor-pointer whitespace-nowrap"
             >
-              ↺ Reset Stato Campagna
+              {sending ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Invio in corso...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4" />
+                  <span>Invia a Playlist ({activePlaylistEmails.length} Selezionati)</span>
+                </>
+              )}
             </button>
-          )}
-          <button
-            type="button"
-            onClick={handleSend}
-            disabled={sending || uniqueEmailsToSend.length === 0}
-            className="flex items-center gap-2 py-2.5 px-5 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-40 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg transition-all cursor-pointer whitespace-nowrap"
-          >
-            {sending ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Invio in corso...</span>
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4" />
-                <span>Invia a {uniqueEmailsToSend.length} contatti</span>
-              </>
-            )}
-          </button>
+          </div>
         </div>
       </div>
 
       {/* ==================================================================== */}
-      {/* PANNELLO FILTRI SMART INTELLIGENTI                                  */}
+      {/* PANNELLO FILTRI SMART ESTESO (Passate, Future, Intervallo Date)       */}
       {/* ==================================================================== */}
-      <div className="bg-stone-950/80 border border-stone-800 rounded-2xl p-4 space-y-3 shadow-inner">
-        <div className="flex items-center gap-2 text-xs font-black text-white uppercase tracking-wider border-b border-stone-800 pb-2">
-          <Filter className="w-4 h-4 text-emerald-400" />
-          <span>⚡ Pannello Filtri Smart</span>
+      <div className="bg-stone-950/80 border border-stone-800 rounded-2xl p-4 space-y-4 shadow-inner">
+        <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+          <div className="flex items-center gap-2 text-xs font-black text-white uppercase tracking-wider">
+            <Filter className="w-4 h-4 text-emerald-400" />
+            <span>⚡ Pannello Filtri Smart Avanzati</span>
+          </div>
+          {(startDate || endDate || timeFilter !== 'all' || contactFilter !== 'all') && (
+            <button
+              type="button"
+              onClick={() => {
+                setTimeFilter('all');
+                setContactFilter('all');
+                setStartDate('');
+                setEndDate('');
+              }}
+              className="text-[10px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 uppercase transition-colors cursor-pointer"
+            >
+              <X className="w-3 h-3" /> Resetta Filtri
+            </button>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Filtro Temporale */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-stone-400 uppercase tracking-wider flex items-center gap-1">
@@ -699,6 +1096,8 @@ export const NewsletterCampaignSection: React.FC = () => {
             <div className="flex flex-wrap gap-1.5">
               {[
                 { id: 'all', label: 'Tutti' },
+                { id: 'future', label: 'Prenotazioni Future' },
+                { id: 'past', label: 'Prenotazioni Passate' },
                 { id: 'checkin_today', label: 'In Arrivo Oggi' },
                 { id: 'in_house', label: 'In Soggiorno' },
                 { id: 'checkout_today', label: 'In Partenza Oggi' },
@@ -720,11 +1119,39 @@ export const NewsletterCampaignSection: React.FC = () => {
             </div>
           </div>
 
+          {/* Intervallo Date Personalizzato (Calendario Da / A) */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-bold text-stone-400 uppercase tracking-wider flex items-center gap-1">
+              <CalendarDays className="w-3 h-3 text-amber-400" />
+              Intervallo Date (Calendario)
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-[9px] text-stone-500 uppercase font-bold block mb-0.5">Da Data:</span>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-xl px-2.5 py-1.5 outline-none focus:border-amber-400"
+                />
+              </div>
+              <div>
+                <span className="text-[9px] text-stone-500 uppercase font-bold block mb-0.5">A Data:</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full bg-stone-900 border border-stone-700 text-stone-200 text-xs rounded-xl px-2.5 py-1.5 outline-none focus:border-amber-400"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Filtro Tipo Contatto */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-stone-400 uppercase tracking-wider flex items-center gap-1">
               <Phone className="w-3 h-3 text-emerald-400" />
-              Filtro Contatto
+              Filtro Tipo Contatto
             </label>
             <div className="flex flex-wrap gap-1.5">
               {[
@@ -751,6 +1178,45 @@ export const NewsletterCampaignSection: React.FC = () => {
       </div>
 
       {/* ==================================================================== */}
+      {/* BANNER PLAYLIST ATTIVA (CONTATORE DINAMICO PER INVIO)             */}
+      {/* ==================================================================== */}
+      <div className="bg-gradient-to-r from-stone-900 via-emerald-950/60 to-stone-900 border-2 border-emerald-500/50 rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-emerald-300 flex-shrink-0">
+            <ListMusic className="w-5 h-5 animate-pulse text-emerald-400" />
+          </div>
+          <div>
+            <h4 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+              🎵 PLAYLIST ATTIVA INVIO: <span className="text-emerald-400 text-sm font-mono font-black">{activePlaylistEmails.length} CONTATTI SELEZIONATI</span>
+            </h4>
+            <p className="text-[11px] text-stone-400 font-medium">
+              Premendo "Invia", il messaggio verrà spedito esclusivamente ai contatti della Playlist spuntati nelle checkbox.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            type="button"
+            onClick={handleToggleSelectAll}
+            className="px-3 py-1.5 bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-600/60 text-emerald-200 text-xs font-black uppercase rounded-xl transition-all cursor-pointer shadow"
+          >
+            {isAllSelected ? 'Deseleziona Tutti' : 'Seleziona Tutti Visibili'}
+          </button>
+
+          {activePlaylistEmails.length > 0 && (
+            <button
+              type="button"
+              onClick={handleClearPlaylist}
+              className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold uppercase rounded-xl transition-all cursor-pointer"
+            >
+              Svuota Playlist
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ==================================================================== */}
       {/* TABELLA UNIFICATA CLIENTI & ACCORDION RAGGRUPPATI PER OTA           */}
       {/* ==================================================================== */}
       <div className="border-t border-stone-800 pt-3 space-y-3">
@@ -762,7 +1228,7 @@ export const NewsletterCampaignSection: React.FC = () => {
           >
             <Layers className="w-4 h-4 text-emerald-400" />
             <span>
-              Contatti Unificati ({displayedGuests.length} totali in {otaKeys.length} agenzie)
+              Contatti Unificati ({displayedGuests.length} visibili in {otaKeys.length} agenzie OTA)
             </span>
             {isListOpen ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
           </button>
@@ -773,7 +1239,7 @@ export const NewsletterCampaignSection: React.FC = () => {
               onClick={() => toggleAllOtaAccordions(true)}
               className="text-[10px] font-bold text-stone-400 hover:text-cyan-300 uppercase transition-colors cursor-pointer"
             >
-              Espandi Tutti
+              Espandi Tutte le OTA
             </button>
             <span className="text-stone-700">|</span>
             <button
@@ -781,7 +1247,7 @@ export const NewsletterCampaignSection: React.FC = () => {
               onClick={() => toggleAllOtaAccordions(false)}
               className="text-[10px] font-bold text-stone-400 hover:text-cyan-300 uppercase transition-colors cursor-pointer"
             >
-              Comprimi Tutti
+              Comprimi Tutte
             </button>
 
             {excludedEmails.size > 0 && (
@@ -799,7 +1265,7 @@ export const NewsletterCampaignSection: React.FC = () => {
                 onClick={handleExcludeSelected}
                 className="flex items-center gap-1.5 px-3 py-1 bg-rose-950/80 hover:bg-rose-900 border border-rose-600/50 text-rose-200 text-[10px] font-extrabold uppercase rounded-xl shadow transition-all cursor-pointer ml-2"
               >
-                <Trash2 className="w-3 h-3 text-rose-400" /> Cancella Selezionati ({selectedEmails.size})
+                <Trash2 className="w-3 h-3 text-rose-400" /> Escludi Selezionati ({selectedEmails.size})
               </button>
             )}
           </div>
@@ -815,25 +1281,50 @@ export const NewsletterCampaignSection: React.FC = () => {
               otaKeys.map((otaName) => {
                 const groupGuests = guestsByOta[otaName] || [];
                 const isOpen = Boolean(openOtas[otaName]);
+                const otaGroupSelected = isOtaGroupAllSelected(otaName);
+                const isTestGroup = otaName === '🧪 TEST / VERIFICA';
 
                 return (
                   <div
                     key={otaName}
-                    className="bg-stone-950/90 border border-stone-800/80 rounded-2xl overflow-hidden shadow-lg transition-all"
+                    className={`border rounded-2xl overflow-hidden shadow-lg transition-all ${
+                      isTestGroup
+                        ? 'bg-indigo-950/40 border-indigo-500/60 ring-1 ring-indigo-500/30'
+                        : 'bg-stone-950/90 border-stone-800/80'
+                    }`}
                   >
-                    {/* Header Riga OTA Accordion */}
-                    <button
-                      type="button"
+                    {/* Header Riga OTA Accordion con Checkbox "Seleziona Tutti" per OTA */}
+                    <div
                       onClick={() => toggleOtaAccordion(otaName)}
-                      className="w-full flex items-center justify-between bg-stone-900/90 hover:bg-stone-850 px-4 py-3 border-b border-stone-800/60 text-left transition-colors cursor-pointer select-none"
+                      className={`w-full flex items-center justify-between px-4 py-3 border-b text-left transition-colors cursor-pointer select-none ${
+                        isTestGroup
+                          ? 'bg-indigo-900/40 hover:bg-indigo-900/60 border-indigo-500/40'
+                          : 'bg-stone-900/90 hover:bg-stone-850 border-stone-800/60'
+                      }`}
                     >
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleSelectOtaGroup(otaName, e)}
+                          className="text-stone-400 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+                          title={otaGroupSelected ? `Deseleziona tutti per ${otaName}` : `Seleziona tutti per ${otaName}`}
+                        >
+                          {otaGroupSelected ? (
+                            <CheckSquare className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                          ) : (
+                            <Square className="w-4 h-4 flex-shrink-0" />
+                          )}
+                          <span className="text-[10px] font-bold text-stone-400 uppercase hidden sm:inline">
+                            {otaGroupSelected ? 'Tutti Selezionati' : 'Seleziona OTA'}
+                          </span>
+                        </button>
+
                         <span className={`px-2.5 py-0.5 rounded-full text-xs font-black border ${getOtaBadgeStyle(otaName)}`}>
-                          <Globe className="w-3 h-3 inline-block mr-1 opacity-70" />
+                          {isTestGroup ? <FlaskConical className="w-3 h-3 inline-block mr-1 opacity-90 text-indigo-300" /> : <Globe className="w-3 h-3 inline-block mr-1 opacity-70" />}
                           {otaName}
                         </span>
-                        <span className="text-xs font-extrabold text-stone-200">
-                          ({groupGuests.length} {groupGuests.length === 1 ? 'cliente' : 'clienti'})
+                        <span className={`text-xs font-extrabold ${isTestGroup ? 'text-indigo-200' : 'text-stone-200'}`}>
+                          ({groupGuests.length} {groupGuests.length === 1 ? 'contatto' : 'contatti'})
                         </span>
                       </div>
 
@@ -842,60 +1333,89 @@ export const NewsletterCampaignSection: React.FC = () => {
                           {isOpen ? 'Comprimi' : 'Espandi'}
                         </span>
                         {isOpen ? (
-                          <ChevronUp className="w-4 h-4 text-emerald-400" />
+                          <ChevronUp className={`w-4 h-4 ${isTestGroup ? 'text-indigo-400' : 'text-emerald-400'}`} />
                         ) : (
                           <ChevronDown className="w-4 h-4 text-stone-400" />
                         )}
                       </div>
-                    </button>
+                    </div>
 
                     {/* Tabella Clienti per l'OTA selezionata */}
                     {isOpen && (
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs text-stone-300">
-                          <thead className="bg-stone-900/50 text-stone-400 font-bold uppercase text-[10px] tracking-wider border-b border-stone-800">
+                          <thead className={`${isTestGroup ? 'bg-indigo-950/60 text-indigo-200' : 'bg-stone-900/50 text-stone-400'} font-bold uppercase text-[10px] tracking-wider border-b border-stone-800`}>
                             <tr>
                               <th className="py-2.5 px-3 w-10 text-center">
                                 <button
                                   type="button"
-                                  onClick={handleToggleSelectAll}
+                                  onClick={(e) => handleToggleSelectOtaGroup(otaName, e)}
                                   className="text-stone-400 hover:text-white transition-colors cursor-pointer"
-                                  title={isAllSelected ? 'Deseleziona tutti' : 'Seleziona tutti'}
+                                  title={otaGroupSelected ? `Deseleziona tutti per ${otaName}` : `Seleziona tutti per ${otaName}`}
                                 >
-                                  {isAllSelected ? <CheckSquare className="w-4 h-4 text-emerald-400" /> : <Square className="w-4 h-4" />}
+                                  {otaGroupSelected ? <CheckSquare className="w-4 h-4 text-emerald-400" /> : <Square className="w-4 h-4" />}
                                 </button>
                               </th>
-                              <th className="py-2.5 px-3">Cliente</th>
+                              <th className="py-2.5 px-3">Cliente (Click per Dettagli)</th>
                               <th className="py-2.5 px-3">Email (Invio Diretto)</th>
                               <th className="py-2.5 px-3">WhatsApp / Telefono</th>
-                              <th className="py-2.5 px-3 text-center">Check-in / Check-out</th>
+                              <th className="py-2.5 px-3 text-center">Check-in / Check-out (gg/mm/aa)</th>
                               <th className="py-2.5 px-3 text-right">Stato Invio</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-stone-800/50">
                             {groupGuests.map((g) => {
-                              const isSelected = selectedEmails.has(g.email);
+                              const hasNoContacts = !g.email && !g.phone;
+                              const isSelected = Boolean(g.email && selectedEmails.has(g.email));
                               const cleanPhoneNum = g.phone.replace(/[^0-9]/g, '');
 
                               return (
                                 <tr
                                   key={g.id}
-                                  className={`hover:bg-stone-900/60 transition-colors ${isSelected ? 'bg-emerald-950/20' : ''}`}
+                                  className={`hover:bg-stone-900/80 transition-colors ${
+                                    hasNoContacts
+                                      ? 'opacity-60 bg-stone-950/40'
+                                      : isSelected
+                                      ? isTestGroup
+                                        ? 'bg-indigo-950/50'
+                                        : 'bg-emerald-950/30'
+                                      : ''
+                                  }`}
                                 >
-                                  {/* Checkbox Selezione */}
-                                  <td className="py-2.5 px-3 text-center">
+                                  {/* Checkbox Playlist (Disabilitata per chi ha hasNoContacts) */}
+                                  <td className="py-2.5 px-3 text-center" onClick={(e) => e.stopPropagation()}>
                                     <button
                                       type="button"
-                                      onClick={() => handleToggleSelectOne(g.email)}
-                                      className="text-stone-400 hover:text-white transition-colors cursor-pointer"
+                                      disabled={hasNoContacts}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (!hasNoContacts && g.email) {
+                                          handleToggleSelectOne(g.email);
+                                        }
+                                      }}
+                                      className={`transition-colors ${
+                                        hasNoContacts
+                                          ? 'opacity-30 cursor-not-allowed text-stone-600'
+                                          : 'text-stone-400 hover:text-white cursor-pointer'
+                                      }`}
+                                      title={hasNoContacts ? 'Nessun recapito disponibile per la selezione' : isSelected ? 'Deseleziona' : 'Seleziona'}
                                     >
                                       {isSelected ? <CheckSquare className="w-4 h-4 text-emerald-400" /> : <Square className="w-4 h-4" />}
                                     </button>
                                   </td>
 
-                                  {/* Nome Cliente */}
-                                  <td className="py-2.5 px-3 font-extrabold text-white">
-                                    {g.name}
+                                  {/* Nome Cliente Cliccabile -> Modal Popup Prenotazione */}
+                                  <td
+                                    className="py-2.5 px-3 font-extrabold cursor-pointer hover:text-emerald-300 transition-colors"
+                                    onClick={() => setSelectedBooking(g.rawBooking || g)}
+                                    title="Clicca per aprire la scheda di dettaglio prenotazione intera"
+                                  >
+                                    <span className="flex items-center gap-1.5 flex-wrap">
+                                      <span className={`${hasNoContacts ? 'text-stone-500 font-semibold' : 'text-white'} hover:underline`}>
+                                        {g.name}
+                                      </span>
+                                      <FileText className="w-3.5 h-3.5 text-stone-500 opacity-60 hover:opacity-100" />
+                                    </span>
                                   </td>
 
                                   {/* Email + Azione Singola Email */}
@@ -932,20 +1452,24 @@ export const NewsletterCampaignSection: React.FC = () => {
                                     )}
                                   </td>
 
-                                  {/* Date Checkin/Checkout */}
+                                  {/* Date Checkin/Checkout Formattate Rigidamente in gg/mm/aa */}
                                   <td className="py-2.5 px-3 text-center font-mono text-stone-400 text-[11px]">
-                                    {g.checkin} <span className="text-stone-600">→</span> {g.checkout}
+                                    {formatDateDDMMYY(g.checkin)} <span className="text-stone-600">→</span> {formatDateDDMMYY(g.checkout)}
                                   </td>
 
-                                  {/* Stato Invio Campagna */}
+                                  {/* Stato Invio Dinamico su Codice Campagna */}
                                   <td className="py-2.5 px-3 text-right">
-                                    {g.isNotified ? (
+                                    {!codeActive ? (
+                                      <span className="inline-flex items-center gap-1 text-stone-400 font-extrabold text-[10px] uppercase bg-stone-900 border border-stone-800 px-2.5 py-0.5 rounded-full">
+                                        ⚪ Pronto
+                                      </span>
+                                    ) : g.isNotified ? (
                                       <span className="inline-flex items-center gap-1 text-emerald-400 font-extrabold text-[10px] uppercase">
-                                        <CheckCircle className="w-3 h-3" /> Inviato
+                                        ✅ Inviato
                                       </span>
                                     ) : (
                                       <span className="inline-flex items-center gap-1 text-rose-400 font-extrabold text-[10px] uppercase">
-                                        <Clock className="w-3 h-3" /> Da avvisare
+                                        ✉️ Da Avvisare
                                       </span>
                                     )}
                                   </td>
@@ -965,7 +1489,7 @@ export const NewsletterCampaignSection: React.FC = () => {
       </div>
 
       {/* ==================================================================== */}
-      {/* STORICO CAMPAGNE INVIATE (PANNELLO COLLASSABILE LOG)                */}
+      {/* STORICO CAMPAGNE INVIATE (CON SELEZIONE MULTIPLA E CANCELLAZIONE)    */}
       {/* ==================================================================== */}
       <div className="border-t border-stone-800 pt-3 space-y-3">
         <button
@@ -988,67 +1512,253 @@ export const NewsletterCampaignSection: React.FC = () => {
               </p>
             ) : (
               <>
-                <div className="flex justify-end mb-2">
-                  <button
-                    type="button"
-                    onClick={handleClearLogs}
-                    className="text-[10px] font-bold text-stone-400 hover:text-rose-400 uppercase tracking-wider transition-colors cursor-pointer"
-                  >
-                    🗑️ Svuota Storico Log
-                  </button>
+                {/* Header Azioni Storico: Checkbox Seleziona Tutte + Tasto Elimina Selezionate */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2 pb-2 border-b border-stone-800/80">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleToggleSelectAllLogs}
+                      className="flex items-center gap-1.5 text-[10px] font-bold text-stone-400 hover:text-white uppercase transition-colors cursor-pointer"
+                    >
+                      {selectedLogIds.size === campaignLogs.length && campaignLogs.length > 0 ? (
+                        <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <Square className="w-3.5 h-3.5" />
+                      )}
+                      <span>{selectedLogIds.size === campaignLogs.length && campaignLogs.length > 0 ? 'Deseleziona Tutte' : 'Seleziona Tutte'}</span>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {selectedLogIds.size > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleDeleteSelectedLogs}
+                        className="flex items-center gap-1.5 px-3 py-1 bg-rose-950/90 hover:bg-rose-900 border border-rose-600/60 text-rose-200 text-[10px] font-black uppercase rounded-xl transition-all shadow cursor-pointer"
+                      >
+                        <Trash2 className="w-3 h-3 text-rose-400" />
+                        <span>Elimina Selezionate ({selectedLogIds.size})</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleClearLogs}
+                      className="text-[10px] font-bold text-stone-500 hover:text-rose-400 uppercase tracking-wider transition-colors cursor-pointer"
+                    >
+                      🗑️ Svuota Tutto lo Storico
+                    </button>
+                  </div>
                 </div>
 
-                <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
-                  {campaignLogs.map((log) => (
-                    <div
-                      key={log.id}
-                      className="bg-stone-900/80 border border-stone-800 rounded-2xl p-3.5 space-y-2 text-xs"
-                    >
-                      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-1 border-b border-stone-800 pb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black px-2 py-0.5 rounded-md font-mono">
-                            {log.campaignCode}
-                          </span>
-                          <span className="text-stone-300 font-bold truncate max-w-xs">
-                            {log.subject}
-                          </span>
-                        </div>
-                        <span className="text-stone-500 text-[11px] font-mono">
-                          🕒 {log.timestamp}
-                        </span>
-                      </div>
+                <div className="space-y-2.5 max-h-96 overflow-y-auto pr-1">
+                  {campaignLogs.map((log) => {
+                    const isLogSelected = selectedLogIds.has(log.id);
 
-                      <div className="flex flex-wrap items-center justify-between text-[11px] text-stone-400 gap-2">
-                        <div>
-                          Mittente: <span className="text-stone-200 font-bold">{log.senderAccount === 'red' ? 'redflowerpower@gmail.com' : 'flowerpowerphayam@gmail.com'}</span>
-                        </div>
-                        <div>
-                          Destinatari: <span className="text-emerald-400 font-black">{log.count} inviati</span>
-                        </div>
-                      </div>
+                    return (
+                      <div
+                        key={log.id}
+                        className={`border rounded-2xl p-3.5 space-y-2.5 text-xs transition-all ${
+                          isLogSelected
+                            ? 'bg-rose-950/30 border-rose-600/50 ring-1 ring-rose-500/30'
+                            : 'bg-stone-900/80 border-stone-800'
+                        }`}
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-stone-800 pb-2">
+                          <div className="flex items-center gap-2.5">
+                            {/* Checkbox per Selezione Singola Campagna */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleSelectLog(log.id);
+                              }}
+                              className="text-stone-400 hover:text-white transition-colors cursor-pointer flex-shrink-0"
+                              title={isLogSelected ? 'Deseleziona campagna' : 'Seleziona campagna da eliminare'}
+                            >
+                              {isLogSelected ? (
+                                <CheckSquare className="w-4 h-4 text-rose-400" />
+                              ) : (
+                                <Square className="w-4 h-4 text-stone-500" />
+                              )}
+                            </button>
 
-                      {/* Lista destinatari compattata */}
-                      <details className="text-[11px] text-stone-400 cursor-pointer pt-1">
-                        <summary className="hover:text-emerald-400 font-bold select-none">
-                          Visualizza {log.recipients?.length || log.count} destinatari
-                        </summary>
-                        <div className="mt-2 bg-stone-950 border border-stone-800/80 rounded-xl p-2.5 max-h-36 overflow-y-auto space-y-1">
-                          {(log.recipients || []).map((r, idx) => (
-                            <div key={idx} className="flex justify-between items-center text-stone-300 border-b border-stone-900/80 pb-0.5 last:border-0">
-                              <span className="font-semibold text-white">{r.name}</span>
-                              <span className="font-mono text-stone-500 text-[10px]">{r.email}</span>
+                            <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black px-2.5 py-0.5 rounded-md font-mono">
+                              {log.campaignCode}
+                            </span>
+                            <span className="text-stone-200 font-bold truncate max-w-xs sm:max-w-md">
+                              {log.subject}
+                            </span>
+                          </div>
+                          <span className="text-stone-500 text-[11px] font-mono">
+                            🕒 {log.timestamp}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between text-[11px] text-stone-400 gap-2">
+                          <div>
+                            Mittente: <span className="text-stone-200 font-bold">{log.senderAccount === 'red' ? 'redflowerpower@gmail.com' : 'flowerpowerphayam@gmail.com'}</span>
+                          </div>
+                          <div>
+                            Destinatari: <span className="text-emerald-400 font-black">{log.count} inviati con successo</span>
+                          </div>
+                        </div>
+
+                        {/* Dettaglio Espandibile Destinatari nello Storico */}
+                        <details className="text-[11px] text-stone-400 cursor-pointer pt-1 group">
+                          <summary className="hover:text-emerald-300 font-bold select-none py-1.5 px-3 bg-stone-950/80 border border-stone-800 rounded-xl flex items-center justify-between transition-colors">
+                            <span className="flex items-center gap-2 text-stone-300">
+                              <Users className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>Visualizza {log.recipients?.length || log.count} destinatari inviati</span>
+                            </span>
+                            <ChevronDown className="w-3.5 h-3.5 text-stone-500 group-open:rotate-180 transition-transform" />
+                          </summary>
+                          <div className="mt-2 bg-stone-950 border border-stone-800/90 rounded-2xl p-3 max-h-52 overflow-y-auto space-y-1.5">
+                            <div className="grid grid-cols-2 gap-2 text-[10px] font-black text-stone-500 uppercase pb-1 border-b border-stone-800 px-1">
+                              <span>Nome Cliente</span>
+                              <span>Indirizzo Email</span>
                             </div>
-                          ))}
-                        </div>
-                      </details>
-                    </div>
-                  ))}
+                            {(log.recipients || []).map((r, idx) => (
+                              <div key={idx} className="grid grid-cols-2 gap-2 text-stone-300 border-b border-stone-900/80 pb-1 pt-0.5 px-1 last:border-0 hover:bg-stone-900/40 rounded">
+                                <span className="font-semibold text-white truncate">{r.name}</span>
+                                <span className="font-mono text-stone-400 text-[10px] truncate">{r.email}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </details>
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}
           </div>
         )}
       </div>
+
+      {/* ==================================================================== */}
+      {/* MODAL POPUP FLUTTUANTE DETTAGLIO PRENOTAZIONE INTERO               */}
+      {/* ==================================================================== */}
+      {selectedBooking && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-stone-950 border-2 border-emerald-500/50 rounded-3xl max-w-xl w-full p-6 shadow-2xl shadow-emerald-950/50 space-y-5 ring-1 ring-emerald-500/20 max-h-[90vh] overflow-y-auto">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300">
+                  <Ticket className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white tracking-tight">
+                    🏷️ Dettaglio Prenotazione — {getGuestName(selectedBooking)}
+                  </h3>
+                  <p className="text-stone-400 text-xs font-mono">
+                    ID / Codice: {getBookingCode(selectedBooking)}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedBooking(null)}
+                className="w-8 h-8 rounded-full bg-stone-900 hover:bg-stone-800 border border-stone-700 text-stone-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Body Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              {/* Periodo & Notti */}
+              <div className="bg-stone-900/80 border border-stone-800 p-3 rounded-2xl space-y-1">
+                <div className="text-[10px] text-stone-400 font-extrabold uppercase flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5 text-cyan-400" /> Periodo & Notti
+                </div>
+                <div className="font-mono text-white font-bold text-xs">
+                  {formatDateDDMMYY(getCheckin(selectedBooking))} <span className="text-stone-500">→</span> {formatDateDDMMYY(getCheckout(selectedBooking))}
+                </div>
+                <div className="text-[10px] text-cyan-300 font-extrabold flex items-center gap-1 pt-0.5">
+                  <Moon className="w-3 h-3 text-cyan-400" />
+                  <span>Totale Notti: {getBookingNights(selectedBooking)} {getBookingNights(selectedBooking) === 1 ? 'notte' : 'notti'}</span>
+                </div>
+              </div>
+
+              {/* Alloggio */}
+              <div className="bg-stone-900/80 border border-stone-800 p-3 rounded-2xl space-y-1">
+                <div className="text-[10px] text-stone-400 font-extrabold uppercase flex items-center gap-1">
+                  <BedDouble className="w-3.5 h-3.5 text-emerald-400" /> Alloggio & Pax
+                </div>
+                <div className="text-white font-bold text-xs truncate">
+                  {getBookingAccommodation(selectedBooking)}
+                </div>
+                <div className="text-[10px] text-stone-400 font-medium">
+                  Numero Ospiti: <span className="text-emerald-300 font-bold">{getBookingPax(selectedBooking)} Pax</span>
+                </div>
+              </div>
+
+              {/* Canale OTA */}
+              <div className="bg-stone-900/80 border border-stone-800 p-3 rounded-2xl space-y-1">
+                <div className="text-[10px] text-stone-400 font-extrabold uppercase flex items-center gap-1">
+                  <Globe className="w-3.5 h-3.5 text-purple-400" /> Canale Prenotazione
+                </div>
+                <div>
+                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black border ${getOtaBadgeStyle(getOtaSource(selectedBooking))}`}>
+                    {getOtaSource(selectedBooking)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Nazione */}
+              <div className="bg-stone-900/80 border border-stone-800 p-3 rounded-2xl space-y-1">
+                <div className="text-[10px] text-stone-400 font-extrabold uppercase flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-rose-400" /> Nazione Provenienza
+                </div>
+                <div className="text-white font-bold text-xs">
+                  {getBookingCountry(selectedBooking)}
+                </div>
+              </div>
+            </div>
+
+            {/* Dettaglio Finanziario */}
+            <div className="bg-stone-900/90 border border-stone-800 p-3.5 rounded-2xl space-y-2">
+              <div className="text-[10px] text-stone-400 font-extrabold uppercase tracking-wider flex items-center gap-1 border-b border-stone-800 pb-1.5">
+                <DollarSign className="w-3.5 h-3.5 text-emerald-400" /> Dettaglio Finanziario
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-stone-400 text-[11px] block">Importo Totale:</span>
+                  <span className="font-mono text-emerald-400 font-black text-sm">฿{getBookingTotal(selectedBooking)} THB</span>
+                </div>
+                <div>
+                  <span className="text-stone-400 text-[11px] block">Prezzo Netto:</span>
+                  <span className="font-mono text-stone-200 font-bold text-xs">{getBookingNet(selectedBooking)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Note dell'Ospite */}
+            <div className="bg-amber-950/20 border border-amber-500/30 p-3.5 rounded-2xl space-y-1.5">
+              <div className="text-[10px] text-amber-400 font-extrabold uppercase tracking-wider flex items-center gap-1">
+                <FileText className="w-3.5 h-3.5" /> Note dell'Ospite & Richieste Speciali
+              </div>
+              <p className="text-xs text-stone-200 leading-relaxed font-sans italic bg-stone-950/80 p-2.5 rounded-xl border border-stone-800/80">
+                {getBookingNotes(selectedBooking) || 'Nessuna nota o richiesta speciale registrata per questa prenotazione.'}
+              </p>
+            </div>
+
+            {/* Modal Footer / Pulsante Chiudi */}
+            <div className="flex justify-end pt-2 border-t border-stone-800">
+              <button
+                type="button"
+                onClick={() => setSelectedBooking(null)}
+                className="py-2.5 px-6 bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all cursor-pointer shadow"
+              >
+                Chiudi Scheda
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </div>
   );
