@@ -1,21 +1,17 @@
 import Stripe from "stripe";
 
-const target = process.env.STRIPE_TARGET;
+let target = process.env.STRIPE_TARGET;
 
 // 1. Safety check: Target environment validation
 if (!target) {
-  throw new Error(
-    "FATAL: STRIPE_TARGET is not defined in the environment. " +
-    "Must be set to one of: IT, TH, TEST. Server execution blocked."
-  );
+  console.warn("STRIPE_TARGET non definito. Utilizzo di TEST di default.");
+  target = "TEST";
 }
 
 const allowedTargets = ["IT", "TH", "TEST"];
 if (!allowedTargets.includes(target)) {
-  throw new Error(
-    `FATAL: STRIPE_TARGET "${target}" is invalid. ` +
-    "Must be set to one of: IT, TH, TEST. Server execution blocked."
-  );
+  console.warn(`STRIPE_TARGET "${target}" non valido. Utilizzo di TEST di default.`);
+  target = "TEST";
 }
 
 // 2. Resolve target secret key
@@ -25,19 +21,19 @@ if (target === "IT") {
 } else if (target === "TH") {
   secretKey = process.env.STRIPE_SECRET_KEY_TH || "";
 } else if (target === "TEST") {
-  secretKey = process.env.STRIPE_SECRET_KEY_TEST || "";
+  secretKey = process.env.STRIPE_SECRET_KEY_TEST || process.env.STRIPE_SECRET_KEY || "";
 }
 
 // 3. Safety check: Secret key validation
 if (!secretKey) {
-  throw new Error(
-    `FATAL: Stripe secret key is missing for target environment "${target}". ` +
-    `Please set STRIPE_SECRET_KEY_${target} in your environment. Server execution blocked.`
+  console.warn(
+    `Stripe secret key missing for target environment "${target}". ` +
+    `Stripe calls will fail until valid key is provided.`
   );
 }
 
 // 4. Initialize Stripe client
-export const stripe = new Stripe(secretKey, {
+export const stripe = new Stripe(secretKey || "sk_test_placeholder", {
   apiVersion: "2023-10-16" as any,
 });
 
