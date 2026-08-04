@@ -113,10 +113,10 @@ export const NewsletterCampaignSection: React.FC = () => {
 
     setSending(true);
     setStatus(null);
-
     const BATCH_SIZE = 25;
     const totalBatches = Math.ceil(uniqueEmailsToSend.length / BATCH_SIZE);
     let successCount = 0;
+    let lastError = '';
 
     for (let i = 0; i < totalBatches; i++) {
       setStatus({
@@ -136,10 +136,13 @@ export const NewsletterCampaignSection: React.FC = () => {
         if (res.ok) {
           successCount += batch.length;
         } else {
-          console.error('Errore blocco', i);
+          const errData = await res.json().catch(() => ({}));
+          console.error('Errore blocco newsletter', i, errData);
+          lastError = errData.error || errData.message || `Errore HTTP ${res.status}`;
         }
-      } catch (e) {
-        console.error('Errore rete blocco', i);
+      } catch (e: any) {
+        console.error('Errore rete blocco newsletter', i, e);
+        lastError = e?.message || 'Errore di connessione di rete';
       }
 
       if (i < totalBatches - 1) {
@@ -158,9 +161,12 @@ export const NewsletterCampaignSection: React.FC = () => {
       localStorage.setItem('emailHistory', JSON.stringify(newHistory));
       localStorage.setItem('fpv_newsletter_history', JSON.stringify(newHistory));
       setHistory(newHistory);
-      setStatus({ ok: true, text: `✅ Finito! Inviato a ${successCount} contatti.` });
+      setStatus({
+        ok: true,
+        text: `✅ Finito! Inviato a ${successCount} contatti.${lastError ? ` (Alcune invii falliti: ${lastError})` : ''}`
+      });
     } else {
-      setStatus({ ok: false, text: 'Errore server. Nessun invio riuscito.' });
+      setStatus({ ok: false, text: `Errore: ${lastError || 'Nessun invio riuscito.'}` });
     }
 
     setSending(false);
