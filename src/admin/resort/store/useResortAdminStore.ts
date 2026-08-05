@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { updateLastMinuteRatesStrategy, resetLastMinuteRatesStrategy, disableLastMinuteRatesStrategy, updateStandardProtectionStrategy, fetchOctorateLiveReservations } from '../../../booking/lib/octorate';
 import { calculateDynamicMinStay, calculateStandardProtectionUpdates, StandardProtectionUpdate, toThailandDateStr, getSeasonalEndDateStr, DiscountExecutionMode, ALL_ACCOMMODATIONS_MAP } from '../lib/octorateAdmin';
+import { isValidActiveBooking } from '../lib/bookingFilters';
 
 // Alias locale della mappa madre per il calcolo Dry-Run
 const ALL_ACCOMMODATIONS_MAP_LOCAL = ALL_ACCOMMODATIONS_MAP;
@@ -324,9 +325,10 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
                 }
               }
 
+              const filteredAccumulated = accumulatedBookings.filter(isValidActiveBooking);
               set({
                 rawOctorateBookings: [...accumulatedBookings],
-                bookings: [...accumulatedBookings]
+                bookings: filteredAccumulated
               });
             }
           }
@@ -459,8 +461,9 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       if (res.ok) {
         const json = await res.json();
         if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-          set({ rawOctorateBookings: json.data, bookings: json.data, loading: false });
-          console.log(`[useResortAdminStore] Scaricate ${json.data.length} prenotazioni stagionali in blocco (${todayStr} -> ${seasonEndStr})`);
+          const filtered = json.data.filter(isValidActiveBooking);
+          set({ rawOctorateBookings: json.data, bookings: filtered, loading: false });
+          console.log(`[useResortAdminStore] Scaricate ${json.data.length} prenotazioni (${filtered.length} attive valide) in blocco (${todayStr} -> ${seasonEndStr})`);
           return;
         }
       }
@@ -468,7 +471,8 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       // 2. Fallback to fetchOctorateLiveReservations
       const liveReservations = await fetchOctorateLiveReservations();
       if (liveReservations && Array.isArray(liveReservations)) {
-        set({ rawOctorateBookings: liveReservations, bookings: liveReservations, loading: false });
+        const filtered = liveReservations.filter(isValidActiveBooking);
+        set({ rawOctorateBookings: liveReservations, bookings: filtered, loading: false });
         return;
       }
 

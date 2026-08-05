@@ -5,6 +5,7 @@ import { ResortVisualCalendar } from './ResortVisualCalendar';
 import { DerivedRatesTreeSection } from './DerivedRatesTreeSection';
 import { NewsletterCampaignSection } from './NewsletterCampaignSection';
 import { StandardRatesProtectionSection } from './StandardRatesProtectionSection';
+import { toThailandDateStr } from '../lib/octorateAdmin';
 import { 
   Hotel, 
   Calendar, 
@@ -32,9 +33,18 @@ import {
   GitFork,
   AlertTriangle,
   Eye,
+  EyeOff,
+  Trash2,
+  RotateCcw,
   BarChart3,
   Coins
 } from 'lucide-react';
+import { 
+  isValidActiveBooking, 
+  addBookingToBlacklist, 
+  getBlacklistedBookingIds, 
+  clearBlacklistedBookings 
+} from '../lib/bookingFilters';
 
 const formatLastUpdateStr = (dateVal?: string | number | Date | null): string => {
   if (!dateVal) return 'Nessuna operazione eseguita';
@@ -182,29 +192,69 @@ export function ResortDashboard() {
     setOctorateRooms([]);
   };
 
-  // ─── computeFinancials: Algoritmo KPI Unificato con Commissioni OTA v7 ──────
-  const getChannelKey = (channelName?: string): 'booking.com' | 'agoda' | 'expedia' | 'airbnb' | 'direct' => {
-    if (!channelName) return 'direct';
+  // Blacklist manual state trigger for instant UI refresh
+  const [blacklistedVersion, setBlacklistedVersion] = useState(0);
+
+  // V14 Financial Date Range Filter State (Default: Today -> Oct 31 next year)
+  const todayStr = toThailandDateStr(new Date());
+  const defaultToDate = `${new Date().getFullYear() + 1}-10-31`;
+  const [finDateFrom, setFinDateFrom] = useState<string>(todayStr);
+  const [finDateTo, setFinDateTo] = useState<string>(defaultToDate);
+
+  const handleHideBooking = (bookingId: string) => {
+    if (!bookingId) return;
+    addBookingToBlacklist(bookingId);
+    setBlacklistedVersion(v => v + 1);
+  };
+
+  const handleResetBlacklist = () => {
+    clearBlacklistedBookings();
+    setBlacklistedVersion(v => v + 1);
+  };
+
+  const blacklistedCount = getBlacklistedBookingIds().length;
+
+  // ─── computeFinancials: Algoritmo KPI Unificato con Commissioni OTA v14 ──────
+  const getChannelKey = (channelName?: string): 'booking.com' | 'airbnb' | 'agoda' | 'expedia' | 'website' | 'private' => {
+    if (!channelName) return 'private';
     const c = channelName.toLowerCase().trim();
     if (c.includes('booking')) return 'booking.com';
+    if (c.includes('airbnb')) return 'airbnb';
     if (c.includes('agoda')) return 'agoda';
     if (c.includes('expedia')) return 'expedia';
-    if (c.includes('airbnb')) return 'airbnb';
-    return 'direct';
+    if (c.includes('website') || c.includes('site') || c.includes('sito') || c.includes('engine') || c.includes('stripe')) return 'website';
+    return 'private';
+  };
+
+  const isBookingInDateRange = (b: any, dateFrom: string, dateTo: string) => {
+    if (!b) return false;
+    const checkIn = b.check_in || b.checkIn || b.checkin;
+    const checkOut = b.check_out || b.checkOut || b.checkout;
+    if (!checkIn) return true;
+
+    const bIn = String(checkIn).substring(0, 10);
+    const bOut = checkOut ? String(checkOut).substring(0, 10) : bIn;
+
+    if (dateFrom && bOut < dateFrom) return false;
+    if (dateTo && bIn > dateTo) return false;
+    return true;
   };
 
   const computeFinancials = () => {
-    const bList = bookings || [];
+    const validBookings = (bookings || []).filter(isValidActiveBooking);
+    const bList = validBookings.filter(b => isBookingInDateRange(b, finDateFrom, finDateTo));
+
     let grossRevenue = 0;
     let totalCommissions = 0;
     let totalGuests = 0;
 
     const otaStats: Record<string, { label: string; rate: number; count: number; gross: number; commission: number }> = {
       'booking.com': { label: 'Booking.com', rate: 0.172, count: 0, gross: 0, commission: 0 },
+      'airbnb': { label: 'Airbnb', rate: 0.15, count: 0, gross: 0, commission: 0 },
       'agoda': { label: 'Agoda', rate: 0.18, count: 0, gross: 0, commission: 0 },
       'expedia': { label: 'Expedia', rate: 0.15, count: 0, gross: 0, commission: 0 },
-      'airbnb': { label: 'Airbnb', rate: 0.15, count: 0, gross: 0, commission: 0 },
-      'direct': { label: 'Sito Diretto', rate: 0, count: 0, gross: 0, commission: 0 },
+      'website': { label: 'Website (Sito)', rate: 0.035, count: 0, gross: 0, commission: 0 },
+      'private': { label: 'Private (Diretto)', rate: 0.0, count: 0, gross: 0, commission: 0 },
     };
 
     for (const b of bList) {
@@ -242,9 +292,9 @@ export function ResortDashboard() {
   const availableRoomsCount = (accommodations || []).filter(r => r?.isAvailable).length;
 
 
-  // Filter bookings
+  // Filter bookings (Excludes cancelled, test, and manually blacklisted bookings)
   const filteredBookings = (bookings || []).filter(b => {
-    if (!b) return false;
+    if (!isValidActiveBooking(b)) return false;
     const searchLower = searchQuery.toLowerCase();
     return !searchQuery || 
       (b.guest_name && b.guest_name.toLowerCase().includes(searchLower)) ||
@@ -416,17 +466,30 @@ export function ResortDashboard() {
           </button>
         </div>
 
-        {/* Search Input for Bookings */}
+        {/* Search Input for Bookings & Reset Blacklist Control */}
         {activeTab === 'bookings' && (
-          <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cerca ospite, email, camera..."
-              className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-emerald-500/50"
-            />
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {blacklistedCount > 0 && (
+              <button
+                type="button"
+                onClick={handleResetBlacklist}
+                className="px-2.5 py-1.5 bg-amber-950/60 border border-amber-500/40 hover:bg-amber-900 text-amber-300 text-[10px] font-black uppercase rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow whitespace-nowrap"
+                title="Ripristina tutte le prenotazioni nascoste manualmente"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Nascosti: {blacklistedCount} (Reset)</span>
+              </button>
+            )}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Cerca ospite, email, camera..."
+                className="w-full bg-stone-900 border border-stone-800 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder:text-stone-600 focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
           </div>
         )}
       </div>
@@ -499,7 +562,7 @@ export function ResortDashboard() {
 
         {/* CARD 2: RENDICONTO FINANZIARIO & INTERMEDIAZIONI */}
         <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
-          <div className="flex items-center justify-between border-b border-stone-800/80 pb-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-800/80 pb-3">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-amber-500/20 border-2 border-amber-400/50 border-double flex items-center justify-center text-amber-300 flex-shrink-0 shadow">
                 <Coins className="w-5 h-5" />
@@ -508,9 +571,28 @@ export function ResortDashboard() {
                 RENDICONTO FINANZIARIO & INTERMEDIAZIONI
               </h3>
             </div>
-            <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-black uppercase tracking-wider">
-              OTA
-            </span>
+            
+            {/* Date Range Picker Filters (V14 Default: Oggi -> 31 Ottobre prossimo anno) */}
+            <div className="flex items-center gap-1.5 bg-stone-950 p-1.5 rounded-xl border border-stone-800 shadow-inner">
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] font-black text-stone-400 uppercase pl-1">Dal:</span>
+                <input
+                  type="date"
+                  value={finDateFrom}
+                  onChange={(e) => setFinDateFrom(e.target.value)}
+                  className="bg-stone-900 border border-stone-750 rounded-lg px-2 py-0.5 text-[11px] text-white font-mono font-bold focus:outline-none focus:border-amber-400"
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] font-black text-stone-400 uppercase">Al:</span>
+                <input
+                  type="date"
+                  value={finDateTo}
+                  onChange={(e) => setFinDateTo(e.target.value)}
+                  className="bg-stone-900 border border-stone-750 rounded-lg px-2 py-0.5 text-[11px] text-white font-mono font-bold focus:outline-none focus:border-amber-400"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Top 3 Stats Row */}
@@ -538,59 +620,34 @@ export function ResortDashboard() {
             </div>
           </div>
 
-          {/* 2x2 Grid Layout for 4 OTA Channels Tiles with Generous Margins & p-3/p-4 */}
-          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-stone-800/80">
-            {/* Left Column: Booking.com & Agoda */}
-            <div className="space-y-2 border-r border-stone-800/60 pr-3">
-              {[
-                { key: 'booking.com', label: 'Booking.com', rateText: '17.2%' },
-                { key: 'agoda', label: 'Agoda', rateText: '18.0%' }
-              ].map(({ key, label, rateText }) => {
-                const item = fin.otaStats[key];
-                return (
-                  <div key={key} className="flex items-center justify-between bg-stone-900/20 border border-stone-800/80 p-3 rounded-xl shadow-sm hover:border-stone-700/80 transition-all">
-                    <div>
-                      <span className="text-[11px] font-extrabold text-stone-200 block">{label}</span>
-                      <span className="text-[9px] font-mono text-stone-500 font-semibold">{rateText} comm.</span>
+          {/* 3x2 Symmetrical Grid Layout for 6 Channels (Booking, Airbnb, Agoda, Expedia, Website, Private) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-3 border-t border-stone-800/80">
+            {[
+              { key: 'booking.com', label: 'Booking.com', rateText: '17.2%' },
+              { key: 'airbnb', label: 'Airbnb', rateText: '15.0%' },
+              { key: 'agoda', label: 'Agoda', rateText: '18.0%' },
+              { key: 'expedia', label: 'Expedia', rateText: '15.0%' },
+              { key: 'website', label: 'Website (Sito)', rateText: '3.5%' },
+              { key: 'private', label: 'Private (Diretto)', rateText: '0.0%' }
+            ].map(({ key, label, rateText }) => {
+              const item = fin.otaStats[key];
+              return (
+                <div key={key} className="flex items-center justify-between bg-stone-900/30 border border-stone-800/80 p-2.5 rounded-xl shadow-sm hover:border-stone-700/80 transition-all">
+                  <div>
+                    <span className="text-[11px] font-extrabold text-stone-200 block">{label}</span>
+                    <span className="text-[9px] font-mono text-stone-500 font-semibold">{rateText} comm.</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[11px] font-mono font-bold text-stone-300">
+                      ฿{item.gross.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
                     </div>
-                    <div className="text-right">
-                      <div className="text-[11px] font-mono font-bold text-stone-300">
-                        ฿{item.gross.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                      </div>
-                      <div className="text-[10px] font-mono font-black text-red-400">
-                        -฿{item.commission.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                      </div>
+                    <div className={`text-[10px] font-mono font-black ${item.commission > 0 ? 'text-red-400' : 'text-stone-500'}`}>
+                      {item.commission > 0 ? `-฿${item.commission.toLocaleString('it-IT', { maximumFractionDigits: 0 })}` : '฿0'}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-
-            {/* Right Column: Airbnb & Expedia */}
-            <div className="space-y-2">
-              {[
-                { key: 'airbnb', label: 'Airbnb', rateText: '15.0%' },
-                { key: 'expedia', label: 'Expedia', rateText: '15.0%' }
-              ].map(({ key, label, rateText }) => {
-                const item = fin.otaStats[key];
-                return (
-                  <div key={key} className="flex items-center justify-between bg-stone-900/20 border border-stone-800/80 p-3 rounded-xl shadow-sm hover:border-stone-700/80 transition-all">
-                    <div>
-                      <span className="text-[11px] font-extrabold text-stone-200 block">{label}</span>
-                      <span className="text-[9px] font-mono text-stone-500 font-semibold">{rateText} comm.</span>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-[11px] font-mono font-bold text-stone-300">
-                        ฿{item.gross.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                      </div>
-                      <div className="text-[10px] font-mono font-black text-red-400">
-                        -฿{item.commission.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -1149,6 +1206,7 @@ export function ResortDashboard() {
                     <th className="p-4">Servizi Extra</th>
                     <th className="p-4">Totale (Acconto 30%)</th>
                     <th className="p-4">Stato PMS</th>
+                    <th className="p-4 text-center">Azione</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-850 font-medium">
@@ -1208,6 +1266,17 @@ export function ResortDashboard() {
                             ID: {b.octorate_reservation_id}
                           </div>
                         )}
+                      </td>
+                      <td className="p-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleHideBooking(String(b.id || b.octorate_reservation_id))}
+                          className="px-2.5 py-1.5 bg-stone-850 hover:bg-red-950/80 hover:text-red-300 text-stone-400 border border-stone-750 hover:border-red-600/60 rounded-xl text-[10px] font-bold transition-all cursor-pointer inline-flex items-center gap-1 shadow-sm"
+                          title="Nascondi questa prenotazione (escludi da vista e calcoli KPI)"
+                        >
+                          <EyeOff className="w-3.5 h-3.5" />
+                          <span>Nascondi</span>
+                        </button>
                       </td>
                     </tr>
                   ))}
