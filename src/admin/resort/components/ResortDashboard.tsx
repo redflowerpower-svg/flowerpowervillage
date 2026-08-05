@@ -31,7 +31,9 @@ import {
   XCircle,
   GitFork,
   AlertTriangle,
-  Eye
+  Eye,
+  BarChart3,
+  Coins
 } from 'lucide-react';
 
 export function ResortDashboard() {
@@ -173,11 +175,65 @@ export function ResortDashboard() {
     setOctorateRooms([]);
   };
 
-  // Calculate Key Metrics
-  const totalBookingsCount = (bookings || []).length;
-  const totalRevenue = (bookings || []).reduce((sum, b) => sum + (b?.total_price || 0), 0);
-  const totalGuests = (bookings || []).reduce((sum, b) => sum + (b?.guests || 1), 0);
+  // ─── computeFinancials: Algoritmo KPI Unificato con Commissioni OTA v7 ──────
+  const getChannelKey = (channelName?: string): 'booking.com' | 'agoda' | 'expedia' | 'airbnb' | 'direct' => {
+    if (!channelName) return 'direct';
+    const c = channelName.toLowerCase().trim();
+    if (c.includes('booking')) return 'booking.com';
+    if (c.includes('agoda')) return 'agoda';
+    if (c.includes('expedia')) return 'expedia';
+    if (c.includes('airbnb')) return 'airbnb';
+    return 'direct';
+  };
+
+  const computeFinancials = () => {
+    const bList = bookings || [];
+    let grossRevenue = 0;
+    let totalCommissions = 0;
+    let totalGuests = 0;
+
+    const otaStats: Record<string, { label: string; rate: number; count: number; gross: number; commission: number }> = {
+      'booking.com': { label: 'Booking.com', rate: 0.172, count: 0, gross: 0, commission: 0 },
+      'agoda': { label: 'Agoda', rate: 0.18, count: 0, gross: 0, commission: 0 },
+      'expedia': { label: 'Expedia', rate: 0.15, count: 0, gross: 0, commission: 0 },
+      'airbnb': { label: 'Airbnb', rate: 0.15, count: 0, gross: 0, commission: 0 },
+      'direct': { label: 'Sito Diretto', rate: 0, count: 0, gross: 0, commission: 0 },
+    };
+
+    for (const b of bList) {
+      if (!b) continue;
+      const price = Number(b.total_price) || 0;
+      const key = getChannelKey(b.source_channel);
+      const rate = otaStats[key]?.rate || 0;
+      const commission = price * rate;
+
+      grossRevenue += price;
+      totalCommissions += commission;
+      totalGuests += Number(b.guests) || 1;
+
+      if (otaStats[key]) {
+        otaStats[key].count += 1;
+        otaStats[key].gross += price;
+        otaStats[key].commission += commission;
+      }
+    }
+
+    return {
+      grossRevenue,
+      totalCommissions,
+      netRevenue: grossRevenue - totalCommissions,
+      totalGuests,
+      totalBookings: bList.length,
+      otaStats,
+    };
+  };
+
+  const fin = computeFinancials();
+  const totalBookingsCount = fin.totalBookings;
+  const totalRevenue = fin.grossRevenue;
+  const totalGuests = fin.totalGuests;
   const availableRoomsCount = (accommodations || []).filter(r => r?.isAvailable).length;
+
 
   // Filter bookings
   const filteredBookings = (bookings || []).filter(b => {
@@ -375,48 +431,166 @@ export function ResortDashboard() {
       {activeTab !== 'messages' && (
       <>
 
-      {/* KPI Cards Grid — visibili SOLO su PRENOTAZIONI */}
+      {/* KPI Cards Unificate v9 — visibili SOLO su PRENOTAZIONI */}
       {activeTab === 'bookings' && (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-4 space-y-2">
-          <div className="flex justify-between items-center text-stone-400 text-xs font-bold uppercase tracking-wider">
-            <span>Prenotazioni Attive</span>
-            <Calendar className="w-4 h-4 text-emerald-400" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+
+        {/* CARD 1: STATISTICHE GENERALI RESORT */}
+        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
+          <div className="flex items-center justify-between border-b border-stone-800/80 pb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border-2 border-emerald-400/50 border-double flex items-center justify-center text-emerald-300 flex-shrink-0 shadow">
+                <BarChart3 className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-white tracking-tight uppercase">
+                STATISTICHE GENERALI RESORT
+              </h3>
+            </div>
+            <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-black uppercase tracking-wider">
+              LIVE
+            </span>
           </div>
-          <div className="text-2xl font-black text-white">{totalBookingsCount}</div>
-          <p className="text-[11px] text-stone-500 font-medium">Registrate nel sistema</p>
+
+          {/* 3 Riquadri Fisici Equidistanti con Icone W-6 H-6 e Testi Ingranditi */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Prenotazioni</span>
+                <Calendar className="w-6 h-6 text-emerald-400 flex-shrink-0" />
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-black text-white leading-none">{totalBookingsCount}</div>
+                <p className="text-[10px] text-stone-500 font-medium mt-1">Registrate nel sistema</p>
+              </div>
+            </div>
+
+            <div className="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Ospiti</span>
+                <Users className="w-6 h-6 text-teal-400 flex-shrink-0" />
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-black text-white leading-none">{totalGuests}</div>
+                <p className="text-[10px] text-stone-500 font-medium mt-1">Capacità occupata</p>
+              </div>
+            </div>
+
+            <div className="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Alloggi</span>
+                <Hotel className="w-6 h-6 text-amber-400 flex-shrink-0" />
+              </div>
+              <div>
+                <div className="text-2xl sm:text-3xl font-black text-white leading-none">
+                  {availableRoomsCount}<span className="text-base text-stone-500 font-bold">/{(accommodations || []).length}</span>
+                </div>
+                <p className="text-[10px] text-stone-500 font-medium mt-1">Pronti al check-in</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-4 space-y-2">
-          <div className="flex justify-between items-center text-stone-400 text-xs font-bold uppercase tracking-wider">
-            <span>Ospiti Totali</span>
-            <Users className="w-4 h-4 text-teal-400" />
+        {/* CARD 2: RENDICONTO FINANZIARIO & INTERMEDIAZIONI */}
+        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
+          <div className="flex items-center justify-between border-b border-stone-800/80 pb-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border-2 border-amber-400/50 border-double flex items-center justify-center text-amber-300 flex-shrink-0 shadow">
+                <Coins className="w-5 h-5" />
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-white tracking-tight uppercase">
+                RENDICONTO FINANZIARIO & INTERMEDIAZIONI
+              </h3>
+            </div>
+            <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-black uppercase tracking-wider">
+              OTA
+            </span>
           </div>
-          <div className="text-2xl font-black text-white">{totalGuests}</div>
-          <p className="text-[11px] text-stone-500 font-medium">Capacità occupata</p>
+
+          {/* Top 3 Stats Row */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Incasso Lordo</div>
+              <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono leading-tight">
+                ฿{fin.grossRevenue.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+              </div>
+              <p className="text-[10px] text-stone-500 font-medium">Caparre + Saldi</p>
+            </div>
+            <div className="space-y-1">
+              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Commissioni OTA</div>
+              <div className="text-xl sm:text-2xl font-black text-red-400 font-mono leading-tight">
+                -฿{fin.totalCommissions.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+              </div>
+              <p className="text-[10px] text-stone-500 font-medium">Stima intermediazioni</p>
+            </div>
+            <div className="space-y-1">
+              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Netto Resort</div>
+              <div className="text-xl sm:text-2xl font-black text-white font-mono leading-tight">
+                ฿{fin.netRevenue.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+              </div>
+              <p className="text-[10px] text-stone-500 font-medium">Dopo intermediazioni</p>
+            </div>
+          </div>
+
+          {/* 2x2 Grid Layout for 4 OTA Channels Tiles with Generous Margins & p-3/p-4 */}
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t border-stone-800/80">
+            {/* Left Column: Booking.com & Agoda */}
+            <div className="space-y-2 border-r border-stone-800/60 pr-3">
+              {[
+                { key: 'booking.com', label: 'Booking.com', rateText: '17.2%' },
+                { key: 'agoda', label: 'Agoda', rateText: '18.0%' }
+              ].map(({ key, label, rateText }) => {
+                const item = fin.otaStats[key];
+                return (
+                  <div key={key} className="flex items-center justify-between bg-stone-900/20 border border-stone-800/80 p-3 rounded-xl shadow-sm hover:border-stone-700/80 transition-all">
+                    <div>
+                      <span className="text-[11px] font-extrabold text-stone-200 block">{label}</span>
+                      <span className="text-[9px] font-mono text-stone-500 font-semibold">{rateText} comm.</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[11px] font-mono font-bold text-stone-300">
+                        ฿{item.gross.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                      </div>
+                      <div className="text-[10px] font-mono font-black text-red-400">
+                        -฿{item.commission.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Right Column: Airbnb & Expedia */}
+            <div className="space-y-2">
+              {[
+                { key: 'airbnb', label: 'Airbnb', rateText: '15.0%' },
+                { key: 'expedia', label: 'Expedia', rateText: '15.0%' }
+              ].map(({ key, label, rateText }) => {
+                const item = fin.otaStats[key];
+                return (
+                  <div key={key} className="flex items-center justify-between bg-stone-900/20 border border-stone-800/80 p-3 rounded-xl shadow-sm hover:border-stone-700/80 transition-all">
+                    <div>
+                      <span className="text-[11px] font-extrabold text-stone-200 block">{label}</span>
+                      <span className="text-[9px] font-mono text-stone-500 font-semibold">{rateText} comm.</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[11px] font-mono font-bold text-stone-300">
+                        ฿{item.gross.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                      </div>
+                      <div className="text-[10px] font-mono font-black text-red-400">
+                        -฿{item.commission.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-4 space-y-2">
-          <div className="flex justify-between items-center text-stone-400 text-xs font-bold uppercase tracking-wider">
-            <span>Alloggi Disponibili</span>
-            <Hotel className="w-4 h-4 text-amber-400" />
-          </div>
-          <div className="text-2xl font-black text-white">{availableRoomsCount} / {(accommodations || []).length}</div>
-          <p className="text-[11px] text-stone-500 font-medium">Pronti al check-in</p>
-        </div>
-
-        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-4 space-y-2">
-          <div className="flex justify-between items-center text-stone-400 text-xs font-bold uppercase tracking-wider">
-            <span>Incasso Lordo Totale</span>
-            <DollarSign className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="text-2xl font-black text-emerald-400 font-mono">
-            ฿{(totalRevenue ?? 0).toLocaleString('it-IT')}
-          </div>
-          <p className="text-[11px] text-stone-500 font-medium">Caparre + Saldi resort</p>
-        </div>
       </div>
       )}
+
+
 
       {/* ═══════════════════════════════════════════════════════════════
            MODULI SCONTI: visibili SOLO su CALENDARIO 30GG e ANNUALE
