@@ -4,6 +4,7 @@ import { getAuthorizationUrl, getStoredTokens, clearTokens, exchangeToken } from
 import { ResortVisualCalendar } from './ResortVisualCalendar';
 import { DerivedRatesTreeSection } from './DerivedRatesTreeSection';
 import { NewsletterCampaignSection } from './NewsletterCampaignSection';
+import { StandardRatesProtectionSection } from './StandardRatesProtectionSection';
 import { 
   Hotel, 
   Calendar, 
@@ -699,6 +700,9 @@ export function ResortDashboard() {
           </div>
         )}
       </div>
+
+      {/* TARIFFE STANDARD HIGH SEASON (LAST MINUTE) PANEL */}
+      <StandardRatesProtectionSection />
 
       {/* Tabs Header */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-stone-800 pb-3">

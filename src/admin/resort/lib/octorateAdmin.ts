@@ -625,4 +625,138 @@ export function calculateOriginalPriceResetUpdates(options?: CascadeDiscountOpti
   return updates;
 }
 
+// =============================================================================
+// 🔒 PROTEZIONE TARIFFE STANDARD HIGH SEASON (7D & 14D OTA)
+// =============================================================================
+
+export interface StandardProtectionConfig {
+  seasonStartDate: string;   // e.g. '2026-12-15'
+  seasonEndDate: string;     // e.g. '2027-03-31'
+  daysTriggerLimit: number;  // default 15 (Trigger Apertura: Lead time N sblocca la tariffa)
+  daysOpenDuration: number;  // default 10 (Durata Apertura: Giorni consecutivi di apertura)
+  daysCtaDuration: number;   // default 5 (Durata Check-out CTA: Giorni sotto data con solo check-out)
+  executionMode: DiscountExecutionMode; // 'simulation' | 'test_bungalows' | 'production'
+}
+
+export interface StandardProtectionUpdate {
+  rateId: string;
+  motherId: number;
+  accommodationName: string;
+  dateStr: string;
+  leadTimeDays: number;
+  isInsideSeason: boolean;
+  stopSell: boolean;
+  closedToArrival: boolean;
+  statusLabel: 'waiting' | 'open' | 'cta_safety' | 'outside_season';
+  reason: string;
+}
+
+// Target Derived Rate Plan IDs for Fake Bungalows (Standard 7d/14d OTA plans)
+export const FAKE_BUNGALOW_STANDARD_OTA_DERIVED_IDS: Record<string, string[]> = {
+  '649669': ['932244', '932245', '932246', '932247', '932248', '932249', '932250', '932251', '932254', '932255'],
+  '921799': ['932257', '932258', '932259', '932260', '932261', '932262', '932263', '932264', '932267', '932268']
+};
+
+/**
+ * Calcola l'algoritmo V4 di Protezione Tariffe Standard (7d/14d OTA) a 3 stadi dinamici:
+ * 1. Stadio d'Attesa (Chiuso): N > daysTriggerLimit (es. N > 15) -> Stop-Sell = true
+ * 2. Finestra Last-Minute (Aperto): daysTriggerLimit >= N > (daysTriggerLimit - daysOpenDuration) (es. 15 >= N > 5) -> Stop-Sell = false, CTA = false
+ * 3. Finestra Solo Check-out (CTA): N <= (daysTriggerLimit - daysOpenDuration) (es. 5 >= N >= 1) -> Stop-Sell = false, CTA = true
+ */
+export function calculateStandardProtectionUpdates(config: StandardProtectionConfig): StandardProtectionUpdate[] {
+  const updates: StandardProtectionUpdate[] = [];
+
+  const triggerLimit = Math.max(1, config.daysTriggerLimit ?? 15);
+  const openDuration = Math.max(1, config.daysOpenDuration ?? 10);
+  const ctaDuration = Math.max(1, config.daysCtaDuration ?? 5);
+  const ctaThreshold = triggerLimit - openDuration; // Es: 15 - 10 = 5
+
+  const startDateStr = config.seasonStartDate || '2026-12-15';
+  const endDateStr = config.seasonEndDate || '2027-03-31';
+  const mode = config.executionMode || 'test_bungalows';
+
+  const todayStr = toThailandDateStr(new Date());
+  const todayParts = parseThailandDateParts(todayStr);
+  if (!todayParts) return updates;
+
+  const todayTime = Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day);
+  const totalHorizonDays = 365;
+
+  const targetAccommodations = getTargetAccommodationsForMode(mode);
+
+  targetAccommodations.forEach((room) => {
+    let targetDerivedIds: string[] = [];
+
+    if (mode === 'test_bungalows') {
+      targetDerivedIds = FAKE_BUNGALOW_STANDARD_OTA_DERIVED_IDS[String(room.motherId)] || [];
+    } else {
+      if (FAKE_BUNGALOW_STANDARD_OTA_DERIVED_IDS[String(room.motherId)]) {
+        targetDerivedIds = FAKE_BUNGALOW_STANDARD_OTA_DERIVED_IDS[String(room.motherId)];
+      } else {
+        const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === room.motherId);
+        if (canonical && canonical.ids) {
+          targetDerivedIds = canonical.ids.filter(id => String(id) !== String(room.motherId));
+        }
+      }
+    }
+
+    if (targetDerivedIds.length === 0) return;
+
+    for (let offset = 0; offset < totalHorizonDays; offset++) {
+      const targetTime = todayTime + offset * 24 * 60 * 60 * 1000;
+      const targetDate = new Date(targetTime);
+      const dateStr = toThailandDateStr(targetDate);
+
+      const isInsideSeason = dateStr >= startDateStr && dateStr <= endDateStr;
+      const leadTimeN = offset; // Giorni di preavviso dall'arrivo
+
+      let stopSell = false;
+      let closedToArrival = false;
+      let statusLabel: 'waiting' | 'open' | 'cta_safety' | 'outside_season' = 'outside_season';
+      let reason = '';
+
+      if (!isInsideSeason) {
+        stopSell = false;
+        closedToArrival = false;
+        statusLabel = 'outside_season';
+        reason = `Fuori stagione (${dateStr}): Tariffe standard 7d/14d aperte senza vincoli su OTA.`;
+      } else {
+        if (leadTimeN > triggerLimit) {
+          stopSell = true;
+          closedToArrival = false;
+          statusLabel = 'waiting';
+          reason = `Stadio d'Attesa (N=${leadTimeN}d > ${triggerLimit}d): Stop-Sell attivo su 7d/14d OTA per proteggere sito e Airbnb.`;
+        } else if (leadTimeN > ctaThreshold) {
+          stopSell = false;
+          closedToArrival = false;
+          statusLabel = 'open';
+          reason = `Finestra Last-Minute (N=${leadTimeN}d): Tariffe standard 7d/14d aperte su tutte le OTA.`;
+        } else {
+          stopSell = false;
+          closedToArrival = true;
+          statusLabel = 'cta_safety';
+          reason = `Finestra Solo Check-out (N=${leadTimeN}d <= ${ctaThreshold}d): Closed to Arrival (Solo Check-out) su 7d/14d OTA.`;
+        }
+      }
+
+      targetDerivedIds.forEach(derivedId => {
+        updates.push({
+          rateId: derivedId,
+          motherId: room.motherId,
+          accommodationName: room.name,
+          dateStr,
+          leadTimeDays: leadTimeN,
+          isInsideSeason,
+          stopSell,
+          closedToArrival,
+          statusLabel,
+          reason
+        });
+      });
+    }
+  });
+
+  return updates;
+}
+
 

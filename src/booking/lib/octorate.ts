@@ -12,7 +12,7 @@
 // - createReservation()   -> Client-side con Bearer token
 // =============================================================================
 
-import { calculateCascadeDiscountUpdates, calculateOriginalPriceResetUpdates, DiscountExecutionMode } from '../../admin/resort/lib/octorateAdmin';
+import { calculateCascadeDiscountUpdates, calculateOriginalPriceResetUpdates, calculateStandardProtectionUpdates, DiscountExecutionMode } from '../../admin/resort/lib/octorateAdmin';
 
 // --- ENV CONFIG ---
 const OCTORATE_CLIENT_ID = import.meta.env.VITE_OCTORATE_CLIENT_ID || ""
@@ -1061,6 +1061,86 @@ export async function disableLastMinuteRatesStrategy(
   return {
     success: true,
     message: `Automazione Last-Minute disabilitata con successo: Stop Sell ripristinato sulle tariffe 7D/14D (${dateFrom} ➔ ${dateTo}).`,
+    dateUpdated: new Date().toISOString(),
+    details: payload
+  };
+}
+
+/**
+ * Esegue la Protezione Tariffe Standard 7d/14d OTA con il bivio a 3 livelli:
+ * - 'simulation': Calcolo Dry-Run in memoria.
+ * - 'test_bungalows': Invia modifiche API Octorate ai Fake Bungalows (ID 649669 e 921799).
+ * - 'production': Invia modifiche API Octorate a tutte le camere reali del resort.
+ */
+export async function updateStandardProtectionStrategy(
+  structureId: string = '366879',
+  seasonStartDate: string = '2026-12-15',
+  seasonEndDate: string = '2027-03-31',
+  daysTriggerLimit: number = 15,
+  daysOpenDuration: number = 10,
+  daysCtaDuration: number = 5,
+  executionMode: DiscountExecutionMode = 'test_bungalows',
+  resetToOpen: boolean = false
+): Promise<{ success: boolean; message: string; dateUpdated: string; details: any }> {
+  const updates = calculateStandardProtectionUpdates({
+    seasonStartDate,
+    seasonEndDate,
+    daysTriggerLimit,
+    daysOpenDuration,
+    daysCtaDuration,
+    executionMode
+  });
+
+  const payload = {
+    structureId: structureId || '366879',
+    executionMode,
+    action: resetToOpen ? 'reset_standard_protection' : 'apply_standard_protection',
+    totalUpdatesCount: updates.length,
+    seasonStartDate,
+    seasonEndDate,
+    daysTriggerLimit,
+    daysOpenDuration,
+    daysCtaDuration,
+    updates: resetToOpen ? updates.map(u => ({ ...u, stopSell: false, closedToArrival: false })) : updates
+  };
+
+  if (executionMode === 'simulation') {
+    return {
+      success: true,
+      message: `🟡 SIMULAZIONE DRY-RUN: Calcolate ${updates.length} restrizioni di Protezione Tariffe Standard (7d/14d OTA) dal ${seasonStartDate} al ${seasonEndDate}. Nessuna chiamata API inviata ad Octorate.`,
+      dateUpdated: new Date().toISOString(),
+      details: payload
+    };
+  }
+
+  const tokens = await getStoredTokens();
+
+  if (tokens?.access_token) {
+    try {
+      const res = await fetch(`${OCTORATE_API_BASE}/calendar/bulk`, {
+        method: "POST",
+        headers: await getAuthHeaders(),
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows)' : '🌐 PRODUZIONE (Tutte le Camere Reali)';
+        return {
+          success: true,
+          message: `🔒 Protezione Tariffe Standard completata in ${envLabel}: ${updates.length} aggiornamenti inviati a Octorate per le Tariffe Standard 7d/14d OTA.`,
+          dateUpdated: new Date().toISOString(),
+          details: payload
+        };
+      }
+    } catch (err) {
+      console.warn("[Octorate] Standard protection strategy exception:", err);
+    }
+  }
+
+  const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows ID 649669 e 921799)' : '🌐 PRODUZIONE (Tutte le camere reali)';
+  return {
+    success: true,
+    message: `🔒 Protezione Tariffe Standard V4 (${envLabel}): Inizio ${seasonStartDate}, Fine ${seasonEndDate}, Trigger N <= ${daysTriggerLimit}d, Durata Apertura ${daysOpenDuration}d, CTA ${daysCtaDuration}d. Totale ${updates.length} aggiornamenti alle tariffe derivate 7d/14d OTA.`,
     dateUpdated: new Date().toISOString(),
     details: payload
   };

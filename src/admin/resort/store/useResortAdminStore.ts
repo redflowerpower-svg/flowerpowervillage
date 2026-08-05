@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
-import { updateLastMinuteRatesStrategy, resetLastMinuteRatesStrategy, disableLastMinuteRatesStrategy, fetchOctorateLiveReservations } from '../../../booking/lib/octorate';
-import { calculateDynamicMinStay, toThailandDateStr, getSeasonalEndDateStr, DiscountExecutionMode, ALL_ACCOMMODATIONS_MAP } from '../lib/octorateAdmin';
+import { updateLastMinuteRatesStrategy, resetLastMinuteRatesStrategy, disableLastMinuteRatesStrategy, updateStandardProtectionStrategy, fetchOctorateLiveReservations } from '../../../booking/lib/octorate';
+import { calculateDynamicMinStay, calculateStandardProtectionUpdates, StandardProtectionUpdate, toThailandDateStr, getSeasonalEndDateStr, DiscountExecutionMode, ALL_ACCOMMODATIONS_MAP } from '../lib/octorateAdmin';
 
 // Alias locale della mappa madre per il calcolo Dry-Run
 const ALL_ACCOMMODATIONS_MAP_LOCAL = ALL_ACCOMMODATIONS_MAP;
@@ -84,7 +84,9 @@ interface ResortAdminState {
   toggleRoomAvailability: (octorateId: string, available: boolean) => void;
   checkOctorateConnection: () => Promise<void>;
   setFilterCategory: (category: string) => void;
+  dynamicMinStayExecutionMode: DiscountExecutionMode;
   setDynamicMinStayGapFill: (enabled: boolean) => void;
+  setDynamicMinStayExecutionMode: (mode: DiscountExecutionMode) => void;
   executeDynamicMinStayStrategy: (resetToBaseline?: boolean, customRange?: { start: string; end: string }) => Promise<void>;
 
   // Last-Minute Actions
@@ -102,6 +104,27 @@ interface ResortAdminState {
   executeLastMinuteStrategy: () => Promise<void>;
   resetLastMinuteStrategy: () => Promise<void>;
   disableLastMinuteStrategy: () => Promise<void>;
+
+  // V4 Standard Rates Protection Automation State & Actions
+  standardProtectionActive: boolean;
+  standardProtectionExecutionMode: DiscountExecutionMode;
+  standardSeasonStartDate: string;
+  standardSeasonEndDate: string;
+  standardDaysTriggerLimit: number;
+  standardDaysOpenDuration: number;
+  standardDaysCtaDuration: number;
+  standardProtectionRunning: boolean;
+  standardProtectionResult: { success: boolean; message: string; dateUpdated: string; details?: any } | null;
+  standardProtectionUpdates: StandardProtectionUpdate[];
+
+  setStandardProtectionActive: (active: boolean) => void;
+  setStandardProtectionExecutionMode: (mode: DiscountExecutionMode) => void;
+  setStandardSeasonStartDate: (date: string) => void;
+  setStandardSeasonEndDate: (date: string) => void;
+  setStandardDaysTriggerLimit: (days: number) => void;
+  setStandardDaysOpenDuration: (days: number) => void;
+  setStandardDaysCtaDuration: (days: number) => void;
+  executeStandardProtectionStrategy: (resetToOpen?: boolean) => Promise<void>;
 }
 
 export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
@@ -141,10 +164,12 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   setIsDynamicCalculationEnabled: (enabled: boolean) => set({ isDynamicCalculationEnabled: enabled }),
 
   dynamicMinStayGapFill: false,
+  dynamicMinStayExecutionMode: 'simulation',
   dynamicMinStayRunning: false,
   dynamicMinStayUpdates: [],
   dynamicMinStayResult: null,
   setDynamicMinStayGapFill: (enabled: boolean) => set({ dynamicMinStayGapFill: enabled }),
+  setDynamicMinStayExecutionMode: (mode: DiscountExecutionMode) => set({ dynamicMinStayExecutionMode: mode, dynamicMinStayGapFill: mode !== 'simulation' }),
 
   // 3 Sequential Cascade Discount Stages Defaults
   lastMinuteStage1Days: 3,
@@ -163,6 +188,67 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   seasonDownloadStatus: 'idle',
   seasonDownloadProgress: 0,
   seasonDownloadMessage: '',
+
+  // Standard Protection Default State V4
+  standardProtectionActive: false,
+  standardProtectionExecutionMode: 'test_bungalows',
+  standardSeasonStartDate: '2026-12-15',
+  standardSeasonEndDate: '2027-03-31',
+  standardDaysTriggerLimit: 15,
+  standardDaysOpenDuration: 10,
+  standardDaysCtaDuration: 5,
+  standardProtectionRunning: false,
+  standardProtectionResult: null,
+  standardProtectionUpdates: [],
+
+  setStandardProtectionActive: (active: boolean) => set({ standardProtectionActive: active }),
+  setStandardProtectionExecutionMode: (mode: DiscountExecutionMode) => set({ standardProtectionExecutionMode: mode }),
+  setStandardSeasonStartDate: (date: string) => set({ standardSeasonStartDate: date }),
+  setStandardSeasonEndDate: (date: string) => set({ standardSeasonEndDate: date }),
+  setStandardDaysTriggerLimit: (days: number) => set({ standardDaysTriggerLimit: days }),
+  setStandardDaysOpenDuration: (days: number) => set({ standardDaysOpenDuration: days }),
+  setStandardDaysCtaDuration: (days: number) => set({ standardDaysCtaDuration: days }),
+
+  executeStandardProtectionStrategy: async (resetToOpen: boolean = false) => {
+    const {
+      standardSeasonStartDate,
+      standardSeasonEndDate,
+      standardDaysTriggerLimit,
+      standardDaysOpenDuration,
+      standardDaysCtaDuration,
+      standardProtectionExecutionMode,
+      octorateDetails
+    } = get();
+
+    set({ standardProtectionRunning: true });
+
+    const calculatedUpdates = calculateStandardProtectionUpdates({
+      seasonStartDate: standardSeasonStartDate,
+      seasonEndDate: standardSeasonEndDate,
+      daysTriggerLimit: standardDaysTriggerLimit,
+      daysOpenDuration: standardDaysOpenDuration,
+      daysCtaDuration: standardDaysCtaDuration,
+      executionMode: standardProtectionExecutionMode
+    });
+
+    const result = await updateStandardProtectionStrategy(
+      octorateDetails.structureId,
+      standardSeasonStartDate,
+      standardSeasonEndDate,
+      standardDaysTriggerLimit,
+      standardDaysOpenDuration,
+      standardDaysCtaDuration,
+      standardProtectionExecutionMode,
+      resetToOpen
+    );
+
+    set({
+      standardProtectionRunning: false,
+      standardProtectionResult: result,
+      standardProtectionUpdates: calculatedUpdates,
+      standardProtectionActive: !resetToOpen
+    });
+  },
 
   downloadSeasonSequential: async () => {
     set({
@@ -269,7 +355,7 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   executeDynamicMinStayStrategy: async (resetToBaseline: boolean = false, customRange?: { start: string; end: string }) => {
     set({ dynamicMinStayRunning: true, isDynamicCalculationEnabled: true });
     try {
-      let { rawOctorateBookings, bookings, dynamicMinStayGapFill, fetchBookings, downloadSeasonSequential } = get();
+      let { rawOctorateBookings, bookings, dynamicMinStayGapFill, dynamicMinStayExecutionMode, fetchBookings, downloadSeasonSequential } = get();
 
       // Regola 1: Se l'array rawOctorateBookings è vuoto, recupera l'intera stagione
       if (!rawOctorateBookings || rawOctorateBookings.length === 0) {
@@ -286,8 +372,8 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       // Calcolo Assoluto basato sulle prenotazioni reali stagionali in memoria con enabled = true
       const updates = calculateDynamicMinStay(poolToUse, { start: todayISO, end: endISO, enabled: true });
 
-      // Se il toggle non è spuntato, la modalità è forzata su Simulazione (dryRun = true)
-      const isDryRun = !dynamicMinStayGapFill;
+      // Se la modalità è simulation o dynamicMinStayGapFill è false, dryRun = true
+      const isDryRun = (dynamicMinStayExecutionMode === 'simulation') || !dynamicMinStayGapFill;
       const annotatedUpdates = updates.map(u => ({ ...u, isSimulated: isDryRun }));
 
       const endpoints = [
@@ -304,7 +390,13 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
           const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ updates: annotatedUpdates, resetToBaseline, dryRun: isDryRun })
+            body: JSON.stringify({
+              updates: annotatedUpdates,
+              resetToBaseline,
+              dryRun: isDryRun,
+              executionMode: dynamicMinStayExecutionMode,
+              isTestEnvironment: dynamicMinStayExecutionMode === 'test_bungalows'
+            })
           });
           if (res.ok) {
             apiRes = res;
@@ -423,8 +515,8 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   setLastMinuteDiscountStage2: (pct: number) => set({ lastMinuteDiscountStage2: Math.max(0, Math.min(80, isNaN(pct) ? 5 : pct)) }),
   setLastMinuteStage3Days: (days: number) => set({ lastMinuteStage3Days: Math.max(1, isNaN(days) ? 4 : days) }),
   setLastMinuteDiscountStage3: (pct: number) => set({ lastMinuteDiscountStage3: Math.max(0, Math.min(80, isNaN(pct) ? 2.5 : pct)) }),
-  setExecutionMode: (mode: DiscountExecutionMode) => set({ executionMode: mode, isTestEnvironment: mode === 'test_bungalows' }),
-  setIsTestEnvironment: (enabled: boolean) => set({ isTestEnvironment: enabled, executionMode: enabled ? 'test_bungalows' : 'production' }),
+  setExecutionMode: (mode: DiscountExecutionMode) => set({ executionMode: mode, isTestEnvironment: mode === 'test_bungalows', dynamicMinStayGapFill: mode !== 'simulation' }),
+  setIsTestEnvironment: (enabled: boolean) => set({ isTestEnvironment: enabled, executionMode: enabled ? 'test_bungalows' : 'production', dynamicMinStayGapFill: true }),
 
   setIsSimulationActive: (active: boolean) => set({ isSimulationActive: active }),
   setSimulatedOctorateGridItems: (items: any[]) => set({ simulatedOctorateGridItems: Array.isArray(items) ? items : [] }),
