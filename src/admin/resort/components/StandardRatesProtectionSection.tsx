@@ -43,7 +43,7 @@ export const StandardRatesProtectionSection: React.FC = () => {
   const ctaThreshold = standardDaysTriggerLimit - standardDaysOpenDuration;
 
   return (
-    <div className="bg-cyan-950/20 border border-cyan-500/30 shadow-xl rounded-2xl p-4 space-y-3">
+    <div className="bg-cyan-950/20 border-2 border-cyan-500/40 rounded-2xl p-4 space-y-3 shadow-xl shadow-cyan-950/30 ring-1 ring-cyan-500/10">
 
       {/* 1. HEADER SECTION */}
       <div className="flex justify-between items-start mb-4 border-b border-cyan-500/20 pb-3">
@@ -228,12 +228,7 @@ export const StandardRatesProtectionSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Legend aligned on the bottom right */}
-      <div className="mt-2 text-right">
-        <span className="text-[10px] text-cyan-400/70 italic font-mono font-bold">
-          Stadio Attesa: N &gt; {standardDaysTriggerLimit}d (🔒) • Last-Minute: {standardDaysTriggerLimit}d → {ctaThreshold + 1}d (↗️) • CTA: N &lt;= {ctaThreshold}d (🛬)
-        </span>
-      </div>
+
 
       {/* Validation Mismatch Notice (Descriptive, non-blocking) */}
       {isDurationSumMismatch && (
