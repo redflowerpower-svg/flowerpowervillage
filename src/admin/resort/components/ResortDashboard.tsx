@@ -412,205 +412,171 @@ export function ResortDashboard() {
       </div>
 
       {/* LAST-MINUTE DYNAMIC 3-STAGE CASCADE DISCOUNT PANEL */}
-      <div className="bg-amber-950/20 border-2 border-amber-500/40 rounded-3xl p-5 sm:p-6 shadow-xl shadow-amber-950/30 space-y-5 ring-1 ring-amber-500/10">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-amber-500/30 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 flex-shrink-0 shadow shadow-amber-900/40">
-              <Zap className="w-5 h-5" />
+      <div className="bg-amber-950/20 border-2 border-amber-500/40 rounded-2xl p-3.5 sm:p-4 shadow-xl shadow-amber-950/30 space-y-3 ring-1 ring-amber-500/10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-amber-500/30 pb-2.5">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 flex-shrink-0 shadow">
+              <Zap className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-black text-white tracking-tight flex items-center gap-2">
-                Automazione Sconti a Cascata (3 Stadi Sequenziali)
+              <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase">
+                LAST MINUTE
               </h3>
-              <p className="text-stone-400 text-xs font-medium">
-                Sconti percentuali sequenziali dinamici calcolati sulla data libera imminente dal giorno corrente
+              <p className="text-stone-400 text-[11px] font-medium">
+                Sconti percentuali sequenziali dinamici calcolati sulla data libera imminente
               </p>
             </div>
           </div>
-          <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
-            Automazione Tariffe Octorate
-          </span>
-        </div>
-
-        {/* REGOLA D'ORO API OCTORATE BADGE */}
-        <div className="p-3 bg-amber-950/30 border border-amber-500/30 rounded-2xl flex items-center gap-2 text-amber-300 text-xs font-semibold">
-          <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-          <span>
-            <strong>⚠️ REGOLA D'ORO OCTORATE:</strong> Tutte le modifiche di prezzo colpiscono <u>ESCLUSIVAMENTE</u> l'ID della Tariffa Madre (Livello 0).
+          <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+            Octorate API
           </span>
         </div>
 
         {/* 3 Cascade Discount Stages Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
           {/* Stage 1: 3 Days @ 10% */}
-          <div className="bg-red-950/30 p-4 rounded-2xl border border-red-500/40 space-y-3 shadow shadow-red-950/30">
+          <div className="bg-red-950/30 p-2.5 rounded-xl border border-red-500/40 space-y-2 shadow-sm">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-black text-red-400 uppercase tracking-wider block flex items-center gap-1.5">
+              <label className="text-[11px] font-black text-red-400 uppercase tracking-wider flex items-center gap-1">
                 🔥 Stadio 1: Imminente
               </label>
-              <span className="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded-md border border-red-500/30 font-mono">
-                Giorni 0 - 2
+              <span className="text-[9px] bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded border border-red-500/30 font-mono">
+                Gg 0 - 2
               </span>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-stone-400">Finestra Anticipo:</span>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min="1"
-                    max="14"
-                    value={lastMinuteStage1Days ?? 3}
-                    onChange={(e) => setLastMinuteStage1Days(parseInt(e.target.value))}
-                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-white font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
-                  />
-                  <span className="text-xs text-stone-400">gg</span>
-                </div>
+            <div className="flex items-center justify-between gap-1.5 text-[11px]">
+              <div className="flex items-center gap-1">
+                <span className="text-stone-400 text-[10.5px]">Durata:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="14"
+                  value={lastMinuteStage1Days ?? 3}
+                  onChange={(e) => setLastMinuteStage1Days(parseInt(e.target.value))}
+                  className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                />
+                <span className="text-stone-400 text-[10.5px]">gg</span>
               </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-stone-400">Sconto Applicato:</span>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min="0"
-                    max="80"
-                    step="0.5"
-                    value={lastMinuteDiscountStage1 ?? 10}
-                    onChange={(e) => setLastMinuteDiscountStage1(parseFloat(e.target.value))}
-                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-amber-400 font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
-                  />
-                  <span className="text-amber-400 font-black text-xs">%</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <span className="text-stone-400 text-[10.5px]">Sconto:</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="80"
+                  step="0.5"
+                  value={lastMinuteDiscountStage1 ?? 10}
+                  onChange={(e) => setLastMinuteDiscountStage1(parseFloat(e.target.value))}
+                  className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-amber-400 font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                />
+                <span className="text-amber-400 font-black text-[11px]">%</span>
               </div>
             </div>
-            <p className="text-[10px] text-stone-500 leading-snug">
-              Applicato per i primi {lastMinuteStage1Days} giorni di anticipo (Offset 0..2).
-            </p>
           </div>
 
           {/* Stage 2: 3 Next Days @ 5% */}
-          <div className="bg-orange-950/30 p-4 rounded-2xl border border-orange-500/40 space-y-3 shadow shadow-orange-950/30">
+          <div className="bg-orange-950/30 p-2.5 rounded-xl border border-orange-500/40 space-y-2 shadow-sm">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-black text-orange-400 uppercase tracking-wider block flex items-center gap-1.5">
+              <label className="text-[11px] font-black text-orange-400 uppercase tracking-wider flex items-center gap-1">
                 🏷️ Stadio 2: Intermedio
               </label>
-              <span className="text-[10px] bg-orange-500/20 text-orange-300 px-2 py-0.5 rounded-md border border-orange-500/30 font-mono">
-                Giorni 3 - 5
+              <span className="text-[9px] bg-orange-500/20 text-orange-300 px-1.5 py-0.5 rounded border border-orange-500/30 font-mono">
+                Gg 3 - 5
               </span>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-stone-400">Durata Blocco:</span>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min="1"
-                    max="14"
-                    value={lastMinuteStage2Days ?? 3}
-                    onChange={(e) => setLastMinuteStage2Days(parseInt(e.target.value))}
-                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-white font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
-                  />
-                  <span className="text-xs text-stone-400">gg</span>
-                </div>
+            <div className="flex items-center justify-between gap-1.5 text-[11px]">
+              <div className="flex items-center gap-1">
+                <span className="text-stone-400 text-[10.5px]">Durata:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="14"
+                  value={lastMinuteStage2Days ?? 3}
+                  onChange={(e) => setLastMinuteStage2Days(parseInt(e.target.value))}
+                  className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                />
+                <span className="text-stone-400 text-[10.5px]">gg</span>
               </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-stone-400">Sconto Applicato:</span>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min="0"
-                    max="80"
-                    step="0.5"
-                    value={lastMinuteDiscountStage2 ?? 5}
-                    onChange={(e) => setLastMinuteDiscountStage2(parseFloat(e.target.value))}
-                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-amber-400 font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
-                  />
-                  <span className="text-amber-400 font-black text-xs">%</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <span className="text-stone-400 text-[10.5px]">Sconto:</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="80"
+                  step="0.5"
+                  value={lastMinuteDiscountStage2 ?? 5}
+                  onChange={(e) => setLastMinuteDiscountStage2(parseFloat(e.target.value))}
+                  className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-amber-400 font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                />
+                <span className="text-amber-400 font-black text-[11px]">%</span>
               </div>
             </div>
-            <p className="text-[10px] text-stone-500 leading-snug">
-              Applicato per i {lastMinuteStage2Days} giorni successivi a Stadio 1.
-            </p>
           </div>
 
           {/* Stage 3: 4 Next Days @ 2.5% */}
-          <div className="bg-yellow-950/30 p-4 rounded-2xl border border-yellow-600/40 space-y-3 shadow shadow-yellow-950/30">
+          <div className="bg-yellow-950/30 p-2.5 rounded-xl border border-yellow-600/40 space-y-2 shadow-sm">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-black text-yellow-400 uppercase tracking-wider block flex items-center gap-1.5">
+              <label className="text-[11px] font-black text-yellow-400 uppercase tracking-wider flex items-center gap-1">
                 ⚡ Stadio 3: Esteso
               </label>
-              <span className="text-[10px] bg-yellow-500/20 text-yellow-300 px-2 py-0.5 rounded-md border border-yellow-600/30 font-mono">
-                Giorni 6 - 9
+              <span className="text-[9px] bg-yellow-500/20 text-yellow-300 px-1.5 py-0.5 rounded border border-yellow-600/30 font-mono">
+                Gg 6 - 9
               </span>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-stone-400">Durata Blocco:</span>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min="1"
-                    max="14"
-                    value={lastMinuteStage3Days ?? 4}
-                    onChange={(e) => setLastMinuteStage3Days(parseInt(e.target.value))}
-                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-white font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
-                  />
-                  <span className="text-xs text-stone-400">gg</span>
-                </div>
+            <div className="flex items-center justify-between gap-1.5 text-[11px]">
+              <div className="flex items-center gap-1">
+                <span className="text-stone-400 text-[10.5px]">Durata:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="14"
+                  value={lastMinuteStage3Days ?? 4}
+                  onChange={(e) => setLastMinuteStage3Days(parseInt(e.target.value))}
+                  className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                />
+                <span className="text-stone-400 text-[10.5px]">gg</span>
               </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-xs text-stone-400">Sconto Applicato:</span>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min="0"
-                    max="80"
-                    step="0.5"
-                    value={lastMinuteDiscountStage3 ?? 2.5}
-                    onChange={(e) => setLastMinuteDiscountStage3(parseFloat(e.target.value))}
-                    className="w-16 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 text-amber-400 font-mono font-black text-xs text-center focus:outline-none focus:border-amber-400"
-                  />
-                  <span className="text-amber-400 font-black text-xs">%</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <span className="text-stone-400 text-[10.5px]">Sconto:</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="80"
+                  step="0.5"
+                  value={lastMinuteDiscountStage3 ?? 2.5}
+                  onChange={(e) => setLastMinuteDiscountStage3(parseFloat(e.target.value))}
+                  className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-amber-400 font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                />
+                <span className="text-amber-400 font-black text-[11px]">%</span>
               </div>
             </div>
-            <p className="text-[10px] text-stone-500 leading-snug">
-              Placeholder modificabile per i {lastMinuteStage3Days} giorni successivi.
-            </p>
           </div>
         </div>
 
         {/* Simulation Active Visual Banner */}
         {isSimulationActive && (
-          <div className="p-3 bg-amber-950/60 border border-amber-500/50 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-amber-300 text-xs shadow-lg animate-pulse">
+          <div className="p-2.5 bg-amber-950/60 border border-amber-500/50 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-2 text-amber-300 text-[11px] shadow-lg animate-pulse">
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-amber-400 flex-shrink-0" />
               <span>
-                <strong>👁️ ANTEPRIMA SIMULAZIONE ATTIVA:</strong> Stai visualizzando i prezzi scontati calcolati in memoria (-10%, -5%, -2.5%). Nessun dato è stato inviato ad Octorate.
+                <strong>👁️ ANTEPRIMA SIMULAZIONE ATTIVA:</strong> Prezzi scontati in memoria (-10%, -5%, -2.5%). Nessun dato inviato ad Octorate.
               </span>
             </div>
             <button
               type="button"
               onClick={() => useResortAdminStore.getState().resetLastMinuteStrategy()}
-              className="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 text-[10px] font-extrabold uppercase rounded-xl transition-all cursor-pointer whitespace-nowrap"
+              className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 text-[10px] font-extrabold uppercase rounded-lg transition-all cursor-pointer whitespace-nowrap"
             >
               Chiudi Anteprima
             </button>
           </div>
         )}
 
-        {/* Safety Floor Notice */}
-        <p className="text-[11px] text-stone-400 font-mono italic">
-          * Lo sconto percentuale si calcola sul prezzo netto, controllando sempre che non violi il minimumSellingPrice di sicurezza per camera.
-        </p>
-
         {/* Action Controls + 3-Level Execution Mode Selector + Reset Button */}
-        <div className="pt-3 border-t border-stone-850 flex flex-col space-y-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="pt-2.5 border-t border-stone-850 flex flex-col space-y-2.5">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
             {/* 3-Level Execution Mode Selector */}
-            <div className="flex items-center gap-1.5 bg-stone-950 p-1.5 rounded-2xl border border-stone-800">
-              <span className="text-[11px] font-bold text-stone-400 px-2 flex items-center gap-1">
+            <div className="flex items-center gap-1 bg-stone-950 p-1 rounded-xl border border-stone-800">
+              <span className="text-[10.5px] font-bold text-stone-400 px-1.5 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
                 Modalità:
               </span>
@@ -618,7 +584,7 @@ export function ResortDashboard() {
               <button
                 type="button"
                 onClick={() => setExecutionMode('simulation')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all cursor-pointer ${
                   executionMode === 'simulation'
                     ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
                     : 'text-stone-400 hover:text-stone-200'
@@ -631,7 +597,7 @@ export function ResortDashboard() {
               <button
                 type="button"
                 onClick={() => setExecutionMode('test_bungalows')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all cursor-pointer ${
                   executionMode === 'test_bungalows'
                     ? 'bg-amber-500 text-stone-950 font-extrabold shadow-md'
                     : 'text-stone-400 hover:text-stone-200'
@@ -644,7 +610,7 @@ export function ResortDashboard() {
               <button
                 type="button"
                 onClick={() => setExecutionMode('production')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-black transition-all cursor-pointer ${
                   executionMode === 'production'
                     ? 'bg-emerald-600 text-white font-extrabold shadow-md'
                     : 'text-stone-400 hover:text-stone-200'
@@ -656,21 +622,21 @@ export function ResortDashboard() {
             </div>
 
             {/* Action Buttons: Execute & Reset */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => executeLastMinuteStrategy()}
                 disabled={lastMinuteRunning}
-                className="py-2.5 px-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center gap-2 shadow-lg transition-all cursor-pointer disabled:opacity-50"
+                className="py-2 px-3.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 shadow-md transition-all cursor-pointer disabled:opacity-50"
               >
                 {lastMinuteRunning ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
                     <span>Elaborazione...</span>
                   </>
                 ) : (
                   <>
-                    <Zap className="w-4 h-4 text-amber-300" />
+                    <Zap className="w-3.5 h-3.5 text-amber-300" />
                     <span>Esegui Sconti a Cascata</span>
                   </>
                 )}
@@ -680,14 +646,15 @@ export function ResortDashboard() {
                 type="button"
                 onClick={() => resetLastMinuteStrategy()}
                 disabled={lastMinuteRunning}
-                className="py-2.5 px-4 bg-stone-950 hover:bg-stone-850 text-stone-300 hover:text-white border border-stone-800 hover:border-stone-700 font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center gap-2 shadow transition-all cursor-pointer disabled:opacity-50"
+                className="py-2 px-3.5 bg-stone-950 hover:bg-stone-850 text-stone-300 hover:text-white border border-stone-800 hover:border-stone-700 font-extrabold text-xs uppercase tracking-wider rounded-xl flex items-center gap-1.5 shadow transition-all cursor-pointer disabled:opacity-50"
                 title="Ripristina i prezzi al 100% della tariffa base originale senza sconti"
               >
-                <RefreshCw className={`w-4 h-4 text-amber-400 ${lastMinuteRunning ? 'animate-spin' : ''}`} />
-                <span>🔄 Ripristina Prezzi Originali</span>
+                <RefreshCw className={`w-3.5 h-3.5 text-amber-400 ${lastMinuteRunning ? 'animate-spin' : ''}`} />
+                <span>Ripristina Prezzi Originali</span>
               </button>
             </div>
           </div>
+        </div>
 
           {lastMinuteResult && (
             <div className={`p-3 rounded-2xl border text-xs leading-relaxed w-full ${
@@ -705,7 +672,6 @@ export function ResortDashboard() {
             </div>
           )}
         </div>
-      </div>
 
       {/* DYNAMIC MINIMUM STAY (GAP-FILLING & DENSITY PRICING) PANEL */}
       <div className="bg-violet-950/20 border-2 border-violet-500/40 rounded-3xl p-5 sm:p-6 shadow-xl shadow-violet-950/30 space-y-4 ring-1 ring-violet-500/10">
