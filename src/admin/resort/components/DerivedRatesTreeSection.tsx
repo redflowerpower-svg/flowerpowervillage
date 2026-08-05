@@ -5,6 +5,7 @@ import {
   ShieldCheck, 
   Zap, 
   ChevronDown, 
+  ChevronUp,
   ChevronRight,
   Wind,
   Sun,
@@ -1992,11 +1993,7 @@ export function DerivedRatesTreeSection() {
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [selectedDateISO, setSelectedDateISO] = useState<string>(() => new Date().toISOString().substring(0, 10));
   const [loadingSync, setLoadingSync] = useState(false);
-  const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({
-    'Jungle Villa (Madre Intera)': true,
-    'Jungle Villa Left': true,
-    'Yellow Bungalow': true
-  });
+  const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({});
 
   const toggleRoom = (name: string) => {
     setExpandedRooms(prev => ({ ...prev, [name]: !prev[name] }));
@@ -2158,16 +2155,18 @@ export function DerivedRatesTreeSection() {
           <button
             type="button"
             onClick={expandAll}
-            className="px-3 py-1.5 bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700 text-xs font-bold rounded-xl transition-all cursor-pointer"
+            className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
           >
-            Espandi Tutti
+            <ChevronDown className="w-4 h-4 text-emerald-400" />
+            <span>Espandi Tutti</span>
           </button>
           <button
             type="button"
             onClick={collapseAll}
-            className="px-3 py-1.5 bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700 text-xs font-bold rounded-xl transition-all cursor-pointer"
+            className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
           >
-            Comprimi Tutti
+            <ChevronUp className="w-4 h-4 text-amber-400" />
+            <span>Comprimi Tutti</span>
           </button>
         </div>
       </div>

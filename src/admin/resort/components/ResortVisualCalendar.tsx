@@ -825,16 +825,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
     setSelectedBooking(booking);
   }, []);
 
-  // Cache in Memoria (NON riscaricare se i dati sono già nello store Zustand)
-  useEffect(() => {
-    const { seasonDownloadStatus, rawOctorateBookings, downloadSeasonSequential } = useResortAdminStore.getState();
-    if (seasonDownloadStatus === 'completed' && rawOctorateBookings && rawOctorateBookings.length > 0) {
-      return;
-    }
-    if (seasonDownloadStatus === 'idle') {
-      downloadSeasonSequential();
-    }
-  }, []);
+  // V17: Calendario puramente passivo e reattivo allo store — nessun auto-download al mount
 
   // STEP 3: TIMING BLINDATO (FASE 1, 2, 3) - ATTIVA L'OVERLAY PRIMA DEL MOUNT E RITARDA 500MS
   useEffect(() => {

@@ -94,7 +94,11 @@ export function ResortDashboard() {
     dynamicMinStayExecutionMode,
     setDynamicMinStayGapFill,
     setDynamicMinStayExecutionMode,
-    executeDynamicMinStayStrategy
+    executeDynamicMinStayStrategy,
+    downloadSeasonSequential,
+    seasonDownloadStatus,
+    seasonDownloadProgress,
+    seasonDownloadMessage
   } = useResortAdminStore();
 
   const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'messages' | 'octorate'>('bookings');
@@ -104,6 +108,45 @@ export function ResortDashboard() {
   // Production confirmation modals
   const [showCascadeProdModal, setShowCascadeProdModal] = useState(false);
   const [showMinStayProdModal, setShowMinStayProdModal] = useState(false);
+
+  // Accordion state per i 6 Canali OTA (V16/V17: Default completamente chiuso)
+  const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({
+    'booking.com': false,
+    'airbnb': false,
+    'agoda': false,
+    'expedia': false,
+    'website': false,
+    'private': false,
+  });
+
+  const handleExpandAllAccordions = () => {
+    setOpenAccordions({
+      'booking.com': true,
+      'airbnb': true,
+      'agoda': true,
+      'expedia': true,
+      'website': true,
+      'private': true,
+    });
+  };
+
+  const handleCollapseAllAccordions = () => {
+    setOpenAccordions({
+      'booking.com': false,
+      'airbnb': false,
+      'agoda': false,
+      'expedia': false,
+      'website': false,
+      'private': false,
+    });
+  };
+
+  const toggleAccordionKey = (key: string) => {
+    setOpenAccordions(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
 
   // Octorate Dev Diagnostics State
   const [showDevDiagnostics, setShowDevDiagnostics] = useState(false);
@@ -119,7 +162,9 @@ export function ResortDashboard() {
     getStoredTokens().then((tokens) => {
       setOauthConnected(tokens !== null);
     });
-  }, [fetchBookings, checkOctorateConnection]);
+    // V17: Avvio automatico download sequenziale della stagione al mount della dashboard
+    downloadSeasonSequential();
+  }, [fetchBookings, checkOctorateConnection, downloadSeasonSequential]);
 
   const handleFetchDevRooms = async () => {
     setLoadingRooms(true);
@@ -214,7 +259,7 @@ export function ResortDashboard() {
 
   const blacklistedCount = getBlacklistedBookingIds().length;
 
-  // ─── computeFinancials: Algoritmo KPI Unificato con Commissioni OTA v14 ──────
+  // ─── computeFinancials: Algoritmo KPI Unificato con Commissioni OTA & Notti v15 ──────
   const getChannelKey = (channelName?: string): 'booking.com' | 'airbnb' | 'agoda' | 'expedia' | 'website' | 'private' => {
     if (!channelName) return 'private';
     const c = channelName.toLowerCase().trim();
@@ -240,6 +285,17 @@ export function ResortDashboard() {
     return true;
   };
 
+  const calculateBookingNights = (checkIn?: string, checkOut?: string): number => {
+    if (!checkIn || !checkOut) return 1;
+    const cIn = new Date(String(checkIn).substring(0, 10));
+    const cOut = new Date(String(checkOut).substring(0, 10));
+    const diffMs = cOut.getTime() - cIn.getTime();
+    if (diffMs > 0) {
+      return Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+    }
+    return 1;
+  };
+
   const computeFinancials = () => {
     const validBookings = (bookings || []).filter(isValidActiveBooking);
     const bList = validBookings.filter(b => isBookingInDateRange(b, finDateFrom, finDateTo));
@@ -247,14 +303,15 @@ export function ResortDashboard() {
     let grossRevenue = 0;
     let totalCommissions = 0;
     let totalGuests = 0;
+    let totalNights = 0;
 
-    const otaStats: Record<string, { label: string; rate: number; count: number; gross: number; commission: number }> = {
-      'booking.com': { label: 'Booking.com', rate: 0.172, count: 0, gross: 0, commission: 0 },
-      'airbnb': { label: 'Airbnb', rate: 0.15, count: 0, gross: 0, commission: 0 },
-      'agoda': { label: 'Agoda', rate: 0.18, count: 0, gross: 0, commission: 0 },
-      'expedia': { label: 'Expedia', rate: 0.15, count: 0, gross: 0, commission: 0 },
-      'website': { label: 'Website (Sito)', rate: 0.035, count: 0, gross: 0, commission: 0 },
-      'private': { label: 'Private (Diretto)', rate: 0.0, count: 0, gross: 0, commission: 0 },
+    const otaStats: Record<string, { label: string; rate: number; count: number; gross: number; commission: number; nights: number }> = {
+      'booking.com': { label: 'Booking.com', rate: 0.172, count: 0, gross: 0, commission: 0, nights: 0 },
+      'airbnb': { label: 'Airbnb', rate: 0.15, count: 0, gross: 0, commission: 0, nights: 0 },
+      'agoda': { label: 'Agoda', rate: 0.18, count: 0, gross: 0, commission: 0, nights: 0 },
+      'expedia': { label: 'Expedia', rate: 0.15, count: 0, gross: 0, commission: 0, nights: 0 },
+      'website': { label: 'Website (Sito)', rate: 0.035, count: 0, gross: 0, commission: 0, nights: 0 },
+      'private': { label: 'Private (Diretto)', rate: 0.0, count: 0, gross: 0, commission: 0, nights: 0 },
     };
 
     for (const b of bList) {
@@ -263,15 +320,21 @@ export function ResortDashboard() {
       const key = getChannelKey(b.source_channel);
       const rate = otaStats[key]?.rate || 0;
       const commission = price * rate;
+      const nights = calculateBookingNights(
+        b.check_in || (b as any).checkIn || (b as any).checkin,
+        b.check_out || (b as any).checkOut || (b as any).checkout
+      );
 
       grossRevenue += price;
       totalCommissions += commission;
       totalGuests += Number(b.guests) || 1;
+      totalNights += nights;
 
       if (otaStats[key]) {
         otaStats[key].count += 1;
         otaStats[key].gross += price;
         otaStats[key].commission += commission;
+        otaStats[key].nights += nights;
       }
     }
 
@@ -281,6 +344,7 @@ export function ResortDashboard() {
       netRevenue: grossRevenue - totalCommissions,
       totalGuests,
       totalBookings: bList.length,
+      totalNights,
       otaStats,
     };
   };
@@ -313,6 +377,40 @@ export function ResortDashboard() {
   return (
     <div className="space-y-6 text-stone-100 p-4 sm:p-6" style={{ fontFamily: 'Inter, sans-serif' }}>
       
+      {/* V17: Blocking Season Download Modal Overlay */}
+      {seasonDownloadStatus !== 'completed' && (
+        <div className="fixed inset-0 z-50 bg-stone-950/90 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400/50 border-double flex items-center justify-center text-emerald-300 mx-auto shadow-lg">
+              <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-base font-black text-white uppercase tracking-wider">
+                SINCRONIZZAZIONE STAGIONALE OCTORATE
+              </h3>
+              <p className="text-xs text-stone-400 font-medium leading-relaxed">
+                {seasonDownloadMessage || 'Download sequenziale delle prenotazioni in corso...'}
+              </p>
+            </div>
+
+            {/* Progress Bar & Percentage */}
+            <div className="space-y-2">
+              <div className="w-full bg-stone-950 rounded-full h-3.5 border border-stone-800 overflow-hidden p-0.5 shadow-inner">
+                <div
+                  className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-300 shadow"
+                  style={{ width: `${Math.min(100, Math.max(5, seasonDownloadProgress))}%` }}
+                />
+              </div>
+              <div className="flex items-center justify-between text-[11px] font-mono font-bold text-stone-400 px-1">
+                <span>Progresso</span>
+                <span className="text-emerald-400 font-black">{seasonDownloadProgress}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top Banner Stats & Octorate Indicator */}
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-stone-900/90 border border-stone-800 rounded-3xl p-5 sm:p-6 shadow-xl">
         <div className="space-y-1">
@@ -501,153 +599,189 @@ export function ResortDashboard() {
       {activeTab !== 'messages' && (
       <>
 
-      {/* KPI Cards Unificate v9 — visibili SOLO su PRENOTAZIONI */}
+      {/* KPI Cards Unificate v15 — visibili SOLO su PRENOTAZIONI */}
       {activeTab === 'bookings' && (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
 
         {/* CARD 1: STATISTICHE GENERALI RESORT */}
-        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
-          <div className="flex items-center justify-between border-b border-stone-800/80 pb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border-2 border-emerald-400/50 border-double flex items-center justify-center text-emerald-300 flex-shrink-0 shadow">
-                <BarChart3 className="w-5 h-5" />
+        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl flex flex-col justify-between min-h-[360px]">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-800/80 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border-2 border-emerald-400/50 border-double flex items-center justify-center text-emerald-300 flex-shrink-0 shadow">
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm sm:text-base font-black text-white tracking-tight uppercase">
+                  STATISTICHE GENERALI RESORT
+                </h3>
               </div>
-              <h3 className="text-sm sm:text-base font-black text-white tracking-tight uppercase">
-                STATISTICHE GENERALI RESORT
-              </h3>
+              <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-black uppercase tracking-wider">
+                {fin.totalNights} NOTTI TOT.
+              </span>
             </div>
-            <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-black uppercase tracking-wider">
-              LIVE
-            </span>
+
+            {/* 3 Riquadri Fisici Equidistanti con Icone W-6 H-6 e Testi Ingranditi */}
+            <div className="grid grid-cols-3 gap-3 sm:gap-4">
+              <div className="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Prenotazioni</span>
+                  <Calendar className="w-6 h-6 text-emerald-400 flex-shrink-0" />
+                </div>
+                <div>
+                  <div className="text-2xl sm:text-3xl font-black text-white leading-none">{totalBookingsCount}</div>
+                  <p className="text-[10px] text-stone-500 font-medium mt-1">Registrate nel sistema</p>
+                </div>
+              </div>
+
+              <div className="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Ospiti</span>
+                  <Users className="w-6 h-6 text-teal-400 flex-shrink-0" />
+                </div>
+                <div>
+                  <div className="text-2xl sm:text-3xl font-black text-white leading-none">{totalGuests}</div>
+                  <p className="text-[10px] text-stone-500 font-medium mt-1">Capacità occupata</p>
+                </div>
+              </div>
+
+              <div className="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Alloggi</span>
+                  <Hotel className="w-6 h-6 text-amber-400 flex-shrink-0" />
+                </div>
+                <div>
+                  <div className="text-2xl sm:text-3xl font-black text-white leading-none">
+                    {availableRoomsCount}<span className="text-base text-stone-500 font-bold">/{(accommodations || []).length}</span>
+                  </div>
+                  <p className="text-[10px] text-stone-500 font-medium mt-1">Pronti al check-in</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* 3 Riquadri Fisici Equidistanti con Icone W-6 H-6 e Testi Ingranditi */}
-          <div className="grid grid-cols-3 gap-3 sm:gap-4">
-            <div className="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Prenotazioni</span>
-                <Calendar className="w-6 h-6 text-emerald-400 flex-shrink-0" />
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-black text-white leading-none">{totalBookingsCount}</div>
-                <p className="text-[10px] text-stone-500 font-medium mt-1">Registrate nel sistema</p>
-              </div>
+          {/* 3x2 Symmetrical Grid for Sold Nights Distribution across 6 Channels */}
+          <div className="pt-3 border-t border-stone-800/80 space-y-2">
+            <div className="text-[10px] font-black text-stone-400 uppercase tracking-wider">
+              🌙 DISTRIBUZIONE NOTTI VENDUTE PER CANALE
             </div>
-
-            <div className="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Ospiti</span>
-                <Users className="w-6 h-6 text-teal-400 flex-shrink-0" />
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-black text-white leading-none">{totalGuests}</div>
-                <p className="text-[10px] text-stone-500 font-medium mt-1">Capacità occupata</p>
-              </div>
-            </div>
-
-            <div className="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3.5 space-y-2 flex flex-col justify-between">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Alloggi</span>
-                <Hotel className="w-6 h-6 text-amber-400 flex-shrink-0" />
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-black text-white leading-none">
-                  {availableRoomsCount}<span className="text-base text-stone-500 font-bold">/{(accommodations || []).length}</span>
-                </div>
-                <p className="text-[10px] text-stone-500 font-medium mt-1">Pronti al check-in</p>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {[
+                { key: 'booking.com', label: 'Booking.com' },
+                { key: 'airbnb', label: 'Airbnb' },
+                { key: 'agoda', label: 'Agoda' },
+                { key: 'expedia', label: 'Expedia' },
+                { key: 'website', label: 'Website (Sito)' },
+                { key: 'private', label: 'Private (Diretto)' }
+              ].map(({ key, label }) => {
+                const item = fin.otaStats[key];
+                return (
+                  <div key={key} className="flex items-center justify-between bg-stone-950/50 border border-stone-800/80 p-2.5 rounded-xl shadow-sm">
+                    <span className="text-[11px] font-extrabold text-stone-300">{label}</span>
+                    <span className="text-[11px] font-mono font-black text-emerald-400">
+                      {item.nights} {item.nights === 1 ? 'notte' : 'notti'}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* CARD 2: RENDICONTO FINANZIARIO & INTERMEDIAZIONI */}
-        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-800/80 pb-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border-2 border-amber-400/50 border-double flex items-center justify-center text-amber-300 flex-shrink-0 shadow">
-                <Coins className="w-5 h-5" />
+        <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xl flex flex-col justify-between min-h-[360px]">
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-stone-800/80 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 border-2 border-amber-400/50 border-double flex items-center justify-center text-amber-300 flex-shrink-0 shadow">
+                  <Coins className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm sm:text-base font-black text-white tracking-tight uppercase">
+                  RENDICONTO FINANZIARIO & INTERMEDIAZIONI
+                </h3>
               </div>
-              <h3 className="text-sm sm:text-base font-black text-white tracking-tight uppercase">
-                RENDICONTO FINANZIARIO & INTERMEDIAZIONI
-              </h3>
+              
+              {/* Date Range Picker Filters (V14 Default: Oggi -> 31 Ottobre prossimo anno) */}
+              <div className="flex items-center gap-1.5 bg-stone-950 p-1.5 rounded-xl border border-stone-800 shadow-inner">
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] font-black text-stone-400 uppercase pl-1">Dal:</span>
+                  <input
+                    type="date"
+                    value={finDateFrom}
+                    onChange={(e) => setFinDateFrom(e.target.value)}
+                    className="bg-stone-900 border border-stone-750 rounded-lg px-2 py-0.5 text-[11px] text-white font-mono font-bold focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] font-black text-stone-400 uppercase">Al:</span>
+                  <input
+                    type="date"
+                    value={finDateTo}
+                    onChange={(e) => setFinDateTo(e.target.value)}
+                    className="bg-stone-900 border border-stone-750 rounded-lg px-2 py-0.5 text-[11px] text-white font-mono font-bold focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
             </div>
-            
-            {/* Date Range Picker Filters (V14 Default: Oggi -> 31 Ottobre prossimo anno) */}
-            <div className="flex items-center gap-1.5 bg-stone-950 p-1.5 rounded-xl border border-stone-800 shadow-inner">
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] font-black text-stone-400 uppercase pl-1">Dal:</span>
-                <input
-                  type="date"
-                  value={finDateFrom}
-                  onChange={(e) => setFinDateFrom(e.target.value)}
-                  className="bg-stone-900 border border-stone-750 rounded-lg px-2 py-0.5 text-[11px] text-white font-mono font-bold focus:outline-none focus:border-amber-400"
-                />
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] font-black text-stone-400 uppercase">Al:</span>
-                <input
-                  type="date"
-                  value={finDateTo}
-                  onChange={(e) => setFinDateTo(e.target.value)}
-                  className="bg-stone-900 border border-stone-750 rounded-lg px-2 py-0.5 text-[11px] text-white font-mono font-bold focus:outline-none focus:border-amber-400"
-                />
-              </div>
-            </div>
-          </div>
 
-          {/* Top 3 Stats Row */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="space-y-1">
-              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Incasso Lordo</div>
-              <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono leading-tight">
-                ฿{fin.grossRevenue.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+            {/* Top 3 Stats Row */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Incasso Lordo</div>
+                <div className="text-xl sm:text-2xl font-black text-emerald-400 font-mono leading-tight">
+                  ฿{fin.grossRevenue.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                </div>
+                <p className="text-[10px] text-stone-500 font-medium">Caparre + Saldi</p>
               </div>
-              <p className="text-[10px] text-stone-500 font-medium">Caparre + Saldi</p>
-            </div>
-            <div className="space-y-1">
-              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Commissioni OTA</div>
-              <div className="text-xl sm:text-2xl font-black text-red-400 font-mono leading-tight">
-                -฿{fin.totalCommissions.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+              <div className="space-y-1">
+                <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Commissioni OTA</div>
+                <div className="text-xl sm:text-2xl font-black text-red-400 font-mono leading-tight">
+                  -฿{fin.totalCommissions.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                </div>
+                <p className="text-[10px] text-stone-500 font-medium">Stima intermediazioni</p>
               </div>
-              <p className="text-[10px] text-stone-500 font-medium">Stima intermediazioni</p>
-            </div>
-            <div className="space-y-1">
-              <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Netto Resort</div>
-              <div className="text-xl sm:text-2xl font-black text-white font-mono leading-tight">
-                ฿{fin.netRevenue.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+              <div className="space-y-1">
+                <div className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Netto Resort</div>
+                <div className="text-xl sm:text-2xl font-black text-white font-mono leading-tight">
+                  ฿{fin.netRevenue.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                </div>
+                <p className="text-[10px] text-stone-500 font-medium">Dopo intermediazioni</p>
               </div>
-              <p className="text-[10px] text-stone-500 font-medium">Dopo intermediazioni</p>
             </div>
           </div>
 
           {/* 3x2 Symmetrical Grid Layout for 6 Channels (Booking, Airbnb, Agoda, Expedia, Website, Private) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-3 border-t border-stone-800/80">
-            {[
-              { key: 'booking.com', label: 'Booking.com', rateText: '17.2%' },
-              { key: 'airbnb', label: 'Airbnb', rateText: '15.0%' },
-              { key: 'agoda', label: 'Agoda', rateText: '18.0%' },
-              { key: 'expedia', label: 'Expedia', rateText: '15.0%' },
-              { key: 'website', label: 'Website (Sito)', rateText: '3.5%' },
-              { key: 'private', label: 'Private (Diretto)', rateText: '0.0%' }
-            ].map(({ key, label, rateText }) => {
-              const item = fin.otaStats[key];
-              return (
-                <div key={key} className="flex items-center justify-between bg-stone-900/30 border border-stone-800/80 p-2.5 rounded-xl shadow-sm hover:border-stone-700/80 transition-all">
-                  <div>
-                    <span className="text-[11px] font-extrabold text-stone-200 block">{label}</span>
-                    <span className="text-[9px] font-mono text-stone-500 font-semibold">{rateText} comm.</span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-[11px] font-mono font-bold text-stone-300">
-                      ฿{item.gross.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+          <div className="pt-3 border-t border-stone-800/80 space-y-2">
+            <div className="text-[10px] font-black text-stone-400 uppercase tracking-wider">
+              💰 INCASSI & COMMISSIONI PER CANALE
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {[
+                { key: 'booking.com', label: 'Booking.com', rateText: '17.2%' },
+                { key: 'airbnb', label: 'Airbnb', rateText: '15.0%' },
+                { key: 'agoda', label: 'Agoda', rateText: '18.0%' },
+                { key: 'expedia', label: 'Expedia', rateText: '15.0%' },
+                { key: 'website', label: 'Website (Sito)', rateText: '3.5%' },
+                { key: 'private', label: 'Private (Diretto)', rateText: '0.0%' }
+              ].map(({ key, label, rateText }) => {
+                const item = fin.otaStats[key];
+                return (
+                  <div key={key} className="flex items-center justify-between bg-stone-900/30 border border-stone-800/80 p-2.5 rounded-xl shadow-sm hover:border-stone-700/80 transition-all">
+                    <div>
+                      <span className="text-[11px] font-extrabold text-stone-200 block">{label}</span>
+                      <span className="text-[9px] font-mono text-stone-500 font-semibold">{rateText} comm.</span>
                     </div>
-                    <div className={`text-[10px] font-mono font-black ${item.commission > 0 ? 'text-red-400' : 'text-stone-500'}`}>
-                      {item.commission > 0 ? `-฿${item.commission.toLocaleString('it-IT', { maximumFractionDigits: 0 })}` : '฿0'}
+                    <div className="text-right">
+                      <div className="text-[11px] font-mono font-bold text-stone-300">
+                        ฿{item.gross.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                      </div>
+                      <div className={`text-[10px] font-mono font-black ${item.commission > 0 ? 'text-red-400' : 'text-stone-500'}`}>
+                        {item.commission > 0 ? `-฿${item.commission.toLocaleString('it-IT', { maximumFractionDigits: 0 })}` : '฿0'}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -1183,9 +1317,41 @@ export function ResortDashboard() {
         </div>
       )}
 
-      {/* Tab 1: Bookings List */}
+      {/* Tab 1: Bookings List — Accordion Raggruppati per Canale OTA (v16) */}
       {activeTab === 'bookings' && (
         <div className="space-y-4">
+          {/* Header Controls for Accordions */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-stone-900/80 border border-stone-800 rounded-2xl p-4 shadow-lg">
+            <div>
+              <h3 className="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                <Hotel className="w-4 h-4 text-emerald-400" />
+                PRENOTAZIONI PER CANALE ({filteredBookings.length} ATTIVE)
+              </h3>
+              <p className="text-[10px] text-stone-400">
+                Raggruppamento dinamico delle prenotazioni per OTA e Sito Diretto.
+              </p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExpandAllAccordions}
+                className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+              >
+                <ChevronDown className="w-4 h-4 text-emerald-400" />
+                <span>Espandi Tutte le OTA</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCollapseAllAccordions}
+                className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+              >
+                <ChevronUp className="w-4 h-4 text-amber-400" />
+                <span>Comprimi Tutte</span>
+              </button>
+            </div>
+          </div>
+
           {filteredBookings.length === 0 ? (
             <div className="bg-stone-900/40 border border-stone-800 rounded-3xl p-12 text-center space-y-3">
               <Calendar className="w-12 h-12 text-stone-600 mx-auto" />
@@ -1195,93 +1361,155 @@ export function ResortDashboard() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto bg-stone-900/80 border border-stone-800 rounded-3xl shadow-xl">
-              <table className="w-full text-left text-xs text-stone-200">
-                <thead className="bg-stone-950/80 border-b border-stone-800 text-stone-400 text-[10px] uppercase font-extrabold tracking-wider">
-                  <tr>
-                    <th className="p-4">ID / Data</th>
-                    <th className="p-4">Ospite</th>
-                    <th className="p-4">Alloggio</th>
-                    <th className="p-4">Check-In ➔ Check-Out</th>
-                    <th className="p-4">Servizi Extra</th>
-                    <th className="p-4">Totale (Acconto 30%)</th>
-                    <th className="p-4">Stato PMS</th>
-                    <th className="p-4 text-center">Azione</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-stone-850 font-medium">
-                  {filteredBookings.map((b) => (
-                    <tr key={b.id} className="hover:bg-stone-850/50 transition-colors">
-                      <td className="p-4 space-y-1">
-                        <div className="font-mono text-emerald-400 font-bold">{b.id}</div>
-                        <div className="text-[10px] text-stone-500">
-                          {b?.created_at ? new Date(b.created_at).toLocaleDateString('it-IT') : '-'}
+            <div className="space-y-3">
+              {[
+                { key: 'booking.com', label: 'Booking.com', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/40' },
+                { key: 'airbnb', label: 'Airbnb', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40' },
+                { key: 'agoda', label: 'Agoda', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/40' },
+                { key: 'expedia', label: 'Expedia', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40' },
+                { key: 'website', label: 'Website (Sito Web)', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' },
+                { key: 'private', label: 'Private (Diretto / Altro)', badgeColor: 'bg-stone-800 text-stone-300 border-stone-700' },
+              ].map(({ key, label, badgeColor }) => {
+                const channelBookings = filteredBookings.filter(b => getChannelKey(b.source_channel) === key);
+                const channelGross = channelBookings.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
+                const isOpen = !!openAccordions[key];
+
+                return (
+                  <div key={key} className="bg-stone-900/90 border border-stone-800 rounded-2xl overflow-hidden shadow-xl transition-all">
+                    {/* Accordion Channel Header */}
+                    <button
+                      type="button"
+                      onClick={() => toggleAccordionKey(key)}
+                      className="w-full px-5 py-4 flex items-center justify-between bg-stone-950/70 hover:bg-stone-850 transition-colors text-left cursor-pointer border-b border-stone-800/80"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center font-black text-xs text-emerald-400 shadow-inner">
+                          {channelBookings.length}
                         </div>
-                      </td>
-                      <td className="p-4 space-y-1">
-                        <div className="font-bold text-white text-sm">{b.guest_name ?? 'Ospite'}</div>
-                        <div className="text-stone-400 text-[11px]">{b.guest_email ?? '-'}</div>
-                        <div className="text-stone-500 font-mono text-[10px]">{b.guest_phone ?? '-'}</div>
-                      </td>
-                      <td className="p-4">
-                        <span className="bg-stone-800 text-stone-200 px-3 py-1 rounded-xl text-xs font-bold inline-block border border-stone-700">
-                          {b.accommodation_name ?? '-'}
-                        </span>
-                      </td>
-                      <td className="p-4 space-y-1">
-                        <div className="font-bold text-stone-200">{b.check_in ?? '-'} ➔ {b.check_out ?? '-'}</div>
-                        <div className="text-[10px] text-stone-400">{b.guests ?? 1} Ospiti</div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex gap-1.5">
-                          {b.extra_breakfast && (
-                            <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-lg text-[10px] font-bold">
-                              <Coffee className="w-3 h-3" /> Colazione
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-black text-white tracking-wide uppercase">
+                              {label}
+                            </h4>
+                            <span className={`text-[9px] border px-2 py-0.5 rounded-full font-black uppercase tracking-wider ${badgeColor}`}>
+                              {key}
                             </span>
-                          )}
-                          {b.extra_ac && (
-                            <span className="inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-lg text-[10px] font-bold">
-                              <Wind className="w-3 h-3" /> Aria Cond.
-                            </span>
-                          )}
-                          {!b.extra_breakfast && !b.extra_ac && (
-                            <span className="text-stone-500 text-[10px]">Standard</span>
-                          )}
+                          </div>
+                          <span className="text-[10px] text-stone-400 font-medium">
+                            {channelBookings.length === 1 ? '1 prenotazione attiva' : `${channelBookings.length} prenotazioni attive`}
+                          </span>
                         </div>
-                      </td>
-                      <td className="p-4 space-y-1">
-                        <div className="font-black text-amber-400 font-mono text-sm">
-                          ฿{(b?.total_price ?? 0).toLocaleString('it-IT')}
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <span className="text-[9px] text-stone-400 uppercase font-bold block">Incasso Canale</span>
+                          <span className="text-xs font-mono font-black text-amber-400">
+                            ฿{channelGross.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                          </span>
                         </div>
-                        <div className="text-[10px] text-emerald-400 font-semibold">
-                          Acconto 30%: ฿{(b?.deposit_paid ?? 0).toLocaleString('it-IT')}
+                        <div className="p-1 rounded-lg bg-stone-900 border border-stone-800 text-stone-300">
+                          {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </div>
-                      </td>
-                      <td className="p-4 space-y-1">
-                        <span className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">
-                          <CheckCircle className="w-3 h-3" /> Confermata
-                        </span>
-                        {b.octorate_reservation_id && (
-                          <div className="text-[10px] text-stone-500 font-mono">
-                            ID: {b.octorate_reservation_id}
+                      </div>
+                    </button>
+
+                    {/* Accordion Content */}
+                    {isOpen && (
+                      <div className="p-4 bg-stone-950/40">
+                        {channelBookings.length === 0 ? (
+                          <div className="p-4 text-center text-xs text-stone-400 font-medium italic">
+                            Nessuna prenotazione attiva per {label} nel filtro corrente.
+                          </div>
+                        ) : (
+                          <div className="space-y-3">
+                            {channelBookings.map((b) => (
+                              <div
+                                key={b.id}
+                                className="bg-stone-900/90 border border-stone-800 hover:border-stone-700/90 rounded-2xl p-4 sm:p-5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 transition-all shadow-md"
+                              >
+                                {/* Col 1: ID, Created Date */}
+                                <div className="space-y-1 sm:w-44 flex-shrink-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono text-emerald-400 font-black text-sm">{b.id}</span>
+                                  </div>
+                                  <div className="text-[11px] text-stone-400 font-medium">
+                                    {b?.created_at ? new Date(b.created_at).toLocaleDateString('it-IT') : '-'}
+                                  </div>
+                                  {b.octorate_reservation_id && (
+                                    <div className="text-[10px] text-stone-400 font-mono">
+                                      PMS ID: {b.octorate_reservation_id}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Col 2: Guest Information */}
+                                <div className="space-y-0.5 sm:w-56 flex-shrink-0">
+                                  <div className="font-black text-white text-sm tracking-tight">{b.guest_name ?? 'Ospite Anonimo'}</div>
+                                  <div className="text-stone-300 text-xs font-medium">{b.guest_email ?? '-'}</div>
+                                  <div className="text-stone-400 font-mono text-[11px]">{b.guest_phone ?? '-'}</div>
+                                </div>
+
+                                {/* Col 3: Room & Dates */}
+                                <div className="space-y-1.5 sm:w-60 flex-shrink-0">
+                                  <div className="inline-block bg-stone-850 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-xl text-xs font-bold shadow-sm">
+                                    {b.accommodation_name ?? 'Alloggio Standard'}
+                                  </div>
+                                  <div className="text-xs font-bold text-stone-200 flex items-center gap-1.5">
+                                    <Calendar className="w-3.5 h-3.5 text-stone-400" />
+                                    <span>{b.check_in ?? '-'} ➔ {b.check_out ?? '-'}</span>
+                                    <span className="text-[10px] text-stone-400 font-normal">({b.guests ?? 1} osp.)</span>
+                                  </div>
+                                </div>
+
+                                {/* Col 4: Extra Services */}
+                                <div className="flex gap-1.5 flex-wrap sm:w-36 flex-shrink-0">
+                                  {b.extra_breakfast && (
+                                    <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                                      <Coffee className="w-3 h-3" /> Colazione
+                                    </span>
+                                  )}
+                                  {b.extra_ac && (
+                                    <span className="inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-lg text-[10px] font-bold">
+                                      <Wind className="w-3 h-3" /> Aria Cond.
+                                    </span>
+                                  )}
+                                  {!b.extra_breakfast && !b.extra_ac && (
+                                    <span className="text-stone-400 text-[10px] italic">Standard</span>
+                                  )}
+                                </div>
+
+                                {/* Col 5: Financial Total & Deposit */}
+                                <div className="space-y-1 text-left sm:text-right flex-shrink-0">
+                                  <div className="font-black text-amber-400 font-mono text-base leading-none">
+                                    ฿{(b?.total_price ?? 0).toLocaleString('it-IT')}
+                                  </div>
+                                  <div className="text-[10px] text-emerald-400 font-bold">
+                                    Acconto 30%: ฿{(b?.deposit_paid ?? 0).toLocaleString('it-IT')}
+                                  </div>
+                                </div>
+
+                                {/* Col 6: Hide Action with Trash2 Icon */}
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleHideBooking(String(b.id || b.octorate_reservation_id))}
+                                    className="px-3 py-2 bg-stone-950 hover:bg-red-950/90 hover:text-red-300 text-stone-400 border border-stone-800 hover:border-red-600/60 rounded-xl text-xs font-bold transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
+                                    title="Nascondi questa prenotazione (escludi da vista e calcoli KPI)"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5 text-red-400/90" />
+                                    <span>Nascondi</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         )}
-                      </td>
-                      <td className="p-4 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleHideBooking(String(b.id || b.octorate_reservation_id))}
-                          className="px-2.5 py-1.5 bg-stone-850 hover:bg-red-950/80 hover:text-red-300 text-stone-400 border border-stone-750 hover:border-red-600/60 rounded-xl text-[10px] font-bold transition-all cursor-pointer inline-flex items-center gap-1 shadow-sm"
-                          title="Nascondi questa prenotazione (escludi da vista e calcoli KPI)"
-                        >
-                          <EyeOff className="w-3.5 h-3.5" />
-                          <span>Nascondi</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

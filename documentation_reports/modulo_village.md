@@ -577,3 +577,33 @@ executionMode:
 - **Selezione Multipla & Tasto Elimina (`selectedLogIds`)**:
   - Checkbox per singola riga di log e tasto *"Seleziona Tutte"*.
   - Pulsante `🗑️ Elimina Selezionate (N)` per rimuovere le campagne selezionate dallo stato React e da `localStorage` (`fpv_newsletter_logs`, `emailHistory`, `fpv_newsletter_history`).
+
+---
+
+## 9. Dashboard Amministrativa Resort — KPI Unificati, Fisarmoniche OTA & Download Stagionale (V12–V18)
+
+### A. Filtraggio Cancellazioni & Blacklist Manuale (V12)
+- **Modulo `bookingFilters.ts`**:
+  - `isCancelledBooking(b)`: Intercetta stati `"cancelled"`, `"canceled"`, `"rejected"`, `"annullato"` e prenotazioni OTA a 0 THB.
+  - `isTestBookingToHide(b)`: Filtra le prenotazioni virtuali di test (`"Test Only"`, `"API Test"`, `"test_mode"`).
+  - `addBookingToBlacklist(bId)` / `clearBlacklistedBookings()`: Gestione persistente del blacklist in `localStorage` (`fpv_blacklisted_booking_ids`).
+- **Pulsante Nascondi & Reset**: Ogni riga di prenotazione include il pulsante *Nascondi* (`Trash2`). Nella barra di ricerca appare il tasto *Reset Nascosti (N)* per ripristinare in ogni momento gli elementi esclusi.
+
+### B. Rendiconto Finanziario & Commissioni Canali 3x2 (V14 - V15)
+- **Commissioni Ufficiali per Canale**:
+  - Booking.com (17.2%), Agoda (18.0%), Expedia (15.0%), Airbnb (15.0%), Website/Sito Web (3.5% gateway fee), Private/Diretto (0.0%).
+- **Filtro Temporale Flessibile (Dal / Al)**: Default automatico da *Oggi* a *31 Ottobre del prossimo anno*.
+- **Ripartizione Notti Vendute (V15)**: `computeFinancials` calcola le notti per ciascuna prenotazione e genera la griglia 3x2 *Distribuzione Notti Vendute per Canale* coordinata con il rendiconto finanziario (schede bilanciate con `min-h-[360px]`).
+
+### C. Struttura in Fisarmonica (Accordions per Canale) (V16)
+- **Fisarmonica a 6 Canali**: Le prenotazioni sono raggruppate per sorgente (**Booking.com**, **Airbnb**, **Agoda**, **Expedia**, **Website**, **Private**).
+- **Controlli Rapidi**: Pulsanti *Espandi Tutte le OTA* (`ChevronDown` emerald) e *Comprimi Tutte* (`ChevronUp` ambra) per l'apertura/chiusura istantanea.
+- **Stato Iniziale (V17)**: Tutti gli accordion sono chiusi di default all'avvio per la massima pulizia.
+
+### D. Download Sequenziale al Mount & Popup Bloccante (V17)
+- **Mount Auto-Fetch**: `downloadSeasonSequential()` viene eseguito al montaggio di `ResortDashboard.tsx`.
+- **Modal Popup Bloccante**: Mostra uno spinner animato (`Loader2`), il messaggio di progresso e la percentuale (0-100%) fino al completamento dello scaricamento.
+- **Calendari Passivi**: `ResortVisualCalendar.tsx` non esegue più download automatici al mount, rimanendo reattivo e passivo ai dati dello store Zustand.
+
+### E. Stato Compresso Tariffe Derivate (V18)
+- In `DerivedRatesTreeSection.tsx`, `expandedRooms` è inizializzato a `{}`. All'accesso, tutti i 18 alloggi e i bungalow di test si presentano completamente compressi di default, con i pulsanti rapidi *Espandi Tutti* e *Comprimi Tutti* coordinati nello stile della dashboard.
