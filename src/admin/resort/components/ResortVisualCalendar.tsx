@@ -577,9 +577,16 @@ const CalendarCell = React.memo(function CalendarCell({
   onSelectBooking
 }: CalendarCellProps) {
   let originalPrice = Number(motherData?.price || motherData?.value || motherData?.amount || 0);
+  if (originalPrice === 0 && simulatedMatch?.originalPrice) {
+    originalPrice = Number(simulatedMatch.originalPrice);
+  }
   if (originalPrice === 0 && simulatedMatch?.basePrice) {
     originalPrice = Number(simulatedMatch.basePrice);
   }
+
+  const origPriceStr = originalPrice >= 10000 
+    ? '10.000' 
+    : (originalPrice > 0 ? originalPrice.toLocaleString('it-IT') : 'N/D');
 
   let currentPrice = originalPrice;
   let motherPriceStr = originalPrice >= 10000 
@@ -678,7 +685,7 @@ const CalendarCell = React.memo(function CalendarCell({
       title={matchingBooking 
         ? `Prenotato: ${formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
         : (hasDiscount
-            ? `👁️ SCONTO LAST-MINUTE SIMULATO (-${simulatedMatch?.discountPercentage}%): Originale ฿${originalPrice} ➔ Scontato ฿${currentPrice}`
+            ? `SCONTO LAST-MINUTE SIMULATO (-${simulatedMatch?.discountPercentage}%): Originale ฿${origPriceStr} ➔ Scontato ฿${motherPriceStr}`
             : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`
           )}
     >
@@ -726,11 +733,14 @@ const CalendarCell = React.memo(function CalendarCell({
           </div>
         </div>
       ) : hasDiscount ? (
-        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-tight">
-          <div className="text-[8.5px] font-mono font-black text-cyan-300 leading-tight truncate min-w-0 w-full text-center flex items-center justify-center gap-0.5 drop-shadow">
-            👁️ ฿{motherPriceStr}
+        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
+          <div className="text-[7.5px] font-mono font-bold text-white/90 line-through truncate min-w-0 w-full text-center opacity-80">
+            ฿{origPriceStr}
           </div>
-          <div className="text-[8px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-1 py-0.5 rounded mt-0.5 truncate min-w-0 text-center shadow">
+          <div className="text-[8.5px] font-mono font-black text-cyan-300 leading-tight mt-0.5 truncate min-w-0 w-full text-center drop-shadow">
+            ฿{motherPriceStr}
+          </div>
+          <div className="text-[7.5px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-1 py-0.5 rounded mt-0.5 truncate min-w-0 text-center shadow">
             -{simulatedMatch?.discountPercentage}%
           </div>
         </div>
@@ -1067,7 +1077,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
               </span>
               {isSimulationActive && (
                 <span className="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 animate-pulse">
-                  👁️ SIMULATO
+                  ⚡ SIMULATO
                 </span>
               )}
             </div>

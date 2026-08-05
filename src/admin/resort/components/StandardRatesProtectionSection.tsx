@@ -3,6 +3,13 @@ import { Bed, Zap, RefreshCw, AlertTriangle, CheckCircle, AlertCircle, ShieldChe
 import { useResortAdminStore } from '../store/useResortAdminStore';
 import { DiscountExecutionMode } from '../lib/octorateAdmin';
 
+const formatLastUpdateStr = (dateVal?: string | number | Date | null): string => {
+  if (!dateVal) return 'Nessuna operazione eseguita';
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return 'Nessuna operazione eseguita';
+  return d.toLocaleString('it-IT');
+};
+
 export const StandardRatesProtectionSection: React.FC = () => {
   const {
     standardProtectionExecutionMode,
@@ -237,6 +244,8 @@ export const StandardRatesProtectionSection: React.FC = () => {
         </div>
       )}
 
+
+
       {/* Execution Feedback Message */}
       {standardProtectionResult && (
         <div className={`mt-3 p-3 rounded-xl border text-xs leading-relaxed ${
@@ -249,7 +258,7 @@ export const StandardRatesProtectionSection: React.FC = () => {
             <span>{standardProtectionResult.message}</span>
           </div>
           <span className="text-[10px] text-stone-400 font-mono block mt-1">
-            Aggiornato: {new Date(standardProtectionResult.dateUpdated).toLocaleString('it-IT')}
+            Aggiornato: {formatLastUpdateStr(standardProtectionResult.dateUpdated)}
           </span>
         </div>
       )}

@@ -36,6 +36,13 @@ import {
   Coins
 } from 'lucide-react';
 
+const formatLastUpdateStr = (dateVal?: string | number | Date | null): string => {
+  if (!dateVal) return 'Nessuna operazione eseguita';
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return 'Nessuna operazione eseguita';
+  return d.toLocaleString('it-IT');
+};
+
 export function ResortDashboard() {
   const { 
     bookings, 
@@ -895,7 +902,7 @@ export function ResortDashboard() {
                 <span>{lastMinuteResult.message}</span>
               </div>
               <span className="text-[10px] text-stone-400 font-mono block">
-                Ultimo aggiornamento: {new Date(lastMinuteResult.dateUpdated).toLocaleString('it-IT')}
+                Ultimo aggiornamento: {formatLastUpdateStr(lastMinuteResult.dateUpdated)}
               </span>
             </div>
           )}
@@ -1029,6 +1036,23 @@ export function ResortDashboard() {
             </div>
           </div>
         </div>
+
+        {dynamicMinStayResult && (
+          <div className={`p-3 rounded-2xl border text-xs leading-relaxed w-full ${
+            dynamicMinStayResult.success
+              ? 'bg-violet-950/40 border-violet-800/60 text-violet-300'
+              : 'bg-red-950/40 border-red-800/60 text-red-300'
+          }`}>
+            <div className="font-bold flex items-center gap-1.5 mb-1">
+              {dynamicMinStayResult.success ? <CheckCircle className="w-4 h-4 text-violet-400 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
+              <span>{dynamicMinStayResult.message}</span>
+            </div>
+            <span className="text-[10px] text-stone-400 font-mono block">
+              Ultimo aggiornamento: {formatLastUpdateStr(dynamicMinStayResult.dateUpdated)}
+            </span>
+          </div>
+        )}
+
         {/* Production Confirmation Modal — SOGGIORNO MINIMO DINAMICO */}
         {showMinStayProdModal && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
