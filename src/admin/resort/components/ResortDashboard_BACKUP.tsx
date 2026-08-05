@@ -4,7 +4,6 @@ import { getAuthorizationUrl, getStoredTokens, clearTokens, exchangeToken } from
 import { ResortVisualCalendar } from './ResortVisualCalendar';
 import { DerivedRatesTreeSection } from './DerivedRatesTreeSection';
 import { NewsletterCampaignSection } from './NewsletterCampaignSection';
-import { StandardRatesProtectionSection } from './StandardRatesProtectionSection';
 import { 
   Hotel, 
   Calendar, 
@@ -46,6 +45,7 @@ export function ResortDashboard() {
     toggleRoomAvailability, 
     checkOctorateConnection,
     filterCategory,
+    setFilterCategory,
     executeLastMinuteStrategy,
     resetLastMinuteStrategy,
     lastMinuteStage1Days,
@@ -76,7 +76,8 @@ export function ResortDashboard() {
     executeDynamicMinStayStrategy
   } = useResortAdminStore();
 
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'messages' | 'octorate'>('bookings');
+  type TabType = 'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'messages' | 'octorate';
+  const [activeTab, setActiveTab] = useState<TabType>('bookings');
   const [searchQuery, setSearchQuery] = useState('');
   // Doppio click per Calendario Annuale (componente pesante ~9000 celle)
   const [calendarConfirm, setCalendarConfirm] = useState(false);
@@ -328,7 +329,7 @@ export function ResortDashboard() {
           <button
             onClick={() => setActiveTab('messages')}
             className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-              activeTab === 'messages'
+              (activeTab as string) === 'messages'
                 ? 'bg-rose-600 text-white shadow-md shadow-rose-950/40 ring-1 ring-rose-400/30'
                 : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
             }`}
@@ -809,9 +810,6 @@ export function ResortDashboard() {
           </div>
         )}
       </div>
-
-      {/* TARIFFE STANDARD HIGH SEASON (LAST MINUTE) PANEL */}
-      <StandardRatesProtectionSection />
 
       {/* Tab Visual Calendar 30gg Veloce */}
       {activeTab === 'calendar_30_days' && (

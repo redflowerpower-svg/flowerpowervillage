@@ -674,7 +674,7 @@ const CalendarCell = React.memo(function CalendarCell({
   return (
     <td
       onClick={() => matchingBooking && onSelectBooking(matchingBooking)}
-      className={`py-1 px-0.5 border-l text-center transition-colors relative w-[100px] min-w-[64px] max-w-[100px] truncate overflow-hidden ${bgStyle}`}
+      className={`py-0.5 px-0.5 border-l text-center transition-colors relative min-w-[58px] max-w-[85px] truncate overflow-hidden ${bgStyle}`}
       title={matchingBooking 
         ? `Prenotato: ${formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
         : (hasDiscount
@@ -685,12 +685,12 @@ const CalendarCell = React.memo(function CalendarCell({
       {/* BADGE MINSTAY */}
       {motherMinStayNum > 0 && (
         <div 
-          className={`absolute top-0.5 right-0.5 z-10 font-bold text-[9.5px] rounded-full shadow-md flex items-center justify-center ${
+          className={`absolute top-0.5 right-0.5 z-10 font-bold text-[8.5px] rounded-full shadow-md flex items-center justify-center ${
             isGapFillModified
               ? (isSimulatedMode
-                  ? 'bg-red-500 text-white w-5 h-5 border border-red-300 shadow-red-900/50 animate-pulse'
-                  : 'bg-green-800 text-white w-5 h-5 border border-green-400 shadow-green-950/50')
-              : 'bg-yellow-400 text-black w-4 h-4'
+                  ? 'bg-red-500 text-white w-4 h-4 border border-red-300 shadow-red-900/50 animate-pulse'
+                  : 'bg-green-800 text-white w-4 h-4 border border-green-400 shadow-green-950/50')
+              : 'bg-yellow-400 text-black w-3.5 h-3.5'
           }`}
           title={
             isGapFillModified
@@ -714,33 +714,33 @@ const CalendarCell = React.memo(function CalendarCell({
 
       {/* CONTENUTO CELLA */}
       {matchingBooking ? (
-        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden">
-          <div className="truncate text-xs font-bold min-w-0 w-full text-center text-white uppercase">
+        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-tight">
+          <div className="truncate text-[9.5px] font-black min-w-0 w-full text-center text-white uppercase">
             {getBookingChannelName(matchingBooking)}
           </div>
-          <div className="truncate text-[10px] min-w-0 w-full text-center text-white/95 font-medium">
+          <div className="truncate text-[8.5px] min-w-0 w-full text-center text-white/95 font-medium">
             {formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)}
           </div>
-          <div className="text-[10px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
-            Pagato: {realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}` : 'N/D'}
+          <div className="text-[8.5px] font-mono font-black text-white leading-none mt-0.5 truncate min-w-0 w-full text-center">
+            ฿{realDailyPriceStr}
           </div>
         </div>
       ) : hasDiscount ? (
-        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden">
-          <div className="text-[9.5px] font-mono font-black text-cyan-300 leading-tight truncate min-w-0 w-full text-center flex items-center justify-center gap-0.5 drop-shadow">
-            👁️ ฿{motherPriceStr} 📉
+        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-tight">
+          <div className="text-[8.5px] font-mono font-black text-cyan-300 leading-tight truncate min-w-0 w-full text-center flex items-center justify-center gap-0.5 drop-shadow">
+            👁️ ฿{motherPriceStr}
           </div>
-          <div className="text-[9px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-1 py-0.5 rounded mt-0.5 truncate min-w-0 text-center shadow">
-            -{simulatedMatch?.discountPercentage}% (BE ฿{beDiscountedStr})
+          <div className="text-[8px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-1 py-0.5 rounded mt-0.5 truncate min-w-0 text-center shadow">
+            -{simulatedMatch?.discountPercentage}%
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden">
-          <div className="text-[9px] font-mono font-medium text-white/90 leading-tight truncate min-w-0 w-full text-center">
-            Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'}
+        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
+          <div className="text-[8px] font-mono font-medium text-stone-300 truncate min-w-0 w-full text-center">
+            Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : '-'}
           </div>
-          <div className="text-[11px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
-            BE: {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}
+          <div className="text-[9.5px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
+            BE: {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : '-'}
           </div>
         </div>
       )}
@@ -1047,163 +1047,144 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
         </div>
       )}
 
-      {/* Calendar Header Controls */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-stone-900 border border-stone-800 rounded-3xl p-5 shadow-xl">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0">
-            <CalendarIcon className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
-                Calendario Visivo Alloggi & Prezzi (Griglia Continua)
+      {/* CALENDARIO OCTORATE PLUS: UNIFIED ULTRA-COMPACT HEADER & CONTROL BAR */}
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-3 shadow-xl space-y-2.5">
+        
+        {/* ROW 1: Title + 30-day Nav + Date Jump + Sync Live */}
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2.5 pb-2 border-b border-stone-800/80">
+          
+          {/* Title Branding */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 flex-shrink-0 shadow">
+              <CalendarIcon className="w-4 h-4" />
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-base sm:text-lg font-black text-white tracking-tight">
+                CALENDARIO OCTORATE PLUS
               </h3>
-              <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                 THB ฿
               </span>
               {isSimulationActive && (
-                <span className="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 animate-pulse">
-                  👁️ ANTEPRIMA SIMULATA ATTIVA
+                <span className="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 animate-pulse">
+                  👁️ SIMULATO
                 </span>
               )}
             </div>
-            <p className="text-stone-400 text-xs font-medium mt-0.5">
-              Scorrimento orizzontale continuo da Oggi fino al 31 Ottobre ({datesArray.length} giorni) • {rawOctorateBookings.length} prenotazioni in memoria
-            </p>
           </div>
-        </div>
 
-        {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-3 bg-stone-950 p-2 rounded-2xl border border-amber-500/30 shadow-lg w-full md:w-auto justify-end">
-          
-          {/* TASTI DI NAVIGAZIONE PAGINATA 30 GIORNI (SOLO PER VISTA 30GG) */}
-          {viewMode === '30_days' && (
-            <div className="flex items-center gap-2 bg-stone-900 p-1.5 rounded-xl border border-amber-500/40 shadow-md">
-              <button
-                type="button"
-                onClick={() => setStartIndex((prev) => Math.max(0, prev - 30))}
-                disabled={startIndex === 0}
-                className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 disabled:opacity-40 font-extrabold text-xs rounded-xl flex items-center gap-1 transition-all cursor-pointer disabled:cursor-not-allowed"
-                title="Pagina precedente 30 giorni"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                <span>30gg Prec</span>
-              </button>
+          {/* Controls Right Group (30-day Nav, Date Jump, Sync Live) */}
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
+            
+            {/* 30-Day Paged Nav */}
+            {viewMode === '30_days' && (
+              <div className="flex items-center gap-1.5 bg-stone-950 p-1 rounded-xl border border-amber-500/30 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => setStartIndex((prev) => Math.max(0, prev - 30))}
+                  disabled={startIndex === 0}
+                  className="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-stone-200 disabled:opacity-40 font-black text-[11px] rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+                  title="30 giorni precedenti"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>30gg Prec</span>
+                </button>
 
-              <span className="text-xs font-mono font-black text-amber-400 px-2 whitespace-nowrap">
-                Gg {startIndex + 1} - {Math.min(datesArray.length, startIndex + 30)} / {datesArray.length}
+                <span className="text-[11px] font-mono font-black text-amber-400 px-1.5 whitespace-nowrap">
+                  Gg {startIndex + 1} - {Math.min(datesArray.length, startIndex + 30)} / {datesArray.length}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setStartIndex((prev) => Math.min(Math.max(0, datesArray.length - 30), prev + 30))}
+                  disabled={startIndex + 30 >= datesArray.length}
+                  className="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-stone-200 disabled:opacity-40 font-black text-[11px] rounded-lg flex items-center gap-1 transition-all cursor-pointer"
+                  title="30 giorni successivi"
+                >
+                  <span>30gg Succ</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* Date Jump Input */}
+            <div className="flex items-center gap-1.5 bg-stone-950 p-1 rounded-xl border border-stone-800 shadow-inner">
+              <span className="text-stone-400 text-[11px] font-extrabold pl-1 flex items-center gap-1">
+                <CalendarIcon className="w-3 h-3 text-amber-400" />
+                Data:
               </span>
-
+              <input
+                ref={dateInputRef}
+                type="date"
+                defaultValue={toThailandDateStr(new Date())}
+                onClick={(e) => e.currentTarget.showPicker()}
+                className="bg-stone-900 text-amber-400 text-[11px] font-mono font-bold px-2 py-1 rounded-lg border border-stone-800 focus:border-amber-500 outline-none cursor-pointer [color-scheme:dark]"
+              />
               <button
                 type="button"
-                onClick={() => setStartIndex((prev) => Math.min(Math.max(0, datesArray.length - 30), prev + 30))}
-                disabled={startIndex + 30 >= datesArray.length}
-                className="px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 disabled:opacity-40 font-extrabold text-xs rounded-xl flex items-center gap-1 transition-all cursor-pointer disabled:cursor-not-allowed"
-                title="Pagina successiva 30 giorni"
+                onClick={handleExecuteDateJump}
+                className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-[11px] uppercase tracking-wider rounded-lg shadow cursor-pointer flex items-center gap-1 transition-all"
+                title="Vai alla data"
               >
-                <span>30gg Succ</span>
-                <ChevronRight className="w-3.5 h-3.5" />
+                <Search className="w-3 h-3" />
+                <span>VAI</span>
               </button>
             </div>
-          )}
-          
-          {/* STEP 1: DATEPICKER TOTALE PASSIVO (UNCONTROLLED INPUT VIA useRef) */}
-          <div className="flex items-center gap-2 bg-stone-900 p-1.5 rounded-xl border border-stone-800 shadow-md">
-            <span className="text-stone-400 text-xs font-bold pl-1.5 flex items-center gap-1">
-              <CalendarIcon className="w-3.5 h-3.5 text-amber-400" />
-              Data:
-            </span>
-            <input
-              ref={dateInputRef}
-              type="date"
-              defaultValue={toThailandDateStr(new Date())}
-              onClick={(e) => e.currentTarget.showPicker()}
-              className="bg-stone-950 text-amber-400 text-xs font-mono font-bold px-2.5 py-1.5 rounded-xl border border-stone-800 focus:border-amber-500 outline-none cursor-pointer [color-scheme:dark]"
-            />
+
+            {/* Sync Live Button */}
             <button
               type="button"
-              onClick={handleExecuteDateJump}
-              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl shadow cursor-pointer flex items-center gap-1 transition-all"
-              title="Vai alla data selezionata ancorandola a sinistra"
+              onClick={handleForceSyncLive}
+              disabled={seasonDownloadStatus === 'downloading'}
+              className="px-3 py-1.5 bg-stone-950 hover:bg-stone-850 text-amber-400 border border-amber-500/30 rounded-xl text-[11px] font-black uppercase tracking-wider shadow transition-all cursor-pointer flex items-center gap-1.5"
+              title="Sincronizza Live Octorate"
             >
-              <Search className="w-3.5 h-3.5" />
-              <span>Vai</span>
+              <RefreshCw className={`w-3 h-3 ${seasonDownloadStatus === 'downloading' || loadingLive ? 'animate-spin' : ''}`} />
+              <span>SYNC LIVE</span>
             </button>
           </div>
+        </div>
 
-          {/* UNICO PULSANTE COMPATTO PER CALCOLO GAP-FILL */}
-          <button
-            type="button"
-            onClick={() => executeDynamicMinStayStrategy()}
-            disabled={dynamicMinStayRunning}
-            className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 ${
-              isDynamicCalculationEnabled
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400/40 shadow-emerald-950/40'
-                : 'bg-amber-500 hover:bg-amber-400 text-stone-950 border border-amber-400/50 shadow-amber-950/40'
-            }`}
-            title="Calcola il Soggiorno Minimo Dinamico (Gap-Fill) su tutte le prenotazioni della stagione"
-          >
-            <span>
-              {dynamicMinStayRunning 
-                ? 'Calcolo in corso...' 
-                : (isDynamicCalculationEnabled ? '✅ Gap-Fill Attivo' : '⚡ Esegui Calcolo Gap-Fill')}
+        {/* ROW 2: Category Filter Pills + Legend Badges */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+          
+          {/* Category Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+            {[
+              { id: 'All', label: `TUTTI GLI ALLOGGI (${(accommodations || []).length || 20})` },
+              { id: 'VILLE', label: '🏡 VILLE (4)' },
+              { id: 'BUNGALOW', label: `🛖 BUNGALOW (${(accommodations || []).filter(r => (r.category === 'BUNGALOW' || r.category === 'Bungalow' || r.name.toLowerCase().includes('bungalow')) && !r.name.toLowerCase().includes('test')).length || 3})` },
+              { id: 'TENDE GLAMPING', label: '⛺ GLAMPING (2)' },
+              { id: 'THE HUB GUESTHOUSE', label: '🏨 HUB GUESTHOUSE (9)' },
+              { id: 'TEST', label: '🧪 AMBIENTE DI TEST (2)' }
+            ].map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setFilterCategory(cat.id)}
+                className={`px-3 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                  filterCategory === cat.id
+                    ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50 ring-1 ring-emerald-400/40'
+                    : 'bg-stone-950 text-stone-400 hover:text-white hover:bg-stone-850 border border-stone-800/80'
+                }`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Compact Legend Badges */}
+          <div className="flex items-center gap-2 bg-stone-950 p-1.5 rounded-xl border border-stone-800 text-[10px] font-bold text-stone-300 flex-shrink-0">
+            <span className="flex items-center">
+              <span className="bg-yellow-400 w-2.5 h-2.5 rounded-full inline-block mr-1 shadow-sm" /> Standard
             </span>
-          </button>
+            <span className="flex items-center">
+              <span className="bg-red-500 animate-pulse w-2.5 h-2.5 rounded-full inline-block mr-1 shadow-sm" /> Simulazione
+            </span>
+            <span className="flex items-center">
+              <span className="bg-green-800 w-2.5 h-2.5 rounded-full inline-block mr-1 shadow-sm" /> Sincronizzato
+            </span>
+          </div>
 
-          {/* PULSANTE SYNC LIVE PER FORZARE LO SVUOTAMENTO DELLA MEMORIA ED IL RICARICAMENTO */}
-          <button
-            type="button"
-            onClick={handleForceSyncLive}
-            disabled={seasonDownloadStatus === 'downloading'}
-            className="px-3.5 py-2 bg-stone-900 hover:bg-stone-850 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-black uppercase tracking-wider shadow transition-all cursor-pointer flex items-center justify-center gap-1.5"
-            title="Svuota la cache in memoria e riavvia il download sequenziale della stagione"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${seasonDownloadStatus === 'downloading' || loadingLive ? 'animate-spin' : ''}`} />
-            <span>{seasonDownloadStatus === 'downloading' ? 'Sincronizzazione...' : 'Sync Live'}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Category Filters & Legend */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-stone-900/60 p-3 rounded-2xl border border-stone-850">
-        {/* Category Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          {[
-            { id: 'All', label: `Tutti gli Alloggi (${(accommodations || []).length || 20})` },
-            { id: 'VILLE', label: '🏡 Ville (4)' },
-            { id: 'BUNGALOW', label: `🛖 Bungalow (${(accommodations || []).filter(r => r.category === 'BUNGALOW').length || 5})` },
-            { id: 'TENDE GLAMPING', label: '⛺ Glamping (2)' },
-            { id: 'THE HUB GUESTHOUSE', label: '🏨 Hub Guesthouse (9)' },
-            { id: 'TEST', label: '🧪 Ambiente di Test (2)' }
-          ].map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setFilterCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
-                filterCategory === cat.id
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'text-stone-400 hover:text-white hover:bg-stone-800'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Legend */}
-        <div className="flex items-center gap-3 flex-wrap text-[10px] font-black text-stone-300 pt-1 sm:pt-0 border-t sm:border-t-0 sm:border-l border-stone-800 pl-0 sm:pl-3">
-          <span className="flex items-center">
-            <span className="bg-yellow-400 w-4 h-4 rounded-full inline-block align-middle mr-1 shadow-sm" />
-            Standard
-          </span>
-          <span className="flex items-center">
-            <span className="bg-red-500 animate-pulse w-4 h-4 rounded-full inline-block align-middle mr-1 shadow-sm" />
-            Simulazione
-          </span>
-          <span className="flex items-center">
-            <span className="bg-green-800 w-4 h-4 rounded-full inline-block align-middle mr-1 shadow-sm border border-green-500/50" />
-            Sincronizzato
-          </span>
         </div>
       </div>
 
@@ -1241,9 +1222,9 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                 const gapFillMinStays = computeGapFillMinStays(room.name, room.id, room.octorateId, room.isAvailable, visibleDays, liveGridData, bookingsPool, dynamicMinStayGapFill);
 
                 return (
-                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-10">
+                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-7.5">
                     {/* STEP 3: Z-INDEX ELEVATO Z-40 CON BACKGROUND SOLIDO PER COPRIRE I CERCHIETTI SCORREVOLI */}
-                    <td className="py-2 px-3 sticky left-0 bg-stone-900 z-40 border-r border-stone-800 shadow-2xl font-extrabold text-white truncate max-w-[170px] min-w-[170px]">
+                    <td className="py-0.5 px-2 sticky left-0 bg-stone-900 z-40 border-r border-stone-800 shadow-2xl font-black text-white text-[10.5px] truncate max-w-[155px] min-w-[155px] leading-tight">
                       {room.name}
                     </td>
                     {visibleDays.map((cellDate, idx) => {
