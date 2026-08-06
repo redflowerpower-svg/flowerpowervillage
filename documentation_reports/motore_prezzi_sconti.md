@@ -176,3 +176,34 @@ executionMode:
 | ↳ Stadio 2 | `border-orange-500/40` | `bg-orange-950/30` |
 | ↳ Stadio 3 | `border-yellow-600/40` | `bg-yellow-950/30` |
 | 📏 Soggiorno Minimo Dinamico | `border-violet-500/40` (doppio) | `bg-violet-950/20` |
+
+---
+
+## 8. Motore Codici Promozionali & Ticket Sconto V19/V20 (06/08/2026)
+
+### Architettura & Persistenza
+- **Zustand Store (`useResortAdminStore.ts`)**: Stato `promoCodes: PromoCode[]` integrato e sincronizzato automaticamente con `localStorage` sotto la chiave `'fpv_promo_codes'`.
+- **Formato Dati (`PromoCode`)**:
+  - `id`: identificativo univoco generato temporalmente.
+  - `code`: stringa univoca in maiuscolo (es. `WELCOME2026` o `TICKET-8X92`).
+  - `discountType`: `'percentage'` (% sconto) oppure `'fixed'` (importo fisso in THB `฿`).
+  - `discountValue`: valore numerico dello sconto.
+  - `slotsTotal` & `slotsUsed`: conteggio utilizzi totali e correnti.
+  - `isSingleUse`: flag boolean per ticket monouso (se `true`, `slotsTotal = 1`).
+  - `validFrom` & `validTo`: intervallo di validità temporale (formato `YYYY-MM-DD`).
+  - `active`: interruttore on/off per attivare/disattivare il codice.
+
+### Interfaccia Utente (`PromoCodesSection.tsx`) & Design V20
+- **Identità Visiva**: Tema **Fuchsia / Rose Gold** a doppio bordo (`bg-fuchsia-950/20 border-2 border-fuchsia-500/40 shadow-xl shadow-fuchsia-950/30 ring-1 ring-fuchsia-500/10`) speculare ai 3 moduli sconti storici.
+- **Layout Single-Line V20 (Desktop)**: Form di creazione su riga unica orizzontale (`flex-col lg:flex-row`):
+  1. Input Codice / Ticket con tasto **🎲 Ticket Random** posizionato assolutamente all'interno dell'input.
+  2. Selettore tipo sconto (% / ฿) e valore.
+  3. Input Slots utilizzabili.
+  4. Checkbox Monouso 🎟️.
+  5. Date picker unificato Dal ➔ Al in un'unica pillola visiva.
+  6. Pulsante fisso `+ AGGIUNGI` con altezza `h-10`.
+- **Tracciamento & Link Condivisibile**: Lista accordion con barra di progresso dell'utilizzo (`slotsUsed / slotsTotal`), interruttore ON/OFF e tasto per copiare il link condivisibile (`?promo=CODICE`).
+
+### Incremento Automatizzato a Prenotazione Avvenuta
+- Nel motore di prenotazione (`booking-engine.tsx`), il parametro `?promo=CODICE` viene letto all'avvio. Alla conferma ed alla verifica del pagamento in `verifyAndConfirmBooking`, il sistema invoca `useResortAdminStore.getState().incrementPromoCodeUsage(code)` incrementando `slotsUsed` e disattivando automaticamente i ticket monouso esauriti.
+
