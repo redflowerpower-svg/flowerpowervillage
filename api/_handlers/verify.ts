@@ -87,6 +87,13 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
       });
     }
 
+    // Extract calculated financial values certified directly from Stripe metadata (V27)
+    const finalTotalAmt     = Number(session.metadata?.grandTotal || session.metadata?.finalTotal || session.metadata?.totalPrice || totalPrice || 0);
+    const depositPaidAmt    = Number(session.metadata?.depositAmount || session.metadata?.depositPaid || depositPaid || Math.round(finalTotalAmt * 0.3));
+    const balanceDueAmt     = Number(session.metadata?.balanceDue || balanceDue || (finalTotalAmt - depositPaidAmt));
+    const promoCodeVal      = session.metadata?.promoCode || null;
+    const discountAmountVal = Number(session.metadata?.discountAmount || session.metadata?.promoDiscountAmount || 0);
+
     // Guard: if already emailed, restore and return immediately (prevents duplicate Octorate and email calls)
     if (session.metadata?.emailSent === "true") {
       console.log(`[Verify API] Session ${session.id} already verified and emailed. Returning cached reservation.`);
@@ -96,6 +103,11 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
         paymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : "",
         octorateReservationId: session.metadata.octorateReservationId || null,
         octorateStatus: session.metadata.octorateReservationId ? "confirmed" : null,
+        finalTotal: finalTotalAmt,
+        depositPaid: depositPaidAmt,
+        balanceDue: balanceDueAmt,
+        promoCode: promoCodeVal,
+        discountAmount: discountAmountVal,
         bookingData: {
           accommodationId: Number(accommodationId),
           checkIn,
@@ -106,7 +118,12 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
           guestPhone,
           extraBreakfast: extraBreakfast === "true",
           extraAC: extraAC === "true",
-          totalPrice: Number(totalPrice)
+          totalPrice: finalTotalAmt,
+          depositPaid: depositPaidAmt,
+          balanceDue: balanceDueAmt,
+          finalTotal: finalTotalAmt,
+          promoCode: promoCodeVal,
+          discountAmount: discountAmountVal
         }
       });
     }
@@ -155,18 +172,27 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
         const numGuests       = Number(guests || 1);
         const breakfastCount  = hasBreakfast ? numGuests * stayNights : 0;
 
+        const promoCode            = session.metadata?.promoCode || "";
+        const discountType         = session.metadata?.discountType || "";
+        const discountValue        = session.metadata?.discountValue || "0";
+        const promoDiscountAmount  = Number(session.metadata?.promoDiscountAmount || session.metadata?.discountAmount || 0);
+        const directDiscountAmount = Number(session.metadata?.directDiscountAmount || 0);
+
         let discountLine = "";
-        if (discountPct >= 20) {
-          discountLine = `| Discount Applied    : -20% (Long-Stay Coliving ≥ 30 nights)`;
-        } else if (discountPct >= 15) {
-          discountLine = `| Discount Applied    : -15% (Medium-Stay ≥ 15 nights)`;
-        } else if (discountPct > 0) {
-          discountLine = `| Discount Applied    : -10% (Direct Booking Price)`;
+        let promoLine = "";
+
+        if (promoCode) {
+          const formattedDisc = discountType === "percentage" ? `-${discountValue}%` : `-฿${discountValue}`;
+          discountLine = `| Discount Applied    : EXCLUSIVE PROMO COUPON (${promoCode})`;
+          promoLine    = `| Coupon Details      : ${promoCode} (${formattedDisc}, saved ฿${promoDiscountAmount.toLocaleString("en")}) — Standard stay discount bypassed`;
+        } else if (directDiscountAmount > 0 || discountPct > 0) {
+          const savedStr = directDiscountAmount > 0 ? `saved ฿${directDiscountAmount.toLocaleString("en")}` : `-${discountPct}%`;
+          discountLine = `| Discount Applied    : Standard Direct Stay Discount (${savedStr})`;
         } else {
           discountLine = `| Discount Applied    : None`;
         }
 
-        const privateNotes = [
+        const notesLines = [
           `=== FLOWER POWER VILLAGE — BOOKING SUMMARY ===`,
           `| Stripe Session      : ${session.id}`,
           `| Total Amount        : ฿${Number(totalPrice || 0).toLocaleString("en")}`,
@@ -174,10 +200,17 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
           `| Balance Due (70%)   : ฿${balanceDueAmt.toLocaleString("en")} (to be paid at check-in)`,
           `| Stay                : ${stayNights} night${stayNights !== 1 ? "s" : ""} (${checkIn} → ${checkOut})`,
           discountLine,
+        ];
+        if (promoLine) {
+          notesLines.push(promoLine);
+        }
+        notesLines.push(
           `| Air Conditioning    : ${hasAC ? "YES — AC surcharge included" : "No"}`,
           `| Breakfast           : ${hasBreakfast ? `YES — ${breakfastCount} breakfast${breakfastCount !== 1 ? "s" : ""} (${numGuests} guest${numGuests !== 1 ? "s" : ""} × ${stayNights} night${stayNights !== 1 ? "s" : ""})` : "No"}`,
-          `===============================================`,
-        ].join("\n");
+          `===============================================`
+        );
+
+        const privateNotes = notesLines.join("\n");
 
         const reservationBody = {
           status: "CONFIRMED",
@@ -296,8 +329,23 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
       const websiteUrl = session.success_url ? new URL(session.success_url).origin : "https://flowerpower-phayam.com";
       console.log(`[Verify API] Generating PDF and sending email for session ${session.id}...`);
       
-      const pdfBuffer = await generateConfirmationPDF(session.metadata, octorateReservationId, websiteUrl);
-      await sendConfirmationEmail(session.metadata, octorateReservationId, pdfBuffer, websiteUrl);
+      const fullMetadata = {
+        ...(session.metadata || {}),
+        finalTotal: finalTotalAmt,
+        totalPrice: finalTotalAmt,
+        grandTotal: finalTotalAmt,
+        depositPaid: depositPaidAmt,
+        depositAmount: depositPaidAmt,
+        balanceDue: balanceDueAmt,
+        promoCode: promoCodeVal,
+        discountAmount: discountAmountVal,
+        promoDiscountAmount: discountAmountVal,
+        extraBreakfast: session.metadata?.extraBreakfast || "false",
+        extraAC: session.metadata?.extraAC || "false"
+      };
+
+      const pdfBuffer = await generateConfirmationPDF(fullMetadata, octorateReservationId, websiteUrl);
+      await sendConfirmationEmail(fullMetadata, octorateReservationId, pdfBuffer, websiteUrl);
       
       console.log(`[Verify API] Updating Stripe Checkout Session ${session.id} metadata...`);
       await stripe.checkout.sessions.update(session.id, {
@@ -318,6 +366,11 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
       octorateReservationId,
       octorateStatus,
       octorateError,
+      finalTotal: finalTotalAmt,
+      depositPaid: depositPaidAmt,
+      balanceDue: balanceDueAmt,
+      promoCode: promoCodeVal,
+      discountAmount: discountAmountVal,
       bookingData: {
         accommodationId: Number(accommodationId),
         checkIn,
@@ -328,7 +381,12 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
         guestPhone,
         extraBreakfast: extraBreakfast === "true",
         extraAC: extraAC === "true",
-        totalPrice: Number(totalPrice)
+        totalPrice: finalTotalAmt,
+        depositPaid: depositPaidAmt,
+        balanceDue: balanceDueAmt,
+        finalTotal: finalTotalAmt,
+        promoCode: promoCodeVal,
+        discountAmount: discountAmountVal
       }
     });
   } catch (error: any) {

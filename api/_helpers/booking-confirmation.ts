@@ -493,6 +493,7 @@ export async function generateConfirmationPDF(
       const extraItems = [];
       if (metadata.extraBreakfast === "true") extraItems.push("Breakfast included");
       if (metadata.extraAC === "true") extraItems.push("Air Conditioning surcharge included");
+      if (metadata.promoCode) extraItems.push(`Coupon (${metadata.promoCode}) applied`);
       if (extraItems.length > 0) {
         doc.font("Helvetica").fontSize(8).fillColor("#047857").text(`Extras: ${extraItems.join(", ")}`, 310, rightY);
         rightY = doc.y + 4;
@@ -531,26 +532,40 @@ export async function generateConfirmationPDF(
       
       currentY += 20;
       
+      // Robust financial key mapping (V24)
+      const finalTotal = Number(metadata.finalTotal || metadata.grandTotal || metadata.totalPrice || metadata.total || 0);
+      const depositPaid = Number(metadata.depositPaid || metadata.depositAmount || metadata.deposit || Math.round(finalTotal * 0.3));
+      const balanceDue = Number(metadata.balanceDue || metadata.balance || (finalTotal - depositPaid));
+      const discountAmount = Number(metadata.discountAmount || metadata.promoDiscountAmount || metadata.discount || 0);
+      const promoCode = metadata.promoCode || "";
+      const hasPromo = Boolean(promoCode && discountAmount > 0);
+
       // Draw Price calculation Box
-      const priceBoxHeight = 85;
+      const priceBoxHeight = hasPromo ? 100 : 85;
       doc.rect(40, currentY, 240, priceBoxHeight).fillAndStroke("#fcfdfd", "#e5e7eb");
       doc.fillColor("#111827");
       doc.font("Helvetica-Bold").fontSize(9).text(t.financialSummary, 48, currentY + 10);
       
-      const totalPrice = Number(metadata.totalPrice || 0);
-      const depositPaid = Number(metadata.depositPaid || 0);
-      const balanceDue = Number(metadata.balanceDue || (totalPrice - depositPaid));
+      let lineY = currentY + 26;
+      doc.font("Helvetica").fontSize(8.5).text(`${t.totalPrice}:`, 48, lineY);
+      doc.font("Helvetica-Bold").text(`THB ${finalTotal.toLocaleString("en-US")}`, 160, lineY, { align: "right", width: 110 });
 
-      doc.font("Helvetica").fontSize(8.5).text(`${t.totalPrice}:`, 48, currentY + 28);
-      doc.font("Helvetica-Bold").text(`THB ${totalPrice.toLocaleString("en-US")}`, 160, currentY + 28, { align: "right", width: 110 });
+      if (hasPromo) {
+        lineY += 15;
+        doc.font("Helvetica").fontSize(8.5).fillColor("#c026d3").text(`Coupon (${promoCode}):`, 48, lineY);
+        doc.font("Helvetica-Bold").fillColor("#c026d3").text(`-THB ${discountAmount.toLocaleString("en-US")}`, 160, lineY, { align: "right", width: 110 });
+      }
 
-      doc.font("Helvetica").fontSize(8.5).text(`${t.depositPaid}:`, 48, currentY + 44);
-      doc.font("Helvetica-Bold").fillColor("#047857").text(`THB ${depositPaid.toLocaleString("en-US")}`, 160, currentY + 44, { align: "right", width: 110 });
+      lineY += 16;
+      doc.font("Helvetica").fontSize(8.5).fillColor("#111827").text(`${t.depositPaid}:`, 48, lineY);
+      doc.font("Helvetica-Bold").fillColor("#047857").text(`THB ${depositPaid.toLocaleString("en-US")}`, 160, lineY, { align: "right", width: 110 });
 
-      doc.strokeColor("#e5e7eb").lineWidth(0.5).moveTo(48, currentY + 58).lineTo(272, currentY + 58).stroke();
+      lineY += 14;
+      doc.strokeColor("#e5e7eb").lineWidth(0.5).moveTo(48, lineY).lineTo(272, lineY).stroke();
 
-      doc.fillColor("#111827").font("Helvetica-Bold").fontSize(9).text(`${t.remainingBalance}:`, 48, currentY + 66);
-      doc.fillColor("#b91c1c").font("Helvetica-Bold").text(`THB ${balanceDue.toLocaleString("en-US")}`, 160, currentY + 66, { align: "right", width: 110 });
+      lineY += 6;
+      doc.fillColor("#111827").font("Helvetica-Bold").fontSize(9).text(`${t.remainingBalance}:`, 48, lineY);
+      doc.fillColor("#b91c1c").font("Helvetica-Bold").text(`THB ${balanceDue.toLocaleString("en-US")}`, 160, lineY, { align: "right", width: 110 });
 
       // Draw Payments rules details Box
       doc.rect(295, currentY, 260, priceBoxHeight).fillAndStroke("#f9fafb", "#e5e7eb");
@@ -627,9 +642,12 @@ export function generateConfirmationEmailHTML(
   const nights = getNightsCount(checkInDate, checkOutDate);
   const bookingRef = octorateId || `ST-FALLBACK-${metadata.stripeSessionId?.substring(0, 10) || "UNKNOWN"}`;
   
-  const totalPrice = Number(metadata.totalPrice || 0);
-  const depositPaid = Number(metadata.depositPaid || 0);
-  const balanceDue = Number(metadata.balanceDue || (totalPrice - depositPaid));
+  // Robust financial key mapping (V24)
+  const finalTotal = Number(metadata.finalTotal || metadata.grandTotal || metadata.totalPrice || metadata.total || 0);
+  const depositPaid = Number(metadata.depositPaid || metadata.depositAmount || metadata.deposit || Math.round(finalTotal * 0.3));
+  const balanceDue = Number(metadata.balanceDue || metadata.balance || (finalTotal - depositPaid));
+  const discountAmount = Number(metadata.discountAmount || metadata.promoDiscountAmount || metadata.discount || 0);
+  const promoCode = metadata.promoCode || "";
 
   const includedServicesList = roomInfo?.features.map(f => `<li>${f}</li>`).join("") || "";
 
@@ -902,8 +920,13 @@ export function generateConfirmationEmailHTML(
           <div class="financials">
             <div class="financial-row">
               <span style="color: #78716c;">${t.totalPrice}:</span>
-              <span style="font-weight: bold;">THB ${totalPrice.toLocaleString("en-US")}</span>
+              <span style="font-weight: bold;">THB ${finalTotal.toLocaleString("en-US")}</span>
             </div>
+            ${promoCode && discountAmount > 0 ? `
+            <div class="financial-row" style="color: #c026d3; font-weight: bold;">
+              <span>Coupon (${promoCode}):</span>
+              <span>- THB ${discountAmount.toLocaleString("en-US")}</span>
+            </div>` : ''}
             <div class="financial-row deposit">
               <span>${t.depositPaid}:</span>
               <span>- THB ${depositPaid.toLocaleString("en-US")}</span>

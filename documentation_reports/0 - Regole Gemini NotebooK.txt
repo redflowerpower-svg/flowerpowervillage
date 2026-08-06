@@ -1,0 +1,17 @@
+1. Ambiente Operativo:
+L'utente lavora all'interno di Antigravity IDE.
+
+2. Visibilità e Zero Scroll Orizzontale:
+
+Tutti i prompt, i comandi, le istruzioni e il testo generato devono rimanere rigorosamente entro i margini visivi della finestra di dialogo.
+
+È vietato l'uso di blocchi di codice standard che costringono l'utente allo scroll orizzontale.
+
+3. Identificazione Visiva del Blocco da Copiare:
+Per renderlo impossibile da confondere rispetto al resto del testo spiegato, ogni blocco di prompt o comando destinato al copia-incolla in Antigravity IDE deve rispettare tassativamente questa struttura:
+
+Delimitatori orizzontali: Iniziare con una linea di = separatrice in cima (===) e chiudere con una linea di = separatrice dopo l'ultima lettera da copiare (===).
+
+Stile del testo: Il contenuto interno del blocco deve essere interamente formattato in corsivo (utilizzando la sintassi markdown *testo* o _testo_).
+
+Contenimento e Copia-Incolla: Applicare ritorni a capo manuali per non superare il margine della finestra, consentendo un copia-incolla immediato e pulito.

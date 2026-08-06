@@ -86,6 +86,22 @@ export interface OAuthTokens {
   expires_in: number
 }
 
+// Helper for safe night calculations (V30)
+export function calculateNights(checkIn?: string | null, checkOut?: string | null): number {
+  try {
+    if (!checkIn || !checkOut) return 0;
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  } catch (err) {
+    console.warn("[octorate.ts] calculateNights failed safely:", err);
+    return 0;
+  }
+}
+
 // =============================================================================
 // OAuth 3-Legged Flow
 // =============================================================================
@@ -328,7 +344,7 @@ const ACCOMMODATIONS_MOCK: Accommodation[] = [
     description: "Il Yellow Bungalow รจ la cupola piรน spaziosa del villaggio, immersa in un giardino con fiori vibranti.",
     capacity: 3,
     base_price_high: 1800,
-    base_price_low: 450,
+    base_price_low: 750,
     images: [],
     monthly_discount: true,
   },
@@ -340,7 +356,7 @@ const ACCOMMODATIONS_MOCK: Accommodation[] = [
     description: "Il Red Bungalow a cupola รจ avvolto da un giardino lussureggiante con fauna tropicale da scoprire.",
     capacity: 3,
     base_price_high: 1800,
-    base_price_low: 450,
+    base_price_low: 750,
     images: [],
     monthly_discount: true,
   },
@@ -352,7 +368,7 @@ const ACCOMMODATIONS_MOCK: Accommodation[] = [
     description: "Il Green Bungalow a cupola รจ immerso in un giardino di fiori e alberi da frutto.",
     capacity: 3,
     base_price_high: 1800,
-    base_price_low: 450,
+    base_price_low: 790,
     images: [],
     monthly_discount: true,
   },

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Coffee, Wind, Image as ImageIcon, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { fetchAccommodations, EnrichedAccommodation } from '../../data/accommodationsService';
 import { checkAvailability } from '../../lib/octorate';
 import { translations, Language } from '../../lib/translations';
 import { PRICE_CONFIG } from '../config/accommodations';
+import { useResortAdminStore } from '../../../admin/resort/store/useResortAdminStore';
 
 interface RoomGridProps {
   lang: Language;
@@ -17,12 +18,17 @@ interface RoomGridProps {
 }
 
 function calculateStayDays(checkIn: string, checkOut: string): number {
-  if (!checkIn || !checkOut) return 0;
-  const start = new Date(checkIn);
-  const end = new Date(checkOut);
-  const diffTime = end.getTime() - start.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays > 0 ? diffDays : 0;
+  try {
+    if (!checkIn || !checkOut) return 0;
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : 0;
+  } catch (err) {
+    return 0;
+  }
 }
 
 function isLowSeason(checkIn: string, checkOut: string): boolean {
@@ -77,6 +83,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
   onSelectRoom,
   oauthConnected,
 }) => {
+  const { promoCodes } = useResortAdminStore();
   const [rooms, setRooms] = useState<EnrichedAccommodation[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -367,6 +374,17 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     };
   };
 
+  const appliedPromo = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const promoFromUrl = urlParams.get('promo');
+    const promoFromStorage = sessionStorage.getItem('fpv_applied_promo_code');
+    const code = promoFromUrl || promoFromStorage;
+    if (!code) return null;
+    const list = promoCodes || [];
+    return list.find(p => p.code.toUpperCase() === code.trim().toUpperCase() && (p.active !== false)) || null;
+  }, [promoCodes]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 w-full">
@@ -430,7 +448,9 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredRooms.map((item) => {
-          const isDateSelected = stayDays > 0;
+          // V30: Guard for valid dates check
+          const hasValidDates = Boolean(checkIn && checkOut && stayDays > 0);
+          const isDateSelected = hasValidDates;
           const isUnlocked = isDateSelected && guests > 0 && availabilityChecked && !loadingAvailability;
           const pricing = calculateFinalPrice(item);
           
@@ -440,29 +460,60 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
           // Extra guests surcharge
           const extraGuests = Math.min(item.maxExtraGuests, Math.max(0, guests - item.baseGuests));
           const extraGuestsPricePerNight = extraGuests * PRICE_CONFIG.EXTRA_GUEST_PRICE;
-          const extraGuestsPrice = extraGuestsPricePerNight * stayDays;
+          const extraGuestsPrice = hasValidDates ? extraGuestsPricePerNight * stayDays : 0;
           
           // Calculate extras pricing
-          const breakfastPrice = extras.breakfast ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * stayDays) : 0;
-          const acPrice = extras.ac ? PRICE_CONFIG.AC_SURCHARGE : 0;
+          const breakfastPrice = (hasValidDates && extras.breakfast) ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * stayDays) : 0;
+          const acPrice = (hasValidDates && extras.ac) ? PRICE_CONFIG.AC_SURCHARGE : 0;
           
-          // Pricing hierarchy matching: apply discount only to room rate + extra guests. Breakfast and AC are added undiscounted.
-          const discountRate = discountInfo.discount; // e.g. 0.10, 0.15, or 0.20
-          
-          // Room and extra guests total (Lordo)
-          const roomAndGuestsTotalLordo = (pricing.basePriceLordo + extraGuestsPricePerNight) * stayDays;
-          
-          // Discount on room and extra guests
-          const discountAmount = Math.round(roomAndGuestsTotalLordo * discountRate);
-          const roomAndGuestsTotalNetto = roomAndGuestsTotalLordo - discountAmount;
-          
-          // Grand total with extras (breakfast and AC surcharges added undiscounted)
-          const finalTotalPrice = roomAndGuestsTotalNetto + breakfastPrice + acPrice;
-          
-          // Prezzo per notte scontato comprensivo di supplemento ospiti extra (per il compact view)
-          const finalNightlyPrice = Math.round((pricing.basePriceLordo + extraGuestsPricePerNight) * (1 - discountRate));
-          
-          const pricingWithExtras = {
+          let directDiscountAmount = 0;
+          let promoDiscountAmount = 0;
+          let totalDiscountAmount = 0;
+          let roomAndGuestsTotalLordo = 0;
+          let roomAndGuestsTotalNetto = 0;
+          let finalTotalPrice = 0;
+          let finalNightlyPrice = pricing.basePriceLordo || item.base_price_high;
+
+          if (hasValidDates) {
+            // Room and extra guests total (Lordo)
+            roomAndGuestsTotalLordo = (pricing.basePriceLordo + extraGuestsPricePerNight) * stayDays;
+
+            if (appliedPromo) {
+              // EXCLUSIVITY (V26/V28): Direct stay discount is FORCED to 0 when promo coupon is active
+              directDiscountAmount = 0;
+              if (appliedPromo.discountType === 'percentage') {
+                promoDiscountAmount = Math.round(roomAndGuestsTotalLordo * (appliedPromo.discountValue / 100));
+              } else if (appliedPromo.discountType === 'fixed') {
+                promoDiscountAmount = Math.min(roomAndGuestsTotalLordo, appliedPromo.discountValue);
+              }
+            } else {
+              directDiscountAmount = Math.round(roomAndGuestsTotalLordo * discountInfo.discount);
+              promoDiscountAmount = 0;
+            }
+
+            totalDiscountAmount = appliedPromo ? promoDiscountAmount : directDiscountAmount;
+            roomAndGuestsTotalNetto = Math.max(0, roomAndGuestsTotalLordo - totalDiscountAmount);
+
+            // Grand total with extras (breakfast and AC surcharges added undiscounted)
+            finalTotalPrice = roomAndGuestsTotalNetto + breakfastPrice + acPrice;
+
+            // Prezzo per notte scontato comprensivo di supplemento ospiti extra (per il compact view)
+            const effectiveDiscountRate = appliedPromo
+              ? (roomAndGuestsTotalLordo > 0 ? promoDiscountAmount / roomAndGuestsTotalLordo : 0)
+              : discountInfo.discount;
+            finalNightlyPrice = Math.round((pricing.basePriceLordo + extraGuestsPricePerNight) * (1 - effectiveDiscountRate));
+          } else {
+            // V30: Bypassed when dates are missing: static base room rate, zero discounts
+            directDiscountAmount = 0;
+            promoDiscountAmount = 0;
+            totalDiscountAmount = 0;
+            roomAndGuestsTotalLordo = pricing.basePriceLordo || item.base_price_high;
+            roomAndGuestsTotalNetto = roomAndGuestsTotalLordo;
+            finalTotalPrice = roomAndGuestsTotalLordo;
+            finalNightlyPrice = pricing.basePriceLordo || item.base_price_high;
+          }
+
+          const pricingWithExtras = hasValidDates ? {
             ...pricing,
             final: finalNightlyPrice,
             extraGuests: extraGuestsPrice,
@@ -470,9 +521,11 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
             ac: acPrice,
             total: finalTotalPrice,
             roomAndGuestsTotalNetto: roomAndGuestsTotalNetto,
-            discountAmount: discountAmount,
+            discountAmount: totalDiscountAmount,
+            directDiscountAmount,
+            promoDiscountAmount,
             totalLordo: roomAndGuestsTotalLordo + breakfastPrice + acPrice
-          };
+          } : null;
 
           const toggleExtra = (roomId: string, type: 'breakfast' | 'ac') => {
             setSelectedExtras((prev) => {
@@ -645,51 +698,71 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                           )}
                         </div>
 
-                        {/* DETAILED PRICE BREAKDOWN INSIDE THE DRAWER */}
-                        <div className="space-y-2 pt-3 border-t border-stone-300 text-xs">
-                          <span className="block text-[9px] uppercase tracking-wider text-stone-500 font-extrabold mb-1">
-                            {lang === 'TH' ? 'รายละเอียดค่าใช้จ่าย' : lang === 'DE' ? 'Kostenaufstellung' : lang === 'EN' ? 'Cost Breakdown' : 'Dettaglio Costi:'}
-                          </span>
-                          <div className="space-y-1.5 text-stone-600 font-medium">
-                            <div className="flex justify-between">
-                              <span>
-                                {lang === 'TH' ? `ที่พัก (${stayDays} คืน):` : lang === 'DE' ? `Unterkunft (${stayDays} ${stayDays === 1 ? 'Nacht' : 'Nächte'}):` : lang === 'EN' ? `Accommodation (${stayDays} ${stayDays === 1 ? 'night' : 'nights'}):` : `Alloggio (${stayDays} ${stayDays === 1 ? 'notte' : 'notti'}):`}
-                              </span>
-                              <span>{formatPrice(pricing.basePriceLordo * stayDays)}</span>
-                            </div>
-                            
-                            {extraGuests > 0 && (
+                        {/* DETAILED PRICE BREAKDOWN INSIDE THE DRAWER (V30 Safe Guard) */}
+                        {hasValidDates && pricingWithExtras ? (
+                          <div className="space-y-2 pt-3 border-t border-stone-300 text-xs">
+                            <span className="block text-[9px] uppercase tracking-wider text-stone-500 font-extrabold mb-1">
+                              {lang === 'TH' ? 'รายละเอียดค่าใช้จ่าย' : lang === 'DE' ? 'Kostenaufstellung' : lang === 'EN' ? 'Cost Breakdown' : 'Dettaglio Costi:'}
+                            </span>
+                            <div className="space-y-1.5 text-stone-600 font-medium">
                               <div className="flex justify-between">
-                                <span>{lang === 'TH' ? `ผู้เข้าพักเพิ่มเติม (${extraGuests} ท่าน):` : lang === 'DE' ? `Zusätzliche Gäste (${extraGuests} Pers.):` : lang === 'EN' ? `Extra guests (${extraGuests} pers.):` : `Ospiti aggiuntivi (${extraGuests} pers.):`}</span>
-                                <span>{formatPrice(extraGuestsPrice)}</span>
+                                <span>
+                                  {lang === 'TH' ? `ที่พัก (${stayDays} คืน):` : lang === 'DE' ? `Unterkunft (${stayDays} ${stayDays === 1 ? 'Nacht' : 'Nächte'}):` : lang === 'EN' ? `Accommodation (${stayDays} ${stayDays === 1 ? 'night' : 'nights'}):` : `Alloggio (${stayDays} ${stayDays === 1 ? 'notte' : 'notti'}):`}
+                                </span>
+                                <span>{formatPrice(pricing.basePriceLordo * stayDays)}</span>
                               </div>
-                            )}
-                            
-                            {extras.breakfast && (
-                              <div className="flex justify-between">
-                                <span>{lang === 'TH' ? 'อาหารเช้า:' : lang === 'DE' ? 'Frühstück:' : lang === 'EN' ? 'Breakfast:' : 'Colazione:'}</span>
-                                <span>{formatPrice(breakfastPrice)}</span>
-                              </div>
-                            )}
-                            
-                            {extras.ac && (
-                              <div className="flex justify-between">
-                                <span>{lang === 'TH' ? 'เครื่องปรับอากาศ:' : lang === 'DE' ? 'Klimaanlage:' : lang === 'EN' ? 'Air Conditioning:' : 'Aria Condizionata:'}</span>
-                                <span>{formatPrice(acPrice)}</span>
-                              </div>
-                            )}
+                              
+                              {extraGuests > 0 && (
+                                <div className="flex justify-between">
+                                  <span>{lang === 'TH' ? `ผู้เข้าพักเพิ่มเติม (${extraGuests} ท่าน):` : lang === 'DE' ? `Zusätzliche Gäste (${extraGuests} Pers.):` : lang === 'EN' ? `Extra guests (${extraGuests} pers.):` : `Ospiti aggiuntivi (${extraGuests} pers.):`}</span>
+                                  <span>{formatPrice(extraGuestsPrice)}</span>
+                                </div>
+                              )}
+                              
+                              {extras.breakfast && (
+                                <div className="flex justify-between">
+                                  <span>{lang === 'TH' ? 'อาหารเช้า:' : lang === 'DE' ? 'Frühstück:' : lang === 'EN' ? 'Breakfast:' : 'Colazione:'}</span>
+                                  <span>{formatPrice(breakfastPrice)}</span>
+                                </div>
+                              )}
+                              
+                              {extras.ac && (
+                                <div className="flex justify-between">
+                                  <span>{lang === 'TH' ? 'เครื่องปรับอากาศ:' : lang === 'DE' ? 'Klimaanlage:' : lang === 'EN' ? 'Air Conditioning:' : 'Aria Condizionata:'}</span>
+                                  <span>{formatPrice(acPrice)}</span>
+                                </div>
+                              )}
 
-                             <div className="flex justify-between font-bold border-t border-dashed border-stone-300 pt-1.5 text-stone-700">
-                               <span>{lang === 'TH' ? 'ยอดรวมก่อนส่วนลด:' : lang === 'DE' ? 'Brutto-Zwischensumme:' : lang === 'EN' ? 'Gross Subtotal:' : 'Subtotale Lordo:'}</span>
-                               <span>{formatPrice(pricingWithExtras.totalLordo)}</span>
-                             </div>
+                               <div className="flex justify-between font-bold border-t border-dashed border-stone-300 pt-1.5 text-stone-700">
+                                 <span>{lang === 'TH' ? 'ยอดรวมก่อนส่วนลด:' : lang === 'DE' ? 'Brutto-Zwischensumme:' : lang === 'EN' ? 'Gross Subtotal:' : 'Subtotale Lordo:'}</span>
+                                 <span>{formatPrice(pricingWithExtras.totalLordo)}</span>
+                               </div>
 
-                            <div className="flex justify-between text-emerald-700 font-bold">
-                              <span>{lang === 'TH' ? `ส่วนลดจองตรง (-${Math.round(discountRate * 100)}%):` : lang === 'DE' ? `Direktbuchungsrabatt (-${Math.round(discountRate * 100)}%):` : lang === 'EN' ? `Direct Booking Discount (-${Math.round(discountRate * 100)}%):` : `Sconto Diretto (-${Math.round(discountRate * 100)}%):`}</span>
-                              <span>-{formatPrice(discountAmount)}</span>
+                               {appliedPromo ? (
+                                 <div className="flex justify-between text-fuchsia-700 font-bold">
+                                   <span>🎟️ Coupon ({appliedPromo.code}):</span>
+                                   <span>-{formatPrice(promoDiscountAmount)}</span>
+                                 </div>
+                               ) : (
+                                 directDiscountAmount > 0 && (
+                                   <div className="flex justify-between text-emerald-700 font-bold">
+                                     <span>Sconto Diretto (-{Math.round(discountInfo.discount * 100)}%):</span>
+                                     <span>-{formatPrice(directDiscountAmount)}</span>
+                                   </div>
+                                 )
+                               )}
                             </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="p-3.5 text-center text-xs text-stone-600 italic bg-amber-50/70 border border-amber-200/80 rounded-2xl space-y-1">
+                            <span className="block font-bold text-amber-900 not-italic">
+                              {lang === 'TH' ? '📅 โปรดเลือกวันที่เข้าพัก' : lang === 'DE' ? '📅 Bitte Aufenthaltsdaten wählen' : lang === 'EN' ? '📅 Select stay dates' : '📅 Seleziona le date del soggiorno'}
+                            </span>
+                            <span className="block text-[11px] text-amber-750">
+                              {lang === 'TH' ? 'เลือกวันเช็คอินและเช็คเอาท์เพื่อคำนวณรายละเอียดราคาแบบเรียลไทม์' : lang === 'DE' ? 'Wählen Sie An- und Abreisedaten zur Berechnung der Kostenaufstellung.' : lang === 'EN' ? 'Select check-in and check-out dates to calculate live cost breakdown.' : 'Inserisci check-in e check-out per calcolare il dettaglio costi in tempo reale.'}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
 

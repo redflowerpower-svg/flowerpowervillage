@@ -20,7 +20,8 @@ import {
   Flower,
   Dumbbell,
   HelpingHand,
-  Wind
+  Wind,
+  X
 } from "lucide-react"
 import { getAuthorizationUrl, isAuthenticated, exchangeToken, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
@@ -115,15 +116,119 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   const [isBooked, setIsBooked] = useState(false)
   const [bookingId, setBookingId] = useState("")
   const [stripeSessionId, setStripeSessionId] = useState("")
-  const [appliedPromo, setAppliedPromo] = useState<string | null>(null)
 
-  // V19: Parse ?promo=CODICE parameter from URL
+  // Promo Code States (V22)
+  const [promoInput, setPromoInput] = useState("")
+  const [appliedPromo, setAppliedPromo] = useState<any | null>(null)
+  const [promoError, setPromoError] = useState<string | null>(null)
+  const [promoSuccess, setPromoSuccess] = useState<string | null>(null)
+
+  // Verified booking financial data state (V23 Fix for 0 THB bug)
+  const [verifiedBooking, setVerifiedBooking] = useState<{
+    finalTotal: number;
+    depositPaid: number;
+    balanceDue: number;
+    promoCode?: string | null;
+    discountAmount?: number;
+  } | null>(null)
+
+  // Remove promo code & clear sessionStorage
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoInput("");
+    setPromoSuccess(null);
+    setPromoError(null);
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.removeItem('fpv_applied_promo_code');
+      } catch (e) {
+        console.warn("[SessionStorage] Failed to remove promo:", e);
+      }
+    }
+  };
+
+  // Validate Promo Code using Zustand store (V22)
+  const handleValidatePromo = async (codeToValidate: string) => {
+    const cleanCode = codeToValidate.trim().toUpperCase();
+    if (!cleanCode) {
+      setPromoError(lang === 'IT' ? "Inserisci un codice promozionale." : "Please enter a promo code.");
+      setPromoSuccess(null);
+      return;
+    }
+    try {
+      const { useResortAdminStore } = await import("../../admin/resort/store/useResortAdminStore");
+      const promoCodes = useResortAdminStore.getState().promoCodes;
+      const found = promoCodes.find(p => p.code.trim().toUpperCase() === cleanCode);
+
+      if (!found) {
+        setPromoError(lang === 'IT' ? `Codice "${cleanCode}" non valido.` : `Invalid promo code "${cleanCode}".`);
+        setPromoSuccess(null);
+        handleRemovePromo();
+        return;
+      }
+
+      if (!found.active) {
+        setPromoError(lang === 'IT' ? `Il codice "${cleanCode}" non è attivo.` : `Promo code "${cleanCode}" is inactive.`);
+        setPromoSuccess(null);
+        handleRemovePromo();
+        return;
+      }
+
+      if (found.slotsTotal > 0 && found.slotsUsed >= found.slotsTotal) {
+        setPromoError(lang === 'IT' ? `Il codice "${cleanCode}" ha esaurito gli utilizzi disponibili.` : `Promo code "${cleanCode}" has reached its limit.`);
+        setPromoSuccess(null);
+        handleRemovePromo();
+        return;
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (found.validFrom && todayStr < found.validFrom) {
+        setPromoError(lang === 'IT' ? `Il codice "${cleanCode}" non è ancora valido.` : `Promo code "${cleanCode}" is not yet valid.`);
+        setPromoSuccess(null);
+        handleRemovePromo();
+        return;
+      }
+      if (found.validTo && todayStr > found.validTo) {
+        setPromoError(lang === 'IT' ? `Il codice "${cleanCode}" è scaduto.` : `Promo code "${cleanCode}" has expired.`);
+        setPromoSuccess(null);
+        handleRemovePromo();
+        return;
+      }
+
+      // Valid Promo Code!
+      setAppliedPromo(found);
+      setPromoError(null);
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.setItem('fpv_applied_promo_code', found.code);
+        } catch (e) {
+          console.warn("[SessionStorage] Failed to save promo:", e);
+        }
+      }
+      const discountText = found.discountType === 'percentage' ? `-${found.discountValue}%` : `-฿${found.discountValue}`;
+      setPromoSuccess(lang === 'IT' ? `Coupon ${found.code} (${discountText}) applicato!` : `Coupon ${found.code} (${discountText}) applied!`);
+    } catch (err) {
+      console.error("[Promo Validation Error]", err);
+      setPromoError(lang === 'IT' ? "Errore nella verifica del codice." : "Error validating promo code.");
+    }
+  }
+
+  // Parse & Auto-Validate ?promo=CODICE parameter from URL or sessionStorage (V22)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      const pCode = params.get('promo');
-      if (pCode) {
-        setAppliedPromo(pCode.trim().toUpperCase());
+      const urlCode = params.get('promo');
+      let savedCode: string | null = null;
+      try {
+        savedCode = sessionStorage.getItem('fpv_applied_promo_code');
+      } catch (e) {
+        console.warn("[SessionStorage] Read error:", e);
+      }
+      const codeToApply = urlCode ? urlCode.trim().toUpperCase() : (savedCode ? savedCode.trim().toUpperCase() : null);
+
+      if (codeToApply) {
+        setPromoInput(codeToApply);
+        handleValidatePromo(codeToApply);
       }
     }
   }, []);
@@ -205,18 +310,47 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         phone: bookingData.guestPhone,
         requests: ""
       })
-      setConfirmedTotalPrice(Number(bookingData.totalPrice))
+      const resolvedFinalTotal = Number(verifyData.finalTotal || bookingData?.finalTotal || bookingData?.grandTotal || bookingData?.totalPrice || 0)
+      const resolvedDepositPaid = Number(verifyData.depositPaid || bookingData?.depositPaid || bookingData?.depositAmount || Math.round(resolvedFinalTotal * 0.3))
+      const resolvedBalanceDue = Number(verifyData.balanceDue || bookingData?.balanceDue || (resolvedFinalTotal - resolvedDepositPaid))
+      const resolvedPromoCode = verifyData.promoCode || bookingData?.promoCode || null
+      const resolvedDiscountAmount = Number(verifyData.discountAmount || bookingData?.discountAmount || bookingData?.promoDiscountAmount || 0)
 
-      // Applied Promo Code State (V19)
-      const promoToIncrement = appliedPromo || bookingData?.promoCode
+      setVerifiedBooking({
+        finalTotal: resolvedFinalTotal,
+        depositPaid: resolvedDepositPaid,
+        balanceDue: resolvedBalanceDue,
+        promoCode: resolvedPromoCode,
+        discountAmount: resolvedDiscountAmount
+      })
+      setConfirmedTotalPrice(resolvedFinalTotal)
+
+      // Applied Promo Code Tracking & Cleanup (V24)
+      const savedPromoCode = typeof window !== 'undefined' ? sessionStorage.getItem('fpv_applied_promo_code') : null;
+      const promoToIncrement = savedPromoCode || appliedPromo?.code || (typeof appliedPromo === 'string' ? appliedPromo : null) || resolvedPromoCode;
+
       if (promoToIncrement) {
         try {
           const { useResortAdminStore } = await import("../../admin/resort/store/useResortAdminStore")
           useResortAdminStore.getState().incrementPromoCodeUsage(promoToIncrement)
+          console.log("[Promo Engine V24] Incremented promo code usage:", promoToIncrement);
         } catch (pErr) {
-          console.error("[Promo Engine] Errore incremento promo code:", pErr)
+          console.error("[Promo Engine V24] Errore incremento promo code:", pErr)
         }
       }
+
+      // Cleanup session & states to auto-close floating banner (V24)
+      if (typeof window !== 'undefined') {
+        try {
+          sessionStorage.removeItem('fpv_applied_promo_code');
+        } catch (e) {
+          console.warn("[SessionStorage] Failed to clear promo key:", e);
+        }
+      }
+      setAppliedPromo(null);
+      setPromoInput("");
+      setPromoSuccess(null);
+      setPromoError(null);
 
       // Octorate reservation is now handled server-side in verify-checkout-session.ts
       if (octorateReservationId && octorateStatus === "confirmed") {
@@ -518,25 +652,69 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     );
   };
 
+  const calculateBaseRoomCost = (pricing: any, room: any, isLow: boolean): number => {
+    if (pricing && typeof pricing.basePriceLordo === 'number' && pricing.basePriceLordo > 0) {
+      return pricing.basePriceLordo;
+    }
+    if (pricing && typeof pricing.original === 'number' && pricing.original > 0) {
+      return pricing.original;
+    }
+    if (pricing && typeof pricing.perNight === 'number' && pricing.perNight > 0) {
+      return pricing.perNight;
+    }
+    if (room) {
+      return isLow ? (room.base_price_low ?? room.pricePerNight ?? 0) : (room.base_price_high ?? room.pricePerNight ?? 0);
+    }
+    return 0;
+  };
+
   // Memoized pricing calculations for checkout (base + discounts + extras)
   const checkoutPricing = useMemo(() => {
-    if (!selectedRoom || !selectedPricing) return { original: 0, savings: 0, total: 0, breakfast: 0, ac: 0, finalTotal: 0 };
+    if (!selectedRoom || !selectedPricing) return { original: 0, savings: 0, total: 0, breakfast: 0, ac: 0, directDiscount: 0, promoDiscount: 0, finalTotal: 0 };
     const breakfast = extraBreakfast ? (PRICE_CONFIG.BREAKFAST_PRICE * guests * stayDays) : 0;
     const ac = extraAC ? PRICE_CONFIG.AC_SURCHARGE : 0;
 
-    // Use pre-calculated discounted room & guests price from pricing object
-    const baseRoomAndGuestsTotal = selectedPricing.roomAndGuestsTotalNetto ?? (selectedPricing.total - (selectedPricing.breakfast || 0) - (selectedPricing.ac || 0));
-    const finalTotal = baseRoomAndGuestsTotal + breakfast + ac;
+    // Mother Rate (Tariffa Madre): Priority 1 = Live Octorate price from selectedPricing.basePriceLordo (V28)
+    const baseRoomPricePerNight = calculateBaseRoomCost(selectedPricing, selectedRoom, lowSeason);
+    const roomCostMother = baseRoomPricePerNight * stayDays;
+    const extraGuestsCount = Math.max(0, guests - selectedRoom.baseGuests);
+    const extraGuestCost = extraGuestsCount * PRICE_CONFIG.EXTRA_GUEST_PRICE * stayDays;
+    const motherRateTotal = roomCostMother + extraGuestCost;
+
+    let directDiscountAmount = 0;
+    let promoDiscountAmount = 0;
+
+    if (appliedPromo) {
+      // EXCLUSIVITY (V26): Standard stay duration discount is FORCED to 0
+      directDiscountAmount = 0;
+
+      // Promo discount calculated DIRECTLY on Mother Rate (roomCost + extraGuestCost)
+      if (appliedPromo.discountType === 'percentage') {
+        promoDiscountAmount = Math.round(motherRateTotal * (appliedPromo.discountValue / 100));
+      } else if (appliedPromo.discountType === 'fixed') {
+        promoDiscountAmount = Math.min(motherRateTotal, appliedPromo.discountValue);
+      }
+    } else {
+      // Standard stay duration discount applies
+      const savingsPercent = selectedPricing.savings || 0;
+      directDiscountAmount = Math.round(roomCostMother * (savingsPercent / 100));
+      promoDiscountAmount = 0;
+    }
+
+    const discountedRoomAndGuestsTotal = Math.max(0, motherRateTotal - directDiscountAmount - promoDiscountAmount);
+    const finalTotal = discountedRoomAndGuestsTotal + breakfast + ac;
 
     return {
-      original: (selectedPricing.basePriceLordo ?? selectedPricing.original) * stayDays,
-      savings: selectedPricing.savings,
-      total: baseRoomAndGuestsTotal,
+      original: motherRateTotal,
+      savings: appliedPromo ? 0 : (selectedPricing.savings || 0),
+      total: discountedRoomAndGuestsTotal,
       breakfast,
       ac,
+      directDiscount: directDiscountAmount,
+      promoDiscount: promoDiscountAmount,
       finalTotal
     };
-  }, [selectedRoom, selectedPricing, extraBreakfast, extraAC, guests, stayDays]);
+  }, [selectedRoom, selectedPricing, extraBreakfast, extraAC, guests, stayDays, appliedPromo]);
 
   const filteredAccommodations = ACCOMMODATIONS.filter((item) => {
     const normalizedActive = selectedCategory.toUpperCase()
@@ -575,7 +753,10 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           extraBreakfast,
           extraAC,
           lang,
-          origin: window.location.origin
+          origin: window.location.origin,
+          promoCode: appliedPromo?.code || null,
+          discountType: appliedPromo?.discountType || null,
+          discountValue: appliedPromo?.discountValue || null
         })
       })
 
@@ -1084,33 +1265,46 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     {lang === 'IT' ? 'Acconto 30% Pagato via Stripe' : '30% Deposit Paid via Stripe'}
                   </span>
                 </div>
-                {confirmedTotalPrice !== null && (
-                  <>
-                    <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                      <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'TOTALE SOGGIORNO:' : 'TOTAL STAY PRICE:'}</span>
-                      <span className="font-bold text-stone-750">
-                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(confirmedTotalPrice)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between border-t border-stone-300/50 pt-2 text-emerald-850 bg-emerald-500/5 p-2 rounded-lg border border-emerald-700/10">
-                      <span className="font-bold uppercase">{lang === 'IT' ? 'ACCONTO PAGATO (30%):' : 'DEPOSIT PAID (30%):'}</span>
-                      <span className="font-black">
-                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(Math.round(confirmedTotalPrice * 0.3))}
-                      </span>
-                    </div>
-                    <div className="flex flex-col border-t border-stone-300/50 pt-2 text-stone-700 bg-stone-200/40 p-2 rounded-lg border border-stone-300/30 gap-1">
-                      <div className="flex justify-between w-full">
-                        <span className="font-semibold uppercase">{lang === 'IT' ? 'SALDO DOVUTO ALL\'ARRIVO (70%):' : 'BALANCE DUE AT CHECK-IN (70%):'}</span>
-                        <span className="font-bold">
-                          {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(confirmedTotalPrice - Math.round(confirmedTotalPrice * 0.3))}
+                {(verifiedBooking || confirmedTotalPrice !== null) && (() => {
+                  const displayTotal = verifiedBooking?.finalTotal ?? confirmedTotalPrice ?? 0;
+                  const displayDeposit = verifiedBooking?.depositPaid ?? Math.round(displayTotal * 0.3);
+                  const displayBalance = verifiedBooking?.balanceDue ?? (displayTotal - displayDeposit);
+                  return (
+                    <>
+                      <div className="flex justify-between border-t border-stone-300/50 pt-2">
+                        <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'TOTALE SOGGIORNO:' : 'TOTAL STAY PRICE:'}</span>
+                        <span className="font-bold text-stone-750">
+                          {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(displayTotal)}
                         </span>
                       </div>
-                      <span className="block text-[10px] text-stone-500 font-normal leading-relaxed mt-1">
-                        {t('balanceMethods' as any)}
-                      </span>
-                    </div>
-                  </>
-                )}
+                      {verifiedBooking?.promoCode && (verifiedBooking.discountAmount || 0) > 0 && (
+                        <div className="flex justify-between border-t border-stone-300/50 pt-2 text-fuchsia-700 font-bold bg-fuchsia-50/60 p-2 rounded-lg border border-fuchsia-200/50">
+                          <span className="uppercase">{lang === 'IT' ? `COUPON SCONTO (${verifiedBooking.promoCode}):` : `PROMO COUPON (${verifiedBooking.promoCode}):`}</span>
+                          <span>
+                            -{new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(verifiedBooking.discountAmount!)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between border-t border-stone-300/50 pt-2 text-emerald-850 bg-emerald-500/5 p-2 rounded-lg border border-emerald-700/10">
+                        <span className="font-bold uppercase">{lang === 'IT' ? 'ACCONTO PAGATO (30%):' : 'DEPOSIT PAID (30%):'}</span>
+                        <span className="font-black">
+                          {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(displayDeposit)}
+                        </span>
+                      </div>
+                      <div className="flex flex-col border-t border-stone-300/50 pt-2 text-stone-700 bg-stone-200/40 p-2 rounded-lg border border-stone-300/30 gap-1">
+                        <div className="flex justify-between w-full">
+                          <span className="font-semibold uppercase">{lang === 'IT' ? 'SALDO DOVUTO ALL\'ARRIVO (70%):' : 'BALANCE DUE AT CHECK-IN (70%):'}</span>
+                          <span className="font-bold">
+                            {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(displayBalance)}
+                          </span>
+                        </div>
+                        <span className="block text-[10px] text-stone-500 font-normal leading-relaxed mt-1">
+                          {t('balanceMethods' as any)}
+                        </span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
@@ -1400,6 +1594,79 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   </div>
                 </div>
 
+                {/* Coupon Box - V20 Fucsia Style (Requirement 2) */}
+                <div className="bg-fuchsia-50/90 border border-fuchsia-200/80 rounded-xl p-3.5 space-y-2.5 my-3 shadow-xs">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-fuchsia-800 font-extrabold text-xs uppercase tracking-wider">
+                      <Percent className="w-3.5 h-3.5 text-fuchsia-600" />
+                      <span>{lang === 'IT' ? 'Codice Promozionale / Coupon' : 'Promo Code / Coupon'}</span>
+                    </div>
+                    {appliedPromo && (
+                      <span className="text-[10px] bg-fuchsia-600 text-white font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                        {appliedPromo.discountType === 'percentage' ? `-${appliedPromo.discountValue}%` : `-฿${appliedPromo.discountValue}`}
+                      </span>
+                    )}
+                  </div>
+
+                  {!appliedPromo ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder={lang === 'IT' ? 'Es. WELCOME2026' : 'e.g. WELCOME2026'}
+                        value={promoInput}
+                        onChange={(e) => {
+                          setPromoInput(e.target.value);
+                          setPromoError(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleValidatePromo(promoInput);
+                          }
+                        }}
+                        className="flex-1 px-3 py-1.5 text-xs bg-white border border-fuchsia-300 rounded-lg text-stone-800 font-bold tracking-wider uppercase placeholder:normal-case placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-fuchsia-500/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleValidatePromo(promoInput)}
+                        className="px-3 py-1.5 text-xs font-bold bg-fuchsia-600 hover:bg-fuchsia-700 active:scale-95 text-white rounded-lg transition-all shadow-xs cursor-pointer"
+                      >
+                        {lang === 'IT' ? 'Applica' : 'Apply'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between bg-white border border-fuchsia-300 rounded-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-extrabold text-xs text-fuchsia-900 tracking-wider">
+                          🎟️ {appliedPromo.code}
+                        </span>
+                        <span className="text-[11px] text-fuchsia-700 font-semibold">
+                          ({appliedPromo.discountType === 'percentage' ? `-${appliedPromo.discountValue}%` : `-฿${appliedPromo.discountValue}`})
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemovePromo}
+                        className="text-[11px] text-stone-500 hover:text-red-600 font-bold px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                      >
+                        ✕ {lang === 'IT' ? 'Rimuovi' : 'Remove'}
+                      </button>
+                    </div>
+                  )}
+
+                  {promoError && (
+                    <p className="text-[11px] text-red-600 font-semibold flex items-center gap-1">
+                      ⚠️ {promoError}
+                    </p>
+                  )}
+
+                  {promoSuccess && (
+                    <p className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                      ✅ {promoSuccess}
+                    </p>
+                  )}
+                </div>
+
                 {/* Price Breakdown */}
                 <div className="space-y-3 text-xs pt-1">
                   <div className="flex justify-between">
@@ -1409,7 +1676,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     </span>
                   </div>
 
-                  {selectedPricing.savings > 0 && (
+                  {!appliedPromo && selectedPricing.savings > 0 && (
                     <div className="flex justify-between text-emerald-700 font-semibold">
                       <span>
                         {stayDays >= 30 && "Sconto Digital Nomads (30+ gg)"}
@@ -1428,6 +1695,18 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                       <span>{lang === 'IT' ? "Ospiti Aggiuntivi" : "Extra Guests"} ({Math.max(0, guests - selectedRoom.baseGuests)} x 200 THB x {stayDays} notti)</span>
                       <span className="font-bold text-stone-750">
                         +{new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(selectedPricing.extraGuests)}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Promo Coupon Discount (Requirement 5) */}
+                  {checkoutPricing.promoDiscount > 0 && appliedPromo && (
+                    <div className="flex justify-between text-fuchsia-700 font-bold border-t border-fuchsia-200/50 pt-2.5">
+                      <span className="flex items-center gap-1">
+                        🎟️ Coupon ({appliedPromo.code})
+                      </span>
+                      <span>
+                        -{new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(checkoutPricing.promoDiscount)}
                       </span>
                     </div>
                   )}
@@ -1672,6 +1951,40 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           </>
         )}
       </main>
+
+      {/* Floating Bright Yellow & Neon Red Banner (Requirement 3 V23) */}
+      {appliedPromo && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-yellow-400 border-t-4 border-red-600 shadow-[0_-4px_25px_rgba(220,38,38,0.5)] px-4 py-3 transition-all duration-300">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 overflow-hidden">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white font-black text-xs uppercase tracking-wider animate-pulse shadow-md shrink-0">
+                <Percent className="w-3.5 h-3.5 text-white" />
+                {appliedPromo.discountType === 'percentage' ? `-${appliedPromo.discountValue}%` : `-฿${appliedPromo.discountValue}`}
+              </span>
+              <div className="text-xs md:text-sm font-black text-stone-950 flex items-center gap-2 truncate">
+                <span className="text-base">🎟️</span>
+                <span className="text-red-700 font-black uppercase tracking-wider shrink-0">
+                  {lang === 'IT' ? 'COPERTURA SCONTO ATTIVA:' : 'ACTIVE DISCOUNT COVERAGE:'}
+                </span>
+                <span className="truncate text-stone-950 font-black">
+                  {lang === 'IT' ? `Applicato il codice ${appliedPromo.code}` : `Code ${appliedPromo.code} applied`}
+                </span>
+                <span className="hidden md:inline text-stone-800 font-bold text-xs">
+                  ({lang === 'IT' ? 'sconto applicato su camera + ospiti' : 'valid on room + extra guests'})
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleRemovePromo}
+              className="p-1.5 text-stone-900 hover:text-red-700 hover:bg-yellow-300 rounded-full transition-colors cursor-pointer shrink-0 font-bold"
+              title={lang === 'IT' ? 'Rimuovi codice promozionale' : 'Remove promo code'}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

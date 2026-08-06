@@ -14,11 +14,21 @@ import {
   Sparkles, 
   Link as LinkIcon, 
   Zap, 
-  AlertCircle 
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 
 export const PromoCodesSection: React.FC = () => {
-  const { promoCodes, addPromoCode, togglePromoCodeActive, deletePromoCode } = useResortAdminStore();
+  const { promoCodes, addPromoCode, togglePromoCodeActive, deletePromoCode, refreshPromoCodes } = useResortAdminStore();
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    refreshPromoCodes();
+    setTimeout(() => {
+      setIsRefreshing(false);
+    }, 600);
+  };
 
   // Form State
   const [code, setCode] = useState('');
@@ -81,7 +91,7 @@ export const PromoCodesSection: React.FC = () => {
 
   const copyShareableLink = (promoCode: string, id: string) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const shareUrl = `${origin}/?promo=${encodeURIComponent(promoCode)}`;
+    const shareUrl = `${origin}/village?promo=${encodeURIComponent(promoCode)}`;
     navigator.clipboard.writeText(shareUrl);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2500);
@@ -248,14 +258,26 @@ export const PromoCodesSection: React.FC = () => {
 
       {/* LISTA TRACCIABILE DEI CODICI PROMOZIONALI */}
       <div className="space-y-2">
-        <div 
-          onClick={() => setIsListOpen(!isListOpen)}
-          className="flex items-center justify-between cursor-pointer select-none px-1"
-        >
-          <h4 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
-            <span>LISTA TRACCIABILE DEI COUPON ({promoCodes.length})</span>
-          </h4>
-          {isListOpen ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
+        <div className="flex items-center justify-between px-1">
+          <div 
+            onClick={() => setIsListOpen(!isListOpen)}
+            className="flex items-center gap-2 cursor-pointer select-none"
+          >
+            <h4 className="text-xs font-black text-white uppercase tracking-wider flex items-center gap-2">
+              <span>LISTA TRACCIABILE DEI COUPON ({promoCodes.length})</span>
+            </h4>
+            {isListOpen ? <ChevronUp className="w-4 h-4 text-stone-400" /> : <ChevronDown className="w-4 h-4 text-stone-400" />}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleRefresh}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-900 hover:bg-stone-850 border border-stone-750 hover:border-fuchsia-500/50 text-fuchsia-400 hover:text-fuchsia-300 text-[11px] font-extrabold rounded-xl transition-all cursor-pointer shadow-md active:scale-95"
+            title="Ricarica e aggiorna lo stato di utilizzo dei coupon"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-fuchsia-300' : ''}`} />
+            <span>AGGIORNA STATO CONSUMO</span>
+          </button>
         </div>
 
         {isListOpen && (

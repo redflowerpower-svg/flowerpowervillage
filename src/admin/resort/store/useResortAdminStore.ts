@@ -186,6 +186,7 @@ interface ResortAdminState {
   togglePromoCodeActive: (id: string) => void;
   deletePromoCode: (id: string) => void;
   incrementPromoCodeUsage: (codeOrId: string) => void;
+  refreshPromoCodes: () => void;
 }
 
 export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
@@ -849,5 +850,10 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     });
     savePromoCodesToStorage(updated);
     set({ promoCodes: updated });
+  },
+
+  refreshPromoCodes: () => {
+    const refreshed = loadPromoCodesFromStorage();
+    set({ promoCodes: refreshed });
   }
 }));

@@ -9,14 +9,14 @@ const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supaba
 
 // Room configurations matching accommodations.ts
 const MOCK_ACCOMMODATIONS = [
-  { id: 529784, name: "Jungle Villa", category: "Ville", baseGuests: 8, maxExtraGuests: 0, base_price_high: 2400, base_price_low: 600, monthly_discount: true },
+  { id: 529784, name: "Jungle Villa", category: "Ville", baseGuests: 8, maxExtraGuests: 0, base_price_high: 4800, base_price_low: 1200, monthly_discount: true },
   { id: 495807, name: "Jungle Villa Left", category: "Ville", baseGuests: 4, maxExtraGuests: 0, base_price_high: 2400, base_price_low: 600, monthly_discount: true },
   { id: 495980, name: "Jungle Villa Right", category: "Ville", baseGuests: 4, maxExtraGuests: 0, base_price_high: 2400, base_price_low: 600, monthly_discount: true },
   { id: 495566, name: "Peace & Love Villa", category: "Ville", baseGuests: 4, maxExtraGuests: 0, base_price_high: 2400, base_price_low: 600, monthly_discount: true },
   { id: 449348, name: "Villa Penthouse", category: "Ville", baseGuests: 4, maxExtraGuests: 0, base_price_high: 2400, base_price_low: 600, monthly_discount: true },
-  { id: 449385, name: "Yellow Bungalow", category: "Bungalow", baseGuests: 2, maxExtraGuests: 1, base_price_high: 1800, base_price_low: 450, monthly_discount: true },
-  { id: 449422, name: "Red Bungalow", category: "Bungalow", baseGuests: 2, maxExtraGuests: 1, base_price_high: 1800, base_price_low: 450, monthly_discount: true },
-  { id: 449668, name: "Green Bungalow", category: "Bungalow", baseGuests: 2, maxExtraGuests: 1, base_price_high: 1800, base_price_low: 450, monthly_discount: true },
+  { id: 449385, name: "Yellow Bungalow", category: "Bungalow", baseGuests: 2, maxExtraGuests: 1, base_price_high: 1800, base_price_low: 750, monthly_discount: true },
+  { id: 449422, name: "Red Bungalow", category: "Bungalow", baseGuests: 2, maxExtraGuests: 1, base_price_high: 1800, base_price_low: 750, monthly_discount: true },
+  { id: 449668, name: "Green Bungalow", category: "Bungalow", baseGuests: 2, maxExtraGuests: 1, base_price_high: 1800, base_price_low: 790, monthly_discount: true },
   { id: 449675, name: "Camel Tent Glamping", category: "Tende Glamping", baseGuests: 2, maxExtraGuests: 0, base_price_high: 1400, base_price_low: 350, monthly_discount: false },
   { id: 449674, name: "Lagoon Tent Glamping", category: "Tende Glamping", baseGuests: 2, maxExtraGuests: 0, base_price_high: 1400, base_price_low: 350, monthly_discount: false },
   { id: 449678, name: "Room 1", category: "The Hub Guesthouse", baseGuests: 2, maxExtraGuests: 1, base_price_high: 1000, base_price_low: 250, monthly_discount: true },
@@ -52,7 +52,10 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
       extraBreakfast,
       extraAC,
       lang,
-      origin
+      origin,
+      promoCode,
+      discountType,
+      discountValue
     } = req.body;
 
     if (!accommodationId || !checkIn || !checkOut || !guestName || !guestEmail || !guestPhone) {
@@ -131,13 +134,32 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
       baseRoomPricePerNight = isLowSeason ? room.base_price_low : room.base_price_high;
     }
 
-    // Apply stay discount to room price
-    const discountedRoomPricePerNight = Math.round(baseRoomPricePerNight * (1 - discount));
-    const totalRoomPrice = discountedRoomPricePerNight * nights;
-
-    // Extra Guests
+    // Mother Rate (Tariffa Madre): Base room cost + Extra guest cost
+    const roomCostMother = baseRoomPricePerNight * nights;
     const extraGuestsCount = Math.max(0, guests - room.baseGuests);
     const totalExtraGuestPrice = extraGuestsCount * PRICE_CONFIG.EXTRA_GUEST_PRICE * nights;
+    const motherRateTotal = roomCostMother + totalExtraGuestPrice;
+
+    let directDiscountAmount = 0;
+    let promoDiscountAmount = 0;
+
+    if (promoCode && discountType && discountValue) {
+      // EXCLUSIVITY (V26): Standard stay discount is FORCED to 0 when coupon is present
+      directDiscountAmount = 0;
+
+      const val = Number(discountValue) || 0;
+      if (discountType === 'percentage') {
+        promoDiscountAmount = Math.round(motherRateTotal * (val / 100));
+      } else if (discountType === 'fixed') {
+        promoDiscountAmount = Math.min(motherRateTotal, val);
+      }
+    } else {
+      // Standard stay duration discount applies
+      directDiscountAmount = Math.round(roomCostMother * discount);
+      promoDiscountAmount = 0;
+    }
+
+    const discountedRoomAndGuestsTotal = Math.max(0, motherRateTotal - directDiscountAmount - promoDiscountAmount);
 
     // Extra Breakfast
     const totalBreakfastPrice = extraBreakfast ? (guests * PRICE_CONFIG.BREAKFAST_PRICE * nights) : 0;
@@ -146,7 +168,7 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
     const totalACPrice = extraAC ? PRICE_CONFIG.AC_SURCHARGE : 0;
 
     // Total accommodation price
-    const grandTotal = totalRoomPrice + totalExtraGuestPrice + totalBreakfastPrice + totalACPrice;
+    const grandTotal = discountedRoomAndGuestsTotal + totalBreakfastPrice + totalACPrice;
 
     // Deposit (30%)
     const depositAmount = Math.round(grandTotal * 0.30);
@@ -193,7 +215,13 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
         balanceDue: String(balanceDue),
         discountPercentage: String(Math.round(discount * 100)),
         isLowSeason: String(isLowSeason),
-        lang: lang || "it"
+        lang: lang || "it",
+        promoCode: promoCode ? String(promoCode) : "",
+        discountType: discountType ? String(discountType) : "",
+        discountValue: discountValue ? String(discountValue) : "0",
+        discountAmount: String(promoDiscountAmount),
+        promoDiscountAmount: String(promoDiscountAmount),
+        directDiscountAmount: String(directDiscountAmount)
       },
     });
 
