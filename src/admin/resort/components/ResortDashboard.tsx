@@ -5,6 +5,7 @@ import { ResortVisualCalendar } from './ResortVisualCalendar';
 import { DerivedRatesTreeSection } from './DerivedRatesTreeSection';
 import { NewsletterCampaignSection } from './NewsletterCampaignSection';
 import { StandardRatesProtectionSection } from './StandardRatesProtectionSection';
+import { PromoCodesSection } from './PromoCodesSection';
 import { toThailandDateStr } from '../lib/octorateAdmin';
 import { 
   Hotel, 
@@ -1282,6 +1283,9 @@ export function ResortDashboard() {
 
       {/* TARIFFE STANDARD HIGH SEASON (LAST MINUTE) PANEL */}
       <StandardRatesProtectionSection />
+
+      {/* V19 CODICI PROMOZIONALI & TICKET SCONTO PANEL */}
+      <PromoCodesSection />
 
       </>
       )}

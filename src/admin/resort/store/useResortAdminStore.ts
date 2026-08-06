@@ -38,6 +38,59 @@ export interface AccommodationStatus {
   maxGuests: number;
 }
 
+export interface PromoCode {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  slotsTotal: number;
+  slotsUsed: number;
+  isSingleUse: boolean;
+  validFrom: string;
+  validTo: string;
+  active: boolean;
+  createdAt: string;
+}
+
+const STORAGE_KEY_PROMO_CODES = 'fpv_promo_codes';
+
+const loadPromoCodesFromStorage = (): PromoCode[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PROMO_CODES);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.error('[useResortAdminStore] Failed to read promo codes from localStorage:', e);
+  }
+  return [
+    {
+      id: 'promo-welcome-2026',
+      code: 'WELCOME2026',
+      discountType: 'percentage',
+      discountValue: 10,
+      slotsTotal: 50,
+      slotsUsed: 3,
+      isSingleUse: false,
+      validFrom: '2026-01-01',
+      validTo: '2026-12-31',
+      active: true,
+      createdAt: new Date().toISOString()
+    }
+  ];
+};
+
+const savePromoCodesToStorage = (codes: PromoCode[]) => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY_PROMO_CODES, JSON.stringify(codes));
+  } catch (e) {
+    console.error('[useResortAdminStore] Failed to save promo codes to localStorage:', e);
+  }
+};
+
 interface ResortAdminState {
   bookings: ResortBooking[];
   rawOctorateBookings: any[];
@@ -126,9 +179,17 @@ interface ResortAdminState {
   setStandardDaysOpenDuration: (days: number) => void;
   setStandardDaysCtaDuration: (days: number) => void;
   executeStandardProtectionStrategy: (resetToOpen?: boolean) => Promise<void>;
+
+  // V19 Promo Codes & Discount Tickets State & Actions
+  promoCodes: PromoCode[];
+  addPromoCode: (promo: Omit<PromoCode, 'id' | 'slotsUsed' | 'createdAt'>) => void;
+  togglePromoCodeActive: (id: string) => void;
+  deletePromoCode: (id: string) => void;
+  incrementPromoCodeUsage: (codeOrId: string) => void;
 }
 
 export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
+  promoCodes: loadPromoCodesFromStorage(),
   bookings: [],
   rawOctorateBookings: [],
   accommodations: ACCOMMODATIONS.map((room) => ({
@@ -744,5 +805,49 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
         lastMinuteRunning: false
       });
     }
+  },
+
+  addPromoCode: (promoData) => {
+    const newPromo: PromoCode = {
+      ...promoData,
+      id: `promo-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      code: promoData.code.trim().toUpperCase(),
+      slotsUsed: 0,
+      createdAt: new Date().toISOString()
+    };
+    const updated = [newPromo, ...get().promoCodes];
+    savePromoCodesToStorage(updated);
+    set({ promoCodes: updated });
+  },
+
+  togglePromoCodeActive: (id) => {
+    const updated = get().promoCodes.map((p) =>
+      p.id === id ? { ...p, active: !p.active } : p
+    );
+    savePromoCodesToStorage(updated);
+    set({ promoCodes: updated });
+  },
+
+  deletePromoCode: (id) => {
+    const updated = get().promoCodes.filter((p) => p.id !== id);
+    savePromoCodesToStorage(updated);
+    set({ promoCodes: updated });
+  },
+
+  incrementPromoCodeUsage: (codeOrId) => {
+    const target = codeOrId.trim().toUpperCase();
+    const updated = get().promoCodes.map((p) => {
+      if (p.id === codeOrId || p.code.toUpperCase() === target) {
+        const nextUsed = p.slotsUsed + 1;
+        return {
+          ...p,
+          slotsUsed: nextUsed,
+          active: p.isSingleUse && nextUsed >= p.slotsTotal ? false : p.active
+        };
+      }
+      return p;
+    });
+    savePromoCodesToStorage(updated);
+    set({ promoCodes: updated });
   }
 }));

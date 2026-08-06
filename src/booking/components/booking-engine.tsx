@@ -115,6 +115,18 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   const [isBooked, setIsBooked] = useState(false)
   const [bookingId, setBookingId] = useState("")
   const [stripeSessionId, setStripeSessionId] = useState("")
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null)
+
+  // V19: Parse ?promo=CODICE parameter from URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const pCode = params.get('promo');
+      if (pCode) {
+        setAppliedPromo(pCode.trim().toUpperCase());
+      }
+    }
+  }, []);
 
   // Auto-scroll to checkout form position when a room is selected
   useEffect(() => {
@@ -194,6 +206,17 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         requests: ""
       })
       setConfirmedTotalPrice(Number(bookingData.totalPrice))
+
+      // Applied Promo Code State (V19)
+      const promoToIncrement = appliedPromo || bookingData?.promoCode
+      if (promoToIncrement) {
+        try {
+          const { useResortAdminStore } = await import("../../admin/resort/store/useResortAdminStore")
+          useResortAdminStore.getState().incrementPromoCodeUsage(promoToIncrement)
+        } catch (pErr) {
+          console.error("[Promo Engine] Errore incremento promo code:", pErr)
+        }
+      }
 
       // Octorate reservation is now handled server-side in verify-checkout-session.ts
       if (octorateReservationId && octorateStatus === "confirmed") {
