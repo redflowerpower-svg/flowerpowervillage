@@ -198,6 +198,29 @@ executionMode:
 - **Layout Single-Line V20 (Desktop)**: Form di creazione su riga unica orizzontale (`flex-col lg:flex-row`):
   1. Input Codice / Ticket con tasto **🎲 Ticket Random** posizionato assolutamente all'interno dell'input.
   2. Selettore tipo sconto (% / ฿) e valore.
+  3. Contatore utilizzi massimi e checkbox monouso.
+  4. Date picker unificato **Dal ➔ Al**.
+  5. Pulsante `+ AGGIUNGI` ad altezza coordinata `h-10`.
+- **Interattività & Pulsante Refresh**:
+  - Tasto **`🔄 AGGIORNA STATO CONSUMO`** per ricaricare istantaneamente il consumo dei coupon da `localStorage`.
+
+---
+
+## 9. Regola di Esclusività del Coupon & Metadati Certificati Stripe V26–V30 (06/08/2026)
+
+### Direttiva Inderogabile di Esclusività Coupon (V26–V28)
+- **Zero Sconti Sovrapposti**: Quando un coupon promozionale (`appliedPromo` o `promoCode`) è applicato alla prenotazione, lo sconto automatico di soggiorno per durata (`directDiscountAmount`) viene **TASSATIVAMENTE FORZATO A 0**.
+- **Base di Calcolo (Tariffa Madre)**: Lo sconto del coupon viene calcolato esclusivamente sulla Tariffa Madre dell'alloggio più eventuali ospiti extra (`roomCost + extraGuests`), **escludendo rigorosamente** i supplementi di Colazione (+1.000 THB) ed Aria Condizionata (+500 THB).
+- **Integrazione Frontend (`booking-engine.tsx`, `RoomGrid.tsx`)**:
+  - Nel carrello e nella scheda dell'alloggio, quando il coupon è attivo la riga dello sconto diretto (-10%) viene completamente nascosta.
+  - Viene mostrata solo la riga `🎟️ Coupon (CODICE): -฿XXX`.
+
+### Certificazione dei Metadati Finanziari Stripe (V27)
+- **Archiviazione nei Metadati Stripe (`checkout.ts`)**:
+  I valori finanziari finali sono scritti e certificati direttamente nei metadati della sessione di pagamento Stripe Checkout:
+  - `grandTotal`, `depositAmount`, `balanceDue`, `promoCode`, `discountAmount`, `promoDiscountAmount`, `directDiscountAmount`.
+- **Verifica Serverless (`verify.ts`)**:
+  La funzione di verifica legge ed estrae questi importi certificati dai metadati Stripe per popolare il JSON di risposta, la ricevuta PDF (`booking-confirmation.ts`) e la mail di conferma, garantendo perfetta corrispondenza tra quanto pagato dal cliente e quanto registrato nei log Octorate.
   3. Input Slots utilizzabili.
   4. Checkbox Monouso 🎟️.
   5. Date picker unificato Dal ➔ Al in un'unica pillola visiva.

@@ -608,8 +608,14 @@ executionMode:
 ### E. Stato Compresso Tariffe Derivate (V18)
 - In `DerivedRatesTreeSection.tsx`, `expandedRooms` è inizializzato a `{}`. All'accesso, tutti i 18 alloggi e i bungalow di test si presentano completamente compressi di default, con i pulsanti rapidi *Espandi Tutti* e *Comprimi Tutti* coordinati nello stile della dashboard.
 
-### F. Modulo Codici Promozionali & Ticket Sconto V19 / V20 (06/08/2026)
+### F. Modulo Codici Promozionali & Ticket Sconto V19 / V20 / V26–V30 (06/08/2026)
 - **Componente `PromoCodesSection.tsx`**: Integrato in `ResortDashboard.tsx` sotto i 3 moduli sconti storici.
 - **Design & Layout**: Tema **Fuchsia / Rose Gold** a doppio bordo. Layout single-line desktop (V20) con tasto 🎲 ticket random interno all'input text, date picker unificato Dal ➔ Al e pulsante `+ AGGIUNGI` (`h-10`).
 - **Tracciamento & Link Sconto**: Lista accordion con barra di avanzamento degli utilizzi (`slotsUsed / slotsTotal`), interruttore di stato attivo/disattivo e pulsante per la generazione del link condivisibile (`?promo=CODICE`).
+- **Pulsante Refresh Stato Consumo**: Aggiunto il pulsante `🔄 AGGIORNA STATO CONSUMO` accanto al titolo della lista coupon per ri-sincronizzare all'istante l'utilizzo da `localStorage` senza ricaricare la pagina.
+- **Esclusività Sconto Coupon (V26–V28)**: Quando un coupon promozionale è attivo (`appliedPromo`), lo sconto automatico di soggiorno (`directDiscountAmount`) viene TASSATIVAMENTE azzerato (`0`). Il coupon si applica in modo esclusivo direttamente sulla Tariffa Madre (`roomCost + extraGuests`), escludendo Colazione ed Aria Condizionata.
+- **Guardie di Sicurezza & Fallback (V29–V30)**:
+  - Inserito il controllo `hasValidDates = Boolean(checkIn && checkOut && stayDays > 0)` in `RoomGrid.tsx` che bypassa il calcolo dinamico e mostra le tariffe base statiche dell'alloggio quando le date non sono impostate.
+  - Protette le funzioni `calculateNights` in `octorate.ts` e `calculateStayDays` con blocchi `try-catch` affinché restituiscano `0` in sicurezza in caso di date non valide, senza crashare.
+  - Il cassetto *"Dettaglio Costi"* renderizza una guardia condizionale `{hasValidDates && pricingWithExtras ? (...) : (...)}` con un messaggio di cortesia che invita a selezionare le date quando le date sono assenti.
 
