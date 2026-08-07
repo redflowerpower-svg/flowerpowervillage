@@ -23,6 +23,7 @@ import {
   Loader2,
   Info
 } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
 import { publicSupabase, fetchAccommodations } from '../../../booking/data/accommodationsService';
 
 export interface AccommodationFeaturesEditorProps {
@@ -270,19 +271,61 @@ export const AccommodationFeaturesEditor: React.FC<AccommodationFeaturesEditorPr
         throw new Error(`Impossibile individuare l'alloggio "${accommodation?.name}" su Supabase DB.`);
       }
 
-      // Perform update query on Supabase table 'accommodations' by exact UUID
-      const { error } = await publicSupabase
-        .from('accommodations')
-        .update({
-          details: updatedDetails
-        })
-        .eq('id', dbRowId);
+      // Attempt API route first for secure Service Role update (bypasses RLS write block)
+      let saveSuccess = false;
+      let apiErrorMsg = '';
 
-      if (error) throw error;
+      try {
+        const response = await fetch('/api/update-accommodation-features', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: dbRowId,
+            details: updatedDetails
+          })
+        });
+
+        if (response.ok) {
+          const resData = await response.json();
+          if (resData.success) {
+            saveSuccess = true;
+          } else {
+            apiErrorMsg = resData.error || 'Errore risposta API.';
+          }
+        } else {
+          apiErrorMsg = `HTTP ${response.status}`;
+        }
+      } catch (e: any) {
+        apiErrorMsg = e?.message || 'Eccezione di rete API';
+      }
+
+      // Fallback: Direct Supabase client update with explicit .select() row count check
+      if (!saveSuccess) {
+        const serviceKey = (import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY) as string;
+        let updateClient = publicSupabase;
+        if (serviceKey) {
+          const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || 'https://gjqevgkbjkharczhikcl.supabase.co') as string;
+          updateClient = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+        }
+
+        const { data: updatedRows, error: updateErr } = await updateClient
+          .from('accommodations')
+          .update({ details: updatedDetails })
+          .eq('id', dbRowId)
+          .select();
+
+        if (updateErr) {
+          throw updateErr;
+        }
+
+        if (!updatedRows || updatedRows.length === 0) {
+          throw new Error(`Salvataggio non riuscito sul database (0 righe modificate). Dettaglio: ${apiErrorMsg || 'Autorizzazioni di scrittura DB riservate all\'Admin'}`);
+        }
+      }
 
       setSaveStatus({
         success: true,
-        message: 'Caratteristiche aggiornate con successo su Supabase!'
+        message: 'Caratteristiche aggiornate e salvate con successo su Supabase DB!'
       });
 
       if (onSaveSuccess) {

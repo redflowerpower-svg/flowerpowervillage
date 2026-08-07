@@ -22,6 +22,7 @@ import { handleOctorateWebhook } from "./_handlers/octorate-webhook.js";
 import { handleEmailAlerts } from "./_handlers/email-alerts.js";
 import { handleSendNewsletter } from "./_handlers/send-newsletter.js";
 import { handleOctorateImport } from "./_handlers/octorate-import.js";
+import { handleUpdateAccommodationFeatures } from "./_handlers/accommodations.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -122,6 +123,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     case 'resort/send-newsletter':
       return handleSendNewsletter(req, res);
+
+    case 'update-accommodation-features':
+    case 'resort/update-accommodation-features':
+      return handleUpdateAccommodationFeatures(req, res);
 
     case 'webhooks/octorate':
     case 'octorate-webhook':
