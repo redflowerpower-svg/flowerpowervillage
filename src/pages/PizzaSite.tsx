@@ -114,10 +114,10 @@ function PizzaNav({ activePage, onNavigate }: { activePage: PizzaPage; onNavigat
             <button
               onClick={() => rrNavigate('/')}
               className="flex items-center gap-1.5 text-stone-400 hover:text-white transition-colors duration-200 text-xs font-semibold uppercase tracking-wider cursor-pointer bg-transparent border-0"
-              title="Back"
+              title="Home"
             >
               <ArrowLeft size={16} />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline">HOME</span>
             </button>
             <div className="h-4 w-px bg-stone-700/60 hidden sm:block" />
             <button
@@ -125,7 +125,7 @@ function PizzaNav({ activePage, onNavigate }: { activePage: PizzaPage; onNavigat
               className="flex items-center gap-2 text-left cursor-pointer group bg-transparent border-0"
             >
               <span className="font-sans font-black tracking-tight text-white text-base md:text-lg group-hover:text-[#f87171] transition-colors">
-                Flower Power <span className="font-light italic text-[#f87171]">Pizza</span>
+                FLOWER POWER <span className="font-light italic text-[#f87171]">Pizza</span>
               </span>
             </button>
           </div>

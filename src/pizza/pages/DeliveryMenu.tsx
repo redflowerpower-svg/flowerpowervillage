@@ -586,36 +586,37 @@ export default function DeliveryMenu() {
             )}
           </div>
 
-          <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8">
-              {/* Left Side: Logo & Brand Name */}
-              <div className="flex flex-col lg:flex-row items-center gap-3.5 lg:gap-6 text-center lg:text-left w-full lg:w-auto">
+          <div className="relative z-10 my-auto py-2">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8 min-h-[160px] lg:min-h-[180px]">
+              {/* Left Side: Logo & Brand Name (Equally spaced vertically) */}
+              <div className="flex flex-col lg:flex-row items-center gap-3.5 lg:gap-6 text-center lg:text-left w-full lg:w-auto my-auto">
                 <img
                   src="/Flower_Power_Pizza_-_HotSpring.png"
                   alt="Flower Power Pizza Logo"
                   width={200}
                   height={200}
-                  className="h-16 lg:h-48 w-auto drop-shadow-md mx-auto lg:mx-0 flex-shrink-0 object-contain"
+                  className="h-16 lg:h-44 w-auto drop-shadow-md mx-auto lg:mx-0 flex-shrink-0 object-contain my-auto"
                 />
-                <div className="flex flex-col items-center lg:items-start lg:pl-8 lg:translate-y-4">
-                  <h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-sans font-black tracking-tight text-stone-100 leading-tight text-center lg:text-left">
-                    {t.title}
+                <div className="flex flex-col justify-between items-center lg:items-start lg:pl-4 my-auto space-y-2">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-black tracking-tight text-white leading-none text-center lg:text-left">
+                    FLOWER POWER <br />
+                    <span className="font-light italic text-[#f87171]">Pizza</span>
                   </h1>
-                  <span className="text-[#fca5a5] font-bold tracking-widest text-[9px] md:text-xs uppercase mt-1 lg:mt-2.5 text-center lg:text-left">
-                    {t.subtitle}
+                  <span className="text-[#fca5a5] font-bold tracking-widest text-[9px] md:text-xs uppercase text-center lg:text-left block pt-1">
+                    RANONG, THAILANDIA
                   </span>
                 </div>
               </div>
 
-              {/* Right Side: Information Details */}
-              <div className="flex flex-col items-center lg:items-end gap-1.5 text-center lg:text-right max-w-md w-full lg:w-auto mt-2 lg:mt-0">
+              {/* Right Side: Information Details (Equally spaced vertically) */}
+              <div className="flex flex-col justify-between items-center lg:items-end gap-2 text-center lg:text-right max-w-md w-full lg:w-auto my-auto space-y-1">
                 <span className="text-xs sm:text-sm md:text-xl lg:text-2xl font-extrabold text-stone-100 tracking-tight block uppercase bg-white/10 lg:bg-transparent px-3 py-0.5 rounded-full lg:p-0">
                   {t.tagline1}
                 </span>
-                <span className="text-[8px] md:text-xs lg:text-sm font-bold text-[#fca5a5] tracking-widest block uppercase">
+                <span className="text-[9px] md:text-xs lg:text-sm font-bold text-[#fca5a5] tracking-widest block uppercase">
                   {t.tagline2}
                 </span>
-                <div className="flex flex-row flex-wrap justify-center lg:justify-end gap-x-2 gap-y-0.5 text-[8px] md:text-xs font-light text-stone-200 mt-0.5">
+                <div className="flex flex-row flex-wrap justify-center lg:justify-end gap-x-2 gap-y-0.5 text-[9px] md:text-xs font-light text-stone-200">
                   <span>{t.info1}</span>
                   <span className="text-stone-400">•</span>
                   <span>{t.info2}</span>

@@ -258,15 +258,40 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
   }, [activeGalleryRoom, activeImageIndex]);
 
   const openGallery = (room: EnrichedAccommodation) => {
-    if (room.images && room.images.length > 0) {
-      setActiveGalleryRoom(room);
-      setActiveImageIndex(0);
+    setActiveGalleryRoom(room);
+    setActiveImageIndex(0);
+    if (typeof window !== 'undefined' && room.slug) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', room.slug);
+      window.history.pushState({}, '', url.toString());
     }
   };
 
   const closeGallery = () => {
     setActiveGalleryRoom(null);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('room')) {
+        url.searchParams.delete('room');
+        window.history.pushState({}, '', url.toString());
+      }
+    }
   };
+
+  // Auto-open room gallery modal if ?room=slug parameter is present in URL
+  useEffect(() => {
+    if (typeof window !== 'undefined' && rooms.length > 0) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const roomParam = urlParams.get('room');
+      if (roomParam) {
+        const found = rooms.find(r => r.slug === roomParam || r.slug.toLowerCase().includes(roomParam.toLowerCase()));
+        if (found) {
+          setActiveGalleryRoom(found);
+          setActiveImageIndex(0);
+        }
+      }
+    }
+  }, [rooms]);
 
   const nextImage = () => {
     if (!activeGalleryRoom) return;
@@ -648,15 +673,29 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                 {!isUnlocked ? (
                   /* ================= STATO LOCKED ================= */
                   <div className="mt-auto pt-4 border-t border-stone-300">
-                    <button
-                      type="button"
-                      onClick={(e) => handleScrollToCalendar(e.currentTarget.closest('article'))}
-                      className="w-full bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3.5 px-4 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide"
-                    >
-                      {loadingAvailability
-                        ? (lang === 'TH' ? 'กำลังตรวจสอบห้องว่าง...' : lang === 'DE' ? 'Verfügbarkeit wird geprüft...' : lang === 'EN' ? 'Checking availability...' : 'Verifica disponibilità...')
-                        : (lang === 'TH' ? 'เลือกวันที่เพื่อดูราคา' : lang === 'DE' ? 'Daten für Preis wählen' : lang === 'EN' ? 'Select dates for price' : 'Seleziona date per il prezzo')}
-                    </button>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <button
+                        type="button"
+                        id={`btn-select-dates-room-${item.id}`}
+                        onClick={(e) => handleScrollToCalendar(e.currentTarget.closest('article'))}
+                        className="flex-1 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide"
+                      >
+                        {loadingAvailability
+                          ? (lang === 'TH' ? 'กำลังตรวจสอบ...' : lang === 'DE' ? 'Verfügbarkeit...' : lang === 'EN' ? 'Checking...' : 'Verifica disponibilità...')
+                          : (lang === 'TH' ? 'เลือกวันที่เพื่อดูราคา' : lang === 'DE' ? 'Daten für Preis' : lang === 'EN' ? 'Select dates for price' : 'Seleziona date per il prezzo')}
+                      </button>
+
+                      <button
+                        type="button"
+                        id={`btn-view-details-room-${item.id}`}
+                        onClick={() => openGallery(item)}
+                        className="border border-stone-800 hover:border-fuchsia-500/50 text-stone-400 hover:text-fuchsia-400 bg-stone-950/80 hover:bg-stone-900 text-xs font-bold py-3 px-4 rounded-full transition-all duration-300 cursor-pointer text-center tracking-wide flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+                        title={lang === 'TH' ? 'ดูรายละเอียด' : lang === 'DE' ? 'Details anzeigen' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}
+                      >
+                        <ImageIcon className="w-3.5 h-3.5 text-fuchsia-400" />
+                        <span>{lang === 'TH' ? 'รายละเอียด' : lang === 'DE' ? 'Details' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}</span>
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   /* ================= STATO UNLOCKED ================= */

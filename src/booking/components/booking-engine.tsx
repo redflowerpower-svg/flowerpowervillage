@@ -868,36 +868,37 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             )}
           </div>
 
-          <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8">
-              {/* Left Side: Logo + Title (Centered column on mobile, Row layout on desktop) */}
-              <div className="flex flex-col lg:flex-row items-center gap-3.5 lg:gap-6 text-center lg:text-left w-full lg:w-auto">
+          <div className="relative z-10 my-auto py-2">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8 min-h-[160px] lg:min-h-[180px]">
+              {/* Left Side: Logo + Title (Equally spaced between top and bottom borders) */}
+              <div className="flex flex-col lg:flex-row items-center gap-3.5 lg:gap-6 text-center lg:text-left w-full lg:w-auto my-auto">
                 <img
                   src="/FP_04_-_LOGO_OFFICIAL_HD.png"
                   alt="Flower Power Village Logo"
                   width={200}
                   height={200}
-                  className="h-16 lg:h-48 w-auto drop-shadow-md mx-auto lg:mx-0 flex-shrink-0"
+                  className="h-16 lg:h-44 w-auto drop-shadow-md mx-auto lg:mx-0 flex-shrink-0 object-contain my-auto"
                 />
-                <div className="flex flex-col items-center lg:items-start lg:pl-8 lg:translate-y-4">
-                  <h1 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-sans font-black tracking-tight text-stone-100 leading-tight text-center lg:text-left">
-                    {t('heroTitle')}
+                <div className="flex flex-col justify-between items-center lg:items-start lg:pl-4 my-auto space-y-2">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-black tracking-tight text-white leading-none text-center lg:text-left">
+                    FLOWER POWER <br />
+                    <span className="font-light italic text-[#a2b997]">Village</span>
                   </h1>
-                  <span className="text-[#a2b997] font-bold tracking-widest text-[9px] md:text-xs uppercase mt-1 lg:mt-2.5 text-center lg:text-left">
-                    Koh Phayam, Thailandia
+                  <span className="text-[#a2b997] font-bold tracking-widest text-[9px] md:text-xs uppercase text-center lg:text-left block pt-1">
+                    KOH PHAYAM, THAILANDIA
                   </span>
                 </div>
               </div>
 
-              {/* Right Side: Compact Tagline block (Centered on mobile, Right-aligned on desktop) */}
-              <div className="flex flex-col items-center lg:items-end gap-1.5 text-center lg:text-right max-w-md w-full lg:w-auto mt-2 lg:mt-0">
+              {/* Right Side: Compact Tagline block (Equally spaced vertically) */}
+              <div className="flex flex-col justify-between items-center lg:items-end gap-2 text-center lg:text-right max-w-md w-full lg:w-auto my-auto space-y-1">
                 <span className="text-xs sm:text-sm md:text-xl lg:text-2xl font-extrabold text-stone-100 tracking-tight block uppercase bg-white/10 lg:bg-transparent px-3 py-0.5 rounded-full lg:p-0">
                   {t('heroLine1')}
                 </span>
-                <span className="text-[8px] md:text-xs lg:text-sm font-bold text-[#a2b997] tracking-widest block uppercase">
+                <span className="text-[9px] md:text-xs lg:text-sm font-bold text-[#a2b997] tracking-widest block uppercase">
                   {t('heroLine2')}
                 </span>
-                <div className="flex flex-row flex-wrap justify-center lg:justify-end gap-x-2 gap-y-0.5 text-[8px] md:text-xs font-light text-stone-200 mt-0.5">
+                <div className="flex flex-row flex-wrap justify-center lg:justify-end gap-x-2 gap-y-0.5 text-[9px] md:text-xs font-light text-stone-200">
                   <span>{t('heroLine3')}</span>
                   <span className="text-stone-400">•</span>
                   <span>{t('heroLine4')}</span>

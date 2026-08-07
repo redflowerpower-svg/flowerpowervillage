@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, ArrowLeft, Globe, ChevronDown } from 'lucide-react';
+import { Menu, X, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Language } from '../booking/lib/translations';
 
@@ -53,7 +53,6 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isLangOpen, setIsLangOpen] = useState(false);
 
   const t = navTranslations[lang] || navTranslations['IT'];
 
@@ -105,7 +104,7 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
               className="flex items-center gap-2 text-left cursor-pointer group"
             >
               <span className="font-sans font-black tracking-tight text-white text-base md:text-lg group-hover:text-emerald-400 transition-colors">
-                Flower Power <span className="font-light italic text-[#a2b997]">Village</span>
+                FLOWER POWER <span className="font-light italic text-[#a2b997]">Village</span>
               </span>
             </button>
           </div>
@@ -129,101 +128,10 @@ export default function VillageNav({ activePage, onNavigate, lang, setLang }: Pr
                 </button>
               );
             })}
-
-            {/* Area Privata Staff Link */}
-            <button
-              onClick={() => navigate('/admin?dept=resort')}
-              className="text-stone-300 hover:text-emerald-400 border border-stone-700/60 hover:border-emerald-500/50 bg-stone-900/50 px-2.5 py-1.5 rounded-xl transition-all duration-200 text-[10px] font-bold uppercase tracking-wider cursor-pointer flex items-center gap-1"
-              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-              title="Portale Staff / Area Privata"
-            >
-              <span>🔒 {lang === 'IT' ? 'Area Privata' : 'Staff Portal'}</span>
-            </button>
-
-            {/* Desktop Language Switcher */}
-            <div className="relative z-50">
-              <button
-                type="button"
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1 bg-black/45 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/10 shadow-sm text-stone-300 hover:text-white transition-all cursor-pointer font-bold text-[10px] uppercase"
-                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-              >
-                <Globe className="w-3.5 h-3.5" />
-                <span>{lang}</span>
-                <ChevronDown className="w-3 h-3 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
-              </button>
-
-              {isLangOpen && (
-                <>
-                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 mt-1.5 w-24 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
-                    {(['IT', 'EN', 'TH', 'DE'] as Language[]).map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() => {
-                          setLang(l);
-                          setIsLangOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer ${
-                          lang === l ? "text-emerald-400 bg-white/5" : "text-stone-300"
-                        }`}
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                      >
-                        {l === 'IT' && '🇮🇹 IT'}
-                        {l === 'EN' && '🇬🇧 EN'}
-                        {l === 'TH' && '🇹🇭 TH'}
-                        {l === 'DE' && '🇩🇪 DE'}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
           </div>
 
-          {/* Mobile Actions: Language Switcher and Hamburger Button */}
+          {/* Mobile Actions: Hamburger Button */}
           <div className="flex items-center gap-3 md:hidden">
-            {/* Mobile Language Dropdown */}
-            <div className="relative z-50">
-              <button
-                type="button"
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1 bg-black/45 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/10 shadow-sm text-stone-300 hover:text-white transition-all cursor-pointer font-bold text-[10px] uppercase"
-                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-              >
-                <span>{lang}</span>
-                <ChevronDown className="w-3 h-3 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
-              </button>
-
-              {isLangOpen && (
-                <>
-                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 mt-1.5 w-24 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
-                    {(['IT', 'EN', 'TH', 'DE'] as Language[]).map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() => {
-                          setLang(l);
-                          setIsLangOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer ${
-                          lang === l ? "text-emerald-400 bg-white/5" : "text-stone-300"
-                        }`}
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
-                      >
-                        {l === 'IT' && '🇮🇹 IT'}
-                        {l === 'EN' && '🇬🇧 EN'}
-                        {l === 'TH' && '🇹🇭 TH'}
-                        {l === 'DE' && '🇩🇪 DE'}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
             <button
               className="text-white hover:text-emerald-400 transition-colors cursor-pointer"
               onClick={() => setMenuOpen(!menuOpen)}
