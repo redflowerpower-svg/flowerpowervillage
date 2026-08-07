@@ -678,21 +678,25 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                         type="button"
                         id={`btn-select-dates-room-${item.id}`}
                         onClick={(e) => handleScrollToCalendar(e.currentTarget.closest('article'))}
-                        className="flex-1 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide"
+                        className="flex-1 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide leading-tight flex flex-col items-center justify-center"
                       >
-                        {loadingAvailability
-                          ? (lang === 'TH' ? 'กำลังตรวจสอบ...' : lang === 'DE' ? 'Verfügbarkeit...' : lang === 'EN' ? 'Checking...' : 'Verifica disponibilità...')
-                          : (lang === 'TH' ? 'เลือกวันที่เพื่อดูราคา' : lang === 'DE' ? 'Daten für Preis' : lang === 'EN' ? 'Select dates for price' : 'Seleziona date per il prezzo')}
+                        {loadingAvailability ? (
+                          <span>{lang === 'TH' ? 'กำลังตรวจสอบ...' : lang === 'DE' ? 'Verfügbarkeit...' : lang === 'EN' ? 'Checking...' : 'Verifica disponibilità...'}</span>
+                        ) : (
+                          <>
+                            <span>{lang === 'TH' ? 'เลือกวันเข้าพัก' : lang === 'DE' ? 'Termine wählen' : lang === 'EN' ? 'Select dates' : 'Seleziona date'}</span>
+                            <span className="text-[10px] font-normal opacity-90">{lang === 'TH' ? 'เพื่อดูราคา' : lang === 'DE' ? 'für den Preis' : lang === 'EN' ? 'for price' : 'per il prezzo'}</span>
+                          </>
+                        )}
                       </button>
 
                       <button
                         type="button"
                         id={`btn-view-details-room-${item.id}`}
                         onClick={() => openGallery(item)}
-                        className="border border-stone-800 hover:border-fuchsia-500/50 text-stone-400 hover:text-fuchsia-400 bg-stone-950/80 hover:bg-stone-900 text-xs font-bold py-3 px-4 rounded-full transition-all duration-300 cursor-pointer text-center tracking-wide flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+                        className="bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-4 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide flex items-center justify-center"
                         title={lang === 'TH' ? 'ดูรายละเอียด' : lang === 'DE' ? 'Details anzeigen' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}
                       >
-                        <ImageIcon className="w-3.5 h-3.5 text-fuchsia-400" />
                         <span>{lang === 'TH' ? 'รายละเอียด' : lang === 'DE' ? 'Details' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}</span>
                       </button>
                     </div>
