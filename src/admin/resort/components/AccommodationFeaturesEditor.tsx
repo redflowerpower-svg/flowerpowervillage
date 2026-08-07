@@ -23,7 +23,7 @@ import {
   Loader2,
   Info
 } from 'lucide-react';
-import { supabase } from '../../../lib/supabase';
+import { publicSupabase, fetchAccommodations } from '../../../booking/data/accommodationsService';
 
 export interface AccommodationFeaturesEditorProps {
   accommodation: any;
@@ -143,45 +143,62 @@ export const AccommodationFeaturesEditor: React.FC<AccommodationFeaturesEditorPr
 
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<{ success: boolean; message: string } | null>(null);
+  const [targetDbId, setTargetDbId] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     async function loadLiveFeatures() {
       try {
-        const { data, error } = await supabase
-          .from('accommodations')
-          .select('id, details')
-          .or(`id.eq.${accommodation?.id},name.eq.${accommodation?.name}`)
-          .limit(1);
+        const enriched = await fetchAccommodations(true);
+        if (enriched && enriched.length > 0 && isMounted) {
+          const targetName = String(accommodation?.name || '').replace(/^\d+[\s._-]+/, '').trim().toLowerCase();
+          const match = enriched.find((item) => {
+            const cleanName = String(item.name || '').replace(/^\d+[\s._-]+/, '').trim().toLowerCase();
+            const cleanSlug = String(item.slug || '').replace(/^\d+[\s._-]+/, '').trim().toLowerCase();
 
-        if (!error && data && data.length > 0 && isMounted) {
-          let detailsObj = data[0].details;
-          if (typeof detailsObj === 'string') {
-            try { detailsObj = JSON.parse(detailsObj); } catch { detailsObj = {}; }
-          }
-          const feats = detailsObj?.features || {};
-          if (detailsObj?.squareMeters || feats?.room_size) {
-            setRoomSize(detailsObj?.squareMeters || feats?.room_size || 0);
-          }
-          if (feats && Object.keys(feats).length > 0) {
-            setFeatures({
-              wifi: Boolean(feats.wifi),
-              hubit_coworking: Boolean(feats.hubit_coworking),
-              air_conditioning: Boolean(feats.air_conditioning),
-              ceiling_fan: Boolean(feats.ceiling_fan),
-              safe: Boolean(feats.safe),
-              desk: Boolean(feats.desk),
-              sofa_bed: Boolean(feats.sofa_bed),
-              hot_water: Boolean(feats.hot_water),
-              kitchen: Boolean(feats.kitchen),
-              refrigerator: Boolean(feats.refrigerator),
-              outdoor_lounge: Boolean(feats.outdoor_lounge),
-              terrace_balcony: Boolean(feats.terrace_balcony),
-              private_garden: Boolean(feats.private_garden),
-              swimming_pool: Boolean(feats.swimming_pool),
-              gym: Boolean(feats.gym),
-              yoga_temple: Boolean(feats.yoga_temple)
-            });
+            if (item.id === accommodation?.id) return true;
+            if (targetName.includes('left') && cleanSlug.includes('left')) return true;
+            if (targetName.includes('right') && cleanSlug.includes('right')) return true;
+            if (targetName === 'jungle villa' && cleanName === 'jungle villa' && !cleanSlug.includes('left') && !cleanSlug.includes('right')) return true;
+            if (cleanName === targetName) return true;
+            return false;
+          });
+
+          if (match) {
+            setTargetDbId(match.id);
+            let detailsObj = match.details;
+            if (typeof detailsObj === 'string') {
+              try { detailsObj = JSON.parse(detailsObj); } catch { detailsObj = {}; }
+            }
+            const feats = (detailsObj?.features && Object.keys(detailsObj.features).length > 0)
+              ? detailsObj.features
+              : (match.features || {});
+
+            const sqMeters = detailsObj?.squareMeters || (feats as any)?.room_size || (match.details as any)?.squareMeters || 0;
+            if (sqMeters) {
+              setRoomSize(sqMeters);
+            }
+
+            if (feats && typeof feats === 'object') {
+              setFeatures({
+                wifi: Boolean(feats.wifi),
+                hubit_coworking: Boolean(feats.hubit_coworking),
+                air_conditioning: Boolean(feats.air_conditioning),
+                ceiling_fan: Boolean(feats.ceiling_fan),
+                safe: Boolean(feats.safe),
+                desk: Boolean(feats.desk),
+                sofa_bed: Boolean(feats.sofa_bed),
+                hot_water: Boolean(feats.hot_water),
+                kitchen: Boolean(feats.kitchen),
+                refrigerator: Boolean(feats.refrigerator),
+                outdoor_lounge: Boolean(feats.outdoor_lounge),
+                terrace_balcony: Boolean(feats.terrace_balcony),
+                private_garden: Boolean(feats.private_garden),
+                swimming_pool: Boolean(feats.swimming_pool),
+                gym: Boolean(feats.gym),
+                yoga_temple: Boolean(feats.yoga_temple)
+              });
+            }
           }
         }
       } catch (err) {
@@ -231,13 +248,35 @@ export const AccommodationFeaturesEditor: React.FC<AccommodationFeaturesEditorPr
         features: updatedFeatures
       };
 
-      // Perform update query on Supabase table 'accommodations' targeting the real 'details' JSONB column
-      const { error } = await supabase
+      // Ensure we target the real Supabase UUID row
+      let dbRowId = targetDbId;
+      if (!dbRowId) {
+        const { data: dbRows } = await publicSupabase.from('accommodations').select('id, name, slug');
+        const targetName = String(accommodation?.name || '').replace(/^\d+[\s._-]+/, '').trim().toLowerCase();
+        const match = (dbRows || []).find((dbRow) => {
+          const cleanDbName = String(dbRow.name || '').replace(/^\d+[\s._-]+/, '').trim().toLowerCase();
+          const cleanDbSlug = String(dbRow.slug || '').replace(/^\d+[\s._-]+/, '').trim().toLowerCase();
+          if (dbRow.id === accommodation?.id) return true;
+          if (targetName.includes('left') && cleanDbSlug.includes('left')) return true;
+          if (targetName.includes('right') && cleanDbSlug.includes('right')) return true;
+          if (targetName === 'jungle villa' && cleanDbName === 'jungle villa' && !cleanDbSlug.includes('left') && !cleanDbSlug.includes('right')) return true;
+          if (cleanDbName === targetName) return true;
+          return false;
+        });
+        if (match) dbRowId = match.id;
+      }
+
+      if (!dbRowId) {
+        throw new Error(`Impossibile individuare l'alloggio "${accommodation?.name}" su Supabase DB.`);
+      }
+
+      // Perform update query on Supabase table 'accommodations' by exact UUID
+      const { error } = await publicSupabase
         .from('accommodations')
         .update({
           details: updatedDetails
         })
-        .eq('id', accommodation.id);
+        .eq('id', dbRowId);
 
       if (error) throw error;
 
