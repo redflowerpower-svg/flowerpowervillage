@@ -717,7 +717,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                         type="button"
                         id={`btn-select-dates-room-${item.id}`}
                         onClick={(e) => handleScrollToCalendar(e.currentTarget.closest('article'))}
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold py-3 px-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide leading-tight flex flex-col items-center justify-center"
+                        className="flex-1 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide leading-tight flex flex-col items-center justify-center"
                       >
                         {loadingAvailability ? (
                           <span>{lang === 'TH' ? 'กำลังตรวจสอบ...' : lang === 'DE' ? 'Verfügbarkeit...' : lang === 'EN' ? 'Checking...' : 'Verifica disponibilità...'}</span>
@@ -736,7 +736,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                           e.stopPropagation();
                           openGallery(item);
                         }}
-                        className="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold py-3 px-4 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide flex items-center justify-center"
+                        className="bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-4 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide flex items-center justify-center"
                         title={lang === 'TH' ? 'ดูรายละเอียด' : lang === 'DE' ? 'Details anzeigen' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}
                       >
                         <span>{lang === 'TH' ? 'รายละเอียด' : lang === 'DE' ? 'Details' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}</span>

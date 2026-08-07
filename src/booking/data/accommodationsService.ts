@@ -417,10 +417,12 @@ const octorateIds: Record<string, number> = {
 // Preferred display order
 const PREFERRED_ORDER = [
   'Jungle Villa',
+  'Jungle Villa Left',
+  'Jungle Villa Left Side',
+  'Jungle Villa Right',
+  'Jungle Villa Right Side',
   'Peace & Love Villa',
   'Villa Penthouse',
-  'Jungle Villa Left',
-  'Jungle Villa Right',
   'Yellow Bungalow',
   'Red Bungalow',
   'Green Bungalow',
@@ -443,11 +445,22 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
     return cachedAccommodations;
   }
 
-  // Query Supabase selecting 'id', 'name', 'slug', and 'details'
-  const { data: dbItems, error: dbError } = await publicSupabase
+  // Self-healing query logic: attempt to select features, fallback to details if column is missing
+  let response = await publicSupabase
     .from('accommodations')
-    .select('id, name, slug, details')
+    .select('id, name, slug, details, features')
     .order('name');
+
+  if (response.error && (response.error.message.includes('features') || response.error.message.includes('column'))) {
+    console.warn("⚠️ Colonna features assente su Supabase. Avvio query sicura di fallback...");
+    response = await publicSupabase
+      .from('accommodations')
+      .select('id, name, slug, details')
+      .order('name');
+  }
+
+  const dbItems = response.data || [];
+  const dbError = response.error;
 
   if (dbError) {
     console.error('Error fetching accommodations from Supabase:', dbError);
@@ -529,13 +542,31 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
   const results = await Promise.all(promises);
   const enrichedList = results.filter((item): item is EnrichedAccommodation => item !== null);
 
+  // Helper to find exact or fuzzy match position in PREFERRED_ORDER
+  const getOrderRank = (name: string) => {
+    const clean = String(name || '').toLowerCase().trim();
+    // 1. Exact match
+    const exactIndex = PREFERRED_ORDER.findIndex(p => p.toLowerCase() === clean);
+    if (exactIndex !== -1) return exactIndex;
+
+    // 2. Specific villa rank overrides
+    if (clean === 'jungle villa') return 0;
+    if (clean.includes('left')) return 1;
+    if (clean.includes('right')) return 2;
+    if (clean.includes('peace')) return 3;
+    if (clean.includes('penthouse')) return 4;
+
+    // 3. Substring match
+    const subIndex = PREFERRED_ORDER.findIndex(p => clean.includes(p.toLowerCase()));
+    if (subIndex !== -1) return subIndex;
+
+    return 999;
+  };
+
   // Sort the enrichedList by their position in PREFERRED_ORDER
   enrichedList.sort((a, b) => {
-    const indexA = PREFERRED_ORDER.indexOf(a.name);
-    const indexB = PREFERRED_ORDER.indexOf(b.name);
-
-    const valA = indexA !== -1 ? indexA : 999;
-    const valB = indexB !== -1 ? indexB : 999;
+    const valA = getOrderRank(a.name);
+    const valB = getOrderRank(b.name);
 
     if (valA !== valB) {
       return valA - valB;
