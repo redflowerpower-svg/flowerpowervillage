@@ -675,12 +675,12 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                     </span>
                   </div>
                 )}
-                <span className={`absolute top-4 left-4 glass-badge-dark text-white text-[9px] font-bold tracking-wider px-3 py-1.5 rounded-xl shadow-sm ${item.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
+                <span className={`absolute top-4 left-4 bg-emerald-800/95 border border-emerald-650/60 text-white text-[9px] font-extrabold tracking-wider px-3 py-1.5 rounded-xl shadow-md backdrop-blur-md ${item.category.toUpperCase() !== "THE HUB GUESTHOUSE" ? "uppercase" : ""}`}>
                   {item.category.toUpperCase() === "THE HUB GUESTHOUSE" ? "HUBit@" : item.category}
                 </span>
- 
+
                 {/* Capacity badge — bottom right of image */}
-                <span className="absolute bottom-4 right-4 glass-badge-dark text-white text-[9px] font-bold tracking-wider px-3 py-1.5 rounded-xl shadow-sm flex items-center gap-1">
+                <span className="absolute bottom-4 right-4 bg-emerald-800/95 border border-emerald-650/60 text-white text-[9px] font-extrabold tracking-wider px-3 py-1.5 rounded-xl shadow-md backdrop-blur-md flex items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                   {lang === 'TH' ? `สูงสุด ${item.capacity} ท่าน` : lang === 'DE' ? `Bis zu ${item.capacity} Gäste` : lang === 'EN' ? `Up to ${item.capacity} guests` : `Fino a ${item.capacity} ospiti`}
                 </span>

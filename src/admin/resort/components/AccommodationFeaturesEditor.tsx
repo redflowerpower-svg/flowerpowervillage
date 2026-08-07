@@ -343,22 +343,22 @@ export const AccommodationFeaturesEditor: React.FC<AccommodationFeaturesEditorPr
   };
 
   return (
-    <div className="bg-stone-900/30 border border-stone-800/80 rounded-2xl p-6 space-y-6 text-stone-200">
-      <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-        <div className="flex items-center gap-2.5 text-emerald-400 font-black text-sm uppercase tracking-wider">
+    <div className="bg-stone-900/30 border border-stone-800/80 rounded-2xl p-4 sm:p-5 space-y-4 text-stone-200">
+      <div className="flex items-center justify-between border-b border-stone-800 pb-2.5">
+        <div className="flex items-center gap-2.5 text-emerald-400 font-black text-xs sm:text-sm uppercase tracking-wider">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
           <span>GESTORI CARATTERISTICHE ALLOGGIO ({accommodation?.name})</span>
         </div>
       </div>
 
       {/* METRATURA ROOM SIZE INPUT */}
-      <div className="space-y-2 bg-stone-950/40 p-4 rounded-xl border border-stone-800/80">
-        <label className="text-xs font-bold text-stone-300 uppercase tracking-wider flex items-center gap-2">
+      <div className="space-y-1.5 bg-stone-950/40 p-3 sm:p-3.5 rounded-xl border border-stone-800/80">
+        <label className="text-[11px] font-extrabold text-stone-300 uppercase tracking-wider flex items-center gap-2">
           <span>METRATURA CAMERA (MQ)</span>
         </label>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-stone-900 border border-stone-800 text-emerald-400 flex-shrink-0 shadow-inner">
-            <Maximize className="w-5 h-5" />
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-stone-900 border border-stone-800 text-emerald-400 flex-shrink-0 shadow-inner">
+            <Maximize className="w-4 h-4" />
           </div>
           <div className="relative flex-1 max-w-xs">
             <input
@@ -366,23 +366,23 @@ export const AccommodationFeaturesEditor: React.FC<AccommodationFeaturesEditorPr
               min="0"
               value={roomSize}
               onChange={(e) => setRoomSize(Number(e.target.value))}
-              className="w-full bg-stone-950 border border-stone-800 rounded-xl px-4 py-2 text-sm text-white font-mono font-bold focus:outline-none focus:border-emerald-500 transition-colors"
+              className="w-full bg-stone-950 border border-stone-800 rounded-xl px-3.5 py-1.5 text-xs sm:text-sm text-white font-mono font-bold focus:outline-none focus:border-emerald-500 transition-colors"
               placeholder="es. 35"
             />
-            <span className="absolute right-3 top-2.5 text-xs text-stone-400 font-bold">mq</span>
+            <span className="absolute right-3 top-2 text-xs text-stone-400 font-bold">mq</span>
           </div>
         </div>
       </div>
 
       {/* 6 CATEGORIZED SECTIONS */}
-      <div className="space-y-6">
+      <div className="space-y-3.5">
         {editorCategories.map((group) => (
-          <div key={group.id} className="space-y-3 bg-stone-950/30 p-4 rounded-xl border border-stone-800/60">
-            <h5 className="text-xs font-black text-emerald-400 uppercase tracking-wider border-b border-stone-800/80 pb-2">
+          <div key={group.id} className="space-y-2 bg-stone-950/30 p-3 sm:p-3.5 rounded-xl border border-stone-800/60">
+            <h5 className="text-[11px] font-black text-emerald-400 uppercase tracking-wider border-b border-stone-800/80 pb-1.5">
               {group.title}
             </h5>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {group.features.map((def) => {
                 const IconComp = def.icon;
                 const isChecked = Boolean(features[def.key]);
@@ -390,21 +390,21 @@ export const AccommodationFeaturesEditor: React.FC<AccommodationFeaturesEditorPr
                   <div
                     key={def.key}
                     onClick={() => toggleFeature(def.key)}
-                    className={`border rounded-xl p-3 flex items-center justify-between gap-3 cursor-pointer select-none transition-all ${
+                    className={`border rounded-xl p-2 sm:p-2.5 flex items-center justify-between gap-2 cursor-pointer select-none transition-all ${
                       isChecked
-                        ? 'border-emerald-500/60 bg-stone-900/80 shadow-md'
-                        : 'border-stone-800/80 bg-stone-950/40 opacity-60 hover:opacity-100'
+                        ? 'border-emerald-500/60 bg-stone-900/90 shadow-md ring-1 ring-emerald-500/20'
+                        : 'border-stone-800/80 bg-stone-950/40 opacity-65 hover:opacity-100'
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center border flex-shrink-0 transition-all ${
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center border flex-shrink-0 transition-all ${
                         isChecked
-                          ? 'bg-stone-900 border-stone-800 text-emerald-400'
-                          : 'bg-stone-950 border-stone-800 text-stone-500'
+                          ? 'bg-stone-900 border-stone-750 text-emerald-400'
+                          : 'bg-stone-950 border-stone-850 text-stone-500'
                       }`}>
-                        <IconComp className="w-4 h-4" />
+                        <IconComp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </div>
-                      <span className="text-xs font-bold text-stone-200 truncate">
+                      <span className="text-xs sm:text-xs font-extrabold text-stone-100 leading-tight whitespace-normal break-words">
                         {def.label}
                       </span>
                     </div>
@@ -413,7 +413,7 @@ export const AccommodationFeaturesEditor: React.FC<AccommodationFeaturesEditorPr
                       type="checkbox"
                       checked={isChecked}
                       onChange={() => {}}
-                      className="w-4 h-4 accent-emerald-500 cursor-pointer flex-shrink-0"
+                      className="w-4 h-4 accent-emerald-500 cursor-pointer flex-shrink-0 ml-1"
                     />
                   </div>
                 );

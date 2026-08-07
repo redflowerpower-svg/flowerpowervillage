@@ -17,7 +17,8 @@ import {
   Dumbbell,
   Sparkles,
   Briefcase,
-  Info
+  Info,
+  Check
 } from 'lucide-react';
 import { Language } from '../../lib/translations';
 
@@ -321,8 +322,8 @@ export const RoomFeaturesGrid: React.FC<RoomFeaturesGridProps> = ({
   }
 
   return (
-    <div className="space-y-6 my-3" id="sec-room-features-grid">
-      {categories.map((cat) => {
+    <div className="space-y-3.5 my-3" id="sec-room-features-grid">
+      {categories.map((cat, idx) => {
         // Find which items in this category are active
         const items = cat.keys
           .map((k) => activeFeaturesMap[k])
@@ -333,30 +334,33 @@ export const RoomFeaturesGrid: React.FC<RoomFeaturesGridProps> = ({
         const categoryTitle = cat.titles[validLang] || cat.titles['IT'];
 
         return (
-          <div key={cat.id} className="space-y-3">
-            {/* CATEGORY TITLE WITH ELEGANT EMERALD INDICATOR */}
-            <div className="flex items-center gap-2 border-b border-stone-800/80 pb-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <h5 className="text-xs font-black text-stone-300 uppercase tracking-wider">
-                {categoryTitle}
-              </h5>
-            </div>
+          <div key={cat.id} className="space-y-2 bg-stone-950/30 p-3 sm:p-3.5 rounded-xl border border-stone-800/60">
+            {/* CATEGORY TITLE IN EMERALD GREEN IDENTICAL TO DASHBOARD */}
+            <h5 className="text-[11px] font-black text-emerald-400 uppercase tracking-wider border-b border-stone-800/80 pb-1.5 flex items-center justify-between">
+              <span>{idx + 1}. {categoryTitle}</span>
+            </h5>
 
             {/* CATEGORY ITEMS GRID */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {items.map((feat) => {
                 const IconComp = feat.IconComponent;
                 return (
                   <div
                     key={feat.key}
-                    className="border border-stone-800/80 bg-stone-900/40 hover:bg-stone-900/70 hover:border-emerald-500/40 rounded-xl p-3 flex items-center gap-3.5 transition-all shadow-sm group"
+                    className="border border-emerald-500/60 bg-stone-900/90 shadow-md ring-1 ring-emerald-500/20 rounded-xl p-2 sm:p-2.5 flex items-center justify-between gap-2 transition-all group"
                   >
-                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-stone-900 border border-stone-800 text-emerald-400 group-hover:text-emerald-300 group-hover:scale-105 transition-all flex-shrink-0 shadow-inner">
-                      <IconComp className="w-5 h-5" />
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-stone-900 border border-stone-750 text-emerald-400 group-hover:scale-105 transition-all flex-shrink-0 shadow-inner">
+                        <IconComp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+                      </div>
+                      <span className="text-xs sm:text-xs font-extrabold text-stone-100 tracking-tight leading-tight whitespace-normal break-words">
+                        {feat.label}
+                      </span>
                     </div>
-                    <span className="text-sm font-extrabold text-stone-100 tracking-tight leading-tight">
-                      {feat.label}
-                    </span>
+
+                    <div className="w-4 h-4 rounded bg-emerald-500 text-stone-950 flex items-center justify-center flex-shrink-0 shadow-sm ml-1">
+                      <Check className="w-3 h-3 stroke-[3]" />
+                    </div>
                   </div>
                 );
               })}
