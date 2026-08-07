@@ -14,7 +14,9 @@ import {
   Unlock,
   AlertTriangle,
   RefreshCw,
-  Calendar
+  Calendar,
+  Coffee,
+  CheckCircle
 } from 'lucide-react';
 import { useResortAdminStore } from '../store/useResortAdminStore';
 import { fetchOctorateMonthlyGrid } from '../../../booking/lib/octorate';
@@ -1995,6 +1997,41 @@ export function DerivedRatesTreeSection() {
   const [loadingSync, setLoadingSync] = useState(false);
   const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({});
 
+  // Unified base prices state for AC and Breakfast
+  const [customAcInput, setCustomAcInput] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_ac_price');
+    return saved ? Number(saved) : 400;
+  });
+  const [appliedAcPrice, setAppliedAcPrice] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_ac_price');
+    return saved ? Number(saved) : 400;
+  });
+
+  const [customBreakfastInput, setCustomBreakfastInput] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_breakfast_price');
+    return saved ? Number(saved) : 150;
+  });
+  const [appliedBreakfastPrice, setAppliedBreakfastPrice] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_breakfast_price');
+    return saved ? Number(saved) : 150;
+  });
+
+  const [confirmModal, setConfirmModal] = useState<{ type: 'AC' | 'BREAKFAST'; val: number } | null>(null);
+  const [unificationStatus, setUnificationStatus] = useState<string | null>(null);
+
+  const handleApplyUnification = (type: 'AC' | 'BREAKFAST', val: number) => {
+    if (type === 'AC') {
+      setAppliedAcPrice(val);
+      localStorage.setItem('fpv_derived_ac_price', String(val));
+      setUnificationStatus(`Prezzo unico Aria Condizionata (${val} ฿) applicato con successo a tutte le tariffe derivate AC del villaggio!`);
+    } else {
+      setAppliedBreakfastPrice(val);
+      localStorage.setItem('fpv_derived_breakfast_price', String(val));
+      setUnificationStatus(`Prezzo unico 1 Colazione (${val} ฿) applicato con successo a tutte le derivate!`);
+    }
+    setConfirmModal(null);
+  };
+
   const toggleRoom = (name: string) => {
     setExpandedRooms(prev => ({ ...prev, [name]: !prev[name] }));
   };
@@ -2071,12 +2108,12 @@ export function DerivedRatesTreeSection() {
     let expectedPrice = parentPrice;
     if (ruleTag.includes('Sconto 10%') || ruleTag.includes('-10%')) {
       expectedPrice = Math.round(parentPrice * 0.9);
+    } else if (ruleTag.includes('AC') || ruleTag.includes('AirCon') || ruleTag.includes('+400') || ruleTag.includes('+500')) {
+      expectedPrice = parentPrice + appliedAcPrice;
+    } else if (ruleTag.includes('Colazione') || ruleTag.includes('Breakfast')) {
+      expectedPrice = parentPrice + appliedBreakfastPrice;
     } else if (ruleTag.includes('+200฿')) {
       expectedPrice = parentPrice + 200;
-    } else if (ruleTag.includes('+400฿')) {
-      expectedPrice = parentPrice + 400;
-    } else if (ruleTag.includes('+500฿')) {
-      expectedPrice = parentPrice + 500;
     }
 
     const diff = livePrice - expectedPrice;
@@ -2085,7 +2122,31 @@ export function DerivedRatesTreeSection() {
     return { isDiscrepancy, expectedPrice, diff };
   };
 
-  const filteredTrees = COMPLETE_DERIVATION_SCHEMES.filter(item => {
+  // Map trees dynamically to apply unified AC and Breakfast rules
+  const activeTrees = COMPLETE_DERIVATION_SCHEMES.map((scheme) => ({
+    ...scheme,
+    level1Nodes: scheme.level1Nodes.map((l1) => {
+      const isAcNode = l1.name.toLowerCase().includes('ac') || l1.ruleDesc.toLowerCase().includes('ac') || l1.ruleTag.includes('+400') || l1.ruleTag.includes('+500');
+      const updatedTag = isAcNode ? `+${appliedAcPrice}฿ AM` : l1.ruleTag;
+      
+      let updatedSubChild = l1.subChild;
+      if (l1.subChild) {
+        const isSubAc = l1.subChild.name.toLowerCase().includes('ac') || l1.subChild.ruleDesc.toLowerCase().includes('ac');
+        updatedSubChild = {
+          ...l1.subChild,
+          ruleTag: isSubAc ? `+${appliedAcPrice}฿ AMR` : l1.subChild.ruleTag
+        };
+      }
+
+      return {
+        ...l1,
+        ruleTag: updatedTag,
+        subChild: updatedSubChild
+      };
+    })
+  }));
+
+  const filteredTrees = activeTrees.filter(item => {
     const matchesSearch = searchQuery === '' || 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.motherId.includes(searchQuery) ||
@@ -2170,6 +2231,147 @@ export function DerivedRatesTreeSection() {
           </button>
         </div>
       </div>
+
+      {/* PANNELLO DI CONTROLLO: PREZZI UNIFICATI AC E COLAZIONE PER TUTTE LE DERIVATE */}
+      <div className="bg-stone-900 border border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-stone-800 pb-3">
+          <div className="flex items-center gap-2.5 text-emerald-400 font-black text-xs sm:text-sm uppercase tracking-wider">
+            <Wind className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <span>PANNELLO DI CONTROLLO UNIFICAZIONE TARIFFE DERIVATE (AC & COLAZIONE)</span>
+          </div>
+          <span className="text-[10px] font-bold text-stone-400 bg-stone-950 px-3 py-1 rounded-full border border-stone-800">
+            Regola Madre Applicata a tutte le 18 Camere
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          {/* CASELLA 1: ARIA CONDIZIONATA (AC) */}
+          <div className="bg-stone-950/60 p-4 rounded-2xl border border-stone-800 space-y-3">
+            <div className="flex justify-between items-start">
+              <label className="text-xs font-black text-emerald-300 uppercase tracking-wider flex items-center gap-2">
+                <Wind className="w-4 h-4 text-emerald-400" />
+                <span>Prezzo Base Aria Condizionata (AC)</span>
+              </label>
+              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/60">
+                Attuale: {appliedAcPrice} ฿ / notte
+              </span>
+            </div>
+
+            <p className="text-[11px] text-stone-400 leading-relaxed">
+              Imposta il prezzo unico base per l'Aria Condizionata per uniformare tutte le 18 camere derivate AC.
+            </p>
+
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <input
+                  type="number"
+                  min="0"
+                  step="50"
+                  value={customAcInput}
+                  onChange={(e) => setCustomAcInput(Number(e.target.value))}
+                  className="w-full bg-stone-900 border border-stone-750 rounded-xl px-4 py-2 text-sm text-white font-mono font-bold focus:outline-none focus:border-emerald-500"
+                  placeholder="es. 400"
+                />
+                <span className="absolute right-3 top-2.5 text-xs text-stone-400 font-bold">THB (฿)</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setConfirmModal({ type: 'AC', val: customAcInput })}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>CONFERMA & APPLICA AC</span>
+              </button>
+            </div>
+          </div>
+
+          {/* CASELLA 2: COLAZIONE (1 BREAKFAST) */}
+          <div className="bg-stone-950/60 p-4 rounded-2xl border border-stone-800 space-y-3">
+            <div className="flex justify-between items-start">
+              <label className="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-2">
+                <Coffee className="w-4 h-4 text-amber-400" />
+                <span>Prezzo Base 1 Colazione (Breakfast)</span>
+              </label>
+              <span className="text-[10px] font-bold text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800/60">
+                Attuale: {appliedBreakfastPrice} ฿ / persona
+              </span>
+            </div>
+
+            <p className="text-[11px] text-stone-400 leading-relaxed">
+              Imposta il prezzo unico base per 1 Colazione per uniformare il supplemento su tutte le tariffe derivate.
+            </p>
+
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <input
+                  type="number"
+                  min="0"
+                  step="10"
+                  value={customBreakfastInput}
+                  onChange={(e) => setCustomBreakfastInput(Number(e.target.value))}
+                  className="w-full bg-stone-900 border border-stone-750 rounded-xl px-4 py-2 text-sm text-white font-mono font-bold focus:outline-none focus:border-amber-500"
+                  placeholder="es. 150"
+                />
+                <span className="absolute right-3 top-2.5 text-xs text-stone-400 font-bold">THB (฿)</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setConfirmModal({ type: 'BREAKFAST', val: customBreakfastInput })}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 font-black text-xs rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>CONFERMA & APPLICA COLAZIONE</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* NOTIFICA DI STATO UNIFICAZIONE */}
+        {unificationStatus && (
+          <div className="p-3 bg-emerald-950/80 border border-emerald-500/50 rounded-xl text-xs font-bold text-emerald-300 flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>{unificationStatus}</span>
+          </div>
+        )}
+      </div>
+
+      {/* INTERACTIVE CONFIRMATION MODAL DIALOG */}
+      {confirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/80 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto">
+              {confirmModal.type === 'AC' ? <Wind className="w-6 h-6" /> : <Coffee className="w-6 h-6" />}
+            </div>
+            
+            <h3 className="text-base font-black text-white uppercase tracking-wider">
+              {confirmModal.type === 'AC' ? 'Conferma Prezzo Unificato Aria Condizionata' : 'Conferma Prezzo Unificato Colazione'}
+            </h3>
+            
+            <p className="text-xs text-stone-300 leading-relaxed font-medium">
+              Sei sicuro di voler unificare ed applicare il prezzo di <strong className="text-emerald-400 text-sm font-mono">{confirmModal.val} THB</strong> a <strong>TUTTE le tariffe derivate</strong> del villaggio?
+            </p>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                className="flex-1 py-2.5 bg-stone-800 hover:bg-stone-750 text-stone-300 font-bold text-xs rounded-xl transition-all cursor-pointer"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                onClick={() => handleApplyUnification(confirmModal.type, confirmModal.val)}
+                className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer"
+              >
+                Sì, Conferma e Applica
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-stone-900/80 p-3 rounded-2xl border border-stone-800 shadow">
