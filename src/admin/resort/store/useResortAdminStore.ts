@@ -91,6 +91,16 @@ const savePromoCodesToStorage = (codes: PromoCode[]) => {
   }
 };
 
+const loadCachedImportTime = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  try {
+    return localStorage.getItem('fpv_octorate_cache_time') || null;
+  } catch (e) {
+    console.error('[useResortAdminStore] Failed to read cache time from localStorage:', e);
+    return null;
+  }
+};
+
 interface ResortAdminState {
   bookings: ResortBooking[];
   rawOctorateBookings: any[];
@@ -188,6 +198,11 @@ interface ResortAdminState {
   deletePromoCode: (id: string) => void;
   incrementPromoCodeUsage: (codeOrId: string) => void;
   refreshPromoCodes: () => void;
+
+  // Persistent Cache State & Actions
+  cachedImportTime: string | null;
+  saveToCache: (bookingsToSave?: any[], gridToSave?: any[]) => void;
+  loadFromCache: () => boolean;
 }
 
 export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
@@ -407,6 +422,9 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
         seasonDownloadProgress: 100,
         seasonDownloadMessage: `Caricamento Stagione Completato (100%) - ${accumulatedBookings.length} prenotazioni pronte`
       });
+
+      // Salvataggio sicuro in cache al 100% del download
+      get().saveToCache(accumulatedBookings);
     } catch (err: any) {
       console.error('[downloadSeasonSequential] Exception:', err);
       set({
@@ -877,5 +895,60 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   refreshPromoCodes: () => {
     const refreshed = loadPromoCodesFromStorage();
     set({ promoCodes: refreshed });
+  },
+
+  cachedImportTime: loadCachedImportTime(),
+
+  saveToCache: (bookingsToSave, gridToSave) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const nowIso = new Date().toISOString();
+      const b = bookingsToSave || get().rawOctorateBookings || [];
+      const g = gridToSave || get().rawOctorateGridItems || [];
+
+      localStorage.setItem('fpv_octorate_cache_bookings', JSON.stringify(b));
+      localStorage.setItem('fpv_octorate_cache_grid', JSON.stringify(g));
+      localStorage.setItem('fpv_octorate_cache_time', nowIso);
+
+      set({ cachedImportTime: nowIso });
+      console.log('[useResortAdminStore] Salvataggio locale in cache completato:', nowIso);
+    } catch (e) {
+      console.error('[useResortAdminStore] Errore salvataggio cache localStorage:', e);
+    }
+  },
+
+  loadFromCache: () => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const rawB = localStorage.getItem('fpv_octorate_cache_bookings');
+      const rawG = localStorage.getItem('fpv_octorate_cache_grid');
+      const time = localStorage.getItem('fpv_octorate_cache_time');
+
+      if (!rawB || !time) {
+        console.warn('[useResortAdminStore] Nessuna cache trovata in localStorage.');
+        return false;
+      }
+
+      const parsedB = JSON.parse(rawB);
+      const parsedG = rawG ? JSON.parse(rawG) : [];
+
+      const filteredB = Array.isArray(parsedB) ? parsedB.filter(isValidActiveBooking) : [];
+
+      set({
+        rawOctorateBookings: Array.isArray(parsedB) ? parsedB : [],
+        bookings: filteredB,
+        rawOctorateGridItems: Array.isArray(parsedG) ? parsedG : [],
+        cachedImportTime: time,
+        seasonDownloadStatus: 'completed',
+        seasonDownloadProgress: 100,
+        seasonDownloadMessage: `Dati caricati da cache locale (${new Date(time).toLocaleString('it-IT')})`
+      });
+
+      console.log('[useResortAdminStore] Dati Octorate caricati dalla cache locale con successo!');
+      return true;
+    } catch (e) {
+      console.error('[useResortAdminStore] Errore caricamento cache da localStorage:', e);
+      return false;
+    }
   }
 }));

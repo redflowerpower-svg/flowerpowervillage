@@ -230,3 +230,21 @@ executionMode:
 ### Incremento Automatizzato a Prenotazione Avvenuta
 - Nel motore di prenotazione (`booking-engine.tsx`), il parametro `?promo=CODICE` viene letto all'avvio. Alla conferma ed alla verifica del pagamento in `verifyAndConfirmBooking`, il sistema invoca `useResortAdminStore.getState().incrementPromoCodeUsage(code)` incrementando `slotsUsed` e disattivando automaticamente i ticket monouso esauriti.
 
+---
+
+## 10. Pannello Unificazione Prezzi Base Aria Condizionata & Colazione nelle Tariffe Derivate (07/08/2026)
+
+### A. Pannello di Controllo Unificazione in Dashboard Admin ([`DerivedRatesTreeSection.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/DerivedRatesTreeSection.tsx))
+- **Interfaccia a 2 Caselle di Input**:
+  1. **Aria Condizionata (AC)**: Input numerico per impostare il prezzo unico base per l'Aria Condizionata (es. `400 THB` / notte). Mostra l'importo attualmente attivo.
+  2. **1 Colazione (Breakfast)**: Input numerico per impostare il prezzo unico base per 1 colazione (es. `150 THB` / persona / notte). Mostra l'importo attualmente attivo.
+
+### B. Sistema di Conferma Modale Interattiva
+- **Pop-up di Verifica**: Premendo *"CONFERMA & APPLICA AC"* o *"CONFERMA & APPLICA COLAZIONE"*, il sistema mostra una modale di sicurezza:
+  *«Sei sicuro di voler unificare ed applicare il prezzo di X THB a TUTTE le tariffe derivate del villaggio?»*
+- **Appartenenza & Persistenza**:
+  - Salva i valori unificati in `localStorage` (`fpv_derived_ac_price` e `fpv_derived_breakfast_price`).
+  - Aggiorna programmaticamente tutte le regole `ruleTag` (`+400฿ AM`, `+400฿ AMR`) e le descrizioni degli schemi di derivazione su tutte le 18 camere.
+  - Sincronizza i controlli automatici delle discrepanze (Sanity Check) sui prezzi live Octorate.
+
+

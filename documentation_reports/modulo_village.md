@@ -610,7 +610,7 @@ executionMode:
 
 ### F. Modulo Codici Promozionali & Ticket Sconto V19 / V20 / V26–V30 (06/08/2026)
 - **Componente `PromoCodesSection.tsx`**: Integrato in `ResortDashboard.tsx` sotto i 3 moduli sconti storici.
-- **Design & Layout**: Tema **Fuchsia / Rose Gold** a doppio bordo. Layout single-line desktop (V20) con tasto 🎲 ticket random interno all'input text, date picker unificato Dal ➔ Al e pulsante `+ AGGIUNGI` (`h-10`).
+- **Design & Layout**: Tema **Fuchsia / Rose Gold** a doppio bordo. Layout single-line desktop (V20) with tasto 🎲 ticket random interno all'input text, date picker unificato Dal ➔ Al e pulsante `+ AGGIUNGI` (`h-10`).
 - **Tracciamento & Link Sconto**: Lista accordion con barra di avanzamento degli utilizzi (`slotsUsed / slotsTotal`), interruttore di stato attivo/disattivo e pulsante per la generazione del link condivisibile (`?promo=CODICE`).
 - **Pulsante Refresh Stato Consumo**: Aggiunto il pulsante `🔄 AGGIORNA STATO CONSUMO` accanto al titolo della lista coupon per ri-sincronizzare all'istante l'utilizzo da `localStorage` senza ricaricare la pagina.
 - **Esclusività Sconto Coupon (V26–V28)**: Quando un coupon promozionale è attivo (`appliedPromo`), lo sconto automatico di soggiorno (`directDiscountAmount`) viene TASSATIVAMENTE azzerato (`0`). Il coupon si applica in modo esclusivo direttamente sulla Tariffa Madre (`roomCost + extraGuests`), escludendo Colazione ed Aria Condizionata.
@@ -618,4 +618,26 @@ executionMode:
   - Inserito il controllo `hasValidDates = Boolean(checkIn && checkOut && stayDays > 0)` in `RoomGrid.tsx` che bypassa il calcolo dinamico e mostra le tariffe base statiche dell'alloggio quando le date non sono impostate.
   - Protette le funzioni `calculateNights` in `octorate.ts` e `calculateStayDays` con blocchi `try-catch` affinché restituiscano `0` in sicurezza in caso di date non valide, senza crashare.
   - Il cassetto *"Dettaglio Costi"* renderizza una guardia condizionale `{hasValidDates && pricingWithExtras ? (...) : (...)}` con un messaggio di cortesia che invita a selezionare le date quando le date sono assenti.
+
+---
+
+## 10. Unificazione Grafica Caratteristiche & Caching Persistente Octorate (07/08/2026)
+
+### A. Unificazione Stile Caratteristiche Alloggio (Dashboard & Sito Client)
+- **Componente Sito `RoomFeaturesGrid.tsx`**:
+  - Allineato al 100% allo stile della Dashboard Admin ([`AccommodationFeaturesEditor.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/AccommodationFeaturesEditor.tsx)).
+  - Card con bordo verde smeraldo `border border-emerald-500/60 ring-1 ring-emerald-500/20 bg-stone-900/90`, contenitori scuri `bg-stone-950/30` con intestazioni numerate in verde smeraldo, badge con spunta verde (`Check` icon) su ogni servizio attivo e layout compatto a 2-3 colonne.
+- **Badge Immagini & Rettangoli `RoomGrid.tsx`**:
+  - Rettangoli della tipologia alloggio (in alto a sinistra: *VILLE*, *BUNGALOW*, *GLAMPING*, *HUBit@*) e del numero massimo ospiti (in basso a destra: *Fino a 8 ospiti*) aggiornati con lo stesso identico verde smeraldo unificato `bg-emerald-800/95 border border-emerald-650/60 shadow-md backdrop-blur-md` coordinato con la palette del sito.
+
+### B. Caching Persistente & Modale di Scelta all'Avvio (Octorate PMS)
+- **Store Zustand ([`useResortAdminStore.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts))**:
+  - Stato `cachedImportTime` inizializzato da `localStorage.getItem('fpv_octorate_cache_time')`.
+  - Funzione `saveToCache(bookings, grid)`: Salva in modo sicuro in `localStorage` le chiavi `fpv_octorate_cache_bookings`, `fpv_octorate_cache_grid` e `fpv_octorate_cache_time` (timestamp ISO).
+  - Funzione `loadFromCache()`: Legge ed esegue il parsing dei dati salvati, popola `rawOctorateBookings` e `rawOctorateGridItems` ed imposta `seasonDownloadStatus` su `'completed'` (100%).
+  - Auto-salvataggio: `downloadSeasonSequential()` invoca automaticamente `saveToCache` al raggiungimento del 100% del download.
+- **Finestra Modale Elegante di Scelta ([`ResortDashboard.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/ResortDashboard.tsx))**:
+  - Al mount, se viene rilevato `cachedImportTime`, il download automatico viene bloccato e viene mostrata la modale: *«Rilevato salvataggio locale del: [Data e Ora]»*.
+  - **Pulsante 1**: `"Carica salvataggio (Istantaneo)"` ➔ Esegue `loadFromCache()` (caricamento offline immediato a zero attese).
+  - **Pulsante 2**: `"Nuova sincronizzazione live"` ➔ Esegue `downloadSeasonSequential()` (scaricamento completo da Octorate API).
 

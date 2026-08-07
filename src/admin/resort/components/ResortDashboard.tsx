@@ -103,7 +103,10 @@ export function ResortDashboard() {
     downloadSeasonSequential,
     seasonDownloadStatus,
     seasonDownloadProgress,
-    seasonDownloadMessage
+    seasonDownloadMessage,
+    cachedImportTime,
+    loadFromCache,
+    saveToCache
   } = useResortAdminStore();
 
   const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'messages' | 'octorate' | 'octorate_import'>('bookings');
@@ -114,6 +117,9 @@ export function ResortDashboard() {
   const [showCascadeProdModal, setShowCascadeProdModal] = useState(false);
   const [showMinStayProdModal, setShowMinStayProdModal] = useState(false);
   const [expandedFeaturesRoomId, setExpandedFeaturesRoomId] = useState<string | null>(null);
+
+  // Cache choice modal state on initial mount
+  const [showCacheChoiceModal, setShowCacheChoiceModal] = useState(false);
 
   // Arming state & auto-disarm timer for double-click room deactivation safety
   const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
@@ -209,8 +215,13 @@ export function ResortDashboard() {
     getStoredTokens().then((tokens) => {
       setOauthConnected(tokens !== null);
     });
-    // V17: Avvio automatico download sequenziale della stagione al mount della dashboard
-    downloadSeasonSequential();
+
+    const existingCacheTime = useResortAdminStore.getState().cachedImportTime;
+    if (existingCacheTime) {
+      setShowCacheChoiceModal(true);
+    } else {
+      downloadSeasonSequential();
+    }
   }, [fetchBookings, checkOctorateConnection, downloadSeasonSequential]);
 
   const handleFetchDevRooms = async () => {
@@ -453,6 +464,65 @@ export function ResortDashboard() {
                 <span>Progresso</span>
                 <span className="text-emerald-400 font-black">{seasonDownloadProgress}%</span>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODALE ELEGANTE SCELTA CACHE / SYNC LIVE ALL'AVVIO */}
+      {showCacheChoiceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/85 backdrop-blur-md p-4 animate-fadeIn">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto shadow-inner">
+              <RefreshCw className="w-7 h-7 animate-spin-slow" />
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider">
+                Rilevato salvataggio locale Octorate
+              </h3>
+              <p className="text-xs sm:text-sm text-emerald-400 font-bold bg-emerald-950/80 py-2 px-4 rounded-xl border border-emerald-800/60 inline-block">
+                Rilevato salvataggio locale del: {formatLastUpdateStr(cachedImportTime)}
+              </p>
+              <p className="text-xs text-stone-400 leading-relaxed font-medium pt-1">
+                Scegli se caricare istantaneamente i dati delle prenotazioni salvati in locale o se avviare una nuova sincronizzazione live con i server Octorate.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  loadFromCache();
+                  setShowCacheChoiceModal(false);
+                }}
+                className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-2xl shadow-lg transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95"
+              >
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4" />
+                  Carica salvataggio (Istantaneo)
+                </span>
+                <span className="text-[10px] font-normal text-emerald-200">
+                  Caricamento offline zero attese
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  downloadSeasonSequential();
+                  setShowCacheChoiceModal(false);
+                }}
+                className="w-full py-3.5 px-4 bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700 font-black text-xs rounded-2xl shadow-lg transition-all cursor-pointer flex flex-col items-center justify-center gap-1 active:scale-95"
+              >
+                <span className="flex items-center gap-1.5">
+                  <RefreshCw className="w-4 h-4 text-amber-400" />
+                  Nuova sincronizzazione live
+                </span>
+                <span className="text-[10px] font-normal text-stone-400">
+                  Download completo da Octorate API
+                </span>
+              </button>
             </div>
           </div>
         </div>
