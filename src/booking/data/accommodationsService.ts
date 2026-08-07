@@ -445,22 +445,11 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
     return cachedAccommodations;
   }
 
-  // Self-healing query logic: attempt to select features, fallback to details if column is missing
-  let response = await publicSupabase
+  // Clean query selecting 'id', 'name', 'slug', and 'details'
+  const { data: dbItems, error: dbError } = await publicSupabase
     .from('accommodations')
-    .select('id, name, slug, details, features')
+    .select('id, name, slug, details')
     .order('name');
-
-  if (response.error && (response.error.message.includes('features') || response.error.message.includes('column'))) {
-    console.warn("⚠️ Colonna features assente su Supabase. Avvio query sicura di fallback...");
-    response = await publicSupabase
-      .from('accommodations')
-      .select('id, name, slug, details')
-      .order('name');
-  }
-
-  const dbItems = response.data || [];
-  const dbError = response.error;
 
   if (dbError) {
     console.error('Error fetching accommodations from Supabase:', dbError);
@@ -506,8 +495,15 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
       console.error(`Error listing storage images for folder ${folder}:`, err);
     }
 
-    const itemFeatures = item.features || item.details?.features || metadata.features;
-    const itemDetails = item.details || {};
+    let itemDetails = item.details || {};
+    if (typeof itemDetails === 'string') {
+      try {
+        itemDetails = JSON.parse(itemDetails);
+      } catch (e) {
+        itemDetails = {};
+      }
+    }
+    const itemFeatures = itemDetails.features || item.features || metadata.features;
 
     return {
       id: item.id,

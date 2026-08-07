@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Wifi,
   Snowflake,
@@ -144,6 +144,54 @@ export const AccommodationFeaturesEditor: React.FC<AccommodationFeaturesEditorPr
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<{ success: boolean; message: string } | null>(null);
 
+  useEffect(() => {
+    let isMounted = true;
+    async function loadLiveFeatures() {
+      try {
+        const { data, error } = await supabase
+          .from('accommodations')
+          .select('id, details')
+          .or(`id.eq.${accommodation?.id},name.eq.${accommodation?.name}`)
+          .limit(1);
+
+        if (!error && data && data.length > 0 && isMounted) {
+          let detailsObj = data[0].details;
+          if (typeof detailsObj === 'string') {
+            try { detailsObj = JSON.parse(detailsObj); } catch { detailsObj = {}; }
+          }
+          const feats = detailsObj?.features || {};
+          if (detailsObj?.squareMeters || feats?.room_size) {
+            setRoomSize(detailsObj?.squareMeters || feats?.room_size || 0);
+          }
+          if (feats && Object.keys(feats).length > 0) {
+            setFeatures({
+              wifi: Boolean(feats.wifi),
+              hubit_coworking: Boolean(feats.hubit_coworking),
+              air_conditioning: Boolean(feats.air_conditioning),
+              ceiling_fan: Boolean(feats.ceiling_fan),
+              safe: Boolean(feats.safe),
+              desk: Boolean(feats.desk),
+              sofa_bed: Boolean(feats.sofa_bed),
+              hot_water: Boolean(feats.hot_water),
+              kitchen: Boolean(feats.kitchen),
+              refrigerator: Boolean(feats.refrigerator),
+              outdoor_lounge: Boolean(feats.outdoor_lounge),
+              terrace_balcony: Boolean(feats.terrace_balcony),
+              private_garden: Boolean(feats.private_garden),
+              swimming_pool: Boolean(feats.swimming_pool),
+              gym: Boolean(feats.gym),
+              yoga_temple: Boolean(feats.yoga_temple)
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching live features in AccommodationFeaturesEditor:', err);
+      }
+    }
+    loadLiveFeatures();
+    return () => { isMounted = false; };
+  }, [accommodation?.id, accommodation?.name]);
+
   const toggleFeature = (key: string) => {
     setFeatures((prev) => ({
       ...prev,
@@ -183,26 +231,15 @@ export const AccommodationFeaturesEditor: React.FC<AccommodationFeaturesEditorPr
         features: updatedFeatures
       };
 
-      // Perform update query on Supabase table 'accommodations' by id
+      // Perform update query on Supabase table 'accommodations' targeting the real 'details' JSONB column
       const { error } = await supabase
         .from('accommodations')
         .update({
-          details: updatedDetails,
-          features: updatedFeatures
+          details: updatedDetails
         })
         .eq('id', accommodation.id);
 
-      if (error) {
-        // Fallback update if features column is missing
-        const { error: fallbackErr } = await supabase
-          .from('accommodations')
-          .update({
-            details: updatedDetails
-          })
-          .eq('id', accommodation.id);
-
-        if (fallbackErr) throw fallbackErr;
-      }
+      if (error) throw error;
 
       setSaveStatus({
         success: true,
