@@ -21,6 +21,7 @@ import {
 import { handleOctorateWebhook } from "./_handlers/octorate-webhook.js";
 import { handleEmailAlerts } from "./_handlers/email-alerts.js";
 import { handleSendNewsletter } from "./_handlers/send-newsletter.js";
+import { handleOctorateImport } from "./_handlers/octorate-import.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -58,6 +59,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('octorate-grid') || cleanPath.includes('octorate_grid')) {
     return handleOctorateGrid(req, res);
+  }
+
+  if (cleanPath.includes('octorate-import') || cleanPath.includes('octorate_import')) {
+    return handleOctorateImport(req, res);
   }
 
   if (cleanPath.includes('send-newsletter')) {

@@ -1,5 +1,6 @@
-1. Ambiente Operativo:
-L'utente lavora all'interno di Antigravity IDE.
+Regola di Formattazione Rigida per Gemini Notebook (Antigravity IDE)
+1. Ambiente Operativo e Agente:
+L'utente lavora all'interno di Antigravity IDE e si interfaccia con un agente basato su Gemini 3.6 Flash.
 
 2. Visibilità e Zero Scroll Orizzontale:
 
@@ -7,11 +8,11 @@ Tutti i prompt, i comandi, le istruzioni e il testo generato devono rimanere rig
 
 È vietato l'uso di blocchi di codice standard che costringono l'utente allo scroll orizzontale.
 
-3. Identificazione Visiva del Blocco da Copiare:
-Per renderlo impossibile da confondere rispetto al resto del testo spiegato, ogni blocco di prompt o comando destinato al copia-incolla in Antigravity IDE deve rispettare tassativamente questa struttura:
+3. Delimitazione e Identificazione Visiva del Blocco da Copiare:
+Qualsiasi prompt, comando o snippet destinato al copia-incolla per Antigravity IDE deve essere isolato e formattato esplicitamente così:
 
-Delimitatori orizzontali: Iniziare con una linea di = separatrice in cima (===) e chiudere con una linea di = separatrice dopo l'ultima lettera da copiare (===).
+Riga di apertura: Inserire una linea orizzontale di segni di uguale (es. ==================================================).
 
-Stile del testo: Il contenuto interno del blocco deve essere interamente formattato in corsivo (utilizzando la sintassi markdown *testo* o _testo_).
+Testo del prompt: A capo, scrivere il testo interamente in corsivo, con ritorni a capo manuali per non superare mai i margini.
 
-Contenimento e Copia-Incolla: Applicare ritorni a capo manuali per non superare il margine della finestra, consentendo un copia-incolla immediato e pulito.
+Riga di chiusura: Subito a capo dopo l'ultima riga di testo, inserire un'altra riga orizzontale di segni di uguale (es. ==================================================).
