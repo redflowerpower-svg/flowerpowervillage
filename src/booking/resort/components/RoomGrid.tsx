@@ -5,6 +5,7 @@ import { checkAvailability } from '../../lib/octorate';
 import { translations, Language } from '../../lib/translations';
 import { PRICE_CONFIG } from '../config/accommodations';
 import { useResortAdminStore } from '../../../admin/resort/store/useResortAdminStore';
+import RoomFeaturesGrid from './RoomFeaturesGrid';
 
 interface RoomGridProps {
   lang: Language;
@@ -257,13 +258,30 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeGalleryRoom, activeImageIndex]);
 
-  const openGallery = (room: EnrichedAccommodation) => {
-    setActiveGalleryRoom(room);
-    setActiveImageIndex(0);
-    if (typeof window !== 'undefined' && room.slug) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('room', room.slug);
-      window.history.pushState({}, '', url.toString());
+  const cleanSlug = (s: string): string => {
+    if (!s) return '';
+    return String(s).toLowerCase().replace(/^\d+_/, '').trim();
+  };
+
+  const openGallery = (item: any) => {
+    try {
+      console.log("Cliccato alloggio:", item);
+      if (!item) return;
+      setActiveGalleryRoom(item);
+      if (typeof setActiveImageIndex === 'function') {
+        setActiveImageIndex(0);
+      }
+      // Gestione sicura dello slug o ID pulito
+      const rawSlug = item?.slug || item?.id || 'room';
+      const slug = cleanSlug(rawSlug) || 'room';
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.set('room', slug);
+        window.history.pushState(null, '', url.toString());
+      }
+      console.log("URL aggiornato con successo con slug pulito:", slug);
+    } catch (err) {
+      console.error("Errore in openGallery:", err);
     }
   };
 
@@ -278,13 +296,14 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     }
   };
 
-  // Auto-open room gallery modal if ?room=slug parameter is present in URL
+  // Auto-open room gallery modal safely if ?room=slug parameter is present in URL
   useEffect(() => {
-    if (typeof window !== 'undefined' && rooms.length > 0) {
+    if (typeof window !== 'undefined' && Array.isArray(rooms) && rooms.length > 0) {
       const urlParams = new URLSearchParams(window.location.search);
       const roomParam = urlParams.get('room');
       if (roomParam) {
-        const found = rooms.find(r => r.slug === roomParam || r.slug.toLowerCase().includes(roomParam.toLowerCase()));
+        const cleanParam = cleanSlug(roomParam);
+        const found = rooms.find(r => r && (cleanSlug(r.slug) === cleanParam || cleanSlug(r.slug).includes(cleanParam) || cleanParam.includes(cleanSlug(r.slug))));
         if (found) {
           setActiveGalleryRoom(found);
           setActiveImageIndex(0);
@@ -293,14 +312,34 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     }
   }, [rooms]);
 
+  // Lock body scroll when modal is active
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = activeGalleryRoom ? 'hidden' : '';
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.body.style.overflow = '';
+      }
+    };
+  }, [activeGalleryRoom]);
+
   const nextImage = () => {
     if (!activeGalleryRoom) return;
-    setActiveImageIndex((prev) => (prev + 1) % activeGalleryRoom.images.length);
+    const imagesList = (Array.isArray(activeGalleryRoom?.images) && activeGalleryRoom.images.length > 0)
+      ? activeGalleryRoom.images
+      : (activeGalleryRoom?.image_url ? [activeGalleryRoom.image_url] : []);
+    if (imagesList.length <= 1) return;
+    setActiveImageIndex((prev) => (prev + 1) % imagesList.length);
   };
 
   const prevImage = () => {
     if (!activeGalleryRoom) return;
-    setActiveImageIndex((prev) => (prev - 1 + activeGalleryRoom.images.length) % activeGalleryRoom.images.length);
+    const imagesList = (Array.isArray(activeGalleryRoom?.images) && activeGalleryRoom.images.length > 0)
+      ? activeGalleryRoom.images
+      : (activeGalleryRoom?.image_url ? [activeGalleryRoom.image_url] : []);
+    if (imagesList.length <= 1) return;
+    setActiveImageIndex((prev) => (prev - 1 + imagesList.length) % imagesList.length);
   };
 
 
@@ -678,7 +717,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                         type="button"
                         id={`btn-select-dates-room-${item.id}`}
                         onClick={(e) => handleScrollToCalendar(e.currentTarget.closest('article'))}
-                        className="flex-1 bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide leading-tight flex flex-col items-center justify-center"
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold py-3 px-3 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide leading-tight flex flex-col items-center justify-center"
                       >
                         {loadingAvailability ? (
                           <span>{lang === 'TH' ? 'กำลังตรวจสอบ...' : lang === 'DE' ? 'Verfügbarkeit...' : lang === 'EN' ? 'Checking...' : 'Verifica disponibilità...'}</span>
@@ -693,8 +732,11 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                       <button
                         type="button"
                         id={`btn-view-details-room-${item.id}`}
-                        onClick={() => openGallery(item)}
-                        className="bg-emerald-800 hover:bg-emerald-700 active:bg-emerald-900 text-white text-xs font-bold py-3 px-4 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide flex items-center justify-center"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openGallery(item);
+                        }}
+                        className="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold py-3 px-4 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer text-center tracking-wide flex items-center justify-center"
                         title={lang === 'TH' ? 'ดูรายละเอียด' : lang === 'DE' ? 'Details anzeigen' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}
                       >
                         <span>{lang === 'TH' ? 'รายละเอียด' : lang === 'DE' ? 'Details' : lang === 'EN' ? 'View details' : 'Vedi dettagli'}</span>
@@ -908,83 +950,136 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
         })}
       </div>
 
-      {/* STYLISH GALLERY POPUP MODAL */}
-      {activeGalleryRoom && activeGalleryRoom.images && activeGalleryRoom.images.length > 0 && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center py-4 px-2 md:p-6 bg-stone-950/95 backdrop-blur-md select-none transition-all duration-300 overflow-hidden h-screen">
-          
-          {/* Close button */}
+      {/* FULL-SCREEN IMMERSIVE TROPICAL GLASSMORPHISM MODAL */}
+      {Boolean(activeGalleryRoom) && (() => {
+        const roomImages = (Array.isArray(activeGalleryRoom?.images) && activeGalleryRoom.images.length > 0)
+          ? activeGalleryRoom.images
+          : (activeGalleryRoom?.image_url ? [activeGalleryRoom.image_url] : ['https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80']);
+        const bgImage = roomImages[0];
+        return (
+          <div className="fixed inset-0 z-[99999] w-screen h-screen flex flex-col lg:flex-row bg-stone-950/80 backdrop-blur-md overflow-hidden">
+            
+            {/* TROPICAL GLASSMORPHISM BLURRED BACKGROUND IMAGE */}
+            {bgImage && (
+              <img 
+                src={bgImage} 
+                className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-20 pointer-events-none scale-110 -z-10" 
+                alt="" 
+              />
+            )}
+
+          {/* Close button (floating top right) */}
           <button
             onClick={closeGallery}
-            className="absolute top-4 right-4 md:top-6 md:right-6 p-2 md:p-3 rounded-full bg-stone-900/80 hover:bg-stone-800 border border-stone-800 text-stone-300 hover:text-white cursor-pointer transition-all duration-200 z-[110]"
+            className="fixed top-4 right-4 md:top-6 md:right-6 p-3 rounded-full bg-stone-900/90 hover:bg-stone-800 border border-stone-800 text-stone-300 hover:text-white cursor-pointer transition-all duration-200 z-[120] shadow-2xl hover:scale-105 active:scale-95"
+            title={lang === 'IT' ? 'Chiudi' : 'Close'}
           >
-            <X className="w-5 h-5 md:w-6 md:h-6" />
+            <X className="w-6 h-6" />
           </button>
 
-          {/* Main image container */}
-          <div className="relative w-full max-w-5xl flex-1 min-h-0 flex items-center justify-center py-2 md:py-4">
+          {/* LEFT PANEL: Full-Height Gallery (60% width desktop, 45% height mobile) */}
+          <div className="w-full lg:w-3/5 h-[45vh] lg:h-full relative bg-black/40 flex flex-col justify-between p-4 lg:p-8 flex-shrink-0 border-b lg:border-b-0 lg:border-r border-stone-800/80 z-10">
             
-            {/* Left arrow */}
-            <button
-              onClick={prevImage}
-              className="absolute left-2 md:left-4 p-2 md:p-3 rounded-full bg-stone-900/60 hover:bg-stone-800/80 text-white border border-stone-800/50 cursor-pointer transition-all duration-200 z-10 hover:scale-105 active:scale-95"
-            >
-              <ChevronLeft className="w-4 h-4 md:w-6 md:h-6" />
-            </button>
+            {/* Main Image Container */}
+            <div className="relative w-full flex-1 flex items-center justify-center min-h-0">
+              
+              {/* Left Arrow */}
+              {roomImages.length > 1 && (
+                <button
+                  onClick={prevImage}
+                  className="absolute left-2 md:left-4 p-3 rounded-full bg-stone-900/80 hover:bg-stone-800 text-white border border-stone-800/60 cursor-pointer transition-all duration-200 z-10 hover:scale-105 active:scale-95 shadow-xl"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+              )}
 
-            {/* Main Image */}
-            <div className="w-full h-full flex items-center justify-center overflow-hidden rounded-2xl shadow-2xl bg-stone-900/10">
-              <img
-                src={activeGalleryRoom.images[activeImageIndex]}
-                alt={`${getRoomTitle(activeGalleryRoom)} - ${activeImageIndex + 1}`}
-                className="max-h-full max-w-full object-contain rounded-2xl transition-all duration-300"
-              />
+              {/* Main Image */}
+              <div className="w-full h-full flex items-center justify-center overflow-hidden rounded-2xl bg-stone-950/30">
+                <img
+                  src={roomImages[activeImageIndex] || roomImages[0]}
+                  alt={`${activeGalleryRoom ? getRoomTitle(activeGalleryRoom) : 'Room'} - ${activeImageIndex + 1}`}
+                  className="max-h-full max-w-full object-contain rounded-2xl transition-all duration-300 shadow-2xl"
+                />
+              </div>
+
+              {/* Right Arrow */}
+              {roomImages.length > 1 && (
+                <button
+                  onClick={nextImage}
+                  className="absolute right-2 md:right-4 p-3 rounded-full bg-stone-900/80 hover:bg-stone-800 text-white border border-stone-800/60 cursor-pointer transition-all duration-200 z-10 hover:scale-105 active:scale-95 shadow-xl"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              )}
             </div>
 
-            {/* Right arrow */}
-            <button
-              onClick={nextImage}
-              className="absolute right-2 md:right-4 p-2 md:p-3 rounded-full bg-stone-900/60 hover:bg-stone-800/80 text-white border border-stone-800/50 cursor-pointer transition-all duration-200 z-10 hover:scale-105 active:scale-95"
-            >
-              <ChevronRight className="w-4 h-4 md:w-6 md:h-6" />
-            </button>
+            {/* Thumbnails Row (Bottom of Left Panel) */}
+            {roomImages.length > 0 && (
+              <div className="w-full flex items-center justify-center gap-2 overflow-x-auto py-2 px-2 no-scrollbar flex-shrink-0 mt-3">
+                {roomImages.map((src: string, i: number) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImageIndex(i)}
+                    className={`relative w-16 h-12 md:w-20 md:h-14 flex-shrink-0 rounded-xl overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
+                      i === activeImageIndex
+                        ? "border-emerald-500 scale-105 shadow-md shadow-emerald-500/20 opacity-100"
+                        : "border-stone-800 opacity-40 hover:opacity-100 hover:scale-102"
+                    }`}
+                  >
+                    <img
+                      src={src}
+                      alt={`preview-${i}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Thumbnails list (placed ABOVE caption) */}
-          <div className="w-full max-w-3xl flex items-center justify-start md:justify-center gap-2 overflow-x-auto py-2 px-4 no-scrollbar flex-shrink-0 mt-8 mb-4 md:mt-10 md:mb-6">
-            {activeGalleryRoom.images.map((src, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveImageIndex(i)}
-                className={`relative w-20 h-14 md:w-24 md:h-18 flex-shrink-0 rounded-lg overflow-hidden border-2 cursor-pointer transition-all duration-200 ${
-                  i === activeImageIndex
-                    ? "border-emerald-500 scale-105 shadow-md shadow-emerald-500/20 opacity-100"
-                    : "border-stone-800 opacity-40 hover:opacity-100 hover:scale-102"
-                }`}
-              >
-                <img
-                  src={src}
-                  alt={`preview-${i}`}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-          </div>
+          {/* RIGHT PANEL: Scrollable Info & Features Panel with Glassmorphism */}
+          <div className="w-full lg:w-2/5 h-[55vh] lg:h-full overflow-y-auto p-6 lg:p-10 bg-stone-950/40 backdrop-blur-xl border-t lg:border-t-0 lg:border-l border-white/5 space-y-6 relative z-10">
+            {/* Header Info */}
+            <div className="space-y-3 pr-8">
+              {activeGalleryRoom?.category && (
+                <span className="inline-block px-3 py-1 bg-stone-800/80 border border-stone-700 text-emerald-400 font-extrabold text-[10px] rounded-lg uppercase tracking-widest">
+                  {activeGalleryRoom.category}
+                </span>
+              )}
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-sans font-black text-white tracking-tight leading-tight">
+                {activeGalleryRoom ? getRoomTitle(activeGalleryRoom) : ''}
+              </h3>
+              <p className="text-stone-300 text-sm md:text-base font-normal leading-relaxed">
+                {activeGalleryRoom ? getRoomDesc(activeGalleryRoom) : ''}
+              </p>
+              {roomImages.length > 0 && (
+                <div className="pt-1">
+                  <span className="inline-block px-3 py-1 rounded-full bg-stone-950/80 text-[10px] md:text-xs text-stone-400 border border-stone-800/80 uppercase font-extrabold tracking-widest">
+                    📷 Foto {activeImageIndex + 1} di {roomImages.length}
+                  </span>
+                </div>
+              )}
+            </div>
 
-          {/* Info Caption (placed BELOW thumbnails) */}
-          <div className="w-full max-w-3xl text-center px-4 flex-shrink-0 mb-4 md:mb-6">
-            <h4 className="text-white text-2xl md:text-4xl font-sans tracking-tight mb-2 font-bold">
-              {getRoomTitle(activeGalleryRoom)}
-            </h4>
-            <p className="text-stone-300 text-sm sm:text-base md:text-lg max-w-2xl mx-auto font-normal leading-relaxed line-clamp-3 md:line-clamp-none">
-              {getRoomDesc(activeGalleryRoom)}
-            </p>
-            <span className="inline-block mt-3 px-2.5 py-0.5 rounded-full bg-stone-900/80 text-[10px] md:text-xs text-stone-400 border border-stone-800/50 uppercase font-bold tracking-widest">
-              Foto {activeImageIndex + 1} di {activeGalleryRoom.images.length}
-            </span>
+            {/* ROOM FEATURES GRID COMPONENT */}
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              <h4 className="text-xs font-black uppercase tracking-wider text-stone-300 border-b border-stone-800 pb-2.5 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>
+                  {String(lang).toLowerCase() === 'it' ? 'Servizi & Caratteristiche Alloggio' : String(lang).toLowerCase() === 'de' ? 'Ausstattung & Merkmale' : String(lang).toLowerCase() === 'th' ? 'สิ่งอำนวยความสะดวกและลักษณะห้อง' : 'Room Features & Amenities'}
+                </span>
+              </h4>
+              <RoomFeaturesGrid
+                features={activeGalleryRoom?.features || activeGalleryRoom?.details?.features}
+                details={activeGalleryRoom?.details}
+                lang={lang}
+              />
+            </div>
           </div>
 
         </div>
-      )}
+        );
+      })()}
     </>
   );
 };

@@ -7,6 +7,8 @@ import { NewsletterCampaignSection } from './NewsletterCampaignSection';
 import { StandardRatesProtectionSection } from './StandardRatesProtectionSection';
 import { PromoCodesSection } from './PromoCodesSection';
 import { OctorateImportSection } from './OctorateImportSection';
+import { AccommodationFeaturesEditor } from './AccommodationFeaturesEditor';
+import { supabase } from '../../../lib/supabase';
 import { toThailandDateStr } from '../lib/octorateAdmin';
 import { 
   Hotel, 
@@ -64,7 +66,8 @@ export function ResortDashboard() {
     octorateStatus, 
     octorateDetails, 
     fetchBookings, 
-    toggleRoomAvailability, 
+    toggleRoomAvailability,
+    updateAccommodationFeatures, 
     checkOctorateConnection,
     filterCategory,
     executeLastMinuteStrategy,
@@ -110,6 +113,48 @@ export function ResortDashboard() {
   // Production confirmation modals
   const [showCascadeProdModal, setShowCascadeProdModal] = useState(false);
   const [showMinStayProdModal, setShowMinStayProdModal] = useState(false);
+  const [expandedFeaturesRoomId, setExpandedFeaturesRoomId] = useState<string | null>(null);
+
+  // Arming state & auto-disarm timer for double-click room deactivation safety
+  const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!pendingDeactivateId) return;
+    const timer = setTimeout(() => {
+      setPendingDeactivateId(null);
+    }, 4000); // 4 seconds auto-disarm
+    return () => clearTimeout(timer);
+  }, [pendingDeactivateId]);
+
+  const handleToggleAvailability = async (room: any) => {
+    const isCurrentAvailable = Boolean(room.isAvailable ?? room.is_available);
+    if (isCurrentAvailable) {
+      if (pendingDeactivateId !== room.id) {
+        // First click: arm the deactivation button
+        setPendingDeactivateId(room.id);
+        return;
+      }
+      // Second click within 4 seconds: disarm and execute
+      setPendingDeactivateId(null);
+    } else {
+      setPendingDeactivateId(null);
+    }
+
+    const targetState = !isCurrentAvailable;
+    toggleRoomAvailability(room.octorateId || room.id, targetState);
+
+    try {
+      const { error } = await supabase
+        .from('accommodations')
+        .update({ is_available: targetState })
+        .eq('id', room.id);
+      if (error) {
+        console.error('[ResortDashboard] Error updating availability on Supabase:', error);
+      }
+    } catch (err) {
+      console.error('[ResortDashboard] Exception updating availability on Supabase:', err);
+    }
+  };
 
   // Accordion state per i 6 Canali OTA (V16/V17: Default completamente chiuso)
   const [openAccordions, setOpenAccordions] = useState<Record<string, boolean>>({
@@ -1571,8 +1616,8 @@ export function ResortDashboard() {
                     </span>
                   </div>
 
-                  <h3 className="font-black text-white text-lg leading-snug">
-                    {room.name}
+                  <h3 className="font-black text-white text-lg leading-snug whitespace-normal break-words">
+                    {String(room.name || '').replace(/^\d+[\s._-]+/, '')}
                   </h3>
 
                   <div className="flex justify-between items-center text-xs text-stone-400 pt-2 border-t border-stone-850">
@@ -1591,15 +1636,46 @@ export function ResortDashboard() {
                 <div className="pt-4 border-t border-stone-800 flex items-center justify-between">
                   <span className="text-xs font-bold text-stone-400">Stato Prenotabile:</span>
                   <button
-                    onClick={() => toggleRoomAvailability(room.octorateId, !room.isAvailable)}
-                    className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
-                      room.isAvailable
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30'
-                        : 'bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30'
+                    type="button"
+                    onClick={() => handleToggleAvailability(room)}
+                    className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all duration-200 cursor-pointer ${
+                      pendingDeactivateId === room.id
+                        ? 'bg-amber-600 hover:bg-amber-700 text-white font-bold animate-pulse shadow-lg'
+                        : (room.isAvailable ?? room.is_available)
+                        ? 'bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-400 border border-emerald-500/20 shadow-sm'
+                        : 'bg-stone-900 border border-stone-800 text-stone-500 hover:text-stone-300 shadow-sm'
                     }`}
                   >
-                    {room.isAvailable ? 'Disponibile' : 'Bloccata'}
+                    {pendingDeactivateId === room.id
+                      ? '⚠️ Clicca ancora!'
+                      : (room.isAvailable ?? room.is_available)
+                      ? '🟢 Disponibile'
+                      : '🔴 Non Disponibile'}
                   </button>
+                </div>
+
+                <div className="pt-3 border-t border-stone-850 flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedFeaturesRoomId(expandedFeaturesRoomId === room.id ? null : room.id)}
+                    className="w-full py-2 px-3 bg-stone-950 hover:bg-stone-850 border border-stone-800 hover:border-fuchsia-500/40 text-fuchsia-400 hover:text-fuchsia-300 text-xs font-extrabold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                    <span>⚙️ {expandedFeaturesRoomId === room.id ? 'Nascondi Caratteristiche' : 'Gestisci Caratteristiche'}</span>
+                    {expandedFeaturesRoomId === room.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                  </button>
+
+                  {expandedFeaturesRoomId === room.id && (
+                    <div className="pt-2 animate-fadeIn">
+                      <AccommodationFeaturesEditor
+                        accommodation={room}
+                        onSaveSuccess={(updatedFeatures) => {
+                          updateAccommodationFeatures(room.id, updatedFeatures);
+                          alert('Caratteristiche salvate con successo!');
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -1823,7 +1899,7 @@ export function ResortDashboard() {
 
                       return (
                         <tr key={room.id} className="hover:bg-stone-850/50 transition-colors">
-                          <td className="p-3 font-bold text-white">{room.name}</td>
+                          <td className="p-3 font-bold text-white whitespace-normal break-words">{String(room.name || '').replace(/^\d+[\s._-]+/, '')}</td>
                           <td className="p-3 font-mono text-stone-400">{room.octorateId || "Mancante"}</td>
                           <td className="p-3">
                             {octorateMatch ? (

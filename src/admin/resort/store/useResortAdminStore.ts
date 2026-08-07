@@ -136,6 +136,7 @@ interface ResortAdminState {
   fetchBookings: () => Promise<void>;
   setBookings: (bookings: ResortBooking[]) => void;
   toggleRoomAvailability: (octorateId: string, available: boolean) => void;
+  updateAccommodationFeatures: (id: string, updatedFeatures: any) => void;
   checkOctorateConnection: () => Promise<void>;
   setFilterCategory: (category: string) => void;
   dynamicMinStayExecutionMode: DiscountExecutionMode;
@@ -550,6 +551,27 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       accommodations: state.accommodations.map((room) =>
         room.octorateId === octorateId ? { ...room, isAvailable: available } : room
       )
+    }));
+  },
+
+  updateAccommodationFeatures: (id: string, updatedFeatures: any) => {
+    set((state) => ({
+      accommodations: state.accommodations.map((room) => {
+        if (room.id === id || room.octorateId === id) {
+          const currentDetails = typeof room.details === 'object' && room.details !== null ? room.details : {};
+          return {
+            ...room,
+            squareMeters: updatedFeatures?.room_size || room.squareMeters,
+            features: updatedFeatures,
+            details: {
+              ...currentDetails,
+              squareMeters: updatedFeatures?.room_size || room.squareMeters,
+              features: updatedFeatures
+            }
+          };
+        }
+        return room;
+      })
     }));
   },
 

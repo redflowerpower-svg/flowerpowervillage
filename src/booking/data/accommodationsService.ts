@@ -15,6 +15,8 @@ export interface DbAccommodation {
   id: string;
   name: string;
   slug: string;
+  details?: any;
+  features?: any;
 }
 
 export interface EnrichedAccommodation {
@@ -441,10 +443,10 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
     return cachedAccommodations;
   }
 
-  // Query Supabase selecting 'id', 'name', and 'slug'
+  // Query Supabase selecting 'id', 'name', 'slug', and 'details'
   const { data: dbItems, error: dbError } = await publicSupabase
     .from('accommodations')
-    .select('id, name, slug')
+    .select('id, name, slug, details')
     .order('name');
 
   if (dbError) {
@@ -455,6 +457,8 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
   if (!dbItems) {
     return [];
   }
+
+  console.log("Camere scaricate dal sito (Supabase DB):", dbItems);
 
   // Map each DB item to a promise so we fetch storage images concurrently
   const promises = (dbItems as DbAccommodation[]).map(async (item) => {
@@ -489,9 +493,12 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
       console.error(`Error listing storage images for folder ${folder}:`, err);
     }
 
+    const itemFeatures = item.features || item.details?.features || metadata.features;
+    const itemDetails = item.details || {};
+
     return {
       id: item.id,
-      slug: metadata.slug,
+      slug: metadata.slug || item.slug,
       name: item.name,
       title: item.name,
       category: metadata.category,
@@ -500,7 +507,8 @@ export async function fetchAccommodations(bypassCache = false): Promise<Enriched
       baseGuests: metadata.baseGuests,
       maxExtraGuests: metadata.capacity - metadata.baseGuests,
       beds: metadata.beds,
-      features: metadata.features,
+      details: itemDetails,
+      features: itemFeatures,
       base_price_high: metadata.price,
       base_price_low: Math.round(metadata.price * 0.25),
       octorateId: octorateIds[item.name],

@@ -35,6 +35,8 @@ export async function fetchAccommodations(): Promise<Accommodation[]> {
 
   if (error) throw error;
 
+  console.log("Camere scaricate dal sito:", data);
+
   const items = data as any[];
   // Safeguard: Ensure images array is initialized so consumers do not crash
   for (const item of items) {
