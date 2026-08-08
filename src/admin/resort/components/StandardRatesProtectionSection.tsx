@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Bed, Zap, RefreshCw, AlertTriangle, CheckCircle, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Bed, Zap, RefreshCw, AlertTriangle, CheckCircle, AlertCircle, ShieldCheck, ChevronDown } from 'lucide-react';
 import { useResortAdminStore } from '../store/useResortAdminStore';
 import { DiscountExecutionMode } from '../lib/octorateAdmin';
 
@@ -10,7 +10,19 @@ const formatLastUpdateStr = (dateVal?: string | number | Date | null): string =>
   return d.toLocaleString('it-IT');
 };
 
-export const StandardRatesProtectionSection: React.FC = () => {
+interface StandardRatesProtectionSectionProps {
+  isOpen?: boolean;
+  onToggle?: () => void;
+}
+
+export const StandardRatesProtectionSection: React.FC<StandardRatesProtectionSectionProps> = ({
+  isOpen: externalIsOpen,
+  onToggle: externalOnToggle
+}) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const handleToggle = externalOnToggle || (() => setInternalIsOpen(!internalIsOpen));
+
   const {
     standardProtectionExecutionMode,
     standardSeasonStartDate,
@@ -50,29 +62,40 @@ export const StandardRatesProtectionSection: React.FC = () => {
   const ctaThreshold = standardDaysTriggerLimit - standardDaysOpenDuration;
 
   return (
-    <div className="bg-cyan-950/20 border-2 border-cyan-500/40 rounded-2xl p-4 space-y-3 shadow-xl shadow-cyan-950/30 ring-1 ring-cyan-500/10">
+    <div className="bg-cyan-950/20 border-4 border-double border-cyan-500/40 rounded-2xl p-3.5 sm:p-4 space-y-3 shadow-xl shadow-cyan-950/30 ring-1 ring-cyan-500/10 transition-all">
 
       {/* 1. HEADER SECTION */}
-      <div className="flex justify-between items-start mb-4 border-b border-cyan-500/20 pb-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 flex-shrink-0 shadow-sm">
-            <Bed className="w-5 h-5" />
+      <div 
+        onClick={handleToggle}
+        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 cursor-pointer select-none group ${
+          isOpen ? 'border-b border-cyan-500/30 pb-2.5' : ''
+        }`}
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 flex-shrink-0 shadow">
+            <Bed className="w-4 h-4" />
           </div>
           <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base font-black text-cyan-100 uppercase tracking-wider">
-                TARIFFE STANDARD HIGH SEASON (Last Minute)
-              </h2>
-              <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 rounded border border-cyan-500/30">
-                TARIFFE DERIVATE 7D & 14D OTA
-              </span>
-            </div>
-            <p className="text-xs text-stone-400 mt-1 font-medium leading-tight">
+            <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase group-hover:text-cyan-300 transition-colors">
+              🛏️ TARIFFE STANDARD HIGH SEASON (LAST MINUTE & UNIFICAZIONE PREZZI)
+            </h3>
+            <p className="text-stone-400 text-[11px] font-medium">
               Protezione automatica ad ampiezza stagionale su Booking.com, Expedia ed Agoda (Sito Diretto & Airbnb sempre aperti).
             </p>
           </div>
         </div>
+        <div className="flex items-center gap-3 self-end sm:self-auto">
+          <span className="bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
+            TARIFFE DERIVATE 7D & 14D OTA
+          </span>
+          <ChevronDown className={`w-5 h-5 text-cyan-400 transition-transform duration-200 flex-shrink-0 ${
+            isOpen ? 'rotate-180' : 'rotate-0'
+          }`} />
+        </div>
       </div>
+
+      {isOpen && (
+        <div className="space-y-3">
 
       {/* 2. CONFIGURATION FIELDS SECTION (MIDDLE ROW - 5 COLUMNS) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 my-4">
@@ -297,6 +320,8 @@ export const StandardRatesProtectionSection: React.FC = () => {
               </button>
             </div>
           </div>
+        </div>
+      )}
         </div>
       )}
     </div>

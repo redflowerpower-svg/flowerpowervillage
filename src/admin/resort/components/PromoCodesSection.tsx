@@ -18,7 +18,19 @@ import {
   RefreshCw
 } from 'lucide-react';
 
-export const PromoCodesSection: React.FC = () => {
+interface PromoCodesSectionProps {
+  isOpen?: boolean;
+  onToggle?: () => void;
+}
+
+export const PromoCodesSection: React.FC<PromoCodesSectionProps> = ({
+  isOpen: externalIsOpen,
+  onToggle: externalOnToggle
+}) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const handleToggle = externalOnToggle || (() => setInternalIsOpen(!internalIsOpen));
+
   const { promoCodes, addPromoCode, togglePromoCodeActive, deletePromoCode, refreshPromoCodes } = useResortAdminStore();
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
@@ -98,15 +110,20 @@ export const PromoCodesSection: React.FC = () => {
   };
 
   return (
-    <div className="bg-fuchsia-950/20 border-2 border-fuchsia-500/40 rounded-2xl p-3.5 sm:p-4 shadow-xl shadow-fuchsia-950/30 space-y-4 ring-1 ring-fuchsia-500/10">
+    <div className="bg-fuchsia-950/20 border-4 border-double border-fuchsia-500/40 rounded-2xl p-3.5 sm:p-4 shadow-xl shadow-fuchsia-950/30 space-y-4 ring-1 ring-fuchsia-500/10 transition-all">
       {/* HEADER SECTION */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-fuchsia-500/30 pb-3">
+      <div 
+        onClick={handleToggle}
+        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 cursor-pointer select-none group ${
+          isOpen ? 'border-b border-fuchsia-500/30 pb-3' : ''
+        }`}
+      >
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/50 flex items-center justify-center text-fuchsia-300 flex-shrink-0 shadow">
             <Ticket className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase">
+            <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase group-hover:text-fuchsia-300 transition-colors">
               🎟️ CODICI PROMOZIONALI & TICKET
             </h3>
             <p className="text-stone-400 text-[11px] font-medium">
@@ -114,10 +131,18 @@ export const PromoCodesSection: React.FC = () => {
             </p>
           </div>
         </div>
-        <span className="bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-          PROMO ENGINE V19
-        </span>
+        <div className="flex items-center gap-3 self-end sm:self-auto">
+          <span className="bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
+            PROMO ENGINE V19
+          </span>
+          <ChevronDown className={`w-5 h-5 text-fuchsia-400 transition-transform duration-200 flex-shrink-0 ${
+            isOpen ? 'rotate-180' : 'rotate-0'
+          }`} />
+        </div>
       </div>
+
+      {isOpen && (
+        <div className="space-y-4 pt-1">
 
       {/* FORM DI CREAZIONE COUPON */}
       <div className="bg-stone-950/60 border border-fuchsia-500/30 rounded-xl p-3.5 space-y-3">
@@ -426,6 +451,8 @@ export const PromoCodesSection: React.FC = () => {
           </div>
         )}
       </div>
+      </div>
+      )}
     </div>
   );
 };
