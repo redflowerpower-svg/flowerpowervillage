@@ -13,11 +13,13 @@ const formatLastUpdateStr = (dateVal?: string | number | Date | null): string =>
 interface StandardRatesProtectionSectionProps {
   isOpen?: boolean;
   onToggle?: () => void;
+  borderless?: boolean;
 }
 
 export const StandardRatesProtectionSection: React.FC<StandardRatesProtectionSectionProps> = ({
   isOpen: externalIsOpen,
-  onToggle: externalOnToggle
+  onToggle: externalOnToggle,
+  borderless = false
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
@@ -62,13 +64,13 @@ export const StandardRatesProtectionSection: React.FC<StandardRatesProtectionSec
   const ctaThreshold = standardDaysTriggerLimit - standardDaysOpenDuration;
 
   return (
-    <div className="bg-cyan-950/20 border-4 border-double border-cyan-500/40 rounded-2xl p-3.5 sm:p-4 space-y-3 shadow-xl shadow-cyan-950/30 ring-1 ring-cyan-500/10 transition-all">
+    <div className={borderless ? "space-y-3 transition-all" : "bg-cyan-950/20 border-4 border-double border-cyan-500/40 rounded-2xl p-3.5 sm:p-4 space-y-3 shadow-xl shadow-cyan-950/30 ring-1 ring-cyan-500/10 transition-all"}>
 
       {/* 1. HEADER SECTION */}
       <div 
-        onClick={handleToggle}
-        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 cursor-pointer select-none group ${
-          isOpen ? 'border-b border-cyan-500/30 pb-2.5' : ''
+        onClick={borderless ? undefined : handleToggle}
+        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 select-none ${
+          borderless ? 'border-b border-cyan-500/30 pb-3' : `cursor-pointer group ${isOpen ? 'border-b border-cyan-500/30 pb-2.5' : ''}`
         }`}
       >
         <div className="flex items-center gap-2.5">
@@ -88,9 +90,11 @@ export const StandardRatesProtectionSection: React.FC<StandardRatesProtectionSec
           <span className="bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
             TARIFFE DERIVATE 7D & 14D OTA
           </span>
-          <ChevronDown className={`w-5 h-5 text-cyan-400 transition-transform duration-200 flex-shrink-0 ${
-            isOpen ? 'rotate-180' : 'rotate-0'
-          }`} />
+          {!borderless && (
+            <ChevronDown className={`w-5 h-5 text-cyan-400 transition-transform duration-200 flex-shrink-0 ${
+              isOpen ? 'rotate-180' : 'rotate-0'
+            }`} />
+          )}
         </div>
       </div>
 

@@ -41,7 +41,9 @@ import {
   Trash2,
   RotateCcw,
   BarChart3,
-  Coins
+  Coins,
+  Bed,
+  Ticket
 } from 'lucide-react';
 import { 
   isValidActiveBooking, 
@@ -56,6 +58,8 @@ const formatLastUpdateStr = (dateVal?: string | number | Date | null): string =>
   if (isNaN(d.getTime())) return 'Nessuna operazione eseguita';
   return d.toLocaleString('it-IT');
 };
+
+type OptimizationTab = 'cascade' | 'min_stay' | 'standard_rates' | 'promo_codes';
 
 export function ResortDashboard() {
   const { 
@@ -109,6 +113,7 @@ export function ResortDashboard() {
     saveToCache
   } = useResortAdminStore();
 
+  const [activeOptimizationTab, setActiveOptimizationTab] = useState<OptimizationTab>('cascade');
   const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'messages' | 'octorate' | 'octorate_import'>('bookings');
   const [searchQuery, setSearchQuery] = useState('');
   // Doppio click per Calendario Annuale (componente pesante ~9000 celle)
@@ -945,539 +950,580 @@ export function ResortDashboard() {
 
 
       {/* ═══════════════════════════════════════════════════════════════
-           MODULI SCONTI: visibili SOLO su CALENDARIO 30GG e ANNUALE
-      ══════════════════════════════════════════════════════════════════ */}
-      {/* ═══════════════════════════════════════════════════════════════
-           MODULI SCONTI: visibili SOLO su CALENDARIO 30GG e ANNUALE
+           MODULI SCONTI: RACCOGLITORE A SCHEDE (TABBED BINDER)
+           Visibili SOLO su CALENDARIO 30GG e ANNUALE
       ══════════════════════════════════════════════════════════════════ */}
       {(activeTab === 'calendar_30_days' || activeTab === 'calendar') && (
-      <>
+        <div className="my-4 space-y-0">
+          
+          {/* TABS SUPERIORI (LINGUETTE DEL RACCOGLITORE) */}
+          <div className="flex flex-row overflow-x-auto gap-1.5 px-1 z-10 -mb-[2px] cursor-pointer select-none no-scrollbar">
+            {/* Tab 1: Last Minute */}
+            <button
+              type="button"
+              onClick={() => setActiveOptimizationTab('cascade')}
+              className={`px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-t-xl font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+                activeOptimizationTab === 'cascade'
+                  ? 'bg-amber-950/30 border-t-2 border-x-2 border-amber-500/40 text-amber-300 opacity-100 z-10 shadow-lg'
+                  : 'bg-stone-900/60 border border-b-0 border-stone-800 text-stone-400 hover:text-amber-300 hover:bg-stone-850 opacity-50 hover:opacity-80 z-0'
+              }`}
+            >
+              <Zap className="w-4 h-4 text-amber-400" />
+              <span>⚡ LAST MINUTE</span>
+            </button>
 
-      {/* 1. LAST-MINUTE DYNAMIC 3-STAGE CASCADE DISCOUNT PANEL */}
-      <div className="bg-amber-950/20 border-4 border-double border-amber-500/40 rounded-2xl p-3.5 sm:p-4 shadow-xl shadow-amber-950/30 space-y-3 ring-1 ring-amber-500/10 transition-all">
-        <div 
-          onClick={() => toggleOptimizationAccordion('cascade')}
-          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 cursor-pointer select-none group ${
-            openOptimizationAccordions.cascade ? 'border-b border-amber-500/30 pb-2.5' : ''
-          }`}
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 flex-shrink-0 shadow">
-              <Zap className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase group-hover:text-amber-300 transition-colors">
-                ⚡ LAST MINUTE / SCONTI A CASCATA
-              </h3>
-              <p className="text-stone-400 text-[11px] font-medium">
-                Sconti percentuali sequenziali dinamici calcolati sulla data libera imminente
-              </p>
-            </div>
+            {/* Tab 2: Soggiorno Minimo Dinamico */}
+            <button
+              type="button"
+              onClick={() => setActiveOptimizationTab('min_stay')}
+              className={`px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-t-xl font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+                activeOptimizationTab === 'min_stay'
+                  ? 'bg-violet-950/30 border-t-2 border-x-2 border-violet-500/40 text-violet-300 opacity-100 z-10 shadow-lg'
+                  : 'bg-stone-900/60 border border-b-0 border-stone-800 text-stone-400 hover:text-violet-300 hover:bg-stone-850 opacity-50 hover:opacity-80 z-0'
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4 text-violet-400" />
+              <span>📏 SOGGIORNO MINIMO</span>
+            </button>
+
+            {/* Tab 3: Tariffe Standard High Season */}
+            <button
+              type="button"
+              onClick={() => setActiveOptimizationTab('standard_rates')}
+              className={`px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-t-xl font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+                activeOptimizationTab === 'standard_rates'
+                  ? 'bg-cyan-950/30 border-t-2 border-x-2 border-cyan-500/40 text-cyan-300 opacity-100 z-10 shadow-lg'
+                  : 'bg-stone-900/60 border border-b-0 border-stone-800 text-stone-400 hover:text-cyan-300 hover:bg-stone-850 opacity-50 hover:opacity-80 z-0'
+              }`}
+            >
+              <Bed className="w-4 h-4 text-cyan-400" />
+              <span>🛏️ TARIFFE BASE</span>
+            </button>
+
+            {/* Tab 4: Codici Promozionali & Ticket */}
+            <button
+              type="button"
+              onClick={() => setActiveOptimizationTab('promo_codes')}
+              className={`px-3.5 py-2.5 sm:px-5 sm:py-3 rounded-t-xl font-black text-xs sm:text-sm uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap ${
+                activeOptimizationTab === 'promo_codes'
+                  ? 'bg-fuchsia-950/30 border-t-2 border-x-2 border-fuchsia-500/40 text-fuchsia-300 opacity-100 z-10 shadow-lg'
+                  : 'bg-stone-900/60 border border-b-0 border-stone-800 text-stone-400 hover:text-fuchsia-300 hover:bg-stone-850 opacity-50 hover:opacity-80 z-0'
+              }`}
+            >
+              <Ticket className="w-4 h-4 text-fuchsia-400" />
+              <span>🎟️ PROMO CODES</span>
+            </button>
           </div>
-          <div className="flex items-center gap-3 self-end sm:self-auto">
-            <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
-              OCTORATE API
-            </span>
-            <ChevronDown className={`w-5 h-5 text-amber-400 transition-transform duration-200 flex-shrink-0 ${
-              openOptimizationAccordions.cascade ? 'rotate-180' : 'rotate-0'
-            }`} />
-          </div>
-        </div>
 
-        {openOptimizationAccordions.cascade && (
-          <div className="space-y-3 pt-1">
-            {/* 3 Cascade Discount Stages Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-              {/* Stage 1: 3 Days @ 10% */}
-              <div className="bg-red-950/30 p-2.5 rounded-xl border border-red-500/40 space-y-2 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-black text-red-400 uppercase tracking-wider flex items-center gap-1">
-                    🔥 Stadio 1: Imminente
-                  </label>
-                  <span className="text-[9px] bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded border border-red-500/30 font-mono">
-                    Gg 0 - 2
+          {/* RACCOGLITORE SOTTOSTANTE (PANNELLO UNICO) */}
+          <div className={`rounded-b-2xl rounded-tr-2xl p-4 sm:p-5 shadow-2xl relative z-0 transition-all border-4 border-double ${
+            activeOptimizationTab === 'cascade'
+              ? 'bg-amber-950/30 border-amber-500/40 shadow-amber-950/30 ring-1 ring-amber-500/10'
+              : activeOptimizationTab === 'min_stay'
+              ? 'bg-violet-950/30 border-violet-500/40 shadow-violet-950/30 ring-1 ring-violet-500/10'
+              : activeOptimizationTab === 'standard_rates'
+              ? 'bg-cyan-950/30 border-cyan-500/40 shadow-cyan-950/30 ring-1 ring-cyan-500/10'
+              : 'bg-fuchsia-950/30 border-fuchsia-500/40 shadow-fuchsia-950/30 ring-1 ring-fuchsia-500/10'
+          }`}>
+
+            {/* TAB 1 CONTENT: LAST-MINUTE DYNAMIC 3-STAGE CASCADE DISCOUNT */}
+            {activeOptimizationTab === 'cascade' && (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-amber-500/30 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 flex-shrink-0 shadow">
+                      <Zap className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase">
+                        ⚡ LAST MINUTE / SCONTI A CASCATA
+                      </h3>
+                      <p className="text-stone-400 text-[11px] font-medium">
+                        Sconti percentuali sequenziali dinamici calcolati sulla data libera imminente
+                      </p>
+                    </div>
+                  </div>
+                  <span className="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
+                    OCTORATE API
                   </span>
                 </div>
-                <div className="flex items-center justify-between gap-1.5 text-[11px]">
-                  <div className="flex items-center gap-1">
-                    <span className="text-stone-400 text-[10.5px]">Durata:</span>
-                    <input
-                      type="number"
-                      min="1"
-                      max="14"
-                      value={lastMinuteStage1Days ?? 3}
-                      onChange={(e) => setLastMinuteStage1Days(parseInt(e.target.value))}
-                      className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
-                    />
-                    <span className="text-stone-400 text-[10.5px]">gg</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-stone-400 text-[10.5px]">Sconto:</span>
-                    <input
-                      type="number"
-                      min="0"
-                      max="80"
-                      step="0.5"
-                      value={lastMinuteDiscountStage1 ?? 10}
-                      onChange={(e) => setLastMinuteDiscountStage1(parseFloat(e.target.value))}
-                      className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-amber-400 font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
-                    />
-                    <span className="text-amber-400 font-black text-[11px]">%</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Stage 2: 3 Next Days @ 5% */}
-              <div className="bg-orange-950/30 p-2.5 rounded-xl border border-orange-500/40 space-y-2 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-black text-orange-400 uppercase tracking-wider flex items-center gap-1">
-                    🏷️ Stadio 2: Intermedio
-                  </label>
-                  <span className="text-[9px] bg-orange-500/20 text-orange-300 px-1.5 py-0.5 rounded border border-orange-500/30 font-mono">
-                    Gg 3 - 5
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-1.5 text-[11px]">
-                  <div className="flex items-center gap-1">
-                    <span className="text-stone-400 text-[10.5px]">Durata:</span>
-                    <input
-                      type="number"
-                      min="1"
-                      max="14"
-                      value={lastMinuteStage2Days ?? 3}
-                      onChange={(e) => setLastMinuteStage2Days(parseInt(e.target.value))}
-                      className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
-                    />
-                    <span className="text-stone-400 text-[10.5px]">gg</span>
+                {/* 3 Cascade Discount Stages Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                  {/* Stage 1: 3 Days @ 10% */}
+                  <div className="bg-red-950/30 p-2.5 rounded-xl border border-red-500/40 space-y-2 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-black text-red-400 uppercase tracking-wider flex items-center gap-1">
+                        🔥 Stadio 1: Imminente
+                      </label>
+                      <span className="text-[9px] bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded border border-red-500/30 font-mono">
+                        Gg 0 - 2
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-1.5 text-[11px]">
+                      <div className="flex items-center gap-1">
+                        <span className="text-stone-400 text-[10.5px]">Durata:</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="14"
+                          value={lastMinuteStage1Days ?? 3}
+                          onChange={(e) => setLastMinuteStage1Days(parseInt(e.target.value))}
+                          className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                        />
+                        <span className="text-stone-400 text-[10.5px]">gg</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-stone-400 text-[10.5px]">Sconto:</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="80"
+                          step="0.5"
+                          value={lastMinuteDiscountStage1 ?? 10}
+                          onChange={(e) => setLastMinuteDiscountStage1(parseFloat(e.target.value))}
+                          className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-amber-400 font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                        />
+                        <span className="text-amber-400 font-black text-[11px]">%</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-stone-400 text-[10.5px]">Sconto:</span>
-                    <input
-                      type="number"
-                      min="0"
-                      max="80"
-                      step="0.5"
-                      value={lastMinuteDiscountStage2 ?? 5}
-                      onChange={(e) => setLastMinuteDiscountStage2(parseFloat(e.target.value))}
-                      className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-amber-400 font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
-                    />
-                    <span className="text-amber-400 font-black text-[11px]">%</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Stage 3: 4 Next Days @ 2.5% */}
-              <div className="bg-yellow-950/30 p-2.5 rounded-xl border border-yellow-600/40 space-y-2 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-black text-yellow-400 uppercase tracking-wider flex items-center gap-1">
-                    ⚡ Stadio 3: Esteso
-                  </label>
-                  <span className="text-[9px] bg-yellow-500/20 text-yellow-300 px-1.5 py-0.5 rounded border border-yellow-600/30 font-mono">
-                    Gg 6 - 9
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-1.5 text-[11px]">
-                  <div className="flex items-center gap-1">
-                    <span className="text-stone-400 text-[10.5px]">Durata:</span>
-                    <input
-                      type="number"
-                      min="1"
-                      max="14"
-                      value={lastMinuteStage3Days ?? 4}
-                      onChange={(e) => setLastMinuteStage3Days(parseInt(e.target.value))}
-                      className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
-                    />
-                    <span className="text-stone-400 text-[10.5px]">gg</span>
+                  {/* Stage 2: 3 Next Days @ 5% */}
+                  <div className="bg-orange-950/30 p-2.5 rounded-xl border border-orange-500/40 space-y-2 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-black text-orange-400 uppercase tracking-wider flex items-center gap-1">
+                        🏷️ Stadio 2: Intermedio
+                      </label>
+                      <span className="text-[9px] bg-orange-500/20 text-orange-300 px-1.5 py-0.5 rounded border border-orange-500/30 font-mono">
+                        Gg 3 - 5
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-1.5 text-[11px]">
+                      <div className="flex items-center gap-1">
+                        <span className="text-stone-400 text-[10.5px]">Durata:</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="14"
+                          value={lastMinuteStage2Days ?? 3}
+                          onChange={(e) => setLastMinuteStage2Days(parseInt(e.target.value))}
+                          className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                        />
+                        <span className="text-stone-400 text-[10.5px]">gg</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-stone-400 text-[10.5px]">Sconto:</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="80"
+                          step="0.5"
+                          value={lastMinuteDiscountStage2 ?? 5}
+                          onChange={(e) => setLastMinuteDiscountStage2(parseFloat(e.target.value))}
+                          className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-amber-400 font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                        />
+                        <span className="text-amber-400 font-black text-[11px]">%</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-stone-400 text-[10.5px]">Sconto:</span>
-                    <input
-                      type="number"
-                      min="0"
-                      max="80"
-                      step="0.5"
-                      value={lastMinuteDiscountStage3 ?? 2.5}
-                      onChange={(e) => setLastMinuteDiscountStage3(parseFloat(e.target.value))}
-                      className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-amber-400 font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
-                    />
-                    <span className="text-amber-400 font-black text-[11px]">%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Production Confirmation Modal — LAST MINUTE */}
-            {showCascadeProdModal && (
-              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                <div className="bg-stone-900 border border-red-600/60 rounded-2xl p-5 max-w-md w-full shadow-2xl space-y-4">
-                  <div className="flex items-center gap-3 text-red-400">
-                    <AlertTriangle className="w-6 h-6 flex-shrink-0 animate-bounce" />
-                    <h3 className="font-black text-white text-sm uppercase tracking-wider">
-                      CONFERMA MODALITÀ PRODUZIONE
-                    </h3>
+                  {/* Stage 3: 4 Next Days @ 2.5% */}
+                  <div className="bg-yellow-950/30 p-2.5 rounded-xl border border-yellow-600/40 space-y-2 shadow-sm">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-black text-yellow-400 uppercase tracking-wider flex items-center gap-1">
+                        ⚡ Stadio 3: Esteso
+                      </label>
+                      <span className="text-[9px] bg-yellow-500/20 text-yellow-300 px-1.5 py-0.5 rounded border border-yellow-600/30 font-mono">
+                        Gg 6 - 9
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-1.5 text-[11px]">
+                      <div className="flex items-center gap-1">
+                        <span className="text-stone-400 text-[10.5px]">Durata:</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="14"
+                          value={lastMinuteStage3Days ?? 4}
+                          onChange={(e) => setLastMinuteStage3Days(parseInt(e.target.value))}
+                          className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                        />
+                        <span className="text-stone-400 text-[10.5px]">gg</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-stone-400 text-[10.5px]">Sconto:</span>
+                        <input
+                          type="number"
+                          min="0"
+                          max="80"
+                          step="0.5"
+                          value={lastMinuteDiscountStage3 ?? 2.5}
+                          onChange={(e) => setLastMinuteDiscountStage3(parseFloat(e.target.value))}
+                          className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-amber-400 font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
+                        />
+                        <span className="text-amber-400 font-black text-[11px]">%</span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-stone-300 text-xs leading-relaxed">
-                    ⚠️ <strong>ATTENZIONE:</strong> Stai per attivare la modalità <strong>PRODUZIONE REAL TIME</strong> per gli Sconti a Cascata Last Minute.
-                    <br /><br />
-                    I prezzi scontati (-{lastMinuteDiscountStage1}%/-{lastMinuteDiscountStage2}%/-{lastMinuteDiscountStage3}%) verranno inviati <strong>realmente a tutte le Tariffe Madri del resort su Octorate PMS</strong>.
-                  </p>
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
+                </div>
+
+                {/* Production Confirmation Modal — LAST MINUTE */}
+                {showCascadeProdModal && (
+                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-stone-900 border border-red-600/60 rounded-2xl p-5 max-w-md w-full shadow-2xl space-y-4">
+                      <div className="flex items-center gap-3 text-red-400">
+                        <AlertTriangle className="w-6 h-6 flex-shrink-0 animate-bounce" />
+                        <h3 className="font-black text-white text-sm uppercase tracking-wider">
+                          CONFERMA MODALITÀ PRODUZIONE
+                        </h3>
+                      </div>
+                      <p className="text-stone-300 text-xs leading-relaxed">
+                        ⚠️ <strong>ATTENZIONE:</strong> Stai per attivare la modalità <strong>PRODUZIONE REAL TIME</strong> per gli Sconti a Cascata Last Minute.
+                        <br /><br />
+                        I prezzi scontati (-{lastMinuteDiscountStage1}%/-{lastMinuteDiscountStage2}%/-{lastMinuteDiscountStage3}%) verranno inviati <strong>realmente a tutte le Tariffe Madri del resort su Octorate PMS</strong>.
+                      </p>
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
+                        <button
+                          type="button"
+                          onClick={() => setShowCascadeProdModal(false)}
+                          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl cursor-pointer"
+                        >
+                          Annulla
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setExecutionMode('production'); setShowCascadeProdModal(false); }}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50 cursor-pointer"
+                        >
+                          Sì, Attiva Produzione Reale
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Simulation Active Visual Banner */}
+                {isSimulationActive && (
+                  <div className="p-2.5 bg-amber-950/60 border border-amber-500/50 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-2 text-amber-300 text-[11px] shadow-lg animate-pulse">
+                    <div className="flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                      <span>
+                        <strong>👁️ ANTEPRIMA SIMULAZIONE ATTIVA:</strong> Prezzi scontati in memoria (-10%, -5%, -2.5%). Nessun dato inviato ad Octorate.
+                      </span>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => setShowCascadeProdModal(false)}
-                      className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl cursor-pointer"
+                      onClick={() => useResortAdminStore.getState().resetLastMinuteStrategy()}
+                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 text-[10px] font-extrabold uppercase rounded-lg transition-all cursor-pointer whitespace-nowrap"
                     >
-                      Annulla
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setExecutionMode('production'); setShowCascadeProdModal(false); }}
-                      className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50 cursor-pointer"
-                    >
-                      Sì, Attiva Produzione Reale
+                      Chiudi Anteprima
                     </button>
                   </div>
+                )}
+
+                {/* Action Controls + 3-Level Execution Mode Selector + Reset Button */}
+                <div className="pt-2.5 border-t border-stone-850 flex flex-col space-y-2.5">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                    {/* 3-Level Execution Mode Selector */}
+                    <div className="flex items-center gap-1.5 bg-stone-950 p-1.5 rounded-xl border border-stone-800 shadow-inner">
+                      <span className="text-[11px] font-black text-stone-300 px-1.5 uppercase tracking-wider flex items-center gap-1">
+                        <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                        MODALITÀ:
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => setExecutionMode('simulation')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                          executionMode === 'simulation'
+                            ? 'bg-red-500 text-white shadow-sm shadow-red-950/40'
+                            : 'text-stone-400 hover:text-stone-200'
+                        }`}
+                        title="Calcolo senza chiamate API"
+                      >
+                        🔴 SIMULAZIONE DRY-RUN
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setExecutionMode('test_bungalows')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                          executionMode === 'test_bungalows'
+                            ? 'bg-amber-500 text-stone-950 font-bold shadow-sm shadow-amber-950/40'
+                            : 'text-stone-400 hover:text-stone-200'
+                        }`}
+                        title="Invia modifiche SOLO a Fake Bungalows (ID Madri 649669 e 921799)"
+                      >
+                        🧪 AMBIENTE DI TEST
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => executionMode !== 'production' ? setShowCascadeProdModal(true) : setExecutionMode('simulation')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                          executionMode === 'production'
+                            ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-950/40 animate-pulse'
+                            : 'text-stone-400 hover:text-stone-200'
+                        }`}
+                        title="Invia modifiche a tutte le Tariffe Madri di produzione"
+                      >
+                        🌐 PRODUZIONE
+                      </button>
+                    </div>
+
+                    {/* Action Buttons: Execute & Reset */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => executeLastMinuteStrategy()}
+                        disabled={lastMinuteRunning}
+                        className={`flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 ${
+                          executionMode === 'production'
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50'
+                            : executionMode === 'test_bungalows'
+                            ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-amber-950/50'
+                            : 'bg-red-600 hover:bg-red-500 text-white shadow-red-950/50'
+                        }`}
+                      >
+                        {lastMinuteRunning ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Elaborazione...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-3.5 h-3.5" />
+                            <span>⚡ ESEGUI SCONTI A CASCATA</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => resetLastMinuteStrategy()}
+                        disabled={lastMinuteRunning}
+                        className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl bg-stone-950 border border-stone-800 text-stone-300 hover:bg-stone-850 transition-all cursor-pointer disabled:opacity-50"
+                        title="Ripristina i prezzi al 100% della tariffa base originale senza sconti"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 text-amber-400 ${lastMinuteRunning ? 'animate-spin' : ''}`} />
+                        <span>🔄 RIPRISTINA PREZZI ORIGINALI</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {/* Simulation Active Visual Banner */}
-            {isSimulationActive && (
-              <div className="p-2.5 bg-amber-950/60 border border-amber-500/50 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-2 text-amber-300 text-[11px] shadow-lg animate-pulse">
-                <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                  <span>
-                    <strong>👁️ ANTEPRIMA SIMULAZIONE ATTIVA:</strong> Prezzi scontati in memoria (-10%, -5%, -2.5%). Nessun dato inviato ad Octorate.
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => useResortAdminStore.getState().resetLastMinuteStrategy()}
-                  className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-stone-950 text-[10px] font-extrabold uppercase rounded-lg transition-all cursor-pointer whitespace-nowrap"
-                >
-                  Chiudi Anteprima
-                </button>
-              </div>
-            )}
-
-            {/* Action Controls + 3-Level Execution Mode Selector + Reset Button */}
-            <div className="pt-2.5 border-t border-stone-850 flex flex-col space-y-2.5">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-                {/* 3-Level Execution Mode Selector */}
-                <div className="flex items-center gap-1.5 bg-stone-950 p-1.5 rounded-xl border border-stone-800 shadow-inner">
-                  <span className="text-[11px] font-black text-stone-300 px-1.5 uppercase tracking-wider flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
-                    MODALITÀ:
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => setExecutionMode('simulation')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                      executionMode === 'simulation'
-                        ? 'bg-red-500 text-white shadow-sm shadow-red-950/40'
-                        : 'text-stone-400 hover:text-stone-200'
-                    }`}
-                    title="Calcolo senza chiamate API"
-                  >
-                    🔴 SIMULAZIONE DRY-RUN
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setExecutionMode('test_bungalows')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                      executionMode === 'test_bungalows'
-                        ? 'bg-amber-500 text-stone-950 font-bold shadow-sm shadow-amber-950/40'
-                        : 'text-stone-400 hover:text-stone-200'
-                    }`}
-                    title="Invia modifiche SOLO a Fake Bungalows (ID Madri 649669 e 921799)"
-                  >
-                    🧪 AMBIENTE DI TEST
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => executionMode !== 'production' ? setShowCascadeProdModal(true) : setExecutionMode('simulation')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                      executionMode === 'production'
-                        ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-950/40 animate-pulse'
-                        : 'text-stone-400 hover:text-stone-200'
-                    }`}
-                    title="Invia modifiche a tutte le Tariffe Madri di produzione"
-                  >
-                    🌐 PRODUZIONE
-                  </button>
-                </div>
-
-                {/* Action Buttons: Execute & Reset */}
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => executeLastMinuteStrategy()}
-                    disabled={lastMinuteRunning}
-                    className={`flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 ${
-                      executionMode === 'production'
-                        ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50'
-                        : executionMode === 'test_bungalows'
-                        ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-amber-950/50'
-                        : 'bg-red-600 hover:bg-red-500 text-white shadow-red-950/50'
-                    }`}
-                  >
-                    {lastMinuteRunning ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Elaborazione...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="w-3.5 h-3.5" />
-                        <span>⚡ ESEGUI SCONTI A CASCATA</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => resetLastMinuteStrategy()}
-                    disabled={lastMinuteRunning}
-                    className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl bg-stone-950 border border-stone-800 text-stone-300 hover:bg-stone-850 transition-all cursor-pointer disabled:opacity-50"
-                    title="Ripristina i prezzi al 100% della tariffa base originale senza sconti"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 text-amber-400 ${lastMinuteRunning ? 'animate-spin' : ''}`} />
-                    <span>🔄 RIPRISTINA PREZZI ORIGINALI</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {lastMinuteResult && (
-              <div className={`p-3 rounded-2xl border text-xs leading-relaxed w-full ${
-                lastMinuteResult.success
-                  ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300'
-                  : 'bg-red-950/40 border-red-800/60 text-red-300'
-              }`}>
-                <div className="font-bold flex items-center gap-1.5 mb-1">
-                  {lastMinuteResult.success ? <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
-                  <span>{lastMinuteResult.message}</span>
-                </div>
-                <span className="text-[10px] text-stone-400 font-mono block">
-                  Ultimo aggiornamento: {formatLastUpdateStr(lastMinuteResult.dateUpdated)}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* 2. DYNAMIC MINIMUM STAY (GAP-FILLING & DENSITY PRICING) PANEL */}
-      <div className="bg-violet-950/20 border-4 border-double border-violet-500/40 rounded-2xl p-3.5 sm:p-4 shadow-xl shadow-violet-950/30 space-y-3 ring-1 ring-violet-500/10 transition-all">
-        <div 
-          onClick={() => toggleOptimizationAccordion('minStay')}
-          className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 cursor-pointer select-none group ${
-            openOptimizationAccordions.minStay ? 'border-b border-violet-500/30 pb-2.5' : ''
-          }`}
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-violet-500/20 border border-violet-400/50 flex items-center justify-center text-violet-300 flex-shrink-0 shadow">
-              <SlidersHorizontal className="w-4 h-4" />
-            </div>
-            <div>
-              <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase group-hover:text-violet-300 transition-colors">
-                📏 SOGGIORNO MINIMO DINAMICO
-              </h3>
-              <p className="text-stone-400 text-[11px] font-medium">
-                Calcolo automatico per coprire le bucature inferiori a 7 notti e regolare i soggiorni minimi in base all'occupazione.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 self-end sm:self-auto">
-            <span className="bg-violet-500/10 text-violet-300 border border-violet-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
-              Staging Lock #649669 & #921799
-            </span>
-            <ChevronDown className={`w-5 h-5 text-violet-400 transition-transform duration-200 flex-shrink-0 ${
-              openOptimizationAccordions.minStay ? 'rotate-180' : 'rotate-0'
-            }`} />
-          </div>
-        </div>
-
-        {openOptimizationAccordions.minStay && (
-          <div className="space-y-3 pt-1">
-            {/* Result Output */}
-            {dynamicMinStayResult && (
-              <div className={`p-3 rounded-xl border text-xs leading-relaxed ${
-                dynamicMinStayResult.success
-                  ? 'bg-teal-950/40 border-teal-800/60 text-teal-300'
-                  : 'bg-red-950/40 border-red-800/60 text-red-300'
-              }`}>
-                <div className="font-bold flex items-center gap-2 mb-1">
-                  {dynamicMinStayResult.success ? <CheckCircle className="w-4 h-4 text-teal-400 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
-                  <span>{dynamicMinStayResult.message}</span>
-                </div>
-                {dynamicMinStayResult.dryRun && (
-                  <span className="text-[10px] text-amber-300/90 font-mono block">
-                    🔒 Modalità DRY_RUN Attiva: Nessuna modifica inviata ad Octorate. {dynamicMinStayResult.updatesCount} bucature identificate in memoria.
-                  </span>
+                {lastMinuteResult && (
+                  <div className={`p-3 rounded-2xl border text-xs leading-relaxed w-full ${
+                    lastMinuteResult.success
+                      ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-300'
+                      : 'bg-red-950/40 border-red-800/60 text-red-300'
+                  }`}>
+                    <div className="font-bold flex items-center gap-1.5 mb-1">
+                      {lastMinuteResult.success ? <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
+                      <span>{lastMinuteResult.message}</span>
+                    </div>
+                    <span className="text-[10px] text-stone-400 font-mono block">
+                      Ultimo aggiornamento: {formatLastUpdateStr(lastMinuteResult.dateUpdated)}
+                    </span>
+                  </div>
                 )}
               </div>
             )}
 
-            {/* Bottom Controls Bar: Mode Selector (left) + Buttons (right) */}
-            <div className="pt-2.5 border-t border-stone-850 flex flex-col space-y-2.5">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-
-                {/* 3-Level Execution Mode Selector */}
-                <div className="flex items-center gap-1.5 bg-stone-950 p-1.5 rounded-xl border border-stone-800 shadow-inner">
-                  <span className="text-[11px] font-black text-stone-300 px-1.5 uppercase tracking-wider flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-violet-400" />
-                    MODALITÀ:
+            {/* TAB 2 CONTENT: DYNAMIC MINIMUM STAY */}
+            {activeOptimizationTab === 'min_stay' && (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-violet-500/30 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-violet-500/20 border border-violet-400/50 flex items-center justify-center text-violet-300 flex-shrink-0 shadow">
+                      <SlidersHorizontal className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase">
+                        📏 SOGGIORNO MINIMO DINAMICO
+                      </h3>
+                      <p className="text-stone-400 text-[11px] font-medium">
+                        Calcolo automatico per coprire le bucature inferiori a 7 notti e regolare i soggiorni minimi in base all'occupazione.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="bg-violet-500/10 text-violet-300 border border-violet-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
+                    Staging Lock #649669 & #921799
                   </span>
-
-                  <button
-                    type="button"
-                    onClick={() => setDynamicMinStayExecutionMode('simulation')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                      dynamicMinStayExecutionMode === 'simulation'
-                        ? 'bg-red-500 text-white shadow-sm shadow-red-950/40'
-                        : 'text-stone-400 hover:text-stone-200'
-                    }`}
-                  >
-                    🔴 SIMULAZIONE DRY-RUN
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setDynamicMinStayExecutionMode('test_bungalows')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                      dynamicMinStayExecutionMode === 'test_bungalows'
-                        ? 'bg-amber-500 text-stone-950 font-bold shadow-sm shadow-amber-950/40'
-                        : 'text-stone-400 hover:text-stone-200'
-                    }`}
-                  >
-                    🧪 AMBIENTE DI TEST
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => dynamicMinStayExecutionMode !== 'production' ? setShowMinStayProdModal(true) : setDynamicMinStayExecutionMode('simulation')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                      dynamicMinStayExecutionMode === 'production'
-                        ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-950/40 animate-pulse'
-                        : 'text-stone-400 hover:text-stone-200'
-                    }`}
-                  >
-                    🌐 PRODUZIONE
-                  </button>
                 </div>
 
-                {/* Action Buttons: Execute & Reset */}
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => executeDynamicMinStayStrategy(false)}
-                    disabled={dynamicMinStayRunning}
-                    className={`flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 ${
-                      dynamicMinStayExecutionMode === 'production'
-                        ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50'
-                        : dynamicMinStayExecutionMode === 'test_bungalows'
-                        ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-amber-950/50'
-                        : 'bg-red-600 hover:bg-red-500 text-white shadow-red-950/50'
-                    }`}
-                  >
-                    {dynamicMinStayRunning ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Calcolo in corso...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="w-3.5 h-3.5" />
-                        <span>⚡ ESEGUI SOGGIORNO MINIMO DINAMICO</span>
-                      </>
+                {/* Result Output */}
+                {dynamicMinStayResult && (
+                  <div className={`p-3 rounded-xl border text-xs leading-relaxed ${
+                    dynamicMinStayResult.success
+                      ? 'bg-teal-950/40 border-teal-800/60 text-teal-300'
+                      : 'bg-red-950/40 border-red-800/60 text-red-300'
+                  }`}>
+                    <div className="font-bold flex items-center gap-2 mb-1">
+                      {dynamicMinStayResult.success ? <CheckCircle className="w-4 h-4 text-teal-400 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
+                      <span>{dynamicMinStayResult.message}</span>
+                    </div>
+                    {dynamicMinStayResult.dryRun && (
+                      <span className="text-[10px] text-amber-300/90 font-mono block">
+                        🔒 Modalità DRY_RUN Attiva: Nessuna modifica inviata ad Octorate. {dynamicMinStayResult.updatesCount} bucature identificate in memoria.
+                      </span>
                     )}
-                  </button>
+                  </div>
+                )}
 
-                  <button
-                    type="button"
-                    onClick={() => executeDynamicMinStayStrategy(true)}
-                    disabled={dynamicMinStayRunning}
-                    className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl bg-stone-950 border border-stone-800 text-stone-300 hover:bg-stone-850 transition-all cursor-pointer disabled:opacity-50"
-                    title="Ripristina i valori di soggiorno minimo stagionali standard su Octorate"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 text-violet-400 ${dynamicMinStayRunning ? 'animate-spin' : ''}`} />
-                    <span>🔄 RIPRISTINO VALORI STAGIONALI</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+                {/* Bottom Controls Bar */}
+                <div className="pt-2.5 border-t border-stone-850 flex flex-col space-y-2.5">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                    {/* Mode Selector */}
+                    <div className="flex items-center gap-1.5 bg-stone-950 p-1.5 rounded-xl border border-stone-800 shadow-inner">
+                      <span className="text-[11px] font-black text-stone-300 px-1.5 uppercase tracking-wider flex items-center gap-1">
+                        <ShieldCheck className="w-3.5 h-3.5 text-violet-400" />
+                        MODALITÀ:
+                      </span>
 
-            {dynamicMinStayResult && (
-              <div className={`p-3 rounded-2xl border text-xs leading-relaxed w-full ${
-                dynamicMinStayResult.success
-                  ? 'bg-violet-950/40 border-violet-800/60 text-violet-300'
-                  : 'bg-red-950/40 border-red-800/60 text-red-300'
-              }`}>
-                <div className="font-bold flex items-center gap-1.5 mb-1">
-                  {dynamicMinStayResult.success ? <CheckCircle className="w-4 h-4 text-violet-400 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
-                  <span>{dynamicMinStayResult.message}</span>
+                      <button
+                        type="button"
+                        onClick={() => setDynamicMinStayExecutionMode('simulation')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                          dynamicMinStayExecutionMode === 'simulation'
+                            ? 'bg-red-500 text-white shadow-sm shadow-red-950/40'
+                            : 'text-stone-400 hover:text-stone-200'
+                        }`}
+                      >
+                        🔴 SIMULAZIONE DRY-RUN
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setDynamicMinStayExecutionMode('test_bungalows')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                          dynamicMinStayExecutionMode === 'test_bungalows'
+                            ? 'bg-amber-500 text-stone-950 font-bold shadow-sm shadow-amber-950/40'
+                            : 'text-stone-400 hover:text-stone-200'
+                        }`}
+                      >
+                        🧪 AMBIENTE DI TEST
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => dynamicMinStayExecutionMode !== 'production' ? setShowMinStayProdModal(true) : setDynamicMinStayExecutionMode('simulation')}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                          dynamicMinStayExecutionMode === 'production'
+                            ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-950/40 animate-pulse'
+                            : 'text-stone-400 hover:text-stone-200'
+                        }`}
+                      >
+                        🌐 PRODUZIONE
+                      </button>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => executeDynamicMinStayStrategy(false)}
+                        disabled={dynamicMinStayRunning}
+                        className={`flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 ${
+                          dynamicMinStayExecutionMode === 'production'
+                            ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50'
+                            : dynamicMinStayExecutionMode === 'test_bungalows'
+                            ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-amber-950/50'
+                            : 'bg-red-600 hover:bg-red-500 text-white shadow-red-950/50'
+                        }`}
+                      >
+                        {dynamicMinStayRunning ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Calcolo in corso...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-3.5 h-3.5" />
+                            <span>⚡ ESEGUI SOGGIORNO MINIMO DINAMICO</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => executeDynamicMinStayStrategy(true)}
+                        disabled={dynamicMinStayRunning}
+                        className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl bg-stone-950 border border-stone-800 text-stone-300 hover:bg-stone-850 transition-all cursor-pointer disabled:opacity-50"
+                        title="Ripristina i valori di soggiorno minimo stagionali standard su Octorate"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 text-violet-400 ${dynamicMinStayRunning ? 'animate-spin' : ''}`} />
+                        <span>🔄 RIPRISTINO VALORI STAGIONALI</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-[10px] text-stone-400 font-mono block">
-                  Ultimo aggiornamento: {formatLastUpdateStr(dynamicMinStayResult.dateUpdated)}
-                </span>
+
+                {dynamicMinStayResult && (
+                  <div className={`p-3 rounded-2xl border text-xs leading-relaxed w-full ${
+                    dynamicMinStayResult.success
+                      ? 'bg-violet-950/40 border-violet-800/60 text-violet-300'
+                      : 'bg-red-950/40 border-red-800/60 text-red-300'
+                  }`}>
+                    <div className="font-bold flex items-center gap-1.5 mb-1">
+                      {dynamicMinStayResult.success ? <CheckCircle className="w-4 h-4 text-violet-400 flex-shrink-0" /> : <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
+                      <span>{dynamicMinStayResult.message}</span>
+                    </div>
+                    <span className="text-[10px] text-stone-400 font-mono block">
+                      Ultimo aggiornamento: {formatLastUpdateStr(dynamicMinStayResult.dateUpdated)}
+                    </span>
+                  </div>
+                )}
+
+                {/* Production Confirmation Modal — SOGGIORNO MINIMO DINAMICO */}
+                {showMinStayProdModal && (
+                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-stone-900 border border-red-600/60 rounded-2xl p-5 max-w-md w-full shadow-2xl space-y-4">
+                      <div className="flex items-center gap-3 text-red-400">
+                        <AlertTriangle className="w-6 h-6 flex-shrink-0 animate-bounce" />
+                        <h3 className="font-black text-white text-sm uppercase tracking-wider">
+                          CONFERMA MODALITÀ PRODUZIONE
+                        </h3>
+                      </div>
+                      <p className="text-stone-300 text-xs leading-relaxed">
+                        ⚠️ <strong>ATTENZIONE:</strong> Stai per attivare la modalità <strong>PRODUZIONE REAL TIME</strong> per il Soggiorno Minimo Dinamico.
+                        <br /><br />
+                        I valori di <strong>min_stay</strong> verranno modificati <strong>realmente su tutte le Tariffe Madri del resort su Octorate PMS</strong>.
+                      </p>
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
+                        <button
+                          type="button"
+                          onClick={() => setShowMinStayProdModal(false)}
+                          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl cursor-pointer"
+                        >
+                          Annulla
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setDynamicMinStayExecutionMode('production'); setShowMinStayProdModal(false); }}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50 cursor-pointer"
+                        >
+                          Sì, Attiva Produzione Reale
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Production Confirmation Modal — SOGGIORNO MINIMO DINAMICO */}
-            {showMinStayProdModal && (
-              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                <div className="bg-stone-900 border border-red-600/60 rounded-2xl p-5 max-w-md w-full shadow-2xl space-y-4">
-                  <div className="flex items-center gap-3 text-red-400">
-                    <AlertTriangle className="w-6 h-6 flex-shrink-0 animate-bounce" />
-                    <h3 className="font-black text-white text-sm uppercase tracking-wider">
-                      CONFERMA MODALITÀ PRODUZIONE
-                    </h3>
-                  </div>
-                  <p className="text-stone-300 text-xs leading-relaxed">
-                    ⚠️ <strong>ATTENZIONE:</strong> Stai per attivare la modalità <strong>PRODUZIONE REAL TIME</strong> per il Soggiorno Minimo Dinamico.
-                    <br /><br />
-                    I valori di <strong>min_stay</strong> verranno modificati <strong>realmente su tutte le Tariffe Madri del resort su Octorate PMS</strong>.
-                  </p>
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
-                    <button
-                      type="button"
-                      onClick={() => setShowMinStayProdModal(false)}
-                      className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl cursor-pointer"
-                    >
-                      Annulla
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setDynamicMinStayExecutionMode('production'); setShowMinStayProdModal(false); }}
-                      className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50 cursor-pointer"
-                    >
-                      Sì, Attiva Produzione Reale
-                    </button>
-                  </div>
-                </div>
-              </div>
+            {/* TAB 3 CONTENT: TARIFFE STANDARD HIGH SEASON */}
+            {activeOptimizationTab === 'standard_rates' && (
+              <StandardRatesProtectionSection isOpen={true} borderless={true} />
+            )}
+
+            {/* TAB 4 CONTENT: CODICI PROMOZIONALI & TICKET SCONTO */}
+            {activeOptimizationTab === 'promo_codes' && (
+              <PromoCodesSection isOpen={true} borderless={true} />
             )}
           </div>
-        )}
-      </div>
-
-      {/* 3. TARIFFE STANDARD HIGH SEASON (LAST MINUTE & UNIFICAZIONE PREZZI) PANEL */}
-      <StandardRatesProtectionSection 
-        isOpen={openOptimizationAccordions.standardRates} 
-        onToggle={() => toggleOptimizationAccordion('standardRates')} 
-      />
-
-      {/* 4. V19 CODICI PROMOZIONALI & TICKET SCONTO PANEL */}
-      <PromoCodesSection 
-        isOpen={openOptimizationAccordions.promoCodes} 
-        onToggle={() => toggleOptimizationAccordion('promoCodes')} 
-      />
-
-      </>
+        </div>
       )}
 
       {/* Tab Visual Calendar 30gg Veloce */}

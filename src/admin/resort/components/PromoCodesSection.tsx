@@ -21,11 +21,13 @@ import {
 interface PromoCodesSectionProps {
   isOpen?: boolean;
   onToggle?: () => void;
+  borderless?: boolean;
 }
 
 export const PromoCodesSection: React.FC<PromoCodesSectionProps> = ({
   isOpen: externalIsOpen,
-  onToggle: externalOnToggle
+  onToggle: externalOnToggle,
+  borderless = false
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
@@ -110,12 +112,12 @@ export const PromoCodesSection: React.FC<PromoCodesSectionProps> = ({
   };
 
   return (
-    <div className="bg-fuchsia-950/20 border-4 border-double border-fuchsia-500/40 rounded-2xl p-3.5 sm:p-4 shadow-xl shadow-fuchsia-950/30 space-y-4 ring-1 ring-fuchsia-500/10 transition-all">
+    <div className={borderless ? "space-y-4 transition-all" : "bg-fuchsia-950/20 border-4 border-double border-fuchsia-500/40 rounded-2xl p-3.5 sm:p-4 shadow-xl shadow-fuchsia-950/30 space-y-4 ring-1 ring-fuchsia-500/10 transition-all"}>
       {/* HEADER SECTION */}
       <div 
-        onClick={handleToggle}
-        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 cursor-pointer select-none group ${
-          isOpen ? 'border-b border-fuchsia-500/30 pb-3' : ''
+        onClick={borderless ? undefined : handleToggle}
+        className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 select-none ${
+          borderless ? 'border-b border-fuchsia-500/30 pb-3' : `cursor-pointer group ${isOpen ? 'border-b border-fuchsia-500/30 pb-3' : ''}`
         }`}
       >
         <div className="flex items-center gap-2.5">
@@ -135,9 +137,11 @@ export const PromoCodesSection: React.FC<PromoCodesSectionProps> = ({
           <span className="bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/30 text-[9px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider hidden sm:inline-block">
             PROMO ENGINE V19
           </span>
-          <ChevronDown className={`w-5 h-5 text-fuchsia-400 transition-transform duration-200 flex-shrink-0 ${
-            isOpen ? 'rotate-180' : 'rotate-0'
-          }`} />
+          {!borderless && (
+            <ChevronDown className={`w-5 h-5 text-fuchsia-400 transition-transform duration-200 flex-shrink-0 ${
+              isOpen ? 'rotate-180' : 'rotate-0'
+            }`} />
+          )}
         </div>
       </div>
 
