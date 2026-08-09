@@ -88,13 +88,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '529779',
-        name: 'JV 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '529792',
         name: 'JV Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -186,13 +179,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         name: 'JVL 7d',
         ruleTag: '-, AM',
         ruleDesc: 'Standard Promo 7d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
-        id: '495804',
-        name: 'JVL 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
@@ -290,13 +276,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '495977',
-        name: 'JVR 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '496010',
         name: 'JVR Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -388,13 +367,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         name: 'P&L 7d',
         ruleTag: '-, AM',
         ruleDesc: 'Standard Promo 7d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
-        id: '495551',
-        name: 'P&L 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
@@ -492,13 +464,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '421513',
-        name: 'Pent 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '421516',
         name: 'Pent Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -590,13 +555,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         name: 'Yellow 7d',
         ruleTag: '-, AM',
         ruleDesc: 'Standard Promo 7d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
-        id: '293958',
-        name: 'Yellow 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
@@ -694,13 +652,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '293953',
-        name: 'Red 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '332030',
         name: 'Red Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -792,13 +743,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         name: 'Green 7d',
         ruleTag: '-, AM',
         ruleDesc: 'Standard Promo 7d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
-        id: '293961',
-        name: 'Green 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
@@ -896,13 +840,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '293966',
-        name: 'Camel 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '332089',
         name: 'Camel Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -948,13 +885,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '293956',
-        name: 'Lagoon 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '332081',
         name: 'Lagoon Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -997,13 +927,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         name: 'Room 1 7d',
         ruleTag: '-, AM',
         ruleDesc: 'Standard Promo 7d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
-        id: '293964',
-        name: 'Room 1 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
@@ -1101,13 +1024,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '293960',
-        name: 'Room 2 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '332741',
         name: 'Room 2 Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -1199,13 +1115,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         name: 'Room 3 7d',
         ruleTag: '-, AM',
         ruleDesc: 'Standard Promo 7d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
-        id: '293947',
-        name: 'Room 3 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
@@ -1303,13 +1212,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '293946',
-        name: 'Room 4 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '332759',
         name: 'Room 4 Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -1401,13 +1303,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         name: 'Room 5 7d',
         ruleTag: '-, AM',
         ruleDesc: 'Standard Promo 7d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
-        id: '293944',
-        name: 'Room 5 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
@@ -1505,13 +1400,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '293952',
-        name: 'Lodge 1 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '332769',
         name: 'Lodge 1 Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -1603,13 +1491,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         name: 'Lodge 2 7d',
         ruleTag: '-, AM',
         ruleDesc: 'Standard Promo 7d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
-        id: '916108',
-        name: 'Lodge 2 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
@@ -1707,13 +1588,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '293941',
-        name: 'Inter 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '332109',
         name: 'Inter Main bnb-14d',
         ruleTag: '+200฿ AM',
@@ -1805,13 +1679,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         name: 'FB1 7d',
         ruleTag: '-, AM',
         ruleDesc: 'Standard Promo 7d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
-        id: '932245',
-        name: 'FB1 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
@@ -1909,13 +1776,6 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
       },
       {
-        id: '932258',
-        name: 'FB2 14d',
-        ruleTag: '-, AM',
-        ruleDesc: 'Standard Promo 14d',
-        agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA, AGENCY_AGODA]
-      },
-      {
         id: '932259',
         name: 'FB2 Main bnb-7d',
         ruleTag: '-, AM',
@@ -1997,13 +1857,31 @@ export function DerivedRatesTreeSection() {
   const [loadingSync, setLoadingSync] = useState(false);
   const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({});
 
-  // Unified base prices state for AC and Breakfast
-  const [customAcInput, setCustomAcInput] = useState<number>(() => {
-    const saved = localStorage.getItem('fpv_derived_ac_price');
+  // Granular base prices state for AC per channel (Booking/Expedia, Agoda, Airbnb) and Breakfast
+  const [customAcBookingInput, setCustomAcBookingInput] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_ac_price_booking') || localStorage.getItem('fpv_derived_ac_price');
     return saved ? Number(saved) : 400;
   });
-  const [appliedAcPrice, setAppliedAcPrice] = useState<number>(() => {
-    const saved = localStorage.getItem('fpv_derived_ac_price');
+  const [appliedAcPriceBooking, setAppliedAcPriceBooking] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_ac_price_booking') || localStorage.getItem('fpv_derived_ac_price');
+    return saved ? Number(saved) : 400;
+  });
+
+  const [customAcAgodaInput, setCustomAcAgodaInput] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_ac_price_agoda');
+    return saved ? Number(saved) : 500;
+  });
+  const [appliedAcPriceAgoda, setAppliedAcPriceAgoda] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_ac_price_agoda');
+    return saved ? Number(saved) : 500;
+  });
+
+  const [customAcAirbnbInput, setCustomAcAirbnbInput] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_ac_price_airbnb');
+    return saved ? Number(saved) : 400;
+  });
+  const [appliedAcPriceAirbnb, setAppliedAcPriceAirbnb] = useState<number>(() => {
+    const saved = localStorage.getItem('fpv_derived_ac_price_airbnb');
     return saved ? Number(saved) : 400;
   });
 
@@ -2016,15 +1894,27 @@ export function DerivedRatesTreeSection() {
     return saved ? Number(saved) : 150;
   });
 
-  const [confirmModal, setConfirmModal] = useState<{ type: 'AC' | 'BREAKFAST'; val: number } | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    type: 'AC_BOOKING' | 'AC_AGODA' | 'AC_AIRBNB' | 'BREAKFAST';
+    val: number;
+    channelName: string;
+  } | null>(null);
   const [unificationStatus, setUnificationStatus] = useState<string | null>(null);
   const [isUnificationOpen, setIsUnificationOpen] = useState(false);
 
-  const handleApplyUnification = (type: 'AC' | 'BREAKFAST', val: number) => {
-    if (type === 'AC') {
-      setAppliedAcPrice(val);
-      localStorage.setItem('fpv_derived_ac_price', String(val));
-      setUnificationStatus(`Prezzo unico Aria Condizionata (${val} ฿) applicato con successo a tutte le tariffe derivate AC del villaggio!`);
+  const handleApplyUnification = (type: 'AC_BOOKING' | 'AC_AGODA' | 'AC_AIRBNB' | 'BREAKFAST', val: number) => {
+    if (type === 'AC_BOOKING') {
+      setAppliedAcPriceBooking(val);
+      localStorage.setItem('fpv_derived_ac_price_booking', String(val));
+      setUnificationStatus(`Prezzo Aria Condizionata Booking & Expedia (${val} ฿) applicato con successo alle derivate AC7d e AC14d!`);
+    } else if (type === 'AC_AGODA') {
+      setAppliedAcPriceAgoda(val);
+      localStorage.setItem('fpv_derived_ac_price_agoda', String(val));
+      setUnificationStatus(`Prezzo Aria Condizionata Agoda (${val} ฿) applicato con successo alle derivate AGD AC-7d e AGD AC-14d!`);
+    } else if (type === 'AC_AIRBNB') {
+      setAppliedAcPriceAirbnb(val);
+      localStorage.setItem('fpv_derived_ac_price_airbnb', String(val));
+      setUnificationStatus(`Prezzo Aria Condizionata Airbnb (${val} ฿) applicato con successo alle derivate AirBnB AC!`);
     } else {
       setAppliedBreakfastPrice(val);
       localStorage.setItem('fpv_derived_breakfast_price', String(val));
@@ -2101,7 +1991,20 @@ export function DerivedRatesTreeSection() {
     };
   };
 
-  const checkPriceSanity = (parentPrice: number, ruleTag: string, livePrice: number) => {
+  const getAcPriceForNode = (nodeName: string = '', agencies: AgencyBadge[] = [], ruleDesc: string = ''): number => {
+    const nameLower = (nodeName + ' ' + ruleDesc).toLowerCase();
+    const agencyNames = (agencies || []).map(a => a.name.toUpperCase());
+
+    if (nameLower.includes('agd ac') || agencyNames.includes('AGODA')) {
+      return appliedAcPriceAgoda;
+    }
+    if (nameLower.includes('airbnb ac') || agencyNames.some(a => a.includes('AIRBNB AC'))) {
+      return appliedAcPriceAirbnb;
+    }
+    return appliedAcPriceBooking;
+  };
+
+  const checkPriceSanity = (parentPrice: number, ruleTag: string, livePrice: number, nodeName: string = '', agencies: AgencyBadge[] = [], ruleDesc: string = '') => {
     if (!parentPrice || !livePrice || parentPrice <= 0 || livePrice <= 0) {
       return { isDiscrepancy: false, expectedPrice: 0, diff: 0 };
     }
@@ -2110,7 +2013,8 @@ export function DerivedRatesTreeSection() {
     if (ruleTag.includes('Sconto 10%') || ruleTag.includes('-10%')) {
       expectedPrice = Math.round(parentPrice * 0.9);
     } else if (ruleTag.includes('AC') || ruleTag.includes('AirCon') || ruleTag.includes('+400') || ruleTag.includes('+500')) {
-      expectedPrice = parentPrice + appliedAcPrice;
+      const acPrice = getAcPriceForNode(nodeName, agencies, ruleDesc);
+      expectedPrice = parentPrice + acPrice;
     } else if (ruleTag.includes('Colazione') || ruleTag.includes('Breakfast')) {
       expectedPrice = parentPrice + appliedBreakfastPrice;
     } else if (ruleTag.includes('+200฿')) {
@@ -2128,14 +2032,16 @@ export function DerivedRatesTreeSection() {
     ...scheme,
     level1Nodes: scheme.level1Nodes.map((l1) => {
       const isAcNode = l1.name.toLowerCase().includes('ac') || l1.ruleDesc.toLowerCase().includes('ac') || l1.ruleTag.includes('+400') || l1.ruleTag.includes('+500');
-      const updatedTag = isAcNode ? `+${appliedAcPrice}฿ AM` : l1.ruleTag;
+      const acPrice = getAcPriceForNode(l1.name, l1.agencies, l1.ruleDesc);
+      const updatedTag = isAcNode ? `+${acPrice}฿ AM` : l1.ruleTag;
       
       let updatedSubChild = l1.subChild;
       if (l1.subChild) {
         const isSubAc = l1.subChild.name.toLowerCase().includes('ac') || l1.subChild.ruleDesc.toLowerCase().includes('ac');
+        const subAcPrice = getAcPriceForNode(l1.subChild.name, l1.subChild.agencies, l1.subChild.ruleDesc);
         updatedSubChild = {
           ...l1.subChild,
-          ruleTag: isSubAc ? `+${appliedAcPrice}฿ AMR` : l1.subChild.ruleTag
+          ruleTag: isSubAc ? `+${subAcPrice}฿ AMR` : l1.subChild.ruleTag
         };
       }
 
@@ -2233,7 +2139,7 @@ export function DerivedRatesTreeSection() {
         </div>
       </div>
 
-      {/* PANNELLO DI CONTROLLO: PREZZI UNIFICATI AC E COLAZIONE PER TUTTE LE DERIVATE */}
+      {/* PANNELLO DI CONTROLLO: PREZZI UNIFICATI AC PER CANALE E COLAZIONE */}
       <div className="bg-stone-900 border-4 border-double border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4 transition-all">
         <div 
           onClick={() => setIsUnificationOpen(!isUnificationOpen)}
@@ -2243,11 +2149,11 @@ export function DerivedRatesTreeSection() {
         >
           <div className="flex items-center gap-2.5 text-emerald-400 font-black text-xs sm:text-sm uppercase tracking-wider group-hover:text-emerald-300 transition-colors">
             <Wind className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-            <span>PANNELLO DI CONTROLLO UNIFICAZIONE TARIFFE DERIVATE (AC & COLAZIONE)</span>
+            <span>PANNELLO DI CONTROLLO UNIFICAZIONE TARIFFE DERIVATE (AC PER CANALE & COLAZIONE)</span>
           </div>
           <div className="flex items-center gap-3 self-end sm:self-auto">
             <span className="text-[10px] font-bold text-stone-400 bg-stone-950 px-3 py-1 rounded-full border border-stone-800 hidden sm:inline-block">
-              Regola Madre Applicata a tutte le 18 Camere
+              Regole Canali AC (Booking/Expedia, Agoda, Airbnb) & Colazione
             </span>
             <ChevronDown className={`w-5 h-5 text-emerald-400 transition-transform duration-200 flex-shrink-0 ${
               isUnificationOpen ? 'rotate-180' : 'rotate-0'
@@ -2257,65 +2163,165 @@ export function DerivedRatesTreeSection() {
 
         {isUnificationOpen && (
           <div className="space-y-4 pt-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {/* CASELLA 1: ARIA CONDIZIONATA (AC) */}
-              <div className="bg-stone-950/60 p-4 rounded-2xl border border-stone-800 space-y-3">
-                <div className="flex justify-between items-start">
-                  <label className="text-xs font-black text-emerald-300 uppercase tracking-wider flex items-center gap-2">
-                    <Wind className="w-4 h-4 text-emerald-400" />
-                    <span>Prezzo Base Aria Condizionata (AC)</span>
-                  </label>
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800/60">
-                    Attuale: {appliedAcPrice} ฿ / notte
-                  </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              
+              {/* 1. BOOKING & EXPEDIA AC */}
+              <div className="bg-stone-950/60 p-4 rounded-2xl border border-blue-500/30 space-y-3 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-start">
+                    <label className="text-xs font-black text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Wind className="w-4 h-4 text-blue-400" />
+                      <span>Booking & Expedia</span>
+                    </label>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-bold text-blue-300 bg-blue-950 px-1.5 py-0.5 rounded border border-blue-800/60">
+                      AC7d / AC14d
+                    </span>
+                    <span className="text-[10px] font-bold text-blue-400">
+                      Attuale: {appliedAcPriceBooking} ฿/n
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-400 leading-relaxed">
+                    Costo AC per Booking & Expedia (AC7d, AC14d, AC bnb).
+                  </p>
                 </div>
-
-                <p className="text-[11px] text-stone-400 leading-relaxed">
-                  Imposta il prezzo unico base per l'Aria Condizionata per uniformare tutte le 18 camere derivate AC.
-                </p>
-
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 pt-2">
                   <div className="relative flex-1">
                     <input
                       type="number"
                       min="0"
                       step="50"
-                      value={customAcInput}
-                      onChange={(e) => setCustomAcInput(Number(e.target.value))}
-                      className="w-full bg-stone-900 border border-stone-750 rounded-xl px-4 py-2 text-sm text-white font-mono font-bold focus:outline-none focus:border-emerald-500"
+                      value={customAcBookingInput}
+                      onChange={(e) => setCustomAcBookingInput(Number(e.target.value))}
+                      className="w-full bg-stone-900 border border-stone-750 rounded-xl px-3 py-1.5 text-xs text-white font-mono font-bold focus:outline-none focus:border-blue-500"
                       placeholder="es. 400"
                     />
-                    <span className="absolute right-3 top-2.5 text-xs text-stone-400 font-bold">THB (฿)</span>
+                    <span className="absolute right-2.5 top-1.5 text-xs text-stone-400 font-bold">฿</span>
                   </div>
-
                   <button
                     type="button"
-                    onClick={() => setConfirmModal({ type: 'AC', val: customAcInput })}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+                    onClick={() => setConfirmModal({ type: 'AC_BOOKING', val: customAcBookingInput, channelName: 'Booking & Expedia (AC7d / AC14d)' })}
+                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1"
                   >
-                    <CheckCircle className="w-4 h-4" />
-                    <span>CONFERMA & APPLICA AC</span>
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>APPLICA</span>
                   </button>
                 </div>
               </div>
 
-              {/* CASELLA 2: COLAZIONE (1 BREAKFAST) */}
-              <div className="bg-stone-950/60 p-4 rounded-2xl border border-stone-800 space-y-3">
-                <div className="flex justify-between items-start">
-                  <label className="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-2">
-                    <Coffee className="w-4 h-4 text-amber-400" />
-                    <span>Prezzo Base 1 Colazione (Breakfast)</span>
-                  </label>
-                  <span className="text-[10px] font-bold text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-800/60">
-                    Attuale: {appliedBreakfastPrice} ฿ / persona
-                  </span>
+              {/* 2. AGODA AC */}
+              <div className="bg-stone-950/60 p-4 rounded-2xl border border-purple-500/30 space-y-3 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-start">
+                    <label className="text-xs font-black text-purple-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Wind className="w-4 h-4 text-purple-400" />
+                      <span>Agoda</span>
+                    </label>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-bold text-purple-300 bg-purple-950 px-1.5 py-0.5 rounded border border-purple-800/60">
+                      AGD AC-7d / 14d
+                    </span>
+                    <span className="text-[10px] font-bold text-purple-400">
+                      Attuale: {appliedAcPriceAgoda} ฿/n
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-400 leading-relaxed">
+                    Costo AC dedicato ad Agoda (AGD AC-7d, AGD AC-14d).
+                  </p>
                 </div>
+                <div className="flex items-center gap-2 pt-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="number"
+                      min="0"
+                      step="50"
+                      value={customAcAgodaInput}
+                      onChange={(e) => setCustomAcAgodaInput(Number(e.target.value))}
+                      className="w-full bg-stone-900 border border-stone-750 rounded-xl px-3 py-1.5 text-xs text-white font-mono font-bold focus:outline-none focus:border-purple-500"
+                      placeholder="es. 500"
+                    />
+                    <span className="absolute right-2.5 top-1.5 text-xs text-stone-400 font-bold">฿</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmModal({ type: 'AC_AGODA', val: customAcAgodaInput, channelName: 'Agoda (AGD AC-7d / 14d)' })}
+                    className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>APPLICA</span>
+                  </button>
+                </div>
+              </div>
 
-                <p className="text-[11px] text-stone-400 leading-relaxed">
-                  Imposta il prezzo unico base per 1 Colazione per uniformare il supplemento su tutte le tariffe derivate.
-                </p>
+              {/* 3. AIRBNB AC */}
+              <div className="bg-stone-950/60 p-4 rounded-2xl border border-rose-500/30 space-y-3 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-start">
+                    <label className="text-xs font-black text-rose-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Wind className="w-4 h-4 text-rose-400" />
+                      <span>Airbnb</span>
+                    </label>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-bold text-rose-300 bg-rose-950 px-1.5 py-0.5 rounded border border-rose-800/60">
+                      AirBnB AC
+                    </span>
+                    <span className="text-[10px] font-bold text-rose-400">
+                      Attuale: {appliedAcPriceAirbnb} ฿/n
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-400 leading-relaxed">
+                    Costo AC dedicato ad Airbnb (AirBnB AC).
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 pt-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="number"
+                      min="0"
+                      step="50"
+                      value={customAcAirbnbInput}
+                      onChange={(e) => setCustomAcAirbnbInput(Number(e.target.value))}
+                      className="w-full bg-stone-900 border border-stone-750 rounded-xl px-3 py-1.5 text-xs text-white font-mono font-bold focus:outline-none focus:border-rose-500"
+                      placeholder="es. 400"
+                    />
+                    <span className="absolute right-2.5 top-1.5 text-xs text-stone-400 font-bold">฿</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmModal({ type: 'AC_AIRBNB', val: customAcAirbnbInput, channelName: 'Airbnb (AirBnB AC)' })}
+                    className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-black text-xs rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>APPLICA</span>
+                  </button>
+                </div>
+              </div>
 
-                <div className="flex items-center gap-3">
+              {/* 4. COLAZIONE (1 BREAKFAST) */}
+              <div className="bg-stone-950/60 p-4 rounded-2xl border border-amber-500/30 space-y-3 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex justify-between items-start">
+                    <label className="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Coffee className="w-4 h-4 text-amber-400" />
+                      <span>Colazione</span>
+                    </label>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-bold text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-800/60">
+                      1 Breakfast
+                    </span>
+                    <span className="text-[10px] font-bold text-amber-400">
+                      Attuale: {appliedBreakfastPrice} ฿/pers
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-stone-400 leading-relaxed">
+                    Costo base 1 Colazione per le derivate con colazione.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 pt-2">
                   <div className="relative flex-1">
                     <input
                       type="number"
@@ -2323,22 +2329,22 @@ export function DerivedRatesTreeSection() {
                       step="10"
                       value={customBreakfastInput}
                       onChange={(e) => setCustomBreakfastInput(Number(e.target.value))}
-                      className="w-full bg-stone-900 border border-stone-750 rounded-xl px-4 py-2 text-sm text-white font-mono font-bold focus:outline-none focus:border-amber-500"
+                      className="w-full bg-stone-900 border border-stone-750 rounded-xl px-3 py-1.5 text-xs text-white font-mono font-bold focus:outline-none focus:border-amber-500"
                       placeholder="es. 150"
                     />
-                    <span className="absolute right-3 top-2.5 text-xs text-stone-400 font-bold">THB (฿)</span>
+                    <span className="absolute right-2.5 top-1.5 text-xs text-stone-400 font-bold">฿</span>
                   </div>
-
                   <button
                     type="button"
-                    onClick={() => setConfirmModal({ type: 'BREAKFAST', val: customBreakfastInput })}
-                    className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 font-black text-xs rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+                    onClick={() => setConfirmModal({ type: 'BREAKFAST', val: customBreakfastInput, channelName: 'Colazione (1 Breakfast)' })}
+                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-stone-950 font-black text-xs rounded-xl shadow-md transition-all cursor-pointer whitespace-nowrap flex items-center gap-1"
                   >
-                    <CheckCircle className="w-4 h-4" />
-                    <span>CONFERMA & APPLICA COLAZIONE</span>
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>APPLICA</span>
                   </button>
                 </div>
               </div>
+
             </div>
 
             {/* NOTIFICA DI STATO UNIFICAZIONE */}
@@ -2357,18 +2363,18 @@ export function DerivedRatesTreeSection() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/80 backdrop-blur-sm p-4 animate-fadeIn">
           <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4 text-center">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto">
-              {confirmModal.type === 'AC' ? <Wind className="w-6 h-6" /> : <Coffee className="w-6 h-6" />}
+              {confirmModal.type.startsWith('AC') ? <Wind className="w-6 h-6" /> : <Coffee className="w-6 h-6" />}
             </div>
             
             <h3 className="text-base font-black text-white uppercase tracking-wider">
-              {confirmModal.type === 'AC' ? 'Conferma Prezzo Unificato Aria Condizionata' : 'Conferma Prezzo Unificato Colazione'}
+              Conferma Prezzo {confirmModal.channelName}
             </h3>
             
             <p className="text-xs text-stone-300 leading-relaxed font-medium">
-              Sei sicuro di voler unificare ed applicare il prezzo di <strong className="text-emerald-400 text-sm font-mono">{confirmModal.val} THB</strong> a <strong>TUTTE le tariffe derivate</strong> del villaggio?
+              Sei sicuro di voler unificare ed applicare il prezzo di <strong className="text-emerald-400 text-sm font-mono">{confirmModal.val} THB</strong> alle tariffe derivate per <strong>{confirmModal.channelName}</strong> di tutte le camere del villaggio?
             </p>
 
-            <div className="flex items-center gap-3 pt-2">
+            <div className="flex items-center justify-center gap-3 pt-2">
               <button
                 type="button"
                 onClick={() => setConfirmModal(null)}
@@ -2540,11 +2546,11 @@ export function DerivedRatesTreeSection() {
                     {scheme.level1Nodes.map((l1) => {
                       const l1LiveData = getNodeLiveData(l1.id);
                       const l1Price = l1LiveData?.price || 0;
-                      const l1Sanity = checkPriceSanity(motherPrice, l1.ruleTag, l1Price);
+                      const l1Sanity = checkPriceSanity(motherPrice, l1.ruleTag, l1Price, l1.name, l1.agencies, l1.ruleDesc);
 
                       const subLiveData = l1.subChild ? getNodeLiveData(l1.subChild.id) : null;
                       const subPrice = subLiveData?.price || 0;
-                      const subSanity = l1.subChild ? checkPriceSanity(l1Price > 0 ? l1Price : motherPrice, l1.subChild.ruleTag, subPrice) : null;
+                      const subSanity = l1.subChild ? checkPriceSanity(l1Price > 0 ? l1Price : motherPrice, l1.subChild.ruleTag, subPrice, l1.subChild.name, l1.subChild.agencies, l1.subChild.ruleDesc) : null;
 
                       // Level 1 card background style
                       let l1CardStyle = 'bg-stone-900 border-stone-700/80 hover:border-amber-400 text-stone-200';
