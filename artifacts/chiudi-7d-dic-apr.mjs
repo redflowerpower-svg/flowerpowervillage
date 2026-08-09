@@ -58,7 +58,9 @@ const STANDARD_7D_RATES = [
   { id: '449724', name: 'Room 4 (R4 7d)' },
   { id: '449730', name: 'Room 5 (R5 7d)' },
   { id: '449736', name: 'Lodge 1 (Lodge 1 7d)' },
-  { id: '923905', name: 'Lodge 2 (Lodge 2 7d)' }
+  { id: '923905', name: 'Lodge 2 (Lodge 2 7d)' },
+  { id: '932244', name: 'Fake Bungalow 1 (FB1 7d)' },
+  { id: '932257', name: 'Fake Bungalow 2 (FB2 7d)' }
 ];
 
 async function applyStopSellDecAprChunked() {

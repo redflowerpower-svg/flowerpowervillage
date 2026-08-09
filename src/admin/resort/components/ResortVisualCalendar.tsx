@@ -100,8 +100,8 @@ export const ACCOMMODATION_RATE_PLANS: Record<string, { motherId: number; beId: 
   'Room 5': { motherId: 293943, beId: 449730 },
   'Lodge 1': { motherId: 293951, beId: 449736 },
   'Lodge 2': { motherId: 883795, beId: 923905 },
-  'Fake Bungalow 1': { motherId: 649669, beId: 649669 },
-  'Fake Bungalow 2': { motherId: 921799, beId: 921799 }
+  'Fake Bungalow 1': { motherId: 649669, beId: 932244 },
+  'Fake Bungalow 2': { motherId: 921799, beId: 932257 }
 };
 
 export function getIdsForRoom(roomName: string): { motherId: number; beId: number } {
@@ -130,8 +130,8 @@ export function getIdsForRoom(roomName: string): { motherId: number; beId: numbe
     'room 5': { motherId: 293943, beId: 449730 },
     'lodge 1': { motherId: 293951, beId: 449736 },
     'lodge 2': { motherId: 883795, beId: 923905 },
-    'fake bungalow 1': { motherId: 649669, beId: 649669 },
-    'fake bungalow 2': { motherId: 921799, beId: 921799 }
+    'fake bungalow 1': { motherId: 649669, beId: 932244 },
+    'fake bungalow 2': { motherId: 921799, beId: 932257 }
   };
 
   if (MAPPING[nameLower]) {
@@ -563,37 +563,40 @@ function checkIsClosed(item: any): boolean {
 
   return false;
 }
-
-function computeDerivedRateIndicators(
+function computeDerivedRateIndicators(
   roomName: string,
   dateStr: string,
   liveGridData: Record<string, Record<string, OctorateDayData>>,
   activeGridItems: any[]
 ): { isBnbActive: boolean; isAgodaAcActive: boolean; isStandard7dActive: boolean } {
-  let isBnbActive = false;
-  let isAgodaAcActive = false;
-  let isStandard7dActive = false;
-
   const roomNameLower = (roomName || '').toLowerCase().trim();
   const roomEntry = ALL_ACCOMMODATIONS_MAP[roomNameLower];
-  const roomIds = roomEntry ? new Set(roomEntry.ids) : new Set<string>();
+  const mappedIds = new Set<string>();
+
+  if (roomEntry && Array.isArray(roomEntry.ids)) {
+    roomEntry.ids.forEach(id => mappedIds.add(id.toString()));
+  }
 
   const { motherId, beId } = getIdsForRoom(roomName);
-  if (motherId) roomIds.add(String(motherId));
-  if (beId) roomIds.add(String(beId));
+  if (motherId) mappedIds.add(motherId.toString());
+  if (beId) mappedIds.add(beId.toString());
+
+  let bnbDay: any = null;
+  let agodaDay: any = null;
+  let standard7dDay: any = null;
 
   if (liveGridData) {
-    for (const rId of roomIds) {
+    for (const rId of mappedIds) {
       const dayData = liveGridData[rId]?.[dateStr];
-      if (dayData && !checkIsClosed(dayData)) {
+      if (dayData) {
         const rateName = String(dayData.name || dayData.title || dayData.ratePlanName || '').toLowerCase();
-        
-        if (rateName.includes('bnb') || rateName.includes('main bnb-7d') || rateName.includes('main bnb-14d')) {
-          isBnbActive = true;
-        } else if (rateName.includes('agd') || rateName.includes('agoda') || rateName.includes('agd ac-7d') || rateName.includes('agd ac-14d')) {
-          isAgodaAcActive = true;
+
+        if (rateName.includes('main bnb-7d') || rateName.includes('main bnb-14d') || rateName.includes('main bnb') || rateName.includes('bnb')) {
+          if (!bnbDay) bnbDay = dayData;
+        } else if (rateName.includes('agd ac-7d') || rateName.includes('agd ac-14d')) {
+          if (!agodaDay) agodaDay = dayData;
         } else if (rateName.includes('7d') && !rateName.includes('ac') && !rateName.includes('agd') && !rateName.includes('agoda') && !rateName.includes('bnb')) {
-          isStandard7dActive = true;
+          if (!standard7dDay) standard7dDay = dayData;
         }
       }
     }
@@ -604,34 +607,34 @@ function computeDerivedRateIndicators(
       const itemDate = toThailandDateStr(item.date || item.dateStr || item.day);
       if (itemDate !== dateStr) return;
 
+      const itemIdStr = item.id !== undefined ? item.id.toString() : (item.ratePlanId !== undefined ? item.ratePlanId.toString() : '');
       const itemRoomName = String(item.accommodationName || item.roomName || item.room || '').toLowerCase().trim();
-      const itemId = String(item.id || item.ratePlanId || item.room || '');
 
-      const isMatch = roomIds.has(itemId) || (itemRoomName && (itemRoomName.includes(roomNameLower) || roomNameLower.includes(itemRoomName)));
+      const isMatch = (itemIdStr && mappedIds.has(itemIdStr)) || (itemRoomName && (itemRoomName.includes(roomNameLower) || roomNameLower.includes(itemRoomName)));
       if (!isMatch) return;
 
-      if (!checkIsClosed(item)) {
-        const rateName = String(item.name || item.ratePlanName || item.title || '').toLowerCase();
+      const rateName = String(item.name || item.ratePlanName || item.title || '').toLowerCase();
 
-        if (rateName.includes('bnb') || rateName.includes('main bnb-7d') || rateName.includes('main bnb-14d')) {
-          isBnbActive = true;
-        } else if (rateName.includes('agd') || rateName.includes('agoda') || rateName.includes('agd ac-7d') || rateName.includes('agd ac-14d')) {
-          isAgodaAcActive = true;
-        } else if (rateName.includes('7d') && !rateName.includes('ac') && !rateName.includes('agd') && !rateName.includes('agoda') && !rateName.includes('bnb')) {
-          isStandard7dActive = true;
-        }
+      if (rateName.includes('main bnb-7d') || rateName.includes('main bnb-14d') || rateName.includes('main bnb') || rateName.includes('bnb')) {
+        if (!bnbDay) bnbDay = item;
+      } else if (rateName.includes('agd ac-7d') || rateName.includes('agd ac-14d')) {
+        if (!agodaDay) agodaDay = item;
+      } else if (rateName.includes('7d') && !rateName.includes('ac') && !rateName.includes('agd') && !rateName.includes('agoda') && !rateName.includes('bnb')) {
+        if (!standard7dDay) standard7dDay = item;
       }
     });
   }
 
-  if (!isStandard7dActive) {
-    const beData = liveGridData?.[String(beId)]?.[dateStr];
+  const isBnbActive = bnbDay ? !checkIsClosed(bnbDay) : false;
+  const isAgodaAcActive = agodaDay ? !checkIsClosed(agodaDay) : false;
+
+  let isStandard7dActive = false;
+  if (standard7dDay) {
+    isStandard7dActive = !checkIsClosed(standard7dDay);
+  } else {
+    const beData = liveGridData?.[beId.toString()]?.[dateStr];
     if (beData) {
-      if (!checkIsClosed(beData)) {
-        isStandard7dActive = true;
-      }
-    } else {
-      isStandard7dActive = true;
+      isStandard7dActive = !checkIsClosed(beData);
     }
   }
 
@@ -824,7 +827,7 @@ const CalendarCell = React.memo(function CalendarCell({
         {/* IN ALTO: Main bnb-7d / Main bnb-14d (Blu Cobalto con lettera "B") */}
         {isBnbActive ? (
           <span 
-            className="w-2.5 h-2.5 rounded-full bg-blue-500 text-white font-black text-[7px] leading-none flex items-center justify-center shadow-sm" 
+            className="w-2.5 h-2.5 rounded-full bg-blue-500 text-white font-bold text-[7px] leading-none flex items-center justify-center shadow-sm" 
             title="Bed & Breakfast (Main bnb) Attiva"
           >
             B
@@ -833,10 +836,10 @@ const CalendarCell = React.memo(function CalendarCell({
           <span className="w-2.5 h-2.5 opacity-0" />
         )}
 
-        {/* AL CENTRO: AGD AC-7d / AGD AC-14d (Rosa Magenta / Fuchsia con lettera "A") */}
+        {/* AL CENTRO: AGD AC-7d / AGD AC-14d (Rosa Agoda #FF007F con lettera "A") */}
         {isAgodaAcActive ? (
           <span 
-            className="w-2.5 h-2.5 rounded-full bg-fuchsia-500 text-white font-black text-[7px] leading-none flex items-center justify-center shadow-sm" 
+            className="w-2.5 h-2.5 rounded-full bg-[#FF007F] text-white font-bold text-[7px] leading-none flex items-center justify-center shadow-sm" 
             title="Agoda AC (AGD AC) Attiva"
           >
             A
@@ -848,7 +851,7 @@ const CalendarCell = React.memo(function CalendarCell({
         {/* IN BASSO: Standard 7d (Bianco con lettera "S") */}
         {isStandard7dActive ? (
           <span 
-            className="w-2.5 h-2.5 rounded-full bg-white text-stone-950 font-black text-[7px] leading-none flex items-center justify-center shadow-sm" 
+            className="w-2.5 h-2.5 rounded-full bg-white text-stone-950 font-bold text-[7px] leading-none flex items-center justify-center shadow-sm" 
             title="Standard 7d Attiva"
           >
             S

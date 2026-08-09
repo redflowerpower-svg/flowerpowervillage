@@ -3,23 +3,17 @@ import path from 'path';
 import { createClient } from '@supabase/supabase-js';
 
 function loadEnvironment() {
-  const envPaths = [
-    path.resolve(process.cwd(), '.env'),
-    path.resolve(process.cwd(), '.env.local')
-  ];
-
+  const envPaths = ['.env', '.env.local'];
   for (const envPath of envPaths) {
-    if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, 'utf8');
+    const fullPath = path.resolve(process.cwd(), envPath);
+    if (fs.existsSync(fullPath)) {
+      const content = fs.readFileSync(fullPath, 'utf8');
       for (const line of content.split('\n')) {
         const trimmed = line.trim();
         if (trimmed && !trimmed.startsWith('#')) {
           const [key, ...valueParts] = trimmed.split('=');
           if (key && valueParts.length > 0) {
-            const val = valueParts.join('=').trim().replace(/^["']|["']$/g, '');
-            if (!process.env[key.trim()]) {
-              process.env[key.trim()] = val;
-            }
+            process.env[key.trim()] = valueParts.join('=').trim().replace(/^["']|["']$/g, '');
           }
         }
       }
@@ -51,13 +45,36 @@ const STANDARD_7D_RATES = [
   { id: '449724', name: 'Room 4 (R4 7d)' },
   { id: '449730', name: 'Room 5 (R5 7d)' },
   { id: '449736', name: 'Lodge 1 (Lodge 1 7d)' },
-  { id: '923905', name: 'Lodge 2 (Lodge 2 7d)' }
+  { id: '923905', name: 'Lodge 2 (Lodge 2 7d)' },
+  { id: '932244', name: 'Fake Bungalow 1 (FB1 7d)' },
+  { id: '932257', name: 'Fake Bungalow 2 (FB2 7d)' }
 ];
 
-async function checkAfterDelay() {
-  console.log('📌 Attesa di 15 secondi per completamento coda asincrona Octorate...');
-  await new Promise(r => setTimeout(r, 15000));
+function isRateItemClosed(item) {
+  if (!item) return true;
 
+  if (Array.isArray(item.days) && item.days.length > 0) {
+    const day = item.days[0];
+    if (day) {
+      const dayStopSell = day.stopSells !== undefined ? day.stopSells : (day.stopSell !== undefined ? day.stopSell : day.closed);
+      if (dayStopSell === true || dayStopSell === 'true' || dayStopSell === 1 || dayStopSell === '1') {
+        return true;
+      }
+      if (day.available === false || day.bookable === false) {
+        return true;
+      }
+    }
+  }
+
+  const rawStopSell = item.stopSells !== undefined ? item.stopSells : (item.stopSell !== undefined ? item.stopSell : item.closed);
+  if (rawStopSell === true || rawStopSell === 'true' || rawStopSell === 1 || rawStopSell === '1') {
+    return true;
+  }
+
+  return false;
+}
+
+async function checkAfterDelay() {
   const { data: tokenData } = await supabase
     .from('octorate_tokens')
     .select('access_token')
@@ -91,7 +108,7 @@ async function checkAfterDelay() {
     const periodItems = [];
 
     while (page < MAX_PAGES) {
-      const url = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${period.start}&dateTo=${period.end}&size=20&page=${page}`;
+      const url = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${period.start}&dateTo=${period.start}&size=20&page=${page}`;
       try {
         const res = await fetch(url, { headers });
         if (!res.ok) break;
@@ -111,8 +128,7 @@ async function checkAfterDelay() {
     periodItems.forEach((item) => {
       const itemId = String(item.id || item.ratePlanId || item.room || '');
       if (rateIdSet.has(itemId)) {
-        const isClosed = Boolean(item.stopSells || item.stopSell || item.closed || item.available === false);
-        if (isClosed) {
+        if (isRateItemClosed(item)) {
           closedCount++;
         } else {
           openCount++;
@@ -139,7 +155,7 @@ async function checkAfterDelay() {
   }
 
   console.log('\n========================================================================');
-  console.log('  RISULTATO VERIFICA POST-ELABORAZIONE CODA ASINCRONA OCTORATE');
+  console.log('  RISULTATO VERIFICA PER TUTTE LE 20 ACCOMMODATIONS (INC. FAKE 1 & 2)');
   console.log('========================================================================\n');
   console.table(summaryReport);
 }

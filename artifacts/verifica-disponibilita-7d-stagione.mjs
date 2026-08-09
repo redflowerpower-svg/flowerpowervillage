@@ -27,6 +27,7 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+// Elenco Completo dei 20 Alloggi (18 Standard + Fake Bungalow 1 e 2)
 const STANDARD_7D_RATES = [
   { id: '529784', name: 'Jungle Villa (JV 7d)' },
   { id: '495807', name: 'Jungle Villa Left (JVL 7d)' },
@@ -45,7 +46,9 @@ const STANDARD_7D_RATES = [
   { id: '449724', name: 'Room 4 (R4 7d)' },
   { id: '449730', name: 'Room 5 (R5 7d)' },
   { id: '449736', name: 'Lodge 1 (Lodge 1 7d)' },
-  { id: '923905', name: 'Lodge 2 (Lodge 2 7d)' }
+  { id: '923905', name: 'Lodge 2 (Lodge 2 7d)' },
+  { id: '932244', name: 'Fake Bungalow 1 (FB1 7d)' },
+  { id: '932257', name: 'Fake Bungalow 2 (FB2 7d)' }
 ];
 
 function isRateItemClosed(item) {
@@ -72,9 +75,10 @@ function isRateItemClosed(item) {
   return false;
 }
 
-async function check7dFullSeasonAvailability() {
+async function check7dFullSeason20Accommodations() {
   console.log('========================================================================');
-  console.log('  VERIFICA LIVE OCTORATE DISPONIBILITÀ TARIFFE 7D (ISPEZIONE STRUTTURA DAYS)');
+  console.log('  SCANSIONE LIVE DISPONIBILITÀ TARIFFE 7D PER TUTTI E 20 GLI ALLOGGI');
+  console.log('  Periodo: Da Oggi (09/08/2026) al 31 Ottobre 2027 (15 Mesi Completi)');
   console.log('========================================================================\n');
 
   const { data: tokenData } = await supabase
@@ -92,16 +96,24 @@ async function check7dFullSeasonAvailability() {
   };
 
   const periodRanges = [
-    { name: 'Agosto 2026', start: '2026-08-09', end: '2026-08-31' },
+    { name: 'Agosto 2026 (Stagione Corrente)', start: '2026-08-09', end: '2026-08-31' },
     { name: 'Settembre 2026', start: '2026-09-01', end: '2026-09-30' },
     { name: 'Ottobre 2026', start: '2026-10-01', end: '2026-10-31' },
     { name: 'Novembre 2026', start: '2026-11-01', end: '2026-11-30' },
-    { name: 'Dicembre 2026 (Chiusura)', start: '2026-12-01', end: '2026-12-31' },
-    { name: 'Gennaio 2027 (Chiusura)', start: '2027-01-01', end: '2027-01-31' },
-    { name: 'Febbraio 2027 (Chiusura)', start: '2027-02-01', end: '2027-02-28' },
-    { name: 'Marzo 2027 (Chiusura)', start: '2027-03-01', end: '2027-03-31' },
-    { name: 'Aprile 2027 (Chiusura)', start: '2027-04-01', end: '2027-04-30' }
+    { name: 'Dicembre 2026 (Periodo Chiusura)', start: '2026-12-01', end: '2026-12-31' },
+    { name: 'Gennaio 2027 (Periodo Chiusura)', start: '2027-01-01', end: '2027-01-31' },
+    { name: 'Febbraio 2027 (Periodo Chiusura)', start: '2027-02-01', end: '2027-02-28' },
+    { name: 'Marzo 2027 (Periodo Chiusura)', start: '2027-03-01', end: '2027-03-31' },
+    { name: 'Aprile 2027 (Periodo Chiusura)', start: '2027-04-01', end: '2027-04-30' },
+    { name: 'Maggio 2027 (Post-Chiusura)', start: '2027-05-01', end: '2027-05-31' },
+    { name: 'Giugno 2027 (Post-Chiusura)', start: '2027-06-01', end: '2027-06-30' },
+    { name: 'Luglio 2027 (Post-Chiusura)', start: '2027-07-01', end: '2027-07-31' },
+    { name: 'Agosto 2027 (Post-Chiusura)', start: '2027-08-01', end: '2027-08-31' },
+    { name: 'Settembre 2027 (Post-Chiusura)', start: '2027-09-01', end: '2027-09-30' },
+    { name: 'Ottobre 2027 (Fine Stagione)', start: '2027-10-01', end: '2027-10-31' }
   ];
+
+  console.log(`📌 Scansione di ${periodRanges.length} mesi per i ${STANDARD_7D_RATES.length} alloggi...\n`);
 
   const summaryReport = [];
 
@@ -152,8 +164,8 @@ async function check7dFullSeasonAvailability() {
 
     summaryReport.push({
       Periodo: period.name,
-      'Data Test': period.start,
-      'Aperti': openCount,
+      'Data Campione': period.start,
+      'Aperti (Vendibili)': openCount,
       'Chiusi (Stop Sell)': closedCount,
       Stato: statusBadge
     });
@@ -162,9 +174,9 @@ async function check7dFullSeasonAvailability() {
   }
 
   console.log('\n========================================================================');
-  console.log('  TABELLA RIEPILOGATIVA STATO REALE TARIFFE 7D SU OCTORATE');
+  console.log('  TABELLA COMPLETA DISPONIBILITÀ TARIFFE 7D (20/20 ALLOGGI) fino al 31/10/2027');
   console.log('========================================================================\n');
   console.table(summaryReport);
 }
 
-check7dFullSeasonAvailability();
+check7dFullSeason20Accommodations();
