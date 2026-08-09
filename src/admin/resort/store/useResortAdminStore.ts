@@ -365,10 +365,14 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     });
 
     try {
-      const todayStr = toThailandDateStr(new Date());
-      const parts = todayStr.split('-');
-      const currentYear = parseInt(parts[0], 10) || new Date().getFullYear();
-      const currentMonth = parseInt(parts[1], 10) || (new Date().getMonth() + 1);
+      // Data di partenza del primo blocco mensile: 1° giorno del mese corrente (es. 2026-08-01 se oggi è il 9 Agosto 2026)
+      // Garantisce che gli ospiti attualmente in-house vengano inclusi nel recupero dati da Octorate
+      const now = new Date();
+      const firstDayOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const firstDayStr = toThailandDateStr(firstDayOfCurrentMonth);
+      const parts = firstDayStr.split('-');
+      const currentYear = parseInt(parts[0], 10) || now.getFullYear();
+      const currentMonth = parseInt(parts[1], 10) || (now.getMonth() + 1);
 
       // L'anno di fine stagione per qualsiasi mese dell'anno Y si estende sempre fino al 31 Ottobre dell'anno successivo (Y + 1)
       const seasonEndYear = currentYear + 1;

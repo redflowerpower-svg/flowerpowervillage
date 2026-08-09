@@ -536,6 +536,108 @@ function computeGapFillMinStays(
   return result;
 }
 
+function checkIsClosed(item: any): boolean {
+  if (!item) return true;
+  
+  if (Array.isArray(item.days) && item.days.length > 0) {
+    const day = item.days[0];
+    if (day) {
+      const dayStopSell = day.stopSells !== undefined ? day.stopSells : (day.stopSell !== undefined ? day.stopSell : day.closed);
+      if (dayStopSell === true || dayStopSell === 'true' || dayStopSell === 1 || dayStopSell === '1') {
+        return true;
+      }
+      if (day.available === false || day.bookable === false) {
+        return true;
+      }
+    }
+  }
+
+  const rawStopSell = item.stopSells !== undefined ? item.stopSells : (item.stopSell !== undefined ? item.stopSell : item.closed);
+  if (rawStopSell === true || rawStopSell === 'true' || rawStopSell === 1 || rawStopSell === '1') {
+    return true;
+  }
+  
+  if (item.available === false || item.available === 'false' || item.isClosed === true || item.isClosed === 'true') {
+    return true;
+  }
+
+  return false;
+}
+
+function computeDerivedRateIndicators(
+  roomName: string,
+  dateStr: string,
+  liveGridData: Record<string, Record<string, OctorateDayData>>,
+  activeGridItems: any[]
+): { isBnbActive: boolean; isAgodaAcActive: boolean; isStandard7dActive: boolean } {
+  let isBnbActive = false;
+  let isAgodaAcActive = false;
+  let isStandard7dActive = false;
+
+  const roomNameLower = (roomName || '').toLowerCase().trim();
+  const roomEntry = ALL_ACCOMMODATIONS_MAP[roomNameLower];
+  const roomIds = roomEntry ? new Set(roomEntry.ids) : new Set<string>();
+
+  const { motherId, beId } = getIdsForRoom(roomName);
+  if (motherId) roomIds.add(String(motherId));
+  if (beId) roomIds.add(String(beId));
+
+  if (liveGridData) {
+    for (const rId of roomIds) {
+      const dayData = liveGridData[rId]?.[dateStr];
+      if (dayData && !checkIsClosed(dayData)) {
+        const rateName = String(dayData.name || dayData.title || dayData.ratePlanName || '').toLowerCase();
+        
+        if (rateName.includes('bnb') || rateName.includes('main bnb-7d') || rateName.includes('main bnb-14d')) {
+          isBnbActive = true;
+        } else if (rateName.includes('agd') || rateName.includes('agoda') || rateName.includes('agd ac-7d') || rateName.includes('agd ac-14d')) {
+          isAgodaAcActive = true;
+        } else if (rateName.includes('7d') && !rateName.includes('ac') && !rateName.includes('agd') && !rateName.includes('agoda') && !rateName.includes('bnb')) {
+          isStandard7dActive = true;
+        }
+      }
+    }
+  }
+
+  if (Array.isArray(activeGridItems) && activeGridItems.length > 0) {
+    activeGridItems.forEach((item: any) => {
+      const itemDate = toThailandDateStr(item.date || item.dateStr || item.day);
+      if (itemDate !== dateStr) return;
+
+      const itemRoomName = String(item.accommodationName || item.roomName || item.room || '').toLowerCase().trim();
+      const itemId = String(item.id || item.ratePlanId || item.room || '');
+
+      const isMatch = roomIds.has(itemId) || (itemRoomName && (itemRoomName.includes(roomNameLower) || roomNameLower.includes(itemRoomName)));
+      if (!isMatch) return;
+
+      if (!checkIsClosed(item)) {
+        const rateName = String(item.name || item.ratePlanName || item.title || '').toLowerCase();
+
+        if (rateName.includes('bnb') || rateName.includes('main bnb-7d') || rateName.includes('main bnb-14d')) {
+          isBnbActive = true;
+        } else if (rateName.includes('agd') || rateName.includes('agoda') || rateName.includes('agd ac-7d') || rateName.includes('agd ac-14d')) {
+          isAgodaAcActive = true;
+        } else if (rateName.includes('7d') && !rateName.includes('ac') && !rateName.includes('agd') && !rateName.includes('agoda') && !rateName.includes('bnb')) {
+          isStandard7dActive = true;
+        }
+      }
+    });
+  }
+
+  if (!isStandard7dActive) {
+    const beData = liveGridData?.[String(beId)]?.[dateStr];
+    if (beData) {
+      if (!checkIsClosed(beData)) {
+        isStandard7dActive = true;
+      }
+    } else {
+      isStandard7dActive = true;
+    }
+  }
+
+  return { isBnbActive, isAgodaAcActive, isStandard7dActive };
+}
+
 // STEP 2: SCUDO ANTI-LAG - COMPONENTE CELLA MEMOIZZATO CON REACT.MEMO
 interface CalendarCellProps {
   cellDate: Date;
@@ -554,6 +656,9 @@ interface CalendarCellProps {
   isDynamicCalculationEnabled: boolean;
   dynamicGapFillEnabled: boolean;
   isSimulationActive: boolean;
+  isBnbActive?: boolean;
+  isAgodaAcActive?: boolean;
+  isStandard7dActive?: boolean;
   onSelectBooking: (booking: ResortBooking) => void;
 }
 
@@ -574,6 +679,9 @@ const CalendarCell = React.memo(function CalendarCell({
   isDynamicCalculationEnabled,
   dynamicGapFillEnabled,
   isSimulationActive,
+  isBnbActive = false,
+  isAgodaAcActive = false,
+  isStandard7dActive = false,
   onSelectBooking
 }: CalendarCellProps) {
   let originalPrice = Number(motherData?.price || motherData?.value || motherData?.amount || 0);
@@ -711,10 +819,49 @@ const CalendarCell = React.memo(function CalendarCell({
         </div>
       )}
 
+      {/* CONTENITORE ASSOLUTO SUL LATO SINISTRO (COLONNA EQUIDISTANTE PER I 3 INDICATORI TARIFFE DERIVATE CON LETTERE B, A, S) */}
+      <div className="absolute left-0.5 top-0 bottom-0 flex flex-col justify-between items-center pointer-events-none z-10 py-0.5">
+        {/* IN ALTO: Main bnb-7d / Main bnb-14d (Blu Cobalto con lettera "B") */}
+        {isBnbActive ? (
+          <span 
+            className="w-2.5 h-2.5 rounded-full bg-blue-500 text-white font-black text-[7px] leading-none flex items-center justify-center shadow-sm" 
+            title="Bed & Breakfast (Main bnb) Attiva"
+          >
+            B
+          </span>
+        ) : (
+          <span className="w-2.5 h-2.5 opacity-0" />
+        )}
+
+        {/* AL CENTRO: AGD AC-7d / AGD AC-14d (Rosa Magenta / Fuchsia con lettera "A") */}
+        {isAgodaAcActive ? (
+          <span 
+            className="w-2.5 h-2.5 rounded-full bg-fuchsia-500 text-white font-black text-[7px] leading-none flex items-center justify-center shadow-sm" 
+            title="Agoda AC (AGD AC) Attiva"
+          >
+            A
+          </span>
+        ) : (
+          <span className="w-2.5 h-2.5 opacity-0" />
+        )}
+
+        {/* IN BASSO: Standard 7d (Bianco con lettera "S") */}
+        {isStandard7dActive ? (
+          <span 
+            className="w-2.5 h-2.5 rounded-full bg-white text-stone-950 font-black text-[7px] leading-none flex items-center justify-center shadow-sm" 
+            title="Standard 7d Attiva"
+          >
+            S
+          </span>
+        ) : (
+          <span className="w-2.5 h-2.5 opacity-0" />
+        )}
+      </div>
+
       {/* Indicator CTA Solo Check-out */}
       {isCTA && (
         <span 
-          className="absolute top-0.5 left-0.5 w-1.5 h-1.5 rounded-full bg-amber-400 border border-amber-500/60 shadow-sm" 
+          className="absolute top-0.5 left-3 w-1.5 h-1.5 rounded-full bg-amber-400 border border-amber-500/60 shadow-sm z-20" 
           title="Solo Check-Out / Closed to Arrival"
         />
       )}
@@ -1247,9 +1394,16 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookingsPool);
 
+                      const { isBnbActive, isAgodaAcActive, isStandard7dActive } = computeDerivedRateIndicators(
+                        room.name,
+                        dateStr,
+                        liveGridData,
+                        activeGridItems
+                      );
+
                       return (
                         <CalendarCell
-                          key={`${idx}_${isSimulationActive ? 'sim' : 'raw'}_${simulatedMatch?.finalPrice || '0'}`}
+                          key={`${idx}_${isSimulationActive ? 'sim' : 'raw'}_${simulatedMatch?.finalPrice || '0'}_${isBnbActive ? '1' : '0'}${isAgodaAcActive ? '1' : '0'}${isStandard7dActive ? '1' : '0'}`}
                           cellDate={cellDate}
                           dateStr={dateStr}
                           roomName={room.name}
@@ -1266,6 +1420,9 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                           isDynamicCalculationEnabled={isDynamicCalculationEnabled}
                           dynamicGapFillEnabled={dynamicMinStayGapFill}
                           isSimulationActive={isSimulationActive}
+                          isBnbActive={isBnbActive}
+                          isAgodaAcActive={isAgodaAcActive}
+                          isStandard7dActive={isStandard7dActive}
                           onSelectBooking={handleSelectBooking}
                         />
                       );
