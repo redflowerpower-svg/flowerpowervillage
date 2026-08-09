@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useResortAdminStore } from '../store/useResortAdminStore';
 import { fetchOctorateMonthlyGrid } from '../../../booking/lib/octorate';
+import { getAcUnitsForRoom } from '../lib/octorateAdmin';
 
 export interface AgencyBadge {
   name: string;
@@ -97,7 +98,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '529788',
         name: 'JV Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -191,7 +192,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '496001',
         name: 'JVL Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -285,7 +286,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '496002',
         name: 'JVR Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -379,7 +380,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '495575',
         name: 'P&L Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -473,7 +474,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '421520',
         name: 'Pent Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -567,7 +568,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332054',
         name: 'Yellow Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -661,7 +662,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332029',
         name: 'Red Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -755,7 +756,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332066',
         name: 'Green Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -849,7 +850,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332084',
         name: 'Camel Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -894,7 +895,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332077',
         name: 'Lagoon Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -939,7 +940,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332735',
         name: 'Room 1 Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1033,7 +1034,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332739',
         name: 'Room 2 Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1127,7 +1128,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332757',
         name: 'Room 3 Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1221,7 +1222,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332746',
         name: 'Room 4 Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1315,7 +1316,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332763',
         name: 'Room 5 Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1409,7 +1410,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332767',
         name: 'Lodge 1 Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1503,7 +1504,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '916109',
         name: 'Lodge 2 Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1597,7 +1598,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '332105',
         name: 'Inter Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1684,7 +1685,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '932246',
         name: 'FB1 Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1778,7 +1779,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
       {
         id: '932259',
         name: 'FB2 Main bnb-7d',
-        ruleTag: '-, AM',
+        ruleTag: '+200฿ AM',
         ruleDesc: 'Booking/Expedia Fan 7d',
         agencies: [AGENCY_BOOKING, AGENCY_EXPEDIA]
       },
@@ -1860,38 +1861,38 @@ export function DerivedRatesTreeSection() {
   // Granular base prices state for AC per channel (Booking/Expedia, Agoda, Airbnb) and Breakfast
   const [customAcBookingInput, setCustomAcBookingInput] = useState<number>(() => {
     const saved = localStorage.getItem('fpv_derived_ac_price_booking') || localStorage.getItem('fpv_derived_ac_price');
-    return saved ? Number(saved) : 400;
+    return saved ? Number(saved) : 500;
   });
   const [appliedAcPriceBooking, setAppliedAcPriceBooking] = useState<number>(() => {
     const saved = localStorage.getItem('fpv_derived_ac_price_booking') || localStorage.getItem('fpv_derived_ac_price');
-    return saved ? Number(saved) : 400;
+    return saved ? Number(saved) : 500;
   });
 
   const [customAcAgodaInput, setCustomAcAgodaInput] = useState<number>(() => {
-    const saved = localStorage.getItem('fpv_derived_ac_price_agoda');
+    const saved = localStorage.getItem('fpv_derived_ac_price_agoda') || localStorage.getItem('fpv_derived_ac_price');
     return saved ? Number(saved) : 500;
   });
   const [appliedAcPriceAgoda, setAppliedAcPriceAgoda] = useState<number>(() => {
-    const saved = localStorage.getItem('fpv_derived_ac_price_agoda');
+    const saved = localStorage.getItem('fpv_derived_ac_price_agoda') || localStorage.getItem('fpv_derived_ac_price');
     return saved ? Number(saved) : 500;
   });
 
   const [customAcAirbnbInput, setCustomAcAirbnbInput] = useState<number>(() => {
-    const saved = localStorage.getItem('fpv_derived_ac_price_airbnb');
-    return saved ? Number(saved) : 400;
+    const saved = localStorage.getItem('fpv_derived_ac_price_airbnb') || localStorage.getItem('fpv_derived_ac_price');
+    return saved ? Number(saved) : 500;
   });
   const [appliedAcPriceAirbnb, setAppliedAcPriceAirbnb] = useState<number>(() => {
-    const saved = localStorage.getItem('fpv_derived_ac_price_airbnb');
-    return saved ? Number(saved) : 400;
+    const saved = localStorage.getItem('fpv_derived_ac_price_airbnb') || localStorage.getItem('fpv_derived_ac_price');
+    return saved ? Number(saved) : 500;
   });
 
   const [customBreakfastInput, setCustomBreakfastInput] = useState<number>(() => {
     const saved = localStorage.getItem('fpv_derived_breakfast_price');
-    return saved ? Number(saved) : 150;
+    return saved ? Number(saved) : 200;
   });
   const [appliedBreakfastPrice, setAppliedBreakfastPrice] = useState<number>(() => {
     const saved = localStorage.getItem('fpv_derived_breakfast_price');
-    return saved ? Number(saved) : 150;
+    return saved ? Number(saved) : 200;
   });
 
   const [confirmModal, setConfirmModal] = useState<{
@@ -1991,34 +1992,73 @@ export function DerivedRatesTreeSection() {
     };
   };
 
-  const getAcPriceForNode = (nodeName: string = '', agencies: AgencyBadge[] = [], ruleDesc: string = ''): number => {
+  const getAcPriceForNode = (
+    nodeName: string = '',
+    agencies: AgencyBadge[] = [],
+    ruleDesc: string = '',
+    roomName: string = ''
+  ): number => {
     const nameLower = (nodeName + ' ' + ruleDesc).toLowerCase();
     const agencyNames = (agencies || []).map(a => a.name.toUpperCase());
 
+    let baseAc = appliedAcPriceBooking;
     if (nameLower.includes('agd ac') || agencyNames.includes('AGODA')) {
-      return appliedAcPriceAgoda;
+      baseAc = appliedAcPriceAgoda;
+    } else if (nameLower.includes('airbnb ac') || agencyNames.some(a => a.includes('AIRBNB AC'))) {
+      baseAc = appliedAcPriceAirbnb;
     }
-    if (nameLower.includes('airbnb ac') || agencyNames.some(a => a.includes('AIRBNB AC'))) {
-      return appliedAcPriceAirbnb;
-    }
-    return appliedAcPriceBooking;
+
+    // Number of AC units (2 for Jungle Villa Master & Penthouse, 1 for Left/Right and others)
+    const acUnits = getAcUnitsForRoom(roomName);
+
+    return baseAc * acUnits;
   };
 
-  const checkPriceSanity = (parentPrice: number, ruleTag: string, livePrice: number, nodeName: string = '', agencies: AgencyBadge[] = [], ruleDesc: string = '') => {
+  const checkPriceSanity = (
+    parentPrice: number,
+    ruleTag: string,
+    livePrice: number,
+    nodeName: string = '',
+    agencies: AgencyBadge[] = [],
+    ruleDesc: string = '',
+    roomName: string = '',
+    isLevel2: boolean = false
+  ) => {
     if (!parentPrice || !livePrice || parentPrice <= 0 || livePrice <= 0) {
       return { isDiscrepancy: false, expectedPrice: 0, diff: 0 };
     }
 
+    const nameLower = (nodeName + ' ' + ruleDesc).toLowerCase();
+
+    // Special checks for AirBnB channel vs Bed & Breakfast
+    const isAirbnbAc = nameLower.includes('airbnb ac') || nameLower.includes('airbnbac');
+    const isAirbnbFan = !isAirbnbAc && nameLower.includes('airbnb');
+
+    const isBnbRate = !isAirbnbFan && !isAirbnbAc && (
+      (isLevel2 && !isAirbnbAc) || 
+      (nameLower.includes('bnb') && !nameLower.includes('airbnb')) || 
+      ruleTag.includes('Colazione') || 
+      ruleTag.includes('Breakfast')
+    );
+
     let expectedPrice = parentPrice;
-    if (ruleTag.includes('Sconto 10%') || ruleTag.includes('-10%')) {
-      expectedPrice = Math.round(parentPrice * 0.9);
-    } else if (ruleTag.includes('AC') || ruleTag.includes('AirCon') || ruleTag.includes('+400') || ruleTag.includes('+500')) {
-      const acPrice = getAcPriceForNode(nodeName, agencies, ruleDesc);
+    if (isAirbnbFan) {
+      // Regola 1: Tariffe AirBnB Fan -> Identiche a Madre (+0 THB)
+      expectedPrice = parentPrice;
+    } else if (isAirbnbAc) {
+      // Regola 2: Tariffe AirBnB AC -> PrezzoPadre + (PrezzoAC * UnitaAC), NO COLAZIONE
+      const acPrice = getAcPriceForNode(nodeName, agencies, ruleDesc, roomName);
       expectedPrice = parentPrice + acPrice;
-    } else if (ruleTag.includes('Colazione') || ruleTag.includes('Breakfast')) {
+    } else if (isBnbRate) {
+      // Regola 3: Tariffe Colazione (bnb-7d, bnb-14d, AC bnb) -> PrezzoPadre + SupplementoColazione
       expectedPrice = parentPrice + appliedBreakfastPrice;
-    } else if (ruleTag.includes('+200฿')) {
-      expectedPrice = parentPrice + 200;
+    } else if (ruleTag.includes('Sconto 10%') || ruleTag.includes('-10%') || ruleDesc.toLowerCase().includes('sconto 10%')) {
+      expectedPrice = Math.round(parentPrice * 0.9);
+    } else if (nameLower.includes('ac') || ruleTag.includes('AC') || ruleTag.includes('AirCon')) {
+      const acPrice = getAcPriceForNode(nodeName, agencies, ruleDesc, roomName);
+      expectedPrice = parentPrice + acPrice;
+    } else if (ruleTag.includes('Colazione') || ruleTag.includes('+200฿')) {
+      expectedPrice = parentPrice + appliedBreakfastPrice;
     }
 
     const diff = livePrice - expectedPrice;
@@ -2027,21 +2067,72 @@ export function DerivedRatesTreeSection() {
     return { isDiscrepancy, expectedPrice, diff };
   };
 
-  // Map trees dynamically to apply unified AC and Breakfast rules
+  // Map trees dynamically to apply unified AC and Breakfast rules with clear dynamic tags
   const activeTrees = COMPLETE_DERIVATION_SCHEMES.map((scheme) => ({
     ...scheme,
     level1Nodes: scheme.level1Nodes.map((l1) => {
-      const isAcNode = l1.name.toLowerCase().includes('ac') || l1.ruleDesc.toLowerCase().includes('ac') || l1.ruleTag.includes('+400') || l1.ruleTag.includes('+500');
-      const acPrice = getAcPriceForNode(l1.name, l1.agencies, l1.ruleDesc);
-      const updatedTag = isAcNode ? `+${acPrice}฿ AM` : l1.ruleTag;
+      const nameLower = (l1.name + ' ' + l1.ruleDesc).toLowerCase();
+      const isAirbnbAc = nameLower.includes('airbnb ac') || nameLower.includes('airbnbac');
+      const isAirbnbFan = !isAirbnbAc && nameLower.includes('airbnb');
+      const isBnbNode = !isAirbnbFan && !isAirbnbAc && (l1.name.toLowerCase().includes('bnb') || l1.ruleDesc.toLowerCase().includes('colazione') || l1.ruleTag.includes('+200'));
+      const isAcNode = !isBnbNode && !isAirbnbFan && (
+        l1.name.toLowerCase().includes('ac') || 
+        l1.ruleDesc.toLowerCase().includes('ac') || 
+        l1.ruleTag.includes('+400') || 
+        l1.ruleTag.includes('+500') || 
+        l1.ruleTag.includes('+800') || 
+        l1.ruleTag.includes('+1000')
+      );
+      const isSiteDiscount = l1.ruleDesc.toLowerCase().includes('sconto 10%') || l1.name.toLowerCase().includes('be');
+
+      let updatedTag = l1.ruleTag;
+      if (isAirbnbFan) {
+        updatedTag = 'Airbnb (Base)';
+      } else if (isSiteDiscount) {
+        updatedTag = 'Sito Web (-10%)';
+      } else if (isBnbNode) {
+        updatedTag = `+${appliedBreakfastPrice}฿ Colazione`;
+      } else if (isAcNode) {
+        const acPrice = getAcPriceForNode(l1.name, l1.agencies, l1.ruleDesc, scheme.name);
+        const acUnits = getAcUnitsForRoom(scheme.name);
+        updatedTag = acUnits === 2 ? `+${acPrice}฿ 2x AC` : `+${acPrice}฿ AC`;
+      } else {
+        const agencyNames = l1.agencies.map(a => a.name.toUpperCase());
+        if (agencyNames.some(a => a.includes('WEBSITE') || a.includes('SITO'))) {
+          updatedTag = 'Sito Web (Base)';
+        } else if (agencyNames.some(a => a.includes('AIRBNB'))) {
+          updatedTag = 'Airbnb (Base)';
+        } else if (agencyNames.some(a => a.includes('AGODA'))) {
+          updatedTag = 'Agoda (Base)';
+        } else if (agencyNames.some(a => a.includes('BOOKING') || a.includes('EXPEDIA'))) {
+          updatedTag = 'Booking.com (Base)';
+        } else {
+          updatedTag = 'Standard 7d (Base)';
+        }
+      }
       
       let updatedSubChild = l1.subChild;
       if (l1.subChild) {
-        const isSubAc = l1.subChild.name.toLowerCase().includes('ac') || l1.subChild.ruleDesc.toLowerCase().includes('ac');
-        const subAcPrice = getAcPriceForNode(l1.subChild.name, l1.subChild.agencies, l1.subChild.ruleDesc);
+        const subNameLower = (l1.subChild.name + ' ' + l1.subChild.ruleDesc).toLowerCase();
+        const isSubAirbnbAc = subNameLower.includes('airbnb ac') || subNameLower.includes('airbnbac');
+        const isSubBnb = !isSubAirbnbAc && (l1.subChild.name.toLowerCase().includes('bnb') || l1.subChild.ruleTag.includes('+200'));
+
+        let subTag = l1.subChild.ruleTag;
+        if (isSubAirbnbAc) {
+          const subAcPrice = getAcPriceForNode(l1.subChild.name, l1.subChild.agencies, l1.subChild.ruleDesc, scheme.name);
+          const subAcUnits = getAcUnitsForRoom(scheme.name);
+          subTag = subAcUnits === 2 ? `+${subAcPrice}฿ 2x AC` : `+${subAcPrice}฿ AC`;
+        } else if (isSubBnb) {
+          subTag = `+${appliedBreakfastPrice}฿ Colazione`;
+        } else {
+          const subAcPrice = getAcPriceForNode(l1.subChild.name, l1.subChild.agencies, l1.subChild.ruleDesc, scheme.name);
+          const subAcUnits = getAcUnitsForRoom(scheme.name);
+          subTag = subAcUnits === 2 ? `+${subAcPrice}฿ 2x AC` : `+${subAcPrice}฿ AC`;
+        }
+
         updatedSubChild = {
           ...l1.subChild,
-          ruleTag: isSubAc ? `+${subAcPrice}฿ AMR` : l1.subChild.ruleTag
+          ruleTag: subTag
         };
       }
 
@@ -2486,6 +2577,13 @@ export function DerivedRatesTreeSection() {
                           <Unlock className="w-3 h-3 text-emerald-400" /> VENDIBILE
                         </span>
                       )}
+
+                      {/* BADGE GRAFICO 2 AC UNITS */}
+                      {getAcUnitsForRoom(scheme.name) === 2 && (
+                        <span className="bg-stone-900/80 border border-emerald-500/30 text-emerald-300 text-[10px] font-black px-2.5 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                          ❄️ 2 AC units (Ricarico: {appliedAcPriceBooking * 2} THB flat)
+                        </span>
+                      )}
                     </div>
                     <p className="text-stone-400 text-xs font-medium mt-1">{scheme.description}</p>
                   </div>
@@ -2508,6 +2606,15 @@ export function DerivedRatesTreeSection() {
               {isExpanded && (
                 <div className="p-4 sm:p-8 bg-stone-950/90 overflow-x-auto space-y-6">
                   
+                  {/* RIQUADRO INFORMATIVO GRAFICO 2 AC UNITS PER JUNGLE VILLA E PENTHOUSE */}
+                  {getAcUnitsForRoom(scheme.name) === 2 && (
+                    <div className="flex justify-center mb-1">
+                      <div className="bg-stone-900/80 border border-emerald-500/30 text-emerald-300 text-xs font-bold px-3.5 py-1.5 rounded-xl shadow-lg flex items-center gap-2">
+                        <span>❄️ 2 AC units (Ricarico: {appliedAcPriceBooking * 2} THB flat)</span>
+                      </div>
+                    </div>
+                  )}
+
                   {/* LEVEL 0: TOP CENTERED MOTHER CARD */}
                   <div className="flex flex-col items-center justify-center relative">
                     <div className={`w-64 border-2 rounded-2xl p-3.5 shadow-2xl text-center space-y-1.5 z-10 transition-colors ${
@@ -2546,11 +2653,11 @@ export function DerivedRatesTreeSection() {
                     {scheme.level1Nodes.map((l1) => {
                       const l1LiveData = getNodeLiveData(l1.id);
                       const l1Price = l1LiveData?.price || 0;
-                      const l1Sanity = checkPriceSanity(motherPrice, l1.ruleTag, l1Price, l1.name, l1.agencies, l1.ruleDesc);
+                      const l1Sanity = checkPriceSanity(motherPrice, l1.ruleTag, l1Price, l1.name, l1.agencies, l1.ruleDesc, scheme.name, false);
 
                       const subLiveData = l1.subChild ? getNodeLiveData(l1.subChild.id) : null;
                       const subPrice = subLiveData?.price || 0;
-                      const subSanity = l1.subChild ? checkPriceSanity(l1Price > 0 ? l1Price : motherPrice, l1.subChild.ruleTag, subPrice, l1.subChild.name, l1.subChild.agencies, l1.subChild.ruleDesc) : null;
+                      const subSanity = l1.subChild ? checkPriceSanity(l1Price > 0 ? l1Price : motherPrice, l1.subChild.ruleTag, subPrice, l1.subChild.name, l1.subChild.agencies, l1.subChild.ruleDesc, scheme.name, true) : null;
 
                       // Level 1 card background style
                       let l1CardStyle = 'bg-stone-900 border-stone-700/80 hover:border-amber-400 text-stone-200';

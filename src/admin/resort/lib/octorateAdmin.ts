@@ -198,6 +198,23 @@ export function getCanonicalAccommodation(booking: any): { key: string; name: st
 }
 
 /**
+ * Restituisce il numero di unità di Aria Condizionata fisiche presenti in un alloggio:
+ * - Jungle Villa (Madre Intera) ➔ 2 AC units
+ * - Villa Penthouse ➔ 2 AC units
+ * - Jungle Villa Left & Right, e tutti gli altri alloggi ➔ 1 AC unit
+ */
+export function getAcUnitsForRoom(roomName: string): number {
+  const s = String(roomName || '').toLowerCase();
+  if (s.includes('left') || s.includes('right')) {
+    return 1;
+  }
+  if (s.includes('jungle villa') || s.includes('penthouse')) {
+    return 2;
+  }
+  return 1;
+}
+
+/**
  * Helper per normalizzare qualsiasi input data (stringa ISO, Date object, timestamp)
  * alla stringa YYYY-MM-DD nel fuso orario 'Asia/Bangkok'.
  */
