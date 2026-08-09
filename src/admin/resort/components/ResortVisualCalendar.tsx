@@ -563,82 +563,94 @@ function checkIsClosed(item: any): boolean {
 
   return false;
 }
-function computeDerivedRateIndicators(
-  roomName: string,
+
+function computeDerivedRateIndicators(
+  roomInput: any,
   dateStr: string,
-  liveGridData: Record<string, Record<string, OctorateDayData>>,
-  activeGridItems: any[]
+  liveGridData?: Record<string, Record<string, OctorateDayData>>,
+  activeGridItems?: any[]
 ): { isBnbActive: boolean; isAgodaAcActive: boolean; isStandard7dActive: boolean } {
-  const roomNameLower = (roomName || '').toLowerCase().trim();
+  const extractNormalizedId = (item: any): string => {
+    if (!item) return '';
+    const rawId = item.id ?? item.ratePlanId ?? item.room ?? item.rateId ?? item.room_id ?? item.rate_id ?? '';
+    return rawId ? rawId.toString() : '';
+  };
+
+  const roomNameStr = typeof roomInput === 'string' ? roomInput : String(roomInput?.slug || roomInput?.name || roomInput?.title || '');
+  const roomNameLower = roomNameStr.trim().toLowerCase();
   const roomEntry = ALL_ACCOMMODATIONS_MAP[roomNameLower];
-  const mappedIds = new Set<string>();
+  const mappedIdsSet = new Set<string>();
 
   if (roomEntry && Array.isArray(roomEntry.ids)) {
-    roomEntry.ids.forEach(id => mappedIds.add(id.toString()));
+    roomEntry.ids.forEach(id => mappedIdsSet.add(id.toString()));
   }
 
-  const { motherId, beId } = getIdsForRoom(roomName);
-  if (motherId) mappedIds.add(motherId.toString());
-  if (beId) mappedIds.add(beId.toString());
+  const { motherId, beId } = getIdsForRoom(roomNameStr);
+  if (motherId) mappedIdsSet.add(motherId.toString());
+  if (beId) mappedIdsSet.add(beId.toString());
 
-  let bnbDay: any = null;
-  let agodaDay: any = null;
-  let standard7dDay: any = null;
+  const mappedIds = Array.from(mappedIdsSet).map(id => id.toString());
+  const rawOctorateGridItems = Array.isArray(activeGridItems) && activeGridItems.length > 0 ? activeGridItems : [];
+
+  const roomRates = rawOctorateGridItems.filter(item => {
+    const planId = extractNormalizedId(item);
+    const itemRoomName = String(item.accommodationName || item.roomName || item.room || '').toLowerCase().trim();
+    return (planId && mappedIds.includes(planId)) || (itemRoomName && (itemRoomName.includes(roomNameLower) || roomNameLower.includes(itemRoomName)));
+  });
+
+  let motherRate = roomRates.find(r =>
+    r.name?.toLowerCase().includes('madre') ||
+    r.name?.toLowerCase().includes('master')
+  );
 
   if (liveGridData) {
     for (const rId of mappedIds) {
       const dayData = liveGridData[rId]?.[dateStr];
       if (dayData) {
         const rateName = String(dayData.name || dayData.title || dayData.ratePlanName || '').toLowerCase();
-
-        if (rateName.includes('main bnb-7d') || rateName.includes('main bnb-14d') || rateName.includes('main bnb') || rateName.includes('bnb')) {
-          if (!bnbDay) bnbDay = dayData;
-        } else if (rateName.includes('agd ac-7d') || rateName.includes('agd ac-14d')) {
-          if (!agodaDay) agodaDay = dayData;
-        } else if (rateName.includes('7d') && !rateName.includes('ac') && !rateName.includes('agd') && !rateName.includes('agoda') && !rateName.includes('bnb')) {
-          if (!standard7dDay) standard7dDay = dayData;
+        if (rateName.includes('madre') || rateName.includes('master') || rId === String(motherId)) {
+          if (!motherRate) motherRate = dayData;
         }
       }
     }
   }
 
-  if (Array.isArray(activeGridItems) && activeGridItems.length > 0) {
-    activeGridItems.forEach((item: any) => {
-      const itemDate = toThailandDateStr(item.date || item.dateStr || item.day);
-      if (itemDate !== dateStr) return;
-
-      const itemIdStr = item.id !== undefined ? item.id.toString() : (item.ratePlanId !== undefined ? item.ratePlanId.toString() : '');
-      const itemRoomName = String(item.accommodationName || item.roomName || item.room || '').toLowerCase().trim();
-
-      const isMatch = (itemIdStr && mappedIds.has(itemIdStr)) || (itemRoomName && (itemRoomName.includes(roomNameLower) || roomNameLower.includes(itemRoomName)));
-      if (!isMatch) return;
-
-      const rateName = String(item.name || item.ratePlanName || item.title || '').toLowerCase();
-
-      if (rateName.includes('main bnb-7d') || rateName.includes('main bnb-14d') || rateName.includes('main bnb') || rateName.includes('bnb')) {
-        if (!bnbDay) bnbDay = item;
-      } else if (rateName.includes('agd ac-7d') || rateName.includes('agd ac-14d')) {
-        if (!agodaDay) agodaDay = item;
-      } else if (rateName.includes('7d') && !rateName.includes('ac') && !rateName.includes('agd') && !rateName.includes('agoda') && !rateName.includes('bnb')) {
-        if (!standard7dDay) standard7dDay = item;
-      }
-    });
-  }
-
-  const isBnbActive = bnbDay ? !checkIsClosed(bnbDay) : false;
-  const isAgodaAcActive = agodaDay ? !checkIsClosed(agodaDay) : false;
-
-  let isStandard7dActive = false;
-  if (standard7dDay) {
-    isStandard7dActive = !checkIsClosed(standard7dDay);
-  } else {
-    const beData = liveGridData?.[beId.toString()]?.[dateStr];
-    if (beData) {
-      isStandard7dActive = !checkIsClosed(beData);
+  const extractDayForDate = (ratePlan: any, date: string): any => {
+    if (!ratePlan) return undefined;
+    if (Array.isArray(ratePlan.days)) {
+      const found = ratePlan.days.find((d: any) => d.date === date);
+      if (found) return found;
     }
-  }
+    if (ratePlan[date]) {
+      return ratePlan[date];
+    }
+    if (ratePlan.date === date) {
+      return ratePlan;
+    }
+    if (ratePlan.price !== undefined || ratePlan.stopSells !== undefined || ratePlan.closed !== undefined || ratePlan.value !== undefined || ratePlan.name !== undefined) {
+      return ratePlan;
+    }
+    return undefined;
+  };
 
-  return { isBnbActive, isAgodaAcActive, isStandard7dActive };
+  const motherDay = extractDayForDate(motherRate, dateStr);
+
+  // 1. Calcoliamo lo stato reale della Madre
+  const isMotherActive = motherDay ? !checkIsClosed(motherDay) : true;
+
+  // 2. B e A seguono sempre lo stato della Madre
+  const isBnbActive = isMotherActive;
+  const isAgodaAcActive = isMotherActive;
+
+  // 3. S segue la Madre, tranne in chiusura stagionale (1 Dic 2026 - 30 Apr 2027)
+  const isInClosedSeason = dateStr >= '2026-12-01' && dateStr <= '2027-04-30';
+  const isStandard7dActive = isInClosedSeason ? false : isMotherActive;
+
+  return {
+    isBnbActive,
+    isAgodaAcActive,
+    isStandard7dActive
+  };
 }
 
 // STEP 2: SCUDO ANTI-LAG - COMPONENTE CELLA MEMOIZZATO CON REACT.MEMO
@@ -773,10 +785,17 @@ const CalendarCell = React.memo(function CalendarCell({
   }
 
   const isRoomClosedByStaff = roomIsAvailable === false;
-  const rawMotherStopSell = motherData
-    ? (Boolean(motherData.stopSell || motherData.stopSells) || motherData.available === false || (motherData.availability !== undefined && motherData.availability <= 0) || motherData.price >= 10000)
-    : false;
-  const isClosedOrStopSell = isRoomClosedByStaff || rawMotherStopSell;
+  const isMotherClosed = motherData ? (
+    Boolean(
+      motherData.stopSell ||
+      motherData.stopSells
+    ) ||
+    motherData.available === 0 ||
+    motherData.available === false ||
+    (motherData.availability !== undefined && motherData.availability <= 0) ||
+    motherData.price >= 10000
+  ) : false;
+  const isClosedOrStopSell = isRoomClosedByStaff || isMotherClosed;
 
   let bgStyle = 'bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60 cursor-default shadow-inner';
   if (matchingBooking) {
@@ -784,7 +803,7 @@ const CalendarCell = React.memo(function CalendarCell({
     const style = getAgencyStyle(channelName);
     bgStyle = `${style.bg} ${style.border} cursor-pointer shadow-lg`;
   } else if (isClosedOrStopSell) {
-    bgStyle = 'bg-red-700 hover:bg-red-600 border-red-800/80 cursor-default shadow-inner';
+    bgStyle = 'bg-red-700 hover:bg-red-600 border-red-800/80 cursor-default shadow-inner text-white/50';
   }
 
   const isCTA = Boolean(motherData?.closedToArrival || beData?.closedToArrival);
@@ -1039,17 +1058,30 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
   const visibleDays: Date[] = viewMode === '30_days' ? datesArray.slice(startIndex, startIndex + 30) : datesArray;
 
-  // STEP 1 & 2: LETTURA DIRETTA DAL DOM SENZA STATO REACT ALL'ONCLICK DI "VAI"
+  // STEP 1 & 2: VAI ALLA DATA - AGGIORNA STARTINDEX E SCORRI IN MODO SMUSATO
   const handleExecuteDateJump = () => {
     const searchDate = dateInputRef.current?.value;
     if (!searchDate) return;
-    const colElement = document.getElementById(`col-${searchDate}`);
-    if (colElement) {
-      colElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'start'
-      });
+
+    const targetIdx = datesArray.findIndex(d => toThailandDateStr(d) === searchDate);
+
+    if (targetIdx !== -1) {
+      if (viewMode === '30_days') {
+        const maxStart = Math.max(0, datesArray.length - 30);
+        const newStart = Math.min(maxStart, Math.max(0, targetIdx));
+        setStartIndex(newStart);
+      }
+
+      setTimeout(() => {
+        const colElement = document.getElementById(`col-${searchDate}`);
+        if (colElement) {
+          colElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest',
+            inline: 'start'
+          });
+        }
+      }, 100);
     }
   };
 

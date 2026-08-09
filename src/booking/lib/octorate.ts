@@ -779,7 +779,6 @@ export async function fetchOctorateMonthlyGrid(
             Boolean(day.stopSells || day.stopSell) || 
             (day.availability !== undefined && day.availability <= 0) ||
             (day.available !== undefined && day.available <= 0) ||
-            day.bookable === false ||
             dayPrice >= 10000;
 
           const minStayVal = Number(
@@ -787,14 +786,20 @@ export async function fetchOctorateMonthlyGrid(
             item.minStay ?? item.minstay ?? item.minNights ?? item.min_stay ?? 0
           );
 
+          const existing = result[key][dateStr];
+          // Se la Madre era aperta, un listino BE derivato non può sovrascriverla con stopSell: true
+          if (existing && isPrimaryBEItem(item) && existing.stopSell === false && isStopSell) {
+            return;
+          }
+
           result[key][dateStr] = {
             octorateId: Number(item.id),
             date: dateStr,
-            price: dayPrice,
+            price: dayPrice > 0 ? dayPrice : (existing?.price || dayPrice),
             available: !isStopSell,
             stopSell: isStopSell,
             closedToArrival: Boolean(day.closedToArrival || day.closed_to_arrival || day.cta),
-            minStay: minStayVal > 0 ? minStayVal : undefined
+            minStay: minStayVal > 0 ? minStayVal : existing?.minStay
           };
         });
       });

@@ -134,20 +134,26 @@ Tutti gli alloggi del resort e i relativi piani tariffari (Booking Engine `BE`, 
 ## 6. Calendario Visivo Resort Admin & Diagnostica API Octorate (REST v1)
 
 ### A. Dashboard Amministrativa (`ResortVisualCalendar.tsx`)
-* **Architettura Integrata:** Modulo riservato sotto `/admin` con store Zustand locale ([useResortAdminStore.ts](file:///d:/Antigravity%20-%20Sviluppo%20Website/flower-power-village-bolt/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts)) ed helper ([octorateAdmin.ts](file:///d:/Antigravity%20-%20Sviluppo%20Website/flower-power-village-bolt/flowerpowervillage/src/admin/resort/lib/octorateAdmin.ts)).
-* **Baseline Stagionale Soggiorno Minimo:**
-  * Fino al 20 Dicembre: **2 notti**
-  * Dal 21 Dicembre al 15 Gennaio (Altissima Stagione): **5 notti**
-  * Dal 16 Gennaio in poi: **2 notti**
-* **Interfaccia Pulita:** Griglia visiva 18 alloggi con legenda agenzie (Booking.com, Expedia, Agoda, Diretto, Stop Sell) e gestione reattiva locale.
+* **Architettura Integrata:** Modulo riservato sotto `/admin` con store Zustand locale ([useResortAdminStore.ts](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts)) ed helper ([octorateAdmin.ts](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/lib/octorateAdmin.ts)).
+* **Copertura 20/20 Alloggi (Inclusi Fake Bungalow 1 & 2):**
+  - Mappatura esaustiva di tutti i 20 alloggi compresi gli ambienti di test Fake Bungalow 1 (`beId: 932244`, Mother `#649669`) e Fake Bungalow 2 (`beId: 932257`, Mother `#921799`).
+* **Calcolo Indicatori Derivati (B, A, S):**
+  - Normalizzazione blindata degli ID tramite `extractNormalizedId`.
+  - Indicatori derivati sovrapposti sulla cella senza alterarne lo sfondo: **B** (Main BnB), **A** (Agoda AC), **S** (Standard 7d con blocco stagionale invernale `2026-12-01` ➔ `2027-04-30`).
+* **Sfondo Cella Legato Esclusivamente alla Disponibilità Reale della Madre:**
+  - `isMotherClosed` calcolato unicamente sulla presenza di `stopSells: true` o prezzo `≥ 10.000 ฿` sulla Tariffa Madre, escludendo filtri errati su `bookable: false`.
+* **Protezione Sovrascrittura Madre (`octorate.ts`):**
+  - In `fetchOctorateMonthlyGrid`, rimossa l'ingerenza di `bookable: false` ed implementata la guardia `existing && isPrimaryBEItem(item) && existing.stopSell === false` che impedisce ai listini derivati BE di sovrascrivere lo stato aperto della Tariffa Madre in memoria.
+* **Navigazione Rapida Datepicker ("VAI alla Data"):**
+  - `handleExecuteDateJump` riposiziona in automatico lo `startIndex` nella modalità a 30 giorni rendendo visibile la colonna target prima di eseguire lo scroll fluido DOM via `colElement.scrollIntoView`.
 
 ### B. Diagnostica Capacità API Octorate REST v1
-* **Script Diagnostico Isolato:** [`scratch/test-octorate-capabilities.mjs`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scratch/test-octorate-capabilities.mjs) e [`scratch/test-octorate-write-capability.mjs`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/scratch/test-octorate-write-capability.mjs) per testare in sicurezza la lettura e le capacità di scrittura del PMS.
+* **Script Diagnostico Isolato:** [`scratch/test-octorate-capabilities.mjs`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/scratch/test-octorate-capabilities.mjs) e [`scratch/ispeziona-dicembre-live.mjs`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/scratch/ispeziona-dicembre-live.mjs) per testare in sicurezza la lettura e le capacità di scrittura del PMS.
 * **Risultati Empirici di Scrittura & Lettura:**
   * `GET https://api.octorate.com/connect/rest/v1/calendar/366879`: **`200 OK`** (Lettura griglia del calendario e restrizioni `minStay` perfettamente operative).
   * `GET https://api.octorate.com/connect/rest/v1/api/configuration`: **`200 OK`** (Permessi identificati: `permissions.accommodation = READWRITE`).
-  * `POST https://api.octorate.com/connect/rest/v1/calendar/bulk`: **`200 OK`** (**Scrittura Sbloccata & Verificata**! Esito server: `{"process": [483635224], "success": true}`). L'errore `403 Caller not in requested role` è superato.
-* **Isolamento e Sicurezza:** Nessuna alterazione non autorizzata al Booking Engine del sito pubblico ([src/booking/](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/)).
+  * `POST https://api.octorate.com/connect/rest/v1/calendar/bulk`: **`200 OK`** (**Scrittura Sbloccata & Verificata**! Esito server: `{"process": [...], "success": true}`). Bulk Stop Sell e riaperture stagionali perfettamente operativi su Octorate PMS.
+* **Isolamento e Sicurezza:** Nessuna alterazione non autorizzata al Booking Engine del sito pubblico ([src/booking/](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/booking/)).
 
 ---
 
