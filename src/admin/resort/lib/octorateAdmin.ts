@@ -54,7 +54,7 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   'peace & love villa': {
     motherId: 494840,
     name: 'Peace & Love Villa',
-    ids: ['494840', '495566', '495551', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
+    ids: ['494840', '495566', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
     keywords: [["peace", "love", "p&l"]]
   },
   'villa penthouse': {
