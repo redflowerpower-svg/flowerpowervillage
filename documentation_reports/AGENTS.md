@@ -4,20 +4,10 @@
 
 ---
 
-# ⚠️ REGOLA D'ORO API OCTORATE (TARIFFA MADRE)
+# ⚠️ NUOVA REGOLA D'ORO API OCTORATE
 
-> **DIRETTIVA INDEROGABILE — NESSUNA ECCEZIONE CONSENTITA**
-
-Tutte le chiamate API di scrittura (`POST` / `PUT` / `PATCH`) per modificare **prezzi**, **min_stay** (soggiorno minimo) o **availability** (disponibilità) su Octorate **DEVONO SEMPRE E SOLO** essere eseguite sull'**ID della Tariffa Madre** (Livello 0 / Base Rate) di ciascun alloggio.
-
-**È severamente vietato** scrivere codice che invii modifiche programmatiche di restrizioni direttamente agli ID delle tariffe derivate (Livello 1 e Livello 2).
-
-Il codice generato dall'agente deve colpire **solo la tariffa radice**, in modo che le modifiche si trasmettano sempre a cascata a tutte le derivate tramite il motore interno di Octorate.
-
-| ✅ CORRETTO | ❌ VIETATO |
-|---|---|
-| Scrivere su Tariffa Madre (es. ID `529773`) | Scrivere su derivata Livello 1 (es. ID `529784`) |
-| Unico endpoint per alloggio | Scrivere su derivata Livello 2 (es. ID `529792`) |
+1. **PREZZI**: Le variazioni di prezzo devono colpire sempre e solo l'ID della Tariffa Madre (Livello 0). Octorate calcola lo sconto automaticamente a cascata su tutte le tariffe derivate.
+2. **RESTRIZIONI (Stop Sell, CA, CD, MinStay)**: È consentito scrivere le restrizioni direttamente sulle tariffe derivate (Livello 1 e 2) in cui l'ereditarietà è disattivata (es. R1 7d), e questo verrà specificato di volta in volta.
 
 ---
 

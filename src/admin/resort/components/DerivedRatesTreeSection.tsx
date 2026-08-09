@@ -35,6 +35,7 @@ export interface SubChildNode {
   ruleTag: string; // e.g. "+200฿ AMR", "+400฿ AMR"
   ruleDesc: string;
   agencies: AgencyBadge[];
+  isWritable?: boolean; // True if restriction inheritance is unlinked / writable directly
 }
 
 export interface Level1Node {
@@ -44,6 +45,7 @@ export interface Level1Node {
   ruleDesc: string;
   agencies: AgencyBadge[];
   subChild?: SubChildNode; // Sub-child hanging directly underneath
+  isWritable?: boolean; // True if restriction inheritance is unlinked / writable directly
 }
 
 export interface AccommodationTreeScheme {
@@ -1851,12 +1853,25 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
 ];
 
 export function DerivedRatesTreeSection() {
-  const { rawOctorateGridItems, isSimulationActive, simulatedOctorateGridItems } = useResortAdminStore();
+  const { 
+    rawOctorateGridItems, 
+    isSimulationActive, 
+    simulatedOctorateGridItems,
+    verifiedWritability,
+    isTestingWritability,
+    testingProgress,
+    testingSlugs,
+    accommodationTestingProgress,
+    verifyAllRatesWritability,
+    verifyAccommodationWritability,
+    toggleRateStopSell
+  } = useResortAdminStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [selectedDateISO, setSelectedDateISO] = useState<string>(() => new Date().toISOString().substring(0, 10));
   const [loadingSync, setLoadingSync] = useState(false);
   const [expandedRooms, setExpandedRooms] = useState<Record<string, boolean>>({});
+  const [togglingStopSell, setTogglingStopSell] = useState<Record<string, boolean>>({});
 
   // Granular base prices state for AC per channel (Booking/Expedia, Agoda, Airbnb) and Breakfast
   const [customAcBookingInput, setCustomAcBookingInput] = useState<number>(() => {
@@ -1990,6 +2005,32 @@ export function DerivedRatesTreeSection() {
       rawItem: found,
       isSimulated: foundSimulated || Boolean(found.isSimulated || isSimulationActive)
     };
+  };
+
+  const isWritableNode = (
+    node: { id: string; name: string; isWritable?: boolean },
+    rawItem?: any
+  ): boolean => {
+    if (rawItem) {
+      if (
+        rawItem.inheritRestrictions === false ||
+        rawItem.restrictionsInherited === false ||
+        rawItem.isWritable === true ||
+        rawItem.writable === true ||
+        rawItem.restrictions_inherited === false
+      ) {
+        return true;
+      }
+    }
+    if (typeof node.isWritable === 'boolean') {
+      return node.isWritable;
+    }
+    // Standard 7d unlinked rates (e.g. JV 7d, JVL 7d, JVR 7d, P&L 7d) are unlinked on Octorate for restriction writing
+    const nameLower = (node.name || '').toLowerCase();
+    if (nameLower.endsWith('7d') && !nameLower.includes('bnb') && !nameLower.includes('ac')) {
+      return true;
+    }
+    return false;
   };
 
   const getAcPriceForNode = (
@@ -2516,6 +2557,81 @@ export function DerivedRatesTreeSection() {
         </div>
       </div>
 
+      {/* PANNELLO VERIFICA SCRIVIBILITÀ ATTIVA (LIVE TEST API) */}
+      <div className="bg-gradient-to-r from-teal-950/70 via-stone-900/90 to-emerald-950/70 backdrop-blur-md border border-teal-500/30 p-4 rounded-2xl shadow-xl space-y-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <h4 className="text-xs font-black text-emerald-300 uppercase tracking-wider">
+                Verifica Empirica Scrivibilità Restrizioni (Live Sync API)
+              </h4>
+            </div>
+            <p className="text-[11px] text-stone-300 leading-relaxed font-medium">
+              Esegue un test reale di scrittura temporanea su ciascuna tariffa derivata per rilevare se l'ereditarietà delle restrizioni è sbloccata su Octorate PMS.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            disabled={isTestingWritability}
+            onClick={() => {
+              const allRates: { id: string; name: string }[] = [];
+              COMPLETE_DERIVATION_SCHEMES.forEach((scheme) => {
+                scheme.level1Nodes.forEach((l1) => {
+                  allRates.push({ id: l1.id, name: l1.name });
+                  if (l1.subChild) {
+                    allRates.push({ id: l1.subChild.id, name: l1.subChild.name });
+                  }
+                });
+              });
+              const uniqueMap = new Map<string, { id: string; name: string }>();
+              allRates.forEach((r) => { if (!uniqueMap.has(r.id)) uniqueMap.set(r.id, r); });
+              const uniqueRates = Array.from(uniqueMap.values());
+              verifyAllRatesWritability(uniqueRates);
+            }}
+            className={`px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-lg flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+              isTestingWritability
+                ? 'bg-stone-800 text-stone-500 cursor-not-allowed border border-stone-700'
+                : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white border border-emerald-400/50 shadow-emerald-950/50'
+            }`}
+          >
+            {isTestingWritability ? (
+              <>
+                <RefreshCw className="w-4 h-4 text-emerald-400 animate-spin" />
+                <span>VERIFICA IN CORSO...</span>
+              </>
+            ) : (
+              <>
+                <Zap className="w-4 h-4 text-emerald-300" />
+                <span>🧪 VERIFICA SCRIVIBILITÀ ATTIVA (LIVE TEST API)</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* BARRA DI CARICAMENTO ANIMATA CIANO/SMERALDO */}
+        {isTestingWritability && testingProgress && (
+          <div className="space-y-1.5 pt-1 animate-fadeIn">
+            <div className="flex justify-between items-center text-[10px] font-mono font-bold">
+              <span className="text-emerald-300 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                Verifico {testingProgress.activeRateName} ({testingProgress.completed + 1}/{testingProgress.total})...
+              </span>
+              <span className="text-teal-400">
+                {Math.round(((testingProgress.completed + 1) / testingProgress.total) * 100)}%
+              </span>
+            </div>
+            <div className="w-full h-2 bg-stone-950 rounded-full overflow-hidden border border-emerald-500/30 p-0.5">
+              <div
+                className="h-full bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-300 rounded-full transition-all duration-300 shadow-sm shadow-emerald-400/50"
+                style={{ width: `${Math.max(5, Math.round(((testingProgress.completed + 1) / testingProgress.total) * 100))}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* FULL VISUAL TREE SCHEMES */}
       <div className="space-y-8">
         {filteredTrees.map((scheme, idx) => {
@@ -2530,14 +2646,14 @@ export function DerivedRatesTreeSection() {
                 <div className="pt-6 pb-2 my-6 border-t-2 border-dashed border-amber-500/40">
                   <div className="flex items-center gap-3 bg-stone-900 border border-amber-500/30 p-4 rounded-2xl shadow-xl">
                     <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 font-black text-lg">
-                      ๐ ๏ธ
+                      🧪
                     </div>
                     <div>
                       <h4 className="text-base font-black text-amber-300 uppercase tracking-wider">
                         AMBIENTE DI SIMULAZIONE E TEST (Scollegato dalle OTA)
                       </h4>
                       <p className="text-xs font-medium text-stone-400 mt-0.5">
-                        Unitร  isolate dal canale di vendita pubblico per simulazioni, test di calcolo MinStay e verifiche di scrittura sicure.
+                        Unità isolate dal canale di vendita pubblico per simulazioni, test di calcolo MinStay e verifiche di scrittura sicure.
                       </p>
                     </div>
                   </div>
@@ -2584,8 +2700,63 @@ export function DerivedRatesTreeSection() {
                           ❄️ 2 AC units (Ricarico: {appliedAcPriceBooking * 2} THB flat)
                         </span>
                       )}
+
+                      {/* PULSANTE COMPATTO TEST LIVE API SINGOLO ALLOGGIO */}
+                      <button
+                        type="button"
+                        disabled={Boolean(testingSlugs[scheme.name])}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const roomRates: { id: string; name: string }[] = [];
+                          scheme.level1Nodes.forEach((l1) => {
+                            roomRates.push({ id: l1.id, name: l1.name });
+                            if (l1.subChild) {
+                              roomRates.push({ id: l1.subChild.id, name: l1.subChild.name });
+                            }
+                          });
+                          verifyAccommodationWritability(scheme.name, roomRates);
+                        }}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all shadow border flex items-center gap-1 cursor-pointer ${
+                          testingSlugs[scheme.name]
+                            ? 'bg-stone-800 text-emerald-400 border-emerald-500/40 opacity-90 cursor-not-allowed'
+                            : 'bg-emerald-950/80 hover:bg-emerald-900/90 text-emerald-300 border-emerald-500/50 hover:border-emerald-400 shadow-emerald-950/50'
+                        }`}
+                      >
+                        {testingSlugs[scheme.name] ? (
+                          <>
+                            <RefreshCw className="w-3 h-3 text-emerald-400 animate-spin" />
+                            <span>TEST IN CORSO...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-3 h-3 text-emerald-300" />
+                            <span>🧪 Test Live API</span>
+                          </>
+                        )}
+                      </button>
                     </div>
                     <p className="text-stone-400 text-xs font-medium mt-1">{scheme.description}</p>
+
+                    {/* MICRO BARRA DI AVANZAMENTO LOCALIZZATA PER ALLOGGIO */}
+                    {testingSlugs[scheme.name] && accommodationTestingProgress[scheme.name] && (
+                      <div className="mt-2 space-y-1 animate-fadeIn">
+                        <div className="flex items-center justify-between text-[10px] font-mono font-bold text-emerald-300">
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                            Verifico {accommodationTestingProgress[scheme.name].activeRateName} ({accommodationTestingProgress[scheme.name].completed + 1}/{accommodationTestingProgress[scheme.name].total})...
+                          </span>
+                          <span className="text-teal-400 font-mono font-black">
+                            {Math.round(((accommodationTestingProgress[scheme.name].completed + 1) / accommodationTestingProgress[scheme.name].total) * 100)}%
+                          </span>
+                        </div>
+                        <div className="w-full sm:w-64 h-1.5 bg-stone-950 rounded-full overflow-hidden border border-emerald-500/40 p-0.5">
+                          <div
+                            className="h-full bg-gradient-to-r from-teal-400 to-emerald-400 rounded-full transition-all duration-300 shadow-sm shadow-emerald-400/50"
+                            style={{ width: `${Math.max(5, Math.round(((accommodationTestingProgress[scheme.name].completed + 1) / accommodationTestingProgress[scheme.name].total) * 100))}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -2654,10 +2825,12 @@ export function DerivedRatesTreeSection() {
                       const l1LiveData = getNodeLiveData(l1.id);
                       const l1Price = l1LiveData?.price || 0;
                       const l1Sanity = checkPriceSanity(motherPrice, l1.ruleTag, l1Price, l1.name, l1.agencies, l1.ruleDesc, scheme.name, false);
+                      const isL1Writable = verifiedWritability[l1.id] ?? isWritableNode(l1, l1LiveData?.rawItem);
 
                       const subLiveData = l1.subChild ? getNodeLiveData(l1.subChild.id) : null;
                       const subPrice = subLiveData?.price || 0;
                       const subSanity = l1.subChild ? checkPriceSanity(l1Price > 0 ? l1Price : motherPrice, l1.subChild.ruleTag, subPrice, l1.subChild.name, l1.subChild.agencies, l1.subChild.ruleDesc, scheme.name, true) : null;
+                      const isSubWritable = l1.subChild ? (verifiedWritability[l1.subChild.id] ?? isWritableNode(l1.subChild, subLiveData?.rawItem)) : false;
 
                       // Level 1 card background style
                       let l1CardStyle = 'bg-stone-900 border-stone-700/80 hover:border-amber-400 text-stone-200';
@@ -2686,19 +2859,64 @@ export function DerivedRatesTreeSection() {
 
                           {/* LEVEL 1 CARD */}
                           <div className={`w-full border rounded-xl p-2.5 space-y-1.5 shadow-lg text-center flex flex-col justify-between transition-all ${l1CardStyle}`}>
-                            <div className="flex items-center justify-between border-b border-stone-800/80 pb-1">
+                            <div className="flex items-center justify-between border-b border-stone-800/80 pb-1 gap-1">
                               <span className="text-[9px] font-mono font-black text-amber-400 bg-stone-950 px-1.5 py-0.5 rounded border border-amber-500/30">
                                 #{l1.id}
                               </span>
-                              {l1LiveData?.isStopSell ? (
-                                <span className="text-[8px] font-black text-rose-300 flex items-center gap-0.5">
-                                  <Lock className="w-2.5 h-2.5" /> STOP
-                                </span>
-                              ) : l1LiveData?.isAvailable ? (
-                                <span className="text-[8px] font-black text-emerald-300 flex items-center gap-0.5">
-                                  <Unlock className="w-2.5 h-2.5" /> OK
-                                </span>
-                              ) : null}
+                              <div className="flex items-center gap-1">
+                                {isL1Writable ? (
+                                  <span className="inline-flex items-center gap-0.5 bg-emerald-950/90 border border-emerald-500/60 text-emerald-300 text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm" title="Restrizioni Scrivibili direttamente su Octorate (StopSell, MinStay, CA, CD)">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                                    <span>Write</span>
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-0.5 bg-stone-950 border border-stone-800 text-stone-400/80 text-[8px] font-extrabold px-1.5 py-0.5 rounded opacity-75" title="Sola Lettura (Eredita restrizioni da Madre)">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 flex-shrink-0" />
+                                    <span>Only Read</span>
+                                  </span>
+                                )}
+                                {isL1Writable ? (
+                                  <button
+                                    type="button"
+                                    disabled={togglingStopSell[l1.id]}
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      setTogglingStopSell((prev) => ({ ...prev, [l1.id]: true }));
+                                      const newStopSellState = !l1LiveData?.isStopSell;
+                                      await toggleRateStopSell(l1.id, newStopSellState, selectedDateISO);
+                                      setTogglingStopSell((prev) => ({ ...prev, [l1.id]: false }));
+                                    }}
+                                    className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-black transition-all cursor-pointer shadow-sm border ${
+                                      l1LiveData?.isStopSell
+                                        ? 'bg-rose-950/90 text-rose-200 border-rose-500/80 hover:bg-rose-900'
+                                        : 'bg-emerald-950/90 text-emerald-300 border-emerald-500/80 hover:bg-emerald-900'
+                                    }`}
+                                    title="Clicca per invertire lo Stop Sell (Scrittura Abilitata su Octorate)"
+                                  >
+                                    {togglingStopSell[l1.id] ? (
+                                      <RefreshCw className="w-2.5 h-2.5 animate-spin text-amber-400" />
+                                    ) : l1LiveData?.isStopSell ? (
+                                      <>
+                                        <Lock className="w-2.5 h-2.5 text-rose-400" />
+                                        <span>STOP</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Unlock className="w-2.5 h-2.5 text-emerald-400" />
+                                        <span>OK</span>
+                                      </>
+                                    )}
+                                  </button>
+                                ) : l1LiveData?.isStopSell ? (
+                                  <span className="text-[8px] font-black text-rose-300 flex items-center gap-0.5">
+                                    <Lock className="w-2.5 h-2.5" /> STOP
+                                  </span>
+                                ) : l1LiveData?.isAvailable ? (
+                                  <span className="text-[8px] font-black text-emerald-300 flex items-center gap-0.5">
+                                    <Unlock className="w-2.5 h-2.5" /> OK
+                                  </span>
+                                ) : null}
+                              </div>
                             </div>
 
                             <h4 className="text-[11px] font-black leading-tight truncate" title={l1.name}>
@@ -2769,19 +2987,64 @@ export function DerivedRatesTreeSection() {
 
                                 {/* LEVEL 2 CARD (SUB-DERIVATA) */}
                                 <div className={`w-full rounded-xl p-2.5 space-y-1.5 shadow-xl text-center transition-all ${subCardStyle}`}>
-                                  <div className="flex items-center justify-between border-b border-amber-500/30 pb-1">
+                                  <div className="flex items-center justify-between border-b border-amber-500/30 pb-1 gap-1">
                                     <span className="text-[9px] font-mono font-black text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-500/50">
                                       #{l1.subChild.id}
                                     </span>
-                                    {subLiveData?.isStopSell ? (
-                                      <span className="text-[8px] font-black text-rose-300 flex items-center gap-0.5">
-                                        <Lock className="w-2.5 h-2.5" /> STOP
-                                      </span>
-                                    ) : subLiveData?.isAvailable ? (
-                                      <span className="text-[8px] font-black text-emerald-300 flex items-center gap-0.5">
-                                        <Unlock className="w-2.5 h-2.5" /> OK
-                                      </span>
-                                    ) : null}
+                                    <div className="flex items-center gap-1">
+                                      {isSubWritable ? (
+                                        <span className="inline-flex items-center gap-0.5 bg-emerald-950/90 border border-emerald-500/60 text-emerald-300 text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm" title="Restrizioni Scrivibili direttamente su Octorate (StopSell, MinStay, CA, CD)">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+                                          <span>Write</span>
+                                        </span>
+                                      ) : (
+                                        <span className="inline-flex items-center gap-0.5 bg-stone-950 border border-stone-800 text-stone-400/80 text-[8px] font-extrabold px-1.5 py-0.5 rounded opacity-75" title="Sola Lettura (Eredita restrizioni dal Padre)">
+                                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 flex-shrink-0" />
+                                          <span>Only Read</span>
+                                        </span>
+                                      )}
+                                      {isSubWritable ? (
+                                        <button
+                                          type="button"
+                                          disabled={togglingStopSell[l1.subChild.id]}
+                                          onClick={async (e) => {
+                                            e.stopPropagation();
+                                            setTogglingStopSell((prev) => ({ ...prev, [l1.subChild.id]: true }));
+                                            const newStopSellState = !subLiveData?.isStopSell;
+                                            await toggleRateStopSell(l1.subChild.id, newStopSellState, selectedDateISO);
+                                            setTogglingStopSell((prev) => ({ ...prev, [l1.subChild.id]: false }));
+                                          }}
+                                          className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-black transition-all cursor-pointer shadow-sm border ${
+                                            subLiveData?.isStopSell
+                                              ? 'bg-rose-950/90 text-rose-200 border-rose-500/80 hover:bg-rose-900'
+                                              : 'bg-emerald-950/90 text-emerald-300 border-emerald-500/80 hover:bg-emerald-900'
+                                          }`}
+                                          title="Clicca per invertire lo Stop Sell (Scrittura Abilitata su Octorate)"
+                                        >
+                                          {togglingStopSell[l1.subChild.id] ? (
+                                            <RefreshCw className="w-2.5 h-2.5 animate-spin text-amber-400" />
+                                          ) : subLiveData?.isStopSell ? (
+                                            <>
+                                              <Lock className="w-2.5 h-2.5 text-rose-400" />
+                                              <span>STOP</span>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Unlock className="w-2.5 h-2.5 text-emerald-400" />
+                                              <span>OK</span>
+                                            </>
+                                          )}
+                                        </button>
+                                      ) : subLiveData?.isStopSell ? (
+                                        <span className="text-[8px] font-black text-rose-300 flex items-center gap-0.5">
+                                          <Lock className="w-2.5 h-2.5" /> STOP
+                                        </span>
+                                      ) : subLiveData?.isAvailable ? (
+                                        <span className="text-[8px] font-black text-emerald-300 flex items-center gap-0.5">
+                                          <Unlock className="w-2.5 h-2.5" /> OK
+                                        </span>
+                                      ) : null}
+                                    </div>
                                   </div>
 
                                   <h5 className="text-[10px] font-black leading-tight truncate" title={l1.subChild.name}>

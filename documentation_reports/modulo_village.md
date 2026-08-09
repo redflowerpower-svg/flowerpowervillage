@@ -638,6 +638,22 @@ executionMode:
   - Auto-salvataggio: `downloadSeasonSequential()` invoca automaticamente `saveToCache` al raggiungimento del 100% del download.
 - **Finestra Modale Elegante di Scelta ([`ResortDashboard.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/ResortDashboard.tsx))**:
   - Al mount, se viene rilevato `cachedImportTime`, il download automatico viene bloccato e viene mostrata la modale: *«Rilevato salvataggio locale del: [Data e Ora]»*.
-  - **Pulsante 1**: `"Carica salvataggio (Istantaneo)"` ➔ Esegue `loadFromCache()` (caricamento offline immediato a zero attese).
-  - **Pulsante 2**: `"Nuova sincronizzazione live"` ➔ Esegue `downloadSeasonSequential()` (scaricamento completo da Octorate API).
+### C. Sistema di Verifica Empirica Scrivibilità (Writability Sync Live API) & Stop Sell Diretto (09/08/2026)
+- **Regola d'Oro Octorate**:
+  1. *Prezzi*: Le variazioni di prezzo colpiscono sempre e solo l'ID della Tariffa Madre (Livello 0).
+  2. *Restrizioni (Stop Sell, MinStay, CA, CD)*: La scrittura diretta sulle tariffe derivate è consentita esclusivamente sui nodi con ereditarietà scollegata su Octorate (`R1 7d` / `Standard 7d`).
+- **Endpoint Serverless `api/_handlers/verify-writability.ts`**:
+  - Riceve `rateId`, ottiene il token OAuth Octorate da Supabase (`octorate_tokens`) ed esegue un test temporaneo di scrittura (`closeToArrival`) su una data futura +45 giorni.
+  - Se Octorate risponde con successo (`isWritable = true`), ripristina immediatamente il valore originale e restituisce l'esito JSON.
+- **Endpoint Serverless `api/_handlers/update-restriction.ts`**:
+  - Invia richieste `POST /calendar/bulk` ad Octorate per modificare direttamente la restrizione `stopSells` per i nodi derivati sbloccati.
+- **Store Zustand ([`useResortAdminStore.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts))**:
+  - Tracciamento `verifiedWritability`, `testingSlugs`, `accommodationTestingProgress` persistito in `localStorage` (`fpv_verified_writability`).
+  - Azioni `verifyAllRatesWritability`, `verifyAccommodationWritability` e `toggleRateStopSell`.
+- **Interfaccia Utente ([`DerivedRatesTreeSection.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/DerivedRatesTreeSection.tsx))**:
+  - Pannello di controllo **Tropical Glassmorphism** per la verifica empirica globale e pulsante compatto `🧪 Test Live API` su ogni singola scheda alloggio con barra di progresso ciano/smeraldo.
+  - Interruttore di azione rapida per lo **Stop Sell** sui nodi abilitati (`isWritable === true`), che permette di invertire la restrizione live (da 🔒 `STOP` a 🔓 `OK`) direttamente dalle schede dell'albero grafico.
+
+---
+
 

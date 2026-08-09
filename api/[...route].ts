@@ -23,6 +23,8 @@ import { handleEmailAlerts } from "./_handlers/email-alerts.js";
 import { handleSendNewsletter } from "./_handlers/send-newsletter.js";
 import { handleOctorateImport } from "./_handlers/octorate-import.js";
 import { handleUpdateAccommodationFeatures } from "./_handlers/accommodations.js";
+import { handleVerifyWritability } from "./_handlers/verify-writability.js";
+import { handleUpdateRestriction } from "./_handlers/update-restriction.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -49,6 +51,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Normalize path string (remove leading 'api/' and trailing slashes)
   const queryRoute = Array.isArray(req.query?.route) ? req.query.route.join('/') : String(req.query?.route || '');
   const cleanPath = (pathname || queryRoute || '').replace(/^api\//, '').replace(/\/$/, '');
+
+  if (cleanPath.includes('update-restriction') || cleanPath.includes('update_restriction')) {
+    return handleUpdateRestriction(req, res);
+  }
+
+  if (cleanPath.includes('verify-writability') || cleanPath.includes('verify_writability')) {
+    return handleVerifyWritability(req, res);
+  }
 
   if (cleanPath.includes('min-stay') || cleanPath.includes('minstay')) {
     return handleOctorateMinStay(req, res);

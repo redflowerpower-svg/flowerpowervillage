@@ -203,7 +203,35 @@ interface ResortAdminState {
   cachedImportTime: string | null;
   saveToCache: (bookingsToSave?: any[], gridToSave?: any[]) => void;
   loadFromCache: () => boolean;
+
+  // Writability Empirical Sync State & Actions
+  verifiedWritability: Record<string, boolean>;
+  isTestingWritability: boolean;
+  testingProgress: { activeRateName: string; completed: number; total: number } | null;
+  testingSlugs: Record<string, boolean>;
+  accommodationTestingProgress: Record<string, { activeRateName: string; completed: number; total: number }>;
+  verifyAllRatesWritability: (rates: { id: string; name: string }[]) => Promise<void>;
+  verifyAccommodationWritability: (slug: string, rates: { id: string; name: string }[]) => Promise<void>;
+
+  // Direct Stop Sell Toggle Action
+  toggleRateStopSell: (rateId: string, stopSell: boolean, dateISO?: string) => Promise<boolean>;
 }
+
+const STORAGE_KEY_WRITABILITY = 'fpv_verified_writability';
+
+const loadVerifiedWritabilityFromStorage = (): Record<string, boolean> => {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_WRITABILITY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+  } catch (e) {
+    console.error('[useResortAdminStore] Failed to read writability from localStorage:', e);
+  }
+  return {};
+};
 
 export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   promoCodes: loadPromoCodesFromStorage(),
@@ -948,6 +976,159 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       return true;
     } catch (e) {
       console.error('[useResortAdminStore] Errore caricamento cache da localStorage:', e);
+      return false;
+    }
+  },
+
+  verifiedWritability: loadVerifiedWritabilityFromStorage(),
+  isTestingWritability: false,
+  testingProgress: null,
+
+  verifyAllRatesWritability: async (rates: { id: string; name: string }[]) => {
+    if (!rates || rates.length === 0) return;
+
+    set({
+      isTestingWritability: true,
+      testingProgress: { activeRateName: rates[0].name, completed: 0, total: rates.length }
+    });
+
+    const currentMap = { ...get().verifiedWritability };
+
+    for (let i = 0; i < rates.length; i++) {
+      const rate = rates[i];
+      set({
+        testingProgress: { activeRateName: rate.name, completed: i, total: rates.length }
+      });
+
+      try {
+        const response = await fetch(`/api/verify-writability?rateId=${encodeURIComponent(rate.id)}`);
+        if (response.ok) {
+          const data = await response.json();
+          currentMap[rate.id] = Boolean(data.isWritable);
+        } else {
+          currentMap[rate.id] = false;
+        }
+      } catch (err) {
+        console.warn(`[verifyAllRatesWritability] Error testing rate #${rate.id} (${rate.name}):`, err);
+        currentMap[rate.id] = false;
+      }
+
+      set({ verifiedWritability: { ...currentMap } });
+
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(STORAGE_KEY_WRITABILITY, JSON.stringify(currentMap));
+        } catch (e) {
+          console.error('[useResortAdminStore] Failed to save writability to localStorage:', e);
+        }
+      }
+    }
+
+    set({
+      isTestingWritability: false,
+      testingProgress: null
+    });
+  },
+
+  testingSlugs: {},
+  accommodationTestingProgress: {},
+
+  verifyAccommodationWritability: async (slug: string, rates: { id: string; name: string }[]) => {
+    if (!slug || !rates || rates.length === 0) return;
+
+    set((state) => ({
+      testingSlugs: { ...state.testingSlugs, [slug]: true },
+      accommodationTestingProgress: {
+        ...state.accommodationTestingProgress,
+        [slug]: { activeRateName: rates[0].name, completed: 0, total: rates.length }
+      }
+    }));
+
+    const currentMap = { ...get().verifiedWritability };
+
+    for (let i = 0; i < rates.length; i++) {
+      const rate = rates[i];
+
+      set((state) => ({
+        accommodationTestingProgress: {
+          ...state.accommodationTestingProgress,
+          [slug]: { activeRateName: rate.name, completed: i, total: rates.length }
+        }
+      }));
+
+      try {
+        const response = await fetch(`/api/verify-writability?rateId=${encodeURIComponent(rate.id)}`);
+        if (response.ok) {
+          const data = await response.json();
+          currentMap[rate.id] = Boolean(data.isWritable);
+        } else {
+          currentMap[rate.id] = false;
+        }
+      } catch (err) {
+        console.warn(`[verifyAccommodationWritability] Error testing rate #${rate.id} (${rate.name}):`, err);
+        currentMap[rate.id] = false;
+      }
+
+      set({ verifiedWritability: { ...currentMap } });
+
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(STORAGE_KEY_WRITABILITY, JSON.stringify(currentMap));
+        } catch (e) {
+          console.error('[useResortAdminStore] Failed to save writability to localStorage:', e);
+        }
+      }
+    }
+
+    set((state) => {
+      const updatedSlugs = { ...state.testingSlugs };
+      delete updatedSlugs[slug];
+      const updatedProgress = { ...state.accommodationTestingProgress };
+      delete updatedProgress[slug];
+      return {
+        testingSlugs: updatedSlugs,
+        accommodationTestingProgress: updatedProgress
+      };
+    });
+  },
+
+  toggleRateStopSell: async (rateId: string, stopSell: boolean, dateISO?: string) => {
+    if (!rateId) return false;
+    try {
+      const response = await fetch('/api/update-restriction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rateId, stopSell, dateFrom: dateISO, dateTo: dateISO })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.warn(`[toggleRateStopSell] Error updating rate #${rateId}:`, errText);
+        return false;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        set((state) => {
+          const updatedRaw = state.rawOctorateGridItems.map((item) => {
+            if (String(item.id || item.ratePlanId || item.rate_id) === String(rateId)) {
+              return { ...item, stopSell, stopSells: stopSell };
+            }
+            return item;
+          });
+          const updatedSim = state.simulatedOctorateGridItems.map((item) => {
+            if (String(item.id || item.ratePlanId || item.rate_id) === String(rateId)) {
+              return { ...item, stopSell, stopSells: stopSell };
+            }
+            return item;
+          });
+          return { rawOctorateGridItems: updatedRaw, simulatedOctorateGridItems: updatedSim };
+        });
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error(`[toggleRateStopSell] Exception updating rate #${rateId}:`, err);
       return false;
     }
   }
