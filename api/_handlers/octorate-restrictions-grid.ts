@@ -5,8 +5,16 @@ const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL ||
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabaseAdmin = (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl, serviceRoleKey) : (null as any);
 
-const isClosed = (d: any) => Boolean(d?.closed === true || d?.closed === 'true' || d?.stopSell === true || d?.stopSell === 'true' || d?.stop_sell === true);
-const isCA = (d: any) => Boolean(d?.closedArrival === true || d?.closedArrival === 'true' || d?.closed_to_arrival === true || d?.closedArrival === 1 || d?.cta === true);
+const isClosed = (d: any) => Boolean(
+  d?.stopSells === true || d?.stopSells === 'true' ||
+  d?.stopSell === true || d?.stopSell === 'true' || d?.stop_sell === true ||
+  d?.closed === true || d?.closed === 'true' || d?.closed === 1
+);
+
+const isCA = (d: any) => Boolean(
+  d?.closeToArrival === true || d?.closeToArrival === 'true' || d?.closeToArrival === 1 ||
+  d?.closedArrival === true || d?.closedArrival === 'true' || d?.closed_to_arrival === true || d?.closedArrival === 1 || d?.cta === true
+);
 
 function parsePeriods(days: any[]) {
   if (!Array.isArray(days) || days.length === 0) return [];
@@ -87,8 +95,8 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
     const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || process.env.OCTORATE_STRUCTURE_ID || '366879';
 
     // Date da Oggi al 31 Maggio 2027
-    const today = new Date();
-    const dateFrom = today.toISOString().split('T')[0];
+    const today = '2026-10-01';
+    const dateFrom = today;
     const dateTo = '2027-05-31';
 
     const tryRefreshToken = async () => {
@@ -167,12 +175,12 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       }
 
       const rawData = await octorateRes.json();
-      const pageItems = Array.isArray(rawData) ? rawData : (rawData.items || rawData.roomRates || rawData.rates || []);
+      const pageItems = Array.isArray(rawData) ? rawData : (rawData.data || rawData.items || rawData.roomRates || rawData.rates || []);
       if (!Array.isArray(pageItems) || pageItems.length === 0) break;
 
       allItems.push(...pageItems);
 
-      const totalPages = Number(rawData.totalPages || 1);
+      const totalPages = Number(rawData.page?.totalPages || rawData.totalPages || 1);
       if (page >= totalPages) break;
     }
 
@@ -239,14 +247,15 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
         }
 
         if (isMatch && daysArr.length > 0) {
-          // Filtra giorni entro il range dateFrom - dateTo
           const filteredDays = daysArr.filter((d: any) => {
             const dStr = String(d.date || d.dateStr || d.day || '').substring(0, 10);
             return !dateFrom || (dStr >= dateFrom && dStr <= dateTo);
           });
 
           if (filteredDays.length > 0) {
-            gridMap[planKey] = parsePeriods(filteredDays);
+            if (!gridMap[planKey] || gridMap[planKey].length === 0) {
+              gridMap[planKey] = parsePeriods(filteredDays);
+            }
           }
         }
       }
