@@ -39,6 +39,32 @@ L'esperienza visiva del sito si basa su un'interfaccia fortemente immersiva con 
 
 ---
 
+## 9. Modulo Gestione Tariffe Derivate & Sincronizzazione Live Octorate (Aggiornato)
+
+### Architettura & Mappatura ID Esatti Octorate
+- **Gantt Proporzionale (6px/giorno)**: Schede a posizionamento assoluto continuo lungo la timeline Ottobre 2026 - Ottobre 2027.
+- **Larghezza Card Clamped (`min-w-[148px]`)**: Ogni scheda periodo garantisce una larghezza minima di 148px in modo che i selettori di data (`INIZIO` e `FINE`), l'icona del cestino 🗑️ e i controlli Only Check Out siano sempre visibili, selezionabili e perfettamente cliccabili.
+- **Cancellazione 1-Click**: Rimosso il vincolo di presenza di più periodi. Qualsiasi periodo (anche unico sulla riga) è cancellabile con 1 click, facendo comparire il pulsante rosso `(+)` per creare un nuovo periodo.
+- **Mappatura ID Esatti camera Madre Sentinella Jungle Villa (`529773`)**:
+  L'endpoint Serverless [`api/resort/octorate-restrictions-grid.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/resort/octorate-restrictions-grid.ts) mappa i 12 piani tariffari direttamente sugli ID fisici univoci dei prodotti Octorate:
+  - `BE` (Official Booking Engine): **`529784`** (3 periodi reali: Aperto Oct-Nov, Bloccato Dec-Apr, Aperto May)
+  - `7d` (Standard 7d): **`529778`**
+  - `main_bnb_7d`: **`529788`**
+  - `main_bnb_14d`: **`529792`** (3 periodi reali: Bloccato Oct-Dec19, Aperto 75gg Only CO Dec20-Mar31, Bloccato Apr-May)
+  - `ac_7d`: **`529780`**
+  - `ac_14d`: **`529781`**
+  - `ac_bnb_7d`: **`916816`**
+  - `ac_bnb_14d`: **`529801`**
+  - `agd_ac_7d`: **`921868`**
+  - `agd_ac_14d`: **`921869`**
+  - `airbnb`: **`529783`**
+  - `airbnb_ac`: **`529813`**
+- **Auto-Refresh OAuth & Inoltro Serverless**:
+  - Rinnovo automatico del token OAuth (`refresh_token`) su risposte Octorate `ApiLoginExpired`.
+  - Endpoint fisico dedicato `/api/resort/octorate-restrictions-grid` per aggirare le restrizioni di routing del file system Vercel.
+
+---
+
 ## 2. Flussi Logici
 
 Il modulo gestisce la visualizzazione delle immagini di sfondo a schermo intero sia per la landing page split-screen, sia per le sezioni principali del villaggio.
