@@ -130,40 +130,53 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       return null;
     };
 
-    // 2. Interroga Octorate per ottenere il calendario / prodotti della camera sentinella Jungle Villa (529773)
-    let octorateRes = await fetch(`https://api.octorate.com/connect/rest/v1/roomrates/${structureId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Accept': 'application/json'
-      }
-    });
+    const fetchCalendarPage = async (token: string, pageNum: number) => {
+      const url = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${dateFrom}&dateTo=${dateTo}&size=50&page=${pageNum}`;
+      return await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+    };
 
-    if (!octorateRes.ok) {
-      const errText = await octorateRes.text();
-      if (errText.includes('Expired Token') || errText.includes('ApiLoginExpired') || octorateRes.status === 401 || octorateRes.status === 403) {
-        console.info('[octorate-restrictions-grid] Token scaduto. Tentativo di refresh automatico...');
-        const newAccessToken = await tryRefreshToken();
-        if (newAccessToken) {
-          accessToken = newAccessToken;
-          octorateRes = await fetch(`https://api.octorate.com/connect/rest/v1/roomrates/${structureId}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Accept': 'application/json'
-            }
-          });
+    // 2. Interroga Octorate Calendar API per ottenere i prodotti con i giorni del calendario
+    let allItems: any[] = [];
+    for (let page = 1; page <= 5; page++) {
+      let octorateRes = await fetchCalendarPage(accessToken, page);
+
+      if (!octorateRes.ok) {
+        const errText = await octorateRes.text();
+        if (errText.includes('Expired Token') || errText.includes('ApiLoginExpired') || octorateRes.status === 401 || octorateRes.status === 403) {
+          console.info('[octorate-restrictions-grid] Token scaduto. Tentativo di refresh automatico...');
+          const newAccessToken = await tryRefreshToken();
+          if (newAccessToken) {
+            accessToken = newAccessToken;
+            octorateRes = await fetchCalendarPage(accessToken, page);
+          }
+        }
+
+        if (!octorateRes.ok) {
+          const finalErrText = await octorateRes.text();
+          if (page === 1) {
+            return res.status(octorateRes.status).json({ error: `Errore Octorate API: ${finalErrText}` });
+          }
+          break;
         }
       }
 
-      if (!octorateRes.ok) {
-        const finalErrText = await octorateRes.text();
-        return res.status(octorateRes.status).json({ error: `Errore Octorate API: ${finalErrText}` });
-      }
+      const rawData = await octorateRes.json();
+      const pageItems = Array.isArray(rawData) ? rawData : (rawData.items || rawData.roomRates || rawData.rates || []);
+      if (!Array.isArray(pageItems) || pageItems.length === 0) break;
+
+      allItems.push(...pageItems);
+
+      const totalPages = Number(rawData.totalPages || 1);
+      if (page >= totalPages) break;
     }
 
-    const rawData = await octorateRes.json();
-    const items = Array.isArray(rawData) ? rawData : (rawData.roomRates || rawData.rates || []);
+    const items = allItems;
 
     // Mappa dei 12 piani reali
     const gridMap: Record<string, any[]> = {
@@ -185,20 +198,34 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       be: 'be',
       '7d': '7d',
       'main bnb-7d': 'main_bnb_7d',
+      'main-bnb-7d': 'main_bnb_7d',
+      'main_bnb_7d': 'main_bnb_7d',
       'main bnb-14d': 'main_bnb_14d',
+      'main-bnb-14d': 'main_bnb_14d',
+      'main_bnb_14d': 'main_bnb_14d',
       'ac7d': 'ac_7d',
+      'ac 7d': 'ac_7d',
+      'ac-7d': 'ac_7d',
       'ac14d': 'ac_14d',
+      'ac 14d': 'ac_14d',
+      'ac-14d': 'ac_14d',
       'ac bnb-7d': 'ac_bnb_7d',
+      'ac-bnb-7d': 'ac_bnb_7d',
       'ac bnb-14d': 'ac_bnb_14d',
+      'ac-bnb-14d': 'ac_bnb_14d',
       'agd ac-7d': 'agd_ac_7d',
+      'agd-ac-7d': 'agd_ac_7d',
       'agd ac-14d': 'agd_ac_14d',
+      'agd-ac-14d': 'agd_ac_14d',
       'airbnb': 'airbnb',
-      'airbnb ac': 'airbnb_ac'
+      'airbnb ac': 'airbnb_ac',
+      'airbnb-ac': 'airbnb_ac'
     };
 
     // Filtra e analizza i giorni per ciascuno dei 12 piani tariffari
     for (const item of items) {
-      const itemName = String(item.name || item.title || item.roomRateName || '').toLowerCase();
+      const itemName = String(item.name || item.title || item.roomRateName || item.rateName || '').toLowerCase();
+      const daysArr = Array.isArray(item.days) ? item.days : (Array.isArray(item.calendar) ? item.calendar : (Array.isArray(item.dates) ? item.dates : []));
 
       for (const [codeKey, planKey] of Object.entries(PLAN_CODE_MAPPINGS)) {
         let isMatch = false;
@@ -211,11 +238,11 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
           isMatch = itemName.includes(codeKey);
         }
 
-        if (isMatch && Array.isArray(item.days) && item.days.length > 0) {
+        if (isMatch && daysArr.length > 0) {
           // Filtra giorni entro il range dateFrom - dateTo
-          const filteredDays = item.days.filter((d: any) => {
-            const dStr = String(d.date || d.dateStr || '').substring(0, 10);
-            return dStr >= dateFrom && dStr <= dateTo;
+          const filteredDays = daysArr.filter((d: any) => {
+            const dStr = String(d.date || d.dateStr || d.day || '').substring(0, 10);
+            return !dateFrom || (dStr >= dateFrom && dStr <= dateTo);
           });
 
           if (filteredDays.length > 0) {
