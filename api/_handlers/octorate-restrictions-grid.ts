@@ -184,7 +184,12 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       if (page >= totalPages) break;
     }
 
-    const items = allItems;
+    // Filtra prima i prodotti della camera sentinella Jungle Villa (JV / 529773)
+    const sentinelItems = allItems.filter(item => {
+      const name = String(item.name || item.title || '').trim();
+      return name.startsWith('JV ') || name.startsWith('Jungle Villa') || item.accommodationId === 529773;
+    });
+    const items = sentinelItems.length > 0 ? sentinelItems : allItems;
 
     // Mappa dei 12 piani reali
     const gridMap: Record<string, any[]> = {
@@ -239,7 +244,7 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
         let isMatch = false;
 
         if (codeKey === 'be') {
-          isMatch = !itemName.includes('7d') && !itemName.includes('14d') && !itemName.includes('airbnb') && !itemName.includes('agd');
+          isMatch = itemName.includes('be') && !itemName.includes('7d') && !itemName.includes('14d') && !itemName.includes('airbnb') && !itemName.includes('agd');
         } else if (codeKey === 'airbnb') {
           isMatch = itemName.includes('airbnb') && !itemName.includes('ac');
         } else {
@@ -253,9 +258,7 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
           });
 
           if (filteredDays.length > 0) {
-            if (!gridMap[planKey] || gridMap[planKey].length === 0) {
-              gridMap[planKey] = parsePeriods(filteredDays);
-            }
+            gridMap[planKey] = parsePeriods(filteredDays);
           }
         }
       }
