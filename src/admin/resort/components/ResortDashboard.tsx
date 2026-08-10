@@ -8,6 +8,7 @@ import { StandardRatesProtectionSection } from './StandardRatesProtectionSection
 import { PromoCodesSection } from './PromoCodesSection';
 import { OctorateImportSection } from './OctorateImportSection';
 import { GestioneStagionaleTariffe } from './GestioneStagionaleTariffe';
+import { GestioneRestrizioniCanali } from './GestioneRestrizioniCanali';
 import { AccommodationFeaturesEditor } from './AccommodationFeaturesEditor';
 import { supabase } from '../../../lib/supabase';
 import { toThailandDateStr } from '../lib/octorateAdmin';
@@ -699,6 +700,17 @@ export function ResortDashboard() {
               }`}
             >
               📅 GESTIONE STAGIONALE TARIFFE
+            </button>
+
+            <button
+              onClick={() => setActiveTab('channel_restrictions')}
+              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'channel_restrictions'
+                  ? 'bg-red-600 text-white shadow-md shadow-red-950/40 ring-1 ring-red-400/30'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
+              }`}
+            >
+              🌳 GESTIONE TARIFFE DERIVATE
             </button>
 
             <button
@@ -1923,6 +1935,11 @@ export function ResortDashboard() {
       {/* Tab: Gestione Stagionale Tariffe */}
       {activeTab === 'seasonal_rates' && (
         <GestioneStagionaleTariffe />
+      )}
+
+      {/* Tab: Gestione Restrizioni Canali (Dynamic Timeline Matrix) */}
+      {activeTab === 'channel_restrictions' && (
+        <GestioneRestrizioniCanali />
       )}
 
       {/* Tab 4: Octorate Room Specs Import & Sync */}
