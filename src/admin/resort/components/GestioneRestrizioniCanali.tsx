@@ -24,7 +24,8 @@ import {
   ChevronRight,
   Building2,
   Calendar,
-  XCircle
+  XCircle,
+  LogOut
 } from 'lucide-react';
 
 export const GestioneRestrizioniCanali: React.FC = () => {
@@ -96,7 +97,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     });
   };
 
-  // Helper restrizioni live
+  // Helper restrizioni live (con Only Check Out)
   const getLiveOctorateRestrictionsForPeriod = (planId: string, periodId: string, dateFrom: string, dateTo: string) => {
     const mockPlan = liveMock?.[planId];
     if (mockPlan && mockPlan[periodId]) {
@@ -107,7 +108,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
 
     let stopSellCount = 0;
     let totalDays = 0;
-    let minStaySum = 0;
 
     for (const item of rawOctorateGridItems) {
       if (Array.isArray(item.days)) {
@@ -116,7 +116,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           if (dStr >= dateFrom && dStr <= dateTo) {
             totalDays++;
             if (day.stopSell || day.closed || day.stop_sell) stopSellCount++;
-            minStaySum += Number(day.minStay || day.min_stay || 1);
           }
         }
       }
@@ -128,7 +127,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       stopSell: stopSellCount > 0,
       closedToArrival: false,
       closedToDeparture: false,
-      minStay: Math.round(minStaySum / totalDays)
+      onlyCheckOutDays: 10
     };
   };
 
@@ -137,9 +136,9 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     if (!rawOctorateGridItems || rawOctorateGridItems.length === 0) {
       import('../../../booking/lib/octorate')
         .then(({ fetchOctorateGridData }) => {
-          fetchOctorateGridData('2026-10-01', '2027-10-31').catch(e => console.warn('[GestioneRestrizioniProporzionale] Auto grid fetch error:', e));
+          fetchOctorateGridData('2026-10-01', '2027-10-31').catch(e => console.warn('[GestioneTariffeDerivate] Auto grid fetch error:', e));
         })
-        .catch(err => console.warn('[GestioneRestrizioniProporzionale] Import error:', err));
+        .catch(err => console.warn('[GestioneTariffeDerivate] Import error:', err));
     }
   }, [rawOctorateGridItems?.length]);
 
@@ -155,10 +154,10 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               </div>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                  Gestione Tariffe Derivate <span className="text-xs bg-red-950 text-red-300 border border-red-600/50 px-2.5 py-0.5 rounded-full font-mono font-extrabold">Cancellation Policies & Restrizioni</span>
+                  Gestione Tariffe Derivate <span className="text-xs bg-red-950 text-red-300 border border-red-600/50 px-2.5 py-0.5 rounded-full font-mono font-extrabold">Only Check Out Window & Restrizioni</span>
                 </h2>
                 <p className="text-stone-400 text-xs font-medium">
-                  Matrice orizzontale a timeline continua (6px/giorno) per la configurazione dei termini di cancellazione (7gg / 14gg) e delle restrizioni per i Piani Tariffari reali Octorate.
+                  Matrice orizzontale continua a larghezza proporzionale (6px/giorno) con finestra Only Check Out e tasto rotondo `+`.
                 </p>
               </div>
             </div>
@@ -272,7 +271,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               {/* Sticky Left Rate Plans Title */}
               <div className="w-[280px] min-w-[280px] p-3 font-black uppercase text-xs tracking-wider border-r border-sky-800/80 sticky left-0 z-40 bg-[#002b49] flex items-center justify-between">
                 <span>Piani Tariffari / Canali</span>
-                <span className="text-[9px] font-mono text-sky-300 font-normal">9 Piani Reali</span>
+                <span className="text-[9px] font-mono text-sky-300 font-normal">12 Piani Reali</span>
               </div>
 
               {/* Time Axis Months (Dynamic Width = days * 6px) */}
@@ -365,12 +364,12 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                     {/* COLONNA DESTRA: Moduli Orizzontali Periodi Scalati a giornipx + Tasto (+) Rotondo */}
                     <div className="flex-1 p-3 flex items-center gap-2 overflow-x-auto custom-scrollbar">
                       {activeViewTab === 'editor' ? (
-                        // TABELLA 1: MODULI PERIODI PIANIFICATI (EDITOR SCALATO A GIORNI * 6PX)
+                        // TABELLA 1: MODULI PERIODI PIANIFICATI (CON ONLY CHECK OUT RIGUARDO ALLO SCHIZZO)
                         <>
                           {periodsList.map((period) => {
                             const isSyncing = syncingPeriodId === period.id;
                             const live = getLiveOctorateRestrictionsForPeriod(plan.id, period.id, period.dateFrom, period.dateTo);
-                            const isMismatched = live !== null && (live.stopSell !== period.stopSell || live.minStay !== period.minStay);
+                            const isMismatched = live !== null && (live.stopSell !== period.stopSell || live.onlyCheckOutDays !== period.onlyCheckOutDays);
                             const cardWidthPx = getPeriodPixelWidth(period.dateFrom, period.dateTo);
 
                             return (
@@ -416,7 +415,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                                   </div>
                                 </div>
 
-                                {/* RIGA 1 DALL'IMMAGINE: Date From e Date To in GG/MM/AAAA */}
+                                {/* RIGA 1 DALL'IMMAGINE DELLO SCHIZZO: Date Inizio & Fine in GG/MM/AAAA */}
                                 <div className="grid grid-cols-2 gap-1 text-[9.5px]">
                                   <div>
                                     <label className="text-[7.5px] font-extrabold uppercase text-stone-400 block mb-0.5">Inizio (GG/MM/AAAA)</label>
@@ -439,43 +438,34 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                                   </div>
                                 </div>
 
-                                {/* RIGA 2 DALL'IMMAGINE: Input MinStay, StopSell, Failsafe Out */}
+                                {/* RIGA 2 DALL'IMMAGINE DELLO SCHIZZO: Input "ONLY CHECK OUT" & Toggle Blocco */}
                                 <div className="flex items-center justify-between gap-1 text-[9px] pt-1 border-t border-stone-850/60">
-                                  <div className="flex items-center gap-1">
-                                    <span className="font-bold text-stone-400 text-[8.5px]">MinStay:</span>
+                                  {/* Field "Only Check Out" (Giorni di tolleranza fine periodo) */}
+                                  <div className="flex items-center gap-1 bg-stone-900 border border-stone-800 px-1.5 py-0.5 rounded-lg">
+                                    <LogOut className="w-3 h-3 text-amber-400 shrink-0" />
+                                    <span className="font-extrabold text-amber-300 text-[8px] uppercase">Only Check Out:</span>
                                     <input
                                       type="number"
-                                      min={1}
-                                      max={30}
-                                      value={period.minStay}
-                                      onChange={(e) => updatePlannedPeriod(plan.id, period.id, { minStay: Number(e.target.value) })}
-                                      className="w-9 bg-stone-900 border border-stone-800 rounded text-center font-mono font-bold text-white py-0.5"
+                                      min={0}
+                                      max={60}
+                                      value={period.onlyCheckOutDays ?? 10}
+                                      onChange={(e) => updatePlannedPeriod(plan.id, period.id, { onlyCheckOutDays: Number(e.target.value) })}
+                                      className="w-8 bg-stone-950 border border-stone-750 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[9px]"
                                     />
+                                    <span className="text-[7.5px] font-mono text-stone-400">gg</span>
                                   </div>
 
+                                  {/* Toggle Blocco (Stop Sell) */}
                                   <button
                                     type="button"
                                     onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: !period.stopSell })}
-                                    className={`px-1.5 py-0.5 rounded font-black text-[8px] uppercase transition-all ${
+                                    className={`px-2 py-0.5 rounded font-black text-[8px] uppercase transition-all ${
                                       period.stopSell
                                         ? 'bg-red-950 border border-red-600 text-red-300'
                                         : 'bg-stone-900 border border-stone-800 text-stone-500'
                                     }`}
                                   >
                                     {period.stopSell ? 'BLOCCO' : 'APERTO'}
-                                  </button>
-
-                                  <button
-                                    type="button"
-                                    onClick={() => updatePlannedPeriod(plan.id, period.id, { failsafeCheckout: !period.failsafeCheckout })}
-                                    className={`px-1.5 py-0.5 rounded border font-extrabold text-[8px] uppercase transition-all ${
-                                      period.failsafeCheckout
-                                        ? 'bg-emerald-950 border-emerald-600 text-emerald-300'
-                                        : 'bg-stone-900 border border-stone-800 text-stone-500'
-                                    }`}
-                                    title="Failsafe Out: 10 giorni di tolleranza check-out"
-                                  >
-                                    {period.failsafeCheckout ? 'Failsafe Out' : 'OFF'}
                                   </button>
                                 </div>
                               </div>
@@ -493,11 +483,11 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                           </button>
                         </>
                       ) : (
-                        // TABELLA 2: REALE LIVE OCTORATE (LIVE GRID MATRIX PROPORZIONALE)
+                        // TABELLA 2: REALE LIVE OCTORATE (LIVE GRID MATRIX PROPORZIONALE CON ONLY CHECK OUT)
                         <>
                           {periodsList.map((period) => {
                             const live = getLiveOctorateRestrictionsForPeriod(plan.id, period.id, period.dateFrom, period.dateTo);
-                            const isMatching = live !== null && live.stopSell === period.stopSell && live.minStay === period.minStay;
+                            const isMatching = live !== null && live.stopSell === period.stopSell && live.onlyCheckOutDays === period.onlyCheckOutDays;
                             const isMismatched = live !== null && !isMatching;
                             const cardWidthPx = getPeriodPixelWidth(period.dateFrom, period.dateTo);
 
@@ -534,13 +524,20 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                                   </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-1">
-                                  <div className={`py-0.5 px-1 rounded text-center font-black text-[8px] uppercase ${live?.stopSell ? 'bg-red-950 border border-red-600 text-red-300' : 'bg-emerald-950 border border-emerald-600 text-emerald-300'}`}>
-                                    {live !== null ? (live.stopSell ? 'BLOCCO LIVE' : 'APERTO LIVE') : 'N/D'}
+                                <div className="flex items-center justify-between gap-1 text-[9px] pt-1 border-t border-stone-850/60">
+                                  {/* Field "Only Check Out" Live */}
+                                  <div className="flex items-center gap-1 bg-stone-900 border border-stone-800 px-1.5 py-0.5 rounded-lg">
+                                    <LogOut className="w-3 h-3 text-amber-400 shrink-0" />
+                                    <span className="font-extrabold text-amber-300 text-[8px] uppercase">Only Check Out:</span>
+                                    <div className="w-8 bg-stone-950 border border-stone-750 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[9px]">
+                                      {live !== null ? live.onlyCheckOutDays : 'N/D'}
+                                    </div>
+                                    <span className="text-[7.5px] font-mono text-stone-400">gg</span>
                                   </div>
 
-                                  <div className="py-0.5 px-1 rounded text-center font-mono font-bold text-[8.5px] bg-stone-900 border border-stone-800 text-emerald-300">
-                                    {live !== null ? `${live.minStay} notti` : 'N/D'}
+                                  {/* Live StopSell (BLOCCO/APERTO) */}
+                                  <div className={`px-2 py-0.5 rounded font-black text-[8px] uppercase ${live?.stopSell ? 'bg-red-950 border border-red-600 text-red-300' : 'bg-emerald-950 border border-emerald-600 text-emerald-300'}`}>
+                                    {live !== null ? (live.stopSell ? 'BLOCCO' : 'APERTO') : 'N/D'}
                                   </div>
                                 </div>
                               </div>

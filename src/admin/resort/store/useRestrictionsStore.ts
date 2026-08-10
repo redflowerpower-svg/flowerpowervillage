@@ -26,19 +26,18 @@ export const REAL_OCTORATE_PLANS: RealOctoratePlan[] = [
   { id: 'airbnb_ac', code: 'AirBnB AC', name: 'AirBnB AC', isAcOnly: true, type: 'booking', description: 'Canale Airbnb per alloggi con Aria Condizionata', badgeColor: 'bg-pink-500/20 text-pink-300 border-pink-500/50' }
 ];
 
-// Esporta anche RATE_PLANS per retrocompatibilità ed evitare errori di import alias
 export const RATE_PLANS = REAL_OCTORATE_PLANS;
 
 export interface PlannedPeriod {
   id: string;
   name: string;
-  dateFrom: string; // ISO YYYY-MM-DD
-  dateTo: string;   // ISO YYYY-MM-DD
+  dateFrom: string;          // ISO YYYY-MM-DD
+  dateTo: string;            // ISO YYYY-MM-DD
   stopSell: boolean;
   closedToArrival: boolean;
   closedToDeparture: boolean;
-  minStay: number;
-  minStayArrival: number;
+  onlyCheckOutDays: number;  // Giorni consecutivi di finestra Only Check Out (es. 10gg)
+  minStayArrival?: number;
   failsafeCheckout: boolean;
 }
 
@@ -46,7 +45,7 @@ export interface LiveMockRestriction {
   stopSell: boolean;
   closedToArrival: boolean;
   closedToDeparture: boolean;
-  minStay: number;
+  onlyCheckOutDays: number;
 }
 
 export interface RestrictionsStoreState {
@@ -71,27 +70,27 @@ export interface RestrictionsStoreState {
   resetDefaultStore: () => void;
 }
 
-// Periodi di Default esattamente come nello schizzo dell'utente
+// Periodi di Default con Only Check Out = 10gg esattamente come nello schizzo dell'utente
 export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   be: [
-    { id: 'be_p1', name: 'Periodo 1: Ottobre - Novembre', dateFrom: '2026-10-01', dateTo: '2026-11-30', stopSell: false, closedToArrival: false, closedToDeparture: false, minStay: 2, minStayArrival: 2, failsafeCheckout: true },
-    { id: 'be_p2', name: 'Periodo 2: Dicembre - Gennaio', dateFrom: '2026-12-01', dateTo: '2027-01-31', stopSell: false, closedToArrival: false, closedToDeparture: false, minStay: 3, minStayArrival: 3, failsafeCheckout: true }
+    { id: 'be_p1', name: 'Periodo 1: Ottobre - Novembre', dateFrom: '2026-10-01', dateTo: '2026-11-30', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
+    { id: 'be_p2', name: 'Periodo 2: Dicembre - Gennaio', dateFrom: '2026-12-01', dateTo: '2027-01-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   '7d': [
-    { id: '7d_p1', name: 'Periodo 1: Ottobre', dateFrom: '2026-10-01', dateTo: '2026-10-31', stopSell: false, closedToArrival: false, closedToDeparture: false, minStay: 7, minStayArrival: 7, failsafeCheckout: true },
-    { id: '7d_p2', name: 'Periodo 2: Novembre - Gennaio', dateFrom: '2026-11-01', dateTo: '2027-01-31', stopSell: false, closedToArrival: false, closedToDeparture: false, minStay: 7, minStayArrival: 7, failsafeCheckout: true }
+    { id: '7d_p1', name: 'Periodo 1: Ottobre', dateFrom: '2026-10-01', dateTo: '2026-10-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
+    { id: '7d_p2', name: 'Periodo 2: Novembre - Gennaio', dateFrom: '2026-11-01', dateTo: '2027-01-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   main_bnb_7d: [
-    { id: 'mb7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, minStay: 7, minStayArrival: 7, failsafeCheckout: true },
-    { id: 'mb7_p2', name: 'Periodo 2: Q1 (Gen-Mar)', dateFrom: '2027-01-01', dateTo: '2027-03-31', stopSell: false, closedToArrival: false, closedToDeparture: false, minStay: 7, minStayArrival: 7, failsafeCheckout: true }
+    { id: 'mb7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
+    { id: 'mb7_p2', name: 'Periodo 2: Q1 (Gen-Mar)', dateFrom: '2027-01-01', dateTo: '2027-03-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ]
 };
 
-// Mock live state: Periodo 2 BE con discrepanza guidata per cerchiatura giallo oro
+// Mock live state: Periodo 2 BE con discrepanza guidata per cerchiatura giallo oro (onlyCheckOutDays 5 in Live vs 10 in Pianificato)
 export const INITIAL_LIVE_MOCK: Record<string, Record<string, LiveMockRestriction>> = {
   be: {
-    be_p1: { stopSell: false, closedToArrival: false, closedToDeparture: false, minStay: 2 },
-    be_p2: { stopSell: false, closedToArrival: false, closedToDeparture: false, minStay: 2 } // Discrepanza guidata! (MinStay 2 in Live vs 3 in Pianificato)
+    be_p1: { stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10 },
+    be_p2: { stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 5 } // Discrepanza guidata! (Only Check Out 5 in Live vs 10 in Pianificato)
   }
 };
 
@@ -143,8 +142,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           stopSell: false,
           closedToArrival: false,
           closedToDeparture: false,
-          minStay: 2,
-          minStayArrival: 2,
+          onlyCheckOutDays: 10,
           failsafeCheckout: true
         };
 
@@ -167,7 +165,6 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         });
       },
 
-      // Aliases per compatibilità
       addNextPeriod: (planId: string) => get().addNextPlannedPeriod(planId),
       removePeriod: (planId: string, periodId: string) => get().removePlannedPeriod(planId, periodId),
       updatePeriod: (planId: string, periodId: string, updates: Partial<PlannedPeriod>) => get().updatePlannedPeriod(planId, periodId, updates),
@@ -197,8 +194,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
               stopSell: period.stopSell,
               closedToArrival: period.closedToArrival,
               closedToDeparture: effectiveCtd,
-              minStay: period.minStay,
-              minStayArrival: period.minStayArrival
+              onlyCheckOutDays: period.onlyCheckOutDays
             })
           });
 
@@ -208,13 +204,12 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             throw new Error(data.error || 'Errore sincronizzazione restrizioni piano');
           }
 
-          // Aggiorna anche il mock live per allineare il periodo post-sync
           const liveMap = state.liveOctorateRestrictionsMock[planId] || {};
           liveMap[periodId] = {
             stopSell: period.stopSell,
             closedToArrival: period.closedToArrival,
             closedToDeparture: effectiveCtd,
-            minStay: period.minStay
+            onlyCheckOutDays: period.onlyCheckOutDays
           };
 
           set({
@@ -248,7 +243,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
 
       syncAllPlansToOctorate: async () => {
         const state = get();
-        set({ syncAllRunning: true, lastSyncMessage: 'Sincronizzazione globale di tutti i 9 Piani Tariffari reali in corso...', lastSyncStatus: 'idle' });
+        set({ syncAllRunning: true, lastSyncMessage: 'Sincronizzazione globale di tutti i Piani Tariffari in corso...', lastSyncStatus: 'idle' });
 
         try {
           for (const plan of REAL_OCTORATE_PLANS) {
@@ -265,8 +260,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
                   stopSell: period.stopSell,
                   closedToArrival: period.closedToArrival,
                   closedToDeparture: effectiveCtd,
-                  minStay: period.minStay,
-                  minStayArrival: period.minStayArrival
+                  onlyCheckOutDays: period.onlyCheckOutDays
                 })
               }).catch(e => console.warn('Bulk plan sync warning:', e));
             }
@@ -275,7 +269,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           set({
             syncAllRunning: false,
             lastSyncStatus: 'success',
-            lastSyncMessage: `✅ Sincronizzazione globale di tutti i 9 Piani Tariffari reali completata su Octorate!`
+            lastSyncMessage: `✅ Sincronizzazione globale dei Piani Tariffari completata su Octorate!`
           });
 
           try {
@@ -301,13 +295,13 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         set({
           plannedPeriods: { ...INITIAL_PLAN_PERIODS },
           liveOctorateRestrictionsMock: { ...INITIAL_LIVE_MOCK },
-          lastSyncMessage: '🔄 Reset store restrizioni 9 piani completato',
+          lastSyncMessage: '🔄 Reset store restrizioni completato',
           lastSyncStatus: 'success'
         });
       }
     }),
     {
-      name: 'fp_rateplan_restrictions_proportional_v1',
+      name: 'fp_rateplan_restrictions_onlycheckout_v1',
       merge: (persistedState: any, currentState: RestrictionsStoreState) => {
         const p = persistedState as any;
         return {
