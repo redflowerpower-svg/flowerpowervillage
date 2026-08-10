@@ -184,14 +184,29 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       if (page >= totalPages) break;
     }
 
-    // Filtra prima i prodotti della camera sentinella Jungle Villa (JV / 529773)
-    const sentinelItems = allItems.filter(item => {
-      const name = String(item.name || item.title || '').trim();
-      return name.startsWith('JV ') || name.startsWith('Jungle Villa') || item.accommodationId === 529773;
-    });
-    const items = sentinelItems.length > 0 ? sentinelItems : allItems;
+    // Mappatura ad altissima precisione sugli ID esatti di Octorate per la camera sentinella Jungle Villa (529773)
+    const itemMapById = new Map<number, any>();
+    for (const item of allItems) {
+      if (item.id) {
+        itemMapById.set(Number(item.id), item);
+      }
+    }
 
-    // Mappa dei 12 piani reali
+    const SENTINEL_RATE_ID_MAP: Record<string, number[]> = {
+      be: [529784],
+      '7d': [529778],
+      main_bnb_7d: [529788],
+      main_bnb_14d: [529792],
+      ac_7d: [529780],
+      ac_14d: [529781],
+      ac_bnb_7d: [916817, 916816],
+      ac_bnb_14d: [529801],
+      agd_ac_7d: [921868],
+      agd_ac_14d: [921869],
+      airbnb: [529783],
+      airbnb_ac: [529813]
+    };
+
     const gridMap: Record<string, any[]> = {
       be: [],
       '7d': [],
@@ -207,59 +222,24 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       airbnb_ac: []
     };
 
-    const PLAN_CODE_MAPPINGS: Record<string, string> = {
-      be: 'be',
-      '7d': '7d',
-      'main bnb-7d': 'main_bnb_7d',
-      'main-bnb-7d': 'main_bnb_7d',
-      'main_bnb_7d': 'main_bnb_7d',
-      'main bnb-14d': 'main_bnb_14d',
-      'main-bnb-14d': 'main_bnb_14d',
-      'main_bnb_14d': 'main_bnb_14d',
-      'ac7d': 'ac_7d',
-      'ac 7d': 'ac_7d',
-      'ac-7d': 'ac_7d',
-      'ac14d': 'ac_14d',
-      'ac 14d': 'ac_14d',
-      'ac-14d': 'ac_14d',
-      'ac bnb-7d': 'ac_bnb_7d',
-      'ac-bnb-7d': 'ac_bnb_7d',
-      'ac bnb-14d': 'ac_bnb_14d',
-      'ac-bnb-14d': 'ac_bnb_14d',
-      'agd ac-7d': 'agd_ac_7d',
-      'agd-ac-7d': 'agd_ac_7d',
-      'agd ac-14d': 'agd_ac_14d',
-      'agd-ac-14d': 'agd_ac_14d',
-      'airbnb': 'airbnb',
-      'airbnb ac': 'airbnb_ac',
-      'airbnb-ac': 'airbnb_ac'
-    };
-
-    // Filtra e analizza i giorni per ciascuno dei 12 piani tariffari
-    for (const item of items) {
-      const itemName = String(item.name || item.title || item.roomRateName || item.rateName || '').toLowerCase();
-      const daysArr = Array.isArray(item.days) ? item.days : (Array.isArray(item.calendar) ? item.calendar : (Array.isArray(item.dates) ? item.dates : []));
-
-      for (const [codeKey, planKey] of Object.entries(PLAN_CODE_MAPPINGS)) {
-        let isMatch = false;
-
-        if (codeKey === 'be') {
-          isMatch = itemName.includes('be') && !itemName.includes('7d') && !itemName.includes('14d') && !itemName.includes('airbnb') && !itemName.includes('agd');
-        } else if (codeKey === 'airbnb') {
-          isMatch = itemName.includes('airbnb') && !itemName.includes('ac');
-        } else {
-          isMatch = itemName.includes(codeKey);
+    for (const [planKey, ids] of Object.entries(SENTINEL_RATE_ID_MAP)) {
+      let matchedItem: any = null;
+      for (const id of ids) {
+        if (itemMapById.has(id)) {
+          matchedItem = itemMapById.get(id);
+          break;
         }
+      }
 
-        if (isMatch && daysArr.length > 0) {
-          const filteredDays = daysArr.filter((d: any) => {
-            const dStr = String(d.date || d.dateStr || d.day || '').substring(0, 10);
-            return !dateFrom || (dStr >= dateFrom && dStr <= dateTo);
-          });
+      if (matchedItem) {
+        const daysArr = Array.isArray(matchedItem.days) ? matchedItem.days : (Array.isArray(matchedItem.calendar) ? matchedItem.calendar : []);
+        const filteredDays = daysArr.filter((d: any) => {
+          const dStr = String(d.date || d.dateStr || d.day || '').substring(0, 10);
+          return !dateFrom || (dStr >= dateFrom && dStr <= dateTo);
+        });
 
-          if (filteredDays.length > 0) {
-            gridMap[planKey] = parsePeriods(filteredDays);
-          }
+        if (filteredDays.length > 0) {
+          gridMap[planKey] = parsePeriods(filteredDays);
         }
       }
     }
