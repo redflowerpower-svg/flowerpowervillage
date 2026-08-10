@@ -825,18 +825,18 @@ const CalendarCell = React.memo(function CalendarCell({
   return (
     <td
       onClick={() => matchingBooking && onSelectBooking(matchingBooking)}
-      className={`p-0 border-l border-stone-800 text-center transition-colors relative min-w-[58px] max-w-[85px] w-[58px] h-11 align-top overflow-hidden ${bgStyle}`}
+      className={`p-0 border-l border-stone-800 text-center transition-colors relative w-[38px] min-w-[38px] max-w-[38px] h-[33px] align-top overflow-hidden ${bgStyle}`}
       title={matchingBooking 
         ? `Prenotato: ${formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
         : (hasDiscount
             ? `Madre (Standard): ฿${motherPriceStr} • Scontata BE: ฿${beDiscountedStr}`
             : (motherPriceStr !== 'N/D' ? `Prezzo: ฿${motherPriceStr}` : 'Nessun Prezzo'))}
     >
-      <div className="relative h-11 pb-3 flex flex-col justify-between w-full h-full">
+      <div className="relative h-[33px] pb-2 flex flex-col justify-between w-full h-full">
         {/* BADGE CTA SUL ANGOLO IN ALTO A DESTRA */}
         {isCTA && (
           <span 
-            className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-red-400 border border-red-600 z-10" 
+            className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-red-400 border border-red-600 z-10" 
             title="Chiuso all'Arrivo (CTA)"
           />
         )}
@@ -844,7 +844,7 @@ const CalendarCell = React.memo(function CalendarCell({
         {/* BADGE SOGGIORNO MINIMO (MIN STAY) IN ALTO A DESTRA */}
         {motherMinStayNum > 0 && (
           <div 
-            className={`absolute top-0.5 right-0.5 z-10 px-1 py-0.2 rounded-full text-[7.5px] font-black leading-none flex items-center justify-center shadow-md transition-all ${
+            className={`absolute top-0.5 right-0.5 z-10 px-0.5 py-0.2 rounded-full text-[6px] font-black leading-none flex items-center justify-center shadow-md transition-all ${
               isSimulationActive
                 ? (isMinStayAltered 
                     ? 'bg-red-500 text-white animate-pulse border border-white/40 ring-1 ring-red-300' 
@@ -868,43 +868,43 @@ const CalendarCell = React.memo(function CalendarCell({
         {/* CONTENUTO SUPERIORE CELLA (PREZZI / BOOKING) */}
         <div className="flex-1 flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-tight pt-0.5">
           {matchingBooking ? (
-            <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-tight">
-              <div className="truncate text-[9px] font-black min-w-0 w-full text-center text-white uppercase">
+            <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
+              <div className="truncate text-[7px] font-black min-w-0 w-full text-center text-white uppercase">
                 {getBookingChannelName(matchingBooking)}
               </div>
-              <div className="truncate text-[8px] min-w-0 w-full text-center text-white/95 font-medium">
+              <div className="truncate text-[6px] min-w-0 w-full text-center text-white/95 font-medium">
                 {formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)}
               </div>
-              <div className="text-[8px] font-mono font-black text-white leading-none mt-0.5 truncate min-w-0 w-full text-center">
+              <div className="text-[6px] font-mono font-black text-white leading-none mt-0.5 truncate min-w-0 w-full text-center">
                 ฿{realDailyPriceStr}
               </div>
             </div>
           ) : hasDiscount ? (
             <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
-              <div className="text-[7px] font-mono font-bold text-white/90 line-through truncate min-w-0 w-full text-center opacity-80">
+              <div className="text-[5.5px] font-mono font-bold text-white/90 line-through truncate min-w-0 w-full text-center opacity-80">
                 ฿{motherPriceStr}
               </div>
-              <div className="text-[8px] font-mono font-black text-cyan-300 leading-tight mt-0.5 truncate min-w-0 w-full text-center drop-shadow">
+              <div className="text-[6.5px] font-mono font-black text-cyan-300 leading-tight mt-0.5 truncate min-w-0 w-full text-center drop-shadow">
                 ฿{beDiscountedStr}
               </div>
-              <div className="text-[7px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-0.5 py-0.2 rounded mt-0.5 truncate min-w-0 text-center shadow">
+              <div className="text-[5.5px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-0.5 py-0.2 rounded mt-0.5 truncate min-w-0 text-center shadow">
                 -{simulatedMatch?.discountPercentage}%
               </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
-              <div className="text-[7.5px] font-mono font-medium text-stone-300 truncate min-w-0 w-full text-center">
-                Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : '-'}
+              <div className="text-[6px] font-mono font-medium text-stone-300 truncate min-w-0 w-full text-center">
+                {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : '-'}
               </div>
-              <div className="text-[9px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
-                BE: {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : '-'}
+              <div className="text-[7px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
+                {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : '-'}
               </div>
             </div>
           )}
         </div>
 
         {/* COCKPIT BARRA A 5 RETTANGOLI EQUIDISTANTI SUL BORDO INFERIORE */}
-        <div className="absolute bottom-0 left-0 right-0 h-3 bg-stone-950/90 border-t border-stone-800 grid grid-cols-5 z-10 text-[6.5px] font-black leading-none text-center">
+        <div className="absolute bottom-0 left-0 right-0 h-2 bg-stone-950/90 border-t border-stone-800 grid grid-cols-5 z-10 text-[5px] font-black leading-none text-center">
           {/* 1. Booking.com (B) */}
           <div 
             className={`flex items-center justify-center border-r border-stone-800/60 ${
@@ -946,16 +946,16 @@ const CalendarCell = React.memo(function CalendarCell({
             -
           </div>
 
-          {/* 5. Standard 7d (P / Std 7d) */}
+          {/* 5. Standard 7d (S) */}
           <div 
             className={`flex items-center justify-center ${
               isStandard7dActive 
                 ? 'bg-white text-stone-950 font-extrabold' 
                 : 'bg-stone-900/60 text-stone-600 opacity-40'
             }`}
-            title="Standard 7d (P)"
+            title="Standard 7d (S)"
           >
-            P
+            S
           </div>
         </div>
       </div>
@@ -1409,12 +1409,12 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
       {/* CONTENITORE A SCORRIMENTO ORIZZONTALE CONTINUO (Griglia Infinita) */}
       <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden shadow-2xl">
-        <div ref={gridScrollRef} className="overflow-x-auto max-w-full custom-scrollbar">
+        <div ref={gridScrollRef} className="overflow-x-auto max-w-full custom-scrollbar" style={{ zoom: 0.9 }}>
           <table className="w-full text-left border-collapse min-w-[2400px]">
             {/* Table Header: Continuous Days columns from Today to Oct 31 */}
             <thead className="bg-stone-950 sticky top-0 z-20 border-b border-stone-800">
               <tr>
-                <th className="py-2 px-3 text-[10px] font-black text-stone-300 uppercase tracking-wider sticky left-0 bg-stone-950 z-50 min-w-[170px] max-w-[170px] border-r border-stone-800 shadow-2xl">
+                <th className="sticky left-0 top-0 bg-stone-900 z-40 p-2 text-left font-bold text-white uppercase text-[10px] tracking-wider border-r border-b border-stone-800 shadow-xl w-[130px] min-w-[130px] max-w-[130px] truncate">
                   Alloggio / Camera
                 </th>
                 {visibleDays.map((cellDate, idx) => {
@@ -1425,7 +1425,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                     <th 
                       key={idx} 
                       id={`col-${dateStr}`}
-                      className={`py-1 text-center border-l border-stone-850 min-w-[64px] ${isWeekend ? 'bg-stone-900 text-stone-300' : 'text-stone-400'}`}
+                      className={`py-1 text-center border-l border-stone-850 w-[38px] min-w-[38px] max-w-[38px] ${isWeekend ? 'bg-stone-900 text-stone-300' : 'text-stone-400'}`}
                     >
                       <div className="text-[8px] uppercase font-mono leading-none">{DAY_NAMES_IT[dayOfWeekIdx]}</div>
                       <div className="text-[10px] font-mono font-bold leading-tight">{cellDate.getDate()} {MONTH_NAMES_IT[cellDate.getMonth()].substring(0, 3)}</div>
@@ -1441,9 +1441,9 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                 const gapFillMinStays = computeGapFillMinStays(room.name, room.id, room.octorateId, room.isAvailable, visibleDays, liveGridData, bookingsPool, dynamicMinStayGapFill);
 
                 return (
-                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-11">
+                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-[33px]">
                     {/* STEP 3: Z-INDEX ELEVATO Z-40 CON BACKGROUND SOLIDO PER COPRIRE I CERCHIETTI SCORREVOLI */}
-                    <td className="py-0.5 px-2 sticky left-0 bg-stone-900 z-40 border-r border-stone-800 shadow-2xl font-black text-white text-[10.5px] truncate max-w-[155px] min-w-[155px] leading-tight">
+                    <td className="sticky left-0 bg-stone-900 z-30 p-2 text-[10px] font-bold border-b border-r border-stone-850/40 text-white w-[130px] min-w-[130px] max-w-[130px] truncate leading-tight">
                       {room.name}
                     </td>
                     {visibleDays.map((cellDate, idx) => {
