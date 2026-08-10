@@ -569,7 +569,12 @@ function computeDerivedRateIndicators(
   dateStr: string,
   liveGridData?: Record<string, Record<string, OctorateDayData>>,
   activeGridItems?: any[]
-): { isBnbActive: boolean; isAgodaAcActive: boolean; isStandard7dActive: boolean } {
+): {
+  bnbLabel: string;
+  agodaLabel: string;
+  airbnbLabel: string;
+  isStandard7dActive: boolean;
+} {
   const extractNormalizedId = (item: any): string => {
     if (!item) return '';
     const rawId = item.id ?? item.ratePlanId ?? item.room ?? item.rateId ?? item.room_id ?? item.rate_id ?? '';
@@ -621,12 +626,8 @@ function computeDerivedRateIndicators(
       const found = ratePlan.days.find((d: any) => d.date === date);
       if (found) return found;
     }
-    if (ratePlan[date]) {
-      return ratePlan[date];
-    }
-    if (ratePlan.date === date) {
-      return ratePlan;
-    }
+    if (ratePlan[date]) return ratePlan[date];
+    if (ratePlan.date === date) return ratePlan;
     if (ratePlan.price !== undefined || ratePlan.stopSells !== undefined || ratePlan.closed !== undefined || ratePlan.value !== undefined || ratePlan.name !== undefined) {
       return ratePlan;
     }
@@ -634,26 +635,81 @@ function computeDerivedRateIndicators(
   };
 
   const motherDay = extractDayForDate(motherRate, dateStr);
-
-  // 1. Calcoliamo lo stato reale della Madre
   const isMotherActive = motherDay ? !checkIsClosed(motherDay) : true;
 
-  // 2. B e A seguono sempre lo stato della Madre
-  const isBnbActive = isMotherActive;
-  const isAgodaAcActive = isMotherActive;
+  const bnb7Rate = roomRates.find(r => {
+    const n = r.name?.toLowerCase() || '';
+    return (n.includes('bnb') || n.includes('booking')) && n.includes('7d');
+  });
+  const bnb14Rate = roomRates.find(r => {
+    const n = r.name?.toLowerCase() || '';
+    return (n.includes('bnb') || n.includes('booking')) && n.includes('14d');
+  });
+  const bnb7Day = extractDayForDate(bnb7Rate, dateStr);
+  const bnb14Day = extractDayForDate(bnb14Rate, dateStr);
+  const isBnb7Active = bnb7Day ? !checkIsClosed(bnb7Day) : (bnb7Rate ? isMotherActive : false);
+  const isBnb14Active = bnb14Day ? !checkIsClosed(bnb14Day) : (bnb14Rate ? isMotherActive : false);
 
-  // 3. S segue la Madre, tranne in chiusura stagionale (1 Dic 2026 - 30 Apr 2027)
+  let bnbLabel = '';
+  if (isBnb7Active) bnbLabel = '7';
+  else if (isBnb14Active) bnbLabel = '14';
+  else if (isMotherActive) bnbLabel = '7';
+
+  const agoda7Rate = roomRates.find(r => {
+    const n = r.name?.toLowerCase() || '';
+    return (n.includes('agd') || n.includes('agoda')) && n.includes('7d');
+  });
+  const agoda14Rate = roomRates.find(r => {
+    const n = r.name?.toLowerCase() || '';
+    return (n.includes('agd') || n.includes('agoda')) && n.includes('14d');
+  });
+  const agoda7Day = extractDayForDate(agoda7Rate, dateStr);
+  const agoda14Day = extractDayForDate(agoda14Rate, dateStr);
+  const isAgoda7Active = agoda7Day ? !checkIsClosed(agoda7Day) : (agoda7Rate ? isMotherActive : false);
+  const isAgoda14Active = agoda14Day ? !checkIsClosed(agoda14Day) : (agoda14Rate ? isMotherActive : false);
+
+  let agodaLabel = '';
+  if (isAgoda7Active) agodaLabel = '7';
+  else if (isAgoda14Active) agodaLabel = '14';
+  else if (isMotherActive) agodaLabel = '7';
+
+  const airbnbRate = roomRates.find(r => {
+    const n = r.name?.toLowerCase() || '';
+    return (n.includes('airbnb') || n.includes('air bnb')) && !n.includes('ac');
+  });
+  const airbnbAcRate = roomRates.find(r => {
+    const n = r.name?.toLowerCase() || '';
+    return (n.includes('airbnb') || n.includes('air bnb')) && n.includes('ac');
+  });
+  const airbnbDay = extractDayForDate(airbnbRate, dateStr);
+  const airbnbAcDay = extractDayForDate(airbnbAcRate, dateStr);
+  const isAirbnbActive = airbnbDay ? !checkIsClosed(airbnbDay) : (airbnbRate ? isMotherActive : false);
+  const isAirbnbAcActive = airbnbAcDay ? !checkIsClosed(airbnbAcDay) : (airbnbAcRate ? isMotherActive : false);
+
+  let airbnbLabel = '';
+  if (isAirbnbAcActive) airbnbLabel = 'AC';
+  else if (isAirbnbActive) airbnbLabel = 'S';
+  else if (isMotherActive) airbnbLabel = 'S';
+
+  const standard7dRate = roomRates.find(r => {
+    const n = r.name?.toLowerCase() || '';
+    return n.includes('7d') && !n.includes('ac') && !n.includes('agd') && !n.includes('agoda') && !n.includes('bnb');
+  });
+  const standard7dDay = extractDayForDate(standard7dRate, dateStr);
+  const isStandardActive = standard7dDay ? !checkIsClosed(standard7dDay) : isMotherActive;
   const isInClosedSeason = dateStr >= '2026-12-01' && dateStr <= '2027-04-30';
-  const isStandard7dActive = isInClosedSeason ? false : isMotherActive;
+  const isStandard7dActive = isInClosedSeason ? false : isStandardActive;
 
   return {
-    isBnbActive,
-    isAgodaAcActive,
-    isStandard7dActive
+    isBnbActive: Boolean(isBnb7Active || isBnb14Active || bnbLabel || isMotherActive),
+    isAgodaAcActive: Boolean(isAgoda7Active || isAgoda14Active || agodaLabel || isMotherActive),
+    isStandard7dActive,
+    bnbLabel,
+    agodaLabel,
+    airbnbLabel
   };
 }
 
-// STEP 2: SCUDO ANTI-LAG - COMPONENTE CELLA MEMOIZZATO CON REACT.MEMO
 interface CalendarCellProps {
   cellDate: Date;
   dateStr: string;
@@ -673,6 +729,9 @@ interface CalendarCellProps {
   isSimulationActive: boolean;
   isBnbActive?: boolean;
   isAgodaAcActive?: boolean;
+  bnbLabel?: string;
+  agodaLabel?: string;
+  airbnbLabel?: string;
   isStandard7dActive?: boolean;
   onSelectBooking: (booking: ResortBooking) => void;
 }
@@ -696,6 +755,9 @@ const CalendarCell = React.memo(function CalendarCell({
   isSimulationActive,
   isBnbActive = false,
   isAgodaAcActive = false,
+  bnbLabel = '',
+  agodaLabel = '',
+  airbnbLabel = '',
   isStandard7dActive = false,
   onSelectBooking
 }: CalendarCellProps) {
@@ -703,85 +765,37 @@ const CalendarCell = React.memo(function CalendarCell({
   if (originalPrice === 0 && simulatedMatch?.originalPrice) {
     originalPrice = Number(simulatedMatch.originalPrice);
   }
-  if (originalPrice === 0 && simulatedMatch?.basePrice) {
-    originalPrice = Number(simulatedMatch.basePrice);
+
+  let beDiscountedPrice = Number(beData?.price || beData?.value || beData?.amount || 0);
+  if (beDiscountedPrice === 0 && simulatedMatch?.finalPrice) {
+    beDiscountedPrice = Number(simulatedMatch.finalPrice);
   }
 
-  const origPriceStr = originalPrice >= 10000 
-    ? '10.000' 
-    : (originalPrice > 0 ? originalPrice.toLocaleString('it-IT') : 'N/D');
-
-  let currentPrice = originalPrice;
-  let motherPriceStr = originalPrice >= 10000 
-    ? '10.000' 
-    : (originalPrice > 0 ? originalPrice.toLocaleString('it-IT') : 'N/D');
-
-  let beDiscountedPrice = beData?.price 
-    ? Math.round(beData.price * 0.9) 
-    : (originalPrice > 0 ? Math.round(originalPrice * 0.9) : null);
-  let beDiscountedStr = beDiscountedPrice !== null 
-    ? (beDiscountedPrice >= 10000 ? '10.000' : beDiscountedPrice.toLocaleString('it-IT')) 
-    : 'N/D';
-
-  if (simulatedMatch) {
-    const simVal = Number(simulatedMatch.finalPrice || simulatedMatch.price || 0);
-    if (simVal > 0) {
-      currentPrice = simVal;
-      motherPriceStr = simVal >= 10000 ? '10.000' : simVal.toLocaleString('it-IT');
-      beDiscountedPrice = Math.round(simVal * 0.9);
-      beDiscountedStr = beDiscountedPrice >= 10000 ? '10.000' : beDiscountedPrice.toLocaleString('it-IT');
-    }
-  }
-
-  const hasSimulatedDiscount = Boolean(
-    isSimulationActive && 
-    (
-      (simulatedMatch && (simulatedMatch.isSimulatedDiscount || currentPrice < originalPrice || (simulatedMatch.discountPercentage && simulatedMatch.discountPercentage > 0)))
-    )
-  );
-  const hasDiscount = Boolean(simulatedMatch?.isSimulatedDiscount || hasSimulatedDiscount);
-
-  let motherMinStayNum = expectedBaseline;
-  let isGapFillModified = false;
-  let isSimulatedMode = false;
-
-  if (storeUpdateMatch) {
-    motherMinStayNum = Number(storeUpdateMatch.minStay ?? storeUpdateMatch.min_stay ?? expectedBaseline);
-    isGapFillModified = true;
-    isSimulatedMode = storeUpdateMatch.isSimulated !== false;
-  } else if (gapFillCellInfo && gapFillCellInfo.isGapFill) {
-    motherMinStayNum = Number(gapFillCellInfo.minStay);
-    isGapFillModified = true;
-    isSimulatedMode = !dynamicGapFillEnabled;
-  }
+  const motherPriceStr = originalPrice > 0 ? originalPrice.toString() : 'N/D';
+  const beDiscountedStr = beDiscountedPrice > 0 ? beDiscountedPrice.toString() : 'N/D';
 
   let realDailyPriceStr = 'N/D';
   if (matchingBooking) {
-    const checkInRaw = matchingBooking.check_in || (matchingBooking as any).checkIn || (matchingBooking as any).checkin;
-    const checkOutRaw = matchingBooking.check_out || (matchingBooking as any).checkOut || (matchingBooking as any).checkout;
-
-    let nights = 1;
-    if (checkInRaw && checkOutRaw) {
-      const cIn = new Date(String(checkInRaw).substring(0, 10));
-      const cOut = new Date(String(checkOutRaw).substring(0, 10));
-      const diffMs = cOut.getTime() - cIn.getTime();
-      if (diffMs > 0) {
-        nights = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
-      }
+    const rawMatchPrice = Number((matchingBooking as any).dailyPrice || (matchingBooking as any).price || (matchingBooking as any).amount || 0);
+    if (rawMatchPrice > 0) {
+      realDailyPriceStr = rawMatchPrice.toString();
     }
+  }
 
-    const grossTotal = Number(
-      (matchingBooking as any).roomGross ||
-      (matchingBooking as any).totalGross ||
-      matchingBooking.total_price ||
-      (matchingBooking as any).totalAmount ||
-      0
-    );
+  const hasDiscount = originalPrice > 0 && beDiscountedPrice > 0 && beDiscountedPrice < originalPrice;
 
-    if (grossTotal > 0 && nights > 0) {
-      const dailyPrice = Math.round(grossTotal / nights);
-      realDailyPriceStr = dailyPrice >= 10000 ? '10.000' : dailyPrice.toLocaleString('it-IT');
-    }
+  let motherMinStayNum = Number(
+    motherData?.minStay ?? motherData?.minstay ?? motherData?.minNights ?? motherData?.min_stay ?? motherData?.minimumStay ??
+    beData?.minStay ?? beData?.minstay ?? beData?.minNights ?? beData?.min_stay ?? beData?.minimumStay ??
+    expectedBaseline
+  );
+
+  let isMinStayAltered = motherMinStayNum !== expectedBaseline;
+  let isDynamicAppliedFromStore = Boolean(storeUpdateMatch && storeUpdateMatch.minStay !== undefined);
+
+  if (isSimulationActive && simulatedMatch?.simulatedMinStay) {
+    motherMinStayNum = Number(simulatedMatch.simulatedMinStay);
+    isMinStayAltered = motherMinStayNum !== expectedBaseline;
   }
 
   const isRoomClosedByStaff = roomIsAvailable === false;
@@ -811,118 +825,140 @@ const CalendarCell = React.memo(function CalendarCell({
   return (
     <td
       onClick={() => matchingBooking && onSelectBooking(matchingBooking)}
-      className={`py-0.5 px-0.5 border-l text-center transition-colors relative min-w-[58px] max-w-[85px] truncate overflow-hidden ${bgStyle}`}
+      className={`p-0 border-l border-stone-800 text-center transition-colors relative min-w-[58px] max-w-[85px] w-[58px] h-11 align-top overflow-hidden ${bgStyle}`}
       title={matchingBooking 
         ? `Prenotato: ${formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
         : (hasDiscount
-            ? `SCONTO LAST-MINUTE SIMULATO (-${simulatedMatch?.discountPercentage}%): Originale ฿${origPriceStr} ➔ Scontato ฿${motherPriceStr}`
-            : `Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'} • MinStay: ${motherMinStayNum > 0 ? motherMinStayNum : '-'}`
-          )}
+            ? `Madre (Standard): ฿${motherPriceStr} • Scontata BE: ฿${beDiscountedStr}`
+            : (motherPriceStr !== 'N/D' ? `Prezzo: ฿${motherPriceStr}` : 'Nessun Prezzo'))}
     >
-      {/* BADGE MINSTAY */}
-      {motherMinStayNum > 0 && (
-        <div 
-          className={`absolute top-0.5 right-0.5 z-10 font-bold text-[8.5px] rounded-full shadow-md flex items-center justify-center ${
-            isGapFillModified
-              ? (isSimulatedMode
-                  ? 'bg-red-500 text-white w-4 h-4 border border-red-300 shadow-red-900/50 animate-pulse'
-                  : 'bg-green-800 text-white w-4 h-4 border border-green-400 shadow-green-950/50')
-              : 'bg-yellow-400 text-black w-3.5 h-3.5'
-          }`}
-          title={
-            isGapFillModified
-              ? (isSimulatedMode
-                  ? `⚡ Soggiorno Minimo Dinamico (Simulazione Dry-Run: ${motherMinStayNum} notti)`
-                  : `✅ Soggiorno Minimo Dinamico (Sincronizzato su Octorate PMS: ${motherMinStayNum} notti)`)
-              : `Soggiorno Minimo Stagionale Standard: ${motherMinStayNum} notti`
-          }
-        >
-          {motherMinStayNum}
+      <div className="relative h-11 pb-3 flex flex-col justify-between w-full h-full">
+        {/* BADGE CTA SUL ANGOLO IN ALTO A DESTRA */}
+        {isCTA && (
+          <span 
+            className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-red-400 border border-red-600 z-10" 
+            title="Chiuso all'Arrivo (CTA)"
+          />
+        )}
+
+        {/* BADGE SOGGIORNO MINIMO (MIN STAY) IN ALTO A DESTRA */}
+        {motherMinStayNum > 0 && (
+          <div 
+            className={`absolute top-0.5 right-0.5 z-10 px-1 py-0.2 rounded-full text-[7.5px] font-black leading-none flex items-center justify-center shadow-md transition-all ${
+              isSimulationActive
+                ? (isMinStayAltered 
+                    ? 'bg-red-500 text-white animate-pulse border border-white/40 ring-1 ring-red-300' 
+                    : 'bg-amber-400 text-stone-950 border border-amber-500')
+                : (isDynamicAppliedFromStore || gapFillCellInfo
+                    ? 'bg-emerald-800 text-emerald-200 border border-emerald-500 font-extrabold'
+                    : 'bg-amber-400 text-stone-950 font-black border border-amber-500/80')
+            }`}
+            title={
+              isSimulationActive
+                ? (isMinStayAltered 
+                    ? `⚡ Soggiorno Minimo Dinamico (Simulazione Dry-Run: ${motherMinStayNum} notti)`
+                    : `✅ Soggiorno Minimo Dinamico (Sincronizzato su Octorate PMS: ${motherMinStayNum} notti)`)
+                : `Soggiorno Minimo Stagionale Standard: ${motherMinStayNum} notti`
+            }
+          >
+            {motherMinStayNum}
+          </div>
+        )}
+
+        {/* CONTENUTO SUPERIORE CELLA (PREZZI / BOOKING) */}
+        <div className="flex-1 flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-tight pt-0.5">
+          {matchingBooking ? (
+            <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-tight">
+              <div className="truncate text-[9px] font-black min-w-0 w-full text-center text-white uppercase">
+                {getBookingChannelName(matchingBooking)}
+              </div>
+              <div className="truncate text-[8px] min-w-0 w-full text-center text-white/95 font-medium">
+                {formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)}
+              </div>
+              <div className="text-[8px] font-mono font-black text-white leading-none mt-0.5 truncate min-w-0 w-full text-center">
+                ฿{realDailyPriceStr}
+              </div>
+            </div>
+          ) : hasDiscount ? (
+            <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
+              <div className="text-[7px] font-mono font-bold text-white/90 line-through truncate min-w-0 w-full text-center opacity-80">
+                ฿{motherPriceStr}
+              </div>
+              <div className="text-[8px] font-mono font-black text-cyan-300 leading-tight mt-0.5 truncate min-w-0 w-full text-center drop-shadow">
+                ฿{beDiscountedStr}
+              </div>
+              <div className="text-[7px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-0.5 py-0.2 rounded mt-0.5 truncate min-w-0 text-center shadow">
+                -{simulatedMatch?.discountPercentage}%
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
+              <div className="text-[7.5px] font-mono font-medium text-stone-300 truncate min-w-0 w-full text-center">
+                Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : '-'}
+              </div>
+              <div className="text-[9px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
+                BE: {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : '-'}
+              </div>
+            </div>
+          )}
         </div>
-      )}
 
-      {/* CONTENITORE ASSOLUTO SUL LATO SINISTRO (COLONNA EQUIDISTANTE PER I 3 INDICATORI TARIFFE DERIVATE CON LETTERE B, A, S) */}
-      <div className="absolute left-0.5 top-0 bottom-0 flex flex-col justify-between items-center pointer-events-none z-10 py-0.5">
-        {/* IN ALTO: Main bnb-7d / Main bnb-14d (Blu Cobalto con lettera "B") */}
-        {isBnbActive ? (
-          <span 
-            className="w-2.5 h-2.5 rounded-full bg-blue-500 text-white font-bold text-[7px] leading-none flex items-center justify-center shadow-sm" 
-            title="Bed & Breakfast (Main bnb) Attiva"
+        {/* COCKPIT BARRA A 5 RETTANGOLI EQUIDISTANTI SUL BORDO INFERIORE */}
+        <div className="absolute bottom-0 left-0 right-0 h-3 bg-stone-950/90 border-t border-stone-800 grid grid-cols-5 z-10 text-[6.5px] font-black leading-none text-center">
+          {/* 1. Booking.com (B) */}
+          <div 
+            className={`flex items-center justify-center border-r border-stone-800/60 ${
+              isBnbActive || bnbLabel 
+                ? 'bg-[#003580] text-white' 
+                : 'bg-stone-900/60 text-stone-600 opacity-40'
+            }`}
+            title={`Booking.com (${bnbLabel || 'Attivo'})`}
           >
-            B
-          </span>
-        ) : (
-          <span className="w-2.5 h-2.5 opacity-0" />
-        )}
+            {bnbLabel || 'B'}
+          </div>
 
-        {/* AL CENTRO: AGD AC-7d / AGD AC-14d (Rosa Agoda #FF007F con lettera "A") */}
-        {isAgodaAcActive ? (
-          <span 
-            className="w-2.5 h-2.5 rounded-full bg-[#FF007F] text-white font-bold text-[7px] leading-none flex items-center justify-center shadow-sm" 
-            title="Agoda AC (AGD AC) Attiva"
+          {/* 2. Agoda (A) */}
+          <div 
+            className={`flex items-center justify-center border-r border-stone-800/60 ${
+              isAgodaAcActive || agodaLabel 
+                ? 'bg-[#FF007F] text-white' 
+                : 'bg-stone-900/60 text-stone-600 opacity-40'
+            }`}
+            title={`Agoda AC (${agodaLabel || 'Attivo'})`}
           >
-            A
-          </span>
-        ) : (
-          <span className="w-2.5 h-2.5 opacity-0" />
-        )}
+            {agodaLabel || 'A'}
+          </div>
 
-        {/* IN BASSO: Standard 7d (Bianco con lettera "S") */}
-        {isStandard7dActive ? (
-          <span 
-            className="w-2.5 h-2.5 rounded-full bg-white text-stone-950 font-bold text-[7px] leading-none flex items-center justify-center shadow-sm" 
-            title="Standard 7d Attiva"
+          {/* 3. AirBnB (Airbnb) */}
+          <div 
+            className={`flex items-center justify-center border-r border-stone-800/60 ${
+              airbnbLabel 
+                ? 'bg-[#FF5A5F] text-white' 
+                : 'bg-stone-900/60 text-stone-600 opacity-40'
+            }`}
+            title={`AirBnB (${airbnbLabel || 'Inattivo'})`}
           >
-            S
-          </span>
-        ) : (
-          <span className="w-2.5 h-2.5 opacity-0" />
-        )}
+            {airbnbLabel || 'Ab'}
+          </div>
+
+          {/* 4. Future Agency / Reserve */}
+          <div className="flex items-center justify-center border-r border-stone-800/60 bg-stone-950 text-stone-700 opacity-30">
+            -
+          </div>
+
+          {/* 5. Standard 7d (P / Std 7d) */}
+          <div 
+            className={`flex items-center justify-center ${
+              isStandard7dActive 
+                ? 'bg-white text-stone-950 font-extrabold' 
+                : 'bg-stone-900/60 text-stone-600 opacity-40'
+            }`}
+            title="Standard 7d (P)"
+          >
+            P
+          </div>
+        </div>
       </div>
-
-      {/* Indicator CTA Solo Check-out */}
-      {isCTA && (
-        <span 
-          className="absolute top-0.5 left-3 w-1.5 h-1.5 rounded-full bg-amber-400 border border-amber-500/60 shadow-sm z-20" 
-          title="Solo Check-Out / Closed to Arrival"
-        />
-      )}
-
-      {/* CONTENUTO CELLA */}
-      {matchingBooking ? (
-        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-tight">
-          <div className="truncate text-[9.5px] font-black min-w-0 w-full text-center text-white uppercase">
-            {getBookingChannelName(matchingBooking)}
-          </div>
-          <div className="truncate text-[8.5px] min-w-0 w-full text-center text-white/95 font-medium">
-            {formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)}
-          </div>
-          <div className="text-[8.5px] font-mono font-black text-white leading-none mt-0.5 truncate min-w-0 w-full text-center">
-            ฿{realDailyPriceStr}
-          </div>
-        </div>
-      ) : hasDiscount ? (
-        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
-          <div className="text-[7.5px] font-mono font-bold text-white/90 line-through truncate min-w-0 w-full text-center opacity-80">
-            ฿{origPriceStr}
-          </div>
-          <div className="text-[8.5px] font-mono font-black text-cyan-300 leading-tight mt-0.5 truncate min-w-0 w-full text-center drop-shadow">
-            ฿{motherPriceStr}
-          </div>
-          <div className="text-[7.5px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-1 py-0.5 rounded mt-0.5 truncate min-w-0 text-center shadow">
-            -{simulatedMatch?.discountPercentage}%
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
-          <div className="text-[8px] font-mono font-medium text-stone-300 truncate min-w-0 w-full text-center">
-            Madre: {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : '-'}
-          </div>
-          <div className="text-[9.5px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
-            BE: {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : '-'}
-          </div>
-        </div>
-      )}
     </td>
   );
 });
@@ -1405,7 +1441,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                 const gapFillMinStays = computeGapFillMinStays(room.name, room.id, room.octorateId, room.isAvailable, visibleDays, liveGridData, bookingsPool, dynamicMinStayGapFill);
 
                 return (
-                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-7.5">
+                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-11">
                     {/* STEP 3: Z-INDEX ELEVATO Z-40 CON BACKGROUND SOLIDO PER COPRIRE I CERCHIETTI SCORREVOLI */}
                     <td className="py-0.5 px-2 sticky left-0 bg-stone-900 z-40 border-r border-stone-800 shadow-2xl font-black text-white text-[10.5px] truncate max-w-[155px] min-w-[155px] leading-tight">
                       {room.name}
@@ -1429,7 +1465,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
                       const matchingBooking = findMatchingBooking(room.name, room.id, room.octorateId, cellDate, bookingsPool);
 
-                      const { isBnbActive, isAgodaAcActive, isStandard7dActive } = computeDerivedRateIndicators(
+                      const { isBnbActive, isAgodaAcActive, bnbLabel, agodaLabel, airbnbLabel, isStandard7dActive } = computeDerivedRateIndicators(
                         room.name,
                         dateStr,
                         liveGridData,
@@ -1438,7 +1474,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
                       return (
                         <CalendarCell
-                          key={`${idx}_${isSimulationActive ? 'sim' : 'raw'}_${simulatedMatch?.finalPrice || '0'}_${isBnbActive ? '1' : '0'}${isAgodaAcActive ? '1' : '0'}${isStandard7dActive ? '1' : '0'}`}
+                          key={`${idx}_${isSimulationActive ? 'sim' : 'raw'}_${simulatedMatch?.finalPrice || '0'}_${isBnbActive ? '1' : '0'}_${isAgodaAcActive ? '1' : '0'}_${bnbLabel}_${agodaLabel}_${airbnbLabel}_${isStandard7dActive ? '1' : '0'}`}
                           cellDate={cellDate}
                           dateStr={dateStr}
                           roomName={room.name}
@@ -1457,6 +1493,9 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                           isSimulationActive={isSimulationActive}
                           isBnbActive={isBnbActive}
                           isAgodaAcActive={isAgodaAcActive}
+                          bnbLabel={bnbLabel}
+                          agodaLabel={agodaLabel}
+                          airbnbLabel={airbnbLabel}
                           isStandard7dActive={isStandard7dActive}
                           onSelectBooking={handleSelectBooking}
                         />
