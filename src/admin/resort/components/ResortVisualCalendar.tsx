@@ -734,6 +734,7 @@ interface CalendarCellProps {
   airbnbLabel?: string;
   isStandard7dActive?: boolean;
   onSelectBooking: (booking: ResortBooking) => void;
+  onSelectEmptyCell?: (cellInfo: any) => void;
 }
 
 const CalendarCell = React.memo(function CalendarCell({
@@ -759,7 +760,8 @@ const CalendarCell = React.memo(function CalendarCell({
   agodaLabel = '',
   airbnbLabel = '',
   isStandard7dActive = false,
-  onSelectBooking
+  onSelectBooking,
+  onSelectEmptyCell
 }: CalendarCellProps) {
   let originalPrice = Number(motherData?.price || motherData?.value || motherData?.amount || 0);
   if (originalPrice === 0 && simulatedMatch?.originalPrice) {
@@ -824,8 +826,34 @@ const CalendarCell = React.memo(function CalendarCell({
 
   return (
     <td
-      onClick={() => matchingBooking && onSelectBooking(matchingBooking)}
-      className={`p-0 border-l border-stone-800 text-center transition-colors relative w-[38px] min-w-[38px] max-w-[38px] h-[33px] align-top overflow-hidden ${bgStyle}`}
+      onClick={() => {
+        if (matchingBooking) {
+          onSelectBooking(matchingBooking);
+        } else if (onSelectEmptyCell) {
+          onSelectEmptyCell({
+            roomName,
+            roomId,
+            dateStr,
+            cellDate,
+            motherData,
+            beData,
+            expectedBaseline,
+            motherMinStayNum,
+            simulatedMatch,
+            gapFillCellInfo,
+            isClosedOrStopSell,
+            isBnbActive,
+            isAgodaAcActive,
+            bnbLabel,
+            agodaLabel,
+            airbnbLabel,
+            isStandard7dActive,
+            motherPriceStr,
+            beDiscountedStr
+          });
+        }
+      }}
+      className={`p-0 border-l border-stone-800 text-center transition-colors relative w-[38px] min-w-[38px] max-w-[38px] h-[33px] align-top overflow-hidden cursor-pointer ${bgStyle}`}
       title={matchingBooking 
         ? `Prenotato: ${formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
         : (hasDiscount
@@ -1014,6 +1042,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
   const [filterCategory, setFilterCategory] = useState<string>('All');
   const [selectedBooking, setSelectedBooking] = useState<ResortBooking | null>(null);
+  const [selectedRatesCell, setSelectedRatesCell] = useState<any | null>(null);
   const [liveGridData, setLiveGridData] = useState<Record<string, Record<string, OctorateDayData>>>({});
   const [loadingLive, setLoadingLive] = useState<boolean>(false);
 
@@ -1028,6 +1057,10 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
 
   const handleSelectBooking = useCallback((booking: ResortBooking) => {
     setSelectedBooking(booking);
+  }, []);
+
+  const handleSelectEmptyCell = useCallback((cellInfo: any) => {
+    setSelectedRatesCell(cellInfo);
   }, []);
 
   // V17: Calendario puramente passivo e reattivo allo store — nessun auto-download al mount
@@ -1498,6 +1531,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                           airbnbLabel={airbnbLabel}
                           isStandard7dActive={isStandard7dActive}
                           onSelectBooking={handleSelectBooking}
+                          onSelectEmptyCell={handleSelectEmptyCell}
                         />
                       );
                     })}
@@ -1567,6 +1601,165 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
             <button
               onClick={() => setSelectedBooking(null)}
               className="w-full py-2.5 bg-stone-800 hover:bg-stone-750 text-white font-bold text-xs rounded-2xl transition-all cursor-pointer"
+            >
+              Chiudi
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Rates Detail Modal Popup for Empty Cells */}
+      {selectedRatesCell && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setSelectedRatesCell(null)}
+        >
+          <div 
+            className="bg-stone-900 border border-emerald-500/30 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-5 text-white relative animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex justify-between items-start pb-3 border-b border-stone-800">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <h3 className="font-extrabold text-white text-lg tracking-tight">
+                    {selectedRatesCell.roomName}
+                  </h3>
+                </div>
+                <div className="text-stone-400 text-xs font-mono font-bold flex items-center gap-2">
+                  <span>Data: {`${selectedRatesCell.cellDate.getDate().toString().padStart(2, '0')}/${(selectedRatesCell.cellDate.getMonth() + 1).toString().padStart(2, '0')}/${selectedRatesCell.cellDate.getFullYear()}`}</span>
+                  <span className="text-stone-600">•</span>
+                  <span className="text-stone-300 font-sans">{selectedRatesCell.dateStr}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedRatesCell(null)}
+                className="p-1.5 text-stone-400 hover:text-white bg-stone-800/60 hover:bg-stone-800 rounded-xl transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Seasonality & MinStay Status */}
+            <div className="grid grid-cols-2 gap-2.5 text-xs">
+              <div className="bg-stone-950/80 p-3 rounded-2xl border border-stone-800 space-y-1">
+                <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Stagione Attiva:</span>
+                <div className="font-extrabold text-amber-400 flex items-center gap-1.5">
+                  {(selectedRatesCell.cellDate.getMonth() >= 10 || selectedRatesCell.cellDate.getMonth() <= 3) ? (
+                    <>🔥 <span>Alta Stagione (Winter)</span></>
+                  ) : (
+                    <>🌿 <span>Bassa Stagione (Green)</span></>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-stone-950/80 p-3 rounded-2xl border border-stone-800 space-y-1">
+                <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider block">Soggiorno Minimo:</span>
+                <div className="font-extrabold text-white flex items-center gap-1.5">
+                  <span className="bg-amber-400 text-stone-950 px-2 py-0.5 rounded-full font-black text-[11px]">
+                    {selectedRatesCell.motherMinStayNum} notti
+                  </span>
+                  <span className="text-stone-400 text-[10px] font-medium">
+                    (Base: {selectedRatesCell.expectedBaseline}d)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* StopSell / Room Status Warning if closed */}
+            {selectedRatesCell.isClosedOrStopSell && (
+              <div className="bg-red-950/80 border border-red-800/80 p-3 rounded-2xl text-xs text-red-200 font-bold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                <span>⚠️ Alloggio Chiuso / Stop Sell Attivo per questa data</span>
+              </div>
+            )}
+
+            {/* Active Rate Plans Grid */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-black uppercase tracking-wider text-stone-400">Listino & Tariffe Attive:</h4>
+              <div className="space-y-2">
+                {/* Tariffa Madre */}
+                <div className="bg-stone-950 p-3 rounded-2xl border border-stone-850 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-extrabold text-white text-xs block">Tariffa Madre (Standard 0)</span>
+                    <span className="text-[10px] text-stone-400">Tariffa base sincronizzata su Octorate</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono font-black text-white text-sm">
+                      {selectedRatesCell.motherPriceStr !== 'N/D' ? `฿${selectedRatesCell.motherPriceStr}` : 'N/D'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Booking Engine (BE) */}
+                <div className="bg-stone-950 p-3 rounded-2xl border border-emerald-900/40 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-extrabold text-emerald-400 text-xs flex items-center gap-1.5">
+                      <span>Booking Engine Diretto (BE)</span>
+                      {selectedRatesCell.simulatedMatch?.discountPercentage && (
+                        <span className="bg-cyan-950 text-cyan-300 border border-cyan-500/60 text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">
+                          -{selectedRatesCell.simulatedMatch.discountPercentage}%
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-[10px] text-stone-400">Prezzo scontato per prenotazione sul sito</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono font-black text-cyan-300 text-sm">
+                      {selectedRatesCell.beDiscountedStr !== 'N/D' ? `฿${selectedRatesCell.beDiscountedStr}` : 'N/D'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Channel Cockpit Cockpit Indicator Badges */}
+                <div className="grid grid-cols-4 gap-2 pt-1 text-xs">
+                  <div className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center ${selectedRatesCell.isBnbActive ? 'bg-[#003580]/30 border-[#003580] text-white' : 'bg-stone-950 border-stone-850 text-stone-600'}`}>
+                    <span className="text-[10px] font-black uppercase">Booking.com</span>
+                    <span className="text-[11px] font-extrabold mt-0.5">{selectedRatesCell.isBnbActive ? 'Attiva (B)' : 'Disattiva'}</span>
+                  </div>
+
+                  <div className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center ${selectedRatesCell.isAgodaAcActive ? 'bg-[#FF007F]/30 border-[#FF007F] text-white' : 'bg-stone-950 border-stone-850 text-stone-600'}`}>
+                    <span className="text-[10px] font-black uppercase">Agoda AC</span>
+                    <span className="text-[11px] font-extrabold mt-0.5">{selectedRatesCell.isAgodaAcActive ? 'Attiva (A)' : 'Disattiva'}</span>
+                  </div>
+
+                  <div className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center ${selectedRatesCell.airbnbLabel ? 'bg-[#FF5A5F]/30 border-[#FF5A5F] text-white' : 'bg-stone-950 border-stone-850 text-stone-600'}`}>
+                    <span className="text-[10px] font-black uppercase">AirBnB</span>
+                    <span className="text-[11px] font-extrabold mt-0.5">{selectedRatesCell.airbnbLabel ? 'Attiva (Ab)' : 'Disattiva'}</span>
+                  </div>
+
+                  <div className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center ${selectedRatesCell.isStandard7dActive ? 'bg-amber-950/40 border-amber-500 text-amber-300' : 'bg-stone-950 border-stone-850 text-stone-600'}`}>
+                    <span className="text-[10px] font-black uppercase">Standard 7d</span>
+                    <span className="text-[11px] font-extrabold mt-0.5">{selectedRatesCell.isStandard7dActive ? 'Attiva (S)' : 'Inattiva'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Gap-Fill Dynamic MinStay & Simulation Preview */}
+            {(selectedRatesCell.gapFillCellInfo || selectedRatesCell.simulatedMatch) && (
+              <div className="bg-emerald-950/60 border border-emerald-500/40 p-3.5 rounded-2xl space-y-1.5 text-xs text-emerald-200">
+                <span className="font-extrabold block text-emerald-300">⚡ Anteprima Simulazione / Dynamic Gap-Fill:</span>
+                {selectedRatesCell.gapFillCellInfo && (
+                  <p className="text-[11px]">
+                    MinStay dinamico calcolato per coprire il buco: <strong className="text-white font-mono">{selectedRatesCell.gapFillCellInfo.minStay} notti</strong>.
+                  </p>
+                )}
+                {selectedRatesCell.simulatedMatch && (
+                  <p className="text-[11px]">
+                    Prezzo finale simulato: <strong className="text-white font-mono">฿{selectedRatesCell.simulatedMatch.finalPrice}</strong> con sconto applicato.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Footer Action */}
+            <button
+              type="button"
+              onClick={() => setSelectedRatesCell(null)}
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg shadow-emerald-950/50 cursor-pointer"
             >
               Chiudi
             </button>
