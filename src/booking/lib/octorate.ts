@@ -692,9 +692,11 @@ export async function fetchOctorateMonthlyGrid(
     }
 
     const payload = await res.json();
-    const items = payload && payload.data && Array.isArray(payload.data) ? payload.data : [];
+    const items = payload && Array.isArray(payload.grid) && payload.grid.length > 0
+      ? payload.grid
+      : (payload && payload.data && Array.isArray(payload.data) ? payload.data : []);
 
-    // Save raw rate plans items (all 240 items) and reservations into Zustand store for tree visual controller
+    // Save raw rate plans items (all rate plans) and reservations into Zustand store for tree visual controller
     try {
       const { useResortAdminStore } = await import('../../admin/resort/store/useResortAdminStore');
       if (items.length > 0) {

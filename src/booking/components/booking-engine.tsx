@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react"
+import { formatDisplayDate } from "../../lib/dateUtils"
 import VillageSlideshow from "../../components/VillageSlideshow"
 import '../booking.css'
 
@@ -510,9 +511,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
   // Format check-in/out date for premium display (DD/MM/YYYY)
   const formatDateForDisplay = (dateStr: string): string => {
-    if (!dateStr) return "";
-    const parts = dateStr.split('-');
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    return formatDisplayDate(dateStr);
   };
 
   // Helper to render premium React calendar dropdowns

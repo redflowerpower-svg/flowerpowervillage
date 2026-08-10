@@ -192,13 +192,19 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
           discountLine = `| Discount Applied    : None`;
         }
 
+        const formatDisplayDate = (dStr: string) => {
+          if (!dStr) return '';
+          const p = dStr.slice(0, 10).split(/[\/\-]/);
+          return p.length === 3 && p[0].length === 4 ? `${p[2]}/${p[1]}/${p[0]}` : dStr;
+        };
+
         const notesLines = [
           `=== FLOWER POWER VILLAGE — BOOKING SUMMARY ===`,
           `| Stripe Session      : ${session.id}`,
           `| Total Amount        : ฿${Number(totalPrice || 0).toLocaleString("en")}`,
           `| Deposit Paid (30%)  : ฿${depositPaidAmt.toLocaleString("en")} (charged via Stripe)`,
           `| Balance Due (70%)   : ฿${balanceDueAmt.toLocaleString("en")} (to be paid at check-in)`,
-          `| Stay                : ${stayNights} night${stayNights !== 1 ? "s" : ""} (${checkIn} → ${checkOut})`,
+          `| Stay                : ${stayNights} night${stayNights !== 1 ? "s" : ""} (${formatDisplayDate(checkIn)} → ${formatDisplayDate(checkOut)})`,
           discountLine,
         ];
         if (promoLine) {

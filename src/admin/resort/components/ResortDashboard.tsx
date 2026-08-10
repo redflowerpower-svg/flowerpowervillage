@@ -7,6 +7,7 @@ import { NewsletterCampaignSection } from './NewsletterCampaignSection';
 import { StandardRatesProtectionSection } from './StandardRatesProtectionSection';
 import { PromoCodesSection } from './PromoCodesSection';
 import { OctorateImportSection } from './OctorateImportSection';
+import { GestioneStagionaleTariffe } from './GestioneStagionaleTariffe';
 import { AccommodationFeaturesEditor } from './AccommodationFeaturesEditor';
 import { supabase } from '../../../lib/supabase';
 import { toThailandDateStr } from '../lib/octorateAdmin';
@@ -114,7 +115,7 @@ export function ResortDashboard() {
   } = useResortAdminStore();
 
   const [activeOptimizationTab, setActiveOptimizationTab] = useState<OptimizationTab>('cascade');
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'messages' | 'octorate' | 'octorate_import'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'seasonal_rates' | 'messages' | 'octorate' | 'octorate_import'>('bookings');
   const [searchQuery, setSearchQuery] = useState('');
   // Doppio click per Calendario Annuale (componente pesante ~9000 celle)
   const [calendarConfirm, setCalendarConfirm] = useState(false);
@@ -687,6 +688,17 @@ export function ResortDashboard() {
               }`}
             >
               TARIFFE DERIVATE
+            </button>
+
+            <button
+              onClick={() => setActiveTab('seasonal_rates')}
+              className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                activeTab === 'seasonal_rates'
+                  ? 'bg-amber-500 text-stone-950 font-black shadow-md shadow-amber-950/40 ring-1 ring-amber-300/40'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
+              }`}
+            >
+              📅 GESTIONE STAGIONALE TARIFFE
             </button>
 
             <button
@@ -1906,6 +1918,11 @@ export function ResortDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Tab: Gestione Stagionale Tariffe */}
+      {activeTab === 'seasonal_rates' && (
+        <GestioneStagionaleTariffe />
       )}
 
       {/* Tab 4: Octorate Room Specs Import & Sync */}

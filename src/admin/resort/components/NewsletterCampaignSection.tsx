@@ -118,36 +118,7 @@ type ContactFilterOption = 'all' | 'email' | 'whatsapp';
  * Formattazione rigida delle date in formato "gg/mm/aa" (es. 10/08/26).
  */
 const formatDateDDMMYY = (dateStr: string): string => {
-  if (!dateStr) return '-';
-  const clean = String(dateStr).trim();
-
-  // Caso ISO YYYY-MM-DD
-  if (/^\d{4}-\d{2}-\d{2}/.test(clean)) {
-    const parts = clean.slice(0, 10).split('-');
-    const year2 = parts[0].slice(-2);
-    return `${parts[2]}/${parts[1]}/${year2}`;
-  }
-
-  // Caso gg/mm/aaaa (con ora opzionale)
-  if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(clean)) {
-    const mainDate = clean.split(',')[0].trim();
-    const parts = mainDate.split('/');
-    const day = parts[0].padStart(2, '0');
-    const month = parts[1].padStart(2, '0');
-    const year2 = parts[2].slice(-2);
-    return `${day}/${month}/${year2}`;
-  }
-
-  // Caso gg/mm/aa
-  if (/^\d{1,2}\/\d{1,2}\/\d{2}/.test(clean)) {
-    const mainDate = clean.split(',')[0].trim();
-    const parts = mainDate.split('/');
-    const day = parts[0].padStart(2, '0');
-    const month = parts[1].padStart(2, '0');
-    return `${day}/${month}/${parts[2]}`;
-  }
-
-  return clean;
+  return formatDisplayDateShort(dateStr) || '-';
 };
 
 /**

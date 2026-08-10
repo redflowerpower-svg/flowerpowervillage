@@ -25,6 +25,7 @@ import { handleOctorateImport } from "./_handlers/octorate-import.js";
 import { handleUpdateAccommodationFeatures } from "./_handlers/accommodations.js";
 import { handleVerifyWritability } from "./_handlers/verify-writability.js";
 import { handleUpdateRestriction } from "./_handlers/update-restriction.js";
+import { handleUpdatePricesStagionale } from "./_handlers/api-update-prices-stagionale.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -51,6 +52,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Normalize path string (remove leading 'api/' and trailing slashes)
   const queryRoute = Array.isArray(req.query?.route) ? req.query.route.join('/') : String(req.query?.route || '');
   const cleanPath = (pathname || queryRoute || '').replace(/^api\//, '').replace(/\/$/, '');
+
+  if (cleanPath.includes('update-prices-stagionale') || cleanPath.includes('update_prices_stagionale')) {
+    return handleUpdatePricesStagionale(req, res);
+  }
 
   if (cleanPath.includes('update-restriction') || cleanPath.includes('update_restriction')) {
     return handleUpdateRestriction(req, res);
