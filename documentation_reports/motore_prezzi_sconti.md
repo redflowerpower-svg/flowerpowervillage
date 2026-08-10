@@ -247,4 +247,28 @@ executionMode:
   - Aggiorna programmaticamente tutte le regole `ruleTag` (`+400฿ AM`, `+400฿ AMR`) e le descrizioni degli schemi di derivazione su tutte le 18 camere.
   - Sincronizza i controlli automatici delle discrepanze (Sanity Check) sui prezzi live Octorate.
 
+---
+
+## 4. Gestione Tariffe Derivate & Politiche di Cancellazione (`7d` / `14d`)
+
+### A. Definizione Immutabile delle Sigle `7d` e `14d`
+Le sigle `7d` e `14d` presenti nelle tariffe derivate Octorate indicano **esclusivamente i giorni del termine di cancellazione gratuita** (Cancellation Policy / Lead Time) e **non** sconti per la durata del soggiorno:
+- **`7d`**: Cancellazione gratuita con rimborso del 100% fino a 7 giorni prima del check-in. Negli ultimi 7 giorni prima del check-in, la cancellazione comporta la trattenuta del 100% dell'importo (penale totale).
+- **`14d`**: Cancellazione gratuita con rimborso del 100% fino a 14 giorni prima del check-in. Negli ultimi 14 giorni prima del check-in, la cancellazione comporta la trattenuta del 100% dell'importo (penale totale).
+
+### B. Elenco dei 12 Piani Tariffari Reali Mappati
+1. **`BE`**: Official Booking Engine (Tariffa Madre Sito Web)
+2. **`7d`**: Standard 7d (Canc. gratuita 7gg per Booking, Expedia, Agoda & Sito)
+3. **`Main bnb-7d`**: Booking.com & Expedia Standard (Canc. gratuita 7gg)
+4. **`Main bnb-14d`**: Booking.com & Expedia Standard (Canc. gratuita 14gg)
+5. **`AC7d`**: Master AC (Canc. gratuita 7gg alloggi AC)
+6. **`AC14d`**: Master AC (Canc. gratuita 14gg alloggi AC)
+7. **`AC bnb-7d`**: Booking.com & Expedia AC (Canc. gratuita 7gg alloggi AC)
+8. **`AC bnb-14d`**: Booking.com & Expedia AC (Canc. gratuita 14gg alloggi AC)
+9. **`AGD AC-7d`**: Agoda AC 7d (Canc. gratuita 7gg alloggi AC su Agoda)
+10. **`AGD AC-14d`**: Agoda AC 14d (Canc. gratuita 14gg alloggi AC su Agoda)
+11. **`AirBnB`**: Airbnb Standard (Canc. termini Airbnb alloggi Standard)
+12. **`AirBnB AC`**: Airbnb AC (Canc. termini Airbnb alloggi AC)
+
+
 

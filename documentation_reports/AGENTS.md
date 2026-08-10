@@ -8,6 +8,10 @@
 
 1. **PREZZI**: Le variazioni di prezzo devono colpire sempre e solo l'ID della Tariffa Madre (Livello 0). Octorate calcola lo sconto automaticamente a cascata su tutte le tariffe derivate.
 2. **RESTRIZIONI (Stop Sell, CA, CD, MinStay)**: È consentito scrivere le restrizioni direttamente sulle tariffe derivate (Livello 1 e 2) in cui l'ereditarietà è disattivata (es. R1 7d), e questo verrà specificato di volta in volta.
+3. **POLITICHE DI CANCELLAZIONE (`7d` e `14d`)**: Le sigle `7d` e `14d` indicano **TASSATIVAMENTE I GIORNI DELLA FINESTRA DI CANCELLAZIONE GRATUITA CON RIMBORSO TOTALE 100%**:
+   - **`7d`**: Rimborso 100% se cancellato entro 7 giorni prima del check-in; trattenuta del 100% nei 7 giorni precedenti.
+   - **`14d`**: Rimborso 100% se cancellato entro 14 giorni prima del check-in; trattenuta del 100% nei 14 giorni precedenti.
+   - NON si riferiscono alla durata del soggiorno, ma alla finestra di rimborso caparra/importo.
 
 ---
 
