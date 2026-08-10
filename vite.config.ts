@@ -12,6 +12,12 @@ export default defineConfig({
     },
     historyApiFallback: true,
     proxy: {
+      // Proxy per le API serverless Vercel in locale (vercel dev gira su :3000)
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api-octorate': {
         target: 'https://api.octorate.com',
         changeOrigin: true,

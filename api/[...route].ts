@@ -26,6 +26,7 @@ import { handleUpdateAccommodationFeatures } from "./_handlers/accommodations.js
 import { handleVerifyWritability } from "./_handlers/verify-writability.js";
 import { handleUpdateRestriction } from "./_handlers/update-restriction.js";
 import { handleUpdatePricesStagionale } from "./_handlers/api-update-prices-stagionale.js";
+import { handleOctorateRestrictionsGrid } from "./_handlers/octorate-restrictions-grid.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -35,9 +36,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return handleOctorateWebhook(req, res); 
   }
 
-  // Extract path from req.url or req.query.route
+  // Extract path from req.url or req.query.route with failsafe decoding and normalization
   const rawUrl = req.url || '';
-  const pathname = rawUrl.split('?')[0].replace(/^\/+/, ''); // e.g. "api/create-checkout-session" or "api/resort/octorate-grid"
+  let pathname = '';
+  try {
+    pathname = decodeURIComponent(rawUrl).split('?')[0].replace(/^\/+/, '');
+  } catch {
+    pathname = rawUrl.split('?')[0].replace(/^\/+/, '');
+  }
 
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -49,12 +55,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).end();
   }
 
-  // Normalize path string (remove leading 'api/' and trailing slashes)
+  // Normalize path string (lowercase, remove leading 'api/' and trailing slashes)
   const queryRoute = Array.isArray(req.query?.route) ? req.query.route.join('/') : String(req.query?.route || '');
-  const cleanPath = (pathname || queryRoute || '').replace(/^api\//, '').replace(/\/$/, '');
+  const cleanPath = (pathname || queryRoute || '').replace(/^api\//i, '').replace(/\/$/, '').toLowerCase();
 
   if (cleanPath.includes('update-prices-stagionale') || cleanPath.includes('update_prices_stagionale')) {
     return handleUpdatePricesStagionale(req, res);
+  }
+
+  if (cleanPath.includes('octorate-restrictions-grid') || cleanPath.includes('octorate_restrictions_grid')) {
+    return handleOctorateRestrictionsGrid(req, res);
   }
 
   if (cleanPath.includes('update-restriction') || cleanPath.includes('update_restriction')) {
@@ -127,6 +137,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     case 'resort/octorate-grid':
       return handleOctorateGrid(req, res);
+
+    case 'resort/octorate-restrictions-grid':
+    case 'octorate-restrictions-grid':
+      return handleOctorateRestrictionsGrid(req, res);
 
     case 'resort/octorate/min-stay':
     case 'resort/octorate-min-stay':

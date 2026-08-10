@@ -50,12 +50,17 @@ export interface LiveMockRestriction {
 
 export interface RestrictionsStoreState {
   plannedPeriods: Record<string, PlannedPeriod[]>;
+  liveOctorateRestrictions: Record<string, PlannedPeriod[]>;
   liveOctorateRestrictionsMock: Record<string, Record<string, LiveMockRestriction>>;
   syncingPeriodId: string | null;
   syncAllRunning: boolean;
+  isBulkSaving: boolean;
+  bulkSyncProgress: { current: number; total: number; currentPlanName: string };
+  isFetchingLive: boolean;
   lastSyncMessage: string | null;
   lastSyncStatus: 'idle' | 'success' | 'error';
 
+  fetchLiveRestrictions: () => Promise<void>;
   updatePlannedPeriod: (planId: string, periodId: string, updates: Partial<PlannedPeriod>) => void;
   addNextPlannedPeriod: (planId: string) => void;
   removePlannedPeriod: (planId: string, periodId: string) => void;
@@ -67,6 +72,8 @@ export interface RestrictionsStoreState {
 
   syncPlanToOctorate: (planId: string, periodId: string) => Promise<boolean>;
   syncAllPlansToOctorate: () => Promise<boolean>;
+  syncAllRatePlansToOctorate: () => Promise<boolean>;
+  cancelBulkSync: () => void;
   resetDefaultStore: () => void;
 }
 
@@ -83,26 +90,134 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   main_bnb_7d: [
     { id: 'mb7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
     { id: 'mb7_p2', name: 'Periodo 2: Q1 (Gen-Mar)', dateFrom: '2027-01-01', dateTo: '2027-03-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  main_bnb_14d: [
+    { id: 'mb14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
+    { id: 'mb14_p2', name: 'Periodo 2: Q1 (Gen-Mar)', dateFrom: '2027-01-01', dateTo: '2027-03-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  ac_7d: [
+    { id: 'ac7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  ac_14d: [
+    { id: 'ac14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  ac_bnb_7d: [
+    { id: 'acb7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  ac_bnb_14d: [
+    { id: 'acb14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  agd_ac_7d: [
+    { id: 'ag7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  agd_ac_14d: [
+    { id: 'ag14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  airbnb: [
+    { id: 'ab_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  airbnb_ac: [
+    { id: 'abac_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ]
 };
 
-// Mock live state: Periodo 2 BE con discrepanza guidata per cerchiatura giallo oro (onlyCheckOutDays 5 in Live vs 10 in Pianificato)
-export const INITIAL_LIVE_MOCK: Record<string, Record<string, LiveMockRestriction>> = {
-  be: {
-    be_p1: { stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10 },
-    be_p2: { stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 5 } // Discrepanza guidata! (Only Check Out 5 in Live vs 10 in Pianificato)
+// Mock live state svuotato: la Tabella 2 usa esclusivamente dati reali da Octorate API
+export const INITIAL_LIVE_MOCK: Record<string, Record<string, LiveMockRestriction>> = {};
+
+// Helper: normalizza le chiavi del grid backend verso le chiavi frontend (planId)
+// Gestisce variazioni come 'main_bnb_7d' vs 'main-bnb-7d' vs 'mainbnb7d' ecc.
+export function normalizeGridKeys(rawGrid: Record<string, any[]>): Record<string, any[]> {
+  const KEY_ALIASES: Record<string, string> = {
+    // Chiavi backend esatte (già corrette)
+    be: 'be',
+    '7d': '7d',
+    main_bnb_7d: 'main_bnb_7d',
+    main_bnb_14d: 'main_bnb_14d',
+    ac_7d: 'ac_7d',
+    ac_14d: 'ac_14d',
+    ac_bnb_7d: 'ac_bnb_7d',
+    ac_bnb_14d: 'ac_bnb_14d',
+    agd_ac_7d: 'agd_ac_7d',
+    agd_ac_14d: 'agd_ac_14d',
+    airbnb: 'airbnb',
+    airbnb_ac: 'airbnb_ac',
+    // Varianti alternative che Octorate potrebbe restituire
+    'main-bnb-7d': 'main_bnb_7d',
+    'main-bnb-14d': 'main_bnb_14d',
+    'ac-7d': 'ac_7d',
+    'ac-14d': 'ac_14d',
+    'ac-bnb-7d': 'ac_bnb_7d',
+    'ac-bnb-14d': 'ac_bnb_14d',
+    'agd-ac-7d': 'agd_ac_7d',
+    'agd-ac-14d': 'agd_ac_14d',
+    'airbnb-ac': 'airbnb_ac',
+    'airbnbac': 'airbnb_ac',
+  };
+
+  const normalized: Record<string, any[]> = {};
+  for (const [rawKey, periods] of Object.entries(rawGrid)) {
+    const cleanKey = rawKey.toLowerCase().trim();
+    const mappedKey = KEY_ALIASES[cleanKey] ?? cleanKey;
+    if (Array.isArray(periods) && periods.length > 0) {
+      normalized[mappedKey] = periods;
+    }
   }
-};
+  return normalized;
+}
 
 export const useRestrictionsStore = create<RestrictionsStoreState>()(
   persist(
     (set, get) => ({
       plannedPeriods: { ...INITIAL_PLAN_PERIODS },
+      liveOctorateRestrictions: {},
       liveOctorateRestrictionsMock: { ...INITIAL_LIVE_MOCK },
       syncingPeriodId: null,
       syncAllRunning: false,
+      isBulkSaving: false,
+      bulkSyncProgress: { current: 0, total: 0, currentPlanName: '' },
+      isFetchingLive: false,
       lastSyncMessage: null,
       lastSyncStatus: 'idle',
+
+      fetchLiveRestrictions: async () => {
+        set({ isFetchingLive: true, lastSyncMessage: null });
+        try {
+          const res = await fetch('/api/resort/octorate-restrictions-grid');
+          if (!res.ok) {
+            const errText = await res.text().catch(() => `Status ${res.status}`);
+            throw new Error(`Errore HTTP ${res.status}: ${errText}`);
+          }
+          const data = await res.json();
+          if (data.success && data.grid && typeof data.grid === 'object') {
+            // Normalizza le chiavi del grid backend verso i planId frontend
+            const normalizedGrid = normalizeGridKeys(data.grid);
+            const planCount = Object.keys(normalizedGrid).length;
+            const periodCount = Object.values(normalizedGrid).reduce((acc, v) => acc + (v?.length || 0), 0);
+            console.info(`[fetchLiveRestrictions] ✅ Grid scaricata: ${planCount} piani, ${periodCount} periodi totali.`);
+            set({
+              liveOctorateRestrictions: normalizedGrid,
+              isFetchingLive: false,
+              lastSyncMessage: `✅ Timeline Live Octorate aggiornata: ${planCount} piani, ${periodCount} periodi scaricati.`,
+              lastSyncStatus: 'success'
+            });
+          } else {
+            const errMsg = data.error || 'Risposta Octorate vuota o non valida';
+            console.warn('[fetchLiveRestrictions] ⚠️ Grid vuota:', errMsg, data);
+            set({
+              isFetchingLive: false,
+              lastSyncMessage: `⚠️ Timeline Live Octorate: ${errMsg}`,
+              lastSyncStatus: 'error'
+            });
+          }
+        } catch (err: any) {
+          console.error('[useRestrictionsStore] Errore fetchLiveRestrictions:', err);
+          set({
+            isFetchingLive: false,
+            lastSyncMessage: `❌ Impossibile scaricare dati Live da Octorate: ${err?.message || 'Errore di rete'}`,
+            lastSyncStatus: 'error'
+          });
+        }
+      },
 
       updatePlannedPeriod: (planId: string, periodId: string, updates: Partial<PlannedPeriod>) => {
         const state = get();
@@ -242,14 +357,45 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       },
 
       syncAllPlansToOctorate: async () => {
+        return get().syncAllRatePlansToOctorate();
+      },
+
+      syncAllRatePlansToOctorate: async () => {
         const state = get();
-        set({ syncAllRunning: true, lastSyncMessage: 'Sincronizzazione globale di tutti i Piani Tariffari in corso...', lastSyncStatus: 'idle' });
+        let totalCount = 0;
+        for (const plan of REAL_OCTORATE_PLANS) {
+          const list = state.plannedPeriods[plan.id] || [];
+          totalCount += list.length;
+        }
+
+        set({
+          isBulkSaving: true,
+          syncAllRunning: true,
+          bulkSyncProgress: { current: 0, total: totalCount, currentPlanName: 'Inizio...' },
+          lastSyncMessage: `Avvio coda di sincronizzazione per ${totalCount} periodi su Octorate...`,
+          lastSyncStatus: 'idle'
+        });
+
+        let currentStep = 0;
 
         try {
           for (const plan of REAL_OCTORATE_PLANS) {
+            if (!get().isBulkSaving) break;
             const periods = state.plannedPeriods[plan.id] || [];
             for (const period of periods) {
+              if (!get().isBulkSaving) break;
+              currentStep++;
+              set({
+                bulkSyncProgress: {
+                  current: currentStep,
+                  total: totalCount,
+                  currentPlanName: `${plan.code} (${period.name})`
+                },
+                lastSyncMessage: `Sincronizzazione (${currentStep}/${totalCount}) ${plan.code} - ${period.name}...`
+              });
+
               const effectiveCtd = period.failsafeCheckout ? false : period.closedToDeparture;
+
               await fetch('/api/update-restriction', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -266,29 +412,47 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             }
           }
 
+          if (!get().isBulkSaving) {
+            set({
+              syncAllRunning: false,
+              lastSyncStatus: 'idle',
+              lastSyncMessage: '⏹️ Sincronizzazione interrotta dall\'utente.'
+            });
+            return false;
+          }
+
           set({
+            isBulkSaving: false,
             syncAllRunning: false,
             lastSyncStatus: 'success',
-            lastSyncMessage: `✅ Sincronizzazione globale dei Piani Tariffari completata su Octorate!`
+            lastSyncMessage: `✅ Sincronizzazione sequenziale completata con successo! ${totalCount}/${totalCount} periodi allineati su Octorate.`,
+            bulkSyncProgress: { current: totalCount, total: totalCount, currentPlanName: 'Completato' }
           });
 
-          try {
-            const { fetchOctorateGridData } = await import('../../../booking/lib/octorate');
-            fetchOctorateGridData('2026-10-01', '2027-10-31').catch(e => console.warn('Grid re-fetch error:', e));
-          } catch (e) {
-            console.warn('Import error:', e);
-          }
+          await get().fetchLiveRestrictions();
 
           return true;
         } catch (err: any) {
-          console.error('Error syncing all plans:', err);
+          console.error('Error in syncAllRatePlansToOctorate:', err);
           set({
+            isBulkSaving: false,
             syncAllRunning: false,
             lastSyncStatus: 'error',
-            lastSyncMessage: `❌ Errore sincronizzazione globale: ${err?.message || 'Impossibile completare il bulk'}`
+            lastSyncMessage: `❌ Errore durante la sincronizzazione bulk: ${err?.message || 'Impossibile completare'}`
           });
           return false;
         }
+      },
+
+      cancelBulkSync: () => {
+        set({
+          isBulkSaving: false,
+          syncAllRunning: false,
+          syncingPeriodId: null,
+          lastSyncStatus: 'idle',
+          lastSyncMessage: '⏹️ Sincronizzazione interrotta dall\'utente. Operazione annullata.',
+          bulkSyncProgress: { current: 0, total: 0, currentPlanName: '' }
+        });
       },
 
       resetDefaultStore: () => {
