@@ -339,11 +339,15 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 }`}>
                 📊 Timeline Pianificata
               </button>
-              <button type="button" onClick={() => setActiveViewTab('comparison')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer ${
+              <button type="button" onClick={() => {
+                setActiveViewTab('comparison');
+                fetchLiveRestrictions();
+              }}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeViewTab === 'comparison' ? 'bg-emerald-600 text-white shadow-md' : 'text-stone-400 hover:text-white'
                 }`}>
-                🔍 Timeline Live Octorate
+                <RefreshCw className={`w-3.5 h-3.5 ${isFetchingLive ? 'animate-spin text-white' : ''}`} />
+                <span>🔍 Timeline Live Octorate</span>
               </button>
             </div>
 
@@ -520,15 +524,23 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                       ) : (
                         <>
                           {!isLiveDataReady ? (
-                            <div className="absolute inset-0 flex items-center px-4 gap-2 text-[9.5px] text-stone-400">
-                              {isFetchingLive
-                                ? <RefreshCw className="w-3.5 h-3.5 text-sky-400 animate-spin shrink-0" />
-                                : <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
-                              <span className="font-mono">
-                                {isFetchingLive
-                                  ? 'Scaricamento dati live da Octorate...'
-                                  : 'Nessun dato live. Clicca 🔄 Timeline Live Octorate per aggiornare.'}
-                              </span>
+                            <div className="absolute inset-0 flex items-center px-4 gap-3 text-[10px] text-stone-400">
+                              {isFetchingLive ? (
+                                <>
+                                  <RefreshCw className="w-4 h-4 text-sky-400 animate-spin shrink-0" />
+                                  <span className="font-mono text-sky-300 font-bold">Scaricamento dati live da Octorate in corso...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                                  <span className="font-mono text-stone-400">Nessun dato live caricato.</span>
+                                  <button type="button" onClick={() => fetchLiveRestrictions()}
+                                    className="px-3 py-1 bg-emerald-700 hover:bg-emerald-600 border border-emerald-500/50 text-white font-extrabold rounded-xl text-xs flex items-center gap-2 transition-all cursor-pointer shadow-lg hover:scale-105">
+                                    <RefreshCw className="w-3.5 h-3.5" />
+                                    <span>🔄 Clicca qui per scaricare / aggiornare i Dati Live Octorate</span>
+                                  </button>
+                                </>
+                              )}
                             </div>
                           ) : (
                             (() => {
