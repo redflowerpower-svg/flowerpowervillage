@@ -12,18 +12,18 @@ export interface RealOctoratePlan {
 }
 
 export const REAL_OCTORATE_PLANS: RealOctoratePlan[] = [
-  { id: 'be', code: 'BE', name: 'Official Booking Engine (BE)', isAcOnly: false, type: 'be', description: 'Canale diretto del sito web (Tariffa Madre)', badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/50' },
-  { id: '7d', code: '7d', name: 'Standard 7d (Canc. 7gg)', isAcOnly: false, type: '7d', description: 'Booking.com, Expedia, Agoda & Sito: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' },
-  { id: 'main_bnb_7d', code: 'Main bnb-7d', name: 'Main bnb-7d (Canc. 7gg)', isAcOnly: false, type: 'booking', description: 'Booking.com & Expedia: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/50' },
-  { id: 'main_bnb_14d', code: 'Main bnb-14d', name: 'Main bnb-14d (Canc. 14gg)', isAcOnly: false, type: 'booking', description: 'Booking.com & Expedia: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/50' },
+  { id: 'be', code: 'BE', name: 'Official Booking Engine (BE)', isAcOnly: false, type: 'be', description: 'Canale diretto del sito web (Tariffa Madre)', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' },
+  { id: '7d', code: '7d', name: 'Standard 7d (Canc. 7gg)', isAcOnly: false, type: '7d', description: 'Booking.com, Expedia, Agoda & Sito: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-teal-400/20 text-teal-300 border-teal-400/50' },
+  { id: 'main_bnb_7d', code: 'Main bnb-7d', name: 'Main bnb-7d (Canc. 7gg)', isAcOnly: false, type: 'booking', description: 'Booking.com & Expedia: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/50' },
+  { id: 'main_bnb_14d', code: 'Main bnb-14d', name: 'Main bnb-14d (Canc. 14gg)', isAcOnly: false, type: 'booking', description: 'Booking.com & Expedia: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-blue-950/90 text-blue-300 border-blue-700/80' },
+  { id: 'agd_ac_7d', code: 'AGD AC-7d', name: 'AGD AC-7d (Agoda AC 7gg)', isAcOnly: true, type: 'agoda', description: 'Agoda AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-pink-300/20 text-pink-200 border-pink-300/60' },
+  { id: 'agd_ac_14d', code: 'AGD AC-14d', name: 'AGD AC-14d (Agoda AC 14gg)', isAcOnly: true, type: 'agoda', description: 'Agoda AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-rose-950/80 text-rose-400 border-rose-700/80' },
+  { id: 'airbnb', code: 'AirBnB', name: 'AirBnB Standard', isAcOnly: false, type: 'booking', description: 'Canale Airbnb per alloggi Standard', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/50' },
+  { id: 'airbnb_ac', code: 'AirBnB AC', name: 'AirBnB AC', isAcOnly: true, type: 'booking', description: 'Canale Airbnb per alloggi con Aria Condizionata', badgeColor: 'bg-orange-600/25 text-orange-300 border-orange-600/60' },
   { id: 'ac_7d', code: 'AC7d', name: 'AC7d (AC Canc. 7gg)', isAcOnly: true, type: 'ac', description: 'Master AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' },
   { id: 'ac_14d', code: 'AC14d', name: 'AC14d (AC Canc. 14gg)', isAcOnly: true, type: 'ac', description: 'Master AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/50' },
   { id: 'ac_bnb_7d', code: 'AC bnb-7d', name: 'AC bnb-7d (Booking AC 7gg)', isAcOnly: true, type: 'booking', description: 'Booking.com & Expedia AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-indigo-500/20 text-cyan-300 border-cyan-500/50' },
-  { id: 'ac_bnb_14d', code: 'AC bnb-14d', name: 'AC bnb-14d (Booking AC 14gg)', isAcOnly: true, type: 'booking', description: 'Booking.com & Expedia AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-purple-500/20 text-cyan-300 border-cyan-500/50' },
-  { id: 'agd_ac_7d', code: 'AGD AC-7d', name: 'AGD AC-7d (Agoda AC 7gg)', isAcOnly: true, type: 'agoda', description: 'Agoda AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-teal-500/20 text-teal-300 border-teal-500/50' },
-  { id: 'agd_ac_14d', code: 'AGD AC-14d', name: 'AGD AC-14d (Agoda AC 14gg)', isAcOnly: true, type: 'agoda', description: 'Agoda AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/50' },
-  { id: 'airbnb', code: 'AirBnB', name: 'AirBnB Standard', isAcOnly: false, type: 'booking', description: 'Canale Airbnb per alloggi Standard', badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/50' },
-  { id: 'airbnb_ac', code: 'AirBnB AC', name: 'AirBnB AC', isAcOnly: true, type: 'booking', description: 'Canale Airbnb per alloggi con Aria Condizionata', badgeColor: 'bg-pink-500/20 text-pink-300 border-pink-500/50' }
+  { id: 'ac_bnb_14d', code: 'AC bnb-14d', name: 'AC bnb-14d (Booking AC 14gg)', isAcOnly: true, type: 'booking', description: 'Booking.com & Expedia AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-purple-500/20 text-cyan-300 border-cyan-500/50' }
 ];
 
 export const RATE_PLANS = REAL_OCTORATE_PLANS;
@@ -88,24 +88,11 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     { id: '7d_p2', name: 'Periodo 2: Novembre - Gennaio', dateFrom: '2026-11-01', dateTo: '2027-01-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   main_bnb_7d: [
-    { id: 'mb7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
-    { id: 'mb7_p2', name: 'Periodo 2: Q1 (Gen-Mar)', dateFrom: '2027-01-01', dateTo: '2027-03-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+    { id: 'mb7_p1', name: 'Periodo 1: 01/10/2026 - 21/12/2026', dateFrom: '2026-10-01', dateTo: '2026-12-21', stopSell: false, closedToArrival: true, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
+    { id: 'mb7_p2', name: 'Periodo 2: 15/01/2027 - 31/03/2027', dateFrom: '2027-01-15', dateTo: '2027-03-31', stopSell: false, closedToArrival: true, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   main_bnb_14d: [
-    { id: 'mb14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
-    { id: 'mb14_p2', name: 'Periodo 2: Q1 (Gen-Mar)', dateFrom: '2027-01-01', dateTo: '2027-03-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
-  ],
-  ac_7d: [
-    { id: 'ac7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
-  ],
-  ac_14d: [
-    { id: 'ac14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
-  ],
-  ac_bnb_7d: [
-    { id: 'acb7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
-  ],
-  ac_bnb_14d: [
-    { id: 'acb14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+    { id: 'mb14_p1', name: 'Periodo 1: 21/12/2026 - 15/01/2027', dateFrom: '2026-12-21', dateTo: '2027-01-15', stopSell: false, closedToArrival: true, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   agd_ac_7d: [
     { id: 'ag7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
@@ -118,6 +105,18 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   ],
   airbnb_ac: [
     { id: 'abac_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  ac_7d: [
+    { id: 'ac7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  ac_14d: [
+    { id: 'ac14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  ac_bnb_7d: [
+    { id: 'acb7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
+  ],
+  ac_bnb_14d: [
+    { id: 'acb14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ]
 };
 
@@ -159,7 +158,10 @@ export function normalizeGridKeys(rawGrid: Record<string, any[]>): Record<string
     const cleanKey = rawKey.toLowerCase().trim();
     const mappedKey = KEY_ALIASES[cleanKey] ?? cleanKey;
     if (Array.isArray(periods) && periods.length > 0) {
-      normalized[mappedKey] = periods;
+      normalized[mappedKey] = periods.map((p: any) => ({
+        ...p,
+        onlyCheckOutDays: p.onlyCheckoutDays !== undefined ? p.onlyCheckoutDays : (p.onlyCheckOutDays || 0)
+      }));
     }
   }
   return normalized;

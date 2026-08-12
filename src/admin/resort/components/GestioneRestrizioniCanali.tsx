@@ -44,10 +44,69 @@ const MONTHS_CONFIG = [
 
 const TOTAL_GANTT_DAYS = MONTHS_CONFIG.reduce((s, m) => s + m.days, 0);
 const TOTAL_GANTT_PX = TOTAL_GANTT_DAYS * PX_PER_DAY;
-// Larghezza fissa standard di ogni card = Periodo 1 di Main bnb-14d (26 giorni × 6px)
-const STANDARD_CARD_WIDTH = 26 * PX_PER_DAY; // 156px
-// Altezza riga
-const ROW_HEIGHT = 175;
+// Altezza riga ridotta al minimo limite sufficiente (92px)
+const ROW_HEIGHT = 92;
+
+interface PlanTheme {
+  badgeBg: string;
+  badgeText: string;
+  badgeBorder: string;
+  cardBg: string;
+  cardBorder: string;
+  cardText: string;
+  dateText: string;
+}
+
+const RATE_PLAN_COLORS: Record<string, PlanTheme> = {
+  be: {
+    badgeBg: 'bg-emerald-500/20', badgeText: 'text-emerald-300 font-extrabold', badgeBorder: 'border-emerald-500/50',
+    cardBg: 'bg-emerald-950/90', cardBorder: 'border-emerald-500/80', cardText: 'text-emerald-200', dateText: 'text-emerald-300'
+  },
+  '7d': {
+    badgeBg: 'bg-teal-400/20', badgeText: 'text-teal-300 font-extrabold', badgeBorder: 'border-teal-400/50',
+    cardBg: 'bg-teal-950/85', cardBorder: 'border-teal-400/80', cardText: 'text-teal-100', dateText: 'text-teal-300'
+  },
+  main_bnb_7d: {
+    badgeBg: 'bg-sky-500/20', badgeText: 'text-sky-300 font-extrabold', badgeBorder: 'border-sky-500/50',
+    cardBg: 'bg-sky-950/90', cardBorder: 'border-sky-400/80', cardText: 'text-sky-200', dateText: 'text-sky-300'
+  },
+  main_bnb_14d: {
+    badgeBg: 'bg-blue-950/90', badgeText: 'text-blue-300 font-extrabold', badgeBorder: 'border-blue-700/80',
+    cardBg: 'bg-[#08152e]/95', cardBorder: 'border-blue-700/80', cardText: 'text-blue-200', dateText: 'text-blue-300'
+  },
+  agd_ac_7d: {
+    badgeBg: 'bg-pink-300/20', badgeText: 'text-pink-200 font-extrabold', badgeBorder: 'border-pink-300/60',
+    cardBg: 'bg-[#3b1922]/90', cardBorder: 'border-pink-300/80', cardText: 'text-pink-100', dateText: 'text-pink-200'
+  },
+  agd_ac_14d: {
+    badgeBg: 'bg-rose-950/80', badgeText: 'text-rose-400 font-extrabold', badgeBorder: 'border-rose-700/80',
+    cardBg: 'bg-[#250811]/95', cardBorder: 'border-rose-700/80', cardText: 'text-rose-200', dateText: 'text-rose-300'
+  },
+  ac_7d: {
+    badgeBg: 'bg-cyan-500/20', badgeText: 'text-cyan-300', badgeBorder: 'border-cyan-500/50',
+    cardBg: 'bg-cyan-950/85', cardBorder: 'border-cyan-600/70', cardText: 'text-cyan-200', dateText: 'text-cyan-300'
+  },
+  ac_14d: {
+    badgeBg: 'bg-blue-500/20', badgeText: 'text-blue-300', badgeBorder: 'border-blue-500/50',
+    cardBg: 'bg-blue-950/85', cardBorder: 'border-blue-600/70', cardText: 'text-blue-200', dateText: 'text-blue-300'
+  },
+  ac_bnb_7d: {
+    badgeBg: 'bg-indigo-500/20', badgeText: 'text-indigo-300', badgeBorder: 'border-indigo-500/50',
+    cardBg: 'bg-indigo-950/85', cardBorder: 'border-indigo-600/70', cardText: 'text-indigo-200', dateText: 'text-indigo-300'
+  },
+  ac_bnb_14d: {
+    badgeBg: 'bg-purple-500/20', badgeText: 'text-purple-300', badgeBorder: 'border-purple-500/50',
+    cardBg: 'bg-purple-950/85', cardBorder: 'border-purple-600/70', cardText: 'text-purple-200', dateText: 'text-purple-300'
+  },
+  airbnb: {
+    badgeBg: 'bg-amber-500/20', badgeText: 'text-amber-300 font-extrabold', badgeBorder: 'border-amber-500/50',
+    cardBg: 'bg-amber-950/85', cardBorder: 'border-amber-500/80', cardText: 'text-amber-200', dateText: 'text-amber-300'
+  },
+  airbnb_ac: {
+    badgeBg: 'bg-orange-600/25', badgeText: 'text-orange-300 font-extrabold', badgeBorder: 'border-orange-600/60',
+    cardBg: 'bg-[#331405]/95', cardBorder: 'border-orange-600/80', cardText: 'text-orange-200', dateText: 'text-orange-300'
+  }
+};
 
 // ─── Gantt helpers ────────────────────────────────────────────────────────────
 function daysBetween(a: Date, b: Date) {
@@ -131,9 +190,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   }, []); // eseguito solo al mount — rawOctorateGridItems non è una dep stabile
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // CARD TABELLA 1 — Layout fluido al 100% della larghezza Gantt
-  // Il titolo è una riga compatta senza separatore.
-  // Le date Inizio / Fine sono in colonna, occupano tutta la larghezza.
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CARD TABELLA 1 — Layout fluido (Altezza compattata)
   // ─────────────────────────────────────────────────────────────────────────────
   const renderPlannedPeriodCard = (plan: RealOctoratePlan, period: PlannedPeriod, periodsList: PlannedPeriod[]) => {
     const isSyncing = syncingPeriodId === period.id;
@@ -147,24 +205,29 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       isMismatched = liveMatch.stopSell !== period.stopSell || liveMatch.onlyCheckOutDays !== period.onlyCheckOutDays;
     }
 
+    const theme = RATE_PLAN_COLORS[plan.id] || {
+      badgeBg: 'bg-stone-800', badgeText: 'text-stone-300', badgeBorder: 'border-stone-700',
+      cardBg: 'bg-stone-950/80', cardBorder: 'border-stone-800', cardText: 'text-stone-200', dateText: 'text-red-300'
+    };
+
     const cardBg = isMismatched
       ? 'bg-yellow-950/90 border-yellow-400 ring-2 ring-yellow-400/90 shadow-[0_0_15px_rgba(250,204,21,0.8)] text-yellow-200'
-      : 'bg-stone-950/80 border-stone-800 hover:border-stone-700 shadow-md text-stone-200';
+      : `${theme.cardBg} ${theme.cardBorder} hover:border-stone-600 shadow-md ${theme.cardText}`;
 
     return (
       <div
         key={period.id}
-        style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '6px', bottom: '6px' }}
-        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-2 ${cardBg}`}
+        style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '2px', bottom: '2px' }}
+        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 ${cardBg}`}
       >
         {/* Contenuto clamped: 148px max, 100% per card strette */}
-        <div style={{ width: 'min(148px, 100%)' }} className="flex flex-col gap-1">
+        <div style={{ width: 'min(148px, 100%)' }} className="flex flex-col gap-0.5">
 
           {/* Riga 1: Titolo + pulsanti */}
-          <div className="flex items-center justify-between gap-1">
+          <div className="flex items-center justify-between gap-1 h-3.5">
             <input type="text" value={period.name}
               onChange={e => updatePlannedPeriod(plan.id, period.id, { name: e.target.value })}
-              className="bg-transparent font-extrabold text-white text-[9px] focus:outline-none truncate flex-1 min-w-0" />
+              className="bg-transparent font-extrabold text-white text-[8.5px] focus:outline-none truncate flex-1 min-w-0" />
             <div className="flex items-center gap-0.5 shrink-0">
               <button type="button" onClick={() => syncPlanToOctorate(plan.id, period.id)} disabled={isSyncing}
                 className="p-0.5 bg-red-950 hover:bg-red-900 text-red-300 border border-red-700/50 rounded cursor-pointer" title="Sync">
@@ -177,52 +240,48 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             </div>
           </div>
 
-          {/* Riga 2: Inizio */}
-          <div className="relative">
-            <div className="text-[6.5px] font-extrabold uppercase text-stone-500 leading-none mb-0.5">INIZIO</div>
-            <div className="relative cursor-pointer" onClick={e => {
-              const inputEl = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
-              if (inputEl) try { inputEl.showPicker?.(); } catch {}
-            }}>
-              <input type="text" value={formatDisplayDate(period.dateFrom)}
-                onChange={e => updatePlannedPeriod(plan.id, period.id, { dateFrom: parseDisplayDateToISO(e.target.value) })}
-                className="w-full bg-stone-900 border border-stone-800 rounded px-1 py-0.5 text-center font-mono font-bold text-red-300 focus:outline-none text-[9px] cursor-pointer" />
-              <input type="date" value={period.dateFrom || ''}
-                onChange={e => { if (e.target.value) updatePlannedPeriod(plan.id, period.id, { dateFrom: e.target.value }); }}
-                onClick={e => (e.currentTarget as any).showPicker?.()}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+          {/* Riga 2: Inizio (etichetta integrata nel box data) */}
+          <div className="relative cursor-pointer" onClick={e => {
+            const inputEl = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
+            if (inputEl) try { inputEl.showPicker?.(); } catch {}
+          }}>
+            <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
+              <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">INIZIO</span>
+              <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateFrom)}</span>
             </div>
+            <input type="date" value={period.dateFrom || ''}
+              onChange={e => { if (e.target.value) updatePlannedPeriod(plan.id, period.id, { dateFrom: e.target.value }); }}
+              onClick={e => (e.currentTarget as any).showPicker?.()}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
           </div>
 
-          {/* Riga 3: Fine */}
-          <div className="relative">
-            <div className="text-[6.5px] font-extrabold uppercase text-stone-500 leading-none mb-0.5">FINE</div>
-            <div className="relative cursor-pointer" onClick={e => {
-              const inputEl = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
-              if (inputEl) try { inputEl.showPicker?.(); } catch {}
-            }}>
-              <input type="text" value={formatDisplayDate(period.dateTo)}
-                onChange={e => updatePlannedPeriod(plan.id, period.id, { dateTo: parseDisplayDateToISO(e.target.value) })}
-                className="w-full bg-stone-900 border border-stone-800 rounded px-1 py-0.5 text-center font-mono font-bold text-red-300 focus:outline-none text-[9px] cursor-pointer" />
-              <input type="date" value={period.dateTo || ''}
-                onChange={e => { if (e.target.value) updatePlannedPeriod(plan.id, period.id, { dateTo: e.target.value }); }}
-                onClick={e => (e.currentTarget as any).showPicker?.()}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+          {/* Riga 3: Fine (etichetta integrata nel box data) */}
+          <div className="relative cursor-pointer" onClick={e => {
+            const inputEl = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
+            if (inputEl) try { inputEl.showPicker?.(); } catch {}
+          }}>
+            <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
+              <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">FINE</span>
+              <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateTo)}</span>
             </div>
+            <input type="date" value={period.dateTo || ''}
+              onChange={e => { if (e.target.value) updatePlannedPeriod(plan.id, period.id, { dateTo: e.target.value }); }}
+              onClick={e => (e.currentTarget as any).showPicker?.()}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
           </div>
 
           {/* Riga 4: Only CO + Stop Sell */}
-          <div className="flex items-center justify-between gap-1">
+          <div className="flex items-center justify-between gap-1 pt-0.5">
             <div className="flex items-center gap-1">
-              <LogOut className="w-3 h-3 text-amber-400 shrink-0" />
+              <LogOut className="w-2.5 h-2.5 text-amber-400 shrink-0" />
               <input type="number" min={0} max={60} value={period.onlyCheckOutDays ?? 10}
                 onChange={e => updatePlannedPeriod(plan.id, period.id, { onlyCheckOutDays: Number(e.target.value) })}
-                className="w-10 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[11px]" />
-              <span className="text-[8px] text-stone-500 font-semibold">gg</span>
+                className="w-9 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[10px]" />
+              <span className="text-[7.5px] text-stone-400 font-semibold">gg</span>
             </div>
             <button type="button" onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: !period.stopSell })}
               className={`px-1.5 py-0.5 rounded font-black text-[7px] uppercase shrink-0 transition-all ${
-                period.stopSell ? 'bg-red-950 border border-red-600 text-red-300' : 'bg-stone-900 border border-stone-800 text-stone-500'
+                period.stopSell ? 'bg-red-950 border border-red-600 text-red-300' : 'bg-stone-900 border border-stone-800 text-stone-400'
               }`}>
               {period.stopSell ? 'BLOK' : 'OPEN'}
             </button>
@@ -234,7 +293,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // CARD TABELLA 2 — Live Octorate (stesso layout fluido)
+  // CARD TABELLA 2 — Live Octorate (Altezza compattata)
   // ─────────────────────────────────────────────────────────────────────────────
   const renderLivePeriodCard = (plan: RealOctoratePlan, period: PlannedPeriod, periodsList: PlannedPeriod[]) => {
     const leftPx = getGanttOffset(period.dateFrom);
@@ -245,23 +304,28 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     const isMatching = plannedEq !== undefined && plannedEq.stopSell === effectiveLiveStopSell && plannedEq.onlyCheckOutDays === effectiveLiveOnlyOut;
     const isMismatched = !isMatching;
 
+    const theme = RATE_PLAN_COLORS[plan.id] || {
+      badgeBg: 'bg-stone-800', badgeText: 'text-stone-300', badgeBorder: 'border-stone-700',
+      cardBg: 'bg-stone-950/80', cardBorder: 'border-stone-800', cardText: 'text-stone-200', dateText: 'text-emerald-300'
+    };
+
     const cardBg = isComparing && isMismatched
       ? 'bg-yellow-950/90 border-yellow-400 ring-2 ring-yellow-400/90 shadow-[0_0_15px_rgba(250,204,21,0.8)] text-yellow-200'
-      : 'bg-stone-950/80 border-stone-800 shadow-md text-stone-200';
+      : `${theme.cardBg} ${theme.cardBorder} shadow-md ${theme.cardText}`;
 
     return (
       <div
         key={period.id}
-        style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '6px', bottom: '6px' }}
-        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-2 ${cardBg}`}
+        style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '2px', bottom: '2px' }}
+        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 ${cardBg}`}
       >
         {/* Contenuto clamped: 148px max, 100% per card strette */}
-        <div style={{ width: 'min(148px, 100%)' }} className="flex flex-col gap-1">
+        <div style={{ width: 'min(148px, 100%)' }} className="flex flex-col gap-0.5">
 
           {/* Riga 1: Titolo + badge */}
-          <div className="flex items-center justify-between gap-1">
-            <span className="font-extrabold text-white text-[9px] truncate flex-1 min-w-0">{period.name}</span>
-            <span className={`text-[6.5px] font-bold px-1 py-0.5 rounded border shrink-0 ${
+          <div className="flex items-center justify-between gap-1 h-3.5">
+            <span className="font-extrabold text-white text-[8.5px] truncate flex-1 min-w-0">{period.name}</span>
+            <span className={`text-[6px] font-bold px-1 py-0.5 rounded border shrink-0 ${
               isMatching ? 'bg-emerald-950 border-emerald-700 text-emerald-300' : 'bg-amber-950 border-amber-700 text-amber-300'
             }`}>
               {isMatching ? '✓' : '!'}
@@ -269,29 +333,25 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           </div>
 
           {/* Riga 2: Inizio */}
-          <div>
-            <div className="text-[6.5px] font-extrabold uppercase text-stone-500 leading-none mb-0.5">INIZIO</div>
-            <div className="bg-stone-900 border border-stone-800 rounded px-1 py-0.5 text-center font-mono font-bold text-emerald-300 text-[9px]">
-              {formatDisplayDate(period.dateFrom)}
-            </div>
+          <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
+            <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">INIZIO</span>
+            <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateFrom)}</span>
           </div>
 
           {/* Riga 3: Fine */}
-          <div>
-            <div className="text-[6.5px] font-extrabold uppercase text-stone-500 leading-none mb-0.5">FINE</div>
-            <div className="bg-stone-900 border border-stone-800 rounded px-1 py-0.5 text-center font-mono font-bold text-emerald-300 text-[9px]">
-              {formatDisplayDate(period.dateTo)}
-            </div>
+          <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
+            <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">FINE</span>
+            <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateTo)}</span>
           </div>
 
           {/* Riga 4: Only CO + Stop Sell */}
-          <div className="flex items-center justify-between gap-1">
+          <div className="flex items-center justify-between gap-1 pt-0.5">
             <div className="flex items-center gap-1">
-              <LogOut className="w-3 h-3 text-amber-400 shrink-0" />
-              <div className="w-10 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[11px]">
+              <LogOut className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+              <div className="w-9 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[10px]">
                 {effectiveLiveOnlyOut}
               </div>
-              <span className="text-[8px] text-stone-500 font-semibold">gg</span>
+              <span className="text-[7.5px] text-stone-400 font-semibold">gg</span>
             </div>
             <div className={`px-1.5 py-0.5 rounded font-black text-[7px] uppercase shrink-0 ${
               effectiveLiveStopSell ? 'bg-red-950 border border-red-600 text-red-300' : 'bg-emerald-950 border border-emerald-600 text-emerald-300'
@@ -423,8 +483,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           </span>
         </div>
 
-        {/* Scroll container */}
-        <div className="overflow-x-auto custom-scrollbar border border-stone-800 rounded-2xl max-h-[800px] overflow-y-auto">
+        {/* Scroll container: libero di estendersi verticalmente (h-auto) senza scrollbar interna */}
+        <div className="overflow-x-auto custom-scrollbar border border-stone-800 rounded-2xl h-auto">
           <div style={{ minWidth: `${280 + TOTAL_GANTT_PX}px` }}>
 
             {/* ── Righello Mesi (sticky) ────────────────────────────────────── */}
@@ -453,6 +513,10 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 const periodsList: PlannedPeriod[] = rawPeriods?.[plan.id] || [];
                 const isExpanded = Boolean(expandedAccommodations[plan.id]);
                 const accsList = getAccommodationsForPlan(plan);
+                const theme = RATE_PLAN_COLORS[plan.id] || {
+                  badgeBg: 'bg-stone-800', badgeText: 'text-stone-300', badgeBorder: 'border-stone-700',
+                  cardBg: 'bg-stone-950/80', cardBorder: 'border-stone-800', cardText: 'text-stone-200', dateText: 'text-emerald-300'
+                };
 
                 return (
                   <div key={plan.id} className="flex items-stretch hover:bg-stone-850/40 transition-colors group">
@@ -461,7 +525,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                     <div className="w-[280px] min-w-[280px] p-3 sticky left-0 z-20 bg-stone-950 group-hover:bg-stone-900 border-r border-stone-850 flex flex-col justify-between space-y-2">
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className={`text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full border ${plan.badgeColor}`}>
+                          <span className={`text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`}>
                             {plan.code}
                           </span>
                           {plan.isAcOnly && (

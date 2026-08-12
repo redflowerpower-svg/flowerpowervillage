@@ -5,56 +5,68 @@ const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL ||
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabaseAdmin = (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl, serviceRoleKey) : (null as any);
 
-const isClosed = (d: any) => Boolean(
-  d?.stopSells === true || d?.stopSells === 'true' ||
-  d?.stopSell === true || d?.stopSell === 'true' || d?.stop_sell === true ||
-  d?.closed === true || d?.closed === 'true' || d?.closed === 1
+const isStopSell = (day: any): boolean => Boolean(
+  day?.stopSell === true || day?.stopSell === 'true' ||
+  day?.stopSells === true || day?.stopSells === 'true' ||
+  day?.stop_sell === true || day?.closed === true || day?.closed === 'true' || day?.closed === 1
 );
 
-const isCA = (d: any) => Boolean(
-  d?.closeToArrival === true || d?.closeToArrival === 'true' || d?.closeToArrival === 1 ||
-  d?.closedArrival === true || d?.closedArrival === 'true' || d?.closed_to_arrival === true || d?.closedArrival === 1 || d?.cta === true
+const isCloseToArrival = (day: any): boolean => Boolean(
+  day?.closeToArrival === true || day?.closeToArrival === 'true' || day?.closeToArrival === 1 ||
+  day?.closedArrival === true || day?.closedArrival === 'true' || day?.closed_to_arrival === true ||
+  day?.closedArrival === 1 || day?.cta === true
 );
 
-function parsePeriods(days: any[]) {
-  if (!Array.isArray(days) || days.length === 0) return [];
-  
-  const periods = [];
-  let i = 0;
+export function groupDailyRestrictions(days: any[], ratePlanKey: string = 'rate') {
+  if (!days || days.length === 0) return [];
+  const periods: any[] = [];
   const n = days.length;
+  let i = 0;
+  let idCounter = 1;
 
   while (i < n) {
-    const closedState = isClosed(days[i]);
-    const startIdx = i;
-
-    while (i < n && isClosed(days[i]) === closedState) {
+    // 1. Salta i blocchi di chiusura totale (stopsell)
+    while (i < n && isStopSell(days[i])) {
       i++;
     }
-    const endIdx = i - 1;
+    if (i >= n) break;
 
-    let onlyCheckOutDays = 0;
-    if (!closedState) {
-      let k = endIdx;
-      while (k >= startIdx && isCA(days[k])) {
-        onlyCheckOutDays++;
-        k--;
-      }
+    // Trovato l'inizio di una finestra di vendita attiva
+    const dateFrom = String(days[i]?.date || days[i]?.dateStr || days[i]?.day || '').substring(0, 10);
+    let lastOpenDate = dateFrom;
+
+    // 2. Consuma i giorni consecutivi di vendita aperta
+    while (i < n && !isStopSell(days[i]) && !isCloseToArrival(days[i])) {
+      lastOpenDate = String(days[i]?.date || days[i]?.dateStr || days[i]?.day || '').substring(0, 10);
+      i++;
     }
 
-    const dFrom = String(days[startIdx]?.date || days[startIdx]?.dateStr || '').substring(0, 10);
-    const dTo = String(days[endIdx]?.date || days[endIdx]?.dateStr || '').substring(0, 10);
+    // 3. Conta la coda di Only Check-out consecutiva subito dopo
+    let onlyCheckoutDays = 0;
+    while (i < n && !isStopSell(days[i]) && isCloseToArrival(days[i])) {
+      onlyCheckoutDays++;
+      i++;
+    }
 
+    // Crea un singolo periodo coerente con il modello pianificato
     periods.push({
-      id: `p_live_${startIdx}_${Math.random().toString(36).substring(2, 6)}`,
-      name: closedState ? `Periodo Bloccato` : `Periodo ${periods.length + 1}`,
-      dateFrom: dFrom,
-      dateTo: dTo,
-      stopSell: closedState,
-      closedToArrival: isCA(days[endIdx]),
+      id: `${ratePlanKey}_live_p${idCounter++}`,
+      name: `Periodo ${periods.length + 1}`,
+      dateFrom: dateFrom,
+      dateTo: lastOpenDate,
+      stopSell: false,
+      closedToArrival: onlyCheckoutDays > 0,
       closedToDeparture: false,
-      onlyCheckOutDays: onlyCheckOutDays > 0 ? onlyCheckOutDays : 10,
+      onlyCheckoutDays: onlyCheckoutDays,
+      onlyCheckOutDays: onlyCheckoutDays > 0 ? onlyCheckoutDays : 10,
+      strategy: onlyCheckoutDays > 0 ? 'failsafe_checkout' : 'open',
       failsafeCheckout: true
     });
+
+    // 4. Salta lo stopsell successivo
+    while (i < n && isStopSell(days[i])) {
+      i++;
+    }
   }
 
   return periods;
@@ -239,7 +251,7 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
         });
 
         if (filteredDays.length > 0) {
-          gridMap[planKey] = parsePeriods(filteredDays);
+          gridMap[planKey] = groupDailyRestrictions(filteredDays, planKey);
         }
       }
     }
