@@ -168,7 +168,7 @@ async function main() {
       private_garden: checkAmenity(allAmenities, ['private garden', 'giardino privato', 'garden']),
       ceiling_fan: true, // Sempre presente e gratuito
       ac_consumption_note: {
-        it: "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e windows chiuse mentre è in funzione.",
+        it: "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
         en: "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
       }
     };

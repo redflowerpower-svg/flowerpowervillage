@@ -32,8 +32,9 @@ L'esperienza visiva del sito si basa su un'interfaccia fortemente immersiva con 
   - Nel giorno di checkout (`isCheckoutDay`), se `stopSell === true` (o camera chiusa), la cella DEVE RIMANERE **ROSSA (Stop Sell / Chiuso)**. Se `stopSell === false`, torna **VERDE (Libera)**.
 - **Formattazione Nomi Cliente**:
   - Mostra sempre prima il Cognome e poi il Nome (es. `"Sheppard Peter"`).
-- **Integrazione Header Statico & Layout 38px Visual Calendar (Aggiornamento)**:
-  - **Header Statico Unificato**: Header `Gestione Resort & Booking Engine` e il menu tabs (`PRENOTAZIONI`, `CALENDARIO 30GG`, `CALENDARIO ANNUALE`, `ALLOGGI & DISPONIBILITÀ`, `TARIFFE DERIVATE`, `MESSAGGI CLIENTI`, `OCTORATE PMS`, `📡 IMPORTA SPECIFICHE`) integrati in un unico contenitore statico a blocco in `ResortDashboard.tsx`.
+- **Header Statico Unificato & Menu Navigazione Singola Riga**: Header `Gestione Resort & Booking Engine` e il menu tabs (`PRENOTAZIONI`, `CALENDARIO 30GG`, `CALENDARIO ANNUALE`, `ALLOGGI & DISPONIBILITÀ`, `TARIFFE DERIVATE`, `GESTIONE STAGIONALE TARIFFE`, `GESTIONE TARIFFE DERIVATE`, `MESSAGGI CLIENTI`, `OCTORATE PMS`) integrati in un unico contenitore statico in `ResortDashboard.tsx`. Il menu nav adotta un layout a riga singola senza a capo (`flex-nowrap`, zero scrollbar), senza emoji nei titoli dei tab, con font e padding compatti.
+  - **Riposizionamento Barra di Ricerca**: La barra di ricerca (`Cerca ospite, email, camera...`) ed il controllo reset prenotazioni nascoste sono stati rimossi dal menu delle tab e posizionati nella riga superiore dell'header, subito dopo il pulsante `Sincronizza`.
+  - **Rimozione Tab "IMPORTA SPECIFICHE"**: Rimosso completamente il pulsante ed il relativo pannello dalla plancia di controllo.
   - **Visual Calendar Layout (38px x 33px)**: `ResortVisualCalendar.tsx` adotta una prima colonna alloggi fissa da 130px (`w-[130px] min-w-[130px] max-w-[130px]`), celle giorno con larghezza fissa 38px (`w-[38px] min-w-[38px] max-w-[38px]`), altezza riga 33px (`h-[33px]`), e zoom inline del 90% (`style={{ zoom: 0.9 }}`) per il perfetto adattamento ad una singola schermata.
   - **Cockpit 5 Canali**: Barra inferiore a 5 slot equidistanti (`B`, `A`, `Ab`, `-`, `S`) con la lettera `'S'` che indica lo stato attivo del listino Standard 7d.
 

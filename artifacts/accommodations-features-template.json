@@ -1,0 +1,449 @@
+[
+  {
+    "name": "Jungle Villa",
+    "slug": "jungle-villa",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 40,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Jungle Villa Left",
+    "slug": "jungle-villa-left",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 35,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Jungle Villa Right",
+    "slug": "jungle-villa-right",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 35,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Peace & Love Villa",
+    "slug": "peace-love-villa",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 45,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": true,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Villa Penthouse",
+    "slug": "villa-penthouse",
+    "rooms": 2,
+    "bathrooms": 1,
+    "beds": "2 Letti Matrimoniali",
+    "features": {
+      "room_size": 60,
+      "sofa_bed": true,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": true,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Yellow Bungalow",
+    "slug": "yellow-bungalow",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 28,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": false,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Red Bungalow",
+    "slug": "red-bungalow",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 28,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": false,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Green Bungalow",
+    "slug": "green-bungalow",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 28,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": false,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Camel Tent Bungalow",
+    "slug": "camel-tent-bungalow",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 24,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": false,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": true,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Lagoon Tent Bungalow",
+    "slug": "lagoon-tent-bungalow",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 24,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": false,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": true,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Internal Room",
+    "slug": "internal-room",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Singolo",
+    "features": {
+      "room_size": 16,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": false,
+      "hot_water": true,
+      "wifi": true,
+      "safe": false,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": false,
+      "terrace_balcony": false,
+      "private_garden": false,
+      "ac_consumption_note": null
+    }
+  },
+  {
+    "name": "Room 1",
+    "slug": "room-1",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 20,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Room 2",
+    "slug": "room-2",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 20,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Room 3",
+    "slug": "room-3",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 20,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Room 4",
+    "slug": "room-4",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 20,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Room 5",
+    "slug": "room-5",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 20,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": true,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": true,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Lodge 1",
+    "slug": "lodge-1",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 22,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": false,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": false,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  },
+  {
+    "name": "Lodge 2",
+    "slug": "lodge-2",
+    "rooms": 1,
+    "bathrooms": 1,
+    "beds": "1 Letto Matrimoniale",
+    "features": {
+      "room_size": 22,
+      "sofa_bed": false,
+      "ceiling_fan": true,
+      "air_conditioning": true,
+      "hot_water": true,
+      "wifi": true,
+      "safe": true,
+      "desk": false,
+      "kitchen": false,
+      "refrigerator": true,
+      "terrace_balcony": false,
+      "private_garden": false,
+      "ac_consumption_note": {
+        "it": "Aria Condizionata disponibile in ogni camera. Se non è inclusa o prepagata nella tua prenotazione, è utilizzabile a consumo al costo di 40 THB per kWh (pari a circa 20 THB all'ora). Si consiglia di tenere porte e finestre chiuse mentre è in funzione.",
+        "en": "Air Conditioning is available in every unit. If not included or prepaid in your booking, it is available on a pay-as-you-go basis at 40 THB per kWh (approximately 20 THB per hour). We kindly ask you to keep doors and windows closed while running."
+      }
+    }
+  }
+]

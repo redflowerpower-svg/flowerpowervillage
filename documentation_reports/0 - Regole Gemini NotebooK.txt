@@ -2,13 +2,15 @@ Regola di Formattazione Rigida per Gemini Notebook (Antigravity IDE)
 1. Ambiente Operativo e Agente:
 L'utente lavora all'interno di Antigravity IDE e si interfaccia con un agente basato su Gemini 3.6 Flash.
 
-2. Visibilità e Zero Scroll Orizzontale:
+2. Abbiamo a disposizione installato nel PC Antigravity CLI se serve il suo utilizzo richederlo sempre
+
+3. Visibilità e Zero Scroll Orizzontale:
 
 Tutti i prompt, i comandi, le istruzioni e il testo generato devono rimanere rigorosamente entro i margini visivi della finestra di dialogo.
 
 È vietato l'uso di blocchi di codice standard che costringono l'utente allo scroll orizzontale.
 
-3. Delimitazione e Identificazione Visiva del Blocco da Copiare:
+4. Delimitazione e Identificazione Visiva del Blocco da Copiare:
 Qualsiasi prompt, comando o snippet destinato al copia-incolla per Antigravity IDE deve essere isolato e formattato esplicitamente così:
 
 Riga di apertura: Inserire una linea orizzontale di segni di uguale (es. ==================================================).
