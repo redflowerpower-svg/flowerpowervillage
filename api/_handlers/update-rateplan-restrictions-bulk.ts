@@ -50,9 +50,11 @@ export const TEST_PRODUCT_IDS: Record<string, number> = {
 };
 
 /**
- * Endpoint Serverless per aggiornare direttamente la restrizione Stop Sell di una tariffa su Octorate API.
+ * Endpoint Serverless per l'aggiornamento bulk delle restrizioni dei rate plan su Octorate API.
+ * Quando testOnly è true, seleziona l'ID corrispondente da TEST_PRODUCT_IDS ed applica
+ * lo scudo di sicurezza che consente la scrittura ESCLUSIVAMENTE se l'ID appartiene ai Fake Bungalows (932243-932268).
  */
-export async function handleUpdateRestriction(req: VercelRequest, res: VercelResponse) {
+export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, res: VercelResponse) {
   // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -73,6 +75,7 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
   if (!rateId && planKey) {
     rateId = activeProductIds[planKey];
   } else if (testOnly && planKey && activeProductIds[planKey]) {
+    // In modalità TEST, rimappa planKey a TEST_PRODUCT_IDS
     rateId = activeProductIds[planKey];
   }
 
@@ -80,7 +83,7 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
 
   // 🛡️ SCUDO DI SICUREZZA TEST ONLY:
   if (testOnly && !isTestProduct(targetRateIdNum)) {
-    console.info(`[update-restriction] [TEST MODE] Scrittura ignorata in modo sicuro per rateId ${rateId} (alloggio reale non-test)`);
+    console.info(`[update-rateplan-restrictions-bulk] [TEST MODE] Scrittura ignorata in modo sicuro per rateId ${rateId} (alloggio reale non-test)`);
     return res.status(200).json({
       success: true,
       testOnly: true,
@@ -99,7 +102,7 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
     const dateTo = req.body?.dateTo || req.query?.dateTo || dateFrom;
 
     if (!rateId) {
-      return res.status(400).json({ error: 'il parametro rateId è obbligatorio' });
+      return res.status(400).json({ error: 'il parametro rateId o planId è obbligatorio' });
     }
 
     if (!supabaseAdmin) {
@@ -182,7 +185,7 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
 
     if (bulkJson && (bulkJson.error || bulkJson.success === false)) {
       return res.status(400).json({
-        error: bulkJson.error || bulkJson.message || 'Aggiornamento Stop Sell rifiutato da Octorate'
+        error: bulkJson.error || bulkJson.message || 'Aggiornamento restrizioni rifiutato da Octorate'
       });
     }
 
@@ -204,7 +207,7 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
       stopSell,
       dateFrom,
       dateTo,
-      message: `Stop Sell impostato a ${stopSell ? 'ATTIVO (Chiuso)' : 'DISATTIVATO (Aperto)'}`
+      message: `Restrizione aggiornata con successo per rateId ${targetRateIdNum}`
     });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Errore interno server' });

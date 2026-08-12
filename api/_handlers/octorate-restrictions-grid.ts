@@ -196,7 +196,9 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       if (page >= totalPages) break;
     }
 
-    // Mappatura ad altissima precisione sugli ID esatti di Octorate per la camera sentinella Jungle Villa (529773)
+    const testOnly = req.query.testOnly === 'true' || req.body?.testOnly === true || req.body?.testOnly === 'true';
+
+    // Mappatura ad altissima precisione sugli ID esatti di Octorate
     const itemMapById = new Map<number, any>();
     for (const item of allItems) {
       if (item.id) {
@@ -204,41 +206,69 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       }
     }
 
-    const SENTINEL_RATE_ID_MAP: Record<string, number[]> = {
+    // Rate ID Reali per la camera sentinella Jungle Villa (529773)
+    const REAL_PRODUCT_IDS: Record<string, number[]> = {
       be: [529784],
       '7d': [529778],
       main_bnb_7d: [529788],
       main_bnb_14d: [529792],
       ac_7d: [529780],
       ac_14d: [529781],
-      ac_bnb_7d: [916817, 916816],
+      ac_bnb_7d: [916816, 916817],
       ac_bnb_14d: [529801],
+      agoda_ac_7d: [921868],
+      agoda_ac_14d: [921869],
       agd_ac_7d: [921868],
       agd_ac_14d: [921869],
       airbnb: [529783],
       airbnb_ac: [529813]
     };
 
+    // Rate ID di Test per i Fake Bungalows 1 & 2 — Mappatura Definitiva Confermata da Probe
+    // FB1: 932243-932255 | FB2: FB1+13 (shift = +13) | Madri: 649669, 921799
+    const TEST_PRODUCT_IDS: Record<string, number[]> = {
+      be:           [932243, 932256, 649669, 921799],
+      '7d':         [932244, 932257],
+      main_bnb_7d:  [932246, 932259],
+      main_bnb_14d: [932247, 932260],
+      ac_7d:        [932248, 932261],
+      ac_14d:       [932249, 932262],
+      agoda_ac_7d:  [932250, 932263],
+      agoda_ac_14d: [932251, 932264],
+      agd_ac_7d:    [932250, 932263], // alias agoda
+      agd_ac_14d:   [932251, 932264], // alias agoda
+      airbnb:       [932252, 932265],
+      airbnb_ac:    [932253, 932266],
+      ac_bnb_7d:    [932254, 932267],
+      ac_bnb_14d:   [932255, 932268]
+    };
+
+    const activeRateMap = testOnly ? TEST_PRODUCT_IDS : REAL_PRODUCT_IDS;
+
     const gridMap: Record<string, any[]> = {
       be: [],
       '7d': [],
       main_bnb_7d: [],
       main_bnb_14d: [],
-      ac_7d: [],
-      ac_14d: [],
-      ac_bnb_7d: [],
-      ac_bnb_14d: [],
+      agoda_ac_7d: [],
+      agoda_ac_14d: [],
       agd_ac_7d: [],
       agd_ac_14d: [],
       airbnb: [],
-      airbnb_ac: []
+      airbnb_ac: [],
+      ac_7d: [],
+      ac_14d: [],
+      ac_bnb_7d: [],
+      ac_bnb_14d: []
     };
 
-    for (const [planKey, ids] of Object.entries(SENTINEL_RATE_ID_MAP)) {
+    for (const [planKey, ids] of Object.entries(activeRateMap)) {
       let matchedItem: any = null;
       for (const id of ids) {
-        if (itemMapById.has(id)) {
-          matchedItem = itemMapById.get(id);
+        // Conversione esplicita in stringa per evitare mismatch di tipo string vs number
+        const foundId = Array.from(itemMapById.keys()).find(k => String(k) === String(id));
+        if (foundId !== undefined) {
+          matchedItem = itemMapById.get(foundId);
           break;
         }
       }
@@ -256,8 +286,30 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       }
     }
 
+    // Se un canale derivato è aperto senza restrizioni specifiche (array vuoto),
+    // genera un periodo fittizio di "Apertura Standard (OK)" a copertura stagionale
+    for (const planKey of Object.keys(gridMap)) {
+      if (!gridMap[planKey] || gridMap[planKey].length === 0) {
+        gridMap[planKey] = [
+          {
+            id: `${planKey}_live_default_open`,
+            name: 'Apertura Standard (OK)',
+            dateFrom: dateFrom || '2026-10-01',
+            dateTo: dateTo || '2027-10-31',
+            stopSell: false,
+            closedToArrival: false,
+            closedToDeparture: false,
+            onlyCheckOutDays: [],
+            onlyCheckoutDays: [],
+            strategy: 'open'
+          }
+        ];
+      }
+    }
+
     return res.status(200).json({
       success: true,
+      testOnly,
       structureId,
       dateFrom,
       dateTo,

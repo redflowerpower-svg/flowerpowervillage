@@ -19,7 +19,8 @@ import {
   ChevronDown,
   ChevronRight,
   XCircle,
-  LogOut
+  LogOut,
+  FlaskConical
 } from 'lucide-react';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -140,6 +141,10 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const isFetchingLive = store?.isFetchingLive ?? false;
   const lastSyncMessage = store?.lastSyncMessage ?? null;
   const lastSyncStatus = store?.lastSyncStatus ?? 'idle';
+  const liveViewMode = store?.liveViewMode ?? 'prod';
+  const setLiveViewMode = store?.setLiveViewMode || (() => {});
+  const disabledRatePlans = store?.disabledRatePlans || [];
+  const toggleRatePlanActive = store?.toggleRatePlanActive || (() => {});
 
   const fetchLiveRestrictions = store?.fetchLiveRestrictions || (async () => {});
   const updatePlannedPeriod = store?.updatePlannedPeriod || store?.updatePeriod || (() => {});
@@ -155,6 +160,58 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const [expandedAccommodations, setExpandedAccommodations] = useState<Record<string, boolean>>({});
   const [activeViewTab, setActiveViewTab] = useState<'editor' | 'comparison'>('editor');
   const [isComparing, setIsComparing] = useState<boolean>(false);
+  const [showTestModal, setShowTestModal] = useState<boolean>(false);
+
+  // Stati per la conferma a doppia pressione (3s timer)
+  const [confirmingSingleSyncId, setConfirmingSingleSyncId] = useState<string | null>(null);
+  const [confirmingBulkSync, setConfirmingBulkSync] = useState<boolean>(false);
+  const [confirmingTestSync, setConfirmingTestSync] = useState<boolean>(false);
+
+  const singleSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const bulkSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const testSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  const handleSingleSyncClick = (planId: string, periodId: string) => {
+    if (confirmingSingleSyncId === periodId) {
+      if (singleSyncTimerRef.current) clearTimeout(singleSyncTimerRef.current);
+      setConfirmingSingleSyncId(null);
+      syncPlanToOctorate(planId, periodId);
+    } else {
+      if (singleSyncTimerRef.current) clearTimeout(singleSyncTimerRef.current);
+      setConfirmingSingleSyncId(periodId);
+      singleSyncTimerRef.current = setTimeout(() => {
+        setConfirmingSingleSyncId(null);
+      }, 3000);
+    }
+  };
+
+  const handleBulkSyncClick = () => {
+    if (confirmingBulkSync) {
+      if (bulkSyncTimerRef.current) clearTimeout(bulkSyncTimerRef.current);
+      setConfirmingBulkSync(false);
+      syncAllRatePlansToOctorate();
+    } else {
+      if (bulkSyncTimerRef.current) clearTimeout(bulkSyncTimerRef.current);
+      setConfirmingBulkSync(true);
+      bulkSyncTimerRef.current = setTimeout(() => {
+        setConfirmingBulkSync(false);
+      }, 3000);
+    }
+  };
+
+  const handleTestSyncClick = () => {
+    if (confirmingTestSync) {
+      if (testSyncTimerRef.current) clearTimeout(testSyncTimerRef.current);
+      setConfirmingTestSync(false);
+      setShowTestModal(true);
+    } else {
+      if (testSyncTimerRef.current) clearTimeout(testSyncTimerRef.current);
+      setConfirmingTestSync(true);
+      testSyncTimerRef.current = setTimeout(() => {
+        setConfirmingTestSync(false);
+      }, 3000);
+    }
+  };
 
   const liveDataKeys = Object.keys(liveOctorateRestrictions);
   const isLiveDataReady = liveDataKeys.length > 0 && liveDataKeys.some(k => (liveOctorateRestrictions[k]?.length ?? 0) > 0);
@@ -229,9 +286,17 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               onChange={e => updatePlannedPeriod(plan.id, period.id, { name: e.target.value })}
               className="bg-transparent font-extrabold text-white text-[8.5px] focus:outline-none truncate flex-1 min-w-0" />
             <div className="flex items-center gap-0.5 shrink-0">
-              <button type="button" onClick={() => syncPlanToOctorate(plan.id, period.id)} disabled={isSyncing}
-                className="p-0.5 bg-red-950 hover:bg-red-900 text-red-300 border border-red-700/50 rounded cursor-pointer" title="Sync">
-                <RefreshCw className={`w-2.5 h-2.5 ${isSyncing ? 'animate-spin text-white' : ''}`} />
+              <button type="button" onClick={() => handleSingleSyncClick(plan.id, period.id)} disabled={isSyncing}
+                className={`p-0.5 border rounded cursor-pointer transition-all ${
+                  confirmingSingleSyncId === period.id
+                    ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 border-amber-300 font-bold animate-pulse ring-1 ring-amber-300'
+                    : 'bg-red-950 hover:bg-red-900 text-red-300 border-red-700/50'
+                }`} title={confirmingSingleSyncId === period.id ? 'Clicca di nuovo per confermare' : 'Sync'}>
+                {confirmingSingleSyncId === period.id ? (
+                  <span className="text-[6px] font-black uppercase px-0.5 text-stone-950">Confermi?</span>
+                ) : (
+                  <RefreshCw className={`w-2.5 h-2.5 ${isSyncing ? 'animate-spin text-white' : ''}`} />
+                )}
               </button>
               <button type="button" onClick={() => removePlannedPeriod(plan.id, period.id)}
                 className="p-0.5 bg-stone-900 hover:bg-red-950 text-stone-400 hover:text-red-300 border border-stone-800 rounded cursor-pointer" title="Elimina periodo">
@@ -271,16 +336,16 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           </div>
 
           {/* Riga 4: Only CO + Stop Sell */}
-          <div className="flex items-center justify-between gap-1 pt-0.5">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center justify-between gap-1 pt-0.5 min-w-0">
+            <div className="flex items-center gap-1 min-w-0 flex-1">
               <LogOut className="w-2.5 h-2.5 text-amber-400 shrink-0" />
               <input type="number" min={0} max={60} value={period.onlyCheckOutDays ?? 10}
                 onChange={e => updatePlannedPeriod(plan.id, period.id, { onlyCheckOutDays: Number(e.target.value) })}
-                className="w-9 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[10px]" />
-              <span className="text-[7.5px] text-stone-400 font-semibold">gg</span>
+                className="w-8 shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[9.5px]" />
+              <span className="text-[6.5px] text-stone-400 font-bold truncate leading-none" title="gg only check-out">gg only check-out</span>
             </div>
             <button type="button" onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: !period.stopSell })}
-              className={`px-1.5 py-0.5 rounded font-black text-[7px] uppercase shrink-0 transition-all ${
+              className={`px-1 py-0.5 rounded font-black text-[7px] uppercase shrink-0 transition-all ${
                 period.stopSell ? 'bg-red-950 border border-red-600 text-red-300' : 'bg-stone-900 border border-stone-800 text-stone-400'
               }`}>
               {period.stopSell ? 'BLOK' : 'OPEN'}
@@ -298,7 +363,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const renderLivePeriodCard = (plan: RealOctoratePlan, period: PlannedPeriod, periodsList: PlannedPeriod[]) => {
     const leftPx = getGanttOffset(period.dateFrom);
     const widthPx = getGanttWidth(period.dateFrom, period.dateTo);
-    const effectiveLiveStopSell = period.stopSell ?? false;
+    const isStopSell = period.strategy === 'stopsell' || period.stopSell;
+    const effectiveLiveStopSell = isStopSell;
     const effectiveLiveOnlyOut = period.onlyCheckOutDays ?? 10;
     const plannedEq = periodsList.find(p => p.dateFrom <= period.dateTo && p.dateTo >= period.dateFrom);
     const isMatching = plannedEq !== undefined && plannedEq.stopSell === effectiveLiveStopSell && plannedEq.onlyCheckOutDays === effectiveLiveOnlyOut;
@@ -311,6 +377,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
 
     const cardBg = isComparing && isMismatched
       ? 'bg-yellow-950/90 border-yellow-400 ring-2 ring-yellow-400/90 shadow-[0_0_15px_rgba(250,204,21,0.8)] text-yellow-200'
+      : isStopSell
+      ? 'bg-red-950/40 border-red-500/50 text-red-400 shadow-[0_0_10px_rgba(239,68,68,0.2)]'
       : `${theme.cardBg} ${theme.cardBorder} shadow-md ${theme.cardText}`;
 
     return (
@@ -335,30 +403,37 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           {/* Riga 2: Inizio */}
           <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
             <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">INIZIO</span>
-            <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateFrom)}</span>
+            <span className={`font-mono font-bold ${isStopSell ? 'text-red-300' : theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateFrom)}</span>
           </div>
 
           {/* Riga 3: Fine */}
           <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
             <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">FINE</span>
-            <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateTo)}</span>
+            <span className={`font-mono font-bold ${isStopSell ? 'text-red-300' : theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateTo)}</span>
           </div>
 
-          {/* Riga 4: Only CO + Stop Sell */}
-          <div className="flex items-center justify-between gap-1 pt-0.5">
-            <div className="flex items-center gap-1">
-              <LogOut className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-              <div className="w-9 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[10px]">
-                {effectiveLiveOnlyOut}
+          {/* Riga 4: Only CO oppure Badge Stop Sell */}
+          {isStopSell ? (
+            <div className="flex items-center justify-between w-full bg-red-950/80 border border-red-600/80 rounded px-1.5 py-0.5 text-red-300 font-extrabold text-[8.5px] uppercase shadow-sm tracking-wide mt-0.5">
+              <span className="flex items-center gap-1 truncate">
+                <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SELL
+              </span>
+              <span className="text-[7px] font-mono font-bold bg-red-900/60 px-1 py-0.2 rounded text-red-200">CHIUSO</span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between gap-1 pt-0.5 min-w-0">
+              <div className="flex items-center gap-1 min-w-0 flex-1">
+                <LogOut className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+                <div className="w-8 shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[9.5px]">
+                  {effectiveLiveOnlyOut}
+                </div>
+                <span className="text-[6.5px] text-stone-400 font-bold truncate leading-none" title="gg only check-out">gg only check-out</span>
               </div>
-              <span className="text-[7.5px] text-stone-400 font-semibold">gg</span>
+              <div className="px-1 py-0.5 rounded font-black text-[7px] uppercase shrink-0 bg-emerald-950 border border-emerald-600 text-emerald-300">
+                OPEN
+              </div>
             </div>
-            <div className={`px-1.5 py-0.5 rounded font-black text-[7px] uppercase shrink-0 ${
-              effectiveLiveStopSell ? 'bg-red-950 border border-red-600 text-red-300' : 'bg-emerald-950 border border-emerald-600 text-emerald-300'
-            }`}>
-              {effectiveLiveStopSell ? 'BLOK' : 'OPEN'}
-            </div>
-          </div>
+          )}
 
         </div>
       </div>
@@ -380,7 +455,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
                   Gestione Tariffe Derivate{' '}
                   <span className="text-xs bg-red-950 text-red-300 border border-red-600/50 px-2.5 py-0.5 rounded-full font-mono font-extrabold">
-                    Only Check Out Window &amp; Restrizioni
+                    Only Check Out Window e Restrizioni
                   </span>
                 </h2>
                 <p className="text-stone-400 text-xs font-medium">
@@ -429,6 +504,21 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               <span>Reset Defaults</span>
             </button>
 
+            {/* Pulsante TEST SYNC (Solo Fake) */}
+            <button
+              type="button"
+              onClick={handleTestSyncClick}
+              disabled={syncingPeriodId !== null || isBulkSaving || syncAllRunning}
+              className={`py-2.5 px-4 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50 ${
+                confirmingTestSync
+                  ? 'bg-amber-500 text-stone-950 border border-amber-300 ring-2 ring-amber-300 animate-pulse'
+                  : 'bg-amber-950/40 hover:bg-amber-900/60 border border-amber-900/50 text-amber-400'
+              }`}
+            >
+              <FlaskConical className={`w-4 h-4 ${confirmingTestSync ? 'text-stone-950' : 'text-amber-400'}`} />
+              <span>{confirmingTestSync ? '⚠️ CONFERMI TEST?' : '🧪 TEST SYNC (Solo Fake)'}</span>
+            </button>
+
             {/* Sync / Annulla */}
             {(isBulkSaving || syncAllRunning) ? (
               <button type="button" onClick={() => cancelBulkSync()}
@@ -437,10 +527,14 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 <span>Annulla / Interrompi</span>
               </button>
             ) : (
-              <button type="button" onClick={() => syncAllRatePlansToOctorate()} disabled={syncingPeriodId !== null}
-                className="py-2.5 px-5 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg flex items-center gap-2.5 cursor-pointer disabled:opacity-50">
-                <Zap className="w-4 h-4 text-yellow-300" />
-                <span>Sincronizza Tutti i Piani</span>
+              <button type="button" onClick={handleBulkSyncClick} disabled={syncingPeriodId !== null}
+                className={`py-2.5 px-5 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg flex items-center gap-2.5 cursor-pointer disabled:opacity-50 ${
+                  confirmingBulkSync
+                    ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 ring-2 ring-amber-300 animate-pulse'
+                    : 'bg-red-600 hover:bg-red-500 text-white'
+                }`}>
+                <Zap className={`w-4 h-4 ${confirmingBulkSync ? 'text-stone-950' : 'text-yellow-300'}`} />
+                <span>{confirmingBulkSync ? '⚠️ CONFERMI SYNC BULK?' : 'Sincronizza Tutti i Piani'}</span>
               </button>
             )}
           </div>
@@ -469,14 +563,49 @@ export const GestioneRestrizioniCanali: React.FC = () => {
 
       {/* ── Matrice Timeline Gantt ─────────────────────────────────────────────── */}
       <div className="bg-stone-900/90 border border-stone-800 backdrop-blur-xl rounded-3xl p-5 shadow-2xl space-y-4 overflow-hidden">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <span className={`w-3 h-3 rounded-full shadow-md ${activeViewTab === 'editor' ? 'bg-red-400' : 'bg-emerald-400'}`} />
             <h3 className="text-xs sm:text-sm font-black text-white tracking-tight uppercase">
               {activeViewTab === 'editor'
                 ? '📊 TABELLA 1: TIMELINE GANTT — RESTRIZIONI PIANIFICATE'
                 : '🔍 TABELLA 2: TIMELINE GANTT — RESTRIZIONI LIVE OCTORATE'}
             </h3>
+
+            {/* Toggle Live Mode per Tabella 2 */}
+            {activeViewTab === 'comparison' && (
+              <div className="flex items-center gap-1.5 bg-stone-950 p-1 rounded-2xl border border-stone-800 ml-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLiveViewMode('prod');
+                    fetchLiveRestrictions();
+                  }}
+                  className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1 ${
+                    liveViewMode === 'prod'
+                      ? 'bg-emerald-950 text-emerald-300 border border-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)] ring-1 ring-emerald-400'
+                      : 'text-stone-400 hover:text-white border border-transparent'
+                  }`}
+                >
+                  <span>📡 Live Reale (Produzione)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLiveViewMode('test');
+                    fetchLiveRestrictions();
+                  }}
+                  className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1 ${
+                    liveViewMode === 'test'
+                      ? 'bg-amber-950 text-amber-300 border border-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.5)] ring-1 ring-amber-400'
+                      : 'text-stone-400 hover:text-white border border-transparent'
+                  }`}
+                >
+                  <span>🧪 Live Test (Fake Bungalow)</span>
+                </button>
+              </div>
+            )}
           </div>
           <span className="text-xs font-mono font-bold text-sky-300 bg-sky-950/80 border border-sky-800/80 px-3 py-1 rounded-xl">
             Gantt: 6px/giorno · Ott 2026 → Ott 2027
@@ -512,6 +641,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               {REAL_OCTORATE_PLANS.map(plan => {
                 const periodsList: PlannedPeriod[] = rawPeriods?.[plan.id] || [];
                 const isExpanded = Boolean(expandedAccommodations[plan.id]);
+                const isPlanDisabled = disabledRatePlans.includes(plan.id);
                 const accsList = getAccommodationsForPlan(plan);
                 const theme = RATE_PLAN_COLORS[plan.id] || {
                   badgeBg: 'bg-stone-800', badgeText: 'text-stone-300', badgeBorder: 'border-stone-700',
@@ -522,12 +652,31 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                   <div key={plan.id} className="flex items-stretch hover:bg-stone-850/40 transition-colors group">
 
                     {/* ── Colonna Sinistra Sticky ────────────────────────────── */}
-                    <div className="w-[280px] min-w-[280px] p-3 sticky left-0 z-20 bg-stone-950 group-hover:bg-stone-900 border-r border-stone-850 flex flex-col justify-between space-y-2">
+                    <div className={`w-[280px] min-w-[280px] p-3 sticky left-0 z-20 bg-stone-950 group-hover:bg-stone-900 border-r border-stone-850 flex flex-col justify-between space-y-2 transition-all ${
+                      isPlanDisabled ? 'opacity-50 grayscale-[30%]' : ''
+                    }`}>
                       <div className="space-y-1">
                         <div className="flex items-center justify-between">
-                          <span className={`text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`}>
-                            {plan.code}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full border ${theme.badgeBg} ${theme.badgeText} ${theme.badgeBorder}`}>
+                              {plan.code}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleRatePlanActive(plan.id);
+                              }}
+                              className={`px-2 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider transition-all cursor-pointer border shadow-sm ${
+                                isPlanDisabled
+                                  ? 'bg-stone-900 text-stone-500 border-stone-800 hover:text-stone-300 hover:border-stone-700'
+                                  : 'bg-emerald-950/80 text-emerald-400 border-emerald-700/60 hover:bg-emerald-900 hover:text-emerald-300'
+                              }`}
+                              title={isPlanDisabled ? 'Clicca per attivare la tariffa' : 'Clicca per disattivare la tariffa'}
+                            >
+                              {isPlanDisabled ? 'OFF' : 'ON'}
+                            </button>
+                          </div>
                           {plan.isAcOnly && (
                             <span className="text-[8px] font-bold text-cyan-300 bg-cyan-950 border border-cyan-700/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">
                               <Wind className="w-2.5 h-2.5" /> AC Only
@@ -564,7 +713,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                     </div>
 
                     {/* ── Area Gantt ──────────────────────────────────────────── */}
-                    <div className="flex-1 relative overflow-hidden" style={{ height: `${ROW_HEIGHT}px` }}>
+                    <div className={`flex-1 relative overflow-hidden transition-all ${isPlanDisabled ? 'opacity-50 grayscale-[30%]' : ''}`} style={{ height: `${ROW_HEIGHT}px` }}>
                       {activeViewTab === 'editor' ? (
                         <>
                           {periodsList.map(period => renderPlannedPeriodCard(plan, period, periodsList))}
@@ -587,6 +736,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                         </>
                       ) : (
                         <>
+                          {/* 📡 TABELLA 2: DATI LIVE DA OCTORATE */}
                           {!isLiveDataReady ? (
                             <div className="absolute inset-0 flex items-center px-4 gap-3 text-[10px] text-stone-400">
                               {isFetchingLive ? (
@@ -630,7 +780,44 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      {/* Modale di conferma TEST SYNC */}
+      {showTestModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-stone-900 border border-amber-500/40 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-150">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-amber-950/80 border border-amber-700/50 rounded-2xl text-amber-400 shrink-0">
+                <FlaskConical className="w-6 h-6" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-lg font-black text-white">🧪 Conferma Test Sincronizzazione</h3>
+                <p className="text-stone-300 text-xs leading-relaxed font-medium">
+                  Sei sicuro di voler avviare la sincronizzazione di prova SOLO sui <strong className="text-amber-300 font-bold">Fake Bungalows 1 e 2</strong>?
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowTestModal(false)}
+                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 rounded-xl text-xs font-extrabold uppercase transition-all cursor-pointer"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowTestModal(false);
+                  syncAllRatePlansToOctorate({ testOnly: true });
+                }}
+                className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 rounded-xl text-xs font-black uppercase tracking-wide transition-all shadow-lg cursor-pointer"
+              >
+                Conferma Test
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
     </div>
   );
 };

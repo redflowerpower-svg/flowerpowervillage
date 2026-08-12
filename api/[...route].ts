@@ -25,6 +25,7 @@ import { handleOctorateImport } from "./_handlers/octorate-import.js";
 import { handleUpdateAccommodationFeatures } from "./_handlers/accommodations.js";
 import { handleVerifyWritability } from "./_handlers/verify-writability.js";
 import { handleUpdateRestriction } from "./_handlers/update-restriction.js";
+import { handleUpdateRateplanRestrictionsBulk } from "./_handlers/update-rateplan-restrictions-bulk.js";
 import { handleUpdatePricesStagionale } from "./_handlers/api-update-prices-stagionale.js";
 import { handleOctorateRestrictionsGrid } from "./_handlers/octorate-restrictions-grid.js";
 
@@ -58,6 +59,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Normalize path string (lowercase, remove leading 'api/' and trailing slashes)
   const queryRoute = Array.isArray(req.query?.route) ? req.query.route.join('/') : String(req.query?.route || '');
   const cleanPath = (pathname || queryRoute || '').replace(/^api\//i, '').replace(/\/$/, '').toLowerCase();
+
+  if (cleanPath.includes('update-rateplan-restrictions-bulk') || cleanPath.includes('update_rateplan_restrictions_bulk')) {
+    return handleUpdateRateplanRestrictionsBulk(req, res);
+  }
 
   if (cleanPath.includes('update-prices-stagionale') || cleanPath.includes('update_prices_stagionale')) {
     return handleUpdatePricesStagionale(req, res);

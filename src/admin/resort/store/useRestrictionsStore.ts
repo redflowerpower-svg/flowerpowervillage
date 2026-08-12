@@ -48,31 +48,44 @@ export interface LiveMockRestriction {
   onlyCheckOutDays: number;
 }
 
-export interface RestrictionsStoreState {
+export interface RestrictionsState {
   plannedPeriods: Record<string, PlannedPeriod[]>;
   liveOctorateRestrictions: Record<string, PlannedPeriod[]>;
+  disabledRatePlans: string[];
+  toggleRatePlanActive: (key: string) => void;
+  liveViewMode: 'prod' | 'test';
+  setLiveViewMode: (mode: 'prod' | 'test') => void;
+  isSaving: boolean;
+  isBulkSaving: boolean;
+  bulkSyncProgress: { current: number; total: number; currentPlanName?: string };
+  saveDraftBackup: () => void;
+  restoreDraftBackup: () => { success: boolean; message: string };
+  importConfig: (periods: Record<string, PlannedPeriod[]>) => { success: boolean; message: string };
+  isComparing: boolean;
+  setIsComparing: (val: boolean) => void;
+  updatePlannedPeriod: (ratePlanKey: string, index: any, updated?: Partial<PlannedPeriod>) => void;
+  addNextPlannedPeriod: (ratePlanKey: string) => void;
+  removePlannedPeriod: (ratePlanKey: string, index?: any) => void;
+  syncRatePlanToOctorate: (ratePlanKey: string, index?: any, options?: { testOnly?: boolean }) => Promise<any>;
+  syncAllRatePlansToOctorate: (options?: { testOnly?: boolean }) => Promise<any>;
+  fetchLiveRestrictions: () => Promise<void>;
+}
+
+export interface RestrictionsStoreState extends RestrictionsState {
   liveOctorateRestrictionsMock: Record<string, Record<string, LiveMockRestriction>>;
   syncingPeriodId: string | null;
   syncAllRunning: boolean;
-  isBulkSaving: boolean;
-  bulkSyncProgress: { current: number; total: number; currentPlanName: string };
   isFetchingLive: boolean;
   lastSyncMessage: string | null;
   lastSyncStatus: 'idle' | 'success' | 'error';
 
-  fetchLiveRestrictions: () => Promise<void>;
-  updatePlannedPeriod: (planId: string, periodId: string, updates: Partial<PlannedPeriod>) => void;
-  addNextPlannedPeriod: (planId: string) => void;
-  removePlannedPeriod: (planId: string, periodId: string) => void;
-  
   // Aliases per compatibilità
   addNextPeriod: (planId: string) => void;
   removePeriod: (planId: string, periodId: string) => void;
   updatePeriod: (planId: string, periodId: string, updates: Partial<PlannedPeriod>) => void;
 
   syncPlanToOctorate: (planId: string, periodId: string) => Promise<boolean>;
-  syncAllPlansToOctorate: () => Promise<boolean>;
-  syncAllRatePlansToOctorate: () => Promise<boolean>;
+  syncAllPlansToOctorate: (options?: { testOnly?: boolean }) => Promise<boolean>;
   cancelBulkSync: () => void;
   resetDefaultStore: () => void;
 }
@@ -173,18 +186,87 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       plannedPeriods: { ...INITIAL_PLAN_PERIODS },
       liveOctorateRestrictions: {},
       liveOctorateRestrictionsMock: { ...INITIAL_LIVE_MOCK },
+      disabledRatePlans: (() => {
+        try {
+          return JSON.parse(localStorage.getItem('fpv_disabled_plans_v9') || '[]');
+        } catch {
+          return [];
+        }
+      })(),
+      liveViewMode: 'prod',
       syncingPeriodId: null,
       syncAllRunning: false,
+      isSaving: false,
       isBulkSaving: false,
+      isComparing: false,
       bulkSyncProgress: { current: 0, total: 0, currentPlanName: '' },
       isFetchingLive: false,
       lastSyncMessage: null,
       lastSyncStatus: 'idle',
 
+      toggleRatePlanActive: (key: string) => {
+        const current = get().disabledRatePlans || [];
+        const exists = current.includes(key);
+        const updated = exists ? current.filter(k => k !== key) : [...current, key];
+        set({ disabledRatePlans: updated });
+        try {
+          localStorage.setItem('fpv_disabled_plans_v9', JSON.stringify(updated));
+        } catch (e) {
+          console.warn('LocalStorage save error:', e);
+        }
+      },
+
+      setLiveViewMode: (mode: 'prod' | 'test') => {
+        set({ liveViewMode: mode });
+        get().fetchLiveRestrictions();
+      },
+
+      setIsComparing: (val: boolean) => set({ isComparing: val }),
+
+      saveDraftBackup: () => {
+        try {
+          localStorage.setItem('fp_restrictions_draft_backup', JSON.stringify(get().plannedPeriods));
+        } catch (e) {
+          console.warn('saveDraftBackup error:', e);
+        }
+      },
+
+      restoreDraftBackup: () => {
+        try {
+          const raw = localStorage.getItem('fp_restrictions_draft_backup');
+          if (raw) {
+            const periods = JSON.parse(raw);
+            set({ plannedPeriods: periods });
+            return { success: true, message: 'Backup ripristinato con successo' };
+          }
+          return { success: false, message: 'Nessun backup trovato' };
+        } catch (e: any) {
+          return { success: false, message: e.message || 'Errore durante il ripristino' };
+        }
+      },
+
+      importConfig: (periods: Record<string, PlannedPeriod[]>) => {
+        try {
+          set({ plannedPeriods: periods });
+          return { success: true, message: 'Configurazione importata con successo' };
+        } catch (e: any) {
+          return { success: false, message: e.message || 'Errore durante l\'importazione' };
+        }
+      },
+
+      syncRatePlanToOctorate: async (planId: string, periodId?: any, options?: { testOnly?: boolean }) => {
+        const ok = await get().syncPlanToOctorate(planId, String(periodId), options);
+        return { success: ok, message: ok ? 'OK' : 'Errore' };
+      },
+
       fetchLiveRestrictions: async () => {
+        const { liveViewMode } = get();
         set({ isFetchingLive: true, lastSyncMessage: null });
         try {
-          const res = await fetch('/api/resort/octorate-restrictions-grid');
+          const url = liveViewMode === 'test'
+            ? '/api/resort/octorate-restrictions-grid?testOnly=true'
+            : '/api/resort/octorate-restrictions-grid';
+          const res = await fetch(url);
           if (!res.ok) {
             const errText = await res.text().catch(() => `Status ${res.status}`);
             throw new Error(`Errore HTTP ${res.status}: ${errText}`);
@@ -195,11 +277,11 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             const normalizedGrid = normalizeGridKeys(data.grid);
             const planCount = Object.keys(normalizedGrid).length;
             const periodCount = Object.values(normalizedGrid).reduce((acc, v) => acc + (v?.length || 0), 0);
-            console.info(`[fetchLiveRestrictions] ✅ Grid scaricata: ${planCount} piani, ${periodCount} periodi totali.`);
+            console.info(`[fetchLiveRestrictions] ✅ Grid scaricata [${liveViewMode.toUpperCase()}]: ${planCount} piani, ${periodCount} periodi totali.`);
             set({
               liveOctorateRestrictions: normalizedGrid,
               isFetchingLive: false,
-              lastSyncMessage: `✅ Timeline Live Octorate aggiornata: ${planCount} piani, ${periodCount} periodi scaricati.`,
+              lastSyncMessage: `✅ Timeline Live Octorate [${liveViewMode.toUpperCase()}] aggiornata: ${planCount} piani, ${periodCount} periodi scaricati.`,
               lastSyncStatus: 'success'
             });
           } else {
@@ -252,7 +334,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         }
 
         const newPeriod: PlannedPeriod = {
-          id: `p_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          id: `${planId}_p${list.length + 1}_${Date.now()}`,
           name: `Periodo ${list.length + 1}`,
           dateFrom: newDateFrom,
           dateTo: newDateTo,
@@ -286,70 +368,80 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       removePeriod: (planId: string, periodId: string) => get().removePlannedPeriod(planId, periodId),
       updatePeriod: (planId: string, periodId: string, updates: Partial<PlannedPeriod>) => get().updatePlannedPeriod(planId, periodId, updates),
 
-      syncPlanToOctorate: async (planId: string, periodId: string) => {
+      syncPlanToOctorate: async (planId: string, periodId?: string, options?: { testOnly?: boolean }) => {
         const state = get();
-        const list = state.plannedPeriods[planId] || [];
-        const period = list.find(p => p.id === periodId);
-
-        if (!period) {
-          set({ lastSyncStatus: 'error', lastSyncMessage: '❌ Periodo non trovato' });
+        const disabledPlans = state.disabledRatePlans || [];
+        if (disabledPlans.includes(planId)) {
+          console.info(`[syncPlanToOctorate] Tariffa ${planId} disattivata dall'utente. Sincronizzazione saltata.`);
+          set({ lastSyncMessage: `⚠️ Tariffa ${planId} disattivata dall'utente: sincronizzazione saltata.`, lastSyncStatus: 'idle', isSaving: false });
           return false;
         }
 
-        set({ syncingPeriodId: periodId, lastSyncMessage: `Invio restrizioni ${period.name} su Octorate...`, lastSyncStatus: 'idle' });
+        const isTestOnly = Boolean(options?.testOnly || state.liveViewMode === 'test');
+        set({ isSaving: true, syncingPeriodId: periodId || null, lastSyncMessage: `🧹 Tabula Rasa: pulizia preventiva stagionale per ${planId}${isTestOnly ? ' (TEST)' : ''}...`, lastSyncStatus: 'idle' });
 
         try {
-          const effectiveCtd = period.failsafeCheckout ? false : period.closedToDeparture;
-
-          const response = await fetch('/api/update-restriction', {
+          // 🧹 TABULA RASA: Reset preventivo stagionale (01/10/2026 -> 31/10/2027)
+          // BE = open di default (tariffa madre), tutti gli altri canali derivati = stopsell
+          const resetStrategy = planId === 'be' ? 'open' : 'stopsell';
+          const resetPayload = {
+            planId,
+            ratePlanKey: planId,
+            dateFrom: '2026-10-01',
+            dateTo: '2027-10-31',
+            stopSell: resetStrategy === 'stopsell',
+            strategy: resetStrategy,
+            testOnly: isTestOnly
+          };
+          await fetch('/api/update-restriction', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              planId,
-              dateFrom: period.dateFrom,
-              dateTo: period.dateTo,
-              stopSell: period.stopSell,
-              closedToArrival: period.closedToArrival,
-              closedToDeparture: effectiveCtd,
-              onlyCheckOutDays: period.onlyCheckOutDays
-            })
-          });
+            body: JSON.stringify(resetPayload)
+          }).catch(e => console.warn('[Tabula Rasa warning]:', e));
 
-          const data = await response.json();
+          const list = state.plannedPeriods[planId] || [];
+          const periodsToSync = periodId ? list.filter(p => p.id === periodId) : list;
 
-          if (!response.ok || !data.success) {
-            throw new Error(data.error || 'Errore sincronizzazione restrizioni piano');
+          for (const period of periodsToSync) {
+            const effectiveCtd = period.failsafeCheckout ? false : period.closedToDeparture;
+
+            const response = await fetch('/api/update-restriction', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                planId,
+                ratePlanKey: planId,
+                dateFrom: period.dateFrom,
+                dateTo: period.dateTo,
+                stopSell: period.stopSell,
+                closedToArrival: period.closedToArrival,
+                closedToDeparture: effectiveCtd,
+                onlyCheckOutDays: period.onlyCheckOutDays,
+                onlyCheckoutDays: period.onlyCheckOutDays,
+                strategy: period.closedToArrival ? 'failsafe_checkout' : (period.stopSell ? 'stopsell' : 'open'),
+                testOnly: isTestOnly
+              })
+            });
+
+            const data = await response.json();
+            if (!response.ok || !data.success) {
+              throw new Error(data.error || `Errore durante la sincronizzazione di ${period.name}`);
+            }
           }
-
-          const liveMap = state.liveOctorateRestrictionsMock[planId] || {};
-          liveMap[periodId] = {
-            stopSell: period.stopSell,
-            closedToArrival: period.closedToArrival,
-            closedToDeparture: effectiveCtd,
-            onlyCheckOutDays: period.onlyCheckOutDays
-          };
 
           set({
+            isSaving: false,
             syncingPeriodId: null,
             lastSyncStatus: 'success',
-            lastSyncMessage: `✅ Restrizioni per ${period.name} (${period.dateFrom} ➔ ${period.dateTo}) allineate con successo su Octorate!`,
-            liveOctorateRestrictionsMock: {
-              ...state.liveOctorateRestrictionsMock,
-              [planId]: liveMap
-            }
+            lastSyncMessage: `✅ Tabula Rasa & Allineamento completati per ${planId} su Octorate!`,
           });
 
-          try {
-            const { fetchOctorateGridData } = await import('../../../booking/lib/octorate');
-            fetchOctorateGridData('2026-10-01', '2027-10-31').catch(e => console.warn('Grid re-fetch error:', e));
-          } catch (e) {
-            console.warn('Import error:', e);
-          }
-
+          await get().fetchLiveRestrictions();
           return true;
         } catch (err: any) {
           console.error('Error syncing plan to Octorate:', err);
           set({
+            isSaving: false,
             syncingPeriodId: null,
             lastSyncStatus: 'error',
             lastSyncMessage: `❌ Errore sincronizzazione: ${err?.message || 'Impossibile connettersi'}`
@@ -358,14 +450,18 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         }
       },
 
-      syncAllPlansToOctorate: async () => {
-        return get().syncAllRatePlansToOctorate();
+      syncAllPlansToOctorate: async (options?: { testOnly?: boolean }) => {
+        return get().syncAllRatePlansToOctorate(options);
       },
 
-      syncAllRatePlansToOctorate: async () => {
+      syncAllRatePlansToOctorate: async (options?: { testOnly?: boolean }) => {
         const state = get();
+        const isTestOnly = Boolean(options?.testOnly || state.liveViewMode === 'test');
+        const disabledPlans = state.disabledRatePlans || [];
+
         let totalCount = 0;
         for (const plan of REAL_OCTORATE_PLANS) {
+          if (disabledPlans.includes(plan.id)) continue;
           const list = state.plannedPeriods[plan.id] || [];
           totalCount += list.length;
         }
@@ -373,8 +469,8 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         set({
           isBulkSaving: true,
           syncAllRunning: true,
-          bulkSyncProgress: { current: 0, total: totalCount, currentPlanName: 'Inizio...' },
-          lastSyncMessage: `Avvio coda di sincronizzazione per ${totalCount} periodi su Octorate...`,
+          bulkSyncProgress: { current: 0, total: totalCount, currentPlanName: 'Tabula Rasa Preventiva...' },
+          lastSyncMessage: `🧹 Tabula Rasa: Avvio sincronizzazione sequenziale per ${totalCount} periodi su Octorate${isTestOnly ? ' (Modalità TEST)' : ''}...`,
           lastSyncStatus: 'idle'
         });
 
@@ -383,6 +479,29 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         try {
           for (const plan of REAL_OCTORATE_PLANS) {
             if (!get().isBulkSaving) break;
+            if ((get().disabledRatePlans || []).includes(plan.id)) {
+              console.info(`[syncAllRatePlansToOctorate] Piano ${plan.name} (${plan.id}) disattivato dall'utente, saltato.`);
+              continue;
+            }
+
+            // 🧹 TABULA RASA BULK: Reset preventivo stagionale per ogni piano prima delle riaperture
+            // BE = open di default (tariffa madre), tutti gli altri canali derivati = stopsell
+            const bulkResetStrategy = plan.id === 'be' ? 'open' : 'stopsell';
+            const bulkResetPayload = {
+              planId: plan.id,
+              ratePlanKey: plan.id,
+              dateFrom: '2026-10-01',
+              dateTo: '2027-10-31',
+              stopSell: bulkResetStrategy === 'stopsell',
+              strategy: bulkResetStrategy,
+              testOnly: isTestOnly
+            };
+            await fetch('/api/update-restriction', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(bulkResetPayload)
+            }).catch(e => console.warn('[Bulk Tabula Rasa warning]:', e));
+
             const periods = state.plannedPeriods[plan.id] || [];
             for (const period of periods) {
               if (!get().isBulkSaving) break;
@@ -393,7 +512,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
                   total: totalCount,
                   currentPlanName: `${plan.code} (${period.name})`
                 },
-                lastSyncMessage: `Sincronizzazione (${currentStep}/${totalCount}) ${plan.code} - ${period.name}...`
+                lastSyncMessage: `Sincronizzazione (${currentStep}/${totalCount}) ${plan.code} - ${period.name}${isTestOnly ? ' [TEST]' : ''}...`
               });
 
               const effectiveCtd = period.failsafeCheckout ? false : period.closedToDeparture;
@@ -403,12 +522,16 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   planId: plan.id,
+                  ratePlanKey: plan.id,
                   dateFrom: period.dateFrom,
                   dateTo: period.dateTo,
                   stopSell: period.stopSell,
                   closedToArrival: period.closedToArrival,
                   closedToDeparture: effectiveCtd,
-                  onlyCheckOutDays: period.onlyCheckOutDays
+                  onlyCheckOutDays: period.onlyCheckOutDays,
+                  onlyCheckoutDays: period.onlyCheckOutDays,
+                  strategy: period.closedToArrival ? 'failsafe_checkout' : (period.stopSell ? 'stopsell' : 'open'),
+                  testOnly: isTestOnly
                 })
               }).catch(e => console.warn('Bulk plan sync warning:', e));
             }
@@ -416,6 +539,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
 
           if (!get().isBulkSaving) {
             set({
+              isBulkSaving: false,
               syncAllRunning: false,
               lastSyncStatus: 'idle',
               lastSyncMessage: '⏹️ Sincronizzazione interrotta dall\'utente.'
@@ -427,12 +551,13 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             isBulkSaving: false,
             syncAllRunning: false,
             lastSyncStatus: 'success',
-            lastSyncMessage: `✅ Sincronizzazione sequenziale completata con successo! ${totalCount}/${totalCount} periodi allineati su Octorate.`,
+            lastSyncMessage: isTestOnly
+              ? `✅ Tabula Rasa & Test completati con successo! ${totalCount}/${totalCount} periodi verificati in TEST.`
+              : `✅ Tabula Rasa & Sincronizzazione completati con successo! ${totalCount}/${totalCount} periodi allineati su Octorate.`,
             bulkSyncProgress: { current: totalCount, total: totalCount, currentPlanName: 'Completato' }
           });
 
           await get().fetchLiveRestrictions();
-
           return true;
         } catch (err: any) {
           console.error('Error in syncAllRatePlansToOctorate:', err);
