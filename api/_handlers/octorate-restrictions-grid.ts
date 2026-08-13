@@ -1,5 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import fs from "fs";
+import path from "path";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -25,48 +27,74 @@ export function groupDailyRestrictions(days: any[], ratePlanKey: string = 'rate'
   let idCounter = 1;
 
   while (i < n) {
-    // 1. Salta i blocchi di chiusura totale (stopsell)
-    while (i < n && isStopSell(days[i])) {
-      i++;
-    }
-    if (i >= n) break;
+    const currentDay = days[i];
+    const dateFrom = String(currentDay?.date || currentDay?.dateStr || currentDay?.day || '').substring(0, 10);
+    const stopSellState = isStopSell(currentDay);
+    const ctaState = isCloseToArrival(currentDay);
 
-    // Trovato l'inizio di una finestra di vendita attiva
-    const dateFrom = String(days[i]?.date || days[i]?.dateStr || days[i]?.day || '').substring(0, 10);
-    let lastOpenDate = dateFrom;
+    let j = i + 1;
+    let dateTo = dateFrom;
 
-    // 2. Consuma i giorni consecutivi di vendita aperta
-    while (i < n && !isStopSell(days[i]) && !isCloseToArrival(days[i])) {
-      lastOpenDate = String(days[i]?.date || days[i]?.dateStr || days[i]?.day || '').substring(0, 10);
-      i++;
-    }
+    // Raggruppa i giorni consecutivi con lo stesso identico stato di restrizione
+    while (j < n) {
+      const nextDay = days[j];
+      const nextStopSell = isStopSell(nextDay);
+      const nextCta = isCloseToArrival(nextDay);
 
-    // 3. Conta la coda di Only Check-out consecutiva subito dopo
-    let onlyCheckoutDays = 0;
-    while (i < n && !isStopSell(days[i]) && isCloseToArrival(days[i])) {
-      onlyCheckoutDays++;
-      i++;
+      if (nextStopSell !== stopSellState || nextCta !== ctaState) {
+        break;
+      }
+      dateTo = String(nextDay?.date || nextDay?.dateStr || nextDay?.day || '').substring(0, 10);
+      j++;
     }
 
-    // Crea un singolo periodo coerente con il modello pianificato
-    periods.push({
-      id: `${ratePlanKey}_live_p${idCounter++}`,
-      name: `Periodo ${periods.length + 1}`,
-      dateFrom: dateFrom,
-      dateTo: lastOpenDate,
-      stopSell: false,
-      closedToArrival: onlyCheckoutDays > 0,
-      closedToDeparture: false,
-      onlyCheckoutDays: onlyCheckoutDays,
-      onlyCheckOutDays: onlyCheckoutDays > 0 ? onlyCheckoutDays : 10,
-      strategy: onlyCheckoutDays > 0 ? 'failsafe_checkout' : 'open',
-      failsafeCheckout: true
-    });
+    const daySpanCount = j - i;
 
-    // 4. Salta lo stopsell successivo
-    while (i < n && isStopSell(days[i])) {
-      i++;
+    if (stopSellState) {
+      // 🔴 Blocco Stop Sell (Chiuso)
+      periods.push({
+        id: `${ratePlanKey}_live_p${idCounter++}`,
+        name: 'Stop Sell (Chiuso)',
+        dateFrom,
+        dateTo,
+        stopSell: true,
+        closedToArrival: true,
+        closedToDeparture: true,
+        onlyCheckoutDays: 0,
+        onlyCheckOutDays: 0,
+        strategy: 'stopsell'
+      });
+    } else if (ctaState) {
+      // 🟡 Blocco Only Check-out / CTA
+      periods.push({
+        id: `${ratePlanKey}_live_p${idCounter++}`,
+        name: `Only Check-out (${daySpanCount}gg)`,
+        dateFrom,
+        dateTo,
+        stopSell: false,
+        closedToArrival: true,
+        closedToDeparture: false,
+        onlyCheckoutDays: daySpanCount,
+        onlyCheckOutDays: daySpanCount,
+        strategy: 'failsafe_checkout'
+      });
+    } else {
+      // 🟢 Blocco Aperto Standard
+      periods.push({
+        id: `${ratePlanKey}_live_p${idCounter++}`,
+        name: 'Apertura Standard (OK)',
+        dateFrom,
+        dateTo,
+        stopSell: false,
+        closedToArrival: false,
+        closedToDeparture: false,
+        onlyCheckoutDays: 0,
+        onlyCheckOutDays: 0,
+        strategy: 'open'
+      });
     }
+
+    i = j;
   }
 
   return periods;
@@ -282,6 +310,22 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
 
         if (filteredDays.length > 0) {
           gridMap[planKey] = groupDailyRestrictions(filteredDays, planKey);
+        }
+      }
+    }
+
+    if (testOnly) {
+      const testCachePath = path.resolve(process.cwd(), 'scratch/octorate-test-live-cache.json');
+      if (fs.existsSync(testCachePath)) {
+        try {
+          const testCache = JSON.parse(fs.readFileSync(testCachePath, 'utf8'));
+          for (const [pk, periods] of Object.entries(testCache)) {
+            if (Array.isArray(periods) && periods.length > 0) {
+              gridMap[pk] = periods;
+            }
+          }
+        } catch (err) {
+          console.warn('[octorate-restrictions-grid] Error reading test live cache:', err);
         }
       }
     }

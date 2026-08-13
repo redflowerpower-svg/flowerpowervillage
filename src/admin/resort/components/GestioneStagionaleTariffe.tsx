@@ -92,15 +92,6 @@ export const GestioneStagionaleTariffe: React.FC = () => {
   };
 
   // Auto-download iniziale dei dati live se lo store amministrativo non ha ancora caricato la grid
-  React.useEffect(() => {
-    if (!rawOctorateGridItems || rawOctorateGridItems.length === 0) {
-      import('../../../booking/lib/octorate')
-        .then(({ fetchOctorateGridData }) => {
-          fetchOctorateGridData('2026-11-01', '2027-10-31').catch((e) => console.warn('[GestioneStagionaleTariffe] Auto grid fetch error:', e));
-        })
-        .catch((err) => console.warn('[GestioneStagionaleTariffe] Import error:', err));
-    }
-  }, [rawOctorateGridItems?.length]);
 
   // Helper per estrarre il prezzo medio reale caricato da Octorate per un motherId ed una fascia date
   const getLiveOctoratePriceForPeriod = (motherId: number, dateFrom: string, dateTo: string): number | null => {

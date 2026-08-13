@@ -236,15 +236,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
 
   useEffect(() => {
     stableFetchLive();
-    // Carica il grid Octorate solo se non già presente
-    if (!rawOctorateGridItems || rawOctorateGridItems.length === 0) {
-      import('../../../booking/lib/octorate')
-        .then(({ fetchOctorateGridData }) => {
-          fetchOctorateGridData('2026-10-01', '2027-10-31').catch(e => console.warn('[GestioneTariffeDerivate] Auto grid fetch error:', e));
-        })
-        .catch(err => console.warn('[GestioneTariffeDerivate] Import error:', err));
-    }
-  }, []); // eseguito solo al mount — rawOctorateGridItems non è una dep stabile
+  }, []); // eseguito solo al mount
 
   // ─────────────────────────────────────────────────────────────────────────────
   // ─────────────────────────────────────────────────────────────────────────────

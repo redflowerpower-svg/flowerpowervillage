@@ -1,0 +1,136 @@
+{
+  "be": [
+    {
+      "id": "be_live_1786599335336",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2026-10-01",
+      "dateTo": "2027-10-31",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    }
+  ],
+  "7d": [
+    {
+      "id": "7d_live_1786599342499",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2026-10-01",
+      "dateTo": "2026-12-15",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    },
+    {
+      "id": "7d_live_1786599347839",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2027-04-01",
+      "dateTo": "2027-10-31",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    }
+  ],
+  "main_bnb_7d": [
+    {
+      "id": "main_bnb_7d_live_1786599354928",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2026-10-01",
+      "dateTo": "2026-12-15",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    },
+    {
+      "id": "main_bnb_7d_live_1786599359805",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2027-01-15",
+      "dateTo": "2027-10-31",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    }
+  ],
+  "main_bnb_14d": [
+    {
+      "id": "main_bnb_14d_live_1786599367996",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2026-12-16",
+      "dateTo": "2027-01-15",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    }
+  ],
+  "agd_ac_7d": [
+    {
+      "id": "agd_ac_7d_live_1786599375230",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2026-10-01",
+      "dateTo": "2026-12-15",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    },
+    {
+      "id": "agd_ac_7d_live_1786599378731",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2027-01-16",
+      "dateTo": "2027-10-31",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    }
+  ],
+  "agd_ac_14d": [
+    {
+      "id": "agd_ac_14d_live_1786599385863",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2026-12-16",
+      "dateTo": "2027-01-15",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    }
+  ],
+  "airbnb": [
+    {
+      "id": "airbnb_live_1786599393091",
+      "name": "Apertura Standard (OK)",
+      "dateFrom": "2026-10-01",
+      "dateTo": "2027-10-31",
+      "stopSell": false,
+      "closedToArrival": false,
+      "closedToDeparture": false,
+      "onlyCheckoutDays": 0,
+      "onlyCheckOutDays": 0,
+      "strategy": "open"
+    }
+  ]
+}

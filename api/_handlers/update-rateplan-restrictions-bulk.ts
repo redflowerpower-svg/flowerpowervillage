@@ -134,6 +134,8 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
 
       let values: Record<string, any>;
 
+      const isCta = strategy === 'failsafe_checkout' || req.body?.closedToArrival === true || req.body?.closedArrival === true;
+
       if (strategy === 'stopsell' || stopSell) {
         // 🔴 STOP SELL: chiude tutto
         values = {
@@ -142,8 +144,16 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
           closedArrival: true,
           closedDeparture: true
         };
+      } else if (isCta) {
+        // 🟡 FAILSAFE CHECKOUT (Only Check-out / CTA): riapre le vendite ma BLOCCA gli arrivi
+        values = {
+          stopSells: false,
+          closed: false,
+          closedArrival: true,
+          closedDeparture: false
+        };
       } else {
-        // 🟢 OPEN / FAILSAFE_CHECKOUT: rimuove esplicitamente i lucchetti della Tabula Rasa
+        // 🟢 OPEN: riapre tutto senza restrizioni
         values = {
           stopSells: false,
           closed: false,
@@ -153,41 +163,45 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
       }
 
       const bulkUrl = 'https://api.octorate.com/connect/rest/v1/calendar/bulk';
-      const bulkPayload = [
-        {
-          room: targetRateIdNum,
-          dateFrom,
-          dateTo,
-          values
+      const productIds = testOnly ? [targetRateIdNum, targetRateIdNum + 13] : [targetRateIdNum];
+
+      for (const pId of productIds) {
+        const bulkPayload = [
+          {
+            room: pId,
+            dateFrom,
+            dateTo,
+            values
+          }
+        ];
+
+        const bulkRes = await fetch(bulkUrl, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(bulkPayload)
+        });
+
+        const bulkText = await bulkRes.text();
+
+        if (!bulkRes.ok) {
+          return res.status(bulkRes.status).json({
+            error: `Octorate API call failed for room ${pId}: ${bulkText.slice(0, 150)}`
+          });
         }
-      ];
 
-    const bulkRes = await fetch(bulkUrl, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(bulkPayload)
-    });
+        let bulkJson = null;
+        try {
+          bulkJson = JSON.parse(bulkText);
+        } catch (e) {
+          // Ok if empty response
+        }
 
-    const bulkText = await bulkRes.text();
-
-    if (!bulkRes.ok) {
-      return res.status(bulkRes.status).json({
-        error: `Octorate API call failed: ${bulkText.slice(0, 150)}`
-      });
-    }
-
-    let bulkJson = null;
-    try {
-      bulkJson = JSON.parse(bulkText);
-    } catch (e) {
-      // Ok if empty response
-    }
-
-    if (bulkJson && (bulkJson.error || bulkJson.success === false)) {
-      return res.status(400).json({
-        error: bulkJson.error || bulkJson.message || 'Aggiornamento restrizioni rifiutato da Octorate'
-      });
-    }
+        if (bulkJson && (bulkJson.error || bulkJson.success === false)) {
+          return res.status(400).json({
+            error: bulkJson.error || bulkJson.message || `Aggiornamento restrizioni rifiutato da Octorate per room ${pId}`
+          });
+        }
+      }
 
     // 🧹 Eliminazione cache Octorate dopo scrittura riuscita
     const cachePath = path.resolve(process.cwd(), 'scratch/octorate-cache.json');
