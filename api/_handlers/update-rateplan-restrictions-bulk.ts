@@ -132,75 +132,101 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
         headers['Octorate-Api-Key'] = clientId;
       }
 
-      let values: Record<string, any>;
+      const motherBeIdFB1 = Number(TEST_PRODUCT_IDS.be || 932243);
+      const motherBeIdFB2 = motherBeIdFB1 + 13; // 932256
+      const motherBeIdReal = Number(REAL_PRODUCT_IDS.be || 529784);
+      const roomsToUpdate = testOnly ? [motherBeIdFB1, motherBeIdFB2] : [motherBeIdReal];
+      const onlyCheckoutDaysNum = Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 0);
+
+      const addDaysISO = (dateStr: string, days: number): string => {
+        if (!dateStr || typeof dateStr !== 'string') return dateStr || '';
+        try {
+          const cleanDate = dateStr.slice(0, 10);
+          const d = new Date(cleanDate + 'T00:00:00Z');
+          if (isNaN(d.getTime())) return cleanDate;
+          d.setUTCDate(d.getUTCDate() + days);
+          return d.toISOString().slice(0, 10);
+        } catch (e) {
+          return dateStr;
+        }
+      };
 
       const isCta = strategy === 'failsafe_checkout' || req.body?.closedToArrival === true || req.body?.closedArrival === true;
+      const bulkPayload: any[] = [];
 
-      if (strategy === 'stopsell' || stopSell) {
-        // 🔴 STOP SELL: chiude tutto
-        values = {
-          stopSells: true,
-          closed: true,
-          closedArrival: true,
-          closedDeparture: true
-        };
-      } else if (isCta) {
-        // 🟡 FAILSAFE CHECKOUT (Only Check-out / CTA): riapre le vendite ma BLOCCA gli arrivi
-        values = {
-          stopSells: false,
-          closed: false,
-          closedArrival: true,
-          closedDeparture: false
-        };
-      } else {
-        // 🟢 OPEN: riapre tutto senza restrizioni
-        values = {
-          stopSells: false,
-          closed: false,
-          closedArrival: false,
-          closedDeparture: false
-        };
+      for (const roomId of roomsToUpdate) {
+        if (strategy === 'stopsell' || stopSell) {
+          // 🔴 STOP SELL: singolo oggetto con chiusura totale
+          bulkPayload.push({
+            room: roomId,
+            dateFrom,
+            dateTo,
+            values: {
+              stopSells: true,
+              closed: true,
+              closedArrival: true,
+              closedDeparture: true
+            }
+          });
+        } else {
+          // 🟢 APERTURA STANDARD (da dateFrom a dateTo)
+          bulkPayload.push({
+            room: roomId,
+            dateFrom,
+            dateTo,
+            values: {
+              stopSells: false,
+              closed: false,
+              closedArrival: false,
+              closedDeparture: false
+            }
+          });
+
+          // 🟡 CUSCINETTO ONLY CHECK-OUT / CTA (da dateTo + 1 gg a dateTo + onlyCheckoutDays)
+          if (onlyCheckoutDaysNum > 0) {
+            const ctaFrom = addDaysISO(dateTo, 1);
+            const ctaTo = addDaysISO(dateTo, onlyCheckoutDaysNum);
+            bulkPayload.push({
+              room: roomId,
+              dateFrom: ctaFrom,
+              dateTo: ctaTo,
+              values: {
+                stopSells: false,
+                closed: false,
+                closedArrival: true,
+                closedDeparture: false
+              }
+            });
+          }
+        }
       }
 
       const bulkUrl = 'https://api.octorate.com/connect/rest/v1/calendar/bulk';
-      const productIds = testOnly ? [targetRateIdNum, targetRateIdNum + 13] : [targetRateIdNum];
+      const bulkRes = await fetch(bulkUrl, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(bulkPayload)
+      });
 
-      for (const pId of productIds) {
-        const bulkPayload = [
-          {
-            room: pId,
-            dateFrom,
-            dateTo,
-            values
-          }
-        ];
+      const bulkText = await bulkRes.text();
 
-        const bulkRes = await fetch(bulkUrl, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(bulkPayload)
+      if (!bulkRes.ok) {
+        return res.status(bulkRes.status).json({
+          error: `Octorate API call failed: ${bulkText.slice(0, 150)}`
         });
+      }
 
-        const bulkText = await bulkRes.text();
+      let bulkJson = null;
+      try {
+        bulkJson = JSON.parse(bulkText);
+      } catch (e) {
+        // Ok if empty response
+      }
 
-        if (!bulkRes.ok) {
-          return res.status(bulkRes.status).json({
-            error: `Octorate API call failed for room ${pId}: ${bulkText.slice(0, 150)}`
-          });
-        }
-
-        let bulkJson = null;
-        try {
-          bulkJson = JSON.parse(bulkText);
-        } catch (e) {
-          // Ok if empty response
-        }
-
-        if (bulkJson && (bulkJson.error || bulkJson.success === false)) {
-          return res.status(400).json({
-            error: bulkJson.error || bulkJson.message || `Aggiornamento restrizioni rifiutato da Octorate per room ${pId}`
-          });
-        }
+      if (bulkJson && (bulkJson.error || bulkJson.success === false)) {
+        return res.status(400).json({
+          error: bulkJson.error || bulkJson.message || 'Aggiornamento restrizioni rifiutato da Octorate'
+        });
       }
 
     // 🧹 Eliminazione cache Octorate dopo scrittura riuscita

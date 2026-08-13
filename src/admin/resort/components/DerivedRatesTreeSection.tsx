@@ -19,6 +19,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { useResortAdminStore } from '../store/useResortAdminStore';
+import { useRestrictionsStore } from '../store/useRestrictionsStore';
 import { fetchOctorateMonthlyGrid } from '../../../booking/lib/octorate';
 import { getAcUnitsForRoom } from '../lib/octorateAdmin';
 
@@ -1853,6 +1854,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
 ];
 
 export function DerivedRatesTreeSection() {
+  const { disabledRatePlans } = useRestrictionsStore();
   const { 
     rawOctorateGridItems, 
     isSimulationActive, 
@@ -1987,13 +1989,19 @@ export function DerivedRatesTreeSection() {
 
     const price = Number(found.price || found.days?.[0]?.price || 0);
     const minstay = Number(found.minStay || found.minstay || found.days?.[0]?.minStay || 2);
+    const dayObj = found.days?.[0] || found.calendar?.[0] || found;
     const isStopSell = Boolean(
       found.stopSell || 
       found.stopSells || 
-      found.days?.[0]?.stopSell || 
+      found.closed ||
+      dayObj?.stopSell || 
+      dayObj?.stopSells || 
+      dayObj?.closed ||
       price >= 10000 || 
       found.availability === 0 || 
-      found.available === false
+      found.available === false ||
+      (disabledRatePlans || []).includes(nodeId) ||
+      (disabledRatePlans || []).some((dp: string) => nodeId.toLowerCase().includes(dp.toLowerCase()))
     );
     const isAvailable = !isStopSell && price > 0 && 10000 > price;
 
@@ -2011,6 +2019,14 @@ export function DerivedRatesTreeSection() {
     node: { id: string; name: string; isWritable?: boolean },
     rawItem?: any
   ): boolean => {
+    // Tariffa Madre (BE) è sempre Scrivibile (Livello 0)
+    if (node.name?.toUpperCase().includes('BE') || node.id === '932243' || node.id === '932256' || node.id === '529784' || node.id === 'be') {
+      return true;
+    }
+    // Se la scrivibilità è stata esplicitamente verificata nel contesto dello store
+    if (verifiedWritability && verifiedWritability[node.id] === true) {
+      return true;
+    }
     if (rawItem) {
       if (
         rawItem.inheritRestrictions === false ||
@@ -2025,11 +2041,7 @@ export function DerivedRatesTreeSection() {
     if (typeof node.isWritable === 'boolean') {
       return node.isWritable;
     }
-    // Standard 7d unlinked rates (e.g. JV 7d, JVL 7d, JVR 7d, P&L 7d) are unlinked on Octorate for restriction writing
-    const nameLower = (node.name || '').toLowerCase();
-    if (nameLower.endsWith('7d') && !nameLower.includes('bnb') && !nameLower.includes('ac')) {
-      return true;
-    }
+    // Per le tariffe derivate con ereditarietà attiva su Octorate, mostra il reale stato di lettura/ereditarietà
     return false;
   };
 

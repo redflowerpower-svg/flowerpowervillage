@@ -140,7 +140,6 @@ export const INITIAL_LIVE_MOCK: Record<string, Record<string, LiveMockRestrictio
 // Gestisce variazioni come 'main_bnb_7d' vs 'main-bnb-7d' vs 'mainbnb7d' ecc.
 export function normalizeGridKeys(rawGrid: Record<string, any[]>): Record<string, any[]> {
   const KEY_ALIASES: Record<string, string> = {
-    // Chiavi backend esatte (già corrette)
     be: 'be',
     '7d': '7d',
     main_bnb_7d: 'main_bnb_7d',
@@ -153,7 +152,6 @@ export function normalizeGridKeys(rawGrid: Record<string, any[]>): Record<string
     agd_ac_14d: 'agd_ac_14d',
     airbnb: 'airbnb',
     airbnb_ac: 'airbnb_ac',
-    // Varianti alternative che Octorate potrebbe restituire
     'main-bnb-7d': 'main_bnb_7d',
     'main-bnb-14d': 'main_bnb_14d',
     'ac-7d': 'ac_7d',
@@ -171,10 +169,17 @@ export function normalizeGridKeys(rawGrid: Record<string, any[]>): Record<string
     const cleanKey = rawKey.toLowerCase().trim();
     const mappedKey = KEY_ALIASES[cleanKey] ?? cleanKey;
     if (Array.isArray(periods) && periods.length > 0) {
-      normalized[mappedKey] = periods.map((p: any) => ({
-        ...p,
-        onlyCheckOutDays: p.onlyCheckoutDays !== undefined ? p.onlyCheckoutDays : (p.onlyCheckOutDays || 0)
-      }));
+      normalized[mappedKey] = periods.map((p: any) => {
+        const rawDays = p.onlyCheckoutDays ?? p.onlyCheckOutDays;
+        const outDays = (rawDays !== undefined && rawDays > 0)
+          ? Number(rawDays)
+          : (mappedKey === 'be' ? 0 : 10);
+        return {
+          ...p,
+          onlyCheckOutDays: outDays,
+          onlyCheckoutDays: outDays
+        };
+      });
     }
   }
   return normalized;
@@ -187,10 +192,12 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       liveOctorateRestrictions: {},
       liveOctorateRestrictionsMock: { ...INITIAL_LIVE_MOCK },
       disabledRatePlans: (() => {
+        const DEFAULT_DISABLED = ['airbnb_ac', 'ac_7d', 'ac_14d', 'ac_bnb_7d', 'ac_bnb_14d'];
         try {
-          return JSON.parse(localStorage.getItem('fpv_disabled_plans_v9') || '[]');
+          const saved = localStorage.getItem('fpv_disabled_plans_v9');
+          return saved ? JSON.parse(saved) : DEFAULT_DISABLED;
         } catch {
-          return [];
+          return DEFAULT_DISABLED;
         }
       })(),
       liveViewMode: 'prod',
@@ -479,8 +486,23 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         try {
           for (const plan of REAL_OCTORATE_PLANS) {
             if (!get().isBulkSaving) break;
+            
             if ((get().disabledRatePlans || []).includes(plan.id)) {
-              console.info(`[syncAllRatePlansToOctorate] Piano ${plan.name} (${plan.id}) disattivato dall'utente, saltato.`);
+              console.info(`[syncAllRatePlansToOctorate] Piano ${plan.name} (${plan.id}) disattivato dall'utente. Invio chiusura stagionale (Stop Sell)...`);
+              const disabledClosePayload = {
+                planId: plan.id,
+                ratePlanKey: plan.id,
+                dateFrom: '2026-10-01',
+                dateTo: '2027-10-31',
+                stopSell: true,
+                strategy: 'stopsell',
+                testOnly: isTestOnly
+              };
+              await fetch('/api/update-rateplan-restrictions-bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(disabledClosePayload)
+              }).catch(e => console.warn('[Disabled Plan Close warning]:', e));
               continue;
             }
 

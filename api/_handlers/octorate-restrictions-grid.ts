@@ -21,7 +21,7 @@ const isCloseToArrival = (day: any): boolean => Boolean(
 
 export function groupDailyRestrictions(days: any[], ratePlanKey: string = 'rate') {
   if (!days || days.length === 0) return [];
-  const periods: any[] = [];
+  const rawPeriods: any[] = [];
   const n = days.length;
   let i = 0;
   let idCounter = 1;
@@ -50,54 +50,55 @@ export function groupDailyRestrictions(days: any[], ratePlanKey: string = 'rate'
 
     const daySpanCount = j - i;
 
-    if (stopSellState) {
-      // 🔴 Blocco Stop Sell (Chiuso)
-      periods.push({
-        id: `${ratePlanKey}_live_p${idCounter++}`,
-        name: 'Stop Sell (Chiuso)',
-        dateFrom,
-        dateTo,
-        stopSell: true,
-        closedToArrival: true,
-        closedToDeparture: true,
-        onlyCheckoutDays: 0,
-        onlyCheckOutDays: 0,
-        strategy: 'stopsell'
-      });
-    } else if (ctaState) {
-      // 🟡 Blocco Only Check-out / CTA
-      periods.push({
-        id: `${ratePlanKey}_live_p${idCounter++}`,
-        name: `Only Check-out (${daySpanCount}gg)`,
-        dateFrom,
-        dateTo,
-        stopSell: false,
-        closedToArrival: true,
-        closedToDeparture: false,
-        onlyCheckoutDays: daySpanCount,
-        onlyCheckOutDays: daySpanCount,
-        strategy: 'failsafe_checkout'
-      });
-    } else {
-      // 🟢 Blocco Aperto Standard
-      periods.push({
-        id: `${ratePlanKey}_live_p${idCounter++}`,
-        name: 'Apertura Standard (OK)',
-        dateFrom,
-        dateTo,
-        stopSell: false,
-        closedToArrival: false,
-        closedToDeparture: false,
-        onlyCheckoutDays: 0,
-        onlyCheckOutDays: 0,
-        strategy: 'open'
-      });
-    }
+    rawPeriods.push({
+      id: `${ratePlanKey}_live_p${idCounter++}`,
+      dateFrom,
+      dateTo,
+      stopSell: stopSellState,
+      closedToArrival: ctaState,
+      closedToDeparture: stopSellState,
+      onlyCheckoutDays: ctaState ? daySpanCount : 0,
+      onlyCheckOutDays: ctaState ? daySpanCount : 0,
+      strategy: stopSellState ? 'stopsell' : (ctaState ? 'failsafe_checkout' : 'open')
+    });
 
     i = j;
   }
 
-  return periods;
+  // Unisce il periodo di Apertura con il periodo contiguo di Only Check-out per mostrare il badge dei giorni
+  const mergedPeriods: any[] = [];
+  for (let k = 0; k < rawPeriods.length; k++) {
+    const curr = rawPeriods[k];
+    const next = rawPeriods[k + 1];
+
+    if (curr.strategy === 'open' && next && next.strategy === 'failsafe_checkout') {
+      mergedPeriods.push({
+        ...curr,
+        name: 'Apertura Standard (OK)',
+        onlyCheckoutDays: next.onlyCheckoutDays,
+        onlyCheckOutDays: next.onlyCheckoutDays,
+        ctaEndDate: next.dateTo
+      });
+      k++; // Consuma il blocco CTA poiché è stato incorporato come finestra di Only Check-out
+    } else if (curr.strategy === 'failsafe_checkout') {
+      mergedPeriods.push({
+        ...curr,
+        name: `Only Check-out (${curr.onlyCheckoutDays}gg)`
+      });
+    } else if (curr.strategy === 'stopsell') {
+      mergedPeriods.push({
+        ...curr,
+        name: 'Stop Sell (Chiuso)'
+      });
+    } else {
+      mergedPeriods.push({
+        ...curr,
+        name: 'Apertura Standard (OK)'
+      });
+    }
+  }
+
+  return mergedPeriods;
 }
 
 export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: VercelResponse) {
