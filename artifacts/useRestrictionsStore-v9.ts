@@ -127,13 +127,20 @@ const generateDefaultLiveOctorate = (): Record<string, PlannedPeriod[]> => {
 export interface RestrictionsState {
   plannedPeriods: Record<string, PlannedPeriod[]>;
   liveOctorateRestrictions: Record<string, PlannedPeriod[]>;
+  resetPreferences: {
+    stopSells: boolean;
+    closed: boolean;
+    closedArrival: boolean;
+    closedDeparture: boolean;
+    minStay: boolean;
+  };
+  setResetPreference: (key: string, val: boolean) => void;
   isSaving: boolean;
   isBulkSaving: boolean;
-  bulkSyncProgress: { current: number; total: number 
+  bulkSyncProgress: { current: number; total: number };
   saveDraftBackup: () => void;
   restoreDraftBackup: () => { success: boolean; message: string };
   importConfig: (periods: Record<string, PlannedPeriod[]>) => { success: boolean; message: string };
-};
   isComparing: boolean;
   setIsComparing: (val: boolean) => void;
   updatePlannedPeriod: (ratePlanKey: string, index: number, updated: Partial<PlannedPeriod>) => void;
@@ -147,6 +154,20 @@ export interface RestrictionsState {
 export const useRestrictionsStore = create<RestrictionsState>((set, get) => ({
   plannedPeriods: JSON.parse(localStorage.getItem('fpv_planned_restrictions_v9') || 'null') || generateDefaultPeriods(),
   liveOctorateRestrictions: generateDefaultLiveOctorate(),
+  resetPreferences: {
+    stopSells: true,
+    closed: true,
+    closedArrival: true,
+    closedDeparture: true,
+    minStay: true
+  },
+  setResetPreference: (key: string, val: boolean) =>
+    set((state) => ({
+      resetPreferences: {
+        ...state.resetPreferences,
+        [key]: val
+      }
+    })),
   isSaving: false,
   isBulkSaving: false,
   bulkSyncProgress: { current: 0, total: 0 },
@@ -258,7 +279,8 @@ export const useRestrictionsStore = create<RestrictionsState>((set, get) => ({
         dateFrom: period.dateFrom,
         dateTo: period.dateTo,
         onlyCheckoutDays: period.onlyCheckoutDays,
-        strategy: period.strategy
+        strategy: period.strategy,
+        resetPreferences: get().resetPreferences
       };
 
       const res = await fetch('/api/resort/update-rateplan-restrictions-bulk', {
@@ -318,7 +340,8 @@ export const useRestrictionsStore = create<RestrictionsState>((set, get) => ({
             dateFrom: period.dateFrom,
             dateTo: period.dateTo,
             onlyCheckoutDays: period.onlyCheckoutDays,
-            strategy: period.strategy
+            strategy: period.strategy,
+            resetPreferences: get().resetPreferences
           };
 
           const res = await fetch('/api/resort/update-rateplan-restrictions-bulk', {
@@ -334,7 +357,6 @@ export const useRestrictionsStore = create<RestrictionsState>((set, get) => ({
             updatedLive[rp.key] = liveList;
             set({ liveOctorateRestrictions: updatedLive });
           }
-
           currentTask++;
           set({ bulkSyncProgress: { current: currentTask, total: totalTasks } });
         }
@@ -345,7 +367,7 @@ export const useRestrictionsStore = create<RestrictionsState>((set, get) => ({
       return { success: true, message: 'Sincronizzazione bulk completata con successo!' };
     } catch (err: any) {
       set({ isBulkSaving: false, bulkSyncProgress: { current: 0, total: 0 } });
-      return { success: false, message: err.message || 'Errore durante l\\'aggiornamento bulk.' };
+      return { success: false, message: err.message || 'Errore durante l\'aggiornamento bulk.' };
     }
   },
 

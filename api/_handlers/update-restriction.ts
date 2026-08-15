@@ -149,9 +149,36 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
         }
       };
 
+      const resetPreferences = req.body?.resetPreferences || {
+        stopSells: true,
+        closed: true,
+        closedArrival: true,
+        closedDeparture: true,
+        minStay: true
+      };
+
+      const resetValues: any = {};
+      if (resetPreferences.stopSells) resetValues.stopSells = false;
+      if (resetPreferences.closed) resetValues.closed = false;
+      if (resetPreferences.closedArrival) resetValues.closedArrival = false;
+      if (resetPreferences.closedDeparture) resetValues.closedDeparture = false;
+      if (resetPreferences.minStay) resetValues.minStay = 1;
+
+      const hasResetKeys = Object.keys(resetValues).length > 0;
+
       const bulkPayload: any[] = [];
 
       for (const roomId of roomsToUpdate) {
+        // 🧹 FASE 0: Tabula Rasa di reset stagionale selettivo (01/10/2026 - 31/10/2027)
+        if (hasResetKeys) {
+          bulkPayload.push({
+            room: roomId,
+            dateFrom: '2026-10-01',
+            dateTo: '2027-10-31',
+            values: resetValues
+          });
+        }
+
         if (strategy === 'stopsell' || stopSell) {
           // 🔴 STOP SELL: singolo oggetto con chiusura totale
           bulkPayload.push({

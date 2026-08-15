@@ -151,10 +151,37 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
         }
       };
 
+      const resetPreferences = req.body?.resetPreferences || {
+        stopSells: true,
+        closed: true,
+        closedArrival: true,
+        closedDeparture: true,
+        minStay: true
+      };
+
+      const resetValues: any = {};
+      if (resetPreferences.stopSells) resetValues.stopSells = false;
+      if (resetPreferences.closed) resetValues.closed = false;
+      if (resetPreferences.closedArrival) resetValues.closedArrival = false;
+      if (resetPreferences.closedDeparture) resetValues.closedDeparture = false;
+      if (resetPreferences.minStay) resetValues.minStay = 1;
+
+      const hasResetKeys = Object.keys(resetValues).length > 0;
+
       const isCta = strategy === 'failsafe_checkout' || req.body?.closedToArrival === true || req.body?.closedArrival === true;
       const bulkPayload: any[] = [];
 
       for (const roomId of roomsToUpdate) {
+        // 🧹 FASE 0: Tabula Rasa di reset stagionale selettivo (01/10/2026 - 31/10/2027)
+        if (hasResetKeys) {
+          bulkPayload.push({
+            room: roomId,
+            dateFrom: '2026-10-01',
+            dateTo: '2027-10-31',
+            values: resetValues
+          });
+        }
+
         if (strategy === 'stopsell' || stopSell) {
           // 🔴 STOP SELL: singolo oggetto con chiusura totale
           bulkPayload.push({
@@ -169,7 +196,7 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
             }
           });
         } else {
-          // 🟢 APERTURA STANDARD (da dateFrom a dateTo)
+          // 🟢 1. APERTURA STANDARD (da dateFrom a dateTo)
           bulkPayload.push({
             room: roomId,
             dateFrom,
@@ -182,7 +209,7 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
             }
           });
 
-          // 🟡 CUSCINETTO ONLY CHECK-OUT / CTA (da dateTo + 1 gg a dateTo + onlyCheckoutDays)
+          // 🟡 2. CUSCINETTO ONLY CHECK-OUT / CTA (da dateTo + 1 giorno a dateTo + onlyCheckoutDays)
           if (onlyCheckoutDaysNum > 0) {
             const ctaFrom = addDaysISO(dateTo, 1);
             const ctaTo = addDaysISO(dateTo, onlyCheckoutDaysNum);
@@ -195,6 +222,33 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
                 closed: false,
                 closedArrival: true,
                 closedDeparture: false
+              }
+            });
+          }
+
+          // 🔴 3. BLOCCO STOP SELL (CHIUSO) SUCCESSIVO
+          // Parte tassativamente da (dateTo + onlyCheckoutDays + 1 giorno) fino al giorno precedente all'inizio del periodo programmato successivo (o a fine stagione)
+          const nextPeriodDateFrom = req.body?.nextPeriodDateFrom || req.body?.nextDateFrom || req.query?.nextPeriodDateFrom || null;
+          const seasonEnd = req.body?.seasonEnd || req.query?.seasonEnd || '2027-10-31';
+
+          const stopSellFrom = onlyCheckoutDaysNum > 0
+            ? addDaysISO(dateTo, onlyCheckoutDaysNum + 1)
+            : addDaysISO(dateTo, 1);
+
+          const stopSellTo = nextPeriodDateFrom
+            ? addDaysISO(String(nextPeriodDateFrom), -1)
+            : String(seasonEnd);
+
+          if (stopSellFrom <= stopSellTo) {
+            bulkPayload.push({
+              room: roomId,
+              dateFrom: stopSellFrom,
+              dateTo: stopSellTo,
+              values: {
+                stopSells: true,
+                closed: true,
+                closedArrival: true,
+                closedDeparture: true
               }
             });
           }

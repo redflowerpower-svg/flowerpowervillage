@@ -324,6 +324,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const {
     plannedPeriods,
     liveOctorateRestrictions,
+    resetPreferences,
+    setResetPreference,
     isSaving,
     isBulkSaving,
     bulkSyncProgress,
@@ -342,25 +344,29 @@ export const GestioneRestrizioniCanali: React.FC = () => {
 
   const [syncStatus, setSyncStatus] = useState<Record<string, string>>({});
   const [expandedPlan, setExpandedPlan] = useState<string | null>(null);
+  const [isResetOptionsOpen, setIsResetOptionsOpen] = useState<boolean>(true);
 
   useEffect(() => {
     fetchLiveRestrictions();
   }, [fetchLiveRestrictions]);
 
   const handleSyncPeriod = async (ratePlanKey: string, index: number) => {
-    const syncKey = `${ratePlanKey}_${index}`;\n    setSyncStatus(prev => ({ ...prev, [syncKey]: 'syncing' }));
+    const syncKey = `${ratePlanKey}_${index}`;
+    setSyncStatus(prev => ({ ...prev, [syncKey]: 'syncing' }));
     
     const res = await syncRatePlanToOctorate(ratePlanKey, index);
     if (res.success) {
-      setSyncStatus(prev => ({ ...prev, [syncKey]: 'success' }));\n      setTimeout(() => setSyncStatus(prev => ({ ...prev, [syncKey]: '' })), 3000);
+      setSyncStatus(prev => ({ ...prev, [syncKey]: 'success' }));
+      setTimeout(() => setSyncStatus(prev => ({ ...prev, [syncKey]: '' })), 3000);
     } else {
-      setSyncStatus(prev => ({ ...prev, [syncKey]: 'error' }));\n      alert(`Errore di sincronizzazione: ${res.message}`);
+      setSyncStatus(prev => ({ ...prev, [syncKey]: 'error' }));
+      alert(`Errore di sincronizzazione: ${res.message}`);
     }
   };
 
   const handleBulkSyncAll = async () => {
     const confirmAction = window.confirm(
-      '⚠️ ATTENZIONE: Sei sicuro di voler sincronizzare in blocco TUTTI i 12 piani tariffari reali su Octorate PMS?\\nLa procedura verrà eseguita in sequenza di sicurezza per garantire la stabilità di rete.'
+      '⚠️ ATTENZIONE: Sei sicuro di voler sincronizzare in blocco TUTTI i 12 piani tariffari reali su Octorate PMS?\nLa procedura verrà eseguita in sequenza di sicurezza per garantire la stabilità di rete.'
     );
     if (!confirmAction) return;
 
@@ -410,6 +416,124 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               : '⚡ SINCRONIZZAZIONE BULK...'}
           </button>
         </div>
+      </div>
+
+      {/* 🛠️ OPZIONI DI RESET PREVENTIVO (TABULA RASA) */}
+      <div className="mb-6 bg-stone-950/60 border border-violet-500/30 rounded-xl overflow-hidden shadow-lg transition-all">
+        <button
+          type="button"
+          onClick={() => setIsResetOptionsOpen(!isResetOptionsOpen)}
+          className="w-full flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-violet-950/40 via-stone-900/60 to-stone-950/80 hover:bg-violet-950/60 text-left transition-colors cursor-pointer border-b border-stone-850"
+        >
+          <div className="flex items-center gap-2.5">
+            <span className="text-base font-bold text-violet-300">🛠️ Opzioni di Reset Preventivo (Tabula Rasa)</span>
+            <span className="text-xs text-stone-400 bg-stone-800/80 px-2 py-0.5 rounded border border-stone-700">
+              Reset stagionale selettivo 01/10/2026 - 31/10/2027
+            </span>
+          </div>
+          <span className="text-violet-400 text-xs font-mono font-semibold">
+            {isResetOptionsOpen ? '▲ Nascondi opzioni' : '▼ Espandi opzioni'}
+          </span>
+        </button>
+
+        {isResetOptionsOpen && (
+          <div className="p-4 bg-stone-900/40">
+            <p className="text-xs text-stone-400 mb-3.5">
+              Seleziona quali flag e restrizioni ripristinare all&apos;avvio della sincronizzazione su Octorate prima di applicare le finestre pianificate:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              {/* Checkbox 1: stopSells */}
+              <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                resetPreferences.stopSells 
+                  ? 'bg-violet-950/30 border-violet-500/50 text-violet-200 shadow-sm' 
+                  : 'bg-stone-950/40 border-stone-800 text-stone-400 hover:border-stone-700'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(resetPreferences.stopSells)}
+                  onChange={(e) => setResetPreference('stopSells', e.target.checked)}
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-stone-200">Sblocca Vendite</span>
+                  <span className="text-[10px] text-stone-400 font-mono">stopSells: false</span>
+                </div>
+              </label>
+
+              {/* Checkbox 2: closed */}
+              <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                resetPreferences.closed 
+                  ? 'bg-violet-950/30 border-violet-500/50 text-violet-200 shadow-sm' 
+                  : 'bg-stone-950/40 border-stone-800 text-stone-400 hover:border-stone-700'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(resetPreferences.closed)}
+                  onChange={(e) => setResetPreference('closed', e.target.checked)}
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-stone-200">Riapri Tariffe</span>
+                  <span className="text-[10px] text-stone-400 font-mono">closed: false</span>
+                </div>
+              </label>
+
+              {/* Checkbox 3: closedArrival */}
+              <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                resetPreferences.closedArrival 
+                  ? 'bg-violet-950/30 border-violet-500/50 text-violet-200 shadow-sm' 
+                  : 'bg-stone-950/40 border-stone-800 text-stone-400 hover:border-stone-700'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(resetPreferences.closedArrival)}
+                  onChange={(e) => setResetPreference('closedArrival', e.target.checked)}
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-stone-200">Consenti Arrivi</span>
+                  <span className="text-[10px] text-stone-400 font-mono">closedArrival: false</span>
+                </div>
+              </label>
+
+              {/* Checkbox 4: closedDeparture */}
+              <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                resetPreferences.closedDeparture 
+                  ? 'bg-violet-950/30 border-violet-500/50 text-violet-200 shadow-sm' 
+                  : 'bg-stone-950/40 border-stone-800 text-stone-400 hover:border-stone-700'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(resetPreferences.closedDeparture)}
+                  onChange={(e) => setResetPreference('closedDeparture', e.target.checked)}
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-stone-200">Consenti Partenze</span>
+                  <span className="text-[10px] text-stone-400 font-mono">closedDeparture: false</span>
+                </div>
+              </label>
+
+              {/* Checkbox 5: minStay */}
+              <label className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                resetPreferences.minStay 
+                  ? 'bg-violet-950/30 border-violet-500/50 text-violet-200 shadow-sm' 
+                  : 'bg-stone-950/40 border-stone-800 text-stone-400 hover:border-stone-700'
+              }`}>
+                <input
+                  type="checkbox"
+                  checked={Boolean(resetPreferences.minStay)}
+                  onChange={(e) => setResetPreference('minStay', e.target.checked)}
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
+                />
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold text-stone-200">Ripristina MinStay a 1</span>
+                  <span className="text-[10px] text-stone-400 font-mono">minStay: 1</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="space-y-8">
