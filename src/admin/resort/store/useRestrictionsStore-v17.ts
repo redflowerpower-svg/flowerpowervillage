@@ -108,7 +108,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   be: [
     {
       id: 'be_p1',
-      name: 'Apertura Standard (OK)',
+      name: 'BE',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
       stopSell: false,
@@ -121,7 +121,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   '7d': [
     {
       id: '7d_p1',
-      name: 'Apertura Standard (OK)',
+      name: '7d',
       dateFrom: '2026-10-01',
       dateTo: '2026-12-15',
       stopSell: false,
@@ -132,7 +132,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: '7d_p2',
-      name: 'Stop Sell (Chiuso)',
+      name: '7d',
       dateFrom: '2026-12-26',
       dateTo: '2027-03-31',
       stopSell: true,
@@ -143,7 +143,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: '7d_p3',
-      name: 'Apertura Standard (OK)',
+      name: '7d',
       dateFrom: '2027-04-01',
       dateTo: '2027-05-31',
       stopSell: false,
@@ -156,7 +156,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   main_bnb_7d: [
     {
       id: 'mb7_p1',
-      name: 'Apertura Standard (OK)',
+      name: 'Main bnb-7d',
       dateFrom: '2026-10-01',
       dateTo: '2026-12-15',
       stopSell: false,
@@ -167,7 +167,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: 'mb7_p2',
-      name: 'Stop Sell (Chiuso)',
+      name: 'Main bnb-7d',
       dateFrom: '2026-12-26',
       dateTo: '2027-01-15',
       stopSell: true,
@@ -178,7 +178,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: 'mb7_p3',
-      name: 'Apertura Standard (OK)',
+      name: 'Main bnb-7d',
       dateFrom: '2027-01-16',
       dateTo: '2027-05-31',
       stopSell: false,
@@ -191,7 +191,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   main_bnb_14d: [
     {
       id: 'mb14_p1',
-      name: 'Stop Sell (Chiuso)',
+      name: 'Main bnb-14d',
       dateFrom: '2026-10-01',
       dateTo: '2026-12-15',
       stopSell: true,
@@ -202,7 +202,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: 'mb14_p2',
-      name: 'Apertura Standard (OK)',
+      name: 'Main bnb-14d',
       dateFrom: '2026-12-16',
       dateTo: '2027-01-15',
       stopSell: false,
@@ -213,7 +213,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: 'mb14_p3',
-      name: 'Stop Sell (Chiuso)',
+      name: 'Main bnb-14d',
       dateFrom: '2027-01-26',
       dateTo: '2027-05-31',
       stopSell: true,
@@ -226,7 +226,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   agd_ac_7d: [
     {
       id: 'ag7_p1',
-      name: 'Apertura Standard (OK)',
+      name: 'AGD AC-7d',
       dateFrom: '2026-10-01',
       dateTo: '2026-12-15',
       stopSell: false,
@@ -237,7 +237,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: 'ag7_p2',
-      name: 'Stop Sell (Chiuso)',
+      name: 'AGD AC-7d',
       dateFrom: '2026-12-26',
       dateTo: '2027-01-15',
       stopSell: true,
@@ -248,7 +248,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: 'ag7_p3',
-      name: 'Apertura Standard (OK)',
+      name: 'AGD AC-7d',
       dateFrom: '2027-01-16',
       dateTo: '2027-05-31',
       stopSell: false,
@@ -261,7 +261,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   agd_ac_14d: [
     {
       id: 'ag14_p1',
-      name: 'Stop Sell (Chiuso)',
+      name: 'AGD AC-14d',
       dateFrom: '2026-10-01',
       dateTo: '2026-12-15',
       stopSell: true,
@@ -272,7 +272,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: 'ag14_p2',
-      name: 'Apertura Standard (OK)',
+      name: 'AGD AC-14d',
       dateFrom: '2026-12-16',
       dateTo: '2027-01-15',
       stopSell: false,
@@ -283,7 +283,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
     },
     {
       id: 'ag14_p3',
-      name: 'Stop Sell (Chiuso)',
+      name: 'AGD AC-14d',
       dateFrom: '2027-01-26',
       dateTo: '2027-05-31',
       stopSell: true,
@@ -296,7 +296,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   airbnb: [
     {
       id: 'ab_p1',
-      name: 'Apertura Standard (OK)',
+      name: 'AirBnB',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
       stopSell: false,
@@ -309,7 +309,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   airbnb_ac: [
     {
       id: 'abac_p1',
-      name: 'Apertura Standard (OK)',
+      name: 'AirBnB AC',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
       stopSell: false,
@@ -322,7 +322,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   ac_7d: [
     {
       id: 'ac7_p1',
-      name: 'Apertura Standard (OK)',
+      name: 'AC7d',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
       stopSell: false,
@@ -335,7 +335,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   ac_14d: [
     {
       id: 'ac14_p1',
-      name: 'Apertura Standard (OK)',
+      name: 'AC14d',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
       stopSell: false,
@@ -348,7 +348,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   ac_bnb_7d: [
     {
       id: 'acb7_p1',
-      name: 'Apertura Standard (OK)',
+      name: 'AC bnb-7d',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
       stopSell: false,
@@ -361,7 +361,7 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   ac_bnb_14d: [
     {
       id: 'acb14_p1',
-      name: 'Apertura Standard (OK)',
+      name: 'AC bnb-14d',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
       stopSell: false,

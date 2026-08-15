@@ -652,29 +652,29 @@ export function ResortDashboard() {
           </div>
         </div>
 
-        {/* Integrated Navigation Bar (Single line, no wrap, compact text and padding, no emojis) */}
-        <div className="pt-2 border-t border-stone-800/80">
-          <div className="flex items-center justify-between gap-1 sm:gap-1.5 w-full flex-nowrap overflow-x-auto no-scrollbar">
+        {/* Integrated Navigation Bar (Single line, maximized readable typography, no wrap) */}
+        <div className="pt-2.5 border-t border-stone-800/80">
+          <div className="flex items-center justify-between gap-[2px] sm:gap-1 xl:gap-1.5 w-full flex-nowrap overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab('bookings')}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'bookings'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 ring-1 ring-emerald-400/30'
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
               }`}
             >
-              PRENOTAZIONI ({(bookings || []).length})
+              PRENOTAZIONI
             </button>
 
             <button
               onClick={() => setActiveTab('calendar_30_days')}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'calendar_30_days'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 ring-1 ring-emerald-400/30'
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
               }`}
             >
-              CALENDARIO 30GG
+              CALENDARIO 30
             </button>
 
             <button
@@ -687,34 +687,34 @@ export function ResortDashboard() {
                   setTimeout(() => setCalendarConfirm(false), 4000);
                 }
               }}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'calendar'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 ring-1 ring-emerald-400/30'
                   : calendarConfirm
-                  ? 'bg-amber-500 text-stone-950 font-bold shadow-md shadow-amber-950/40 animate-pulse'
+                  ? 'bg-amber-500 text-stone-950 font-black shadow-md shadow-amber-950/40 animate-pulse'
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
               }`}
               title="Componente pesante: clicca 2 volte per caricare il calendario stagionale completo"
             >
               {calendarConfirm && activeTab !== 'calendar'
                 ? 'CLICCA ANCORA PER CARICARE'
-                : 'CALENDARIO ANNUALE'}
+                : 'CALENDARIO 365'}
             </button>
 
             <button
               onClick={() => setActiveTab('rooms')}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'rooms'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 ring-1 ring-emerald-400/30'
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
               }`}
             >
-              ALLOGGI & DISPONIBILITÀ
+              CARATTERISTICHE ALLOGGI
             </button>
 
             <button
               onClick={() => setActiveTab('seasonal_rates')}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'seasonal_rates'
                   ? 'bg-amber-500 text-stone-950 font-black shadow-md shadow-amber-950/40 ring-1 ring-amber-300/40'
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
@@ -725,18 +725,18 @@ export function ResortDashboard() {
 
             <button
               onClick={() => setActiveTab('derived_rates')}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'derived_rates'
                   ? 'bg-amber-500 text-stone-950 font-black shadow-md shadow-amber-950/40 ring-1 ring-amber-300/40'
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
               }`}
             >
-              TARIFFE DERIVATE
+              ALBERO DERIVATE
             </button>
 
             <button
               onClick={() => setActiveTab('channel_restrictions')}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'channel_restrictions'
                   ? 'bg-red-600 text-white shadow-md shadow-red-950/40 ring-1 ring-red-400/30'
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
@@ -747,7 +747,7 @@ export function ResortDashboard() {
 
             <button
               onClick={() => setActiveTab('messages')}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'messages'
                   ? 'bg-rose-600 text-white shadow-md shadow-rose-950/40 ring-1 ring-rose-400/30'
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
@@ -758,7 +758,7 @@ export function ResortDashboard() {
 
             <button
               onClick={() => setActiveTab('octorate')}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'octorate'
                   ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 ring-1 ring-emerald-400/30'
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'

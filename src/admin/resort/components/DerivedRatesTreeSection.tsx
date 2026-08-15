@@ -1854,7 +1854,7 @@ export const COMPLETE_DERIVATION_SCHEMES: AccommodationTreeScheme[] = [
 ];
 
 export function DerivedRatesTreeSection() {
-  const { disabledRatePlans } = useRestrictionsStore();
+  const { disabledRatePlans, plannedPeriods } = useRestrictionsStore();
   const { 
     rawOctorateGridItems, 
     isSimulationActive, 
@@ -1955,10 +1955,11 @@ export function DerivedRatesTreeSection() {
     setExpandedRooms({});
   };
 
-  const handleRefreshLiveGrid = async () => {
+  const handleRefreshLiveGrid = async (targetDate?: string) => {
+    const dateToFetch = targetDate || selectedDateISO;
     setLoadingSync(true);
     try {
-      await fetchOctorateMonthlyGrid(selectedDateISO, selectedDateISO);
+      await fetchOctorateMonthlyGrid(dateToFetch, dateToFetch);
     } catch (err) {
       console.warn('[DerivedRatesTreeSection] Live sync error:', err);
     } finally {
@@ -1966,10 +1967,9 @@ export function DerivedRatesTreeSection() {
     }
   };
 
+  // All'apertura del componente e ad ogni cambio di data con il calendario a tendina, interroga la griglia Octorate per la data selezionata
   useEffect(() => {
-    if (rawOctorateGridItems.length === 0 && !isSimulationActive) {
-      handleRefreshLiveGrid();
-    }
+    handleRefreshLiveGrid(selectedDateISO);
   }, [selectedDateISO]);
 
   const getNodeLiveData = (nodeId: string) => {
@@ -1987,18 +1987,29 @@ export function DerivedRatesTreeSection() {
 
     if (!found) return null;
 
-    const price = Number(found.price || found.days?.[0]?.price || 0);
-    const minstay = Number(found.minStay || found.minstay || found.days?.[0]?.minStay || 2);
-    const dayObj = found.days?.[0] || found.calendar?.[0] || found;
+    // Cerca il record specifico per la data selezionata nel calendario a tendina
+    let dayObj = null;
+    if (Array.isArray(found.days) && found.days.length > 0) {
+      dayObj = found.days.find((d: any) => String(d.date || d.dateStr || '').substring(0, 10) === selectedDateISO) || found.days[0];
+    } else if (Array.isArray(found.calendar) && found.calendar.length > 0) {
+      dayObj = found.calendar.find((d: any) => String(d.date || d.dateStr || '').substring(0, 10) === selectedDateISO) || found.calendar[0];
+    } else {
+      dayObj = found;
+    }
+
+    const price = Number(dayObj?.price || dayObj?.value || dayObj?.amount || found.price || 0);
+    const minstay = Number(dayObj?.minStay || dayObj?.minstay || dayObj?.min_stay || found.minStay || found.minstay || 2);
     const isStopSell = Boolean(
-      found.stopSell || 
-      found.stopSells || 
-      found.closed ||
       dayObj?.stopSell || 
       dayObj?.stopSells || 
       dayObj?.closed ||
+      found.stopSell || 
+      found.stopSells || 
+      found.closed ||
       price >= 10000 || 
+      dayObj?.availability === 0 ||
       found.availability === 0 || 
+      dayObj?.available === false ||
       found.available === false ||
       (disabledRatePlans || []).includes(nodeId) ||
       (disabledRatePlans || []).some((dp: string) => nodeId.toLowerCase().includes(dp.toLowerCase()))
@@ -2042,6 +2053,50 @@ export function DerivedRatesTreeSection() {
       return node.isWritable;
     }
     // Per le tariffe derivate con ereditarietà attiva su Octorate, mostra il reale stato di lettura/ereditarietà
+    return false;
+  };
+
+  // Helper per mappare il nome/tipo di nodo dell'albero al ratePlanKey in Gestione Tariffe Derivate
+  const getPlanKeyForNode = (nodeName: string = ''): string | null => {
+    const n = nodeName.toUpperCase();
+    if (n.includes('MAIN BNB-14D') || n.includes('MAIN-BNB-14D') || n.includes('MAIN BNB 14D') || n.includes('BNB-14D') || n.includes('BNB 14D')) {
+      if (n.includes('AC')) return 'ac_bnb_14d';
+      return 'main_bnb_14d';
+    }
+    if (n.includes('MAIN BNB-7D') || n.includes('MAIN-BNB-7D') || n.includes('MAIN BNB 7D') || n.includes('BNB-7D') || n.includes('BNB 7D')) {
+      if (n.includes('AC')) return 'ac_bnb_7d';
+      return 'main_bnb_7d';
+    }
+    if (n.includes('AC BNB-14D') || n.includes('AC-BNB-14D') || n.includes('AC BNB 14D')) return 'ac_bnb_14d';
+    if (n.includes('AC BNB-7D') || n.includes('AC-BNB-7D') || n.includes('AC BNB 7D')) return 'ac_bnb_7d';
+    if (n.includes('AGD AC-14D') || n.includes('AGODA AC-14D') || n.includes('AGODA AC 14D') || n.includes('AGD AC14D')) return 'agd_ac_14d';
+    if (n.includes('AGD AC-7D') || n.includes('AGODA AC-7D') || n.includes('AGODA AC 7D') || n.includes('AGD AC7D')) return 'agd_ac_7d';
+    if (n.includes('AIRBNB AC') || n.includes('AIRBNB-AC')) return 'airbnb_ac';
+    if (n.includes('AIRBNB')) return 'airbnb';
+    if (n.includes('AC14D') || n.includes('AC 14D') || n.includes('AC-14D')) return 'ac_14d';
+    if (n.includes('AC7D') || n.includes('AC 7D') || n.includes('AC-7D')) return 'ac_7d';
+    if (n.includes('7D')) return '7d';
+    if (n.includes('BE') || n.includes('SITO') || n.includes('DIRECT')) return 'be';
+    return null;
+  };
+
+  const isNodeInactiveOrAllYearStopSell = (nodeId: string, nodeName: string): boolean => {
+    const planKey = getPlanKeyForNode(nodeName);
+
+    // 1. Controlla se disattivato esplicitamente in GESTIONE TARIFFE DERIVATE
+    if (disabledRatePlans?.includes(nodeId) || (planKey && disabledRatePlans?.includes(planKey))) {
+      return true;
+    }
+
+    // 2. Controlla se nella Tabella 1 (Pianificata) è Stop Sell per tutto l'anno
+    if (planKey && plannedPeriods && plannedPeriods[planKey]) {
+      const periods = plannedPeriods[planKey];
+      if (Array.isArray(periods) && periods.length > 0) {
+        const allStopSell = periods.every((p: any) => p.stopSell === true);
+        if (allStopSell) return true;
+      }
+    }
+
     return false;
   };
 
@@ -2243,25 +2298,37 @@ export function DerivedRatesTreeSection() {
 
         {/* Global Controls & Date Picker */}
         <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-end">
-          <div className="flex items-center gap-1.5 bg-stone-950 px-3 py-1.5 rounded-xl border border-amber-500/40 text-xs font-bold text-amber-400">
-            <Calendar className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-[10px] text-stone-400 uppercase">Data Live:</span>
-            <input
-              type="date"
-              value={selectedDateISO}
-              onChange={(e) => setSelectedDateISO(e.target.value)}
-              className="bg-transparent text-amber-400 font-mono font-bold text-xs focus:outline-none cursor-pointer [color-scheme:dark]"
-            />
+          <div className="flex items-center gap-2 bg-stone-950 px-3 py-1.5 rounded-xl border border-amber-500/50 shadow-inner">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+              <Calendar className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <span className="text-[10px] text-stone-400 uppercase font-black tracking-wider">Verifica Data:</span>
+              <input
+                type="date"
+                value={selectedDateISO}
+                onChange={(e) => setSelectedDateISO(e.target.value)}
+                className="bg-stone-900 border border-stone-750 px-2 py-0.5 rounded text-amber-300 font-mono font-bold text-xs focus:outline-none focus:border-amber-400 cursor-pointer [color-scheme:dark]"
+                title="Seleziona una data dal calendario a tendina per verificare tariffe, minstay e stop sell"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setSelectedDateISO(new Date().toISOString().substring(0, 10))}
+              className="text-[9px] font-black uppercase px-2 py-1 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500 hover:text-stone-950 transition-all cursor-pointer"
+              title="Reimposta alla data di oggi"
+            >
+              Oggi
+            </button>
           </div>
 
           <button
             type="button"
-            onClick={handleRefreshLiveGrid}
+            onClick={() => handleRefreshLiveGrid(selectedDateISO)}
             disabled={loadingSync}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs rounded-xl shadow transition-all cursor-pointer disabled:opacity-50"
+            title="Ricarica i dati da Octorate per la data selezionata"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loadingSync ? 'animate-spin' : ''}`} />
-            <span>{loadingSync ? 'Aggiornamento...' : 'Sincronizza Live'}</span>
+            <span>{loadingSync ? 'Caricamento...' : 'Aggiorna'}</span>
           </button>
 
           <button
@@ -2844,9 +2911,13 @@ export function DerivedRatesTreeSection() {
                       const subSanity = l1.subChild ? checkPriceSanity(l1Price > 0 ? l1Price : motherPrice, l1.subChild.ruleTag, subPrice, l1.subChild.name, l1.subChild.agencies, l1.subChild.ruleDesc, scheme.name, true) : null;
                       const isSubWritable = l1.subChild ? (verifiedWritability[l1.subChild.id] ?? isWritableNode(l1.subChild, subLiveData?.rawItem)) : false;
 
+                      const isL1Inactive = isNodeInactiveOrAllYearStopSell(l1.id, l1.name);
+
                       // Level 1 card background style
                       let l1CardStyle = 'bg-stone-900 border-stone-700/80 hover:border-amber-400 text-stone-200';
-                      if (l1LiveData?.isSimulated) {
+                      if (isL1Inactive) {
+                        l1CardStyle = 'bg-red-950/95 border-2 border-red-500 text-red-100 shadow-xl shadow-red-950/70 ring-1 ring-red-500/50';
+                      } else if (l1LiveData?.isSimulated) {
                         l1CardStyle = 'bg-sky-950/90 border-2 border-sky-400 text-sky-200 shadow-lg shadow-sky-500/30';
                       } else if (l1LiveData?.isStopSell) {
                         l1CardStyle = 'bg-rose-950/80 border-rose-500/80 text-rose-200';
@@ -2854,7 +2925,7 @@ export function DerivedRatesTreeSection() {
                         l1CardStyle = 'bg-emerald-950/80 border-emerald-500/80 text-emerald-200';
                       }
 
-                      if (l1Sanity.isDiscrepancy && !l1LiveData?.isSimulated) {
+                      if (l1Sanity.isDiscrepancy && !l1LiveData?.isSimulated && !isL1Inactive) {
                         l1CardStyle = 'bg-amber-950/90 border-2 border-amber-400 animate-pulse text-amber-200 shadow-lg shadow-amber-500/30';
                       }
 
@@ -2935,6 +3006,13 @@ export function DerivedRatesTreeSection() {
                               {l1.name}
                             </h4>
 
+                            {/* Inactive / Non in Uso Banner */}
+                            {isL1Inactive && (
+                              <div className="bg-red-600 text-white font-black text-[7.5px] py-0.5 px-1 rounded uppercase tracking-wider shadow">
+                                NON IN USO (STOP SALE)
+                              </div>
+                            )}
+
                             {/* Live Price & MinStay Display */}
                             {l1LiveData ? (
                               <div className="bg-stone-950/80 py-1 px-1 rounded border border-stone-800 text-center font-mono space-y-0.5">
@@ -2974,8 +3052,11 @@ export function DerivedRatesTreeSection() {
 
                           {/* LEVEL 2 SUB-CHILD BRANCH (DIRECTLY BELOW PARENT) */}
                           {l1.subChild && (() => {
+                            const isSubInactive = isNodeInactiveOrAllYearStopSell(l1.subChild.id, l1.subChild.name);
                             let subCardStyle = 'bg-stone-950 border-2 border-amber-500/80 text-amber-200';
-                            if (subLiveData?.isSimulated) {
+                            if (isSubInactive) {
+                              subCardStyle = 'bg-red-950/95 border-2 border-red-500 text-red-100 shadow-xl shadow-red-950/70 ring-1 ring-red-500/50';
+                            } else if (subLiveData?.isSimulated) {
                               subCardStyle = 'bg-sky-950/90 border-2 border-sky-400 text-sky-200 shadow-lg shadow-sky-500/30';
                             } else if (subLiveData?.isStopSell) {
                               subCardStyle = 'bg-rose-950/90 border-2 border-rose-500/80 text-rose-200';
@@ -2983,7 +3064,7 @@ export function DerivedRatesTreeSection() {
                               subCardStyle = 'bg-emerald-950/90 border-2 border-emerald-500/80 text-emerald-200';
                             }
 
-                            if (subSanity?.isDiscrepancy && !subLiveData?.isSimulated) {
+                            if (subSanity?.isDiscrepancy && !subLiveData?.isSimulated && !isSubInactive) {
                               subCardStyle = 'bg-amber-950/95 border-2 border-amber-400 animate-pulse text-amber-200 shadow-lg shadow-amber-500/30';
                             }
 
@@ -3062,6 +3143,13 @@ export function DerivedRatesTreeSection() {
                                   <h5 className="text-[10px] font-black leading-tight truncate" title={l1.subChild.name}>
                                     {l1.subChild.name}
                                   </h5>
+
+                                  {/* Inactive / Non in Uso Banner for Sub-child */}
+                                  {isSubInactive && (
+                                    <div className="bg-red-600 text-white font-black text-[7.5px] py-0.5 px-1 rounded uppercase tracking-wider shadow">
+                                      NON IN USO (STOP SALE)
+                                    </div>
+                                  )}
 
                                   {/* Sub-child Live Price & MinStay Display */}
                                   {subLiveData ? (

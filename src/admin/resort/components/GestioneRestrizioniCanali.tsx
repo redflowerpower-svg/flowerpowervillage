@@ -356,15 +356,14 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       >
         <div style={{ width: '100%', maxWidth: '148px' }} className="flex flex-col gap-0.5 min-w-0">
 
-          {/* Riga 1: Titolo + pulsanti */}
+          {/* Riga 1: Nome/Codice Tariffa + Azioni */}
           <div className="flex items-center justify-between gap-0.5 h-3.5 min-w-0">
-            <input
-              type="text"
-              value={period.name}
-              title="Nome del periodo programmato (modificabile)"
-              onChange={e => updatePlannedPeriod(plan.id, period.id, { name: e.target.value })}
-              className={`bg-transparent font-extrabold text-white ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} focus:outline-none truncate flex-1 min-w-0`}
-            />
+            <span
+              title={`Tariffa: ${plan.name} (${plan.code})`}
+              className={`font-black uppercase tracking-tight text-white ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} truncate flex-1 min-w-0 cursor-default`}
+            >
+              {plan.code}
+            </span>
             <div className="relative flex items-center gap-0.5 shrink-0">
               {/* Tasto "+" per inserire prima o dopo */}
               <button
@@ -564,21 +563,21 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             />
           </div>
 
-          {/* Riga 4: Only CO oppure Badge Stop Sell */}
+          {/* Riga 4: Only CO oppure Badge Stop Sale */}
           {period.stopSell ? (
             isSmall ? (
               <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
                 <div
-                  title="🛑 STOP SELL: Vendite bloccate per questo periodo"
+                  title="🛑 STOP SALE: Vendite bloccate per questo periodo"
                   className="flex items-center justify-center gap-1 flex-1 bg-red-950/80 border border-red-600/80 rounded px-1 py-0.5 text-red-300 font-extrabold text-[7.5px] uppercase shadow-sm tracking-wide min-w-0"
                 >
                   <XCircle className="w-2 h-2 text-red-400 shrink-0" />
-                  <span className="truncate">STOP SELL</span>
+                  <span className="truncate">STOP SALE</span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: false, name: 'Apertura Standard (OK)' })}
-                  title="🛑 Stop Sell Attivo: Clicca per riaprire le vendite (OPEN)"
+                  onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: false, name: plan.code })}
+                  title="🛑 Stop Sale Attivo: Clicca per riaprire le vendite (OPEN)"
                   className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 transition-all cursor-pointer bg-red-950 border border-red-600 text-red-300 hover:bg-emerald-950 hover:border-emerald-600 hover:text-emerald-300"
                 >
                   BLOK
@@ -587,11 +586,11 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             ) : (
               <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
                 <div
-                  title="🛑 STOP SELL (Chiuso): Vendite bloccate per questo periodo"
+                  title="🛑 STOP SALE (Chiuso): Vendite bloccate per questo periodo"
                   className="flex items-center justify-between flex-1 bg-red-950/80 border border-red-600/80 rounded px-1.5 py-0.5 text-red-300 font-extrabold text-[8.5px] uppercase shadow-sm tracking-wide min-w-0"
                 >
                   <span className="flex items-center gap-1 truncate">
-                    <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SELL
+                    <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SALE
                   </span>
                   <span className="text-[7px] font-mono font-bold bg-red-900/60 px-1 py-0.2 rounded text-red-200 shrink-0">
                     CHIUSO
@@ -599,8 +598,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: false, name: 'Apertura Standard (OK)' })}
-                  title="🛑 Stop Sell Attivo: Clicca per riaprire le vendite (OPEN)"
+                  onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: false, name: plan.code })}
+                  title="🛑 Stop Sale Attivo: Clicca per riaprire le vendite (OPEN)"
                   className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 transition-all cursor-pointer bg-red-950 border border-red-600 text-red-300 hover:bg-emerald-950 hover:border-emerald-600 hover:text-emerald-300"
                 >
                   BLOK
@@ -635,8 +634,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               </div>
               <button
                 type="button"
-                onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: true, name: 'Stop Sell (Chiuso)' })}
-                title="🟢 Vendite Aperte: Clicca per bloccare con Stop Sell (BLOK)"
+                onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: true, name: plan.code })}
+                title="🟢 Vendite Aperte: Clicca per bloccare con Stop Sale (BLOK)"
                 className="px-1 py-0.5 h-4 flex items-center justify-center rounded font-black text-[6.5px] uppercase shrink-0 transition-all cursor-pointer bg-stone-900 border border-stone-800 text-stone-400 hover:bg-red-950 hover:border-red-600 hover:text-red-300"
               >
                 OPEN
@@ -700,13 +699,13 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       >
         <div style={{ width: '100%', maxWidth: '148px' }} className="flex flex-col gap-0.5 min-w-0">
 
-          {/* Riga 1: Titolo + badge allineamento */}
+          {/* Riga 1: Codice Tariffa + badge allineamento */}
           <div className="flex items-center justify-between gap-0.5 h-3.5 min-w-0">
             <span
-              title={`Periodo Live su Octorate: ${period.name}`}
-              className={`font-extrabold text-white ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} truncate flex-1 min-w-0 cursor-default`}
+              title={`Tariffa Live Octorate: ${plan.name} (${plan.code})`}
+              className={`font-black uppercase tracking-tight text-white ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} truncate flex-1 min-w-0 cursor-default`}
             >
-              {period.name || (isStopSell ? 'Stop Sell (Chiuso)' : 'Apertura Standard (OK)')}
+              {plan.code}
             </span>
             <span
               title={
@@ -748,19 +747,19 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             </span>
           </div>
 
-          {/* Riga 4: Only CO oppure Badge Stop Sell */}
+          {/* Riga 4: Only CO oppure Badge Stop Sale */}
           {isStopSell ? (
             isSmall ? (
               <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
                 <div
-                  title="🛑 STOP SELL: Vendite bloccate su Octorate per questo periodo"
+                  title="🛑 STOP SALE: Vendite bloccate su Octorate per questo periodo"
                   className="flex items-center justify-center gap-1 flex-1 bg-red-950/80 border border-red-600/80 rounded px-1 py-0.5 text-red-300 font-extrabold text-[7.5px] uppercase shadow-sm tracking-wide min-w-0"
                 >
                   <XCircle className="w-2 h-2 text-red-400 shrink-0" />
-                  <span className="truncate">STOP SELL</span>
+                  <span className="truncate">STOP SALE</span>
                 </div>
                 <div
-                  title="🛑 Stop Sell Attivo"
+                  title="🛑 Stop Sale Attivo"
                   className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 bg-red-950 border border-red-600 text-red-300"
                 >
                   BLOK
@@ -769,18 +768,18 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             ) : (
               <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
                 <div
-                  title="🛑 STOP SELL (Chiuso): Vendite bloccate su Octorate per questo periodo"
+                  title="🛑 STOP SALE (Chiuso): Vendite bloccate su Octorate per questo periodo"
                   className="flex items-center justify-between flex-1 bg-red-950/80 border border-red-600/80 rounded px-1.5 py-0.5 text-red-300 font-extrabold text-[8.5px] uppercase shadow-sm tracking-wide min-w-0"
                 >
                   <span className="flex items-center gap-1 truncate">
-                    <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SELL
+                    <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SALE
                   </span>
                   <span className="text-[7px] font-mono font-bold bg-red-900/60 px-1 py-0.2 rounded text-red-200 shrink-0">
                     CHIUSO
                   </span>
                 </div>
                 <div
-                  title="🛑 Stop Sell Attivo"
+                  title="🛑 Stop Sale Attivo"
                   className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 bg-red-950 border border-red-600 text-red-300"
                 >
                   BLOK
@@ -1496,7 +1495,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 Stai per uscire dalla modalità di simulazione protetta.
               </p>
               <p>
-                In <strong>PRODUZIONE REALE</strong>, qualsiasi operazione di <em>Tabula Rasa</em>, sincronizzazione periodi o Stop Sell modificherà istantaneamente i calendari dei <strong>Bungalow Reali</strong> del Flower Power Village su Octorate e su tutte le OTA (Booking.com, Agoda, Expedia, Airbnb).
+                In <strong>PRODUZIONE REALE</strong>, qualsiasi operazione di <em>Tabula Rasa</em>, sincronizzazione periodi o Stop Sale modificherà istantaneamente i calendari dei <strong>Bungalow Reali</strong> del Flower Power Village su Octorate e su tutte le OTA (Booking.com, Agoda, Expedia, Airbnb).
               </p>
             </div>
 
