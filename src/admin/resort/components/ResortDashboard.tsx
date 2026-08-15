@@ -713,17 +713,6 @@ export function ResortDashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab('derived_rates')}
-              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
-                activeTab === 'derived_rates'
-                  ? 'bg-amber-500 text-stone-950 font-black shadow-md shadow-amber-950/40 ring-1 ring-amber-300/40'
-                  : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
-              }`}
-            >
-              TARIFFE DERIVATE
-            </button>
-
-            <button
               onClick={() => setActiveTab('seasonal_rates')}
               className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'seasonal_rates'
@@ -732,6 +721,17 @@ export function ResortDashboard() {
               }`}
             >
               GESTIONE STAGIONALE TARIFFE
+            </button>
+
+            <button
+              onClick={() => setActiveTab('derived_rates')}
+              className={`px-2 py-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-[9.5px] xl:text-[10.5px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
+                activeTab === 'derived_rates'
+                  ? 'bg-amber-500 text-stone-950 font-black shadow-md shadow-amber-950/40 ring-1 ring-amber-300/40'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
+              }`}
+            >
+              TARIFFE DERIVATE
             </button>
 
             <button
