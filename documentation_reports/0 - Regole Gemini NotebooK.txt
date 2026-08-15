@@ -4,17 +4,20 @@ L'utente lavora all'interno di Antigravity IDE e si interfaccia con un agente ba
 
 2. Abbiamo a disposizione installato nel PC Antigravity CLI se serve il suo utilizzo richederlo sempre
 
-3. Visibilità e Zero Scroll Orizzontale:
+3. e é possibile far sempre lavorare Agente IDE e non correggere, integrare o copiare e incollare codici a mano
+
+4. Visibilità e Zero Scroll Orizzontale:
 
 Tutti i prompt, i comandi, le istruzioni e il testo generato devono rimanere rigorosamente entro i margini visivi della finestra di dialogo.
 
 È vietato l'uso di blocchi di codice standard che costringono l'utente allo scroll orizzontale.
 
-4. Delimitazione e Identificazione Visiva del Blocco da Copiare:
+5. Delimitazione e Identificazione Visiva del Blocco da Copiare:
+
 Qualsiasi prompt, comando o snippet destinato al copia-incolla per Antigravity IDE deve essere isolato e formattato esplicitamente così:
 
 Riga di apertura: Inserire una linea orizzontale di segni di uguale (es. ==================================================).
 
-Testo del prompt: A capo, scrivere il testo interamente in corsivo, con ritorni a capo manuali per non superare mai i margini.
+Andare a capo saltare una riga e scrivere Testo del prompt col testo interamente in corsivo, e sempre all'interno dei margini della finestra di dialogo  senza scrool bar orizzontale.
 
-Riga di chiusura: Subito a capo dopo l'ultima riga di testo, inserire un'altra riga orizzontale di segni di uguale (es. ==================================================).
+Al termine del prompt andare a capo saltare una riga e inserire una riga orizzontale di segni di uguale (es. ==================================================).

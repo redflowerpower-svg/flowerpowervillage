@@ -18,10 +18,13 @@ import {
   Calendar, 
   CheckCircle2, 
   AlertTriangle, 
+  ShieldCheck, 
   ArrowRight,
   Eye,
   FlaskConical,
-  Layers
+  Activity,
+  Layers,
+  XCircle
 } from 'lucide-react';
 
 export const GestioneStagionaleTariffe: React.FC = () => {
@@ -58,26 +61,50 @@ export const GestioneStagionaleTariffe: React.FC = () => {
   const [confirmingTestSync, setConfirmingTestSync] = useState(false);
   const [showProdWarningModal, setShowProdWarningModal] = useState(false);
 
-  // Stili per colonna periodo
-  const PERIOD_COL_STYLES: Record<string, { bg: string; headerBg: string; border: string; badge: string; text: string }> = {
-    p1: { bg: 'bg-amber-950/20', headerBg: 'bg-amber-950/50 border-b-2 border-b-amber-500', border: 'border-l border-stone-800', badge: 'bg-amber-500/25 text-amber-300 border border-amber-500/50', text: 'text-amber-300' },
-    p2: { bg: 'bg-rose-950/20', headerBg: 'bg-rose-950/50 border-b-2 border-b-rose-500', border: 'border-l border-stone-800', badge: 'bg-rose-500/25 text-rose-300 border border-rose-500/50', text: 'text-rose-300' },
-    p3: { bg: 'bg-purple-950/20', headerBg: 'bg-purple-950/50 border-b-2 border-b-purple-500', border: 'border-l border-stone-800', badge: 'bg-purple-500/25 text-purple-300 border border-purple-500/50', text: 'text-purple-300' },
-    p4: { bg: 'bg-orange-950/20', headerBg: 'bg-orange-950/50 border-b-2 border-b-orange-500', border: 'border-l border-stone-800', badge: 'bg-orange-500/25 text-orange-300 border border-orange-500/50', text: 'text-orange-300' },
-    p5: { bg: 'bg-yellow-950/20', headerBg: 'bg-yellow-950/50 border-b-2 border-b-yellow-500', border: 'border-l border-stone-800', badge: 'bg-yellow-500/25 text-yellow-300 border border-yellow-500/50', text: 'text-yellow-300' },
-    p6: { bg: 'bg-emerald-950/20', headerBg: 'bg-emerald-950/50 border-b-2 border-b-emerald-500', border: 'border-l border-stone-800', badge: 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/50', text: 'text-emerald-300' },
-    p7: { bg: 'bg-teal-950/20', headerBg: 'bg-teal-950/50 border-b-2 border-b-teal-500', border: 'border-l border-stone-800', badge: 'bg-teal-500/25 text-teal-300 border border-teal-500/50', text: 'text-teal-300' },
-    p8: { bg: 'bg-cyan-950/20', headerBg: 'bg-cyan-950/50 border-b-2 border-b-cyan-500', border: 'border-l border-stone-800', badge: 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50', text: 'text-cyan-300' },
-    p9: { bg: 'bg-fuchsia-950/20', headerBg: 'bg-fuchsia-950/50 border-b-2 border-b-fuchsia-500', border: 'border-l border-stone-800', badge: 'bg-fuchsia-500/25 text-fuchsia-300 border border-fuchsia-500/50', text: 'text-fuchsia-300' }
+  const PERIOD_ROW_STYLES: Record<string, { bg: string; inputBg: string; border: string; badge: string; text: string }> = {
+    p1: { bg: 'bg-amber-950/35', inputBg: 'bg-amber-950/70 border-amber-600/60 text-amber-200 focus:border-amber-400 font-extrabold', border: 'border-l-4 border-l-amber-500', badge: 'bg-amber-500/25 text-amber-300 border border-amber-500/50', text: 'text-amber-300' },
+    p2: { bg: 'bg-rose-950/35', inputBg: 'bg-rose-950/70 border-rose-600/60 text-rose-200 focus:border-rose-400 font-extrabold', border: 'border-l-4 border-l-rose-500', badge: 'bg-rose-500/25 text-rose-300 border border-rose-500/50', text: 'text-rose-300' },
+    p3: { bg: 'bg-purple-950/35', inputBg: 'bg-purple-950/70 border-purple-600/60 text-purple-200 focus:border-purple-400 font-extrabold', border: 'border-l-4 border-l-purple-500', badge: 'bg-purple-500/25 text-purple-300 border border-purple-500/50', text: 'text-purple-300' },
+    p4: { bg: 'bg-orange-950/35', inputBg: 'bg-orange-950/70 border-orange-600/60 text-orange-200 focus:border-orange-400 font-extrabold', border: 'border-l-4 border-l-orange-500', badge: 'bg-orange-500/25 text-orange-300 border border-orange-500/50', text: 'text-orange-300' },
+    p5: { bg: 'bg-yellow-950/35', inputBg: 'bg-yellow-950/70 border-yellow-600/60 text-yellow-200 focus:border-yellow-400 font-extrabold', border: 'border-l-4 border-l-yellow-500', badge: 'bg-yellow-500/25 text-yellow-300 border border-yellow-500/50', text: 'text-yellow-300' },
+    p6: { bg: 'bg-emerald-950/35', inputBg: 'bg-emerald-950/70 border-emerald-600/60 text-emerald-200 focus:border-emerald-400 font-extrabold', border: 'border-l-4 border-l-emerald-500', badge: 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/50', text: 'text-emerald-300' },
+    p7: { bg: 'bg-teal-950/35', inputBg: 'bg-teal-950/70 border-teal-600/60 text-teal-200 focus:border-teal-400 font-extrabold', border: 'border-l-4 border-l-teal-500', badge: 'bg-teal-500/25 text-teal-300 border border-teal-500/50', text: 'text-teal-300' },
+    p8: { bg: 'bg-cyan-950/35', inputBg: 'bg-cyan-950/70 border-cyan-600/60 text-cyan-200 focus:border-cyan-400 font-extrabold', border: 'border-l-4 border-l-cyan-500', badge: 'bg-cyan-500/25 text-cyan-300 border border-cyan-500/50', text: 'text-cyan-300' },
+    p9: { bg: 'bg-fuchsia-950/35', inputBg: 'bg-fuchsia-950/70 border-fuchsia-600/60 text-fuchsia-200 focus:border-fuchsia-400 font-extrabold', border: 'border-l-4 border-l-fuchsia-500', badge: 'bg-fuchsia-500/25 text-fuchsia-300 border border-fuchsia-500/50', text: 'text-fuchsia-300' }
   };
 
-  const getColStyle = (periodId: string, idx: number) => {
-    if (PERIOD_COL_STYLES[periodId]) return PERIOD_COL_STYLES[periodId];
-    const keys = Object.keys(PERIOD_COL_STYLES);
-    return PERIOD_COL_STYLES[keys[idx % keys.length]];
+  const getRowStyle = (periodId: string, idx: number) => {
+    if (PERIOD_ROW_STYLES[periodId]) return PERIOD_ROW_STYLES[periodId];
+    const keys = Object.keys(PERIOD_ROW_STYLES);
+    return PERIOD_ROW_STYLES[keys[idx % keys.length]];
   };
 
-  // Helper per estrarre il prezzo medio reale caricato da Octorate
+  const getRoomHeaderLines = (mr: any) => {
+    if (mr.line1 && mr.line2) return { line1: mr.line1, line2: mr.line2 };
+    const name = mr.roomName || mr.shortName || '';
+    if (name.includes('Fake Bungalow 1')) return { line1: 'Fake Bung.', line2: '1 (Test)' };
+    if (name.includes('Fake Bungalow 2')) return { line1: 'Fake Bung.', line2: '2 (Test)' };
+    if (name.includes('Jungle Villa Left')) return { line1: 'Jungle Villa', line2: 'Left' };
+    if (name.includes('Jungle Villa Right')) return { line1: 'Jungle Villa', line2: 'Right' };
+    if (name.includes('Jungle Villa')) return { line1: 'Jungle', line2: 'Villa' };
+    if (name.includes('Peace')) return { line1: 'Peace & Love', line2: 'Villa' };
+    if (name.includes('Penthouse')) return { line1: 'Penthouse', line2: 'Villa' };
+    if (name.includes('Yellow')) return { line1: 'Yellow', line2: 'Bungalow' };
+    if (name.includes('Red')) return { line1: 'Red', line2: 'Bungalow' };
+    if (name.includes('Green')) return { line1: 'Green', line2: 'Bungalow' };
+    if (name.includes('Camel')) return { line1: 'Camel Tent', line2: 'Bungalow' };
+    if (name.includes('Lagoon')) return { line1: 'Lagoon Tent', line2: 'Bungalow' };
+    if (name.includes('Internal')) return { line1: 'Internal', line2: 'Room' };
+    if (name.includes('Room 1')) return { line1: 'Hub Room', line2: '1' };
+    if (name.includes('Room 2')) return { line1: 'Hub Room', line2: '2' };
+    if (name.includes('Room 3')) return { line1: 'Hub Room', line2: '3' };
+    if (name.includes('Room 4')) return { line1: 'Hub Room', line2: '4' };
+    if (name.includes('Room 5')) return { line1: 'Hub Room', line2: '5' };
+    if (name.includes('Lodge 1')) return { line1: 'Lodge 1', line2: 'Hub' };
+    if (name.includes('Lodge 2')) return { line1: 'Lodge 2', line2: 'Hub' };
+    return { line1: name, line2: '' };
+  };
+
   const getLiveOctoratePriceForPeriod = (motherId: number, dateFrom: string, dateTo: string): number | null => {
     if (!rawOctorateGridItems || rawOctorateGridItems.length === 0) return null;
 
@@ -111,7 +138,6 @@ export const GestioneStagionaleTariffe: React.FC = () => {
     return Math.round(sum / matchedPrices.length);
   };
 
-  // Handler Sincronizzazione Test con doppio tocco
   const handleSyncPricesTest = () => {
     if (!confirmingTestSync) {
       setConfirmingTestSync(true);
@@ -122,12 +148,10 @@ export const GestioneStagionaleTariffe: React.FC = () => {
     syncAllPeriodsToOctorate({ testOnly: true });
   };
 
-  // Handler Sincronizzazione Produzione con modale
   const handleSyncPricesProd = () => {
     setShowProdWarningModal(true);
   };
 
-  // Filtraggio dinamico alloggi
   const displayedMotherRates = filterTestOnly
     ? motherRates.filter((mr) => FAKE_BUNGALOW_IDS.includes(mr.motherId))
     : motherRates;
@@ -137,14 +161,19 @@ export const GestioneStagionaleTariffe: React.FC = () => {
       {/* Top Banner Header: Glassmorphism */}
       <div className="bg-stone-900/90 border border-stone-800 backdrop-blur-xl rounded-3xl p-6 shadow-2xl space-y-4">
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="p-2.5 bg-sky-950 border border-sky-500/30 rounded-2xl text-sky-400 shadow-inner flex items-center justify-center shrink-0">
-              <FileSpreadsheet className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight whitespace-nowrap">
-                Prezzi Alloggi
-              </h2>
+          <div className="space-y-1">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-sky-950 border border-sky-500/30 rounded-2xl text-sky-400 shadow-inner flex items-center justify-center shrink-0">
+                <FileSpreadsheet className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                  Gestione Stagionale Tariffe
+                </h2>
+                <p className="text-stone-400 text-xs font-medium">
+                  Matrice Excel interattiva: 18 Tariffe Madre + 2 Fake Bungalow Test, periodi dinamici e scrittura bulk Octorate.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -203,7 +232,7 @@ export const GestioneStagionaleTariffe: React.FC = () => {
               <span>{isComparing ? 'Discrepanze Attive' : 'Evidenzia Discrepanze'}</span>
             </button>
 
-            {/* 4. SYNC TEST */}
+            {/* 4. SYNC PREZZI TEST */}
             <button
               type="button"
               onClick={handleSyncPricesTest}
@@ -217,11 +246,11 @@ export const GestioneStagionaleTariffe: React.FC = () => {
             >
               <Zap className={`w-3.5 h-3.5 ${confirmingTestSync ? 'text-stone-950' : 'text-yellow-300'}`} />
               <span>
-                {confirmingTestSync ? 'CONFERMI SYNC TEST?' : 'SYNC TEST'}
+                {confirmingTestSync ? 'CONFERMI SYNC TEST?' : 'SYNC PREZZI TEST'}
               </span>
             </button>
 
-            {/* 5. SYNC PRODUZIONE */}
+            {/* 5. SYNC PREZZI PRODUZIONE */}
             <button
               type="button"
               onClick={handleSyncPricesProd}
@@ -230,10 +259,10 @@ export const GestioneStagionaleTariffe: React.FC = () => {
               title="⚠️ ATTENZIONE: Sincronizza tutti i prezzi sulle tariffe madre reali in PRODUZIONE!"
             >
               <AlertTriangle className="w-3.5 h-3.5 text-yellow-300" />
-              <span>SYNC PRODUZIONE</span>
+              <span>SYNC PREZZI PRODUZIONE</span>
             </button>
 
-            {/* 6. Reset Defaults */}
+            {/* 6. Reset Defaults (PER ULTIMO) */}
             <button
               type="button"
               onClick={resetDefaultExcelStore}
@@ -306,158 +335,115 @@ export const GestioneStagionaleTariffe: React.FC = () => {
         )}
       </div>
 
-      {/* Main Inverted Matrix Table: Alloggi sulle Righe, Periodi sulle Colonne */}
+      {/* Main Matrix Table Container */}
       <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-6 shadow-2xl overflow-hidden space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="w-5 h-5 text-sky-400" />
             <h3 className="text-sm font-black text-white uppercase tracking-wider">
-              {activeViewTab === 'editor' ? 'Matrice Compatta · Alloggi sulle Righe & Periodi sulle Colonne' : 'Confronto Prezzi Locali vs Octorate Live'}
+              {activeViewTab === 'editor' ? 'Matrice Prezzi Madre · Modifica Interattiva' : 'Confronto Prezzi Locali vs Octorate Live'}
             </h3>
           </div>
           <div className="text-xs text-stone-400 font-medium">
-            {displayedMotherRates.length} Alloggi (Righe) · {periods.length} Periodi Stagionali (Colonne)
+            {periods.length} Periodi Stagionali · {displayedMotherRates.length} Tariffe Visualizzate
           </div>
         </div>
 
-        {/* Table Wrapper - Zero Horizontal Scrollbar */}
-        <div className="overflow-x-auto rounded-2xl border border-stone-800/80 shadow-inner bg-stone-950/60 no-scrollbar">
-          <table className="w-full text-left border-collapse table-fixed">
+        {/* Table Wrapper with horizontal scrolling */}
+        <div className="overflow-x-auto rounded-2xl border border-stone-800/80 shadow-inner bg-stone-950/60">
+          <table className="w-full text-left border-collapse min-w-[1300px]">
             <thead>
               <tr className="bg-stone-900 border-b border-stone-800">
-                {/* Header Colonna Fissa: Alloggio */}
-                <th className="p-2 text-xs font-black text-stone-300 uppercase tracking-wider w-[150px] min-w-[150px] max-w-[150px] sticky left-0 bg-stone-900 z-20 shadow-md">
-                  Alloggio
+                <th className="p-3 text-xs font-black text-stone-300 uppercase tracking-wider w-[260px] min-w-[260px] sticky left-0 bg-stone-900 z-20 shadow-md">
+                  Periodo & Date (Inizio ➔ Fine)
                 </th>
 
-                {/* Headers Periodi Stagionali sulle Colonne */}
-                {periods.map((period, pIdx) => {
-                  const style = getColStyle(period.id, pIdx);
-                  const isCurrentSyncing = syncingPeriodId === period.id;
-
+                {displayedMotherRates.map((mr) => {
+                  const headerLines = getRoomHeaderLines(mr);
+                  const isFake = FAKE_BUNGALOW_IDS.includes(mr.motherId);
                   return (
                     <th 
-                      key={period.id} 
-                      className={`p-1.5 text-center text-xs font-black uppercase tracking-tight min-w-[105px] max-w-[115px] ${style.headerBg} ${style.border}`}
+                      key={mr.motherId} 
+                      className={`p-2.5 text-center text-xs font-black uppercase tracking-tight min-w-[85px] border-l ${
+                        isFake 
+                          ? 'bg-amber-950/40 text-amber-300 border-amber-700/50' 
+                          : 'text-stone-300 border-stone-800'
+                      }`}
                     >
-                      <div className="space-y-1.5 flex flex-col items-center w-full">
-                        {/* Nome Periodo Editabile */}
-                        <div className="w-full">
-                          <input
-                            type="text"
-                            value={period.name}
-                            onChange={(e) => updatePeriodDate(period.id, 'name', e.target.value)}
-                            className="bg-transparent text-white font-black text-[11px] px-1 py-0.5 rounded hover:bg-stone-800/60 focus:bg-stone-800 focus:outline-none w-full text-center truncate"
-                            title={period.name}
-                          />
-                        </div>
-
-                        {/* Date Inizio / Fine con identica larghezza al 100% */}
-                        <div className="w-full space-y-1 bg-stone-950/80 p-1 rounded-xl border border-stone-800">
-                          <input
-                            type="date"
-                            value={period.dateFrom}
-                            onChange={(e) => updatePeriodDate(period.id, 'dateFrom', e.target.value)}
-                            title="Data di Inizio"
-                            className="bg-stone-900 border border-stone-700/80 text-sky-200 font-bold text-[10px] rounded px-1 py-0.5 focus:outline-none focus:border-sky-400 w-full text-center cursor-pointer [color-scheme:dark]"
-                          />
-                          <input
-                            type="date"
-                            value={period.dateTo}
-                            onChange={(e) => updatePeriodDate(period.id, 'dateTo', e.target.value)}
-                            title="Data di Fine"
-                            className="bg-stone-900 border border-stone-700/80 text-sky-200 font-bold text-[10px] rounded px-1 py-0.5 focus:outline-none focus:border-sky-400 w-full text-center cursor-pointer [color-scheme:dark]"
-                          />
-                        </div>
-
-                        {/* Azioni Sincronizza / Elimina Periodo Centrate */}
-                        <div className="flex items-center justify-center gap-1.5 w-full pt-1 border-t border-stone-800/50">
-                          {/* Sync Singolo Periodo */}
-                          <button
-                            type="button"
-                            onClick={() => syncPeriodToOctorate(period.id, { testOnly: testMode })}
-                            disabled={isCurrentSyncing || syncAllRunning}
-                            className={`p-1 rounded-lg transition-all cursor-pointer ${
-                              isCurrentSyncing
-                                ? 'bg-sky-600 text-white animate-spin'
-                                : testMode
-                                ? 'bg-emerald-700 hover:bg-emerald-600 text-white shadow'
-                                : 'bg-red-700 hover:bg-red-600 text-white shadow'
-                            }`}
-                            title={`Sincronizza ${period.name} su Octorate (${testMode ? 'Test' : 'Produzione'})`}
-                          >
-                            {isCurrentSyncing ? (
-                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                              <Zap className="w-3.5 h-3.5 text-yellow-300" />
-                            )}
-                          </button>
-
-                          {/* Elimina Periodo */}
-                          <button
-                            type="button"
-                            onClick={() => removePeriod(period.id)}
-                            disabled={periods.length <= 1}
-                            className="p-1 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-400 hover:text-rose-200 transition-all cursor-pointer disabled:opacity-40"
-                            title="Elimina questo periodo"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                      <div className="flex flex-col items-center justify-center leading-tight">
+                        {isFake && (
+                          <span className="text-[9px] bg-amber-500 text-stone-950 font-black px-1.5 py-0.2 rounded-md mb-0.5 tracking-wider">
+                            TEST
+                          </span>
+                        )}
+                        <span className="font-extrabold">{headerLines.line1}</span>
+                        {headerLines.line2 && <span className="text-[10px] text-stone-400 font-semibold">{headerLines.line2}</span>}
+                        <span className="text-[9px] font-mono text-stone-500 font-normal">#{mr.motherId}</span>
                       </div>
                     </th>
                   );
                 })}
 
-                {/* Colonna per aggiungere nuovo periodo (+) */}
-                <th className="p-1 text-center text-xs font-black text-stone-400 uppercase w-[34px] min-w-[34px] max-w-[34px] border-l border-stone-800">
-                  <button
-                    type="button"
-                    onClick={() => addPeriodAt(periods.length - 1)}
-                    className="p-1 rounded-lg bg-stone-800 hover:bg-sky-600 text-stone-300 hover:text-white transition-all cursor-pointer shadow"
-                    title="Aggiungi nuovo periodo stagionale"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </button>
+                <th className="p-3 text-center text-xs font-black text-stone-300 uppercase tracking-wider w-[120px] min-w-[120px] border-l border-stone-800">
+                  Azioni
                 </th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-stone-800/60">
-              {displayedMotherRates.map((mr) => {
-                const isFake = FAKE_BUNGALOW_IDS.includes(mr.motherId);
+              {periods.map((period, idx) => {
+                const style = getRowStyle(period.id, idx);
+                const periodPrices = pricesMatrix[period.id] || {};
+                const isCurrentSyncing = syncingPeriodId === period.id;
 
                 return (
-                  <tr 
-                    key={mr.motherId} 
-                    className={`hover:bg-stone-800/40 transition-colors ${
-                      isFake ? 'bg-amber-950/25 border-l-4 border-l-amber-500' : ''
-                    }`}
-                  >
-                    {/* Alloggio Sticky Left */}
-                    <td className="p-2 sticky left-0 bg-stone-900/95 backdrop-blur-md z-10 shadow-md w-[150px] min-w-[150px] max-w-[150px]">
-                      <div>
-                        <div className="font-extrabold text-xs text-white truncate">
-                          {mr.roomName}
+                  <tr key={period.id} className={`${style.bg} hover:bg-stone-800/40 transition-colors ${style.border}`}>
+                    <td className="p-3 sticky left-0 bg-stone-900/95 backdrop-blur-md z-10 shadow-md">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-1">
+                          <input
+                            type="text"
+                            value={period.name}
+                            onChange={(e) => updatePeriodDate(period.id, 'name', e.target.value)}
+                            className="bg-transparent text-white font-black text-xs px-1 py-0.5 rounded hover:bg-stone-800/60 focus:bg-stone-800 focus:outline-none w-full"
+                          />
+                          <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${style.badge}`}>
+                            {period.label || 'Stagione'}
+                          </span>
                         </div>
-                        <div className="text-[9.5px] text-stone-400 font-medium truncate">
-                          {mr.category} · <span className="font-mono text-stone-500">#{mr.motherId}</span>
+
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <input
+                            type="text"
+                            value={formatDisplayDate(period.dateFrom)}
+                            onChange={(e) => updatePeriodDate(period.id, 'dateFrom', parseDisplayDateToISO(e.target.value))}
+                            placeholder="GG/MM/AAAA"
+                            className={`w-24 text-center px-1.5 py-1 rounded-xl text-xs font-bold bg-stone-950/80 border border-stone-700 text-white focus:outline-none focus:border-sky-500`}
+                          />
+                          <ArrowRight className="w-3 h-3 text-stone-500 shrink-0" />
+                          <input
+                            type="text"
+                            value={formatDisplayDate(period.dateTo)}
+                            onChange={(e) => updatePeriodDate(period.id, 'dateTo', parseDisplayDateToISO(e.target.value))}
+                            placeholder="GG/MM/AAAA"
+                            className={`w-24 text-center px-1.5 py-1 rounded-xl text-xs font-bold bg-stone-950/80 border border-stone-700 text-white focus:outline-none focus:border-sky-500`}
+                          />
                         </div>
                       </div>
                     </td>
 
-                    {/* Prezzi per ciascun Periodo */}
-                    {periods.map((period, pIdx) => {
-                      const periodPrices = pricesMatrix[period.id] || {};
+                    {displayedMotherRates.map((mr) => {
                       const currentPrice = periodPrices[mr.motherId] || 0;
                       const livePrice = getLiveOctoratePriceForPeriod(mr.motherId, period.dateFrom, period.dateTo);
                       const hasDiscrepancy = livePrice !== null && livePrice !== currentPrice;
-                      const style = getColStyle(period.id, pIdx);
+                      const isFake = FAKE_BUNGALOW_IDS.includes(mr.motherId);
 
                       return (
                         <td 
-                          key={period.id} 
-                          className={`p-1 text-center ${style.border} ${style.bg} ${
+                          key={mr.motherId} 
+                          className={`p-2 text-center border-l ${
+                            isFake ? 'border-amber-700/30 bg-amber-950/20' : 'border-stone-800/60'
+                          } ${
                             isComparing && hasDiscrepancy 
                               ? 'ring-2 ring-yellow-400 bg-yellow-950/50 animate-pulse' 
                               : ''
@@ -468,7 +454,7 @@ export const GestioneStagionaleTariffe: React.FC = () => {
                               type="number"
                               value={currentPrice || ''}
                               onChange={(e) => updatePrice(period.id, mr.motherId, Number(e.target.value))}
-                              className={`w-full text-center py-1 px-0.5 rounded-lg text-xs font-black transition-all bg-stone-950/80 border border-stone-700 text-white focus:outline-none focus:border-sky-400 ${
+                              className={`w-full text-center py-1.5 px-1 rounded-xl text-xs font-black transition-all bg-stone-950/80 border border-stone-700 text-white focus:outline-none focus:border-sky-400 ${
                                 isFake ? 'text-amber-300 font-extrabold border-amber-600/50' : ''
                               }`}
                             />
@@ -476,11 +462,11 @@ export const GestioneStagionaleTariffe: React.FC = () => {
                             <div className="flex flex-col items-center justify-center text-xs">
                               <span className="font-black text-white">{currentPrice} ฿</span>
                               {livePrice !== null ? (
-                                <span className={`text-[9.5px] font-bold ${hasDiscrepancy ? 'text-rose-400' : 'text-emerald-400'}`}>
+                                <span className={`text-[10px] font-bold ${hasDiscrepancy ? 'text-rose-400' : 'text-emerald-400'}`}>
                                   Live: {livePrice} ฿
                                 </span>
                               ) : (
-                                <span className="text-[9.5px] text-stone-500 font-mono">-</span>
+                                <span className="text-[10px] text-stone-500 font-mono">-</span>
                               )}
                             </div>
                           )}
@@ -488,8 +474,48 @@ export const GestioneStagionaleTariffe: React.FC = () => {
                       );
                     })}
 
-                    {/* Cella vuota per colonna (+) */}
-                    <td className="p-1 border-l border-stone-800/60 bg-stone-950/30 w-[34px] min-w-[34px] max-w-[34px]" />
+                    <td className="p-2 text-center border-l border-stone-800/60">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => addPeriodAt(idx)}
+                          className="p-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-all cursor-pointer"
+                          title="Inserisci nuova riga periodo sotto questa"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => syncPeriodToOctorate(period.id, { testOnly: testMode })}
+                          disabled={isCurrentSyncing || syncAllRunning}
+                          className={`p-1.5 rounded-xl transition-all cursor-pointer ${
+                            isCurrentSyncing
+                              ? 'bg-sky-600 text-white animate-spin'
+                              : testMode
+                              ? 'bg-emerald-700 hover:bg-emerald-600 text-white shadow'
+                              : 'bg-red-700 hover:bg-red-600 text-white shadow'
+                          }`}
+                          title={`Sincronizza solo questo periodo su Octorate (${testMode ? 'Test' : 'Produzione'})`}
+                        >
+                          {isCurrentSyncing ? (
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Zap className="w-3.5 h-3.5 text-yellow-300" />
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => removePeriod(period.id)}
+                          disabled={periods.length <= 1}
+                          className="p-1.5 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-400 hover:text-rose-200 transition-all cursor-pointer disabled:opacity-40"
+                          title="Elimina questo periodo"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 );
               })}

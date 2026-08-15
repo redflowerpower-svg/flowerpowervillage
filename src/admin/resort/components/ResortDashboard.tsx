@@ -720,7 +720,7 @@ export function ResortDashboard() {
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
               }`}
             >
-              GESTIONE STAGIONALE TARIFFE
+              PREZZI ALLOGGI
             </button>
 
             <button

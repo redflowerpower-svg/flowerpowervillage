@@ -7,10 +7,6 @@ const supabaseAdmin = (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl
 
 export const FAKE_BUNGALOW_MOTHER_IDS = [649669, 921799];
 
-/**
- * Normalizza e formatta qualsiasi stringa data (in formato DD/MM/YYYY, DD/MM, o YYYY-MM-DD)
- * risolvendo programmaticamente il cavallo d'anno (es. 21/12 -> 15/01).
- */
 export function normalizeDateToYYYYMMDD(rawDateStr: string, isEndDate: boolean = false, startDateStr?: string): string {
   if (!rawDateStr || typeof rawDateStr !== 'string') {
     const today = new Date();
@@ -20,18 +16,15 @@ export function normalizeDateToYYYYMMDD(rawDateStr: string, isEndDate: boolean =
   const trimmed = rawDateStr.trim();
   const currentYear = new Date().getFullYear();
 
-  // Caso YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
     return trimmed;
   }
 
-  // Caso DD/MM/YYYY
   if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(trimmed)) {
     const [d, m, y] = trimmed.split('/').map(Number);
     return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
   }
 
-  // Caso DD/MM (senza anno esplicito)
   if (/^\d{1,2}\/\d{1,2}$/.test(trimmed)) {
     const [d, m] = trimmed.split('/').map(Number);
     let targetYear = currentYear;
@@ -51,7 +44,6 @@ export function normalizeDateToYYYYMMDD(rawDateStr: string, isEndDate: boolean =
 }
 
 export async function handleUpdatePricesStagionale(req: VercelRequest, res: VercelResponse) {
-  // CORS Headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -73,7 +65,6 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
       return res.status(500).json({ error: 'Configurazione Supabase mancante' });
     }
 
-    // SCUDO DI PROTEZIONE: In modalità test, filtra tassativamente SOLO i Fake Bungalow (649669 e 921799)
     let filteredUpdates = periodUpdates;
     if (isTest) {
       filteredUpdates = periodUpdates.filter((item: any) => 
@@ -90,7 +81,6 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
       }
     }
 
-    // 1. Estrazione del Token Singleton Octorate da Supabase
     const { data: tokenData, error: tokenError } = await supabaseAdmin
       .from('octorate_tokens')
       .select('access_token')
@@ -113,7 +103,6 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
       headers['Octorate-Api-Key'] = clientId;
     }
 
-    // 2. Formattazione e Risoluzione Date per il Bulk Payload (Octorate Golden Rule: Tariffa Madre Livello 0)
     const bulkPayload = filteredUpdates.map((item: any) => {
       const dateFromFormatted = normalizeDateToYYYYMMDD(item.dateFrom, false);
       const dateToFormatted = normalizeDateToYYYYMMDD(item.dateTo, true, dateFromFormatted);
