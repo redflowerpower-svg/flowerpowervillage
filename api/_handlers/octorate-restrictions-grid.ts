@@ -65,7 +65,8 @@ export function groupDailyRestrictions(days: any[], ratePlanKey: string = 'rate'
     i = j;
   }
 
-  // Unisce il periodo di Apertura con il periodo contiguo di Only Check-out per mostrare il badge dei giorni
+  // Riconcilia i blocchi di Apertura seguiti da Only Check-out nel modello a periodi con cuscinetto:
+  // L'Apertura acquisisce onlyCheckoutDays = durata del blocco CTA adiacente
   const mergedPeriods: any[] = [];
   for (let k = 0; k < rawPeriods.length; k++) {
     const curr = rawPeriods[k];
@@ -77,13 +78,14 @@ export function groupDailyRestrictions(days: any[], ratePlanKey: string = 'rate'
         name: 'Apertura Standard (OK)',
         onlyCheckoutDays: next.onlyCheckoutDays,
         onlyCheckOutDays: next.onlyCheckoutDays,
-        ctaEndDate: next.dateTo
+        failsafeCheckout: true
       });
-      k++; // Consuma il blocco CTA poiché è stato incorporato come finestra di Only Check-out
+      k++; // salta il blocco CTA poiché è stato incorporato come cuscinetto
     } else if (curr.strategy === 'failsafe_checkout') {
       mergedPeriods.push({
         ...curr,
-        name: `Only Check-out (${curr.onlyCheckoutDays}gg)`
+        name: `Only Check-out (${curr.onlyCheckoutDays}gg)`,
+        isFailsafeCheckout: true
       });
     } else if (curr.strategy === 'stopsell') {
       mergedPeriods.push({

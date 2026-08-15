@@ -59,9 +59,6 @@ export interface RestrictionsState {
     minStay: boolean;
   };
   setResetPreference: (key: string, val: boolean) => void;
-  tabulaRasaDateFrom: string;
-  tabulaRasaDateTo: string;
-  setTabulaRasaDateRange: (from: string, to: string) => void;
   testMode: boolean;
   setTestMode: (val: boolean) => void;
   disabledRatePlans: string[];
@@ -79,7 +76,7 @@ export interface RestrictionsState {
   updatePlannedPeriod: (ratePlanKey: string, index: any, updated?: Partial<PlannedPeriod>) => void;
   addNextPlannedPeriod: (ratePlanKey: string) => void;
   insertPlannedPeriodRelative: (ratePlanKey: string, targetPeriodId: string, position: 'before' | 'after') => void;
-  removePlannedPeriod: (ratePlanKey: string, index?: any, options?: { shiftSubsequent?: boolean }) => void;
+  removePlannedPeriod: (ratePlanKey: string, index?: any) => void;
   syncRatePlanToOctorate: (ratePlanKey: string, index?: any, options?: { testOnly?: boolean }) => Promise<any>;
   syncAllRatePlansToOctorate: (options?: { testOnly?: boolean }) => Promise<any>;
   fetchLiveRestrictions: () => Promise<void>;
@@ -411,7 +408,9 @@ export function normalizeGridKeys(rawGrid: Record<string, any[]>): Record<string
     if (Array.isArray(periods) && periods.length > 0) {
       normalized[mappedKey] = periods.map((p: any) => {
         const rawDays = p.onlyCheckoutDays ?? p.onlyCheckOutDays;
-        const outDays = (rawDays !== undefined && rawDays !== null) ? Number(rawDays) : 0;
+        const outDays = (rawDays !== undefined && rawDays > 0)
+          ? Number(rawDays)
+          : (mappedKey === 'be' ? 0 : 10);
         return {
           ...p,
           onlyCheckOutDays: outDays,
@@ -443,10 +442,6 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             [key]: val
           }
         })),
-      tabulaRasaDateFrom: '2026-10-01',
-      tabulaRasaDateTo: '2027-10-31',
-      setTabulaRasaDateRange: (from: string, to: string) =>
-        set({ tabulaRasaDateFrom: from, tabulaRasaDateTo: to }),
       testMode: true,
       setTestMode: (val: boolean) => {
         set({
@@ -707,41 +702,13 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         });
       },
 
-      removePlannedPeriod: (planId: string, periodId?: string, options?: { shiftSubsequent?: boolean }) => {
+      removePlannedPeriod: (planId: string, periodId: string) => {
         const state = get();
         const list = state.plannedPeriods[planId] || [];
-        if (!periodId) return;
-        const idx = list.findIndex(p => p.id === periodId);
-        if (idx === -1) return;
-
-        const target = list[idx];
-        const updatedList = list.map(p => ({ ...p }));
-
-        if (options?.shiftSubsequent) {
-          const shiftDate = (dateStr: string, days: number): string => {
-            const d = new Date(dateStr);
-            d.setDate(d.getDate() + days);
-            return d.toISOString().split('T')[0];
-          };
-
-          const d1 = new Date(target.dateFrom).getTime();
-          const d2 = new Date(target.dateTo).getTime();
-          const duration = Math.max(1, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1);
-          const cta = target.onlyCheckoutDays ?? target.onlyCheckOutDays ?? 0;
-          const totalSpan = duration + cta;
-
-          for (let i = idx + 1; i < updatedList.length; i++) {
-            updatedList[i].dateFrom = shiftDate(updatedList[i].dateFrom, -totalSpan);
-            updatedList[i].dateTo = shiftDate(updatedList[i].dateTo, -totalSpan);
-          }
-        }
-
-        updatedList.splice(idx, 1);
-
         set({
           plannedPeriods: {
             ...state.plannedPeriods,
-            [planId]: updatedList
+            [planId]: list.filter(p => p.id !== periodId)
           }
         });
       },
@@ -769,8 +736,8 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           const resetPayload = {
             planId,
             ratePlanKey: planId,
-            dateFrom: state.tabulaRasaDateFrom || '2026-10-01',
-            dateTo: state.tabulaRasaDateTo || '2027-10-31',
+            dateFrom: '2026-10-01',
+            dateTo: '2027-10-31',
             stopSell: resetStrategy === 'stopsell',
             strategy: resetStrategy,
             testOnly: isTestOnly,
@@ -888,8 +855,8 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             const bulkResetPayload = {
               planId: plan.id,
               ratePlanKey: plan.id,
-              dateFrom: state.tabulaRasaDateFrom || '2026-10-01',
-              dateTo: state.tabulaRasaDateTo || '2027-10-31',
+              dateFrom: '2026-10-01',
+              dateTo: '2027-10-31',
               stopSell: bulkResetStrategy === 'stopsell',
               strategy: bulkResetStrategy,
               testOnly: isTestOnly,
@@ -991,14 +958,14 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       }
     }),
     {
-      name: 'fp_rateplan_restrictions_v17_clean',
+      name: 'fp_rateplan_restrictions_v16_clean',
       merge: (persistedState: any, currentState: RestrictionsStoreState) => {
         const p = persistedState as any;
-        const isLiveVersion = p?._version === '2026_LIVE_MIRROR_V17';
+        const isLiveVersion = p?._version === '2026_LIVE_MIRROR_V16';
         return {
           ...currentState,
           ...p,
-          _version: '2026_LIVE_MIRROR_V17',
+          _version: '2026_LIVE_MIRROR_V16',
           plannedPeriods: (isLiveVersion && p?.plannedPeriods && typeof p.plannedPeriods === 'object')
             ? p.plannedPeriods
             : { ...INITIAL_PLAN_PERIODS },

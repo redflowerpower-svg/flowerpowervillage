@@ -44,8 +44,18 @@ L'esperienza visiva del sito si basa su un'interfaccia fortemente immersiva con 
 
 ### Architettura & Mappatura ID Esatti Octorate
 - **Gantt Proporzionale (6px/giorno)**: Schede a posizionamento assoluto continuo lungo la timeline Ottobre 2026 - Ottobre 2027.
-- **Larghezza Card Clamped (`min-w-[148px]`)**: Ogni scheda periodo garantisce una larghezza minima di 148px in modo che i selettori di data (`INIZIO` e `FINE`), l'icona del cestino 🗑️ e i controlli Only Check Out siano sempre visibili, selezionabili e perfettamente cliccabili.
-- **Cancellazione 1-Click**: Rimosso il vincolo di presenza di più periodi. Qualsiasi periodo (anche unico sulla riga) è cancellabile con 1 click, facendo comparire il pulsante rosso `(+)` per creare un nuovo periodo.
+- **Larghezza Card Clamped (`min-w-[148px]`)**: Ogni scheda periodo garantisce una larghezza minima di 148px in modo che i selettori di data (`INIZIO` e `FINE`), l'icona del cestino e i controlli Only Check Out siano sempre visibili, selezionabili e perfettamente cliccabili.
+- **Cancellazione 1-Click con Trascinamento a Catena**: Possibilità di cancellare qualsiasi periodo con opzione di trascinamento automatico dei periodi successivi per colmare lo spazio.
+- **Riconciliazione CTA nel Parser Octorate Grid (`octorate-restrictions-grid.ts`)**: Il backend riconcilia automaticamente le giornate di arrivi chiusi (CTA) immediatamente successive all'apertura, incorporandole come proprietà `onlyCheckoutDays` all'interno della scheda di apertura per garantire perfetta parità 1:1 tra Tabella 1 (Pianificata) e Tabella 2 (Live Octorate) ed eliminare i falsi positivi nel comparatore discrepanze.
+- **Uniformazione Grafica Tabella 1 e Tabella 2**: Schede Live renderizzate con identica geometria, palette cromatica nativa per tariffa, posizionamento e saldatura della capsula Only Check-Out gialla/ambra adiacente (`rounded-l-2xl rounded-r-none border-r-0`).
+- **Toolbar Superiore Unificata su Singola Riga**:
+  - `[ Timeline Pianificata ]` / `[ Timeline Live Octorate ]` (Toggle Viste)
+  - `[ SYNC DERIVATE TEST ]` (Verde Smeraldo con protezione anti-click 3s)
+  - `[ SYNC DERIVATE PRODUZIONE ]` (Rosso Vivo con modale di sicurezza bloccante)
+  - `[ Reset Defaults ]` (Posizionato per ultimo)
+- **Barra Intestazione Tabella Gantt**:
+  - `[ Evidenzia Discrepanze ]` (Attivazione/disattivazione confronto visivo)
+  - `[ Copia da Tabella 2 a Timeline Pianificata ]` (Sincronizzazione Live -> Pianificata con doppia conferma)
 - **Mappatura ID Esatti camera Madre Sentinella Jungle Villa (`529773`)**:
   L'endpoint Serverless [`api/resort/octorate-restrictions-grid.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/resort/octorate-restrictions-grid.ts) mappa i 12 piani tariffari direttamente sugli ID fisici univoci dei prodotti Octorate:
   - `BE` (Official Booking Engine): **`529784`** (3 periodi reali: Aperto Oct-Nov, Bloccato Dec-Apr, Aperto May)

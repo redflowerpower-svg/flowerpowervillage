@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { formatDisplayDate, parseDisplayDateToISO } from '../../../lib/dateUtils';
-import { useRestrictionsStore, REAL_OCTORATE_PLANS, RealOctoratePlan, PlannedPeriod, INITIAL_PLAN_PERIODS } from '../store/useRestrictionsStore-v17';
+import { useRestrictionsStore, REAL_OCTORATE_PLANS, RealOctoratePlan, PlannedPeriod, INITIAL_PLAN_PERIODS } from '../store/useRestrictionsStore-v14';
 import { useResortAdminStore } from '../store/useResortAdminStore';
 import { MOTHER_RATES } from '../store/useSeasonalRateStore';
 import {
@@ -21,10 +21,7 @@ import {
   XCircle,
   LogOut,
   FlaskConical,
-  Download,
-  Calendar,
-  Activity,
-  Wrench
+  Download
 } from 'lucide-react';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -152,7 +149,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const fetchLiveRestrictions = store?.fetchLiveRestrictions || (async () => {});
   const updatePlannedPeriod = store?.updatePlannedPeriod || store?.updatePeriod || (() => {});
   const addNextPlannedPeriod = store?.addNextPlannedPeriod || store?.addNextPeriod || (() => {});
-  const insertPlannedPeriodRelative = store?.insertPlannedPeriodRelative || (() => {});
   const removePlannedPeriod = store?.removePlannedPeriod || store?.removePeriod || (() => {});
   const syncPlanToOctorate = store?.syncPlanToOctorate || (async () => false);
   const syncAllRatePlansToOctorate = store?.syncAllRatePlansToOctorate || store?.syncAllPlansToOctorate || (async () => false);
@@ -167,16 +163,11 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     minStay: true
   };
   const setResetPreference = store?.setResetPreference || (() => {});
-  const tabulaRasaDateFrom = store?.tabulaRasaDateFrom || '2026-10-01';
-  const tabulaRasaDateTo = store?.tabulaRasaDateTo || '2027-10-31';
-  const setTabulaRasaDateRange = store?.setTabulaRasaDateRange || (() => {});
   const testMode = store?.testMode ?? true;
   const setTestMode = store?.setTestMode || (() => {});
 
   const [expandedAccommodations, setExpandedAccommodations] = useState<Record<string, boolean>>({});
   const [activeViewTab, setActiveViewTab] = useState<'editor' | 'comparison'>('editor');
-  const [addingRelativePeriodId, setAddingRelativePeriodId] = useState<string | null>(null);
-  const [deletingPeriodId, setDeletingPeriodId] = useState<string | null>(null);
   const [isComparing, setIsComparing] = useState<boolean>(false);
   const [showTestModal, setShowTestModal] = useState<boolean>(false);
   const [showProdWarningModal, setShowProdWarningModal] = useState<boolean>(false);
@@ -186,7 +177,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const [confirmingSingleSyncId, setConfirmingSingleSyncId] = useState<string | null>(null);
   const [confirmingBulkSync, setConfirmingBulkSync] = useState<boolean>(false);
   const [confirmingTestSync, setConfirmingTestSync] = useState<boolean>(false);
-  const [confirmingCopyLive, setConfirmingCopyLive] = useState<boolean>(false);
 
   // Auto-allineamento iniziale con la configurazione speculare di Tabella 2 (Octorate Live)
   useEffect(() => {
@@ -200,7 +190,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const singleSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const bulkSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const testSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const copyLiveTimerRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const handleSingleSyncClick = (planId: string, periodId: string) => {
     if (confirmingSingleSyncId === periodId) {
@@ -216,36 +205,31 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     }
   };
 
-  const handleSyncDerivateTest = () => {
+  const handleBulkSyncClick = () => {
+    if (confirmingBulkSync) {
+      if (bulkSyncTimerRef.current) clearTimeout(bulkSyncTimerRef.current);
+      setConfirmingBulkSync(false);
+      syncAllRatePlansToOctorate();
+    } else {
+      if (bulkSyncTimerRef.current) clearTimeout(bulkSyncTimerRef.current);
+      setConfirmingBulkSync(true);
+      bulkSyncTimerRef.current = setTimeout(() => {
+        setConfirmingBulkSync(false);
+      }, 3000);
+    }
+  };
+
+  const handleTestSyncClick = () => {
     if (confirmingTestSync) {
       if (testSyncTimerRef.current) clearTimeout(testSyncTimerRef.current);
       setConfirmingTestSync(false);
-      setTestMode(true);
-      syncAllRatePlansToOctorate({ testOnly: true });
+      setShowTestModal(true);
     } else {
       if (testSyncTimerRef.current) clearTimeout(testSyncTimerRef.current);
       setConfirmingTestSync(true);
       testSyncTimerRef.current = setTimeout(() => {
         setConfirmingTestSync(false);
       }, 3000);
-    }
-  };
-
-  const handleSyncDerivateProd = () => {
-    setShowProdWarningModal(true);
-  };
-
-  const handleCopyLiveClick = () => {
-    if (confirmingCopyLive) {
-      if (copyLiveTimerRef.current) clearTimeout(copyLiveTimerRef.current);
-      setConfirmingCopyLive(false);
-      handleCopyLiveToPlanned();
-    } else {
-      if (copyLiveTimerRef.current) clearTimeout(copyLiveTimerRef.current);
-      setConfirmingCopyLive(true);
-      copyLiveTimerRef.current = setTimeout(() => {
-        setConfirmingCopyLive(false);
-      }, 3500);
     }
   };
 
@@ -311,28 +295,13 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     const isTiny = widthPx < 95;
 
     let isMismatched = false;
-    if (isComparing) {
-      const liveForPlan = liveOctorateRestrictions[plan.id] || [];
-      const liveMatch = liveForPlan.find((lp: PlannedPeriod) => lp.dateFrom === period.dateFrom && lp.dateTo === period.dateTo)
-        || liveForPlan.find((lp: PlannedPeriod) => lp.dateFrom <= period.dateTo && lp.dateTo >= period.dateFrom);
-
-      if (liveMatch) {
-        const planOutDays = period.onlyCheckoutDays ?? period.onlyCheckOutDays ?? 0;
-        const liveOutDays = liveMatch.onlyCheckoutDays ?? liveMatch.onlyCheckOutDays ?? 0;
-        const planStop = Boolean(period.stopSell || period.strategy === 'stopsell');
-        const liveStop = Boolean(liveMatch.stopSell || liveMatch.strategy === 'stopsell');
-        isMismatched = liveStop !== planStop
-          || liveOutDays !== planOutDays
-          || liveMatch.dateFrom !== period.dateFrom
-          || liveMatch.dateTo !== period.dateTo;
-      } else if (liveForPlan.length > 0) {
-        isMismatched = true;
-      }
+    const liveForPlan = liveOctorateRestrictions[plan.id] || [];
+    const liveMatch = liveForPlan.find((lp: PlannedPeriod) => lp.dateFrom <= period.dateTo && lp.dateTo >= period.dateFrom);
+    if (isComparing && liveMatch) {
+      isMismatched = liveMatch.stopSell !== period.stopSell || liveMatch.onlyCheckOutDays !== period.onlyCheckOutDays;
     }
 
     const isFailsafe = Boolean(period.failsafeCheckout || period.closedToArrival || period.strategy === 'failsafe_checkout' || period.name?.toLowerCase().includes('only check-out'));
-    const hasWeldedCta = Boolean((period.onlyCheckoutDays ?? period.onlyCheckOutDays ?? 0) > 0);
-    const roundedClass = hasWeldedCta ? 'rounded-l-2xl rounded-r-none border-r-0' : 'rounded-2xl';
 
     const theme = RATE_PLAN_COLORS[plan.id] || {
       badgeBg: 'bg-stone-800', badgeText: 'text-stone-300', badgeBorder: 'border-stone-700',
@@ -340,7 +309,9 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     };
 
     let cardBg = `${theme.cardBg} ${theme.cardBorder} hover:border-stone-600 shadow-md ${theme.cardText}`;
-    if (period.stopSell) {
+    if (isFailsafe) {
+      cardBg = 'bg-amber-950/90 border-amber-400 text-amber-200 ring-1 ring-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)]';
+    } else if (period.stopSell) {
       cardBg = `${theme.cardBg} ${theme.cardBorder} shadow-md ${theme.cardText}`;
     }
 
@@ -352,7 +323,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       <div
         key={period.id}
         style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '2px', bottom: '2px' }}
-        className={`${roundedClass} border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 select-none ${cardBg}`}
+        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 select-none ${cardBg}`}
       >
         <div style={{ width: '100%', maxWidth: '148px' }} className="flex flex-col gap-0.5 min-w-0">
 
@@ -363,32 +334,14 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               value={period.name}
               title="Nome del periodo programmato (modificabile)"
               onChange={e => updatePlannedPeriod(plan.id, period.id, { name: e.target.value })}
-              className={`bg-transparent font-extrabold text-white ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} focus:outline-none truncate flex-1 min-w-0`}
+              className={`bg-transparent font-extrabold ${isFailsafe ? 'text-amber-300' : 'text-white'} ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} focus:outline-none truncate flex-1 min-w-0`}
             />
-            <div className="relative flex items-center gap-0.5 shrink-0">
-              {/* Tasto "+" per inserire prima o dopo */}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setAddingRelativePeriodId(addingRelativePeriodId === period.id ? null : period.id);
-                }}
-                className={`w-3.5 h-3.5 flex items-center justify-center p-0 border rounded cursor-pointer transition-all ${
-                  addingRelativePeriodId === period.id
-                    ? 'bg-amber-500 text-stone-950 border-amber-300 font-black ring-1 ring-amber-300'
-                    : 'bg-stone-900 hover:bg-emerald-950 text-emerald-400 border-stone-800 hover:border-emerald-600'
-                }`}
-                title="➕ Inserisci nuovo modulo prima o dopo questo periodo (spostando gli altri)"
-              >
-                <Plus className="w-2 h-2" />
-              </button>
-
-              {/* Tasto Refresh / Singola Sincronizzazione */}
+            <div className="flex items-center gap-0.5 shrink-0">
               <button
                 type="button"
                 onClick={() => handleSingleSyncClick(plan.id, period.id)}
                 disabled={isSyncing}
-                className={`w-3.5 h-3.5 flex items-center justify-center p-0 border rounded cursor-pointer transition-all ${
+                className={`p-0.5 border rounded cursor-pointer transition-all ${
                   confirmingSingleSyncId === period.id
                     ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 border-amber-300 font-bold animate-pulse ring-1 ring-amber-300'
                     : 'bg-red-950 hover:bg-red-900 text-red-300 border-red-700/50'
@@ -396,118 +349,20 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 title={confirmingSingleSyncId === period.id ? 'Clicca di nuovo per confermare la sincronizzazione' : '🔄 Sincronizza questo singolo periodo su Octorate'}
               >
                 {confirmingSingleSyncId === period.id ? (
-                  <span className="text-[5px] font-black uppercase text-stone-950">OK</span>
+                  <span className="text-[5.5px] font-black uppercase px-0.5 text-stone-950">Confermi?</span>
                 ) : (
                   <RefreshCw className={`w-2 h-2 ${isSyncing ? 'animate-spin text-white' : ''}`} />
                 )}
               </button>
-
-              {/* Tasto Elimina */}
               {!isTiny && (
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setAddingRelativePeriodId(null);
-                    setDeletingPeriodId(deletingPeriodId === period.id ? null : period.id);
-                  }}
-                  className={`w-3.5 h-3.5 flex items-center justify-center p-0 border rounded cursor-pointer transition-all ${
-                    deletingPeriodId === period.id
-                      ? 'bg-red-600 text-white border-red-400 font-bold ring-1 ring-red-400'
-                      : 'bg-stone-900 hover:bg-red-950 text-stone-400 hover:text-red-300 border-stone-800 hover:border-red-700'
-                  }`}
+                  onClick={() => removePlannedPeriod(plan.id, period.id)}
+                  className="p-0.5 bg-stone-900 hover:bg-red-950 text-stone-400 hover:text-red-300 border border-stone-800 rounded cursor-pointer"
                   title="🗑️ Elimina questo periodo dalla pianificazione"
                 >
                   <Trash2 className="w-2 h-2" />
                 </button>
-              )}
-
-              {/* Popover di Scelta Inserimento Prima / Dopo */}
-              {addingRelativePeriodId === period.id && (
-                <div
-                  className="absolute right-0 top-5 bg-stone-900/98 backdrop-blur-md border border-amber-500/60 rounded-xl p-1.5 shadow-2xl z-50 flex flex-col gap-1 min-w-[125px] animate-in fade-in zoom-in duration-100"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="text-[7px] font-black text-amber-300 uppercase tracking-wider px-0.5 flex items-center justify-between">
-                    <span>➕ Inserisci Modulo:</span>
-                    <button 
-                      type="button" 
-                      onClick={() => setAddingRelativePeriodId(null)}
-                      className="text-stone-400 hover:text-white text-[9px] leading-none px-0.5 cursor-pointer"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        insertPlannedPeriodRelative(plan.id, period.id, 'before');
-                        setAddingRelativePeriodId(null);
-                      }}
-                      className="flex-1 px-1.5 py-1 rounded bg-sky-950 hover:bg-sky-800 text-sky-200 border border-sky-600 hover:border-sky-400 text-[8px] font-extrabold transition-all text-center cursor-pointer shadow"
-                      title="Inserisci 30gg prima di questo modulo (spostando tutti i successivi in avanti)"
-                    >
-                      ◀ Prima
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        insertPlannedPeriodRelative(plan.id, period.id, 'after');
-                        setAddingRelativePeriodId(null);
-                      }}
-                      className="flex-1 px-1.5 py-1 rounded bg-emerald-950 hover:bg-emerald-800 text-emerald-200 border border-emerald-600 hover:border-emerald-400 text-[8px] font-extrabold transition-all text-center cursor-pointer shadow"
-                      title="Inserisci 30gg dopo questo modulo (spostando tutti i successivi in avanti)"
-                    >
-                      Dopo ▶
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Popover di Scelta Eliminazione con Trascinamento */}
-              {deletingPeriodId === period.id && (
-                <div
-                  className="absolute right-0 top-5 bg-stone-900/98 backdrop-blur-md border border-red-500/60 rounded-xl p-1.5 shadow-2xl z-50 flex flex-col gap-1 min-w-[155px] animate-in fade-in zoom-in duration-100"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="text-[7px] font-black text-red-300 uppercase tracking-wider px-0.5 flex items-center justify-between">
-                    <span>🗑️ Elimina periodo:</span>
-                    <button 
-                      type="button" 
-                      onClick={() => setDeletingPeriodId(null)}
-                      className="text-stone-400 hover:text-white text-[9px] leading-none px-0.5 cursor-pointer"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <div className="flex flex-col gap-1 mt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        removePlannedPeriod(plan.id, period.id, { shiftSubsequent: true });
-                        setDeletingPeriodId(null);
-                      }}
-                      className="w-full px-1.5 py-1 rounded bg-red-950/90 hover:bg-red-800 text-red-200 border border-red-600/80 hover:border-red-400 text-[7.5px] font-extrabold transition-all text-left flex items-center gap-1.5 cursor-pointer shadow"
-                      title="Elimina questo periodo e trascina indietro tutti i successivi per riempire lo spazio vuoto"
-                    >
-                      <span>🧲</span>
-                      <span className="truncate">Trascina a seguire</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        removePlannedPeriod(plan.id, period.id, { shiftSubsequent: false });
-                        setDeletingPeriodId(null);
-                      }}
-                      className="w-full px-1.5 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 hover:border-stone-500 text-[7.5px] font-bold transition-all text-left flex items-center gap-1.5 cursor-pointer shadow"
-                      title="Elimina solo questo modulo lasciando le date degli altri invariate"
-                    >
-                      <span>❌</span>
-                      <span className="truncate">Solo questo modulo</span>
-                    </button>
-                  </div>
-                </div>
               )}
             </div>
           </div>
@@ -525,7 +380,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
                 {isSmall ? 'IN' : 'INIZIO'}
               </span>
-              <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+              <span className={`font-mono font-bold ${isFailsafe ? 'text-amber-300' : theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
                 {formatDisplayDate(period.dateFrom)}
               </span>
             </div>
@@ -551,7 +406,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
                 {isSmall ? 'OUT' : 'FINE'}
               </span>
-              <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+              <span className={`font-mono font-bold ${isFailsafe ? 'text-amber-300' : theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
                 {formatDisplayDate(period.dateTo)}
               </span>
             </div>
@@ -565,7 +420,29 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           </div>
 
           {/* Riga 4: Only CO oppure Badge Stop Sell */}
-          {period.stopSell ? (
+          {isFailsafe ? (
+            <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
+              <div
+                title="🚪 ONLY CHECK-OUT (CTA): Arrivi bloccati, solo partenze"
+                className="flex items-center justify-between flex-1 bg-amber-900/80 border border-amber-500/80 rounded px-1 py-0.5 text-amber-200 font-extrabold text-[7.5px] uppercase shadow-sm tracking-tight min-w-0"
+              >
+                <span className="flex items-center gap-0.5 truncate">
+                  <LogOut className="w-2 h-2 text-amber-400 shrink-0" /> {isSmall ? 'ONLY CO' : 'ONLY CHECK-OUT'}
+                </span>
+                <span className="text-[6.5px] font-mono font-bold bg-amber-950 px-0.5 py-0.2 rounded text-amber-300 shrink-0">
+                  CTA
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => updatePlannedPeriod(plan.id, period.id, { closedToArrival: false, failsafeCheckout: false, name: 'Apertura Standard (OK)' })}
+                title="🚪 Finestra CTA: Clicca per riaprire normalmente (OPEN)"
+                className="px-1 py-0.5 rounded font-black text-[6px] uppercase shrink-0 transition-all cursor-pointer bg-amber-950 border border-amber-500 text-amber-300 hover:bg-emerald-950 hover:border-emerald-600 hover:text-emerald-300"
+              >
+                CTA
+              </button>
+            </div>
+          ) : period.stopSell ? (
             isSmall ? (
               <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
                 <div
@@ -608,36 +485,34 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               </div>
             )
           ) : (
-            <div className="flex items-center justify-between gap-1 pt-0.5 min-w-0 h-4">
+            <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
               <div
-                className="flex items-center gap-1 min-w-0 flex-1 cursor-help"
-                title="🚪 Finestra Only Check-Out (CTA): Giorni cuscinetto successivi alla data di fine in cui sono consentite solo le partenze (Closed to Arrival)"
+                className="flex items-center gap-0.5 min-w-0 flex-1 cursor-help"
+                title="🚪 Finestra Only Check-Out (CTA): Giorni successivi alla data di fine in cui sono consentite solo le partenze (Closed to Arrival), bloccando i nuovi arrivi"
               >
-                <LogOut className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-                <input 
+                <LogOut className="w-2 h-2 text-amber-400 shrink-0" />
+                <input
                   type="number"
-                  min="0"
-                  max="30"
-                  value={period.onlyCheckoutDays ?? period.onlyCheckOutDays ?? 0}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value, 10) || 0;
-                    updatePlannedPeriod(plan.id, period.id, { 
-                      onlyCheckoutDays: val, 
-                      onlyCheckOutDays: val,
-                      failsafeCheckout: val > 0 
-                    });
-                  }}
-                  className="w-7 h-4 text-center text-[9px] bg-stone-900 border border-amber-500/50 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 rounded px-0.5 py-0 text-amber-300 font-black font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shrink-0"
+                  min={0}
+                  max={60}
+                  value={period.onlyCheckOutDays ?? 0}
+                  title="Numero di giorni cuscinetto di sola partenza (Only Check-Out)"
+                  onChange={e => updatePlannedPeriod(plan.id, period.id, { onlyCheckOutDays: Number(e.target.value) })}
+                  className={`shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 ${
+                    isSmall ? 'w-5 text-[8px]' : 'w-7 text-[9px]'
+                  }`}
                 />
-                <span className="text-[7px] font-bold text-amber-300/90 whitespace-nowrap leading-none">
-                  {isSmall ? 'gg CO' : 'gg Only Check-Out'}
-                </span>
+                {!isTiny && (
+                  <span className="text-[6px] text-stone-400 font-bold truncate leading-none">
+                    {isSmall ? 'gg CO' : 'gg only check-out'}
+                  </span>
+                )}
               </div>
               <button
                 type="button"
                 onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: true, name: 'Stop Sell (Chiuso)' })}
                 title="🟢 Vendite Aperte: Clicca per bloccare con Stop Sell (BLOK)"
-                className="px-1 py-0.5 h-4 flex items-center justify-center rounded font-black text-[6.5px] uppercase shrink-0 transition-all cursor-pointer bg-stone-900 border border-stone-800 text-stone-400 hover:bg-red-950 hover:border-red-600 hover:text-red-300"
+                className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 transition-all cursor-pointer bg-stone-900 border border-stone-800 text-stone-400 hover:bg-red-950 hover:border-red-600 hover:text-red-300"
               >
                 OPEN
               </button>
@@ -650,41 +525,32 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // CARD TABELLA 2 — Live Octorate (Grafica Identica a Tabella 1)
+  // CARD TABELLA 2 — Live Octorate (Altezza compattata)
   // ─────────────────────────────────────────────────────────────────────────────
   const renderLivePeriodCard = (plan: RealOctoratePlan, period: PlannedPeriod, periodsList: PlannedPeriod[]) => {
     const leftPx = getGanttOffset(period.dateFrom);
     const widthPx = getGanttWidth(period.dateFrom, period.dateTo);
     const isSmall = widthPx < 145;
+    const isTiny = widthPx < 95;
 
     const isStopSell = Boolean(period.strategy === 'stopsell' || period.stopSell);
-    const outDays = period.onlyCheckoutDays ?? period.onlyCheckOutDays ?? 0;
-    const hasWeldedCta = outDays > 0;
-    const roundedClass = hasWeldedCta ? 'rounded-l-2xl rounded-r-none border-r-0' : 'rounded-2xl';
+    const isFailsafeCheckout = Boolean(period.strategy === 'failsafe_checkout' || period.isFailsafeCheckout || (period.closedToArrival && !isStopSell) || period.name?.toLowerCase().includes('only check-out'));
 
-    let isMismatched = false;
-    const planMatch = periodsList.find((p: PlannedPeriod) => p.dateFrom === period.dateFrom && p.dateTo === period.dateTo)
-      || periodsList.find((p: PlannedPeriod) => p.dateFrom <= period.dateTo && p.dateTo >= period.dateFrom);
-
-    if (planMatch) {
-      const planOutDays = planMatch.onlyCheckoutDays ?? planMatch.onlyCheckOutDays ?? 0;
-      const planStop = Boolean(planMatch.stopSell || planMatch.strategy === 'stopsell');
-      isMismatched = planStop !== isStopSell
-        || planOutDays !== outDays
-        || planMatch.dateFrom !== period.dateFrom
-        || planMatch.dateTo !== period.dateTo;
-    } else if (periodsList.length > 0) {
-      isMismatched = true;
-    }
-    const isMatching = !isMismatched;
+    const effectiveLiveStopSell = isStopSell;
+    const effectiveLiveOnlyOut = period.onlyCheckOutDays ?? 0;
+    const plannedEq = periodsList.find(p => p.dateFrom <= period.dateTo && p.dateTo >= period.dateFrom);
+    const isMatching = plannedEq !== undefined && plannedEq.stopSell === effectiveLiveStopSell && plannedEq.onlyCheckOutDays === effectiveLiveOnlyOut;
+    const isMismatched = !isMatching;
 
     const theme = RATE_PLAN_COLORS[plan.id] || {
       badgeBg: 'bg-stone-800', badgeText: 'text-stone-300', badgeBorder: 'border-stone-700',
-      cardBg: 'bg-stone-950/80', cardBorder: 'border-stone-800', cardText: 'text-stone-200', dateText: 'text-red-300'
+      cardBg: 'bg-stone-950/80', cardBorder: 'border-stone-800', cardText: 'text-stone-200', dateText: 'text-emerald-300'
     };
 
     let cardBg = `${theme.cardBg} ${theme.cardBorder} hover:border-stone-600 shadow-md ${theme.cardText}`;
-    if (isStopSell) {
+    if (isFailsafeCheckout) {
+      cardBg = 'bg-amber-950/90 border-amber-400 text-amber-200 ring-1 ring-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.3)]';
+    } else if (isStopSell) {
       cardBg = `${theme.cardBg} ${theme.cardBorder} shadow-md ${theme.cardText}`;
     }
 
@@ -696,25 +562,25 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       <div
         key={period.id}
         style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '2px', bottom: '2px' }}
-        className={`${roundedClass} border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 select-none ${cardBg}`}
+        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 select-none ${cardBg}`}
       >
         <div style={{ width: '100%', maxWidth: '148px' }} className="flex flex-col gap-0.5 min-w-0">
 
-          {/* Riga 1: Titolo + badge allineamento */}
+          {/* Riga 1: Titolo + badge */}
           <div className="flex items-center justify-between gap-0.5 h-3.5 min-w-0">
             <span
               title={`Periodo Live su Octorate: ${period.name}`}
-              className={`font-extrabold text-white ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} truncate flex-1 min-w-0 cursor-default`}
+              className={`font-extrabold ${isFailsafeCheckout ? 'text-amber-300' : 'text-white'} ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} truncate flex-1 min-w-0 cursor-default`}
             >
-              {period.name || (isStopSell ? 'Stop Sell (Chiuso)' : 'Apertura Standard (OK)')}
+              {isSmall && isFailsafeCheckout ? 'Only CO' : period.name}
             </span>
             <span
               title={
                 isMatching
                   ? '✅ Allineato: La configurazione Live su Octorate corrisponde esattamente alla pianificazione'
-                  : '⚠️ Discrepanza: La configurazione Live su Octorate differisce dalla pianificazione'
+                  : '⚠️ Discrepanza: La configurazione Live su Octorate differisce dalla pianificazione (date o restrizioni)'
               }
-              className={`text-[6px] font-black px-1 py-0.2 rounded border shrink-0 cursor-help ${
+              className={`text-[5.5px] font-bold px-0.5 py-0.2 rounded border shrink-0 cursor-help ${
                 isMatching ? 'bg-emerald-950 border-emerald-700 text-emerald-300' : 'bg-amber-950 border-amber-700 text-amber-300'
               }`}
             >
@@ -730,7 +596,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
               {isSmall ? 'IN' : 'INIZIO'}
             </span>
-            <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+            <span className={`font-mono font-bold ${isFailsafeCheckout ? 'text-amber-300' : theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
               {formatDisplayDate(period.dateFrom)}
             </span>
           </div>
@@ -743,67 +609,70 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
               {isSmall ? 'OUT' : 'FINE'}
             </span>
-            <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+            <span className={`font-mono font-bold ${isFailsafeCheckout ? 'text-amber-300' : theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
               {formatDisplayDate(period.dateTo)}
             </span>
           </div>
 
           {/* Riga 4: Only CO oppure Badge Stop Sell */}
-          {isStopSell ? (
+          {isFailsafeCheckout ? (
+            <div
+              title="🚪 ONLY CHECK-OUT (CTA): Nuovi arrivi bloccati, consentite solo le partenze dei clienti in soggiorno"
+              className="flex items-center justify-between w-full bg-amber-900/80 border border-amber-500/80 rounded px-1 py-0.5 text-amber-200 font-extrabold text-[7.5px] uppercase shadow-sm tracking-tight mt-0.5 min-w-0 cursor-help"
+            >
+              <span className="flex items-center gap-0.5 truncate">
+                <LogOut className="w-2 h-2 text-amber-400 shrink-0" /> {isSmall ? 'ONLY CO' : 'ONLY CHECK-OUT'}
+              </span>
+              <span className="text-[6.5px] font-mono font-bold bg-amber-950 px-0.5 py-0.2 rounded text-amber-300 shrink-0">
+                CTA
+              </span>
+            </div>
+          ) : isStopSell ? (
             isSmall ? (
-              <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
-                <div
-                  title="🛑 STOP SELL: Vendite bloccate su Octorate per questo periodo"
-                  className="flex items-center justify-center gap-1 flex-1 bg-red-950/80 border border-red-600/80 rounded px-1 py-0.5 text-red-300 font-extrabold text-[7.5px] uppercase shadow-sm tracking-wide min-w-0"
-                >
-                  <XCircle className="w-2 h-2 text-red-400 shrink-0" />
-                  <span className="truncate">STOP SELL</span>
-                </div>
-                <div
-                  title="🛑 Stop Sell Attivo"
-                  className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 bg-red-950 border border-red-600 text-red-300"
-                >
-                  BLOK
-                </div>
+              <div
+                title="🛑 STOP SELL: Vendite bloccate e chiuse su Octorate per l'intero intervallo di date"
+                className="flex items-center justify-center gap-1 w-full bg-red-950/80 border border-red-600/80 rounded px-1 py-0.5 text-red-300 font-extrabold text-[7.5px] uppercase shadow-sm tracking-wide mt-0.5 min-w-0 cursor-help"
+              >
+                <XCircle className="w-2 h-2 text-red-400 shrink-0" />
+                <span className="truncate">STOP SELL</span>
               </div>
             ) : (
-              <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
-                <div
-                  title="🛑 STOP SELL (Chiuso): Vendite bloccate su Octorate per questo periodo"
-                  className="flex items-center justify-between flex-1 bg-red-950/80 border border-red-600/80 rounded px-1.5 py-0.5 text-red-300 font-extrabold text-[8.5px] uppercase shadow-sm tracking-wide min-w-0"
-                >
-                  <span className="flex items-center gap-1 truncate">
-                    <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SELL
-                  </span>
-                  <span className="text-[7px] font-mono font-bold bg-red-900/60 px-1 py-0.2 rounded text-red-200 shrink-0">
-                    CHIUSO
-                  </span>
-                </div>
-                <div
-                  title="🛑 Stop Sell Attivo"
-                  className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 bg-red-950 border border-red-600 text-red-300"
-                >
-                  BLOK
-                </div>
+              <div
+                title="🛑 STOP SELL (Chiuso): Vendite bloccate e chiuse su Octorate per l'intero intervallo di date"
+                className="flex items-center justify-between w-full bg-red-950/80 border border-red-600/80 rounded px-1.5 py-0.5 text-red-300 font-extrabold text-[8.5px] uppercase shadow-sm tracking-wide mt-0.5 min-w-0 cursor-help"
+              >
+                <span className="flex items-center gap-1 truncate">
+                  <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SELL
+                </span>
+                <span className="text-[7px] font-mono font-bold bg-red-900/60 px-1 py-0.2 rounded text-red-200 shrink-0">
+                  CHIUSO
+                </span>
               </div>
             )
           ) : (
-            <div className="flex items-center justify-between gap-1 pt-0.5 min-w-0 h-4">
+            <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
               <div
-                className="flex items-center gap-1 min-w-0 flex-1 cursor-help"
-                title="🚪 Finestra Only Check-Out (CTA): Giorni cuscinetto successivi alla data di fine"
+                className="flex items-center gap-0.5 min-w-0 flex-1 cursor-help"
+                title="🚪 Finestra Only Check-Out (CTA): Giorni cuscinetto in cui sono consentite solo le partenze, bloccando nuovi arrivi"
               >
-                <LogOut className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-                <div className="w-7 h-4 flex items-center justify-center text-[9px] bg-stone-900 border border-amber-500/50 rounded px-0.5 py-0 text-amber-300 font-black font-mono shrink-0">
-                  {outDays}
+                <LogOut className="w-2 h-2 text-amber-400 shrink-0" />
+                <div
+                  title={`${effectiveLiveOnlyOut} giorni di cuscinetto Only Check-Out`}
+                  className={`shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 ${
+                    isSmall ? 'w-5 text-[8px]' : 'w-7 text-[9px]'
+                  }`}
+                >
+                  {effectiveLiveOnlyOut}
                 </div>
-                <span className="text-[7px] font-bold text-amber-300/90 whitespace-nowrap leading-none">
-                  {isSmall ? 'gg CO' : 'gg Only Check-Out'}
-                </span>
+                {!isTiny && (
+                  <span className="text-[6px] text-stone-400 font-bold truncate leading-none">
+                    {isSmall ? 'gg CO' : 'gg only check-out'}
+                  </span>
+                )}
               </div>
               <div
-                title="🟢 Vendite Aperte"
-                className="px-1 py-0.5 h-4 flex items-center justify-center rounded font-black text-[6.5px] uppercase shrink-0 bg-stone-900 border border-stone-800 text-emerald-400"
+                title="🟢 OPEN: Vendite aperte e tariffa prenotabile sui canali collegati"
+                className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 bg-emerald-950 border border-emerald-600 text-emerald-300 cursor-help"
               >
                 OPEN
               </div>
@@ -818,6 +687,62 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   // ─── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
+      {/* 🛡️ BANNER SELEZIONE AMBIENTE DINAMICO (TEST vs PRODUZIONE) */}
+      <div className={`p-4 sm:p-5 rounded-3xl border-2 backdrop-blur-xl transition-all shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
+        testMode
+          ? 'bg-emerald-950/70 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
+          : 'bg-red-950/90 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.4)] ring-2 ring-red-500/50'
+      }`}>
+        <div className="flex items-center gap-3.5">
+          <div className={`p-3 rounded-2xl border flex items-center justify-center shrink-0 ${
+            testMode
+              ? 'bg-emerald-900/60 border-emerald-400/50 text-emerald-300'
+              : 'bg-red-900/80 border-red-400 text-red-200 animate-pulse'
+          }`}>
+            {testMode ? <FlaskConical className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
+          </div>
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-black uppercase tracking-wider text-stone-400">Ambiente Attivo:</span>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border font-mono ${
+                testMode
+                  ? 'bg-emerald-900 text-emerald-200 border-emerald-500'
+                  : 'bg-red-900 text-red-100 border-red-400'
+              }`}>
+                {testMode ? '🧪 MODALITÀ TEST (Fake Bungalow 1 & 2)' : '🔴 PRODUZIONE REALE (Alloggi Live)'}
+              </span>
+            </div>
+            <p className="text-xs text-stone-300">
+              {testMode
+                ? 'Le scritture Octorate sono confinate esclusivamente ai Fake Bungalows (ID 932243-932268). Gli alloggi reali del resort sono protetti al 100%.'
+                : '⚠️ ATTENZIONE: Qualsiasi modifica o sincronizzazione andrà a modificare IMMEDIATAMENTE i bungalow reali e le tariffe OTA su Octorate!'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {testMode ? (
+            <button
+              type="button"
+              onClick={() => setShowProdWarningModal(true)}
+              className="px-4 py-2.5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-red-500/30 flex items-center gap-2 cursor-pointer border border-red-400"
+            >
+              <AlertTriangle className="w-4 h-4" />
+              <span>Passa a Produzione Reale</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setTestMode(true)}
+              className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-emerald-500/30 flex items-center gap-2 cursor-pointer border border-emerald-400"
+            >
+              <FlaskConical className="w-4 h-4" />
+              <span>Torna a Modalità Test</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* ── Banner Superiore ────────────────────────────────────────────────── */}
       <div className="bg-stone-900/90 border border-stone-800 backdrop-blur-xl rounded-3xl p-6 shadow-2xl space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -827,8 +752,11 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 <Layers className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                  Gestione Tariffe Derivate
+                <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                  Gestione Tariffe Derivate{' '}
+                  <span className="text-xs bg-red-950 text-red-300 border border-red-600/50 px-2.5 py-0.5 rounded-full font-mono font-extrabold">
+                    Only Check Out Window e Restrizioni
+                  </span>
                 </h2>
                 <p className="text-stone-400 text-xs font-medium">
                   Gantt proporzionale (6px/giorno) · finestra Only Check Out · posizionamento assoluto continuo
@@ -837,88 +765,89 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap xl:flex-nowrap">
-            {/* 1. Tab Toggle (Viste) */}
-            <div className="bg-stone-950 p-1 rounded-2xl border border-stone-800 flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => setActiveViewTab('editor')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Tab Toggle */}
+            <div className="bg-stone-950 p-1 rounded-2xl border border-stone-800 flex items-center gap-1">
+              <button type="button" onClick={() => setActiveViewTab('editor')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer ${
                   activeViewTab === 'editor' ? 'bg-red-600 text-white shadow-md' : 'text-stone-400 hover:text-white'
-                }`}
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Timeline Pianificata</span>
+                }`}>
+                📊 Timeline Pianificata
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveViewTab('comparison');
-                  fetchLiveRestrictions();
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+              <button type="button" onClick={() => {
+                setActiveViewTab('comparison');
+                fetchLiveRestrictions();
+              }}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
                   activeViewTab === 'comparison' ? 'bg-emerald-600 text-white shadow-md' : 'text-stone-400 hover:text-white'
-                }`}
-              >
+                }`}>
                 <RefreshCw className={`w-3.5 h-3.5 ${isFetchingLive ? 'animate-spin text-white' : ''}`} />
-                <span>Timeline Live Octorate</span>
+                <span>🔍 Timeline Live Octorate</span>
               </button>
             </div>
 
-            {/* 2. Sincronizzazione o Interruzione */}
-            {(isBulkSaving || syncAllRunning) ? (
-              <button
-                type="button"
-                onClick={() => cancelBulkSync()}
-                className="py-2 px-4 bg-red-800 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg flex items-center gap-1.5 cursor-pointer ring-2 ring-red-400 animate-pulse whitespace-nowrap shrink-0"
-              >
-                <XCircle className="w-3.5 h-3.5 text-white" />
-                <span>Interrompi</span>
-              </button>
-            ) : (
-              <>
-                {/* SYNC DERIVATE TEST */}
-                <button
-                  type="button"
-                  onClick={handleSyncDerivateTest}
-                  disabled={syncingPeriodId !== null}
-                  className={`py-2 px-3.5 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-50 border shrink-0 ${
-                    confirmingTestSync
-                      ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 border-amber-300 ring-2 ring-amber-300 animate-pulse font-extrabold'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-400 shadow-emerald-950'
-                  }`}
-                  title="Sincronizza tutti i piani sui Fake Bungalows di Test"
-                >
-                  <Zap className={`w-3.5 h-3.5 ${confirmingTestSync ? 'text-stone-950' : 'text-yellow-300'}`} />
-                  <span>
-                    {confirmingTestSync ? 'CONFERMI SYNC TEST?' : 'SYNC DERIVATE TEST'}
-                  </span>
-                </button>
+            {/* Evidenzia Discrepanze */}
+            <button type="button" onClick={() => setIsComparing(!isComparing)}
+              className={`py-2.5 px-4 rounded-2xl text-xs font-black uppercase transition-all cursor-pointer flex items-center gap-2 border shadow ${
+                isComparing
+                  ? 'bg-yellow-400 text-stone-950 border-yellow-300 shadow-[0_0_15px_rgba(250,204,21,0.6)] animate-pulse'
+                  : 'bg-stone-800 hover:bg-stone-750 text-amber-300 border-amber-600/40'
+              }`}>
+              <Eye className="w-4 h-4" />
+              <span>{isComparing ? '🔍 Discrepanze Evidenziate' : '⚖️ Evidenzia Discrepanze'}</span>
+            </button>
 
-                {/* SYNC DERIVATE PRODUZIONE */}
-                <button
-                  type="button"
-                  onClick={handleSyncDerivateProd}
-                  disabled={syncingPeriodId !== null}
-                  className="py-2 px-3.5 bg-red-600 hover:bg-red-500 text-white border border-red-400 shadow-red-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-50 shrink-0"
-                  title="⚠️ ATTENZIONE: Sincronizza tutti i piani sui Bungalow Reali in PRODUZIONE!"
-                >
-                  <AlertTriangle className="w-3.5 h-3.5 text-yellow-300" />
-                  <span>SYNC DERIVATE PRODUZIONE</span>
-                </button>
-              </>
-            )}
-
-            {/* 3. Reset Defaults (PER ULTIMO) */}
+            {/* Copia da Tabella 2 a Tabella 1 */}
             <button
               type="button"
-              onClick={resetDefaultStore}
-              className="py-2 px-3 bg-stone-800 hover:bg-stone-750 text-stone-300 border border-stone-700 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow whitespace-nowrap shrink-0"
-              title="Ripristina le restrizioni predefinite iniziali"
+              onClick={handleCopyLiveToPlanned}
+              title="Copia e sincronizza l'intera configurazione Live di Octorate in Tabella 1"
+              className="py-2.5 px-4 bg-sky-950/80 hover:bg-sky-900 text-sky-200 border border-sky-600/60 rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition-all cursor-pointer shadow hover:scale-105"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-stone-400" />
+              <Download className="w-4 h-4 text-sky-400" />
+              <span>📥 Copia da Tabella 2</span>
+            </button>
+
+            {/* Reset */}
+            <button type="button" onClick={resetDefaultStore}
+              className="py-2.5 px-4 bg-stone-800 hover:bg-stone-750 text-stone-300 border border-stone-700 rounded-2xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow">
+              <RotateCcw className="w-4 h-4 text-stone-400" />
               <span>Reset Defaults</span>
             </button>
+
+            {/* Pulsante TEST SYNC (Solo Fake) */}
+            <button
+              type="button"
+              onClick={handleTestSyncClick}
+              disabled={syncingPeriodId !== null || isBulkSaving || syncAllRunning}
+              className={`py-2.5 px-4 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50 ${
+                confirmingTestSync
+                  ? 'bg-amber-500 text-stone-950 border border-amber-300 ring-2 ring-amber-300 animate-pulse'
+                  : 'bg-amber-950/40 hover:bg-amber-900/60 border border-amber-900/50 text-amber-400'
+              }`}
+            >
+              <FlaskConical className={`w-4 h-4 ${confirmingTestSync ? 'text-stone-950' : 'text-amber-400'}`} />
+              <span>{confirmingTestSync ? '⚠️ CONFERMI TEST?' : '🧪 TEST SYNC (Solo Fake)'}</span>
+            </button>
+
+            {/* Sync / Annulla */}
+            {(isBulkSaving || syncAllRunning) ? (
+              <button type="button" onClick={() => cancelBulkSync()}
+                className="py-2.5 px-5 bg-red-800 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg flex items-center gap-2 cursor-pointer ring-2 ring-red-400 animate-pulse">
+                <XCircle className="w-4 h-4 text-white" />
+                <span>Annulla / Interrompi</span>
+              </button>
+            ) : (
+              <button type="button" onClick={handleBulkSyncClick} disabled={syncingPeriodId !== null}
+                className={`py-2.5 px-5 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-lg flex items-center gap-2.5 cursor-pointer disabled:opacity-50 ${
+                  confirmingBulkSync
+                    ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 ring-2 ring-amber-300 animate-pulse'
+                    : 'bg-red-600 hover:bg-red-500 text-white'
+                }`}>
+                <Zap className={`w-4 h-4 ${confirmingBulkSync ? 'text-stone-950' : 'text-yellow-300'}`} />
+                <span>{confirmingBulkSync ? '⚠️ CONFERMI SYNC BULK?' : 'Sincronizza Tutti i Piani'}</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -943,104 +872,29 @@ export const GestioneRestrizioniCanali: React.FC = () => {
         )}
       </div>
 
-      {/* OPZIONI DI RESET PREVENTIVO (TABULA RASA) */}
-      <div className="bg-stone-900/90 border border-stone-800 backdrop-blur-xl rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4 overflow-hidden">
-        {/* Header Semplice e Cliccabile a Scomparsa */}
+      {/* 🛠️ OPZIONI DI RESET PREVENTIVO (TABULA RASA) */}
+      <div className="bg-stone-900/90 border border-stone-800 backdrop-blur-xl rounded-3xl p-5 shadow-2xl space-y-3 overflow-hidden">
         <button
           type="button"
           onClick={() => setIsResetOptionsOpen(!isResetOptionsOpen)}
           className="w-full flex items-center justify-between text-left cursor-pointer select-none"
         >
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
             <span className="text-sm font-black text-white uppercase tracking-tight flex items-center gap-2">
-              <Wrench className="w-4 h-4 text-violet-400" />
-              <span>Opzioni di Reset Preventivo (Tabula Rasa)</span>
+              🛠️ Opzioni di Reset Preventivo (Tabula Rasa)
             </span>
             <span className="text-[10px] text-stone-400 bg-stone-950 px-2.5 py-0.5 rounded-full border border-stone-800 font-mono">
-              {formatDisplayDate(tabulaRasaDateFrom)} → {formatDisplayDate(tabulaRasaDateTo)}
-            </span>
-            <span className={`text-[10px] px-2.5 py-0.5 rounded-full border font-mono font-bold flex items-center gap-1 ${
-              testMode
-                ? 'bg-emerald-950/80 text-emerald-300 border-emerald-600/50'
-                : 'bg-red-950/80 text-red-200 border-red-600/50'
-            }`}>
-              {testMode ? <FlaskConical className="w-3 h-3 text-emerald-400" /> : <AlertTriangle className="w-3 h-3 text-red-400" />}
-              <span>{testMode ? 'TEST (Fake)' : 'PRODUZIONE'}</span>
+              01/10/2026 → 31/10/2027
             </span>
           </div>
-          <span className="text-violet-400 text-xs font-mono font-bold hover:underline">
+          <span className="text-violet-400 text-xs font-mono font-bold">
             {isResetOptionsOpen ? '▲ Chiudi Opzioni' : '▼ Mostra Opzioni'}
           </span>
         </button>
 
-        {/* Cassetto a Scomparsa con Data Picker, Mode Toggle e Checkbox */}
         {isResetOptionsOpen && (
-          <div className="pt-4 border-t border-stone-800/80 space-y-4 animate-in fade-in duration-200">
-            {/* Controlli di Configurazione: Date Range e Destinazione */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl border bg-stone-950/80 border-stone-800">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-sky-400" />
-                  <span>Periodo Reset:</span>
-                </span>
-                <div className="flex items-center gap-1.5 bg-stone-900 px-2.5 py-1 rounded-xl border border-stone-700 text-xs font-mono">
-                  <input
-                    type="date"
-                    value={tabulaRasaDateFrom}
-                    onChange={(e) => setTabulaRasaDateRange(e.target.value, tabulaRasaDateTo)}
-                    className="bg-transparent text-sky-300 font-bold text-xs focus:outline-none cursor-pointer"
-                    title="Data Inizio Reset Preventivo (Tabula Rasa)"
-                  />
-                  <span className="text-stone-500 font-bold">→</span>
-                  <input
-                    type="date"
-                    value={tabulaRasaDateTo}
-                    onChange={(e) => setTabulaRasaDateRange(tabulaRasaDateFrom, e.target.value)}
-                    className="bg-transparent text-sky-300 font-bold text-xs focus:outline-none cursor-pointer"
-                    title="Data Fine Reset Preventivo (Tabula Rasa)"
-                  />
-                </div>
-              </div>
-
-              {/* Selettore Destinazione: Test vs Produzione */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-stone-400">Destinazione:</span>
-                <div className="flex items-center gap-1 bg-stone-900 p-1 rounded-xl border border-stone-700">
-                  <button
-                    type="button"
-                    onClick={() => setTestMode(true)}
-                    className={`px-3 py-1 rounded-lg text-xs font-black uppercase flex items-center gap-1.5 transition-all cursor-pointer ${
-                      testMode
-                        ? 'bg-emerald-600 text-white shadow-md'
-                        : 'text-stone-400 hover:text-white'
-                    }`}
-                  >
-                    <FlaskConical className="w-3.5 h-3.5" />
-                    <span>Test Fake</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (testMode) {
-                        setShowProdWarningModal(true);
-                      } else {
-                        setTestMode(false);
-                      }
-                    }}
-                    className={`px-3 py-1 rounded-lg text-xs font-black uppercase flex items-center gap-1.5 transition-all cursor-pointer ${
-                      !testMode
-                        ? 'bg-red-600 text-white shadow-md animate-pulse'
-                        : 'text-stone-400 hover:text-red-300'
-                    }`}
-                  >
-                    <AlertTriangle className="w-3.5 h-3.5" />
-                    <span>Produzione Reale</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-xs text-stone-400 font-medium">
+          <div className="pt-3 border-t border-stone-800/80 space-y-3">
+            <p className="text-xs text-stone-400">
               Seleziona quali flag e restrizioni ripristinare all&apos;avvio della sincronizzazione su Octorate prima di applicare le finestre pianificate:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -1054,7 +908,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                   type="checkbox"
                   checked={Boolean(resetPreferences.stopSells)}
                   onChange={(e) => setResetPreference('stopSells', e.target.checked)}
-                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800 cursor-pointer"
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
                 />
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-stone-200">Sblocca Vendite</span>
@@ -1072,7 +926,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                   type="checkbox"
                   checked={Boolean(resetPreferences.closed)}
                   onChange={(e) => setResetPreference('closed', e.target.checked)}
-                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800 cursor-pointer"
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
                 />
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-stone-200">Riapri Tariffe</span>
@@ -1090,7 +944,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                   type="checkbox"
                   checked={Boolean(resetPreferences.closedArrival)}
                   onChange={(e) => setResetPreference('closedArrival', e.target.checked)}
-                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800 cursor-pointer"
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
                 />
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-stone-200">Consenti Arrivi</span>
@@ -1108,7 +962,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                   type="checkbox"
                   checked={Boolean(resetPreferences.closedDeparture)}
                   onChange={(e) => setResetPreference('closedDeparture', e.target.checked)}
-                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800 cursor-pointer"
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
                 />
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-stone-200">Consenti Partenze</span>
@@ -1126,7 +980,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                   type="checkbox"
                   checked={Boolean(resetPreferences.minStay)}
                   onChange={(e) => setResetPreference('minStay', e.target.checked)}
-                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800 cursor-pointer"
+                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800"
                 />
                 <div className="flex flex-col">
                   <span className="text-xs font-semibold text-stone-200">Ripristina MinStay a 1</span>
@@ -1141,31 +995,30 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       {/* ── Matrice Timeline Gantt ─────────────────────────────────────────────── */}
       <div className="bg-stone-900/90 border border-stone-800 backdrop-blur-xl rounded-3xl p-5 shadow-2xl space-y-4 overflow-hidden">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2">
             <span className={`w-3 h-3 rounded-full shadow-md ${activeViewTab === 'editor' ? 'bg-red-400' : 'bg-emerald-400'}`} />
             <h3 className="text-xs sm:text-sm font-black text-white tracking-tight uppercase">
               {activeViewTab === 'editor'
-                ? 'TABELLA 1: TIMELINE GANTT — RESTRIZIONI PIANIFICATE'
-                : 'TABELLA 2: TIMELINE GANTT — RESTRIZIONI LIVE OCTORATE'}
+                ? '📊 TABELLA 1: TIMELINE GANTT — RESTRIZIONI PIANIFICATE'
+                : '🔍 TABELLA 2: TIMELINE GANTT — RESTRIZIONI LIVE OCTORATE'}
             </h3>
 
             {/* Toggle Live Mode per Tabella 2 */}
             {activeViewTab === 'comparison' && (
-              <div className="flex items-center gap-1.5 bg-stone-950 p-1 rounded-2xl border border-stone-800 ml-1">
+              <div className="flex items-center gap-1.5 bg-stone-950 p-1 rounded-2xl border border-stone-800 ml-2">
                 <button
                   type="button"
                   onClick={() => {
                     setLiveViewMode('prod');
                     fetchLiveRestrictions();
                   }}
-                  className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1 ${
                     liveViewMode === 'prod'
                       ? 'bg-emerald-950 text-emerald-300 border border-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)] ring-1 ring-emerald-400'
                       : 'text-stone-400 hover:text-white border border-transparent'
                   }`}
                 >
-                  <Activity className="w-3.5 h-3.5" />
-                  <span>Live Reale (Produzione)</span>
+                  <span>📡 Live Reale (Produzione)</span>
                 </button>
 
                 <button
@@ -1174,46 +1027,16 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                     setLiveViewMode('test');
                     fetchLiveRestrictions();
                   }}
-                  className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1 ${
                     liveViewMode === 'test'
                       ? 'bg-amber-950 text-amber-300 border border-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.5)] ring-1 ring-amber-400'
                       : 'text-stone-400 hover:text-white border border-transparent'
                   }`}
                 >
-                  <FlaskConical className="w-3.5 h-3.5" />
-                  <span>Live Test (Fake Bungalow)</span>
+                  <span>🧪 Live Test (Fake Bungalow)</span>
                 </button>
               </div>
             )}
-
-            {/* Evidenzia Discrepanze */}
-            <button
-              type="button"
-              onClick={() => setIsComparing(!isComparing)}
-              className={`py-1.5 px-3 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 border shadow ${
-                isComparing
-                  ? 'bg-yellow-400 text-stone-950 border-yellow-300 shadow-[0_0_15px_rgba(250,204,21,0.6)] animate-pulse'
-                  : 'bg-stone-800 hover:bg-stone-750 text-amber-300 border-amber-600/40'
-              }`}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              <span>{isComparing ? 'Discrepanze Attive' : 'Evidenzia Discrepanze'}</span>
-            </button>
-
-            {/* Copia da Tabella 2 a Timeline Pianificata */}
-            <button
-              type="button"
-              onClick={handleCopyLiveClick}
-              title={confirmingCopyLive ? 'Clicca di nuovo per confermare la sovrascrittura della Timeline Pianificata con i dati di Tabella 2' : "Copia e sincronizza l'intera configurazione Live di Octorate nella Timeline Pianificata"}
-              className={`py-1.5 px-3 rounded-xl text-[10px] font-black uppercase flex items-center gap-1.5 transition-all cursor-pointer border shadow ${
-                confirmingCopyLive
-                  ? 'bg-amber-500 text-stone-950 border border-amber-300 ring-2 ring-amber-300 animate-pulse font-extrabold'
-                  : 'bg-sky-950/80 hover:bg-sky-900 text-sky-200 border border-sky-600/60 hover:scale-105'
-              }`}
-            >
-              <Download className={`w-3.5 h-3.5 ${confirmingCopyLive ? 'text-stone-950' : 'text-sky-400'}`} />
-              <span>{confirmingCopyLive ? 'Confermi Copia a Timeline Pianificata?' : 'Copia da Tabella 2 a Timeline Pianificata'}</span>
-            </button>
           </div>
           <span className="text-xs font-mono font-bold text-sky-300 bg-sky-950/80 border border-sky-800/80 px-3 py-1 rounded-xl">
             Gantt: 6px/giorno · Ott 2026 → Ott 2027
@@ -1324,39 +1147,13 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                     <div className={`flex-1 relative overflow-hidden transition-all ${isPlanDisabled ? 'opacity-50 grayscale-[30%]' : ''}`} style={{ height: `${ROW_HEIGHT}px` }}>
                       {activeViewTab === 'editor' ? (
                         <>
-                          {periodsList.map(period => {
-                            const outDays = period.onlyCheckoutDays ?? period.onlyCheckOutDays ?? 0;
-                            return (
-                              <React.Fragment key={period.id}>
-                                {renderPlannedPeriodCard(plan, period, periodsList)}
-                                {outDays > 0 && (
-                                  <div 
-                                    className="flex-shrink-0 rounded-r-2xl rounded-l-none border border-l-0 border-amber-400 bg-amber-950/90 p-1 flex flex-col justify-center items-center text-center transition-all select-none overflow-hidden z-10 shadow-[0_0_15px_rgba(245,158,11,0.3)] ring-1 ring-amber-500/50" 
-                                    style={{
-                                      position: 'absolute',
-                                      left: `${getGanttOffset(period.dateFrom) + getGanttWidth(period.dateFrom, period.dateTo)}px`,
-                                      width: `${outDays * PX_PER_DAY}px`,
-                                      top: '2px',
-                                      bottom: '2px'
-                                    }} 
-                                  >
-                                    <div className="text-[9px] text-yellow-300 font-black leading-none select-none drop-shadow-sm">ONLY</div>
-                                    <div className="text-[9px] text-yellow-300 font-black leading-none mt-1 select-none drop-shadow-sm">CHECK</div>
-                                    <div className="text-[9px] text-yellow-300 font-black leading-none mt-1 select-none drop-shadow-sm">OUT</div>
-                                    <div className="text-[10px] font-mono font-black text-amber-200 mt-2 leading-none select-none drop-shadow">{outDays} GG</div>
-                                  </div>
-                                )}
-                              </React.Fragment>
-                            );
-                          })}
+                          {periodsList.map(period => renderPlannedPeriodCard(plan, period, periodsList))}
 
                           {/* Tasto "+" dopo l'ultimo periodo */}
                           {(() => {
                             const lastPeriod = periodsList[periodsList.length - 1];
-                            const lastOutDays = lastPeriod ? (lastPeriod.onlyCheckoutDays ?? lastPeriod.onlyCheckOutDays ?? 0) : 0;
-                            const lastCtaWidth = lastOutDays > 0 ? (lastOutDays * PX_PER_DAY) : 0;
                             const plusLeft = lastPeriod
-                              ? getGanttOffset(lastPeriod.dateFrom) + getGanttWidth(lastPeriod.dateFrom, lastPeriod.dateTo) + lastCtaWidth + 8
+                              ? getGanttOffset(lastPeriod.dateFrom) + getGanttWidth(lastPeriod.dateFrom, lastPeriod.dateTo) + 8
                               : 8;
                             return (
                               <button type="button" onClick={() => addNextPlannedPeriod(plan.id)}
@@ -1402,31 +1199,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                                   </div>
                                 );
                               }
-                              return livePeriods.map(period => {
-                                const outDays = period.onlyCheckoutDays ?? period.onlyCheckOutDays ?? 0;
-                                return (
-                                  <React.Fragment key={period.id}>
-                                    {renderLivePeriodCard(plan, period, periodsList)}
-                                    {outDays > 0 && (
-                                      <div 
-                                        className="flex-shrink-0 rounded-r-2xl rounded-l-none border border-l-0 border-amber-400 bg-amber-950/90 p-1 flex flex-col justify-center items-center text-center transition-all select-none overflow-hidden z-10 shadow-[0_0_15px_rgba(245,158,11,0.3)] ring-1 ring-amber-500/50" 
-                                        style={{
-                                          position: 'absolute',
-                                          left: `${getGanttOffset(period.dateFrom) + getGanttWidth(period.dateFrom, period.dateTo)}px`,
-                                          width: `${outDays * PX_PER_DAY}px`,
-                                          top: '2px',
-                                          bottom: '2px'
-                                        }} 
-                                      >
-                                        <div className="text-[9px] text-yellow-300 font-black leading-none select-none drop-shadow-sm">ONLY</div>
-                                        <div className="text-[9px] text-yellow-300 font-black leading-none mt-1 select-none drop-shadow-sm">CHECK</div>
-                                        <div className="text-[9px] text-yellow-300 font-black leading-none mt-1 select-none drop-shadow-sm">OUT</div>
-                                        <div className="text-[10px] font-mono font-black text-amber-200 mt-2 leading-none select-none drop-shadow">{outDays} GG</div>
-                                      </div>
-                                    )}
-                                  </React.Fragment>
-                                );
-                              });
+                              return livePeriods.map(period => renderLivePeriodCard(plan, period, periodsList));
                             })()
                           )}
                         </>
@@ -1513,12 +1286,11 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 onClick={() => {
                   setTestMode(false);
                   setShowProdWarningModal(false);
-                  syncAllRatePlansToOctorate({ testOnly: false });
                 }}
                 className="px-5 py-2.5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-xl hover:shadow-red-600/50 flex items-center gap-2 cursor-pointer border border-red-400 animate-pulse"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Confermo, Sincronizza in Produzione Reale</span>
+                <span>Confermo, Attiva Produzione</span>
               </button>
             </div>
           </div>

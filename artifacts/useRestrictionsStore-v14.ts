@@ -59,9 +59,6 @@ export interface RestrictionsState {
     minStay: boolean;
   };
   setResetPreference: (key: string, val: boolean) => void;
-  tabulaRasaDateFrom: string;
-  tabulaRasaDateTo: string;
-  setTabulaRasaDateRange: (from: string, to: string) => void;
   testMode: boolean;
   setTestMode: (val: boolean) => void;
   disabledRatePlans: string[];
@@ -78,8 +75,7 @@ export interface RestrictionsState {
   setIsComparing: (val: boolean) => void;
   updatePlannedPeriod: (ratePlanKey: string, index: any, updated?: Partial<PlannedPeriod>) => void;
   addNextPlannedPeriod: (ratePlanKey: string) => void;
-  insertPlannedPeriodRelative: (ratePlanKey: string, targetPeriodId: string, position: 'before' | 'after') => void;
-  removePlannedPeriod: (ratePlanKey: string, index?: any, options?: { shiftSubsequent?: boolean }) => void;
+  removePlannedPeriod: (ratePlanKey: string, index?: any) => void;
   syncRatePlanToOctorate: (ratePlanKey: string, index?: any, options?: { testOnly?: boolean }) => Promise<any>;
   syncAllRatePlansToOctorate: (options?: { testOnly?: boolean }) => Promise<any>;
   fetchLiveRestrictions: () => Promise<void>;
@@ -103,7 +99,7 @@ export interface RestrictionsStoreState extends RestrictionsState {
   cancelBulkSync: () => void;
   resetDefaultStore: () => void;
 }
-// Periodi di Default v13 con configurazione pulita per i blocchi Only Check-out
+// Periodi di Default con sequenza completa e sincronizzata dei blocchi
 export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   be: [
     {
@@ -126,6 +122,17 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       dateTo: '2026-12-15',
       stopSell: false,
       closedToArrival: false,
+      closedToDeparture: false,
+      onlyCheckOutDays: 0,
+      failsafeCheckout: false
+    },
+    {
+      id: '7d_p1_cta',
+      name: 'Only Check-out (10gg)',
+      dateFrom: '2026-12-16',
+      dateTo: '2026-12-25',
+      stopSell: false,
+      closedToArrival: true,
       closedToDeparture: false,
       onlyCheckOutDays: 10,
       failsafeCheckout: true
@@ -161,6 +168,17 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       dateTo: '2026-12-15',
       stopSell: false,
       closedToArrival: false,
+      closedToDeparture: false,
+      onlyCheckOutDays: 0,
+      failsafeCheckout: false
+    },
+    {
+      id: 'mb7_p1_cta',
+      name: 'Only Check-out (10gg)',
+      dateFrom: '2026-12-16',
+      dateTo: '2026-12-25',
+      stopSell: false,
+      closedToArrival: true,
       closedToDeparture: false,
       onlyCheckOutDays: 10,
       failsafeCheckout: true
@@ -208,6 +226,17 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       stopSell: false,
       closedToArrival: false,
       closedToDeparture: false,
+      onlyCheckOutDays: 0,
+      failsafeCheckout: false
+    },
+    {
+      id: 'mb14_p2_cta',
+      name: 'Only Check-out (10gg)',
+      dateFrom: '2027-01-16',
+      dateTo: '2027-01-25',
+      stopSell: false,
+      closedToArrival: true,
+      closedToDeparture: false,
       onlyCheckOutDays: 10,
       failsafeCheckout: true
     },
@@ -231,6 +260,17 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       dateTo: '2026-12-15',
       stopSell: false,
       closedToArrival: false,
+      closedToDeparture: false,
+      onlyCheckOutDays: 0,
+      failsafeCheckout: false
+    },
+    {
+      id: 'ag7_p1_cta',
+      name: 'Only Check-out (10gg)',
+      dateFrom: '2026-12-16',
+      dateTo: '2026-12-25',
+      stopSell: false,
+      closedToArrival: true,
       closedToDeparture: false,
       onlyCheckOutDays: 10,
       failsafeCheckout: true
@@ -277,6 +317,17 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       dateTo: '2027-01-15',
       stopSell: false,
       closedToArrival: false,
+      closedToDeparture: false,
+      onlyCheckOutDays: 0,
+      failsafeCheckout: false
+    },
+    {
+      id: 'ag14_p2_cta',
+      name: 'Only Check-out (10gg)',
+      dateFrom: '2027-01-16',
+      dateTo: '2027-01-25',
+      stopSell: false,
+      closedToArrival: true,
       closedToDeparture: false,
       onlyCheckOutDays: 10,
       failsafeCheckout: true
@@ -411,7 +462,9 @@ export function normalizeGridKeys(rawGrid: Record<string, any[]>): Record<string
     if (Array.isArray(periods) && periods.length > 0) {
       normalized[mappedKey] = periods.map((p: any) => {
         const rawDays = p.onlyCheckoutDays ?? p.onlyCheckOutDays;
-        const outDays = (rawDays !== undefined && rawDays !== null) ? Number(rawDays) : 0;
+        const outDays = (rawDays !== undefined && rawDays > 0)
+          ? Number(rawDays)
+          : (mappedKey === 'be' ? 0 : 10);
         return {
           ...p,
           onlyCheckOutDays: outDays,
@@ -443,10 +496,6 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             [key]: val
           }
         })),
-      tabulaRasaDateFrom: '2026-10-01',
-      tabulaRasaDateTo: '2027-10-31',
-      setTabulaRasaDateRange: (from: string, to: string) =>
-        set({ tabulaRasaDateFrom: from, tabulaRasaDateTo: to }),
       testMode: true,
       setTestMode: (val: boolean) => {
         set({
@@ -627,121 +676,13 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         });
       },
 
-      insertPlannedPeriodRelative: (planId: string, targetPeriodId: string, position: 'before' | 'after') => {
+      removePlannedPeriod: (planId: string, periodId: string) => {
         const state = get();
         const list = state.plannedPeriods[planId] || [];
-        const idx = list.findIndex(p => p.id === targetPeriodId);
-        if (idx === -1) return;
-
-        const target = list[idx];
-        const NEW_PERIOD_DAYS = 30;
-
-        const shiftDate = (dateStr: string, days: number): string => {
-          const d = new Date(dateStr);
-          d.setDate(d.getDate() + days);
-          return d.toISOString().split('T')[0];
-        };
-
-        let newDateFrom = '2026-10-01';
-        let newDateTo = '2026-10-30';
-
-        const updatedList = list.map(p => ({ ...p }));
-
-        if (position === 'after') {
-          const ctaDays = target.onlyCheckoutDays ?? target.onlyCheckOutDays ?? 0;
-          newDateFrom = shiftDate(target.dateTo, 1 + ctaDays);
-          newDateTo = shiftDate(newDateFrom, NEW_PERIOD_DAYS - 1);
-
-          // Sposta fisicamente in avanti tutti i periodi successivi
-          for (let i = idx + 1; i < updatedList.length; i++) {
-            updatedList[i].dateFrom = shiftDate(updatedList[i].dateFrom, NEW_PERIOD_DAYS);
-            updatedList[i].dateTo = shiftDate(updatedList[i].dateTo, NEW_PERIOD_DAYS);
-          }
-
-          const newPeriod: PlannedPeriod = {
-            id: `${planId}_p${Date.now()}`,
-            name: 'Apertura Standard (OK)',
-            dateFrom: newDateFrom,
-            dateTo: newDateTo,
-            stopSell: false,
-            closedToArrival: false,
-            closedToDeparture: false,
-            onlyCheckOutDays: 0,
-            onlyCheckoutDays: 0,
-            failsafeCheckout: false
-          };
-
-          updatedList.splice(idx + 1, 0, newPeriod);
-        } else {
-          // Inserisci prima: il nuovo periodo prende l'inizio del target e sposta il target e tutti i successivi
-          newDateFrom = target.dateFrom;
-          newDateTo = shiftDate(newDateFrom, NEW_PERIOD_DAYS - 1);
-
-          // Sposta fisicamente in avanti il target e tutti i successivi
-          for (let i = idx; i < updatedList.length; i++) {
-            updatedList[i].dateFrom = shiftDate(updatedList[i].dateFrom, NEW_PERIOD_DAYS);
-            updatedList[i].dateTo = shiftDate(updatedList[i].dateTo, NEW_PERIOD_DAYS);
-          }
-
-          const newPeriod: PlannedPeriod = {
-            id: `${planId}_p${Date.now()}`,
-            name: 'Apertura Standard (OK)',
-            dateFrom: newDateFrom,
-            dateTo: newDateTo,
-            stopSell: false,
-            closedToArrival: false,
-            closedToDeparture: false,
-            onlyCheckOutDays: 0,
-            onlyCheckoutDays: 0,
-            failsafeCheckout: false
-          };
-
-          updatedList.splice(idx, 0, newPeriod);
-        }
-
         set({
           plannedPeriods: {
             ...state.plannedPeriods,
-            [planId]: updatedList
-          }
-        });
-      },
-
-      removePlannedPeriod: (planId: string, periodId?: string, options?: { shiftSubsequent?: boolean }) => {
-        const state = get();
-        const list = state.plannedPeriods[planId] || [];
-        if (!periodId) return;
-        const idx = list.findIndex(p => p.id === periodId);
-        if (idx === -1) return;
-
-        const target = list[idx];
-        const updatedList = list.map(p => ({ ...p }));
-
-        if (options?.shiftSubsequent) {
-          const shiftDate = (dateStr: string, days: number): string => {
-            const d = new Date(dateStr);
-            d.setDate(d.getDate() + days);
-            return d.toISOString().split('T')[0];
-          };
-
-          const d1 = new Date(target.dateFrom).getTime();
-          const d2 = new Date(target.dateTo).getTime();
-          const duration = Math.max(1, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1);
-          const cta = target.onlyCheckoutDays ?? target.onlyCheckOutDays ?? 0;
-          const totalSpan = duration + cta;
-
-          for (let i = idx + 1; i < updatedList.length; i++) {
-            updatedList[i].dateFrom = shiftDate(updatedList[i].dateFrom, -totalSpan);
-            updatedList[i].dateTo = shiftDate(updatedList[i].dateTo, -totalSpan);
-          }
-        }
-
-        updatedList.splice(idx, 1);
-
-        set({
-          plannedPeriods: {
-            ...state.plannedPeriods,
-            [planId]: updatedList
+            [planId]: list.filter(p => p.id !== periodId)
           }
         });
       },
@@ -769,8 +710,8 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           const resetPayload = {
             planId,
             ratePlanKey: planId,
-            dateFrom: state.tabulaRasaDateFrom || '2026-10-01',
-            dateTo: state.tabulaRasaDateTo || '2027-10-31',
+            dateFrom: '2026-10-01',
+            dateTo: '2027-10-31',
             stopSell: resetStrategy === 'stopsell',
             strategy: resetStrategy,
             testOnly: isTestOnly,
@@ -888,8 +829,8 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             const bulkResetPayload = {
               planId: plan.id,
               ratePlanKey: plan.id,
-              dateFrom: state.tabulaRasaDateFrom || '2026-10-01',
-              dateTo: state.tabulaRasaDateTo || '2027-10-31',
+              dateFrom: '2026-10-01',
+              dateTo: '2027-10-31',
               stopSell: bulkResetStrategy === 'stopsell',
               strategy: bulkResetStrategy,
               testOnly: isTestOnly,
@@ -991,14 +932,14 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       }
     }),
     {
-      name: 'fp_rateplan_restrictions_v17_clean',
+      name: 'fp_rateplan_restrictions_v13_clean',
       merge: (persistedState: any, currentState: RestrictionsStoreState) => {
         const p = persistedState as any;
-        const isLiveVersion = p?._version === '2026_LIVE_MIRROR_V17';
+        const isLiveVersion = p?._version === '2026_LIVE_MIRROR_V13';
         return {
           ...currentState,
           ...p,
-          _version: '2026_LIVE_MIRROR_V17',
+          _version: '2026_LIVE_MIRROR_V13',
           plannedPeriods: (isLiveVersion && p?.plannedPeriods && typeof p.plannedPeriods === 'object')
             ? p.plannedPeriods
             : { ...INITIAL_PLAN_PERIODS },
