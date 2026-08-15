@@ -709,7 +709,7 @@ export function ResortDashboard() {
                   : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
               }`}
             >
-              ALLOGGI & DISPONIBILITÀ ({(accommodations || []).length})
+              ALLOGGI & DISPONIBILITÀ
             </button>
 
             <button
