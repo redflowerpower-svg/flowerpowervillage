@@ -123,9 +123,8 @@ function getGanttWidth(dateFrom: string, dateTo: string): number {
   try {
     const s = new Date(dateFrom);
     const e = new Date(dateTo);
-    const calculatedPx = Math.max(1, daysBetween(s, e) + 1) * PX_PER_DAY;
-    return Math.max(148, calculatedPx);
-  } catch { return 148; }
+    return Math.max(1, daysBetween(s, e) + 1) * PX_PER_DAY;
+  } catch { return 60; }
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -246,6 +245,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     const isSyncing = syncingPeriodId === period.id;
     const leftPx = getGanttOffset(period.dateFrom);
     const widthPx = getGanttWidth(period.dateFrom, period.dateTo);
+    const isSmall = widthPx < 145;
+    const isTiny = widthPx < 95;
 
     let isMismatched = false;
     const liveForPlan = liveOctorateRestrictions[plan.id] || [];
@@ -267,16 +268,15 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       <div
         key={period.id}
         style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '2px', bottom: '2px' }}
-        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 ${cardBg}`}
+        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 select-none ${cardBg}`}
       >
-        {/* Contenuto clamped: 148px max, 100% per card strette */}
-        <div style={{ width: 'min(148px, 100%)' }} className="flex flex-col gap-0.5">
+        <div style={{ width: '100%', maxWidth: '148px' }} className="flex flex-col gap-0.5 min-w-0">
 
           {/* Riga 1: Titolo + pulsanti */}
-          <div className="flex items-center justify-between gap-1 h-3.5">
+          <div className="flex items-center justify-between gap-0.5 h-3.5 min-w-0">
             <input type="text" value={period.name}
               onChange={e => updatePlannedPeriod(plan.id, period.id, { name: e.target.value })}
-              className="bg-transparent font-extrabold text-white text-[8.5px] focus:outline-none truncate flex-1 min-w-0" />
+              className={`bg-transparent font-extrabold text-white ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} focus:outline-none truncate flex-1 min-w-0`} />
             <div className="flex items-center gap-0.5 shrink-0">
               <button type="button" onClick={() => handleSingleSyncClick(plan.id, period.id)} disabled={isSyncing}
                 className={`p-0.5 border rounded cursor-pointer transition-all ${
@@ -285,26 +285,32 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                     : 'bg-red-950 hover:bg-red-900 text-red-300 border-red-700/50'
                 }`} title={confirmingSingleSyncId === period.id ? 'Clicca di nuovo per confermare' : 'Sync'}>
                 {confirmingSingleSyncId === period.id ? (
-                  <span className="text-[6px] font-black uppercase px-0.5 text-stone-950">Confermi?</span>
+                  <span className="text-[5.5px] font-black uppercase px-0.5 text-stone-950">Confermi?</span>
                 ) : (
-                  <RefreshCw className={`w-2.5 h-2.5 ${isSyncing ? 'animate-spin text-white' : ''}`} />
+                  <RefreshCw className={`w-2 h-2 ${isSyncing ? 'animate-spin text-white' : ''}`} />
                 )}
               </button>
-              <button type="button" onClick={() => removePlannedPeriod(plan.id, period.id)}
-                className="p-0.5 bg-stone-900 hover:bg-red-950 text-stone-400 hover:text-red-300 border border-stone-800 rounded cursor-pointer" title="Elimina periodo">
-                <Trash2 className="w-2.5 h-2.5" />
-              </button>
+              {!isTiny && (
+                <button type="button" onClick={() => removePlannedPeriod(plan.id, period.id)}
+                  className="p-0.5 bg-stone-900 hover:bg-red-950 text-stone-400 hover:text-red-300 border border-stone-800 rounded cursor-pointer" title="Elimina periodo">
+                  <Trash2 className="w-2 h-2" />
+                </button>
+              )}
             </div>
           </div>
 
           {/* Riga 2: Inizio (etichetta integrata nel box data) */}
-          <div className="relative cursor-pointer" onClick={e => {
+          <div className="relative cursor-pointer min-w-0" onClick={e => {
             const inputEl = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
             if (inputEl) try { inputEl.showPicker?.(); } catch {}
           }}>
-            <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
-              <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">INIZIO</span>
-              <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateFrom)}</span>
+            <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8px] min-w-0">
+              <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
+                {isSmall ? 'IN' : 'INIZIO'}
+              </span>
+              <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+                {formatDisplayDate(period.dateFrom)}
+              </span>
             </div>
             <input type="date" value={period.dateFrom || ''}
               onChange={e => { if (e.target.value) updatePlannedPeriod(plan.id, period.id, { dateFrom: e.target.value }); }}
@@ -313,13 +319,17 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           </div>
 
           {/* Riga 3: Fine (etichetta integrata nel box data) */}
-          <div className="relative cursor-pointer" onClick={e => {
+          <div className="relative cursor-pointer min-w-0" onClick={e => {
             const inputEl = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
             if (inputEl) try { inputEl.showPicker?.(); } catch {}
           }}>
-            <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
-              <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">FINE</span>
-              <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateTo)}</span>
+            <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8px] min-w-0">
+              <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
+                {isSmall ? 'OUT' : 'FINE'}
+              </span>
+              <span className={`font-mono font-bold ${theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+                {formatDisplayDate(period.dateTo)}
+              </span>
             </div>
             <input type="date" value={period.dateTo || ''}
               onChange={e => { if (e.target.value) updatePlannedPeriod(plan.id, period.id, { dateTo: e.target.value }); }}
@@ -328,16 +338,22 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           </div>
 
           {/* Riga 4: Only CO + Stop Sell */}
-          <div className="flex items-center justify-between gap-1 pt-0.5 min-w-0">
-            <div className="flex items-center gap-1 min-w-0 flex-1">
-              <LogOut className="w-2.5 h-2.5 text-amber-400 shrink-0" />
+          <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
+            <div className="flex items-center gap-0.5 min-w-0 flex-1">
+              <LogOut className="w-2 h-2 text-amber-400 shrink-0" />
               <input type="number" min={0} max={60} value={period.onlyCheckOutDays ?? 10}
                 onChange={e => updatePlannedPeriod(plan.id, period.id, { onlyCheckOutDays: Number(e.target.value) })}
-                className="w-8 shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[9.5px]" />
-              <span className="text-[6.5px] text-stone-400 font-bold truncate leading-none" title="gg only check-out">gg only check-out</span>
+                className={`shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 ${
+                  isSmall ? 'w-5 text-[8px]' : 'w-7 text-[9px]'
+                }`} />
+              {!isTiny && (
+                <span className="text-[6px] text-stone-400 font-bold truncate leading-none" title="gg only check-out">
+                  {isSmall ? 'gg CO' : 'gg only check-out'}
+                </span>
+              )}
             </div>
             <button type="button" onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: !period.stopSell })}
-              className={`px-1 py-0.5 rounded font-black text-[7px] uppercase shrink-0 transition-all ${
+              className={`px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 transition-all ${
                 period.stopSell ? 'bg-red-950 border border-red-600 text-red-300' : 'bg-stone-900 border border-stone-800 text-stone-400'
               }`}>
               {period.stopSell ? 'BLOK' : 'OPEN'}
@@ -355,6 +371,9 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const renderLivePeriodCard = (plan: RealOctoratePlan, period: PlannedPeriod, periodsList: PlannedPeriod[]) => {
     const leftPx = getGanttOffset(period.dateFrom);
     const widthPx = getGanttWidth(period.dateFrom, period.dateTo);
+    const isSmall = widthPx < 145;
+    const isTiny = widthPx < 95;
+
     const isStopSell = period.strategy === 'stopsell' || period.stopSell;
     const effectiveLiveStopSell = isStopSell;
     const effectiveLiveOnlyOut = period.onlyCheckOutDays ?? 10;
@@ -377,15 +396,16 @@ export const GestioneRestrizioniCanali: React.FC = () => {
       <div
         key={period.id}
         style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '2px', bottom: '2px' }}
-        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 ${cardBg}`}
+        className={`rounded-xl border backdrop-blur-md transition-all overflow-hidden flex items-start p-1 select-none ${cardBg}`}
       >
-        {/* Contenuto clamped: 148px max, 100% per card strette */}
-        <div style={{ width: 'min(148px, 100%)' }} className="flex flex-col gap-0.5">
+        <div style={{ width: '100%', maxWidth: '148px' }} className="flex flex-col gap-0.5 min-w-0">
 
           {/* Riga 1: Titolo + badge */}
-          <div className="flex items-center justify-between gap-1 h-3.5">
-            <span className="font-extrabold text-white text-[8.5px] truncate flex-1 min-w-0">{period.name}</span>
-            <span className={`text-[6px] font-bold px-1 py-0.5 rounded border shrink-0 ${
+          <div className="flex items-center justify-between gap-0.5 h-3.5 min-w-0">
+            <span className={`font-extrabold text-white ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} truncate flex-1 min-w-0`}>
+              {period.name}
+            </span>
+            <span className={`text-[5.5px] font-bold px-0.5 py-0.2 rounded border shrink-0 ${
               isMatching ? 'bg-emerald-950 border-emerald-700 text-emerald-300' : 'bg-amber-950 border-amber-700 text-amber-300'
             }`}>
               {isMatching ? '✓' : '!'}
@@ -393,35 +413,58 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           </div>
 
           {/* Riga 2: Inizio */}
-          <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
-            <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">INIZIO</span>
-            <span className={`font-mono font-bold ${isStopSell ? 'text-red-300' : theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateFrom)}</span>
+          <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8px] min-w-0">
+            <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
+              {isSmall ? 'IN' : 'INIZIO'}
+            </span>
+            <span className={`font-mono font-bold ${isStopSell ? 'text-red-300' : theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+              {formatDisplayDate(period.dateFrom)}
+            </span>
           </div>
 
           {/* Riga 3: Fine */}
-          <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8.5px]">
-            <span className="text-[5.5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">FINE</span>
-            <span className={`font-mono font-bold ${isStopSell ? 'text-red-300' : theme.dateText} truncate text-center flex-1 text-[8.5px]`}>{formatDisplayDate(period.dateTo)}</span>
+          <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8px] min-w-0">
+            <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
+              {isSmall ? 'OUT' : 'FINE'}
+            </span>
+            <span className={`font-mono font-bold ${isStopSell ? 'text-red-300' : theme.dateText} truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+              {formatDisplayDate(period.dateTo)}
+            </span>
           </div>
 
           {/* Riga 4: Only CO oppure Badge Stop Sell */}
           {isStopSell ? (
-            <div className="flex items-center justify-between w-full bg-red-950/80 border border-red-600/80 rounded px-1.5 py-0.5 text-red-300 font-extrabold text-[8.5px] uppercase shadow-sm tracking-wide mt-0.5">
-              <span className="flex items-center gap-1 truncate">
-                <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SELL
-              </span>
-              <span className="text-[7px] font-mono font-bold bg-red-900/60 px-1 py-0.2 rounded text-red-200">CHIUSO</span>
-            </div>
+            isSmall ? (
+              <div className="flex items-center justify-center gap-1 w-full bg-red-950/80 border border-red-600/80 rounded px-1 py-0.5 text-red-300 font-extrabold text-[7.5px] uppercase shadow-sm tracking-wide mt-0.5 min-w-0">
+                <XCircle className="w-2 h-2 text-red-400 shrink-0" />
+                <span className="truncate">STOP SELL</span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between w-full bg-red-950/80 border border-red-600/80 rounded px-1.5 py-0.5 text-red-300 font-extrabold text-[8.5px] uppercase shadow-sm tracking-wide mt-0.5 min-w-0">
+                <span className="flex items-center gap-1 truncate">
+                  <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SELL
+                </span>
+                <span className="text-[7px] font-mono font-bold bg-red-900/60 px-1 py-0.2 rounded text-red-200 shrink-0">
+                  CHIUSO
+                </span>
+              </div>
+            )
           ) : (
-            <div className="flex items-center justify-between gap-1 pt-0.5 min-w-0">
-              <div className="flex items-center gap-1 min-w-0 flex-1">
-                <LogOut className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-                <div className="w-8 shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 text-[9.5px]">
+            <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
+              <div className="flex items-center gap-0.5 min-w-0 flex-1">
+                <LogOut className="w-2 h-2 text-amber-400 shrink-0" />
+                <div className={`shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 ${
+                  isSmall ? 'w-5 text-[8px]' : 'w-7 text-[9px]'
+                }`}>
                   {effectiveLiveOnlyOut}
                 </div>
-                <span className="text-[6.5px] text-stone-400 font-bold truncate leading-none" title="gg only check-out">gg only check-out</span>
+                {!isTiny && (
+                  <span className="text-[6px] text-stone-400 font-bold truncate leading-none" title="gg only check-out">
+                    {isSmall ? 'gg CO' : 'gg only check-out'}
+                  </span>
+                )}
               </div>
-              <div className="px-1 py-0.5 rounded font-black text-[7px] uppercase shrink-0 bg-emerald-950 border border-emerald-600 text-emerald-300">
+              <div className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 bg-emerald-950 border border-emerald-600 text-emerald-300">
                 OPEN
               </div>
             </div>
