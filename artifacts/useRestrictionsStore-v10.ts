@@ -59,8 +59,6 @@ export interface RestrictionsState {
     minStay: boolean;
   };
   setResetPreference: (key: string, val: boolean) => void;
-  testMode: boolean;
-  setTestMode: (val: boolean) => void;
   disabledRatePlans: string[];
   toggleRatePlanActive: (key: string) => void;
   liveViewMode: 'prod' | 'test';
@@ -100,273 +98,46 @@ export interface RestrictionsStoreState extends RestrictionsState {
   resetDefaultStore: () => void;
 }
 
-// Periodi di Default allineati esattamente alla configurazione Live Reale di Octorate (inclusi blocchi Stop Sell)
+// Periodi di Default con Only Check Out = 10gg esattamente come nello schizzo dell'utente
 export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
   be: [
-    {
-      id: 'be_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    }
+    { id: 'be_p1', name: 'Periodo 1: Ottobre - Novembre', dateFrom: '2026-10-01', dateTo: '2026-11-30', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
+    { id: 'be_p2', name: 'Periodo 2: Dicembre - Gennaio', dateFrom: '2026-12-01', dateTo: '2027-01-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   '7d': [
-    {
-      id: '7d_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2026-12-15',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: true
-    },
-    {
-      id: '7d_p2',
-      name: 'Stop Sell (Chiuso)',
-      dateFrom: '2026-12-26',
-      dateTo: '2027-03-31',
-      stopSell: true,
-      closedToArrival: false,
-      closedToDeparture: true,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    },
-    {
-      id: '7d_p3',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2027-04-01',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: false
-    }
+    { id: '7d_p1', name: 'Periodo 1: Ottobre', dateFrom: '2026-10-01', dateTo: '2026-10-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
+    { id: '7d_p2', name: 'Periodo 2: Novembre - Gennaio', dateFrom: '2026-11-01', dateTo: '2027-01-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   main_bnb_7d: [
-    {
-      id: 'mb7_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2026-12-15',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: true
-    },
-    {
-      id: 'mb7_p2',
-      name: 'Stop Sell (Chiuso)',
-      dateFrom: '2026-12-26',
-      dateTo: '2027-01-15',
-      stopSell: true,
-      closedToArrival: false,
-      closedToDeparture: true,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    },
-    {
-      id: 'mb7_p3',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2027-01-16',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: false
-    }
+    { id: 'mb7_p1', name: 'Periodo 1: 01/10/2026 - 21/12/2026', dateFrom: '2026-10-01', dateTo: '2026-12-21', stopSell: false, closedToArrival: true, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true },
+    { id: 'mb7_p2', name: 'Periodo 2: 15/01/2027 - 31/03/2027', dateFrom: '2027-01-15', dateTo: '2027-03-31', stopSell: false, closedToArrival: true, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   main_bnb_14d: [
-    {
-      id: 'mb14_p1',
-      name: 'Stop Sell (Chiuso)',
-      dateFrom: '2026-10-01',
-      dateTo: '2026-12-15',
-      stopSell: true,
-      closedToArrival: false,
-      closedToDeparture: true,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    },
-    {
-      id: 'mb14_p2',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-12-16',
-      dateTo: '2027-01-15',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: true
-    },
-    {
-      id: 'mb14_p3',
-      name: 'Stop Sell (Chiuso)',
-      dateFrom: '2027-01-26',
-      dateTo: '2027-05-31',
-      stopSell: true,
-      closedToArrival: false,
-      closedToDeparture: true,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    }
+    { id: 'mb14_p1', name: 'Periodo 1: 21/12/2026 - 15/01/2027', dateFrom: '2026-12-21', dateTo: '2027-01-15', stopSell: false, closedToArrival: true, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   agd_ac_7d: [
-    {
-      id: 'ag7_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2026-12-15',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: true
-    },
-    {
-      id: 'ag7_p2',
-      name: 'Stop Sell (Chiuso)',
-      dateFrom: '2026-12-26',
-      dateTo: '2027-01-15',
-      stopSell: true,
-      closedToArrival: false,
-      closedToDeparture: true,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    },
-    {
-      id: 'ag7_p3',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2027-01-16',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: false
-    }
+    { id: 'ag7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   agd_ac_14d: [
-    {
-      id: 'ag14_p1',
-      name: 'Stop Sell (Chiuso)',
-      dateFrom: '2026-10-01',
-      dateTo: '2026-12-15',
-      stopSell: true,
-      closedToArrival: false,
-      closedToDeparture: true,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    },
-    {
-      id: 'ag14_p2',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-12-16',
-      dateTo: '2027-01-15',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: true
-    },
-    {
-      id: 'ag14_p3',
-      name: 'Stop Sell (Chiuso)',
-      dateFrom: '2027-01-26',
-      dateTo: '2027-05-31',
-      stopSell: true,
-      closedToArrival: false,
-      closedToDeparture: true,
-      onlyCheckOutDays: 0,
-      failsafeCheckout: false
-    }
+    { id: 'ag14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   airbnb: [
-    {
-      id: 'ab_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: false
-    }
+    { id: 'ab_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   airbnb_ac: [
-    {
-      id: 'abac_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: false
-    }
+    { id: 'abac_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   ac_7d: [
-    {
-      id: 'ac7_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: false
-    }
+    { id: 'ac7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   ac_14d: [
-    {
-      id: 'ac14_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: false
-    }
+    { id: 'ac14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   ac_bnb_7d: [
-    {
-      id: 'acb7_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: false
-    }
+    { id: 'acb7_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ],
   ac_bnb_14d: [
-    {
-      id: 'acb14_p1',
-      name: 'Apertura Standard (OK)',
-      dateFrom: '2026-10-01',
-      dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
-      onlyCheckOutDays: 10,
-      failsafeCheckout: false
-    }
+    { id: 'acb14_p1', name: 'Periodo 1: Q4 (Ott-Dic)', dateFrom: '2026-10-01', dateTo: '2026-12-31', stopSell: false, closedToArrival: false, closedToDeparture: false, onlyCheckOutDays: 10, failsafeCheckout: true }
   ]
 };
 
@@ -442,14 +213,6 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             [key]: val
           }
         })),
-      testMode: true,
-      setTestMode: (val: boolean) => {
-        set({
-          testMode: val,
-          liveViewMode: val ? 'test' : 'prod'
-        });
-        get().fetchLiveRestrictions();
-      },
       disabledRatePlans: (() => {
         const DEFAULT_DISABLED = ['airbnb_ac', 'ac_7d', 'ac_14d', 'ac_bnb_7d', 'ac_bnb_14d'];
         try {
@@ -459,7 +222,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           return DEFAULT_DISABLED;
         }
       })(),
-      liveViewMode: 'test',
+      liveViewMode: 'prod',
       syncingPeriodId: null,
       syncAllRunning: false,
       isSaving: false,
@@ -483,10 +246,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       },
 
       setLiveViewMode: (mode: 'prod' | 'test') => {
-        set({
-          liveViewMode: mode,
-          testMode: mode === 'test'
-        });
+        set({ liveViewMode: mode });
         get().fetchLiveRestrictions();
       },
 
@@ -878,20 +638,14 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       }
     }),
     {
-      name: 'fp_rateplan_restrictions_exact_live_v3',
+      name: 'fp_rateplan_restrictions_onlycheckout_v1',
       merge: (persistedState: any, currentState: RestrictionsStoreState) => {
         const p = persistedState as any;
-        const isLiveVersion = p?._version === '2026_LIVE_MIRROR_V3';
         return {
           ...currentState,
           ...p,
-          _version: '2026_LIVE_MIRROR_V3',
-          plannedPeriods: (isLiveVersion && p?.plannedPeriods && typeof p.plannedPeriods === 'object')
-            ? p.plannedPeriods
-            : { ...INITIAL_PLAN_PERIODS },
-          liveOctorateRestrictionsMock: (p?.liveOctorateRestrictionsMock && typeof p.liveOctorateRestrictionsMock === 'object')
-            ? p.liveOctorateRestrictionsMock
-            : { ...INITIAL_LIVE_MOCK }
+          plannedPeriods: (p?.plannedPeriods && typeof p.plannedPeriods === 'object') ? p.plannedPeriods : { ...INITIAL_PLAN_PERIODS },
+          liveOctorateRestrictionsMock: (p?.liveOctorateRestrictionsMock && typeof p.liveOctorateRestrictionsMock === 'object') ? p.liveOctorateRestrictionsMock : { ...INITIAL_LIVE_MOCK }
         };
       }
     }

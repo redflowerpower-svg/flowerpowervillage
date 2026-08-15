@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { formatDisplayDate, parseDisplayDateToISO } from '../../../lib/dateUtils';
-import { useRestrictionsStore, REAL_OCTORATE_PLANS, RealOctoratePlan, PlannedPeriod, INITIAL_PLAN_PERIODS } from '../store/useRestrictionsStore';
+import { useRestrictionsStore, REAL_OCTORATE_PLANS, RealOctoratePlan, PlannedPeriod } from '../store/useRestrictionsStore';
 import { useResortAdminStore } from '../store/useResortAdminStore';
 import { MOTHER_RATES } from '../store/useSeasonalRateStore';
 import {
@@ -20,8 +20,7 @@ import {
   ChevronRight,
   XCircle,
   LogOut,
-  FlaskConical,
-  Download
+  FlaskConical
 } from 'lucide-react';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -154,7 +153,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const syncAllRatePlansToOctorate = store?.syncAllRatePlansToOctorate || store?.syncAllPlansToOctorate || (async () => false);
   const cancelBulkSync = store?.cancelBulkSync || (() => {});
   const resetDefaultStore = store?.resetDefaultStore || (() => {});
-  const importConfig = store?.importConfig || (() => ({ success: true, message: '' }));
   const resetPreferences = store?.resetPreferences || {
     stopSells: true,
     closed: true,
@@ -163,29 +161,17 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     minStay: true
   };
   const setResetPreference = store?.setResetPreference || (() => {});
-  const testMode = store?.testMode ?? true;
-  const setTestMode = store?.setTestMode || (() => {});
 
   const [expandedAccommodations, setExpandedAccommodations] = useState<Record<string, boolean>>({});
   const [activeViewTab, setActiveViewTab] = useState<'editor' | 'comparison'>('editor');
   const [isComparing, setIsComparing] = useState<boolean>(false);
   const [showTestModal, setShowTestModal] = useState<boolean>(false);
-  const [showProdWarningModal, setShowProdWarningModal] = useState<boolean>(false);
   const [isResetOptionsOpen, setIsResetOptionsOpen] = useState<boolean>(false);
 
   // Stati per la conferma a doppia pressione (3s timer)
   const [confirmingSingleSyncId, setConfirmingSingleSyncId] = useState<string | null>(null);
   const [confirmingBulkSync, setConfirmingBulkSync] = useState<boolean>(false);
   const [confirmingTestSync, setConfirmingTestSync] = useState<boolean>(false);
-
-  // Auto-allineamento iniziale con la configurazione speculare di Tabella 2 (Octorate Live)
-  useEffect(() => {
-    const p7d = rawPeriods?.['7d'];
-    const p14d = rawPeriods?.['main_bnb_14d'];
-    if (!p7d || p7d.length < 3 || !p14d || p14d.length < 3) {
-      resetDefaultStore();
-    }
-  }, [rawPeriods, resetDefaultStore]);
 
   const singleSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
   const bulkSyncTimerRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -231,31 +217,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
         setConfirmingTestSync(false);
       }, 3000);
     }
-  };
-
-  const handleCopyLiveToPlanned = () => {
-    const live = liveOctorateRestrictions;
-    if (!live || Object.keys(live).length === 0) {
-      importConfig(INITIAL_PLAN_PERIODS);
-      return;
-    }
-    const cloned: Record<string, PlannedPeriod[]> = {};
-    for (const [planId, periods] of Object.entries(live)) {
-      if (Array.isArray(periods) && periods.length > 0) {
-        cloned[planId] = periods.map((p, idx) => ({
-          id: `${planId}_p${idx + 1}`,
-          name: p.name || (p.stopSell ? 'Stop Sell (Chiuso)' : `Periodo ${idx + 1}`),
-          dateFrom: p.dateFrom,
-          dateTo: p.dateTo,
-          stopSell: Boolean(p.stopSell || p.strategy === 'stopsell'),
-          closedToArrival: Boolean(p.closedToArrival),
-          closedToDeparture: Boolean(p.closedToDeparture),
-          onlyCheckOutDays: p.onlyCheckOutDays ?? (p.onlyCheckoutDays ?? 0),
-          failsafeCheckout: Boolean((p.onlyCheckOutDays ?? 0) > 0)
-        }));
-      }
-    }
-    importConfig({ ...INITIAL_PLAN_PERIODS, ...cloned });
   };
 
   const liveDataKeys = Object.keys(liveOctorateRestrictions);
@@ -410,83 +371,41 @@ export const GestioneRestrizioniCanali: React.FC = () => {
             />
           </div>
 
-          {/* Riga 4: Only CO oppure Badge Stop Sell */}
-          {period.stopSell ? (
-            isSmall ? (
-              <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
-                <div
-                  title="🛑 STOP SELL: Vendite bloccate per questo periodo"
-                  className="flex items-center justify-center gap-1 flex-1 bg-red-950/80 border border-red-600/80 rounded px-1 py-0.5 text-red-300 font-extrabold text-[7.5px] uppercase shadow-sm tracking-wide min-w-0"
-                >
-                  <XCircle className="w-2 h-2 text-red-400 shrink-0" />
-                  <span className="truncate">STOP SELL</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: false, name: 'Apertura Standard (OK)' })}
-                  title="🛑 Stop Sell Attivo: Clicca per riaprire le vendite (OPEN)"
-                  className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 transition-all cursor-pointer bg-red-950 border border-red-600 text-red-300 hover:bg-emerald-950 hover:border-emerald-600 hover:text-emerald-300"
-                >
-                  BLOK
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
-                <div
-                  title="🛑 STOP SELL (Chiuso): Vendite bloccate per questo periodo"
-                  className="flex items-center justify-between flex-1 bg-red-950/80 border border-red-600/80 rounded px-1.5 py-0.5 text-red-300 font-extrabold text-[8.5px] uppercase shadow-sm tracking-wide min-w-0"
-                >
-                  <span className="flex items-center gap-1 truncate">
-                    <XCircle className="w-2.5 h-2.5 text-red-400 shrink-0" /> STOP SELL
-                  </span>
-                  <span className="text-[7px] font-mono font-bold bg-red-900/60 px-1 py-0.2 rounded text-red-200 shrink-0">
-                    CHIUSO
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: false, name: 'Apertura Standard (OK)' })}
-                  title="🛑 Stop Sell Attivo: Clicca per riaprire le vendite (OPEN)"
-                  className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 transition-all cursor-pointer bg-red-950 border border-red-600 text-red-300 hover:bg-emerald-950 hover:border-emerald-600 hover:text-emerald-300"
-                >
-                  BLOK
-                </button>
-              </div>
-            )
-          ) : (
-            <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
-              <div
-                className="flex items-center gap-0.5 min-w-0 flex-1 cursor-help"
-                title="🚪 Finestra Only Check-Out (CTA): Giorni successivi alla data di fine in cui sono consentite solo le partenze (Closed to Arrival), bloccando i nuovi arrivi"
-              >
-                <LogOut className="w-2 h-2 text-amber-400 shrink-0" />
-                <input
-                  type="number"
-                  min={0}
-                  max={60}
-                  value={period.onlyCheckOutDays ?? 10}
-                  title="Numero di giorni cuscinetto di sola partenza (Only Check-Out)"
-                  onChange={e => updatePlannedPeriod(plan.id, period.id, { onlyCheckOutDays: Number(e.target.value) })}
-                  className={`shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 ${
-                    isSmall ? 'w-5 text-[8px]' : 'w-7 text-[9px]'
-                  }`}
-                />
-                {!isTiny && (
-                  <span className="text-[6px] text-stone-400 font-bold truncate leading-none">
-                    {isSmall ? 'gg CO' : 'gg only check-out'}
-                  </span>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: true, name: 'Stop Sell (Chiuso)' })}
-                title="🟢 Vendite Aperte: Clicca per bloccare con Stop Sell (BLOK)"
-                className="px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 transition-all cursor-pointer bg-stone-900 border border-stone-800 text-stone-400 hover:bg-red-950 hover:border-red-600 hover:text-red-300"
-              >
-                OPEN
-              </button>
+          {/* Riga 4: Only CO + Stop Sell */}
+          <div className="flex items-center justify-between gap-0.5 pt-0.5 min-w-0">
+            <div
+              className="flex items-center gap-0.5 min-w-0 flex-1 cursor-help"
+              title="🚪 Finestra Only Check-Out (CTA): Giorni successivi alla data di fine in cui sono consentite solo le partenze (Closed to Arrival), bloccando i nuovi arrivi"
+            >
+              <LogOut className="w-2 h-2 text-amber-400 shrink-0" />
+              <input
+                type="number"
+                min={0}
+                max={60}
+                value={period.onlyCheckOutDays ?? 10}
+                title="Numero di giorni cuscinetto di sola partenza (Only Check-Out)"
+                onChange={e => updatePlannedPeriod(plan.id, period.id, { onlyCheckOutDays: Number(e.target.value) })}
+                className={`shrink-0 bg-stone-950 border border-stone-700 rounded text-center font-mono font-bold text-yellow-300 py-0.5 ${
+                  isSmall ? 'w-5 text-[8px]' : 'w-7 text-[9px]'
+                }`}
+              />
+              {!isTiny && (
+                <span className="text-[6px] text-stone-400 font-bold truncate leading-none">
+                  {isSmall ? 'gg CO' : 'gg only check-out'}
+                </span>
+              )}
             </div>
-          )}
+            <button
+              type="button"
+              onClick={() => updatePlannedPeriod(plan.id, period.id, { stopSell: !period.stopSell })}
+              title={period.stopSell ? '🛑 STOP SELL ATTIVO: Vendite bloccate su questo periodo (Click per riaprire)' : '🟢 VENDITE APERTE: Periodo prenotabile (Click per bloccare con Stop Sell)'}
+              className={`px-1 py-0.5 rounded font-black text-[6.5px] uppercase shrink-0 transition-all cursor-pointer ${
+                period.stopSell ? 'bg-red-950 border border-red-600 text-red-300' : 'bg-stone-900 border border-stone-800 text-stone-400'
+              }`}
+            >
+              {period.stopSell ? 'BLOK' : 'OPEN'}
+            </button>
+          </div>
 
         </div>
       </div>
@@ -635,62 +554,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   // ─── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
-      {/* 🛡️ BANNER SELEZIONE AMBIENTE DINAMICO (TEST vs PRODUZIONE) */}
-      <div className={`p-4 sm:p-5 rounded-3xl border-2 backdrop-blur-xl transition-all shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-        testMode
-          ? 'bg-emerald-950/70 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
-          : 'bg-red-950/90 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.4)] ring-2 ring-red-500/50'
-      }`}>
-        <div className="flex items-center gap-3.5">
-          <div className={`p-3 rounded-2xl border flex items-center justify-center shrink-0 ${
-            testMode
-              ? 'bg-emerald-900/60 border-emerald-400/50 text-emerald-300'
-              : 'bg-red-900/80 border-red-400 text-red-200 animate-pulse'
-          }`}>
-            {testMode ? <FlaskConical className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
-          </div>
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs font-black uppercase tracking-wider text-stone-400">Ambiente Attivo:</span>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border font-mono ${
-                testMode
-                  ? 'bg-emerald-900 text-emerald-200 border-emerald-500'
-                  : 'bg-red-900 text-red-100 border-red-400'
-              }`}>
-                {testMode ? '🧪 MODALITÀ TEST (Fake Bungalow 1 & 2)' : '🔴 PRODUZIONE REALE (Alloggi Live)'}
-              </span>
-            </div>
-            <p className="text-xs text-stone-300">
-              {testMode
-                ? 'Le scritture Octorate sono confinate esclusivamente ai Fake Bungalows (ID 932243-932268). Gli alloggi reali del resort sono protetti al 100%.'
-                : '⚠️ ATTENZIONE: Qualsiasi modifica o sincronizzazione andrà a modificare IMMEDIATAMENTE i bungalow reali e le tariffe OTA su Octorate!'}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {testMode ? (
-            <button
-              type="button"
-              onClick={() => setShowProdWarningModal(true)}
-              className="px-4 py-2.5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-red-500/30 flex items-center gap-2 cursor-pointer border border-red-400"
-            >
-              <AlertTriangle className="w-4 h-4" />
-              <span>Passa a Produzione Reale</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setTestMode(true)}
-              className="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-lg hover:shadow-emerald-500/30 flex items-center gap-2 cursor-pointer border border-emerald-400"
-            >
-              <FlaskConical className="w-4 h-4" />
-              <span>Torna a Modalità Test</span>
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* ── Banner Superiore ────────────────────────────────────────────────── */}
       <div className="bg-stone-900/90 border border-stone-800 backdrop-blur-xl rounded-3xl p-6 shadow-2xl space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -743,17 +606,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               }`}>
               <Eye className="w-4 h-4" />
               <span>{isComparing ? '🔍 Discrepanze Evidenziate' : '⚖️ Evidenzia Discrepanze'}</span>
-            </button>
-
-            {/* Copia da Tabella 2 a Tabella 1 */}
-            <button
-              type="button"
-              onClick={handleCopyLiveToPlanned}
-              title="Copia e sincronizza l'intera configurazione Live di Octorate in Tabella 1"
-              className="py-2.5 px-4 bg-sky-950/80 hover:bg-sky-900 text-sky-200 border border-sky-600/60 rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition-all cursor-pointer shadow hover:scale-105"
-            >
-              <Download className="w-4 h-4 text-sky-400" />
-              <span>📥 Copia da Tabella 2</span>
             </button>
 
             {/* Reset */}
@@ -1191,54 +1043,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 rounded-xl text-xs font-black uppercase tracking-wide transition-all shadow-lg cursor-pointer"
               >
                 Conferma Test
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* ⚠️ MODALE DI SICUREZZA BLOCCANTE PER PASSAGGIO A PRODUZIONE */}
-      {showProdWarningModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in zoom-in duration-150">
-          <div className="bg-stone-900 border-2 border-red-500 rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-5 text-white">
-            <div className="flex items-center gap-3 text-red-400">
-              <div className="p-3 bg-red-950/80 border border-red-500/50 rounded-2xl">
-                <AlertTriangle className="w-8 h-8 text-red-400 animate-pulse" />
-              </div>
-              <div>
-                <h3 className="text-lg font-black tracking-tight text-white uppercase">
-                  Attivazione Produzione Reale
-                </h3>
-                <span className="text-xs text-red-300 font-mono">Richiesta di conferma esplicita</span>
-              </div>
-            </div>
-
-            <div className="bg-red-950/40 border border-red-600/50 rounded-2xl p-4 space-y-2 text-xs text-red-200">
-              <p className="font-bold text-sm text-red-100">
-                Stai per uscire dalla modalità di simulazione protetta.
-              </p>
-              <p>
-                In <strong>PRODUZIONE REALE</strong>, qualsiasi operazione di <em>Tabula Rasa</em>, sincronizzazione periodi o Stop Sell modificherà istantaneamente i calendari dei <strong>Bungalow Reali</strong> del Flower Power Village su Octorate e su tutte le OTA (Booking.com, Agoda, Expedia, Airbnb).
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowProdWarningModal(false)}
-                className="px-4 py-2.5 rounded-2xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs uppercase tracking-wider transition-all cursor-pointer border border-stone-700"
-              >
-                Annulla (Resta in Test)
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setTestMode(false);
-                  setShowProdWarningModal(false);
-                }}
-                className="px-5 py-2.5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-xl hover:shadow-red-600/50 flex items-center gap-2 cursor-pointer border border-red-400 animate-pulse"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Confermo, Attiva Produzione</span>
               </button>
             </div>
           </div>
