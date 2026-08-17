@@ -132,10 +132,10 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
         headers['Octorate-Api-Key'] = clientId;
       }
 
-      const motherBeIdFB1 = Number(TEST_PRODUCT_IDS.be || 932243);
-      const motherBeIdFB2 = motherBeIdFB1 + 13; // 932256
-      const motherBeIdReal = Number(REAL_PRODUCT_IDS.be || 529784);
-      const roomsToUpdate = testOnly ? [motherBeIdFB1, motherBeIdFB2] : [motherBeIdReal];
+      const rateIdFB1 = Number(targetRateIdNum || (planKey ? TEST_PRODUCT_IDS[planKey] : 0));
+      const rateIdFB2 = rateIdFB1 + 13;
+      const rateIdReal = Number(targetRateIdNum || (planKey ? REAL_PRODUCT_IDS[planKey] : 0));
+      const roomsToUpdate = testOnly ? [rateIdFB1, rateIdFB2] : [rateIdReal];
       const onlyCheckoutDaysNum = Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 0);
 
       const addDaysISO = (dateStr: string, days: number): string => {
@@ -172,16 +172,6 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
       const bulkPayload: any[] = [];
 
       for (const roomId of roomsToUpdate) {
-        // 🧹 FASE 0: Tabula Rasa di reset stagionale selettivo (01/10/2026 - 31/10/2027)
-        if (hasResetKeys) {
-          bulkPayload.push({
-            room: roomId,
-            dateFrom: '2026-10-01',
-            dateTo: '2027-10-31',
-            values: resetValues
-          });
-        }
-
         if (strategy === 'stopsell' || stopSell) {
           // 🔴 STOP SELL: singolo oggetto con chiusura totale
           bulkPayload.push({
@@ -196,6 +186,16 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
             }
           });
         } else {
+          // 🧹 FASE 0: Tabula Rasa di reset stagionale selettivo (01/10/2026 - 31/10/2027) solo se apertura
+          if (hasResetKeys) {
+            bulkPayload.push({
+              room: roomId,
+              dateFrom: '2026-10-01',
+              dateTo: '2027-10-31',
+              values: resetValues
+            });
+          }
+
           // 🟢 1. APERTURA STANDARD (da dateFrom a dateTo)
           bulkPayload.push({
             room: roomId,

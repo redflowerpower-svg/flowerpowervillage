@@ -130,10 +130,10 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
       }
 
       const isCta = strategy === 'failsafe_checkout' || req.body?.closedToArrival === true || req.body?.closedArrival === true;
-      const motherBeIdFB1 = Number(TEST_PRODUCT_IDS.be || 932243);
-      const motherBeIdFB2 = motherBeIdFB1 + 13; // 932256
-      const motherBeIdReal = Number(REAL_PRODUCT_IDS.be || 529784);
-      const roomsToUpdate = testOnly ? [motherBeIdFB1, motherBeIdFB2] : [motherBeIdReal];
+      const rateIdFB1 = Number(targetRateIdNum || (planKey ? TEST_PRODUCT_IDS[planKey] : 0));
+      const rateIdFB2 = rateIdFB1 + 13;
+      const rateIdReal = Number(targetRateIdNum || (planKey ? REAL_PRODUCT_IDS[planKey] : 0));
+      const roomsToUpdate = testOnly ? [rateIdFB1, rateIdFB2] : [rateIdReal];
       const onlyCheckoutDaysNum = Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 0);
 
       const addDaysISO = (dateStr: string, days: number): string => {
@@ -149,78 +149,88 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
         }
       };
 
-      const resetPreferences = req.body?.resetPreferences || {
-        stopSells: true,
-        closed: true,
-        closedArrival: true,
-        closedDeparture: true,
-        minStay: true
-      };
-
-      const resetValues: any = {};
-      if (resetPreferences.stopSells) resetValues.stopSells = false;
-      if (resetPreferences.closed) resetValues.closed = false;
-      if (resetPreferences.closedArrival) resetValues.closedArrival = false;
-      if (resetPreferences.closedDeparture) resetValues.closedDeparture = false;
-      if (resetPreferences.minStay) resetValues.minStay = 1;
-
-      const hasResetKeys = Object.keys(resetValues).length > 0;
+      const isTabulaRasa = Boolean(req.body?.isTabulaRasa === true || req.body?.isResetOnly === true);
+      const resetPreferences = req.body?.resetPreferences;
 
       const bulkPayload: any[] = [];
 
       for (const roomId of roomsToUpdate) {
-        // 🧹 FASE 0: Tabula Rasa di reset stagionale selettivo (01/10/2026 - 31/10/2027)
-        if (hasResetKeys) {
-          bulkPayload.push({
-            room: roomId,
-            dateFrom: '2026-10-01',
-            dateTo: '2027-10-31',
-            values: resetValues
-          });
-        }
+        if (isTabulaRasa) {
+          // 🧹 FASE 0: Tabula Rasa di reset stagionale esplicito (01/10/2026 - 31/10/2027)
+          const resetValues: any = {};
+          if (resetPreferences?.stopSells) resetValues.stopSells = false;
+          if (resetPreferences?.closed) resetValues.closed = false;
+          if (resetPreferences?.closedArrival) resetValues.closedArrival = false;
+          if (resetPreferences?.closedDeparture) resetValues.closedDeparture = false;
+          if (resetPreferences?.minStay) resetValues.minStay = 1;
 
-        if (strategy === 'stopsell' || stopSell) {
-          // 🔴 STOP SELL: singolo oggetto con chiusura totale
-          bulkPayload.push({
-            room: roomId,
-            dateFrom,
-            dateTo,
-            values: {
-              stopSells: true,
-              closed: true,
-              closedArrival: true,
-              closedDeparture: true
-            }
-          });
-        } else {
-          // 🟢 APERTURA STANDARD (da dateFrom a dateTo)
-          bulkPayload.push({
-            room: roomId,
-            dateFrom,
-            dateTo,
-            values: {
-              stopSells: false,
-              closed: false,
-              closedArrival: false,
-              closedDeparture: false
-            }
-          });
-
-          // 🟡 CUSCINETTO ONLY CHECK-OUT / CTA (da dateTo + 1 gg a dateTo + onlyCheckoutDays)
-          if (onlyCheckoutDaysNum > 0) {
-            const ctaFrom = addDaysISO(dateTo, 1);
-            const ctaTo = addDaysISO(dateTo, onlyCheckoutDaysNum);
+          if (Object.keys(resetValues).length > 0) {
             bulkPayload.push({
               room: roomId,
-              dateFrom: ctaFrom,
-              dateTo: ctaTo,
+              dateFrom: dateFrom || '2026-10-01',
+              dateTo: dateTo || '2027-10-31',
+              values: resetValues
+            });
+          }
+
+          if (strategy === 'stopsell' || stopSell) {
+            bulkPayload.push({
+              room: roomId,
+              dateFrom: dateFrom || '2026-10-01',
+              dateTo: dateTo || '2027-10-31',
+              values: {
+                stopSells: true,
+                closed: true,
+                closedArrival: true,
+                closedDeparture: true
+              }
+            });
+          }
+        } else {
+          // 🎯 AGGIORNAMENTO SPECIFICO PERIODO (da dateFrom a dateTo)
+          if (strategy === 'stopsell' || stopSell) {
+            // 🔴 STOP SELL: singolo oggetto con chiusura totale
+            bulkPayload.push({
+              room: roomId,
+              dateFrom,
+              dateTo,
+              values: {
+                stopSells: true,
+                closed: true,
+                closedArrival: true,
+                closedDeparture: true
+              }
+            });
+          } else {
+            // 🟢 APERTURA STANDARD (da dateFrom a dateTo)
+            bulkPayload.push({
+              room: roomId,
+              dateFrom,
+              dateTo,
               values: {
                 stopSells: false,
                 closed: false,
-                closedArrival: true,
+                closedArrival: false,
                 closedDeparture: false
               }
             });
+
+            // 🟡 CUSCINETTO ONLY CHECK-OUT / CTA (da dateTo + 1 gg a dateTo + onlyCheckoutDays)
+            if (onlyCheckoutDaysNum > 0) {
+              const ctaFrom = addDaysISO(dateTo, 1);
+              const ctaTo = addDaysISO(dateTo, onlyCheckoutDaysNum);
+              bulkPayload.push({
+                room: roomId,
+                dateFrom: ctaFrom,
+                dateTo: ctaTo,
+                values: {
+                  stopSells: false,
+                  closed: false,
+                  closedArrival: true,
+                  closedDeparture: false
+                }
+              });
+            }
           }
         }
       }

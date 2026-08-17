@@ -83,6 +83,14 @@ export interface RestrictionsState {
   syncRatePlanToOctorate: (ratePlanKey: string, index?: any, options?: { testOnly?: boolean }) => Promise<any>;
   syncAllRatePlansToOctorate: (options?: { testOnly?: boolean }) => Promise<any>;
   fetchLiveRestrictions: () => Promise<void>;
+
+  // Fase Intermedia / Staging & Preview
+  syncStage: 'idle' | 'staged_preview';
+  stagedTarget: 'test' | 'prod' | null;
+  stagedRestrictions: Record<string, PlannedPeriod[]> | null;
+  stageSyncPreview: (target: 'test' | 'prod') => void;
+  cancelSyncPreview: () => void;
+  commitStagedSyncToOctorate: () => Promise<boolean>;
 }
 
 export interface RestrictionsStoreState extends RestrictionsState {
@@ -475,6 +483,11 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       lastSyncMessage: null,
       lastSyncStatus: 'idle',
 
+      // Staging / Anteprima Sincronizzazione
+      syncStage: 'idle' as const,
+      stagedTarget: null,
+      stagedRestrictions: null,
+
       toggleRatePlanActive: (key: string) => {
         const current = get().disabledRatePlans || [];
         const exists = current.includes(key);
@@ -768,12 +781,13 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           const resetStrategy = planId === 'be' ? 'open' : 'stopsell';
           const resetPayload = {
             planId,
-            ratePlanKey: planId,
+            ratePlanKey,
             dateFrom: state.tabulaRasaDateFrom || '2026-10-01',
             dateTo: state.tabulaRasaDateTo || '2027-10-31',
             stopSell: resetStrategy === 'stopsell',
             strategy: resetStrategy,
             testOnly: isTestOnly,
+            isTabulaRasa: true,
             resetPreferences: state.resetPreferences
           };
           await fetch('/api/update-restriction', {
@@ -802,7 +816,8 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
                 onlyCheckOutDays: period.onlyCheckOutDays,
                 onlyCheckoutDays: period.onlyCheckOutDays,
                 strategy: period.closedToArrival ? 'failsafe_checkout' : (period.stopSell ? 'stopsell' : 'open'),
-                testOnly: isTestOnly
+                testOnly: isTestOnly,
+                isTabulaRasa: false
               })
             });
 
@@ -893,6 +908,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
               stopSell: bulkResetStrategy === 'stopsell',
               strategy: bulkResetStrategy,
               testOnly: isTestOnly,
+              isTabulaRasa: true,
               resetPreferences: state.resetPreferences
             };
             await fetch('/api/update-restriction', {
@@ -930,7 +946,8 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
                   onlyCheckOutDays: period.onlyCheckOutDays,
                   onlyCheckoutDays: period.onlyCheckOutDays,
                   strategy: period.closedToArrival ? 'failsafe_checkout' : (period.stopSell ? 'stopsell' : 'open'),
-                  testOnly: isTestOnly
+                  testOnly: isTestOnly,
+                  isTabulaRasa: false
                 })
               }).catch(e => console.warn('Bulk plan sync warning:', e));
             }
@@ -988,6 +1005,45 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           lastSyncMessage: '🔄 Reset store restrizioni completato',
           lastSyncStatus: 'success'
         });
+      },
+
+      stageSyncPreview: (target: 'test' | 'prod') => {
+        const planned = get().plannedPeriods || {};
+        const cloned: Record<string, PlannedPeriod[]> = JSON.parse(JSON.stringify(planned));
+        set({
+          syncStage: 'staged_preview',
+          stagedTarget: target,
+          stagedRestrictions: cloned,
+          liveViewMode: target,
+          lastSyncMessage: `🟡 Anteprima di Staging attiva per [${target === 'test' ? 'TEST FAKE BUNGALOWS' : 'PRODUZIONE REALE'}]. Controlla la Tabella 2 e clicca 'Conferma e Sincronizza' per inviare ad Octorate.`,
+          lastSyncStatus: 'idle'
+        });
+      },
+
+      cancelSyncPreview: () => {
+        set({
+          syncStage: 'idle',
+          stagedTarget: null,
+          stagedRestrictions: null,
+          lastSyncMessage: 'Anteprima di Staging annullata. Ripristinati i dati Octorate.',
+          lastSyncStatus: 'idle'
+        });
+      },
+
+      commitStagedSyncToOctorate: async () => {
+        const { stagedTarget } = get();
+        const target = stagedTarget || (get().testMode ? 'test' : 'prod');
+        const isTestOnly = target === 'test';
+        
+        const ok = await get().syncAllRatePlansToOctorate({ testOnly: isTestOnly });
+        if (ok) {
+          set({
+            syncStage: 'idle',
+            stagedTarget: null,
+            stagedRestrictions: null
+          });
+        }
+        return ok;
       }
     }),
     {

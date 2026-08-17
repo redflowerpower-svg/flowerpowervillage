@@ -708,4 +708,23 @@ executionMode:
 
 ---
 
+## 11. Architettura Staging a 2 Fasi & Sincronizzazione Atomica Restrizioni Octorate (17/08/2026)
 
+### A. Pattern Staging & Commit a 2 Fasi (Timeline Gantt Restrizioni)
+- **Componente Principale ([`GestioneRestrizioniCanali.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/GestioneRestrizioniCanali.tsx))**:
+  - **Fase 1 (Anteprima Staging)**: I pulsanti `ANTEPRIMA SYNC TEST` e `ANTEPRIMA SYNC PRODUZIONE` clonano localmente i periodi pianificati in `stagedRestrictions`, attivano lo stato `syncStage = 'staged_preview'` e commutano la visualizzazione su Tabella 2 senza inviare alcuna chiamata API ad Octorate.
+  - **Tabella 2 in Staging**: Mostra l'intestazione con badge evidente `🟡 TABELLA 2: ANTEPRIMA STAGING [TEST / PRODUZIONE]` e badge `PREVIEW` su ogni card, visualizzando aperture, fasce Only Check-out (10gg/14gg) e blocchi Stop Sell prima dell'invio.
+  - **Fase 2 (Commit su Octorate)**: Il pulsante dedicato `🚀 CONFERMA & SINCRONIZZA SU OCTORATE (TEST/PROD)` esegue la sincronizzazione effettiva via API Octorate. Il pulsante `✕ Annulla Anteprima` ripristina la visualizzazione dati live.
+
+### B. Risoluzione Targeting ID e Spostamento Fake Bungalow 2
+- **Backend ([`update-restriction.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/update-restriction.ts) & [`update-rateplan-restrictions-bulk.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/update-rateplan-restrictions-bulk.ts))**:
+  - Rimosso l'hardcoding su `motherBeIdFB1` per tutte le tariffe. Ciascun piano tariffario punta al proprio ID specifico:
+    - *Fake Bungalow 1 (FB1)*: `TEST_PRODUCT_IDS[planKey]` (es. AirBnB = `932252`, 7d = `932244`, BE = `932243`).
+    - *Fake Bungalow 2 (FB2)*: `TEST_PRODUCT_IDS[planKey] + 13` (es. AirBnB = `932265`).
+    - *Bungalow Reali (Produzione)*: `REAL_PRODUCT_IDS[planKey]`.
+
+### C. Esecuzione Atomica Tabula Rasa & Isolamento Periodi
+- **Fix Sovrascrittura a Catena**:
+  - Il reset preventivo annuale (`2026-10-01` → `2027-10-31`) viene eseguito **esclusivamente quando richiesto esplicitamente** tramite il flag `isTabulaRasa: true` all'avvio della sincronizzazione del piano.
+  - Le chiamate dei singoli periodi (`isTabulaRasa: false`) scrivono **esclusivamente le date specifiche (`dateFrom` → `dateTo`)** e l'eventuale cuscinetto CTA, senza azzerare o riaprire i periodi precedenti dello stesso piano.
+  - I piani disattivati ricevono direttamente lo Stop Sell sull'intero arco temporale senza alcun azzeramento preliminare a `stopSells: false`.

@@ -149,6 +149,19 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const disabledRatePlans = store?.disabledRatePlans || [];
   const toggleRatePlanActive = store?.toggleRatePlanActive || (() => {});
 
+  // Staging / Anteprima Sincronizzazione a 2 Fasi
+  const syncStage = store?.syncStage ?? 'idle';
+  const stagedTarget = store?.stagedTarget ?? null;
+  const stagedRestrictions = store?.stagedRestrictions ?? null;
+  const stageSyncPreview = store?.stageSyncPreview || (() => {});
+  const cancelSyncPreview = store?.cancelSyncPreview || (() => {});
+  const commitStagedSyncToOctorate = store?.commitStagedSyncToOctorate || (async () => false);
+
+  const isStagingMode = syncStage === 'staged_preview';
+  const currentDisplayLiveRestrictions = isStagingMode && stagedRestrictions
+    ? stagedRestrictions
+    : liveOctorateRestrictions;
+
   const fetchLiveRestrictions = store?.fetchLiveRestrictions || (async () => {});
   const updatePlannedPeriod = store?.updatePlannedPeriod || store?.updatePeriod || (() => {});
   const addNextPlannedPeriod = store?.addNextPlannedPeriod || store?.addNextPeriod || (() => {});
@@ -217,18 +230,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   };
 
   const handleSyncDerivateTest = () => {
-    if (confirmingTestSync) {
-      if (testSyncTimerRef.current) clearTimeout(testSyncTimerRef.current);
-      setConfirmingTestSync(false);
-      setTestMode(true);
-      syncAllRatePlansToOctorate({ testOnly: true });
-    } else {
-      if (testSyncTimerRef.current) clearTimeout(testSyncTimerRef.current);
-      setConfirmingTestSync(true);
-      testSyncTimerRef.current = setTimeout(() => {
-        setConfirmingTestSync(false);
-      }, 3000);
-    }
+    stageSyncPreview('test');
+    setActiveViewTab('comparison');
   };
 
   const handleSyncDerivateProd = () => {
@@ -274,8 +277,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     importConfig({ ...INITIAL_PLAN_PERIODS, ...cloned });
   };
 
-  const liveDataKeys = Object.keys(liveOctorateRestrictions);
-  const isLiveDataReady = liveDataKeys.length > 0 && liveDataKeys.some(k => (liveOctorateRestrictions[k]?.length ?? 0) > 0);
+  const liveDataKeys = Object.keys(currentDisplayLiveRestrictions);
+  const isLiveDataReady = isStagingMode || (liveDataKeys.length > 0 && liveDataKeys.some(k => (currentDisplayLiveRestrictions[k]?.length ?? 0) > 0));
 
   const toggleAccommodationExpand = (planId: string) => {
     setExpandedAccommodations(prev => ({ ...prev, [planId]: !prev[planId] }));
@@ -702,22 +705,28 @@ export const GestioneRestrizioniCanali: React.FC = () => {
           {/* Riga 1: Codice Tariffa + badge allineamento */}
           <div className="flex items-center justify-between gap-0.5 h-3.5 min-w-0">
             <span
-              title={`Tariffa Live Octorate: ${plan.name} (${plan.code})`}
+              title={`Tariffa ${isStagingMode ? 'in Anteprima Staging' : 'Live Octorate'}: ${plan.name} (${plan.code})`}
               className={`font-black uppercase tracking-tight text-white ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} truncate flex-1 min-w-0 cursor-default`}
             >
               {plan.code}
             </span>
             <span
               title={
-                isMatching
+                isStagingMode
+                  ? '🟡 ANTEPRIMA STAGING: Configurazione pianificata pronta per essere inviata ad Octorate'
+                  : isMatching
                   ? '✅ Allineato: La configurazione Live su Octorate corrisponde esattamente alla pianificazione'
                   : '⚠️ Discrepanza: La configurazione Live su Octorate differisce dalla pianificazione'
               }
               className={`text-[6px] font-black px-1 py-0.2 rounded border shrink-0 cursor-help ${
-                isMatching ? 'bg-emerald-950 border-emerald-700 text-emerald-300' : 'bg-amber-950 border-amber-700 text-amber-300'
+                isStagingMode
+                  ? (stagedTarget === 'test' ? 'bg-emerald-950 border-emerald-500 text-emerald-300 animate-pulse' : 'bg-amber-950 border-amber-500 text-amber-300 animate-pulse')
+                  : isMatching
+                  ? 'bg-emerald-950 border-emerald-700 text-emerald-300'
+                  : 'bg-amber-950 border-amber-700 text-amber-300'
               }`}
             >
-              {isMatching ? '✓' : '!'}
+              {isStagingMode ? 'PREVIEW' : isMatching ? '✓' : '!'}
             </span>
           </div>
 
@@ -874,36 +883,61 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 <XCircle className="w-3.5 h-3.5 text-white" />
                 <span>Interrompi</span>
               </button>
+            ) : isStagingMode ? (
+              <>
+                {/* 🚀 PULSANTE CONFERMA & SYNC STAGING SU OCTORATE */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await commitStagedSyncToOctorate();
+                  }}
+                  disabled={syncingPeriodId !== null}
+                  className={`py-2 px-4 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-xl flex items-center gap-2 cursor-pointer whitespace-nowrap disabled:opacity-50 border shrink-0 ${
+                    stagedTarget === 'test'
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-300 ring-2 ring-emerald-400 shadow-emerald-950 animate-pulse'
+                      : 'bg-red-600 hover:bg-red-500 text-white border-red-300 ring-2 ring-red-400 shadow-red-950 animate-pulse'
+                  }`}
+                  title={`Conferma e invia la configurazione visualizzata in Tabella 2 su Octorate (${stagedTarget === 'test' ? 'TEST' : 'PRODUZIONE'})`}
+                >
+                  <Zap className="w-4 h-4 text-yellow-300" />
+                  <span>{`🚀 CONFERMA & SINCRONIZZA SU OCTORATE (${stagedTarget === 'test' ? 'TEST' : 'PROD'})`}</span>
+                </button>
+
+                {/* ✕ ANNULLA ANTEPRIMA STAGING */}
+                <button
+                  type="button"
+                  onClick={() => cancelSyncPreview()}
+                  className="py-2 px-3.5 bg-stone-800 hover:bg-stone-750 text-stone-300 border border-stone-600 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow whitespace-nowrap shrink-0 hover:scale-105"
+                  title="Annulla l'anteprima e ripristina la visualizzazione Live di Tabella 2"
+                >
+                  <XCircle className="w-3.5 h-3.5 text-stone-400" />
+                  <span>Annulla Anteprima</span>
+                </button>
+              </>
             ) : (
               <>
-                {/* SYNC DERIVATE TEST */}
+                {/* PREPARA ANTEPRIMA SYNC TEST */}
                 <button
                   type="button"
                   onClick={handleSyncDerivateTest}
                   disabled={syncingPeriodId !== null}
-                  className={`py-2 px-3.5 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-50 border shrink-0 ${
-                    confirmingTestSync
-                      ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 border-amber-300 ring-2 ring-amber-300 animate-pulse font-extrabold'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-400 shadow-emerald-950'
-                  }`}
-                  title="Sincronizza tutti i piani sui Fake Bungalows di Test"
+                  className="py-2 px-3.5 bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-400 shadow-emerald-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-50 shrink-0 hover:scale-105"
+                  title="Proietta graficamente in Tabella 2 l'anteprima di sincronizzazione per i Fake Bungalows di Test"
                 >
-                  <Zap className={`w-3.5 h-3.5 ${confirmingTestSync ? 'text-stone-950' : 'text-yellow-300'}`} />
-                  <span>
-                    {confirmingTestSync ? 'CONFERMI SYNC TEST?' : 'SYNC DERIVATE TEST'}
-                  </span>
+                  <Zap className="w-3.5 h-3.5 text-yellow-300" />
+                  <span>ANTEPRIMA SYNC TEST</span>
                 </button>
 
-                {/* SYNC DERIVATE PRODUZIONE */}
+                {/* PREPARA ANTEPRIMA SYNC PRODUZIONE */}
                 <button
                   type="button"
                   onClick={handleSyncDerivateProd}
                   disabled={syncingPeriodId !== null}
-                  className="py-2 px-3.5 bg-red-600 hover:bg-red-500 text-white border border-red-400 shadow-red-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-50 shrink-0"
-                  title="⚠️ ATTENZIONE: Sincronizza tutti i piani sui Bungalow Reali in PRODUZIONE!"
+                  className="py-2 px-3.5 bg-red-600 hover:bg-red-500 text-white border border-red-400 shadow-red-950 font-black text-xs uppercase tracking-wider rounded-2xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-50 shrink-0 hover:scale-105"
+                  title="⚠️ ATTENZIONE: Proietta graficamente in Tabella 2 l'anteprima di sincronizzazione per la PRODUZIONE"
                 >
                   <AlertTriangle className="w-3.5 h-3.5 text-yellow-300" />
-                  <span>SYNC DERIVATE PRODUZIONE</span>
+                  <span>ANTEPRIMA SYNC PRODUZIONE</span>
                 </button>
               </>
             )}
@@ -1142,14 +1176,56 @@ export const GestioneRestrizioniCanali: React.FC = () => {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2.5">
             <span className={`w-3 h-3 rounded-full shadow-md ${activeViewTab === 'editor' ? 'bg-red-400' : 'bg-emerald-400'}`} />
-            <h3 className="text-xs sm:text-sm font-black text-white tracking-tight uppercase">
-              {activeViewTab === 'editor'
-                ? 'TABELLA 1: TIMELINE GANTT — RESTRIZIONI PIANIFICATE'
-                : 'TABELLA 2: TIMELINE GANTT — RESTRIZIONI LIVE OCTORATE'}
+            <h3 className="text-xs sm:text-sm font-black text-white tracking-tight uppercase flex items-center gap-2 flex-wrap">
+              {activeViewTab === 'editor' ? (
+                'TABELLA 1: TIMELINE GANTT — RESTRIZIONI PIANIFICATE'
+              ) : isStagingMode ? (
+                <span className="flex items-center gap-2 text-amber-300">
+                  <span>TABELLA 2: ANTEPRIMA STAGING</span>
+                  <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-mono font-black uppercase border tracking-normal shadow ${
+                    stagedTarget === 'test'
+                      ? 'bg-emerald-950/90 text-emerald-300 border-emerald-500 ring-1 ring-emerald-400'
+                      : 'bg-red-950/90 text-red-300 border-red-500 ring-1 ring-red-400'
+                  }`}>
+                    {stagedTarget === 'test' ? '🧪 PROIEZIONE TEST FAKE (NON INVIATA)' : '⚠️ PROIEZIONE PRODUZIONE (NON INVIATA)'}
+                  </span>
+                </span>
+              ) : (
+                'TABELLA 2: TIMELINE GANTT — RESTRIZIONI LIVE OCTORATE'
+              )}
             </h3>
 
-            {/* Toggle Live Mode per Tabella 2 */}
-            {activeViewTab === 'comparison' && (
+            {/* Azioni rapide inline se in Staging Mode */}
+            {isStagingMode && activeViewTab === 'comparison' && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await commitStagedSyncToOctorate();
+                  }}
+                  className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer flex items-center gap-1.5 shadow-lg border ${
+                    stagedTarget === 'test'
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-300 ring-2 ring-emerald-400 animate-pulse'
+                      : 'bg-red-600 hover:bg-red-500 text-white border-red-300 ring-2 ring-red-400 animate-pulse'
+                  }`}
+                  title="Conferma ed esegui la sincronizzazione su Octorate"
+                >
+                  <Zap className="w-3.5 h-3.5 text-yellow-300" />
+                  <span>Conferma & Invia su Octorate</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => cancelSyncPreview()}
+                  className="px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase transition-all cursor-pointer bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-600"
+                  title="Annulla anteprima di staging"
+                >
+                  ✕ Annulla
+                </button>
+              </div>
+            )}
+
+            {/* Toggle Live Mode per Tabella 2 (quando non in staging) */}
+            {!isStagingMode && activeViewTab === 'comparison' && (
               <div className="flex items-center gap-1.5 bg-stone-950 p-1 rounded-2xl border border-stone-800 ml-1">
                 <button
                   type="button"
@@ -1391,8 +1467,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                             </div>
                           ) : (
                             (() => {
-                              const livePeriods: PlannedPeriod[] = liveOctorateRestrictions[plan.id]?.length > 0
-                                ? liveOctorateRestrictions[plan.id]
+                              const livePeriods: PlannedPeriod[] = currentDisplayLiveRestrictions[plan.id]?.length > 0
+                                ? currentDisplayLiveRestrictions[plan.id]
                                 : [];
                               if (livePeriods.length === 0) {
                                 return (
@@ -1464,11 +1540,12 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setShowTestModal(false);
-                  syncAllRatePlansToOctorate({ testOnly: true });
+                  stageSyncPreview('test');
+                  setActiveViewTab('comparison');
                 }}
                 className="px-5 py-2 bg-amber-600 hover:bg-amber-500 text-stone-950 rounded-xl text-xs font-black uppercase tracking-wide transition-all shadow-lg cursor-pointer"
               >
-                Conferma Test
+                Prepara Anteprima Test
               </button>
             </div>
           </div>
@@ -1484,18 +1561,18 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-black tracking-tight text-white uppercase">
-                  Attivazione Produzione Reale
+                  Attivazione Proiezione Produzione Reale
                 </h3>
-                <span className="text-xs text-red-300 font-mono">Richiesta di conferma esplicita</span>
+                <span className="text-xs text-red-300 font-mono">Fase 1: Proiezione visiva in Tabella 2</span>
               </div>
             </div>
 
             <div className="bg-red-950/40 border border-red-600/50 rounded-2xl p-4 space-y-2 text-xs text-red-200">
               <p className="font-bold text-sm text-red-100">
-                Stai per uscire dalla modalità di simulazione protetta.
+                Stai per preparare la proiezione per la PRODUZIONE REALE.
               </p>
               <p>
-                In <strong>PRODUZIONE REALE</strong>, qualsiasi operazione di <em>Tabula Rasa</em>, sincronizzazione periodi o Stop Sale modificherà istantaneamente i calendari dei <strong>Bungalow Reali</strong> del Flower Power Village su Octorate e su tutte le OTA (Booking.com, Agoda, Expedia, Airbnb).
+                La configurazione pianificata verrà visualizzata in <strong>Tabella 2 (Anteprima Staging)</strong> per permetterti di verificare tutte le date, i blocchi Stop Sell e i giorni Only Check-out prima di confermare l&apos;invio effettivo ad Octorate e alle OTA.
               </p>
             </div>
 
@@ -1512,12 +1589,13 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                 onClick={() => {
                   setTestMode(false);
                   setShowProdWarningModal(false);
-                  syncAllRatePlansToOctorate({ testOnly: false });
+                  stageSyncPreview('prod');
+                  setActiveViewTab('comparison');
                 }}
                 className="px-5 py-2.5 rounded-2xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-xl hover:shadow-red-600/50 flex items-center gap-2 cursor-pointer border border-red-400 animate-pulse"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Confermo, Sincronizza in Produzione Reale</span>
+                <span>Prepara Anteprima Produzione</span>
               </button>
             </div>
           </div>
