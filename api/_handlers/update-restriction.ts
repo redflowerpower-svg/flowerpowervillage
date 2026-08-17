@@ -262,16 +262,21 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
           try { testCache = JSON.parse(fs.readFileSync(testCachePath, 'utf8')); } catch (e) {}
         }
 
+        const rawOnlyCheckout = req.body?.onlyCheckoutDays ?? req.body?.onlyCheckOutDays;
+        const onlyCheckoutDaysVal = rawOnlyCheckout !== undefined && rawOnlyCheckout !== null && rawOnlyCheckout !== ''
+          ? Number(rawOnlyCheckout)
+          : (isCta ? 10 : 0);
+
         const periodObj = {
           id: `${planKey}_live_${Date.now()}`,
-          name: strategy === 'stopsell' ? 'Stop Sell (Chiuso)' : (isCta ? `Only Check-out (${req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 10}gg)` : 'Apertura Standard (OK)'),
+          name: strategy === 'stopsell' ? 'Stop Sell (Chiuso)' : (isCta ? `Only Check-out (${onlyCheckoutDaysVal || 10}gg)` : 'Apertura Standard (OK)'),
           dateFrom,
           dateTo,
           stopSell: strategy === 'stopsell',
           closedToArrival: isCta || strategy === 'stopsell',
           closedToDeparture: strategy === 'stopsell',
-          onlyCheckoutDays: isCta ? Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 10) : 0,
-          onlyCheckOutDays: isCta ? Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 10) : 0,
+          onlyCheckoutDays: onlyCheckoutDaysVal,
+          onlyCheckOutDays: onlyCheckoutDaysVal,
           strategy: strategy === 'stopsell' ? 'stopsell' : (isCta ? 'failsafe_checkout' : 'open')
         };
 
