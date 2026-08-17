@@ -6,24 +6,25 @@ export interface RealOctoratePlan {
   code: string;
   name: string;
   isAcOnly: boolean;
+  hasBreakfast?: boolean;
   type: 'be' | '7d' | 'booking' | 'ac' | 'agoda';
   description: string;
   badgeColor: string;
 }
 
 export const REAL_OCTORATE_PLANS: RealOctoratePlan[] = [
-  { id: 'be', code: 'BE', name: 'Official Booking Engine (BE)', isAcOnly: false, type: 'be', description: 'Canale diretto del sito web (Tariffa Madre)', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' },
-  { id: '7d', code: '7d', name: 'Standard 7d (Canc. 7gg)', isAcOnly: false, type: '7d', description: 'Booking.com, Expedia, Agoda & Sito: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-teal-400/20 text-teal-300 border-teal-400/50' },
-  { id: 'main_bnb_7d', code: 'Main bnb-7d', name: 'Main bnb-7d (Canc. 7gg)', isAcOnly: false, type: 'booking', description: 'Booking.com & Expedia: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/50' },
-  { id: 'main_bnb_14d', code: 'Main bnb-14d', name: 'Main bnb-14d (Canc. 14gg)', isAcOnly: false, type: 'booking', description: 'Booking.com & Expedia: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-blue-950/90 text-blue-300 border-blue-700/80' },
-  { id: 'agd_ac_7d', code: 'AGD AC-7d', name: 'AGD AC-7d (Agoda AC 7gg)', isAcOnly: true, type: 'agoda', description: 'Agoda AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-pink-300/20 text-pink-200 border-pink-300/60' },
-  { id: 'agd_ac_14d', code: 'AGD AC-14d', name: 'AGD AC-14d (Agoda AC 14gg)', isAcOnly: true, type: 'agoda', description: 'Agoda AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-rose-950/80 text-rose-400 border-rose-700/80' },
-  { id: 'airbnb', code: 'AirBnB', name: 'AirBnB Standard', isAcOnly: false, type: 'booking', description: 'Canale Airbnb per alloggi Standard', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/50' },
-  { id: 'airbnb_ac', code: 'AirBnB AC', name: 'AirBnB AC', isAcOnly: true, type: 'booking', description: 'Canale Airbnb per alloggi con Aria Condizionata', badgeColor: 'bg-orange-600/25 text-orange-300 border-orange-600/60' },
-  { id: 'ac_7d', code: 'AC7d', name: 'AC7d (AC Canc. 7gg)', isAcOnly: true, type: 'ac', description: 'Master AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' },
-  { id: 'ac_14d', code: 'AC14d', name: 'AC14d (AC Canc. 14gg)', isAcOnly: true, type: 'ac', description: 'Master AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/50' },
-  { id: 'ac_bnb_7d', code: 'AC bnb-7d', name: 'AC bnb-7d (Booking AC 7gg)', isAcOnly: true, type: 'booking', description: 'Booking.com & Expedia AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-indigo-500/20 text-cyan-300 border-cyan-500/50' },
-  { id: 'ac_bnb_14d', code: 'AC bnb-14d', name: 'AC bnb-14d (Booking AC 14gg)', isAcOnly: true, type: 'booking', description: 'Booking.com & Expedia AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-purple-500/20 text-cyan-300 border-cyan-500/50' }
+  { id: 'be', code: 'BE', name: 'Official Booking Engine (BE)', isAcOnly: false, hasBreakfast: false, type: 'be', description: 'Canale diretto del sito web (Tariffa Madre)', badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' },
+  { id: '7d', code: '7d', name: 'Standard 7d (Canc. 7gg)', isAcOnly: false, hasBreakfast: false, type: '7d', description: 'Booking.com, Expedia, Agoda & Sito: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-teal-400/20 text-teal-300 border-teal-400/50' },
+  { id: 'main_bnb_7d', code: 'Main bnb-7d', name: 'Main bnb-7d (Canc. 7gg)', isAcOnly: false, hasBreakfast: true, type: 'booking', description: 'Booking.com & Expedia: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/50' },
+  { id: 'main_bnb_14d', code: 'Main bnb-14d', name: 'Main bnb-14d (Canc. 14gg)', isAcOnly: false, hasBreakfast: true, type: 'booking', description: 'Booking.com & Expedia: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-blue-950/90 text-blue-300 border-blue-700/80' },
+  { id: 'agd_ac_7d', code: 'AGD AC-7d', name: 'AGD AC-7d (Agoda AC 7gg)', isAcOnly: true, hasBreakfast: false, type: 'agoda', description: 'Agoda AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-pink-300/20 text-pink-200 border-pink-300/60' },
+  { id: 'agd_ac_14d', code: 'AGD AC-14d', name: 'AGD AC-14d (Agoda AC 14gg)', isAcOnly: true, hasBreakfast: false, type: 'agoda', description: 'Agoda AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-rose-950/80 text-rose-400 border-rose-700/80' },
+  { id: 'airbnb', code: 'AirBnB', name: 'AirBnB Standard', isAcOnly: false, hasBreakfast: false, type: 'booking', description: 'Canale Airbnb per alloggi Standard', badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/50' },
+  { id: 'airbnb_ac', code: 'AirBnB AC', name: 'AirBnB AC', isAcOnly: true, hasBreakfast: false, type: 'booking', description: 'Canale Airbnb per alloggi con Aria Condizionata', badgeColor: 'bg-orange-600/25 text-orange-300 border-orange-600/60' },
+  { id: 'ac_7d', code: 'AC7d', name: 'AC7d (AC Canc. 7gg)', isAcOnly: true, hasBreakfast: false, type: 'ac', description: 'Master AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' },
+  { id: 'ac_14d', code: 'AC14d', name: 'AC14d (AC Canc. 14gg)', isAcOnly: true, hasBreakfast: false, type: 'ac', description: 'Master AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/50' },
+  { id: 'ac_bnb_7d', code: 'AC bnb-7d', name: 'AC bnb-7d (Booking AC 7gg)', isAcOnly: true, hasBreakfast: true, type: 'booking', description: 'Booking.com & Expedia AC: Canc. gratuita 100% fino a 7gg prima del check-in', badgeColor: 'bg-indigo-500/20 text-cyan-300 border-cyan-500/50' },
+  { id: 'ac_bnb_14d', code: 'AC bnb-14d', name: 'AC bnb-14d (Booking AC 14gg)', isAcOnly: true, hasBreakfast: true, type: 'booking', description: 'Booking.com & Expedia AC: Canc. gratuita 100% fino a 14gg prima del check-in', badgeColor: 'bg-purple-500/20 text-cyan-300 border-cyan-500/50' }
 ];
 
 export const RATE_PLANS = REAL_OCTORATE_PLANS;

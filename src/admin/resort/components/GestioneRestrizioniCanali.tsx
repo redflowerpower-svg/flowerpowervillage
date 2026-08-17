@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Zap,
   Wind,
+  Coffee,
   Layers,
   Check,
   Info,
@@ -1734,11 +1735,18 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                               {isPlanDisabled ? 'OFF' : 'ON'}
                             </button>
                           </div>
-                          {plan.isAcOnly && (
-                            <span className="text-[8px] font-bold text-cyan-300 bg-cyan-950 border border-cyan-700/60 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                              <Wind className="w-2.5 h-2.5" /> AC Only
-                            </span>
-                          )}
+                          <div className="flex items-center gap-1">
+                            {plan.isAcOnly && (
+                              <span className="text-[8px] font-bold text-cyan-300 bg-cyan-950 border border-cyan-700/60 px-1.5 py-0.5 rounded flex items-center gap-0.5 shadow-sm">
+                                <Wind className="w-2.5 h-2.5" /> AC
+                              </span>
+                            )}
+                            {(plan.hasBreakfast || plan.id.includes('bnb')) && (
+                              <span className="text-[8px] font-bold text-amber-300 bg-amber-950/80 border border-amber-700/60 px-1.5 py-0.5 rounded flex items-center gap-0.5 shadow-sm">
+                                <Coffee className="w-2.5 h-2.5" /> Breakfast
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div onClick={() => toggleAccommodationExpand(plan.id)}
                           className="font-extrabold text-white text-xs cursor-pointer hover:text-red-300 transition-colors flex items-center justify-between pt-0.5">

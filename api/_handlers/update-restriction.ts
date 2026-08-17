@@ -15,6 +15,24 @@ export const isTestProduct = (id: number) =>
   id === 649669 ||
   id === 921799;
 
+// Rate ID Reali per tutti i 18 alloggi (194 prodotti Octorate totali)
+export const REAL_PRODUCTS_BY_PLAN: Record<string, number[]> = {
+  be: [495980, 529784, 449684, 449678, 449422, 449699, 449724, 449348, 449730, 495807, 449736, 495566, 449742, 449385, 449668, 449675, 449674],
+  '7d': [916110, 495976, 872182, 529778, 422300, 422296, 422293, 422422, 422445, 495803, 422325, 495549, 422213, 422351, 422131, 422265, 422402, 422149],
+  main_bnb_7d: [916109, 529788, 496002, 496001, 495575, 421520, 332066, 332084, 332077, 332739, 332735, 332746, 332105, 332763, 332757, 332767, 332054, 332029],
+  main_bnb_14d: [916107, 496010, 529792, 496009, 495580, 332055, 332070, 332081, 332089, 332737, 332741, 332743, 332109, 332759, 332769, 332765, 421516, 332030],
+  ac_7d: [916114, 495978, 529780, 495552, 495805, 421522, 340367, 331921, 330964, 331923, 331970, 331972, 331966, 331968, 331974, 331976],
+  ac_14d: [495979, 529781, 916105, 422157, 421527, 495806, 495565, 421998, 331922, 331924, 330970, 331969, 331971, 331967, 331977, 331973],
+  ac_bnb_7d: [496022, 496021, 916818, 916816, 916840, 916829, 495587, 332057, 421525, 332072, 332121, 332123, 332119, 332129, 332125, 332035],
+  ac_bnb_14d: [496031, 496030, 916402, 916838, 916830, 529801, 421530, 495593, 332060, 332074, 332138, 332140, 332134, 332136, 332142, 332036],
+  agd_ac_7d: [921874, 921872, 921870, 921868],
+  agoda_ac_7d: [921874, 921872, 921870, 921868],
+  agd_ac_14d: [921873, 921871, 921869],
+  agoda_ac_14d: [921873, 921871, 921869],
+  airbnb: [529783, 495982, 916103, 421532, 495810, 495569, 297025, 297027, 297028, 297021, 297022, 297023, 297024, 297033, 297029, 297030, 297031, 297032],
+  airbnb_ac: [529813, 496057, 496056, 916104, 421533, 495609, 422147, 340196, 340198, 340200, 421507, 421508, 421505, 421506, 421509, 421510]
+};
+
 export const REAL_PRODUCT_IDS: Record<string, number> = {
   be: 529784,
   '7d': 529778,
@@ -32,6 +50,23 @@ export const REAL_PRODUCT_IDS: Record<string, number> = {
   airbnb_ac: 529813
 };
 
+export const TEST_PRODUCTS_BY_PLAN: Record<string, number[]> = {
+  be: [932243, 932256],
+  '7d': [932244, 932257],
+  main_bnb_7d: [932246, 932259],
+  main_bnb_14d: [932247, 932260],
+  ac_7d: [932248, 932261],
+  ac_14d: [932249, 932262],
+  agoda_ac_7d: [932250, 932263],
+  agoda_ac_14d: [932251, 932264],
+  agd_ac_7d: [932250, 932263],
+  agd_ac_14d: [932251, 932264],
+  airbnb: [932252, 932265],
+  airbnb_ac: [932253, 932266],
+  ac_bnb_7d: [932254, 932267],
+  ac_bnb_14d: [932255, 932268]
+};
+
 export const TEST_PRODUCT_IDS: Record<string, number> = {
   be: 932243,
   '7d': 932244,
@@ -47,6 +82,11 @@ export const TEST_PRODUCT_IDS: Record<string, number> = {
   airbnb_ac: 932253,
   ac_bnb_7d: 932254,
   ac_bnb_14d: 932255
+};
+
+export const MOTHER_ACCOMMODATION_IDS = {
+  test: [649669, 921799],
+  real: [883795, 529773, 495796, 495795, 494840, 421511, 293965, 293945, 293948, 293942, 293943, 293954, 293955, 293951, 293962, 293963, 293957, 293959]
 };
 
 /**
@@ -140,8 +180,11 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
       // 🌙 NOTTI MINIME (MinStay): Vengono scritte ESCLUSIVAMENTE sulle Camere Madri di Livello 0 (Alloggio Padre)
       // Octorate calcola ed eredita automaticamente il minstay a cascata su tutte le tariffe derivate (BE, 7d, 14d, Airbnb, ecc.)
       const roomsToUpdate = isMinStay
-        ? (testOnly ? [649669, 921799] : [529773, 495795, 495796, 494840, 421511, 293957, 293954, 293962, 293965, 293955, 293942, 293963, 293959, 293948, 293945, 293943, 293951, 883795])
-        : (testOnly ? [rateIdFB1, rateIdFB2] : [rateIdReal]);
+        ? (testOnly ? MOTHER_ACCOMMODATION_IDS.test : MOTHER_ACCOMMODATION_IDS.real)
+        : (testOnly
+            ? (planKey && TEST_PRODUCTS_BY_PLAN[planKey] ? TEST_PRODUCTS_BY_PLAN[planKey] : [rateIdFB1, rateIdFB2])
+            : (planKey && REAL_PRODUCTS_BY_PLAN[planKey] ? REAL_PRODUCTS_BY_PLAN[planKey] : (targetRateIdNum ? [targetRateIdNum] : [rateIdReal]))
+          );
 
       const onlyCheckoutDaysNum = Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 0);
 

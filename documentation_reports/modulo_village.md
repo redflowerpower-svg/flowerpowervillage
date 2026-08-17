@@ -952,3 +952,30 @@ executionMode:
   * Card speculari a quelle dei piani tariffari con date picker interattivo (`DD/MM/YYYY`), stepper numerico rapido `[-]` / `[ + ]`, popover di inserimento relativo (Prima ◀ / Dopo ▶) e cancellazione con opzione di scivolamento automatico (Trascina 🧲 / Solo questo modulo ❌).
   * Esclusione del `minStay` dalla procedura di Tabula Rasa sia manuale che automatica per garantire la persistenza continua della configurazione delle notti minime.
   * Riconciliazione in tempo reale dei blocchi `minStayPeriods` in Tabella 2 Live tramite `groupDailyMinStay` in [`octorate-restrictions-grid.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/octorate-restrictions-grid.ts).
+
+---
+
+## 13. Sincronizzazione Globale Multi-Alloggio Produzione & UI Badges (17/08/2026)
+
+### A. Mappatura Multi-Alloggio 194 Prodotti Reali ([`update-restriction.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/update-restriction.ts) & [`update-rateplan-restrictions-bulk.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/update-rateplan-restrictions-bulk.ts))
+* **Risoluzione Hardcoding Sentinel Room**:
+  * Sostituito il singolo ID di Jungle Villa con la matrice completa `REAL_PRODUCTS_BY_PLAN` che raggruppa tutti i 194 ID prodotto di Octorate per ciascun canale:
+    * `Standard 7d`: **18 alloggi** (`916110`, `495976`, `872182`, `529778`, `422300`, `422296`, `422293`, `422422`, `422445`, `495803`, `422325`, `495549`, `422213`, `422351`, `422131`, `422265`, `422402`, `422149`).
+    * `Main bnb-7d` / `Main bnb-14d`: **18 alloggi** ciascuno.
+    * `Airbnb Standard`: **18 alloggi**.
+    * `AC 7d` / `AC 14d` / `AC bnb-7d` / `AC bnb-14d` / `Airbnb AC`: **16 alloggi con AC** ciascuno.
+    * `Agoda AC-7d` / `Agoda AC-14d`: **4 alloggi** dedicati.
+    * `Booking Engine (BE)`: **17 alloggi**.
+* **Sincronizzazione Atomica**: Premendo `CONFERMA & SINCRONIZZA SU OCTORATE (PROD)`, i comandi di apertura/Stop Sell vengono inviati all'unisono a tutti i 18 alloggi del resort.
+
+### B. Targeting Soggiorno Minimo sulle 18 Camere Madri di Livello 0
+* `MOTHER_ACCOMMODATION_IDS.real` contiene tutti i 18 ID fisici di Livello 0: `[883795, 529773, 495796, 495795, 494840, 421511, 293965, 293945, 293948, 293942, 293943, 293954, 293955, 293951, 293962, 293963, 293957, 293959]`.
+* Il comando `strategy: 'minstay'` scrive le notti minime esclusivamente a livello padre, propagandosi automaticamente a cascata su tutte le tariffe del PMS.
+
+### C. Estensione Temporale Download Griglia Octorate ([`octorate-restrictions-grid.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/octorate-restrictions-grid.ts))
+* Esteso `dateTo` da `2027-05-31` a `2027-10-31` (fine Ottobre 2027), consentendo alla Tabella 2 Live di scaricare e visualizzare l'intera stagione senza tagli anticipati a Maggio.
+
+### D. Badge Canali Grafici & Accessori ([`GestioneRestrizioniCanali.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/GestioneRestrizioniCanali.tsx))
+* `AC`: Badge ciano compatto con icona vento `<Wind />` (sostituito `AC Only`).
+* `Breakfast`: Badge ambra con icona colazione `<Coffee />` per `Main bnb-7d`, `Main bnb-14d`, `AC bnb-7d` e `AC bnb-14d`.
+

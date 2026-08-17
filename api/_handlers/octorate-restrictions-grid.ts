@@ -142,6 +142,43 @@ export function groupDailyMinStay(days: any[]) {
   return rawPeriods;
 }
 
+// Rate ID Reali per la visualizzazione Live (include tariffe e madri per estrazione MinStay)
+export const REAL_PRODUCT_IDS: Record<string, number[]> = {
+  be: [495980, 529784, 449684, 449678, 449422, 449699, 449724, 449348, 449730, 495807, 449736, 495566, 449742, 449385, 449668, 449675, 449674, 529773, 495795, 495796, 494840, 421511, 293957, 293954, 293962, 293965, 293955, 293942, 293963, 293959, 293948, 293945, 293943, 293951, 883795],
+  '7d': [916110, 495976, 872182, 529778, 422300, 422296, 422293, 422422, 422445, 495803, 422325, 495549, 422213, 422351, 422131, 422265, 422402, 422149],
+  main_bnb_7d: [916109, 529788, 496002, 496001, 495575, 421520, 332066, 332084, 332077, 332739, 332735, 332746, 332105, 332763, 332757, 332767, 332054, 332029],
+  main_bnb_14d: [916107, 496010, 529792, 496009, 495580, 332055, 332070, 332081, 332089, 332737, 332741, 332743, 332109, 332759, 332769, 332765, 421516, 332030],
+  ac_7d: [916114, 495978, 529780, 495552, 495805, 421522, 340367, 331921, 330964, 331923, 331970, 331972, 331966, 331968, 331974, 331976],
+  ac_14d: [495979, 529781, 916105, 422157, 421527, 495806, 495565, 421998, 331922, 331924, 330970, 331969, 331971, 331967, 331977, 331973],
+  ac_bnb_7d: [496022, 496021, 916818, 916816, 916840, 916829, 495587, 332057, 421525, 332072, 332121, 332123, 332119, 332129, 332125, 332035],
+  ac_bnb_14d: [496031, 496030, 916402, 916838, 916830, 529801, 421530, 495593, 332060, 332074, 332138, 332140, 332134, 332136, 332142, 332036],
+  agoda_ac_7d: [921874, 921872, 921870, 921868],
+  agoda_ac_14d: [921873, 921871, 921869],
+  agd_ac_7d: [921874, 921872, 921870, 921868],
+  agd_ac_14d: [921873, 921871, 921869],
+  airbnb: [529783, 495982, 916103, 421532, 495810, 495569, 297025, 297027, 297028, 297021, 297022, 297023, 297024, 297033, 297029, 297030, 297031, 297032],
+  airbnb_ac: [529813, 496057, 496056, 916104, 421533, 495609, 422147, 340196, 340198, 340200, 421507, 421508, 421505, 421506, 421509, 421510]
+};
+
+// Rate ID di Test per i Fake Bungalows 1 & 2 — Mappatura Definitiva Confermata da Probe
+// FB1: 932243-932255 | FB2: FB1+13 (shift = +13) | Madri: 649669, 921799
+export const TEST_PRODUCT_IDS: Record<string, number[]> = {
+  be:           [932243, 932256, 649669, 921799],
+  '7d':         [932244, 932257],
+  main_bnb_7d:  [932246, 932259],
+  main_bnb_14d: [932247, 932260],
+  ac_7d:        [932248, 932261],
+  ac_14d:       [932249, 932262],
+  agoda_ac_7d:  [932250, 932263],
+  agoda_ac_14d: [932251, 932264],
+  agd_ac_7d:    [932250, 932263], // alias agoda
+  agd_ac_14d:   [932251, 932264], // alias agoda
+  airbnb:       [932252, 932265],
+  airbnb_ac:    [932253, 932266],
+  ac_bnb_7d:    [932254, 932267],
+  ac_bnb_14d:   [932255, 932268]
+};
+
 export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -161,12 +198,22 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
   }
 
   try {
-    // 1. Recupero token OAuth da Supabase
-    const { data: tokenData, error: tokenError } = await supabaseAdmin
-      .from('octorate_tokens')
-      .select('access_token, refresh_token')
-      .eq('id', 'singleton')
-      .maybeSingle();
+    const testOnly = req.query.testOnly === 'true' || req.body?.testOnly === true || req.body?.testOnly === 'true';
+
+    // 1. Recupero token OAuth da Supabase con retry resiliente
+    let tokenData: any = null;
+    let tokenError: any = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const tRes = await supabaseAdmin
+        .from('octorate_tokens')
+        .select('access_token, refresh_token')
+        .eq('id', 'singleton')
+        .maybeSingle();
+      tokenData = tRes.data;
+      tokenError = tRes.error;
+      if (tokenData?.access_token) break;
+      if (attempt < 3) await new Promise(r => setTimeout(r, 200));
+    }
 
     if (tokenError || !tokenData?.access_token) {
       return res.status(401).json({ error: 'Token OAuth Octorate non presente o invalido' });
@@ -176,10 +223,9 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
     const refreshToken = tokenData.refresh_token;
     const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || process.env.OCTORATE_STRUCTURE_ID || '366879';
 
-    // Date da Oggi al 31 Maggio 2027
-    const today = '2026-10-01';
-    const dateFrom = today;
-    const dateTo = '2027-05-31';
+    // Intervallo stagionale completo (01/10/2026 - 31/10/2027)
+    const dateFrom = (req.query?.dateFrom as string) || (req.body?.dateFrom as string) || '2026-10-01';
+    const dateTo = (req.query?.dateTo as string) || (req.body?.dateTo as string) || '2027-10-31';
 
     const tryRefreshToken = async () => {
       const clientId = process.env.VITE_OCTORATE_CLIENT_ID;
@@ -220,6 +266,18 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       return null;
     };
 
+    // Costruisce la query mirata dei prodotti per evitare payload enormi e socket timeout
+    const targetProductIds: number[] = [];
+    const activeRateMap = testOnly ? TEST_PRODUCT_IDS : REAL_PRODUCT_IDS;
+    if (testOnly) {
+      targetProductIds.push(649669, 921799); // Camere madri Fake Bungalows
+    }
+    for (const ids of Object.values(activeRateMap)) {
+      for (const id of ids) targetProductIds.push(id);
+    }
+    const uniqueProductIds = Array.from(new Set(targetProductIds));
+    const productQuery = uniqueProductIds.map(id => `product[]=${id}`).join('&');
+
     const fetchCalendarPage = async (token: string, pageNum: number) => {
       const url = `https://api.octorate.com/connect/rest/v1/calendar/${structureId}?dateFrom=${dateFrom}&dateTo=${dateTo}&size=50&page=${pageNum}`;
       return await fetch(url, {
@@ -227,30 +285,48 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
-        }
+        },
+        signal: AbortSignal.timeout(15000)
       });
     };
 
     // 2. Interroga Octorate Calendar API per ottenere i prodotti con i giorni del calendario
     let allItems: any[] = [];
-    for (let page = 1; page <= 5; page++) {
-      let octorateRes = await fetchCalendarPage(accessToken, page);
+    for (let page = 1; page <= 3; page++) {
+      let octorateRes: any = null;
+      try {
+        octorateRes = await fetchCalendarPage(accessToken, page);
+      } catch (fErr: any) {
+        console.warn(`[octorate-restrictions-grid] Fetch attempt failed on page ${page}:`, fErr?.message);
+        // Retry rapido una volta
+        await new Promise(r => setTimeout(r, 300));
+        try {
+          octorateRes = await fetchCalendarPage(accessToken, page);
+        } catch (retryErr: any) {
+          if (page === 1) {
+            return res.status(500).json({ error: `Timeout o errore connessione Octorate: ${retryErr?.message || 'fetch failed'}` });
+          }
+          break;
+        }
+      }
 
-      if (!octorateRes.ok) {
-        const errText = await octorateRes.text();
-        if (errText.includes('Expired Token') || errText.includes('ApiLoginExpired') || octorateRes.status === 401 || octorateRes.status === 403) {
+      if (!octorateRes || !octorateRes.ok) {
+        const errText = await octorateRes?.text?.().catch(() => '') || '';
+        if (errText.includes('Expired Token') || errText.includes('ApiLoginExpired') || octorateRes?.status === 401 || octorateRes?.status === 403) {
           console.info('[octorate-restrictions-grid] Token scaduto. Tentativo di refresh automatico...');
           const newAccessToken = await tryRefreshToken();
           if (newAccessToken) {
             accessToken = newAccessToken;
-            octorateRes = await fetchCalendarPage(accessToken, page);
+            try {
+              octorateRes = await fetchCalendarPage(accessToken, page);
+            } catch (rErr) {}
           }
         }
 
-        if (!octorateRes.ok) {
-          const finalErrText = await octorateRes.text();
+        if (!octorateRes || !octorateRes.ok) {
+          const finalErrText = await octorateRes?.text?.().catch(() => '') || '';
           if (page === 1) {
-            return res.status(octorateRes.status).json({ error: `Errore Octorate API: ${finalErrText}` });
+            return res.status(octorateRes?.status || 500).json({ error: `Errore Octorate API: ${finalErrText}` });
           }
           break;
         }
@@ -266,8 +342,6 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       if (page >= totalPages) break;
     }
 
-    const testOnly = req.query.testOnly === 'true' || req.body?.testOnly === true || req.body?.testOnly === 'true';
-
     // Mappatura ad altissima precisione sugli ID esatti di Octorate
     const itemMapById = new Map<number, any>();
     for (const item of allItems) {
@@ -275,45 +349,6 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
         itemMapById.set(Number(item.id), item);
       }
     }
-
-    // Rate ID Reali per la camera sentinella Jungle Villa (529773)
-    const REAL_PRODUCT_IDS: Record<string, number[]> = {
-      be: [529784],
-      '7d': [529778],
-      main_bnb_7d: [529788],
-      main_bnb_14d: [529792],
-      ac_7d: [529780],
-      ac_14d: [529781],
-      ac_bnb_7d: [916816, 916817],
-      ac_bnb_14d: [529801],
-      agoda_ac_7d: [921868],
-      agoda_ac_14d: [921869],
-      agd_ac_7d: [921868],
-      agd_ac_14d: [921869],
-      airbnb: [529783],
-      airbnb_ac: [529813]
-    };
-
-    // Rate ID di Test per i Fake Bungalows 1 & 2 — Mappatura Definitiva Confermata da Probe
-    // FB1: 932243-932255 | FB2: FB1+13 (shift = +13) | Madri: 649669, 921799
-    const TEST_PRODUCT_IDS: Record<string, number[]> = {
-      be:           [932243, 932256, 649669, 921799],
-      '7d':         [932244, 932257],
-      main_bnb_7d:  [932246, 932259],
-      main_bnb_14d: [932247, 932260],
-      ac_7d:        [932248, 932261],
-      ac_14d:       [932249, 932262],
-      agoda_ac_7d:  [932250, 932263],
-      agoda_ac_14d: [932251, 932264],
-      agd_ac_7d:    [932250, 932263], // alias agoda
-      agd_ac_14d:   [932251, 932264], // alias agoda
-      airbnb:       [932252, 932265],
-      airbnb_ac:    [932253, 932266],
-      ac_bnb_7d:    [932254, 932267],
-      ac_bnb_14d:   [932255, 932268]
-    };
-
-    const activeRateMap = testOnly ? TEST_PRODUCT_IDS : REAL_PRODUCT_IDS;
 
     const gridMap: Record<string, any[]> = {
       be: [],
