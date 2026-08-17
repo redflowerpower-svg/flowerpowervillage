@@ -155,8 +155,7 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
         stopSells: true,
         closed: true,
         closedArrival: true,
-        closedDeparture: true,
-        minStay: true
+        closedDeparture: true
       };
 
       const resetValues: any = {};
@@ -164,7 +163,6 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
       if (resetPreferences.closed) resetValues.closed = false;
       if (resetPreferences.closedArrival) resetValues.closedArrival = false;
       if (resetPreferences.closedDeparture) resetValues.closedDeparture = false;
-      if (resetPreferences.minStay) resetValues.minStay = 1;
 
       const hasResetKeys = Object.keys(resetValues).length > 0;
 

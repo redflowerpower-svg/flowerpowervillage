@@ -712,6 +712,201 @@ executionMode:
 
 ### A. Pattern Staging & Commit a 2 Fasi (Timeline Gantt Restrizioni)
 - **Componente Principale ([`GestioneRestrizioniCanali.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/GestioneRestrizioniCanali.tsx))**:
+  ```tsx
+  const CalendarCell = React.memo(function CalendarCell({ ... }) { ... });
+  ```
+- Impedisce il ricalcolo delle oltre 9.000 celle durante lo scroll o l'apertura delle modali, mantenendo l'interfaccia a 60fps.
+
+### E. Overlay Bloccante Assoluto & Sincronizzazione Event Loop (Double rAF)
+- **Overlay Fullscreen Bloccante**: `fixed inset-0 w-screen h-screen z-50 bg-stone-950/95 pointer-events-auto` copre l me intera viewport e blocca ogni interazione accidentale dell me utente durante il montaggio del DOM.
+- **Timing Blindato a 2 Fasi & Event Loop (Doppio rAF)**:
+  - Fase 1: Al completamento del download viene attivato l'overlay (`showOverlay = true`, `mountHeavyGrid = false`).
+  - Fase 2: Un `setTimeout(500ms)` garantisce al browser il tempo di dipingere il sipario scuro.
+  - Fase 3: Scattati i 500ms, si attiva `setMountHeavyGrid(true)` avviando la costruzione del DOM.
+  - Fase 4: La disattivazione dell'overlay è sincronizzata con l'Event Loop nativo tramite doppio `requestAnimationFrame`:
+    ```ts
+    rafId1 = requestAnimationFrame(() => {
+      rafId2 = requestAnimationFrame(() => {
+        timerId = setTimeout(() => setShowOverlay(false), 300);
+      });
+    });
+    ```
+    Se il dispositivo è lento ed impiega diversi secondi per calcolare il layout delle 9.000 celle, `requestAnimationFrame` posticipa l'esecuzione fino al reale completamento del paint, mantenendo l'overlay protettivo per tutto il tempo necessario.
+
+---
+
+## 14. Motore Sconti Last-Minute a Cascata (3 Stadi) & Fix Prezzo Reale (03/08/2026)
+
+### A. Dry-Run Simulation nel Calendario Visivo
+
+- **Fonte Prezzo Corretta**: Il motore Dry-Run legge il prezzo giornaliero reale dalla Tariffa Madre direttamente da `rawOctorateGridItems` (flat array Octorate `{id, name, days:[{date, price}]}`).
+- **Logica Match**: Ricerca l'item il cui `id` corrisponde **esattamente** al `motherId`. Fallback a qualsiasi ID dell'alloggio solo se la madre non è nel download.
+- **Formula**: `discountedPrice = Math.round(realPrice - (realPrice * discountPct / 100))`.
+- **Skip automatico**: Se la data non ha prezzo reale (stop-sell, camera chiusa), la simulazione salta la cella.
+
+### B. Struttura 3 Stadi Sequenziali
+
+| Stadio | Giorni Offset | Durata | Sconto Default | UI |
+|---|---|---|---|---|
+| Stadio 1: Imminente | 0 – 2 | 3 gg | -10% | 🔴 `bg-red-950/30 border-red-500/40` |
+| Stadio 2: Intermedio | 3 – 5 | 3 gg | -5% | 🟠 `bg-orange-950/30 border-orange-500/40` |
+| Stadio 3: Esteso | 6 – 9 | 4 gg | -2.5% | 🟡 `bg-yellow-950/30 border-yellow-600/40` |
+
+### C. Modalità Esecuzione (Bivio a 3 Livelli)
+
+```
+executionMode:
+  'simulation'      → Dry-Run locale, zero API. Anteprima ciano nel Calendario Visivo.
+  'test_bungalows'  → Invia SOLO a Fake Bungalow 1 (649669) e 2 (921799).
+  'production'      → Invia a TUTTE le Tariffe Madri reali del resort.
+```
+
+### D. Feedback Visivo Cella (CalendarCell)
+
+- **Sfondo cella**: rimane `bg-emerald-600` — NON cambia colore.
+- **Prezzo**: `text-cyan-300` + `👁️ ฿{scontato} 📉`.
+- **Badge**: `bg-cyan-950/90 text-cyan-200 border-cyan-400/80` → `-X% (BE ฿{...})`.
+
+### E. Identità Visiva Pannelli Dashboard
+
+| Pannello | Colore |
+|---|---|
+| ⚡ Sconti a Cascata | `border-amber-500/40` double, `bg-amber-950/20` |
+| 📏 Soggiorno Minimo Dinamico | `border-violet-500/40` double, `bg-violet-950/20` |
+
+---
+
+## 15. Modulo Messaggi Clienti, Newsletter & Gestione Unificata Contatti (04/08/2026)
+
+### A. Architettura & Plancia Unificata (`NewsletterCampaignSection.tsx`)
+- **Rimozione Doppioni**: Rimosso il vecchio componente duplicato `PhishingAlertSection.tsx` da `ResortDashboard.tsx`. `NewsletterCampaignSection.tsx` è ora l'unica plancia centralizzata per messaggi, newsletter e contatti resort.
+- **Isolamento Visivo e DOM**: La tab `📨 Messaggi Clienti` montata in `ResortDashboard.tsx` nasconde rigorosamente tutti i moduli di ottimizzazione (KPI cards, Sconti a Cascata, Min Stay, Albero Tariffe e Calendario).
+
+### B. Scudo "Real-Only" & Filtraggio Prenotazioni Fantasma
+- **Verifica Mappatura Camere Fisiche (`isValidPhysicalBooking`)**:
+  - Filtra programmaticamente le prenotazioni in ingresso da Octorate/CSV.
+  - Scarta immediatamente tutte le prenotazioni virtuali/derivate recanti la sigla `BE` (es. *JV BE*, *Red BE*, *Room 1 BE*) o non appartenenti alle 18 camere fisiche reali in `ALL_ACCOMMODATIONS_MAP`.
+  - Solo gli ospiti delle prenotazioni reali presenti nel calendario visivo entrano nella lista contatti.
+
+### C. Formattazione Date Rigida & Compositore "Tabula Rasa"
+- **Formattazione `gg/mm/aa` (`formatDateDDMMYY`)**: Tutte le date visualizzate in tabella, nel Modal Popup e nello storico invii adottano tassativamente il formato standard `gg/mm/aa` (es. `10/08/26`).
+- **Compositore Tabula Rasa**: Tutti gli stati di input iniziali (`subject`, `message`, `campaignCode`, `senderAccount`) sono impostati a stringhe vuote (`""`) per la massima pulizia.
+
+### D. Stato Invio Dinamico & Gestione Contatti Privi di Recapito
+- **Stato Dinamico legato a `campaignCode`**:
+  - Se `campaignCode` è vuoto (`""`), la tabella risponde in modalità "vergine": mostra `⚪ Pronto` per tutti i contatti ed azzera a `0` le card statistiche *"Da Avvisare"* e *"Già Avvisati"`.
+  - Quando viene digitato un codice campagna, lo stato delle righe si aggiorna dinamicamente (`✅ Inviato` / `✉️ Da Avvisare`) riattivando il tracciamento dei contatori.
+- **Gestione Clienti senza Email/Telefono (`hasNoContacts`)**:
+  - Se `!email && !phone`, la checkbox di selezione della Playlist viene disabilitata (`disabled={true}`) con stile opaco (`opacity-30 cursor-not-allowed text-stone-600`), impedendo la selezione o l'invio errato.
+  - La riga assume una tonalità grigia opaca (`opacity-60 bg-stone-950/40`, testo `text-stone-500`), mentre l'evento `onClick` sul nome dell'ospite rimane attivo con cursore `pointer` per l'apertura del Modal Popup.
+  - La logica "Seleziona Tutti" esclude automaticamente i contatti senza email valide.
+
+### E. Gruppo Speciale "TEST / VERIFICA" (Contatti Reali)
+- Posizionato in fondo all'elenco delle OTA in un accordion dedicato stilizzato in viola/indaco (`🧪 TEST / VERIFICA`).
+- Contiene 4 contatti reali sempre visibili che ignorano i filtri temporali per collaudi rapidi:
+  - *Marco 1* (`redflowerpower@gmail.com`)
+  - *Marco 2* (`redflowerpower@hotmail.it`)
+  - *Simona* (`simona.gnani@gmail.com`)
+  - *Kit Suraporn* (`kitsuraporn@gmail.com`)
+
+### F. Modal Popup Dettaglio Prenotazione Intero
+- Cliccando sul nome dell'ospite si apre un popup fluttuante a tutto schermo (`fixed inset-0 bg-black/75 backdrop-blur-md`) che espone:
+  - 📅 **Periodo & Notti**: Check-in → Check-out in `gg/mm/aa` e conteggio notti.
+  - 🛌 **Alloggio & Pax**: Nome alloggio e numero ospiti.
+  - 🔌 **Canale**: Badge della sorgente/OTA.
+  - 🎫 **Codice**: ID/Codice prenotazione Octorate.
+  - 💰 **Finanziario**: Importo Totale THB e Prezzo Netto THB.
+  - 🌍 **Nazione**: Paese di provenienza.
+  - 📝 **Note dell'Ospite**: Box per richieste speciali.
+
+### G. Storico Invii & Cancellazione Multipla Persistente
+- **Espansione Destinatari**: Ogni log di campagna inviato è espandibile per mostrare la griglia completa di Nomi ed Email dei destinatari.
+- **Selezione Multipla & Tasto Elimina (`selectedLogIds`)**:
+  - Checkbox per singola riga di log e tasto *"Seleziona Tutte"*.
+  - Pulsante `🗑️ Elimina Selezionate (N)` per rimuovere le campagne selezionate dallo stato React e da `localStorage` (`fpv_newsletter_logs`, `emailHistory`, `fpv_newsletter_history`).
+
+---
+
+## 9. Dashboard Amministrativa Resort — KPI Unificati, Fisarmoniche OTA & Download Stagionale (V12–V18)
+
+### A. Filtraggio Cancellazioni & Blacklist Manuale (V12)
+- **Modulo `bookingFilters.ts`**:
+  - `isCancelledBooking(b)`: Intercetta stati `"cancelled"`, `"canceled"`, `"rejected"`, `"annullato"` e prenotazioni OTA a 0 THB.
+  - `isTestBookingToHide(b)`: Filtra le prenotazioni virtuali di test (`"Test Only"`, `"API Test"`, `"test_mode"`).
+  - `addBookingToBlacklist(bId)` / `clearBlacklistedBookings()`: Gestione persistente del blacklist in `localStorage` (`fpv_blacklisted_booking_ids`).
+- **Pulsante Nascondi & Reset**: Ogni riga di prenotazione include il pulsante *Nascondi* (`Trash2`). Nella barra di ricerca appare il tasto *Reset Nascosti (N)* per ripristinare in ogni momento gli elementi esclusi.
+
+### B. Rendiconto Finanziario & Commissioni Canali 3x2 (V14 - V15)
+- **Commissioni Ufficiali per Canale**:
+  - Booking.com (17.2%), Agoda (18.0%), Expedia (15.0%), Airbnb (15.0%), Website/Sito Web (3.5% gateway fee), Private/Diretto (0.0%).
+- **Filtro Temporale Flessibile (Dal / Al)**: Default automatico da *Oggi* a *31 Ottobre del prossimo anno*.
+- **Ripartizione Notti Vendute (V15)**: `computeFinancials` calcola le notti per ciascuna prenotazione e genera la griglia 3x2 *Distribuzione Notti Vendute per Canale* coordinata con il rendiconto finanziario (schede bilanciate con `min-h-[360px]`).
+
+### C. Struttura in Fisarmonica (Accordions per Canale) (V16)
+- **Fisarmonica a 6 Canali**: Le prenotazioni sono raggruppate per sorgente (**Booking.com**, **Airbnb**, **Agoda**, **Expedia**, **Website**, **Private**).
+- **Controlli Rapidi**: Pulsanti *Espandi Tutte le OTA* (`ChevronDown` emerald) e *Comprimi Tutte* (`ChevronUp` ambra) per l'apertura/chiusura istantanea.
+- **Stato Iniziale (V17)**: Tutti gli accordion sono chiusi di default all'avvio per la massima pulizia.
+
+### D. Download Sequenziale al Mount & Popup Bloccante (V17)
+- **Mount Auto-Fetch**: `downloadSeasonSequential()` viene eseguito al montaggio di `ResortDashboard.tsx`.
+- **Modal Popup Bloccante**: Mostra uno spinner animato (`Loader2`), il messaggio di progresso e la percentuale (0-100%) fino al completamento dello scaricamento.
+- **Calendari Passivi**: `ResortVisualCalendar.tsx` non esegue più download automatici al mount, rimanendo reattivo e passivo ai dati dello store Zustand.
+
+### E. Stato Compresso Tariffe Derivate (V18)
+- In `DerivedRatesTreeSection.tsx`, `expandedRooms` è inizializzato a `{}`. All'accesso, tutti i 18 alloggi e i bungalow di test si presentano completamente compressi di default, con i pulsanti rapidi *Espandi Tutti* e *Comprimi Tutti* coordinati nello stile della dashboard.
+
+### F. Modulo Codici Promozionali & Ticket Sconto V19 / V20 / V26–V30 (06/08/2026)
+- **Componente `PromoCodesSection.tsx`**: Integrato in `ResortDashboard.tsx` sotto i 3 moduli sconti storici.
+- **Design & Layout**: Tema **Fuchsia / Rose Gold** a doppio bordo. Layout single-line desktop (V20) with tasto 🎲 ticket random interno all'input text, date picker unificato Dal ➔ Al e pulsante `+ AGGIUNGI` (`h-10`).
+- **Tracciamento & Link Sconto**: Lista accordion con barra di avanzamento degli utilizzi (`slotsUsed / slotsTotal`), interruttore di stato attivo/disattivo e pulsante per la generazione del link condivisibile (`?promo=CODICE`).
+- **Pulsante Refresh Stato Consumo**: Aggiunto il pulsante `🔄 AGGIORNA STATO CONSUMO` accanto al titolo della lista coupon per ri-sincronizzare all'istante l'utilizzo da `localStorage` senza ricaricare la pagina.
+- **Esclusività Sconto Coupon (V26–V28)**: Quando un coupon promozionale è attivo (`appliedPromo`), lo sconto automatico di soggiorno (`directDiscountAmount`) viene TASSATIVAMENTE azzerato (`0`). Il coupon si applica in modo esclusivo direttamente sulla Tariffa Madre (`roomCost + extraGuests`), escludendo Colazione ed Aria Condizionata.
+- **Guardie di Sicurezza & Fallback (V29–V30)**:
+  - Inserito il controllo `hasValidDates = Boolean(checkIn && checkOut && stayDays > 0)` in `RoomGrid.tsx` che bypassa il calcolo dinamico e mostra le tariffe base statiche dell'alloggio quando le date non sono impostate.
+  - Protette le funzioni `calculateNights` in `octorate.ts` e `calculateStayDays` con blocchi `try-catch` affinché restituiscano `0` in sicurezza in caso di date non valide, senza crashare.
+  - Il cassetto *"Dettaglio Costi"* renderizza una guardia condizionale `{hasValidDates && pricingWithExtras ? (...) : (...)}` con un messaggio di cortesia che invita a selezionare le date quando le date sono assenti.
+
+---
+
+## 10. Unificazione Grafica Caratteristiche & Caching Persistente Octorate (07/08/2026)
+
+### A. Unificazione Stile Caratteristiche Alloggio (Dashboard & Sito Client)
+- **Componente Sito `RoomFeaturesGrid.tsx`**:
+  - Allineato al 100% allo stile della Dashboard Admin ([`AccommodationFeaturesEditor.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/AccommodationFeaturesEditor.tsx)).
+  - Card con bordo verde smeraldo `border border-emerald-500/60 ring-1 ring-emerald-500/20 bg-stone-900/90`, contenitori scuri `bg-stone-950/30` con intestazioni numerate in verde smeraldo, badge con spunta verde (`Check` icon) su ogni servizio attivo e layout compatto a 2-3 colonne.
+- **Badge Immagini & Rettangoli `RoomGrid.tsx`**:
+  - Rettangoli della tipologia alloggio (in alto a sinistra: *VILLE*, *BUNGALOW*, *GLAMPING*, *HUBit@*) e del numero massimo ospiti (in basso a destra: *Fino a 8 ospiti*) aggiornati con lo stesso identico verde smeraldo unificato `bg-emerald-800/95 border border-emerald-650/60 shadow-md backdrop-blur-md` coordinato con la palette del sito.
+
+### B. Caching Persistente & Modale di Scelta all'Avvio (Octorate PMS)
+- **Store Zustand ([`useResortAdminStore.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts))**:
+  - Stato `cachedImportTime` inizializzato da `localStorage.getItem('fpv_octorate_cache_time')`.
+  - Funzione `saveToCache(bookings, grid)`: Salva in modo sicuro in `localStorage` le chiavi `fpv_octorate_cache_bookings`, `fpv_octorate_cache_grid` e `fpv_octorate_cache_time` (timestamp ISO).
+  - Funzione `loadFromCache()`: Legge ed esegue il parsing dei dati salvati, popola `rawOctorateBookings` e `rawOctorateGridItems` ed imposta `seasonDownloadStatus` su `'completed'` (100%).
+  - Auto-salvataggio: `downloadSeasonSequential()` invoca automaticamente `saveToCache` al raggiungimento del 100% del download.
+- **Finestra Modale Elegante di Scelta ([`ResortDashboard.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/ResortDashboard.tsx))**:
+  - Al mount, se viene rilevato `cachedImportTime`, il download automatico viene bloccato e viene mostrata la modale: *«Rilevato salvataggio locale del: [Data e Ora]»*.
+### C. Sistema di Verifica Empirica Scrivibilità (Writability Sync Live API) & Stop Sell Diretto (09/08/2026)
+- **Regola d'Oro Octorate**:
+  1. *Prezzi*: Le variazioni di prezzo colpiscono sempre e solo l'ID della Tariffa Madre (Livello 0).
+  2. *Restrizioni (Stop Sell, MinStay, CA, CD)*: La scrittura diretta sulle tariffe derivate è consentita esclusivamente sui nodi con ereditarietà scollegata su Octorate (`R1 7d` / `Standard 7d`).
+- **Endpoint Serverless `api/_handlers/verify-writability.ts`**:
+  - Riceve `rateId`, ottiene il token OAuth Octorate da Supabase (`octorate_tokens`) ed esegue un test temporaneo di scrittura (`closeToArrival`) su una data futura +45 giorni.
+  - Se Octorate risponde con successo (`isWritable = true`), ripristina immediatamente il valore originale e restituisce l'esito JSON.
+- **Endpoint Serverless `api/_handlers/update-restriction.ts`**:
+  - Invia richieste `POST /calendar/bulk` ad Octorate per modificare direttamente la restrizione `stopSells` per i nodi derivati sbloccati.
+- **Store Zustand ([`useResortAdminStore.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts))**:
+  - Tracciamento `verifiedWritability`, `testingSlugs`, `accommodationTestingProgress` persistito in `localStorage` (`fpv_verified_writability`).
+  - Azioni `verifyAllRatesWritability`, `verifyAccommodationWritability` e `toggleRateStopSell`.
+- **Interfaccia Utente ([`DerivedRatesTreeSection.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/DerivedRatesTreeSection.tsx))**:
+  - Pannello di controllo **Tropical Glassmorphism** per la verifica empirica globale e pulsante compatto `🧪 Test Live API` su ogni singola scheda alloggio con barra di progresso ciano/smeraldo.
+  - Interruttore di azione rapida per lo **Stop Sell** sui nodi abilitati (`isWritable === true`), che permette di invertire la restrizione live (da 🔒 `STOP` a 🔓 `OK`) direttamente dalle schede dell'albero grafico.
+
+---
+
+## 11. Architettura Staging a 2 Fasi & Sincronizzazione Atomica Restrizioni Octorate (17/08/2026)
+
+### A. Pattern Staging & Commit a 2 Fasi (Timeline Gantt Restrizioni)
+- **Componente Principale ([`GestioneRestrizioniCanali.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/GestioneRestrizioniCanali.tsx))**:
   - **Fase 1 (Anteprima Staging)**: I pulsanti `ANTEPRIMA SYNC TEST` e `ANTEPRIMA SYNC PRODUZIONE` clonano localmente i periodi pianificati in `stagedRestrictions`, attivano lo stato `syncStage = 'staged_preview'` e commutano la visualizzazione su Tabella 2 senza inviare alcuna chiamata API ad Octorate.
   - **Tabella 2 in Staging**: Mostra l'intestazione con badge evidente `🟡 TABELLA 2: ANTEPRIMA STAGING [TEST / PRODUZIONE]` e badge `PREVIEW` su ogni card, visualizzando aperture, fasce Only Check-out (10gg/14gg) e blocchi Stop Sell prima dell'invio.
   - **Fase 2 (Commit su Octorate)**: Il pulsante dedicato `🚀 CONFERMA & SINCRONIZZA SU OCTORATE (TEST/PROD)` esegue la sincronizzazione effettiva via API Octorate. Il pulsante `✕ Annulla Anteprima` ripristina la visualizzazione dati live.
@@ -728,3 +923,32 @@ executionMode:
   - Il reset preventivo annuale (`2026-10-01` → `2027-10-31`) viene eseguito **esclusivamente quando richiesto esplicitamente** tramite il flag `isTabulaRasa: true` all'avvio della sincronizzazione del piano.
   - Le chiamate dei singoli periodi (`isTabulaRasa: false`) scrivono **esclusivamente le date specifiche (`dateFrom` → `dateTo`)** e l'eventuale cuscinetto CTA, senza azzerare o riaprire i periodi precedenti dello stesso piano.
   - I piani disattivati ricevono direttamente lo Stop Sell sull'intero arco temporale senza alcun azzeramento preliminare a `stopSells: false`.
+
+---
+
+## 12. Gestione Modulare Min Stay (Soggiorno Minimo a Corsia Indipendente)
+
+### A. Regola Madre di Livello 0 per il Min Stay
+* **Architettura a Cascata di Octorate**:
+  * Il soggiorno minimo (`minstay`) è una restrizione fisica legata alla **Camera/Alloggio di Livello 0** (es. `Fake Bungalow 1` ID `649669`, `Fake Bungalow 2` ID `921799`, `Jungle Villa` ID `529773`).
+  * Tutte le tariffe sottostanti (inclusa la tariffa madre `BE`, `7d`, `14d`, `AirBnB`, ecc.) sono derivate ed ereditano automaticamente il soggiorno minimo a cascata.
+  * La scrittura di `minstay` DEVE colpire **esclusivamente gli ID Alloggio di Livello 0** e non le tariffe figlie.
+
+### B. Payload API Octorate (`POST /calendar/bulk`)
+* **Vincolo Naming Rigoroso**:
+  * L'endpoint di Octorate `POST /calendar/bulk` richiede **tassativamente la chiave in tutto minuscolo `"minstay"`** all'interno dell'oggetto `values`:
+    ```json
+    {
+      "room": 649669,
+      "dateFrom": "2026-10-01",
+      "dateTo": "2026-12-15",
+      "values": { "minstay": 4 }
+    }
+    ```
+  * L'uso di `minStay` (camelCase) genera l'errore `{"error": "Missing values at index 0!", "success": false}`.
+
+### C. Interfaccia Utente & Timeline Gantt ([`GestioneRestrizioniCanali.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/GestioneRestrizioniCanali.tsx))
+* **Corsia Dedicata Min Stay**:
+  * Card speculari a quelle dei piani tariffari con date picker interattivo (`DD/MM/YYYY`), stepper numerico rapido `[-]` / `[ + ]`, popover di inserimento relativo (Prima ◀ / Dopo ▶) e cancellazione con opzione di scivolamento automatico (Trascina 🧲 / Solo questo modulo ❌).
+  * Esclusione del `minStay` dalla procedura di Tabula Rasa sia manuale che automatica per garantire la persistenza continua della configurazione delle notti minime.
+  * Riconciliazione in tempo reale dei blocchi `minStayPeriods` in Tabella 2 Live tramite `groupDailyMinStay` in [`octorate-restrictions-grid.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/octorate-restrictions-grid.ts).

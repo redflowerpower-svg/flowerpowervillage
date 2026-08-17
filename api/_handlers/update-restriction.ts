@@ -129,11 +129,20 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
         headers['Octorate-Api-Key'] = clientId;
       }
 
+      const minStayParam = req.body?.minStay !== undefined ? req.body.minStay : req.query?.minStay;
+      const minStayNum = minStayParam !== undefined ? Number(minStayParam) : null;
+      const isMinStay = strategy === 'minstay' || (minStayNum !== null && minStayNum > 0);
       const isCta = strategy === 'failsafe_checkout' || req.body?.closedToArrival === true || req.body?.closedArrival === true;
       const rateIdFB1 = Number(targetRateIdNum || (planKey ? TEST_PRODUCT_IDS[planKey] : 0));
       const rateIdFB2 = rateIdFB1 + 13;
       const rateIdReal = Number(targetRateIdNum || (planKey ? REAL_PRODUCT_IDS[planKey] : 0));
-      const roomsToUpdate = testOnly ? [rateIdFB1, rateIdFB2] : [rateIdReal];
+
+      // 🌙 NOTTI MINIME (MinStay): Vengono scritte ESCLUSIVAMENTE sulle Camere Madri di Livello 0 (Alloggio Padre)
+      // Octorate calcola ed eredita automaticamente il minstay a cascata su tutte le tariffe derivate (BE, 7d, 14d, Airbnb, ecc.)
+      const roomsToUpdate = isMinStay
+        ? (testOnly ? [649669, 921799] : [529773, 495795, 495796, 494840, 421511, 293957, 293954, 293962, 293965, 293955, 293942, 293963, 293959, 293948, 293945, 293943, 293951, 883795])
+        : (testOnly ? [rateIdFB1, rateIdFB2] : [rateIdReal]);
+
       const onlyCheckoutDaysNum = Number(req.body?.onlyCheckoutDays || req.body?.onlyCheckOutDays || 0);
 
       const addDaysISO = (dateStr: string, days: number): string => {
@@ -157,12 +166,12 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
       for (const roomId of roomsToUpdate) {
         if (isTabulaRasa) {
           // 🧹 FASE 0: Tabula Rasa di reset stagionale esplicito (01/10/2026 - 31/10/2027)
+          // NOTA: minStay è tassativamente escluso dal reset automatico perché gestito dalla corsia dedicata
           const resetValues: any = {};
           if (resetPreferences?.stopSells) resetValues.stopSells = false;
           if (resetPreferences?.closed) resetValues.closed = false;
           if (resetPreferences?.closedArrival) resetValues.closedArrival = false;
           if (resetPreferences?.closedDeparture) resetValues.closedDeparture = false;
-          if (resetPreferences?.minStay) resetValues.minStay = 1;
 
           if (Object.keys(resetValues).length > 0) {
             bulkPayload.push({
@@ -186,6 +195,17 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
               }
             });
           }
+        } else if (strategy === 'minstay' || (minStayNum !== null && minStayNum > 0)) {
+          // 🌙 GESTIONE NOTTI MINIME (MIN STAY) SULLA TARIFFA MADRE
+          // NOTA: Octorate /calendar/bulk richiede TASSATIVAMENTE il campo in tutto minuscolo "minstay"
+          bulkPayload.push({
+            room: roomId,
+            dateFrom,
+            dateTo,
+            values: {
+              minstay: minStayNum || 1
+            }
+          });
         } else {
           // 🎯 AGGIORNAMENTO SPECIFICO PERIODO (da dateFrom a dateTo)
           if (strategy === 'stopsell' || stopSell) {
@@ -264,7 +284,7 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
       }
 
     // 🧪 Se testOnly è true, aggiorna la cache dei periodi test live
-    if (testOnly && planKey) {
+    if (testOnly) {
       try {
         const testCachePath = path.resolve(process.cwd(), 'scratch/octorate-test-live-cache.json');
         let testCache: Record<string, any[]> = {};
@@ -272,30 +292,48 @@ export async function handleUpdateRestriction(req: VercelRequest, res: VercelRes
           try { testCache = JSON.parse(fs.readFileSync(testCachePath, 'utf8')); } catch (e) {}
         }
 
-        const rawOnlyCheckout = req.body?.onlyCheckoutDays ?? req.body?.onlyCheckOutDays;
-        const onlyCheckoutDaysVal = rawOnlyCheckout !== undefined && rawOnlyCheckout !== null && rawOnlyCheckout !== ''
-          ? Number(rawOnlyCheckout)
-          : (isCta ? 10 : 0);
+        if (strategy === 'minstay' || (minStayNum !== null && minStayNum > 0)) {
+          // 🌙 Aggiorna la cache dei blocchi MinStay
+          const msObj = {
+            id: `minstay_live_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+            name: `Soggiorno Minimo ${minStayNum || 1} Notti`,
+            dateFrom,
+            dateTo,
+            minStay: minStayNum || 1
+          };
 
-        const periodObj = {
-          id: `${planKey}_live_${Date.now()}`,
-          name: strategy === 'stopsell' ? 'Stop Sell (Chiuso)' : (isCta ? `Only Check-out (${onlyCheckoutDaysVal || 10}gg)` : 'Apertura Standard (OK)'),
-          dateFrom,
-          dateTo,
-          stopSell: strategy === 'stopsell',
-          closedToArrival: isCta || strategy === 'stopsell',
-          closedToDeparture: strategy === 'stopsell',
-          onlyCheckoutDays: onlyCheckoutDaysVal,
-          onlyCheckOutDays: onlyCheckoutDaysVal,
-          strategy: strategy === 'stopsell' ? 'stopsell' : (isCta ? 'failsafe_checkout' : 'open')
-        };
+          const existingMs = testCache['minStayPeriods'] || [];
+          const filteredMs = existingMs.filter((p: any) => p.dateTo < dateFrom || p.dateFrom > dateTo);
+          filteredMs.push(msObj);
+          filteredMs.sort((a: any, b: any) => a.dateFrom.localeCompare(b.dateFrom));
+          testCache['minStayPeriods'] = filteredMs;
+        } else if (planKey) {
+          const rawOnlyCheckout = req.body?.onlyCheckoutDays ?? req.body?.onlyCheckOutDays;
+          const onlyCheckoutDaysVal = rawOnlyCheckout !== undefined && rawOnlyCheckout !== null && rawOnlyCheckout !== ''
+            ? Number(rawOnlyCheckout)
+            : (isCta ? 10 : 0);
 
-        const existing = testCache[planKey] || [];
-        const filtered = existing.filter((p: any) => p.dateTo < dateFrom || p.dateFrom > dateTo);
-        filtered.push(periodObj);
-        filtered.sort((a: any, b: any) => a.dateFrom.localeCompare(b.dateFrom));
+          const periodObj = {
+            id: `${planKey}_live_${Date.now()}`,
+            name: strategy === 'stopsell' ? 'Stop Sell (Chiuso)' : (isCta ? `Only Check-out (${onlyCheckoutDaysVal || 10}gg)` : 'Apertura Standard (OK)'),
+            dateFrom,
+            dateTo,
+            stopSell: strategy === 'stopsell',
+            closedToArrival: isCta || strategy === 'stopsell',
+            closedToDeparture: strategy === 'stopsell',
+            onlyCheckoutDays: onlyCheckoutDaysVal,
+            onlyCheckOutDays: onlyCheckoutDaysVal,
+            strategy: strategy === 'stopsell' ? 'stopsell' : (isCta ? 'failsafe_checkout' : 'open')
+          };
 
-        testCache[planKey] = filtered;
+          const existing = testCache[planKey] || [];
+          const filtered = existing.filter((p: any) => p.dateTo < dateFrom || p.dateFrom > dateTo);
+          filtered.push(periodObj);
+          filtered.sort((a: any, b: any) => a.dateFrom.localeCompare(b.dateFrom));
+
+          testCache[planKey] = filtered;
+        }
+
         fs.writeFileSync(testCachePath, JSON.stringify(testCache, null, 2));
       } catch (err) {
         console.warn('[update-restriction] Test cache save warning:', err);

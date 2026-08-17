@@ -48,15 +48,43 @@ export interface LiveMockRestriction {
   onlyCheckOutDays: number;
 }
 
+export interface MinStayPeriod {
+  id: string;
+  dateFrom: string;
+  dateTo: string;
+  minStay: number;
+  name?: string;
+}
+
+export const INITIAL_MIN_STAY_PERIODS: MinStayPeriod[] = [
+  {
+    id: 'ms_p1',
+    name: 'Soggiorno Minimo 1 Notte',
+    dateFrom: '2026-10-01',
+    dateTo: '2027-05-31',
+    minStay: 1
+  }
+];
+
 export interface RestrictionsState {
   plannedPeriods: Record<string, PlannedPeriod[]>;
   liveOctorateRestrictions: Record<string, PlannedPeriod[]>;
+  
+  // Corsia Notti Minime (Min Stay)
+  plannedMinStayPeriods: MinStayPeriod[];
+  liveMinStayPeriods: MinStayPeriod[];
+  stagedMinStayPeriods: MinStayPeriod[] | null;
+  addNextMinStayPeriod: () => void;
+  insertMinStayPeriodRelative: (targetPeriodId: string, position: 'before' | 'after') => void;
+  updateMinStayPeriod: (id: string, updates: Partial<MinStayPeriod>) => void;
+  removeMinStayPeriod: (id: string, options?: { shiftSubsequent?: boolean }) => void;
+  resetDefaultMinStay: () => void;
+
   resetPreferences: {
     stopSells: boolean;
     closed: boolean;
     closedArrival: boolean;
     closedDeparture: boolean;
-    minStay: boolean;
   };
   setResetPreference: (key: string, val: boolean) => void;
   tabulaRasaDateFrom: string;
@@ -437,12 +465,142 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       plannedPeriods: { ...INITIAL_PLAN_PERIODS },
       liveOctorateRestrictions: {},
       liveOctorateRestrictionsMock: { ...INITIAL_LIVE_MOCK },
+      // Corsia Notti Minime (Min Stay)
+      plannedMinStayPeriods: [...INITIAL_MIN_STAY_PERIODS],
+      liveMinStayPeriods: [],
+      stagedMinStayPeriods: null,
+
+      addNextMinStayPeriod: () => {
+        const state = get();
+        const list = state.plannedMinStayPeriods || [];
+        let newDateFrom = '2026-10-01';
+        let newDateTo = '2026-11-30';
+        let defaultNights = 1;
+
+        if (list.length > 0) {
+          const lastPeriod = list[list.length - 1];
+          if (lastPeriod.dateTo) {
+            const lastEnd = new Date(lastPeriod.dateTo);
+            lastEnd.setDate(lastEnd.getDate() + 1);
+            newDateFrom = lastEnd.toISOString().split('T')[0];
+
+            const newEnd = new Date(lastEnd);
+            newEnd.setDate(newEnd.getDate() + 30);
+            newDateTo = newEnd.toISOString().split('T')[0];
+          }
+          defaultNights = lastPeriod.minStay || 1;
+        }
+
+        const newPeriod: MinStayPeriod = {
+          id: `ms_p${list.length + 1}_${Date.now()}`,
+          name: `Soggiorno Minimo ${defaultNights} Notti`,
+          dateFrom: newDateFrom,
+          dateTo: newDateTo,
+          minStay: defaultNights
+        };
+
+        set({
+          plannedMinStayPeriods: [...list, newPeriod]
+        });
+      },
+
+      insertMinStayPeriodRelative: (targetPeriodId: string, position: 'before' | 'after') => {
+        const list = get().plannedMinStayPeriods || [];
+        const idx = list.findIndex(p => p.id === targetPeriodId);
+        if (idx === -1) return;
+
+        const target = list[idx];
+        const NEW_PERIOD_DAYS = 30;
+
+        const shiftDate = (dateStr: string, days: number): string => {
+          const d = new Date(dateStr);
+          d.setDate(d.getDate() + days);
+          return d.toISOString().split('T')[0];
+        };
+
+        let newDateFrom = '2026-10-01';
+        let newDateTo = '2026-10-30';
+        const updatedList = list.map(p => ({ ...p }));
+
+        if (position === 'after') {
+          newDateFrom = shiftDate(target.dateTo, 1);
+          newDateTo = shiftDate(newDateFrom, NEW_PERIOD_DAYS - 1);
+
+          for (let i = idx + 1; i < updatedList.length; i++) {
+            updatedList[i].dateFrom = shiftDate(updatedList[i].dateFrom, NEW_PERIOD_DAYS);
+            updatedList[i].dateTo = shiftDate(updatedList[i].dateTo, NEW_PERIOD_DAYS);
+          }
+
+          const newPeriod: MinStayPeriod = {
+            id: `ms_p${Date.now()}`,
+            name: `Soggiorno Minimo ${target.minStay || 1} Notti`,
+            dateFrom: newDateFrom,
+            dateTo: newDateTo,
+            minStay: target.minStay || 1
+          };
+
+          updatedList.splice(idx + 1, 0, newPeriod);
+        } else {
+          newDateTo = shiftDate(target.dateFrom, -1);
+          newDateFrom = shiftDate(newDateTo, -(NEW_PERIOD_DAYS - 1));
+
+          const newPeriod: MinStayPeriod = {
+            id: `ms_p${Date.now()}`,
+            name: `Soggiorno Minimo ${target.minStay || 1} Notti`,
+            dateFrom: newDateFrom,
+            dateTo: newDateTo,
+            minStay: target.minStay || 1
+          };
+
+          updatedList.splice(idx, 0, newPeriod);
+        }
+
+        set({ plannedMinStayPeriods: updatedList });
+      },
+
+      updateMinStayPeriod: (id: string, updates: Partial<MinStayPeriod>) => {
+        const list = get().plannedMinStayPeriods || [];
+        const updated = list.map(p => p.id === id ? { ...p, ...updates } : p);
+        set({ plannedMinStayPeriods: updated });
+      },
+
+      removeMinStayPeriod: (id: string, options?: { shiftSubsequent?: boolean }) => {
+        const list = get().plannedMinStayPeriods || [];
+        const idx = list.findIndex(p => p.id === id);
+        if (idx === -1) return;
+
+        if (!options?.shiftSubsequent || idx === list.length - 1) {
+          set({ plannedMinStayPeriods: list.filter(p => p.id !== id) });
+          return;
+        }
+
+        const target = list[idx];
+        const shiftDate = (dateStr: string, days: number): string => {
+          const d = new Date(dateStr);
+          d.setDate(d.getDate() + days);
+          return d.toISOString().split('T')[0];
+        };
+
+        const targetDays = Math.max(1, Math.round((new Date(target.dateTo).getTime() - new Date(target.dateFrom).getTime()) / 86400000) + 1);
+        const updatedList = list.filter(p => p.id !== id).map(p => ({ ...p }));
+
+        for (let i = idx; i < updatedList.length; i++) {
+          updatedList[i].dateFrom = shiftDate(updatedList[i].dateFrom, -targetDays);
+          updatedList[i].dateTo = shiftDate(updatedList[i].dateTo, -targetDays);
+        }
+
+        set({ plannedMinStayPeriods: updatedList });
+      },
+
+      resetDefaultMinStay: () => {
+        set({ plannedMinStayPeriods: [...INITIAL_MIN_STAY_PERIODS] });
+      },
+
       resetPreferences: {
         stopSells: true,
         closed: true,
         closedArrival: true,
-        closedDeparture: true,
-        minStay: true
+        closedDeparture: true
       },
       setResetPreference: (key: string, val: boolean) =>
         set((state) => ({
@@ -564,9 +722,11 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
             const normalizedGrid = normalizeGridKeys(data.grid);
             const planCount = Object.keys(normalizedGrid).length;
             const periodCount = Object.values(normalizedGrid).reduce((acc, v) => acc + (v?.length || 0), 0);
-            console.info(`[fetchLiveRestrictions] ✅ Grid scaricata [${liveViewMode.toUpperCase()}]: ${planCount} piani, ${periodCount} periodi totali.`);
+            const liveMinStay = Array.isArray(data.minStayPeriods) ? data.minStayPeriods : [];
+            console.info(`[fetchLiveRestrictions] ✅ Grid scaricata [${liveViewMode.toUpperCase()}]: ${planCount} piani, ${periodCount} periodi totali, ${liveMinStay.length} blocchi MinStay.`);
             set({
               liveOctorateRestrictions: normalizedGrid,
+              liveMinStayPeriods: liveMinStay,
               isFetchingLive: false,
               lastSyncMessage: `✅ Timeline Live Octorate [${liveViewMode.toUpperCase()}] aggiornata: ${planCount} piani, ${periodCount} periodi scaricati.`,
               lastSyncStatus: 'success'
@@ -781,7 +941,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           const resetStrategy = planId === 'be' ? 'open' : 'stopsell';
           const resetPayload = {
             planId,
-            ratePlanKey: planId,
+            ratePlanKey,
             dateFrom: state.tabulaRasaDateFrom || '2026-10-01',
             dateTo: state.tabulaRasaDateTo || '2027-10-31',
             stopSell: resetStrategy === 'stopsell',
@@ -917,6 +1077,27 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
               body: JSON.stringify(bulkResetPayload)
             }).catch(e => console.warn('[Bulk Tabula Rasa warning]:', e));
 
+            // 🌙 Se il piano è BE (Tariffa Madre), sincronizza subito tutti i blocchi di Soggiorno Minimo (Min Stay)
+            if (plan.id === 'be') {
+              const minStayList = state.plannedMinStayPeriods || [];
+              for (const ms of minStayList) {
+                await fetch('/api/update-restriction', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    planId: 'be',
+                    ratePlanKey: 'be',
+                    dateFrom: ms.dateFrom,
+                    dateTo: ms.dateTo,
+                    minStay: ms.minStay || 1,
+                    strategy: 'minstay',
+                    testOnly: isTestOnly,
+                    isTabulaRasa: false
+                  })
+                }).catch(e => console.warn('[MinStay sync warning]:', e));
+              }
+            }
+
             const periods = state.plannedPeriods[plan.id] || [];
             for (const period of periods) {
               if (!get().isBulkSaving) break;
@@ -1001,6 +1182,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       resetDefaultStore: () => {
         set({
           plannedPeriods: { ...INITIAL_PLAN_PERIODS },
+          plannedMinStayPeriods: [...INITIAL_MIN_STAY_PERIODS],
           liveOctorateRestrictionsMock: { ...INITIAL_LIVE_MOCK },
           lastSyncMessage: '🔄 Reset store restrizioni completato',
           lastSyncStatus: 'success'
@@ -1010,10 +1192,13 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
       stageSyncPreview: (target: 'test' | 'prod') => {
         const planned = get().plannedPeriods || {};
         const cloned: Record<string, PlannedPeriod[]> = JSON.parse(JSON.stringify(planned));
+        const plannedMinStay = get().plannedMinStayPeriods || [];
+        const clonedMinStay: MinStayPeriod[] = JSON.parse(JSON.stringify(plannedMinStay));
         set({
           syncStage: 'staged_preview',
           stagedTarget: target,
           stagedRestrictions: cloned,
+          stagedMinStayPeriods: clonedMinStay,
           liveViewMode: target,
           lastSyncMessage: `🟡 Anteprima di Staging attiva per [${target === 'test' ? 'TEST FAKE BUNGALOWS' : 'PRODUZIONE REALE'}]. Controlla la Tabella 2 e clicca 'Conferma e Sincronizza' per inviare ad Octorate.`,
           lastSyncStatus: 'idle'
@@ -1025,6 +1210,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           syncStage: 'idle',
           stagedTarget: null,
           stagedRestrictions: null,
+          stagedMinStayPeriods: null,
           lastSyncMessage: 'Anteprima di Staging annullata. Ripristinati i dati Octorate.',
           lastSyncStatus: 'idle'
         });
@@ -1040,7 +1226,8 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           set({
             syncStage: 'idle',
             stagedTarget: null,
-            stagedRestrictions: null
+            stagedRestrictions: null,
+            stagedMinStayPeriods: null
           });
         }
         return ok;

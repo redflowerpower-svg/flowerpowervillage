@@ -24,7 +24,8 @@ import {
   Download,
   Calendar,
   Activity,
-  Wrench
+  Wrench,
+  Moon
 } from 'lucide-react';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -149,6 +150,15 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const disabledRatePlans = store?.disabledRatePlans || [];
   const toggleRatePlanActive = store?.toggleRatePlanActive || (() => {});
 
+  // Corsia Notti Minime (Min Stay)
+  const plannedMinStayPeriods = store?.plannedMinStayPeriods || [];
+  const liveMinStayPeriods = store?.liveMinStayPeriods || [];
+  const stagedMinStayPeriods = store?.stagedMinStayPeriods ?? null;
+  const addNextMinStayPeriod = store?.addNextMinStayPeriod || (() => {});
+  const insertMinStayPeriodRelative = store?.insertMinStayPeriodRelative || (() => {});
+  const updateMinStayPeriod = store?.updateMinStayPeriod || (() => {});
+  const removeMinStayPeriod = store?.removeMinStayPeriod || (() => {});
+
   // Staging / Anteprima Sincronizzazione a 2 Fasi
   const syncStage = store?.syncStage ?? 'idle';
   const stagedTarget = store?.stagedTarget ?? null;
@@ -176,8 +186,7 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     stopSells: true,
     closed: true,
     closedArrival: true,
-    closedDeparture: true,
-    minStay: true
+    closedDeparture: true
   };
   const setResetPreference = store?.setResetPreference || (() => {});
   const tabulaRasaDateFrom = store?.tabulaRasaDateFrom || '2026-10-01';
@@ -190,6 +199,8 @@ export const GestioneRestrizioniCanali: React.FC = () => {
   const [activeViewTab, setActiveViewTab] = useState<'editor' | 'comparison'>('editor');
   const [addingRelativePeriodId, setAddingRelativePeriodId] = useState<string | null>(null);
   const [deletingPeriodId, setDeletingPeriodId] = useState<string | null>(null);
+  const [addingRelativeMinStayId, setAddingRelativeMinStayId] = useState<string | null>(null);
+  const [deletingMinStayId, setDeletingMinStayId] = useState<string | null>(null);
   const [isComparing, setIsComparing] = useState<boolean>(false);
   const [showTestModal, setShowTestModal] = useState<boolean>(false);
   const [showProdWarningModal, setShowProdWarningModal] = useState<boolean>(false);
@@ -823,6 +834,318 @@ export const GestioneRestrizioniCanali: React.FC = () => {
     );
   };
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CARD CORSIA 0: SOGGIORNO MINIMO (MIN STAY) — TABELLA 1 (Editor)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const renderPlannedMinStayCard = (period: { id: string; dateFrom: string; dateTo: string; minStay: number; name?: string }, periodsList: any[]) => {
+    const leftPx = getGanttOffset(period.dateFrom);
+    const widthPx = getGanttWidth(period.dateFrom, period.dateTo);
+    const isSmall = widthPx < 145;
+    const isTiny = widthPx < 90;
+
+    return (
+      <div
+        key={period.id}
+        style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '2px', bottom: '2px' }}
+        className="rounded-2xl border border-indigo-500/80 bg-[#0c102b]/95 text-indigo-100 shadow-[0_0_15px_rgba(99,102,241,0.3)] backdrop-blur-md transition-all overflow-hidden flex items-start p-1 select-none hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] z-10"
+      >
+        <div style={{ width: '100%', maxWidth: '148px' }} className="flex flex-col gap-0.5 min-w-0">
+
+          {/* Riga 1: Header MinStay + Pulsanti Azione (Stile Identico a Tabella 1) */}
+          <div className="flex items-center justify-between gap-0.5 h-3.5 min-w-0">
+            <span
+              title={`Soggiorno Minimo: ${period.minStay} notti`}
+              className={`font-black uppercase tracking-tight text-indigo-300 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} truncate flex-1 min-w-0 cursor-default flex items-center gap-1`}
+            >
+              <Moon className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
+              <span>MIN STAY</span>
+            </span>
+
+            <div className="flex items-center gap-0.5 shrink-0 relative">
+              {/* Tasto Inserisci Modulo Relativo (+ Prima / Dopo) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setAddingRelativeMinStayId(addingRelativeMinStayId === period.id ? null : period.id);
+                }}
+                className={`w-3.5 h-3.5 flex items-center justify-center p-0 border rounded cursor-pointer transition-all ${
+                  addingRelativeMinStayId === period.id
+                    ? 'bg-amber-500 text-stone-950 border-amber-300 font-black ring-1 ring-amber-300'
+                    : 'bg-stone-900 hover:bg-indigo-950 text-indigo-400 border-stone-800 hover:border-indigo-600'
+                }`}
+                title="➕ Inserisci nuovo blocco notti minime prima o dopo questo periodo"
+              >
+                <Plus className="w-2 h-2" />
+              </button>
+
+              {/* Tasto Elimina */}
+              {!isTiny && periodsList.length > 1 && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setAddingRelativeMinStayId(null);
+                    setDeletingMinStayId(deletingMinStayId === period.id ? null : period.id);
+                  }}
+                  className={`w-3.5 h-3.5 flex items-center justify-center p-0 border rounded cursor-pointer transition-all ${
+                    deletingMinStayId === period.id
+                      ? 'bg-red-600 text-white border-red-400 font-bold ring-1 ring-red-400'
+                      : 'bg-stone-900 hover:bg-red-950 text-stone-400 hover:text-red-300 border-stone-800 hover:border-red-700'
+                  }`}
+                  title="🗑️ Elimina questo blocco dalla pianificazione"
+                >
+                  <Trash2 className="w-2 h-2" />
+                </button>
+              )}
+
+              {/* Popover Inserimento Prima / Dopo */}
+              {addingRelativeMinStayId === period.id && (
+                <div
+                  className="absolute right-0 top-5 bg-stone-900/98 backdrop-blur-md border border-indigo-500/60 rounded-xl p-1.5 shadow-2xl z-50 flex flex-col gap-1 min-w-[125px] animate-in fade-in zoom-in duration-100"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="text-[7px] font-black text-indigo-300 uppercase tracking-wider px-0.5 flex items-center justify-between">
+                    <span>➕ Inserisci Blocco:</span>
+                    <button 
+                      type="button" 
+                      onClick={() => setAddingRelativeMinStayId(null)}
+                      className="text-stone-400 hover:text-white text-[9px] leading-none px-0.5 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        insertMinStayPeriodRelative(period.id, 'before');
+                        setAddingRelativeMinStayId(null);
+                      }}
+                      className="flex-1 px-1.5 py-1 rounded bg-indigo-950/90 hover:bg-indigo-800 text-indigo-200 border border-indigo-600/80 hover:border-indigo-400 text-[7px] font-extrabold uppercase transition-all text-center cursor-pointer shadow"
+                    >
+                      ◀ Prima
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        insertMinStayPeriodRelative(period.id, 'after');
+                        setAddingRelativeMinStayId(null);
+                      }}
+                      className="flex-1 px-1.5 py-1 rounded bg-indigo-950/90 hover:bg-indigo-800 text-indigo-200 border border-indigo-600/80 hover:border-indigo-400 text-[7px] font-extrabold uppercase transition-all text-center cursor-pointer shadow"
+                    >
+                      Dopo ▶
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Popover Eliminazione con Trascinamento */}
+              {deletingMinStayId === period.id && (
+                <div
+                  className="absolute right-0 top-5 bg-stone-900/98 backdrop-blur-md border border-red-500/60 rounded-xl p-1.5 shadow-2xl z-50 flex flex-col gap-1 min-w-[155px] animate-in fade-in zoom-in duration-100"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="text-[7px] font-black text-red-300 uppercase tracking-wider px-0.5 flex items-center justify-between">
+                    <span>🗑️ Elimina blocco:</span>
+                    <button 
+                      type="button" 
+                      onClick={() => setDeletingMinStayId(null)}
+                      className="text-stone-400 hover:text-white text-[9px] leading-none px-0.5 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-1 mt-0.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeMinStayPeriod(period.id, { shiftSubsequent: true });
+                        setDeletingMinStayId(null);
+                      }}
+                      className="w-full px-1.5 py-1 rounded bg-red-950/90 hover:bg-red-800 text-red-200 border border-red-600/80 hover:border-red-400 text-[7.5px] font-extrabold transition-all text-left flex items-center gap-1.5 cursor-pointer shadow"
+                      title="Elimina questo blocco e trascina indietro tutti i successivi"
+                    >
+                      <span>🧲</span>
+                      <span className="truncate">Trascina a seguire</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeMinStayPeriod(period.id, { shiftSubsequent: false });
+                        setDeletingMinStayId(null);
+                      }}
+                      className="w-full px-1.5 py-1 rounded bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 hover:border-stone-500 text-[7.5px] font-bold transition-all text-left flex items-center gap-1.5 cursor-pointer shadow"
+                      title="Elimina solo questo blocco"
+                    >
+                      <span>❌</span>
+                      <span className="truncate">Solo questo blocco</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Riga 2: Inizio (Calendario con Date Picker Integrato) */}
+          <div
+            className="relative cursor-pointer min-w-0"
+            title="📅 Data di Inizio Periodo (Click per aprire il calendario)"
+            onClick={e => {
+              const inputEl = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
+              if (inputEl) try { inputEl.showPicker?.(); } catch {}
+            }}
+          >
+            <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8px] min-w-0">
+              <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
+                {isSmall ? 'IN' : 'INIZIO'}
+              </span>
+              <span className={`font-mono font-bold text-indigo-300 truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+                {formatDisplayDate(period.dateFrom)}
+              </span>
+            </div>
+            <input
+              type="date"
+              value={period.dateFrom || ''}
+              onChange={e => { if (e.target.value) updateMinStayPeriod(period.id, { dateFrom: e.target.value }); }}
+              onClick={e => (e.currentTarget as any).showPicker?.()}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            />
+          </div>
+
+          {/* Riga 3: Fine (Calendario con Date Picker Integrato) */}
+          <div
+            className="relative cursor-pointer min-w-0"
+            title="📅 Data di Fine Periodo (Click per aprire il calendario)"
+            onClick={e => {
+              const inputEl = e.currentTarget.querySelector('input[type="date"]') as HTMLInputElement;
+              if (inputEl) try { inputEl.showPicker?.(); } catch {}
+            }}
+          >
+            <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8px] min-w-0">
+              <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
+                {isSmall ? 'OUT' : 'FINE'}
+              </span>
+              <span className={`font-mono font-bold text-indigo-300 truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+                {formatDisplayDate(period.dateTo)}
+              </span>
+            </div>
+            <input
+              type="date"
+              value={period.dateTo || ''}
+              onChange={e => { if (e.target.value) updateMinStayPeriod(period.id, { dateTo: e.target.value }); }}
+              onClick={e => (e.currentTarget as any).showPicker?.()}
+              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+            />
+          </div>
+
+          {/* Riga 4: Notti Minime (Input Stepper Numerico + Label) */}
+          <div className="flex items-center justify-between gap-1 pt-0.5 min-w-0 h-4">
+            <div
+              className="flex items-center gap-1 min-w-0 flex-1 cursor-help"
+              title="🌙 Numero di Notti Minime richieste per questo periodo"
+            >
+              <Moon className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
+              <input 
+                type="number"
+                min="1"
+                max="90"
+                value={period.minStay || 1}
+                onChange={(e) => {
+                  const val = Math.max(1, parseInt(e.target.value, 10) || 1);
+                  updateMinStayPeriod(period.id, { minStay: val });
+                }}
+                className="w-7 h-4 text-center text-[9px] bg-stone-900 border border-indigo-500/50 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded px-0.5 py-0 text-indigo-200 font-black font-mono [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shrink-0"
+              />
+              <span className="text-[7px] font-bold text-indigo-300/90 whitespace-nowrap leading-none">
+                {isSmall ? 'gg min' : 'gg Min Stay'}
+              </span>
+            </div>
+            <div className="flex items-center gap-0.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => updateMinStayPeriod(period.id, { minStay: Math.max(1, (period.minStay || 1) - 1) })}
+                className="w-3.5 h-3.5 rounded bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/60 font-black text-[8px] flex items-center justify-center cursor-pointer transition-transform hover:scale-110"
+                title="Diminuisci notti minime"
+              >
+                -
+              </button>
+              <button
+                type="button"
+                onClick={() => updateMinStayPeriod(period.id, { minStay: (period.minStay || 1) + 1 })}
+                className="w-3.5 h-3.5 rounded bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/60 font-black text-[8px] flex items-center justify-center cursor-pointer transition-transform hover:scale-110"
+                title="Aumenta notti minime"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    );
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CARD CORSIA 0: SOGGIORNO MINIMO (MIN STAY) — TABELLA 2 (Anteprima / Live)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const renderLiveMinStayCard = (period: { id: string; dateFrom: string; dateTo: string; minStay: number; name?: string }) => {
+    const leftPx = getGanttOffset(period.dateFrom);
+    const widthPx = getGanttWidth(period.dateFrom, period.dateTo);
+    const isSmall = widthPx < 145;
+
+    return (
+      <div
+        key={period.id}
+        style={{ position: 'absolute', left: `${leftPx}px`, width: `${widthPx}px`, top: '2px', bottom: '2px' }}
+        className="rounded-2xl border border-indigo-500/80 bg-[#0c102b]/95 text-indigo-100 shadow-[0_0_15px_rgba(99,102,241,0.3)] backdrop-blur-md transition-all overflow-hidden flex items-start p-1 select-none z-10"
+      >
+        <div style={{ width: '100%', maxWidth: '148px' }} className="flex flex-col gap-0.5 min-w-0">
+          {/* Riga 1: Header */}
+          <div className="flex items-center justify-between gap-0.5 h-3.5 min-w-0">
+            <span className={`font-black uppercase tracking-tight text-indigo-300 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'} truncate flex-1 min-w-0 flex items-center gap-1`}>
+              <Moon className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
+              <span>MIN STAY</span>
+            </span>
+            <span className="text-[6px] font-black px-1 py-0.2 rounded border bg-indigo-950 border-indigo-500 text-indigo-300 animate-pulse">
+              {isStagingMode ? 'PREVIEW' : 'LIVE'}
+            </span>
+          </div>
+
+          {/* Riga 2: Inizio */}
+          <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8px] min-w-0">
+            <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
+              {isSmall ? 'IN' : 'INIZIO'}
+            </span>
+            <span className={`font-mono font-bold text-indigo-300 truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+              {formatDisplayDate(period.dateFrom)}
+            </span>
+          </div>
+
+          {/* Riga 3: Fine */}
+          <div className="flex items-center justify-between bg-stone-950/80 border border-stone-800 rounded px-1 py-0.5 text-[8px] min-w-0">
+            <span className="text-[5px] font-black uppercase text-stone-500 shrink-0 mr-0.5">
+              {isSmall ? 'OUT' : 'FINE'}
+            </span>
+            <span className={`font-mono font-bold text-indigo-300 truncate text-center flex-1 ${isSmall ? 'text-[7.5px]' : 'text-[8.5px]'}`}>
+              {formatDisplayDate(period.dateTo)}
+            </span>
+          </div>
+
+          {/* Riga 4: Notti */}
+          <div className="flex items-center justify-between gap-1 pt-0.5 min-w-0 h-4">
+            <span className="text-[8px] font-black text-indigo-200 flex items-center gap-1 truncate">
+              🌙 <span className="font-mono text-indigo-300 font-extrabold">{period.minStay}</span> {period.minStay === 1 ? 'NOTTE' : 'NOTTI MIN'}
+            </span>
+            <span className="text-[6px] font-mono text-stone-400 bg-stone-900 px-1 py-0.2 rounded border border-stone-800">
+              BE Madre
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // ─── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
@@ -1148,24 +1471,6 @@ export const GestioneRestrizioniCanali: React.FC = () => {
                   <span className="text-[10px] text-stone-400 font-mono">closedDeparture: false</span>
                 </div>
               </label>
-
-              {/* Checkbox 5: minStay */}
-              <label className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition-all ${
-                resetPreferences.minStay 
-                  ? 'bg-violet-950/30 border-violet-500/50 text-violet-200 shadow-sm' 
-                  : 'bg-stone-950/40 border-stone-800 text-stone-400 hover:border-stone-700'
-              }`}>
-                <input
-                  type="checkbox"
-                  checked={Boolean(resetPreferences.minStay)}
-                  onChange={(e) => setResetPreference('minStay', e.target.checked)}
-                  className="w-4 h-4 rounded border-stone-600 text-violet-600 focus:ring-violet-500 bg-stone-800 cursor-pointer"
-                />
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-stone-200">Ripristina MinStay a 1</span>
-                  <span className="text-[10px] text-stone-400 font-mono">minStay: 1</span>
-                </div>
-              </label>
             </div>
           </div>
         )}
@@ -1319,8 +1624,77 @@ export const GestioneRestrizioniCanali: React.FC = () => {
               </div>
             </div>
 
-            {/* ── Righe Piani ──────────────────────────────────────────────── */}
+            {/* ── Righe Piani & Corsia Min Stay ───────────────────────────── */}
             <div className="divide-y divide-stone-850 text-stone-200">
+
+              {/* ── CORSIA 0: SOGGIORNO MINIMO (MIN STAY) — APPLICATO SU TARIFFA MADRE (BE) ── */}
+              <div className="flex items-stretch bg-indigo-950/25 border-b-2 border-indigo-500/40 hover:bg-indigo-950/35 transition-colors group">
+                {/* Colonna Sinistra Sticky */}
+                <div className="w-[280px] min-w-[280px] p-3 sticky left-0 z-20 bg-stone-950 group-hover:bg-stone-900 border-r border-indigo-500/40 flex flex-col justify-between space-y-1.5 transition-all">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[9.5px] font-black uppercase px-2 py-0.5 rounded-full border bg-indigo-950 text-indigo-300 border-indigo-500 shadow-sm flex items-center gap-1">
+                          <Moon className="w-3 h-3 text-indigo-400" />
+                          <span>MIN STAY</span>
+                        </span>
+                        <span className="text-[8px] font-mono text-indigo-300/80 bg-indigo-950/60 px-1.5 py-0.5 rounded border border-indigo-800">
+                          Tariffa Madre
+                        </span>
+                      </div>
+                    </div>
+                    <div className="font-extrabold text-white text-xs pt-0.5 flex items-center gap-1.5">
+                      <span className="text-indigo-200">Soggiorno Minimo (Notti)</span>
+                    </div>
+                    <p className="text-[9px] text-stone-400 leading-tight">
+                      Vincolo notti minime ereditato da tutti i canali e alloggi.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Timeline MinStay a Blocchi (Stile Identico alle Tariffe) */}
+                <div style={{ width: `${TOTAL_GANTT_PX}px`, minWidth: `${TOTAL_GANTT_PX}px` }}
+                  className="relative h-24 bg-stone-950/50 border-r border-stone-850 p-1 flex items-center">
+                  
+                  {activeViewTab === 'editor' ? (
+                    <>
+                      {/* TABELLA 1: BLOCCHI PIANIFICATI */}
+                      {plannedMinStayPeriods.map((ms) =>
+                        renderPlannedMinStayCard(ms, plannedMinStayPeriods)
+                      )}
+
+                      {/* Tasto "+" per aggiungere nuovo blocco MinStay in fondo */}
+                      {(() => {
+                        const lastMs = plannedMinStayPeriods[plannedMinStayPeriods.length - 1];
+                        const plusLeft = lastMs
+                          ? getGanttOffset(lastMs.dateFrom) + getGanttWidth(lastMs.dateFrom, lastMs.dateTo) + 8
+                          : 8;
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => addNextMinStayPeriod()}
+                            style={{ position: 'absolute', left: `${plusLeft}px`, top: '50%', transform: 'translateY(-50%)' }}
+                            className="w-7 h-7 rounded-full border-2 border-indigo-500/80 bg-indigo-950/80 hover:bg-indigo-600 text-indigo-200 hover:text-white font-black flex items-center justify-center transition-all cursor-pointer shadow-lg hover:scale-110 z-10"
+                            title="Aggiungi blocco soggiorno minimo successivo"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        );
+                      })()}
+                    </>
+                  ) : (
+                    <>
+                      {/* TABELLA 2: ANTEPRIMA STAGING / LIVE */}
+                      {(isStagingMode 
+                        ? (stagedMinStayPeriods || plannedMinStayPeriods) 
+                        : (liveMinStayPeriods.length > 0 ? liveMinStayPeriods : plannedMinStayPeriods)
+                      ).map((ms) =>
+                        renderLiveMinStayCard(ms)
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
               {REAL_OCTORATE_PLANS.map(plan => {
                 const periodsList: PlannedPeriod[] = rawPeriods?.[plan.id] || [];
                 const isExpanded = Boolean(expandedAccommodations[plan.id]);

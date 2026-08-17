@@ -103,6 +103,45 @@ export function groupDailyRestrictions(days: any[], ratePlanKey: string = 'rate'
   return mergedPeriods;
 }
 
+export function groupDailyMinStay(days: any[]) {
+  if (!days || days.length === 0) return [];
+  const rawPeriods: any[] = [];
+  const n = days.length;
+  let i = 0;
+  let idCounter = 1;
+
+  while (i < n) {
+    const currentDay = days[i];
+    const dateFrom = String(currentDay?.date || currentDay?.dateStr || currentDay?.day || '').substring(0, 10);
+    const minStay = Number(currentDay?.minStay ?? currentDay?.minstay ?? currentDay?.minNights ?? 1);
+
+    let j = i + 1;
+    let dateTo = dateFrom;
+
+    while (j < n) {
+      const nextDay = days[j];
+      const nextMinStay = Number(nextDay?.minStay ?? nextDay?.minstay ?? nextDay?.minNights ?? 1);
+      if (nextMinStay !== minStay) {
+        break;
+      }
+      dateTo = String(nextDay?.date || nextDay?.dateStr || nextDay?.day || '').substring(0, 10);
+      j++;
+    }
+
+    rawPeriods.push({
+      id: `live_minstay_p${idCounter++}`,
+      name: `Soggiorno Minimo ${minStay} Notti`,
+      dateFrom,
+      dateTo,
+      minStay
+    });
+
+    i = j;
+  }
+
+  return rawPeriods;
+}
+
 export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -293,6 +332,8 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       ac_bnb_14d: []
     };
 
+    let liveMinStayPeriods: any[] = [];
+
     for (const [planKey, ids] of Object.entries(activeRateMap)) {
       let matchedItem: any = null;
       for (const id of ids) {
@@ -313,6 +354,9 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
 
         if (filteredDays.length > 0) {
           gridMap[planKey] = groupDailyRestrictions(filteredDays, planKey);
+          if (planKey === 'be') {
+            liveMinStayPeriods = groupDailyMinStay(filteredDays);
+          }
         }
       }
     }
@@ -323,7 +367,11 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
         try {
           const testCache = JSON.parse(fs.readFileSync(testCachePath, 'utf8'));
           for (const [pk, periods] of Object.entries(testCache)) {
-            if (Array.isArray(periods) && periods.length > 0) {
+            if (pk === 'minStayPeriods') {
+              if (Array.isArray(periods) && periods.length > 0) {
+                liveMinStayPeriods = periods;
+              }
+            } else if (Array.isArray(periods) && periods.length > 0) {
               gridMap[pk] = periods;
             }
           }
@@ -360,7 +408,8 @@ export async function handleOctorateRestrictionsGrid(req: VercelRequest, res: Ve
       structureId,
       dateFrom,
       dateTo,
-      grid: gridMap
+      grid: gridMap,
+      minStayPeriods: liveMinStayPeriods
     });
   } catch (err: any) {
     console.error('[octorate-restrictions-grid] Server error:', err);
