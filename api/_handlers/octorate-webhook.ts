@@ -38,10 +38,10 @@ const MOTHER_RATE_PLANS: Record<string, number> = {
 
 // 🎯 SORGENTE DI VERITÀ: Timeline Min Stay configurata in Gestione Tariffe Derivate
 const WEBHOOK_MIN_STAY_TIMELINE = [
-  { dateFrom: '2026-10-01', dateTo: '2026-12-15', minStay: 2 },
+  { dateFrom: '2026-08-01', dateTo: '2026-12-15', minStay: 2 },
   { dateFrom: '2026-12-16', dateTo: '2027-01-15', minStay: 5 },
-  { dateFrom: '2027-01-16', dateTo: '2027-04-30', minStay: 2 },
-  { dateFrom: '2027-05-01', dateTo: '2027-10-31', minStay: 2 }
+  { dateFrom: '2027-01-16', dateTo: '2027-03-31', minStay: 3 },
+  { dateFrom: '2027-04-01', dateTo: '2027-10-31', minStay: 2 }
 ];
 
 function getBaselineMinStay(dateStr: string): number {

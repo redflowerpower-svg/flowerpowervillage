@@ -60,7 +60,7 @@ export interface MinStayPeriod {
 export const INITIAL_MIN_STAY_PERIODS: MinStayPeriod[] = [
   {
     id: 'ms_p1',
-    name: 'Alta Stagione Iniziale (2 Notti)',
+    name: 'Inizio Stagione (2 Notti)',
     dateFrom: '2026-10-01',
     dateTo: '2026-12-15',
     minStay: 2
@@ -74,15 +74,15 @@ export const INITIAL_MIN_STAY_PERIODS: MinStayPeriod[] = [
   },
   {
     id: 'ms_p3',
-    name: 'Alta Stagione Invernale (2 Notti)',
+    name: 'Alta Stagione Invernale (3 Notti)',
     dateFrom: '2027-01-16',
-    dateTo: '2027-04-30',
-    minStay: 2
+    dateTo: '2027-03-31',
+    minStay: 3
   },
   {
     id: 'ms_p4',
-    name: 'Green Season (2 Notti)',
-    dateFrom: '2027-05-01',
+    name: 'Primavera & Green Season (2 Notti)',
+    dateFrom: '2027-04-01',
     dateTo: '2027-10-31',
     minStay: 2
   }

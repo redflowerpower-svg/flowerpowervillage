@@ -259,7 +259,7 @@ export function parseThailandDateParts(dateInput: any): { year: number; month: n
   return { year, month, day };
 }
 
-import { useRestrictionsStore, INITIAL_MIN_STAY_PERIODS } from '../store/useRestrictionsStore';
+import { useRestrictionsStore, INITIAL_MIN_STAY_PERIODS } from '../store/useRestrictionsStore-v17';
 
 /**
  * Determina il Soggiorno Minimo di Baseline per una data specifica.
