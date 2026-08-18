@@ -63,26 +63,48 @@ export interface DynamicMinStayUpdate {
  * Algoritmo Serverless di Calcolo e Ripristino Soggiorno Minimo Dinamico 24/7
  */
 function calculateServerDynamicMinStay(
-  bookings: Array<{ accommodation_name?: string; accommodation_id?: string; check_in: string; check_out: string; status?: string }>,
+  bookings: any[],
   dateRange: { start: string; end: string }
 ): DynamicMinStayUpdate[] {
   const updates: DynamicMinStayUpdate[] = [];
-  const activeBookings = (bookings || []).filter(b => b.status !== 'cancelled' && b.status !== 'canceled');
-
-  const roomBookingsMap: Record<string, Array<{ in: string; out: string }>> = {};
-
-  activeBookings.forEach(b => {
-    const key = (b.accommodation_name || b.accommodation_id || 'unknown').trim();
-    if (!roomBookingsMap[key]) roomBookingsMap[key] = [];
-    roomBookingsMap[key].push({
-      in: b.check_in.slice(0, 10),
-      out: b.check_out.slice(0, 10)
-    });
+  const activeBookings = (bookings || []).filter(b => {
+    const st = String(b.status || '').toLowerCase();
+    return st !== 'cancelled' && st !== 'canceled';
   });
 
-  Object.keys(roomBookingsMap).forEach(roomName => {
-    const sorted = roomBookingsMap[roomName].sort((a, b) => a.in.localeCompare(b.in));
-    const octRoomId = String(MOTHER_RATE_PLANS[roomName] || roomName);
+  const roomBookingsMap: Record<string, { roomName: string; motherId: string; bookings: Array<{ in: string; out: string }> }> = {};
+
+  activeBookings.forEach((b: any) => {
+    const rawIn = b.checkin || b.check_in || b.startDate || b.arrival || b.fromDate;
+    const rawOut = b.checkout || b.check_out || b.endDate || b.departure || b.toDate;
+    if (!rawIn || !rawOut) return;
+
+    const inStr = String(rawIn).slice(0, 10);
+    const outStr = String(rawOut).slice(0, 10);
+
+    const rawName = String(b.roomName || b.accommodation_name || b.accommodationName || b.room || '').replace(/\s+/g, ' ').trim();
+    const rawProd = b.product || b.pmsProduct || b.accommodation_id || b.roomId;
+
+    let motherId = String(rawProd || '');
+    let roomName = rawName || `Room ${motherId}`;
+
+    if (MOTHER_RATE_PLANS[rawName]) {
+      motherId = String(MOTHER_RATE_PLANS[rawName]);
+    } else if (rawName.toLowerCase().includes('fake') || rawName.toLowerCase().includes('test')) {
+      if (rawName.includes('2')) motherId = '921799';
+      else motherId = '649669';
+    }
+
+    const key = motherId || roomName || 'unknown';
+    if (!roomBookingsMap[key]) {
+      roomBookingsMap[key] = { roomName, motherId: key, bookings: [] };
+    }
+    roomBookingsMap[key].bookings.push({ in: inStr, out: outStr });
+  });
+
+  Object.values(roomBookingsMap).forEach(({ roomName, motherId, bookings: bList }) => {
+    const sorted = bList.sort((a, b) => a.in.localeCompare(b.in));
+    const octRoomId = motherId;
 
     const gaps: Array<{ start: string; end: string }> = [];
 
@@ -195,13 +217,56 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
   try {
     let bookingsData: any[] = [];
     if (supabaseAdmin) {
+      let accessToken: string | null = null;
       const { data: tokenData } = await supabaseAdmin
         .from('octorate_tokens')
-        .select('access_token')
+        .select('access_token, refresh_token')
         .eq('id', 'singleton')
         .maybeSingle();
 
       if (tokenData?.access_token) {
+        accessToken = tokenData.access_token;
+      }
+
+      // Auto-refresh token se necessario
+      const clientId = process.env.VITE_OCTORATE_CLIENT_ID || process.env.OCTORATE_CLIENT_ID;
+      const clientSecret = process.env.OCTORATE_SECRET_KEY || process.env.VITE_OCTORATE_SECRET_KEY;
+      const refreshToken = tokenData?.refresh_token;
+
+      if ((!accessToken || refreshToken) && refreshToken && clientId && clientSecret) {
+        try {
+          const refreshUrl = "https://api.octorate.com/connect/rest/v1/identity/refresh";
+          const refreshRes = await fetch(refreshUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              "Accept": "application/json"
+            },
+            body: new URLSearchParams({
+              grant_type: "refresh_token",
+              refresh_token: refreshToken,
+              client_id: clientId,
+              client_secret: clientSecret
+            }).toString()
+          });
+
+          if (refreshRes.ok) {
+            const newTokens = await refreshRes.json();
+            accessToken = newTokens.access_token;
+            await supabaseAdmin.from('octorate_tokens').upsert({
+              id: 'singleton',
+              access_token: newTokens.access_token,
+              refresh_token: newTokens.refresh_token || refreshToken,
+              expires_in: newTokens.expires_in,
+              updated_at: new Date().toISOString()
+            });
+          }
+        } catch (rErr) {
+          console.warn("[octorate-webhook] Token refresh warning:", rErr);
+        }
+      }
+
+      if (accessToken) {
         try {
           const dateFrom = new Date().toISOString().substring(0, 10);
           const dateToObj = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
@@ -209,7 +274,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
           const octRes = await fetch(octUrl, {
             headers: {
-              'Authorization': `Bearer ${tokenData.access_token}`,
+              'Authorization': `Bearer ${accessToken}`,
               'Accept': 'application/json'
             }
           });
@@ -220,54 +285,46 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
         } catch (octErr) {
           console.warn('[OCTORATE WEBHOOK] Failed to fetch live bookings from Octorate:', octErr);
         }
-      }
-    }
 
-    const todayISO = new Date().toISOString().substring(0, 10);
-    const next60Days = new Date();
-    next60Days.setDate(next60Days.getDate() + 60);
-    const endISO = next60Days.toISOString().substring(0, 10);
+        const todayISO = new Date().toISOString().substring(0, 10);
+        const next60Days = new Date();
+        next60Days.setDate(next60Days.getDate() + 60);
+        const endISO = next60Days.toISOString().substring(0, 10);
 
-    const calculatedUpdates = calculateServerDynamicMinStay(
-      bookingsData,
-      { start: todayISO, end: endISO }
-    );
+        const calculatedUpdates = calculateServerDynamicMinStay(
+          bookingsData,
+          { start: todayISO, end: endISO }
+        );
 
-    calculatedUpdatesCount = calculatedUpdates.length;
-    console.log(`[OCTORATE WEBHOOK 24/7] Calculated ${calculatedUpdates.length} gap-filling & restoration updates.`);
+        calculatedUpdatesCount = calculatedUpdates.length;
+        console.log(`[OCTORATE WEBHOOK 24/7] Calculated ${calculatedUpdates.length} gap-filling updates.`);
 
-    // Invia la scrittura reale ad Octorate filtrando esclusivamente per gli alloggi di Staging
-    const stagingUpdates = calculatedUpdates.filter(u => STAGING_LOCK_IDS.has(String(u.roomTypeId)));
+        // Invia la scrittura reale ad Octorate filtrando per alloggi di Staging
+        const stagingUpdates = calculatedUpdates.filter(u => STAGING_LOCK_IDS.has(String(u.roomTypeId)));
 
-    if (stagingUpdates.length > 0 && supabaseAdmin) {
-      const { data: tokenData } = await supabaseAdmin
-        .from('octorate_tokens')
-        .select('access_token')
-        .eq('id', 'singleton')
-        .maybeSingle();
+        if (stagingUpdates.length > 0) {
+          const roomsPayload = stagingUpdates.map(u => ({
+            room: Number(u.roomTypeId),
+            dateFrom: u.dateFrom,
+            dateTo: u.dateTo,
+            values: {
+              minstay: Number(u.minStay)
+            }
+          }));
 
-      if (tokenData?.access_token) {
-        const roomsPayload = stagingUpdates.map(u => ({
-          room: Number(u.roomTypeId),
-          dateFrom: u.dateFrom,
-          dateTo: u.dateTo,
-          values: {
-            minstay: Number(u.minStay)
-          }
-        }));
+          const bulkRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(roomsPayload)
+          });
 
-        const bulkRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${tokenData.access_token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(roomsPayload)
-        });
-
-        octorateStatus = bulkRes.status;
-        console.log(`[OCTORATE WEBHOOK 24/7] Real bulk minstay update sent to Octorate for staging bungalows (Status: ${bulkRes.status}).`);
+          octorateStatus = bulkRes.status;
+          console.log(`[OCTORATE WEBHOOK 24/7] Real bulk minstay update sent to Octorate (Status: ${bulkRes.status}).`);
+        }
       }
     }
 
