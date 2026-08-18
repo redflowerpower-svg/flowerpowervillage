@@ -7,7 +7,10 @@ const supabaseAdmin = (supabaseUrl && serviceRoleKey) ? createClient(supabaseUrl
 
 // Global DRY_RUN mode flag (simulazione in memoria / log per la massima sicurezza)
 const DRY_RUN = true;
-const STAGING_LOCK_IDS = new Set(['649669', '921799']);
+const STAGING_LOCK_IDS = new Set([
+  '649669', '932243', '932244', '932246', '932247', '932248', '932249', '932250', '932251', '932252', '932253', '932254', '932255',
+  '921799', '932256', '932257', '932259', '932260', '932261', '932262', '932263', '932264', '932265', '932266', '932267', '932268'
+]);
 
 // Mappatura immutabile 1:1 ID TARIFFA MADRE per Octorate
 const MOTHER_RATE_PLANS: Record<string, number> = {
@@ -34,6 +37,32 @@ const MOTHER_RATE_PLANS: Record<string, number> = {
   "Internal Room": 293942,
   "Fake Bungalow 1": 649669,
   "Fake Bungalow 2": 921799
+};
+
+const ACCOMMODATION_PRODUCTS_MAP: Record<string, string[]> = {
+  "Fake Bungalow 1": ['649669', '932243', '932244', '932246', '932247', '932248', '932249', '932250', '932251', '932252', '932253', '932254', '932255'],
+  "Fake Bungalow 2": ['921799', '932256', '932257', '932259', '932260', '932261', '932262', '932263', '932264', '932265', '932266', '932267', '932268'],
+  "Peace & Love Villa": ['494840', '495566', '495580', '495575', '495552', '495587', '495565', '495593', '921874', '921875', '495569', '495609'],
+  "Penthouse Villa": ['421511', '449348', '421513', '421516', '421520', '421522', '421525', '421527', '421530', '921876', '921877', '421532', '421533'],
+  "Villa Penthouse": ['421511', '449348', '421513', '421516', '421520', '421522', '421525', '421527', '421530', '921876', '921877', '421532', '421533'],
+  "Jungle Villa": ['529773', '529784', '529778', '529792', '529788', '529780', '916816', '529781', '529801', '921868', '921869', '529783', '529813'],
+  "Jungle Villa Left": ['495795', '495807', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
+  "Jungle Villa Right": ['495796', '495980', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
+  "Lodge 1": ['293951', '449736', '422149', '332769', '332767', '331974', '332129', '422157', '332142', '921884', '921885', '297030', '421510'],
+  "Lodge 2": ['883795', '923905', '916108', '916107', '916109', '916114', '916829', '916105', '916830', '921886', '921887', '916103', '916104'],
+  "Red Bungalow": ['293954', '449422', '293953', '332030', '332029', '330964', '332035', '330970', '332036', '921880', '921881', '297021', '340196'],
+  "Green Bungalow": ['293962', '449668', '293961', '332070', '332066', '331923', '332072', '331924', '332074', '921882', '921883', '297023', '340200'],
+  "Yellow Bungalow": ['293957', '449385', '293958', '332055', '332054', '331921', '332057', '331922', '332060', '921878', '921879', '297022', '340198'],
+  "Lagoon Tent": ['293955', '449674', '422351', '293956', '332081', '332077', '297024'],
+  "Lagoon Tent Bungalow": ['293955', '449674', '422351', '293956', '332081', '332077', '297024'],
+  "Camel Tent": ['293965', '449675', '422325', '293966', '332089', '332084', '297025'],
+  "Camel Tent Bungalow": ['293965', '449675', '422325', '293966', '332089', '332084', '297025'],
+  "Room 1": ['293963', '449678', '422300', '332737', '332735', '331976', '916818', '331977', '916402', '921889', '921890', '297033', '421505'],
+  "Room 2": ['293959', '449684', '422296', '332741', '332739', '331966', '332119', '331967', '332134', '921891', '921900', '297032', '421506'],
+  "Room 3": ['293948', '449699', '422293', '332743', '332757', '331968', '332121', '331969', '332136', '921892', '921893', '297028', '421507'],
+  "Room 4": ['293945', '449724', '422265', '332759', '332746', '331970', '332123', '331971', '332138', '921894', '921895', '297029', '421508'],
+  "Room 5": ['293943', '449730', '422213', '332765', '332763', '331972', '332125', '331973', '332140', '921896', '921897', '297031', '421509'],
+  "Internal Room": ['293942', '449742', '293941', '332109', '332105', '340367', '916840', '421998', '916838', '921898', '921899', '297027', '422147']
 };
 
 // 🎯 SORGENTE DI VERITÀ: Timeline Min Stay configurata in Gestione Tariffe Derivate
@@ -168,6 +197,8 @@ function daysDiffISO(startISO: string, endISO: string): number {
   return Math.round((e - s) / 86400000);
 }
 
+    const targetProductIds = ACCOMMODATION_PRODUCTS_MAP[roomName] || [octRoomId];
+
     gaps.forEach(({ start: gapStart, end: gapEnd }) => {
       const gapDays = daysDiffISO(gapStart, gapEnd);
 
@@ -180,15 +211,18 @@ function daysDiffISO(startISO: string, endISO: string): number {
           const baseline = getBaselineMinStay(cur);
           const target = Math.min(gapDays, baseline);
           if (target !== blockMinStay) {
-            updates.push({
-              roomTypeId: octRoomId,
-              accommodationName: roomName,
-              dateFrom: blockStart,
-              dateTo: addDaysISO(cur, -1),
-              minStay: blockMinStay,
-              reason: gapDays < blockMinStay
-                ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
-                : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
+            const blockEnd = addDaysISO(cur, -1);
+            targetProductIds.forEach(targetId => {
+              updates.push({
+                roomTypeId: targetId,
+                accommodationName: roomName,
+                dateFrom: blockStart,
+                dateTo: blockEnd,
+                minStay: blockMinStay,
+                reason: gapDays < blockMinStay
+                  ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
+                  : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
+              });
             });
             blockStart = cur;
             blockMinStay = target;
@@ -198,15 +232,17 @@ function daysDiffISO(startISO: string, endISO: string): number {
 
         const lastDate = addDaysISO(gapEnd, -1);
         if (blockStart <= lastDate) {
-          updates.push({
-            roomTypeId: octRoomId,
-            accommodationName: roomName,
-            dateFrom: blockStart,
-            dateTo: lastDate,
-            minStay: blockMinStay,
-            reason: gapDays < blockMinStay
-              ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
-              : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
+          targetProductIds.forEach(targetId => {
+            updates.push({
+              roomTypeId: targetId,
+              accommodationName: roomName,
+              dateFrom: blockStart,
+              dateTo: lastDate,
+              minStay: blockMinStay,
+              reason: gapDays < blockMinStay
+                ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
+                : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
+            });
           });
         }
       }

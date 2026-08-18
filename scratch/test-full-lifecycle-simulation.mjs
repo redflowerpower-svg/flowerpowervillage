@@ -40,13 +40,14 @@ async function runAutonomousLifecycleTest() {
 
   const token = await getAccessToken();
 
-  // STEP 0: Reset Preliminare
+  // STEP 0: Reset Iniziale
   console.log('📌 [FASE 0] Allineamento Iniziale...');
   await fetch('https://flowerpowervillage.vercel.app/api/webhooks/octorate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ type: 'MANUAL_SYNC_CHECK' })
   });
+  await new Promise(r => setTimeout(r, 3500));
   const initial = await getCalendarStatus(token, '2027-10-18', '2027-10-28');
   console.log(`   👉 Stato Iniziale Calendario Octorate: 19 Ottobre = ${initial.d19} notti | 27 Ottobre = ${initial.d27} notti\n`);
 
@@ -86,7 +87,7 @@ async function runAutonomousLifecycleTest() {
   console.log(`   ✅ Prenotazione creata su Octorate PMS! ID: ${reservationId}`);
 
   // Attesa commit DB Octorate
-  await new Promise(r => setTimeout(r, 2000));
+  await new Promise(r => setTimeout(r, 2500));
 
   // Esecuzione Webhook Creazione
   console.log('   📡 Trigger Webhook (RESERVATION_CREATED)...');
@@ -98,14 +99,14 @@ async function runAutonomousLifecycleTest() {
   const whJson1 = await whRes1.json();
   console.log(`   ✅ Webhook elaborato (${whJson1.calculatedUpdatesCount} aggiornamenti sincronizzati).`);
 
+  // Attesa elaborazione coda bulk Octorate (3.5s)
+  await new Promise(r => setTimeout(r, 3500));
+
   // Verifica Octorate (deve essere 1 e 1)
   const afterCreate = await getCalendarStatus(token, '2027-10-18', '2027-10-28');
   console.log(`   👉 STATO CALENDARIO OCTORATE DOPO CREAZIONE:`);
   console.log(`      • 19 Ottobre 2027 = ${afterCreate.d19} notte (Gap prima della prenotazione)`);
   console.log(`      • 27 Ottobre 2027 = ${afterCreate.d27} notte (Gap dopo la prenotazione)\n`);
-
-  // Attesa prima della cancellazione
-  await new Promise(r => setTimeout(r, 3000));
 
   // STEP 2: Cancellazione Prenotazione Test
   console.log(`📌 [FASE 2] Cancellazione Prenotazione Test su Octorate (ID: ${reservationId})...`);
@@ -120,7 +121,7 @@ async function runAutonomousLifecycleTest() {
   console.log(`   ✅ Cancellazione eseguita su Octorate PMS (HTTP ${deleteRes.status}).`);
 
   // Attesa commit DB Octorate
-  await new Promise(r => setTimeout(r, 2000));
+  await new Promise(r => setTimeout(r, 2500));
 
   // Esecuzione Webhook Cancellazione
   console.log('   📡 Trigger Webhook (RESERVATION_CANCELLED)...');
@@ -131,6 +132,9 @@ async function runAutonomousLifecycleTest() {
   });
   const whJson2 = await whRes2.json();
   console.log(`   ✅ Webhook elaborato (${whJson2.calculatedUpdatesCount} aggiornamenti sincronizzati).`);
+
+  // Attesa elaborazione coda bulk Octorate (3.5s)
+  await new Promise(r => setTimeout(r, 3500));
 
   // Verifica finale su Octorate (deve essere 2 e 2)
   const afterDelete = await getCalendarStatus(token, '2027-10-18', '2027-10-28');
