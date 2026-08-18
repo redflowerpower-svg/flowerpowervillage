@@ -579,13 +579,56 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
 
   // Esecuzione Scrittura Reale Octorate per gli Alloggi di Staging
   try {
+    let accessToken: string | null = null;
     const { data: tokenData } = await supabaseAdmin
       .from('octorate_tokens')
-      .select('access_token')
+      .select('access_token, refresh_token')
       .eq('id', 'singleton')
       .maybeSingle();
 
-    if (!tokenData?.access_token) {
+    if (tokenData?.access_token) {
+      accessToken = tokenData.access_token;
+    }
+
+    // Se manca o per garantire token sempre fresco, tenta il refresh
+    const clientId = process.env.VITE_OCTORATE_CLIENT_ID || process.env.OCTORATE_CLIENT_ID;
+    const clientSecret = process.env.OCTORATE_SECRET_KEY || process.env.VITE_OCTORATE_SECRET_KEY;
+    const refreshToken = tokenData?.refresh_token;
+
+    if ((!accessToken || refreshToken) && refreshToken && clientId && clientSecret) {
+      try {
+        const refreshUrl = "https://api.octorate.com/connect/rest/v1/identity/refresh";
+        const refreshRes = await fetch(refreshUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept": "application/json"
+          },
+          body: new URLSearchParams({
+            grant_type: "refresh_token",
+            refresh_token: refreshToken,
+            client_id: clientId,
+            client_secret: clientSecret
+          }).toString()
+        });
+
+        if (refreshRes.ok) {
+          const newTokens = await refreshRes.json();
+          accessToken = newTokens.access_token;
+          await supabaseAdmin.from('octorate_tokens').upsert({
+            id: 'singleton',
+            access_token: newTokens.access_token,
+            refresh_token: newTokens.refresh_token || refreshToken,
+            expires_in: newTokens.expires_in,
+            updated_at: new Date().toISOString()
+          });
+        }
+      } catch (rErr) {
+        console.warn("[handleOctorateMinStay] Token refresh fallback warning:", rErr);
+      }
+    }
+
+    if (!accessToken) {
       return res.status(400).json({ error: 'No Octorate access token available in database' });
     }
 
@@ -601,7 +644,7 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
     const octRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${tokenData.access_token}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
