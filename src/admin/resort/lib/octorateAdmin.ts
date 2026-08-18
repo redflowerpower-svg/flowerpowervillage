@@ -259,45 +259,32 @@ export function parseThailandDateParts(dateInput: any): { year: number; month: n
   return { year, month, day };
 }
 
+import { useRestrictionsStore, INITIAL_MIN_STAY_PERIODS } from '../store/useRestrictionsStore';
+
 /**
- * Determina il Soggiorno Minimo di Baseline stagionale per una data specifica:
- * - Altissima Stagione (21 Dicembre - 15 Gennaio compreso): 5 notti
- * - Alta Stagione (16 Gennaio - 31 Marzo compreso): 3 notti standard (2 notti se arrivo <= 30 giorni)
- * - Bassa Stagione (1 Aprile - 31 Ottobre compreso): 2 notti
- * - Media Stagione (1 Novembre - 20 Dicembre compreso): 2 notti
+ * Determina il Soggiorno Minimo di Baseline per una data specifica.
+ * 🎯 UNICA SORGENTE DI VERITÀ INDEROGABILE:
+ * Legge dinamicamente la Timeline Min Stay da useRestrictionsStore (Gestione Tariffe Derivate).
  */
 export function getBaselineMinStay(dateInput: any): number {
-  const parts = parseThailandDateParts(dateInput);
-  if (!parts) return 2;
+  const dStr = typeof dateInput === 'string' ? dateInput.slice(0, 10) : toThailandDateStr(dateInput);
+  if (!dStr) return 2;
 
-  const { year, month, day } = parts;
+  try {
+    const storePeriods = useRestrictionsStore.getState?.()?.plannedMinStayPeriods;
+    const periods = (storePeriods && storePeriods.length > 0) ? storePeriods : INITIAL_MIN_STAY_PERIODS;
 
-  // 1. 21 Dicembre - 15 Gennaio (Altissima Stagione / Peak Season - INCLUSO IL 15 GENNAIO INTEGRALMENTE): 5 notti
-  if ((month === 12 && day >= 21) || (month === 1 && day <= 15)) {
-    return 5;
-  }
-
-  // 2. 16 Gennaio - 31 Marzo (Alta Stagione / Spalla - INCLUSI 16 GENNAIO E 31 MARZO INTEGRALMENTE): 3 notti standard (2 notti se arrivalDate - today <= 30 giorni)
-  if ((month === 1 && day >= 16) || month === 2 || (month === 3 && day <= 31)) {
-    const todayStr = toThailandDateStr(new Date());
-    const todayParts = parseThailandDateParts(todayStr);
-
-    if (todayParts) {
-      const todayTime = Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day);
-      const arrivalTime = Date.UTC(year, month - 1, day);
-      const diffMs = arrivalTime - todayTime;
-      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-      // Arrivo a breve termine (entro 30 giorni da oggi): scende a 2 notti
-      if (diffDays >= 0 && diffDays <= 30) {
-        return 2;
-      }
+    const matched = periods.find(p => dStr >= p.dateFrom && dStr <= p.dateTo);
+    if (matched && matched.minStay) {
+      return matched.minStay;
     }
-    return 3;
+  } catch {
+    const matched = INITIAL_MIN_STAY_PERIODS.find(p => dStr >= p.dateFrom && dStr <= p.dateTo);
+    if (matched && matched.minStay) {
+      return matched.minStay;
+    }
   }
 
-  // 3. 1 Aprile - 31 Ottobre (Bassa Stagione / Low Season - INCLUSI 1 APRILE E 31 OTTOBRE INTEGRALMENTE): 2 notti
-  // 4. 1 Novembre - 20 Dicembre (Media Stagione / Pre-Peak - INCLUSI 1 NOVEMBRE E 20 DICEMBRE INTEGRALMENTE): 2 notti
   return 2;
 }
 
@@ -384,58 +371,78 @@ export function calculateDynamicMinStay(
     // Ordina TUTTE le prenotazioni della camera in sequenza temporale per l'intera stagione
     const sorted = list.sort((a, b) => a.in.localeCompare(b.in));
 
-    for (let i = 0; i < sorted.length - 1; i++) {
-      const prevOut = sorted[i].out;  // VERO prev_checkout di quella camera
-      const nextIn = sorted[i + 1].in; // VERO next_checkin della prenotazione successiva
+    // Costruisce la sequenza di gap da analizzare:
+    // 1. Dalla data di inizio range (oggi) alla prima prenotazione (se non inizia oggi)
+    // 2. Tra tutte le prenotazioni consecutive
+    const gaps: Array<{ start: string; end: string }> = [];
 
-      // Il buco inizia a prevOut. Verifichiamo che il buco appartenga alla finestra temporale attiva (da oggi fino a fine stagione)
-      if (prevOut >= rangeStartStr && prevOut <= rangeEndStr && prevOut < nextIn) {
-        const pParts = parseThailandDateParts(prevOut);
-        const nParts = parseThailandDateParts(nextIn);
+    if (sorted.length > 0) {
+      // Gap iniziale: da rangeStartStr al checkin della prima prenotazione
+      if (sorted[0].in > rangeStartStr) {
+        gaps.push({ start: rangeStartStr, end: sorted[0].in });
+      }
 
-        if (pParts && nParts) {
-          const prevOutTime = Date.UTC(pParts.year, pParts.month - 1, pParts.day);
-          const nextInTime = Date.UTC(nParts.year, nParts.month - 1, nParts.day);
-          const gapDays = Math.round((nextInTime - prevOutTime) / (1000 * 60 * 60 * 24));
-
-          if (gapDays > 0) {
-            // Calcola il soggiorno minimo stagionale più alto (maxBaselineInGap) tra tutti i giorni che compongono il buco
-            let maxBaselineInGap = 0;
-            let currentDay = new Date(Date.UTC(pParts.year, pParts.month - 1, pParts.day));
-
-            while (currentDay.getTime() < nextInTime) {
-              const dStr = toThailandDateStr(currentDay);
-              const baseline = getBaselineMinStay(dStr);
-              if (baseline > maxBaselineInGap) {
-                maxBaselineInGap = baseline;
-              }
-              currentDay.setUTCDate(currentDay.getUTCDate() + 1);
-            }
-
-            // REGOLA UNIFORMITÀ GAP-FILL SUI CONFINI STAGIONALI:
-            // SE G < maxBaselineInGap: Il motore Gap-Fill si attiva per TUTTI i giorni del buco impostando minStay = G.
-            // SE G >= maxBaselineInGap: Non fare nulla (i singoli giorni mantengono il loro baseline naturale).
-            if (gapDays < maxBaselineInGap) {
-              const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === motherId);
-              const derivedIds = canonical?.ids?.filter(id => String(id) !== String(motherId)) || [];
-              const targetIds = derivedIds.length > 0 ? derivedIds : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
-
-              targetIds.forEach(targetId => {
-                updates.push({
-                  roomTypeId: targetId, // NUOVA REGOLA D'ORO: RESTRIZIONI DIRETTAMENTE SU DERIVATE SLEGATE 7D/14D
-                  motherId: motherId,
-                  accommodationName: roomName,
-                  dateFrom: prevOut,
-                  dateTo: nextIn,
-                  minStay: gapDays,
-                  reason: `Gap-Fill Uniforme (${gapDays}d gap < maxBaseline ${maxBaselineInGap}d): M=${gapDays}`
-                });
-              });
-            }
+      // Gap intermedi tra prenotazioni
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const prevOut = sorted[i].out;
+        const nextIn = sorted[i + 1].in;
+        if (prevOut < nextIn && prevOut <= rangeEndStr && nextIn >= rangeStartStr) {
+          const effectiveStart = prevOut < rangeStartStr ? rangeStartStr : prevOut;
+          if (effectiveStart < nextIn) {
+            gaps.push({ start: effectiveStart, end: nextIn });
           }
         }
       }
     }
+
+    gaps.forEach(({ start: gapStart, end: gapEnd }) => {
+      const pParts = parseThailandDateParts(gapStart);
+      const nParts = parseThailandDateParts(gapEnd);
+
+      if (pParts && nParts) {
+        const prevOutTime = Date.UTC(pParts.year, pParts.month - 1, pParts.day);
+        const nextInTime = Date.UTC(nParts.year, nParts.month - 1, nParts.day);
+        const gapDays = Math.round((nextInTime - prevOutTime) / (1000 * 60 * 60 * 24));
+
+        if (gapDays > 0) {
+          // Calcola il soggiorno minimo stagionale più alto (maxBaselineInGap) tra tutti i giorni che compongono il buco
+          let maxBaselineInGap = 0;
+          let currentDay = new Date(Date.UTC(pParts.year, pParts.month - 1, pParts.day));
+
+          while (currentDay.getTime() < nextInTime) {
+            const dStr = toThailandDateStr(currentDay);
+            const baseline = getBaselineMinStay(dStr);
+            if (baseline > maxBaselineInGap) {
+              maxBaselineInGap = baseline;
+            }
+            currentDay.setUTCDate(currentDay.getUTCDate() + 1);
+          }
+
+          // REGOLA UNIFORMITÀ GAP-FILL:
+          // SE G < maxBaselineInGap: Il motore Gap-Fill si attiva per TUTTI i giorni del buco impostando minStay = G.
+          if (gapDays < maxBaselineInGap) {
+            const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === motherId);
+            const derivedIds = canonical?.ids?.filter(id => String(id) !== String(motherId)) || [];
+            const targetIds = derivedIds.length > 0 ? derivedIds : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
+
+            // In Octorate dateTo è INCLUSIVO: l'ultima notte del buco è esattamente il giorno prima del nuovo check-in (gapEnd - 1)
+            const dateToInclusive = toThailandDateStr(new Date(nextInTime - 86400000));
+
+            targetIds.forEach(targetId => {
+              updates.push({
+                roomTypeId: targetId,
+                motherId: motherId,
+                accommodationName: roomName,
+                dateFrom: gapStart,
+                dateTo: dateToInclusive,
+                minStay: gapDays,
+                reason: `Gap-Fill Uniforme (${gapDays}d gap < maxBaseline ${maxBaselineInGap}d): M=${gapDays}`
+              });
+            });
+          }
+        }
+      }
+    });
   });
 
   return updates;

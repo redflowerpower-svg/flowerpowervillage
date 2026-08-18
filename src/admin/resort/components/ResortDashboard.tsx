@@ -100,6 +100,7 @@ export function ResortDashboard() {
     disableLastMinuteStrategy,
     dynamicMinStayGapFill,
     dynamicMinStayRunning,
+    dynamicMinStayResetRunning,
     dynamicMinStayResult,
     dynamicMinStayExecutionMode,
     setDynamicMinStayGapFill,
@@ -1468,11 +1469,11 @@ export function ResortDashboard() {
                       <button
                         type="button"
                         onClick={() => executeDynamicMinStayStrategy(true)}
-                        disabled={dynamicMinStayRunning}
+                        disabled={dynamicMinStayRunning || dynamicMinStayResetRunning}
                         className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl bg-stone-950 border border-stone-800 text-stone-300 hover:bg-stone-850 transition-all cursor-pointer disabled:opacity-50"
                         title="Ripristina i valori di soggiorno minimo stagionali standard su Octorate"
                       >
-                        <RefreshCw className={`w-3.5 h-3.5 text-violet-400 ${dynamicMinStayRunning ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-3.5 h-3.5 text-violet-400 ${dynamicMinStayResetRunning ? 'animate-spin' : ''}`} />
                         <span>🔄 RIPRISTINO VALORI STAGIONALI</span>
                       </button>
                     </div>

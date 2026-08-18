@@ -3,9 +3,16 @@ import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { updateLastMinuteRatesStrategy, resetLastMinuteRatesStrategy, disableLastMinuteRatesStrategy, updateStandardProtectionStrategy, fetchOctorateLiveReservations } from '../../../booking/lib/octorate';
 import { calculateDynamicMinStay, calculateStandardProtectionUpdates, StandardProtectionUpdate, toThailandDateStr, getSeasonalEndDateStr, DiscountExecutionMode, ALL_ACCOMMODATIONS_MAP } from '../lib/octorateAdmin';
 import { isValidActiveBooking } from '../lib/bookingFilters';
+import { useRestrictionsStore } from './useRestrictionsStore';
 
-// Alias locale della mappa madre per il calcolo Dry-Run
 const ALL_ACCOMMODATIONS_MAP_LOCAL = ALL_ACCOMMODATIONS_MAP;
+
+function addDaysISO(dateStr: string, days: number): string {
+  const parts = dateStr.split('-');
+  if (parts.length < 3) return dateStr;
+  const d = new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]) + days));
+  return d.toISOString().slice(0, 10);
+}
 
 export interface ResortBooking {
   id: string;
@@ -119,6 +126,7 @@ interface ResortAdminState {
   setIsDynamicCalculationEnabled: (enabled: boolean) => void;
   dynamicMinStayGapFill: boolean;
   dynamicMinStayRunning: boolean;
+  dynamicMinStayResetRunning: boolean;
   dynamicMinStayUpdates: any[];
   dynamicMinStayResult: { success: boolean; dryRun: boolean; message: string; updatesCount: number } | null;
 
@@ -273,6 +281,7 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   dynamicMinStayGapFill: false,
   dynamicMinStayExecutionMode: 'simulation',
   dynamicMinStayRunning: false,
+  dynamicMinStayResetRunning: false,
   dynamicMinStayUpdates: [],
   dynamicMinStayResult: null,
   setDynamicMinStayGapFill: (enabled: boolean) => set({ dynamicMinStayGapFill: enabled }),
@@ -468,7 +477,11 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   },
 
   executeDynamicMinStayStrategy: async (resetToBaseline: boolean = false, customRange?: { start: string; end: string }) => {
-    set({ dynamicMinStayRunning: true, isDynamicCalculationEnabled: true });
+    if (resetToBaseline) {
+      set({ dynamicMinStayResetRunning: true, isDynamicCalculationEnabled: true });
+    } else {
+      set({ dynamicMinStayRunning: true, isDynamicCalculationEnabled: true });
+    }
     try {
       let { rawOctorateBookings, bookings, dynamicMinStayGapFill, dynamicMinStayExecutionMode, fetchBookings, downloadSeasonSequential } = get();
 
@@ -484,12 +497,82 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       const todayISO = customRange?.start || toThailandDateStr(new Date());
       const endISO = customRange?.end || getSeasonalEndDateStr(todayISO);
 
-      // Calcolo Assoluto basato sulle prenotazioni reali stagionali in memoria con enabled = true
-      const updates = calculateDynamicMinStay(poolToUse, { start: todayISO, end: endISO, enabled: true });
+      let updates: any[] = [];
+      if (resetToBaseline) {
+        // Ripristino puro: applica i periodi standard della Timeline Min Stay su Octorate coprendo da OGGI fino a fine stagione
+        const storePeriods: any[] = useRestrictionsStore.getState?.()?.plannedMinStayPeriods || [];
+        const sortedPeriods = [...storePeriods].sort((a, b) => a.dateFrom.localeCompare(b.dateFrom));
+
+        const effectivePeriods: Array<{ dateFrom: string; dateTo: string; minStay: number }> = [];
+
+        if (sortedPeriods.length === 0) {
+          effectivePeriods.push({ dateFrom: todayISO, dateTo: endISO, minStay: 2 });
+        } else {
+          // Se il primo periodo pianificato inizia dopo oggi, copri la coda attuale (da oggi a inizio periodo) con baseline 2
+          if (sortedPeriods[0].dateFrom > todayISO) {
+            const preEnd = addDaysISO(sortedPeriods[0].dateFrom, -1);
+            effectivePeriods.push({ dateFrom: todayISO, dateTo: preEnd, minStay: 2 });
+          }
+          sortedPeriods.forEach(p => {
+            const pFrom = p.dateFrom < todayISO ? todayISO : p.dateFrom;
+            const pTo = p.dateTo > endISO ? endISO : p.dateTo;
+            if (pFrom <= pTo) {
+              effectivePeriods.push({ dateFrom: pFrom, dateTo: pTo, minStay: p.minStay || 2 });
+            }
+          });
+        }
+
+        const targetRooms = dynamicMinStayExecutionMode === 'test_bungalows'
+          ? [
+              { motherId: 649669, name: 'Fake Bungalow 1' },
+              { motherId: 921799, name: 'Fake Bungalow 2' }
+            ]
+          : Object.values(ALL_ACCOMMODATIONS_MAP_LOCAL).map(a => ({ motherId: a.motherId, name: a.name }));
+
+        targetRooms.forEach(room => {
+          effectivePeriods.forEach(period => {
+            updates.push({
+              roomTypeId: String(room.motherId),
+              motherId: room.motherId,
+              accommodationName: room.name,
+              dateFrom: period.dateFrom,
+              dateTo: period.dateTo,
+              minStay: period.minStay,
+              reason: `Ripristino Soggiorno Minimo Standard (${period.minStay} notti)`
+            });
+          });
+        });
+      } else {
+        // Calcolo Assoluto basato sulle prenotazioni reali stagionali in memoria con enabled = true
+        updates = calculateDynamicMinStay(poolToUse, { start: todayISO, end: endISO, enabled: true });
+      }
 
       // Se la modalità è simulation o dynamicMinStayGapFill è false, dryRun = true
-      const isDryRun = (dynamicMinStayExecutionMode === 'simulation') || !dynamicMinStayGapFill;
+      const isDryRun = (dynamicMinStayExecutionMode === 'simulation') || (!resetToBaseline && !dynamicMinStayGapFill);
       const annotatedUpdates = updates.map(u => ({ ...u, isSimulated: isDryRun }));
+
+      // In AMBIENTE DI TEST inviamo ad Octorate ESCLUSIVAMENTE i 2 Fake Bungalow fittizi (#649669 e #921799)
+      // e normalizziamo roomTypeId tassativamente sull'ID Camera Madre di Livello 0
+      const updatesToSend = (dynamicMinStayExecutionMode === 'test_bungalows' && !isDryRun)
+        ? annotatedUpdates
+            .filter(u => {
+              const motherStr = String(u.motherId || '');
+              const nameStr = String(u.accommodationName || '').toLowerCase();
+              return motherStr === '649669' || motherStr === '921799' || nameStr.includes('fake') || nameStr.includes('test');
+            })
+            .map(u => {
+              const nameStr = String(u.accommodationName || '').toLowerCase();
+              const targetMotherId = (nameStr.includes('2') || String(u.motherId) === '921799') ? '921799' : '649669';
+              return {
+                ...u,
+                roomTypeId: targetMotherId,
+                motherId: Number(targetMotherId)
+              };
+            })
+        : annotatedUpdates.map(u => ({
+            ...u,
+            roomTypeId: String(u.motherId || u.roomTypeId)
+          }));
 
       const endpoints = [
         '/api/resort/octorate-min-stay',
@@ -506,7 +589,7 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              updates: annotatedUpdates,
+              updates: updatesToSend,
               resetToBaseline,
               dryRun: isDryRun,
               executionMode: dynamicMinStayExecutionMode,
@@ -530,14 +613,16 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
 
       const resJson = await apiRes.json();
       set({
-        dynamicMinStayUpdates: annotatedUpdates,
+        dynamicMinStayUpdates: resetToBaseline ? [] : annotatedUpdates,
+        isDynamicCalculationEnabled: resetToBaseline ? false : true,
         dynamicMinStayResult: {
           success: resJson.success,
           dryRun: resJson.dryRun ?? isDryRun,
-          message: resJson.message || (resJson.success ? 'Calcolo soggiorno minimo dinamico eseguito con successo.' : 'Errore esecuzione'),
+          message: resJson.message || (resJson.success ? (resetToBaseline ? 'Ripristino valori stagionali completato.' : 'Calcolo soggiorno minimo dinamico eseguito con successo.') : 'Errore esecuzione'),
           updatesCount: resJson.updatesCount || 0
         },
-        dynamicMinStayRunning: false
+        dynamicMinStayRunning: false,
+        dynamicMinStayResetRunning: false
       });
     } catch (err: any) {
       console.error('[useResortAdminStore] Dynamic MinStay Strategy Error:', err);
@@ -548,7 +633,8 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
           message: err.message || 'Errore durante il calcolo del soggiorno minimo dinamico.',
           updatesCount: 0
         },
-        dynamicMinStayRunning: false
+        dynamicMinStayRunning: false,
+        dynamicMinStayResetRunning: false
       });
     }
   },
@@ -723,9 +809,12 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
           }
         });
 
-        // Calcola l'offset di date dalla tariffa madre reale
-        const todayStr = new Date().toISOString().substring(0, 10);
-        const todayTime = new Date(todayStr).getTime();
+        // La nuova stagione gestita dalla dashboard parte dal 1° Novembre 2026 (la coda precedente fino al 31 Ottobre rimane gestita a mano da Octorate)
+        const realTodayStr = new Date().toISOString().substring(0, 10);
+        const seasonStartStr = '2026-11-01';
+        const startStr = realTodayStr >= seasonStartStr ? realTodayStr : seasonStartStr;
+        const startTime = new Date(startStr + 'T00:00:00Z').getTime();
+
         const s1Days = lastMinuteStage1Days;
         const s2Days = lastMinuteStage2Days;
         const s3Days = lastMinuteStage3Days;
@@ -738,11 +827,17 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
           const pricesForRoom = motherPriceIndex[motherIdStr] || {};
 
           for (let offset = 0; offset < totalDays; offset++) {
-            const targetDate = new Date(todayTime + offset * 86400000);
+            const targetDate = new Date(startTime + offset * 86400000);
             const dateStr = targetDate.toISOString().substring(0, 10);
 
             // Prezzo reale madre per quella specifica data
-            const realPrice = pricesForRoom[dateStr];
+            let realPrice = pricesForRoom[dateStr];
+            if (!realPrice || realPrice <= 0) {
+              const validPrices = Object.values(pricesForRoom).filter(p => p > 0 && p < 10000);
+              if (validPrices.length > 0) {
+                realPrice = validPrices[0];
+              }
+            }
             if (!realPrice || realPrice <= 0) continue; // Skip se la data non ha prezzo reale
 
             let discountPct = lastMinuteDiscountStage1;

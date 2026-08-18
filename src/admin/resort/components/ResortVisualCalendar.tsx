@@ -726,6 +726,9 @@ interface CalendarCellProps {
   matchingBooking: ResortBooking | null;
   isDynamicCalculationEnabled: boolean;
   dynamicGapFillEnabled: boolean;
+  dynamicMinStayExecutionMode?: string;
+  dynamicMinStayRunning?: boolean;
+  dynamicMinStayResult?: any;
   isSimulationActive: boolean;
   isBnbActive?: boolean;
   isAgodaAcActive?: boolean;
@@ -753,6 +756,9 @@ const CalendarCell = React.memo(function CalendarCell({
   matchingBooking,
   isDynamicCalculationEnabled,
   dynamicGapFillEnabled,
+  dynamicMinStayExecutionMode = 'simulation',
+  dynamicMinStayRunning = false,
+  dynamicMinStayResult = null,
   isSimulationActive,
   isBnbActive = false,
   isAgodaAcActive = false,
@@ -792,6 +798,11 @@ const CalendarCell = React.memo(function CalendarCell({
     expectedBaseline
   );
 
+  const isGapFillActive = Boolean(isDynamicCalculationEnabled && gapFillCellInfo?.isGapFill);
+  if (isGapFillActive && gapFillCellInfo?.minStay !== undefined && gapFillCellInfo.minStay > 0) {
+    motherMinStayNum = gapFillCellInfo.minStay;
+  }
+
   let isMinStayAltered = motherMinStayNum !== expectedBaseline;
   let isDynamicAppliedFromStore = Boolean(storeUpdateMatch && storeUpdateMatch.minStay !== undefined);
 
@@ -823,6 +834,45 @@ const CalendarCell = React.memo(function CalendarCell({
   }
 
   const isCTA = Boolean(motherData?.closedToArrival || beData?.closedToArrival);
+
+  const isTestRoom = Boolean(
+    roomName.toLowerCase().includes('fake') ||
+    roomName.toLowerCase().includes('test') ||
+    String(roomId) === '649669' ||
+    String(roomId) === '921799' ||
+    String(roomOctorateId) === '649669' ||
+    String(roomOctorateId) === '921799'
+  );
+
+  const isSyncConfirmed = Boolean(
+    dynamicMinStayResult?.success === true &&
+    dynamicMinStayResult?.dryRun === false &&
+    !dynamicMinStayRunning
+  );
+
+  const isSimulatedBadge = Boolean(
+    !matchingBooking && (
+      (isSimulationActive && isMinStayAltered) ||
+      (isGapFillActive && (
+        !isSyncConfirmed ||
+        dynamicMinStayExecutionMode === 'simulation' ||
+        !dynamicGapFillEnabled ||
+        gapFillCellInfo?.isSimulated ||
+        (dynamicMinStayExecutionMode === 'test_bungalows' && !isTestRoom)
+      ))
+    )
+  );
+
+  const isSynchronizedBadge = Boolean(
+    !matchingBooking &&
+    !isSimulatedBadge && (
+      (isGapFillActive && isSyncConfirmed && (
+        dynamicMinStayExecutionMode === 'production' ||
+        (dynamicMinStayExecutionMode === 'test_bungalows' && isTestRoom)
+      )) ||
+      (!isGapFillActive && motherData?.minStay && isMinStayAltered)
+    )
+  );
 
   return (
     <td
@@ -873,20 +923,20 @@ const CalendarCell = React.memo(function CalendarCell({
         {motherMinStayNum > 0 && (
           <div 
             className={`absolute top-0.5 right-0.5 z-10 px-0.5 py-0.2 rounded-full text-[6px] font-black leading-none flex items-center justify-center shadow-md transition-all ${
-              isSimulationActive
-                ? (isMinStayAltered 
-                    ? 'bg-red-500 text-white animate-pulse border border-white/40 ring-1 ring-red-300' 
-                    : 'bg-amber-400 text-stone-950 border border-amber-500')
-                : (isDynamicAppliedFromStore || gapFillCellInfo
+              isSimulatedBadge
+                ? 'bg-red-500 text-white animate-pulse border border-white/40 ring-1 ring-red-300' 
+                : (isSynchronizedBadge
                     ? 'bg-emerald-800 text-emerald-200 border border-emerald-500 font-extrabold'
                     : 'bg-amber-400 text-stone-950 font-black border border-amber-500/80')
             }`}
             title={
-              isSimulationActive
-                ? (isMinStayAltered 
-                    ? `⚡ Soggiorno Minimo Dinamico (Simulazione Dry-Run: ${motherMinStayNum} notti)`
-                    : `✅ Soggiorno Minimo Dinamico (Sincronizzato su Octorate PMS: ${motherMinStayNum} notti)`)
-                : `Soggiorno Minimo Stagionale Standard: ${motherMinStayNum} notti`
+              isSimulatedBadge
+                ? (dynamicMinStayExecutionMode === 'test_bungalows' && !isTestRoom
+                    ? `⚡ Soggiorno Minimo Dinamico (Simulato - Non inviato in Ambiente di Test: ${motherMinStayNum} notti)`
+                    : `⚡ Soggiorno Minimo Dinamico (Simulazione Dry-Run: ${motherMinStayNum} notti)`)
+                : (isSynchronizedBadge
+                    ? `✅ Soggiorno Minimo Dinamico (Sincronizzato su Octorate PMS: ${motherMinStayNum} notti)`
+                    : `Soggiorno Minimo Stagionale Standard: ${motherMinStayNum} notti`)
             }
           >
             {motherMinStayNum}
@@ -1009,8 +1059,10 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
     downloadSeasonSequential,
     dynamicMinStayGapFill,
     setDynamicMinStayGapFill,
+    dynamicMinStayExecutionMode,
     executeDynamicMinStayStrategy,
     dynamicMinStayRunning,
+    dynamicMinStayResult,
     dynamicMinStayUpdates,
     isSimulationActive,
     simulatedOctorateGridItems,
@@ -1193,6 +1245,13 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
       loadLiveGrid();
     }
   }, [seasonDownloadStatus]);
+
+  // Ricarica automatica griglia live dopo sincronizzazione o ripristino su Octorate
+  useEffect(() => {
+    if (dynamicMinStayResult && dynamicMinStayResult.success && !dynamicMinStayResult.dryRun) {
+      loadLiveGrid();
+    }
+  }, [dynamicMinStayResult]);
 
   // Filter accommodations by category
   const filteredRooms = (accommodations || []).filter((r) => {
@@ -1523,6 +1582,9 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                           matchingBooking={matchingBooking}
                           isDynamicCalculationEnabled={isDynamicCalculationEnabled}
                           dynamicGapFillEnabled={dynamicMinStayGapFill}
+                          dynamicMinStayExecutionMode={dynamicMinStayExecutionMode}
+                          dynamicMinStayRunning={dynamicMinStayRunning}
+                          dynamicMinStayResult={dynamicMinStayResult}
                           isSimulationActive={isSimulationActive}
                           isBnbActive={isBnbActive}
                           isAgodaAcActive={isAgodaAcActive}

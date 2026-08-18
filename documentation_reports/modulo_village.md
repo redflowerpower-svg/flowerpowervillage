@@ -979,3 +979,24 @@ executionMode:
 * `AC`: Badge ciano compatto con icona vento `<Wind />` (sostituito `AC Only`).
 * `Breakfast`: Badge ambra con icona colazione `<Coffee />` per `Main bnb-7d`, `Main bnb-14d`, `AC bnb-7d` e `AC bnb-14d`.
 
+---
+
+## 14. Motore Soggiorno Minimo Dinamico 24/7 & Confini Temporali Octorate (18/08/2026)
+
+### A. Risoluzione Confine Temporale `dateTo` Inclusivo nelle API Octorate
+* **Problema Risolto**: Nelle chiamate `POST /connect/rest/v1/calendar/bulk`, l'estremo `dateTo` è inclusivo per Octorate. Inviare `dateTo: nextIn` causava la sovrascrittura del soggiorno minimo anche sul giorno del check-in dell'ospite successivo.
+* **Correzione Applicata**: In [`octorateAdmin.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/lib/octorateAdmin.ts) e [`octorate-webhook.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/octorate-webhook.ts), `dateTo` è stato normalizzato a `nextIn - 1 giorno` (`toThailandDateStr(new Date(nextInTime - 86400000))`), garantendo che vengano scritte solo ed esclusivamente le notti libere effettive del buco.
+
+### B. Inclusione del Gap Iniziale (da Oggi alla Prima Prenotazione)
+* In [`octorateAdmin.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/lib/octorateAdmin.ts), l'algoritmo di gap-fill è stato esteso per includere il segmento temporale che va da **Oggi (`rangeStartStr`)** al check-in della prima prenotazione futura (`sorted[0].in`), assicurando la corretta sincronizzazione anche del giorno corrente.
+
+### C. Webhook Serverless 24/7 Bidirezionale ([`octorate-webhook.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/octorate-webhook.ts))
+* **Gap-Fill Automatico ($Gap < Baseline$)**: Se una prenotazione riduce lo spazio disponibile sotto il minimo di stagione (es. 1 notte ad Agosto o 3 notti a Natale), il webhook invia a Octorate il valore ridotto a $Gap$ notti.
+* **Ripristino Baseline Dinamico ($Gap \ge Baseline$)**: Se una prenotazione viene cancellata o spostata e la finestra si riapre a una durata pari o superiore al valore standard, il webhook invia automaticamente a Octorate il ripristino al **valore di base del periodo stagionale** (es. $2\text{ notti}$ ad Agosto, $5\text{ notti}$ a Natale/Capodanno).
+* **Targeting Staging**: Scrittura reale live abilitata per *Fake Bungalow 1* (`#649669`) e *Fake Bungalow 2* (`#921799`) con payload array nativo.
+
+### D. Pulizia Visuale Calendario ([`ResortVisualCalendar.tsx`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/components/ResortVisualCalendar.tsx))
+* Aggiunta la guardia `!matchingBooking` su `isSimulatedBadge` e `isSynchronizedBadge`: i giorni occupati da prenotazioni mantengono il loro stato pulito standard e non mostrano mai cerchietti verdi o rossi di gap-fill.
+* Ricarica automatica live della griglia (`loadLiveGrid()`) al termine della sincronizzazione o del ripristino per riflettere all'istante lo stato PMS a video.
+
+

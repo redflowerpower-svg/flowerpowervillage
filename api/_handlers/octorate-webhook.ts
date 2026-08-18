@@ -31,7 +31,9 @@ const MOTHER_RATE_PLANS: Record<string, number> = {
   "Room 3": 293948,
   "Room 4": 293945,
   "Room 5": 293943,
-  "Internal Room": 293942
+  "Internal Room": 293942,
+  "Fake Bungalow 1": 649669,
+  "Fake Bungalow 2": 921799
 };
 
 function getBaselineMinStay(dateStr: string): number {
@@ -41,7 +43,8 @@ function getBaselineMinStay(dateStr: string): number {
   const month = parseInt(parts[1], 10);
   const day = parseInt(parts[2], 10);
 
-  if ((month === 12 && day >= 21) || (month === 1 && day <= 15)) {
+  // Peak Season (16 Dicembre - 15 Gennaio)
+  if ((month === 12 && day >= 16) || (month === 1 && day <= 15)) {
     return 5;
   }
   return 2;
@@ -57,7 +60,7 @@ export interface DynamicMinStayUpdate {
 }
 
 /**
- * Algoritmo Serverless di Calcolo Soggiorno Minimo Dinamico (Puro Gap-Filling)
+ * Algoritmo Serverless di Calcolo e Ripristino Soggiorno Minimo Dinamico 24/7
  */
 function calculateServerDynamicMinStay(
   bookings: Array<{ accommodation_name?: string; accommodation_id?: string; check_in: string; check_out: string; status?: string }>,
@@ -79,40 +82,68 @@ function calculateServerDynamicMinStay(
 
   Object.keys(roomBookingsMap).forEach(roomName => {
     const sorted = roomBookingsMap[roomName].sort((a, b) => a.in.localeCompare(b.in));
-    
-    for (let i = 0; i < sorted.length - 1; i++) {
-      const prevOut = sorted[i].out;
-      const nextIn = sorted[i + 1].in;
+    const octRoomId = String(MOTHER_RATE_PLANS[roomName] || roomName);
 
-      if (prevOut >= dateRange.start && nextIn <= dateRange.end) {
-        const prevOutTime = new Date(prevOut).getTime();
-        const nextInTime = new Date(nextIn).getTime();
-        const gapDays = Math.round((nextInTime - prevOutTime) / (1000 * 60 * 60 * 24));
+    const gaps: Array<{ start: string; end: string }> = [];
 
-        if (gapDays > 0) {
-          const defaultMinStay = getBaselineMinStay(prevOut);
-          
-          if (gapDays < defaultMinStay) {
-            const octRoomId = String(MOTHER_RATE_PLANS[roomName] || roomName);
-            updates.push({
-              roomTypeId: octRoomId,
-              accommodationName: roomName,
-              dateFrom: prevOut,
-              dateTo: nextIn,
-              minStay: gapDays,
-              reason: `Puro Gap-Fill Webhook (${gapDays}d gap < default ${defaultMinStay}d): M=${gapDays}`
-            });
+    if (sorted.length > 0) {
+      if (sorted[0].in > dateRange.start) {
+        gaps.push({ start: dateRange.start, end: sorted[0].in });
+      }
+
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const prevOut = sorted[i].out;
+        const nextIn = sorted[i + 1].in;
+        if (prevOut < nextIn && prevOut <= dateRange.end && nextIn >= dateRange.start) {
+          const effectiveStart = prevOut < dateRange.start ? dateRange.start : prevOut;
+          if (effectiveStart < nextIn) {
+            gaps.push({ start: effectiveStart, end: nextIn });
           }
         }
       }
     }
+
+    gaps.forEach(({ start: gapStart, end: gapEnd }) => {
+      const prevOutTime = new Date(gapStart).getTime();
+      const nextInTime = new Date(gapEnd).getTime();
+      const gapDays = Math.round((nextInTime - prevOutTime) / (1000 * 60 * 60 * 24));
+
+      if (gapDays > 0) {
+        // Calcola il baseline stagionale dinamico più alto nel periodo del buco
+        let maxBaselineInGap = 0;
+        let currentDay = new Date(prevOutTime);
+
+        while (currentDay.getTime() < nextInTime) {
+          const dStr = currentDay.toISOString().slice(0, 10);
+          const baseline = getBaselineMinStay(dStr);
+          if (baseline > maxBaselineInGap) {
+            maxBaselineInGap = baseline;
+          }
+          currentDay.setDate(currentDay.getDate() + 1);
+        }
+
+        const targetMinStay = gapDays < maxBaselineInGap ? gapDays : maxBaselineInGap;
+        const dateToInclusive = new Date(nextInTime - 86400000).toISOString().slice(0, 10);
+
+        updates.push({
+          roomTypeId: octRoomId,
+          accommodationName: roomName,
+          dateFrom: gapStart,
+          dateTo: dateToInclusive,
+          minStay: targetMinStay,
+          reason: gapDays < maxBaselineInGap 
+            ? `Gap-Fill Dinamico (${gapDays}d gap < baseline ${maxBaselineInGap}d): M=${gapDays}`
+            : `Ripristino Baseline Stagionale (${gapDays}d gap >= baseline ${maxBaselineInGap}d): M=${maxBaselineInGap}`
+        });
+      }
+    });
   });
 
   return updates;
 }
 
 /**
- * Handler Webhook Octorate 24/7 per Soggiorno Minimo Dinamico (Gap-Filling)
+ * Handler Webhook Octorate 24/7 per Soggiorno Minimo Dinamico (Gap-Filling & Ripristino)
  * Rotta API Gateway: POST /api/webhooks/octorate
  */
 export async function handleOctorateWebhook(req: VercelRequest, res: VercelResponse) {
@@ -163,7 +194,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
     received: true,
     eventType,
     timestamp: new Date().toISOString(),
-    message: 'Webhook received. Processing background gap-filling.'
+    message: 'Webhook received. Processing background gap-filling & baseline restoration.'
   });
 
   // 5. Esecuzione background asincrona protetta da try/catch globale
@@ -205,45 +236,43 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
     const calculatedUpdates = calculateServerDynamicMinStay(
       bookingsData,
-      { start: todayISO, end: endISO },
-      50 // Default occupancy rate
+      { start: todayISO, end: endISO }
     );
 
-    console.log(`[OCTORATE WEBHOOK 24/7] Calculated ${calculatedUpdates.length} gap-filling minstay updates.`);
+    console.log(`[OCTORATE WEBHOOK 24/7] Calculated ${calculatedUpdates.length} gap-filling & restoration updates.`);
 
-    // STAGING LOCK CHECK se DRY_RUN === false
-    if (!DRY_RUN) {
-      const invalidTarget = calculatedUpdates.find(item => !STAGING_LOCK_IDS.has(item.roomTypeId));
-      if (invalidTarget) {
-        console.error(`[STAGING LOCK BLOCKED] Webhook attempted write to non-staging room ID ${invalidTarget.roomTypeId}`);
-        return;
-      }
+    // Invia la scrittura reale ad Octorate filtrando esclusivamente per gli alloggi di Staging
+    const stagingUpdates = calculatedUpdates.filter(u => STAGING_LOCK_IDS.has(String(u.roomTypeId)));
 
-      // Invio scrittura reale se non bloccata dallo Staging Lock
+    if (stagingUpdates.length > 0 && supabaseAdmin) {
       const { data: tokenData } = await supabaseAdmin
         .from('octorate_tokens')
         .select('access_token')
         .eq('id', 'singleton')
         .maybeSingle();
 
-      if (tokenData?.access_token && calculatedUpdates.length > 0) {
-        const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
-        await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
+      if (tokenData?.access_token) {
+        const roomsPayload = stagingUpdates.map(u => ({
+          room: Number(u.roomTypeId),
+          dateFrom: u.dateFrom,
+          dateTo: u.dateTo,
+          values: {
+            minstay: Number(u.minStay)
+          }
+        }));
+
+        const bulkRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${tokenData.access_token}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify({
-            structure: Number(structureId),
-            updates: calculatedUpdates
-          })
+          body: JSON.stringify(roomsPayload)
         });
-        console.log(`[OCTORATE WEBHOOK 24/7] Real bulk minstay update sent to Octorate for staging bungalows.`);
+
+        console.log(`[OCTORATE WEBHOOK 24/7] Real bulk minstay update sent to Octorate for staging bungalows (Status: ${bulkRes.status}).`);
       }
-    } else {
-      console.log(`[OCTORATE WEBHOOK 24/7 DRY_RUN = true] Simulated update of ${calculatedUpdates.length} gap-fill restrictions in memory.`);
     }
 
   } catch (err: any) {

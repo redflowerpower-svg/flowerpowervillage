@@ -589,7 +589,15 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
       return res.status(400).json({ error: 'No Octorate access token available in database' });
     }
 
-    const structureId = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
+    const roomsPayload = updateItems.map((item: any) => ({
+      room: Number(item.roomTypeId || item.motherId || item.id || item.octorateId || item.room),
+      dateFrom: item.dateFrom || item.date || item.from_date || item.startDate,
+      dateTo: item.dateTo || item.to_date || item.endDate,
+      values: {
+        minstay: Number(item.minStay || item.min_stay || item.minimumStay || 2)
+      }
+    }));
+
     const octRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
       method: 'POST',
       headers: {
@@ -597,10 +605,7 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
-      body: JSON.stringify({
-        structure: Number(structureId),
-        updates: updateItems
-      })
+      body: JSON.stringify(roomsPayload)
     });
 
     if (!octRes.ok) {
@@ -608,8 +613,19 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
       return res.status(octRes.status).json({ error: `Octorate bulk min-stay update failed: ${errorText}` });
     }
 
-    const octResult = await octRes.json();
-    return res.status(200).json({ success: true, dryRun: false, octResult });
+    let octResult: any = null;
+    try {
+      octResult = await octRes.json();
+    } catch {
+      octResult = { ok: true };
+    }
+    return res.status(200).json({ 
+      success: true, 
+      dryRun: false, 
+      message: `Sincronizzazione Soggiorno Minimo completata su Octorate (${roomsPayload.length} blocchi inviati)`,
+      updatesCount: roomsPayload.length,
+      octResult 
+    });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Serverless min-stay execution error' });
   }
