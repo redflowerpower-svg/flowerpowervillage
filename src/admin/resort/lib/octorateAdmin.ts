@@ -270,6 +270,7 @@ export function getBaselineMinStay(dateInput: any): number {
   const dStr = typeof dateInput === 'string' ? dateInput.slice(0, 10) : toThailandDateStr(dateInput);
   if (!dStr) return 2;
 
+  // 1. Controlla prima se c'è un periodo pianificato esplicito nella Timeline Min Stay
   try {
     const storePeriods = useRestrictionsStore.getState?.()?.plannedMinStayPeriods;
     const periods = (storePeriods && storePeriods.length > 0) ? storePeriods : INITIAL_MIN_STAY_PERIODS;
@@ -278,10 +279,16 @@ export function getBaselineMinStay(dateInput: any): number {
     if (matched && matched.minStay) {
       return matched.minStay;
     }
-  } catch {
-    const matched = INITIAL_MIN_STAY_PERIODS.find(p => dStr >= p.dateFrom && dStr <= p.dateTo);
-    if (matched && matched.minStay) {
-      return matched.minStay;
+  } catch {}
+
+  // 2. Regola Stagionale Immutabile di Default
+  const parts = dStr.split('-');
+  if (parts.length >= 3) {
+    const month = parseInt(parts[1], 10);
+    const day = parseInt(parts[2], 10);
+    // Peak Season (16 Dicembre - 15 Gennaio)
+    if ((month === 12 && day >= 16) || (month === 1 && day <= 15)) {
+      return 5;
     }
   }
 

@@ -268,11 +268,12 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
       }
 
       if (accessToken) {
+        const todayISO = new Date().toISOString().substring(0, 10);
+        const currentYear = new Date().getFullYear();
+        const endISO = `${currentYear + 1}-10-31`;
+
         try {
-          const dateFrom = new Date().toISOString().substring(0, 10);
-          const dateToObj = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
-          const dateTo = dateToObj.toISOString().substring(0, 10);
-          const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${dateFrom}&endDate=${dateTo}&size=100`;
+          const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${todayISO}&endDate=${endISO}&size=250`;
           const octRes = await fetch(octUrl, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
@@ -286,11 +287,6 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
         } catch (octErr) {
           console.warn('[OCTORATE WEBHOOK] Failed to fetch live bookings from Octorate:', octErr);
         }
-
-        const todayISO = new Date().toISOString().substring(0, 10);
-        const next60Days = new Date();
-        next60Days.setDate(next60Days.getDate() + 60);
-        const endISO = next60Days.toISOString().substring(0, 10);
 
         const calculatedUpdates = calculateServerDynamicMinStay(
           bookingsData,
