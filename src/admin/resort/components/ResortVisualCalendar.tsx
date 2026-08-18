@@ -792,15 +792,17 @@ const CalendarCell = React.memo(function CalendarCell({
 
   const hasDiscount = originalPrice > 0 && beDiscountedPrice > 0 && beDiscountedPrice < originalPrice;
 
-  let motherMinStayNum = Number(
-    motherData?.minStay ?? motherData?.minstay ?? motherData?.minNights ?? motherData?.min_stay ?? motherData?.minimumStay ??
-    beData?.minStay ?? beData?.minstay ?? beData?.minNights ?? beData?.min_stay ?? beData?.minimumStay ??
-    expectedBaseline
-  );
+  let motherMinStayNum = expectedBaseline;
 
   const isGapFillActive = Boolean(isDynamicCalculationEnabled && gapFillCellInfo?.isGapFill);
   if (isGapFillActive && gapFillCellInfo?.minStay !== undefined && gapFillCellInfo.minStay > 0) {
     motherMinStayNum = gapFillCellInfo.minStay;
+  } else if (!isDynamicCalculationEnabled) {
+    motherMinStayNum = Number(
+      motherData?.minStay ?? motherData?.minstay ?? motherData?.minNights ?? motherData?.min_stay ?? motherData?.minimumStay ??
+      beData?.minStay ?? beData?.minstay ?? beData?.minNights ?? beData?.min_stay ?? beData?.minimumStay ??
+      expectedBaseline
+    );
   }
 
   let isMinStayAltered = motherMinStayNum !== expectedBaseline;
@@ -865,12 +867,11 @@ const CalendarCell = React.memo(function CalendarCell({
 
   const isSynchronizedBadge = Boolean(
     !matchingBooking &&
-    !isSimulatedBadge && (
-      (isGapFillActive && isSyncConfirmed && (
-        dynamicMinStayExecutionMode === 'production' ||
-        (dynamicMinStayExecutionMode === 'test_bungalows' && isTestRoom)
-      )) ||
-      (!isGapFillActive && motherData?.minStay && isMinStayAltered)
+    !isSimulatedBadge &&
+    isGapFillActive &&
+    isSyncConfirmed && (
+      dynamicMinStayExecutionMode === 'production' ||
+      (dynamicMinStayExecutionMode === 'test_bungalows' && isTestRoom)
     )
   );
 
