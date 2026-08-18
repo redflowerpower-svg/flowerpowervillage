@@ -418,29 +418,31 @@ export function calculateDynamicMinStay(
             currentDay.setUTCDate(currentDay.getUTCDate() + 1);
           }
 
-          // REGOLA GAP-FILL DINAMICO:
-          // Solo se il buco è strettamente inferiore al minimo stagionale (G < maxBaselineInGap)
-          // il motore genera l'override. Se G >= maxBaselineInGap, non tocca la data per preservare eventuali customizzazioni manuali.
-          if (gapDays < maxBaselineInGap) {
-            const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === motherId);
-            const derivedIds = canonical?.ids?.filter(id => String(id) !== String(motherId)) || [];
-            const targetIds = derivedIds.length > 0 ? derivedIds : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
+          // REGOLA SOGGIORNO MINIMO DINAMICO BIDIREZIONALE:
+          // Se G < maxBaselineInGap: Imposta minStay = G (riduzione bucatura).
+          // Se G >= maxBaselineInGap: Imposta minStay = maxBaselineInGap (ripristina sempre il minimo stagionale cancellando vecchi 1).
+          const targetMinStay = gapDays < maxBaselineInGap ? gapDays : maxBaselineInGap;
 
-            // In Octorate dateTo è INCLUSIVO: l'ultima notte del buco è esattamente il giorno prima del nuovo check-in (gapEnd - 1)
-            const dateToInclusive = toThailandDateStr(new Date(nextInTime - 86400000));
+          const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === motherId);
+          const derivedIds = canonical?.ids?.filter(id => String(id) !== String(motherId)) || [];
+          const targetIds = derivedIds.length > 0 ? derivedIds : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
 
-            targetIds.forEach(targetId => {
-              updates.push({
-                roomTypeId: targetId,
-                motherId: motherId,
-                accommodationName: roomName,
-                dateFrom: gapStart,
-                dateTo: dateToInclusive,
-                minStay: gapDays,
-                reason: `Gap-Fill Uniforme (${gapDays}d gap < maxBaseline ${maxBaselineInGap}d): M=${gapDays}`
-              });
+          // In Octorate dateTo è INCLUSIVO: l'ultima notte del buco è esattamente il giorno prima del nuovo check-in (gapEnd - 1)
+          const dateToInclusive = toThailandDateStr(new Date(nextInTime - 86400000));
+
+          targetIds.forEach(targetId => {
+            updates.push({
+              roomTypeId: targetId,
+              motherId: motherId,
+              accommodationName: roomName,
+              dateFrom: gapStart,
+              dateTo: dateToInclusive,
+              minStay: targetMinStay,
+              reason: gapDays < maxBaselineInGap
+                ? `Gap-Fill Dinamico (${gapDays}d gap < baseline ${maxBaselineInGap}d): M=${gapDays}`
+                : `Ripristino Minimo Stagionale (${gapDays}d gap >= baseline ${maxBaselineInGap}d): M=${targetMinStay}`
             });
-          }
+          });
         }
       }
     });
