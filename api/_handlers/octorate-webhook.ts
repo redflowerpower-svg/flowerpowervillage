@@ -227,18 +227,8 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
     eventPayload = {};
   }
 
-  // 3. PING CATCHER: Se req.body è vuoto, oppure manca il campo type / event / id, è un ping di validazione Octorate!
-  const isPing = !eventPayload || 
-                 Object.keys(eventPayload).length === 0 || 
-                 (!eventPayload.type && !eventPayload.event && !eventPayload.id && !eventPayload.action && !eventPayload.reservationId);
-
-  if (isPing) {
-    console.log('[Octorate Webhook Ping] Ricevuto Ping di test / validazione da Octorate.');
-    return res.status(200).json({ status: 'ok', message: 'Octorate Webhook Verification Ping Received' });
-  }
-
-  const eventType = eventPayload.type || eventPayload.event || 'UNKNOWN_EVENT';
-  console.log(`[OCTORATE WEBHOOK 24/7] Received event: ${eventType}`, JSON.stringify(eventPayload, null, 2));
+  const eventType = eventPayload?.type || eventPayload?.event || eventPayload?.action || 'RESERVATION_NOTIFICATION';
+  console.log(`[OCTORATE WEBHOOK 24/7] Received POST event: ${eventType}`, JSON.stringify(eventPayload, null, 2));
 
   // 4. Esecuzione asincrona garantita prima di chiudere la risposta Serverless
   let calculatedUpdatesCount = 0;
