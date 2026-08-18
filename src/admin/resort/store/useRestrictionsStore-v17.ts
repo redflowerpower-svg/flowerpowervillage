@@ -57,36 +57,9 @@ export interface MinStayPeriod {
   name?: string;
 }
 
-export const INITIAL_MIN_STAY_PERIODS: MinStayPeriod[] = [
-  {
-    id: 'ms_p1',
-    name: 'Inizio Stagione (2 Notti)',
-    dateFrom: '2026-10-01',
-    dateTo: '2026-12-15',
-    minStay: 2
-  },
-  {
-    id: 'ms_p2',
-    name: 'Natale & Capodanno Peak (5 Notti)',
-    dateFrom: '2026-12-16',
-    dateTo: '2027-01-15',
-    minStay: 5
-  },
-  {
-    id: 'ms_p3',
-    name: 'Alta Stagione Invernale (3 Notti)',
-    dateFrom: '2027-01-16',
-    dateTo: '2027-03-31',
-    minStay: 3
-  },
-  {
-    id: 'ms_p4',
-    name: 'Primavera & Green Season (2 Notti)',
-    dateFrom: '2027-04-01',
-    dateTo: '2027-10-31',
-    minStay: 2
-  }
-];
+import CANONICAL_MIN_STAY_TIMELINE from '../config/min_stay_canonical_timeline.json';
+
+export const INITIAL_MIN_STAY_PERIODS: MinStayPeriod[] = [...(CANONICAL_MIN_STAY_TIMELINE as MinStayPeriod[])];
 
 export interface RestrictionsState {
   plannedPeriods: Record<string, PlannedPeriod[]>;
