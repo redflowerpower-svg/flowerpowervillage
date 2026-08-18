@@ -416,57 +416,59 @@ export function calculateDynamicMinStay(
           const derivedIds = canonical?.ids?.filter(id => String(id) !== String(motherId)) || [];
           const targetIds = derivedIds.length > 0 ? derivedIds : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
 
-          // 🎯 SORGENTE DI VERITÀ: Gestione Tariffe Derivate (Timeline Min Stay)
-          // Per ogni giorno del buco, il target è min(gapDays, baselineDalGiorno)
-          // Raggruppiamo i giorni consecutivi con lo stesso targetMinStay
-          let currentDay = new Date(Date.UTC(pParts.year, pParts.month - 1, pParts.day));
-          let blockStartStr = toThailandDateStr(currentDay);
-          let currentBlockMinStay = Math.min(gapDays, getBaselineMinStay(blockStartStr));
+          let cur = gapStart;
+          let blockStart = cur;
+          let blockMinStay = Math.min(gapDays, getBaselineMinStay(cur));
 
-          while (currentDay.getTime() < nextInTime) {
-            const dStr = toThailandDateStr(currentDay);
-            const dayBaseline = getBaselineMinStay(dStr);
-            const dayTarget = Math.min(gapDays, dayBaseline);
+          while (cur < gapEnd) {
+            const baseline = getBaselineMinStay(cur);
+            const target = Math.min(gapDays, baseline);
 
-            if (dayTarget !== currentBlockMinStay) {
-              // Chiudi blocco precedente (dateTo è il giorno prima di currentDay)
-              const blockEndInclusive = toThailandDateStr(new Date(currentDay.getTime() - 86400000));
+            if (target !== blockMinStay) {
+              const curParts = parseThailandDateParts(cur);
+              const prevDayTime = curParts ? Date.UTC(curParts.year, curParts.month - 1, curParts.day - 1) : 0;
+              const blockEndInclusive = toThailandDateStr(new Date(prevDayTime));
+
               targetIds.forEach(targetId => {
                 updates.push({
                   roomTypeId: targetId,
                   motherId: motherId,
                   accommodationName: roomName,
-                  dateFrom: blockStartStr,
+                  dateFrom: blockStart,
                   dateTo: blockEndInclusive,
-                  minStay: currentBlockMinStay,
-                  reason: gapDays < currentBlockMinStay
-                    ? `Gap-Fill Dinamico (${gapDays}d): M=${currentBlockMinStay}`
-                    : `Minimo da Gestione Tariffe Derivate: M=${currentBlockMinStay}`
+                  minStay: blockMinStay,
+                  reason: gapDays < blockMinStay
+                    ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
+                    : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
                 });
               });
 
-              // Apri nuovo blocco
-              blockStartStr = dStr;
-              currentBlockMinStay = dayTarget;
+              blockStart = cur;
+              blockMinStay = target;
             }
 
-            currentDay.setUTCDate(currentDay.getUTCDate() + 1);
+            const cParts = parseThailandDateParts(cur);
+            if (cParts) {
+              const nextDayTime = Date.UTC(cParts.year, cParts.month - 1, cParts.day + 1);
+              cur = toThailandDateStr(new Date(nextDayTime));
+            } else {
+              break;
+            }
           }
 
-          // Chiudi l'ultimo blocco fino a nextIn - 1 giorno
           const lastDateInclusive = toThailandDateStr(new Date(nextInTime - 86400000));
-          if (blockStartStr <= lastDateInclusive) {
+          if (blockStart <= lastDateInclusive) {
             targetIds.forEach(targetId => {
               updates.push({
                 roomTypeId: targetId,
                 motherId: motherId,
                 accommodationName: roomName,
-                dateFrom: blockStartStr,
+                dateFrom: blockStart,
                 dateTo: lastDateInclusive,
-                minStay: currentBlockMinStay,
-                reason: gapDays < currentBlockMinStay
-                  ? `Gap-Fill Dinamico (${gapDays}d): M=${currentBlockMinStay}`
-                  : `Minimo da Gestione Tariffe Derivate: M=${currentBlockMinStay}`
+                minStay: blockMinStay,
+                reason: gapDays < blockMinStay
+                  ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
+                  : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
               });
             });
           }

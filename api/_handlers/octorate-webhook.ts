@@ -138,52 +138,57 @@ function calculateServerDynamicMinStay(
       }
     }
 
+function addDaysISO(isoStr: string, n: number): string {
+  const parts = isoStr.split('-').map(Number);
+  const d = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2] + n));
+  return d.toISOString().slice(0, 10);
+}
+
+function daysDiffISO(startISO: string, endISO: string): number {
+  const s = new Date(startISO + 'T00:00:00Z').getTime();
+  const e = new Date(endISO + 'T00:00:00Z').getTime();
+  return Math.round((e - s) / 86400000);
+}
+
     gaps.forEach(({ start: gapStart, end: gapEnd }) => {
-      const prevOutTime = new Date(gapStart).getTime();
-      const nextInTime = new Date(gapEnd).getTime();
-      const gapDays = Math.round((nextInTime - prevOutTime) / (1000 * 60 * 60 * 24));
+      const gapDays = daysDiffISO(gapStart, gapEnd);
 
       if (gapDays > 0) {
-        let currentDay = new Date(prevOutTime);
-        let blockStartStr = currentDay.toISOString().slice(0, 10);
-        let currentBlockMinStay = Math.min(gapDays, getBaselineMinStay(blockStartStr));
+        let cur = gapStart;
+        let blockStart = cur;
+        let blockMinStay = Math.min(gapDays, getBaselineMinStay(cur));
 
-        while (currentDay.getTime() < nextInTime) {
-          const dStr = currentDay.toISOString().slice(0, 10);
-          const dayBaseline = getBaselineMinStay(dStr);
-          const dayTarget = Math.min(gapDays, dayBaseline);
-
-          if (dayTarget !== currentBlockMinStay) {
-            const blockEndInclusive = new Date(currentDay.getTime() - 86400000).toISOString().slice(0, 10);
+        while (cur < gapEnd) {
+          const baseline = getBaselineMinStay(cur);
+          const target = Math.min(gapDays, baseline);
+          if (target !== blockMinStay) {
             updates.push({
               roomTypeId: octRoomId,
               accommodationName: roomName,
-              dateFrom: blockStartStr,
-              dateTo: blockEndInclusive,
-              minStay: currentBlockMinStay,
-              reason: gapDays < currentBlockMinStay
-                ? `Gap-Fill Dinamico (${gapDays}d): M=${currentBlockMinStay}`
-                : `Minimo da Gestione Tariffe Derivate: M=${currentBlockMinStay}`
+              dateFrom: blockStart,
+              dateTo: addDaysISO(cur, -1),
+              minStay: blockMinStay,
+              reason: gapDays < blockMinStay
+                ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
+                : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
             });
-
-            blockStartStr = dStr;
-            currentBlockMinStay = dayTarget;
+            blockStart = cur;
+            blockMinStay = target;
           }
-
-          currentDay.setDate(currentDay.getDate() + 1);
+          cur = addDaysISO(cur, 1);
         }
 
-        const lastDateInclusive = new Date(nextInTime - 86400000).toISOString().slice(0, 10);
-        if (blockStartStr <= lastDateInclusive) {
+        const lastDate = addDaysISO(gapEnd, -1);
+        if (blockStart <= lastDate) {
           updates.push({
             roomTypeId: octRoomId,
             accommodationName: roomName,
-            dateFrom: blockStartStr,
-            dateTo: lastDateInclusive,
-            minStay: currentBlockMinStay,
-            reason: gapDays < currentBlockMinStay
-              ? `Gap-Fill Dinamico (${gapDays}d): M=${currentBlockMinStay}`
-              : `Minimo da Gestione Tariffe Derivate: M=${currentBlockMinStay}`
+            dateFrom: blockStart,
+            dateTo: lastDate,
+            minStay: blockMinStay,
+            reason: gapDays < blockMinStay
+              ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
+              : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
           });
         }
       }
