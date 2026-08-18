@@ -373,19 +373,36 @@ export function calculateDynamicMinStay(
     // 2. Tra tutte le prenotazioni consecutive
     const gaps: Array<{ start: string; end: string }> = [];
 
-    if (sorted.length === 0) {
+    // 2. Unione degli intervalli sovrapposti o adiacenti (Interval Merging canonico)
+    const mergedOccupied: Array<{ in: string; out: string }> = [];
+    for (const curr of sorted) {
+      if (mergedOccupied.length === 0) {
+        mergedOccupied.push({ ...curr });
+      } else {
+        const prev = mergedOccupied[mergedOccupied.length - 1];
+        if (curr.in <= prev.out) {
+          if (curr.out > prev.out) {
+            prev.out = curr.out;
+          }
+        } else {
+          mergedOccupied.push({ ...curr });
+        }
+      }
+    }
+
+    if (mergedOccupied.length === 0) {
       // Stanza completamente libera per tutta la stagione: ripristina la baseline su tutto il range
       gaps.push({ start: rangeStartStr, end: rangeEndStr });
     } else {
-      // 1. Gap iniziale: da rangeStartStr al checkin della prima prenotazione
-      if (sorted[0].in > rangeStartStr) {
-        gaps.push({ start: rangeStartStr, end: sorted[0].in });
+      // 1. Gap iniziale: da rangeStartStr al checkin del primo blocco occupato
+      if (mergedOccupied[0].in > rangeStartStr) {
+        gaps.push({ start: rangeStartStr, end: mergedOccupied[0].in });
       }
 
-      // 2. Gap intermedi tra prenotazioni consecutive
-      for (let i = 0; i < sorted.length - 1; i++) {
-        const prevOut = sorted[i].out;
-        const nextIn = sorted[i + 1].in;
+      // 2. Gap intermedi tra blocchi occupati consecutivi
+      for (let i = 0; i < mergedOccupied.length - 1; i++) {
+        const prevOut = mergedOccupied[i].out;
+        const nextIn = mergedOccupied[i + 1].in;
         if (prevOut < nextIn && prevOut <= rangeEndStr && nextIn >= rangeStartStr) {
           const effectiveStart = prevOut < rangeStartStr ? rangeStartStr : prevOut;
           if (effectiveStart < nextIn) {
@@ -395,7 +412,7 @@ export function calculateDynamicMinStay(
       }
 
       // 3. Gap finale (Coda): dall'ultimo checkout fino al termine della stagione
-      const lastOut = sorted[sorted.length - 1].out;
+      const lastOut = mergedOccupied[mergedOccupied.length - 1].out;
       if (lastOut < rangeEndStr) {
         const effectiveStart = lastOut < rangeStartStr ? rangeStartStr : lastOut;
         gaps.push({ start: effectiveStart, end: rangeEndStr });
