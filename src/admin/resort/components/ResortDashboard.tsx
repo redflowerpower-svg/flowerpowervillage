@@ -208,13 +208,21 @@ export function ResortDashboard() {
     }));
   };
 
-  // Stato accordion per i 4 moduli di ottimizzazione (compressi di default all'avvio e al cambio tab)
   const [openOptimizationAccordions, setOpenOptimizationAccordions] = useState<Record<string, boolean>>({
     cascade: false,
     minStay: false,
     standardRates: false,
     promoCodes: false,
   });
+
+  const [minStayArmed, setMinStayArmed] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (minStayArmed) {
+      const t = setTimeout(() => setMinStayArmed(false), 4000);
+      return () => clearTimeout(t);
+    }
+  }, [minStayArmed]);
 
   useEffect(() => {
     setOpenOptimizationAccordions({
@@ -1428,7 +1436,7 @@ export function ResortDashboard() {
 
                       <button
                         type="button"
-                        onClick={() => dynamicMinStayExecutionMode !== 'production' ? setShowMinStayProdModal(true) : setDynamicMinStayExecutionMode('simulation')}
+                        onClick={() => { dynamicMinStayExecutionMode !== 'production' ? setShowMinStayProdModal(true) : setDynamicMinStayExecutionMode('simulation'); setMinStayArmed(false); }}
                         className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
                           dynamicMinStayExecutionMode === 'production'
                             ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-950/40 animate-pulse'
@@ -1443,10 +1451,20 @@ export function ResortDashboard() {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => executeDynamicMinStayStrategy(false)}
-                        disabled={dynamicMinStayRunning}
-                        className={`flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 ${
-                          dynamicMinStayExecutionMode === 'production'
+                        onClick={() => {
+                          const isLiveTarget = dynamicMinStayExecutionMode === 'test_bungalows' || dynamicMinStayExecutionMode === 'production';
+                          if (isLiveTarget && !minStayArmed) {
+                            setMinStayArmed(true);
+                            return;
+                          }
+                          setMinStayArmed(false);
+                          executeDynamicMinStayStrategy(false);
+                        }}
+                        disabled={dynamicMinStayRunning || dynamicMinStayResetRunning}
+                        className={`flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer disabled:opacity-50 shadow-md ${
+                          minStayArmed
+                            ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse ring-2 ring-rose-400'
+                            : dynamicMinStayExecutionMode === 'production'
                             ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50'
                             : dynamicMinStayExecutionMode === 'test_bungalows'
                             ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-amber-950/50'
@@ -1458,23 +1476,28 @@ export function ResortDashboard() {
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                             <span>Calcolo in corso...</span>
                           </>
+                        ) : minStayArmed ? (
+                          <>
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <span>SEI SICURO? CLICCA PER CONFERMARE</span>
+                          </>
                         ) : (
                           <>
                             <Zap className="w-3.5 h-3.5" />
-                            <span>⚡ ESEGUI SOGGIORNO MINIMO DINAMICO</span>
+                            <span>ESEGUI SOGGIORNO MINIMO DINAMICO</span>
                           </>
                         )}
                       </button>
 
                       <button
                         type="button"
-                        onClick={() => executeDynamicMinStayStrategy(true)}
+                        onClick={() => { executeDynamicMinStayStrategy(true); setMinStayArmed(false); }}
                         disabled={dynamicMinStayRunning || dynamicMinStayResetRunning}
                         className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl bg-stone-950 border border-stone-800 text-stone-300 hover:bg-stone-850 transition-all cursor-pointer disabled:opacity-50"
                         title="Ripristina i valori di soggiorno minimo stagionali standard su Octorate"
                       >
                         <RefreshCw className={`w-3.5 h-3.5 text-violet-400 ${dynamicMinStayResetRunning ? 'animate-spin' : ''}`} />
-                        <span>🔄 RIPRISTINO VALORI STAGIONALI</span>
+                        <span>RIPRISTINO VALORI STAGIONALI</span>
                       </button>
                     </div>
                   </div>
