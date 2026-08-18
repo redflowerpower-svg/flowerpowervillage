@@ -34,3 +34,10 @@ Per qualsiasi intervallo temporale libero (buco) di capienza $G$ notti tra due p
 * **Nessuna contaminazione tra stagioni**: Un buco di 100 giorni che attraversa Natale applicherà 5 notti a Natale e 2/3 notti nei restanti periodi.
 * **Allargamento prenotazioni (Widening)**: Se una cancellazione allarga un buco, il sistema invia a Octorate il ripristino al valore stagionale base (cancellando vecchi 1 rimasti sul PMS).
 * **Unica Sorgente di Verità**: Tutti i componenti del resort (`Gestione Tariffe Derivate`, `ResortVisualCalendar`, `octorateAdmin.ts`, `octorate-webhook.ts`) attingono direttamente dal file `min_stay_canonical_timeline.json`.
+
+---
+
+## 4. Algoritmo di Unione Intervalli & Broadcast Multi-Tariffa
+
+* **Interval Merging Canonico**: Prima del calcolo dei buchi liberi, tutti i record di prenotazione attivi (inclusi eventuali record duplicati o adiacenti) vengono fusi in blocchi occupati contigui `[in, out]`. Questo garantisce l'assoluta pulizia geometrica dei buchi liberi intermedi.
+* **Broadcast Multi-Tariffa Octorate**: Le modifiche di `minStay` vengono trasmesse simultaneamente sia alla Tariffa Madre (Livello 0) che a tutte le Tariffe Derivate collegate (AirBnB, Booking.com, Agoda, Standard, AC) per garantire la coerenza visiva e funzionale immediata su ogni riga del calendario PMS di Octorate.
