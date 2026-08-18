@@ -122,19 +122,18 @@ function calculateServerDynamicMinStay(
           currentDay.setDate(currentDay.getDate() + 1);
         }
 
-        const targetMinStay = gapDays < maxBaselineInGap ? gapDays : maxBaselineInGap;
-        const dateToInclusive = new Date(nextInTime - 86400000).toISOString().slice(0, 10);
+        if (gapDays < maxBaselineInGap) {
+          const dateToInclusive = new Date(nextInTime - 86400000).toISOString().slice(0, 10);
 
-        updates.push({
-          roomTypeId: octRoomId,
-          accommodationName: roomName,
-          dateFrom: gapStart,
-          dateTo: dateToInclusive,
-          minStay: targetMinStay,
-          reason: gapDays < maxBaselineInGap 
-            ? `Gap-Fill Dinamico (${gapDays}d gap < baseline ${maxBaselineInGap}d): M=${gapDays}`
-            : `Ripristino Baseline Stagionale (${gapDays}d gap >= baseline ${maxBaselineInGap}d): M=${maxBaselineInGap}`
-        });
+          updates.push({
+            roomTypeId: octRoomId,
+            accommodationName: roomName,
+            dateFrom: gapStart,
+            dateTo: dateToInclusive,
+            minStay: gapDays,
+            reason: `Gap-Fill Dinamico (${gapDays}d gap < baseline ${maxBaselineInGap}d): M=${gapDays}`
+          });
+        }
       }
     });
   });
