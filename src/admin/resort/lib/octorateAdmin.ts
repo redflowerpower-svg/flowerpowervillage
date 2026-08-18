@@ -373,13 +373,16 @@ export function calculateDynamicMinStay(
     // 2. Tra tutte le prenotazioni consecutive
     const gaps: Array<{ start: string; end: string }> = [];
 
-    if (sorted.length > 0) {
-      // Gap iniziale: da rangeStartStr al checkin della prima prenotazione
+    if (sorted.length === 0) {
+      // Stanza completamente libera per tutta la stagione: ripristina la baseline su tutto il range
+      gaps.push({ start: rangeStartStr, end: rangeEndStr });
+    } else {
+      // 1. Gap iniziale: da rangeStartStr al checkin della prima prenotazione
       if (sorted[0].in > rangeStartStr) {
         gaps.push({ start: rangeStartStr, end: sorted[0].in });
       }
 
-      // Gap intermedi tra prenotazioni
+      // 2. Gap intermedi tra prenotazioni consecutive
       for (let i = 0; i < sorted.length - 1; i++) {
         const prevOut = sorted[i].out;
         const nextIn = sorted[i + 1].in;
@@ -389,6 +392,13 @@ export function calculateDynamicMinStay(
             gaps.push({ start: effectiveStart, end: nextIn });
           }
         }
+      }
+
+      // 3. Gap finale (Coda): dall'ultimo checkout fino al termine della stagione
+      const lastOut = sorted[sorted.length - 1].out;
+      if (lastOut < rangeEndStr) {
+        const effectiveStart = lastOut < rangeStartStr ? rangeStartStr : lastOut;
+        gaps.push({ start: effectiveStart, end: rangeEndStr });
       }
     }
 

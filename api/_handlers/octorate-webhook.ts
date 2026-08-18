@@ -109,11 +109,16 @@ function calculateServerDynamicMinStay(
 
     const gaps: Array<{ start: string; end: string }> = [];
 
-    if (sorted.length > 0) {
+    if (sorted.length === 0) {
+      // Stanza completamente vuota (nessun booking attivo o tutti cancellati): ripristina la baseline su tutto il range
+      gaps.push({ start: dateRange.start, end: dateRange.end });
+    } else {
+      // 1. Gap iniziale: da inizio range al checkin del primo booking
       if (sorted[0].in > dateRange.start) {
         gaps.push({ start: dateRange.start, end: sorted[0].in });
       }
 
+      // 2. Gap intermedi tra prenotazioni consecutive
       for (let i = 0; i < sorted.length - 1; i++) {
         const prevOut = sorted[i].out;
         const nextIn = sorted[i + 1].in;
@@ -123,6 +128,13 @@ function calculateServerDynamicMinStay(
             gaps.push({ start: effectiveStart, end: nextIn });
           }
         }
+      }
+
+      // 3. Gap finale (Coda): dall'ultimo checkout al termine della stagione
+      const lastOut = sorted[sorted.length - 1].out;
+      if (lastOut < dateRange.end) {
+        const effectiveStart = lastOut < dateRange.start ? dateRange.start : lastOut;
+        gaps.push({ start: effectiveStart, end: dateRange.end });
       }
     }
 
