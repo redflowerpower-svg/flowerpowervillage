@@ -270,7 +270,8 @@ export function getBaselineMinStay(dateInput: any): number {
   const dStr = typeof dateInput === 'string' ? dateInput.slice(0, 10) : toThailandDateStr(dateInput);
   if (!dStr) return 2;
 
-  // 1. Controlla prima se c'è un periodo pianificato esplicito nella Timeline Min Stay
+  // 🎯 SORGENTE DI VERITÀ UNICA E INDEROGABILE:
+  // Legge dinamicamente la Timeline Min Stay configurata in Gestione Tariffe Derivate (useRestrictionsStore)
   try {
     const storePeriods = useRestrictionsStore.getState?.()?.plannedMinStayPeriods;
     const periods = (storePeriods && storePeriods.length > 0) ? storePeriods : INITIAL_MIN_STAY_PERIODS;
@@ -280,17 +281,6 @@ export function getBaselineMinStay(dateInput: any): number {
       return matched.minStay;
     }
   } catch {}
-
-  // 2. Regola Stagionale Immutabile di Default
-  const parts = dStr.split('-');
-  if (parts.length >= 3) {
-    const month = parseInt(parts[1], 10);
-    const day = parseInt(parts[2], 10);
-    // Peak Season (16 Dicembre - 15 Gennaio)
-    if ((month === 12 && day >= 16) || (month === 1 && day <= 15)) {
-      return 5;
-    }
-  }
 
   return 2;
 }
@@ -412,44 +402,64 @@ export function calculateDynamicMinStay(
         const gapDays = Math.round((nextInTime - prevOutTime) / (1000 * 60 * 60 * 24));
 
         if (gapDays > 0) {
-          // Calcola il soggiorno minimo stagionale più alto (maxBaselineInGap) tra tutti i giorni che compongono il buco
-          let maxBaselineInGap = 0;
-          let currentDay = new Date(Date.UTC(pParts.year, pParts.month - 1, pParts.day));
-
-          while (currentDay.getTime() < nextInTime) {
-            const dStr = toThailandDateStr(currentDay);
-            const baseline = getBaselineMinStay(dStr);
-            if (baseline > maxBaselineInGap) {
-              maxBaselineInGap = baseline;
-            }
-            currentDay.setUTCDate(currentDay.getUTCDate() + 1);
-          }
-
-          // REGOLA SOGGIORNO MINIMO DINAMICO BIDIREZIONALE:
-          // Se G < maxBaselineInGap: Imposta minStay = G (riduzione bucatura).
-          // Se G >= maxBaselineInGap: Imposta minStay = maxBaselineInGap (ripristina sempre il minimo stagionale cancellando vecchi 1).
-          const targetMinStay = gapDays < maxBaselineInGap ? gapDays : maxBaselineInGap;
-
           const canonical = Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === motherId);
           const derivedIds = canonical?.ids?.filter(id => String(id) !== String(motherId)) || [];
           const targetIds = derivedIds.length > 0 ? derivedIds : [String(motherId || getMotherRatePlanId(roomName) || roomName)];
 
-          // In Octorate dateTo è INCLUSIVO: l'ultima notte del buco è esattamente il giorno prima del nuovo check-in (gapEnd - 1)
-          const dateToInclusive = toThailandDateStr(new Date(nextInTime - 86400000));
+          // 🎯 SORGENTE DI VERITÀ: Gestione Tariffe Derivate (Timeline Min Stay)
+          // Per ogni giorno del buco, il target è min(gapDays, baselineDalGiorno)
+          // Raggruppiamo i giorni consecutivi con lo stesso targetMinStay
+          let currentDay = new Date(Date.UTC(pParts.year, pParts.month - 1, pParts.day));
+          let blockStartStr = toThailandDateStr(currentDay);
+          let currentBlockMinStay = Math.min(gapDays, getBaselineMinStay(blockStartStr));
 
-          targetIds.forEach(targetId => {
-            updates.push({
-              roomTypeId: targetId,
-              motherId: motherId,
-              accommodationName: roomName,
-              dateFrom: gapStart,
-              dateTo: dateToInclusive,
-              minStay: targetMinStay,
-              reason: gapDays < maxBaselineInGap
-                ? `Gap-Fill Dinamico (${gapDays}d gap < baseline ${maxBaselineInGap}d): M=${gapDays}`
-                : `Ripristino Minimo Stagionale (${gapDays}d gap >= baseline ${maxBaselineInGap}d): M=${targetMinStay}`
+          while (currentDay.getTime() < nextInTime) {
+            const dStr = toThailandDateStr(currentDay);
+            const dayBaseline = getBaselineMinStay(dStr);
+            const dayTarget = Math.min(gapDays, dayBaseline);
+
+            if (dayTarget !== currentBlockMinStay) {
+              // Chiudi blocco precedente (dateTo è il giorno prima di currentDay)
+              const blockEndInclusive = toThailandDateStr(new Date(currentDay.getTime() - 86400000));
+              targetIds.forEach(targetId => {
+                updates.push({
+                  roomTypeId: targetId,
+                  motherId: motherId,
+                  accommodationName: roomName,
+                  dateFrom: blockStartStr,
+                  dateTo: blockEndInclusive,
+                  minStay: currentBlockMinStay,
+                  reason: gapDays < currentBlockMinStay
+                    ? `Gap-Fill Dinamico (${gapDays}d): M=${currentBlockMinStay}`
+                    : `Minimo da Gestione Tariffe Derivate: M=${currentBlockMinStay}`
+                });
+              });
+
+              // Apri nuovo blocco
+              blockStartStr = dStr;
+              currentBlockMinStay = dayTarget;
+            }
+
+            currentDay.setUTCDate(currentDay.getUTCDate() + 1);
+          }
+
+          // Chiudi l'ultimo blocco fino a nextIn - 1 giorno
+          const lastDateInclusive = toThailandDateStr(new Date(nextInTime - 86400000));
+          if (blockStartStr <= lastDateInclusive) {
+            targetIds.forEach(targetId => {
+              updates.push({
+                roomTypeId: targetId,
+                motherId: motherId,
+                accommodationName: roomName,
+                dateFrom: blockStartStr,
+                dateTo: lastDateInclusive,
+                minStay: currentBlockMinStay,
+                reason: gapDays < currentBlockMinStay
+                  ? `Gap-Fill Dinamico (${gapDays}d): M=${currentBlockMinStay}`
+                  : `Minimo da Gestione Tariffe Derivate: M=${currentBlockMinStay}`
+              });
             });
-          });
+          }
         }
       }
     });

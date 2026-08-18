@@ -36,18 +36,19 @@ const MOTHER_RATE_PLANS: Record<string, number> = {
   "Fake Bungalow 2": 921799
 };
 
+// 🎯 SORGENTE DI VERITÀ: Timeline Min Stay configurata in Gestione Tariffe Derivate
+const WEBHOOK_MIN_STAY_TIMELINE = [
+  { dateFrom: '2026-10-01', dateTo: '2026-12-15', minStay: 2 },
+  { dateFrom: '2026-12-16', dateTo: '2027-01-15', minStay: 5 },
+  { dateFrom: '2027-01-16', dateTo: '2027-04-30', minStay: 2 },
+  { dateFrom: '2027-05-01', dateTo: '2027-10-31', minStay: 2 }
+];
+
 function getBaselineMinStay(dateStr: string): number {
   if (!dateStr || typeof dateStr !== 'string') return 2;
-  const parts = dateStr.slice(0, 10).split('-');
-  if (parts.length < 3) return 2;
-  const month = parseInt(parts[1], 10);
-  const day = parseInt(parts[2], 10);
-
-  // Peak Season (16 Dicembre - 15 Gennaio)
-  if ((month === 12 && day >= 16) || (month === 1 && day <= 15)) {
-    return 5;
-  }
-  return 2;
+  const dStr = dateStr.slice(0, 10);
+  const matched = WEBHOOK_MIN_STAY_TIMELINE.find(p => dStr >= p.dateFrom && dStr <= p.dateTo);
+  return matched?.minStay || 2;
 }
 
 export interface DynamicMinStayUpdate {
@@ -131,32 +132,48 @@ function calculateServerDynamicMinStay(
       const gapDays = Math.round((nextInTime - prevOutTime) / (1000 * 60 * 60 * 24));
 
       if (gapDays > 0) {
-        // Calcola il baseline stagionale dinamico più alto nel periodo del buco
-        let maxBaselineInGap = 0;
         let currentDay = new Date(prevOutTime);
+        let blockStartStr = currentDay.toISOString().slice(0, 10);
+        let currentBlockMinStay = Math.min(gapDays, getBaselineMinStay(blockStartStr));
 
         while (currentDay.getTime() < nextInTime) {
           const dStr = currentDay.toISOString().slice(0, 10);
-          const baseline = getBaselineMinStay(dStr);
-          if (baseline > maxBaselineInGap) {
-            maxBaselineInGap = baseline;
+          const dayBaseline = getBaselineMinStay(dStr);
+          const dayTarget = Math.min(gapDays, dayBaseline);
+
+          if (dayTarget !== currentBlockMinStay) {
+            const blockEndInclusive = new Date(currentDay.getTime() - 86400000).toISOString().slice(0, 10);
+            updates.push({
+              roomTypeId: octRoomId,
+              accommodationName: roomName,
+              dateFrom: blockStartStr,
+              dateTo: blockEndInclusive,
+              minStay: currentBlockMinStay,
+              reason: gapDays < currentBlockMinStay
+                ? `Gap-Fill Dinamico (${gapDays}d): M=${currentBlockMinStay}`
+                : `Minimo da Gestione Tariffe Derivate: M=${currentBlockMinStay}`
+            });
+
+            blockStartStr = dStr;
+            currentBlockMinStay = dayTarget;
           }
+
           currentDay.setDate(currentDay.getDate() + 1);
         }
 
-        const targetMinStay = gapDays < maxBaselineInGap ? gapDays : maxBaselineInGap;
-        const dateToInclusive = new Date(nextInTime - 86400000).toISOString().slice(0, 10);
-
-        updates.push({
-          roomTypeId: octRoomId,
-          accommodationName: roomName,
-          dateFrom: gapStart,
-          dateTo: dateToInclusive,
-          minStay: targetMinStay,
-          reason: gapDays < maxBaselineInGap
-            ? `Gap-Fill Dinamico (${gapDays}d gap < baseline ${maxBaselineInGap}d): M=${gapDays}`
-            : `Ripristino Minimo Stagionale (${gapDays}d gap >= baseline ${maxBaselineInGap}d): M=${targetMinStay}`
-        });
+        const lastDateInclusive = new Date(nextInTime - 86400000).toISOString().slice(0, 10);
+        if (blockStartStr <= lastDateInclusive) {
+          updates.push({
+            roomTypeId: octRoomId,
+            accommodationName: roomName,
+            dateFrom: blockStartStr,
+            dateTo: lastDateInclusive,
+            minStay: currentBlockMinStay,
+            reason: gapDays < currentBlockMinStay
+              ? `Gap-Fill Dinamico (${gapDays}d): M=${currentBlockMinStay}`
+              : `Minimo da Gestione Tariffe Derivate: M=${currentBlockMinStay}`
+          });
+        }
       }
     });
   });
