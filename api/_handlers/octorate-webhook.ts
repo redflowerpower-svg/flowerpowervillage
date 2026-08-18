@@ -188,15 +188,10 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
   const eventType = eventPayload.type || eventPayload.event || 'UNKNOWN_EVENT';
   console.log(`[OCTORATE WEBHOOK 24/7] Received event: ${eventType}`, JSON.stringify(eventPayload, null, 2));
 
-  // 4. Rispondi subito con HTTP 200 OK al mittente Octorate prima di eseguire qualsiasi elaborazione asincrona
-  res.status(200).json({
-    received: true,
-    eventType,
-    timestamp: new Date().toISOString(),
-    message: 'Webhook received. Processing background gap-filling & baseline restoration.'
-  });
+  // 4. Esecuzione asincrona garantita prima di chiudere la risposta Serverless
+  let calculatedUpdatesCount = 0;
+  let octorateStatus = 0;
 
-  // 5. Esecuzione background asincrona protetta da try/catch globale
   try {
     let bookingsData: any[] = [];
     if (supabaseAdmin) {
@@ -238,6 +233,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
       { start: todayISO, end: endISO }
     );
 
+    calculatedUpdatesCount = calculatedUpdates.length;
     console.log(`[OCTORATE WEBHOOK 24/7] Calculated ${calculatedUpdates.length} gap-filling & restoration updates.`);
 
     // Invia la scrittura reale ad Octorate filtrando esclusivamente per gli alloggi di Staging
@@ -270,11 +266,26 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           body: JSON.stringify(roomsPayload)
         });
 
+        octorateStatus = bulkRes.status;
         console.log(`[OCTORATE WEBHOOK 24/7] Real bulk minstay update sent to Octorate for staging bungalows (Status: ${bulkRes.status}).`);
       }
     }
 
+    return res.status(200).json({
+      received: true,
+      eventType,
+      calculatedUpdatesCount,
+      octorateStatus,
+      timestamp: new Date().toISOString(),
+      message: 'Webhook processed successfully with real Octorate synchronization.'
+    });
+
   } catch (err: any) {
     console.error(`[OCTORATE WEBHOOK 24/7 ERROR]:`, err);
+    return res.status(200).json({
+      received: true,
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
   }
 }
