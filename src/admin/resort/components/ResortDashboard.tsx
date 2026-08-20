@@ -567,6 +567,86 @@ export function ResortDashboard() {
         </div>
       )}
 
+      {/* Production Confirmation Modal — LAST MINUTE (Root Level Full-Screen Center) */}
+      {showCascadeProdModal && (
+        <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-stone-900 border-2 border-red-600/80 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-[0_0_50px_rgba(239,68,68,0.3)] space-y-5">
+            <div className="flex items-center gap-3 text-red-400">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-6 h-6 text-red-400 animate-bounce" />
+              </div>
+              <div>
+                <h3 className="font-black text-white text-sm sm:text-base uppercase tracking-wider">
+                  CONFERMA MODALITÀ PRODUZIONE
+                </h3>
+                <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider">Sconti a Cascata Last Minute</span>
+              </div>
+            </div>
+            <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
+              ⚠️ <strong>ATTENZIONE:</strong> Stai per attivare la modalità <strong>PRODUZIONE REAL TIME</strong> per gli Sconti a Cascata Last Minute.
+              <br /><br />
+              I prezzi scontati (-{lastMinuteDiscountStage1}% / -{lastMinuteDiscountStage2}% / -{lastMinuteDiscountStage3}%) verranno inviati <strong>realmente a tutte le Tariffe Madri del resort su Octorate PMS</strong>.
+            </p>
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800">
+              <button
+                type="button"
+                onClick={() => setShowCascadeProdModal(false)}
+                className="px-4 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl cursor-pointer transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                onClick={() => { setExecutionMode('production'); setShowCascadeProdModal(false); }}
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50 cursor-pointer transition-all active:scale-95"
+              >
+                Sì, Attiva Produzione Reale
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Production Confirmation Modal — SOGGIORNO MINIMO DINAMICO (Root Level Full-Screen Center) */}
+      {showMinStayProdModal && (
+        <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-stone-900 border-2 border-red-600/80 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-[0_0_50px_rgba(239,68,68,0.3)] space-y-5">
+            <div className="flex items-center gap-3 text-red-400">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-6 h-6 text-red-400 animate-bounce" />
+              </div>
+              <div>
+                <h3 className="font-black text-white text-sm sm:text-base uppercase tracking-wider">
+                  CONFERMA MODALITÀ PRODUZIONE
+                </h3>
+                <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider">Soggiorno Minimo Dinamico</span>
+              </div>
+            </div>
+            <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
+              ⚠️ <strong>ATTENZIONE:</strong> Stai per attivare la modalità <strong>PRODUZIONE REAL TIME</strong> per il Soggiorno Minimo Dinamico.
+              <br /><br />
+              I valori di <strong>min_stay</strong> verranno modificati <strong>realmente su tutte le Tariffe Madri del resort su Octorate PMS</strong>.
+            </p>
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800">
+              <button
+                type="button"
+                onClick={() => setShowMinStayProdModal(false)}
+                className="px-4 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl cursor-pointer transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                onClick={() => { setDynamicMinStayExecutionMode('production'); setShowMinStayProdModal(false); }}
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50 cursor-pointer transition-all active:scale-95"
+              >
+                Sì, Attiva Produzione Reale
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Integrated Header Container: Gestione Resort Title + Octorate Status + Navigation Menu (Static Top) */}
       <div className="bg-stone-900/90 border border-stone-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-3.5">
         {/* Top Banner Title & Octorate Status Indicator */}
@@ -1196,40 +1276,7 @@ export function ResortDashboard() {
                   </div>
                 </div>
 
-                {/* Production Confirmation Modal — LAST MINUTE */}
-                {showCascadeProdModal && (
-                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-stone-900 border border-red-600/60 rounded-2xl p-5 max-w-md w-full shadow-2xl space-y-4">
-                      <div className="flex items-center gap-3 text-red-400">
-                        <AlertTriangle className="w-6 h-6 flex-shrink-0 animate-bounce" />
-                        <h3 className="font-black text-white text-sm uppercase tracking-wider">
-                          CONFERMA MODALITÀ PRODUZIONE
-                        </h3>
-                      </div>
-                      <p className="text-stone-300 text-xs leading-relaxed">
-                        ⚠️ <strong>ATTENZIONE:</strong> Stai per attivare la modalità <strong>PRODUZIONE REAL TIME</strong> per gli Sconti a Cascata Last Minute.
-                        <br /><br />
-                        I prezzi scontati (-{lastMinuteDiscountStage1}%/-{lastMinuteDiscountStage2}%/-{lastMinuteDiscountStage3}%) verranno inviati <strong>realmente a tutte le Tariffe Madri del resort su Octorate PMS</strong>.
-                      </p>
-                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
-                        <button
-                          type="button"
-                          onClick={() => setShowCascadeProdModal(false)}
-                          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl cursor-pointer"
-                        >
-                          Annulla
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setExecutionMode('production'); setShowCascadeProdModal(false); }}
-                          className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50 cursor-pointer"
-                        >
-                          Sì, Attiva Produzione Reale
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+
 
                 {/* Simulation Active Visual Banner */}
                 {isSimulationActive && (
@@ -1519,40 +1566,7 @@ export function ResortDashboard() {
                   </div>
                 )}
 
-                {/* Production Confirmation Modal — SOGGIORNO MINIMO DINAMICO */}
-                {showMinStayProdModal && (
-                  <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-stone-900 border border-red-600/60 rounded-2xl p-5 max-w-md w-full shadow-2xl space-y-4">
-                      <div className="flex items-center gap-3 text-red-400">
-                        <AlertTriangle className="w-6 h-6 flex-shrink-0 animate-bounce" />
-                        <h3 className="font-black text-white text-sm uppercase tracking-wider">
-                          CONFERMA MODALITÀ PRODUZIONE
-                        </h3>
-                      </div>
-                      <p className="text-stone-300 text-xs leading-relaxed">
-                        ⚠️ <strong>ATTENZIONE:</strong> Stai per attivare la modalità <strong>PRODUZIONE REAL TIME</strong> per il Soggiorno Minimo Dinamico.
-                        <br /><br />
-                        I valori di <strong>min_stay</strong> verranno modificati <strong>realmente su tutte le Tariffe Madri del resort su Octorate PMS</strong>.
-                      </p>
-                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
-                        <button
-                          type="button"
-                          onClick={() => setShowMinStayProdModal(false)}
-                          className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl cursor-pointer"
-                        >
-                          Annulla
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => { setDynamicMinStayExecutionMode('production'); setShowMinStayProdModal(false); }}
-                          className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50 cursor-pointer"
-                        >
-                          Sì, Attiva Produzione Reale
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+
               </div>
             )}
 

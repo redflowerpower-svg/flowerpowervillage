@@ -476,8 +476,8 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           // Paginazione completa partendo da page 0 (0-indexed nell'API Octorate)
           let page = 0;
           let hasMore = true;
-          while (hasMore && page <= 10) {
-            const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${todayISO}&endDate=${endISO}&size=200&page=${page}`;
+          while (hasMore && page <= 25) {
+            const octUrl = `https://api.octorate.com/connect/rest/v1/reservation/366879?type=STAY&startDate=${todayISO}&endDate=${endISO}&size=100&page=${page}`;
             const octRes = await fetch(octUrl, {
               headers: {
                 'Authorization': `Bearer ${accessToken}`,
@@ -491,7 +491,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               if (pageData.length > 0) {
                 bookingsData.push(...pageData);
                 const totalPages = Number(octJson.page?.totalPages || octJson.totalPages || 1);
-                if (page + 1 >= totalPages || pageData.length < 200) {
+                if (page + 1 >= totalPages || pageData.length === 0) {
                   hasMore = false;
                 } else {
                   page++;

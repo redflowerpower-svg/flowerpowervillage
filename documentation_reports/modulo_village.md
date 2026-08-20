@@ -999,4 +999,20 @@ executionMode:
 * Aggiunta la guardia `!matchingBooking` su `isSimulatedBadge` e `isSynchronizedBadge`: i giorni occupati da prenotazioni mantengono il loro stato pulito standard e non mostrano mai cerchietti verdi o rossi di gap-fill.
 * Ricarica automatica live della griglia (`loadLiveGrid()`) al termine della sincronizzazione o del ripristino per riflettere all'istante lo stato PMS a video.
 
+---
+
+## 15. Sblocco Produzione Reale Soggiorno Minimo & Risoluzione Paginazione Webhook (20/08/2026)
+
+### A. Sblocco Produzione Reale su Tutte le 18 Tariffe Madri Fisiche
+* **Modulo Backend (`api/_handlers/octorate.ts`)**: Lo Staging Lock (che limitava le scritture solo ai Fake Bungalow `#649669` e `#921799`) è stato circoscritto alla sola modalità `test_bungalows`. In modalità `production`, la scrittura del Soggiorno Minimo Dinamico è sbloccata su tutte le 18 Tariffe Madri reali del resort (`529773`, `495795`, `495796`, `494840`, `421511`, `293957`, `293954`, `293962`, `293965`, `293955`, `293963`, `293959`, `293948`, `293945`, `293943`, `293951`, `883795`, `293942`).
+* **Batching Parallelo da 250 Elementi**: I payload per `POST /connect/rest/v1/calendar/bulk` vengono automaticamente suddivisi in blocchi da 250 elementi ed inviati in parallelo tramite `Promise.all` per evitare timeout ed eccedenza dei limiti di payload API.
+
+### B. Risoluzione Paginazione API Octorate nel Webhook 24/7 (`api/_handlers/octorate-webhook.ts`)
+* **Problema Risolto**: L'endpoint Octorate `/reservation/` limita a 100 le prenotazioni per pagina. Un vecchio controllo `pageData.length < 200` interrompeva prematuramente il download alla sola prima pagina (prime 100 prenotazioni fino a inizio dicembre), escludendo dal calcolo tutte le prenotazioni di alta stagione (Natale/Gennaio).
+* **Correzione Applicata**: La paginazione itera ora correttamente fino a 25 pagine con `size=100` verificando `page + 1 >= totalPages`, garantendo l'inclusione di tutte le oltre 200 prenotazioni stagionali nel calcolo gap-fill.
+
+### C. Layering e Centratura Modali di Conferma (`ResortDashboard.tsx` & `StandardRatesProtectionSection.tsx`)
+* I modali di conferma modalità produzione (`showCascadeProdModal`, `showMinStayProdModal`, `showProdModal`) sono stati spostati al livello root del componente con `fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4`, garantendo perfetta centratura a schermo intero e priorità di rendering assoluta sopra tutti gli elementi grafici.
+
+
 

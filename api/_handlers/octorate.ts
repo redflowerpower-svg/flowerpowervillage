@@ -543,22 +543,22 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { updates, resetToBaseline, dryRun } = req.body || {};
+  const { updates, resetToBaseline, dryRun, executionMode, isTestEnvironment } = req.body || {};
   const updateItems = Array.isArray(updates) ? updates : [];
-  const isSimulation = dryRun !== undefined ? Boolean(dryRun) : DRY_RUN;
+  const isSimulation = dryRun !== undefined ? Boolean(dryRun) : (executionMode === 'simulation' || DRY_RUN);
 
-  // STAGING LOCK CHECK: Se DRY_RUN viene disattivato (false), rifiuta la scrittura se non per i due alloggi fittizi
-  if (!isSimulation) {
+  // STAGING LOCK CHECK: Se siamo in AMBIENTE DI TEST (test_bungalows / isTestEnvironment), consentiamo la scrittura solo per gli alloggi fittizi
+  if (!isSimulation && (executionMode === 'test_bungalows' || isTestEnvironment)) {
     const invalidTarget = updateItems.find((item: any) => {
-      const idStr = String(item.roomTypeId || item.id || item.octorateId || item.room || '');
+      const idStr = String(item.roomTypeId || item.motherId || item.id || item.octorateId || item.room || '');
       return !STAGING_LOCK_IDS.has(idStr);
     });
 
     if (invalidTarget) {
-      const targetId = String(invalidTarget.roomTypeId || invalidTarget.id || invalidTarget.octorateId);
-      console.error(`[STAGING LOCK BLOCKED] Tentativo di scrittura bloccato per l'alloggio non-staging ID ${targetId}`);
+      const targetId = String(invalidTarget.roomTypeId || invalidTarget.motherId || invalidTarget.id || invalidTarget.octorateId);
+      console.error(`[STAGING LOCK BLOCKED] Tentativo di scrittura in test_bungalows bloccato per l'alloggio non-staging ID ${targetId}`);
       return res.status(403).json({
-        error: `Staging Lock Attivo: La scrittura reale è consentita esclusivamente per gli alloggi fittizi #649669 e #921799. Target bloccato: ${targetId}`,
+        error: `Staging Lock Attivo: La scrittura reale in ambiente di test è consentita esclusivamente per gli alloggi fittizi #649669 e #921799. Target bloccato: ${targetId}`,
         blockedTarget: invalidTarget
       });
     }
@@ -577,7 +577,7 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
     });
   }
 
-  // Esecuzione Scrittura Reale Octorate per gli Alloggi di Staging
+  // Esecuzione Scrittura Reale Octorate (Produzione o Ambiente di Test)
   try {
     let accessToken: string | null = null;
     const { data: tokenData } = await supabaseAdmin
@@ -641,33 +641,41 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
       }
     }));
 
-    const octRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(roomsPayload)
+    // Invio sincronizzazione in batch paralleli da 250 blocchi per Octorate API
+    const chunkSize = 250;
+    const chunks: any[][] = [];
+    for (let c = 0; c < roomsPayload.length; c += chunkSize) {
+      chunks.push(roomsPayload.slice(c, c + chunkSize));
+    }
+
+    const batchPromises = chunks.map(async (chunk, idx) => {
+      const bulkRes = await fetch(`https://api.octorate.com/connect/rest/v1/calendar/bulk`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(chunk)
+      });
+      if (!bulkRes.ok) {
+        const errorText = await bulkRes.text();
+        throw new Error(`Batch ${idx + 1}/${chunks.length} failed (${bulkRes.status}): ${errorText}`);
+      }
+      return bulkRes.status;
     });
 
-    if (!octRes.ok) {
-      const errorText = await octRes.text();
-      return res.status(octRes.status).json({ error: `Octorate bulk min-stay update failed: ${errorText}` });
-    }
+    await Promise.all(batchPromises);
 
-    let octResult: any = null;
-    try {
-      octResult = await octRes.json();
-    } catch {
-      octResult = { ok: true };
-    }
+    const isTest = executionMode === 'test_bungalows' || isTestEnvironment;
+    const modeLabel = isTest ? 'Ambiente di Test (Fake Bungalows)' : 'Produzione Reale Resort';
+
     return res.status(200).json({ 
       success: true, 
       dryRun: false, 
-      message: `Sincronizzazione Soggiorno Minimo completata su Octorate (${roomsPayload.length} blocchi inviati)`,
+      message: `Sincronizzazione Soggiorno Minimo ${modeLabel} completata su Octorate (${roomsPayload.length} blocchi inviati su ${chunks.length} batch)`,
       updatesCount: roomsPayload.length,
-      octResult 
+      chunksCount: chunks.length
     });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Serverless min-stay execution error' });

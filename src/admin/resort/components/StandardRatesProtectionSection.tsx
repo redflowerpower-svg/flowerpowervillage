@@ -292,33 +292,38 @@ export const StandardRatesProtectionSection: React.FC<StandardRatesProtectionSec
 
       {/* Production Double Confirmation Modal */}
       {showProdModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-stone-900 border border-red-600/60 rounded-2xl p-5 max-w-md w-full shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-stone-900 border-2 border-red-600/80 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-[0_0_50px_rgba(239,68,68,0.3)] space-y-5">
             <div className="flex items-center gap-3 text-red-400">
-              <AlertTriangle className="w-6 h-6 flex-shrink-0 animate-bounce" />
-              <h3 className="font-black text-white text-sm uppercase tracking-wider">
-                CONFERMA MODALITÀ PRODUZIONE
-              </h3>
+              <div className="w-12 h-12 rounded-2xl bg-red-500/20 border border-red-500/40 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-6 h-6 text-red-400 animate-bounce" />
+              </div>
+              <div>
+                <h3 className="font-black text-white text-sm sm:text-base uppercase tracking-wider">
+                  CONFERMA MODALITÀ PRODUZIONE
+                </h3>
+                <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider">Protezione Tariffe Standard</span>
+              </div>
             </div>
 
-            <p className="text-stone-300 text-xs leading-relaxed">
+            <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
               ⚠️ <strong>ATTENZIONE:</strong> Stai per attivare la modalità <strong>PRODUZIONE REAL TIME</strong> per la Protezione Tariffe Standard 7d/14d.
               <br /><br />
               Le modifiche di Stop-Sell e Close-to-Arrival verranno inviate <strong>realmente a tutte le 18 camere fisiche del resort su Octorate PMS</strong>.
             </p>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-800">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-stone-800">
               <button
                 type="button"
                 onClick={() => setShowProdModal(false)}
-                className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl"
+                className="px-4 py-2.5 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-xs rounded-xl cursor-pointer transition-colors"
               >
                 Annulla
               </button>
               <button
                 type="button"
                 onClick={confirmProductionMode}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50"
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-red-950/50 cursor-pointer transition-all active:scale-95"
               >
                 Sì, Attiva Produzione Reale
               </button>
