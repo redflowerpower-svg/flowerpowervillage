@@ -110,6 +110,8 @@ export function ResortDashboard() {
     seasonDownloadStatus,
     seasonDownloadProgress,
     seasonDownloadMessage,
+    isDynamicCalculationEnabled,
+    setIsDynamicCalculationEnabled,
     cachedImportTime,
     loadFromCache,
     saveToCache
@@ -130,6 +132,7 @@ export function ResortDashboard() {
 
   // Arming state & auto-disarm timer for double-click room deactivation safety
   const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
+  const [minStayDeactivateArmed, setMinStayDeactivateArmed] = useState(false);
 
   useEffect(() => {
     if (!pendingDeactivateId) return;
@@ -138,6 +141,12 @@ export function ResortDashboard() {
     }, 4000); // 4 seconds auto-disarm
     return () => clearTimeout(timer);
   }, [pendingDeactivateId]);
+
+  useEffect(() => {
+    if (!minStayDeactivateArmed) return;
+    const timer = setTimeout(() => setMinStayDeactivateArmed(false), 4000);
+    return () => clearTimeout(timer);
+  }, [minStayDeactivateArmed]);
 
   const handleToggleAvailability = async (room: any) => {
     const isCurrentAvailable = Boolean(room.isAvailable ?? room.is_available);
@@ -1092,6 +1101,12 @@ export function ResortDashboard() {
             >
               <SlidersHorizontal className="w-4 h-4 text-violet-400" />
               <span>📏 SOGGIORNO MINIMO</span>
+              {isDynamicCalculationEnabled && (
+                <span className="relative flex h-2.5 w-2.5 ml-1" title="Soggiorno Minimo Dinamico Attivo">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+              )}
             </button>
 
             {/* Tab 3: Tariffe Standard High Season */}
@@ -1409,6 +1424,107 @@ export function ResortDashboard() {
             {/* TAB 2 CONTENT: DYNAMIC MINIMUM STAY */}
             {activeOptimizationTab === 'min_stay' && (
               <div className="space-y-4">
+                {/* Master Status & Kill-Switch Banner */}
+                <div className={`p-4 rounded-2xl border transition-all duration-300 ${
+                  isDynamicCalculationEnabled
+                    ? 'bg-emerald-950/40 border-emerald-500/50 shadow-lg shadow-emerald-950/40'
+                    : 'bg-stone-900/60 border-stone-800'
+                }`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      {isDynamicCalculationEnabled ? (
+                        <span className="relative flex h-4 w-4 flex-shrink-0">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 shadow-md shadow-emerald-400"></span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex rounded-full h-4 w-4 bg-stone-600 border border-stone-500 flex-shrink-0"></span>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-black uppercase tracking-wider ${
+                            isDynamicCalculationEnabled ? 'text-emerald-300' : 'text-stone-400'
+                          }`}>
+                            {isDynamicCalculationEnabled ? '🟢 FUNZIONALITÀ ATTIVA (24/7 AUTO SYNC & GAP-FILL)' : '⚪ FUNZIONALITÀ DISATTIVATA (CALENDARIO NORMALE OCTORATE)'}
+                          </span>
+                          {isDynamicCalculationEnabled && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse">
+                              LIVE PMS
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-stone-400 mt-0.5">
+                          {isDynamicCalculationEnabled
+                            ? 'Il calcolo dinamico del soggiorno minimo è in esecuzione automatica e allinea Octorate ad ogni prenotazione.'
+                            : 'Il calcolo dinamico è spento. Octorate segue la normale gestione manuale del calendario e i valori stagionali standard.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Dual-Click Toggle Button */}
+                    <div className="flex items-center gap-2">
+                      {isDynamicCalculationEnabled ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!minStayDeactivateArmed) {
+                              setMinStayDeactivateArmed(true);
+                              return;
+                            }
+                            setMinStayDeactivateArmed(false);
+                            executeDynamicMinStayStrategy(true);
+                          }}
+                          disabled={dynamicMinStayRunning || dynamicMinStayResetRunning}
+                          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 shadow-md ${
+                            minStayDeactivateArmed
+                              ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse ring-2 ring-rose-400 shadow-rose-950/60'
+                              : 'bg-stone-900 hover:bg-rose-950/60 border border-rose-800/40 text-rose-300 hover:text-rose-200'
+                          }`}
+                          title="Disattiva il calcolo dinamico e ripristina la normale gestione del calendario su Octorate"
+                        >
+                          {dynamicMinStayResetRunning ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <span>Ripristino Octorate in corso...</span>
+                            </>
+                          ) : minStayDeactivateArmed ? (
+                            <>
+                              <AlertTriangle className="w-3.5 h-3.5" />
+                              <span>CONFERMI DISATTIVAZIONE? CLICCA DI NUOVO</span>
+                            </>
+                          ) : (
+                            <>
+                              <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+                              <span>DISATTIVA E TORNA AL CALENDARIO NORMALE</span>
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            executeDynamicMinStayStrategy(false);
+                          }}
+                          disabled={dynamicMinStayRunning || dynamicMinStayResetRunning}
+                          className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-950/50 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {dynamicMinStayRunning ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <span>Attivazione in corso...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="w-3.5 h-3.5" />
+                              <span>⚡ ATTIVA SOGGIORNO MINIMO DINAMICO</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-violet-500/30 pb-3">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-violet-500/20 border border-violet-400/50 flex items-center justify-center text-violet-300 flex-shrink-0 shadow">
