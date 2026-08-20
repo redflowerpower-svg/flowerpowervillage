@@ -490,8 +490,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               const pageData = octJson && Array.isArray(octJson.data) ? octJson.data : (Array.isArray(octJson) ? octJson : (octJson.reservations || []));
               if (pageData.length > 0) {
                 bookingsData.push(...pageData);
-                const totalPages = Number(octJson.page?.totalPages || octJson.totalPages || 1);
-                if (page + 1 >= totalPages || pageData.length === 0) {
+                if (pageData.length < 100) {
                   hasMore = false;
                 } else {
                   page++;
