@@ -15,24 +15,27 @@ const STAGING_LOCK_IDS = new Set([
 ]);
 
 // Mappatura Canonica 1:1 ID Madre, Prodotti Derivati e Keyword OTA per Octorate (212 Prodotti)
-export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: string; ids: string[]; keywords: string[][] }> = {
+export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: string; ids: string[]; keywords: string[][]; linkedKeys?: string[] }> = {
   'jungle villa': {
     motherId: 529773,
     name: 'Jungle Villa',
     ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916817', '529781', '529801', '921868', '921869', '529783', '529813'],
-    keywords: [["jungle", "jv"], ["villa", "ac", "be"]]
+    keywords: [["jungle", "jv"], ["villa", "ac", "be"]],
+    linkedKeys: ['jungle villa left', 'jungle villa right']
   },
   'jungle villa left': {
     motherId: 495795,
     name: 'Jungle Villa Left',
     ids: ['495795', '495807', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
-    keywords: [["jungle", "jv"], ["left", "jvl"]]
+    keywords: [["jungle", "jv"], ["left", "jvl"]],
+    linkedKeys: ['jungle villa']
   },
   'jungle villa right': {
     motherId: 495796,
     name: 'Jungle Villa Right',
     ids: ['495796', '495980', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
-    keywords: [["jungle", "jv"], ["right", "jvr"]]
+    keywords: [["jungle", "jv"], ["right", "jvr"]],
+    linkedKeys: ['jungle villa']
   },
   'peace & love villa': {
     motherId: 494840,
@@ -273,9 +276,13 @@ function calculateServerDynamicMinStay(
     return Math.round((e - s) / 86400000);
   }
 
-  // 3. Calcolo intervalli occupati e gap per ciascun alloggio
-  Object.values(roomBookingsMap).forEach(({ roomName, motherId, targetProductIds, bookings: bList }) => {
-    const sorted = bList.sort((a, b) => a.in.localeCompare(b.in));
+  // 3. Calcolo intervalli occupati e gap per ciascun alloggio (incorporando unità collegate parent/child)
+  Object.entries(roomBookingsMap).forEach(([key, { roomName, motherId, targetProductIds, bookings: bList }]) => {
+    const canonical = ALL_ACCOMMODATIONS_MAP[key] || Object.values(ALL_ACCOMMODATIONS_MAP).find(a => String(a.motherId) === String(motherId));
+    const linkedList = (canonical?.linkedKeys || []).flatMap(lKey => roomBookingsMap[lKey]?.bookings || []);
+    const combinedList = [...bList, ...linkedList];
+
+    const sorted = combinedList.sort((a, b) => a.in.localeCompare(b.in));
     const mergedOccupied: Array<{ in: string; out: string }> = [];
 
     for (const curr of sorted) {

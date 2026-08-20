@@ -32,24 +32,27 @@ export const MOCK_MOTHER_RATE_PLANS: Record<string, number> = {
   "Fake Bungalow 2": 921799
 };
 
-export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: string; ids: string[]; keywords: string[][] }> = {
+export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: string; ids: string[]; keywords: string[][]; linkedKeys?: string[] }> = {
   'jungle villa': {
     motherId: 529773,
     name: 'Jungle Villa',
     ids: ['529773', '529784', '529778', '529792', '529788', '529780', '916817', '529781', '529801', '921868', '921869', '529783', '529813'],
-    keywords: [["jungle", "jv"], ["villa", "ac", "be"]]
+    keywords: [["jungle", "jv"], ["villa", "ac", "be"]],
+    linkedKeys: ['jungle villa left', 'jungle villa right']
   },
   'jungle villa left': {
     motherId: 495795,
     name: 'Jungle Villa Left',
     ids: ['495795', '495807', '495804', '496009', '496001', '495805', '496022', '495806', '496031', '921870', '921871', '495810', '496057'],
-    keywords: [["jungle", "jv"], ["left", "jvl"]]
+    keywords: [["jungle", "jv"], ["left", "jvl"]],
+    linkedKeys: ['jungle villa']
   },
   'jungle villa right': {
     motherId: 495796,
     name: 'Jungle Villa Right',
     ids: ['495796', '495980', '495977', '496010', '496002', '495978', '496021', '495979', '496030', '921872', '921873', '495982', '496056'],
-    keywords: [["jungle", "jv"], ["right", "jvr"]]
+    keywords: [["jungle", "jv"], ["right", "jvr"]],
+    linkedKeys: ['jungle villa']
   },
   'peace & love villa': {
     motherId: 494840,
@@ -367,9 +370,13 @@ export function calculateDynamicMinStay(
   const rangeEndStr = dateRange?.end ? toThailandDateStr(dateRange.end) : getSeasonalEndDateStr(todayStr);
 
   // Calcolo Puro Gap-Fill Assoluto per ogni alloggio
-  Object.values(roomBookingsMap).forEach(({ motherId, name: roomName, list }) => {
-    // Ordina TUTTE le prenotazioni della camera in sequenza temporale per l'intera stagione
-    const sorted = list.sort((a, b) => a.in.localeCompare(b.in));
+  Object.entries(roomBookingsMap).forEach(([key, { motherId, name: roomName, list }]) => {
+    const canonical = ALL_ACCOMMODATIONS_MAP[key] || Object.values(ALL_ACCOMMODATIONS_MAP).find(a => a.motherId === motherId);
+    const linkedList = (canonical?.linkedKeys || []).flatMap(lKey => roomBookingsMap[lKey]?.list || []);
+    const combinedList = [...list, ...linkedList];
+
+    // Ordina TUTTE le prenotazioni della camera (e delle collegate) in sequenza temporale per l'intera stagione
+    const sorted = combinedList.sort((a, b) => a.in.localeCompare(b.in));
 
     // Costruisce la sequenza di gap da analizzare:
     // 1. Dalla data di inizio range (oggi) alla prima prenotazione (se non inizia oggi)
