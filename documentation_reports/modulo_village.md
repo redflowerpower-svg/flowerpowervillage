@@ -1014,5 +1014,21 @@ executionMode:
 ### C. Layering e Centratura Modali di Conferma (`ResortDashboard.tsx` & `StandardRatesProtectionSection.tsx`)
 * I modali di conferma modalità produzione (`showCascadeProdModal`, `showMinStayProdModal`, `showProdModal`) sono stati spostati al livello root del componente con `fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-4`, garantendo perfetta centratura a schermo intero e priorità di rendering assoluta sopra tutti gli elementi grafici.
 
+### D. Mappatura Unità Collegate Master / Sub-Units (`linkedKeys`)
+* **Problema Risolto**: Quando una sotto-unità (es. *Jungle Villa Left* `#495795` o *Right* `#495796`) riceve una prenotazione, Octorate blocca automaticamente l'intera villa Master (*Jungle Villa* `#529773`), ma la prenotazione nel database Octorate appartiene unicamente alla sotto-unità. Senza collegamento, la Master non riconosceva le occupazioni delle sotto-unità e viceversa.
+* **Correzione Applicata**: In [`octorateAdmin.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/lib/octorateAdmin.ts) e [`octorate-webhook.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_handlers/octorate-webhook.ts), `ALL_ACCOMMODATIONS_MAP` integra la proprietà `linkedKeys`. Prima del calcolo degli intervalli e dei gap, le prenotazioni dell'alloggio vengono unite a quelle delle unità collegate, garantendo che i buchi (es. 13-16 Gennaio su Jungle Villa Master) vengano calcolati con precisione millimetrica su disponibilità reali.
+
+### E. Master Switch Soggiorno Minimo Dinamico con Segnalazione Verde Lampeggiante & Protezione a Doppio Click
+* **Banner di Stato Reattivo**:
+  * **Stato Attivo (`🟢 FUNZIONALITÀ ATTIVA`)**: Banner in evidenza con cerchio verde smeraldo animato a impulsi (`animate-ping` + `animate-pulse`), badge `LIVE PMS` e pallino verde lampeggiante visibile anche sulla linguetta `📏 SOGGIORNO MINIMO`.
+  * **Disattivazione di Sicurezza a Doppio Click**:
+    * 1° Click: Il pulsante si arma in rosso vivo lampeggiante (`⚠️ CONFERMI DISATTIVAZIONE? CLICCA DI NUOVO`) con auto-disarmo automatico dopo 4 secondi.
+    * 2° Click: Disattiva la funzionalità e invia automaticamente a Octorate il ripristino delle baseline stagionali standard (2, 5 e 3 notti), tornando alla normale gestione manuale del calendario.
+  * **Riattivazione Rapida**: Pulsante `[ ⚡ ATTIVA SOGGIORNO MINIMO DINAMICO ]` che riaccende il calcolo e la sincronizzazione 24/7 con un singolo click.
+
+### F. Persistenza di Stato Locale (`localStorage`) con Default Attivo in Produzione
+* In [`useResortAdminStore.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts), `isDynamicCalculationEnabled` e `dynamicMinStayExecutionMode` sono persistiti in `localStorage` (`fp_dynamic_min_stay_enabled` e `fp_dynamic_min_stay_mode`) con default `true` / `production`, evitando che il ricaricamento del browser (`F5`) azzeri lo stato a spento.
+
+
 
 
