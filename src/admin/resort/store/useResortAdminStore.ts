@@ -275,17 +275,27 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     }
   },
 
-  isDynamicCalculationEnabled: false,
-  setIsDynamicCalculationEnabled: (enabled: boolean) => set({ isDynamicCalculationEnabled: enabled }),
+  isDynamicCalculationEnabled: typeof window !== 'undefined' ? (localStorage.getItem('fp_dynamic_min_stay_enabled') !== 'false') : true,
+  setIsDynamicCalculationEnabled: (enabled: boolean) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fp_dynamic_min_stay_enabled', String(enabled));
+    }
+    set({ isDynamicCalculationEnabled: enabled, dynamicMinStayGapFill: enabled });
+  },
 
-  dynamicMinStayGapFill: false,
-  dynamicMinStayExecutionMode: 'simulation',
+  dynamicMinStayGapFill: typeof window !== 'undefined' ? (localStorage.getItem('fp_dynamic_min_stay_enabled') !== 'false') : true,
+  dynamicMinStayExecutionMode: typeof window !== 'undefined' ? ((localStorage.getItem('fp_dynamic_min_stay_mode') as DiscountExecutionMode) || 'production') : 'production',
   dynamicMinStayRunning: false,
   dynamicMinStayResetRunning: false,
   dynamicMinStayUpdates: [],
   dynamicMinStayResult: null,
   setDynamicMinStayGapFill: (enabled: boolean) => set({ dynamicMinStayGapFill: enabled }),
-  setDynamicMinStayExecutionMode: (mode: DiscountExecutionMode) => set({ dynamicMinStayExecutionMode: mode, dynamicMinStayGapFill: mode !== 'simulation' }),
+  setDynamicMinStayExecutionMode: (mode: DiscountExecutionMode) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fp_dynamic_min_stay_mode', mode);
+    }
+    set({ dynamicMinStayExecutionMode: mode, dynamicMinStayGapFill: mode !== 'simulation' });
+  },
 
   // 3 Sequential Cascade Discount Stages Defaults
   lastMinuteStage1Days: 3,
@@ -612,9 +622,13 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       }
 
       const resJson = await apiRes.json();
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('fp_dynamic_min_stay_enabled', resetToBaseline ? 'false' : 'true');
+      }
       set({
         dynamicMinStayUpdates: resetToBaseline ? [] : annotatedUpdates,
         isDynamicCalculationEnabled: resetToBaseline ? false : true,
+        dynamicMinStayGapFill: resetToBaseline ? false : true,
         dynamicMinStayResult: {
           success: resJson.success,
           dryRun: resJson.dryRun ?? isDryRun,
