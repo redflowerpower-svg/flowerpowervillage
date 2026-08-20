@@ -1,0 +1,12 @@
+{
+  "startedAt": "2026-08-18T16:29:28.173Z",
+  "steps": {
+    "dbInspection": {
+      "octorate_bookings": "Error/Missing: Could not find the table 'public.octorate_bookings' in the schema cache",
+      "room_restrictions": "Error/Missing: Could not find the table 'public.room_restrictions' in the schema cache"
+    }
+  },
+  "anomalies": [],
+  "conclusions": [],
+  "error": "Cannot read properties of undefined (reading '2027-10-19')"
+}

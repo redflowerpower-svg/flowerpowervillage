@@ -332,7 +332,10 @@ export function calculateDynamicMinStay(
     return updates;
   }
 
-  const activeBookings = (bookingsInput || []).filter(b => b.status !== 'cancelled' && b.status !== 'canceled');
+  const activeBookings = (bookingsInput || []).filter(b => {
+    const st = String(b.status || '').toUpperCase().trim();
+    return st !== 'CANCELLED' && st !== 'CANCELED' && st !== 'DELETED' && st !== 'VOID' && st !== 'REJECTED' && !(b as any).cancelled && !(b as any).isCancelled;
+  });
 
   // Mappatura prenotazioni per alloggio CANONICO (utilizzando l'Albero Octorate 212 Prodotti)
   const roomBookingsMap: Record<string, { motherId: number; name: string; list: Array<{ in: string; out: string }> }> = {};

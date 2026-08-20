@@ -4,6 +4,15 @@
 
 ---
 
+# Autonomous Execution & Research Protocol (`/goal`, `AUTOPILOT`, `In autonomia`)
+Quando l'utente attiva una richiesta usando il comando `/goal`, la parola chiave `AUTOPILOT` o il prefisso `In autonomia:`:
+1. **DIVIETO ASSOLUTO DI PLANNING BLOCK**: L'agente NON deve MAI creare file di piano con `RequestFeedback: true`. È severamente vietato far comparire nella UI dell'IDE i pulsanti "Proceed" o "Submit".
+2. **DIVIETO ASSOLUTO DI STRUMENTI INTERATTIVI**: L'agente NON deve MAI usare il tool `ask_question` né generare modali di conferma.
+3. **ESECUZIONE DIRETTA CONTINUA**: L'agente deve procedere immediatamente con l'esecuzione reale (lettura/modifica codice, esecuzione script da terminale, diagnostica e correzioni), iterando autonomamente fino al raggiungimento dell'obiettivo.
+4. **REPORT FINALE COMPATTO**: Solo a obiettivo raggiunto, produrre il resoconto finale chiaro e sintetico.
+
+---
+
 # ⚠️ NUOVA REGOLA D'ORO API OCTORATE
 
 1. **PREZZI**: Le variazioni di prezzo devono colpire sempre e solo l'ID della Tariffa Madre (Livello 0). Octorate calcola lo sconto automaticamente a cascata su tutte le tariffe derivate.

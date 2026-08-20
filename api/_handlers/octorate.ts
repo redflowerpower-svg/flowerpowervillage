@@ -365,7 +365,7 @@ export async function handleOctorateBookings(req: VercelRequest, res: VercelResp
             guests: Number(r.totalGuest || r.pax || r.guestsCount || 2),
             total_price: Number(r.roomGross || r.totalGross || r.totalAmount || 0),
             deposit_paid: Number(r.deposit || 0),
-            status: String(r.status || '').toUpperCase() === 'CANCELLED' ? 'cancelled' : 'confirmed',
+            status: (['CANCELLED', 'CANCELED', 'DELETED', 'VOID', 'REJECTED'].includes(String(r.status || '').toUpperCase().trim()) || Boolean(r.cancelled || r.isCancelled)) ? 'cancelled' : 'confirmed',
             source_channel: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com',
             channelName: r.channelName || r.ota || r.source_channel || r.channel || 'Booking.com'
           };
