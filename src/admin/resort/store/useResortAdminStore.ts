@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { updateLastMinuteRatesStrategy, resetLastMinuteRatesStrategy, disableLastMinuteRatesStrategy, updateStandardProtectionStrategy, fetchOctorateLiveReservations } from '../../../booking/lib/octorate';
-import { calculateDynamicMinStay, calculateStandardProtectionUpdates, StandardProtectionUpdate, toThailandDateStr, getSeasonalEndDateStr, DiscountExecutionMode, ALL_ACCOMMODATIONS_MAP } from '../lib/octorateAdmin';
+import { calculateCascadeDiscountUpdates, calculateDynamicMinStay, calculateStandardProtectionUpdates, StandardProtectionUpdate, toThailandDateStr, getSeasonalEndDateStr, DiscountExecutionMode, ALL_ACCOMMODATIONS_MAP, FALLBACK_BASELINE_PRICES } from '../lib/octorateAdmin';
 import { isValidActiveBooking } from '../lib/bookingFilters';
 import { useRestrictionsStore } from './useRestrictionsStore';
 
@@ -137,6 +137,8 @@ interface ResortAdminState {
   downloadSeasonSequential: () => Promise<void>;
 
   // Last-Minute Cascade Discount Automation State (3 Stadi Sequenziali + Test Toggle + Dry-Run Simulation)
+  isLastMinuteActive: boolean;
+  setIsLastMinuteActive: (active: boolean) => void;
   lastMinuteStage1Days: number;
   lastMinuteDiscountStage1: number;
   lastMinuteStage2Days: number;
@@ -148,6 +150,8 @@ interface ResortAdminState {
   isSimulationActive: boolean;
   simulatedOctorateGridItems: any[];
   lastMinuteRunning: boolean;
+  lastMinuteExecuting: boolean;
+  lastMinuteResetting: boolean;
   lastMinuteResult: { success: boolean; message: string; dateUpdated: string; details?: any } | null;
 
   // Actions
@@ -298,18 +302,44 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   },
 
   // 3 Sequential Cascade Discount Stages Defaults
+  isLastMinuteActive: false,
+  setIsLastMinuteActive: (active: boolean) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_last_minute_active', String(active));
+    set({ isLastMinuteActive: active });
+  },
   lastMinuteStage1Days: 3,
   lastMinuteDiscountStage1: 10,
-  lastMinuteStage2Days: 3,
+  lastMinuteStage2Days: 2,
   lastMinuteDiscountStage2: 5,
-  lastMinuteStage3Days: 4,
+  lastMinuteStage3Days: 2,
   lastMinuteDiscountStage3: 2.5,
-  executionMode: 'simulation',
+  executionMode: typeof window !== 'undefined' ? ((localStorage.getItem('fp_last_minute_execution_mode') as DiscountExecutionMode) || 'simulation') : 'simulation',
   isTestEnvironment: false,
   isSimulationActive: false,
   simulatedOctorateGridItems: [],
   lastMinuteRunning: false,
+  lastMinuteExecuting: false,
+  lastMinuteResetting: false,
   lastMinuteResult: null,
+
+  setLastMinuteStage1Days: (days: number) => set({ lastMinuteStage1Days: days }),
+  setLastMinuteDiscountStage1: (pct: number) => set({ lastMinuteDiscountStage1: pct }),
+  setLastMinuteStage2Days: (days: number) => set({ lastMinuteStage2Days: days }),
+  setLastMinuteDiscountStage2: (pct: number) => set({ lastMinuteDiscountStage2: pct }),
+  setLastMinuteStage3Days: (days: number) => set({ lastMinuteStage3Days: days }),
+  setLastMinuteDiscountStage3: (pct: number) => set({ lastMinuteDiscountStage3: pct }),
+  setExecutionMode: (mode: DiscountExecutionMode) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_last_minute_execution_mode', mode);
+    set({
+      executionMode: mode,
+      isTestEnvironment: mode === 'test_bungalows',
+      isSimulationActive: mode === 'simulation' ? get().isSimulationActive : false
+    });
+  },
+  setIsTestEnvironment: (enabled: boolean) => set({ isTestEnvironment: enabled, executionMode: enabled ? 'test_bungalows' : 'production' }),
+  setIsSimulationActive: (active: boolean) => set({ isSimulationActive: active }),
+  setSimulatedOctorateGridItems: (items: any[]) => set({ simulatedOctorateGridItems: items }),
+  resetSimulation: () => set({ isSimulationActive: false, simulatedOctorateGridItems: [] }),
 
   seasonDownloadStatus: 'idle',
   seasonDownloadProgress: 0,
@@ -749,9 +779,9 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
 
   setLastMinuteStage1Days: (days: number) => set({ lastMinuteStage1Days: Math.max(1, isNaN(days) ? 3 : days) }),
   setLastMinuteDiscountStage1: (pct: number) => set({ lastMinuteDiscountStage1: Math.max(0, Math.min(80, isNaN(pct) ? 10 : pct)) }),
-  setLastMinuteStage2Days: (days: number) => set({ lastMinuteStage2Days: Math.max(1, isNaN(days) ? 3 : days) }),
+  setLastMinuteStage2Days: (days: number) => set({ lastMinuteStage2Days: Math.max(1, isNaN(days) ? 2 : days) }),
   setLastMinuteDiscountStage2: (pct: number) => set({ lastMinuteDiscountStage2: Math.max(0, Math.min(80, isNaN(pct) ? 5 : pct)) }),
-  setLastMinuteStage3Days: (days: number) => set({ lastMinuteStage3Days: Math.max(1, isNaN(days) ? 4 : days) }),
+  setLastMinuteStage3Days: (days: number) => set({ lastMinuteStage3Days: Math.max(1, isNaN(days) ? 2 : days) }),
   setLastMinuteDiscountStage3: (pct: number) => set({ lastMinuteDiscountStage3: Math.max(0, Math.min(80, isNaN(pct) ? 2.5 : pct)) }),
   setExecutionMode: (mode: DiscountExecutionMode) => set({ executionMode: mode, isTestEnvironment: mode === 'test_bungalows', dynamicMinStayGapFill: mode !== 'simulation' }),
   setIsTestEnvironment: (enabled: boolean) => set({ isTestEnvironment: enabled, executionMode: enabled ? 'test_bungalows' : 'production', dynamicMinStayGapFill: true }),
@@ -761,7 +791,7 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   resetSimulation: () => set({ isSimulationActive: false, simulatedOctorateGridItems: [] }),
 
   executeLastMinuteStrategy: async () => {
-    set({ lastMinuteRunning: true });
+    set({ lastMinuteRunning: true, lastMinuteExecuting: true });
     try {
       const {
         lastMinuteStage1Days,
@@ -774,124 +804,48 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
         octorateDetails
       } = get();
 
+      const totalDays = lastMinuteStage1Days + lastMinuteStage2Days + lastMinuteStage3Days;
+      const updates = calculateCascadeDiscountUpdates({
+        stage1Days: lastMinuteStage1Days,
+        stage1Discount: lastMinuteDiscountStage1,
+        stage2Days: lastMinuteStage2Days,
+        stage2Discount: lastMinuteDiscountStage2,
+        stage3Days: lastMinuteStage3Days,
+        stage3Discount: lastMinuteDiscountStage3,
+        executionMode: executionMode,
+        rawGridItems: get().rawOctorateGridItems
+      });
+
+      const simulatedItems = updates.map((u) => ({
+        id: String(u.motherRateId),
+        ratePlanId: String(u.motherRateId),
+        motherRateId: String(u.motherRateId),
+        accommodationName: u.accommodationName,
+        dateStr: u.dateStr,
+        basePrice: u.basePrice,
+        originalPrice: u.basePrice,
+        price: u.finalPrice,
+        finalPrice: u.finalPrice,
+        discountPercentage: u.discountPercentage,
+        stage: u.stage,
+        isSimulated: executionMode === 'simulation',
+        isSimulatedDiscount: true,
+        reason: u.reason,
+        days: [{ date: u.dateStr, price: u.finalPrice, minStay: 2 }]
+      }));
+
       if (executionMode === 'simulation') {
-        // ─── CALCOLO DRY-RUN DIRETTAMENTE NELLO STORE ───────────────────────────
-        // Usa rawOctorateGridItems (struttura esatta API: [{id, name, days:[{date,price}]}])
-        // per leggere il PREZZO REALE giornaliero della Tariffa Madre di ogni alloggio.
-
-        const rawGrid: any[] = get().rawOctorateGridItems || [];
-
-        // ─── DEBUG: logga i primi 3 item per capire la struttura reale ───────────
-        if (rawGrid.length > 0) {
-          console.log('[DryRun] rawOctorateGridItems[0]:', JSON.stringify(rawGrid[0]).substring(0, 300));
-          console.log('[DryRun] rawOctorateGridItems totale items:', rawGrid.length);
-        }
-
-        // Costruisce un indice rapido: motherRateId (stringa) → { dateStr → realPrice }
-        // PRIORITÀ: 1° match esatto sull'ID madre, 2° primo match nei derivati come fallback
-        const motherPriceIndex: Record<string, Record<string, number>> = {};
-        Object.values(ALL_ACCOMMODATIONS_MAP_LOCAL).forEach((entry) => {
-          const motherIdStr = String(entry.motherId);
-
-          // 1. Cerca PRIMA un item con ID uguale esattamente all'ID della tariffa madre (Livello 0)
-          let gridItem = rawGrid.find((g: any) => {
-            const gId = String(g.id || g.ratePlanId || g.rate_id || '');
-            return gId === motherIdStr;
-          });
-
-          // 2. Se non trovato (la madre non è nel download), usa qualsiasi ID dell'alloggio
-          //    ma ESCLUDI i derivati noti (BE) per evitare di prendere prezzi con markup
-          if (!gridItem) {
-            gridItem = rawGrid.find((g: any) => {
-              const gId = String(g.id || g.ratePlanId || g.rate_id || '');
-              return entry.ids.includes(gId);
-            });
-          }
-
-          if (gridItem && Array.isArray(gridItem.days)) {
-            if (!motherPriceIndex[motherIdStr]) motherPriceIndex[motherIdStr] = {};
-            gridItem.days.forEach((day: any) => {
-              const d = String(day.date || day.dateStr || '').substring(0, 10);
-              const p = Number(day.price || day.value || day.amount || 0);
-              if (d && p > 0 && p < 10000) {
-                motherPriceIndex[motherIdStr][d] = p;
-              }
-            });
-            console.log(`[DryRun] ${entry.name} (${motherIdStr}): trovato item ID=${gridItem.id}, prezzi caricati per ${Object.keys(motherPriceIndex[motherIdStr] || {}).length} date`);
-          } else {
-            console.warn(`[DryRun] ${entry.name} (${motherIdStr}): NESSUN item trovato in rawGrid o item.days assente`);
-          }
-        });
-
-        // La nuova stagione gestita dalla dashboard parte dal 1° Novembre 2026 (la coda precedente fino al 31 Ottobre rimane gestita a mano da Octorate)
-        const realTodayStr = new Date().toISOString().substring(0, 10);
-        const seasonStartStr = '2026-11-01';
-        const startStr = realTodayStr >= seasonStartStr ? realTodayStr : seasonStartStr;
-        const startTime = new Date(startStr + 'T00:00:00Z').getTime();
-
-        const s1Days = lastMinuteStage1Days;
-        const s2Days = lastMinuteStage2Days;
-        const s3Days = lastMinuteStage3Days;
-        const totalDays = s1Days + s2Days + s3Days;
-
-        const simulatedItems: any[] = [];
-
-        Object.values(ALL_ACCOMMODATIONS_MAP_LOCAL).forEach((entry) => {
-          const motherIdStr = String(entry.motherId);
-          const pricesForRoom = motherPriceIndex[motherIdStr] || {};
-
-          for (let offset = 0; offset < totalDays; offset++) {
-            const targetDate = new Date(startTime + offset * 86400000);
-            const dateStr = targetDate.toISOString().substring(0, 10);
-
-            // Prezzo reale madre per quella specifica data
-            let realPrice = pricesForRoom[dateStr];
-            if (!realPrice || realPrice <= 0) {
-              const validPrices = Object.values(pricesForRoom).filter(p => p > 0 && p < 10000);
-              if (validPrices.length > 0) {
-                realPrice = validPrices[0];
-              }
-            }
-            if (!realPrice || realPrice <= 0) continue; // Skip se la data non ha prezzo reale
-
-            let discountPct = lastMinuteDiscountStage1;
-            let stage = 1;
-            if (offset >= s1Days + s2Days) { stage = 3; discountPct = lastMinuteDiscountStage3; }
-            else if (offset >= s1Days)     { stage = 2; discountPct = lastMinuteDiscountStage2; }
-
-            // Formula tassativa: Math.round(prezzoReale - (prezzoReale * percentuale / 100))
-            const discountedPrice = Math.round(realPrice - (realPrice * discountPct / 100));
-
-            simulatedItems.push({
-              id: motherIdStr,
-              ratePlanId: motherIdStr,
-              motherRateId: motherIdStr,
-              accommodationName: entry.name,
-              dateStr,
-              basePrice: realPrice,
-              price: discountedPrice,
-              finalPrice: discountedPrice,
-              discountPercentage: discountPct,
-              stage,
-              isSimulated: true,
-              isSimulatedDiscount: true,
-              reason: `Stadio ${stage} (-${discountPct}%): ${dateStr} | Reale: ${realPrice}฿ → Scontato: ${discountedPrice}฿`,
-              days: [{ date: dateStr, price: discountedPrice, minStay: 2 }]
-            });
-          }
-        });
-
-        const deepClonedSimulatedGrid = JSON.parse(JSON.stringify(simulatedItems));
-
         set({
           isSimulationActive: true,
-          simulatedOctorateGridItems: deepClonedSimulatedGrid,
+          simulatedOctorateGridItems: simulatedItems,
           lastMinuteResult: {
             success: true,
-            mode: 'simulation',
+            message: `🟡 SIMULAZIONE DRY-RUN ATTIVA: Calcolati ${simulatedItems.length} sconti a cascata su Tariffe Madri per i prossimi ${totalDays} giorni (Stadio 1: ${lastMinuteStage1Days}gg @ -${lastMinuteDiscountStage1}%, Stadio 2: ${lastMinuteStage2Days}gg @ -${lastMinuteDiscountStage2}%, Stadio 3: ${lastMinuteStage3Days}gg @ -${lastMinuteDiscountStage3}%). Anteprima visibile nel calendario.`,
+            dateUpdated: new Date().toISOString(),
             details: { updates: simulatedItems, totalUpdates: simulatedItems.length }
           },
-          lastMinuteRunning: false
+          lastMinuteRunning: false,
+          lastMinuteExecuting: false
         });
         return;
       }
@@ -908,7 +862,19 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
         get().isTestEnvironment,
         get().rawOctorateGridItems
       );
-      set({ lastMinuteResult: res, lastMinuteRunning: false });
+      if (res.success) {
+        if (typeof window !== 'undefined') localStorage.setItem('fp_last_minute_active', 'true');
+        set({ 
+          lastMinuteResult: res, 
+          lastMinuteRunning: false, 
+          lastMinuteExecuting: false, 
+          isLastMinuteActive: true,
+          isSimulationActive: true,
+          simulatedOctorateGridItems: simulatedItems
+        });
+      } else {
+        set({ lastMinuteResult: res, lastMinuteRunning: false, lastMinuteExecuting: false });
+      }
     } catch (err: any) {
       console.error('[useResortAdminStore] Last-Minute Strategy Error:', err);
       set({
@@ -917,13 +883,14 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
           message: err.message || 'Errore durante l\'esecuzione dell\'automazione tariffe.',
           dateUpdated: new Date().toISOString()
         },
-        lastMinuteRunning: false
+        lastMinuteRunning: false,
+        lastMinuteExecuting: false
       });
     }
   },
 
   resetLastMinuteStrategy: async () => {
-    set({ lastMinuteRunning: true });
+    set({ lastMinuteRunning: true, lastMinuteResetting: true });
     try {
       const {
         lastMinuteStage1Days,
@@ -942,7 +909,8 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
             message: '🟡 SIMULAZIONE RESET: Anteprima disattivata. Prezzi riportati ai valori reali di partenza.',
             dateUpdated: new Date().toISOString()
           },
-          lastMinuteRunning: false
+          lastMinuteRunning: false,
+          lastMinuteResetting: false
         });
         return;
       }
@@ -952,9 +920,23 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
         lastMinuteStage1Days,
         lastMinuteStage2Days,
         lastMinuteStage3Days,
-        executionMode
+        executionMode,
+        get().isTestEnvironment,
+        get().rawOctorateGridItems
       );
-      set({ lastMinuteResult: res, lastMinuteRunning: false });
+      if (res.success) {
+        if (typeof window !== 'undefined') localStorage.setItem('fp_last_minute_active', 'false');
+        set({ 
+          lastMinuteResult: res, 
+          lastMinuteRunning: false, 
+          lastMinuteResetting: false, 
+          isLastMinuteActive: false,
+          isSimulationActive: false,
+          simulatedOctorateGridItems: []
+        });
+      } else {
+        set({ lastMinuteResult: res, lastMinuteRunning: false, lastMinuteResetting: false });
+      }
     } catch (err: any) {
       console.error('[useResortAdminStore] Reset Last-Minute Strategy Error:', err);
       set({
@@ -963,19 +945,34 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
           message: err.message || 'Errore durante il ripristino dei prezzi originali.',
           dateUpdated: new Date().toISOString()
         },
-        lastMinuteRunning: false
+        lastMinuteRunning: false,
+        lastMinuteResetting: false
       });
     }
   },
 
   disableLastMinuteStrategy: async () => {
-    set({ lastMinuteRunning: true });
+    set({ lastMinuteRunning: true, lastMinuteResetting: true });
     try {
-      const { octorateDetails } = get();
-      const res = await disableLastMinuteRatesStrategy(
-        octorateDetails?.structureId || '366879'
+      const {
+        lastMinuteStage1Days,
+        lastMinuteStage2Days,
+        lastMinuteStage3Days,
+        executionMode,
+        octorateDetails
+      } = get();
+
+      const res = await resetLastMinuteRatesStrategy(
+        octorateDetails?.structureId || '366879',
+        lastMinuteStage1Days,
+        lastMinuteStage2Days,
+        lastMinuteStage3Days,
+        executionMode,
+        get().isTestEnvironment,
+        get().rawOctorateGridItems
       );
-      set({ lastMinuteResult: res, lastMinuteRunning: false });
+      if (typeof window !== 'undefined') localStorage.setItem('fp_last_minute_active', 'false');
+      set({ lastMinuteResult: res, lastMinuteRunning: false, lastMinuteResetting: false, isLastMinuteActive: false, isSimulationActive: false, simulatedOctorateGridItems: [] });
     } catch (err: any) {
       console.error('[useResortAdminStore] Disable Last-Minute Strategy Error:', err);
       set({
@@ -984,7 +981,8 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
           message: err.message || 'Errore durante la disabilitazione dell\'automazione tariffe.',
           dateUpdated: new Date().toISOString()
         },
-        lastMinuteRunning: false
+        lastMinuteRunning: false,
+        lastMinuteResetting: false
       });
     }
   },

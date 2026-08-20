@@ -126,7 +126,7 @@ export const PromoCodesSection: React.FC<PromoCodesSectionProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase group-hover:text-fuchsia-300 transition-colors">
-              🎟️ CODICI PROMOZIONALI & TICKET
+              CODICI PROMOZIONALI & TICKET
             </h3>
             <p className="text-stone-400 text-[11px] font-medium">
               Gestione sconti personalizzati, ticket monouso/multipli e tracciamento avanzato degli utilizzi.

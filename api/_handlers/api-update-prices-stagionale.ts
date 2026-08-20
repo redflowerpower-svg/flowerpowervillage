@@ -62,10 +62,15 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
   }
 
   try {
-    const { periodUpdates, testMode, testOnly } = req.body || {};
+    let body = req.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch {}
+    }
+    const { periodUpdates, testMode, testOnly, updates } = body || {};
     const isTest = testMode === true || testOnly === true;
+    const updatesList = (Array.isArray(periodUpdates) && periodUpdates.length > 0) ? periodUpdates : (Array.isArray(updates) ? updates : []);
 
-    if (!periodUpdates || !Array.isArray(periodUpdates) || periodUpdates.length === 0) {
+    if (!updatesList || !Array.isArray(updatesList) || updatesList.length === 0) {
       return res.status(400).json({ error: 'Nessun aggiornamento fornito nel payload' });
     }
 
@@ -74,10 +79,10 @@ export async function handleUpdatePricesStagionale(req: VercelRequest, res: Verc
     }
 
     // SCUDO DI PROTEZIONE: In modalità test, filtra tassativamente SOLO i Fake Bungalow (649669 e 921799)
-    let filteredUpdates = periodUpdates;
+    let filteredUpdates = updatesList;
     if (isTest) {
-      filteredUpdates = periodUpdates.filter((item: any) => 
-        FAKE_BUNGALOW_MOTHER_IDS.includes(Number(item.roomMotherId || item.room))
+      filteredUpdates = updatesList.filter((item: any) => 
+        FAKE_BUNGALOW_MOTHER_IDS.includes(Number(item.roomMotherId || item.room || item.motherRateId))
       );
 
       if (filteredUpdates.length === 0) {

@@ -526,14 +526,40 @@ export interface CascadeDiscountUpdate {
 export interface CascadeDiscountOptions {
   stage1Days?: number;        // default 3 (offset 0, 1, 2)
   stage1Discount?: number;    // default 10%
-  stage2Days?: number;        // default 5 (offset 3, 4, 5)
+  stage2Days?: number;        // default 2 (offset 3, 4)
   stage2Discount?: number;    // default 5%
-  stage3Days?: number;        // default 2 (offset 6, 7, 8, 9)
-  stage3Discount?: number;    // default 2%
+  stage3Days?: number;        // default 2 (offset 5, 6)
+  stage3Discount?: number;    // default 2.5%
   executionMode?: DiscountExecutionMode; // 'simulation' | 'test_bungalows' | 'production'
   isTestEnvironment?: boolean; // legacy fallback
   rawGridItems?: any[];
 }
+
+export const FALLBACK_BASELINE_PRICES: Record<string, number> = {
+  'jungle villa': 2290,
+  'jungle villa left': 1290,
+  'jungle villa right': 1290,
+  'peace & love villa': 1298,
+  'villa penthouse': 1298,
+  'penthouse villa': 1298,
+  'yellow bungalow': 990,
+  'red bungalow': 790,
+  'green bungalow': 798,
+  'camel tent': 430,
+  'camel tent bungalow': 430,
+  'lagoon tent': 430,
+  'lagoon tent bungalow': 430,
+  'internal room': 430,
+  'room 1': 10000,
+  'room 2': 10000,
+  'room 3': 10000,
+  'room 4': 10000,
+  'room 5': 10000,
+  'lodge 1': 10000,
+  'lodge 2': 10000,
+  'fake bungalow 1': 1000,
+  'fake bungalow 2': 1000
+};
 
 export function getTargetAccommodationsForMode(mode: DiscountExecutionMode) {
   const targetAccommodations: Array<{ motherId: number; name: string; basePrice: number; minSellingPrice: number }> = [];
@@ -541,26 +567,26 @@ export function getTargetAccommodationsForMode(mode: DiscountExecutionMode) {
   if (mode === 'production' || mode === 'simulation') {
     // Simulazione Dry-Run oppure Produzione: TUTTE le Tariffe Madri reali (Livello 0) di tutti gli alloggi del villaggio
     Object.values(ALL_ACCOMMODATIONS_MAP).forEach((canonical) => {
-      const configRoom = ACCOMMODATIONS.find(a => a.name.toLowerCase() === canonical.name.toLowerCase() || String(a.octorateId) === String(canonical.motherId));
-      const realBasePrice = configRoom?.pricePerNight || 1800;
+      const canonicalKey = canonical.name.toLowerCase();
+      const fallbackPrice = FALLBACK_BASELINE_PRICES[canonicalKey] || (ACCOMMODATIONS.find(a => a.name.toLowerCase() === canonicalKey)?.pricePerNight) || 1800;
 
       targetAccommodations.push({
         motherId: canonical.motherId,
         name: canonical.name,
-        basePrice: realBasePrice,
-        minSellingPrice: 600
+        basePrice: fallbackPrice,
+        minSellingPrice: 0
       });
     });
     // Includiamo anche i Fake Bungalows di Test
     targetAccommodations.push(
-      { motherId: 649669, name: 'Fake Bungalow 1', basePrice: 1200, minSellingPrice: 600 },
-      { motherId: 921799, name: 'Fake Bungalow 2', basePrice: 1200, minSellingPrice: 600 }
+      { motherId: 649669, name: 'Fake Bungalow 1', basePrice: 1000, minSellingPrice: 0 },
+      { motherId: 921799, name: 'Fake Bungalow 2', basePrice: 1000, minSellingPrice: 0 }
     );
   } else {
     // Modalità 'test_bungalows' (Invio API in Ambiente di Test): SOLO Fake Bungalow 1 (649669) e Fake Bungalow 2 (921799)
     targetAccommodations.push(
-      { motherId: 649669, name: 'Fake Bungalow 1', basePrice: 1200, minSellingPrice: 600 },
-      { motherId: 921799, name: 'Fake Bungalow 2', basePrice: 1200, minSellingPrice: 600 }
+      { motherId: 649669, name: 'Fake Bungalow 1', basePrice: 1000, minSellingPrice: 0 },
+      { motherId: 921799, name: 'Fake Bungalow 2', basePrice: 1000, minSellingPrice: 0 }
     );
   }
 
@@ -580,10 +606,10 @@ export function calculateCascadeDiscountUpdates(options?: CascadeDiscountOptions
 
   const s1Days = Math.max(1, options?.stage1Days ?? 3);
   const s1Discount = Math.max(0, Math.min(80, options?.stage1Discount ?? 10));
-  const s2Days = Math.max(1, options?.stage2Days ?? 3);
+  const s2Days = Math.max(1, options?.stage2Days ?? 2);
   const s2Discount = Math.max(0, Math.min(80, options?.stage2Discount ?? 5));
-  const s3Days = Math.max(1, options?.stage3Days ?? 4);
-  const s3Discount = Math.max(0, Math.min(80, options?.stage3Discount ?? 2));
+  const s3Days = Math.max(1, options?.stage3Days ?? 2);
+  const s3Discount = Math.max(0, Math.min(80, options?.stage3Discount ?? 2.5));
 
   const mode: DiscountExecutionMode = options?.executionMode || (options?.isTestEnvironment === false ? 'production' : 'test_bungalows');
   const totalDays = s1Days + s2Days + s3Days;
@@ -616,14 +642,22 @@ export function calculateCascadeDiscountUpdates(options?: CascadeDiscountOptions
         discountPct = s3Discount;
       }
 
-      // Estraiamo il VERO prezzo base della madre direttamente dall'oggetto giornaliero Octorate della cella
+      // Estraiamo il VERO prezzo base della madre direttamente dall'oggetto giornaliero Octorate della Tariffa Madre (Livello 0)
       let dynamicCellBasePrice = room.basePrice;
       if (options?.rawGridItems && Array.isArray(options.rawGridItems)) {
-        const gridMatch = options.rawGridItems.find((g: any) =>
-          (String(g.id || g.motherRateId || g.ratePlanId || g.rate_id) === String(room.motherId) ||
-           (g.accommodationName && g.accommodationName.toLowerCase() === room.name.toLowerCase()) ||
-           (g.name && g.name.toLowerCase() === room.name.toLowerCase()))
-        );
+        // Tassativamente cerca PRIMA la Tariffa Madre esatta per ID Livello 0
+        let gridMatch = options.rawGridItems.find((g: any) => {
+          const gId = String(g.id || g.motherRateId || g.ratePlanId || g.rate_id || '');
+          return gId === String(room.motherId);
+        });
+
+        // Se non trovato per ID esatto, cerca per nome esatto della camera
+        if (!gridMatch) {
+          gridMatch = options.rawGridItems.find((g: any) => {
+            const gName = String(g.accommodationName || g.name || '').toLowerCase();
+            return gName === room.name.toLowerCase();
+          });
+        }
 
         if (gridMatch) {
           let cellDayPrice = 0;
@@ -637,16 +671,15 @@ export function calculateCascadeDiscountUpdates(options?: CascadeDiscountOptions
             cellDayPrice = Number(gridMatch.price || gridMatch.value || gridMatch.amount || gridMatch.basePrice || 0);
           }
 
-          if (cellDayPrice > 0 && cellDayPrice < 10000) {
+          if (cellDayPrice > 0) {
             dynamicCellBasePrice = cellDayPrice;
           }
         }
       }
 
-      // Formula tassativa: Math.round(prezzoOriginale - (prezzoOriginale * percentualeSconto / 100))
       const discountAmount = (dynamicCellBasePrice * discountPct) / 100;
       const rawDiscounted = Math.round(dynamicCellBasePrice - discountAmount);
-      const finalPrice = Math.max(rawDiscounted, room.minSellingPrice);
+      const finalPrice = rawDiscounted;
 
       updates.push({
         motherRateId: room.motherId, // DIRETTIVA OCTORATE: RIGOROSAMENTE LIVELLO 0
@@ -657,7 +690,7 @@ export function calculateCascadeDiscountUpdates(options?: CascadeDiscountOptions
         basePrice: dynamicCellBasePrice,
         discountPercentage: discountPct,
         discountedPrice: rawDiscounted,
-        minimumSellingPrice: room.minSellingPrice,
+        minimumSellingPrice: 0,
         finalPrice,
         reason: `Stadio ${stage} (-${discountPct}%): offset ${offset}d da oggi ${todayStr} (Prezzo Reale Cella: ${dynamicCellBasePrice}฿ ➔ Scontato: ${finalPrice}฿)`
       });
@@ -667,16 +700,116 @@ export function calculateCascadeDiscountUpdates(options?: CascadeDiscountOptions
   return updates;
 }
 
+export interface PriceSnapshotItem {
+  motherId: number;
+  name: string;
+  dateStr: string;
+  price: number;
+}
+
+export const STORAGE_KEY_PRICE_SNAPSHOT = 'fpv_last_minute_price_snapshot';
+
 /**
- * Calcola il Reset dei prezzi riportandoli al 100% della tariffa base originale standard (0% sconto).
+ * Salva una fotocopia istantanea (Snapshot) dei prezzi reali di ogni camera prima di applicare gli sconti.
+ */
+export function capturePriceSnapshot(
+  targetAccommodations: Array<{ motherId: number; name: string; basePrice: number }>,
+  totalDays: number,
+  rawGridItems?: any[]
+): PriceSnapshotItem[] {
+  const snapshot: PriceSnapshotItem[] = [];
+  const todayStr = toThailandDateStr(new Date());
+  const todayParts = parseThailandDateParts(todayStr);
+  if (!todayParts) return snapshot;
+
+  const todayTime = Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day);
+
+  targetAccommodations.forEach((room) => {
+    const canonicalKey = room.name.toLowerCase();
+    const canonical = ALL_ACCOMMODATIONS_MAP[canonicalKey];
+    const canonicalIds = canonical?.ids || [];
+
+    let gridMatch: any = null;
+    if (rawGridItems && Array.isArray(rawGridItems)) {
+      gridMatch = rawGridItems.find((g: any) => {
+        const gId = String(g.id || g.motherRateId || g.ratePlanId || g.rate_id || '');
+        const gName = String(g.accommodationName || g.name || '').toLowerCase();
+        return (
+          gId === String(room.motherId) ||
+          canonicalIds.includes(gId) ||
+          gName === canonicalKey ||
+          gName.includes(canonicalKey) ||
+          canonicalKey.includes(gName)
+        );
+      });
+    }
+
+    for (let offset = 0; offset < totalDays; offset++) {
+      const targetTime = todayTime + offset * 24 * 60 * 60 * 1000;
+      const targetDate = new Date(targetTime);
+      const dateStr = toThailandDateStr(targetDate);
+
+      let realPrice = room.basePrice;
+      if (gridMatch) {
+        let cellDayPrice = 0;
+        if (Array.isArray(gridMatch.days)) {
+          const dayObj = gridMatch.days.find((d: any) => (d.date || d.dateStr) === dateStr);
+          if (dayObj) {
+            cellDayPrice = Number(dayObj.price || dayObj.value || dayObj.amount || 0);
+          }
+        }
+        if (cellDayPrice <= 0) {
+          cellDayPrice = Number(gridMatch.price || gridMatch.value || gridMatch.amount || gridMatch.basePrice || 0);
+        }
+        if (cellDayPrice > 0) {
+          realPrice = cellDayPrice;
+        }
+      }
+
+      snapshot.push({
+        motherId: room.motherId,
+        name: room.name,
+        dateStr,
+        price: realPrice
+      });
+    }
+  });
+
+  if (typeof window !== 'undefined' && snapshot.length > 0) {
+    try {
+      localStorage.setItem(STORAGE_KEY_PRICE_SNAPSHOT, JSON.stringify(snapshot));
+    } catch (e) {
+      console.warn('[capturePriceSnapshot] Failed to save snapshot to localStorage:', e);
+    }
+  }
+
+  return snapshot;
+}
+
+export function loadSavedPriceSnapshot(): PriceSnapshotItem[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PRICE_SNAPSHOT);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {
+    console.warn('[loadSavedPriceSnapshot] Failed to load snapshot:', e);
+  }
+  return [];
+}
+
+/**
+ * Calcola il Reset dei prezzi ripristinando la fotocopia originaria (Snapshot) o la tariffa base 100%.
  * - Direttiva Tassativa Octorate: Colpisce SEMPRE E SOLO l'ID della Tariffa Madre (Livello 0).
  */
-export function calculateOriginalPriceResetUpdates(options?: CascadeDiscountOptions): CascadeDiscountUpdate[] {
+export function calculateOriginalPriceResetUpdates(options?: CascadeDiscountOptions & { savedSnapshot?: PriceSnapshotItem[] }): CascadeDiscountUpdate[] {
   const updates: CascadeDiscountUpdate[] = [];
 
   const s1Days = Math.max(1, options?.stage1Days ?? 3);
-  const s2Days = Math.max(1, options?.stage2Days ?? 3);
-  const s3Days = Math.max(1, options?.stage3Days ?? 4);
+  const s2Days = Math.max(1, options?.stage2Days ?? 2);
+  const s3Days = Math.max(1, options?.stage3Days ?? 2);
   const totalDays = s1Days + s2Days + s3Days;
 
   const mode: DiscountExecutionMode = options?.executionMode || (options?.isTestEnvironment === false ? 'production' : 'test_bungalows');
@@ -687,6 +820,7 @@ export function calculateOriginalPriceResetUpdates(options?: CascadeDiscountOpti
   if (!todayParts) return updates;
 
   const todayTime = Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day);
+  const snapshot = options?.savedSnapshot && options.savedSnapshot.length > 0 ? options.savedSnapshot : loadSavedPriceSnapshot();
 
   targetAccommodations.forEach((room) => {
     for (let offset = 0; offset < totalDays; offset++) {
@@ -694,18 +828,24 @@ export function calculateOriginalPriceResetUpdates(options?: CascadeDiscountOpti
       const targetDate = new Date(targetTime);
       const dateStr = toThailandDateStr(targetDate);
 
+      // Cerca se esiste un valore esatto catturato nello snapshot pre-sconto
+      const snapItem = snapshot.find(s => s.motherId === room.motherId && s.dateStr === dateStr);
+      const resetPrice = snapItem && snapItem.price > 0 ? snapItem.price : room.basePrice;
+
       updates.push({
         motherRateId: room.motherId, // DIRETTIVA OCTORATE: RIGOROSAMENTE LIVELLO 0
         accommodationName: room.name,
         dateStr,
         offsetDays: offset,
         stage: 1,
-        basePrice: room.basePrice,
+        basePrice: resetPrice,
         discountPercentage: 0, // RESET A ZERO SCONTO (100% PREZZO BASE)
-        discountedPrice: room.basePrice,
-        minimumSellingPrice: room.minSellingPrice,
-        finalPrice: room.basePrice,
-        reason: `RESET RIPRISTINO: Prezzo base originale 100% (${room.basePrice}฿) per offset ${offset}d`
+        discountedPrice: resetPrice,
+        minimumSellingPrice: 0,
+        finalPrice: resetPrice,
+        reason: snapItem 
+          ? `ROLLBACK SNAPSHOT: Ripristinato prezzo pre-sconto (${resetPrice}฿) per ${dateStr}`
+          : `RESET RIPRISTINO: Prezzo base originale 100% (${resetPrice}฿) per offset ${offset}d`
       });
     }
   });

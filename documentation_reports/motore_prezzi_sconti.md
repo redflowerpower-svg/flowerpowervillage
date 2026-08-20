@@ -111,8 +111,8 @@ Tutte le scritture API (`POST`/`PUT`) per modificare prezzi o disponibilità su 
 | Stadio | Giorni Offset | Durata | Sconto | Colore UI |
 |--------|---------------|--------|--------|-----------|
 | Stadio 1: Imminente | 0 – 2 | 3 gg | **-10%** | 🔴 Rosso |
-| Stadio 2: Intermedio | 3 – 5 | 3 gg | **-5%** | 🟠 Arancio |
-| Stadio 3: Esteso | 6 – 9 | 4 gg | **-2.5%** | 🟡 Giallo |
+| Stadio 2: Intermedio | 3 – 4 | 2 gg | **-5%** | 🟠 Arancio |
+| Stadio 3: Esteso | 5 – 6 | 2 gg | **-2.5%** | 🟡 Giallo |
 
 ### File Coinvolti
 - `src/admin/resort/lib/octorateAdmin.ts` → `calculateCascadeDiscountUpdates()`, `getTargetAccommodationsForMode()`
@@ -247,6 +247,27 @@ executionMode:
   - Aggiorna programmaticamente tutte le regole `ruleTag` (`+400฿ AM`, `+400฿ AMR`) e le descrizioni degli schemi di derivazione su tutte le 18 camere.
   - Sincronizza i controlli automatici delle discrepanze (Sanity Check) sui prezzi live Octorate.
 
+## 11. Motore Sconti a Cascata Last Minute (3 Stadi Sequenziali) — Aggiornamento 20/08/2026
+
+### A. Regola d'Oro Octorate (Tariffe Madre Livello 0)
+- **Isolamento Livello 0**: L'algoritmo di Sconto a Cascata Last Minute agisce **esclusivamente sugli ID delle Tariffe Madri** (Livello 0) dei 18 alloggi e dei 2 Fake Bungalow di test.
+- **Cascata Automatica**: Octorate PMS ricalcola e propaga automaticamente lo sconto a tutte le 212 tariffe derivate (OTA, Booking Engine, BNB, Agoda, ecc.), preservando i ricarichi di canale senza generare discrepanze.
+
+### B. Struttura dei 3 Stadi a Finestra Mobile (Rolling Window)
+L'orizzonte mobile di 7 giorni viene calcolato dinamicamente sulla data odierna (`Asia/Bangkok`):
+1. **Stadio 1 (Lead Time 0–3 gg)**: Sconto **-10.0%** sul prezzo base originale.
+2. **Stadio 2 (Lead Time 4–5 gg)**: Sconto **-5.0%** sul prezzo base originale.
+3. **Stadio 3 (Lead Time 6–7 gg)**: Sconto **-2.5%** sul prezzo base originale.
+
+*Avanzamento Giornaliero:* Allo scoccare della mezzanotte, la finestra trasla in avanti di 1 giorno (il giorno passato esce dalla finestra e il nuovo 7° giorno entra al -2.5%).
+
+### C. Gestione Ambienti & Interfaccia Admin
+- **Dry-Run (Simulazione)**: Calcolo in memoria locale senza chiamate API. Mostra il banner di anteprima e colora le celle sul calendario.
+- **Ambiente di Test**: Invio API Octorate circoscritto ai soli Fake Bungalows (ID 649669 e 921799).
+- **Produzione Real-Time**: Invio API Bulk (`https://api.octorate.com/connect/rest/v1/calendar/bulk`) per tutte le Tariffe Madri.
+  - Al successo dell'invio in produzione, il banner arancione di simulazione scompare automaticamente.
+  - La scheda **LAST MINUTE** attiva l'indicatore verde pulsante (`animate-ping`) e il calendario evidenzia in tempo reale i prezzi scontati e i badge di stadio.
+
 ---
 
 ## 4. Gestione Tariffe Derivate & Politiche di Cancellazione (`7d` / `14d`)
@@ -269,6 +290,3 @@ Le sigle `7d` e `14d` presenti nelle tariffe derivate Octorate indicano **esclus
 10. **`AGD AC-14d`**: Agoda AC 14d (Canc. gratuita 14gg alloggi AC su Agoda)
 11. **`AirBnB`**: Airbnb Standard (Canc. termini Airbnb alloggi Standard)
 12. **`AirBnB AC`**: Airbnb AC (Canc. termini Airbnb alloggi AC)
-
-
-

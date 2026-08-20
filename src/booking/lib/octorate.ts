@@ -12,7 +12,7 @@
 // - createReservation()   -> Client-side con Bearer token
 // =============================================================================
 
-import { calculateCascadeDiscountUpdates, calculateOriginalPriceResetUpdates, calculateStandardProtectionUpdates, DiscountExecutionMode } from '../../admin/resort/lib/octorateAdmin';
+import { calculateCascadeDiscountUpdates, calculateOriginalPriceResetUpdates, calculateStandardProtectionUpdates, DiscountExecutionMode, capturePriceSnapshot, getTargetAccommodationsForMode } from '../../admin/resort/lib/octorateAdmin';
 
 // --- ENV CONFIG ---
 const OCTORATE_CLIENT_ID = import.meta.env.VITE_OCTORATE_CLIENT_ID || ""
@@ -893,11 +893,13 @@ export async function updateLastMinuteRatesStrategy(
   structureId: string = '366879',
   stage1Days: number = 3,
   stage1Discount: number = 10,
-  stage2Days: number = 3,
+  stage2Days: number = 2,
   stage2Discount: number = 5,
-  stage3Days: number = 4,
-  stage3Discount: number = 2,
-  executionMode: DiscountExecutionMode = 'test_bungalows'
+  stage3Days: number = 2,
+  stage3Discount: number = 2.5,
+  executionMode: DiscountExecutionMode = 'test_bungalows',
+  isTestEnvironment?: boolean,
+  rawGridItems?: any[]
 ): Promise<{ success: boolean; message: string; dateUpdated: string; details: any }> {
   const updates = calculateCascadeDiscountUpdates({
     stage1Days,
@@ -906,7 +908,9 @@ export async function updateLastMinuteRatesStrategy(
     stage2Discount,
     stage3Days,
     stage3Discount,
-    executionMode
+    executionMode,
+    isTestEnvironment,
+    rawGridItems
   });
 
   const payload = {
@@ -929,37 +933,56 @@ export async function updateLastMinuteRatesStrategy(
     };
   }
 
-  const tokens = await getStoredTokens();
+  // 📸 BACKUP VAULT: Fotocopia istantanea dei prezzi correnti prima di applicare gli sconti
+  const targetAccs = getTargetAccommodationsForMode(executionMode);
+  capturePriceSnapshot(targetAccs, stage1Days + stage2Days + stage3Days, rawGridItems);
 
-  if (tokens?.access_token) {
-    try {
-      const res = await fetch(`${OCTORATE_API_BASE}/calendar/update`, {
-        method: "POST",
-        headers: await getAuthHeaders(),
-        body: JSON.stringify(payload),
-      });
+  const periodUpdates = updates.map(u => ({
+    roomMotherId: Number(u.motherRateId),
+    room: Number(u.motherRateId),
+    dateFrom: u.dateStr,
+    dateTo: u.dateStr,
+    price: u.finalPrice
+  }));
 
-      if (res.ok) {
-        const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2)' : '🌐 PRODUZIONE (Tutti gli Alloggi Madri)';
-        return {
-          success: true,
-          message: `Ottimizzazione Sconti a Cascata completata in ${envLabel}: ${updates.length} aggiornamenti inviati a Octorate per le Tariffe Madri (Livello 0).`,
-          dateUpdated: new Date().toISOString(),
-          details: payload
-        };
-      }
-    } catch (err) {
-      console.warn("[Octorate] Live last-minute strategy update exception:", err);
+  try {
+    const res = await fetch('/api/update-prices-stagionale', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        periodUpdates,
+        testMode: executionMode === 'test_bungalows',
+        testOnly: executionMode === 'test_bungalows',
+        executionMode
+      })
+    });
+
+    const resJson = await res.json().catch(() => ({}));
+    if (res.ok && resJson.success) {
+      const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2 - ID 649669, 921799)' : '🌐 PRODUZIONE (Tutte le Tariffe Madri Livello 0)';
+      return {
+        success: true,
+        message: `✅ SCONTI A CASCATA SINCRONIZZATI SU OCTORATE (${envLabel}): ${resJson.updatedCount || updates.length} aggiornamenti scritti con successo sulle Tariffe Madri.`,
+        dateUpdated: new Date().toISOString(),
+        details: { ...payload, octorateResponse: resJson }
+      };
+    } else {
+      return {
+        success: false,
+        message: `❌ Errore sincronizzazione Octorate: ${resJson.error || 'Risposta non valida'}`,
+        dateUpdated: new Date().toISOString(),
+        details: { ...payload, error: resJson.error }
+      };
     }
+  } catch (err: any) {
+    console.error("[Octorate] updateLastMinuteRatesStrategy network error:", err);
+    return {
+      success: false,
+      message: `❌ Errore di rete durante invio ad Octorate: ${err.message}`,
+      dateUpdated: new Date().toISOString(),
+      details: { ...payload, error: err.message }
+    };
   }
-
-  const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2 - ID 649669, 921799)' : '🌐 PRODUZIONE (Tutte le Tariffe Madri Livello 0)';
-  return {
-    success: true,
-    message: `Sconti a Cascata calcolati (${envLabel}): Stadio 1 (${stage1Days}d @ -${stage1Discount}%), Stadio 2 (${stage2Days}d @ -${stage2Discount}%), Stadio 3 (${stage3Days}d @ -${stage3Discount}%). Totale ${updates.length} aggiornamenti a Tariffe Madri Livello 0.`,
-    dateUpdated: new Date().toISOString(),
-    details: payload
-  };
 }
 
 /**
@@ -973,15 +996,19 @@ export async function updateLastMinuteRatesStrategy(
 export async function resetLastMinuteRatesStrategy(
   structureId: string = '366879',
   stage1Days: number = 3,
-  stage2Days: number = 3,
-  stage3Days: number = 4,
-  executionMode: DiscountExecutionMode = 'test_bungalows'
+  stage2Days: number = 2,
+  stage3Days: number = 2,
+  executionMode: DiscountExecutionMode = 'test_bungalows',
+  isTestEnvironment?: boolean,
+  rawGridItems?: any[]
 ): Promise<{ success: boolean; message: string; dateUpdated: string; details: any }> {
   const updates = calculateOriginalPriceResetUpdates({
     stage1Days,
     stage2Days,
     stage3Days,
-    executionMode
+    executionMode,
+    isTestEnvironment,
+    rawGridItems
   });
 
   const payload = {
@@ -1002,37 +1029,52 @@ export async function resetLastMinuteRatesStrategy(
     };
   }
 
-  const tokens = await getStoredTokens();
+  const periodUpdates = updates.map(u => ({
+    roomMotherId: Number(u.motherRateId),
+    room: Number(u.motherRateId),
+    dateFrom: u.dateStr,
+    dateTo: u.dateStr,
+    price: u.finalPrice || u.basePrice
+  }));
 
-  if (tokens?.access_token) {
-    try {
-      const res = await fetch(`${OCTORATE_API_BASE}/calendar/update`, {
-        method: "POST",
-        headers: await getAuthHeaders(),
-        body: JSON.stringify(payload),
-      });
+  try {
+    const res = await fetch('/api/update-prices-stagionale', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        periodUpdates,
+        testMode: executionMode === 'test_bungalows',
+        testOnly: executionMode === 'test_bungalows',
+        executionMode
+      })
+    });
 
-      if (res.ok) {
-        const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2)' : '🌐 PRODUZIONE (Tutti gli Alloggi Madri)';
-        return {
-          success: true,
-          message: `🔄 RIPRISTINO PREZZI COMPLETATO in ${envLabel}: Prezzi base originali ripristinati su Octorate per ${updates.length} nodi Tariffa Madre (Livello 0).`,
-          dateUpdated: new Date().toISOString(),
-          details: payload
-        };
-      }
-    } catch (err) {
-      console.warn("[Octorate] Live last-minute reset exception:", err);
+    const resJson = await res.json().catch(() => ({}));
+    if (res.ok && resJson.success) {
+      const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2 - ID 649669, 921799)' : '🌐 PRODUZIONE (Tutte le Tariffe Madri Livello 0)';
+      return {
+        success: true,
+        message: `🔄 PREZZI ORIGINALI RIPRISTINATI SU OCTORATE (${envLabel}): Prezzi riportati al 100% per ${resJson.updatedCount || updates.length} giorni sulle Tariffe Madri.`,
+        dateUpdated: new Date().toISOString(),
+        details: { ...payload, octorateResponse: resJson }
+      };
+    } else {
+      return {
+        success: false,
+        message: `❌ Errore ripristino Octorate: ${resJson.error || 'Risposta non valida'}`,
+        dateUpdated: new Date().toISOString(),
+        details: { ...payload, error: resJson.error }
+      };
     }
+  } catch (err: any) {
+    console.error("[Octorate] resetLastMinuteRatesStrategy network error:", err);
+    return {
+      success: false,
+      message: `❌ Errore di rete durante ripristino Octorate: ${err.message}`,
+      dateUpdated: new Date().toISOString(),
+      details: { ...payload, error: err.message }
+    };
   }
-
-  const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows 1 & 2 - ID 649669, 921799)' : '🌐 PRODUZIONE (Tutte le Tariffe Madri Livello 0)';
-  return {
-    success: true,
-    message: `🔄 RIPRISTINO PREZZI CALCOLATO (${envLabel}): Prezzi originali 100% ripristinati per ${updates.length} nodi Tariffa Madre (Livello 0).`,
-    dateUpdated: new Date().toISOString(),
-    details: payload
-  };
 }
 
 /**

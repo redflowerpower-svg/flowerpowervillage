@@ -79,7 +79,7 @@ export const StandardRatesProtectionSection: React.FC<StandardRatesProtectionSec
           </div>
           <div>
             <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase group-hover:text-cyan-300 transition-colors">
-              🛏️ TARIFFE STANDARD HIGH SEASON (LAST MINUTE & UNIFICAZIONE PREZZI)
+              TARIFFE STANDARD HIGH SEASON (LAST MINUTE & UNIFICAZIONE PREZZI)
             </h3>
             <p className="text-stone-400 text-[11px] font-medium">
               Protezione automatica ad ampiezza stagionale su Booking.com, Expedia ed Agoda (Sito Diretto & Airbnb sempre aperti).

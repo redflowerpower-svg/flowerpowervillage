@@ -88,6 +88,8 @@ export function ResortDashboard() {
     isSimulationActive,
     simulatedOctorateGridItems,
     lastMinuteRunning,
+    lastMinuteExecuting,
+    lastMinuteResetting,
     lastMinuteResult,
     setLastMinuteStage1Days,
     setLastMinuteDiscountStage1,
@@ -98,6 +100,8 @@ export function ResortDashboard() {
     setExecutionMode,
     setIsTestEnvironment,
     disableLastMinuteStrategy,
+    isLastMinuteActive,
+    setIsLastMinuteActive,
     dynamicMinStayGapFill,
     dynamicMinStayRunning,
     dynamicMinStayResetRunning,
@@ -133,6 +137,8 @@ export function ResortDashboard() {
   // Arming state & auto-disarm timer for double-click room deactivation safety
   const [pendingDeactivateId, setPendingDeactivateId] = useState<string | null>(null);
   const [minStayDeactivateArmed, setMinStayDeactivateArmed] = useState(false);
+  const [lastMinuteDeactivateArmed, setLastMinuteDeactivateArmed] = useState(false);
+  const [lastMinuteArmed, setLastMinuteArmed] = useState(false);
 
   useEffect(() => {
     if (!pendingDeactivateId) return;
@@ -147,6 +153,18 @@ export function ResortDashboard() {
     const timer = setTimeout(() => setMinStayDeactivateArmed(false), 4000);
     return () => clearTimeout(timer);
   }, [minStayDeactivateArmed]);
+
+  useEffect(() => {
+    if (!lastMinuteDeactivateArmed) return;
+    const timer = setTimeout(() => setLastMinuteDeactivateArmed(false), 4000);
+    return () => clearTimeout(timer);
+  }, [lastMinuteDeactivateArmed]);
+
+  useEffect(() => {
+    if (!lastMinuteArmed) return;
+    const timer = setTimeout(() => setLastMinuteArmed(false), 4000);
+    return () => clearTimeout(timer);
+  }, [lastMinuteArmed]);
 
   const handleToggleAvailability = async (room: any) => {
     const isCurrentAvailable = Boolean(room.isAvailable ?? room.is_available);
@@ -1086,7 +1104,13 @@ export function ResortDashboard() {
               }`}
             >
               <Zap className="w-4 h-4 text-amber-400" />
-              <span>⚡ LAST MINUTE</span>
+              <span>LAST MINUTE</span>
+              {isLastMinuteActive && (
+                <span className="relative flex h-2.5 w-2.5 ml-1" title="Last Minute Sconti a Cascata Attivo">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+              )}
             </button>
 
             {/* Tab 2: Soggiorno Minimo Dinamico */}
@@ -1100,7 +1124,7 @@ export function ResortDashboard() {
               }`}
             >
               <SlidersHorizontal className="w-4 h-4 text-violet-400" />
-              <span>📏 SOGGIORNO MINIMO</span>
+              <span>SOGGIORNO MINIMO</span>
               {isDynamicCalculationEnabled && (
                 <span className="relative flex h-2.5 w-2.5 ml-1" title="Soggiorno Minimo Dinamico Attivo">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -1120,7 +1144,7 @@ export function ResortDashboard() {
               }`}
             >
               <Bed className="w-4 h-4 text-cyan-400" />
-              <span>🛏️ TARIFFE BASE</span>
+              <span>TARIFFE BASE</span>
             </button>
 
             {/* Tab 4: Codici Promozionali & Ticket */}
@@ -1134,7 +1158,7 @@ export function ResortDashboard() {
               }`}
             >
               <Ticket className="w-4 h-4 text-fuchsia-400" />
-              <span>🎟️ PROMO CODES</span>
+              <span>PROMO CODES</span>
             </button>
           </div>
 
@@ -1159,7 +1183,7 @@ export function ResortDashboard() {
                     </div>
                     <div>
                       <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase">
-                        ⚡ LAST MINUTE / SCONTI A CASCATA
+                        LAST MINUTE / SCONTI A CASCATA
                       </h3>
                       <p className="text-stone-400 text-[11px] font-medium">
                         Sconti percentuali sequenziali dinamici calcolati sulla data libera imminente
@@ -1171,6 +1195,82 @@ export function ResortDashboard() {
                   </span>
                 </div>
 
+                {/* Master Status & Kill-Switch Banner for Last Minute */}
+                <div className={`p-4 rounded-2xl border transition-all duration-300 ${
+                  isLastMinuteActive
+                    ? 'bg-emerald-950/40 border-emerald-500/50 shadow-lg shadow-emerald-950/40'
+                    : 'bg-stone-900/60 border-stone-800'
+                }`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      {isLastMinuteActive ? (
+                        <span className="relative flex h-4 w-4 flex-shrink-0">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 shadow-md shadow-emerald-400"></span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex rounded-full h-4 w-4 bg-stone-600 border border-stone-500 flex-shrink-0"></span>
+                      )}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-black uppercase tracking-wider ${
+                            isLastMinuteActive ? 'text-emerald-300' : 'text-stone-400'
+                          }`}>
+                            {isLastMinuteActive ? '🟢 SERVIZIO ATTIVO (SCONTI A CASCATA APPLICATI)' : '⚪ SERVIZIO DISATTIVATO (CALENDARIO NORMALE OCTORATE)'}
+                          </span>
+                          {isLastMinuteActive && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse">
+                              LIVE PMS
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-stone-400 mt-0.5">
+                          {isLastMinuteActive
+                            ? 'Gli sconti sequenziali a 3 stadi sono attivi e allineati sulle Tariffe Madri di Octorate per i prossimi 7 giorni.'
+                            : 'Nessun automatismo sconto attivo. Octorate segue la normale gestione manuale del calendario e i prezzi base standard.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Dual-Click Toggle / Deactivation Button */}
+                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                      {isLastMinuteActive ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!lastMinuteDeactivateArmed) {
+                              setLastMinuteDeactivateArmed(true);
+                              return;
+                            }
+                            setLastMinuteDeactivateArmed(false);
+                            resetLastMinuteStrategy();
+                          }}
+                          disabled={lastMinuteRunning}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
+                            lastMinuteDeactivateArmed
+                              ? 'bg-red-600 text-white animate-bounce shadow-lg shadow-red-950/60'
+                              : 'bg-stone-900 hover:bg-stone-800 text-amber-400 border border-amber-500/30'
+                          }`}
+                          title="Ripristina i prezzi al 100% della tariffa base e torna al sistema normale Octorate"
+                        >
+                          <RotateCcw className={`w-3.5 h-3.5 ${lastMinuteRunning ? 'animate-spin' : ''}`} />
+                          <span>
+                            {lastMinuteRunning
+                              ? 'Ripristino in corso...'
+                              : lastMinuteDeactivateArmed
+                              ? '⚠️ CONFERMA DISATTIVAZIONE'
+                              : 'DISATTIVA E TORNA AL SISTEMA NORMALE'}
+                          </span>
+                        </button>
+                      ) : (
+                        <span className="text-[10.5px] text-stone-500 font-mono italic">
+                          Standard Octorate 100%
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 {/* 3 Cascade Discount Stages Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
                   {/* Stage 1: 3 Days @ 10% */}
@@ -1180,7 +1280,7 @@ export function ResortDashboard() {
                         🔥 Stadio 1: Imminente
                       </label>
                       <span className="text-[9px] bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded border border-red-500/30 font-mono">
-                        Gg 0 - 2
+                        Gg 0 - {Math.max(0, (lastMinuteStage1Days || 3) - 1)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-1.5 text-[11px]">
@@ -1212,14 +1312,14 @@ export function ResortDashboard() {
                     </div>
                   </div>
 
-                  {/* Stage 2: 3 Next Days @ 5% */}
+                  {/* Stage 2: 2 Next Days @ 5% */}
                   <div className="bg-orange-950/30 p-2.5 rounded-xl border border-orange-500/40 space-y-2 shadow-sm">
                     <div className="flex items-center justify-between">
                       <label className="text-[11px] font-black text-orange-400 uppercase tracking-wider flex items-center gap-1">
                         🏷️ Stadio 2: Intermedio
                       </label>
                       <span className="text-[9px] bg-orange-500/20 text-orange-300 px-1.5 py-0.5 rounded border border-orange-500/30 font-mono">
-                        Gg 3 - 5
+                        Gg {lastMinuteStage1Days || 3} - {(lastMinuteStage1Days || 3) + (lastMinuteStage2Days || 2) - 1}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-1.5 text-[11px]">
@@ -1229,7 +1329,7 @@ export function ResortDashboard() {
                           type="number"
                           min="1"
                           max="14"
-                          value={lastMinuteStage2Days ?? 3}
+                          value={lastMinuteStage2Days ?? 2}
                           onChange={(e) => setLastMinuteStage2Days(parseInt(e.target.value))}
                           className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
                         />
@@ -1251,14 +1351,14 @@ export function ResortDashboard() {
                     </div>
                   </div>
 
-                  {/* Stage 3: 4 Next Days @ 2.5% */}
+                  {/* Stage 3: 2 Next Days @ 2.5% */}
                   <div className="bg-yellow-950/30 p-2.5 rounded-xl border border-yellow-600/40 space-y-2 shadow-sm">
                     <div className="flex items-center justify-between">
                       <label className="text-[11px] font-black text-yellow-400 uppercase tracking-wider flex items-center gap-1">
                         ⚡ Stadio 3: Esteso
                       </label>
                       <span className="text-[9px] bg-yellow-500/20 text-yellow-300 px-1.5 py-0.5 rounded border border-yellow-600/30 font-mono">
-                        Gg 6 - 9
+                        Gg {(lastMinuteStage1Days || 3) + (lastMinuteStage2Days || 2)} - {(lastMinuteStage1Days || 3) + (lastMinuteStage2Days || 2) + (lastMinuteStage3Days || 2) - 1}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-1.5 text-[11px]">
@@ -1268,7 +1368,7 @@ export function ResortDashboard() {
                           type="number"
                           min="1"
                           max="14"
-                          value={lastMinuteStage3Days ?? 4}
+                          value={lastMinuteStage3Days ?? 2}
                           onChange={(e) => setLastMinuteStage3Days(parseInt(e.target.value))}
                           className="w-11 bg-stone-900 border border-stone-700 rounded-lg px-1 py-0.5 text-white font-mono font-black text-[11px] text-center focus:outline-none focus:border-amber-400"
                         />
@@ -1293,13 +1393,13 @@ export function ResortDashboard() {
 
 
 
-                {/* Simulation Active Visual Banner */}
-                {isSimulationActive && (
+                {/* Simulation Active Visual Banner — Visibile SOLO quando il servizio reale non è attivo */}
+                {isSimulationActive && !isLastMinuteActive && (
                   <div className="p-2.5 bg-amber-950/60 border border-amber-500/50 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-2 text-amber-300 text-[11px] shadow-lg animate-pulse">
                     <div className="flex items-center gap-2">
                       <Eye className="w-4 h-4 text-amber-400 flex-shrink-0" />
                       <span>
-                        <strong>👁️ ANTEPRIMA SIMULAZIONE ATTIVA:</strong> Prezzi scontati in memoria (-10%, -5%, -2.5%). Nessun dato inviato ad Octorate.
+                        <strong>ANTEPRIMA SIMULAZIONE ATTIVA:</strong> Prezzi scontati in memoria (-10%, -5%, -2.5%). Nessun dato inviato ad Octorate.
                       </span>
                     </div>
                     <button
@@ -1366,25 +1466,40 @@ export function ResortDashboard() {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => executeLastMinuteStrategy()}
-                        disabled={lastMinuteRunning}
+                        onClick={() => {
+                          const isLiveTarget = executionMode === 'test_bungalows' || executionMode === 'production';
+                          if (isLiveTarget && !lastMinuteArmed) {
+                            setLastMinuteArmed(true);
+                            return;
+                          }
+                          setLastMinuteArmed(false);
+                          executeLastMinuteStrategy();
+                        }}
+                        disabled={lastMinuteExecuting || lastMinuteResetting}
                         className={`flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer disabled:opacity-50 ${
-                          executionMode === 'production'
+                          lastMinuteArmed
+                            ? 'bg-rose-600 hover:bg-rose-500 text-white animate-pulse ring-2 ring-rose-400'
+                            : executionMode === 'production'
                             ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50'
                             : executionMode === 'test_bungalows'
                             ? 'bg-amber-500 hover:bg-amber-400 text-stone-950 shadow-amber-950/50'
                             : 'bg-red-600 hover:bg-red-500 text-white shadow-red-950/50'
                         }`}
                       >
-                        {lastMinuteRunning ? (
+                        {lastMinuteExecuting ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
                             <span>Elaborazione...</span>
                           </>
+                        ) : lastMinuteArmed ? (
+                          <>
+                            <AlertTriangle className="w-3.5 h-3.5" />
+                            <span>SEI SICURO? CLICCA PER CONFERMARE</span>
+                          </>
                         ) : (
                           <>
                             <Zap className="w-3.5 h-3.5" />
-                            <span>⚡ ESEGUI SCONTI A CASCATA</span>
+                            <span>ESEGUI SCONTI A CASCATA</span>
                           </>
                         )}
                       </button>
@@ -1392,12 +1507,21 @@ export function ResortDashboard() {
                       <button
                         type="button"
                         onClick={() => resetLastMinuteStrategy()}
-                        disabled={lastMinuteRunning}
+                        disabled={lastMinuteExecuting || lastMinuteResetting}
                         className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-black uppercase tracking-wider rounded-xl bg-stone-950 border border-stone-800 text-stone-300 hover:bg-stone-850 transition-all cursor-pointer disabled:opacity-50"
                         title="Ripristina i prezzi al 100% della tariffa base originale senza sconti"
                       >
-                        <RefreshCw className={`w-3.5 h-3.5 text-amber-400 ${lastMinuteRunning ? 'animate-spin' : ''}`} />
-                        <span>🔄 RIPRISTINA PREZZI ORIGINALI</span>
+                        {lastMinuteResetting ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                            <span>Ripristino...</span>
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+                            <span>RIPRISTINA PREZZI ORIGINALI</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
@@ -1516,7 +1640,7 @@ export function ResortDashboard() {
                           ) : (
                             <>
                               <Zap className="w-3.5 h-3.5" />
-                              <span>⚡ ATTIVA SOGGIORNO MINIMO DINAMICO</span>
+                              <span>ATTIVA SOGGIORNO MINIMO DINAMICO</span>
                             </>
                           )}
                         </button>
@@ -1532,7 +1656,7 @@ export function ResortDashboard() {
                     </div>
                     <div>
                       <h3 className="text-sm font-black text-white tracking-tight flex items-center gap-2 uppercase">
-                        📏 SOGGIORNO MINIMO DINAMICO
+                        SOGGIORNO MINIMO DINAMICO
                       </h3>
                       <p className="text-stone-400 text-[11px] font-medium">
                         Calcolo automatico per coprire le bucature inferiori a 7 notti e regolare i soggiorni minimi in base all'occupazione.

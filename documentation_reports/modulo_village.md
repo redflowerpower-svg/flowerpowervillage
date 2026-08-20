@@ -32,6 +32,11 @@ L'esperienza visiva del sito si basa su un'interfaccia fortemente immersiva con 
   - Nel giorno di checkout (`isCheckoutDay`), se `stopSell === true` (o camera chiusa), la cella DEVE RIMANERE **ROSSA (Stop Sell / Chiuso)**. Se `stopSell === false`, torna **VERDE (Libera)**.
 - **Formattazione Nomi Cliente**:
   - Mostra sempre prima il Cognome e poi il Nome (es. `"Sheppard Peter"`).
+- **Raccoglitore a Schede Ottimizzazioni (`ResortDashboard.tsx`)**:
+  - 4 Schede unificate per il controllo revenue: **`LAST MINUTE`**, **`SOGGIORNO MINIMO`**, **`TARIFFE BASE`**, **`PROMO CODES`**.
+  - **Design Pulito & Icone Stilizzate**: Eliminate tutte le emoticon testuali nei titoli a favore di icone Lucide vettoriali (`<Zap />`, `<SlidersHorizontal />`, `<Bed />`, `<Ticket />`).
+  - **Indicatori Live a Segnale Verde Lampeggiante (`animate-ping`)**: Sia per *Soggiorno Minimo* (`isDynamicCalculationEnabled`) che per *Last Minute* (`isLastMinuteActive`), un indicatore verde circolare pulsa in tempo reale sulla linguetta della scheda quando il servizio è attivo in produzione.
+  - **Scomparsa Automatica Banner Anteprima**: Il banner arancione di simulazione locale scompare automaticamente all'attivazione del servizio reale, preservando l'intera evidenziazione a colori e i prezzi calcolati sul calendario visivo.
 - **Header Statico Unificato & Menu Navigazione Singola Riga**: Header `Gestione Resort & Booking Engine` e il menu tabs (`PRENOTAZIONI`, `CALENDARIO 30`, `CALENDARIO 365`, `CARATTERISTICHE ALLOGGI`, `PREZZI ALLOGGI`, `ALBERO DERIVATE`, `GESTIONE TARIFFE DERIVATE`, `MESSAGGI CLIENTI`, `OCTORATE PMS`) integrati in un unico contenitore statico in `ResortDashboard.tsx`. Il menu nav adotta un layout a riga singola senza a capo (`flex-nowrap`, zero scrollbar), tipografia massimizzata (`11px` -> `15px font-black`), spaziatura ottimizzata ridotta di 2px (`gap-[2px]` -> `gap-1.5`, `px-1.5` -> `px-2.5`).
   - **Riposizionamento Barra di Ricerca**: La barra di ricerca (`Cerca ospite, email, camera...`) ed il controllo reset prenotazioni nascoste sono stati rimossi dal menu delle tab e posizionati nella riga superiore dell'header, subito dopo il pulsante `Sincronizza`.
   - **Rimozione Tab "IMPORTA SPECIFICHE"**: Rimosso completamente il pulsante ed il relativo pannello dalla plancia di controllo.

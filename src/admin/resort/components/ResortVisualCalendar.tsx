@@ -770,12 +770,14 @@ const CalendarCell = React.memo(function CalendarCell({
   onSelectEmptyCell
 }: CalendarCellProps) {
   let originalPrice = Number(motherData?.price || motherData?.value || motherData?.amount || 0);
-  if (originalPrice === 0 && simulatedMatch?.originalPrice) {
-    originalPrice = Number(simulatedMatch.originalPrice);
+  if ((originalPrice === 0 || isSimulationActive) && (simulatedMatch?.basePrice || simulatedMatch?.originalPrice)) {
+    originalPrice = Number(simulatedMatch.basePrice || simulatedMatch.originalPrice);
   }
 
   let beDiscountedPrice = Number(beData?.price || beData?.value || beData?.amount || 0);
-  if (beDiscountedPrice === 0 && simulatedMatch?.finalPrice) {
+  if (simulatedMatch && (simulatedMatch.finalPrice !== undefined || simulatedMatch.price !== undefined)) {
+    beDiscountedPrice = Number(simulatedMatch.finalPrice ?? simulatedMatch.price);
+  } else if (beDiscountedPrice === 0 && simulatedMatch?.finalPrice) {
     beDiscountedPrice = Number(simulatedMatch.finalPrice);
   }
 
@@ -790,7 +792,21 @@ const CalendarCell = React.memo(function CalendarCell({
     }
   }
 
-  const hasDiscount = originalPrice > 0 && beDiscountedPrice > 0 && beDiscountedPrice < originalPrice;
+  const isRoomClosedByStaff = roomIsAvailable === false;
+  const isMotherClosed = motherData ? (
+    Boolean(
+      motherData.stopSell ||
+      motherData.stopSells
+    ) ||
+    motherData.available === 0 ||
+    motherData.available === false ||
+    (motherData.availability !== undefined && motherData.availability <= 0) ||
+    motherData.price >= 10000 ||
+    originalPrice >= 10000
+  ) : (originalPrice >= 10000);
+  const isClosedOrStopSell = isRoomClosedByStaff || isMotherClosed || originalPrice >= 10000;
+
+  const hasDiscount = !isClosedOrStopSell && originalPrice > 0 && originalPrice < 10000 && beDiscountedPrice > 0 && beDiscountedPrice < originalPrice && (Boolean(simulatedMatch?.isSimulatedDiscount) || beDiscountedPrice < originalPrice);
 
   let motherMinStayNum = expectedBaseline;
 
@@ -812,19 +828,6 @@ const CalendarCell = React.memo(function CalendarCell({
     motherMinStayNum = Number(simulatedMatch.simulatedMinStay);
     isMinStayAltered = motherMinStayNum !== expectedBaseline;
   }
-
-  const isRoomClosedByStaff = roomIsAvailable === false;
-  const isMotherClosed = motherData ? (
-    Boolean(
-      motherData.stopSell ||
-      motherData.stopSells
-    ) ||
-    motherData.available === 0 ||
-    motherData.available === false ||
-    (motherData.availability !== undefined && motherData.availability <= 0) ||
-    motherData.price >= 10000
-  ) : false;
-  const isClosedOrStopSell = isRoomClosedByStaff || isMotherClosed;
 
   let bgStyle = 'bg-emerald-600 hover:bg-emerald-500 border-emerald-600/60 cursor-default shadow-inner';
   if (matchingBooking) {
@@ -904,26 +907,26 @@ const CalendarCell = React.memo(function CalendarCell({
           });
         }
       }}
-      className={`p-0 border-l border-stone-800 text-center transition-colors relative w-[38px] min-w-[38px] max-w-[38px] h-[33px] align-top overflow-hidden cursor-pointer ${bgStyle}`}
+      className={`p-0 border-l border-stone-800 text-center transition-colors relative w-[50px] min-w-[50px] max-w-[50px] h-[37px] align-top overflow-hidden cursor-pointer ${bgStyle}`}
       title={matchingBooking 
         ? `Prenotato: ${formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)} (${getBookingChannelName(matchingBooking)}) • Tariffa Reale: ${realDailyPriceStr !== 'N/D' ? `฿${realDailyPriceStr}/notte` : 'N/D'} • Madre: ${motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : 'N/D'} • BE: ${beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : 'N/D'}`
         : (hasDiscount
             ? `Madre (Standard): ฿${motherPriceStr} • Scontata BE: ฿${beDiscountedStr}`
             : (motherPriceStr !== 'N/D' ? `Prezzo: ฿${motherPriceStr}` : 'Nessun Prezzo'))}
     >
-      <div className="relative h-[33px] pb-2 flex flex-col justify-between w-full h-full">
-        {/* BADGE CTA SUL ANGOLO IN ALTO A DESTRA */}
-        {isCTA && (
+      <div className="relative h-[37px] pb-2 flex flex-col justify-between w-full h-full">
+        {/* BADGE CTA SUL ANGOLO IN ALTO A DESTRA (SOLO SE LIBERA) */}
+        {!matchingBooking && isCTA && (
           <span 
-            className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-red-400 border border-red-600 z-10" 
+            className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-red-400 border border-red-600 z-10" 
             title="Chiuso all'Arrivo (CTA)"
           />
         )}
 
-        {/* BADGE SOGGIORNO MINIMO (MIN STAY) IN ALTO A DESTRA */}
-        {motherMinStayNum > 0 && (
+        {/* BADGE SOGGIORNO MINIMO (MIN STAY) IN ALTO A DESTRA (SOLO SE LIBERA, NON COPRE PRENOTAZIONI) */}
+        {!matchingBooking && motherMinStayNum > 0 && (
           <div 
-            className={`absolute top-0.5 right-0.5 z-10 px-0.5 py-0.2 rounded-full text-[6px] font-black leading-none flex items-center justify-center shadow-md transition-all ${
+            className={`absolute top-0.5 right-0.5 z-10 px-1 py-0.2 rounded-full text-[7px] font-black leading-none flex items-center justify-center shadow-md transition-all ${
               isSimulatedBadge
                 ? 'bg-red-500 text-white animate-pulse border border-white/40 ring-1 ring-red-300' 
                 : (isSynchronizedBadge
@@ -948,34 +951,34 @@ const CalendarCell = React.memo(function CalendarCell({
         <div className="flex-1 flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-tight pt-0.5">
           {matchingBooking ? (
             <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
-              <div className="truncate text-[7px] font-black min-w-0 w-full text-center text-white uppercase">
+              <div className="truncate text-[7.5px] font-black min-w-0 w-full text-center text-white uppercase tracking-tight">
                 {getBookingChannelName(matchingBooking)}
               </div>
-              <div className="truncate text-[6px] min-w-0 w-full text-center text-white/95 font-medium">
+              <div className="truncate text-[7px] min-w-0 w-full text-center text-white/95 font-medium">
                 {formatGuestLastNameFirst(matchingBooking.guest_name || (matchingBooking as any).guestName)}
               </div>
-              <div className="text-[6px] font-mono font-black text-white leading-none mt-0.5 truncate min-w-0 w-full text-center">
+              <div className="text-[8px] font-mono font-black text-white leading-none mt-0.5 truncate min-w-0 w-full text-center">
                 ฿{realDailyPriceStr}
               </div>
             </div>
           ) : hasDiscount ? (
             <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
-              <div className="text-[5.5px] font-mono font-bold text-white/90 line-through truncate min-w-0 w-full text-center opacity-80">
+              <div className="text-[7px] font-mono font-bold text-white/70 line-through truncate min-w-0 w-full text-center leading-none">
                 ฿{motherPriceStr}
               </div>
-              <div className="text-[6.5px] font-mono font-black text-cyan-300 leading-tight mt-0.5 truncate min-w-0 w-full text-center drop-shadow">
+              <div className="text-[9px] font-mono font-black text-cyan-300 leading-tight mt-0.5 truncate min-w-0 w-full text-center drop-shadow">
                 ฿{beDiscountedStr}
               </div>
-              <div className="text-[5.5px] font-mono font-black bg-cyan-950/90 text-cyan-200 border border-cyan-400/80 px-0.5 py-0.2 rounded mt-0.5 truncate min-w-0 text-center shadow">
+              <div className="text-[6.5px] font-mono font-black bg-cyan-950/95 text-cyan-200 border border-cyan-400 px-1 py-0.2 rounded mt-0.5 truncate min-w-0 text-center shadow">
                 -{simulatedMatch?.discountPercentage}%
               </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center min-w-0 w-full overflow-hidden leading-none">
-              <div className="text-[6px] font-mono font-medium text-stone-300 truncate min-w-0 w-full text-center">
+              <div className="text-[7px] font-mono font-medium text-stone-300 truncate min-w-0 w-full text-center leading-none">
                 {motherPriceStr !== 'N/D' ? `฿${motherPriceStr}` : '-'}
               </div>
-              <div className="text-[7px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
+              <div className="text-[9px] font-mono font-black text-white leading-tight mt-0.5 truncate min-w-0 w-full text-center">
                 {beDiscountedStr !== 'N/D' ? `฿${beDiscountedStr}` : '-'}
               </div>
             </div>
@@ -983,7 +986,7 @@ const CalendarCell = React.memo(function CalendarCell({
         </div>
 
         {/* COCKPIT BARRA A 5 RETTANGOLI EQUIDISTANTI SUL BORDO INFERIORE */}
-        <div className="absolute bottom-0 left-0 right-0 h-2 bg-stone-950/90 border-t border-stone-800 grid grid-cols-5 z-10 text-[5px] font-black leading-none text-center">
+        <div className="absolute bottom-0 left-0 right-0 h-2.5 bg-stone-950/90 border-t border-stone-800 grid grid-cols-5 z-10 text-[6px] font-black leading-none text-center">
           {/* 1. Booking.com (B) */}
           <div 
             className={`flex items-center justify-center border-r border-stone-800/60 ${
@@ -1340,7 +1343,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
   }
 
   return (
-    <div className="space-y-4 text-stone-100 font-sans relative">
+    <div className="@container space-y-4 text-stone-100 font-sans relative w-full max-w-full">
       
       {/* STEP 2: OVERLAY BLOCCANTE ASSOLUTO FIXED INSET-0 (DURANTE IL FREEZE DEL DOM PESANTE) */}
       {showOverlay && (
@@ -1360,7 +1363,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
       )}
 
       {/* CALENDARIO OCTORATE PLUS: UNIFIED ULTRA-COMPACT HEADER & CONTROL BAR */}
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-3 shadow-xl space-y-2.5">
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-3 shadow-xl space-y-2.5 w-full">
         
         {/* ROW 1: Title + 30-day Nav + Date Jump + Sync Live */}
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2.5 pb-2 border-b border-stone-800/80">
@@ -1386,7 +1389,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
           </div>
 
           {/* Controls Right Group (30-day Nav, Date Jump, Sync Live) */}
-          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
+          <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-start lg:justify-end">
             
             {/* 30-Day Paged Nav */}
             {viewMode === '30_days' && (
@@ -1458,10 +1461,10 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
         </div>
 
         {/* ROW 2: Category Filter Pills + Legend Badges */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
           
           {/* Category Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
+          <div className="flex items-center gap-1.5 overflow-x-auto w-full pb-1 sm:pb-0 custom-scrollbar">
             {[
               { id: 'All', label: `TUTTI GLI ALLOGGI (${(accommodations || []).length || 20})` },
               { id: 'VILLE', label: '🏡 VILLE (4)' },
@@ -1473,7 +1476,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
               <button
                 key={cat.id}
                 onClick={() => setFilterCategory(cat.id)}
-                className={`px-3 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-3 py-1 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap flex-shrink-0 ${
                   filterCategory === cat.id
                     ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50 ring-1 ring-emerald-400/40'
                     : 'bg-stone-950 text-stone-400 hover:text-white hover:bg-stone-850 border border-stone-800/80'
@@ -1485,7 +1488,7 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
           </div>
 
           {/* Compact Legend Badges */}
-          <div className="flex items-center gap-2 bg-stone-950 p-1.5 rounded-xl border border-stone-800 text-[10px] font-bold text-stone-300 flex-shrink-0">
+          <div className="flex items-center gap-2 bg-stone-950 p-1.5 rounded-xl border border-stone-800 text-[10px] font-bold text-stone-300 flex-shrink-0 self-start sm:self-auto">
             <span className="flex items-center">
               <span className="bg-yellow-400 w-2.5 h-2.5 rounded-full inline-block mr-1 shadow-sm" /> Standard
             </span>
@@ -1500,14 +1503,14 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
         </div>
       </div>
 
-      {/* CONTENITORE A SCORRIMENTO ORIZZONTALE CONTINUO (Griglia Infinita) */}
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden shadow-2xl">
-        <div ref={gridScrollRef} className="overflow-x-auto max-w-full custom-scrollbar" style={{ zoom: 0.9 }}>
-          <table className="w-full text-left border-collapse min-w-[2400px]">
+      {/* CONTENITORE A SCORRIMENTO ORIZZONTALE CONTINUO (Griglia Fluida & Reattiva) */}
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden shadow-2xl w-full">
+        <div ref={gridScrollRef} className="overflow-x-auto max-w-full w-full custom-scrollbar">
+          <table className="text-left border-collapse w-max">
             {/* Table Header: Continuous Days columns from Today to Oct 31 */}
             <thead className="bg-stone-950 sticky top-0 z-20 border-b border-stone-800">
               <tr>
-                <th className="sticky left-0 top-0 bg-stone-900 z-40 p-2 text-left font-bold text-white uppercase text-[10px] tracking-wider border-r border-b border-stone-800 shadow-xl w-[130px] min-w-[130px] max-w-[130px] truncate">
+                <th className="sticky left-0 top-0 bg-stone-900 z-40 px-2 py-1.5 text-left font-bold text-white uppercase text-[9px] tracking-tight border-r border-b border-stone-800 shadow-xl whitespace-nowrap">
                   Alloggio / Camera
                 </th>
                 {visibleDays.map((cellDate, idx) => {
@@ -1518,10 +1521,10 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                     <th 
                       key={idx} 
                       id={`col-${dateStr}`}
-                      className={`py-1 text-center border-l border-stone-850 w-[38px] min-w-[38px] max-w-[38px] ${isWeekend ? 'bg-stone-900 text-stone-300' : 'text-stone-400'}`}
+                      className={`py-1.5 text-center border-l border-stone-850 w-[50px] min-w-[50px] max-w-[50px] ${isWeekend ? 'bg-stone-900 text-stone-300' : 'text-stone-400'}`}
                     >
-                      <div className="text-[8px] uppercase font-mono leading-none">{DAY_NAMES_IT[dayOfWeekIdx]}</div>
-                      <div className="text-[10px] font-mono font-bold leading-tight">{cellDate.getDate()} {MONTH_NAMES_IT[cellDate.getMonth()].substring(0, 3)}</div>
+                      <div className="text-[8.5px] uppercase font-mono leading-none">{DAY_NAMES_IT[dayOfWeekIdx]}</div>
+                      <div className="text-[11px] font-mono font-bold leading-tight mt-0.5">{cellDate.getDate()} {MONTH_NAMES_IT[cellDate.getMonth()].substring(0, 3)}</div>
                     </th>
                   );
                 })}
@@ -1534,9 +1537,9 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
                 const gapFillMinStays = computeGapFillMinStays(room.name, room.id, room.octorateId, room.isAvailable, visibleDays, liveGridData, bookingsPool, dynamicMinStayGapFill);
 
                 return (
-                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-[33px]">
+                  <tr key={room.id} className="hover:bg-stone-850/40 transition-colors h-[37px]">
                     {/* STEP 3: Z-INDEX ELEVATO Z-40 CON BACKGROUND SOLIDO PER COPRIRE I CERCHIETTI SCORREVOLI */}
-                    <td className="sticky left-0 bg-stone-900 z-30 p-2 text-[10px] font-bold border-b border-r border-stone-850/40 text-white w-[130px] min-w-[130px] max-w-[130px] truncate leading-tight">
+                    <td className="sticky left-0 bg-stone-900 z-30 px-2 py-1 text-[10px] font-bold border-b border-r border-stone-850/40 text-white whitespace-nowrap leading-tight" title={room.name}>
                       {room.name}
                     </td>
                     {visibleDays.map((cellDate, idx) => {
