@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { useResortAdminStore } from '../store/useResortAdminStore';
 import { getCanonicalAccommodation, ALL_ACCOMMODATIONS_MAP } from '../lib/octorateAdmin';
+import { formatDisplayDateShort } from '../../../lib/dateUtils';
 
 // Contatti reali di TEST (Sempre visibili a prescindere dai filtri temporali)
 const TEST_GUESTS = [
