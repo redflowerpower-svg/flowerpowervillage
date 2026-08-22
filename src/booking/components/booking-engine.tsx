@@ -464,7 +464,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
   const isMaxSavings = stayDays >= 30 && lowSeason
 
-  // Thai Timezone (ICT, UTC+7) cutoff check (until 9:00 AM)
+  // Thai Timezone (ICT, UTC+7) cutoff check (prenotazioni aperte per oggi fino alle 21:00 / 9:00 PM)
   const checkInMin = useMemo(() => {
     const now = new Date();
     const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
@@ -472,7 +472,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     const thaiHour = thaiTime.getHours();
 
     const minDate = new Date(thaiTime);
-    if (thaiHour >= 9) {
+    if (thaiHour >= 21) {
       minDate.setDate(minDate.getDate() + 1);
     }
     return minDate.toISOString().split('T')[0];
@@ -485,7 +485,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       const thaiTime = new Date(utc + (3600000 * 7));
       const thaiHour = thaiTime.getHours();
       const minCheckIn = new Date(thaiTime);
-      if (thaiHour >= 9) {
+      if (thaiHour >= 21) {
         minCheckIn.setDate(minCheckIn.getDate() + 1);
       }
       const minCheckOut = new Date(minCheckIn);
