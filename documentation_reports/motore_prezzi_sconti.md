@@ -239,39 +239,6 @@ executionMode:
   1. **Aria Condizionata (AC)**: Input numerico per impostare il prezzo unico base per l'Aria Condizionata (es. `400 THB` / notte). Mostra l'importo attualmente attivo.
   2. **1 Colazione (Breakfast)**: Input numerico per impostare il prezzo unico base per 1 colazione (es. `150 THB` / persona / notte). Mostra l'importo attualmente attivo.
 
-### B. Sistema di Conferma Modale Interattiva
-- **Pop-up di Verifica**: Premendo *"CONFERMA & APPLICA AC"* o *"CONFERMA & APPLICA COLAZIONE"*, il sistema mostra una modale di sicurezza:
-  *«Sei sicuro di voler unificare ed applicare il prezzo di X THB a TUTTE le tariffe derivate del villaggio?»*
-- **Appartenenza & Persistenza**:
-  - Salva i valori unificati in `localStorage` (`fpv_derived_ac_price` e `fpv_derived_breakfast_price`).
-  - Aggiorna programmaticamente tutte le regole `ruleTag` (`+400฿ AM`, `+400฿ AMR`) e le descrizioni degli schemi di derivazione su tutte le 18 camere.
-  - Sincronizza i controlli automatici delle discrepanze (Sanity Check) sui prezzi live Octorate.
-
-## 11. Motore Sconti a Cascata Last Minute (3 Stadi Sequenziali) — Aggiornamento 20/08/2026
-
-### A. Regola d'Oro Octorate (Tariffe Madre Livello 0)
-- **Isolamento Livello 0**: L'algoritmo di Sconto a Cascata Last Minute agisce **esclusivamente sugli ID delle Tariffe Madri** (Livello 0) dei 18 alloggi e dei 2 Fake Bungalow di test.
-- **Cascata Automatica**: Octorate PMS ricalcola e propaga automaticamente lo sconto a tutte le 212 tariffe derivate (OTA, Booking Engine, BNB, Agoda, ecc.), preservando i ricarichi di canale senza generare discrepanze.
-
-### B. Struttura dei 3 Stadi a Finestra Mobile (Rolling Window)
-L'orizzonte mobile di 7 giorni viene calcolato dinamicamente sulla data odierna (`Asia/Bangkok`):
-1. **Stadio 1 (Lead Time 0–3 gg)**: Sconto **-10.0%** sul prezzo base originale.
-2. **Stadio 2 (Lead Time 4–5 gg)**: Sconto **-5.0%** sul prezzo base originale.
-3. **Stadio 3 (Lead Time 6–7 gg)**: Sconto **-2.5%** sul prezzo base originale.
-
-*Avanzamento Giornaliero:* Allo scoccare della mezzanotte, la finestra trasla in avanti di 1 giorno (il giorno passato esce dalla finestra e il nuovo 7° giorno entra al -2.5%).
-
-### C. Gestione Ambienti & Interfaccia Admin
-- **Dry-Run (Simulazione)**: Calcolo in memoria locale senza chiamate API. Mostra il banner di anteprima e colora le celle sul calendario.
-- **Ambiente di Test**: Invio API Octorate circoscritto ai soli Fake Bungalows (ID 649669 e 921799).
-- **Produzione Real-Time**: Invio API Bulk (`https://api.octorate.com/connect/rest/v1/calendar/bulk`) per tutte le Tariffe Madri.
-  - Al successo dell'invio in produzione, il banner arancione di simulazione scompare automaticamente.
-  - La scheda **LAST MINUTE** attiva l'indicatore verde pulsante (`animate-ping`) e il calendario evidenzia in tempo reale i prezzi scontati e i badge di stadio.
-
----
-
-## 4. Gestione Tariffe Derivate & Politiche di Cancellazione (`7d` / `14d`)
-
 ### A. Definizione Immutabile delle Sigle `7d` e `14d`
 Le sigle `7d` e `14d` presenti nelle tariffe derivate Octorate indicano **esclusivamente i giorni del termine di cancellazione gratuita** (Cancellation Policy / Lead Time) e **non** sconti per la durata del soggiorno:
 - **`7d`**: Cancellazione gratuita con rimborso del 100% fino a 7 giorni prima del check-in. Negli ultimi 7 giorni prima del check-in, la cancellazione comporta la trattenuta del 100% dell'importo (penale totale).
@@ -290,3 +257,26 @@ Le sigle `7d` e `14d` presenti nelle tariffe derivate Octorate indicano **esclus
 10. **`AGD AC-14d`**: Agoda AC 14d (Canc. gratuita 14gg alloggi AC su Agoda)
 11. **`AirBnB`**: Airbnb Standard (Canc. termini Airbnb alloggi Standard)
 12. **`AirBnB AC`**: Airbnb AC (Canc. termini Airbnb alloggi AC)
+
+---
+
+## 11. Motore Sconti a Cascata Last Minute (3 Stadi Sequenziali) — Aggiornamento 22/08/2026
+
+### A. Regola d'Oro Octorate & Ancoraggio Immutabile Prezzi Base (Livello 0)
+- **Isolamento Livello 0**: L'algoritmo di Sconto a Cascata Last Minute agisce **esclusivamente sugli ID delle Tariffe Madri** (Livello 0) dei 18 alloggi e dei 2 Fake Bungalow di test.
+- **Ancoraggio Immutabile al 100% (Zero Sconti Ricorsivi)**: Il calcolo percentuale dello sconto per qualsiasi giorno è rigidamente ancorato al prezzo base standard iniziale dell'alloggio (`FALLBACK_BASELINE_PRICES` / `room.basePrice`, es. Jungle Villa 2.290฿, Yellow 990฿), ignorando completamente eventuali prezzi temporanei già scontati presenti sulle celle live di Octorate. Questo impedisce qualsiasi accumulo di sconti su sconti nel tempo.
+- **Cascata Automatica**: Octorate PMS propaga automaticamente la tariffa madre scontata a tutte le 212 tariffe derivate (OTA, Booking Engine, BNB, Agoda, ecc.).
+
+### B. Finestra Mobile a Dimensione Dinamica (Rolling Window)
+L'orizzonte mobile totale è calcolato dinamicamente sommando i giorni configurati per i 3 stadi:
+$$\text{Finestra Totale} = \text{Stadio 1 (gg)} + \text{Stadio 2 (gg)} + \text{Stadio 3 (gg)}$$
+1. **Stadio 1 (Lead Time gg 0 → Stadio 1)**: Sconto **-10.0%** sul prezzo base originale.
+2. **Stadio 2 (Lead Time gg Stadio 1 → Stadio 1+2)**: Sconto **-5.0%** sul prezzo base originale.
+3. **Stadio 3 (Lead Time gg Stadio 1+2 → Totale)**: Sconto **-2.5%** sul prezzo base originale.
+
+### C. Meccanismo di Avanzamento Automatico Giornaliero (`Daily Auto-Roll`)
+- **Persistenza Stato & Parametri**: Lo stato del servizio (`isLastMinuteActive`), la data di sync (`fp_last_minute_sync_date`) e i parametri dei 3 stadi sono memorizzati in `localStorage`.
+- **Auto-Hydration all'Avvio & Cambio Scheda**:
+  - Al montaggio della Dashboard, al ritorno del focus sulla finestra (`window.focus` / `visibilitychange`) o tramite polling ogni 5 minuti, viene eseguito `autoAdvanceDailyLastMinute()`.
+  - Se la data odierna è cambiata rispetto all'ultimo invio (`todayStr !== lastSyncDate`) ed il servizio è in Produzione, il sistema calcola la nuova finestra traslata, aggiorna istantaneamente il Calendario visivo e sincronizza Octorate PMS in background senza richiedere click manuali.
+

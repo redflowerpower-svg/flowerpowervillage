@@ -642,40 +642,10 @@ export function calculateCascadeDiscountUpdates(options?: CascadeDiscountOptions
         discountPct = s3Discount;
       }
 
-      // Estraiamo il VERO prezzo base della madre direttamente dall'oggetto giornaliero Octorate della Tariffa Madre (Livello 0)
-      let dynamicCellBasePrice = room.basePrice;
-      if (options?.rawGridItems && Array.isArray(options.rawGridItems)) {
-        // Tassativamente cerca PRIMA la Tariffa Madre esatta per ID Livello 0
-        let gridMatch = options.rawGridItems.find((g: any) => {
-          const gId = String(g.id || g.motherRateId || g.ratePlanId || g.rate_id || '');
-          return gId === String(room.motherId);
-        });
-
-        // Se non trovato per ID esatto, cerca per nome esatto della camera
-        if (!gridMatch) {
-          gridMatch = options.rawGridItems.find((g: any) => {
-            const gName = String(g.accommodationName || g.name || '').toLowerCase();
-            return gName === room.name.toLowerCase();
-          });
-        }
-
-        if (gridMatch) {
-          let cellDayPrice = 0;
-          if (Array.isArray(gridMatch.days)) {
-            const dayObj = gridMatch.days.find((d: any) => (d.date || d.dateStr) === dateStr);
-            if (dayObj) {
-              cellDayPrice = Number(dayObj.price || dayObj.value || dayObj.amount || 0);
-            }
-          }
-          if (cellDayPrice <= 0) {
-            cellDayPrice = Number(gridMatch.price || gridMatch.value || gridMatch.amount || gridMatch.basePrice || 0);
-          }
-
-          if (cellDayPrice > 0) {
-            dynamicCellBasePrice = cellDayPrice;
-          }
-        }
-      }
+      // Il prezzo base di riferimento per il calcolo dello sconto a cascata DEVE SEMPRE essere
+      // il 100% del prezzo base originale della Tariffa Madre (es. Jungle Villa 2290฿, Yellow 990฿),
+      // MAI il prezzo temporaneo scontato presente sulla cella di Octorate per evitare sconti ricorsivi.
+      const dynamicCellBasePrice = room.basePrice;
 
       const discountAmount = (dynamicCellBasePrice * discountPct) / 100;
       const rawDiscounted = Math.round(dynamicCellBasePrice - discountAmount);

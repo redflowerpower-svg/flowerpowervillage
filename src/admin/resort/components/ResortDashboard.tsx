@@ -166,6 +166,33 @@ export function ResortDashboard() {
     return () => clearTimeout(timer);
   }, [lastMinuteArmed]);
 
+  // Auto-Hydrate and Advance Last-Minute Cascade Discounts on Dashboard Mount, Focus & Periodic Check
+  useEffect(() => {
+    // Esecuzione immediata al caricamento
+    useResortAdminStore.getState().autoAdvanceDailyLastMinute();
+
+    // Listener per quando la scheda torna visibile / in primo piano
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        useResortAdminStore.getState().autoAdvanceDailyLastMinute();
+      }
+    };
+
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+
+    // Controllo periodico ogni 5 minuti per rilevare subito il cambio data / mezzanotte
+    const interval = setInterval(() => {
+      useResortAdminStore.getState().autoAdvanceDailyLastMinute();
+    }, 5 * 60 * 1000);
+
+    return () => {
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      clearInterval(interval);
+    };
+  }, []);
+
   const handleToggleAvailability = async (room: any) => {
     const isCurrentAvailable = Boolean(room.isAvailable ?? room.is_available);
     if (isCurrentAvailable) {

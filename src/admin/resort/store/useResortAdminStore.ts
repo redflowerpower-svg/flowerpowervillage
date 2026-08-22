@@ -181,6 +181,8 @@ interface ResortAdminState {
   executeLastMinuteStrategy: () => Promise<void>;
   resetLastMinuteStrategy: () => Promise<void>;
   disableLastMinuteStrategy: () => Promise<void>;
+  recalculateLastMinuteItems: () => void;
+  autoAdvanceDailyLastMinute: () => Promise<void>;
 
   // V4 Standard Rates Protection Automation State & Actions
   standardProtectionActive: boolean;
@@ -301,18 +303,19 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     set({ dynamicMinStayExecutionMode: mode, dynamicMinStayGapFill: mode !== 'simulation' });
   },
 
-  // 3 Sequential Cascade Discount Stages Defaults
-  isLastMinuteActive: false,
+  // 3 Sequential Cascade Discount Stages Defaults (Persistent from localStorage)
+  isLastMinuteActive: typeof window !== 'undefined' ? (localStorage.getItem('fp_last_minute_active') === 'true') : false,
   setIsLastMinuteActive: (active: boolean) => {
     if (typeof window !== 'undefined') localStorage.setItem('fp_last_minute_active', String(active));
     set({ isLastMinuteActive: active });
+    get().recalculateLastMinuteItems();
   },
-  lastMinuteStage1Days: 3,
-  lastMinuteDiscountStage1: 10,
-  lastMinuteStage2Days: 2,
-  lastMinuteDiscountStage2: 5,
-  lastMinuteStage3Days: 2,
-  lastMinuteDiscountStage3: 2.5,
+  lastMinuteStage1Days: typeof window !== 'undefined' ? (Number(localStorage.getItem('fp_lm_stage1_days')) || 3) : 3,
+  lastMinuteDiscountStage1: typeof window !== 'undefined' ? (Number(localStorage.getItem('fp_lm_stage1_discount')) || 10) : 10,
+  lastMinuteStage2Days: typeof window !== 'undefined' ? (Number(localStorage.getItem('fp_lm_stage2_days')) || 2) : 2,
+  lastMinuteDiscountStage2: typeof window !== 'undefined' ? (Number(localStorage.getItem('fp_lm_stage2_discount')) || 5) : 5,
+  lastMinuteStage3Days: typeof window !== 'undefined' ? (Number(localStorage.getItem('fp_lm_stage3_days')) || 2) : 2,
+  lastMinuteDiscountStage3: typeof window !== 'undefined' ? (Number(localStorage.getItem('fp_lm_stage3_discount')) || 2.5) : 2.5,
   executionMode: typeof window !== 'undefined' ? ((localStorage.getItem('fp_last_minute_execution_mode') as DiscountExecutionMode) || 'simulation') : 'simulation',
   isTestEnvironment: false,
   isSimulationActive: false,
@@ -322,21 +325,48 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   lastMinuteResetting: false,
   lastMinuteResult: null,
 
-  setLastMinuteStage1Days: (days: number) => set({ lastMinuteStage1Days: days }),
-  setLastMinuteDiscountStage1: (pct: number) => set({ lastMinuteDiscountStage1: pct }),
-  setLastMinuteStage2Days: (days: number) => set({ lastMinuteStage2Days: days }),
-  setLastMinuteDiscountStage2: (pct: number) => set({ lastMinuteDiscountStage2: pct }),
-  setLastMinuteStage3Days: (days: number) => set({ lastMinuteStage3Days: days }),
-  setLastMinuteDiscountStage3: (pct: number) => set({ lastMinuteDiscountStage3: pct }),
+  setLastMinuteStage1Days: (days: number) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_lm_stage1_days', String(days));
+    set({ lastMinuteStage1Days: days });
+    get().recalculateLastMinuteItems();
+  },
+  setLastMinuteDiscountStage1: (pct: number) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_lm_stage1_discount', String(pct));
+    set({ lastMinuteDiscountStage1: pct });
+    get().recalculateLastMinuteItems();
+  },
+  setLastMinuteStage2Days: (days: number) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_lm_stage2_days', String(days));
+    set({ lastMinuteStage2Days: days });
+    get().recalculateLastMinuteItems();
+  },
+  setLastMinuteDiscountStage2: (pct: number) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_lm_stage2_discount', String(pct));
+    set({ lastMinuteDiscountStage2: pct });
+    get().recalculateLastMinuteItems();
+  },
+  setLastMinuteStage3Days: (days: number) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_lm_stage3_days', String(days));
+    set({ lastMinuteStage3Days: days });
+    get().recalculateLastMinuteItems();
+  },
+  setLastMinuteDiscountStage3: (pct: number) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_lm_stage3_discount', String(pct));
+    set({ lastMinuteDiscountStage3: pct });
+    get().recalculateLastMinuteItems();
+  },
   setExecutionMode: (mode: DiscountExecutionMode) => {
     if (typeof window !== 'undefined') localStorage.setItem('fp_last_minute_execution_mode', mode);
     set({
       executionMode: mode,
-      isTestEnvironment: mode === 'test_bungalows',
-      isSimulationActive: mode === 'simulation' ? get().isSimulationActive : false
+      isTestEnvironment: mode === 'test_bungalows'
     });
+    get().recalculateLastMinuteItems();
   },
-  setIsTestEnvironment: (enabled: boolean) => set({ isTestEnvironment: enabled, executionMode: enabled ? 'test_bungalows' : 'production' }),
+  setIsTestEnvironment: (enabled: boolean) => {
+    set({ isTestEnvironment: enabled, executionMode: enabled ? 'test_bungalows' : 'production' });
+    get().recalculateLastMinuteItems();
+  },
   setIsSimulationActive: (active: boolean) => set({ isSimulationActive: active }),
   setSimulatedOctorateGridItems: (items: any[]) => set({ simulatedOctorateGridItems: items }),
   resetSimulation: () => set({ isSimulationActive: false, simulatedOctorateGridItems: [] }),
@@ -984,6 +1014,107 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
         lastMinuteRunning: false,
         lastMinuteResetting: false
       });
+    }
+  },
+
+  recalculateLastMinuteItems: () => {
+    const {
+      lastMinuteStage1Days,
+      lastMinuteDiscountStage1,
+      lastMinuteStage2Days,
+      lastMinuteDiscountStage2,
+      lastMinuteStage3Days,
+      lastMinuteDiscountStage3,
+      executionMode,
+      isLastMinuteActive,
+      isSimulationActive,
+      rawOctorateGridItems
+    } = get();
+
+    if (isLastMinuteActive || isSimulationActive) {
+      const updates = calculateCascadeDiscountUpdates({
+        stage1Days: lastMinuteStage1Days,
+        stage1Discount: lastMinuteDiscountStage1,
+        stage2Days: lastMinuteStage2Days,
+        stage2Discount: lastMinuteDiscountStage2,
+        stage3Days: lastMinuteStage3Days,
+        stage3Discount: lastMinuteDiscountStage3,
+        executionMode: executionMode,
+        rawGridItems: rawOctorateGridItems
+      });
+
+      const simulatedItems = updates.map((u) => ({
+        id: String(u.motherRateId),
+        ratePlanId: String(u.motherRateId),
+        motherRateId: String(u.motherRateId),
+        accommodationName: u.accommodationName,
+        dateStr: u.dateStr,
+        basePrice: u.basePrice,
+        originalPrice: u.basePrice,
+        price: u.finalPrice,
+        finalPrice: u.finalPrice,
+        discountPercentage: u.discountPercentage,
+        stage: u.stage,
+        isSimulated: executionMode === 'simulation',
+        isSimulatedDiscount: true,
+        reason: u.reason,
+        days: [{ date: u.dateStr, price: u.finalPrice, minStay: 2 }]
+      }));
+
+      set({
+        isSimulationActive: true,
+        simulatedOctorateGridItems: simulatedItems
+      });
+    }
+  },
+
+  autoAdvanceDailyLastMinute: async () => {
+    // 1. Proietta istantaneamente gli sconti aggiornati alla data odierna sul Calendario
+    get().recalculateLastMinuteItems();
+
+    const { isLastMinuteActive, executionMode, octorateDetails, lastMinuteRunning } = get();
+    if (!isLastMinuteActive || executionMode === 'simulation' || lastMinuteRunning) {
+      return;
+    }
+
+    const todayStr = toThailandDateStr(new Date());
+    const lastSyncDate = typeof window !== 'undefined' ? localStorage.getItem('fp_last_minute_sync_date') : '';
+
+    if (todayStr && todayStr !== lastSyncDate) {
+      console.log(`[useResortAdminStore] 🔄 Daily Auto-Advance detected: Shifting cascade window to ${todayStr} (Last sync: ${lastSyncDate})`);
+      try {
+        const {
+          lastMinuteStage1Days,
+          lastMinuteDiscountStage1,
+          lastMinuteStage2Days,
+          lastMinuteDiscountStage2,
+          lastMinuteStage3Days,
+          lastMinuteDiscountStage3,
+          rawOctorateGridItems
+        } = get();
+
+        const res = await updateLastMinuteRatesStrategy(
+          octorateDetails?.structureId || '366879',
+          lastMinuteStage1Days,
+          lastMinuteDiscountStage1,
+          lastMinuteStage2Days,
+          lastMinuteDiscountStage2,
+          lastMinuteStage3Days,
+          lastMinuteDiscountStage3,
+          executionMode,
+          get().isTestEnvironment,
+          rawOctorateGridItems
+        );
+
+        if (res.success) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('fp_last_minute_sync_date', todayStr);
+          }
+          console.log(`[useResortAdminStore] ✅ Daily Auto-Advance sync to Octorate completed for ${todayStr}`);
+        }
+      } catch (e: any) {
+        console.error('[useResortAdminStore] ❌ Daily Auto-Advance sync error:', e);
+      }
     }
   },
 
