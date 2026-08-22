@@ -184,15 +184,16 @@ interface ResortAdminState {
   recalculateLastMinuteItems: () => void;
   autoAdvanceDailyLastMinute: () => Promise<void>;
 
-  // V4 Standard Rates Protection Automation State & Actions
+  // Standard Rates OTA Automation State & Actions
   standardProtectionActive: boolean;
   standardProtectionExecutionMode: DiscountExecutionMode;
   standardSeasonStartDate: string;
   standardSeasonEndDate: string;
   standardDaysTriggerLimit: number;
   standardDaysOpenDuration: number;
-  standardDaysCtaDuration: number;
   standardProtectionRunning: boolean;
+  standardProtectionExecuting: boolean;
+  standardProtectionResetting: boolean;
   standardProtectionResult: { success: boolean; message: string; dateUpdated: string; details?: any } | null;
   standardProtectionUpdates: StandardProtectionUpdate[];
 
@@ -202,8 +203,10 @@ interface ResortAdminState {
   setStandardSeasonEndDate: (date: string) => void;
   setStandardDaysTriggerLimit: (days: number) => void;
   setStandardDaysOpenDuration: (days: number) => void;
-  setStandardDaysCtaDuration: (days: number) => void;
   executeStandardProtectionStrategy: (resetToOpen?: boolean) => Promise<void>;
+  autoAdvanceDailyStandardProtection: () => Promise<void>;
+  saveStandardRatesSnapshot: () => void;
+  rollbackStandardRatesSnapshot: () => { success: boolean; message: string };
 
   // V19 Promo Codes & Discount Tickets State & Actions
   promoCodes: PromoCode[];
@@ -375,25 +378,43 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
   seasonDownloadProgress: 0,
   seasonDownloadMessage: '',
 
-  // Standard Protection Default State V4
-  standardProtectionActive: false,
-  standardProtectionExecutionMode: 'test_bungalows',
-  standardSeasonStartDate: '2026-12-15',
-  standardSeasonEndDate: '2027-03-31',
-  standardDaysTriggerLimit: 15,
-  standardDaysOpenDuration: 10,
-  standardDaysCtaDuration: 5,
+  // Standard Rates OTA Automation State (Persistent in localStorage)
+  standardProtectionActive: typeof window !== 'undefined' ? (localStorage.getItem('fp_standard_active') === 'true') : false,
+  standardProtectionExecutionMode: typeof window !== 'undefined' ? ((localStorage.getItem('fp_standard_mode') as DiscountExecutionMode) || 'test_bungalows') : 'test_bungalows',
+  standardSeasonStartDate: typeof window !== 'undefined' ? (localStorage.getItem('fp_standard_season_start') || '2026-12-15') : '2026-12-15',
+  standardSeasonEndDate: typeof window !== 'undefined' ? (localStorage.getItem('fp_standard_season_end') || '2027-03-31') : '2027-03-31',
+  standardDaysTriggerLimit: typeof window !== 'undefined' ? (Number(localStorage.getItem('fp_standard_trigger')) || 15) : 15,
+  standardDaysOpenDuration: typeof window !== 'undefined' ? (Number(localStorage.getItem('fp_standard_open_duration')) || 10) : 10,
   standardProtectionRunning: false,
+  standardProtectionExecuting: false,
+  standardProtectionResetting: false,
   standardProtectionResult: null,
   standardProtectionUpdates: [],
 
-  setStandardProtectionActive: (active: boolean) => set({ standardProtectionActive: active }),
-  setStandardProtectionExecutionMode: (mode: DiscountExecutionMode) => set({ standardProtectionExecutionMode: mode }),
-  setStandardSeasonStartDate: (date: string) => set({ standardSeasonStartDate: date }),
-  setStandardSeasonEndDate: (date: string) => set({ standardSeasonEndDate: date }),
-  setStandardDaysTriggerLimit: (days: number) => set({ standardDaysTriggerLimit: days }),
-  setStandardDaysOpenDuration: (days: number) => set({ standardDaysOpenDuration: days }),
-  setStandardDaysCtaDuration: (days: number) => set({ standardDaysCtaDuration: days }),
+  setStandardProtectionActive: (active: boolean) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_standard_active', String(active));
+    set({ standardProtectionActive: active });
+  },
+  setStandardProtectionExecutionMode: (mode: DiscountExecutionMode) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_standard_mode', mode);
+    set({ standardProtectionExecutionMode: mode });
+  },
+  setStandardSeasonStartDate: (date: string) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_standard_season_start', date);
+    set({ standardSeasonStartDate: date });
+  },
+  setStandardSeasonEndDate: (date: string) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_standard_season_end', date);
+    set({ standardSeasonEndDate: date });
+  },
+  setStandardDaysTriggerLimit: (days: number) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_standard_trigger', String(days));
+    set({ standardDaysTriggerLimit: days });
+  },
+  setStandardDaysOpenDuration: (days: number) => {
+    if (typeof window !== 'undefined') localStorage.setItem('fp_standard_open_duration', String(days));
+    set({ standardDaysOpenDuration: days });
+  },
 
   executeStandardProtectionStrategy: async (resetToOpen: boolean = false) => {
     const {
@@ -401,39 +422,160 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       standardSeasonEndDate,
       standardDaysTriggerLimit,
       standardDaysOpenDuration,
-      standardDaysCtaDuration,
       standardProtectionExecutionMode,
       octorateDetails
     } = get();
 
-    set({ standardProtectionRunning: true });
+    if (resetToOpen) {
+      set({ standardProtectionResetting: true, standardProtectionRunning: true });
+    } else {
+      set({ standardProtectionExecuting: true, standardProtectionRunning: true });
+    }
 
     const calculatedUpdates = calculateStandardProtectionUpdates({
       seasonStartDate: standardSeasonStartDate,
       seasonEndDate: standardSeasonEndDate,
       daysTriggerLimit: standardDaysTriggerLimit,
       daysOpenDuration: standardDaysOpenDuration,
-      daysCtaDuration: standardDaysCtaDuration,
       executionMode: standardProtectionExecutionMode
     });
 
-    const result = await updateStandardProtectionStrategy(
-      octorateDetails.structureId,
+    try {
+      const result = await updateStandardProtectionStrategy(
+        octorateDetails?.structureId || '366879',
+        standardSeasonStartDate,
+        standardSeasonEndDate,
+        standardDaysTriggerLimit,
+        standardDaysOpenDuration,
+        standardProtectionExecutionMode,
+        resetToOpen
+      );
+
+      const newActiveState = !resetToOpen;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('fp_standard_active', String(newActiveState));
+        if (newActiveState) {
+          localStorage.setItem('fp_standard_protection_sync_date', toThailandDateStr(new Date()));
+        }
+      }
+
+      set({
+        standardProtectionRunning: false,
+        standardProtectionExecuting: false,
+        standardProtectionResetting: false,
+        standardProtectionResult: result,
+        standardProtectionUpdates: calculatedUpdates,
+        standardProtectionActive: newActiveState
+      });
+    } catch (err: any) {
+      set({
+        standardProtectionRunning: false,
+        standardProtectionExecuting: false,
+        standardProtectionResetting: false,
+        standardProtectionResult: {
+          success: false,
+          message: err.message || 'Errore durante la sincronizzazione delle Tariffe Standard OTA',
+          dateUpdated: new Date().toISOString()
+        }
+      });
+    }
+  },
+
+  autoAdvanceDailyStandardProtection: async () => {
+    const {
+      standardProtectionActive,
+      standardProtectionExecutionMode,
       standardSeasonStartDate,
       standardSeasonEndDate,
       standardDaysTriggerLimit,
       standardDaysOpenDuration,
-      standardDaysCtaDuration,
-      standardProtectionExecutionMode,
-      resetToOpen
-    );
+      octorateDetails,
+      standardProtectionRunning
+    } = get();
 
-    set({
-      standardProtectionRunning: false,
-      standardProtectionResult: result,
-      standardProtectionUpdates: calculatedUpdates,
-      standardProtectionActive: !resetToOpen
-    });
+    if (!standardProtectionActive || standardProtectionExecutionMode === 'simulation' || standardProtectionRunning) {
+      return;
+    }
+
+    const todayStr = toThailandDateStr(new Date());
+    const lastSyncDate = typeof window !== 'undefined' ? localStorage.getItem('fp_standard_protection_sync_date') : '';
+
+    if (todayStr && todayStr !== lastSyncDate) {
+      console.log(`[useResortAdminStore] 🔄 Daily Auto-Advance detected: Shifting Standard 7d OTA window for ${todayStr} (Last sync: ${lastSyncDate})`);
+      try {
+        const res = await updateStandardProtectionStrategy(
+          octorateDetails?.structureId || '366879',
+          standardSeasonStartDate,
+          standardSeasonEndDate,
+          standardDaysTriggerLimit,
+          standardDaysOpenDuration,
+          standardProtectionExecutionMode,
+          false
+        );
+
+        if (res.success) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('fp_standard_protection_sync_date', todayStr);
+          }
+          set({
+            standardProtectionResult: res,
+            standardProtectionUpdates: calculateStandardProtectionUpdates({
+              seasonStartDate: standardSeasonStartDate,
+              seasonEndDate: standardSeasonEndDate,
+              daysTriggerLimit: standardDaysTriggerLimit,
+              daysOpenDuration: standardDaysOpenDuration,
+              executionMode: standardProtectionExecutionMode
+            })
+          });
+          console.log(`[useResortAdminStore] ✅ Daily Auto-Advance sync for Standard 7d OTA completed for ${todayStr}`);
+        }
+      } catch (e: any) {
+        console.error('[useResortAdminStore] ❌ Daily Auto-Advance Standard 7d OTA sync error:', e);
+      }
+    }
+  },
+
+  saveStandardRatesSnapshot: () => {
+    const { standardSeasonStartDate, standardSeasonEndDate, standardDaysTriggerLimit, standardDaysOpenDuration } = get();
+    const snapshot = {
+      startDate: standardSeasonStartDate,
+      endDate: standardSeasonEndDate,
+      triggerLimit: standardDaysTriggerLimit,
+      openDuration: standardDaysOpenDuration,
+      savedAt: new Date().toISOString()
+    };
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('fp_saved_standard_config', JSON.stringify(snapshot));
+    }
+  },
+
+  rollbackStandardRatesSnapshot: () => {
+    if (typeof window === 'undefined') return { success: false, message: 'Ambiente non valido' };
+    const raw = localStorage.getItem('fp_saved_standard_config');
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed.startDate) get().setStandardSeasonStartDate(parsed.startDate);
+        if (parsed.endDate) get().setStandardSeasonEndDate(parsed.endDate);
+        if (parsed.triggerLimit) get().setStandardDaysTriggerLimit(parsed.triggerLimit);
+        if (parsed.openDuration) get().setStandardDaysOpenDuration(parsed.openDuration);
+        return {
+          success: true,
+          message: `⏪ Configurazione di default ripristinata: ${parsed.startDate} ➔ ${parsed.endDate} (Trigger: ${parsed.triggerLimit}gg, Durata: ${parsed.openDuration}gg)`
+        };
+      } catch (e) {
+        console.error('[useResortAdminStore] Failed to parse saved standard snapshot:', e);
+      }
+    }
+    // Fallback defaults
+    get().setStandardSeasonStartDate('2026-12-15');
+    get().setStandardSeasonEndDate('2027-03-31');
+    get().setStandardDaysTriggerLimit(15);
+    get().setStandardDaysOpenDuration(10);
+    return {
+      success: true,
+      message: '⏪ Configurazione di default ripristinata (15-12-2026 ➔ 31-03-2027, Trigger: 15gg, Durata: 10gg)'
+    };
   },
 
   downloadSeasonSequential: async () => {

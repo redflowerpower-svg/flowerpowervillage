@@ -280,3 +280,27 @@ $$\text{Finestra Totale} = \text{Stadio 1 (gg)} + \text{Stadio 2 (gg)} + \text{S
   - Al montaggio della Dashboard, al ritorno del focus sulla finestra (`window.focus` / `visibilitychange`) o tramite polling ogni 5 minuti, viene eseguito `autoAdvanceDailyLastMinute()`.
   - Se la data odierna è cambiata rispetto all'ultimo invio (`todayStr !== lastSyncDate`) ed il servizio è in Produzione, il sistema calcola la nuova finestra traslata, aggiorna istantaneamente il Calendario visivo e sincronizza Octorate PMS in background senza richiedere click manuali.
 
+---
+
+## 12. Motore Tariffe Standard OTA - High Season (Apertura 7d OTA) — 22/08/2026
+
+### A. Obiettivo & Isolamento Piano Tariffario
+- **Target Esclusivo**: Gestisce l'apertura e la chiusura della **sola Tariffa Standard `7d`** (senza A/C, senza colazione) collegata alle agenzie online esterne (**Booking.com, Expedia, Agoda**).
+- **Mappatura Rigorosa**: Colpisce esclusivamente i 18 Rate Plan ID della tariffa `7d` (`STANDARD_7D_RATE_IDS` / `REAL_PRODUCTS_BY_PLAN['7d']`) e i 2 ID dei Fake Bungalow di test (`TEST_PRODUCTS_BY_PLAN['7d']` = `[932244, 932257]`).
+- **Snellimento Totale**: Rimossa ogni gestione superflua del Close-to-Arrival (CTA) per una sincronizzazione rapida, pulita e affidabile.
+
+### B. Parametri Modificabili
+1. **Inizio Stagione (`standardSeasonStartDate`)**: Data di partenza della High Season (default: `15-12-2026`).
+2. **Fine Stagione (`standardSeasonEndDate`)**: Data di chiusura della High Season (default: `31-03-2027`).
+3. **Trigger Apertura (`standardDaysTriggerLimit`)**: Giorni di anticipo rispetto al check-in per sbloccare la tariffa (default: `15 gg`).
+4. **Durata Apertura (`standardDaysOpenDuration`)**: Numero di giorni consecutivi di apertura della finestra rolling (default: `10 gg`).
+
+### C. Avanzamento Giornaliero Automatico (`autoAdvanceDailyStandardProtection`)
+- **Fuso Orario**: Calcolato rigidamente sul fuso orario di Koh Phayam / Bangkok (`Asia/Bangkok`, UTC+7) tramite `toThailandDateStr()`.
+- **Sincronizzazione Senza Intervento Umano**: Agganciato ad avvio dashboard, eventi di visibilità/focus finestra e polling background ogni 5 minuti.
+- **Marker di Allineamento**: Salva `fp_standard_protection_sync_date` per garantire 1 sola sincronizzazione API al giorno a data cambiata.
+
+### D. Snapshot Periodo Standard & Rollback Rapido (`Salva Default / Rollback Default`)
+- **Tasto `SALVA DEFAULT`**: Salva una fotocopia persistente (`localStorage: fp_saved_standard_config`) della configurazione attualmente presente nei 4 campi.
+- **Tasto `ROLLBACK DEFAULT`**: Ripristina istantaneamente nei campi i parametri salvati (oppure il default reale `15-12-2026 ➔ 31-03-2027, Trigger: 15gg, Durata: 10gg`), consentendo di alternare con 1 click tra periodi di test immediati e il periodo di default di produzione.
+

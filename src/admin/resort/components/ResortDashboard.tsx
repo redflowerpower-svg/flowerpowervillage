@@ -116,6 +116,7 @@ export function ResortDashboard() {
     seasonDownloadMessage,
     isDynamicCalculationEnabled,
     setIsDynamicCalculationEnabled,
+    standardProtectionActive,
     cachedImportTime,
     loadFromCache,
     saveToCache
@@ -166,15 +167,17 @@ export function ResortDashboard() {
     return () => clearTimeout(timer);
   }, [lastMinuteArmed]);
 
-  // Auto-Hydrate and Advance Last-Minute Cascade Discounts on Dashboard Mount, Focus & Periodic Check
+  // Auto-Hydrate and Advance Last-Minute & Standard OTA Rates on Dashboard Mount, Focus & Periodic Check
   useEffect(() => {
     // Esecuzione immediata al caricamento
     useResortAdminStore.getState().autoAdvanceDailyLastMinute();
+    useResortAdminStore.getState().autoAdvanceDailyStandardProtection();
 
     // Listener per quando la scheda torna visibile / in primo piano
     const handleVisibilityOrFocus = () => {
       if (document.visibilityState === 'visible') {
         useResortAdminStore.getState().autoAdvanceDailyLastMinute();
+        useResortAdminStore.getState().autoAdvanceDailyStandardProtection();
       }
     };
 
@@ -184,6 +187,7 @@ export function ResortDashboard() {
     // Controllo periodico ogni 5 minuti per rilevare subito il cambio data / mezzanotte
     const interval = setInterval(() => {
       useResortAdminStore.getState().autoAdvanceDailyLastMinute();
+      useResortAdminStore.getState().autoAdvanceDailyStandardProtection();
     }, 5 * 60 * 1000);
 
     return () => {
@@ -1160,7 +1164,7 @@ export function ResortDashboard() {
               )}
             </button>
 
-            {/* Tab 3: Tariffe Standard High Season */}
+            {/* Tab 3: Tariffe Standard OTA */}
             <button
               type="button"
               onClick={() => setActiveOptimizationTab('standard_rates')}
@@ -1171,7 +1175,13 @@ export function ResortDashboard() {
               }`}
             >
               <Bed className="w-4 h-4 text-cyan-400" />
-              <span>TARIFFE BASE</span>
+              <span>TARIFFE STANDARD OTA</span>
+              {standardProtectionActive && (
+                <span className="relative flex h-2.5 w-2.5 ml-1" title="Tariffe Standard OTA Attive">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+              )}
             </button>
 
             {/* Tab 4: Codici Promozionali & Ticket */}

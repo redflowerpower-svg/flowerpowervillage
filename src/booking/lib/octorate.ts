@@ -12,7 +12,7 @@
 // - createReservation()   -> Client-side con Bearer token
 // =============================================================================
 
-import { calculateCascadeDiscountUpdates, calculateOriginalPriceResetUpdates, calculateStandardProtectionUpdates, DiscountExecutionMode, capturePriceSnapshot, getTargetAccommodationsForMode } from '../../admin/resort/lib/octorateAdmin';
+import { calculateCascadeDiscountUpdates, calculateOriginalPriceResetUpdates, calculateStandardProtectionUpdates, DiscountExecutionMode, capturePriceSnapshot, getTargetAccommodationsForMode, toThailandDateStr, parseThailandDateParts } from '../../admin/resort/lib/octorateAdmin';
 
 // --- ENV CONFIG ---
 const OCTORATE_CLIENT_ID = import.meta.env.VITE_OCTORATE_CLIENT_ID || ""
@@ -1143,7 +1143,6 @@ export async function updateStandardProtectionStrategy(
   seasonEndDate: string = '2027-03-31',
   daysTriggerLimit: number = 15,
   daysOpenDuration: number = 10,
-  daysCtaDuration: number = 5,
   executionMode: DiscountExecutionMode = 'test_bungalows',
   resetToOpen: boolean = false
 ): Promise<{ success: boolean; message: string; dateUpdated: string; details: any }> {
@@ -1152,7 +1151,6 @@ export async function updateStandardProtectionStrategy(
     seasonEndDate,
     daysTriggerLimit,
     daysOpenDuration,
-    daysCtaDuration,
     executionMode
   });
 
@@ -1165,50 +1163,103 @@ export async function updateStandardProtectionStrategy(
     seasonEndDate,
     daysTriggerLimit,
     daysOpenDuration,
-    daysCtaDuration,
-    updates: resetToOpen ? updates.map(u => ({ ...u, stopSell: false, closedToArrival: false })) : updates
+    updates: resetToOpen ? updates.map(u => ({ ...u, stopSell: false })) : updates
   };
 
   if (executionMode === 'simulation') {
     return {
       success: true,
-      message: `🟡 SIMULAZIONE DRY-RUN: Calcolate ${updates.length} restrizioni di Protezione Tariffe Standard (7d/14d OTA) dal ${seasonStartDate} al ${seasonEndDate}. Nessuna chiamata API inviata ad Octorate.`,
+      message: `🟡 SIMULAZIONE DRY-RUN: Calcolate ${updates.length} restrizioni per Tariffe Standard 7d OTA (Booking.com, Expedia, Agoda) dal ${seasonStartDate} al ${seasonEndDate}. Nessuna chiamata API inviata ad Octorate.`,
       dateUpdated: new Date().toISOString(),
       details: payload
     };
   }
 
-  const tokens = await getStoredTokens();
-
-  if (tokens?.access_token) {
-    try {
-      const res = await fetch(`${OCTORATE_API_BASE}/calendar/bulk`, {
-        method: "POST",
-        headers: await getAuthHeaders(),
-        body: JSON.stringify(payload),
+  // Chiamata serverless bulk ad Octorate
+  const isTestOnly = executionMode === 'test_bungalows';
+  try {
+    if (resetToOpen) {
+      // Ripristino standard: Imposta Stop-Sell su tutta la High Season per tariffa 7d
+      const resetRes = await fetch('/api/update-rateplan-restrictions-bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId: '7d',
+          ratePlanKey: '7d',
+          dateFrom: seasonStartDate,
+          dateTo: seasonEndDate,
+          stopSell: true,
+          strategy: 'stopsell',
+          testOnly: isTestOnly
+        })
+      });
+      const resetJson = await resetRes.json().catch(() => ({}));
+      if (!resetRes.ok) {
+        throw new Error(resetJson.error || 'Errore durante il ripristino delle restrizioni');
+      }
+    } else {
+      // 1. Chiusura Stop-Sell di sicurezza su tutta la High Season per tariffa 7d
+      await fetch('/api/update-rateplan-restrictions-bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planId: '7d',
+          ratePlanKey: '7d',
+          dateFrom: seasonStartDate,
+          dateTo: seasonEndDate,
+          stopSell: true,
+          strategy: 'stopsell',
+          testOnly: isTestOnly
+        })
       });
 
-      if (res.ok) {
-        const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows)' : '🌐 PRODUZIONE (Tutte le Camere Reali)';
-        return {
-          success: true,
-          message: `🔒 Protezione Tariffe Standard completata in ${envLabel}: ${updates.length} aggiornamenti inviati a Octorate per le Tariffe Standard 7d/14d OTA.`,
-          dateUpdated: new Date().toISOString(),
-          details: payload
-        };
-      }
-    } catch (err) {
-      console.warn("[Octorate] Standard protection strategy exception:", err);
-    }
-  }
+      // 2. Calcolo finestra rolling di apertura sbloccata dal trigger
+      const todayStr = toThailandDateStr(new Date());
+      const todayParts = parseThailandDateParts(todayStr);
+      if (todayParts) {
+        const todayTime = Date.UTC(todayParts.year, todayParts.month - 1, todayParts.day);
+        const openWindowStartTime = todayTime + daysTriggerLimit * 24 * 60 * 60 * 1000;
+        const openWindowEndTime = openWindowStartTime + (daysOpenDuration - 1) * 24 * 60 * 60 * 1000;
+        const openWindowEndDateStr = toThailandDateStr(new Date(openWindowEndTime));
 
-  const envLabel = executionMode === 'test_bungalows' ? '🧪 AMBIENTE DI TEST (Fake Bungalows ID 649669 e 921799)' : '🌐 PRODUZIONE (Tutte le camere reali)';
-  return {
-    success: true,
-    message: `🔒 Protezione Tariffe Standard V4 (${envLabel}): Inizio ${seasonStartDate}, Fine ${seasonEndDate}, Trigger N <= ${daysTriggerLimit}d, Durata Apertura ${daysOpenDuration}d, CTA ${daysCtaDuration}d. Totale ${updates.length} aggiornamenti alle tariffe derivate 7d/14d OTA.`,
-    dateUpdated: new Date().toISOString(),
-    details: payload
-  };
+        const effectiveOpenStart = seasonStartDate > todayStr ? seasonStartDate : todayStr;
+        const effectiveOpenEnd = openWindowEndDateStr > seasonEndDate ? seasonEndDate : openWindowEndDateStr;
+
+        if (effectiveOpenStart <= effectiveOpenEnd) {
+          const openRes = await fetch('/api/update-rateplan-restrictions-bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              planId: '7d',
+              ratePlanKey: '7d',
+              dateFrom: effectiveOpenStart,
+              dateTo: effectiveOpenEnd,
+              stopSell: false,
+              strategy: 'open',
+              testOnly: isTestOnly
+            })
+          });
+          const openJson = await openRes.json().catch(() => ({}));
+          if (!openRes.ok) {
+            throw new Error(openJson.error || 'Errore durante l\'apertura della finestra 7d OTA');
+          }
+        }
+      }
+    }
+
+    const envLabel = isTestOnly ? '🧪 AMBIENTE DI TEST (Fake Bungalows ID 649669 e 921799)' : '🌐 PRODUZIONE (Tutte le 18 camere reali)';
+    return {
+      success: true,
+      message: resetToOpen
+        ? `🔄 Ripristino completato in ${envLabel}: Stop-Sell riapplicato su tutta la High Season (${seasonStartDate} ➔ ${seasonEndDate}) per Tariffa Standard 7d OTA.`
+        : `✅ Tariffe Standard 7d OTA sincronizzate in ${envLabel}: Finestra Last-Minute aperta da Trigger ${daysTriggerLimit}gg con durata ${daysOpenDuration}gg.`,
+      dateUpdated: new Date().toISOString(),
+      details: payload
+    };
+  } catch (err: any) {
+    console.error('[Octorate] Standard protection strategy exception:', err);
+    throw new Error(err.message || 'Impossibile completare la sincronizzazione delle Tariffe Standard OTA');
+  }
 }
 
 
