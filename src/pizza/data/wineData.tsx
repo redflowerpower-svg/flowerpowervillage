@@ -79,8 +79,26 @@ export const WINE_TYPE_OPTIONS = [
     label: 'Bollicine', 
     names: { IT: 'BOLLICINE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
     defaultColor: '#eab308'
-  },
+  }
 ];
+
+export const resolveWineCategoryType = (wine: { categoryType?: string; categorySubtitle?: string; title?: string; subtitleIt?: string; titleIt?: string; name?: string }): 'red' | 'white' | 'rose' | 'sparkling' => {
+  const text = `${wine.title || ''} ${wine.titleIt || ''} ${wine.name || ''} ${wine.categorySubtitle || ''} ${wine.subtitleIt || ''}`.toLowerCase();
+
+  if (text.includes('prosecco') || text.includes('spumant') || text.includes('bollicin') || text.includes('champagne') || text.includes('sparkling') || text.includes('cava') || text.includes('brut') || text.includes('millesimato')) {
+    return 'sparkling';
+  }
+  if (text.includes('rosé') || text.includes('rose') || text.includes('rosato') || text.includes('côtes de provence')) {
+    return 'rose';
+  }
+  if (text.includes('bianco') || text.includes('white') || text.includes('chardonnay') || text.includes('sauvignon') || text.includes('pinot grigio') || text.includes('vermentino') || text.includes('trebbiano') || text.includes('soave') || text.includes('gavi') || text.includes('cortese')) {
+    return 'white';
+  }
+  if (wine.categoryType && ['red', 'white', 'rose', 'sparkling'].includes(wine.categoryType)) {
+    return wine.categoryType as any;
+  }
+  return 'red';
+};
 
 export const INITIAL_WINE_COLLECTION: WineCardData[] = [
   {

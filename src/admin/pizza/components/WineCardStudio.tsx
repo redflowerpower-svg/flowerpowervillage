@@ -37,10 +37,11 @@ import {
   renderWinePrice,
   getWineTranslatedTitle,
   getWineTranslatedSubtitle,
-  getWineTranslatedDesc
+  getWineTranslatedDesc,
+  resolveWineCategoryType
 } from '../../../pizza/data/wineData';
 export type { WineCardData };
-export { WINE_COUNTRY_OPTIONS, WINE_TYPE_OPTIONS };
+export { WINE_COUNTRY_OPTIONS, WINE_TYPE_OPTIONS, resolveWineCategoryType };
 
 const toTitleCase = (str: string) => {
   return str
@@ -271,6 +272,7 @@ export const WineCardStudio: React.FC = () => {
           if (!deletedSet.has(item.id)) {
             merged.push({
               ...item,
+              categoryType: resolveWineCategoryType(item),
               isAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
               bottleScaleX: item.bottleScaleX !== undefined ? item.bottleScaleX : 100,
               bottleOffsetX: item.bottleOffsetX !== undefined ? item.bottleOffsetX : 0
@@ -292,7 +294,9 @@ export const WineCardStudio: React.FC = () => {
   });
 
   const [formData, setFormData] = useState<WineCardData>(() => createBlankWineTemplate());
-  const [galleryFilter, setGalleryFilter] = useState<'all' | 'red' | 'white' | 'rose' | 'sparkling' | 'available' | 'unavailable'>('all');
+  const [galleryTypeFilter, setGalleryTypeFilter] = useState<'all' | 'red' | 'white' | 'rose' | 'sparkling'>('all');
+  const [galleryCountryFilter, setGalleryCountryFilter] = useState<string>('all');
+  const [galleryAvailabilityFilter, setGalleryAvailabilityFilter] = useState<'all' | 'available' | 'unavailable'>('all');
   const [gallerySearch, setGallerySearch] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -1118,22 +1122,285 @@ export const WineCardStudio: React.FC = () => {
     setSubView('editor');
   };
 
-  const filteredCollection = collection.filter(item => {
-    let matchesFilter = true;
-    if (galleryFilter === 'available') {
-      matchesFilter = item.isAvailable === true;
-    } else if (galleryFilter === 'unavailable') {
-      matchesFilter = item.isAvailable === false;
-    } else if (galleryFilter !== 'all') {
-      matchesFilter = item.categoryType === galleryFilter;
-    }
+  // ─── Helpers for Wine Categorization & Filtering ───────────────────────
+  const sortItalianFirst = (wines: WineCardData[]) => {
+    return [...wines].sort((a, b) => {
+      const aIsItaly = a.flag === '🇮🇹' || a.categorySubtitle.toLowerCase().includes('italia') || (a.subtitleIt && a.subtitleIt.toLowerCase().includes('italia'));
+      const bIsItaly = b.flag === '🇮🇹' || b.categorySubtitle.toLowerCase().includes('italia') || (b.subtitleIt && b.subtitleIt.toLowerCase().includes('italia'));
+      if (aIsItaly && !bIsItaly) return -1;
+      if (!aIsItaly && bIsItaly) return 1;
+      return 0;
+    });
+  };
 
-    const s = gallerySearch.toLowerCase();
-    const matchesSearch = !s || item.title.toLowerCase().includes(s) || item.categorySubtitle.toLowerCase().includes(s) || item.price.includes(s);
-    return matchesFilter && matchesSearch;
-  });
+  const availableWineCountries = React.useMemo(() => {
+    const flagsInUse = new Set<string>();
+    collection.forEach(w => {
+      if (w.flag) flagsInUse.add(w.flag);
+    });
+    return WINE_COUNTRY_OPTIONS.filter(c => flagsInUse.has(c.flag) || flagsInUse.has(c.code));
+  }, [collection]);
 
+  const filterWineCollection = (type: string) => {
+    return collection.filter(item => {
+      // Type filter
+      if (type !== 'all' && resolveWineCategoryType(item) !== type) return false;
+      // Availability filter
+      if (galleryAvailabilityFilter === 'available' && !item.isAvailable) return false;
+      if (galleryAvailabilityFilter === 'unavailable' && item.isAvailable) return false;
+      // Country filter
+      if (galleryCountryFilter !== 'all') {
+        const flagMatches = item.flag === galleryCountryFilter;
+        const countryOption = WINE_COUNTRY_OPTIONS.find(c => c.flag === galleryCountryFilter || c.code === galleryCountryFilter);
+        const textMatches = countryOption && (
+          item.categorySubtitle.toUpperCase().includes(countryOption.label.toUpperCase()) ||
+          Object.values(countryOption.names).some(n => item.categorySubtitle.toUpperCase().includes(n.toUpperCase()))
+        );
+        if (!flagMatches && !textMatches) return false;
+      }
+      // Search filter
+      if (gallerySearch.trim()) {
+        const s = gallerySearch.toLowerCase();
+        const match = item.title.toLowerCase().includes(s) || item.categorySubtitle.toLowerCase().includes(s) || item.price.includes(s);
+        if (!match) return false;
+      }
+      return true;
+    });
+  };
+
+  const wineTypeCounts = React.useMemo(() => {
+    return {
+      all: filterWineCollection('all').length,
+      red: filterWineCollection('red').length,
+      white: filterWineCollection('white').length,
+      rose: filterWineCollection('rose').length,
+      sparkling: filterWineCollection('sparkling').length,
+    };
+  }, [collection, galleryAvailabilityFilter, galleryCountryFilter, gallerySearch]);
+
+  const WINE_SECTIONS = [
+    { id: 'red' as const, name: { IT: 'Vini Rossi', EN: 'Red Wines', TH: 'ไวน์แดง', DE: 'Rotweine' } },
+    { id: 'white' as const, name: { IT: 'Vini Bianchi', EN: 'White Wines', TH: 'ไวน์ขาว', DE: 'Weißweine' } },
+    { id: 'rose' as const, name: { IT: 'Vini Rosati', EN: 'Rosé Wines', TH: 'ไวน์โรเซ่', DE: 'Roséweine' } },
+    { id: 'sparkling' as const, name: { IT: 'Bollicine & Spumanti', EN: 'Sparkling & Champagne', TH: 'สปาร์กลิงไวน์', DE: 'Schaumweine & Champagner' } }
+  ];
+
+  const groupedWineSections = React.useMemo(() => {
+    return WINE_SECTIONS.map(sec => {
+      const items = sortItalianFirst(filterWineCollection(sec.id));
+      return { ...sec, items };
+    }).filter(group => group.items.length > 0);
+  }, [collection, galleryAvailabilityFilter, galleryCountryFilter, gallerySearch, previewLang]);
+
+  const currentWinesForSelectedType = React.useMemo(() => {
+    return sortItalianFirst(filterWineCollection(galleryTypeFilter));
+  }, [collection, galleryTypeFilter, galleryAvailabilityFilter, galleryCountryFilter, gallerySearch]);
+
+  const totalFilteredCount = filterWineCollection('all').length;
   const availableCount = collection.filter(c => c.isAvailable).length;
+
+  const renderWineCard = (wine: WineCardData) => (
+    <div
+      key={wine.id}
+      draggable={true}
+      onDragStart={(e) => {
+        setDraggedWineId(wine.id);
+        e.dataTransfer.setData('text/plain', wine.id);
+        e.dataTransfer.effectAllowed = 'move';
+      }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (dragOverWineId !== wine.id) {
+          setDragOverWineId(wine.id);
+        }
+      }}
+      onDragLeave={() => {
+        if (dragOverWineId === wine.id) {
+          setDragOverWineId(null);
+        }
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        handleCardDrop(wine.id);
+      }}
+      onDragEnd={() => {
+        setDraggedWineId(null);
+        setDragOverWineId(null);
+      }}
+      className={`max-w-[380px] w-full mx-auto group bg-white border rounded-[2rem] transition-all duration-200 flex flex-col justify-between overflow-hidden relative min-h-[460px] sm:min-h-[500px] select-none ${
+        draggedWineId === wine.id
+          ? 'opacity-40 scale-95 ring-2 ring-amber-500 shadow-inner'
+          : dragOverWineId === wine.id
+            ? 'ring-4 ring-amber-500 scale-[1.03] shadow-2xl border-amber-500 z-20'
+            : 'shadow-sm hover:shadow-2xl hover:-translate-y-1'
+      } ${
+        wine.isAvailable ? 'border-stone-300' : 'border-stone-300 opacity-75 grayscale-[20%]'
+      }`}
+    >
+      {/* TOP AVAILABILITY BAR (BAFFETTO DI VENDITA + DRAG HANDLE) */}
+      <div className={`px-3 sm:px-4 py-2 flex items-center justify-between border-b transition-colors shrink-0 ${
+        wine.isAvailable 
+          ? 'bg-emerald-50/80 border-emerald-200/80 text-emerald-800' 
+          : 'bg-stone-100 border-stone-200 text-stone-500'
+      }`}>
+        <div className="flex items-center gap-1.5">
+          {/* Drag Handle Icon */}
+          <div 
+            className="p-1 text-stone-400 hover:text-stone-700 cursor-grab active:cursor-grabbing shrink-0" 
+            title="Trascina con il mouse per cambiare ordine"
+          >
+            <GripVertical className="w-4 h-4" />
+          </div>
+
+          <button
+            type="button"
+            onClick={(e) => handleToggleAvailability(wine.id, e)}
+            className="flex items-center gap-2 cursor-pointer select-none group/toggle"
+          >
+            <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
+              wine.isAvailable
+                ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-300'
+                : 'border-2 border-stone-400 bg-white group-hover/toggle:border-stone-600'
+            }`}>
+              {wine.isAvailable && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+            </div>
+            <span className="text-[11px] font-black uppercase tracking-wider">
+              {wine.isAvailable ? 'In Vendita' : 'Non in Vendita'}
+            </span>
+          </button>
+        </div>
+
+        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
+          wine.isAvailable ? 'bg-emerald-200/60 text-emerald-900' : 'bg-stone-200 text-stone-600'
+        }`}>
+          {wine.isAvailable ? 'Visibile' : 'Nascosto'}
+        </span>
+      </div>
+
+      {/* 100% Exact Card Component from MenuGrid */}
+      <div 
+        onClick={() => setSelectedWineLightbox(wine)}
+        className="flex flex-row flex-grow cursor-pointer relative min-h-[460px] sm:min-h-[500px]"
+      >
+        {/* Left (35%): Vertical Bottle Portion */}
+        <div className="w-[35%] bg-stone-50 border-r border-stone-200 p-3 flex items-center justify-center relative overflow-hidden flex-shrink-0 min-h-[460px] sm:min-h-[500px]">
+          <div 
+            className="w-full h-full flex items-center justify-center transition-transform duration-300"
+            style={{
+              transform: `scale(${wine.bottleScale / 100}) scaleX(${(wine.bottleScaleX || 100) / 100}) translateX(${((wine.bottleOffsetX || 0) / 3.2)}%) translateY(${(wine.bottleOffsetY / 3.2)}%)`
+            }}
+          >
+            <img
+              src={wine.bottleImage}
+              alt={wine.title}
+              className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+          <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
+            <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
+              <ZoomIn size={15} className="text-white" />
+            </div>
+          </div>
+        </div>
+
+        {/* Right (65%): Details & Action Portion */}
+        <div className="w-[65%] p-4 sm:p-5 flex flex-col justify-between flex-grow">
+          <div>
+            <h3
+              className="font-sans font-bold text-stone-900 leading-tight tracking-tight"
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+            >
+              {formatProductName(getWineTranslatedTitle(wine, previewLang))}
+            </h3>
+
+            {(getWineTranslatedSubtitle(wine, previewLang) || wine.flag) && (
+              <div 
+                className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-900 mt-2.5 sm:mt-3 flex items-center gap-2.5 leading-tight"
+                style={{ 
+                  fontFamily: previewLang === 'TH' ? "'Prompt', 'Kanit', sans-serif" : 'Outfit, system-ui, sans-serif',
+                  fontWeight: 900
+                }}
+              >
+                {wine.flag && <span className="shrink-0 flex items-center">{renderCountryFlag(wine.flag)}</span>}
+                <span className={`flex-1 flex flex-col justify-center leading-snug ${previewLang === 'TH' ? 'font-black text-[11px] sm:text-[12px] tracking-tight' : 'font-black'}`}>
+                  {formatSubtitle(getWineTranslatedSubtitle(wine, previewLang))}
+                </span>
+              </div>
+            )}
+
+            <p
+              className="text-stone-500 text-xs font-light leading-snug mt-3 sm:mt-3.5"
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+            >
+              {getWineTranslatedDesc(wine, previewLang)}
+            </p>
+
+            {wine.alcohol && (
+              <span className="inline-block mt-1.5 text-[10px] font-bold text-stone-400">
+                {wine.alcohol.replace('.', ',')} Vol.
+              </span>
+            )}
+          </div>
+
+          {/* Bottom Action Bar */}
+          <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2">
+            <div className="flex flex-col">
+              <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                Prezzo
+              </span>
+              {renderWinePrice(wine.price)}
+            </div>
+
+            <span
+              className={`px-3.5 py-2 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1 pointer-events-none ${
+                wine.isAvailable ? 'bg-[#8B1E1E]' : 'bg-stone-400'
+              }`}
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+            >
+              <Plus size={13} />
+              <span>Aggiungi</span>
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Card Action Bar (Admin Controls) */}
+      <div className="p-2.5 bg-stone-50 border-t border-stone-200 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => handleEditWine(wine)}
+            className="px-3 py-1.5 rounded-xl bg-white border border-stone-200 hover:bg-stone-100 text-stone-800 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm"
+          >
+            <Edit3 className="w-3.5 h-3.5 text-amber-600" />
+            <span>Modifica Scheda</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleDuplicateWine(wine)}
+            className="px-2.5 py-1.5 rounded-xl bg-white border border-stone-200 hover:bg-amber-50 hover:border-amber-300 text-stone-800 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm"
+            title="Duplica questa scheda e portala nello Studio per modificarla"
+          >
+            <Copy className="w-3.5 h-3.5 text-blue-600" />
+            <span>Duplica</span>
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleDeleteWine(wine.id)}
+          className="p-1.5 rounded-xl text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+          title="Elimina vino"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+
+    </div>
+  );
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
@@ -1202,75 +1469,11 @@ export const WineCardStudio: React.FC = () => {
         <div className="space-y-6">
           
           {/* Controls Bar: Sticky on scroll (Search, Category Filters, Language Switcher, New Wine) */}
-          <div className="sticky top-0 sm:top-16 z-30 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 bg-white/95 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border border-stone-200 shadow-md transition-all">
+          <div className="sticky top-0 sm:top-16 z-30 flex flex-col gap-3 bg-white/95 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border border-stone-200 shadow-md transition-all">
             
-            {/* Filter Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
-              <button
-                type="button"
-                onClick={() => setGalleryFilter('all')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  galleryFilter === 'all'
-                    ? 'bg-stone-900 text-white shadow-sm'
-                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                }`}
-              >
-                Tutti ({collection.length})
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setGalleryFilter('available')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  galleryFilter === 'available'
-                    ? 'bg-emerald-700 text-white shadow-sm'
-                    : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-                <span>In Vendita ({availableCount})</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setGalleryFilter('unavailable')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                  galleryFilter === 'unavailable'
-                    ? 'bg-stone-700 text-white shadow-sm'
-                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                }`}
-              >
-                <span className="w-2 h-2 rounded-full bg-stone-400 inline-block"></span>
-                <span>Non in Vendita ({collection.length - availableCount})</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setGalleryFilter('red')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
-                  galleryFilter === 'red'
-                    ? 'bg-red-800 text-white shadow-sm'
-                    : 'bg-red-50 text-red-800 hover:bg-red-100'
-                }`}
-              >
-                🍷 Rossi
-              </button>
-              <button
-                type="button"
-                onClick={() => setGalleryFilter('white')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1 ${
-                  galleryFilter === 'white'
-                    ? 'bg-amber-700 text-white shadow-sm'
-                    : 'bg-amber-50 text-amber-800 hover:bg-amber-100'
-                }`}
-              >
-                🥂 Bianchi
-              </button>
-            </div>
-
-            {/* Search & Add New */}
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1 sm:w-56">
+            {/* Top Row: Search & Actions */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-md">
                 <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
@@ -1281,7 +1484,7 @@ export const WineCardStudio: React.FC = () => {
                 />
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap justify-end">
                 {/* Language preview switcher */}
                 <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200">
                   <span className="text-[9px] font-black text-stone-400 px-1 uppercase">Lingua:</span>
@@ -1336,234 +1539,258 @@ export const WineCardStudio: React.FC = () => {
               </div>
             </div>
 
+            {/* Bottom Row: Single-Row Compact Filter Toolbar (Types + Availability + Countries) */}
+            <div 
+              className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 border-t border-stone-100"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {/* Type buttons */}
+              <button
+                type="button"
+                onClick={() => setGalleryTypeFilter('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs tracking-wider uppercase font-semibold transition-all shrink-0 cursor-pointer border ${
+                  galleryTypeFilter === 'all'
+                    ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm font-bold'
+                    : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400 hover:bg-stone-50'
+                }`}
+                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+              >
+                <span>Tutti i Vini</span>
+                <span className={`ml-1.5 text-[10px] ${galleryTypeFilter === 'all' ? 'text-white/80' : 'text-stone-400'}`}>
+                  ({wineTypeCounts.all})
+                </span>
+              </button>
+
+              {WINE_SECTIONS.map(sec => {
+                const isSelected = galleryTypeFilter === sec.id;
+                const count = wineTypeCounts[sec.id] || 0;
+                return (
+                  <button
+                    key={sec.id}
+                    type="button"
+                    onClick={() => setGalleryTypeFilter(sec.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs tracking-wider uppercase font-semibold transition-all shrink-0 cursor-pointer border ${
+                      isSelected
+                        ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm font-bold'
+                        : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400 hover:bg-stone-50'
+                    }`}
+                    style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                  >
+                    <span>{sec.name[previewLang]}</span>
+                    <span className={`ml-1.5 text-[10px] ${isSelected ? 'text-white/80' : 'text-stone-400'}`}>
+                      ({count})
+                    </span>
+                  </button>
+                );
+              })}
+
+              {/* Vertical Divider */}
+              <div className="h-5 w-px bg-stone-300 mx-1 shrink-0" />
+
+              {/* Availability Filter Pills */}
+              <button
+                type="button"
+                onClick={() => setGalleryAvailabilityFilter('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide uppercase transition-all shrink-0 cursor-pointer border ${
+                  galleryAvailabilityFilter === 'all'
+                    ? 'bg-stone-900 text-white border-stone-900 shadow-sm'
+                    : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
+                }`}
+                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+              >
+                <span>Tutti gli Stati</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setGalleryAvailabilityFilter('available')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide uppercase transition-all shrink-0 cursor-pointer border flex items-center gap-1.5 ${
+                  galleryAvailabilityFilter === 'available'
+                    ? 'bg-emerald-700 text-white border-emerald-700 shadow-sm'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+                }`}
+                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                <span>In Vendita</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setGalleryAvailabilityFilter('unavailable')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide uppercase transition-all shrink-0 cursor-pointer border flex items-center gap-1.5 ${
+                  galleryAvailabilityFilter === 'unavailable'
+                    ? 'bg-stone-700 text-white border-stone-700 shadow-sm'
+                    : 'bg-stone-100 text-stone-600 border-stone-200 hover:bg-stone-200'
+                }`}
+                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-stone-400 inline-block"></span>
+                <span>Non in Vendita</span>
+              </button>
+
+              {/* Vertical Divider */}
+              <div className="h-5 w-px bg-stone-300 mx-1 shrink-0" />
+
+              {/* Country buttons */}
+              <button
+                type="button"
+                onClick={() => setGalleryCountryFilter('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide uppercase transition-all shrink-0 cursor-pointer border ${
+                  galleryCountryFilter === 'all'
+                    ? 'bg-stone-900 text-white border-stone-900 shadow-sm'
+                    : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
+                }`}
+                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+              >
+                <span>Tutte le Origini</span>
+              </button>
+
+              {availableWineCountries.map(c => {
+                const isSelected = galleryCountryFilter === c.flag;
+                const isItaly = c.flag === '🇮🇹';
+                const countryName = c.names?.[previewLang] || c.label;
+                return (
+                  <button
+                    key={c.flag}
+                    type="button"
+                    onClick={() => setGalleryCountryFilter(c.flag)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide uppercase transition-all shrink-0 cursor-pointer border ${
+                      isSelected
+                        ? isItaly
+                          ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm'
+                          : 'bg-stone-900 text-white border-stone-900 shadow-sm'
+                        : isItaly
+                        ? 'bg-[#8B1E1E]/5 text-[#8B1E1E] border-[#8B1E1E]/30 hover:bg-[#8B1E1E]/10'
+                        : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
+                    }`}
+                    style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                  >
+                    <span>{countryName}</span>
+                  </button>
+                );
+              })}
+
+              {/* Reset button if country or availability filter is active */}
+              {(galleryCountryFilter !== 'all' || galleryAvailabilityFilter !== 'all' || galleryTypeFilter !== 'all') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGalleryTypeFilter('all');
+                    setGalleryCountryFilter('all');
+                    setGalleryAvailabilityFilter('all');
+                    setGallerySearch('');
+                  }}
+                  className="text-xs font-bold uppercase tracking-wider text-[#8B1E1E] hover:underline flex items-center gap-1 shrink-0 px-2 py-1 cursor-pointer ml-auto"
+                >
+                  <Undo2 className="w-3 h-3" />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
+
           </div>
 
           {/* Info Banner per Drag and Drop Reordering */}
           <div className="flex items-center gap-2 text-xs font-bold text-amber-900 bg-amber-50/90 border border-amber-300/80 px-4 py-2.5 rounded-2xl shadow-xs animate-fadeIn">
             <GripVertical className="w-4 h-4 text-amber-700 shrink-0" />
-            <span>💡 <strong>Trascina e rilascia le schede con il mouse</strong> per riordinare la loro posizione esatta sul sito web e nel menu delivery.</span>
+            <span>💡 <strong>Trascina e rilascia le schede con il mouse</strong> per riordinare la loro posizione esatta sul sito web e nel menu delivery. I vini italiani vengono posizionati per primi.</span>
           </div>
 
-          {/* Wine Cards Gallery Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredCollection.map((wine) => (
-              <div
-                key={wine.id}
-                draggable={true}
-                onDragStart={(e) => {
-                  setDraggedWineId(wine.id);
-                  e.dataTransfer.setData('text/plain', wine.id);
-                  e.dataTransfer.effectAllowed = 'move';
-                }}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = 'move';
-                  if (dragOverWineId !== wine.id) {
-                    setDragOverWineId(wine.id);
-                  }
-                }}
-                onDragLeave={() => {
-                  if (dragOverWineId === wine.id) {
-                    setDragOverWineId(null);
-                  }
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  handleCardDrop(wine.id);
-                }}
-                onDragEnd={() => {
-                  setDraggedWineId(null);
-                  setDragOverWineId(null);
-                }}
-                className={`max-w-[380px] w-full mx-auto group bg-white border rounded-[2rem] transition-all duration-200 flex flex-col justify-between overflow-hidden relative min-h-[460px] sm:min-h-[500px] select-none ${
-                  draggedWineId === wine.id
-                    ? 'opacity-40 scale-95 ring-2 ring-amber-500 shadow-inner'
-                    : dragOverWineId === wine.id
-                      ? 'ring-4 ring-amber-500 scale-[1.03] shadow-2xl border-amber-500 z-20'
-                      : 'shadow-sm hover:shadow-2xl hover:-translate-y-1'
-                } ${
-                  wine.isAvailable ? 'border-stone-300' : 'border-stone-300 opacity-75 grayscale-[20%]'
-                }`}
-              >
-                {/* TOP AVAILABILITY BAR (BAFFETTO DI VENDITA + DRAG HANDLE) */}
-                <div className={`px-3 sm:px-4 py-2 flex items-center justify-between border-b transition-colors shrink-0 ${
-                  wine.isAvailable 
-                    ? 'bg-emerald-50/80 border-emerald-200/80 text-emerald-800' 
-                    : 'bg-stone-100 border-stone-200 text-stone-500'
-                }`}>
-                  <div className="flex items-center gap-1.5">
-                    {/* Drag Handle Icon */}
-                    <div 
-                      className="p-1 text-stone-400 hover:text-stone-700 cursor-grab active:cursor-grabbing shrink-0" 
-                      title="Trascina con il mouse per cambiare ordine"
-                    >
-                      <GripVertical className="w-4 h-4" />
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={(e) => handleToggleAvailability(wine.id, e)}
-                      className="flex items-center gap-2 cursor-pointer select-none group/toggle"
-                    >
-                      <div className={`w-5 h-5 rounded-md flex items-center justify-center transition-all ${
-                        wine.isAvailable
-                          ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-300'
-                          : 'border-2 border-stone-400 bg-white group-hover/toggle:border-stone-600'
-                      }`}>
-                        {wine.isAvailable && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                      </div>
-                      <span className="text-[11px] font-black uppercase tracking-wider">
-                        {wine.isAvailable ? 'In Vendita' : 'Non in Vendita'}
-                      </span>
-                    </button>
-                  </div>
-
-                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                    wine.isAvailable ? 'bg-emerald-200/60 text-emerald-900' : 'bg-stone-200 text-stone-600'
-                  }`}>
-                    {wine.isAvailable ? 'Visibile' : 'Nascosto'}
-                  </span>
-                </div>
-
-                {/* 100% Exact Card Component from MenuGrid */}
-                <div 
-                  onClick={() => setSelectedWineLightbox(wine)}
-                  className="flex flex-row flex-grow cursor-pointer relative min-h-[460px] sm:min-h-[500px]"
-                >
-                  {/* Left (35%): Vertical Bottle Portion */}
-                  <div className="w-[35%] bg-stone-50 border-r border-stone-200 p-3 flex items-center justify-center relative overflow-hidden flex-shrink-0 min-h-[460px] sm:min-h-[500px]">
-                    <div 
-                      className="w-full h-full flex items-center justify-center transition-transform duration-300"
-                      style={{
-                        transform: `scale(${wine.bottleScale / 100}) scaleX(${(wine.bottleScaleX || 100) / 100}) translateX(${((wine.bottleOffsetX || 0) / 3.2)}%) translateY(${(wine.bottleOffsetY / 3.2)}%)`
-                      }}
-                    >
-                      <img
-                        src={wine.bottleImage}
-                        alt={wine.title}
-                        className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
-                      <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
-                        <ZoomIn size={15} className="text-white" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right (65%): Details & Action Portion */}
-                  <div className="w-[65%] p-4 sm:p-5 flex flex-col justify-between flex-grow">
-                    <div>
-                      <h3
-                        className="font-sans font-bold text-stone-900 leading-tight tracking-tight"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+          {/* Wine Cards Gallery - Grouped Sections or Single Section */}
+          {galleryTypeFilter === 'all' ? (
+            groupedWineSections.length > 0 ? (
+              <div className="space-y-12">
+                {groupedWineSections.map(group => (
+                  <div key={group.id} id={`admin-wine-sec-${group.id}`} className="scroll-mt-24 space-y-4">
+                    <div className="flex items-center gap-3 px-1">
+                      <h3 
+                        className="font-sans text-xl font-extrabold text-stone-800 tracking-tight"
+                        style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
                       >
-                        {formatProductName(getWineTranslatedTitle(wine, previewLang))}
+                        {group.name[previewLang]}
                       </h3>
-
-                      {(getWineTranslatedSubtitle(wine, previewLang) || wine.flag) && (
-                        <div 
-                          className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-900 mt-2.5 sm:mt-3 flex items-center gap-2.5 leading-tight"
-                          style={{ 
-                            fontFamily: previewLang === 'TH' ? "'Prompt', 'Kanit', sans-serif" : 'Outfit, system-ui, sans-serif',
-                            fontWeight: 900
-                          }}
-                        >
-                          {wine.flag && <span className="shrink-0 flex items-center">{renderCountryFlag(wine.flag)}</span>}
-                          <span className={`flex-1 flex flex-col justify-center leading-snug ${previewLang === 'TH' ? 'font-black text-[11px] sm:text-[12px] tracking-tight' : 'font-black'}`}>
-                            {formatSubtitle(getWineTranslatedSubtitle(wine, previewLang))}
-                          </span>
-                        </div>
-                      )}
-
-                      <p
-                        className="text-stone-500 text-xs font-light leading-snug mt-3 sm:mt-3.5"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                      >
-                        {getWineTranslatedDesc(wine, previewLang)}
-                      </p>
-
-                      {wine.alcohol && (
-                        <span className="inline-block mt-1.5 text-[10px] font-bold text-stone-400">
-                          {wine.alcohol.replace('.', ',')} Vol.
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Bottom Action Bar */}
-                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2">
-                      <div className="flex flex-col">
-                        <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                          Prezzo
-                        </span>
-                        {renderWinePrice(wine.price)}
-                      </div>
-
-                      <span
-                        className={`px-3.5 py-2 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1 pointer-events-none ${
-                          wine.isAvailable ? 'bg-[#8B1E1E]' : 'bg-stone-400'
-                        }`}
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                      >
-                        <Plus size={13} />
-                        <span>Aggiungi</span>
+                      <span className="text-xs text-stone-400 font-medium">
+                        ({group.items.length})
                       </span>
+                      <div className="flex-1 h-px bg-stone-300/60" />
                     </div>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {group.items.map(renderWineCard)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-white rounded-3xl border border-stone-200 p-8 space-y-3">
+                <Wine className="w-12 h-12 text-stone-300 mx-auto" />
+                <h3 className="text-base font-bold text-stone-800">Nessuna scheda vino trovata</h3>
+                <p className="text-xs text-stone-500 max-w-sm mx-auto">
+                  Nessun vino corrisponde ai filtri di ricerca selezionati.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setGalleryTypeFilter('all');
+                    setGalleryCountryFilter('all');
+                    setGalleryAvailabilityFilter('all');
+                    setGallerySearch('');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-[#8B1E1E] text-white font-bold text-xs cursor-pointer"
+                >
+                  Mostra Tutti i Vini
+                </button>
+              </div>
+            )
+          ) : (
+            <div>
+              {currentWinesForSelectedType.length > 0 ? (
+                <div className="space-y-4">
+                  {(() => {
+                    const activeSection = WINE_SECTIONS.find(s => s.id === galleryTypeFilter);
+                    if (!activeSection) return null;
+                    return (
+                      <div className="flex items-center gap-3 px-1 mb-4">
+                        <h3 
+                          className="font-sans text-xl font-extrabold text-stone-800 tracking-tight"
+                          style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                        >
+                          {activeSection.name[previewLang]}
+                        </h3>
+                        <span className="text-xs text-stone-400 font-medium">
+                          ({currentWinesForSelectedType.length})
+                        </span>
+                        <div className="flex-1 h-px bg-stone-300/60" />
+                      </div>
+                    );
+                  })()}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {currentWinesForSelectedType.map(renderWineCard)}
                   </div>
                 </div>
-
-                {/* Card Action Bar (Admin Controls) */}
-                <div className="p-2.5 bg-stone-50 border-t border-stone-200 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleEditWine(wine)}
-                      className="px-3 py-1.5 rounded-xl bg-white border border-stone-200 hover:bg-stone-100 text-stone-800 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm"
-                    >
-                      <Edit3 className="w-3.5 h-3.5 text-amber-600" />
-                      <span>Modifica Scheda</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDuplicateWine(wine)}
-                      className="px-2.5 py-1.5 rounded-xl bg-white border border-stone-200 hover:bg-amber-50 hover:border-amber-300 text-stone-800 font-bold text-xs flex items-center gap-1 transition-all cursor-pointer shadow-sm"
-                      title="Duplica questa scheda e portala nello Studio per modificarla"
-                    >
-                      <Copy className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Duplica</span>
-                    </button>
-                  </div>
-
+              ) : (
+                <div className="text-center py-16 bg-white rounded-3xl border border-stone-200 p-8 space-y-3">
+                  <Wine className="w-12 h-12 text-stone-300 mx-auto" />
+                  <h3 className="text-base font-bold text-stone-800">Nessun vino trovato in questa categoria</h3>
+                  <p className="text-xs text-stone-500 max-w-sm mx-auto">
+                    Nessun vino corrisponde ai filtri selezionati.
+                  </p>
                   <button
                     type="button"
-                    onClick={() => handleDeleteWine(wine.id)}
-                    className="p-1.5 rounded-xl text-stone-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                    title="Elimina vino"
+                    onClick={() => {
+                      setGalleryTypeFilter('all');
+                      setGalleryCountryFilter('all');
+                      setGalleryAvailabilityFilter('all');
+                      setGallerySearch('');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#8B1E1E] text-white font-bold text-xs cursor-pointer"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    Mostra Tutti i Vini
                   </button>
                 </div>
-
-              </div>
-            ))}
-          </div>
-
-          {filteredCollection.length === 0 && (
-            <div className="text-center py-16 bg-white rounded-3xl border border-stone-200 p-8 space-y-3">
-              <Wine className="w-12 h-12 text-stone-300 mx-auto" />
-              <h3 className="text-base font-bold text-stone-800">Nessuna scheda vino trovata</h3>
-              <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                Nessun vino corrisponde ai filtri di ricerca selezionati.
-              </p>
-              <button
-                type="button"
-                onClick={handleNewWine}
-                className="px-4 py-2 rounded-xl bg-red-600 text-white font-bold text-xs cursor-pointer"
-              >
-                Crea Nuova Scheda Vino
-              </button>
+              )}
             </div>
           )}
 

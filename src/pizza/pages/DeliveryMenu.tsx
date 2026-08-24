@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Globe, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Globe, ChevronDown, Wine, Sparkles, Filter, RotateCcw, Check } from 'lucide-react';
 import { menuData, type MenuItem } from '../data/menuData';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuGrid from '../components/MenuGrid';
@@ -8,7 +8,7 @@ import CartDrawer from '../components/CartDrawer';
 import CheckoutFlow from '../components/CheckoutFlow';
 import { useCartStore } from '../store/cartStore';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
-import { INITIAL_WINE_COLLECTION } from '../data/wineData';
+import { INITIAL_WINE_COLLECTION, WINE_COUNTRY_OPTIONS, resolveWineCategoryType } from '../data/wineData';
 
 
 const translations = {
@@ -319,6 +319,102 @@ const BEER_AND_WINE_SECTIONS = [
   }
 ];
 
+// ─── Wine Filtering Definitions & Subsections ──────────────────────────────
+
+const WINE_FILTER_LABELS = {
+  IT: {
+    allTypes: 'Tutti i Vini',
+    allCountries: 'Tutte le Origini',
+    filterByCountry: 'Origine',
+    italianFirstBadge: 'Selezione Italiana in Evidenza',
+    noWinesFound: 'Nessun vino trovato con i filtri selezionati.',
+    resetFilters: 'Mostra tutti i vini',
+    winesCount: 'etichette',
+    wineCount: 'etichetta',
+  },
+  EN: {
+    allTypes: 'All Wines',
+    allCountries: 'All Origins',
+    filterByCountry: 'Origin',
+    italianFirstBadge: 'Italian Selection Featured',
+    noWinesFound: 'No wines found matching your selected filters.',
+    resetFilters: 'Show all wines',
+    winesCount: 'wines',
+    wineCount: 'wine',
+  },
+  TH: {
+    allTypes: 'ไวน์ทั้งหมด',
+    allCountries: 'ทุกแหล่งกำเนิด',
+    filterByCountry: 'แหล่งกำเนิด',
+    italianFirstBadge: 'คัดสรรพิเศษจากอิตาลี',
+    noWinesFound: 'ไม่พบรายการไวน์ตามตัวกรองที่เลือก',
+    resetFilters: 'แสดงไวน์ทั้งหมด',
+    winesCount: 'รายการ',
+    wineCount: 'รายการ',
+  },
+  DE: {
+    allTypes: 'Alle Weine',
+    allCountries: 'Alle Herkunftsländer',
+    filterByCountry: 'Herkunft',
+    italianFirstBadge: 'Italienische Auswahl im Fokus',
+    noWinesFound: 'Keine Weine für die ausgewählten Filter gefunden.',
+    resetFilters: 'Alle Weine anzeigen',
+    winesCount: 'Weine',
+    wineCount: 'Wein',
+  }
+};
+
+const WINE_TYPE_SECTIONS = [
+  {
+    id: 'red',
+    name: { IT: 'Vini Rossi', EN: 'Red Wines', TH: 'ไวน์แดง', DE: 'Rotweine' },
+    desc: {
+      IT: 'Selezione di vini rossi strutturati, avvolgenti e armoniosi, ideali per accompagnare piatti saporiti, carni e formaggi.',
+      EN: 'Curated selection of structured, full-bodied red wines, tailored for savory dishes, meats, and cheeses.',
+      TH: 'คัดสรรไวน์แดงรสชาตินุ่มละมุนและเข้มข้น เหมาะสำหรับทานคู่กับอาหารจานหลักและเนื้อสัตว์',
+      DE: 'Kuratierte Auswahl an strukturierten, vollmundigen Rotweinen, ideal zu herzhaften Gerichten, Fleisch und Käse.'
+    },
+    badge: { IT: 'Corposi & Strutturati', EN: 'Full-Bodied', TH: 'เข้มข้น', DE: 'Vollmundig' },
+    color: '#8b0000'
+  },
+  {
+    id: 'white',
+    name: { IT: 'Vini Bianchi', EN: 'White Wines', TH: 'ไวน์ขาว', DE: 'Weißweine' },
+    desc: {
+      IT: 'Vini bianchi freschi, minerali ed eleganti, ideali per aperitivi, antipasti, primi piatti e pesce.',
+      EN: 'Fresh, mineral, and fragrant white wines, crafted to pair with appetizers, pastas, and seafood dishes.',
+      TH: 'ไวน์ขาวสดชื่น กลิ่นหอมผลไม้และดอกไม้ เหมาะสำหรับดื่มเรียกน้ำย่อยและอาหารทะเล',
+      DE: 'Frische, mineralische und elegante Weißweine, ideal zu Vorspeisen, Pasta und Fischgerichten.'
+    },
+    badge: { IT: 'Freschi & Minerali', EN: 'Crisp & Mineral', TH: 'สดชื่น', DE: 'Frisch & Mineralisch' },
+    color: '#b45309'
+  },
+  {
+    id: 'rose',
+    name: { IT: 'Vini Rosati', EN: 'Rosé Wines', TH: 'ไวน์โรเซ่', DE: 'Roséweine' },
+    desc: {
+      IT: 'Sfumature floreali e fruttate con un profilo fresco e versatile, perfetto per aperitivi e pietanze leggere.',
+      EN: 'Delicate floral and fruity notes with a crisp, balanced profile, perfect for warm evenings and light dining.',
+      TH: 'ไวน์โรเซ่สีสวย กลิ่นหอมสดชื่น ดื่มง่าย สดชื่นในทุกช่วงเวลา',
+      DE: 'Florale und fruchtige Noten mit herrlicher Frische, ideal für warme Abende und leichte Küche.'
+    },
+    badge: { IT: 'Floreali & Freschi', EN: 'Floral & Refreshing', TH: 'หอมละมุน', DE: 'Floral & Frisch' },
+    color: '#db2777'
+  },
+  {
+    id: 'sparkling',
+    name: { IT: 'Bollicine & Spumanti', EN: 'Sparkling & Champagne', TH: 'สปาร์กลิงไวน์', DE: 'Schaumweine & Champagner' },
+    desc: {
+      IT: 'Spumanti e prosecchi dal perlage fine e persistente, pensati per brindisi raffinati e momenti speciali.',
+      EN: 'Sparkling wines and prosecco with fine, delicate perlage, crafted for celebrations and elegant toasts.',
+      TH: 'สปาร์กลิงไวน์และโพรเซกโกชั้นเลิศ ฟองละเอียดนุ่มลิ้น เพื่อทุกช่วงเวลาพิเศษ',
+      DE: 'Edle Schaumweine und Prosecco mit feiner Perlage für besondere Anlässe und stilvolle Momente.'
+    },
+    badge: { IT: 'Perlage & Prestigio', EN: 'Fine Perlage', TH: 'ฟองละเอียด', DE: 'Feine Perlage' },
+    color: '#ca8a04'
+  }
+];
+
 // ─── SVG Icons for pasta sauce submenu tabs ────────────────────────────────
 
 // Chili pepper (single, elongated, pointed)
@@ -484,9 +580,30 @@ export default function DeliveryMenu() {
   const unavailableIds = new Set<string>();
   const priceOverrides: Record<string, number> = {};
 
+  // Wine sub-filtering state
+  const [selectedWineType, setSelectedWineType] = useState<'all' | 'red' | 'white' | 'rose' | 'sparkling'>('all');
+  const [selectedWineCountry, setSelectedWineCountry] = useState<string>('all');
+
   const t = translations[lang];
   const activeCategory = menuData.find((c) => c.id === activeCategoryId) ?? menuData[0];
   const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
+
+  const isItalianWine = (item: any) => {
+    if (item.flag === '🇮🇹') return true;
+    const sub = String(item.categorySubtitle || '').toUpperCase();
+    const title = String(item.title || item.name || '').toUpperCase();
+    return sub.includes('ITALY') || sub.includes('ITALIA') || sub.includes('SICILY') || sub.includes('PUGLIA') || sub.includes('VENETO') || sub.includes('TUSCANY');
+  };
+
+  const sortItalianFirst = (items: MenuItem[]) => {
+    return [...items].sort((a: any, b: any) => {
+      const aIsIt = isItalianWine(a);
+      const bIsIt = isItalianWine(b);
+      if (aIsIt && !bIsIt) return -1;
+      if (!aIsIt && bIsIt) return 1;
+      return 0;
+    });
+  };
 
   const getDynamicWineItems = (): MenuItem[] => {
     try {
@@ -551,7 +668,7 @@ export default function DeliveryMenu() {
             image: w.bottleImage,
             image_file: w.bottleImage,
             category: 'wines',
-            categoryType: w.categoryType || 'red',
+            categoryType: resolveWineCategoryType(w),
             categorySubtitle: subForLang,
             categorySubtitleIt: w.subtitleIt || w.categorySubtitle,
             categorySubtitleTh: w.subtitleTh || w.categorySubtitle,
@@ -571,8 +688,57 @@ export default function DeliveryMenu() {
     }
   };
 
+  const allDynamicWines = useMemo(() => {
+    return getDynamicWineItems();
+  }, [lang, activeCategoryId]);
+
+  const availableWineCountries = useMemo(() => {
+    const flags = new Set<string>();
+    allDynamicWines.forEach((w: any) => {
+      if (w.flag) flags.add(w.flag);
+    });
+    const countryList = WINE_COUNTRY_OPTIONS.filter(c => flags.has(c.flag));
+    return countryList.sort((a, b) => (a.flag === '🇮🇹' ? -1 : b.flag === '🇮🇹' ? 1 : 0));
+  }, [allDynamicWines]);
+
+  const filterWineItems = (type?: string) => {
+    let list = allDynamicWines;
+    if (type && type !== 'all') {
+      list = list.filter((w: any) => resolveWineCategoryType(w) === type);
+    }
+    if (selectedWineCountry !== 'all') {
+      list = list.filter((w: any) => {
+        if (selectedWineCountry === '🇮🇹') return isItalianWine(w);
+        return w.flag === selectedWineCountry;
+      });
+    }
+    return sortItalianFirst(list);
+  };
+
+  const wineTypeCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: filterWineItems('all').length,
+      red: filterWineItems('red').length,
+      white: filterWineItems('white').length,
+      rose: filterWineItems('rose').length,
+      sparkling: filterWineItems('sparkling').length,
+    };
+    return counts;
+  }, [allDynamicWines, selectedWineCountry]);
+
+  const groupedWineSections = useMemo(() => {
+    return WINE_TYPE_SECTIONS.map(sec => {
+      const items = filterWineItems(sec.id);
+      return { ...sec, items };
+    }).filter(group => group.items.length > 0);
+  }, [allDynamicWines, selectedWineCountry, lang]);
+
+  const currentWinesForSelectedType = useMemo(() => {
+    return filterWineItems(selectedWineType);
+  }, [allDynamicWines, selectedWineType, selectedWineCountry]);
+
   const filteredCategoryItems = activeCategoryId === 'wines'
-    ? getDynamicWineItems()
+    ? filterWineItems(selectedWineType)
     : activeCategory.items
         .filter((item: any) => !unavailableIds.has(item.id))
         .map((item: any) => priceOverrides[item.id] !== undefined ? { ...item, price: priceOverrides[item.id] } : item);
@@ -593,7 +759,7 @@ export default function DeliveryMenu() {
       const items = filteredCategoryItems.filter((item: any) => item.id.includes('beer'));
       return { ...sec, name: sec.name[lang], items };
     }
-    const items = getDynamicWineItems();
+    const items = filterWineItems('all');
     return { ...sec, name: sec.name[lang], items };
   }).filter(group => group.items.length > 0) : [];
 
@@ -806,6 +972,112 @@ export default function DeliveryMenu() {
           </div>
         )}
 
+        {/* Submenu for Wines (Single-Row Compact Filter Toolbar) */}
+        {activeCategoryId === 'wines' && (
+          <div
+            className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 px-1 animate-fadeIn"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {/* Type buttons */}
+            <button
+              type="button"
+              id="wine-type-tab-all"
+              onClick={() => setSelectedWineType('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs tracking-wider uppercase font-semibold transition-all shrink-0 cursor-pointer border ${
+                selectedWineType === 'all'
+                  ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm font-bold'
+                  : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400 hover:bg-stone-50'
+              }`}
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+            >
+              <span>{WINE_FILTER_LABELS[lang].allTypes}</span>
+              <span className={`ml-1.5 text-[10px] ${selectedWineType === 'all' ? 'text-white/80' : 'text-stone-400'}`}>
+                ({wineTypeCounts.all})
+              </span>
+            </button>
+
+            {WINE_TYPE_SECTIONS.map(sec => {
+              const isSelected = selectedWineType === sec.id;
+              const count = wineTypeCounts[sec.id] || 0;
+              return (
+                <button
+                  key={sec.id}
+                  id={`wine-type-tab-${sec.id}`}
+                  type="button"
+                  onClick={() => setSelectedWineType(sec.id as any)}
+                  className={`px-3 py-1.5 rounded-xl text-xs tracking-wider uppercase font-semibold transition-all shrink-0 cursor-pointer border ${
+                    isSelected
+                      ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm font-bold'
+                      : 'bg-white text-stone-700 border-stone-200 hover:border-stone-400 hover:bg-stone-50'
+                  }`}
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                >
+                  <span>{sec.name[lang]}</span>
+                  <span className={`ml-1.5 text-[10px] ${isSelected ? 'text-white/80' : 'text-stone-400'}`}>
+                    ({count})
+                  </span>
+                </button>
+              );
+            })}
+
+            {/* Vertical Divider */}
+            <div className="h-5 w-px bg-stone-300 mx-1 shrink-0" />
+
+            {/* Country buttons */}
+            <button
+              type="button"
+              id="wine-country-tab-all"
+              onClick={() => setSelectedWineCountry('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide uppercase transition-all shrink-0 cursor-pointer border ${
+                selectedWineCountry === 'all'
+                  ? 'bg-stone-900 text-white border-stone-900 shadow-sm'
+                  : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
+              }`}
+              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+            >
+              <span>{WINE_FILTER_LABELS[lang].allCountries}</span>
+            </button>
+
+            {availableWineCountries.map(c => {
+              const isSelected = selectedWineCountry === c.flag;
+              const isItaly = c.flag === '🇮🇹';
+              const countryName = c.names?.[lang] || c.label;
+              return (
+                <button
+                  key={c.flag}
+                  id={`wine-country-tab-${c.code}`}
+                  type="button"
+                  onClick={() => setSelectedWineCountry(c.flag)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold tracking-wide uppercase transition-all shrink-0 cursor-pointer border ${
+                    isSelected
+                      ? isItaly
+                        ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm'
+                        : 'bg-stone-900 text-white border-stone-900 shadow-sm'
+                      : isItaly
+                      ? 'bg-[#8B1E1E]/5 text-[#8B1E1E] border-[#8B1E1E]/30 hover:bg-[#8B1E1E]/10'
+                      : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
+                  }`}
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                >
+                  <span>{countryName}</span>
+                </button>
+              );
+            })}
+
+            {/* Reset button if country filter active */}
+            {selectedWineCountry !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setSelectedWineCountry('all')}
+                className="text-xs font-bold uppercase tracking-wider text-[#8B1E1E] hover:underline flex items-center gap-1 shrink-0 px-2 py-1 cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span>Reset</span>
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Products Grid */}
         <div className="px-1">
           {activeCategoryId === 'pasta' ? (
@@ -850,6 +1122,91 @@ export default function DeliveryMenu() {
                 </div>
               ))}
             </div>
+          ) : activeCategoryId === 'wines' ? (
+            selectedWineType === 'all' ? (
+              groupedWineSections.length > 0 ? (
+                <div className="space-y-12">
+                  {groupedWineSections.map(group => (
+                    <div key={group.id} id={`wine-sec-${group.id}`} className="scroll-mt-24">
+                      <div className="px-2 mb-6">
+                        <div className="flex items-center gap-3">
+                          <h3 
+                            className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight"
+                            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                          >
+                            {group.name[lang]}
+                          </h3>
+                          <span className="text-xs text-stone-400 font-medium">
+                            ({group.items.length})
+                          </span>
+                          <div className="flex-1 h-px bg-stone-300/60" />
+                        </div>
+                      </div>
+                      <MenuGrid items={group.items} lang={lang} />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16 px-4 bg-white rounded-2xl border border-stone-200 my-6 shadow-sm">
+                  <p className="text-stone-700 font-medium text-sm">{WINE_FILTER_LABELS[lang].noWinesFound}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedWineType('all');
+                      setSelectedWineCountry('all');
+                    }}
+                    className="mt-4 px-5 py-2 bg-[#8B1E1E] text-white rounded-xl text-xs font-semibold tracking-wider uppercase shadow-sm hover:bg-[#721818] transition-all cursor-pointer inline-flex items-center gap-1.5"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>{WINE_FILTER_LABELS[lang].resetFilters}</span>
+                  </button>
+                </div>
+              )
+            ) : (
+              <div>
+                {/* Single Wine Type Header */}
+                {currentWinesForSelectedType.length > 0 ? (
+                  <div>
+                    {(() => {
+                      const activeSection = WINE_TYPE_SECTIONS.find(s => s.id === selectedWineType);
+                      if (!activeSection) return null;
+                      return (
+                        <div className="px-2 mb-6">
+                          <div className="flex items-center gap-3">
+                            <h3 
+                              className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight"
+                              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                            >
+                              {activeSection.name[lang]}
+                            </h3>
+                            <span className="text-xs text-stone-400 font-medium">
+                              ({currentWinesForSelectedType.length})
+                            </span>
+                            <div className="flex-1 h-px bg-stone-300/60" />
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    <MenuGrid items={currentWinesForSelectedType} lang={lang} />
+                  </div>
+                ) : (
+                  <div className="text-center py-16 px-4 bg-white rounded-2xl border border-stone-200 my-6 shadow-sm">
+                    <p className="text-stone-700 font-medium text-sm">{WINE_FILTER_LABELS[lang].noWinesFound}</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedWineType('all');
+                        setSelectedWineCountry('all');
+                      }}
+                      className="mt-4 px-5 py-2 bg-[#8B1E1E] text-white rounded-xl text-xs font-semibold tracking-wider uppercase shadow-sm hover:bg-[#721818] transition-all cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>{WINE_FILTER_LABELS[lang].resetFilters}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )
           ) : (
             <MenuGrid items={filteredCategoryItems} lang={lang} />
           )}
