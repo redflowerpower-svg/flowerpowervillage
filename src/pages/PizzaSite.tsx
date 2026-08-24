@@ -79,7 +79,13 @@ const navItems = [
   { label: 'CONTATTI', id: 'contact' as PizzaPage },
 ];
 
-function PizzaNav({ activePage, onNavigate }: { activePage: PizzaPage; onNavigate: (p: PizzaPage) => void }) {
+function PizzaNav({ 
+  activePage, 
+  onNavigate 
+}: { 
+  activePage: PizzaPage; 
+  onNavigate: (p: PizzaPage) => void;
+}) {
   const rrNavigate = useRRNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -109,7 +115,6 @@ function PizzaNav({ activePage, onNavigate }: { activePage: PizzaPage; onNavigat
         }`}
       >
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-          {/* Logo / Brand Name & Back */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => rrNavigate('/')}
@@ -130,7 +135,6 @@ function PizzaNav({ activePage, onNavigate }: { activePage: PizzaPage; onNavigat
             </button>
           </div>
 
-          {/* Desktop Nav Items */}
           <div className="hidden md:flex items-center gap-6">
             {navItems.map((item) => {
               const isActive = activePage === item.id;
@@ -150,39 +154,35 @@ function PizzaNav({ activePage, onNavigate }: { activePage: PizzaPage; onNavigat
               );
             })}
 
-            {cartCount > 0 && (
-              <button
-                onClick={openCart}
-                className="relative flex items-center text-stone-300 hover:text-white transition-colors duration-200 cursor-pointer ml-2 bg-transparent border-0"
-              >
-                <ShoppingCart size={18} />
-                <span
-                  className="absolute -top-2 -right-2 w-4.5 h-4.5 rounded-full bg-[#8B1E1E] flex items-center justify-center text-white text-[9px] font-bold"
-                >
+            <button
+              onClick={openCart}
+              className="relative flex items-center gap-2 bg-[#8B1E1E] hover:bg-[#721818] text-white px-3.5 py-1.5 rounded-xl transition-all duration-200 font-bold text-xs shadow-sm active:scale-95 cursor-pointer"
+            >
+              <ShoppingCart size={15} />
+              <span>CARRELLO</span>
+              {cartCount > 0 && (
+                <span className="bg-white text-[#8B1E1E] text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
-              </button>
-            )}
+              )}
+            </button>
           </div>
 
-          {/* Mobile Hamburger & Cart Buttons */}
-          <div className="md:hidden flex items-center gap-4">
-            {cartCount > 0 && (
-              <button
-                onClick={openCart}
-                className="relative flex items-center text-stone-300 hover:text-white cursor-pointer bg-transparent border-0"
-              >
-                <ShoppingCart size={18} />
-                <span
-                  className="absolute -top-2 -right-2 w-4.5 h-4.5 rounded-full bg-[#8B1E1E] flex items-center justify-center text-white text-[9px] font-bold"
-                >
+          <div className="flex md:hidden items-center gap-2">
+            <button
+              onClick={openCart}
+              className="relative p-2 text-white bg-[#8B1E1E] rounded-xl hover:bg-[#721818] transition-colors"
+            >
+              <ShoppingCart size={18} />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-400 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
-              </button>
-            )}
+              )}
+            </button>
             <button
-              className="text-white hover:text-[#fca5a5] transition-colors cursor-pointer bg-transparent border-0"
               onClick={() => setMenuOpen(!menuOpen)}
+              className="p-2 text-stone-300 hover:text-white transition-colors"
               aria-label="Toggle menu"
             >
               {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -587,7 +587,10 @@ export default function PizzaSite() {
 
   return (
     <div className="min-h-screen" style={{ background: '#1c1917' }}>
-      <PizzaNav activePage={activePage} onNavigate={navigate} />
+      <PizzaNav 
+        activePage={activePage} 
+        onNavigate={navigate}
+      />
       <main>{renderPage()}</main>
 
       <footer className="bg-stone-950 border-t border-stone-900 py-10">

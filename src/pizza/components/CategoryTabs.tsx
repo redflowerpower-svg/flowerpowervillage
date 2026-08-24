@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import type { MenuCategory } from '../data/menuData';
-import { Pizza, Salad, Coffee, Beer, Sandwich, Dessert, Croissant, GlassWater, CupSoda } from 'lucide-react';
+import { Pizza, Salad, Coffee, Beer, Sandwich, Dessert, Croissant, GlassWater, CupSoda, Wine } from 'lucide-react';
 
 interface Props {
   categories: MenuCategory[];
@@ -23,14 +23,9 @@ const PastaIcon = (props: React.SVGProps<SVGSVGElement>) => (
   >
     <path d="M3 16c0 3 4.5 5 9 5s9-2 9-5" />
     <path d="M2 15h20" />
-    <path d="M7 15c0-2 2-3 5-3s5 1 5 3" />
-    <path d="M9 15c0-3 2-4 3-4s3 1 3 4" />
-    <path d="M5 15c0-1.5 1.5-2.5 3-2.5" />
-    <path d="M16 12.5c1.5 0 3 1 3 2.5" />
-    <path d="M12 3v9" />
-    <path d="M10 6h4" />
-    <path d="M10 3v3" />
-    <path d="M14 3v3" />
+    <path d="M4 12c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0" />
+    <path d="M4 9c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0" />
+    <path d="M4 6c1.5-1 3-1 4.5 0s3 1 4.5 0 3-1 4.5 0" />
   </svg>
 );
 
@@ -45,10 +40,14 @@ const BurgerIcon = (props: React.SVGProps<SVGSVGElement>) => (
     strokeLinejoin="round"
     {...props}
   >
-    <path d="M3 11c0-3.5 3.5-6 9-6s9 2.5 9 6H3Z" />
-    <path d="M2 13.5c1-.5 2 .5 3 0s2-.5 3 0 2-.5 3 0 2 .5 3 0 2-.5 3 0 2 .5 3 0 1-.5 2 0" />
-    <rect x="3" y="15" width="18" height="3" rx="1.5" />
-    <path d="M4 20h16c0 1.5-2 2-8 2s-8-.5-8-2Z" />
+    {/* Top Bun */}
+    <path d="M3 11c0-4.4 4-8 9-8s9 3.6 9 8H3z" />
+    {/* Patty */}
+    <path d="M4 14h16" />
+    {/* Cheese / Lettuce */}
+    <path d="M3 14l2 2h14l2-2" />
+    {/* Bottom Bun */}
+    <path d="M5 18h14c0 2-3.1 3-7 3s-7-1-7-3z" />
   </svg>
 );
 
@@ -63,11 +62,12 @@ const FriesIcon = (props: React.SVGProps<SVGSVGElement>) => (
     strokeLinejoin="round"
     {...props}
   >
-    <path d="M6 14V6c.5-.5 1-.5 1.5 0V14" />
-    <path d="M9 14V4c.5-.5 1-.5 1.5 0V14" />
-    <path d="M12 14V3c.5-.5 1-.5 1.5 0V14" />
-    <path d="M15 14V5c.5-.5 1-.5 1.5 0v9" />
+    {/* Fries sticking up */}
+    <path d="M6 14V3c.5-.5 1-.5 1.5 0v11" />
+    <path d="M10 14V2c.5-.5 1-.5 1.5 0v12" />
+    <path d="M14 14V4c.5-.5 1-.5 1.5 0v10" />
     <path d="M18 14V7c.5-.5 1-.5 1.5 0v7" />
+    {/* Box */}
     <path d="M 5 14 L 7 22 H 17 L 19 14" />
     <path d="M 5 14 C 9 16 15 16 19 14" />
   </svg>
@@ -84,8 +84,8 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
   'breakfast-and-snacks': Croissant,
   'coffee-shop': Coffee,
   'fruit-drinks': GlassWater,
-  'soft-drinks': CupSoda,
-  'beers-and-wines': Beer,
+  'soft-drinks': Beer,
+  'wines': Wine,
 };
 
 const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
@@ -150,16 +150,16 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     DE: { name: 'Fruchtgetränke', desc: "Alle unsere Fruchtgetränke werden frisch auf Bestellung aus frischen Früchten und sorgfältig ausgewählten, hochwertigen Zutaten zubereitet und bieten einen vollen, erfrischenden Geschmack." },
   },
   'soft-drinks': {
-    IT: { name: "Bibite", desc: "Bibite fresche e analcoliche accuratamente servite in bicchiere, ideali per accompagnare il tuo pasto o per rinfrescarti in qualsiasi momento della giornata." },
-    EN: { name: "Soft Drinks", desc: "Fresh, Non-Alcoholic Drinks Carefully Served In A Glass, Perfect To Accompany Your Meal Or Refresh You, Ideal For Any Moment Of The Day" },
-    TH: { name: 'น้ำอัดลม', desc: "เครื่องดื่มไร้แอลกอฮอล์สดชื่น เสิร์ฟในแก้วอย่างพิถีพิถัน เหมาะสำหรับทานคู่มื้ออาหารหรือเติมความสดชื่นตลอดวัน" },
-    DE: { name: 'Alkoholfreie Getränke', desc: "Erfrischende, alkoholfreie Getränke, die sorgfältig im Glas serviert werden – perfekt als Begleitung zu Ihrem Essen oder als Erfrischung für zwischendurch zu jeder Tageszeit." },
+    IT: { name: 'Birre & Bibite', desc: 'Birre fresche in bottiglia, bibite analcoliche e acqua minerale servite fredde.' },
+    EN: { name: 'Beers & Soft Drinks', desc: 'Chilled bottled beers, refreshing soft drinks, soda and mineral water.' },
+    TH: { name: 'เบียร์และเครื่องดื่ม', desc: 'เบียร์ขวดเย็นๆ น้ำอัดลม และน้ำดื่มสดชื่น' },
+    DE: { name: 'Biere & Erfrischungsgetränke', desc: 'Gekühlte Flaschenbiere, Erfrischungsgetränke und Mineralwasser.' },
   },
-  'beers-and-wines': {
-    IT: { name: 'Birre & Vini', desc: 'Birre fresche e selezione di vini italiani' },
-    EN: { name: 'Beers & Wines', desc: 'Chilled beers and Italian wine selection' },
-    TH: { name: 'เบียร์และไวน์', desc: 'เบียร์เย็นๆ และไวน์อิตาเลียนคัดสรร' },
-    DE: { name: 'Biere & Weine', desc: 'Gekühlte Biere und ausgewählte italienische Weine' },
+  'wines': {
+    IT: { name: 'Vini', desc: 'Selezione accurata di vini italiani ed internazionali pregiati, ideali da abbinare ai nostri piatti.' },
+    EN: { name: 'Wines', desc: 'Carefully curated selection of fine Italian and international wines, perfect to enhance every dish.' },
+    TH: { name: 'ไวน์', desc: 'คัดสรรไวน์อิตาเลียนและไวน์นานาชาติชั้นเลิศอย่างพิถีพิถัน เหมาะสำหรับทานคู่กับอาหารทุกจาน' },
+    DE: { name: 'Weine', desc: 'Sorgfältig zusammengestellte Auswahl an feinen italienischen und internationalen Weinen.' },
   },
 };
 

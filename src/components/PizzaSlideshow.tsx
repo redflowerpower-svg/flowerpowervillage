@@ -49,10 +49,6 @@ const FOOD_CATEGORIES: Record<string, FoodItem[]> = {
   bevandeFrutta: [
     { name: 'Smoothies Choice of Fruit', filename: '11-Fruit-Drinks/02-smoothies-choice-of-fruit.webp', origin: '50% 50%' },
     { name: 'Lassis Choice of Fruit', filename: '11-Fruit-Drinks/03-lassis-choice-of-fruit.webp', origin: '50% 50%' }
-  ],
-  vini: [
-    //{ name: 'Italian Wines', filename: '14-Wines/01-italian-wines.webp', origin: '50% 50%' },
-    //{ name: 'Wines From Around the World', filename: '14-Wines/02-wines-from-around-the-world.webp', origin: '50% 50%' }
   ]
 };
 
@@ -95,7 +91,7 @@ export default function PizzaSlideshow() {
 
   // Fisher-Yates Shuffle to refill the category queue randomly
   const refillCategoryQueue = (excludeCategory: string) => {
-    const categories = Object.keys(FOOD_CATEGORIES);
+    const categories = Object.keys(FOOD_CATEGORIES).filter(cat => FOOD_CATEGORIES[cat] && FOOD_CATEGORIES[cat].length > 0);
 
     // Rimescolamento
     for (let i = categories.length - 1; i > 0; i--) {
@@ -123,12 +119,16 @@ export default function PizzaSlideshow() {
     const nextCategory = categoryQueue.current.shift() ?? 'pizzeClassiche';
     lastCategory.current = nextCategory;
 
-    const items = FOOD_CATEGORIES[nextCategory];
-    const randomItem = items[Math.floor(Math.random() * items.length)];
+    const items = FOOD_CATEGORIES[nextCategory] || FOOD_CATEGORIES.pizzeClassiche;
+    if (!items || items.length === 0) {
+      return { item: FOOD_CATEGORIES.pizzeClassiche[0], categoryName: 'pizzeClassiche' };
+    }
+    const randomItem = items[Math.floor(Math.random() * items.length)] || FOOD_CATEGORIES.pizzeClassiche[0];
     return { item: randomItem, categoryName: nextCategory };
   };
 
   const getSlideUrl = (item: FoodItem) => {
+    if (!item || !item.filename) return '';
     const rawUrl = `${BASE_STORAGE_URL}/${item.filename}`;
     // Always use 2K 'ken-burns' high-res preset for maximum sharpness in dynamic crops
     return getOptimizedMediaUrl(rawUrl, 'ken-burns');

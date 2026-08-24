@@ -39,7 +39,6 @@ export default function SplitScreen() {
   const isDragging = useRef(false);
   const dragStartPos = useRef(0);
   const hasDragged = useRef(false);
-  const rafRef = useRef<number>(0);
 
   const [lang] = useState(() => {
     const browserLang = navigator.language.slice(0, 2).toUpperCase();
@@ -51,17 +50,17 @@ export default function SplitScreen() {
   const handleTouchDetect = useCallback(() => setIsMobile(true), []);
 
   useEffect(() => {
-    const loop = () => {
+    const updatePos = () => {
       if (villageRef.current) {
         const rect = villageRef.current.getBoundingClientRect();
         const isHoriz = window.innerWidth >= 768;
         setDividerPos(isHoriz ? rect.right : rect.bottom);
       }
-      rafRef.current = requestAnimationFrame(loop);
     };
-    rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
+    updatePos();
+    window.addEventListener('resize', updatePos);
+    return () => window.removeEventListener('resize', updatePos);
+  }, [splitRatio]);
 
   const computeRatio = useCallback((clientX: number, clientY: number) => {
     if (!containerRef.current) return;

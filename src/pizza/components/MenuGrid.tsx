@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Plus, Minus, ZoomIn, X } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
+import { renderCountryFlag, formatSubtitle, renderWinePrice } from '../data/wineData';
 
 interface Props {
   items: MenuItem[];
@@ -266,6 +267,18 @@ export default function MenuGrid({ items, lang }: Props) {
 
   const formatProductName = (name: string) => {
     if (!name) return "";
+    if (name.includes('\n')) {
+      const lines = name.split('\n');
+      return (
+        <>
+          {lines.map((line, idx) => (
+            <span key={idx} className="block">
+              {line}
+            </span>
+          ))}
+        </>
+      );
+    }
     const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
     const upperName = name.toUpperCase();
     for (const kw of splitKeywords) {
@@ -293,6 +306,22 @@ export default function MenuGrid({ items, lang }: Props) {
     return item.description;
   };
 
+  const handleAddWine = (wineItem: MenuItem) => {
+    addItem({
+      productId: wineItem.id,
+      name: wineItem.name,
+      nameTh: wineItem.nameTh,
+      nameIt: wineItem.nameIt,
+      nameDe: wineItem.nameDe,
+      quantity: 1,
+      basePrice: wineItem.price,
+      image: wineItem.image,
+      selectedVariant: null,
+      selectedExtras: [],
+    });
+    openCart();
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -304,6 +333,108 @@ export default function MenuGrid({ items, lang }: Props) {
         const activeExtrasPrice = selectedExtras.reduce((s, e) => s + e.price, 0);
         const unitPriceWithCustoms = item.price + activeVariantPrice + activeExtrasPrice;
         const currentTotalPrice = unitPriceWithCustoms * quantity;
+
+        const isWine = item.category === 'wines' || item.category === 'beers-and-wines' || (item as any).bottleScale !== undefined || !!(item as any).flag;
+
+        if (isWine) {
+          return (
+            <article
+              key={item.id}
+              className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative select-none min-h-[460px] sm:min-h-[500px]"
+            >
+              <div 
+                onClick={() => setZoomedImage(item.image)}
+                className="flex flex-row flex-grow cursor-pointer relative min-h-[460px] sm:min-h-[500px]"
+              >
+                {/* Left (35%): Vertical Bottle Portion */}
+                <div className="w-[35%] bg-stone-50 border-r border-stone-200 p-3 flex items-center justify-center relative overflow-hidden flex-shrink-0 min-h-[460px] sm:min-h-[500px]">
+                  <div 
+                    className="w-full h-full flex items-center justify-center transition-transform duration-300"
+                    style={{
+                      transform: `scale(${((item as any).bottleScale || 100) / 100}) scaleX(${((item as any).bottleScaleX || 100) / 100}) translateX(${(((item as any).bottleOffsetX || 0) / 3.2)}%) translateY(${(((item as any).bottleOffsetY || 0) / 3.2)}%)`
+                    }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={getTranslatedName(item)}
+                      loading="lazy"
+                      decoding="async"
+                      className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
+                    <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
+                      <ZoomIn size={15} className="text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right (65%): Details & Action Portion */}
+                <div className="w-[65%] p-4 sm:p-5 flex flex-col justify-between flex-grow">
+                  <div>
+                    <h3
+                      className="font-sans font-bold text-stone-900 leading-tight tracking-tight"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      {formatProductName(getTranslatedName(item))}
+                    </h3>
+
+                    {((item as any).categorySubtitle || (item as any).flag) && (
+                      <div 
+                        className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-900 mt-2.5 sm:mt-3 flex items-center gap-2.5 leading-tight"
+                        style={{ 
+                          fontFamily: lang === 'TH' ? "'Prompt', 'Kanit', sans-serif" : 'Outfit, system-ui, sans-serif',
+                          fontWeight: 900
+                        }}
+                      >
+                        {(item as any).flag && <span className="shrink-0 flex items-center">{renderCountryFlag((item as any).flag)}</span>}
+                        <span className={`flex-1 flex flex-col justify-center leading-snug ${lang === 'TH' ? 'font-black text-[11px] sm:text-[12px] tracking-tight' : 'font-black'}`}>
+                          {formatSubtitle((item as any).categorySubtitle || '')}
+                        </span>
+                      </div>
+                    )}
+
+                    <p
+                      className="text-stone-500 text-xs font-light leading-snug mt-3 sm:mt-3.5"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      {getTranslatedDesc(item)}
+                    </p>
+
+                    {(item as any).alcohol && (
+                      <span className="inline-block mt-1.5 text-[10px] font-bold text-stone-400">
+                        {String((item as any).alcohol).replace('.', ',')} Vol.
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Bottom Action Bar */}
+                  <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2">
+                    <div className="flex flex-col">
+                      <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                        {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
+                      </span>
+                      {renderWinePrice(item.price)}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddWine(item);
+                      }}
+                      className="px-3.5 py-2 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1 bg-[#8B1E1E] hover:bg-[#721818] active:scale-95 transition-all cursor-pointer"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      <Plus size={13} />
+                      <span>{t?.confirmText || 'Aggiungi'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        }
 
         return (
           <article

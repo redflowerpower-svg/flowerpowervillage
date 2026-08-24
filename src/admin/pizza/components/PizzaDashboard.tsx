@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { usePizzaAdminStore, sanitizePizzaOrder } from '../store/usePizzaAdminStore';
 import { PizzaOrderHistoryModal } from './PizzaOrderHistoryModal';
+import { PizzeriaSettingsSection } from './PizzeriaSettingsSection';
+import { WineCardStudio } from './WineCardStudio';
 import { RESTAURANT_LAT, RESTAURANT_LNG } from '../../../pizza/store/locationStore';
 import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 import type { PizzaOrder, CartItemSaved } from '../../../pizza/types';
@@ -26,7 +28,9 @@ import {
   ToggleLeft,
   ToggleRight,
   PackageCheck,
-  AlertTriangle
+  AlertTriangle,
+  Settings,
+  Wine
 } from 'lucide-react';
 
 const parseAddressAndCoords = (addressStr: string) => {
@@ -128,7 +132,7 @@ export function PizzaDashboard() {
     setFilterMenuCategory
   } = usePizzaAdminStore();
 
-  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'menu'>('orders');
+  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'menu' | 'wine_studio' | 'settings'>('orders');
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [menuSearchQuery, setMenuSearchQuery] = useState('');
@@ -251,6 +255,7 @@ export function PizzaDashboard() {
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveMainTab('menu')}
           className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
             activeMainTab === 'menu'
@@ -260,6 +265,32 @@ export function PizzaDashboard() {
         >
           <UtensilsCrossed className="w-4 h-4" />
           <span>📋 Gestione Menu & Prezzi ({menuItems.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveMainTab('wine_studio')}
+          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeMainTab === 'wine_studio'
+              ? 'bg-amber-600 text-white shadow-lg'
+              : 'text-stone-400 hover:text-white hover:bg-stone-800'
+          }`}
+        >
+          <Wine className="w-4 h-4" />
+          <span>🍷 Wine Card Studio</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveMainTab('settings')}
+          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeMainTab === 'settings'
+              ? 'bg-red-700 text-white shadow-lg'
+              : 'text-stone-400 hover:text-white hover:bg-stone-800'
+          }`}
+        >
+          <Settings className="w-4 h-4" />
+          <span>⚙️ Instradamento & Impostazioni</span>
         </button>
       </div>
 
@@ -477,7 +508,7 @@ export function PizzaDashboard() {
                 { id: 'pizza-sandwich', label: '🥪 Sandwich' },
                 { id: 'french-fries', label: '🍟 Patatine' },
                 { id: 'desserts', label: '🍰 Dolci' },
-                { id: 'soft-drinks', label: '🥤 Bevande' }
+                { id: 'soft-drinks', label: '🍺 Birre & Bibite' }
               ].map((cat) => (
                 <button
                   key={cat.id}
@@ -631,6 +662,16 @@ export function PizzaDashboard() {
             </div>
           )}
         </div>
+      )}
+
+      {/* TAB 3: WINE CARD STUDIO */}
+      {activeMainTab === 'wine_studio' && (
+        <WineCardStudio />
+      )}
+
+      {/* TAB 4: SETTINGS & ROUTING */}
+      {activeMainTab === 'settings' && (
+        <PizzeriaSettingsSection />
       )}
 
       {/* Historical Orders Modal */}

@@ -10,15 +10,15 @@ export interface CartItem {
   nameDe?: string;
   quantity: number;
   basePrice: number;
-  selectedVariant: Variant | null;
-  selectedExtras: ExtraOption[];
+  selectedVariant?: Variant | null;
+  selectedExtras?: ExtraOption[];
   image: string;
   lasagnaDate?: string; // Pre-order date for lasagna (required, min 1 day in advance)
 }
 
 export function calcItemTotal(item: CartItem): number {
   const variantMod = item.selectedVariant?.priceModifier ?? 0;
-  const extrasTotal = item.selectedExtras.reduce((sum, e) => sum + e.price, 0);
+  const extrasTotal = (item.selectedExtras || []).reduce((sum, e) => sum + e.price, 0);
   return (item.basePrice + variantMod + extrasTotal) * item.quantity;
 }
 
@@ -40,8 +40,16 @@ export const useCartStore = create<CartState>((set, get) => ({
   isOpen: false,
 
   addItem: (item) => {
-    const cartId = `${item.productId}-${item.selectedVariant?.id ?? 'base'}-${item.selectedExtras.map(e => e.id).join('-')}-${Date.now()}`;
-    set((state) => ({ items: [...state.items, { ...item, cartId }] }));
+    const extras = item.selectedExtras || [];
+    const variant = item.selectedVariant || null;
+    const cartId = `${item.productId}-${variant?.id ?? 'base'}-${extras.map(e => e.id).join('-')}-${Date.now()}`;
+    const cleanItem: CartItem = {
+      ...item,
+      selectedVariant: variant,
+      selectedExtras: extras,
+      cartId,
+    };
+    set((state) => ({ items: [...state.items, cleanItem] }));
   },
 
   removeItem: (cartId) => {

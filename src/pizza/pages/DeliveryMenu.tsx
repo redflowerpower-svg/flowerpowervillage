@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Globe, ChevronDown } from 'lucide-react';
-import { menuData } from '../data/menuData';
+import { menuData, type MenuItem } from '../data/menuData';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuGrid from '../components/MenuGrid';
 import CartDrawer from '../components/CartDrawer';
 import CheckoutFlow from '../components/CheckoutFlow';
 import { useCartStore } from '../store/cartStore';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
-import { supabase } from '../../lib/supabase';
+import { INITIAL_WINE_COLLECTION } from '../data/wineData';
 
 
 const translations = {
@@ -481,38 +481,101 @@ export default function DeliveryMenu() {
     document.documentElement.setAttribute('data-lang', lang);
   }, [lang]);
 
-  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(new Set());
-  const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    supabase
-      .from('pizza_menu_items')
-      .select('id, price, is_available')
-      .then(({ data, error }) => {
-        if (data && Array.isArray(data)) {
-          const unavail = new Set<string>();
-          const prices: Record<string, number> = {};
-          data.forEach(item => {
-            if (item.is_available === false) {
-              unavail.add(item.id);
-            }
-            if (typeof item.price === 'number') {
-              prices[item.id] = item.price;
-            }
-          });
-          setUnavailableIds(unavail);
-          setPriceOverrides(prices);
-        }
-      });
-  }, []);
+  const unavailableIds = new Set<string>();
+  const priceOverrides: Record<string, number> = {};
 
   const t = translations[lang];
   const activeCategory = menuData.find((c) => c.id === activeCategoryId) ?? menuData[0];
   const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
 
-  const filteredCategoryItems = activeCategory.items
-    .filter((item: any) => !unavailableIds.has(item.id))
-    .map((item: any) => priceOverrides[item.id] !== undefined ? { ...item, price: priceOverrides[item.id] } : item);
+  const getDynamicWineItems = (): MenuItem[] => {
+    try {
+      const deletedRaw = localStorage.getItem('fp_deleted_wine_ids');
+      const deletedSet = new Set<string>(deletedRaw ? JSON.parse(deletedRaw) : []);
+
+      let rawWines: any[] = [];
+      const saved = localStorage.getItem('fp_wine_collection');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          rawWines = parsed;
+        }
+      }
+      
+      if (rawWines.length === 0) {
+        rawWines = INITIAL_WINE_COLLECTION;
+      }
+
+      return rawWines
+        .filter((w: any) => w.isAvailable !== false && !unavailableIds.has(w.id) && !deletedSet.has(w.id))
+        .map((w: any) => {
+          const rawPrice = typeof w.price === 'string' ? parseFloat(w.price.replace(/[^0-9.]/g, '')) || 1190 : (w.price || 1190);
+          const finalPrice = priceOverrides[w.id] !== undefined ? priceOverrides[w.id] : rawPrice;
+          const titleForLang = (
+            lang === 'IT' ? (w.titleIt || w.title) :
+            lang === 'TH' ? (w.titleTh || w.title) :
+            lang === 'DE' ? (w.titleDe || w.title) :
+            (w.titleEn || w.title)
+          ) || w.title || '';
+          const subForLang = (
+            lang === 'IT' ? (w.subtitleIt || w.categorySubtitle) :
+            lang === 'TH' ? (w.subtitleTh || w.categorySubtitle) :
+            lang === 'DE' ? (w.subtitleDe || w.categorySubtitle) :
+            (w.subtitleEn || w.categorySubtitle)
+          ) || w.categorySubtitle || '';
+          const descForLang = (
+            lang === 'IT' ? (w.descriptionIt || w.description) :
+            lang === 'TH' ? (w.descriptionTh || w.description) :
+            lang === 'DE' ? (w.descriptionDe || w.description) :
+            (w.descriptionEn || w.description)
+          ) || w.description || '';
+
+          return {
+            id: w.id,
+            name: titleForLang,
+            nameIt: w.titleIt || w.title,
+            nameTh: w.titleTh || w.title,
+            nameDe: w.titleDe || w.title,
+            title: titleForLang,
+            titleIt: w.titleIt || w.title,
+            titleTh: w.titleTh || w.title,
+            titleDe: w.titleDe || w.title,
+            description: descForLang,
+            descriptionIt: w.descriptionIt || w.description,
+            descriptionTh: w.descriptionTh || w.description,
+            descriptionDe: w.descriptionDe || w.description,
+            description_it: w.descriptionIt || w.description,
+            description_th: w.descriptionTh || w.description,
+            description_de: w.descriptionDe || w.description,
+            price: finalPrice,
+            image: w.bottleImage,
+            image_file: w.bottleImage,
+            category: 'wines',
+            categoryType: w.categoryType || 'red',
+            categorySubtitle: subForLang,
+            categorySubtitleIt: w.subtitleIt || w.categorySubtitle,
+            categorySubtitleTh: w.subtitleTh || w.categorySubtitle,
+            categorySubtitleDe: w.subtitleDe || w.categorySubtitle,
+            flag: w.flag,
+            alcohol: w.alcohol,
+            bottleScale: w.bottleScale || 100,
+            bottleScaleX: w.bottleScaleX || 100,
+            bottleOffsetX: w.bottleOffsetX || 0,
+            bottleOffsetY: w.bottleOffsetY || 0,
+            isAvailable: true
+          } as MenuItem;
+        });
+    } catch (e) {
+      console.warn('Error reading dynamic wines in DeliveryMenu:', e);
+      return [];
+    }
+  };
+
+  const filteredCategoryItems = activeCategoryId === 'wines'
+    ? getDynamicWineItems()
+    : activeCategory.items
+        .filter((item: any) => !unavailableIds.has(item.id))
+        .map((item: any) => priceOverrides[item.id] !== undefined ? { ...item, price: priceOverrides[item.id] } : item);
 
   const groupedPasta = activeCategoryId === 'pasta' ? PASTA_SAUCES.map(sauce => {
     const items = filteredCategoryItems.filter((item: any) => {
@@ -526,12 +589,11 @@ export default function DeliveryMenu() {
   }).filter(group => group.items.length > 0) : [];
 
   const groupedBeersAndWines = activeCategoryId === 'beers-and-wines' ? BEER_AND_WINE_SECTIONS.map(sec => {
-    const items = filteredCategoryItems.filter((item: any) => {
-      const isBeer = item.id.includes('beer');
-      if (sec.id === 'beers') return isBeer;
-      if (sec.id === 'wines') return !isBeer;
-      return false;
-    });
+    if (sec.id === 'beers') {
+      const items = filteredCategoryItems.filter((item: any) => item.id.includes('beer'));
+      return { ...sec, name: sec.name[lang], items };
+    }
+    const items = getDynamicWineItems();
     return { ...sec, name: sec.name[lang], items };
   }).filter(group => group.items.length > 0) : [];
 
