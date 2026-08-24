@@ -300,7 +300,12 @@ export default function ProductModal({ item, onClose, lang }: Props) {
                       style={{ fontFamily: 'Inter, sans-serif' }}
                     >
                       {getTranslatedName(v)}
-                      {v.priceModifier > 0 && <span className="ml-1.5 text-stone-400">+{v.priceModifier} ฿</span>}
+                      {v.priceModifier > 0 && (
+                        <span className="ml-1.5 text-stone-400 inline-flex items-baseline gap-0.5">
+                          <span>+{v.priceModifier}</span>
+                          <span className="text-[10px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                        </span>
+                      )}
                     </button>
                   );
                 })}
@@ -395,7 +400,10 @@ export default function ProductModal({ item, onClose, lang }: Props) {
                                 <span className="text-stone-850 text-xs font-semibold">{getTranslatedName(extra)}</span>
                               </div>
                               {extra.price > 0 ? (
-                                <span className="text-[#8B1E1E] text-xs font-extrabold">+{extra.price} ฿</span>
+                                <span className="text-[#8B1E1E] text-xs font-extrabold inline-flex items-baseline gap-0.5">
+                                  <span>+{extra.price}</span>
+                                  <span className="text-[10px] font-black select-none text-[#8B1E1E]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                                </span>
                               ) : (
                                 <span className="text-stone-400 text-xs">{t.freeText}</span>
                               )}
@@ -454,7 +462,10 @@ export default function ProductModal({ item, onClose, lang }: Props) {
                                 <span className="text-stone-850 text-xs sm:text-sm font-semibold">{getTranslatedName(extra)}</span>
                               </div>
                               {extra.price > 0 ? (
-                                <span className="text-[#8B1E1E] text-xs sm:text-sm font-extrabold">+{extra.price} ฿</span>
+                                <span className="text-[#8B1E1E] text-xs sm:text-sm font-extrabold inline-flex items-baseline gap-0.5">
+                                  <span>+{extra.price}</span>
+                                  <span className="text-[10px] font-black select-none text-[#8B1E1E]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                                </span>
                               ) : (
                                 <span className="text-stone-400 text-xs">{t.freeText}</span>
                               )}
@@ -499,7 +510,10 @@ export default function ProductModal({ item, onClose, lang }: Props) {
               <ShoppingCart size={14} />
               {t.addText}
             </span>
-            <span className="font-light">{totalPrice} ฿</span>
+            <span className="font-light inline-flex items-baseline gap-1" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+              <span>{totalPrice}</span>
+              <span className="font-black select-none text-white" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+            </span>
           </button>
         </div>
       </div>

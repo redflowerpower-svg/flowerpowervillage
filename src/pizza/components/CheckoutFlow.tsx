@@ -941,9 +941,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
                   <div className="text-center space-y-0.5 shrink-0">
                     <p className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Importo da pagare</p>
-                    <p className="text-base font-black text-[#8B1E1E] tracking-tight">{finalTotal} ฿</p>
+                    <p className="text-base font-black text-[#8B1E1E] tracking-tight inline-flex items-baseline justify-center gap-0.5">
+                      <span>{finalTotal}</span>
+                      <span className="font-black select-none text-[#8B1E1E] text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                    </p>
                     {deliveryFee > 0 ? (
-                      <p className="text-[8px] text-stone-400 font-medium">(inclusi {deliveryFee} ฿ di consegna)</p>
+                      <p className="text-[8px] text-stone-400 font-medium">
+                        (inclusi {deliveryFee} <span style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span> di consegna)
+                      </p>
                     ) : (
                       <p className="text-[9.5px] font-extrabold text-emerald-600 uppercase tracking-wider">
                         {lang === 'IT' && 'Consegna GRATIS'}
@@ -978,9 +983,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   </p>
                   <div className="text-center space-y-0.5 shrink-0">
                     <p className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Importo da pagare alla consegna</p>
-                    <p className="text-base font-black text-stone-850 tracking-tight">{finalTotal} ฿</p>
+                    <p className="text-base font-black text-stone-850 tracking-tight inline-flex items-baseline justify-center gap-0.5">
+                      <span>{finalTotal}</span>
+                      <span className="font-black select-none text-stone-850 text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                    </p>
                     {deliveryFee > 0 ? (
-                      <p className="text-[8px] text-stone-400 font-medium">(inclusi {deliveryFee} ฿ di consegna)</p>
+                      <p className="text-[8px] text-stone-400 font-medium">
+                        (inclusi {deliveryFee} <span style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span> di consegna)
+                      </p>
                     ) : (
                       <p className="text-[9.5px] font-extrabold text-emerald-600 uppercase tracking-wider">
                         {lang === 'IT' && 'Consegna GRATIS'}

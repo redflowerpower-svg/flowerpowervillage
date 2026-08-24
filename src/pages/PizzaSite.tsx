@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate as useRRNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Menu, X, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart } from 'lucide-react';
 import DeliveryMenu from '../pizza/pages/DeliveryMenu';
+import { GloriaFoodLanding } from '../pizza/pages/GloriaFoodLanding';
 import { useCartStore } from '../pizza/store/cartStore';
 import PizzaSlideshow from '../components/PizzaSlideshow';
 
@@ -81,10 +82,14 @@ const navItems = [
 
 function PizzaNav({ 
   activePage, 
-  onNavigate 
+  onNavigate,
+  pizzaMode,
+  onToggleMode
 }: { 
   activePage: PizzaPage; 
   onNavigate: (p: PizzaPage) => void;
+  pizzaMode: 'custom' | 'legacy';
+  onToggleMode: (mode: 'custom' | 'legacy') => void;
 }) {
   const rrNavigate = useRRNavigate();
   const [scrolled, setScrolled] = useState(false);
@@ -133,6 +138,34 @@ function PizzaNav({
                 FLOWER POWER <span className="font-light italic text-[#f87171]">Pizza</span>
               </span>
             </button>
+
+            {/* Switcher Sito Nuovo vs Sito Vecchio (Provvisorio) */}
+            <div className="hidden sm:flex items-center bg-stone-900/80 p-0.5 rounded-xl border border-stone-700/80 shadow-inner ml-2">
+              <button
+                type="button"
+                onClick={() => onToggleMode('custom')}
+                className={`px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer ${
+                  pizzaMode === 'custom'
+                    ? 'bg-[#8B1E1E] text-white shadow-sm font-black'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+              >
+                Sito Nuovo
+              </button>
+              <button
+                type="button"
+                onClick={() => onToggleMode('legacy')}
+                className={`px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer ${
+                  pizzaMode === 'legacy'
+                    ? 'bg-amber-600 text-white shadow-sm font-black'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+              >
+                Sito Vecchio
+              </button>
+            </div>
           </div>
 
           <div className="hidden md:flex items-center gap-6">
@@ -199,7 +232,7 @@ function PizzaNav({
             onClick={() => setMenuOpen(false)}
           />
           <div className="fixed top-0 right-0 bottom-0 z-50 w-72 bg-[#3b3530] border-l border-stone-700 p-6 flex flex-col shadow-2xl md:hidden animate-slideLeft">
-            <div className="flex items-center justify-between border-b border-stone-700/50 pb-4 mb-6">
+            <div className="flex items-center justify-between border-b border-stone-700/50 pb-4 mb-4">
               <span className="font-sans font-black text-white text-md">
                 Menu
               </span>
@@ -208,6 +241,34 @@ function PizzaNav({
                 className="text-stone-400 hover:text-white cursor-pointer bg-transparent border-0"
               >
                 <X size={22} />
+              </button>
+            </div>
+
+            {/* Mobile Switcher Sito Nuovo vs Sito Vecchio */}
+            <div className="mb-5 p-1 bg-stone-900/90 rounded-2xl border border-stone-700 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => { onToggleMode('custom'); setMenuOpen(false); }}
+                className={`flex-1 py-1.5 rounded-xl text-[11px] uppercase font-extrabold tracking-wider transition-all text-center cursor-pointer ${
+                  pizzaMode === 'custom'
+                    ? 'bg-[#8B1E1E] text-white shadow-sm'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+              >
+                Sito Nuovo
+              </button>
+              <button
+                type="button"
+                onClick={() => { onToggleMode('legacy'); setMenuOpen(false); }}
+                className={`flex-1 py-1.5 rounded-xl text-[11px] uppercase font-extrabold tracking-wider transition-all text-center cursor-pointer ${
+                  pizzaMode === 'legacy'
+                    ? 'bg-amber-600 text-white shadow-sm'
+                    : 'text-stone-400 hover:text-stone-200'
+                }`}
+                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+              >
+                Sito Vecchio
               </button>
             </div>
 
@@ -565,6 +626,15 @@ export default function PizzaSite() {
   };
 
   const [activePage, setActivePage] = useState<PizzaPage>(getPageFromPath);
+  const [pizzaMode, setPizzaMode] = useState<'custom' | 'legacy'>(() => {
+    const saved = localStorage.getItem('flower_power_pizza_mode');
+    return (saved === 'legacy' || saved === 'custom') ? saved : 'custom';
+  });
+
+  const handleToggleMode = (mode: 'custom' | 'legacy') => {
+    setPizzaMode(mode);
+    localStorage.setItem('flower_power_pizza_mode', mode);
+  };
 
   useEffect(() => {
     setActivePage(getPageFromPath());
@@ -577,6 +647,9 @@ export default function PizzaSite() {
   };
 
   const renderPage = () => {
+    if (pizzaMode === 'legacy') {
+      return <GloriaFoodLanding onSwitchToCustom={() => handleToggleMode('custom')} />;
+    }
     switch (activePage) {
       case 'order': return <DeliveryMenu />;
       case 'about': return <PizzaAboutPage />;
@@ -590,6 +663,8 @@ export default function PizzaSite() {
       <PizzaNav 
         activePage={activePage} 
         onNavigate={navigate}
+        pizzaMode={pizzaMode}
+        onToggleMode={handleToggleMode}
       />
       <main>{renderPage()}</main>
 

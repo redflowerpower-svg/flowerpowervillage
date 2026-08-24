@@ -38,25 +38,14 @@ import {
   getWineTranslatedTitle,
   getWineTranslatedSubtitle,
   getWineTranslatedDesc,
-  resolveWineCategoryType
+  resolveWineCategoryType,
+  formatWineProductName,
+  toTitleCase,
+  sortWinesByCountryOrder,
+  getCountryRank
 } from '../../../pizza/data/wineData';
 export type { WineCardData };
-export { WINE_COUNTRY_OPTIONS, WINE_TYPE_OPTIONS, resolveWineCategoryType };
-
-const toTitleCase = (str: string) => {
-  return str
-    .toLowerCase()
-    .split(' ')
-    .map(word => {
-      if (!word) return '';
-      if (word.includes("'")) {
-        const parts = word.split("'");
-        return parts.map(p => p ? (p.charAt(0).toUpperCase() + p.slice(1)) : '').join("'");
-      }
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    })
-    .join(' ');
-};
+export { WINE_COUNTRY_OPTIONS, WINE_TYPE_OPTIONS, resolveWineCategoryType, formatWineProductName, toTitleCase, sortWinesByCountryOrder, getCountryRank };
 
 const formatLiveTitleInput = (raw: string): string => {
   if (!raw) return '';
@@ -161,77 +150,7 @@ const uploadBottleImageToSupabase = async (
   return publicData.publicUrl;
 };
 
-const formatProductName = (name: string) => {
-  if (!name) return "";
-  
-  // Supporto a capo manuale (\n) su 2, 3 o più righe
-  // 1ª riga: TUTTO MAIUSCOLO (100% font)
-  // 2ª riga: TUTTO MAIUSCOLO (91% font, molto vicina)
-  // 3ª riga+: Prima Lettera Maiuscola e le altre minuscole per tutte le parole (Title Case, 84% font, charcoal, mt-1)
-  if (name.includes('\n')) {
-    const lines = name.split('\n');
-    return (
-      <span className="flex flex-col text-[14.9px] sm:text-[16.1px] tracking-tight">
-        {lines.map((line, idx) => {
-          if (idx === 0) {
-            return (
-              <span key={idx} className="block leading-[1.1] uppercase">
-                {line.toUpperCase()}
-              </span>
-            );
-          }
-          if (idx === 1) {
-            return (
-              <span key={idx} className="block text-[0.91em] font-bold leading-[1.1] mt-0.5 uppercase">
-                {line.toUpperCase()}
-              </span>
-            );
-          }
-          return (
-            <span key={idx} className="block text-stone-600 font-semibold text-[0.84em] leading-[1.15] mt-1">
-              {toTitleCase(line)}
-            </span>
-          );
-        })}
-      </span>
-    );
-  }
-
-  // Supporto connettori linguistici
-  const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT ', ' & '];
-  const upperName = name.toUpperCase();
-  for (const kw of splitKeywords) {
-    if (upperName.includes(kw)) {
-      const idx = upperName.indexOf(kw);
-      const part1 = name.substring(0, idx);
-      const matchWord = name.substring(idx, idx + kw.length);
-      const part2 = name.substring(idx + kw.length);
-      return (
-        <span className="flex flex-col">
-          <span className="block leading-[1.05] uppercase">{part1.toUpperCase()}</span>
-          <span className="block text-[0.91em] font-bold leading-[1.05] mt-0.5 uppercase">
-            {matchWord.trimStart().toUpperCase()}{part2.toUpperCase()}
-          </span>
-        </span>
-      );
-    }
-  }
-
-  // Ripartizione intelligente su 2 righe per denominazioni lunghe (> 18 caratteri e 3+ parole)
-  const words = name.trim().split(/\s+/);
-  if (words.length >= 3 && name.length > 18) {
-    const mid = Math.ceil(words.length / 2);
-    return (
-      <>
-        {words.slice(0, mid).join(' ')}
-        <br />
-        {words.slice(mid).join(' ')}
-      </>
-    );
-  }
-
-  return name;
-};
+const formatProductName = formatWineProductName;
 
 
 
@@ -1123,22 +1042,14 @@ export const WineCardStudio: React.FC = () => {
   };
 
   // ─── Helpers for Wine Categorization & Filtering ───────────────────────
-  const sortItalianFirst = (wines: WineCardData[]) => {
-    return [...wines].sort((a, b) => {
-      const aIsItaly = a.flag === '🇮🇹' || a.categorySubtitle.toLowerCase().includes('italia') || (a.subtitleIt && a.subtitleIt.toLowerCase().includes('italia'));
-      const bIsItaly = b.flag === '🇮🇹' || b.categorySubtitle.toLowerCase().includes('italia') || (b.subtitleIt && b.subtitleIt.toLowerCase().includes('italia'));
-      if (aIsItaly && !bIsItaly) return -1;
-      if (!aIsItaly && bIsItaly) return 1;
-      return 0;
-    });
-  };
-
   const availableWineCountries = React.useMemo(() => {
     const flagsInUse = new Set<string>();
     collection.forEach(w => {
       if (w.flag) flagsInUse.add(w.flag);
     });
-    return WINE_COUNTRY_OPTIONS.filter(c => flagsInUse.has(c.flag) || flagsInUse.has(c.code));
+    return WINE_COUNTRY_OPTIONS
+      .filter(c => flagsInUse.has(c.flag) || flagsInUse.has(c.code))
+      .sort((a, b) => getCountryRank(a.flag) - getCountryRank(b.flag));
   }, [collection]);
 
   const filterWineCollection = (type: string) => {
@@ -1182,18 +1093,18 @@ export const WineCardStudio: React.FC = () => {
     { id: 'red' as const, name: { IT: 'Vini Rossi', EN: 'Red Wines', TH: 'ไวน์แดง', DE: 'Rotweine' } },
     { id: 'white' as const, name: { IT: 'Vini Bianchi', EN: 'White Wines', TH: 'ไวน์ขาว', DE: 'Weißweine' } },
     { id: 'rose' as const, name: { IT: 'Vini Rosati', EN: 'Rosé Wines', TH: 'ไวน์โรเซ่', DE: 'Roséweine' } },
-    { id: 'sparkling' as const, name: { IT: 'Bollicine & Spumanti', EN: 'Sparkling & Champagne', TH: 'สปาร์กลิงไวน์', DE: 'Schaumweine & Champagner' } }
+    { id: 'sparkling' as const, name: { IT: 'Spumanti', EN: 'Sparkling Wines', TH: 'สปาร์กลิงไวน์', DE: 'Schaumweine' } }
   ];
 
   const groupedWineSections = React.useMemo(() => {
     return WINE_SECTIONS.map(sec => {
-      const items = sortItalianFirst(filterWineCollection(sec.id));
+      const items = sortWinesByCountryOrder(filterWineCollection(sec.id));
       return { ...sec, items };
     }).filter(group => group.items.length > 0);
   }, [collection, galleryAvailabilityFilter, galleryCountryFilter, gallerySearch, previewLang]);
 
   const currentWinesForSelectedType = React.useMemo(() => {
-    return sortItalianFirst(filterWineCollection(galleryTypeFilter));
+    return sortWinesByCountryOrder(filterWineCollection(galleryTypeFilter));
   }, [collection, galleryTypeFilter, galleryAvailabilityFilter, galleryCountryFilter, gallerySearch]);
 
   const totalFilteredCount = filterWineCollection('all').length;
@@ -3003,9 +2914,10 @@ export const WineCardStudio: React.FC = () => {
                     );
                     const [currentType = '', ...rest] = currentFullSub.split('\n');
 
-                    // Match existing type
+                    // Match existing type using categoryType or resolveWineCategoryType
+                    const currentResolvedType = formData.categoryType || resolveWineCategoryType(formData);
                     const matchedType = WINE_TYPE_OPTIONS.find(t => 
-                      t.id === formData.categoryType || 
+                      t.id === currentResolvedType || 
                       Object.values(t.names).some(n => n.toUpperCase() === currentType.trim().toUpperCase())
                     ) || WINE_TYPE_OPTIONS[0];
 
@@ -3260,34 +3172,34 @@ export const WineCardStudio: React.FC = () => {
                   {/* Sottotitolo / Provenienza (Bandierina centrata su 2 righe) */}
                   {(getWineTranslatedSubtitle(selectedWineLightbox, previewLang) || selectedWineLightbox.flag) && (
                     <div 
-                      className="text-[11px] sm:text-[12px] font-black uppercase tracking-wider text-amber-900 mt-1.5 flex items-center gap-2.5 leading-tight"
+                      className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-900 mt-2.5 sm:mt-3 flex items-center gap-2.5 leading-tight"
                       style={{ 
                         fontFamily: previewLang === 'TH' ? "'Prompt', 'Kanit', sans-serif" : 'Outfit, system-ui, sans-serif',
                         fontWeight: 900
                       }}
                     >
                       {selectedWineLightbox.flag && <span className="shrink-0 flex items-center">{renderCountryFlag(selectedWineLightbox.flag)}</span>}
-                      <span className={`flex-1 flex flex-col justify-center leading-snug ${previewLang === 'TH' ? 'font-black text-[12px] sm:text-[13px] tracking-tight' : 'font-black'}`}>
+                      <span className={`flex-1 flex flex-col justify-center leading-snug ${previewLang === 'TH' ? 'font-black text-[11px] sm:text-[12px] tracking-tight' : 'font-black'}`}>
                         {formatSubtitle(getWineTranslatedSubtitle(selectedWineLightbox, previewLang))}
                       </span>
                     </div>
                   )}
 
                   <p
-                    className="text-stone-500 text-xs font-light leading-relaxed mt-2"
+                    className="text-stone-500 text-xs font-light leading-snug mt-3 sm:mt-3.5"
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                   >
                     {getWineTranslatedDesc(selectedWineLightbox, previewLang)}
                   </p>
 
                   {selectedWineLightbox.alcohol && (
-                    <span className="inline-block mt-2.5 text-[10px] font-bold text-stone-400">
+                    <span className="inline-block mt-1.5 text-[10px] font-bold text-stone-400">
                       {selectedWineLightbox.alcohol.replace('.', ',')} Vol.
                     </span>
                   )}
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
+                <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2">
                   <div className="flex flex-col">
                     <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                       Prezzo

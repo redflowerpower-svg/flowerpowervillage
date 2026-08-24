@@ -18861,9 +18861,9 @@ export const menuData: MenuCategory[] = [
   },
   {
     "id": "soft-drinks",
-    "name": "Beers & Soft Drinks",
-    "nameTh": "เบียร์และเครื่องดื่ม",
-    "icon": "🍺",
+    "name": "Soft Drinks & Beers",
+    "nameTh": "เครื่องดื่มและเบียร์",
+    "icon": "🥤",
     "items": [
       {
         "id": "soda-water",
@@ -19171,16 +19171,16 @@ export const menuData: MenuCategory[] = [
         "descriptionDe": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis."
       }
     ],
-    "name_it": "Birre & Bibite",
-    "nameIt": "Birre & Bibite",
-    "name_de": "Biere & Erfrischungsgetränke",
-    "nameDe": "Biere & Erfrischungsgetränke",
-    "description": "Chilled Beers In Bottles, Refreshing Non-Alcoholic Soft Drinks And Mineral Water, Perfect To Accompany Your Meal Or Refresh You At Any Moment",
-    "descriptionTh": "เบียร์ขวดเย็นๆ น้ำอัดลม และน้ำดื่มสดชื่น เสิร์ฟเย็นพร้อมดื่ม เหมาะสำหรับทานคู่มื้ออาหารหรือเติมความสดชื่นได้ตลอดวัน",
-    "description_it": "Birre fresche in bottiglia, bibite analcoliche e acqua minerale servite fredde, ideali per accompagnare il tuo pasto o per rinfrescarti in qualsiasi momento.",
-    "descriptionIt": "Birre fresche in bottiglia, bibite analcoliche e acqua minerale servite fredde, ideali per accompagnare il tuo pasto o per rinfrescarti in qualsiasi momento.",
-    "description_de": "Gekühlte Flaschenbiere, erfrischende alkoholfreie Getränke und Mineralwasser – perfekt als Begleitung zu Ihrem Essen oder zur Erfrischung zwischendurch.",
-    "descriptionDe": "Gekühlte Flaschenbiere, erfrischende alkoholfreie Getränke und Mineralwasser – perfekt als Begleitung zu Ihrem Essen oder zur Erfrischung zwischendurch."
+    "name_it": "Bibite & Birre",
+    "nameIt": "Bibite & Birre",
+    "name_de": "Erfrischungsgetränke & Biere",
+    "nameDe": "Erfrischungsgetränke & Biere",
+    "description": "Refreshing Non-Alcoholic Soft Drinks, Natural Mineral Water, And Chilled Bottled Beers, Perfect To Accompany Your Meal Or Refresh You At Any Moment",
+    "descriptionTh": "น้ำอัดลม น้ำดื่มสดชื่น และเบียร์ขวดเย็นๆ เสิร์ฟเย็นพร้อมดื่ม เหมาะสำหรับทานคู่มื้ออาหารหรือเติมความสดชื่นได้ตลอดวัน",
+    "description_it": "Bibite analcoliche, acqua minerale naturale e birre fresche in bottiglia servite fredde, ideali per accompagnare il tuo pasto o per rinfrescarti in qualsiasi momento.",
+    "descriptionIt": "Bibite analcoliche, acqua minerale naturale e birre fresche in bottiglia servite fredde, ideali per accompagnare il tuo pasto o per rinfrescarti in qualsiasi momento.",
+    "description_de": "Erfrischende alkoholfreie Getränke, Mineralwasser und gekühlte Flaschenbiere – perfekt als Begleitung zu Ihrem Essen oder zur Erfrischung zwischendurch.",
+    "descriptionDe": "Erfrischende alkoholfreie Getränke, Mineralwasser und gekühlte Flaschenbiere – perfekt als Begleitung zu Ihrem Essen oder zur Erfrischung zwischendurch."
   },
   {
     "id": "wines",

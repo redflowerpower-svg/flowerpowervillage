@@ -162,7 +162,13 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
                       {item.selectedVariant && (
                         <p className="text-stone-500 text-xs mt-1.5 font-medium">
                           Size: {getTranslatedName(item.selectedVariant)}
-                          {item.selectedVariant.priceModifier > 0 && ` (+${item.selectedVariant.priceModifier} ฿)`}
+                          {item.selectedVariant.priceModifier > 0 && (
+                            <span className="ml-1 inline-flex items-baseline gap-0.5">
+                              <span>(+{item.selectedVariant.priceModifier}</span>
+                              <span className="font-black select-none text-stone-500 text-[10px]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                              <span>)</span>
+                            </span>
+                          )}
                         </p>
                       )}
 
@@ -170,7 +176,13 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
                         <div className="mt-1.5 space-y-0.5">
                           {item.selectedExtras.map((e) => (
                             <p key={e.id} className="text-stone-400 text-xs font-normal">
-                              + {getTranslatedName(e)} {e.price > 0 ? `(+${e.price} ฿)` : ''}
+                              + {getTranslatedName(e)} {e.price > 0 && (
+                                <span className="inline-flex items-baseline gap-0.5 ml-1">
+                                  <span>(+{e.price}</span>
+                                  <span className="font-black select-none text-stone-400 text-[10px]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                                  <span>)</span>
+                                </span>
+                              )}
                             </p>
                           ))}
                         </div>
@@ -202,7 +214,10 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
                             <Plus size={10} />
                           </button>
                         </div>
-                        <p className="text-[#8B1E1E] font-extrabold text-sm">{lineTotal} ฿</p>
+                        <p className="text-[#8B1E1E] font-extrabold text-sm inline-flex items-baseline gap-0.5">
+                          <span>{lineTotal}</span>
+                          <span className="font-black select-none text-[#8B1E1E] text-xs" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -218,7 +233,10 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
             <div className="space-y-1.5 text-stone-600 text-xs" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
               <div className="flex justify-between items-center">
                 <span>{t.subtotalText}</span>
-                <span className="font-semibold">{total} ฿</span>
+                <span className="font-semibold inline-flex items-baseline gap-0.5">
+                  <span>{total}</span>
+                  <span className="font-black select-none text-stone-700 text-xs" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span>{t.deliveryText}</span>
@@ -226,7 +244,10 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
                   {deliveryFee === 0 ? (
                     <span className="text-emerald-600 font-extrabold">{t.freeText}</span>
                   ) : (
-                    `${deliveryFee} ฿`
+                    <span className="inline-flex items-baseline gap-0.5">
+                      <span>{deliveryFee}</span>
+                      <span className="font-black select-none text-stone-700 text-xs" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                    </span>
                   )}
                 </span>
               </div>
@@ -243,8 +264,9 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
               <span className="text-stone-500 text-xs uppercase tracking-widest flex-shrink-0 font-bold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                 {t.totalText}
               </span>
-              <span className="text-[#8B1E1E] text-xl font-black text-right" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                {finalTotal} ฿
+              <span className="text-[#8B1E1E] text-xl font-black text-right inline-flex items-baseline gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                <span>{finalTotal}</span>
+                <span className="font-black select-none text-[#8B1E1E] text-base" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
               </span>
             </div>
             

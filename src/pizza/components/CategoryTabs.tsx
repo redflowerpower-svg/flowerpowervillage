@@ -150,10 +150,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     DE: { name: 'Fruchtgetränke', desc: "Alle unsere Fruchtgetränke werden frisch auf Bestellung aus frischen Früchten und sorgfältig ausgewählten, hochwertigen Zutaten zubereitet und bieten einen vollen, erfrischenden Geschmack." },
   },
   'soft-drinks': {
-    IT: { name: 'Birre & Bibite', desc: 'Birre fresche in bottiglia, bibite analcoliche e acqua minerale servite fredde.' },
-    EN: { name: 'Beers & Soft Drinks', desc: 'Chilled bottled beers, refreshing soft drinks, soda and mineral water.' },
-    TH: { name: 'เบียร์และเครื่องดื่ม', desc: 'เบียร์ขวดเย็นๆ น้ำอัดลม และน้ำดื่มสดชื่น' },
-    DE: { name: 'Biere & Erfrischungsgetränke', desc: 'Gekühlte Flaschenbiere, Erfrischungsgetränke und Mineralwasser.' },
+    IT: { name: 'Bibite & Birre', desc: 'Bibite analcoliche, acqua minerale naturale e birre fresche in bottiglia.' },
+    EN: { name: 'Soft Drinks & Beers', desc: 'Refreshing soft drinks, natural mineral water and chilled bottled beers.' },
+    TH: { name: 'เครื่องดื่มและเบียร์', desc: 'น้ำอัดลม น้ำดื่มสดชื่น และเบียร์ขวดเย็นๆ' },
+    DE: { name: 'Erfrischungsgetränke & Biere', desc: 'Erfrischungsgetränke, Mineralwasser und gekühlte Flaschenbiere.' },
   },
   'wines': {
     IT: { name: 'Vini', desc: 'Selezione accurata di vini italiani ed internazionali pregiati, ideali da abbinare ai nostri piatti.' },

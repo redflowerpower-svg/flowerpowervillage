@@ -49,6 +49,11 @@ To ensure the application is optimized for web agents (including Antigravity, se
   - ` พร้อม` (in tailandese)
 
 
+# 🌐 REGOLA IMPRESCINDIBILE TRADUZIONI (DEEPSEEK AI NATIVO)
+All'interno di TUTTO il sito web (sia nel reparto Pizzeria / Delivery `/pizze` che nel reparto Booking Engine / Village `/villaggio`), ogni qualvolta sia richiesta o implementata una funzionalità di traduzione testi, titoli, descrizioni, servizi, menu o alloggi:
+- **OBBLIGO ASSOLUTO DI UTILIZZO API DEEPSEEK**: È tassativo e imprescindibile utilizzare sempre e solo l'API di DeepSeek (`deepseek-chat` / `DEEPSEEK_API_KEY`) tramite endpoint backend dedicato.
+- È severamente vietato l'uso di traduttori statici o dizionari empirici hardcoded: le traduzioni devono essere vive, contestuali, fluide e professionali in tutte e 4 le lingue (`IT`, `EN`, `TH`, `DE`), garantendo il massimo livello qualitativo per la lingua thailandese.
+
 # Vault-Sync & Multi-Workstation Protocol (Koh Phayam <-> Ranong)
 
 ## Vault-Sync & Security (.gitignore)

@@ -25,12 +25,12 @@ const WINE_TYPE_MAP: Record<string, Record<WineLang, string>> = {
   'SCHAUMWEIN ROSÉ': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ' },
   'สปาร์กลิงโรเซ่': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ' },
 
-  'BOLLICINE': { IT: 'BOLLICINE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
+  'BOLLICINE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
   'SPUMANTE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
-  'SPARKLING WINE': { IT: 'BOLLICINE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
-  'SCHAUMWEIN': { IT: 'BOLLICINE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
+  'SPARKLING WINE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
+  'SCHAUMWEIN': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
   'PROSECCO': { IT: 'PROSECCO', EN: 'PROSECCO', TH: 'โพรเซกโก', DE: 'PROSECCO' },
-  'สปาร์กลิงไวน์': { IT: 'BOLLICINE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
+  'สปาร์กลิงไวน์': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
 
   'VINO ROSATO': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN' },
   'ROSÉ WINE': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN' },

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, Minus, ZoomIn, X } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
-import { renderCountryFlag, formatSubtitle, renderWinePrice } from '../data/wineData';
+import { renderCountryFlag, formatSubtitle, renderWinePrice, renderFormattedPrice, formatWineProductName } from '../data/wineData';
 
 interface Props {
   items: MenuItem[];
@@ -376,14 +376,14 @@ export default function MenuGrid({ items, lang }: Props) {
                       className="font-sans font-bold text-stone-900 leading-tight tracking-tight"
                       style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                     >
-                      {formatProductName(getTranslatedName(item))}
+                      {formatWineProductName(getTranslatedName(item))}
                     </h3>
 
                     {((item as any).categorySubtitle || (item as any).flag) && (
                       <div 
                         className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-900 mt-2.5 sm:mt-3 flex items-center gap-2.5 leading-tight"
                         style={{ 
-                          fontFamily: lang === 'TH' ? "'Prompt', 'Kanit', sans-serif" : 'Outfit, system-ui, sans-serif',
+                          fontFamily: lang === 'TH' ? 'Prompt, Kanit, sans-serif' : 'Outfit, system-ui, sans-serif',
                           fontWeight: 900
                         }}
                       >
@@ -501,17 +501,6 @@ export default function MenuGrid({ items, lang }: Props) {
                   {getTranslatedDesc(item)}
                 </p>
 
-                {/* Extras summary (shown only when collapsed) */}
-                {!isExpanded && (item.extras?.length || item.variants?.length) ? (
-                  <div className="mt-4 pt-3 border-t border-stone-100 flex items-center gap-2 text-[9px] text-stone-400 font-bold uppercase tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#8B1E1E]/60 flex-shrink-0" />
-                    <span>
-                      {item.variants?.length ? `${t.sizeOptions} · ` : ''}
-                      {item.extras?.length ? `${item.extras.length} ${t.extraIngredients}` : ''}
-                    </span>
-                  </div>
-                ) : null}
-
                 {/* INLINE DYNAMIC OPTIONS DRAWER */}
                 {isExpanded && (
                   <div
@@ -540,7 +529,12 @@ export default function MenuGrid({ items, lang }: Props) {
                                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                               >
                                 {getTranslatedName(v)}
-                                {v.priceModifier > 0 && <span className="ml-1 text-stone-400">+{v.priceModifier} ฿</span>}
+                                {v.priceModifier > 0 && (
+                                  <span className="ml-1 text-stone-400 inline-flex items-baseline gap-0.5">
+                                    <span>+{v.priceModifier}</span>
+                                    <span className="text-[9px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                                  </span>
+                                )}
                               </button>
                             );
                           })}
@@ -630,7 +624,10 @@ export default function MenuGrid({ items, lang }: Props) {
                                       <span className="text-stone-850 text-[11px] font-semibold">{getTranslatedName(extra)}</span>
                                     </div>
                                     {extra.price > 0 ? (
-                                      <span className="text-[#8B1E1E] text-[11px] font-extrabold">+{extra.price} ฿</span>
+                                      <span className="text-[#8B1E1E] text-[11px] font-extrabold inline-flex items-baseline gap-0.5">
+                                        <span>+{extra.price}</span>
+                                        <span className="text-[9px] font-black select-none text-[#8B1E1E]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                                      </span>
                                     ) : (
                                       <span className="text-stone-450 text-[10px]">{t.freeText}</span>
                                     )}
@@ -683,7 +680,10 @@ export default function MenuGrid({ items, lang }: Props) {
                                       <span className="text-stone-850 text-xs font-semibold">{getTranslatedName(extra)}</span>
                                     </div>
                                     {extra.price > 0 ? (
-                                      <span className="text-[#8B1E1E] text-xs font-extrabold">+{extra.price} ฿</span>
+                                      <span className="text-[#8B1E1E] text-xs font-extrabold inline-flex items-baseline gap-0.5">
+                                        <span>+{extra.price}</span>
+                                        <span className="text-[10px] font-black select-none text-[#8B1E1E]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                                      </span>
                                     ) : (
                                       <span className="text-stone-400 text-[10px]">{t.freeText}</span>
                                     )}
@@ -748,22 +748,31 @@ export default function MenuGrid({ items, lang }: Props) {
                 )}
               </div>
 
-              {/* CARD BOTTOM INTERACT & PRICING BAR - CLONED FROM VILLAGE ROOM CARD */}
-              <div className="mt-6 pt-4 border-t border-stone-200 flex items-center justify-between gap-2 mt-auto">
-                <div>
-                  <span
-                    className="block text-[10.5px] uppercase tracking-wider text-stone-400 font-bold"
-                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                  >
-                    {isExpanded ? t.totalFinito : t.startingAt}
-                  </span>
-                  <span
-                    className={`text-xl font-extrabold transition-colors duration-300 ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`}
-                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                  >
-                    {isExpanded ? `${currentTotalPrice} ฿` : `${item.price} ฿`}
-                  </span>
-                </div>
+              {/* CARD BOTTOM INTERACT & PRICING BAR */}
+              <div className="mt-auto pt-3.5 border-t border-stone-200">
+                {!isExpanded && (item.extras?.length || item.variants?.length) ? (
+                  <div className="pb-2.5 flex items-center gap-2 text-[9px] text-stone-400 font-bold uppercase tracking-wider">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8B1E1E]/60 flex-shrink-0" />
+                    <span>
+                      {item.variants?.length ? `${t.sizeOptions} · ` : ''}
+                      {item.extras?.length ? `${item.extras.length} ${t.extraIngredients}` : ''}
+                    </span>
+                  </div>
+                ) : null}
+
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <span
+                      className="block text-[10.5px] uppercase tracking-wider text-stone-400 font-bold"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      {isExpanded ? t.totalFinito : t.startingAt}
+                    </span>
+                    {renderFormattedPrice(isExpanded ? currentTotalPrice : item.price, {
+                      numClass: `text-xl font-extrabold transition-colors duration-300 ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`,
+                      symbolClass: `text-sm font-black transition-colors duration-300 select-none ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`
+                    })}
+                  </div>
 
                 <button
                   type="button"
@@ -786,9 +795,9 @@ export default function MenuGrid({ items, lang }: Props) {
                   {isExpanded ? t.confirmText : (item.extras?.length || item.variants?.length ? t.customizeText : t.chooseText)}
                 </button>
               </div>
-
             </div>
-          </article>
+          </div>
+        </article>
         );
       })}
     </div>

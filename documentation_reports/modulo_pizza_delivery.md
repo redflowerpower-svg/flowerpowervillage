@@ -18,12 +18,32 @@ Il sistema gestisce l'intero catalogo dei prodotti e l'inoltro degli ordini via 
 
 ---
 
-## 2. Flussi Logici
+## 2. Architettura UI & Componenti Recenti
+
+### A. Sistema di Filtri a Tendina Personalizzati (`CustomFilterDropdown`)
+*   **Design Satinato & Z-Index Elevato (`z-[99999]`):** Tutti i sottomenu a pulsante sono stati convertiti in eleganti menu a tendina custom con chiusura al click esterno (`useRef` + window listener), badge con conteggio piatti, checkmark animato sulla selezione attiva e reset rapido.
+*   **Menu Pasta (`CONDIMENTO / TIPO DI PASTA`):** Elenca i condimenti scritti esattamente come nel menu in **UPPERCASE** (`AGLIO, OLIO E PEPERONCINO`, `SALSA DI POMODORO`, `PESTO GENOVESE`, `SALSA AMATRICIANA`, `SALSA RAGÙ BOLOGNESE`, `CARBONARA`, `QUATTRO FORMAGGI`, `FLOWER POWER`, `LASAGNE`).
+*   **Menu Bibite & Birre (`TIPOLOGIA BEVANDA`):** Sostituito il layout a pillole con tendina satinata (`TUTTE LE BEVANDE`, `BIBITE & ACQUA`, `BIRRE`).
+*   **Menu Vini (`TIPOLOGIA VINO` & `ORIGINE / NAZIONE`):** Doppia tendina con bandiere nazionali e ordine rigoroso: **Italia, Francia, Australia, Cile**.
+
+### B. Standardizzazione Tipografica del Simbolo Valuta Baht (`฿`)
+*   **Colore Coerente e Nero:** Il simbolo `฿` è stato uniformato al colore nero del prezzo (`text-stone-900` o `text-[#8B1E1E]` se in evidenza), eliminando il vecchio grigio spento.
+*   **Font Stack Dedicato:** Utilizzo dello stack tipografico ad alta resa `fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif'` su tutte le componenti: schede menu (`MenuGrid.tsx`), schede vini (`wineData.tsx`), carrello laterale (`CartDrawer.tsx`), modal di personalizzazione (`ProductModal.tsx`), cassa e checkout (`CheckoutFlow.tsx`) e Wine Studio.
+
+### C. Allineamento Geometrico Schede Menu Food
+*   **Ancoraggio Badge Extra a Fondo Scheda (`mt-auto`):** L'indicatore `• N INGREDIENTI EXTRA` e le opzioni di taglia sono posizionati stabilmente a contatto con la riga sottile divisoria (`border-t border-stone-200`) in tutte le schede della griglia, garantendo perfetto allineamento visivo a prescindere dalla lunghezza del testo descrittivo.
+
+### D. Switcher "Sito Nuovo / Sito Vecchio"
+*   **Toggle Header Navigation:** Nella barra marrone superiore di `PizzaSite.tsx` è integrato un interruttore persistito in `localStorage` (`flower_power_pizza_mode`) per passare rapidamente tra la **Nuova Delivery App** (`DeliveryMenu`) e la **Landing Provvisoria GloriaFood** (`GloriaFoodLanding`).
+
+---
+
+## 3. Flussi Logici dell'Ordine
 
 Il ciclo di vita di un ordine si sviluppa in quattro fasi: composizione, geolocalizzazione e pagamento, notifica istantanea, e tracciamento in tempo reale.
 
 ### A. Composizione dell'Ordine nel Carrello
-1.  L'utente naviga nel catalogo strutturato in categorie (pizze classiche, pasta, insalate, bevande, ecc.).
+1.  L'utente naviga nel catalogo strutturato in categorie (pizze classiche, pasta, insalate, bevande, vini, ecc.).
 2.  All'apertura della scheda prodotto (`ProductModal`), l'utente definisce la taglia/variante del piatto (es. pizza Normale o Gigante) ed eventuali ingredienti extra.
 3.  Zustand (`cartStore.ts`) calcola il prezzo totale del singolo articolo applicando i modificatori di prezzo della variante selezionata e sommando gli extra.
 
@@ -68,7 +88,7 @@ sequenceDiagram
 
 ---
 
-## 3. Configurazioni Chiave e Schemi Dati
+## 4. Configurazioni Chiave e Schemi Dati
 
 ### Schema della Tabella `pizza_orders` (Supabase)
 
@@ -101,16 +121,16 @@ CREATE TABLE pizza_orders (
 
 ---
 
-## 4. Problem Solving & Patch Storiche
+## 5. Problem Solving & Patch Storiche
 
 ### A. Prevenzione dell'Autofill Invasivo del Browser
-*   **Problema:** Gli utenti riscontravano problemi durante l'inserimento dell'indirizzo perché le funzionalità di autocompilazione (autofill) dei browser (specialmente Chrome su mobile) sovrascrivevano arbitrariamente i campi del modulo di geolocalizzazione, inserendo indirizzi vecchi o non allineati con il pin della mappa.
-*   **Soluzione:** In [CheckoutFlow.tsx](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/pizza/components/CheckoutFlow.tsx), l'attributo `id` del campo indirizzo viene generato in modo casuale a ogni montaggio del componente (es. `addr-[random]`). Inoltre, il campo viene inizializzato come `readOnly` e diventa editabile solo a seguito del focus dell'utente, disattivando efficacemente i meccanismi automatici di autofill dei browser.
+*   **Problema:** Gli utenti riscontravano problemi durante l'inserimento dell'indirizzo perché le funzionalità di autofill dei browser sovrascrivevano arbitrariamente i campi del modulo.
+*   **Soluzione:** ID casuale univoco a ogni montaggio (`addr-[random]`) e gestione `readOnly` dinamica fino al focus.
 
 ### B. Gestione dei Tablet Staff Offline (Failsafe Timeout)
-*   **Problema:** Se il tablet della cucina era offline o lo staff non notava la notifica Telegram in tempo, il cliente rimaneva bloccato indefinitamente in attesa della conferma.
-*   **Soluzione:** Il client avvia un countdown visivo di 5 minuti (300 secondi). Se entro questo lasso di tempo lo stato dell'ordine nel database non passa a `preparing` (segno che la cucina non ha premuto il pulsante di conferma su Telegram), l'interfaccia utente mostra automaticamente una schermata di avviso d'emergenza, invitando il cliente a chiamare direttamente il numero telefonico della pizzeria o ad avviare una chat WhatsApp/Line pre-compilata.
+*   **Problema:** Se il tablet della cucina era offline, il cliente rimaneva bloccato in attesa della conferma.
+*   **Soluzione:** Countdown visivo di 5 minuti (300s). Se lo stato non passa a `preparing`, scatta la schermata di emergenza con chiamata telefonica diretta o chat WhatsApp/Line.
 
 ### C. Simulazione in Dev Mode
-*   **Problema:** In modalità di sviluppo locale, l'assenza di un database Supabase o di un bot Telegram configurato impediva il test del flusso di cassa e di preparazione degli ordini.
-*   **Soluzione:** È stata implementata una logica condizionale per la quale, in ambiente locale (`DEV`), se l'inserimento nel database fallisce, il sistema crea un ordine simulato in memoria locale, lo notifica alla dashboard di amministrazione aperta localmente tramite un `BroadcastChannel` del browser (`flower_power_orders_channel`) e consente il test completo del flusso dell'interfaccia grafica.
+*   **Problema:** In locale senza DB/Telegram il checkout era bloccato.
+*   **Soluzione:** Simulazione d'ordine in memoria locale e notifica broadcast su `flower_power_orders_channel`.
