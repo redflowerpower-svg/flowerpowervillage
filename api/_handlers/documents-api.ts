@@ -229,6 +229,50 @@ export async function handleDocumentsApi(req: VercelRequest, res: VercelResponse
         console.error("Save error:", err);
         return res.status(500).json({ error: err.message || "Errore salvataggio." });
       }
+    case "update-expiration": {
+      const { token, expiresAt } = req.body || {};
+      if (!token) return res.status(400).json({ error: "Token mancante" });
+
+      try {
+        // 1. Update manifest
+        try {
+          const { data } = await supabaseAdmin.storage.from(STORAGE_BUCKET).download(`manifests/${token}.json`);
+          if (data) {
+            const doc = JSON.parse(await data.text());
+            doc.expires_at = expiresAt;
+            doc.is_active = true;
+            doc.updated_at = new Date().toISOString();
+            await supabaseAdmin.storage.from(STORAGE_BUCKET).upload(
+              `manifests/${token}.json`,
+              Buffer.from(JSON.stringify(doc, null, 2), "utf-8"),
+              { upsert: true, contentType: "application/json" }
+            );
+          }
+        } catch (_) {}
+
+        // 2. Update index
+        try {
+          const { data } = await supabaseAdmin.storage.from(STORAGE_BUCKET).download(INDEX_FILE);
+          if (data) {
+            const index = JSON.parse(await data.text()) || [];
+            const updated = index.map((d: any) => (d.token === token ? { ...d, expires_at: expiresAt, is_active: true } : d));
+            await supabaseAdmin.storage.from(STORAGE_BUCKET).upload(
+              INDEX_FILE,
+              Buffer.from(JSON.stringify(updated, null, 2), "utf-8"),
+              { upsert: true, contentType: "application/json" }
+            );
+          }
+        } catch (_) {}
+
+        // 3. Update DB
+        try {
+          await supabaseAdmin.from("stored_documents").update({ expires_at: expiresAt, is_active: true, updated_at: new Date().toISOString() }).eq("token", token);
+        } catch (_) {}
+
+        return res.status(200).json({ success: true, expiresAt });
+      } catch (err: any) {
+        return res.status(500).json({ error: err.message });
+      }
     }
 
     case "toggle": {

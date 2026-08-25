@@ -304,24 +304,41 @@ export default function DocumentReaderStudio() {
 
   const handleSaveEditedExpiration = async () => {
     if (!editingExpDoc) return;
+    const targetToken = editingExpDoc.token;
     let newExpiresAt: string | null = null;
     if (editExpMinutes > 0) {
       newExpiresAt = new Date(Date.now() + editExpMinutes * 60 * 1000).toISOString();
     }
-    await updateDocumentExpiration(editingExpDoc.token, newExpiresAt);
+    
+    // 1. Optimistic UI update
     setDocuments((prev) =>
-      prev.map((d) => (d.token === editingExpDoc.token ? { ...d, expires_at: newExpiresAt } : d))
+      prev.map((d) => (d.token === targetToken ? { ...d, expires_at: newExpiresAt, is_active: true } : d))
     );
     setEditingExpDoc(null);
+
+    // 2. Atomic server and storage update
+    await updateDocumentExpiration(targetToken, newExpiresAt);
+
+    // 3. Silent background refresh
+    loadDocuments();
   };
 
   const handleSaveEditedTitle = async () => {
     if (!editingTitleDoc || !newTitleInput.trim()) return;
-    await updateDocumentTitle(editingTitleDoc.token, newTitleInput.trim());
+    const targetToken = editingTitleDoc.token;
+    const newTitle = newTitleInput.trim();
+
+    // 1. Optimistic UI update
     setDocuments((prev) =>
-      prev.map((d) => (d.token === editingTitleDoc.token ? { ...d, title: newTitleInput.trim() } : d))
+      prev.map((d) => (d.token === targetToken ? { ...d, title: newTitle } : d))
     );
     setEditingTitleDoc(null);
+
+    // 2. Atomic server and storage update
+    await updateDocumentTitle(targetToken, newTitle);
+
+    // 3. Silent background refresh
+    loadDocuments();
   };
 
   const getRemainingTimeBadge = (expiresAt?: string | null) => {

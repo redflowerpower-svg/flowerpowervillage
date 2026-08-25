@@ -584,18 +584,36 @@ export async function updateDocumentTitle(token: string, newTitle: string): Prom
  * Update document expiration date or countdown
  */
 export async function updateDocumentExpiration(token: string, expiresAt: string | null): Promise<boolean> {
-  const doc = await getDocumentByToken(token);
-  if (doc) {
-    doc.expires_at = expiresAt;
-    doc.updated_at = new Date().toISOString();
-    try {
-      await fetch('/api/documents-api?action=save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ document: doc })
-      });
-    } catch (_) {}
-  }
+  // 1. Direct Server API call for atomic manifest, index & DB update
+  try {
+    const res = await fetch('/api/documents-api?action=update-expiration', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, expiresAt })
+    });
+    if (res.ok) return true;
+  } catch (_) {}
+
+  // 2. Direct client fallback
+  try {
+    const { data } = await supabase.storage.from(STORAGE_BUCKET).download(`manifests/${token}.json`);
+    if (data) {
+      const doc = JSON.parse(await data.text());
+      doc.expires_at = expiresAt;
+      doc.is_active = true;
+      doc.updated_at = new Date().toISOString();
+      const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
+      await supabase.storage.from(STORAGE_BUCKET).upload(`manifests/${token}.json`, blob, { upsert: true });
+    }
+  } catch (_) {}
+
+  try {
+    await supabase
+      .from('stored_documents')
+      .update({ expires_at: expiresAt, is_active: true, updated_at: new Date().toISOString() })
+      .eq('token', token);
+  } catch (_) {}
+
   return true;
 }
 
