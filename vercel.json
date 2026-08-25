@@ -6,6 +6,10 @@
   },
   "rewrites": [
     {
+      "source": "/read/:path*",
+      "destination": "/api/read/:path*"
+    },
+    {
       "source": "/api-octorate/:path*",
       "destination": "https://api.octorate.com/:path*"
     },
