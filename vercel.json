@@ -2,20 +2,9 @@
   "functions": {
     "api/[...route].ts": {
       "includeFiles": "public/**"
-    },
-    "api/read.ts": {
-      "includeFiles": "public/**"
     }
   },
   "rewrites": [
-    {
-      "source": "/read/:token/page/:page",
-      "destination": "/api/read?token=:token&page=:page"
-    },
-    {
-      "source": "/read/:token",
-      "destination": "/api/read?token=:token"
-    },
     {
       "source": "/api-octorate/:path*",
       "destination": "https://api.octorate.com/:path*"
