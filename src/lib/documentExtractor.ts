@@ -72,21 +72,21 @@ export function sanitizeTextContent(text: string): string {
 }
 
 /**
- * Perform OCR on an image canvas or Blob using Tesseract.js (IT, EN, TH)
+ * Perform OCR on an image canvas or Blob using Tesseract.js (TH, EN, IT)
  */
 async function performOcrOnCanvas(
   canvas: HTMLCanvasElement,
-  lang: string = 'ita+eng+tha',
+  lang: string = 'tha+eng+ita',
   onProgress?: (msg: string) => void
 ): Promise<{ text: string; lang: string }> {
   try {
-    if (onProgress) onProgress(`Avvio motore OCR (${lang})...`);
+    if (onProgress) onProgress(`Avvio motore OCR ad alta precisione (${lang})...`);
     
-    // Create worker with primary languages
+    // Create worker with primary languages (Thai prioritized)
     const worker = await createWorker(lang, 1, {
       logger: (m) => {
         if (m.status === 'recognizing text' && onProgress) {
-          onProgress(`OCR in corso... ${Math.round((m.progress || 0) * 100)}%`);
+          onProgress(`Riconoscimento caratteri (incluso Thai)... ${Math.round((m.progress || 0) * 100)}%`);
         }
       }
     });
@@ -99,14 +99,14 @@ async function performOcrOnCanvas(
       lang
     };
   } catch (err: any) {
-    console.warn(`OCR with lang "${lang}" failed, falling back to "eng+ita":`, err);
+    console.warn(`OCR with lang "${lang}" failed, attempting secondary fallback:`, err);
     try {
-      const fallbackWorker = await createWorker('eng+ita');
+      const fallbackWorker = await createWorker('tha+eng');
       const ret = await fallbackWorker.recognize(canvas);
       await fallbackWorker.terminate();
       return {
         text: sanitizeTextContent(ret.data.text || ''),
-        lang: 'eng+ita'
+        lang: 'tha+eng'
       };
     } catch (fallbackErr: any) {
       console.error('All OCR attempts failed:', fallbackErr);
@@ -123,7 +123,16 @@ async function processPdfFile(
   onProgress?: ExtractionProgressCallback
 ): Promise<ExtractionResult> {
   const arrayBuffer = await file.arrayBuffer();
-  const loadingTask = pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) });
+
+  // Load PDF.js with full CMap and standard fonts for Asian/Thai scripts
+  const loadingTask = pdfjsLib.getDocument({
+    data: new Uint8Array(arrayBuffer),
+    cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/cmaps/',
+    cMapPacked: true,
+    standardFontDataUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/standard_fonts/',
+    enableXfa: true
+  });
+
   const pdfDoc = await loadingTask.promise;
   const totalPages = pdfDoc.numPages;
 
@@ -138,7 +147,7 @@ async function processPdfFile(
         currentPage: pageNum,
         totalPages,
         percentage: Math.round(((pageNum - 0.5) / totalPages) * 100),
-        message: `Estrazione pagina ${pageNum} di ${totalPages}...`
+        message: `Estrazione testo pagina ${pageNum} di ${totalPages}...`
       });
     }
 
@@ -165,20 +174,24 @@ async function processPdfFile(
     let pageHasOcr = false;
     let ocrLang: string | undefined = undefined;
 
-    // Threshold check: if page has < 30 characters, it's likely a scanned image
-    if (extractedText.length < 30) {
+    // Check if text is insufficient or contains mostly unmapped characters (scanned document / photo of contract)
+    const cleanCharsCount = extractedText.replace(/[\s\r\n\t]/g, '').length;
+    const hasUnreadableChars = extractedText.includes('\ufffd') || /[\u0000-\u0008\u000E-\u001F]/.test(extractedText);
+    const needsOcr = cleanCharsCount < 40 || hasUnreadableChars;
+
+    if (needsOcr) {
       if (onProgress) {
         onProgress({
           status: 'ocr',
           currentPage: pageNum,
           totalPages,
           percentage: Math.round((pageNum / totalPages) * 100),
-          message: `Scansione rilevata a pag. ${pageNum}. Esecuzione OCR (IT, EN, TH)...`
+          message: `Scansione/Contratto rilevato a pag. ${pageNum}. Esecuzione OCR Thai/Inglese/Italiano...`
         });
       }
 
-      // Render PDF page to canvas for OCR
-      const viewport = page.getViewport({ scale: 2.0 }); // 200 DPI for high fidelity
+      // Render PDF page to high-res canvas (2.5 scale) for crisp Thai character recognition
+      const viewport = page.getViewport({ scale: 2.5 });
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (ctx) {
@@ -191,7 +204,7 @@ async function processPdfFile(
         };
         await page.render(renderContext).promise;
 
-        const ocrResult = await performOcrOnCanvas(canvas, 'ita+eng+tha', (msg) => {
+        const ocrResult = await performOcrOnCanvas(canvas, 'tha+eng+ita', (msg) => {
           if (onProgress) {
             onProgress({
               status: 'ocr',
@@ -203,7 +216,7 @@ async function processPdfFile(
           }
         });
 
-        if (ocrResult.text.length > extractedText.length) {
+        if (ocrResult.text.length > extractedText.length || cleanCharsCount < 20) {
           extractedText = ocrResult.text;
           pageHasOcr = true;
           ocrLang = ocrResult.lang;
