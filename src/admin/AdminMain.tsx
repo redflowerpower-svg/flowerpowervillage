@@ -6,22 +6,23 @@ import { ErrorBoundary } from './common/ErrorBoundary';
 import { AdminGateway } from './gateway/AdminGateway';
 import { PizzaDashboard } from './pizza/components/PizzaDashboard';
 import { ResortDashboard } from './resort/components/ResortDashboard';
+import DocumentReaderStudio from './components/DocumentReaderStudio';
 
 export function AdminMain() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeDept, setActiveDept] = useState<'gateway' | 'pizza' | 'resort'>('gateway');
+  const [activeDept, setActiveDept] = useState<'gateway' | 'pizza' | 'resort' | 'docs'>('gateway');
 
-  // Sync active dept from URL query param if present (?dept=pizza or ?dept=resort)
+  // Sync active dept from URL query param if present (?dept=pizza, ?dept=resort, or ?dept=docs)
   useEffect(() => {
     const deptParam = searchParams.get('dept');
-    if (deptParam === 'pizza' || deptParam === 'resort') {
+    if (deptParam === 'pizza' || deptParam === 'resort' || deptParam === 'docs') {
       setActiveDept(deptParam);
     } else {
       setActiveDept('gateway');
     }
   }, [searchParams]);
 
-  const handleSelectDept = (dept: 'gateway' | 'pizza' | 'resort') => {
+  const handleSelectDept = (dept: 'gateway' | 'pizza' | 'resort' | 'docs') => {
     setActiveDept(dept);
     if (dept === 'gateway') {
       setSearchParams({});
@@ -43,7 +44,7 @@ export function AdminMain() {
           />
 
           {/* Main Content Area */}
-          <main className="flex-1">
+          <main className="flex-1 p-4 sm:p-6 max-w-7xl mx-auto w-full">
             {activeDept === 'gateway' && (
               <AdminGateway onSelectDepartment={(dept) => handleSelectDept(dept)} />
             )}
@@ -57,6 +58,12 @@ export function AdminMain() {
             {activeDept === 'resort' && (
               <ErrorBoundary moduleName="Resort Koh Phayam">
                 <ResortDashboard />
+              </ErrorBoundary>
+            )}
+
+            {activeDept === 'docs' && (
+              <ErrorBoundary moduleName="Document Web Reader">
+                <DocumentReaderStudio />
               </ErrorBoundary>
             )}
           </main>

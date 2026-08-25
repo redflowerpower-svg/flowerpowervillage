@@ -15,6 +15,7 @@ Il sistema è strutturato come un'applicazione a pagina singola (SPA) con backen
 *   **Channel Manager & PMS:** API Octorate (REST v1) per il controllo in tempo reale della disponibilità delle camere, delle tariffe dinamiche e per la registrazione automatica delle prenotazioni.
 *   **Image Proxy (Ottimizzazione CDN):** Proxy `wsrv.nl` per il ridimensionamento dinamico e la conversione in formato WebP ad alta efficienza delle immagini caricate sui bucket Supabase Storage.
 *   **Generazione PDF:** `PDFKit` (libreria server-side in Node.js) per la creazione on-the-fly della ricevuta di prenotazione in formato PDF.
+*   **Modulo Web Reader & Documenti (3° Reparto Stagno):** Motore autonomo con parsing PDF (`pdfjs-dist`), Excel (`xlsx`), Word (`mammoth`) e OCR multilingua (`tesseract.js`) per generare mini-siti web a 256-bit agent-ready (`/read/[token]`).
 *   **Mailing Service:** Servizio SMTP di Gmail integrato tramite `Nodemailer` per l'invio automatizzato delle email di conferma della prenotazione con il PDF in allegato.
 *   **Serverless Environment:** Vercel Serverless Functions (Node.js) ospitate sotto la cartella `/api`.
 

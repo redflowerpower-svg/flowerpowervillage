@@ -147,6 +147,14 @@ graph TD
 *   **Accesso:** Completamente bloccato sia in lettura che in scrittura a chiunque sia connesso come `public` o `anon` (`USING (false)`).
 *   *Nota di implementazione:* Le API Serverless di Vercel interrogano e aggiornano queste tabelle bypassando l'RLS tramite l'uso della chiave privata `SUPABASE_SERVICE_ROLE_KEY`, garantendo che i token di Octorate non vengano mai esposti al browser.
 
+#### E. Tabelle `stored_documents` e `document_pages` (Modulo Web Reader)
+*   **Isolamento Stagno:** Tabelle dedicate al 3° reparto stagno per la persistenza dei documenti e delle pagine estratte.
+*   **Accesso `stored_documents`:**
+    *   Lettura (`anon`): Consentita solo se `is_active = true` e non scaduta (`expires_at IS NULL OR expires_at > now()`).
+    *   Scrittura/Modifica/Cancellazione: Gestita via Serverless API con `SUPABASE_SERVICE_ROLE_KEY` o utenti autenticati (`authenticated`).
+*   **Accesso `document_pages`:** Collegata via `FOREIGN KEY (document_id) REFERENCES stored_documents(id) ON DELETE CASCADE`.
+
 ### Politiche di Sicurezza degli Storage Bucket
 *   **`receipts`:** Chiunque (anonimo) può scaricare/leggere le ricevute tramite link diretto, e chiunque può caricare immagini (per permettere l'invio della ricevuta PromptPay). L'eliminazione e la visualizzazione ad elenco del bucket sono vietate agli utenti anonimi.
 *   **`accommodation-images` / `delivery_food`:** Lettura pubblica degli asset per il rendering del sito. Inserimento, modifica ed eliminazione sono riservati esclusivamente agli amministratori autenticati (`authenticated`). Il listing pubblico del bucket `delivery_food` è bloccato per prevenire scansioni di massa.
+*   **`documents` (Web Reader Storage):** Bucket isolato per il Web Reader contenente i file originali, i manifesti `manifests/[token].json` e `index_manifest.json`. Accesso pubblico in sola lettura diretta via token, scrittura/cancellazione riservata al serverless e amministratori.

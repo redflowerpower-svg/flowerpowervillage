@@ -5,6 +5,7 @@ import VillageSite from './pages/VillageSite';
 import PizzaSite from './pages/PizzaSite';
 import AdminMain from './admin/AdminMain';
 import AccommodationDetailPage from './pages/AccommodationDetailPage';
+import DocumentReaderPage from './pages/DocumentReaderPage';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -57,6 +58,8 @@ function App() {
           <Route path="/pizza/*" element={<PizzaSite />} />
           <Route path="/admin" element={<AdminMain />} />
           <Route path="/rooms/:slug" element={<AccommodationDetailPage />} />
+          <Route path="/read/:token" element={<DocumentReaderPage />} />
+          <Route path="/read/:token/page/:pageNum" element={<DocumentReaderPage />} />
           {/* Legacy hash-based admin redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

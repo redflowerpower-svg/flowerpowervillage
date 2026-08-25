@@ -29,6 +29,8 @@ import { handleUpdateRateplanRestrictionsBulk } from "./_handlers/update-ratepla
 import { handleUpdatePricesStagionale } from "./_handlers/api-update-prices-stagionale.js";
 import { handleOctorateRestrictionsGrid } from "./_handlers/octorate-restrictions-grid.js";
 import { handleWineTranslate } from "./_handlers/wine-translate.js";
+import { handleDocumentReader } from "./_handlers/reader.js";
+import { handleDocumentsApi } from "./_handlers/documents-api.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -60,6 +62,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Normalize path string (lowercase, remove leading 'api/' and trailing slashes)
   const queryRoute = Array.isArray(req.query?.route) ? req.query.route.join('/') : String(req.query?.route || '');
   const cleanPath = (pathname || queryRoute || '').replace(/^api\//i, '').replace(/\/$/, '').toLowerCase();
+
+  if (cleanPath.startsWith('documents-api') || cleanPath.startsWith('documents')) {
+    return handleDocumentsApi(req, res);
+  }
+
+  if (cleanPath.startsWith('read') || cleanPath.includes('document-reader')) {
+    return handleDocumentReader(req, res);
+  }
 
   if (cleanPath.includes('wine-translate') || cleanPath.includes('wine_translate')) {
     return handleWineTranslate(req, res);

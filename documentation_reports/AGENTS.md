@@ -1,8 +1,15 @@
 # Definitions
 - **/pizze**: Indica che lavoreremo nel reparto stagno dedicato alla delivery food e alla pizzeria a Ranong (codice sorgente in `/src/pizza` e `/api` relativi alla pizzeria).
 - **/villaggio**: Indica che lavoreremo nel reparto stagno dedicato al booking engine e al villaggio a Koh Phayam (codice sorgente in `/src/booking` e `/api` relativi alle prenotazioni e alloggi).
+- **/docs** o **/reader**: Indica che lavoreremo nel reparto stagno dedicato al **Web Reader & Documenti** (codice sorgente in `/src/lib/documentExtractor.ts`, `/src/lib/documentStore.ts`, `/src/admin/components/DocumentReaderStudio.tsx`, `/src/pages/DocumentReaderPage.tsx` e `/api/_handlers/documents-api.ts`, `/api/_handlers/reader.ts`).
 
 ---
+
+# 🛡️ REGOLA FONDAMENTALE E BASILARE IMPRESCINDIBILE: REPARTO STAGNO "WEB READER & DOCUMENTI"
+Questo reparto **Web Reader & Documenti** è **TASSATIVAMENTE E TOTALMENTE INDIPENDENTE DA TUTTO IL RESTO DEL SITO**:
+1. **Zero Contaminazione del Codice**: Qualunque modifica, cambiamento, nuova funzionalità, refactoring, gestione file (PDF, Excel, Word, OCR, estensioni future) deve essere programmata in modo 100% autonomo e confinato al proprio reparto, senza MAI intaccare o dipendere dal codice del Villaggio (`/villaggio`) o della Pizzeria (`/pizze`).
+2. **Database & Storage Indipendenti**: Le tabelle (`stored_documents`, `document_pages`), le funzioni API e i bucket di Storage Supabase (`documents`) dedicati a questo reparto sono completamente separati. È vietato creare chiavi esterne, relazioni incrociate o dipendenze con tabelle di prenotazioni, clienti o ordini.
+3. **Isolamento dell'Infrastruttura**: Il funzionamento della macchina del Web Reader (token a 256-bit, visualizzazione HTML, scadenza temporizzata, estrazione testo) vive come entità a sé stante e non deve mai risentire o influenzare lo stato degli altri due reparti.
 
 # Autonomous Execution & Research Protocol (`/goal`, `AUTOPILOT`, `In autonomia`)
 Quando l'utente attiva una richiesta usando il comando `/goal`, la parola chiave `AUTOPILOT` o il prefisso `In autonomia:`:
