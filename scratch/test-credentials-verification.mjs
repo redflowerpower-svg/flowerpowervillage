@@ -229,6 +229,35 @@ function testGoogleMaps() {
   }
 }
 
+async function testGeminiVision() {
+  const apiKey = envVars.GEMINI_API_KEY || envVars.VITE_GEMINI_API_KEY;
+  if (!apiKey) {
+    console.log('❌ Google Gemini Vision: GEMINI_API_KEY mancante');
+    return false;
+  }
+  try {
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + apiKey;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: 'Ping' }] }]
+      })
+    });
+    if (res.ok) {
+      console.log(`✅ Google Gemini Vision: Connessione OK (Modello: gemini-3.6-flash | Vision OCR Pronto)`);
+      return true;
+    } else {
+      const err = await res.json();
+      console.log(`❌ Google Gemini Vision: Errore (${err.error?.message?.slice(0, 80)})`);
+      return false;
+    }
+  } catch (err) {
+    console.log(`❌ Google Gemini Vision: Errore exception: ${err.message}`);
+    return false;
+  }
+}
+
 async function runAll() {
   await testSupabase();
   await testStripe();
@@ -236,7 +265,9 @@ async function runAll() {
   await testOctorate();
   testSMTP();
   testGoogleMaps();
+  await testGeminiVision();
   console.log('\n--- VERIFICA COMPLETATA ---');
 }
 
 runAll();
+
