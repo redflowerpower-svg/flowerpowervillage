@@ -69,8 +69,10 @@ async function getStorageIndex(): Promise<StoredDocument[]> {
 export async function uploadAndProcessDocument(
   file: File,
   options?: {
+    customTitle?: string;
     accessKey?: string;
     expiresAt?: string;
+    forceVision?: boolean;
   },
   onProgress?: ExtractionProgressCallback
 ): Promise<StoredDocument> {
@@ -111,13 +113,14 @@ export async function uploadAndProcessDocument(
   // 2. Perform Extraction and OCR
   let extraction: ExtractionResult;
   try {
-    extraction = await extractDocumentContent(file, onProgress);
+    extraction = await extractDocumentContent(file, onProgress, { forceVision: options?.forceVision });
   } catch (extractErr: any) {
     console.error('Text extraction failed:', extractErr);
     throw extractErr;
   }
 
   const docId = crypto.randomUUID ? crypto.randomUUID() : `doc_${timestamp}`;
+
   const mappedPages = (extraction.pages || []).map((p) => ({
     pageNumber: p.pageNumber,
     textContent: p.textContent,
@@ -132,7 +135,7 @@ export async function uploadAndProcessDocument(
     id: docId,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    title: file.name.replace(/\.[^/.]+$/, '').trim() || extraction.title,
+    title: options?.customTitle?.trim() || file.name.replace(/\.[^/.]+$/, '').trim() || extraction.title,
     file_name: file.name,
     file_type: extraction.fileType || fileExt,
     file_url: fileUrl,
@@ -157,7 +160,7 @@ export async function uploadAndProcessDocument(
     pages: mappedPages
   };
 
-  // 3. Save full document manifest via Server API (Service Role)
+  // 3. Save full document manifest via Server API
   try {
     const apiRes = await fetch('/api/documents-api?action=save', {
       method: 'POST',
@@ -166,7 +169,6 @@ export async function uploadAndProcessDocument(
     });
 
     if (!apiRes.ok) {
-      // Fallback: direct storage upload if in purely client dev environment
       const manifestPath = `manifests/${token}.json`;
       const manifestBlob = new Blob([JSON.stringify(storedDoc, null, 2)], { type: 'application/json' });
       await supabase.storage.from(STORAGE_BUCKET).upload(manifestPath, manifestBlob, {
@@ -192,7 +194,7 @@ export async function uploadAndProcessDocument(
       currentPage: extraction.totalPages,
       totalPages: extraction.totalPages,
       percentage: 100,
-      message: 'Completato con successo!'
+      message: 'Documento elaborato e salvato con successo!'
     });
   }
 
@@ -208,6 +210,7 @@ export async function uploadAndMergeMultipleDocuments(
     customTitle?: string;
     accessKey?: string;
     expiresAt?: string;
+    forceVision?: boolean;
   },
   onProgress?: ExtractionProgressCallback
 ): Promise<StoredDocument> {
@@ -244,7 +247,7 @@ export async function uploadAndMergeMultipleDocuments(
       });
     }
 
-    const extraction = await extractDocumentContent(file, onProgress);
+    const extraction = await extractDocumentContent(file, onProgress, { forceVision: options?.forceVision });
     if (extraction.metadata.hasOcrPages) hasAnyOcr = true;
 
     for (let pIdx = 0; pIdx < extraction.pages.length; pIdx++) {

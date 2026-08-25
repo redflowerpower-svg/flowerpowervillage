@@ -67,6 +67,7 @@ export default function DocumentReaderStudio() {
   const [accessKey, setAccessKey] = useState('');
   const [mergeIntoSingleLink, setMergeIntoSingleLink] = useState<boolean>(true);
   const [customBundleTitle, setCustomBundleTitle] = useState('');
+  const [forceVisionMode, setForceVisionMode] = useState<boolean>(true);
   
   // Expiration State: mode 'minutes' | 'datetime' | 'none'
   const [expirationMode, setExpirationMode] = useState<'minutes' | 'datetime' | 'none'>('minutes');
@@ -177,7 +178,8 @@ export default function DocumentReaderStudio() {
             {
               customTitle: customBundleTitle.trim() || undefined,
               accessKey: accessKey.trim() || undefined,
-              expiresAt: calculatedExpiresAt
+              expiresAt: calculatedExpiresAt,
+              forceVision: forceVisionMode
             },
             (prog) => {
               updateItem({
@@ -192,7 +194,8 @@ export default function DocumentReaderStudio() {
             nextItem.files[0],
             {
               accessKey: accessKey.trim() || undefined,
-              expiresAt: calculatedExpiresAt
+              expiresAt: calculatedExpiresAt,
+              forceVision: forceVisionMode
             },
             (prog) => {
               updateItem({
@@ -468,6 +471,38 @@ export default function DocumentReaderStudio() {
               }`}>
                 <div className={`w-4.5 h-4.5 rounded-full bg-white transition-transform ${
                   mergeIntoSingleLink ? 'translate-x-6' : 'translate-x-0.5'
+                }`} />
+              </div>
+            </div>
+
+            {/* Gemini Vision AI Toggle */}
+            <div 
+              onClick={() => setForceVisionMode(!forceVisionMode)}
+              className={`p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                forceVisionMode 
+                  ? 'bg-emerald-950/40 border-emerald-600/60 shadow-sm shadow-emerald-950/50' 
+                  : 'bg-stone-950/40 border-stone-800 text-stone-500'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold ${
+                  forceVisionMode ? 'bg-emerald-800 text-white' : 'bg-stone-800 text-stone-400'
+                }`}>
+                  ✨
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>Scansione Avanzata Gemini Vision AI</span>
+                    <span className="text-[9px] uppercase px-1.5 py-0.2 bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/30">Attivo</span>
+                  </p>
+                  <p className="text-[10px] text-stone-400">OCR ad alta precisione per contratti complessi, timbri e lingua Thailandese</p>
+                </div>
+              </div>
+              <div className={`w-11 h-6 rounded-full border transition-colors flex items-center p-0.5 ${
+                forceVisionMode ? 'bg-emerald-600 border-emerald-400' : 'bg-stone-800 border-stone-700'
+              }`}>
+                <div className={`w-4.5 h-4.5 rounded-full bg-white transition-transform ${
+                  forceVisionMode ? 'translate-x-5' : 'translate-x-0.5'
                 }`} />
               </div>
             </div>

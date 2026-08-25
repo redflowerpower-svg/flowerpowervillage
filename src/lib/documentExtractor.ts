@@ -190,12 +190,17 @@ async function performOcrOnCanvas(
   }
 }
 
+export interface ExtractionOptions {
+  forceVision?: boolean;
+}
+
 /**
  * Extract text and scan pages from a PDF File
  */
 async function processPdfFile(
   file: File,
-  onProgress?: ExtractionProgressCallback
+  onProgress?: ExtractionProgressCallback,
+  options?: ExtractionOptions
 ): Promise<ExtractionResult> {
   const arrayBuffer = await file.arrayBuffer();
 
@@ -249,25 +254,28 @@ async function processPdfFile(
     let pageHasOcr = false;
     let ocrLang: string | undefined = undefined;
 
-    // Detect corrupted / fragmented pseudo-text or scan
+    // Advanced detection: check if text contains real Thai, is fragmented garbage, or lacks readable coherence
+    const hasThai = /[\u0E00-\u0E7F]/.test(extractedText);
     const cleanCharsCount = extractedText.replace(/[\s\r\n\t]/g, '').length;
     const hasUnreadableChars = extractedText.includes('\ufffd') || /[\u0000-\u0008\u000E-\u001F]/.test(extractedText);
     
-    // Check for fragmented single-letter spam (e.g. "u 1 n a ...")
     const words = extractedText.split(/\s+/).filter(Boolean);
     const singleLetterWords = words.filter(w => w.length === 1).length;
-    const isFragmentedGarbage = words.length > 10 && (singleLetterWords / words.length) > 0.4;
+    const isFragmentedGarbage = words.length > 4 && (singleLetterWords / words.length) > 0.2;
     
-    const needsOcr = cleanCharsCount < 50 || hasUnreadableChars || isFragmentedGarbage;
+    // A digital English document has coherent words; if it's not coherent English and has NO Thai, it's a corrupted font or scan!
+    const isCoherentLatin = words.length > 10 && words.filter(w => w.length > 3).length / words.length > 0.5 && !isFragmentedGarbage;
+    
+    const needsVisionOcr = options?.forceVision || (!hasThai && !isCoherentLatin) || isFragmentedGarbage || hasUnreadableChars || cleanCharsCount < 50;
 
-    if (needsOcr) {
+    if (needsVisionOcr) {
       if (onProgress) {
         onProgress({
           status: 'ocr',
           currentPage: pageNum,
           totalPages,
           percentage: Math.round((pageNum / totalPages) * 100),
-          message: `Analisi Visiva AI a pag. ${pageNum}...`
+          message: `Scansione visiva con Gemini Vision AI (pag. ${pageNum} di ${totalPages})...`
         });
       }
 
@@ -297,7 +305,7 @@ async function processPdfFile(
           }
         });
 
-        if (ocrResult.text && (ocrResult.text.length > 20 || cleanCharsCount < 20)) {
+        if (ocrResult.text && (ocrResult.text.length > 15 || cleanCharsCount < 20)) {
           extractedText = ocrResult.text;
           pageHasOcr = true;
           ocrLang = ocrResult.lang;
@@ -638,12 +646,13 @@ async function processExcelFile(
  */
 export async function extractDocumentContent(
   file: File,
-  onProgress?: ExtractionProgressCallback
+  onProgress?: ExtractionProgressCallback,
+  options?: ExtractionOptions
 ): Promise<ExtractionResult> {
   const extension = file.name.split('.').pop()?.toLowerCase() || '';
 
   if (file.type === 'application/pdf' || extension === 'pdf') {
-    return processPdfFile(file, onProgress);
+    return processPdfFile(file, onProgress, options);
   }
 
   if (
