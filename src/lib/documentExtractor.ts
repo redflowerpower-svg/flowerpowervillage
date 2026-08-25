@@ -102,6 +102,42 @@ async function performDocumentOcr(
         };
       }
     }
+
+    // Direct client fallback with VITE_GEMINI_API_KEY
+    const clientKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
+    if (clientKey) {
+      const cleanBase64 = dataUrl.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+      const directUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${clientKey}`;
+      const directRes = await fetch(directUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            role: 'user',
+            parts: [
+              {
+                text: 'Estrai fedelmente ed integralmente tutto il testo presente in questa pagina di documento/contratto. ' +
+                      'Mantieni la massima accuratezza per la lingua thailandese (vocali, segni di tono, articoli ข้อ 1, ข้อ 2, clausole legali, numeri catastali, date). ' +
+                      'Se sono presenti tabelle, quote societarie o somme in Baht, formattale in tabelle Markdown pulite. ' +
+                      'Restituisci ESCLUSIVAMENTE il testo estratto e formattato.'
+              },
+              { inlineData: { mimeType: 'image/png', data: cleanBase64 } }
+            ]
+          }]
+        })
+      });
+      if (directRes.ok) {
+        const dData = await directRes.json();
+        const dText = dData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        if (dText.length > 10) {
+          if (onProgress) onProgress('Analisi completata con successo da Gemini Vision!');
+          return {
+            text: sanitizeTextContent(dText),
+            lang: 'Gemini Vision AI (Thai/EN/IT)'
+          };
+        }
+      }
+    }
   } catch (geminiErr) {
     console.warn('Gemini Vision API offline or failed, falling back to local OCR:', geminiErr);
   }
