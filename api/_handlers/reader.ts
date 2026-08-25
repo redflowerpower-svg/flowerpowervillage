@@ -76,18 +76,26 @@ export async function handleDocumentReader(req: VercelRequest, res: VercelRespon
   const searchParam = (req.query.q as string) || "";
   const keyParam = (req.query.key as string) || "";
 
-  // Parse path: /read/:token or /read/:token/page/:pageNum or /api/read/:token
-  let pathClean = rawUrl.split("?")[0].replace(/^\/+/, "");
-  pathClean = pathClean.replace(/^api\//, "").replace(/^read\/?/, "");
+  let token = (queryToken && queryToken !== 'read') ? queryToken : '';
+  if (!token) {
+    let pathClean = rawUrl.split("?")[0].replace(/^\/+/, "");
+    pathClean = pathClean.replace(/^api\//, "").replace(/^read\/?/, "");
+    const pathParts = pathClean.split("/").filter(Boolean);
+    token = pathParts[0] || "";
+    if (token === "read" && pathParts.length > 1) {
+      token = pathParts[1];
+    }
+  }
 
-  const pathParts = pathClean.split("/").filter(Boolean);
-  let token = queryToken || pathParts[0] || "";
   let targetPageNum: number | null = null;
-
-  if (pathParts.length >= 3 && pathParts[1] === "page") {
-    targetPageNum = parseInt(pathParts[2], 10) || null;
-  } else if (req.query.page) {
+  if (req.query.page) {
     targetPageNum = parseInt(req.query.page as string, 10) || null;
+  } else {
+    const rawParts = rawUrl.split("?")[0].split("/").filter(Boolean);
+    const pageIdx = rawParts.indexOf("page");
+    if (pageIdx !== -1 && rawParts.length > pageIdx + 1) {
+      targetPageNum = parseInt(rawParts[pageIdx + 1], 10) || null;
+    }
   }
 
   if (!token) {
