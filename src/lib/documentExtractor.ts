@@ -72,6 +72,45 @@ export function sanitizeTextContent(text: string): string {
 }
 
 /**
+ * Perform OCR using Google Gemini Vision (highest quality) with Tesseract.js fallback
+ */
+async function performDocumentOcr(
+  canvas: HTMLCanvasElement,
+  onProgress?: (msg: string) => void
+): Promise<{ text: string; lang: string }> {
+  // 1. Try Gemini Vision first
+  try {
+    if (onProgress) onProgress('Scansione visiva ad alta precisione con Gemini Vision AI...');
+    const dataUrl = canvas.toDataURL('image/png', 0.92);
+    
+    const res = await fetch('/api/documents-api?action=gemini-ocr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imageBase64: dataUrl,
+        mimeType: 'image/png'
+      })
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.text && data.text.trim().length > 10) {
+        if (onProgress) onProgress('Analisi completata con successo da Gemini Vision!');
+        return {
+          text: sanitizeTextContent(data.text),
+          lang: 'Gemini Vision AI (Thai/EN/IT)'
+        };
+      }
+    }
+  } catch (geminiErr) {
+    console.warn('Gemini Vision API offline or failed, falling back to local OCR:', geminiErr);
+  }
+
+  // 2. Fallback to local Tesseract OCR
+  return performOcrOnCanvas(canvas, 'tha+eng+ita', onProgress);
+}
+
+/**
  * Perform OCR on an image canvas or Blob using Tesseract.js (TH, EN, IT)
  */
 async function performOcrOnCanvas(
@@ -80,13 +119,13 @@ async function performOcrOnCanvas(
   onProgress?: (msg: string) => void
 ): Promise<{ text: string; lang: string }> {
   try {
-    if (onProgress) onProgress(`Avvio motore OCR ad alta precisione (${lang})...`);
+    if (onProgress) onProgress(`Avvio motore OCR locale (${lang})...`);
     
     // Create worker with primary languages (Thai prioritized)
     const worker = await createWorker(lang, 1, {
       logger: (m) => {
         if (m.status === 'recognizing text' && onProgress) {
-          onProgress(`Riconoscimento caratteri (incluso Thai)... ${Math.round((m.progress || 0) * 100)}%`);
+          onProgress(`Riconoscimento caratteri Tesseract... ${Math.round((m.progress || 0) * 100)}%`);
         }
       }
     });
@@ -96,7 +135,7 @@ async function performOcrOnCanvas(
 
     return {
       text: sanitizeTextContent(ret.data.text || ''),
-      lang
+      lang: `Tesseract OCR (${lang})`
     };
   } catch (err: any) {
     console.warn(`OCR with lang "${lang}" failed, attempting secondary fallback:`, err);
@@ -106,7 +145,7 @@ async function performOcrOnCanvas(
       await fallbackWorker.terminate();
       return {
         text: sanitizeTextContent(ret.data.text || ''),
-        lang: 'tha+eng'
+        lang: 'Tesseract OCR (tha+eng)'
       };
     } catch (fallbackErr: any) {
       console.error('All OCR attempts failed:', fallbackErr);
@@ -174,10 +213,16 @@ async function processPdfFile(
     let pageHasOcr = false;
     let ocrLang: string | undefined = undefined;
 
-    // Check if text is insufficient or contains mostly unmapped characters (scanned document / photo of contract)
+    // Detect corrupted / fragmented pseudo-text or scan
     const cleanCharsCount = extractedText.replace(/[\s\r\n\t]/g, '').length;
     const hasUnreadableChars = extractedText.includes('\ufffd') || /[\u0000-\u0008\u000E-\u001F]/.test(extractedText);
-    const needsOcr = cleanCharsCount < 40 || hasUnreadableChars;
+    
+    // Check for fragmented single-letter spam (e.g. "u 1 n a ...")
+    const words = extractedText.split(/\s+/).filter(Boolean);
+    const singleLetterWords = words.filter(w => w.length === 1).length;
+    const isFragmentedGarbage = words.length > 10 && (singleLetterWords / words.length) > 0.4;
+    
+    const needsOcr = cleanCharsCount < 50 || hasUnreadableChars || isFragmentedGarbage;
 
     if (needsOcr) {
       if (onProgress) {
@@ -186,11 +231,11 @@ async function processPdfFile(
           currentPage: pageNum,
           totalPages,
           percentage: Math.round((pageNum / totalPages) * 100),
-          message: `Scansione/Contratto rilevato a pag. ${pageNum}. Esecuzione OCR Thai/Inglese/Italiano...`
+          message: `Analisi Visiva AI a pag. ${pageNum}...`
         });
       }
 
-      // Render PDF page to high-res canvas (2.5 scale) for crisp Thai character recognition
+      // Render PDF page to high-res canvas (2.5 scale) for crisp character recognition
       const viewport = page.getViewport({ scale: 2.5 });
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -204,7 +249,7 @@ async function processPdfFile(
         };
         await page.render(renderContext).promise;
 
-        const ocrResult = await performOcrOnCanvas(canvas, 'tha+eng+ita', (msg) => {
+        const ocrResult = await performDocumentOcr(canvas, (msg) => {
           if (onProgress) {
             onProgress({
               status: 'ocr',
@@ -216,7 +261,7 @@ async function processPdfFile(
           }
         });
 
-        if (ocrResult.text.length > extractedText.length || cleanCharsCount < 20) {
+        if (ocrResult.text && (ocrResult.text.length > 20 || cleanCharsCount < 20)) {
           extractedText = ocrResult.text;
           pageHasOcr = true;
           ocrLang = ocrResult.lang;

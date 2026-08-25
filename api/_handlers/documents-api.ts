@@ -33,6 +33,55 @@ export async function handleDocumentsApi(req: VercelRequest, res: VercelResponse
 
   // 2. Dispatch actions
   switch (action) {
+    case "gemini-ocr": {
+      const { imageBase64, mimeType = "image/png" } = req.body || {};
+      if (!imageBase64) return res.status(400).json({ error: "Immagine mancante" });
+
+      const geminiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || "";
+      if (!geminiKey) return res.status(500).json({ error: "GEMINI_API_KEY non configurata." });
+
+      try {
+        const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z]+;base64,/, "");
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`;
+        
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{
+              role: "user",
+              parts: [
+                {
+                  text: "Sei un esperto estrattore di documenti e contratti multilingua (Thailandese, Inglese, Italiano). " +
+                        "Estrai fedelmente ed integralmente tutto il testo presente in questa pagina di documento/contratto. " +
+                        "Mantieni la massima accuratezza per la lingua thailandese (vocali, segni di tono, articoli ข้อ 1, ข้อ 2, clausole legali, numeri catastali, date buddiste e gregoriane). " +
+                        "Se sono presenti tabelle, quote societarie, percentuali o somme in Baht (THB), formattale in tabelle Markdown pulite. " +
+                        "Restituisci ESCLUSIVAMENTE il testo estratto e formattato, senza commenti introduttivi o note conclusive."
+                },
+                {
+                  inlineData: {
+                    mimeType: mimeType,
+                    data: cleanBase64
+                  }
+                }
+              ]
+            }]
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          return res.status(response.status).json({ error: errData.error?.message || "Errore Gemini Vision" });
+        }
+
+        const data = await response.json();
+        const extractedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+        return res.status(200).json({ success: true, text: extractedText, model: "gemini-3.6-flash" });
+      } catch (err: any) {
+        return res.status(500).json({ error: err.message });
+      }
+    }
+
     case "list": {
       try {
         const { data, error } = await supabaseAdmin.storage.from(STORAGE_BUCKET).download(INDEX_FILE);
