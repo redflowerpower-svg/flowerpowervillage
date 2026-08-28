@@ -66,10 +66,12 @@ function formatServerContent(textContent: string, searchParam: string): string {
 }
 
 export async function handleDocumentReader(req: VercelRequest, res: VercelResponse) {
-  // Set Anti-Indexing & Security Headers
+  // Set Anti-Indexing & Strict Anti-Cache Headers (forces immediate fresh response on LLM crawlers)
   res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet, noimageindex");
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0, s-maxage=0");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
 
   const rawUrl = req.url || "";
   const queryToken = (req.query.token as string) || "";

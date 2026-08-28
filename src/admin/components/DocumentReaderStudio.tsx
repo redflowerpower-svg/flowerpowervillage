@@ -1000,16 +1000,17 @@ export default function DocumentReaderStudio() {
                       <span>{isCopied ? 'Copiato!' : 'Copia Link'}</span>
                     </button>
 
-                    {/* COPIA LINK PER CHATGPT / LLM */}
+                    {/* COPIA LINK PER CHATGPT / LLM (con Anti-Cache Timestamp dinamico) */}
                     <button
                       onClick={() => {
-                        const rawApiUrl = `${origin}/api/read?token=${doc.token}${keyParam ? `&key=${encodeURIComponent(doc.access_key || '')}` : ''}`;
+                        const cacheBuster = `&t=${Date.now()}`;
+                        const rawApiUrl = `${origin}/api/read?token=${doc.token}${keyParam ? `&key=${encodeURIComponent(doc.access_key || '')}` : ''}${cacheBuster}`;
                         navigator.clipboard.writeText(rawApiUrl);
                         setCopiedToken(`llm_${doc.token}`);
                         setTimeout(() => setCopiedToken(null), 2500);
                       }}
                       className="px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/80 flex items-center gap-1.5 transition-all shadow-sm cursor-pointer active:scale-95"
-                      title="Copia URL con puro testo statico istantaneo per ChatGPT, Claude e Bot LLM"
+                      title="Copia URL con testo statico e bypass automatico della cache di ChatGPT e Bot LLM"
                     >
                       {copiedToken === `llm_${doc.token}` ? <Check size={14} className="text-emerald-300" /> : <Bot size={14} className="text-emerald-400" />}
                       <span>{copiedToken === `llm_${doc.token}` ? 'Copiato per LLM!' : 'Link ChatGPT'}</span>
