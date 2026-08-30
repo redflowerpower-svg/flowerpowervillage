@@ -22,13 +22,16 @@ import {
   Dumbbell,
   HelpingHand,
   Wind,
-  X
+  X,
+  QrCode,
+  CreditCard
 } from "lucide-react"
 import { getAuthorizationUrl, isAuthenticated, exchangeToken, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
 import { ACCOMMODATIONS, PRICE_CONFIG } from "../resort/config/accommodations"
 import { translations, Language } from "../lib/translations"
 import { getBaselineMinStay } from "../../admin/resort/lib/octorateAdmin"
+import { calculatePaymentTotal } from "../../lib/paymentCalculations"
 
 const CATEGORY_ITEMS = [
   { name: "Tutti", label: "TUTTI", desc: "Esplora il villaggio", icon: Grid },
@@ -114,6 +117,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   const [selectedPricing, setSelectedPricing] = useState<any | null>(null)
   const [checkoutData, setCheckoutData] = useState({ name: "", email: "", phone: "", requests: "" })
   const [bookingLoading, setBookingLoading] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<'ksher' | 'paypal' | 'bank_transfer'>('ksher')
   const [isBooked, setIsBooked] = useState(false)
   const [bookingId, setBookingId] = useState("")
   const [stripeSessionId, setStripeSessionId] = useState("")
@@ -752,6 +756,8 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           extraBreakfast,
           extraAC,
           lang,
+          paymentMethod: (paymentMethod === 'ksher_promptpay' || paymentMethod === 'ksher_card') ? 'ksher' : paymentMethod,
+          paymentChannel: paymentMethod === 'ksher_promptpay' ? 'promptpay' : 'card',
           origin: window.location.origin,
           promoCode: appliedPromo?.code || null,
           discountType: appliedPromo?.discountType || null,
@@ -767,8 +773,14 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       const session = await response.json()
       if (session.url) {
         window.location.href = session.url
+      } else if (session.isBankTransfer) {
+        alert(lang === 'IT'
+          ? "Prenotazione registrata! Invia la contabile del bonifico su WhatsApp o Telegram per confermare definitivamente il soggiorno."
+          : "Booking requested! Please send your bank transfer slip via WhatsApp or Telegram to confirm your reservation."
+        )
+        setIsBooked(true)
       } else {
-        throw new Error("Stripe Checkout URL non trovato nella risposta.")
+        throw new Error("URL di pagamento non restituito dal gateway.")
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
@@ -1510,32 +1522,127 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     {t('checkoutPaymentTitle' as any)}
                   </h3>
 
-                  <div className="space-y-2.5">
-                    <div className="flex items-start gap-3 p-4 rounded-xl border bg-emerald-500/5 border-emerald-750/35 shadow-sm">
-                      <div className="text-xs space-y-2">
-                        <span className="font-bold text-stone-850 block">
-                          {t('paymentCard' as any)} (Stripe)
-                        </span>
-                        <p className="text-stone-600 leading-relaxed">
-                          {lang === 'IT'
-                            ? "Paga solo il 30% oggi tramite Stripe Checkout per garantire la tua prenotazione."
-                            : "Pay only a 30% deposit today via Stripe Checkout to secure your reservation."}
-                        </p>
-                        <div className="bg-stone-200/50 rounded-xl p-3 border border-stone-300 space-y-1.5 text-stone-700 leading-normal">
-                          <span className="block font-bold text-stone-850 uppercase text-[9px] tracking-wider">
-                            {t('paymentPolicyTitle' as any)}
+                  <div className="space-y-3">
+                    {/* Option 1: Cash (Ksher - Credit & Debit Cards) */}
+                    <div
+                      onClick={() => setPaymentMethod('ksher_card')}
+                      className={`flex items-start gap-3 p-4 rounded-xl border transition-all cursor-pointer select-none ${
+                        paymentMethod === 'ksher_card' || paymentMethod === 'ksher'
+                          ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
+                          : "bg-white border-stone-300 hover:bg-stone-100/40"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        checked={paymentMethod === 'ksher_card' || paymentMethod === 'ksher'}
+                        onChange={() => setPaymentMethod('ksher_card')}
+                        className="accent-emerald-750 mt-1 cursor-pointer"
+                      />
+                      <div className="text-xs space-y-1 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-stone-850 flex items-center gap-1.5">
+                            <CreditCard className="w-4 h-4 text-emerald-800" />
+                            {lang === 'IT' ? 'Carta di Credito / Debito (Visa, Mastercard, JCB)' : 'Credit / Debit Card (Visa, Mastercard, JCB)'}
                           </span>
-                          <p className="text-[11px]">
-                            <strong>{lang === 'IT' ? 'Acconto:' : 'Deposit:'}</strong> {lang === 'IT' ? '30% addebito immediato su carta.' : '30% charged today on your credit card.'}
-                          </p>
-                          <p className="text-[11px]">
-                            <strong>{lang === 'IT' ? 'Saldo (70%):' : 'Balance (70%):'}</strong> {lang === 'IT' ? 'da pagare al check-in in Contanti (Thai Baht), Wise o Revolut (senza commissioni), oppure via PayPal (+10% commissione).' : 'due at check-in via Cash (THB), Wise or Revolut (no fees), or PayPal (+10% processing fee).'}
-                          </p>
-                          <p className="text-[11px]">
-                            <strong>{lang === 'IT' ? 'Cancellazione:' : 'Cancellation:'}</strong> {t('cancellationPolicyDesc' as any)}
-                          </p>
+                          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-500/10 px-2 py-0.5 rounded">
+                            {lang === 'IT' ? 'Istantaneo (Cash)' : 'Instant (Cash)'}
+                          </span>
                         </div>
+                        <p className="text-stone-600 text-[11px] leading-relaxed">
+                          {lang === 'IT'
+                            ? "Paga in sicurezza con qualsiasi carta di credito/debito internazionale con accredito immediato."
+                            : "Pay securely with any international credit/debit card with instant booking confirmation."}
+                        </p>
                       </div>
+                    </div>
+
+                    {/* Option 2: Cash (Ksher - PromptPay QR Code) */}
+                    <div
+                      onClick={() => setPaymentMethod('ksher_promptpay')}
+                      className={`flex items-start gap-3 p-4 rounded-xl border transition-all cursor-pointer select-none ${
+                        paymentMethod === 'ksher_promptpay'
+                          ? "bg-emerald-500/5 border-emerald-750 shadow-sm"
+                          : "bg-white border-stone-300 hover:bg-stone-100/40"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        checked={paymentMethod === 'ksher_promptpay'}
+                        onChange={() => setPaymentMethod('ksher_promptpay')}
+                        className="accent-emerald-750 mt-1 cursor-pointer"
+                      />
+                      <div className="text-xs space-y-1 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-stone-850 flex items-center gap-1.5">
+                            <QrCode className="w-4 h-4 text-emerald-800" />
+                            {lang === 'IT' ? 'PromptPay QR Code (Banche TH / Cross-Border)' : 'PromptPay QR Code (Thai Banks)'}
+                          </span>
+                          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-500/10 px-2 py-0.5 rounded">
+                            {lang === 'IT' ? 'Conferma Automatica' : 'Auto 1-Sec'}
+                          </span>
+                        </div>
+                        <p className="text-stone-600 text-[11px] leading-relaxed">
+                          {lang === 'IT'
+                            ? "Inquadra il QR con la tua app bancaria (KBank, SCB, Bangkok Bank) per la conferma istantanea senza bisogno di inviare ricevute."
+                            : "Scan the dynamic QR with your Thai banking app for instant 1-second confirmation without sending slips."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Option 3: PayPal Express with Official Logo */}
+                    <div
+                      onClick={() => setPaymentMethod('paypal')}
+                      className={`flex items-start gap-3 p-4 rounded-xl border transition-all cursor-pointer select-none ${
+                        paymentMethod === 'paypal'
+                          ? "bg-blue-500/5 border-[#003087]/50 shadow-sm"
+                          : "bg-white border-stone-300 hover:bg-stone-100/40"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        checked={paymentMethod === 'paypal'}
+                        onChange={() => setPaymentMethod('paypal')}
+                        className="accent-[#003087] mt-1 cursor-pointer"
+                      />
+                      <div className="text-xs space-y-1 flex-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            {/* Official PayPal Dual-P Monogram + Wordmark Logo */}
+                            <svg className="h-5 w-auto" viewBox="0 0 95 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M10.8 1.8H4.2C3.6 1.8 3.1 2.2 3 2.8L0.2 19.8C0.1 20.3 0.5 20.7 0.9 20.7H4.6C5.1 20.7 5.6 20.3 5.7 19.8L6.7 13.5C6.8 12.9 7.3 12.5 7.9 12.5H10C14.5 12.5 17.5 10.3 18.2 6C18.5 4.3 18 3.2 16.9 2.6C15.7 1.8 13.7 1.8 10.8 1.8Z" fill="#003087"/>
+                              <path d="M11.5 6.8H7.5C7.3 6.8 7.1 7 7.1 7.2L6 14C6 14.2 6.2 14.4 6.4 14.4H8.5C12.1 14.4 14.5 12.6 15 9.2C15.3 7.8 14.8 7 14 6.6C13.2 6.8 12.3 6.8 11.5 6.8Z" fill="#0079C1"/>
+                              <text x="22" y="18" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" fontStyle="italic" fontSize="18" fill="#003087">Pay<tspan fill="#0079C1">Pal</tspan></text>
+                            </svg>
+                          </div>
+                          <span className="text-[10px] font-bold text-[#003087] bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+                            PayPal Express
+                          </span>
+                        </div>
+                        <p className="text-stone-600 text-[11px] leading-relaxed">
+                          {lang === 'IT'
+                            ? "Paga direttamente con il tuo account PayPal o con carta internazionale."
+                            : "Pay directly with your PayPal account balance or international card."}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Payment policy note */}
+                    <div className="bg-stone-200/50 rounded-xl p-3 border border-stone-300 space-y-1.5 text-stone-700 leading-normal mt-3">
+                      <span className="block font-bold text-stone-850 uppercase text-[9px] tracking-wider">
+                        {t('paymentPolicyTitle' as any)}
+                      </span>
+                      <p className="text-[11px]">
+                        <strong>{lang === 'IT' ? 'Acconto:' : 'Deposit:'}</strong> {lang === 'IT' ? '30% alla conferma della prenotazione.' : '30% deposit to secure your booking.'}
+                      </p>
+                      <p className="text-[11px]">
+                        <strong>{lang === 'IT' ? 'Saldo (70%):' : 'Balance (70%):'}</strong> {lang === 'IT' ? 'da pagare al check-in in Contanti (Thai Baht), PromptPay, Wise o Revolut.' : 'due at check-in via Cash (THB), PromptPay, Wise, or Revolut.'}
+                      </p>
+                      <p className="text-[11px]">
+                        <strong>{lang === 'IT' ? 'Cancellazione:' : 'Cancellation:'}</strong> {t('cancellationPolicyDesc' as any)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1745,35 +1852,52 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     </span>
                   </div>
 
-                  {/* 30% Deposit Card */}
-                  <div className="bg-emerald-500/5 border border-emerald-750/35 rounded-xl p-3.5 mt-2 space-y-1">
-                    <div className="flex justify-between items-baseline">
-                      <span className="font-extrabold text-emerald-800 text-xs uppercase tracking-wide">
-                        {t('depositToday' as any)}
-                      </span>
-                      <span className="text-xl font-black text-emerald-800">
-                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(Math.round(checkoutPricing.finalTotal * 0.3))}
-                      </span>
-                    </div>
-                    <span className="block text-[10px] text-emerald-850 font-medium leading-normal">
-                      {t('cancellationPolicyDesc' as any)}
-                    </span>
-                  </div>
+                  {/* 30% Deposit Card with VAT 7% & Incorporated Fees */}
+                  {(() => {
+                    const baseDeposit30 = Math.round(checkoutPricing.finalTotal * 0.3);
+                    const depositPricing = calculatePaymentTotal(
+                      baseDeposit30,
+                      paymentMethod,
+                      lang.toLowerCase() as any
+                    );
+                    const balanceDue = checkoutPricing.finalTotal - baseDeposit30;
 
-                  {/* 70% Balance Box */}
-                  <div className="bg-stone-200/50 border border-stone-300/80 rounded-xl p-3.5 space-y-1">
-                    <div className="flex justify-between items-baseline">
-                      <span className="font-bold text-stone-600 text-xs uppercase tracking-wide">
-                        {t('balanceAtCheckIn' as any)}
-                      </span>
-                      <span className="text-lg font-extrabold text-stone-850">
-                        {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(checkoutPricing.finalTotal - Math.round(checkoutPricing.finalTotal * 0.3))}
-                      </span>
-                    </div>
-                    <span className="block text-[10px] text-stone-500 font-medium leading-normal">
-                      {t('balanceMethods' as any)}
-                    </span>
-                  </div>
+                    return (
+                      <>
+                        <div className="bg-emerald-500/5 border border-emerald-750/35 rounded-xl p-3.5 mt-2 space-y-1">
+                          <div className="flex justify-between items-baseline">
+                            <span className="font-extrabold text-emerald-800 text-xs uppercase tracking-wide">
+                              {lang === 'IT' ? 'Totale da Pagare Oggi' : 'Total Amount Payable Today'}
+                            </span>
+                            <span className="text-xl font-black text-emerald-800">
+                              {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(depositPricing.finalTotal)}
+                            </span>
+                          </div>
+                          <span className="block text-[10px] text-emerald-900/80 font-medium leading-normal">
+                            {depositPricing.disclaimer}
+                          </span>
+                          <span className="block text-[10px] text-stone-500 font-medium leading-normal pt-0.5">
+                            {t('cancellationPolicyDesc' as any)}
+                          </span>
+                        </div>
+
+                        {/* 70% Balance Box */}
+                        <div className="bg-stone-200/50 border border-stone-300/80 rounded-xl p-3.5 space-y-1">
+                          <div className="flex justify-between items-baseline">
+                            <span className="font-bold text-stone-600 text-xs uppercase tracking-wide">
+                              {t('balanceAtCheckIn' as any)}
+                            </span>
+                            <span className="text-lg font-extrabold text-stone-850">
+                              {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(balanceDue)}
+                            </span>
+                          </div>
+                          <span className="block text-[10px] text-stone-500 font-medium leading-normal">
+                            {t('balanceMethods' as any)}
+                          </span>
+                        </div>
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

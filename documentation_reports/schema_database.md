@@ -75,6 +75,58 @@ Gestisce i token d'accesso OAuth di Octorate.
 | `expires_in` | `integer` | `NOT NULL` | Durata di validità in secondi. |
 | `updated_at` | `timestamptz` | `now()` | Timestamp dell'ultimo aggiornamento/refresh. |
 
+### E. Tabella `payment_settings` (Configurazione Multi-Gateway Switcher)
+Gestisce la configurazione dei gateway di pagamento attivi (Stripe, Ksher, Omise, PayPal).
+
+| Campo | Tipo PostgreSQL | Vincoli / Valore di Default | Descrizione |
+|---|---|---|---|
+| `id` | `text` | `PRIMARY KEY` • `'singleton'` | Record unico di configurazione. |
+| `active_primary_gateway` | `text` | `'ksher'` | Gateway primario attivo (`'ksher'`, `'stripe'`, `'omise'`). |
+| `paypal_enabled` | `boolean` | `true` | Abilitazione metodo parallelo PayPal. |
+| `ksher_config` | `jsonb` | `'{}'::jsonb` | Configurazione Ksher (App ID, RSA, canali). |
+| `paypal_config` | `jsonb` | `'{}'::jsonb` | Configurazione PayPal (Client ID, Secret, mode). |
+| `stripe_config` | `jsonb` | `'{}'::jsonb` | Configurazione Stripe. |
+| `omise_config` | `jsonb` | `'{}'::jsonb` | Configurazione Omise. |
+| `updated_at` | `timestamptz` | `now()` | Timestamp dell'ultimo aggiornamento. |
+
+### F. Tabella `payment_transactions` (Registro Fiscale Commercialista)
+Registro unificato delle transazioni per commercialista (100% saldato).
+
+| Campo | Tipo PostgreSQL | Vincoli / Valore di Default | Descrizione |
+|---|---|---|---|
+| `id` | `uuid` | `PRIMARY KEY` • `gen_random_uuid()` | ID univoco transazione. |
+| `created_at` | `timestamptz` | `now()` | Data e ora della transazione. |
+| `department` | `text` | `'resort'` o `'pizza'` | Reparto di appartenenza. |
+| `order_reference` | `text` | `NOT NULL` | ID prenotazione / ordine. |
+| `customer_name` | `text` | `NOT NULL` | Nome reale dell'ospite. |
+| `gross_amount` | `numeric(10,2)` | `NOT NULL` | Totale lordo in THB. |
+| `vat_amount` | `numeric(10,2)` | `NOT NULL` | Importo VAT 7% calcolato. |
+| `gateway_fee` | `numeric(10,2)` | `NOT NULL` • `0` | Commissione deducibile. |
+| `net_amount` | `numeric(10,2)` | `NOT NULL` | Netto accreditato. |
+| `gateway` | `text` | `'ksher'`, `'paypal'`, `'bank_transfer'` | Gateway utilizzato. |
+| `service_description`| `text` | `NOT NULL` | Descrizione prestazione saldata. |
+
+### G. Tabella `village_bookings` (Prenotazioni Villaggio Koh Phayam)
+Memorizza i dati delle prenotazioni dirette del Resort.
+
+| Campo | Tipo PostgreSQL | Vincoli / Valore di Default | Descrizione |
+|---|---|---|---|
+| `id` | `uuid` | `PRIMARY KEY` • `gen_random_uuid()` | ID univoco prenotazione. |
+| `created_at` | `timestamptz` | `now()` | Timestamp prenotazione. |
+| `order_no` | `text` | `UNIQUE` • `NOT NULL` | Codice univoco (es. `FPBK84532601`). |
+| `guest_name` | `text` | `NOT NULL` | Nome dell'ospite. |
+| `guest_email` | `text` | `NOT NULL` | Email di contatto. |
+| `guest_phone` | `text` | `NOT NULL` | Telefono / WhatsApp. |
+| `accommodation_name`| `text` | `NOT NULL` | Nome dell'alloggio prenotato. |
+| `check_in` | `date` | `NOT NULL` | Data di arrivo. |
+| `check_out` | `date` | `NOT NULL` | Data di partenza. |
+| `nights` | `integer` | `NOT NULL` | Numero di notti. |
+| `total_amount` | `numeric(10,2)` | `NOT NULL` | Totale soggiorno. |
+| `deposit_paid` | `numeric(10,2)` | `NOT NULL` | Acconto pagato (con VAT e fee incluse). |
+| `balance_due` | `numeric(10,2)` | `NOT NULL` | Saldo da versare al check-in. |
+| `payment_gateway` | `text` | `'ksher'`, `'paypal'` | Gateway di pagamento. |
+| `status` | `text` | `'paid'`, `'pending'`, `'cancelled'` | Stato della prenotazione. |
+
 ---
 
 ## 2. Storage Buckets

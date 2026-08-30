@@ -229,6 +229,8 @@ export async function handleDocumentsApi(req: VercelRequest, res: VercelResponse
         console.error("Save error:", err);
         return res.status(500).json({ error: err.message || "Errore salvataggio." });
       }
+    }
+
     case "update-expiration": {
       const { token, expiresAt } = req.body || {};
       if (!token) return res.status(400).json({ error: "Token mancante" });

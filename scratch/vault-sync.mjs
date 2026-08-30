@@ -118,6 +118,14 @@ function syncEnvFromReport(reportText) {
 
   const googleMapsKey = extract(/\*\*Google Maps API Key:\*\*\s*`([^`]+)`/);
 
+  // Ksher
+  const ksherAppId = extract(/\*\*App ID \/ Merchant ID:\*\*\s*`([^`]*)`/);
+  const ksherPrivateKeyMatch = reportText.match(/```text\s*\n([\s\S]*?-----END RSA PRIVATE KEY-----)\s*\n```/);
+  let ksherPrivateKey = '';
+  if (ksherPrivateKeyMatch) {
+    ksherPrivateKey = ksherPrivateKeyMatch[1].trim().replace(/\r\n/g, '\n').replace(/\n/g, '\\n');
+  }
+
   const masterVaultKey = getMasterKey();
 
   const envLines = [
@@ -155,7 +163,11 @@ function syncEnvFromReport(reportText) {
     `SMTP_PASS=${smtpPass}`,
     ``,
     `# Google Maps`,
-    `VITE_GOOGLE_MAPS_API_KEY=${googleMapsKey}`
+    `VITE_GOOGLE_MAPS_API_KEY=${googleMapsKey}`,
+    ``,
+    `# Ksher Payment Gateway (Thailand)`,
+    `KSHER_APP_ID=${ksherAppId}`,
+    `KSHER_PRIVATE_KEY="${ksherPrivateKey}"`
   ].join('\n');
 
   fs.writeFileSync(ENV_PATH, envLines, 'utf8');

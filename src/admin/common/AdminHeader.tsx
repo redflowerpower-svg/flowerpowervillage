@@ -1,9 +1,9 @@
-import { LogOut, ArrowLeftRight, Shield, Pizza, Hotel, FileText } from 'lucide-react';
+import { LogOut, ArrowLeftRight, Shield, Pizza, Hotel, FileText, CreditCard } from 'lucide-react';
 
 interface AdminHeaderProps {
   userEmail?: string;
-  activeDept: 'gateway' | 'pizza' | 'resort' | 'docs';
-  onSelectDept: (dept: 'gateway' | 'pizza' | 'resort' | 'docs') => void;
+  activeDept: 'gateway' | 'pizza' | 'resort' | 'docs' | 'payments';
+  onSelectDept: (dept: 'gateway' | 'pizza' | 'resort' | 'docs' | 'payments') => void;
   onLogout: () => void;
 }
 
@@ -73,6 +73,21 @@ export function AdminHeader({ userEmail, activeDept, onSelectDept, onLogout }: A
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1 text-xs font-bold text-sky-400 px-3 py-1 bg-sky-500/10 rounded-xl border border-sky-500/20">
                 <FileText className="w-3.5 h-3.5" /> Web Reader & Documenti
+              </span>
+              <button
+                onClick={() => onSelectDept('gateway')}
+                className="flex items-center gap-1.5 text-xs text-stone-400 hover:text-white bg-stone-900 hover:bg-stone-800 border border-stone-700 px-2.5 py-1 rounded-xl transition-all cursor-pointer"
+                title="Torna alla selezione reparto"
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden md:inline font-semibold">Cambia Reparto</span>
+              </button>
+            </div>
+          )}
+          {activeDept === 'payments' && (
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-400 px-3 py-1 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                <CreditCard className="w-3.5 h-3.5" /> Centro Pagamenti & Gateway
               </span>
               <button
                 onClick={() => onSelectDept('gateway')}

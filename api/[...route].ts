@@ -31,6 +31,7 @@ import { handleOctorateRestrictionsGrid } from "./_handlers/octorate-restriction
 import { handleWineTranslate } from "./_handlers/wine-translate.js";
 import { handleDocumentReader } from "./_handlers/reader.js";
 import { handleDocumentsApi } from "./_handlers/documents-api.js";
+import { handlePaymentsAdmin } from "./_handlers/payments-admin.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -65,6 +66,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.startsWith('documents-api') || cleanPath.startsWith('documents')) {
     return handleDocumentsApi(req, res);
+  }
+
+  if (cleanPath.includes('payments-admin') || cleanPath.includes('payment-settings') || cleanPath.includes('payment_settings')) {
+    return handlePaymentsAdmin(req, res);
   }
 
   if (cleanPath.startsWith('read') || cleanPath.includes('document-reader')) {

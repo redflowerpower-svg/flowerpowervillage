@@ -1070,8 +1070,16 @@ export function ResortVisualCalendar({ viewMode = 'full_season' }: ResortVisualC
     dynamicMinStayUpdates,
     isSimulationActive,
     simulatedOctorateGridItems,
-    rawOctorateGridItems
+    rawOctorateGridItems,
+    isLastMinuteActive,
+    recalculateLastMinuteItems
   } = useResortAdminStore();
+
+  useEffect(() => {
+    if (isLastMinuteActive || isSimulationActive) {
+      recalculateLastMinuteItems();
+    }
+  }, [isLastMinuteActive, isSimulationActive, recalculateLastMinuteItems]);
 
   const bookingsPool = (rawOctorateBookings && rawOctorateBookings.length > 0) ? rawOctorateBookings : bookings;
 

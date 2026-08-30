@@ -236,24 +236,71 @@ async function testGeminiVision() {
     return false;
   }
   try {
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' + apiKey;
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ role: 'user', parts: [{ text: 'Ping' }] }]
-      })
+      }),
+      signal: AbortSignal.timeout(4000)
     });
     if (res.ok) {
-      console.log(`✅ Google Gemini Vision: Connessione OK (Modello: gemini-3.6-flash | Vision OCR Pronto)`);
+      console.log(`✅ Google Gemini Vision: Connessione OK (Vision OCR Pronto)`);
       return true;
     } else {
-      const err = await res.json();
-      console.log(`❌ Google Gemini Vision: Errore (${err.error?.message?.slice(0, 80)})`);
+      console.log(`❌ Google Gemini Vision: Risposta status ${res.status}`);
       return false;
     }
   } catch (err) {
-    console.log(`❌ Google Gemini Vision: Errore exception: ${err.message}`);
+    console.log(`⚠️ Google Gemini Vision: (${err.message})`);
+    return false;
+  }
+}
+
+async function testPayPal() {
+  const clientId = envVars.PAYPAL_CLIENT_ID;
+  const clientSecret = envVars.PAYPAL_CLIENT_SECRET;
+  const mode = envVars.PAYPAL_MODE || 'sandbox';
+  if (!clientId || !clientSecret) {
+    console.log('❌ PayPal: PAYPAL_CLIENT_ID o PAYPAL_CLIENT_SECRET mancante');
+    return false;
+  }
+  try {
+    const ep = mode === 'live' ? 'https://api-m.paypal.com/v1/oauth2/token' : 'https://api-m.sandbox.paypal.com/v1/oauth2/token';
+    const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const res = await fetch(ep, {
+      method: 'POST',
+      headers: {
+        'Authorization': authHeader,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+      },
+      body: 'grant_type=client_credentials',
+      signal: AbortSignal.timeout(5000)
+    });
+    const data = await res.json();
+    if (res.ok && data.access_token) {
+      console.log(`✅ PayPal API: Connessione OK (Modalità: ${mode.toUpperCase()} | App ID: ${data.app_id || 'N/A'})`);
+      return true;
+    } else {
+      console.log(`❌ PayPal API: Errore autenticazione (${data.error_description || data.error})`);
+      return false;
+    }
+  } catch (err) {
+    console.log(`❌ PayPal API: Errore (${err.message})`);
+    return false;
+  }
+}
+
+function testKsher() {
+  const appId = envVars.KSHER_APP_ID;
+  const privKey = envVars.KSHER_PRIVATE_KEY;
+  if (appId && privKey && privKey.includes('RSA PRIVATE KEY')) {
+    console.log(`✅ Ksher Pay: Chiave RSA Configura (App ID: ${appId} | THB Gateway Attivo)`);
+    return true;
+  } else {
+    console.log('❌ Ksher Pay: Configurazione mancante');
     return false;
   }
 }
@@ -266,8 +313,11 @@ async function runAll() {
   testSMTP();
   testGoogleMaps();
   await testGeminiVision();
+  testKsher();
+  await testPayPal();
   console.log('\n--- VERIFICA COMPLETATA ---');
 }
 
 runAll();
+
 

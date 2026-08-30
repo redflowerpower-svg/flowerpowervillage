@@ -1,7 +1,7 @@
-import { Pizza, Hotel, MapPin, ArrowRight, ShieldCheck, Activity, BellRing, CalendarCheck, FileText, Sparkles, Lock } from 'lucide-react';
+import { Pizza, Hotel, MapPin, ArrowRight, ShieldCheck, Activity, BellRing, CalendarCheck, FileText, Sparkles, Lock, CreditCard } from 'lucide-react';
 
 interface AdminGatewayProps {
-  onSelectDepartment: (dept: 'pizza' | 'resort' | 'docs') => void;
+  onSelectDepartment: (dept: 'pizza' | 'resort' | 'docs' | 'payments') => void;
 }
 
 export function AdminGateway({ onSelectDepartment }: AdminGatewayProps) {
@@ -19,12 +19,12 @@ export function AdminGateway({ onSelectDepartment }: AdminGatewayProps) {
             Scegli il Modulo da Gestire
           </h2>
           <p className="text-stone-400 text-xs sm:text-sm leading-relaxed">
-            Seleziona la dashboard desiderata per accedere alla gestione operativa della Pizzeria (Ranong), del Villaggio (Koh Phayam) o del Web Reader Documenti.
+            Seleziona la dashboard desiderata per accedere alla gestione operativa della Pizzeria (Ranong), del Villaggio (Koh Phayam), del Web Reader Documenti o del Centro Pagamenti.
           </p>
         </div>
 
-        {/* Split Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+        {/* Split Cards Grid (4 Columns) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
           
           {/* Card 1: Resort / Booking Engine (Koh Phayam) */}
           <div
@@ -186,6 +186,61 @@ export function AdminGateway({ onSelectDepartment }: AdminGatewayProps) {
                 className="w-full py-3 px-4 bg-stone-800 group-hover:bg-sky-700 text-stone-200 group-hover:text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 transition-all shadow cursor-pointer"
               >
                 <span>Accedi Web Reader</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+
+          {/* Card 4: Payments & Multi-Gateway Center */}
+          <div
+            onClick={() => onSelectDepartment('payments')}
+            className="group relative bg-stone-900/80 hover:bg-stone-900 border border-stone-800 hover:border-amber-500/60 rounded-3xl p-6 transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-amber-950/20 cursor-pointer flex flex-col justify-between overflow-hidden"
+          >
+            {/* Top Accent Line */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-600 via-yellow-500 to-amber-400 rounded-t-3xl group-hover:h-2 transition-all"></div>
+
+            <div className="space-y-5">
+              {/* Header Badges */}
+              <div className="flex items-center justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-amber-950/60 border border-amber-800/60 flex items-center justify-center text-amber-400 shadow-inner group-hover:scale-110 transition-transform">
+                  <CreditCard className="w-6 h-6" />
+                </div>
+                <span className="inline-flex items-center gap-1 bg-stone-950 border border-stone-800 text-stone-300 text-[11px] font-bold px-2.5 py-1 rounded-full">
+                  <ShieldCheck className="w-3 h-3 text-amber-400" />
+                  Multi-Gateway
+                </span>
+              </div>
+
+              {/* Title & Description */}
+              <div className="space-y-1.5">
+                <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-amber-400 transition-colors">
+                  💳 Centro Pagamenti
+                </h3>
+                <p className="text-stone-400 text-xs leading-relaxed">
+                  Gestione, alternanza e simulazione per Stripe, Ksher (THB), Omise e PayPal con Test Lab integrato.
+                </p>
+              </div>
+
+              {/* Features List */}
+              <div className="space-y-2 pt-2 border-t border-stone-850">
+                <div className="flex items-center gap-2 text-xs text-stone-300">
+                  <Activity className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                  <span>Switch Live Gateway Primario</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-stone-300">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+                  <span>🧪 Test Lab & Simulatore</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Button */}
+            <div className="pt-5 mt-5 border-t border-stone-800/60">
+              <button
+                type="button"
+                className="w-full py-3 px-4 bg-stone-800 group-hover:bg-amber-600 text-stone-200 group-hover:text-stone-950 font-extrabold text-xs uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2 transition-all shadow cursor-pointer"
+              >
+                <span>Gestisci Pagamenti</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>

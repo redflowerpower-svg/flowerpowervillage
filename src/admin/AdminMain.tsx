@@ -7,22 +7,23 @@ import { AdminGateway } from './gateway/AdminGateway';
 import { PizzaDashboard } from './pizza/components/PizzaDashboard';
 import { ResortDashboard } from './resort/components/ResortDashboard';
 import DocumentReaderStudio from './components/DocumentReaderStudio';
+import { PaymentsDashboard } from './payments/components/PaymentsDashboard';
 
 export function AdminMain() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeDept, setActiveDept] = useState<'gateway' | 'pizza' | 'resort' | 'docs'>('gateway');
+  const [activeDept, setActiveDept] = useState<'gateway' | 'pizza' | 'resort' | 'docs' | 'payments'>('gateway');
 
-  // Sync active dept from URL query param if present (?dept=pizza, ?dept=resort, or ?dept=docs)
+  // Sync active dept from URL query param if present (?dept=pizza, ?dept=resort, ?dept=docs, or ?dept=payments)
   useEffect(() => {
     const deptParam = searchParams.get('dept');
-    if (deptParam === 'pizza' || deptParam === 'resort' || deptParam === 'docs') {
+    if (deptParam === 'pizza' || deptParam === 'resort' || deptParam === 'docs' || deptParam === 'payments') {
       setActiveDept(deptParam);
     } else {
       setActiveDept('gateway');
     }
   }, [searchParams]);
 
-  const handleSelectDept = (dept: 'gateway' | 'pizza' | 'resort' | 'docs') => {
+  const handleSelectDept = (dept: 'gateway' | 'pizza' | 'resort' | 'docs' | 'payments') => {
     setActiveDept(dept);
     if (dept === 'gateway') {
       setSearchParams({});
@@ -64,6 +65,12 @@ export function AdminMain() {
             {activeDept === 'docs' && (
               <ErrorBoundary moduleName="Document Web Reader">
                 <DocumentReaderStudio />
+              </ErrorBoundary>
+            )}
+
+            {activeDept === 'payments' && (
+              <ErrorBoundary moduleName="Centro Pagamenti & Multi-Gateway">
+                <PaymentsDashboard />
               </ErrorBoundary>
             )}
           </main>

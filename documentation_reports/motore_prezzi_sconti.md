@@ -304,3 +304,27 @@ $$\text{Finestra Totale} = \text{Stadio 1 (gg)} + \text{Stadio 2 (gg)} + \text{S
 - **Tasto `SALVA DEFAULT`**: Salva una fotocopia persistente (`localStorage: fp_saved_standard_config`) della configurazione attualmente presente nei 4 campi.
 - **Tasto `ROLLBACK DEFAULT`**: Ripristina istantaneamente nei campi i parametri salvati (oppure il default reale `15-12-2026 ➔ 31-03-2027, Trigger: 15gg, Durata: 10gg`), consentendo di alternare con 1 click tra periodi di test immediati e il periodo di default di produzione.
 
+---
+
+## 13. Motore Calcolo Prezzi di Pagamento & IVA (VAT 7%) — 30/08/2026
+
+### A. Regola Fondamentale di Calcolo (`paymentCalculations.ts`)
+- **Prezzo Base**: Soggetto ad aliquota IVA thailandese **7% VAT**:
+  $$\text{Subtotale con VAT} = \text{Prezzo Base} \times 1.07$$
+- **Costi di Elaborazione Incorporati per Metodo di Pagamento**:
+  - **Bonifico Bancario / Contanti**: $0\%$ costi aggiuntivi ($\text{Totale} = \text{Subtotale con VAT}$).
+  - **Cash (Ksher API - Carte & PromptPay QR)**: $+4\%$ costo di elaborazione incorporato ($\text{Totale} = \text{Subtotale con VAT} \times 1.04$).
+  - **PayPal (Orders v2 API & Smart Checkout)**: $+10\%$ costo di elaborazione incorporato ($\text{Totale} = \text{Subtotale con VAT} \times 1.10$).
+
+### B. Regola UX Trasparenza (Zero Diciture Separate "Fee/Surcharge")
+- All'ospite **NON** vengono mai mostrate voci separate tipo "+4% fee" o "+10% surcharge".
+- Viene visualizzato direttamente l'importo unico: **TOTAL AMOUNT PAYABLE / TOTALE DA PAGARE** accompagnato dalla nota discreta:
+  - *IT*: *"IVA (VAT 7%) e costi di elaborazione pagamento applicabili inclusi."*
+  - *EN*: *"VAT and applicable payment processing costs included."*
+  - *TH*: *"รวมภาษีมูลค่าเพิ่ม (VAT 7%) และค่าธรรมเนียมการประมวลผลการชำระเงินที่เกี่ยวข้องแล้ว"*
+  - *DE*: *"MwSt. (VAT 7%) und anfallende Zahlungsabwicklungskosten inbegriffen."*
+
+### C. Regola Fiscale Commercialista (Zero Dicitura "Deposito/Acconto")
+- Nel registro e nei file CSV per il commercialista (`AccountingReportsTab.tsx`), tutte le transazioni registrate sono descritte come **prestazioni di servizi saldate al 100% (Saldo: ฿0.00)** senza utilizzare parole come "deposito" o "acconto", ricalcolando la durata equivalente del soggiorno in base al totale pagato.
+
+

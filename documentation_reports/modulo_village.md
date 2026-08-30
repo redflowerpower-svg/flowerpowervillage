@@ -41,7 +41,19 @@ L'esperienza visiva del sito si basa su un'interfaccia fortemente immersiva con 
   - **Riposizionamento Barra di Ricerca**: La barra di ricerca (`Cerca ospite, email, camera...`) ed il controllo reset prenotazioni nascoste sono stati rimossi dal menu delle tab e posizionati nella riga superiore dell'header, subito dopo il pulsante `Sincronizza`.
   - **Rimozione Tab "IMPORTA SPECIFICHE"**: Rimosso completamente il pulsante ed il relativo pannello dalla plancia di controllo.
   - **Visual Calendar Layout (38px x 33px)**: `ResortVisualCalendar.tsx` adotta una prima colonna alloggi fissa da 130px (`w-[130px] min-w-[130px] max-w-[130px]`), celle giorno con larghezza fissa 38px (`w-[38px] min-w-[38px] max-w-[38px]`), altezza riga 33px (`h-[33px]`), e zoom inline del 90% (`style={{ zoom: 0.9 }}`) per il perfetto adattamento ad una singola schermata.
-  - **Cockpit 5 Canali**: Barra inferiore a 5 slot equidistanti (`B`, `A`, `Ab`, `-`, `S`) con la lettera `'S'` che indica lo stato attivo del listino Standard 7d.
+- **Cockpit 5 Canali**: Barra inferiore a 5 slot equidistanti (`B`, `A`, `Ab`, `-`, `S`) con la lettera `'S'` che indica lo stato attivo del listino Standard 7d.
+
+---
+
+## 8.1. Booking Engine Pubblico & Sistema Pagamenti Multi-Gateway
+- **Opzioni di Pagamento Disponibili per l'Ospite**:
+  1. 💳 **Carta di Credito / Debito (Visa, Mastercard, JCB)** — Tramite **Cash (Ksher)** con 3D-Secure 2.0. Costo di elaborazione (+4%) incorporato nel prezzo finale.
+  2. 🔲 **PromptPay QR Code (Banche TH / Cross-Border)** — Tramite **Cash (Ksher)** con accredito istantaneo e webhook a 1 secondo. Costo di elaborazione (+4%) incorporato nel prezzo finale.
+  3. 🅿️ **PayPal Express** — Con logo vettoriale ufficiale PayPal. Maggiorazione (+10%) incorporata direttamente nel totale.
+- **Visualizzazione Prezzo Trasparente (Zero Surcharge Voci Separare)**:
+  - Il totale da pagare oggi mostra il prezzo unico definitivo con la dicitura discreta multilingua: *"VAT and applicable payment processing costs included."*
+- **Modalità Simulazione Segreta (`Snooker0`)**:
+  - Inserendo `Snooker0` nel campo nome ospite, il server convalida l'impronta crittografica SHA-256 e simula il flusso di prenotazione a costo zero, aprendo direttamente il Voucher ufficiale.
 
 ---
 
