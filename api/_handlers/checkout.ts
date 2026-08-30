@@ -292,7 +292,10 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
         });
       }
 
-      console.warn("Ksher fallback notice:", ksherData);
+      console.error("[Checkout API] Ksher Error Response:", ksherData);
+      return res.status(400).json({
+        error: ksherData.msg || ksherData.error || "Errore durante la generazione del pagamento Ksher."
+      });
     }
 
     // 2. STRIPE CHECKOUT (FALLBACK)
@@ -395,6 +398,10 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
         gateway: "paypal"
       });
     }
+
+    return res.status(400).json({
+      error: `Metodo di pagamento "${paymentMethod}" non supportato.`
+    });
 
   } catch (error: any) {
     console.error("[Checkout API] Error creating session:", error);

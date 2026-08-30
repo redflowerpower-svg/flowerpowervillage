@@ -765,12 +765,17 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         })
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Impossibile avviare la sessione di pagamento.")
+      let session: any = null
+      const rawText = await response.text()
+      try {
+        session = JSON.parse(rawText)
+      } catch {
+        throw new Error(rawText || "Impossibile elaborare la risposta del server.")
       }
 
-      const session = await response.json()
+      if (!response.ok) {
+        throw new Error(session?.error || session?.message || "Impossibile avviare la sessione di pagamento.")
+      }
       if (session.url) {
         window.location.href = session.url
       } else if (session.isBankTransfer) {
