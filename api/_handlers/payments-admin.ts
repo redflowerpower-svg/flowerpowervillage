@@ -408,10 +408,6 @@ export async function handlePaymentsAdmin(req: VercelRequest, res: VercelRespons
           });
         }
       }
-          },
-          timestamp
-        });
-      }
 
       return res.status(400).json({ error: `Gateway "${gateway}" non valido.` });
     }
