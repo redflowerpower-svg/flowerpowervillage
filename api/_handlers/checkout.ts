@@ -2,12 +2,39 @@ import crypto from "crypto";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { stripe } from "../_helpers/stripe.js";
 import { signKsherPayload, getKsherAppId, getKsherPrivateKey } from "../_helpers/ksher.js";
+import fs from "fs";
+import path from "path";
+import { getPayPalCredentials, getPayPalAccessToken } from "../_helpers/paypal.js";
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase (use service role key to bypass RLS and read octorate_tokens)
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
-const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null as any;
+function getSupabaseClient() {
+  let url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
+  let key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+
+  if (!url || !key) {
+    try {
+      for (const fileName of ['.env.local', '.env']) {
+        const envPath = path.resolve(process.cwd(), fileName);
+        if (fs.existsSync(envPath)) {
+          const content = fs.readFileSync(envPath, 'utf8');
+          for (const line of content.split('\n')) {
+            const trimmed = line.trim();
+            if (trimmed && !trimmed.startsWith('#')) {
+              if (trimmed.startsWith('SUPABASE_URL=') || trimmed.startsWith('VITE_SUPABASE_URL=')) {
+                if (!url) url = trimmed.split('=')[1].trim().replace(/^["']|["']$/g, '');
+              } else if (trimmed.startsWith('SUPABASE_SERVICE_ROLE_KEY=') || trimmed.startsWith('VITE_SUPABASE_ANON_KEY=')) {
+                if (!key) key = trimmed.split('=')[1].trim().replace(/^["']|["']$/g, '');
+              }
+            }
+          }
+        }
+        if (url && key) break;
+      }
+    } catch {}
+  }
+
+  return (url && key) ? createClient(url, key) : null;
+}
 
 // Room configurations matching accommodations.ts
 const MOCK_ACCOMMODATIONS = [
@@ -101,12 +128,17 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
     let baseRoomPricePerNight = 0;
     let solvedFromOctorate = false;
 
-    // Load tokens from Supabase
-    const { data: tokenData } = await supabase
-      .from("octorate_tokens")
-      .select("access_token")
-      .eq("id", "singleton")
-      .maybeSingle();
+    // Load tokens from Supabase if available
+    const supabase = getSupabaseClient();
+    let tokenData: any = null;
+    if (supabase) {
+      const res = await supabase
+        .from("octorate_tokens")
+        .select("access_token")
+        .eq("id", "singleton")
+        .maybeSingle();
+      tokenData = res.data;
+    }
 
     if (tokenData?.access_token) {
       try {
@@ -313,84 +345,54 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
 
     // 4. PAYPAL (Orders v2 API with Live Access Token)
     if (paymentMethod === 'paypal') {
-      const paypalClientId = process.env.PAYPAL_CLIENT_ID || process.env.VITE_PAYPAL_CLIENT_ID || "";
-      const paypalClientSecret = process.env.PAYPAL_CLIENT_SECRET || "";
-      const paypalMode = process.env.PAYPAL_MODE || "sandbox";
-      const baseUrl = paypalMode === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+      const creds = getPayPalCredentials();
+      const accessToken = await getPayPalAccessToken();
 
-      if (paypalClientId && paypalClientSecret) {
-        try {
-          const auth = Buffer.from(`${paypalClientId}:${paypalClientSecret}`).toString("base64");
-          const tokenRes = await fetch(`${baseUrl}/v1/oauth2/token`, {
-            method: "POST",
-            headers: {
-              "Authorization": `Basic ${auth}`,
-              "Content-Type": "application/x-www-form-urlencoded"
-            },
-            body: "grant_type=client_credentials"
-          });
-          const tokenData = await tokenRes.json();
-
-          if (tokenData.access_token) {
-            const orderPayload = {
-              intent: "CAPTURE",
-              purchase_units: [
-                {
-                  reference_id: `FPBK-${Date.now().toString().slice(-8)}`,
-                  description: `Flower Power Village - ${room.name} (${nights} Notti)`,
-                  amount: {
-                    currency_code: "THB",
-                    value: payableDepositAmount.toFixed(2)
-                  }
-                }
-              ],
-              application_context: {
-                brand_name: "Flower Power Village",
-                landing_page: "NO_PREFERENCE",
-                user_action: "PAY_NOW",
-                return_url: `${cleanOrigin}/village?booking=success&gateway=paypal`,
-                cancel_url: `${cleanOrigin}/village?booking=cancelled`
-              }
-            };
-
-            const orderRes = await fetch(`${baseUrl}/v2/checkout/orders`, {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${tokenData.access_token}`,
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify(orderPayload)
-            });
-
-            const orderData = await orderRes.json();
-            const approveLink = orderData.links?.find((l: any) => l.rel === "approve")?.href;
-
-            if (approveLink) {
-              return res.status(200).json({
-                sessionId: orderData.id,
-                url: approveLink,
-                depositAmount: payableDepositAmount,
-                balanceDue,
-                grandTotal,
-                nights,
-                gateway: "paypal"
-              });
+      const orderPayload = {
+        intent: "CAPTURE",
+        purchase_units: [
+          {
+            reference_id: `FPBK-${Date.now().toString().slice(-8)}`,
+            description: `Flower Power Village - ${room.name} (${nights} Notti)`,
+            amount: {
+              currency_code: "THB",
+              value: payableDepositAmount.toFixed(2)
             }
           }
-        } catch (ppErr) {
-          console.error("[Checkout API] PayPal Order Creation Error:", ppErr);
+        ],
+        application_context: {
+          brand_name: "Flower Power Village",
+          landing_page: "NO_PREFERENCE",
+          user_action: "PAY_NOW",
+          return_url: `${cleanOrigin}/village?booking=success&gateway=paypal`,
+          cancel_url: `${cleanOrigin}/village?booking=cancelled`
         }
+      };
+
+      const orderRes = await fetch(`${creds.baseUrl}/v2/checkout/orders`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(orderPayload)
+      });
+
+      const orderData = await orderRes.json();
+      const approveLink = orderData.links?.find((l: any) => l.rel === "approve")?.href;
+
+      if (!orderRes.ok || !approveLink) {
+        throw new Error(`Errore creazione ordine PayPal: ${orderData.message || JSON.stringify(orderData)}`);
       }
 
-      const paypalFallbackOrder = `FPPP${Date.now().toString().slice(-8)}`;
       return res.status(200).json({
-        sessionId: paypalFallbackOrder,
-        url: `https://www.sandbox.paypal.com/checkoutnow?token=${paypalFallbackOrder}`,
+        sessionId: orderData.id,
+        url: approveLink,
         depositAmount: payableDepositAmount,
         balanceDue,
         grandTotal,
         nights,
-        gateway: 'paypal'
+        gateway: "paypal"
       });
     }
 

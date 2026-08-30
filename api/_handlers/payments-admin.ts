@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { stripe } from "../_helpers/stripe.js";
 import { signKsherPayload, getKsherAppId, getKsherPrivateKey } from "../_helpers/ksher.js";
 import { generatePromptPayPayload } from "../_helpers/promptpay.js";
+import { getPayPalCredentials, getPayPalAccessToken } from "../_helpers/paypal.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -344,110 +345,69 @@ export async function handlePaymentsAdmin(req: VercelRequest, res: VercelRespons
       // GATEWAY 4: PAYPAL (Real PayPal v2 Orders API & Smart Checkout)
       // ─────────────────────────────────────────────────────────────
       if (gateway === "paypal") {
-        let paypalClientId = process.env.PAYPAL_CLIENT_ID || "";
-        let paypalClientSecret = process.env.PAYPAL_CLIENT_SECRET || "";
-        let paypalMode = "sandbox";
+        try {
+          const creds = getPayPalCredentials();
+          const accessToken = await getPayPalAccessToken();
 
-        if ((!paypalClientId || !paypalClientSecret) && supabase) {
-          try {
-            const { data: dbData } = await supabase.from("payment_settings").select("paypal_config").eq("id", "singleton").maybeSingle();
-            if (dbData?.paypal_config?.clientId) {
-              paypalClientId = dbData.paypal_config.clientId;
-            }
-            if (dbData?.paypal_config?.clientSecret) {
-              paypalClientSecret = dbData.paypal_config.clientSecret;
-            }
-            if (dbData?.paypal_config?.mode) {
-              paypalMode = dbData.paypal_config.mode;
-            }
-          } catch {}
-        }
-
-        if (paypalClientId && paypalClientSecret) {
-          try {
-            const baseUrl = paypalMode === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
-            const auth = Buffer.from(`${paypalClientId}:${paypalClientSecret}`).toString("base64");
-
-            // 1. Get OAuth Access Token
-            const tokenResp = await fetch(`${baseUrl}/v1/oauth2/token`, {
-              method: "POST",
-              headers: {
-                "Authorization": `Basic ${auth}`,
-                "Content-Type": "application/x-www-form-urlencoded"
-              },
-              body: "grant_type=client_credentials"
-            });
-            const tokenData = await tokenResp.json();
-
-            if (tokenData.access_token) {
-              // 2. Create Order
-              const orderResp = await fetch(`${baseUrl}/v2/checkout/orders`, {
-                method: "POST",
-                headers: {
-                  "Authorization": `Bearer ${tokenData.access_token}`,
-                  "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                  intent: "CAPTURE",
-                  purchase_units: [
-                    {
-                      amount: {
-                        currency_code: "THB",
-                        value: parsedAmount.toFixed(2)
-                      },
-                      description: `Flower Power Village - Centro Pagamenti (${customerName || "Ospite"})`
-                    }
-                  ],
-                  application_context: {
-                    return_url: `${cleanOrigin}/admin?tab=payments&status=paypal_success`,
-                    cancel_url: `${cleanOrigin}/admin?tab=payments&status=paypal_cancelled`,
-                    brand_name: "Flower Power Village",
-                    user_action: "PAY_NOW"
-                  }
-                })
-              });
-              const orderData = await orderResp.json();
-              const approveLink = orderData.links?.find((l: any) => l.rel === "approve")?.href;
-
-              if (approveLink) {
-                return res.status(200).json({
-                  success: true,
-                  gateway: "paypal",
-                  transactionId: orderData.id,
-                  checkoutUrl: approveLink,
-                  status: "live_verified",
-                  message: `Ordine PayPal creato con successo! Clicca per procedere al pagamento su PayPal.`,
-                  details: {
-                    orderId: orderData.id,
-                    status: orderData.status,
-                    approveLink,
-                    amount: parsedAmount,
-                    currency: "THB",
-                    mode: paypalMode
+          // 2. Create Order
+          const orderResp = await fetch(`${creds.baseUrl}/v2/checkout/orders`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${accessToken}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              intent: "CAPTURE",
+              purchase_units: [
+                {
+                  amount: {
+                    currency_code: "THB",
+                    value: parsedAmount.toFixed(2)
                   },
-                  timestamp
-                });
+                  description: `Flower Power Village - Centro Pagamenti (${customerName || "Ospite"})`
+                }
+              ],
+              application_context: {
+                return_url: `${cleanOrigin}/admin?tab=payments&status=paypal_success`,
+                cancel_url: `${cleanOrigin}/admin?tab=payments&status=paypal_cancelled`,
+                brand_name: "Flower Power Village",
+                user_action: "PAY_NOW"
               }
-            }
-          } catch (ppErr: any) {
-            console.error("PayPal live API error:", ppErr);
-          }
-        }
+            })
+          });
+          const orderData = await orderResp.json();
+          const approveLink = orderData.links?.find((l: any) => l.rel === "approve")?.href;
 
-        const mockTxId = `PAYPAL-${Date.now().toString().slice(-8)}`;
-        return res.status(200).json({
-          success: true,
-          gateway: "paypal",
-          transactionId: mockTxId,
-          checkoutUrl: `https://www.sandbox.paypal.com/checkoutnow?token=${mockTxId}`,
-          status: paypalClientId ? "live_verified" : "simulated",
-          message: paypalClientId
-            ? `Ordine PayPal generato.`
-            : `PayPal pronto. Inserisci Client ID & Secret nella scheda PayPal per abilitare le chiamate API live.`,
-          details: {
-            receiver: "payments@flowerpowerphayam.com",
-            amount: parsedAmount,
-            currency: "THB"
+          if (orderResp.ok && approveLink) {
+            return res.status(200).json({
+              success: true,
+              gateway: "paypal",
+              transactionId: orderData.id,
+              checkoutUrl: approveLink,
+              status: "live_verified",
+              message: `Ordine PayPal creato con successo! Clicca per procedere al pagamento su PayPal.`,
+              details: {
+                orderId: orderData.id,
+                status: orderData.status,
+                approveLink,
+                amount: parsedAmount,
+                currency: "THB",
+                mode: creds.mode
+              },
+              timestamp
+            });
+          } else {
+            throw new Error(orderData.message || JSON.stringify(orderData));
+          }
+        } catch (ppErr: any) {
+          console.error("PayPal API error in admin:", ppErr);
+          return res.status(500).json({
+            success: false,
+            gateway: "paypal",
+            error: `Errore PayPal API: ${ppErr.message}`
+          });
+        }
+      }
           },
           timestamp
         });
