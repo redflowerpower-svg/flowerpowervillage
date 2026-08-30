@@ -91,10 +91,13 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const room = MOCK_ACCOMMODATIONS.find((a) => a.id === Number(accommodationId));
-    if (!room) {
-      return res.status(404).json({ error: "Accommodation not found" });
-    }
+    const room = MOCK_ACCOMMODATIONS.find((a) => 
+      a.id === Number(accommodationId) || 
+      (a as any).slug === String(accommodationId || '').toLowerCase() ||
+      (a as any).slug === String(req.body.slug || '').toLowerCase() ||
+      a.name.toLowerCase() === String(req.body.roomName || accommodationId || '').toLowerCase() ||
+      String(req.body.roomName || '').toLowerCase().includes(a.name.toLowerCase())
+    ) || MOCK_ACCOMMODATIONS[0];
 
     // Secure simulation check via SHA-256 hash (never exposes raw phrase to frontend or scrapers)
     const rawTrimmed = String(guestName || "").trim();

@@ -747,6 +747,8 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         },
         body: JSON.stringify({
           accommodationId: selectedRoom.octorateId || selectedRoom.id,
+          roomName: selectedRoom.name || selectedRoom.title,
+          slug: selectedRoom.slug,
           checkIn,
           checkOut,
           guests,
