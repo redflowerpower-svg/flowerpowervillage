@@ -24,7 +24,9 @@ import {
   Wind,
   X,
   QrCode,
-  CreditCard
+  CreditCard,
+  Wallet,
+  Banknote
 } from "lucide-react"
 import { getAuthorizationUrl, isAuthenticated, exchangeToken, clearTokens } from "../lib/octorate"
 import { RoomGrid } from "../resort/components/RoomGrid"
@@ -1363,14 +1365,14 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                           {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(displayDeposit)}
                         </span>
                       </div>
-                      <div className="flex flex-col border-t border-stone-300/50 pt-2 text-stone-700 bg-stone-200/40 p-2 rounded-lg border border-stone-300/30 gap-1">
-                        <div className="flex justify-between w-full">
-                          <span className="font-semibold uppercase">{lang === 'IT' ? 'SALDO DOVUTO ALL\'ARRIVO (70%):' : 'BALANCE DUE AT CHECK-IN (70%):'}</span>
-                          <span className="font-bold">
+                      <div className="flex flex-col border-2 border-amber-600/40 pt-2.5 text-stone-800 bg-amber-500/10 p-3 rounded-xl gap-1 shadow-xs">
+                        <div className="flex justify-between items-baseline w-full">
+                          <span className="font-black text-amber-950 uppercase text-[11px] tracking-wide">{lang === 'IT' ? 'SALDO DA PAGARE ALL\'ARRIVO (70%):' : 'BALANCE DUE AT CHECK-IN (70%):'}</span>
+                          <span className="font-black text-amber-950 text-base">
                             {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(displayBalance)}
                           </span>
                         </div>
-                        <span className="block text-[10px] text-stone-500 font-normal leading-relaxed mt-1">
+                        <span className="block text-[10px] text-amber-900/90 font-medium leading-relaxed">
                           {t('balanceMethods' as any)}
                         </span>
                       </div>
@@ -1690,17 +1692,23 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     </div>
 
                     {/* Payment policy note */}
-                    <div className="bg-stone-200/50 rounded-xl p-3 border border-stone-300 space-y-1.5 text-stone-700 leading-normal mt-3">
+                    <div className="bg-stone-100/90 rounded-xl p-3.5 border border-stone-300 space-y-2 text-stone-700 leading-normal mt-3">
                       <span className="block font-bold text-stone-850 uppercase text-[9px] tracking-wider">
                         {t('paymentPolicyTitle' as any)}
                       </span>
                       <p className="text-[11px]">
                         <strong>{lang === 'IT' ? 'Acconto:' : 'Deposit:'}</strong> {lang === 'IT' ? '30% alla conferma della prenotazione.' : '30% deposit to secure your booking.'}
                       </p>
-                      <p className="text-[11px]">
-                        <strong>{lang === 'IT' ? 'Saldo (70%):' : 'Balance (70%):'}</strong> {lang === 'IT' ? 'da pagare al check-in in Contanti (Thai Baht), PromptPay, Wise o Revolut.' : 'due at check-in via Cash (THB), PromptPay, Wise, or Revolut.'}
-                      </p>
-                      <p className="text-[11px]">
+                      <div className="bg-amber-500/15 border border-amber-600/50 rounded-lg p-2.5 text-[11px] text-amber-950 font-medium space-y-0.5">
+                        <div className="flex items-center gap-1 font-black text-amber-950 uppercase text-[11px]">
+                          <Wallet className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
+                          <span>{lang === 'IT' ? 'Saldo da pagare al check-in (70%):' : 'Balance due at check-in (70%):'}</span>
+                        </div>
+                        <p className="text-amber-900 leading-tight">
+                          {lang === 'IT' ? 'in Contanti (Thai Baht), PromptPay, Wise o Revolut.' : 'via Cash (THB), PromptPay, Wise, or Revolut.'}
+                        </p>
+                      </div>
+                      <p className="text-[11px] text-stone-600">
                         <strong>{lang === 'IT' ? 'Cancellazione:' : 'Cancellation:'}</strong> {t('cancellationPolicyDesc' as any)}
                       </p>
                     </div>
@@ -1941,17 +1949,20 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                           </span>
                         </div>
 
-                        {/* 70% Balance Box */}
-                        <div className="bg-stone-200/50 border border-stone-300/80 rounded-xl p-3.5 space-y-1">
+                        {/* 70% Balance Box - Inequivocabile & High Contrast */}
+                        <div className="bg-amber-500/10 border-2 border-amber-600/50 rounded-xl p-3.5 space-y-1.5 shadow-sm">
                           <div className="flex justify-between items-baseline">
-                            <span className="font-bold text-stone-600 text-xs uppercase tracking-wide">
-                              {t('balanceAtCheckIn' as any)}
-                            </span>
-                            <span className="text-lg font-extrabold text-stone-850">
+                            <div className="flex items-center gap-1.5">
+                              <Wallet className="w-4 h-4 text-amber-700 flex-shrink-0" />
+                              <span className="font-black text-amber-950 text-xs uppercase tracking-wide">
+                                {t('balanceAtCheckIn' as any)}
+                              </span>
+                            </div>
+                            <span className="text-xl font-black text-amber-950 tracking-tight">
                               {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(balanceDue)}
                             </span>
                           </div>
-                          <span className="block text-[10px] text-stone-500 font-medium leading-normal">
+                          <span className="block text-[11px] text-amber-900 font-semibold leading-normal">
                             {t('balanceMethods' as any)}
                           </span>
                         </div>
