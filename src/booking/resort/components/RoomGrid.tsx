@@ -150,79 +150,49 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
       });
   }, []);
 
-  // Load live prices from Octorate (mock API routes)
+  // 1. Load live baseline prices and rate plans from Octorate on mount
   useEffect(() => {
-    if (oauthConnected) {
-      const structureId = import.meta.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
-      console.log(`[Octorate Debug] Fetching roomrates for structure ID: ${structureId}`);
-      
-      const fetchRates = async () => {
-        const { getStoredTokens, refreshAccessToken } = await import('../../lib/octorate');
-        const tokens = await getStoredTokens();
-        if (!tokens) {
-          console.warn("[Octorate Debug] oauthConnected is true but getStoredTokens returned null");
-          return;
-        }
+    const fetchLiveBaseRates = async () => {
+      try {
+        const today = new Date().toISOString().substring(0, 10);
+        const futureDateObj = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        const futureDate = futureDateObj.toISOString().substring(0, 10);
 
-        let res = await fetch(`/api-octorate/connect/rest/v1/roomrates/${structureId}`, {
-          headers: {
-            "Accept": "application/json",
-            "Authorization": `Bearer ${tokens.access_token}`,
-          },
-        });
-        
-        if (res.status === 401 || res.status === 403) {
-          console.log("[Octorate Debug] Roomrates fetch returned 401/403, attempting to refresh token...");
-          try {
-            const newTokens = await refreshAccessToken();
-            res = await fetch(`/api-octorate/connect/rest/v1/roomrates/${structureId}`, {
-              headers: {
-                "Accept": "application/json",
-                "Authorization": `Bearer ${newTokens.access_token}`,
-              },
-            });
-          } catch (refreshErr) {
-            console.error("[Octorate Debug] Failed to refresh token during roomrates fetch:", refreshErr);
+        const res = await fetch(`/api/resort/octorate-grid?dateFrom=${today}&dateTo=${futureDate}`);
+        if (res.ok) {
+          const payload = await res.json();
+          const items = payload && Array.isArray(payload.beGrid) && payload.beGrid.length > 0
+            ? payload.beGrid
+            : (payload && Array.isArray(payload.grid) ? payload.grid : (payload?.data || []));
+
+          if (Array.isArray(items) && items.length > 0) {
+            setOctorateRooms(items);
           }
         }
-        
-        console.log(`[Octorate Debug] Response status: ${res.status}`);
-        if (!res.ok) {
-          throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        
-        const data = await res.json();
-        console.log("[Octorate Debug] Received roomrates data:", data);
-        if (Array.isArray(data)) {
-          setOctorateRooms(data);
-        } else {
-          console.warn("[Octorate Debug] Data is not an array:", data);
-        }
-      };
+      } catch (err) {
+        console.warn("[Octorate] Failed to load baseline rates on mount:", err);
+      }
+    };
 
-      fetchRates().catch((err) => console.error("[Octorate Debug] Error loading roomrates:", err));
-    } else {
-      console.log("[Octorate Debug] Octorate is not connected (oauthConnected is false)");
-    }
-  }, [oauthConnected]);
+    fetchLiveBaseRates();
+  }, []);
 
-  // Load dynamic date-specific availability and pricing from Octorate
+  // 2. Load dynamic date-specific availability and pricing from Octorate whenever dates are set
   useEffect(() => {
-    if (oauthConnected && checkIn && checkOut && stayDays > 0) {
+    if (checkIn && checkOut && stayDays > 0) {
       console.log(`[Octorate Debug] Querying availability: CheckIn: ${checkIn}, CheckOut: ${checkOut}, Guests: ${guests}`);
       setLoadingAvailability(true);
       setAvailabilityChecked(false);
       checkAvailability(checkIn, checkOut, guests)
         .then((results) => {
-          // Log stringified complete response as requested
-          console.log("[Octorate Debug] Availability payload stringified:", JSON.stringify(results));
-          
-          if (Array.isArray(results)) {
+          console.log("[Octorate Debug] Availability payload received:", results.length, "items");
+          if (Array.isArray(results) && results.length > 0) {
             setAvailabilityResults(results);
             setIsOctorateOffline(false);
           } else {
-            console.warn("[Octorate Debug] Availability response is not an array:", results);
-            setIsOctorateOffline(true);
+            console.warn("[Octorate Debug] Availability response is empty or invalid:", results);
+            setAvailabilityResults(results || []);
+            setIsOctorateOffline(false);
           }
           setAvailabilityChecked(true);
           setLoadingAvailability(false);
@@ -237,10 +207,9 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     } else {
       setAvailabilityResults([]);
       setIsOctorateOffline(false);
-      setAvailabilityChecked(checkIn && checkOut && stayDays > 0 ? true : false);
-      setLoadingAvailability(false);
+      setAvailabilityChecked(false);
     }
-  }, [oauthConnected, checkIn, checkOut, guests, stayDays]);
+  }, [checkIn, checkOut, guests, stayDays]);
 
   // Gallery keyboard controls
   useEffect(() => {
@@ -350,12 +319,20 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
     let isLiveFromOctorate = false;
 
     if (room.octorateId) {
-      const octorateMatch = octorateRooms.find((r) => r.id === room.octorateId);
+      const octorateMatch = octorateRooms.find((r) => Number(r.id) === Number(room.octorateId));
       if (octorateMatch) {
-        const ratePlan = octorateMatch.ratePlans?.[0];
-        if (ratePlan?.price && ratePlan.price > 0) {
-          finalPriceHigh = ratePlan.price;
-          finalPriceLow = Math.round(ratePlan.price * 0.25);
+        const days = Array.isArray(octorateMatch.days) ? octorateMatch.days : [];
+        const validDays = days.filter((d: any) => d.price && d.price > 0);
+        if (validDays.length > 0) {
+          const avg = Math.round(validDays.reduce((sum: number, d: any) => sum + d.price, 0) / validDays.length);
+          if (avg > 0) {
+            finalPriceHigh = avg;
+            finalPriceLow = Math.round(avg * 0.25);
+            isLiveFromOctorate = true;
+          }
+        } else if (octorateMatch.price && octorateMatch.price > 0) {
+          finalPriceHigh = octorateMatch.price;
+          finalPriceLow = Math.round(octorateMatch.price * 0.25);
           isLiveFromOctorate = true;
         }
       }
