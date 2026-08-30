@@ -531,6 +531,24 @@ export async function checkAvailability(
   checkOut: string,
   guests: number
 ): Promise<AvailabilityResult[]> {
+  // 1. Try first via the optimized serverless backend endpoint (/api/resort/octorate-grid)
+  try {
+    const gridRes = await fetch(`/api/resort/octorate-grid?dateFrom=${checkIn}&dateTo=${checkOut}`);
+    if (gridRes.ok) {
+      const payload = await gridRes.json();
+      const items = payload && Array.isArray(payload.beGrid) && payload.beGrid.length > 0
+        ? payload.beGrid
+        : (payload && Array.isArray(payload.grid) ? payload.grid : (payload?.data || []));
+
+      if (Array.isArray(items) && items.length > 0) {
+        return mapCalendarDataToAvailability({ data: items }, checkIn, checkOut, guests);
+      }
+    }
+  } catch (backendErr) {
+    console.warn("[Octorate] /api/resort/octorate-grid query notice:", backendErr);
+  }
+
+  // 2. Fallback to direct client-side Octorate API
   const tokens = await getStoredTokens()
   if (tokens?.access_token) {
     try {
@@ -588,15 +606,6 @@ export async function checkAvailability(
         throw new Error("Calendar API: no pages retrieved");
       }
 
-      if (foundIds.size < WHITELISTED_RATEPLAN_IDS.length) {
-        const missing = WHITELISTED_RATEPLAN_IDS.filter((id) => !foundIds.has(id));
-        console.warn(
-          `[Octorate] Whitelist incompleta dopo ${page + 1} pagine. ID non trovati:`,
-          missing,
-          "— verificare PAGINATION_PARAM_NAME o aumentare MAX_PAGES_SAFETY_CAP."
-        );
-      }
-
       return mapCalendarDataToAvailability({ data: collected }, checkIn, checkOut, guests);
     } catch (err) {
       console.warn("[Octorate] Live calendar fetch failed, fallback to mock:", err)
@@ -638,7 +647,11 @@ function mapCalendarDataToAvailability(
         activeDaysCount++;
         totalPrice += day.price || 0;
         
-        if (day.availability <= 0 || day.bookable === false || day.stopSells === true) {
+        // Accurately check availability from Octorate day indicators
+        if (day.availability !== undefined && day.availability <= 0) {
+          isAvailable = false;
+        }
+        if (day.stopSells === true || day.stopSell === true || day.closed === true) {
           isAvailable = false;
         }
         if (day.minStay && day.minStay > nights) {

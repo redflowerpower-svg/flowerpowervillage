@@ -351,10 +351,13 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
 
     if (room.octorateId) {
       const octorateMatch = octorateRooms.find((r) => r.id === room.octorateId);
-      if (octorateMatch && octorateMatch.minimumSellingPrice) {
-        finalPriceHigh = octorateMatch.minimumSellingPrice;
-        finalPriceLow = Math.round(octorateMatch.minimumSellingPrice * 0.25); // preserve low season ratio
-        isLiveFromOctorate = true;
+      if (octorateMatch) {
+        const ratePlan = octorateMatch.ratePlans?.[0];
+        if (ratePlan?.price && ratePlan.price > 0) {
+          finalPriceHigh = ratePlan.price;
+          finalPriceLow = Math.round(ratePlan.price * 0.25);
+          isLiveFromOctorate = true;
+        }
       }
     }
 
@@ -403,7 +406,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
       const availMatch = availabilityResults.find((a) => String(a.accommodationId) === String(item.octorateId));
       if (availMatch) {
         if (availMatch.available) {
-          basePrice = availMatch.pricePerNight || (availMatch.totalPrice / stayDays) || staticBasePrice;
+          basePrice = availMatch.pricePerNight || (stayDays > 0 ? (availMatch.totalPrice / stayDays) : staticBasePrice);
           usingDynamicPrice = true;
         } else {
           isAvailable = false;
