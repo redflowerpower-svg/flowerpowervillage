@@ -34,6 +34,11 @@ export function getPayPalCredentials(): PayPalCredentials {
             }
           }
         }
+        if (clientId && clientSecret) break;
+      }
+    } catch {}
+  }
+
   // Fallback to active verified Sandbox keys if neither process.env nor disk files provided them
   if (!clientId) {
     clientId = 'AQ2tHwFZTSq5KPuZWRxw-3s11DNXrX1x0IFcZb6JmFseCnU_gMIL9a8jCJ199LgJy0HyoCMnASsnc9Fp';
