@@ -41,10 +41,19 @@ const CATEGORY_ITEMS = [
   { name: "The Hub Guesthouse", label: "HUBit@", desc: "The Coworking GuestHouse", icon: Bed },
 ]
 
+function parseLocalDate(dateStr: string): Date {
+  if (!dateStr) return new Date()
+  const parts = dateStr.split('-')
+  const y = parseInt(parts[0], 10)
+  const m = parseInt(parts[1], 10)
+  const d = parseInt(parts[2], 10)
+  return new Date(y, (m || 1) - 1, d || 1)
+}
+
 function calculateStayDays(checkIn: string, checkOut: string): number {
   if (!checkIn || !checkOut) return 0
-  const start = new Date(checkIn)
-  const end = new Date(checkOut)
+  const start = parseLocalDate(checkIn)
+  const end = parseLocalDate(checkOut)
   const diffTime = end.getTime() - start.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   return diffDays > 0 ? diffDays : 0
@@ -52,8 +61,8 @@ function calculateStayDays(checkIn: string, checkOut: string): number {
 
 function isLowSeason(checkIn: string, checkOut: string): boolean {
   if (!checkIn || !checkOut) return false
-  const start = new Date(checkIn)
-  const end = new Date(checkOut)
+  const start = parseLocalDate(checkIn)
+  const end = parseLocalDate(checkOut)
   const lowSeasonMonths = [4, 5, 6, 7, 8, 9]
   const startMonth = start.getMonth()
   const endMonth = end.getMonth()
@@ -258,12 +267,22 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   const [checkInCalendarMonth, setCheckInCalendarMonth] = useState(() => new Date())
   const [checkOutCalendarMonth, setCheckOutCalendarMonth] = useState(() => new Date())
 
-  // Synchronize check-out month with selected check-in month
+  // Synchronize calendar months with selected checkIn and checkOut dates
   useEffect(() => {
     if (checkIn) {
-      setCheckOutCalendarMonth(new Date(checkIn));
+      setCheckInCalendarMonth(parseLocalDate(checkIn));
     }
   }, [checkIn]);
+
+  useEffect(() => {
+    if (checkOut) {
+      setCheckOutCalendarMonth(parseLocalDate(checkOut));
+    } else if (checkIn) {
+      const date = parseLocalDate(checkIn);
+      date.setDate(date.getDate() + 2);
+      setCheckOutCalendarMonth(date);
+    }
+  }, [checkIn, checkOut]);
 
   // Click outside detection to close calendar popovers
   useEffect(() => {
@@ -494,24 +513,34 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       }
       const minCheckOut = new Date(minCheckIn);
       minCheckOut.setDate(minCheckOut.getDate() + 2);
-      return minCheckOut.toISOString().split('T')[0];
+      const y = minCheckOut.getFullYear();
+      const m = String(minCheckOut.getMonth() + 1).padStart(2, '0');
+      const d = String(minCheckOut.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
     }
-    const date = new Date(checkIn);
+    const date = parseLocalDate(checkIn);
     date.setDate(date.getDate() + 2);
-    return date.toISOString().split('T')[0];
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }, [checkIn]);
 
   // Automatically adjust checkout if it doesn't satisfy minimum 2 nights
   useEffect(() => {
     if (checkIn) {
-      const date = new Date(checkIn);
+      const date = parseLocalDate(checkIn);
       date.setDate(date.getDate() + 2);
-      const minCheckOutStr = date.toISOString().split('T')[0];
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      const minCheckOutStr = `${y}-${m}-${d}`;
       if (!checkOut || checkOut < minCheckOutStr) {
         setCheckOut(minCheckOutStr);
+        setCheckOutCalendarMonth(date);
       }
     }
-  }, [checkIn, checkOut]);
+  }, [checkIn]);
 
   // Format check-in/out date for premium display (DD/MM/YYYY)
   const formatDateForDisplay = (dateStr: string): string => {
@@ -601,6 +630,18 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           disabled={isDisabled}
           onClick={() => {
             onSelectDate(dateStr);
+            if (type === 'in') {
+              const nextDate = parseLocalDate(dateStr);
+              nextDate.setDate(nextDate.getDate() + 2);
+              const y = nextDate.getFullYear();
+              const m = String(nextDate.getMonth() + 1).padStart(2, '0');
+              const d = String(nextDate.getDate()).padStart(2, '0');
+              const nextCheckOutStr = `${y}-${m}-${d}`;
+              if (!checkOut || checkOut < nextCheckOutStr) {
+                setCheckOut(nextCheckOutStr);
+                setCheckOutCalendarMonth(nextDate);
+              }
+            }
             onClose();
           }}
           className={btnClass}
@@ -937,6 +978,9 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             {/* Check-In */}
             <div className="date-picker-container relative col-span-1 lg:flex-1 flex items-center justify-center lg:justify-start gap-1.5 md:gap-3 px-2 md:px-4 py-1.5 md:py-3 bg-stone-50 rounded-lg md:rounded-xl border border-stone-300 focus-within:border-stone-500 focus-within:ring-1 focus-within:ring-stone-500 transition-all cursor-pointer"
               onClick={() => {
+                if (!isCheckInOpen && checkIn) {
+                  setCheckInCalendarMonth(parseLocalDate(checkIn));
+                }
                 setIsCheckInOpen(!isCheckInOpen);
                 setIsCheckOutOpen(false);
               }}
@@ -969,6 +1013,15 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             {/* Check-Out */}
             <div className="date-picker-container relative col-span-1 lg:flex-1 flex items-center justify-center lg:justify-start gap-1.5 md:gap-3 px-2 md:px-4 py-1.5 md:py-3 bg-stone-50 rounded-lg md:rounded-xl border border-stone-300 focus-within:border-stone-500 focus-within:ring-1 focus-within:ring-stone-500 transition-all cursor-pointer"
               onClick={() => {
+                if (!isCheckOutOpen) {
+                  if (checkOut) {
+                    setCheckOutCalendarMonth(parseLocalDate(checkOut));
+                  } else if (checkIn) {
+                    const date = parseLocalDate(checkIn);
+                    date.setDate(date.getDate() + 2);
+                    setCheckOutCalendarMonth(date);
+                  }
+                }
                 setIsCheckOutOpen(!isCheckOutOpen);
                 setIsCheckInOpen(false);
               }}
