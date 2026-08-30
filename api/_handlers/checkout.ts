@@ -215,8 +215,9 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
     const baseDepositAmount = Math.round(grandTotal * 0.30);
     const balanceDue = grandTotal - baseDepositAmount;
 
-    // Selected payment method (default: 'ksher')
-    const paymentMethod = req.body.paymentMethod || 'ksher';
+    // Selected payment method normalization
+    const rawMethod = String(req.body.paymentMethod || 'ksher').toLowerCase();
+    const paymentMethod = (rawMethod === 'ksher_promptpay' || rawMethod === 'ksher_card' || rawMethod.includes('ksher')) ? 'ksher' : rawMethod;
 
     // Apply VAT 7% and incorporated processing costs
     let processingRate = 0;
@@ -228,9 +229,10 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
 
     const payableDepositAmount = Math.round(baseDepositAmount * (1 + processingRate));
 
-    // Construct origin URL
-    const requestOrigin = origin || req.headers.origin || req.headers.referer || "https://flowerpower-phayam.com";
-    const cleanOrigin = requestOrigin.replace(/\/$/, "");
+    // Construct origin URL safely
+    const rawOrigin = origin || req.headers?.origin || req.headers?.referer || "https://flowerpower-phayam.com";
+    const requestOrigin = Array.isArray(rawOrigin) ? rawOrigin[0] : String(rawOrigin);
+    const cleanOrigin = requestOrigin.split('?')[0].replace(/\/$/, "");
 
     // 0. SECURE SIMULATION MODE (Triggers only on exact SHA-256 match)
     if (isSimulatedTest) {

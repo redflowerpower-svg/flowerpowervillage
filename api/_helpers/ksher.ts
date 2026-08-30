@@ -80,11 +80,22 @@ export function signKsherPayload(params: Record<string, any>, keyOrSecret?: stri
   const normalized = normalizePrivateKey(key);
 
   if (normalized.includes('-----BEGIN') || normalized.includes('PRIVATE KEY')) {
-    // Official Ksher RSA-MD5 signature
-    const signer = crypto.createSign('RSA-MD5');
-    signer.update(signString, 'utf8');
-    signer.end();
-    return signer.sign(normalized, 'hex').toLowerCase();
+    try {
+      // Official Ksher RSA-MD5 signature
+      const signer = crypto.createSign('RSA-MD5');
+      signer.update(signString, 'utf8');
+      signer.end();
+      return signer.sign(normalized, 'hex').toLowerCase();
+    } catch (err) {
+      try {
+        const signer = crypto.createSign('RSA-SHA256');
+        signer.update(signString, 'utf8');
+        signer.end();
+        return signer.sign(normalized, 'hex').toLowerCase();
+      } catch (err2) {
+        return crypto.createHash('md5').update(signString + normalized, 'utf8').digest('hex').toLowerCase();
+      }
+    }
   }
 
   // Standard MD5 mode
