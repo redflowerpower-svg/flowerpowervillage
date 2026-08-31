@@ -68,31 +68,31 @@ export default function VillageSite() {
         return <BookingEngine lang={lang} setLang={setLang} />;
       case 'restaurant':
         return (
-          <PageLayout>
+          <PageLayout lang={lang} setLang={setLang}>
             <RestaurantSection lang={lang} />
           </PageLayout>
         );
       case 'spa':
         return (
-          <PageLayout>
+          <PageLayout lang={lang} setLang={setLang}>
             <SpaSection lang={lang} />
           </PageLayout>
         );
       case 'gallery':
         return (
-          <PageLayout>
+          <PageLayout lang={lang} setLang={setLang}>
             <GallerySection lang={lang} />
           </PageLayout>
         );
       case 'directions':
         return (
-          <PageLayout>
+          <PageLayout lang={lang} setLang={setLang}>
             <DirectionsSection lang={lang} />
           </PageLayout>
         );
       case 'contact':
         return (
-          <PageLayout>
+          <PageLayout lang={lang} setLang={setLang}>
             <ContactSection lang={lang} />
           </PageLayout>
         );
