@@ -1,3 +1,5 @@
+import { Language } from '../booking/lib/translations';
+
 // Struttura immagini con classi span responsive: su mobile layout semplice,
 // su md+ si attiva il layout masonry a 4 colonne con span differenziati
 const images = [
@@ -43,19 +45,48 @@ const images = [
   },
 ];
 
-export default function GallerySection() {
+const galleryTranslations = {
+  IT: {
+    tag: 'Galleria Fotografica',
+    title: 'La Vita al Flower Power',
+    instagram: 'Segui @flowerpowerphayam su Instagram'
+  },
+  EN: {
+    tag: 'Photo Gallery',
+    title: 'Life at Flower Power',
+    instagram: 'Follow @flowerpowerphayam on Instagram'
+  },
+  TH: {
+    tag: 'แกลเลอรีภาพถ่าย',
+    title: 'ชีวิตและบรรยากาศที่ ฟลาวเวอร์ พาวเวอร์',
+    instagram: 'ติดตาม @flowerpowerphayam บน Instagram'
+  },
+  DE: {
+    tag: 'Fotogalerie',
+    title: 'Das Leben im Flower Power',
+    instagram: 'Folgen Sie @flowerpowerphayam auf Instagram'
+  }
+};
+
+interface Props {
+  lang?: Language;
+}
+
+export default function GallerySection({ lang = 'IT' }: Props) {
+  const t = galleryTranslations[lang] || galleryTranslations['IT'];
+
   return (
-    <section className="py-16 md:py-24 bg-white">
+    <section className="py-16 md:py-24 bg-white animate-fadeIn">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-10 md:mb-14">
           <p className="text-xs tracking-[0.4em] uppercase text-emerald-700 mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
-            Galleria Fotografica
+            {t.tag}
           </p>
           <h2
             className="text-stone-850 mb-4"
             style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif', fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 300 }}
           >
-            La Vita al Flower Power
+            {t.title}
           </h2>
           <div className="w-12 h-px bg-emerald-600 mx-auto" />
         </div>
@@ -84,7 +115,7 @@ export default function GallerySection() {
             className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-stone-500 hover:text-emerald-700 transition-colors border-b border-stone-200 hover:border-emerald-500 pb-1 font-semibold"
             style={{ fontFamily: 'Inter, sans-serif' }}
           >
-            Segui @flowerpowerphayam su Instagram
+            {t.instagram}
           </a>
         </div>
       </div>

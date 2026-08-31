@@ -81,7 +81,7 @@ export default function VillageSite() {
       case 'gallery':
         return (
           <PageLayout>
-            <GallerySection />
+            <GallerySection lang={lang} />
           </PageLayout>
         );
       case 'directions':
