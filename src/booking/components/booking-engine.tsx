@@ -907,7 +907,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                 {/* Overlay to close when clicking outside */}
                 <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
                 <div className="absolute right-0 mt-1.5 w-24 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
-                  {(['IT', 'EN', 'TH', 'DE'] as Language[]).map((l) => (
+                  {(['EN', 'TH', 'IT', 'DE'] as Language[]).map((l) => (
                     <button
                       key={l}
                       type="button"
@@ -918,9 +918,9 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                       className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer ${lang === l ? "text-emerald-400 bg-white/5" : "text-stone-300"
                         }`}
                     >
-                      {l === 'IT' && '🇮🇹 IT'}
                       {l === 'EN' && '🇬🇧 EN'}
                       {l === 'TH' && '🇹🇭 TH'}
+                      {l === 'IT' && '🇮🇹 IT'}
                       {l === 'DE' && '🇩🇪 DE'}
                     </button>
                   ))}

@@ -50,9 +50,9 @@ const navTranslations = {
 };
 
 const languages: { code: Language; label: string; flag: string }[] = [
-  { code: 'IT', label: 'Italiano', flag: '🇮🇹' },
   { code: 'EN', label: 'English', flag: '🇬🇧' },
   { code: 'TH', label: 'ภาษาไทย', flag: '🇹🇭' },
+  { code: 'IT', label: 'Italiano', flag: '🇮🇹' },
   { code: 'DE', label: 'Deutsch', flag: '🇩🇪' },
 ];
 
