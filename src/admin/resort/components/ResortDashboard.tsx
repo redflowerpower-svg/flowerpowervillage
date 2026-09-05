@@ -326,7 +326,7 @@ export function ResortDashboard() {
     try {
       const tokens = await getStoredTokens();
       const structureId = octorateDetails?.structureId || '366879';
-      if (!tokens) {
+      if (!tokens || !tokens.access_token || tokens.access_token === 'PROTECTED_SERVER_SIDE') {
         setOctorateRooms([]);
         setLoadingRooms(false);
         return;

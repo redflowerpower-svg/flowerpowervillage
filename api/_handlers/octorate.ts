@@ -29,10 +29,6 @@ function getSupabaseAdmin() {
     } catch {}
   }
 
-  if (!key) {
-    key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdqcWV2Z2tiamtoYXJjemhpa2NsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzcxMjQ0MCwiZXhwIjoyMDk5Mjg4NDQwfQ.rMk5Yg3ZNLdK4bLnIjc7K6ZpZcsTSns9iMOJVnwv160";
-  }
-
   return (url && key) ? createClient(url, key) : null;
 }
 
@@ -239,11 +235,16 @@ export async function handleOctorateTokens(req: VercelRequest, res: VercelRespon
   return res.status(405).json({ error: 'Method not allowed' });
 }
 
-// 4. handleOctorateClientGet
+// 4. handleOctorateClientGet - SECURITY HARDENED
+// Non espone MAI access_token o refresh_token a client non autorizzati.
+// Restituisce solo lo stato di connessione booleano e data di aggiornamento.
 export async function handleOctorateClientGet(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  const internalSecret = req.headers['x-internal-secret'];
+  const isAuthorized = process.env.INTERNAL_API_SECRET && internalSecret === process.env.INTERNAL_API_SECRET;
 
   const supabaseAdmin = getSupabaseAdmin();
   if (!supabaseAdmin) {
@@ -258,16 +259,37 @@ export async function handleOctorateClientGet(req: VercelRequest, res: VercelRes
       .maybeSingle();
 
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ data });
+
+    // Solo se fornito il segreto interno di sistema (es. script CLI o microservizio server)
+    if (isAuthorized) {
+      return res.status(200).json({ data });
+    }
+
+    // Risposta pubblica sicura: zero credenziali esposte
+    const isConnected = Boolean(data?.access_token);
+    return res.status(200).json({
+      connected: isConnected,
+      updated_at: data?.updated_at || null,
+      data: {
+        connected: isConnected,
+        updated_at: data?.updated_at || null,
+      }
+    });
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }
 }
 
-// 5. handleOctorateClientClear
+// 5. handleOctorateClientClear - SECURITY HARDENED
+// Richiede tassativamente x-internal-secret per evitare cancellazioni non autorizzate.
 export async function handleOctorateClientClear(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const internalSecret = req.headers['x-internal-secret'];
+  if (!process.env.INTERNAL_API_SECRET || internalSecret !== process.env.INTERNAL_API_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized: internal secret required to clear tokens' });
   }
 
   const supabaseAdmin = getSupabaseAdmin();
@@ -285,7 +307,7 @@ export async function handleOctorateClientClear(req: VercelRequest, res: VercelR
       return res.status(500).json({ error: `Database clear failed: ${error.message}` });
     }
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, message: 'Tokens cleared successfully' });
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }

@@ -115,12 +115,12 @@ export async function getStoredTokens(): Promise<OAuthTokens | null> {
     const res = await fetch("/api/octorate-client-get");
     if (res.ok) {
       const json = await res.json();
-      if (json && json.data) {
+      if (json && (json.connected || json.data?.connected || json.data?.access_token)) {
         cachedTokens = {
-          access_token: json.data.access_token,
-          refresh_token: json.data.refresh_token,
+          access_token: json.data?.access_token || "PROTECTED_SERVER_SIDE",
+          refresh_token: json.data?.refresh_token || "",
           token_type: "Bearer",
-          expires_in: json.data.expires_in,
+          expires_in: json.data?.expires_in || 3600,
         };
         return cachedTokens;
       }
@@ -548,9 +548,9 @@ export async function checkAvailability(
     console.warn("[Octorate] /api/resort/octorate-grid query notice:", backendErr);
   }
 
-  // 2. Fallback to direct client-side Octorate API
+  // 2. Fallback to direct client-side Octorate API (solo se access_token reale disponibile, mai se protetto lato server)
   const tokens = await getStoredTokens()
-  if (tokens?.access_token) {
+  if (tokens?.access_token && tokens.access_token !== "PROTECTED_SERVER_SIDE") {
     try {
       const structureId = import.meta.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
       const collected: any[] = [];
@@ -852,7 +852,7 @@ export async function createReservation(
 ): Promise<ReservationResponse> {
   const tokens = await getStoredTokens()
 
-  if (tokens?.access_token) {
+  if (tokens?.access_token && tokens.access_token !== "PROTECTED_SERVER_SIDE") {
     try {
       const res = await fetch(`${OCTORATE_API_BASE}/reservation`, {
         method: "POST",
