@@ -59,9 +59,9 @@ Gestisce i dati di configurazione per il bot di notifica.
 
 | Campo | Tipo PostgreSQL | Vincoli / Valore di Default | Descrizione |
 |---|---|---|---|
-| `id` | `text` | `PRIMARY KEY` • `'default'` | Identificativo univoco del record. |
+| `id` | `text` | `PRIMARY KEY` | Identificativo del reparto: `'pizza'` (Pizzeria Ranong) o `'village'` (Villaggio Koh Phayam). |
 | `bot_token` | `text` | `NOT NULL` | Token del bot Telegram generato da BotFather. |
-| `chat_id` | `text` | `NOT NULL` | ID numerico del gruppo o canale dello staff. |
+| `chat_id` | `text` | `NOT NULL` | ID numerico del gruppo dello staff (`-940...` per pizza, `-100...` per villaggio). |
 | `updated_at` | `timestamptz` | `now()` | Data di aggiornamento della configurazione. |
 
 ### D. Tabella `octorate_tokens` (Credenziali OAuth singleton)

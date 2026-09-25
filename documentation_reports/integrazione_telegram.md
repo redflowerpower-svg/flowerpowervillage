@@ -53,14 +53,15 @@ sequenceDiagram
 
 ## 3. Configurazioni Chiave e Sicurezza
 
-### Parametri di Configurazione
-Le credenziali del bot vengono lette in modo dinamico all'avvio di ogni rotta tramite la funzione helper `getTelegramCredentials` in [telegram.ts](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/api/_helpers/telegram.ts):
-1.  **Lettura da DB:** Cerca un record nella tabella `telegram_config` con ID `default`.
-2.  **Fallback Ambientale:** Se il database non risponde o la tabella è vuota, ripiega sulle variabili d'ambiente `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID`.
+### Parametri di Configurazione & Reparti Stagni
+Le credenziali dei bot vengono lette in modo dinamico all'avvio di ogni rotta tramite la funzione helper `getTelegramCredentials(department)` in [telegram.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/telegram.ts):
+1.  **Reparto Stagno Pizzeria (Ranong):** Cerca un record nella tabella `telegram_config` con ID `pizza` (con fallback su `default` per compatibilità storica). Fallback variabili d'ambiente: `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID`.
+2.  **Reparto Stagno Villaggio (Koh Phayam):** Cerca un record nella tabella `telegram_config` con ID `village`. Fallback variabili d'ambiente: `TELEGRAM_VILLAGE_BOT_TOKEN` e `TELEGRAM_VILLAGE_CHAT_ID`.
+3.  **Isolamento Totale:** Se il bot del villaggio non è configurato, gli alert del villaggio (nuove prenotazioni, auto-shielding overbooking, sync Octorate) vengono soppressi invece di essere inoltrati alla pizzeria, garantendo che le due attività operative non si sovrappongano mai.
 
 ### Sicurezza del Webhook
-Per impedirere a malintenzionati di inviare falsi webhook o modificare gli stati di cassa premendo i pulsanti inline:
-*   Il webhook `/api/telegram-webhook` confronta l'ID della chat che ha originato la callback (`update.callback_query.message.chat.id`) con il `chatId` autorizzato salvato in `telegram_config`.
+Per impedire a malintenzionati di inviare falsi webhook o modificare gli stati di cassa premendo i pulsanti inline:
+*   Il webhook `/api/telegram-webhook` confronta l'ID della chat che ha originato la callback (`update.callback_query.message.chat.id`) con il `chatId` autorizzato salvato in `telegram_config` (`id = 'pizza'`).
 *   Se l'ID non corrisponde, la richiesta viene immediatamente rifiutata con stato `unauthorized` senza effettuare modifiche su Supabase.
 
 ### Normalizzazione dei Contatti

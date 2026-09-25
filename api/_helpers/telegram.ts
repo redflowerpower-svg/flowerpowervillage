@@ -35,15 +35,27 @@ export async function getTelegramCredentials(
 ): Promise<TelegramCredentials> {
   try {
     const client = getSupabaseClient(authHeader);
-    const targetId = department === 'village' ? 'village' : 'default';
-    const { data, error } = await client
+    const targetId = department === 'village' ? 'village' : 'pizza';
+    let { data, error } = await client
       .from("telegram_config")
       .select("bot_token, chat_id")
       .eq("id", targetId)
       .maybeSingle();
 
+    // Fallback to legacy 'default' row if 'pizza' not populated yet
+    if ((!data || !data.bot_token) && targetId === 'pizza') {
+      const { data: legacyData } = await client
+        .from("telegram_config")
+        .select("bot_token, chat_id")
+        .eq("id", "default")
+        .maybeSingle();
+      if (legacyData && legacyData.bot_token) {
+        data = legacyData;
+      }
+    }
+
     if (!error && data && data.bot_token && data.chat_id) {
-      console.log(`[Telegram Credentials] Loaded credentials for ${department} from database config.`);
+      console.log(`[Telegram Credentials] Loaded credentials for ${department} from database config (${targetId}).`);
       return {
         botToken: data.bot_token,
         chatId: data.chat_id
@@ -80,7 +92,7 @@ export async function updateTelegramCredentials(
 ): Promise<boolean> {
   try {
     const client = getSupabaseClient(authHeader);
-    const targetId = department === 'village' ? 'village' : 'default';
+    const targetId = department === 'village' ? 'village' : 'pizza';
     const { error } = await client
       .from("telegram_config")
       .upsert({
