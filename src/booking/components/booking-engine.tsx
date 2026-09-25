@@ -1411,7 +1411,9 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                 <div className="flex justify-between border-t border-stone-300/50 pt-2">
                   <span className="text-stone-500 font-semibold uppercase">PAGAMENTO:</span>
                   <span className="font-bold text-stone-700 uppercase">
-                    {lang === 'IT' ? 'Acconto 30% Pagato via Stripe' : '30% Deposit Paid via Stripe'}
+                    {(stripeSessionId.startsWith('FPBK') || !stripeSessionId.startsWith('cs_'))
+                      ? (lang === 'IT' ? 'Acconto 30% Pagato Online (Ksher)' : '30% Deposit Paid Online (Ksher)')
+                      : (lang === 'IT' ? 'Acconto 30% Pagato via Stripe' : '30% Deposit Paid via Stripe')}
                   </span>
                 </div>
                 {(verifiedBooking || confirmedTotalPrice !== null) && (() => {
@@ -1683,7 +1685,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                             {lang === 'IT' ? 'Carta di Credito / Debito (Visa, Mastercard, JCB)' : 'Credit / Debit Card (Visa, Mastercard, JCB)'}
                           </span>
                           <span className="text-[10px] font-bold text-emerald-800 bg-emerald-500/10 px-2 py-0.5 rounded">
-                            {lang === 'IT' ? 'Istantaneo (Cash)' : 'Instant (Cash)'}
+                            {lang === 'IT' ? 'Conferma Immediata (Ksher)' : 'Instant Confirmation (Ksher)'}
                           </span>
                         </div>
                         <p className="text-stone-600 text-[11px] leading-relaxed">

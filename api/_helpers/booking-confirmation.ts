@@ -421,8 +421,8 @@ export async function generateConfirmationPDF(
       doc.text(`Email: ${RESORT_INFO.email}  |  WhatsApp/Line: ${RESORT_INFO.phone}`, 130, 58, { align: "right" });
       doc.text(`Website: ${websiteUrl}`, 130, 68, { align: "right" });
 
-      // 2. CONFIRMATION TITLE & META INFO
-      const bookingRef = octorateId || `ST-FALLBACK-${metadata.stripeSessionId?.substring(0, 10) || "UNKNOWN"}`;
+      const isKsher = metadata.gateway === "ksher" || metadata.stripeSessionId?.startsWith("FPBK");
+      const bookingRef = octorateId || (isKsher ? `FP-${metadata.stripeSessionId?.substring(0, 12) || "CONFIRMED"}` : `ST-FALLBACK-${metadata.stripeSessionId?.substring(0, 10) || "UNKNOWN"}`);
       const issueDate = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
       
       doc.fillColor("#111827").font("Helvetica-Bold").fontSize(13);
@@ -639,8 +639,8 @@ export function generateConfirmationEmailHTML(
   const roomDesc = roomInfo?.description || "";
   const checkInDate = metadata.checkIn;
   const checkOutDate = metadata.checkOut;
-  const nights = getNightsCount(checkInDate, checkOutDate);
-  const bookingRef = octorateId || `ST-FALLBACK-${metadata.stripeSessionId?.substring(0, 10) || "UNKNOWN"}`;
+  const isKsher = metadata.gateway === "ksher" || metadata.stripeSessionId?.startsWith("FPBK");
+  const bookingRef = octorateId || (isKsher ? `FP-${metadata.stripeSessionId?.substring(0, 12) || "CONFIRMED"}` : `ST-FALLBACK-${metadata.stripeSessionId?.substring(0, 10) || "UNKNOWN"}`);
   
   // Robust financial key mapping (V24)
   const finalTotal = Number(metadata.finalTotal || metadata.grandTotal || metadata.totalPrice || metadata.total || 0);
@@ -1011,8 +1011,8 @@ export async function sendConfirmationEmail(
   const smtpPass = process.env.SMTP_PASS || "SnookeR01";
 
   const emailLang = (metadata.lang || "EN").toUpperCase();
-  const t = LABELS[emailLang] || LABELS["EN"];
-  const bookingRef = octorateId || `ST-FALLBACK-${metadata.stripeSessionId?.substring(0, 10) || "UNKNOWN"}`;
+  const isKsher = metadata.gateway === "ksher" || metadata.stripeSessionId?.startsWith("FPBK");
+  const bookingRef = octorateId || (isKsher ? `FP-${metadata.stripeSessionId?.substring(0, 12) || "CONFIRMED"}` : `ST-FALLBACK-${metadata.stripeSessionId?.substring(0, 10) || "UNKNOWN"}`);
 
   const transporter = nodemailer.createTransport({
     host: smtpHost,
