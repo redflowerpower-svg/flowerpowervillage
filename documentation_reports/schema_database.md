@@ -210,3 +210,23 @@ graph TD
 *   **`receipts`:** Chiunque (anonimo) può scaricare/leggere le ricevute tramite link diretto, e chiunque può caricare immagini (per permettere l'invio della ricevuta PromptPay). L'eliminazione e la visualizzazione ad elenco del bucket sono vietate agli utenti anonimi.
 *   **`accommodation-images` / `delivery_food`:** Lettura pubblica degli asset per il rendering del sito. Inserimento, modifica ed eliminazione sono riservati esclusivamente agli amministratori autenticati (`authenticated`). Il listing pubblico del bucket `delivery_food` è bloccato per prevenire scansioni di massa.
 *   **`documents` (Web Reader Storage):** Bucket isolato per il Web Reader contenente i file originali, i manifesti `manifests/[token].json` e `index_manifest.json`. Accesso pubblico in sola lettura diretta via token, scrittura/cancellazione riservata al serverless e amministratori.
+
+---
+
+## 4. Regola Tassativa Supabase Data API (Post-30 Ottobre)
+
+A partire dal 30 Ottobre, Supabase non assegna più automaticamente i permessi di accesso Data API (PostgREST / `supabase-js`) alle nuove tabelle create nello schema `public`.
+Ogni volta che viene creata una nuova tabella o generata una migrazione SQL, è **tassativo** includere in coda allo script i `GRANT` espliciti:
+
+```sql
+-- Permessi per utenti anonimi (se applicabile per lettura pubblica)
+GRANT SELECT ON public.NOME_TABELLA TO anon;
+
+-- Permessi per utenti autenticati (Admin / Staff)
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.NOME_TABELLA TO authenticated;
+
+-- Permessi per chiamate serverless backend
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.NOME_TABELLA TO service_role;
+```
+*(Promemoria: I GRANT abilitano l'interfaccia API a livello di tabella, mentre le policy RLS continuano a regolamentare l'accesso ai singoli record).*
+

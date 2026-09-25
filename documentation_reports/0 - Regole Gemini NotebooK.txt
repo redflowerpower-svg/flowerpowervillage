@@ -1,23 +1,50 @@
-Regola di Formattazione Rigida per Gemini Notebook (Antigravity IDE)
-1. Ambiente Operativo e Agente:
-L'utente lavora all'interno di Antigravity IDE e si interfaccia con un agente basato su Gemini 3.6 Flash.
+# Regole di Formattazione e Cooperazione Rigida - Gemini Notebook & Antigravity IDE
+Versione: 3.0 (Ottimizzata per Copia & Incolla Browser)
 
-2. Abbiamo a disposizione installato nel PC Antigravity CLI se serve il suo utilizzo richederlo sempre
+==================================================
 
-3. e é possibile far sempre lavorare Agente IDE e non correggere, integrare o copiare e incollare codici a mano
+Questo documento descrive le regole di comportamento e i protocolli d'intesa operativi tra l'utente, Gemini Notebook (Cloud) e l'Agente locale dell'IDE (Antigravity IDE).
 
-4. Visibilità e Zero Scroll Orizzontale:
+---
 
-Tutti i prompt, i comandi, le istruzioni e il testo generato devono rimanere rigorosamente entro i margini visivi della finestra di dialogo.
+### 1. AMBIENTE OPERATIVO & FILOSOFIA "ZERO ATTRITO"
+*   **Agente e CLI**: L'utente lavora all'interno di Antigravity IDE e si interfaccia con un agente locale basato su Gemini 3.6 Flash. È sempre a disposizione nel PC la Antigravity CLI: richiederne l'utilizzo se necessario.
+*   **Automazione Integrale**: È vietato chiedere all'utente di correggere, integrare, posizionare o copiare-incollare parti di codice a mano. Tutto il lavoro di implementazione sul file system locale deve essere eseguito autonomamente dall'Agente dell'IDE.
 
-È vietato l'uso di blocchi di codice standard che costringono l'utente allo scroll orizzontale.
+---
 
-5. Delimitazione e Identificazione Visiva del Blocco da Copiare:
+### 2. PROTOCOLLO "CARTELLA DOWNLOAD" (D'ORA IN POI)
+*   **Punto di Raccolta**: Nel progetto locale viene istituita la cartella `/download` alla radice.
+*   **Flusso di Scaricamento**: L'utente scaricherà sempre tutti i nuovi file e gli aggiornamenti generati da Gemini Notebook (es. `NomeFile-v18.tsx`) direttamente all'interno di questa cartella `/download`.
+*   **Compito dell'Agente IDE**:
+    1. Scansionare automaticamente la cartella `/download` del progetto.
+    2. Identificare i file aggiornati (anche se provvisti di suffissi di versione come `-v18`, `-v2`, ecc.).
+    3. Trovare la reale posizione dei file corrispondenti nel progetto (senza che l'utente debba indicare i percorsi di cartella come `store`, `components`, ecc.).
+    4. Sostituire il contenuto dei vecchi file con quello dei nuovi file aggiornati.
+    5. Rinominare i file locali rimuovendo i suffissi di versione per mantenere i nomi puliti e stabili.
+    6. Correggere autonomamente tutti gli import del progetto per garantire la corretta compilazione TypeScript senza errori.
+    7. Pulire o ignorare i file temporanei accumulati in `/download`.
 
-Qualsiasi prompt, comando o snippet destinato al copia-incolla per Antigravity IDE deve essere isolato e formattato esplicitamente così:
+---
 
-Riga di apertura: Inserire una linea orizzontale di segni di uguale (es. ==================================================).
+### 3. VISIBILITÀ, COERENZA & COMPATIBILITÀ DI COPIA (ZERO ATTRITO IN COPIA)
+*   **Niente Scroll Bar Orizzontale**: Tutti i testi, i comandi, i prompt e gli snippet di codice generati da Gemini Notebook devono rientrare rigorosamente entro i margini visivi della chat per evitare lo scorrimento orizzontale.
+*   **Delimitazione dei Blocchi per l'IDE**: Qualsiasi prompt, handoff o istruzione destinata all'Agente locale dell'IDE deve essere isolata e impacchettata chiaramente all'interno dei delimitatori `==================================================`.
+*   **Compatibilità Selezione & Copia (Ctrl+C)**: Per garantire che l'utente possa selezionare e copiare l'intero blocco di istruzioni con un unico passaggio di Ctrl+C senza interruzioni di selezioni da parte del browser:
+    1. **Nessun blocco di codice interno (Niente triple backticks ` ``` `)**: Non nidificare mai blocchi di codice Markdown (` ```sql `, ` ```text `, ecc.) all'interno del blocco delimitato. Il codice, le query SQL e i comandi devono essere scritti in testo semplice o in corsivo continuo.
+    2. **Divieto di parentesi angolari tipo HTML**: Non utilizzare mai parentesi angolari per segnaposti o variabili (es. NON usare `<nome_tabella>` o `<file>`), poiché i browser web le interpretano come tag HTML nascosti o interrompono la selezione. Usare sempre identificatori in maiuscolo senza parentesi (es. `NOME_TABELLA`, `NOME_FILE`, `NOME_PARAMETRO`).
+    3. **Formattazione del Blocco Delimitato**: Tutto il contenuto del blocco destinato all'Agente IDE va scritto in testo continuo semplice/corsivo senza elementi che spezzino la selezione.
 
-Andare a capo saltare una riga e scrivere Testo del prompt col testo interamente in corsivo, e sempre all'interno dei margini della finestra di dialogo  senza scrool bar orizzontale.
+==================================================
 
-Al termine del prompt andare a capo saltare una riga e inserire una riga orizzontale di segni di uguale (es. ==================================================).
+*Istruzioni per l'Agente dell'IDE scritte interamente in corsivo qui.*
+*Esempio: Trova il file della plancia e applica la patch.*
+
+==================================================
+
+---
+
+### 4. PROTOCOLLO MARKDOWN-PROJECT & ALLINEAMENTO FONTI
+*   Al termine di ogni sessione di sviluppo, quando viene lanciato il comando **MARKDOWN-PROJECT**, tutti i documenti tecnici di `/documentation_reports/` e `.agents/` devono essere materialmente sovrascritti sul disco locale e l'utente deve essere notificato con un elenco chiaro per poter aggiornare le fonti sul taccuino browser.
+
+==================================================

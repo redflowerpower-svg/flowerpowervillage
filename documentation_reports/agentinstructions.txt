@@ -5,6 +5,23 @@
 
 ---
 
+# Supabase Data API Permissions (Nuove Tabelle & Migrazioni SQL)
+A partire dal 30 Ottobre, Supabase non assegna più automaticamente i permessi di accesso Data API (supabase-js / PostgREST) alle nuove tabelle create nello schema `public`.
+Ogni volta che si crea una nuova tabella o si genera uno script/migrazione SQL nello schema `public`, aggiungere **SEMPRE TASSATIVAMENTE** in coda allo script le clausole di `GRANT` esplicite:
+```sql
+-- Permessi per utenti anonimi (se applicabile)
+GRANT SELECT ON public.NOME_TABELLA TO anon;
+
+-- Permessi per utenti autenticati (Admin / Staff)
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.NOME_TABELLA TO authenticated;
+
+-- Permessi per chiamate serverless backend
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.NOME_TABELLA TO service_role;
+```
+*(Nota: Oltre ai GRANT della Data API, le policy RLS rimangono obbligatorie per regolare l'accesso a livello di riga).*
+
+---
+
 # Vault-Sync & Multi-Workstation Protocol (Koh Phayam <-> Ranong)
 
 ## Vault-Sync & Security (.gitignore)

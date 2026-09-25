@@ -306,7 +306,33 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       setVerifyingPayment(true)
       setBookingLoading(true)
 
-      const verifyRes = await fetch(`/api/verify-checkout-session?session_id=${sessionId}`)
+      // Retrieve cached pending booking data if available (supports Ksher & Stripe redirects)
+      let cachedBookingData: any = null
+      try {
+        const rawSaved = sessionStorage.getItem(`pending_booking_${sessionId}`) ||
+                         localStorage.getItem(`pending_booking_${sessionId}`) ||
+                         sessionStorage.getItem('latest_pending_booking') ||
+                         localStorage.getItem('latest_pending_booking')
+        if (rawSaved) {
+          cachedBookingData = JSON.parse(rawSaved)
+        }
+      } catch (storageErr) {
+        console.warn("[BookingEngine] Could not read cached booking data:", storageErr)
+      }
+
+      const isKsherSession = sessionId.startsWith("FPBK")
+      const verifyRes = await fetch(`/api/verify-checkout-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          session_id: sessionId,
+          gateway: isKsherSession ? "ksher" : (sessionId.startsWith("cs_") ? "stripe" : undefined),
+          bookingData: cachedBookingData
+        })
+      })
+
       if (!verifyRes.ok) {
         const errorData = await verifyRes.json()
         throw new Error(errorData.error || "Impossibile verificare la sessione di pagamento.")
@@ -318,29 +344,29 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
       // Find the room type based on the octorate ID
       const matchedRoom = ACCOMMODATIONS.find(
-        (r) => r.octorateId === bookingData.accommodationId
+        (r) => r.octorateId === (bookingData?.accommodationId || cachedBookingData?.accommodationId)
       )
 
       // Restore states to render the success screen properly
       if (matchedRoom) {
         setSelectedRoom(matchedRoom as any)
       }
-      setCheckIn(bookingData.checkIn)
-      setCheckOut(bookingData.checkOut)
-      setGuests(bookingData.guests)
-      setExtraBreakfast(bookingData.extraBreakfast)
-      setExtraAC(bookingData.extraAC)
+      if (bookingData?.checkIn || cachedBookingData?.checkIn) setCheckIn(bookingData?.checkIn || cachedBookingData?.checkIn)
+      if (bookingData?.checkOut || cachedBookingData?.checkOut) setCheckOut(bookingData?.checkOut || cachedBookingData?.checkOut)
+      if (bookingData?.guests || cachedBookingData?.guests) setGuests(Number(bookingData?.guests || cachedBookingData?.guests))
+      if (bookingData?.extraBreakfast !== undefined) setExtraBreakfast(Boolean(bookingData.extraBreakfast))
+      if (bookingData?.extraAC !== undefined) setExtraAC(Boolean(bookingData.extraAC))
       setCheckoutData({
-        name: bookingData.guestName,
-        email: bookingData.guestEmail,
-        phone: bookingData.guestPhone,
+        name: bookingData?.guestName || cachedBookingData?.guestName || "",
+        email: bookingData?.guestEmail || cachedBookingData?.guestEmail || "",
+        phone: bookingData?.guestPhone || cachedBookingData?.guestPhone || "",
         requests: ""
       })
-      const resolvedFinalTotal = Number(verifyData.finalTotal || bookingData?.finalTotal || bookingData?.grandTotal || bookingData?.totalPrice || 0)
-      const resolvedDepositPaid = Number(verifyData.depositPaid || bookingData?.depositPaid || bookingData?.depositAmount || Math.round(resolvedFinalTotal * 0.3))
-      const resolvedBalanceDue = Number(verifyData.balanceDue || bookingData?.balanceDue || (resolvedFinalTotal - resolvedDepositPaid))
-      const resolvedPromoCode = verifyData.promoCode || bookingData?.promoCode || null
-      const resolvedDiscountAmount = Number(verifyData.discountAmount || bookingData?.discountAmount || bookingData?.promoDiscountAmount || 0)
+      const resolvedFinalTotal = Number(verifyData.finalTotal || bookingData?.finalTotal || bookingData?.grandTotal || bookingData?.totalPrice || cachedBookingData?.grandTotal || 0)
+      const resolvedDepositPaid = Number(verifyData.depositPaid || bookingData?.depositPaid || bookingData?.depositAmount || cachedBookingData?.depositAmount || Math.round(resolvedFinalTotal * 0.3))
+      const resolvedBalanceDue = Number(verifyData.balanceDue || bookingData?.balanceDue || cachedBookingData?.balanceDue || (resolvedFinalTotal - resolvedDepositPaid))
+      const resolvedPromoCode = verifyData.promoCode || bookingData?.promoCode || cachedBookingData?.promoCode || null
+      const resolvedDiscountAmount = Number(verifyData.discountAmount || bookingData?.discountAmount || bookingData?.promoDiscountAmount || cachedBookingData?.discountAmount || 0)
 
       setVerifiedBooking({
         finalTotal: resolvedFinalTotal,
@@ -384,9 +410,9 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         setIsBooked(true)
         return octorateReservationId
       } else if (octorateError) {
-        // Octorate failed but payment went through — still show success with Stripe ID
+        // Octorate failed but payment went through — still show success with Gateway ID
         console.warn("[Verify API] Octorate warning:", octorateError)
-        const fallbackId = `STRIPE-${stripeSessionId}`
+        const fallbackId = isKsherSession ? `KSHER-${sessionId}` : `STRIPE-${stripeSessionId || sessionId}`
         setBookingId(fallbackId)
         setIsBooked(true)
         return fallbackId
@@ -394,7 +420,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
         throw new Error("Errore durante la registrazione della prenotazione su Octorate.")
       }
     } catch (err: any) {
-      console.error("[Stripe Verify Error]", err)
+      console.error("[Payment Verify Error]", err)
       alert(lang === 'IT'
         ? `Impossibile verificare il pagamento: ${err.message}`
         : `Could not verify payment: ${err.message}`
@@ -821,6 +847,39 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       if (!response.ok) {
         throw new Error(session?.error || session?.message || "Impossibile avviare la sessione di pagamento.")
       }
+
+      if (session.sessionId) {
+        const pendingData = {
+          accommodationId: selectedRoom.octorateId || selectedRoom.id,
+          accommodationName: selectedRoom.name || selectedRoom.title,
+          roomName: selectedRoom.name || selectedRoom.title,
+          slug: selectedRoom.slug,
+          checkIn,
+          checkOut,
+          guests,
+          guestName: checkoutData.name,
+          guestEmail: checkoutData.email,
+          guestPhone: checkoutData.phone,
+          extraBreakfast,
+          extraAC,
+          lang,
+          grandTotal: session.grandTotal || pricingDetails.finalTotal,
+          depositAmount: session.depositAmount || Math.round(pricingDetails.finalTotal * 0.3),
+          balanceDue: session.balanceDue || (pricingDetails.finalTotal - Math.round(pricingDetails.finalTotal * 0.3)),
+          promoCode: appliedPromo?.code || null,
+          discountAmount: pricingDetails.promoDiscount || 0,
+          gateway: (paymentMethod === 'ksher_promptpay' || paymentMethod === 'ksher_card' || paymentMethod === 'ksher') ? 'ksher' : paymentMethod
+        }
+        try {
+          sessionStorage.setItem(`pending_booking_${session.sessionId}`, JSON.stringify(pendingData))
+          localStorage.setItem(`pending_booking_${session.sessionId}`, JSON.stringify(pendingData))
+          sessionStorage.setItem('latest_pending_booking', JSON.stringify({ sessionId: session.sessionId, ...pendingData }))
+          localStorage.setItem('latest_pending_booking', JSON.stringify({ sessionId: session.sessionId, ...pendingData }))
+        } catch (storageErr) {
+          console.warn("[BookingEngine] Failed to cache pending booking:", storageErr)
+        }
+      }
+
       if (session.url) {
         window.location.href = session.url
       } else if (session.isBankTransfer) {
@@ -1293,8 +1352,8 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               </h3>
               <p className="text-stone-500 text-sm leading-relaxed max-w-xs mx-auto">
                 {lang === 'IT'
-                  ? "Stiamo verificando la transazione Stripe e registrando la tua prenotazione su Octorate."
-                  : "We are verifying the Stripe transaction and registering your booking with Octorate."
+                  ? "Stiamo verificando la transazione di pagamento e registrando la tua prenotazione su Octorate."
+                  : "We are verifying your payment transaction and registering your booking with Octorate."
                 }
               </p>
             </div>

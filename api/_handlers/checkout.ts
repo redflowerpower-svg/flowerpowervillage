@@ -5,6 +5,7 @@ import { signKsherPayload, getKsherAppId, getKsherPrivateKey } from "../_helpers
 import fs from "fs";
 import path from "path";
 import { getPayPalCredentials, getPayPalAccessToken } from "../_helpers/paypal.js";
+import { savePendingBooking } from "../_helpers/pending-bookings.js";
 import { createClient } from "@supabase/supabase-js";
 
 function getSupabaseClient() {
@@ -299,6 +300,28 @@ export async function handleCreateCheckoutSession(req: VercelRequest, res: Verce
       const ksherData = await ksherResponse.json();
 
       if (ksherData.code === 0 && (ksherData.data?.pay_content || ksherData.data?.pay_url)) {
+        savePendingBooking({
+          sessionId: orderNo,
+          gateway: 'ksher',
+          accommodationId: Number(accommodationId),
+          accommodationName: room.name,
+          checkIn,
+          checkOut,
+          nights,
+          guests: Number(guests),
+          guestName,
+          guestEmail,
+          guestPhone,
+          extraBreakfast: extraBreakfast === true || extraBreakfast === "true",
+          extraAC: extraAC === true || extraAC === "true",
+          grandTotal,
+          depositAmount: payableDepositAmount,
+          balanceDue,
+          promoCode: promoCode || null,
+          discountAmount: promoDiscountAmount || directDiscountAmount || 0,
+          createdAt: Date.now()
+        });
+
         return res.status(200).json({
           sessionId: orderNo,
           url: ksherData.data.pay_content || ksherData.data.pay_url,

@@ -34,6 +34,21 @@ Quando l'utente attiva una richiesta usando il comando `/goal`, la parola chiave
 # Supabase Storage & Vercel API Limits
 - Due to Vercel Hobby plan limits, we cannot add more than 12 serverless functions. To perform custom database or storage tasks (like bulk deletes), temporarily inject a query parameter action hook (e.g. \?action=cleanup\) into an existing API route like \	elegram-notify.ts\, trigger it once, and then revert the file.
 
+# Supabase Data API Permissions (Nuove Tabelle & Migrazioni SQL)
+A partire dal 30 Ottobre, Supabase non assegna più automaticamente i permessi di accesso Data API (supabase-js / PostgREST) alle nuove tabelle create nello schema `public`.
+Ogni volta che si crea una nuova tabella o si genera uno script/migrazione SQL nello schema `public`, aggiungere **SEMPRE TASSATIVAMENTE** in coda allo script le clausole di `GRANT` esplicite:
+```sql
+-- Permessi per utenti anonimi (se applicabile)
+GRANT SELECT ON public.NOME_TABELLA TO anon;
+
+-- Permessi per utenti autenticati (Admin / Staff)
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.NOME_TABELLA TO authenticated;
+
+-- Permessi per chiamate serverless backend
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.NOME_TABELLA TO service_role;
+```
+*(Nota: Oltre ai GRANT della Data API, le policy RLS rimangono obbligatorie per regolare l'accesso a livello di riga).*
+
 
 # Agent-Ready Web Development (Chrome DevTools 150 Guidelines)
 To ensure the application is optimized for web agents (including Antigravity, search bots, and accessibility tools) and fully compatible with DevTools 150 debugging features:

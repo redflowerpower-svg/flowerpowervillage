@@ -450,6 +450,102 @@ export async function handlePaymentsAdmin(req: VercelRequest, res: VercelRespons
       return res.status(200).json({ success: true, transaction: data });
     }
 
+    // 6. KSHER QUERY ORDER
+    if (action === "ksher-query" || req.query.action === "ksher-query") {
+      const mch_order_no = (req.body?.mch_order_no || req.query.mch_order_no || "").toString();
+      if (!mch_order_no) {
+        return res.status(400).json({ error: "mch_order_no parameter is required" });
+      }
+
+      const appId = getKsherAppId();
+      const privateKey = getKsherPrivateKey();
+      const timeStamp = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
+      const nonceStr = crypto.randomBytes(8).toString('hex');
+
+      const queryParams: any = {
+        appid: appId,
+        mch_order_no,
+        nonce_str: nonceStr,
+        time_stamp: timeStamp
+      };
+      queryParams.sign = signKsherPayload(queryParams, privateKey);
+
+      const queryRes = await fetch('https://gateway.ksher.com/api/gateway_order_query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(queryParams).toString()
+      });
+
+      const queryData = await queryRes.json();
+      return res.status(queryRes.ok ? 200 : 400).json(queryData);
+    }
+
+    // 7. KSHER REFUND ORDER
+    if (req.method === "POST" && (action === "ksher-refund" || req.query.action === "ksher-refund")) {
+      const { mch_order_no, refund_amount } = req.body || {};
+      if (!mch_order_no) {
+        return res.status(400).json({ error: "mch_order_no parameter is required" });
+      }
+
+      const appId = getKsherAppId();
+      const privateKey = getKsherPrivateKey();
+      const timeStamp = new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14);
+      const nonceStr = crypto.randomBytes(8).toString('hex');
+
+      // 1. Query order to get Pay_mch_order_no, channel_order_no and total_fee
+      const queryParams: any = {
+        appid: appId,
+        mch_order_no,
+        nonce_str: nonceStr,
+        time_stamp: timeStamp
+      };
+      queryParams.sign = signKsherPayload(queryParams, privateKey);
+
+      const queryRes = await fetch('https://gateway.ksher.com/api/gateway_order_query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(queryParams).toString()
+      });
+
+      const queryData = await queryRes.json();
+      if (queryData.code !== 0 || !queryData.data) {
+        return res.status(400).json({ error: queryData.msg || "Ordine non trovato su Ksher" });
+      }
+
+      const orderData = queryData.data;
+      const totalFee = orderData.total_fee;
+      const refundFee = refund_amount ? Math.round(Number(refund_amount) * 100) : totalFee;
+      const mchRefundNo = `rf_${Date.now().toString().slice(-10)}`;
+
+      // 2. Execute refund via Ksher Pay refund API
+      const refundParams: any = {
+        appid: appId,
+        channel: orderData.channel || 'card',
+        channel_order_no: orderData.channel_order_no,
+        fee_type: 'THB',
+        ksher_order_no: orderData.ksher_order_no,
+        mch_order_no: orderData.pay_mch_order_no || mch_order_no,
+        mch_refund_no: mchRefundNo,
+        nonce_str: crypto.randomBytes(8).toString('hex'),
+        refund_fee: refundFee,
+        time_stamp: new Date().toISOString().replace(/[-:T.Z]/g, '').slice(0, 14),
+        total_fee: totalFee
+      };
+      refundParams.sign = signKsherPayload(refundParams, privateKey);
+
+      const refundRes = await fetch('https://api.mch.ksher.net/KsherPay/order_refund', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(refundParams).toString()
+      });
+
+      const refundData = await refundRes.json();
+      return res.status(200).json({
+        success: refundData.code === 0 && refundData.data?.result === 'SUCCESS',
+        refundData
+      });
+    }
+
     return res.status(404).json({ error: "Azione non riconosciuta" });
   } catch (err: any) {
     console.error("handlePaymentsAdmin exception:", err);

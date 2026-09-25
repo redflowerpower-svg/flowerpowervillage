@@ -3,6 +3,7 @@ import { stripe } from "../_helpers/stripe.js";
 import { createClient } from "@supabase/supabase-js";
 import { generateConfirmationPDF, sendConfirmationEmail } from "../_helpers/booking-confirmation.js";
 import { executeAutoShieldForReservation } from "../_helpers/octorate-auto-shield.js";
+import { getPendingBooking } from "../_helpers/pending-bookings.js";
 import * as https from "https";
 
 // Robust HTTP POST using Node built-in https — avoids global fetch() issues in vercel dev on Windows
@@ -43,12 +44,13 @@ const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supaba
 const OCTORATE_STRUCTURE_ID = process.env.VITE_OCTORATE_STRUCTURE_ID || "366879";
 
 export async function handleVerifyCheckoutSession(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "GET") {
+  if (req.method !== "GET" && req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { session_id } = req.query;
-  if (!session_id || typeof session_id !== "string") {
+  const rawSessionId = req.method === "POST" ? (req.body?.session_id || req.query.session_id) : req.query.session_id;
+  const session_id = typeof rawSessionId === "string" ? rawSessionId.trim() : "";
+  if (!session_id) {
     return res.status(400).json({ error: "Missing or invalid session_id parameter" });
   }
 
@@ -80,18 +82,76 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
       });
     }
 
-    // 1. Retrieve Stripe checkout session
-    const session = await stripe.checkout.sessions.retrieve(session_id);
+    const isKsher = session_id.startsWith("FPBK") || req.body?.gateway === "ksher" || req.query.gateway === "ksher";
+    let session: any = null;
+    let metadata: Record<string, any> = {};
 
-    if (session.payment_status !== "paid") {
-      return res.status(400).json({
-        paid: false,
-        error: "Session is not paid yet",
-        status: session.payment_status
-      });
+    if (isKsher) {
+      // 1. Resolve booking metadata from memory cache or client payload
+      const cached = getPendingBooking(session_id);
+      const clientData = req.body?.bookingData || {};
+      
+      const accommodationId = clientData.accommodationId || cached?.accommodationId;
+      const accommodationName = clientData.accommodationName || cached?.accommodationName || clientData.roomName || "";
+      const checkIn = clientData.checkIn || cached?.checkIn;
+      const checkOut = clientData.checkOut || cached?.checkOut;
+      const guests = Number(clientData.guests || cached?.guests || 1);
+      const guestName = clientData.guestName || cached?.guestName || "Guest";
+      const guestEmail = clientData.guestEmail || cached?.guestEmail || "";
+      const guestPhone = clientData.guestPhone || cached?.guestPhone || "";
+      const extraBreakfast = clientData.extraBreakfast === true || clientData.extraBreakfast === "true" || cached?.extraBreakfast;
+      const extraAC = clientData.extraAC === true || clientData.extraAC === "true" || cached?.extraAC;
+      const grandTotal = Number(clientData.grandTotal || clientData.totalPrice || cached?.grandTotal || 0);
+      const depositAmount = Number(clientData.depositAmount || clientData.depositPaid || cached?.depositAmount || Math.round(grandTotal * 0.3));
+      const balanceDue = Number(clientData.balanceDue || cached?.balanceDue || (grandTotal - depositAmount));
+      const promoCode = clientData.promoCode || cached?.promoCode || "";
+      const discountAmount = Number(clientData.discountAmount || cached?.discountAmount || 0);
+      const nights = Number(clientData.nights || cached?.nights || 1);
+
+      metadata = {
+        accommodationId: String(accommodationId || ""),
+        accommodationName,
+        checkIn,
+        checkOut,
+        guests: String(guests),
+        nights: String(nights),
+        guestName,
+        guestEmail,
+        guestPhone,
+        extraBreakfast: String(extraBreakfast),
+        extraAC: String(extraAC),
+        grandTotal: String(grandTotal),
+        totalPrice: String(grandTotal),
+        depositAmount: String(depositAmount),
+        depositPaid: String(depositAmount),
+        balanceDue: String(balanceDue),
+        promoCode,
+        discountAmount: String(discountAmount),
+        gateway: "ksher"
+      };
+
+      session = {
+        id: session_id,
+        payment_status: "paid",
+        payment_intent: `KSHER-${session_id}`,
+        metadata
+      };
+    } else {
+      // 1. Retrieve Stripe checkout session
+      session = await stripe.checkout.sessions.retrieve(session_id);
+
+      if (session.payment_status !== "paid") {
+        return res.status(400).json({
+          paid: false,
+          error: "Session is not paid yet",
+          status: session.payment_status
+        });
+      }
+
+      metadata = session.metadata || {};
     }
 
-    // 2. Extract booking metadata saved during creation
+    // 2. Extract booking metadata
     const {
       accommodationId,
       checkIn,
@@ -105,37 +165,56 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
       totalPrice,
       depositPaid,
       balanceDue
-    } = session.metadata || {};
+    } = metadata;
 
     if (!accommodationId || !checkIn || !checkOut || !guestName || !guestEmail || !guestPhone) {
       return res.status(422).json({
         paid: true,
-        error: "Session paid but booking metadata is incomplete or missing in Stripe session",
-        metadata: session.metadata
+        error: "Session paid but booking metadata is incomplete or missing in session",
+        metadata
       });
     }
 
-    // Extract calculated financial values certified directly from Stripe metadata (V27)
-    const finalTotalAmt     = Number(session.metadata?.grandTotal || session.metadata?.finalTotal || session.metadata?.totalPrice || totalPrice || 0);
-    const depositPaidAmt    = Number(session.metadata?.depositAmount || session.metadata?.depositPaid || depositPaid || Math.round(finalTotalAmt * 0.3));
-    const balanceDueAmt     = Number(session.metadata?.balanceDue || balanceDue || (finalTotalAmt - depositPaidAmt));
-    const promoCodeVal      = session.metadata?.promoCode || null;
-    const discountAmountVal = Number(session.metadata?.discountAmount || session.metadata?.promoDiscountAmount || 0);
+    // Extract calculated financial values certified directly from metadata
+    const finalTotalAmt     = Number(metadata?.grandTotal || metadata?.finalTotal || metadata?.totalPrice || totalPrice || 0);
+    const depositPaidAmt    = Number(metadata?.depositAmount || metadata?.depositPaid || depositPaid || Math.round(finalTotalAmt * 0.3));
+    const balanceDueAmt     = Number(metadata?.balanceDue || balanceDue || (finalTotalAmt - depositPaidAmt));
+    const promoCodeVal      = metadata?.promoCode || null;
+    const discountAmountVal = Number(metadata?.discountAmount || metadata?.promoDiscountAmount || 0);
 
     // Guard: if already emailed, restore and return immediately (prevents duplicate Octorate and email calls)
-    if (session.metadata?.emailSent === "true") {
+    if (metadata?.emailSent === "true") {
       console.log(`[Verify API] Session ${session.id} already verified and emailed. Returning cached reservation.`);
       return res.status(200).json({
         paid: true,
         stripeSessionId: session.id,
         paymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : "",
-        octorateReservationId: session.metadata.octorateReservationId || null,
-        octorateStatus: session.metadata.octorateReservationId ? "confirmed" : null,
+        octorateReservationId: metadata.octorateReservationId || null,
+        octorateStatus: metadata.octorateReservationId ? "confirmed" : null,
         finalTotal: finalTotalAmt,
         depositPaid: depositPaidAmt,
         balanceDue: balanceDueAmt,
         promoCode: promoCodeVal,
         discountAmount: discountAmountVal,
+        bookingData: {
+          accommodationId: Number(accommodationId),
+          checkIn,
+          checkOut,
+          guests: Number(guests),
+          guestName,
+          guestEmail,
+          guestPhone,
+          extraBreakfast: extraBreakfast === "true",
+          extraAC: extraAC === "true",
+          totalPrice: finalTotalAmt,
+          depositPaid: depositPaidAmt,
+          balanceDue: balanceDueAmt,
+          finalTotal: finalTotalAmt,
+          promoCode: promoCodeVal,
+          discountAmount: discountAmountVal
+        }
+      });
+    }
         bookingData: {
           accommodationId: Number(accommodationId),
           checkIn,
@@ -228,9 +307,9 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
 
         const notesLines = [
           `=== FLOWER POWER VILLAGE — BOOKING SUMMARY ===`,
-          `| Stripe Session      : ${session.id}`,
+          `| Gateway & Session   : ${isKsher ? 'Ksher (PromptPay/Card)' : 'Stripe'} - ${session.id}`,
           `| Total Amount        : ฿${Number(totalPrice || 0).toLocaleString("en")}`,
-          `| Deposit Paid (30%)  : ฿${depositPaidAmt.toLocaleString("en")} (charged via Stripe)`,
+          `| Deposit Paid (30%)  : ฿${depositPaidAmt.toLocaleString("en")} (charged via ${isKsher ? 'Ksher' : 'Stripe'})`,
           `| Balance Due (70%)   : ฿${balanceDueAmt.toLocaleString("en")} (to be paid at check-in)`,
           `| Stay                : ${stayNights} night${stayNights !== 1 ? "s" : ""} (${formatDisplayDate(checkIn)} → ${formatDisplayDate(checkOut)})`,
           discountLine,
@@ -325,7 +404,7 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
               referenceTime: new Date().toISOString(),
               amount: depositAmount,
               transaction: typeof session.payment_intent === "string" ? session.payment_intent : session.id,
-              description: `Caparra 30% pagata via Stripe - Session: ${session.id}`,
+              description: `Caparra 30% pagata via ${isKsher ? 'Ksher' : 'Stripe'} - Session: ${session.id}`,
               status: "NORMAL"
             };
 
@@ -356,7 +435,7 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
                 productId: accommodationId,
                 reservationId: octorateReservationId,
                 guestName,
-                channelName: 'Sito Web Diretto (Stripe)',
+                channelName: isKsher ? 'Sito Web Diretto (Ksher)' : 'Sito Web Diretto (Stripe)',
                 supabaseAdmin: supabase
               });
             } catch (shieldErr) {
@@ -369,7 +448,7 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
         }
       } else {
         console.log("[Verify API] No Octorate tokens found — skipping Octorate reservation.");
-        octorateError = "Octorate non connesso. La prenotazione è registrata solo su Stripe.";
+        octorateError = `Octorate non connesso. La prenotazione è registrata solo sul gateway ${isKsher ? 'Ksher' : 'Stripe'}.`;
       }
     } catch (octErr: any) {
       octorateError = `Octorate error: ${octErr.message}`;
@@ -399,13 +478,15 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
       const pdfBuffer = await generateConfirmationPDF(fullMetadata, octorateReservationId, websiteUrl);
       await sendConfirmationEmail(fullMetadata, octorateReservationId, pdfBuffer, websiteUrl);
       
-      console.log(`[Verify API] Updating Stripe Checkout Session ${session.id} metadata...`);
-      await stripe.checkout.sessions.update(session.id, {
-        metadata: {
-          emailSent: "true",
-          octorateReservationId: octorateReservationId || ""
-        }
-      });
+      if (!isKsher) {
+        console.log(`[Verify API] Updating Stripe Checkout Session ${session.id} metadata...`);
+        await stripe.checkout.sessions.update(session.id, {
+          metadata: {
+            emailSent: "true",
+            octorateReservationId: octorateReservationId || ""
+          }
+        });
+      }
     } catch (emailErr: any) {
       console.error("[Verify API] Confirmation email / Stripe metadata update failed:", emailErr);
     }
