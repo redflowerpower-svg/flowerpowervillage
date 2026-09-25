@@ -1070,7 +1070,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   {t('checkIn')}
                 </label>
                 <span className="text-xs lg:text-sm font-bold text-stone-800 text-center lg:text-left block min-h-[1.25rem]">
-                  {checkIn ? formatDateForDisplay(checkIn) : (lang === 'IT' ? 'Scegli data' : 'Choose date')}
+                  {checkIn ? formatDateForDisplay(checkIn) : (lang === 'IT' ? 'Scegli data' : lang === 'TH' ? 'เลือกวันที่' : lang === 'DE' ? 'Datum wählen' : 'Choose date')}
                 </span>
               </div>
 
@@ -1111,7 +1111,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   {t('checkOut')}
                 </label>
                 <span className="text-xs lg:text-sm font-bold text-stone-800 text-center lg:text-left block min-h-[1.25rem]">
-                  {checkOut ? formatDateForDisplay(checkOut) : (lang === 'IT' ? 'Scegli data' : 'Choose date')}
+                  {checkOut ? formatDateForDisplay(checkOut) : (lang === 'IT' ? 'Scegli data' : lang === 'TH' ? 'เลือกวันที่' : lang === 'DE' ? 'Datum wählen' : 'Choose date')}
                 </span>
               </div>
 
@@ -1250,18 +1250,18 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               <div className="grid grid-cols-2 gap-1.5 md:gap-2 text-center text-xs">
                 <div className="bg-black/15 py-1 md:py-2 px-2 rounded-lg border border-white/5 flex flex-col justify-center">
                   <span className="block text-[8px] md:text-[9px] text-emerald-300 font-extrabold uppercase tracking-wider">
-                    {lang === 'IT' ? 'Sconto Diretto' : 'Direct discount'}
+                    {lang === 'IT' ? 'Sconto Diretto' : lang === 'TH' ? 'ส่วนลดจองตรง' : lang === 'DE' ? 'Direktbuchungs-Rabatt' : 'Direct discount'}
                   </span>
                   <span className="block text-[11px] md:text-sm font-black text-white md:mt-0.5">
-                    -10% {lang === 'IT' ? 'Garantito' : 'Guaranteed'}
+                    -10% {lang === 'IT' ? 'Garantito' : lang === 'TH' ? 'รับประกัน' : lang === 'DE' ? 'Garantiert' : 'Guaranteed'}
                   </span>
                 </div>
                 <div className="bg-black/25 py-1 md:py-2.5 px-2.5 md:px-2.5 rounded-lg border border-white/5 flex flex-col justify-center">
                   <span className="block text-[8px] md:text-[9px] text-emerald-300 font-extrabold uppercase tracking-wider">
-                    {lang === 'IT' ? 'Caparra' : 'Deposit'}
+                    {lang === 'IT' ? 'Caparra' : lang === 'TH' ? 'มัดจำ' : lang === 'DE' ? 'Anzahlung' : 'Deposit'}
                   </span>
                   <span className="block text-[11px] md:text-sm font-black text-white md:mt-0.5">
-                    {lang === 'IT' ? 'Solo 30% oggi' : 'Only 30% today'}
+                    {lang === 'IT' ? 'Solo 30% oggi' : lang === 'TH' ? 'เพียง 30% วันนี้' : lang === 'DE' ? 'Heute nur 30%' : 'Only 30% today'}
                   </span>
                 </div>
               </div>
@@ -1273,7 +1273,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           {discountInfo.label && (
             <div className="mt-3 pt-3 border-t border-stone-300/50 flex flex-wrap items-center gap-2">
               <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wide">
-                Sconto attivo:
+                {lang === 'IT' ? 'Sconto attivo:' : lang === 'TH' ? 'ส่วนลดที่เปิดใช้:' : lang === 'DE' ? 'Aktiver Rabatt:' : 'Active discount:'}
               </span>
               <span className="bg-emerald-800 text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm">
                 {(() => {
@@ -1368,11 +1368,15 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             <div className="max-w-xl w-full bg-stone-50 border border-stone-300 rounded-3xl p-8 text-center shadow-2xl my-8">
               <div className="w-12 h-12 border-4 border-stone-200 border-t-emerald-800 rounded-full animate-spin mb-6 mx-auto"></div>
               <h3 className="text-xl font-black text-stone-850 mb-2">
-                {lang === 'IT' ? "Verifica del pagamento..." : "Verifying payment..."}
+                {lang === 'IT' ? "Verifica del pagamento..." : lang === 'TH' ? "กำลังตรวจสอบการชำระเงิน..." : lang === 'DE' ? "Zahlung wird überprüft..." : "Verifying payment..."}
               </h3>
               <p className="text-stone-500 text-sm leading-relaxed max-w-xs mx-auto">
                 {lang === 'IT'
                   ? "Stiamo verificando la transazione di pagamento e registrando la tua prenotazione su Octorate."
+                  : lang === 'TH'
+                  ? "เรากำลังตรวจสอบรายการชำระเงินและบันทึกข้อมูลการจองของคุณในระบบ Octorate"
+                  : lang === 'DE'
+                  ? "Wir überprüfen Ihre Zahlungstransaktion und registrieren Ihre Buchung bei Octorate."
                   : "We are verifying your payment transaction and registering your booking with Octorate."
                 }
               </p>
@@ -1386,34 +1390,38 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                 <ShieldCheck className="w-8 h-8" />
               </div>
               <h2 className="text-2xl font-black text-stone-850 mb-2">
-                {lang === 'IT' ? "Prenotazione Confermata!" : "Reservation Confirmed!"}
+                {lang === 'IT' ? "Prenotazione Confermata!" : lang === 'TH' ? "ยืนยันการจองที่พักสำเร็จ!" : lang === 'DE' ? "Buchung Bestätigt!" : "Reservation Confirmed!"}
               </h2>
               <p className="text-stone-550 text-sm mb-6 leading-relaxed">
                 {lang === 'IT'
                   ? `Grazie! La tua richiesta per ${selectedRoom?.category} è stata inoltrata a sistema. Ti abbiamo inviato un'email con i dettagli.`
+                  : lang === 'TH'
+                  ? `ขอบคุณมากครับ/ค่ะ! คำขอจองสำหรับ ${selectedRoom?.category} ของคุณได้รับการบันทึกเรียบร้อยแล้ว เราได้ส่งอีเมลยืนยันพร้อมรายละเอียดให้คุณแล้ว`
+                  : lang === 'DE'
+                  ? `Vielen Dank! Ihre Buchung für ${selectedRoom?.category} wurde erfolgreich übermittelt. Wir haben Ihnen eine Bestätigung per E-Mail gesendet.`
                   : `Thank you! Your request for ${selectedRoom?.category} has been submitted. We've sent you an email with details.`
                 }
               </p>
 
               <div className="bg-stone-200/50 rounded-2xl p-5 border border-stone-300 text-left space-y-3 mb-8 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-stone-500 font-semibold uppercase">ID PRENOTAZIONE:</span>
+                  <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'ID PRENOTAZIONE:' : lang === 'TH' ? 'หมายเลขการจอง:' : lang === 'DE' ? 'BUCHUNGS-ID:' : 'BOOKING ID:'}</span>
                   <span className="font-extrabold text-stone-850">{bookingId}</span>
                 </div>
                 <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                  <span className="text-stone-500 font-semibold uppercase">CHECK-IN / OUT:</span>
+                  <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'CHECK-IN / OUT:' : lang === 'TH' ? 'เช็คอิน / เช็คเอาท์:' : lang === 'DE' ? 'CHECK-IN / OUT:' : 'CHECK-IN / OUT:'}</span>
                   <span className="font-bold text-stone-700">{checkIn} ➔ {checkOut}</span>
                 </div>
                 <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                  <span className="text-stone-500 font-semibold uppercase">ALLOGGIO:</span>
+                  <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'ALLOGGIO:' : lang === 'TH' ? 'ที่พัก:' : lang === 'DE' ? 'UNTERKUNFT:' : 'ACCOMMODATION:'}</span>
                   <span className="font-bold text-stone-700">{selectedRoom?.category}</span>
                 </div>
                 <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                  <span className="text-stone-500 font-semibold uppercase">PAGAMENTO:</span>
+                  <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'PAGAMENTO:' : lang === 'TH' ? 'การชำระเงิน:' : lang === 'DE' ? 'ZAHLUNG:' : 'PAYMENT:'}</span>
                   <span className="font-bold text-stone-700 uppercase">
                     {(stripeSessionId.startsWith('FPBK') || !stripeSessionId.startsWith('cs_'))
-                      ? (lang === 'IT' ? 'Acconto 30% Pagato Online (Ksher)' : '30% Deposit Paid Online (Ksher)')
-                      : (lang === 'IT' ? 'Acconto 30% Pagato via Stripe' : '30% Deposit Paid via Stripe')}
+                      ? (lang === 'IT' ? 'Acconto 30% Pagato Online (Ksher)' : lang === 'TH' ? 'ชำระเงินมัดจำ 30% ออนไลน์แล้ว (Ksher)' : lang === 'DE' ? '30% Anzahlung online bezahlt (Ksher)' : '30% Deposit Paid Online (Ksher)')
+                      : (lang === 'IT' ? 'Acconto 30% Pagato via Stripe' : lang === 'TH' ? 'ชำระเงินมัดจำ 30% ผ่าน Stripe แล้ว' : lang === 'DE' ? '30% Anzahlung über Stripe bezahlt' : '30% Deposit Paid via Stripe')}
                   </span>
                 </div>
                 {(verifiedBooking || confirmedTotalPrice !== null) && (() => {
@@ -1423,28 +1431,28 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   return (
                     <>
                       <div className="flex justify-between border-t border-stone-300/50 pt-2">
-                        <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'TOTALE SOGGIORNO:' : 'TOTAL STAY PRICE:'}</span>
+                        <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'TOTALE SOGGIORNO:' : lang === 'TH' ? 'ราคารวมการเข้าพัก:' : lang === 'DE' ? 'GESAMTPREIS AUFENTHALT:' : 'TOTAL STAY PRICE:'}</span>
                         <span className="font-bold text-stone-750">
                           {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(displayTotal)}
                         </span>
                       </div>
                       {verifiedBooking?.promoCode && (verifiedBooking.discountAmount || 0) > 0 && (
                         <div className="flex justify-between border-t border-stone-300/50 pt-2 text-fuchsia-700 font-bold bg-fuchsia-50/60 p-2 rounded-lg border border-fuchsia-200/50">
-                          <span className="uppercase">{lang === 'IT' ? `COUPON SCONTO (${verifiedBooking.promoCode}):` : `PROMO COUPON (${verifiedBooking.promoCode}):`}</span>
+                          <span className="uppercase">{lang === 'IT' ? `COUPON SCONTO (${verifiedBooking.promoCode}):` : lang === 'TH' ? `คูปองส่วนลด (${verifiedBooking.promoCode}):` : lang === 'DE' ? `RABATT-COUPON (${verifiedBooking.promoCode}):` : `PROMO COUPON (${verifiedBooking.promoCode}):`}</span>
                           <span>
                             -{new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(verifiedBooking.discountAmount!)}
                           </span>
                         </div>
                       )}
                       <div className="flex justify-between border-t border-stone-300/50 pt-2 text-emerald-850 bg-emerald-500/5 p-2 rounded-lg border border-emerald-700/10">
-                        <span className="font-bold uppercase">{lang === 'IT' ? 'ACCONTO PAGATO (30%):' : 'DEPOSIT PAID (30%):'}</span>
+                        <span className="font-bold uppercase">{lang === 'IT' ? 'ACCONTO PAGATO (30%):' : lang === 'TH' ? 'เงินมัดจำชำระแล้ว (30%):' : lang === 'DE' ? 'ANZAHLUNG GELEISTET (30%):' : 'DEPOSIT PAID (30%):'}</span>
                         <span className="font-black">
                           {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(displayDeposit)}
                         </span>
                       </div>
                       <div className="flex flex-col border-2 border-amber-600/40 pt-2.5 text-stone-800 bg-amber-500/10 p-3 rounded-xl gap-1 shadow-xs">
                         <div className="flex justify-between items-baseline w-full">
-                          <span className="font-black text-amber-950 uppercase text-[11px] tracking-wide">{lang === 'IT' ? 'SALDO DA PAGARE ALL\'ARRIVO (70%):' : 'BALANCE DUE AT CHECK-IN (70%):'}</span>
+                          <span className="font-black text-amber-950 uppercase text-[11px] tracking-wide">{lang === 'IT' ? 'SALDO DA PAGARE ALL\'ARRIVO (70%):' : lang === 'TH' ? 'ยอดค้างชำระตอนเช็คอิน (70%):' : lang === 'DE' ? 'RESTBETRAG BEI ANREISE (70%):' : 'BALANCE DUE AT CHECK-IN (70%):'}</span>
                           <span className="font-black text-amber-950 text-base">
                             {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(displayBalance)}
                           </span>
@@ -1467,7 +1475,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     className="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-8 py-3.5 rounded-full shadow transition-all cursor-pointer inline-flex items-center gap-2 decoration-none"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
-                    {lang === 'IT' ? 'Scarica la tua prenotazione' : 'Download confirmation (PDF)'}
+                    {lang === 'IT' ? 'Scarica la tua prenotazione (PDF)' : lang === 'TH' ? 'ดาวน์โหลดเอกสารยืนยัน (PDF)' : lang === 'DE' ? 'Buchungsbestätigung herunterladen (PDF)' : 'Download confirmation (PDF)'}
                   </a>
                 )}
                 <button
@@ -1492,11 +1500,15 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
             {/* --- CHECKOUT HEADER BANNER --- */}
             <div className="bg-emerald-800 rounded-2xl py-4 px-6 text-white shadow-lg mb-6 text-center border border-emerald-700/30">
               <h2 className="text-xl md:text-2xl font-black tracking-tight">
-                {lang === 'IT' ? 'Completa la tua prenotazione' : 'Complete your booking'}
+                {lang === 'IT' ? 'Completa la tua prenotazione' : lang === 'TH' ? 'กรอกข้อมูลการจองของคุณ' : lang === 'DE' ? 'Vervollständigen Sie Ihre Reservierung' : 'Complete your booking'}
               </h2>
               <p className="text-emerald-200 text-xs md:text-sm mt-1 font-medium">
                 {lang === 'IT'
                   ? 'Compila i dati e procedi con il pagamento per confermare il soggiorno.'
+                  : lang === 'TH'
+                  ? 'กรอกข้อมูลและดำเนินการชำระเงินเพื่อยืนยันการเข้าพักของคุณ'
+                  : lang === 'DE'
+                  ? 'Füllen Sie Ihre Daten aus und fahren Sie mit der Zahlung fort, um Ihren Aufenthalt zu bestätigen.'
                   : 'Fill in your details and proceed with payment to confirm your stay.'}
               </p>
             </div>
@@ -1682,15 +1694,19 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-stone-850 flex items-center gap-1.5">
                             <CreditCard className="w-4 h-4 text-emerald-800" />
-                            {lang === 'IT' ? 'Carta di Credito / Debito (Visa, Mastercard, JCB)' : 'Credit / Debit Card (Visa, Mastercard, JCB)'}
+                            {lang === 'IT' ? 'Carta di Credito / Debito (Visa, Mastercard, JCB)' : lang === 'TH' ? 'บัตรเครดิต / เดบิต (Visa, Mastercard, JCB)' : lang === 'DE' ? 'Kredit- / Debitkarte (Visa, Mastercard, JCB)' : 'Credit / Debit Card (Visa, Mastercard, JCB)'}
                           </span>
                           <span className="text-[10px] font-bold text-emerald-800 bg-emerald-500/10 px-2 py-0.5 rounded">
-                            {lang === 'IT' ? 'Conferma Immediata (Ksher)' : 'Instant Confirmation (Ksher)'}
+                            {lang === 'IT' ? 'Conferma Immediata (Ksher)' : lang === 'TH' ? 'ยืนยันทันที (Ksher)' : lang === 'DE' ? 'Sofortige Bestätigung (Ksher)' : 'Instant Confirmation (Ksher)'}
                           </span>
                         </div>
                         <p className="text-stone-600 text-[11px] leading-relaxed">
                           {lang === 'IT'
                             ? "Paga in sicurezza con qualsiasi carta di credito/debito internazionale con accredito immediato."
+                            : lang === 'TH'
+                            ? "ชำระเงินอย่างปลอดภัยด้วยบัตรเครดิต/เดบิตระหว่างประเทศพร้อมการยืนยันทันที"
+                            : lang === 'DE'
+                            ? "Zahlen Sie sicher mit jeder internationalen Kredit-/Debitkarte mit sofortiger Bestätigung."
                             : "Pay securely with any international credit/debit card with instant booking confirmation."}
                         </p>
                       </div>
@@ -1716,15 +1732,19 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-stone-850 flex items-center gap-1.5">
                             <QrCode className="w-4 h-4 text-emerald-800" />
-                            {lang === 'IT' ? 'PromptPay QR Code (Banche TH / Cross-Border)' : 'PromptPay QR Code (Thai Banks)'}
+                            {lang === 'IT' ? 'PromptPay QR Code (Banche TH / Cross-Border)' : lang === 'TH' ? 'พร้อมเพย์ QR Code (ธนาคารไทย / สแกนจ่าย)' : lang === 'DE' ? 'PromptPay QR Code (Thai-Banken)' : 'PromptPay QR Code (Thai Banks)'}
                           </span>
                           <span className="text-[10px] font-bold text-emerald-800 bg-emerald-500/10 px-2 py-0.5 rounded">
-                            {lang === 'IT' ? 'Conferma Automatica' : 'Auto 1-Sec'}
+                            {lang === 'IT' ? 'Conferma Automatica' : lang === 'TH' ? 'อัตโนมัติ 1 วินาที' : lang === 'DE' ? 'Automatisch 1 Sek.' : 'Auto 1-Sec'}
                           </span>
                         </div>
                         <p className="text-stone-600 text-[11px] leading-relaxed">
                           {lang === 'IT'
                             ? "Inquadra il QR con la tua app bancaria (KBank, SCB, Bangkok Bank) per la conferma istantanea senza bisogno di inviare ricevute."
+                            : lang === 'TH'
+                            ? "สแกน QR โค้ดผ่านแอปธนาคารของคุณเพื่อยืนยันการจองอัตโนมัติทันทีโดยไม่ต้องส่งสลิป"
+                            : lang === 'DE'
+                            ? "Scannen Sie den QR-Code mit Ihrer Banking-App für eine sekundenschnelle Bestätigung."
                             : "Scan the dynamic QR with your Thai banking app for instant 1-second confirmation without sending slips."}
                         </p>
                       </div>
@@ -1763,6 +1783,10 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                         <p className="text-stone-600 text-[11px] leading-relaxed">
                           {lang === 'IT'
                             ? "Paga direttamente con il tuo account PayPal o con carta internazionale."
+                            : lang === 'TH'
+                            ? "ชำระเงินโดยตรงด้วยบัญชี PayPal หรือบัตรระหว่างประเทศของคุณ"
+                            : lang === 'DE'
+                            ? "Zahlen Sie direkt mit Ihrem PayPal-Konto oder einer internationalen Karte."
                             : "Pay directly with your PayPal account balance or international card."}
                         </p>
                       </div>
@@ -1774,19 +1798,19 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                         {t('paymentPolicyTitle' as any)}
                       </span>
                       <p className="text-[11px]">
-                        <strong>{lang === 'IT' ? 'Acconto:' : 'Deposit:'}</strong> {lang === 'IT' ? '30% alla conferma della prenotazione.' : '30% deposit to secure your booking.'}
+                        <strong>{lang === 'IT' ? 'Acconto:' : lang === 'TH' ? 'เงินมัดจำ:' : lang === 'DE' ? 'Anzahlung:' : 'Deposit:'}</strong> {lang === 'IT' ? '30% alla conferma della prenotazione.' : lang === 'TH' ? 'ชำระ 30% เมื่อยืนยันการจอง' : lang === 'DE' ? '30% Anzahlung zur Sicherung Ihrer Buchung.' : '30% deposit to secure your booking.'}
                       </p>
                       <div className="bg-amber-500/15 border border-amber-600/50 rounded-lg p-2.5 text-[11px] text-amber-950 font-medium space-y-0.5">
                         <div className="flex items-center gap-1 font-black text-amber-950 uppercase text-[11px]">
                           <Wallet className="w-3.5 h-3.5 text-amber-700 flex-shrink-0" />
-                          <span>{lang === 'IT' ? 'Saldo da pagare al check-in (70%):' : 'Balance due at check-in (70%):'}</span>
+                          <span>{lang === 'IT' ? 'Saldo da pagare al check-in (70%):' : lang === 'TH' ? 'ยอดคงเหลือชำระตอนเช็คอิน (70%):' : lang === 'DE' ? 'Restbetrag beim Check-in (70%):' : 'Balance due at check-in (70%):'}</span>
                         </div>
                         <p className="text-amber-900 leading-tight">
-                          {lang === 'IT' ? 'in Contanti (Thai Baht), PromptPay, Wise o Revolut.' : 'via Cash (THB), PromptPay, Wise, or Revolut.'}
+                          {lang === 'IT' ? 'in Contanti (Thai Baht), PromptPay, Wise o Revolut.' : lang === 'TH' ? 'เงินสด (บาท), พร้อมเพย์, Wise หรือ Revolut' : lang === 'DE' ? 'in Bar (THB), PromptPay, Wise oder Revolut.' : 'via Cash (THB), PromptPay, Wise, or Revolut.'}
                         </p>
                       </div>
                       <p className="text-[11px] text-stone-600">
-                        <strong>{lang === 'IT' ? 'Cancellazione:' : 'Cancellation:'}</strong> {t('cancellationPolicyDesc' as any)}
+                        <strong>{lang === 'IT' ? 'Cancellazione:' : lang === 'TH' ? 'นโยบายยกเลิก:' : lang === 'DE' ? 'Stornierung:' : 'Cancellation:'}</strong> {t('cancellationPolicyDesc' as any)}
                       </p>
                     </div>
                   </div>
@@ -1837,11 +1861,11 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     <span className="font-extrabold text-stone-800">{checkOut}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-stone-500 font-semibold uppercase">DURATA:</span>
-                    <span className="font-extrabold text-stone-800">{stayDays} {lang === 'IT' ? 'Notti' : 'Nights'}</span>
+                    <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'DURATA:' : lang === 'TH' ? 'ระยะเวลา:' : lang === 'DE' ? 'DAUER:' : 'DURATION:'}</span>
+                    <span className="font-extrabold text-stone-800">{stayDays} {lang === 'IT' ? (stayDays === 1 ? 'Notte' : 'Notti') : lang === 'TH' ? 'คืน' : lang === 'DE' ? (stayDays === 1 ? 'Nacht' : 'Nächte') : (stayDays === 1 ? 'Night' : 'Nights')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-stone-500 font-semibold uppercase">OSPITI:</span>
+                    <span className="text-stone-500 font-semibold uppercase">{lang === 'IT' ? 'OSPITI:' : lang === 'TH' ? 'ผู้เข้าพัก:' : lang === 'DE' ? 'GÄSTE:' : 'GUESTS:'}</span>
                     <span className="font-extrabold text-stone-800">{guests} {guests > 1 ? t('guestPlural') : t('guestSingular')}</span>
                   </div>
                 </div>
@@ -1851,7 +1875,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5 text-fuchsia-800 font-extrabold text-xs uppercase tracking-wider">
                       <Percent className="w-3.5 h-3.5 text-fuchsia-600" />
-                      <span>{lang === 'IT' ? 'Codice Promozionale / Coupon' : 'Promo Code / Coupon'}</span>
+                      <span>{lang === 'IT' ? 'Codice Promozionale / Coupon' : lang === 'TH' ? 'รหัสโปรโมชั่น / คูปอง' : lang === 'DE' ? 'Gutscheincode / Coupon' : 'Promo Code / Coupon'}</span>
                     </div>
                     {appliedPromo && (
                       <span className="text-[10px] bg-fuchsia-600 text-white font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
@@ -1864,7 +1888,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                     <div className="flex gap-2">
                       <input
                         type="text"
-                        placeholder={lang === 'IT' ? 'Es. WELCOME2026' : 'e.g. WELCOME2026'}
+                        placeholder={lang === 'IT' ? 'Es. WELCOME2026' : lang === 'TH' ? 'เช่น WELCOME2026' : lang === 'DE' ? 'z. B. WELCOME2026' : 'e.g. WELCOME2026'}
                         value={promoInput}
                         onChange={(e) => {
                           setPromoInput(e.target.value);
@@ -1883,7 +1907,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                         onClick={() => handleValidatePromo(promoInput)}
                         className="px-3 py-1.5 text-xs font-bold bg-fuchsia-600 hover:bg-fuchsia-700 active:scale-95 text-white rounded-lg transition-all shadow-xs cursor-pointer"
                       >
-                        {lang === 'IT' ? 'Applica' : 'Apply'}
+                        {lang === 'IT' ? 'Applica' : lang === 'TH' ? 'ใช้คูปอง' : lang === 'DE' ? 'Anwenden' : 'Apply'}
                       </button>
                     </div>
                   ) : (
@@ -1901,7 +1925,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                         onClick={handleRemovePromo}
                         className="text-[11px] text-stone-500 hover:text-red-600 font-bold px-1.5 py-0.5 rounded transition-colors cursor-pointer"
                       >
-                        ✕ {lang === 'IT' ? 'Rimuovi' : 'Remove'}
+                        ✕ {lang === 'IT' ? 'Rimuovi' : lang === 'TH' ? 'ลบออก' : lang === 'DE' ? 'Entfernen' : 'Remove'}
                       </button>
                     </div>
                   )}
@@ -1922,7 +1946,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                 {/* Price Breakdown */}
                 <div className="space-y-3 text-xs pt-1">
                   <div className="flex justify-between">
-                    <span className="text-stone-500 font-medium">{lang === 'IT' ? "Tariffa Base" : "Base Rate"} ({stayDays} notti)</span>
+                    <span className="text-stone-500 font-medium">{lang === 'IT' ? "Tariffa Base" : lang === 'TH' ? "ราคาพื้นฐาน" : lang === 'DE' ? "Grundtarif" : "Base Rate"} ({stayDays} {lang === 'IT' ? (stayDays === 1 ? 'notte' : 'notti') : lang === 'TH' ? 'คืน' : lang === 'DE' ? (stayDays === 1 ? 'Nacht' : 'Nächte') : (stayDays === 1 ? 'night' : 'nights')})</span>
                     <span className="font-bold text-stone-750">
                       {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format((selectedPricing.basePriceLordo ?? selectedPricing.original) * stayDays)}
                     </span>
@@ -1931,9 +1955,9 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   {!appliedPromo && selectedPricing.savings > 0 && (
                     <div className="flex justify-between text-emerald-700 font-semibold">
                       <span>
-                        {stayDays >= 30 && "Sconto Digital Nomads (30+ gg)"}
-                        {stayDays >= 15 && stayDays < 30 && "Sconto Digital Nomads (15-29 gg)"}
-                        {stayDays < 15 && "Sconto Prenotazione Diretta (-10%)"}
+                        {stayDays >= 30 && (lang === 'IT' ? "Sconto Digital Nomads (30+ gg)" : lang === 'TH' ? "ส่วนลดดิจิทัลโนแมด (30+ วัน)" : lang === 'DE' ? "Digital Nomads Rabatt (30+ Tage)" : "Digital Nomads Discount (30+ days)")}
+                        {stayDays >= 15 && stayDays < 30 && (lang === 'IT' ? "Sconto Digital Nomads (15-29 gg)" : lang === 'TH' ? "ส่วนลดดิจิทัลโนแมด (15-29 วัน)" : lang === 'DE' ? "Digital Nomads Rabatt (15-29 Tage)" : "Digital Nomads Discount (15-29 days)")}
+                        {stayDays < 15 && (lang === 'IT' ? "Sconto Prenotazione Diretta (-10%)" : lang === 'TH' ? "ส่วนลดการจองตรง (-10%)" : lang === 'DE' ? "Direktbuchung-Rabatt (-10%)" : "Direct Booking Discount (-10%)")}
                       </span>
                       <span>
                         -{selectedPricing.savings}%
@@ -1944,7 +1968,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   {/* Extra Guests Surcharge */}
                   {selectedPricing.extraGuests > 0 && (
                     <div className="flex justify-between text-stone-700 font-medium border-t border-stone-300/30 pt-2.5">
-                      <span>{lang === 'IT' ? "Ospiti Aggiuntivi" : "Extra Guests"} ({Math.max(0, guests - selectedRoom.baseGuests)} x 200 THB x {stayDays} notti)</span>
+                      <span>{lang === 'IT' ? "Ospiti Aggiuntivi" : lang === 'TH' ? "ผู้เข้าพักเพิ่มเติม" : lang === 'DE' ? "Zusätzliche Gäste" : "Extra Guests"} ({Math.max(0, guests - selectedRoom.baseGuests)} x 200 THB x {stayDays} {lang === 'IT' ? (stayDays === 1 ? 'notte' : 'notti') : lang === 'TH' ? 'คืน' : lang === 'DE' ? (stayDays === 1 ? 'Nacht' : 'Nächte') : (stayDays === 1 ? 'night' : 'nights')})</span>
                       <span className="font-bold text-stone-750">
                         +{new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(selectedPricing.extraGuests)}
                       </span>
@@ -1990,7 +2014,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
                   <div className="flex justify-between items-baseline pt-2 border-t border-stone-300/50">
                     <span className="font-bold text-stone-600 text-xs uppercase">
-                      {lang === 'IT' ? 'Totale Soggiorno' : 'Total Stay'}
+                      {lang === 'IT' ? 'Totale Soggiorno' : lang === 'TH' ? 'ราคารวมการเข้าพัก' : lang === 'DE' ? 'Gesamtpreis Aufenthalt' : 'Total Stay'}
                     </span>
                     <span className="text-lg font-bold text-stone-750">
                       {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(checkoutPricing.finalTotal)}
@@ -2012,7 +2036,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                         <div className="bg-emerald-500/5 border border-emerald-750/35 rounded-xl p-3.5 mt-2 space-y-1">
                           <div className="flex justify-between items-baseline">
                             <span className="font-extrabold text-emerald-800 text-xs uppercase tracking-wide">
-                              {lang === 'IT' ? 'Totale da Pagare Oggi' : 'Total Amount Payable Today'}
+                              {lang === 'IT' ? 'Totale da Pagare Oggi' : lang === 'TH' ? 'ยอดรวมที่ต้องชำระวันนี้' : lang === 'DE' ? 'Heute zu zahlender Gesamtbetrag' : 'Total Amount Payable Today'}
                             </span>
                             <span className="text-xl font-black text-emerald-800">
                               {new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0 }).format(depositPricing.finalTotal)}
@@ -2172,7 +2196,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                   onClick={() => window.location.reload()}
                   className="mt-4 text-primary font-semibold text-sm hover:underline"
                 >
-                  Riprova
+                  {lang === 'IT' ? 'Riprova' : lang === 'TH' ? 'ลองใหม่อีกครั้ง' : lang === 'DE' ? 'Erneut versuchen' : 'Try again'}
                 </button>
               </div>
             )}
@@ -2248,13 +2272,13 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               <div className="text-xs md:text-sm font-black text-stone-950 flex items-center gap-2 truncate">
                 <span className="text-base">🎟️</span>
                 <span className="text-red-700 font-black uppercase tracking-wider shrink-0">
-                  {lang === 'IT' ? 'COPERTURA SCONTO ATTIVA:' : 'ACTIVE DISCOUNT COVERAGE:'}
+                  {lang === 'IT' ? 'COPERTURA SCONTO ATTIVA:' : lang === 'TH' ? 'ใช้ส่วนลดโปรโมชั่น:' : lang === 'DE' ? 'AKTIVER RABATT:' : 'ACTIVE DISCOUNT COVERAGE:'}
                 </span>
                 <span className="truncate text-stone-950 font-black">
-                  {lang === 'IT' ? `Applicato il codice ${appliedPromo.code}` : `Code ${appliedPromo.code} applied`}
+                  {lang === 'IT' ? `Applicato il codice ${appliedPromo.code}` : lang === 'TH' ? `ใช้รหัส ${appliedPromo.code} แล้ว` : lang === 'DE' ? `Code ${appliedPromo.code} angewendet` : `Code ${appliedPromo.code} applied`}
                 </span>
                 <span className="hidden md:inline text-stone-800 font-bold text-xs">
-                  ({lang === 'IT' ? 'sconto applicato su camera + ospiti' : 'valid on room + extra guests'})
+                  ({lang === 'IT' ? 'sconto applicato su camera + ospiti' : lang === 'TH' ? 'ใช้ได้กับค่าห้องพักและผู้เข้าพักเสริม' : lang === 'DE' ? 'Rabatt gültig auf Zimmer + Gäste' : 'valid on room + extra guests'})
                 </span>
               </div>
             </div>
@@ -2262,7 +2286,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               type="button"
               onClick={handleRemovePromo}
               className="p-1.5 text-stone-900 hover:text-red-700 hover:bg-yellow-300 rounded-full transition-colors cursor-pointer shrink-0 font-bold"
-              title={lang === 'IT' ? 'Rimuovi codice promozionale' : 'Remove promo code'}
+              title={lang === 'IT' ? 'Rimuovi codice promozionale' : lang === 'TH' ? 'ลบรหัสโปรโมชั่น' : lang === 'DE' ? 'Gutscheincode entfernen' : 'Remove promo code'}
             >
               <X className="w-4 h-4" />
             </button>

@@ -1055,6 +1055,21 @@ executionMode:
 ### F. Persistenza di Stato Locale (`localStorage`) con Default Attivo in Produzione
 * In [`useResortAdminStore.ts`](file:///d:/WEB%20SITE%20Antigravity/flowerpowervillage/src/admin/resort/store/useResortAdminStore.ts), `isDynamicCalculationEnabled` e `dynamicMinStayExecutionMode` sono persistiti in `localStorage` (`fp_dynamic_min_stay_enabled` e `fp_dynamic_min_stay_mode`) con default `true` / `production`, evitando che il ricaricamento del browser (`F5`) azzeri lo stato a spento.
 
+---
 
+## 16. Politiche di Cancellazione Octorate (7d/14d) & Notifiche Email Multilingua (25/09/2026)
 
+### A. Allineamento Regola d'Oro Octorate (Finestre di Cancellazione 7d e 14d)
+* **Significato Normativo Rigoroso**: Le sigle `7d` e `14d` indicano tassativamente la finestra di cancellazione gratuita con rimborso integrale al 100% della caparra:
+  * **`7d`**: Rimborso 100% per cancellazioni entro 7 giorni prima del check-in; trattenuta del 100% nei 7 giorni precedenti.
+  * **`14d`**: Rimborso 100% per cancellazioni entro 14 giorni prima del check-in; trattenuta del 100% nei 14 giorni precedenti.
+* **Aggiornamento Traduzioni Frontend ([`translations.ts`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/lib/translations.ts))**: Allineate le diciture di policy per tutte le 4 lingue del booking engine (`IT`, `EN`, `TH`, `DE`), eliminando i riferimenti obsoleti ai 10 giorni.
 
+### B. Sistema Email di Cancellazione Multilingua ([`cancellation-email.ts`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_helpers/cancellation-email.ts))
+* **Rilevamento Automatico Lingua Ospite**: Rilevamento da metadati di prenotazione (`language`, `customerLanguage`, `country`) mappato su `IT`, `EN`, `TH`, `DE` (fallback `EN`).
+* **Template HTML Brandizzato**: Banner di cancellazione, card riepilogo soggiorno (date check-in/out, alloggio, riferimento prenotazione), note di contatto e pulsante per contattare la reception via email.
+* **Invio SMTP Transazionale**: Spedizione automatica da account ufficiale `flowerpowerphayam@gmail.com` alla ricezione dell'evento di cancellazione canale diretto.
+
+### C. Localizzazione Interfaccia Promo & Sconti Diretti
+* **Badge Sconto Diretto ([`RoomGrid.tsx`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/resort/components/RoomGrid.tsx))**: Visualizzazione dinamica in 4 lingue (`Sconto Diretto`, `Direct Discount`, `ส่วนลดจองตรง`, `Direktbuchungs-Rabatt`).
+* **Banner Promo Code ([`booking-engine.tsx`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/components/booking-engine.tsx))**: Messaggi di applicazione codice promozionale e rimozione localizzati in `IT`, `EN`, `TH`, `DE`.

@@ -835,7 +835,12 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
                                ) : (
                                  directDiscountAmount > 0 && (
                                    <div className="flex justify-between text-emerald-700 font-bold">
-                                     <span>Sconto Diretto (-{Math.round(discountInfo.discount * 100)}%):</span>
+                                     <span>
+                                       {lang === 'TH' ? `ส่วนลดจองตรง (-${Math.round(discountInfo.discount * 100)}%):`
+                                         : lang === 'DE' ? `Direktbuchungs-Rabatt (-${Math.round(discountInfo.discount * 100)}%):`
+                                         : lang === 'EN' ? `Direct Discount (-${Math.round(discountInfo.discount * 100)}%):`
+                                         : `Sconto Diretto (-${Math.round(discountInfo.discount * 100)}%):`}
+                                     </span>
                                      <span>-{formatPrice(directDiscountAmount)}</span>
                                    </div>
                                  )

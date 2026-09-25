@@ -50,6 +50,65 @@ export function isDirectReservation(booking: any): boolean {
   return false;
 }
 
+const CANCELLATION_LABELS = {
+  IT: {
+    subject: "Cancellazione Confermata · Flower Power Village #{ref}",
+    bannerTitle: "Conferma di Cancellazione Prenotazione",
+    bannerDesc: "La tua prenotazione <strong>#{ref}</strong> è stata cancellata con successo.",
+    greeting: "Gentile <strong>{name}</strong>,",
+    lead: "Ti confermiamo che la prenotazione per il tuo soggiorno presso il <strong>Flower Power Village</strong> è stata annullata nei nostri sistemi secondo la tua richiesta.",
+    ref: "Riferimento:",
+    accommodation: "Alloggio:",
+    checkIn: "Check-in Previsto:",
+    checkOut: "Check-out Previsto:",
+    note: "Qualora il tuo piano tariffario prevedesse un rimborso o se desideri riprogrammare il soggiorno in un altro periodo, il nostro staff è a tua completa disposizione.",
+    btn: "Contatta la Reception",
+    htmlLang: "it"
+  },
+  EN: {
+    subject: "Cancellation Confirmed · Flower Power Village #{ref}",
+    bannerTitle: "Reservation Cancellation Confirmation",
+    bannerDesc: "Your booking <strong>#{ref}</strong> has been successfully cancelled.",
+    greeting: "Dear <strong>{name}</strong>,",
+    lead: "We confirm that your reservation for your stay at <strong>Flower Power Village</strong> has been cancelled in our systems per your request.",
+    ref: "Reference:",
+    accommodation: "Accommodation:",
+    checkIn: "Scheduled Check-in:",
+    checkOut: "Scheduled Check-out:",
+    note: "If your rate plan is eligible for a refund or if you would like to reschedule your stay for another period, our team is at your complete disposal.",
+    btn: "Contact Reception",
+    htmlLang: "en"
+  },
+  TH: {
+    subject: "ยืนยันการยกเลิกการจอง · Flower Power Village #{ref}",
+    bannerTitle: "เอกสารยืนยันการยกเลิกการจองที่พัก",
+    bannerDesc: "การจองหมายเลข <strong>#{ref}</strong> ของคุณได้รับการยกเลิกเรียบร้อยแล้ว",
+    greeting: "เรียนคุณ <strong>{name}</strong>,",
+    lead: "เราขอยืนยันว่าการจองที่พักของคุณที่ <strong>Flower Power Village</strong> ได้รับการยกเลิกในระบบของเราตามคำขอของคุณเรียบร้อยแล้ว",
+    ref: "หมายเลขการจอง:",
+    accommodation: "ประเภทห้องพัก:",
+    checkIn: "กำหนดวันเช็คอิน:",
+    checkOut: "กำหนดวันเช็คเอาท์:",
+    note: "หากเงื่อนไขการจองของคุณมีสิทธิ์ได้รับเงินคืน หรือหากคุณต้องการเปลี่ยนแปลงวันเข้าพักเป็นช่วงเวลาอื่น ทีมงานของเราพร้อมยินดีให้บริการคุณเสมอ",
+    btn: "ติดต่อฝ่ายต้อนรับ",
+    htmlLang: "th"
+  },
+  DE: {
+    subject: "Stornierungsbestätigung · Flower Power Village #{ref}",
+    bannerTitle: "Bestätigung der Reservierungsstornierung",
+    bannerDesc: "Ihre Buchung <strong>#{ref}</strong> wurde erfolgreich storniert.",
+    greeting: "Sehr geehrte(r) <strong>{name}</strong>,",
+    lead: "Wir bestätigen, dass Ihre Buchung für Ihren Aufenthalt im <strong>Flower Power Village</strong> gemäß Ihrer Anfrage in unserem System storniert wurde.",
+    ref: "Referenz:",
+    accommodation: "Unterkunft:",
+    checkIn: "Geplanter Check-in:",
+    checkOut: "Geplanter Check-out:",
+    note: "Falls Ihre Tarifoption eine Rückerstattung vorsieht oder Sie Ihren Aufenthalt auf einen anderen Zeitraum umbuchen möchten, steht Ihnen unser Team gerne zur Verfügung.",
+    btn: "Rezeption kontaktieren",
+    htmlLang: "de"
+  }
+};
+
 /**
  * Genera il template HTML elegante con il brand Flower Power Village
  */
@@ -59,16 +118,19 @@ export function generateCancellationEmailHTML(params: {
   checkIn: string;
   checkOut: string;
   roomName: string;
+  lang?: 'IT' | 'EN' | 'TH' | 'DE';
 }): string {
   const { guestName, reservationId, checkIn, checkOut, roomName } = params;
+  const langKey = (params.lang && CANCELLATION_LABELS[params.lang]) ? params.lang : 'EN';
+  const t = CANCELLATION_LABELS[langKey];
 
   return `
 <!DOCTYPE html>
-<html lang="it">
+<html lang="${t.htmlLang}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cancellazione Prenotazione - Flower Power Village</title>
+  <title>${t.bannerTitle} - Flower Power Village</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #0c0a09; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #e7e5e4;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #0c0a09; width: 100%;">
@@ -93,10 +155,10 @@ export function generateCancellationEmailHTML(params: {
             <td style="padding: 25px 30px 15px;">
               <div style="background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 14px; padding: 16px 20px; text-align: center;">
                 <span style="font-size: 12px; font-weight: 800; color: #f87171; letter-spacing: 1.5px; text-transform: uppercase;">
-                  Conferma di Cancellazione Prenotazione
+                  ${t.bannerTitle}
                 </span>
                 <p style="margin: 6px 0 0; font-size: 13px; color: #d6d3d1;">
-                  La tua prenotazione <strong>#${reservationId}</strong> è stata cancellata con successo.
+                  ${t.bannerDesc.replace('{ref}', String(reservationId))}
                 </p>
               </div>
             </td>
@@ -106,40 +168,40 @@ export function generateCancellationEmailHTML(params: {
           <tr>
             <td style="padding: 10px 30px 25px; line-height: 1.6; font-size: 14px; color: #d6d3d1;">
               <p style="margin-top: 0;">
-                Gentile <strong>${guestName}</strong>,
+                ${t.greeting.replace('{name}', guestName)}
               </p>
               <p>
-                Ti confermiamo che la prenotazione per il tuo soggiorno presso il <strong>Flower Power Village</strong> è stata annullata nei nostri sistemi secondo la tua richiesta.
+                ${t.lead}
               </p>
 
               <!-- Booking Details Card -->
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #292524; border-radius: 14px; padding: 18px 20px; margin: 20px 0;">
                 <tr>
-                  <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">Riferimento:</td>
+                  <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">${t.ref}</td>
                   <td align="right" style="padding: 6px 0; font-size: 13px; color: #ffffff; font-family: monospace; font-weight: bold;">#${reservationId}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">Alloggio:</td>
+                  <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">${t.accommodation}</td>
                   <td align="right" style="padding: 6px 0; font-size: 13px; color: #ffffff; font-weight: bold;">${roomName}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">Check-in Previsto:</td>
+                  <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">${t.checkIn}</td>
                   <td align="right" style="padding: 6px 0; font-size: 13px; color: #10b981; font-weight: bold;">${checkIn}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">Check-out Previsto:</td>
+                  <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">${t.checkOut}</td>
                   <td align="right" style="padding: 6px 0; font-size: 13px; color: #10b981; font-weight: bold;">${checkOut}</td>
                 </tr>
               </table>
 
               <p style="font-size: 13px; color: #a8a29e; margin-bottom: 25px;">
-                Qualora il tuo piano tariffario prevedesse un rimborso o se desideri riprogrammare il soggiorno in un altro periodo, il nostro staff è a tua completa disposizione.
+                ${t.note}
               </p>
 
               <!-- Contacts Button -->
               <div style="text-align: center; margin: 25px 0 10px;">
                 <a href="mailto:flowerpowerphayam@gmail.com" style="background-color: #10b981; color: #ffffff; padding: 12px 28px; text-decoration: none; font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; border-radius: 12px; display: inline-block;">
-                  Contatta la Reception
+                  ${t.btn}
                 </a>
               </div>
             </td>
@@ -205,6 +267,13 @@ export async function handleDirectReservationCancellation(booking: any): Promise
   const checkOut = (booking.checkout || booking.checkOut || '').slice(0, 10);
   const channelName = booking.channelName || (booking.channelId === 233 ? 'Sito Web Diretto' : 'Octorate Diretto');
 
+  // Detect language: IT, EN, TH, DE
+  const rawLang = String(booking.language || booking.lang || booking.customerLanguage || booking.country || 'EN').toUpperCase();
+  const guestLang: 'IT' | 'EN' | 'TH' | 'DE' = ['IT', 'EN', 'TH', 'DE'].includes(rawLang)
+    ? (rawLang as 'IT' | 'EN' | 'TH' | 'DE')
+    : (rawLang.includes('IT') ? 'IT' : rawLang.includes('TH') ? 'TH' : rawLang.includes('DE') ? 'DE' : 'EN');
+
+  const t = CANCELLATION_LABELS[guestLang] || CANCELLATION_LABELS['EN'];
   let emailSent = false;
 
   // 2. Invio Email Cliente tramite SMTP Gmail Flower Power
@@ -225,19 +294,20 @@ export async function handleDirectReservationCancellation(booking: any): Promise
         reservationId,
         checkIn,
         checkOut,
-        roomName
+        roomName,
+        lang: guestLang
       });
 
       await transporter.sendMail({
         from: `"Flower Power Village" <${process.env.SMTP_USER || "flowerpowerphayam@gmail.com"}>`,
         to: guestEmail,
         replyTo: "flowerpowerphayam@gmail.com",
-        subject: `Cancellazione Confermata · Flower Power Village #${reservationId}`,
+        subject: t.subject.replace('{ref}', String(reservationId)),
         html: htmlContent
       });
 
       emailSent = true;
-      console.log(`[Cancellation] Email di cancellazione inviata con successo a ${guestEmail} per prenotazione #${reservationId}.`);
+      console.log(`[Cancellation] Email di cancellazione inviata con successo in lingua ${guestLang} a ${guestEmail} per prenotazione #${reservationId}.`);
     } catch (mailErr: any) {
       console.error(`[Cancellation Error] Invio email fallito per #${reservationId}:`, mailErr);
     }
@@ -253,6 +323,7 @@ export async function handleDirectReservationCancellation(booking: any): Promise
       `Canale: <b>${channelName}</b>\n` +
       `Ospite: <b>${guestName}</b>\n` +
       `Alloggio: <b>${roomName}</b>\n` +
+      `Lingua ospite: <b>${guestLang}</b>\n` +
       `Date: <code>${checkIn} ➔ ${checkOut}</code>\n` +
       (emailSent 
         ? `📧 <b>Email cliente inviata con successo a:</b> <code>${guestEmail}</code>` 

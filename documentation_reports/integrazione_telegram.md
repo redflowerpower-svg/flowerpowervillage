@@ -84,3 +84,11 @@ La funzione helper `normalizeThaiPhone` converte i numeri di telefono inseriti d
 ### C. Aggiornamento Inline dei Messaggi per evitare lo Spam in Chat
 *   **Problema:** All'inizio del progetto, ogni cambio di stato (es. da preparato a spedito) inviava un nuovo messaggio nella chat di Telegram dello staff, intasando la cronologia e rendendo difficile tenere traccia degli ordini attivi.
 *   **Soluzione:** Implementato l'aggiornamento dinamico del messaggio originale tramite l'endpoint `/editMessageText` di Telegram. Ogni cambio di stato aggiorna lo stesso identico messaggio inserendo la firma dell'operatore che ha effettuato l'azione (es. `Consegna avviata da @fattorino`) e aggiorna inline i pulsanti della tastiera, lasciando la chat pulita ed ordinata.
+
+### D. Notifiche Cancellazione Prenotazioni Reparto Villaggio (`cancellation-email.ts`)
+*   **Canale Telegram Dedicato Staff Villaggio**: Quando viene cancellata una prenotazione (es. canale diretto o sincronizzata da Octorate), il bot invia un alert formattato in HTML al canale Telegram Staff Villaggio contenente:
+    *   ID Prenotazione, Canale di provenienza, Nome Ospite e Alloggio.
+    *   Lingua dell'ospite rilevata (`IT`, `EN`, `TH`, `DE`).
+    *   Date di Check-in e Check-out previste.
+    *   Stato di invio dell'email transazionale di conferma all'indirizzo email del cliente (o errore in caso di mancato recapito).
+

@@ -240,7 +240,7 @@ function calculateServerDynamicMinStay(
   // 1. Inizializzazione obbligatoria di TUTTI gli alloggi del villaggio
   // Garantisce che le stanze senza prenotazioni (o con prenotazioni cancellate) vengano calcolate e ripristinate al baseline
   const roomBookingsMap: Record<string, { roomName: string; motherId: string; targetProductIds: string[]; bookings: Array<{ in: string; out: string }> }> = {};
-  
+
   Object.entries(ALL_ACCOMMODATIONS_MAP).forEach(([key, canonical]) => {
     roomBookingsMap[key] = {
       roomName: canonical.name,

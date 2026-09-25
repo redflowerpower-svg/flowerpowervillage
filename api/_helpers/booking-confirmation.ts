@@ -151,7 +151,7 @@ export const RESORT_INFO = {
   websiteDefault: "https://flowerpower-phayam.com",
   checkInTime: "13:00 – 21:30",
   checkOutTime: "11:00",
-  cancellationPolicy: "Free cancellation and full refund of your deposit up to 10 days before check-in. Within 10 days, the deposit is non-refundable."
+  cancellationPolicy: "Free cancellation and 100% full refund up to 7 days before check-in (or 14 days for special rates). Non-refundable within the cancellation window."
 };
 
 // Multilingual labels dictionary
@@ -194,7 +194,7 @@ export const LABELS: Record<string, Record<string, string>> = {
     direction2: "2. Dal Molo di Koh Phayam: Prendi un Moto Taxi (70-100 THB) o un Tuk-Tuk con sidecar (250-400 THB) e chiedi di 'Flower Power' a Buffalo Bay (Ao Khao Kwai).",
     direction3: "3. Check-in tardivo: Se prevedi di arrivare dopo le 21:00, ti preghiamo di avvisarci in anticipo via email o WhatsApp/Line (+66 95 882 5573).",
     cancellationPolicyLabel: "Politica di Cancellazione: ",
-    cancellationPolicyDesc: "Cancellazione gratuita con rimborso totale del deposito fino a 10 giorni prima dell'arrivo. Oltre tale termine il deposito non è rimborsabile.",
+    cancellationPolicyDesc: "Cancellazione gratuita con rimborso totale 100% fino a 7 giorni prima dell'arrivo (o 14 giorni per tariffe con finestra 14d). Nei 7 giorni precedenti (o 14 giorni) l'importo è trattenuto al 100%.",
     proofTitle: "DICHIARAZIONE UFFICIALE DI ALLOGGIO",
     proofText: "\"Il presente documento certifica che il suddetto ospite dispone di una prenotazione confermata presso il Flower Power Village per le date indicate. Questa conferma può essere utilizzata come prova dell'alloggio per motivi di viaggio o per la richiesta del visto.\"",
     
@@ -243,7 +243,7 @@ export const LABELS: Record<string, Record<string, string>> = {
     direction2: "2. From Koh Phayam Pier: Take a Moto Taxi (70-100 THB) or a Tuk-Tuk Sidecar (250-400 THB) and ask for 'Flower Power' at Buffalo Bay.",
     direction3: "3. Late Check-in: If you plan to arrive after 21:00, please notify us in advance via email or WhatsApp/Line (+66 95 882 5573).",
     cancellationPolicyLabel: "Cancellation Policy: ",
-    cancellationPolicyDesc: "Free cancellation and full refund of your deposit up to 10 days before check-in. Within 10 days, the deposit is non-refundable.",
+    cancellationPolicyDesc: "Free cancellation with 100% full refund up to 7 days before check-in (or 14 days for 14d rate plans). Within the 7-day window (or 14 days), the amount is 100% non-refundable.",
     proofTitle: "OFFICIAL PROOF OF ACCOMMODATION DECLARATION",
     proofText: "\"This document certifies that the above-mentioned guest has a confirmed accommodation reservation at Flower Power Village for the dates indicated above. This confirmation may be used as proof of accommodation for travel or visa application purposes.\"",
     
@@ -292,7 +292,7 @@ export const LABELS: Record<string, Record<string, string>> = {
     direction2: "2. Vom Pier Koh Phayam: Nehmen Sie ein Motorradtaxi (70-100 THB) oder ein Beiwagen-Tuk-Tuk (250-400 THB) und fragen Sie nach 'Flower Power' in Buffalo Bay.",
     direction3: "3. Später Check-in: Wenn Sie nach 21:00 Uhr anreisen, benachrichtigen Sie uns bitte im Voraus per E-Mail oder WhatsApp/Line (+66 95 882 5573).",
     cancellationPolicyLabel: "Stornierungsbedingungen: ",
-    cancellationPolicyDesc: "Kostenlose Stornierung und volle Rückerstattung der Anzahlung bis zu 10 Tage vor Anreise. Innerhalb von 10 Tagen ist die Anzahlung nicht erstattbar.",
+    cancellationPolicyDesc: "Kostenlose Stornierung mit 100% voller Rückerstattung bis zu 7 Tage vor Anreise (oder 14 Tage bei 14d-Tarifen). Innerhalb von 7 Tagen (bzw. 14 Tagen) erfolgt eine 100%ige Einbehaltung.",
     proofTitle: "OFFIZIELLE ERKLÄRUNG ÜBER DIE UNTERKUNFT",
     proofText: "\"Dieses Dokument bestätigt, dass der oben genannte Gast eine bestätigte Unterkunft Reservierung im Flower Power Village für die angegebenen Termine hat. Diese Bestätigung kann als Unterkunftsnachweis für Reisen oder Visumanträge verwendet werden.\"",
     
@@ -341,7 +341,7 @@ export const LABELS: Record<string, Record<string, string>> = {
     direction2: "2. จากท่าเรือเกาะพยาม: นั่งมอเตอร์ไซค์รับจ้าง (70-100 บาท) หรือรถสามล้อพ่วงข้าง (250-400 บาท) แจ้งว่าไป 'Flower Power' ที่อ่าวเขาควาย",
     direction3: "3. การเข้าที่พักล่าช้า: หากต้องการเช็คอินหลัง 21:00 น. โปรดแจ้งล่วงหน้าทางอีเมลหรือ WhatsApp/Line (+66 95 882 5573)",
     cancellationPolicyLabel: "นโยบายการยกเลิก: ",
-    cancellationPolicyDesc: "ยกเลิกฟรีและคืนเงินมัดจำเต็มจำนวนเมื่อแจ้งล่วงหน้าอย่างน้อย 10 วันก่อนวันเช็คอิน หากน้อยกว่า 10 วันจะไม่คืนเงินมัดจำ",
+    cancellationPolicyDesc: "ยกเลิกฟรีพร้อมคืนเงินมัดจำเต็มจำนวน 100% เมื่อแจ้งล่วงหน้าอย่างน้อย 7 วันก่อนวันเช็คอิน (หรือ 14 วันสำหรับแพ็กเกจ 14d) หากน้อยกว่า 7 วัน (หรือ 14 วัน) จะไม่มีการคืนเงิน",
     proofTitle: "เอกสารรับรองการเข้าพักอย่างเป็นทางการ",
     proofText: "\"เอกสารฉบับนี้รับรองว่าผู้เข้าพักตามรายชื่อข้างต้นได้รับการยืนยันการจองที่พักที่ Flower Power Village ตามวันเวลาที่ระบุไว้ และสามารถใช้เป็นหลักฐานประกอบการเดินทางหรือยื่นขอวีซ่าได้\"",
     
@@ -1011,6 +1011,7 @@ export async function sendConfirmationEmail(
   const smtpPass = process.env.SMTP_PASS || "SnookeR01";
 
   const emailLang = (metadata.lang || "EN").toUpperCase();
+  const t = LABELS[emailLang] || LABELS["EN"];
   const isKsher = metadata.gateway === "ksher" || metadata.stripeSessionId?.startsWith("FPBK");
   const bookingRef = octorateId || (isKsher ? `FP-${metadata.stripeSessionId?.substring(0, 12) || "CONFIRMED"}` : `ST-FALLBACK-${metadata.stripeSessionId?.substring(0, 10) || "UNKNOWN"}`);
 
