@@ -29,47 +29,11 @@ const INITIAL_TRANSACTIONS: KsherRecordedTransaction[] = [
     date: '2026-09-24T12:31:05Z',
     status: 'REFUNDED',
     refundedAmount: 99
-  },
-  {
-    orderNo: 'FPBK28819041',
-    customerName: 'Marco Rossi',
-    customerEmail: 'marco.rossi@example.it',
-    purchaseType: 'Caparra Villaggio 30%',
-    roomName: 'Jungle Villa (Koh Phayam)',
-    itemDescription: 'Jungle Villa (Koh Phayam - Caparra 30%)',
-    datesSummary: '10/11/2026 - 15/11/2026 (5 notti)',
-    amount: 3600,
-    channel: 'card',
-    date: '2026-09-24T10:15:00Z',
-    status: 'PAID'
-  },
-  {
-    orderNo: 'FPBK28824102',
-    customerName: 'Somchai Prasert',
-    customerEmail: 'somchai@email.th',
-    purchaseType: 'Prenotazione Alloggio (Saldo 100%)',
-    roomName: 'Red Bungalow (PromptPay QR)',
-    itemDescription: 'Red Bungalow (PromptPay QR)',
-    datesSummary: '01/10/2026 - 02/10/2026 (1 notte)',
-    amount: 540,
-    channel: 'promptpay',
-    date: '2026-09-23T16:45:00Z',
-    status: 'PAID'
-  },
-  {
-    orderNo: 'FPBK28833918',
-    customerName: 'Elena Bianchi',
-    customerEmail: 'elena.b@gmail.com',
-    purchaseType: 'Caparra Villaggio 30%',
-    roomName: 'Yellow Bungalow (Caparra 30%)',
-    itemDescription: 'Yellow Bungalow (Caparra 30%)',
-    datesSummary: '15/12/2026 - 18/12/2026 (3 notti)',
-    amount: 1200,
-    channel: 'card',
-    date: '2026-09-22T14:20:00Z',
-    status: 'PAID'
   }
 ];
+
+// List of mock order IDs to purge from storage
+const MOCK_ORDER_IDS = new Set(['FPBK28819041', 'FPBK28824102', 'FPBK28833918']);
 
 export function getKsherTransactions(): KsherRecordedTransaction[] {
   if (typeof window === 'undefined') return INITIAL_TRANSACTIONS;
@@ -81,8 +45,11 @@ export function getKsherTransactions(): KsherRecordedTransaction[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
+      // Filter out demo mock transactions
+      const cleaned = parsed.filter((t: any) => !MOCK_ORDER_IDS.has(t.orderNo));
+
       // Enrich transactions with purchaseType/roomName/datesSummary if missing
-      const enriched = parsed.map((t: any) => {
+      const enriched = cleaned.map((t: any) => {
         const initMatch = INITIAL_TRANSACTIONS.find((it) => it.orderNo === t.orderNo);
         if (initMatch) {
           return {
