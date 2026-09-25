@@ -9,6 +9,7 @@ import { PromoCodesSection } from './PromoCodesSection';
 import { GestioneStagionaleTariffe } from './GestioneStagionaleTariffe';
 import { GestioneRestrizioniCanali } from './GestioneRestrizioniCanali';
 import { AccommodationFeaturesEditor } from './AccommodationFeaturesEditor';
+import { TelegramVillageConfigSection } from './TelegramVillageConfigSection';
 import { supabase } from '../../../lib/supabase';
 import { toThailandDateStr } from '../lib/octorateAdmin';
 import { 
@@ -44,7 +45,9 @@ import {
   BarChart3,
   Coins,
   Bed,
-  Ticket
+  Ticket,
+  Send,
+  Bot
 } from 'lucide-react';
 import { 
   isValidActiveBooking, 
@@ -123,7 +126,7 @@ export function ResortDashboard() {
   } = useResortAdminStore();
 
   const [activeOptimizationTab, setActiveOptimizationTab] = useState<OptimizationTab>('cascade');
-  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'seasonal_rates' | 'messages' | 'octorate'>('bookings');
+  const [activeTab, setActiveTab] = useState<'bookings' | 'calendar_30_days' | 'calendar' | 'rooms' | 'derived_rates' | 'seasonal_rates' | 'messages' | 'octorate' | 'channel_restrictions' | 'telegram'>('bookings');
   const [searchQuery, setSearchQuery] = useState('');
   // Doppio click per Calendario Annuale (componente pesante ~9000 celle)
   const [calendarConfirm, setCalendarConfirm] = useState(false);
@@ -912,6 +915,18 @@ export function ResortDashboard() {
               }`}
             >
               OCTORATE PMS
+            </button>
+
+            <button
+              onClick={() => setActiveTab('telegram')}
+              className={`px-1.5 py-1.5 sm:px-2 xl:px-2.5 rounded-xl text-[11px] sm:text-[12px] md:text-[12.5px] lg:text-[13px] xl:text-[14px] 2xl:text-[15px] font-black uppercase tracking-tight transition-all cursor-pointer whitespace-nowrap flex-shrink-0 flex items-center gap-1.5 ${
+                activeTab === 'telegram'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 ring-1 ring-emerald-400/30'
+                  : 'text-stone-400 hover:text-white hover:bg-stone-800/50'
+              }`}
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>BOT TELEGRAM</span>
             </button>
           </div>
         </div>
@@ -2196,46 +2211,57 @@ export function ResortDashboard() {
 
       {/* Tab 3: Octorate PMS Integration Details */}
       {activeTab === 'octorate' && (
-        <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl max-w-3xl mx-auto">
-          <div className="flex items-center gap-3 border-b border-stone-800 pb-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400">
-              <Activity className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-lg font-black text-white">Octorate Channel Manager</h3>
-              <p className="text-stone-400 text-xs font-medium">
-                Stato connessione e parametri di sincronizzazione automatica delle disponibilità
-              </p>
-            </div>
-          </div>
+        <div className="space-y-6 max-w-4xl mx-auto">
+          <TelegramVillageConfigSection />
 
-          <div className="space-y-4 text-xs text-stone-300">
-            <div className="flex justify-between items-center bg-stone-950 p-4 rounded-2xl border border-stone-850">
-              <span className="font-bold text-stone-400">Stato Connessione API:</span>
-              <span className="inline-flex items-center gap-1.5 text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                <CheckCircle className="w-4 h-4" /> Connesso & Operativo
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-stone-950 p-4 rounded-2xl border border-stone-850 space-y-1">
-                <span className="text-stone-500 text-[10px] uppercase font-bold">Structure (Hotel) ID</span>
-                <div className="font-mono text-white text-sm font-bold">{octorateDetails?.structureId ?? '366879'}</div>
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl">
+            <div className="flex items-center gap-3 border-b border-stone-800 pb-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-800 flex items-center justify-center text-emerald-400">
+                <Activity className="w-6 h-6" />
               </div>
-
-              <div className="bg-stone-950 p-4 rounded-2xl border border-stone-850 space-y-1">
-                <span className="text-stone-500 text-[10px] uppercase font-bold">Direct Booking Channel ID</span>
-                <div className="font-mono text-white text-sm font-bold">{octorateDetails?.channelId ?? '233'}</div>
+              <div>
+                <h3 className="text-lg font-black text-white">Octorate Channel Manager</h3>
+                <p className="text-stone-400 text-xs font-medium">
+                  Stato connessione e parametri di sincronizzazione automatica delle disponibilità
+                </p>
               </div>
             </div>
 
-            <div className="bg-stone-950/60 p-4 rounded-2xl border border-stone-850 space-y-2">
-              <span className="text-amber-400 font-bold block text-xs">ℹ️ Nota di Integrazione:</span>
-              <p className="text-stone-400 text-xs leading-relaxed">
-                Le prenotazioni effettuate tramite Stripe Checkout vengono registrate automaticamente sia nel sistema interno che su Octorate PMS inviando la conferma all'ID Struttura <strong className="text-white">366879</strong>.
-              </p>
+            <div className="space-y-4 text-xs text-stone-300">
+              <div className="flex justify-between items-center bg-stone-950 p-4 rounded-2xl border border-stone-850">
+                <span className="font-bold text-stone-400">Stato Connessione API:</span>
+                <span className="inline-flex items-center gap-1.5 text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                  <CheckCircle className="w-4 h-4" /> Connesso & Operativo
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-stone-950 p-4 rounded-2xl border border-stone-850 space-y-1">
+                  <span className="text-stone-500 text-[10px] uppercase font-bold">Structure (Hotel) ID</span>
+                  <div className="font-mono text-white text-sm font-bold">{octorateDetails?.structureId ?? '366879'}</div>
+                </div>
+
+                <div className="bg-stone-950 p-4 rounded-2xl border border-stone-850 space-y-1">
+                  <span className="text-stone-500 text-[10px] uppercase font-bold">Direct Booking Channel ID</span>
+                  <div className="font-mono text-white text-sm font-bold">{octorateDetails?.channelId ?? '233'}</div>
+                </div>
+              </div>
+
+              <div className="bg-stone-950/60 p-4 rounded-2xl border border-stone-850 space-y-2">
+                <span className="text-amber-400 font-bold block text-xs">ℹ️ Nota di Integrazione:</span>
+                <p className="text-stone-400 text-xs leading-relaxed">
+                  Le prenotazioni effettuate tramite Stripe Checkout vengono registrate automaticamente sia nel sistema interno che su Octorate PMS inviando la conferma all'ID Struttura <strong className="text-white">366879</strong>.
+                </p>
+              </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Tab: Telegram Bot Villaggio Indipendente */}
+      {activeTab === 'telegram' && (
+        <div className="max-w-4xl mx-auto space-y-6">
+          <TelegramVillageConfigSection />
         </div>
       )}
 

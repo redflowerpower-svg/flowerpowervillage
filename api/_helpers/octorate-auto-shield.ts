@@ -160,16 +160,22 @@ export async function sendAutoShieldTelegramAlert(
     const { data: config } = await supabase
       .from('telegram_config')
       .select('bot_token, chat_id')
-      .eq('id', 'default')
+      .eq('id', 'village')
       .maybeSingle();
 
-    if (!config?.bot_token || !config?.chat_id) return;
+    const botToken = config?.bot_token || process.env.TELEGRAM_VILLAGE_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN_VILLAGE;
+    const chatId = config?.chat_id || process.env.TELEGRAM_VILLAGE_CHAT_ID || process.env.TELEGRAM_CHAT_ID_VILLAGE;
 
-    await fetch(`https://api.telegram.org/bot${config.bot_token}/sendMessage`, {
+    if (!botToken || !chatId) {
+      console.log('[Auto-Shield Telegram Alert] Village Telegram Bot not configured yet. Skipping alert to avoid mixing with Pizzeria.');
+      return;
+    }
+
+    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: config.chat_id,
+        chat_id: chatId,
         text: message,
         parse_mode: 'HTML',
         disable_web_page_preview: true

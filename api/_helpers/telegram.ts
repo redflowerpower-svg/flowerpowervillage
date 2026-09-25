@@ -24,31 +24,45 @@ export function getSupabaseClient(authHeader?: string) {
   return createClient(supabaseUrl, supabaseKey, options);
 }
 
+export type TelegramDepartment = 'pizza' | 'village';
+
 /**
- * Retrieves the active Telegram Bot Token and Chat ID.
+ * Retrieves the active Telegram Bot Token and Chat ID for a specific department (pizza or village).
  */
-export async function getTelegramCredentials(authHeader?: string): Promise<TelegramCredentials> {
+export async function getTelegramCredentials(
+  department: TelegramDepartment = 'pizza',
+  authHeader?: string
+): Promise<TelegramCredentials> {
   try {
     const client = getSupabaseClient(authHeader);
+    const targetId = department === 'village' ? 'village' : 'default';
     const { data, error } = await client
       .from("telegram_config")
       .select("bot_token, chat_id")
-      .eq("id", "default")
+      .eq("id", targetId)
       .maybeSingle();
 
     if (!error && data && data.bot_token && data.chat_id) {
-      console.log("[Telegram Credentials] Loaded credentials from database config.");
+      console.log(`[Telegram Credentials] Loaded credentials for ${department} from database config.`);
       return {
         botToken: data.bot_token,
         chatId: data.chat_id
       };
     }
   } catch (err) {
-    console.warn("[Telegram Credentials] Failed to read database config:", err);
+    console.warn(`[Telegram Credentials] Failed to read database config for ${department}:`, err);
   }
 
   // Fallback to environment variables
-  console.log("[Telegram Credentials] Using environment variables fallback.");
+  if (department === 'village') {
+    return {
+      botToken: process.env.TELEGRAM_VILLAGE_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN_VILLAGE || null,
+      chatId: process.env.TELEGRAM_VILLAGE_CHAT_ID || process.env.TELEGRAM_CHAT_ID_VILLAGE || null
+    };
+  }
+
+  // Fallback to environment variables for pizza
+  console.log("[Telegram Credentials] Using environment variables fallback for pizza.");
   return {
     botToken: process.env.TELEGRAM_BOT_TOKEN || null,
     chatId: process.env.TELEGRAM_CHAT_ID || null
@@ -56,32 +70,72 @@ export async function getTelegramCredentials(authHeader?: string): Promise<Teleg
 }
 
 /**
- * Updates the active Telegram Bot Token and Chat ID in the database.
+ * Updates the active Telegram Bot Token and Chat ID in the database for a department.
  */
-export async function updateTelegramCredentials(botToken: string, chatId: string, authHeader?: string): Promise<boolean> {
+export async function updateTelegramCredentials(
+  botToken: string,
+  chatId: string,
+  department: TelegramDepartment = 'pizza',
+  authHeader?: string
+): Promise<boolean> {
   try {
     const client = getSupabaseClient(authHeader);
+    const targetId = department === 'village' ? 'village' : 'default';
     const { error } = await client
       .from("telegram_config")
       .upsert({
-        id: "default",
+        id: targetId,
         bot_token: botToken,
         chat_id: chatId,
         updated_at: new Date().toISOString()
       });
 
     if (error) {
-      console.error("[Telegram Credentials] Failed to save credentials to database:", error);
+      console.error(`[Telegram Credentials] Failed to save credentials for ${department} to database:`, error);
       return false;
     }
 
-    console.log("[Telegram Credentials] Successfully saved credentials to database.");
+    console.log(`[Telegram Credentials] Successfully saved credentials for ${department} to database.`);
     return true;
   } catch (err) {
-    console.error("[Telegram Credentials] Error upserting credentials:", err);
+    console.error(`[Telegram Credentials] Error upserting credentials for ${department}:`, err);
     return false;
   }
 }
+
+/**
+ * Sends a Telegram message to a specific department ('pizza' or 'village').
+ */
+export async function sendDepartmentTelegramMessage(
+  department: TelegramDepartment,
+  message: string,
+  options?: { parseMode?: 'HTML' | 'MarkdownV2'; disableWebPagePreview?: boolean }
+): Promise<{ success: boolean; error?: string; result?: any }> {
+  const { botToken, chatId } = await getTelegramCredentials(department);
+  if (!botToken || !chatId) {
+    console.log(`[Telegram ${department}] Not configured yet. Skipping message.`);
+    return { success: false, error: 'Telegram not configured for this department' };
+  }
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: options?.parseMode || 'HTML',
+        disable_web_page_preview: options?.disableWebPagePreview ?? true
+      })
+    });
+    const data = await res.json();
+    return { success: data.ok, result: data };
+  } catch (err: any) {
+    console.error(`[Telegram ${department} Error]:`, err);
+    return { success: false, error: err.message };
+  }
+}
+
 
 /**
  * Normalizes a Thai phone number to international format (66xxxxxxxxx).

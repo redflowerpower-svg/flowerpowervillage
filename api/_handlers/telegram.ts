@@ -488,7 +488,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
 // 4. handleSyncTelegramWebhook
 export async function handleSyncTelegramWebhook(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== "POST") {
+  if (req.method !== "POST" && req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
@@ -508,49 +508,138 @@ export async function handleSyncTelegramWebhook(req: VercelRequest, res: VercelR
     return res.status(401).json({ error: "Unauthorized: Authentication check failed" });
   }
 
-  const { botToken, chatId, webhookUrl } = req.body;
+  // Handle GET: retrieve current config & bot status for a department
+  if (req.method === "GET") {
+    const department = (req.query?.department as string) === 'village' ? 'village' : 'pizza';
+    const creds = await getTelegramCredentials(department, req.headers.authorization);
+    let botInfo: any = null;
+    if (creds.botToken) {
+      try {
+        const meRes = await fetch(`https://api.telegram.org/bot${creds.botToken}/getMe`);
+        const meJson = await meRes.json();
+        if (meJson.ok) {
+          botInfo = meJson.result;
+        }
+      } catch (e) {
+        console.warn("[Sync Webhook GET getMe warning]:", e);
+      }
+    }
+    return res.status(200).json({
+      department,
+      configured: Boolean(creds.botToken && creds.chatId),
+      botToken: creds.botToken || '',
+      chatId: creds.chatId || '',
+      botInfo
+    });
+  }
+
+  const { botToken, chatId, webhookUrl, department = 'pizza', testMessage = false } = req.body || {};
 
   if (!botToken) {
     return res.status(400).json({ error: "TELEGRAM_BOT_TOKEN is missing." });
   }
 
-  const saveSuccess = await updateTelegramCredentials(botToken.trim(), chatId?.trim() || "", req.headers.authorization);
-  if (!saveSuccess) {
-    console.warn("[Sync Webhook] Could not save bot credentials to Supabase, continuing with registration.");
-  }
-
+  // Verify Bot Token with Telegram
+  let botInfo: any = null;
   try {
-    let targetWebhookUrl = webhookUrl;
-    if (!targetWebhookUrl) {
-      const host = req.headers.host || "";
-      const isLocal = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.");
-      const protocol = isLocal ? "http" : "https";
-      targetWebhookUrl = `${protocol}://${host}/api/telegram-webhook`;
-    }
-
-    console.log(`[Sync Webhook] Registering webhook URL: ${targetWebhookUrl}`);
-
-    const telegramUrl = `https://api.telegram.org/bot${botToken}/setWebhook?url=${encodeURIComponent(targetWebhookUrl)}`;
-    const response = await fetch(telegramUrl);
-    const result = await response.json();
-
-    if (!response.ok || !result.ok) {
-      console.error("[Sync Webhook] Telegram API error response:", result);
-      return res.status(500).json({
-        success: false,
-        error: "Telegram API rejected the webhook configuration",
-        webhookUrl: targetWebhookUrl,
-        details: result
+    const meRes = await fetch(`https://api.telegram.org/bot${botToken.trim()}/getMe`);
+    const meJson = await meRes.json();
+    if (!meJson.ok) {
+      return res.status(400).json({ 
+        error: `Token Bot non valido su Telegram: ${meJson.description || 'Errore autenticazione'}` 
       });
     }
-
-    return res.status(200).json({
-      success: true,
-      webhookUrl: targetWebhookUrl,
-      details: result
-    });
+    botInfo = meJson.result;
   } catch (err: any) {
-    console.error("[Sync Webhook Server Error]:", err);
-    return res.status(500).json({ error: "Internal Server Error", message: err.message });
+    return res.status(500).json({ error: `Impossibile contattare le API di Telegram: ${err.message}` });
   }
+
+  const targetDept = department === 'village' ? 'village' : 'pizza';
+  const saveSuccess = await updateTelegramCredentials(
+    botToken.trim(), 
+    chatId?.trim() || "", 
+    targetDept, 
+    req.headers.authorization
+  );
+  if (!saveSuccess) {
+    console.warn(`[Sync Webhook] Could not save bot credentials to Supabase for ${targetDept}.`);
+  }
+
+  let testMessageSent = false;
+  let testMessageError: string | null = null;
+
+  // Send a test message if requested and chatId is provided
+  if (testMessage && chatId?.trim()) {
+    try {
+      const testMsgText = targetDept === 'village'
+        ? `🌿 <b>[Flower Power Village · Koh Phayam]</b>\n` +
+          `✅ <b>Bot Telegram collegato con successo!</b>\n\n` +
+          `Questo gruppo riceverà tutte le notifiche del <b>Villaggio</b>:\n` +
+          `• Nuove prenotazioni alloggi\n` +
+          `• Protezione Auto-Shielding Overbooking\n` +
+          `• Sincronizzazione tariffe Octorate PMS\n\n` +
+          `🛡️ <i>Reparto Stagno 100% indipendente dalla Pizzeria di Ranong.</i>`
+        : `🍕 <b>[Flower Power Pizza · Ranong]</b>\n` +
+          `✅ <b>Bot Telegram collegato con successo!</b>\n` +
+          `Canale dedicato alle ordinazioni della Pizzeria e gestione consegne.`;
+
+      const testRes = await fetch(`https://api.telegram.org/bot${botToken.trim()}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId.trim(),
+          text: testMsgText,
+          parse_mode: 'HTML',
+          disable_web_page_preview: true
+        })
+      });
+      const testJson = await testRes.json();
+      testMessageSent = testJson.ok === true;
+      if (!testMessageSent) {
+        testMessageError = testJson.description || 'Impossibile inviare il messaggio al gruppo.';
+      }
+    } catch (tErr: any) {
+      testMessageError = tErr.message;
+    }
+  }
+
+  // Set webhook if pizza or explicitly requested
+  let targetWebhookUrl: string | null = null;
+  if (targetDept === 'pizza' || webhookUrl) {
+    try {
+      targetWebhookUrl = webhookUrl;
+      if (!targetWebhookUrl) {
+        const host = req.headers.host || "";
+        const isLocal = host.includes("localhost") || host.includes("127.0.0.1") || host.startsWith("192.168.");
+        const protocol = isLocal ? "http" : "https";
+        targetWebhookUrl = `${protocol}://${host}/api/telegram-webhook`;
+      }
+
+      console.log(`[Sync Webhook] Registering webhook URL: ${targetWebhookUrl}`);
+      const telegramUrl = `https://api.telegram.org/bot${botToken.trim()}/setWebhook?url=${encodeURIComponent(targetWebhookUrl)}`;
+      const response = await fetch(telegramUrl);
+      const result = await response.json();
+
+      if (!response.ok || !result.ok) {
+        console.error("[Sync Webhook] Telegram API error response:", result);
+        return res.status(500).json({
+          success: false,
+          error: "Telegram API rejected the webhook configuration",
+          webhookUrl: targetWebhookUrl,
+          details: result
+        });
+      }
+    } catch (whErr: any) {
+      console.warn("[Sync Webhook] Webhook registration warning:", whErr);
+    }
+  }
+
+  return res.status(200).json({
+    success: true,
+    department: targetDept,
+    botInfo,
+    testMessageSent,
+    testMessageError,
+    webhookUrl: targetWebhookUrl
+  });
 }
