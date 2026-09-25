@@ -215,25 +215,6 @@ export async function handleVerifyCheckoutSession(req: VercelRequest, res: Verce
         }
       });
     }
-        bookingData: {
-          accommodationId: Number(accommodationId),
-          checkIn,
-          checkOut,
-          guests: Number(guests),
-          guestName,
-          guestEmail,
-          guestPhone,
-          extraBreakfast: extraBreakfast === "true",
-          extraAC: extraAC === "true",
-          totalPrice: finalTotalAmt,
-          depositPaid: depositPaidAmt,
-          balanceDue: balanceDueAmt,
-          finalTotal: finalTotalAmt,
-          promoCode: promoCodeVal,
-          discountAmount: discountAmountVal
-        }
-      });
-    }
 
     // 3. Attempt to create reservation in Octorate (server-side, has access to tokens)
     let octorateReservationId: string | null = null;
