@@ -19,6 +19,7 @@ import {
 import { PrimaryGateway } from '../types';
 import { usePaymentsAdminStore } from '../store/usePaymentsAdminStore';
 import { calculatePaymentTotal, PaymentMethod } from '../../../lib/paymentCalculations';
+import { recordKsherTransaction } from '../lib/ksherTransactions';
 
 interface UniversalCheckoutModalDemoProps {
   isOpen: boolean;
@@ -86,7 +87,23 @@ export const UniversalCheckoutModalDemo: React.FC<UniversalCheckoutModalDemoProp
         if (data.success) {
           if (data.checkoutUrl) setLiveSessionUrl(data.checkoutUrl);
           if (data.qrCodeUrl) setLiveQrCodeUrl(data.qrCodeUrl);
-          if (data.transactionId) setTxId(data.transactionId);
+          if (data.transactionId) {
+            setTxId(data.transactionId);
+            if (gateway === 'ksher' || selectedMethod === 'ksher') {
+              try {
+                recordKsherTransaction({
+                  orderNo: data.transactionId,
+                  customerName: 'Ospite (Checkout Demo)',
+                  customerEmail: receiverEmail,
+                  roomName: accommodationName,
+                  amount: finalDeposit,
+                  channel: selectedChannel === 'promptpay' ? 'promptpay' : 'card',
+                  date: new Date().toISOString(),
+                  status: 'PAID'
+                });
+              } catch {}
+            }
+          }
         }
       })
       .catch((err) => {

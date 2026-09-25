@@ -34,6 +34,7 @@ import { ACCOMMODATIONS, PRICE_CONFIG } from "../resort/config/accommodations"
 import { translations, Language } from "../lib/translations"
 import { getBaselineMinStay } from "../../admin/resort/lib/octorateAdmin"
 import { calculatePaymentTotal } from "../../lib/paymentCalculations"
+import { recordKsherTransaction } from "../../admin/payments/lib/ksherTransactions"
 
 const CATEGORY_ITEMS = [
   { name: "Tutti", label: "TUTTI", desc: "Esplora il villaggio", icon: Grid },
@@ -875,6 +876,22 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           localStorage.setItem(`pending_booking_${session.sessionId}`, JSON.stringify(pendingData))
           sessionStorage.setItem('latest_pending_booking', JSON.stringify({ sessionId: session.sessionId, ...pendingData }))
           localStorage.setItem('latest_pending_booking', JSON.stringify({ sessionId: session.sessionId, ...pendingData }))
+
+          // Record in Ksher transactions list for Back Office refund console
+          if (session.sessionId.startsWith("FPBK")) {
+            try {
+              recordKsherTransaction({
+                orderNo: session.sessionId,
+                customerName: checkoutData.name,
+                customerEmail: checkoutData.email,
+                roomName: selectedRoom.name || selectedRoom.title,
+                amount: session.depositAmount || Math.round(pricingDetails.finalTotal * 0.3),
+                channel: paymentMethod === 'ksher_promptpay' ? 'promptpay' : 'card',
+                date: new Date().toISOString(),
+                status: 'PAID'
+              })
+            } catch {}
+          }
         } catch (storageErr) {
           console.warn("[BookingEngine] Failed to cache pending booking:", storageErr)
         }

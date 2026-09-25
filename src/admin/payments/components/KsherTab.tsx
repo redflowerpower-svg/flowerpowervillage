@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { QrCode, Key, Check, Eye, EyeOff, Sparkles, Smartphone, CreditCard, Globe, Copy, CheckCircle2, ExternalLink, Play, RotateCcw, Search, AlertCircle, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { QrCode, Key, Check, Eye, EyeOff, Sparkles, Smartphone, CreditCard, Globe, Copy, CheckCircle2, ExternalLink, Play, RotateCcw, Search, AlertCircle, RefreshCw, ChevronDown } from 'lucide-react';
 import { usePaymentsAdminStore } from '../store/usePaymentsAdminStore';
 import { KsherUserInterfacePreview } from './KsherUserInterfacePreview';
 import { UniversalCheckoutModalDemo } from './UniversalCheckoutModalDemo';
+import { getKsherTransactions, markKsherTransactionRefunded, KsherRecordedTransaction } from '../lib/ksherTransactions';
 
 export const KsherTab: React.FC = () => {
   const { settings, updateKsherConfig, saveSettings, saving, saveSuccess } = usePaymentsAdminStore();
@@ -14,6 +15,8 @@ export const KsherTab: React.FC = () => {
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Refund & Query Console States
+  const [recordedTransactions, setRecordedTransactions] = useState<KsherRecordedTransaction[]>([]);
+  const [selectedTxOrderNo, setSelectedTxOrderNo] = useState<string>('');
   const [orderQueryInput, setOrderQueryInput] = useState('');
   const [refundAmountInput, setRefundAmountInput] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
@@ -21,12 +24,44 @@ export const KsherTab: React.FC = () => {
   const [refundResult, setRefundResult] = useState<any>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  useEffect(() => {
+    setRecordedTransactions(getKsherTransactions());
+  }, []);
+
   const directPaymentUrl = `https://gateway.ksher.com/pay/card/${config.appId || 'mch39593'}/KSHER-39593-${directLinkAmount}`;
 
   const handleCopyDirectLink = () => {
     navigator.clipboard?.writeText?.(directPaymentUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const handleSelectTransaction = (orderNo: string) => {
+    setSelectedTxOrderNo(orderNo);
+    setActionError(null);
+    setRefundResult(null);
+
+    if (!orderNo) {
+      setOrderQueryInput('');
+      setRefundAmountInput('');
+      setQueryResult(null);
+      return;
+    }
+
+    const found = recordedTransactions.find((t) => t.orderNo === orderNo);
+    if (found) {
+      setOrderQueryInput(found.orderNo);
+      setRefundAmountInput(found.amount.toString());
+      setQueryResult({
+        result: found.status,
+        channel: found.channel,
+        total_fee: found.amount * 100,
+        fee_type: 'THB',
+        ksher_order_no: found.orderNo,
+        pay_mch_order_no: found.orderNo,
+        time_end: found.date
+      });
+    }
   };
 
   const handleQueryOrder = async () => {
@@ -54,10 +89,12 @@ export const KsherTab: React.FC = () => {
 
   const handleRefundOrder = async () => {
     if (!orderQueryInput.trim()) {
-      alert("Inserisci il codice ordine (es. FPBK...) da stornare.");
+      alert("Inserisci o seleziona il codice ordine (es. FPBK...) da stornare.");
       return;
     }
-    const confirmed = window.confirm(`Sei sicuro di voler eseguire lo storno per l'ordine ${orderQueryInput.trim()}? I fondi verranno restituiti al cliente.`);
+    const amountToRefund = refundAmountInput ? Number(refundAmountInput) : undefined;
+    const amountLabel = amountToRefund ? `฿${amountToRefund.toLocaleString()} THB` : 'il 100% dell\'importo';
+    const confirmed = window.confirm(`Sei sicuro di voler eseguire lo storno per l'ordine ${orderQueryInput.trim()} per un totale di ${amountLabel}? I fondi verranno restituiti al cliente.`);
     if (!confirmed) return;
 
     setActionLoading(true);
@@ -68,7 +105,7 @@ export const KsherTab: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mch_order_no: orderQueryInput.trim(),
-          refund_amount: refundAmountInput ? Number(refundAmountInput) : undefined
+          refund_amount: amountToRefund
         })
       });
       const data = await res.json();
@@ -76,7 +113,10 @@ export const KsherTab: React.FC = () => {
         throw new Error(data.refundData?.msg || data.error || "Errore durante lo storno su Ksher.");
       }
       setRefundResult(data.refundData?.data || data.refundData);
-      // Refresh status
+      // Mark as refunded in local storage
+      markKsherTransactionRefunded(orderQueryInput.trim(), amountToRefund);
+      setRecordedTransactions(getKsherTransactions());
+      // Refresh status from Ksher
       await handleQueryOrder();
     } catch (err: any) {
       setActionError(err.message);
@@ -216,6 +256,62 @@ export const KsherTab: React.FC = () => {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Dropdown Selettore Transazioni con Auto-Fill */}
+        <div className="p-4 bg-stone-950/80 border border-amber-500/30 rounded-2xl space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <label className="text-xs font-bold text-amber-400 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              📋 Seleziona Transazione da Rimborsare (Menu a Tendina):
+            </label>
+            <span className="text-[11px] text-stone-400 font-mono">
+              {recordedTransactions.length} pagamenti disponibili
+            </span>
+          </div>
+
+          <div className="relative">
+            <select
+              value={selectedTxOrderNo}
+              onChange={(e) => handleSelectTransaction(e.target.value)}
+              className="w-full bg-stone-900 border border-stone-700 hover:border-amber-400 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-white focus:outline-none focus:border-amber-500 cursor-pointer transition-all"
+            >
+              <option value="">-- Seleziona un pagamento recente dalla lista (importo e codice si auto-compilano) --</option>
+              {recordedTransactions.map((tx) => (
+                <option key={tx.orderNo} value={tx.orderNo}>
+                  {tx.orderNo} | {tx.customerName || 'Ospite'} | ฿{tx.amount.toLocaleString()} THB | {tx.channel === 'card' ? '💳 Carta' : '📱 PromptPay'} | {tx.status === 'REFUNDED' ? '↩️ GIÀ STORNATO' : '✅ PAGATO'}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {selectedTxOrderNo && (() => {
+            const selectedTx = recordedTransactions.find((t) => t.orderNo === selectedTxOrderNo);
+            if (!selectedTx) return null;
+            return (
+              <div className="p-3 bg-stone-900/60 rounded-xl border border-stone-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 font-mono">
+                  <span className="text-stone-400">Pagato dal cliente:</span>
+                  <span className="font-extrabold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">
+                    ฿{selectedTx.amount.toLocaleString()} THB
+                  </span>
+                  <span className="text-stone-500 text-[11px]">({selectedTx.channel === 'card' ? 'Carta Internazionale' : 'PromptPay QR'})</span>
+                </div>
+
+                <div className="flex items-center gap-2 font-mono">
+                  <span className="text-stone-400">Quanto vuoi restituire:</span>
+                  <span className="font-extrabold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60">
+                    ฿{Number(refundAmountInput || selectedTx.amount).toLocaleString()} THB
+                  </span>
+                  {Number(refundAmountInput || selectedTx.amount) < selectedTx.amount && (
+                    <span className="text-[11px] text-stone-400">
+                      (Trattieni: ฿{(selectedTx.amount - Number(refundAmountInput || selectedTx.amount)).toLocaleString()} THB)
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2">
