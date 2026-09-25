@@ -17,6 +17,19 @@ const STORAGE_KEY = 'fp_ksher_transactions';
 
 const INITIAL_TRANSACTIONS: KsherRecordedTransaction[] = [
   {
+    orderNo: 'FPBK25093767',
+    customerName: 'Marco Damonte',
+    customerEmail: 'redflowerpower@gmail.com',
+    purchaseType: 'Caparra Prenotazione 30%',
+    roomName: 'Internal room (Internal BE)',
+    itemDescription: 'Internal room (Internal BE)',
+    datesSummary: '25/09/2026 - 27/09/2026 (2 notti)',
+    amount: 140,
+    channel: 'card',
+    date: '2026-09-25T15:32:00Z',
+    status: 'PAID'
+  },
+  {
     orderNo: 'FPBK27797776',
     customerName: 'Test Ospite Carta',
     customerEmail: 'admin@flowerpower-phayam.com',
