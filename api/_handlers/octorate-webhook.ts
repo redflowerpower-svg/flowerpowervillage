@@ -2,6 +2,7 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { executeAutoShieldForReservation } from "../_helpers/octorate-auto-shield.js";
 import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync.js";
+import { handleDirectReservationCancellation } from "../_helpers/cancellation-email.js";
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -609,6 +610,14 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 channelName: targetBooking.channelName || targetBooking.channel || 'OTA Webhook',
                 supabaseAdmin
               });
+            } else {
+              // ✉️ Gestione Cancellazione: Solo per prenotazioni dirette (Sito Web o Octorate interno)
+              try {
+                console.log(`[OCTORATE WEBHOOK] Rilevata cancellazione per prenotazione #${targetBooking.id || targetResId} (${targetBooking.channelName || targetBooking.channelId}). Avvio gestione diretta...`);
+                await handleDirectReservationCancellation(targetBooking);
+              } catch (cancelErr) {
+                console.warn('[OCTORATE WEBHOOK] Errore gestione cancellazione:', cancelErr);
+              }
             }
           }
         } catch (shieldErr) {
