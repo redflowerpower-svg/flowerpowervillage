@@ -864,11 +864,11 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
           extraBreakfast,
           extraAC,
           lang,
-          grandTotal: session.grandTotal || pricingDetails.finalTotal,
-          depositAmount: session.depositAmount || Math.round(pricingDetails.finalTotal * 0.3),
-          balanceDue: session.balanceDue || (pricingDetails.finalTotal - Math.round(pricingDetails.finalTotal * 0.3)),
+          grandTotal: session.grandTotal || checkoutPricing.finalTotal,
+          depositAmount: session.depositAmount || Math.round(checkoutPricing.finalTotal * 0.3),
+          balanceDue: session.balanceDue || (checkoutPricing.finalTotal - Math.round(checkoutPricing.finalTotal * 0.3)),
           promoCode: appliedPromo?.code || null,
-          discountAmount: pricingDetails.promoDiscount || 0,
+          discountAmount: checkoutPricing.promoDiscount || 0,
           gateway: (paymentMethod === 'ksher_promptpay' || paymentMethod === 'ksher_card' || paymentMethod === 'ksher') ? 'ksher' : paymentMethod
         }
         try {
@@ -888,7 +888,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
                 roomName: selectedRoom.name || selectedRoom.title,
                 itemDescription: selectedRoom.name || selectedRoom.title,
                 datesSummary: checkIn && checkOut ? `${checkIn} - ${checkOut}` : undefined,
-                amount: session.depositAmount || Math.round(pricingDetails.finalTotal * 0.3),
+                amount: session.depositAmount || Math.round(checkoutPricing.finalTotal * 0.3),
                 channel: paymentMethod === 'ksher_promptpay' ? 'promptpay' : 'card',
                 date: new Date().toISOString(),
                 status: 'PAID'
