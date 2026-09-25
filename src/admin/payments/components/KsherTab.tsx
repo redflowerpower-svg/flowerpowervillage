@@ -277,11 +277,16 @@ export const KsherTab: React.FC = () => {
               className="w-full bg-stone-900 border border-stone-700 hover:border-amber-400 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-white focus:outline-none focus:border-amber-500 cursor-pointer transition-all"
             >
               <option value="">-- Seleziona un pagamento recente dalla lista (importo e codice si auto-compilano) --</option>
-              {recordedTransactions.map((tx) => (
-                <option key={tx.orderNo} value={tx.orderNo}>
-                  {tx.orderNo} | {tx.customerName || 'Ospite'} | ฿{tx.amount.toLocaleString()} THB | {tx.channel === 'card' ? '💳 Carta' : '📱 PromptPay'} | {tx.status === 'REFUNDED' ? '↩️ GIÀ STORNATO' : '✅ PAGATO'}
-                </option>
-              ))}
+              {recordedTransactions.map((tx) => {
+                const purchaseLabel = tx.purchaseType || 'Prenotazione Alloggio';
+                const accommodation = tx.roomName || tx.itemDescription || 'Alloggio Villaggio';
+                const dates = tx.datesSummary ? ` (${tx.datesSummary})` : '';
+                return (
+                  <option key={tx.orderNo} value={tx.orderNo}>
+                    {tx.orderNo} | {tx.customerName || 'Ospite'} | 🏠 {purchaseLabel}: {accommodation}{dates} | ฿{tx.amount.toLocaleString()} THB | {tx.channel === 'card' ? '💳 Carta' : '📱 PromptPay'} | {tx.status === 'REFUNDED' ? '↩️ GIÀ STORNATO' : '✅ PAGATO'}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -289,25 +294,47 @@ export const KsherTab: React.FC = () => {
             const selectedTx = recordedTransactions.find((t) => t.orderNo === selectedTxOrderNo);
             if (!selectedTx) return null;
             return (
-              <div className="p-3 bg-stone-900/60 rounded-xl border border-stone-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-2 font-mono">
-                  <span className="text-stone-400">Pagato dal cliente:</span>
-                  <span className="font-extrabold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">
-                    ฿{selectedTx.amount.toLocaleString()} THB
+              <div className="p-3.5 bg-stone-900/80 rounded-xl border border-stone-800 space-y-2.5 text-xs">
+                {/* Dettagli Tipo Acquisto & Prenotazione */}
+                <div className="flex flex-wrap items-center gap-2 pb-2 border-b border-stone-800">
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 font-bold border border-amber-500/20 text-[11px]">
+                    📦 {selectedTx.purchaseType || 'Prenotazione Alloggio'}
                   </span>
-                  <span className="text-stone-500 text-[11px]">({selectedTx.channel === 'card' ? 'Carta Internazionale' : 'PromptPay QR'})</span>
-                </div>
-
-                <div className="flex items-center gap-2 font-mono">
-                  <span className="text-stone-400">Quanto vuoi restituire:</span>
-                  <span className="font-extrabold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60">
-                    ฿{Number(refundAmountInput || selectedTx.amount).toLocaleString()} THB
+                  <span className="text-white font-bold flex items-center gap-1.5">
+                    🏠 {selectedTx.roomName || selectedTx.itemDescription || 'Soggiorno Villaggio'}
                   </span>
-                  {Number(refundAmountInput || selectedTx.amount) < selectedTx.amount && (
-                    <span className="text-[11px] text-stone-400">
-                      (Trattieni: ฿{(selectedTx.amount - Number(refundAmountInput || selectedTx.amount)).toLocaleString()} THB)
+                  {selectedTx.datesSummary && (
+                    <span className="text-stone-300 font-mono text-[11px] bg-stone-950 px-2 py-0.5 rounded border border-stone-800">
+                      🗓️ {selectedTx.datesSummary}
                     </span>
                   )}
+                  {selectedTx.customerEmail && (
+                    <span className="text-stone-500 text-[11px]">
+                      ✉️ {selectedTx.customerEmail}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 font-mono">
+                    <span className="text-stone-400">Pagato dal cliente:</span>
+                    <span className="font-extrabold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">
+                      ฿{selectedTx.amount.toLocaleString()} THB
+                    </span>
+                    <span className="text-stone-500 text-[11px]">({selectedTx.channel === 'card' ? 'Carta Internazionale' : 'PromptPay QR'})</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 font-mono">
+                    <span className="text-stone-400">Quanto vuoi restituire:</span>
+                    <span className="font-extrabold text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/60">
+                      ฿{Number(refundAmountInput || selectedTx.amount).toLocaleString()} THB
+                    </span>
+                    {Number(refundAmountInput || selectedTx.amount) < selectedTx.amount && (
+                      <span className="text-[11px] text-stone-400">
+                        (Trattieni: ฿{(selectedTx.amount - Number(refundAmountInput || selectedTx.amount)).toLocaleString()} THB)
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             );

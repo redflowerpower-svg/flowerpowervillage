@@ -2,7 +2,10 @@ export interface KsherRecordedTransaction {
   orderNo: string;
   customerName: string;
   customerEmail?: string;
+  purchaseType?: string; // es. 'Prenotazione Alloggio', 'Caparra Villaggio 30%', 'Link Diretto'
   roomName?: string;
+  itemDescription?: string;
+  datesSummary?: string; // es. '24/09/2026 - 25/09/2026 (1 notte)'
   amount: number; // in THB
   channel: 'card' | 'promptpay';
   date: string;
@@ -17,7 +20,10 @@ const INITIAL_TRANSACTIONS: KsherRecordedTransaction[] = [
     orderNo: 'FPBK27797776',
     customerName: 'Test Ospite Carta',
     customerEmail: 'admin@flowerpower-phayam.com',
+    purchaseType: 'Prenotazione Alloggio',
     roomName: 'Fake Bungalow 2 (Test Live)',
+    itemDescription: 'Fake Bungalow 2 (Test Live)',
+    datesSummary: '24/09/2026 - 25/09/2026 (1 notte)',
     amount: 99,
     channel: 'card',
     date: '2026-09-24T12:31:05Z',
@@ -28,7 +34,10 @@ const INITIAL_TRANSACTIONS: KsherRecordedTransaction[] = [
     orderNo: 'FPBK28819041',
     customerName: 'Marco Rossi',
     customerEmail: 'marco.rossi@example.it',
-    roomName: 'Jungle Villa (Koh Phayam - Caparra 30%)',
+    purchaseType: 'Caparra Villaggio 30%',
+    roomName: 'Jungle Villa (Koh Phayam)',
+    itemDescription: 'Jungle Villa (Koh Phayam - Caparra 30%)',
+    datesSummary: '10/11/2026 - 15/11/2026 (5 notti)',
     amount: 3600,
     channel: 'card',
     date: '2026-09-24T10:15:00Z',
@@ -38,7 +47,10 @@ const INITIAL_TRANSACTIONS: KsherRecordedTransaction[] = [
     orderNo: 'FPBK28824102',
     customerName: 'Somchai Prasert',
     customerEmail: 'somchai@email.th',
+    purchaseType: 'Prenotazione Alloggio (Saldo 100%)',
     roomName: 'Red Bungalow (PromptPay QR)',
+    itemDescription: 'Red Bungalow (PromptPay QR)',
+    datesSummary: '01/10/2026 - 02/10/2026 (1 notte)',
     amount: 540,
     channel: 'promptpay',
     date: '2026-09-23T16:45:00Z',
@@ -48,7 +60,10 @@ const INITIAL_TRANSACTIONS: KsherRecordedTransaction[] = [
     orderNo: 'FPBK28833918',
     customerName: 'Elena Bianchi',
     customerEmail: 'elena.b@gmail.com',
+    purchaseType: 'Caparra Villaggio 30%',
     roomName: 'Yellow Bungalow (Caparra 30%)',
+    itemDescription: 'Yellow Bungalow (Caparra 30%)',
+    datesSummary: '15/12/2026 - 18/12/2026 (3 notti)',
     amount: 1200,
     channel: 'card',
     date: '2026-09-22T14:20:00Z',
@@ -66,13 +81,32 @@ export function getKsherTransactions(): KsherRecordedTransaction[] {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
+      // Enrich transactions with purchaseType/roomName/datesSummary if missing
+      const enriched = parsed.map((t: any) => {
+        const initMatch = INITIAL_TRANSACTIONS.find((it) => it.orderNo === t.orderNo);
+        if (initMatch) {
+          return {
+            ...initMatch,
+            ...t,
+            purchaseType: t.purchaseType || initMatch.purchaseType,
+            roomName: t.roomName || initMatch.roomName,
+            itemDescription: t.itemDescription || initMatch.itemDescription,
+            datesSummary: t.datesSummary || initMatch.datesSummary
+          };
+        }
+        return {
+          ...t,
+          purchaseType: t.purchaseType || (t.roomName ? 'Prenotazione Alloggio' : 'Pagamento Servizi / Alloggio')
+        };
+      });
+
       // Ensure FPBK27797776 is present in the list
-      const hasRealTest = parsed.some((t: any) => t.orderNo === 'FPBK27797776');
+      const hasRealTest = enriched.some((t: any) => t.orderNo === 'FPBK27797776');
       if (!hasRealTest) {
-        parsed.unshift(INITIAL_TRANSACTIONS[0]);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+        enriched.unshift(INITIAL_TRANSACTIONS[0]);
       }
-      return parsed;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(enriched));
+      return enriched;
     }
     return INITIAL_TRANSACTIONS;
   } catch (err) {
