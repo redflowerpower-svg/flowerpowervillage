@@ -1459,7 +1459,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 {stripeSessionId && (
                   <a
-                    href={`/api/download-confirmation?session_id=${stripeSessionId}`}
+                    href={`/api/download-confirmation?session_id=${stripeSessionId}${bookingId ? `&octorate_id=${bookingId}` : ''}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-emerald-800 hover:bg-emerald-700 text-white font-bold text-xs px-8 py-3.5 rounded-full shadow transition-all cursor-pointer inline-flex items-center gap-2 decoration-none"
