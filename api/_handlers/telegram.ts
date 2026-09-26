@@ -150,28 +150,33 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
   }
 
   try {
+    // 1. Crucial: ALWAYS update the database status using service_role credentials
+    const { data: order, error: updateError } = await supabase
+      .from("pizza_orders")
+      .update({ status })
+      .eq("id", orderId)
+      .select("*")
+      .single();
+
+    if (updateError || !order) {
+      console.error("[Order Update] Failed to update order in database:", updateError);
+      return res.status(500).json({ error: "Database update error", details: updateError });
+    }
+
+    console.log(`[Order Update] Order #${orderId} status successfully updated to "${status}" in database.`);
+
+    // 2. Sync to Telegram staff channel if configured
     const creds = await getTelegramCredentials();
     if (!creds) {
-      console.warn("[Telegram Update] No Telegram credentials configured, skipping status update.");
-      return res.status(200).json({ success: false, reason: "no_credentials" });
+      console.warn("[Telegram Update] No Telegram credentials configured, DB updated successfully.");
+      return res.status(200).json({ success: true, order, telegram: "no_credentials" });
     }
 
     const { botToken, chatId } = creds;
 
-    const { data: order, error: fetchError } = await supabase
-      .from("pizza_orders")
-      .select("*")
-      .eq("id", orderId)
-      .single();
-
-    if (fetchError || !order) {
-      console.error("[Telegram Update] Order not found in database:", fetchError);
-      return res.status(404).json({ error: "Order not found" });
-    }
-
     if (!order.telegram_message_id) {
-      console.log(`[Telegram Update] No telegram_message_id tracked for order ${orderId}, skipping.`);
-      return res.status(200).json({ success: false, reason: "no_tracked_message" });
+      console.log(`[Telegram Update] No telegram_message_id tracked for order ${orderId}, DB updated successfully.`);
+      return res.status(200).json({ success: true, order, telegram: "no_tracked_message" });
     }
 
     const items = Array.isArray(order.items) ? order.items : [];

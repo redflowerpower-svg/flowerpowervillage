@@ -138,6 +138,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     case 'telegram-notify':
       return handleTelegramNotify(req, res);
 
+    case 'pizza-order-status':
     case 'telegram-update-status':
       return handleTelegramUpdateStatus(req, res);
 

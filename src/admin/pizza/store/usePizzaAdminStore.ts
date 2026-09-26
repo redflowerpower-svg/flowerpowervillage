@@ -161,25 +161,49 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
   },
 
   updateOrderStatus: async (id: string, status: PizzaOrder['status']) => {
-    // Optimistic UI update
+    // 1. Optimistic UI update (0ms UI latency)
     set((state) => ({
-      orders: state.orders.map((o) => (o.id === id ? { ...o, status } : o))
+      orders: state.orders.map((o) => (String(o.id) === String(id) ? { ...o, status } : o))
     }));
 
+    // 2. Broadcast immediately on local channels
     try {
-      const { error } = await supabase
-        .from('pizza_orders')
-        .update({ status })
-        .eq('id', id);
+      const ch1 = new BroadcastChannel('flower_power_orders_channel');
+      ch1.postMessage({ type: status === 'preparing' ? 'ORDER_ACCEPTED' : status === 'delivering' ? 'ORDER_DELIVERING' : 'ORDER_UPDATED', orderId: id, status });
+      ch1.close();
+    } catch (e) {}
 
-      if (error) {
-        console.error('[usePizzaAdminStore] Update Status Error:', error);
-        // Rollback via refetch
-        get().fetchOrders();
+    try {
+      const ch2 = new BroadcastChannel('pizza_orders_channel');
+      ch2.postMessage({ type: status === 'preparing' ? 'ORDER_ACCEPTED' : status === 'delivering' ? 'ORDER_DELIVERING' : 'ORDER_UPDATED', orderId: id, status });
+      ch2.close();
+    } catch (e) {}
+
+    // 3. Update database via serverless backend API (uses SUPABASE_SERVICE_ROLE_KEY to bypass RLS)
+    try {
+      const response = await fetch('/api/pizza-order-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: id, status })
+      });
+
+      if (!response.ok) {
+        console.warn('[usePizzaAdminStore] Backend API status update returned non-OK, trying direct Supabase fallback...');
+        await supabase
+          .from('pizza_orders')
+          .update({ status })
+          .eq('id', id);
       }
     } catch (err) {
-      console.error('[usePizzaAdminStore] Update exception:', err);
-      get().fetchOrders();
+      console.warn('[usePizzaAdminStore] API status update fetch failed, trying direct Supabase fallback:', err);
+      try {
+        await supabase
+          .from('pizza_orders')
+          .update({ status })
+          .eq('id', id);
+      } catch (directErr) {
+        console.error('[usePizzaAdminStore] Direct update also failed:', directErr);
+      }
     }
   },
 

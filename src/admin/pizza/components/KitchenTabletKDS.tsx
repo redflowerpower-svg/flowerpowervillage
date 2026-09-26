@@ -15,6 +15,8 @@ import {
   Clock,
   Volume2,
   VolumeX,
+  BellOff,
+  MessageCircle,
   Maximize,
   Minimize,
   CheckCircle,
@@ -29,6 +31,14 @@ import {
   Eye,
   ArrowLeft
 } from 'lucide-react';
+
+const formatWhatsAppPhone = (phone: string) => {
+  let clean = (phone || '').replace(/[^0-9]/g, '');
+  if (clean.startsWith('0')) {
+    clean = '66' + clean.slice(1);
+  }
+  return clean;
+};
 
 const formatProductName = (name: any) => {
   if (!name) return 'Pizza';
@@ -104,10 +114,18 @@ export function KitchenTabletKDS() {
     };
   }, []);
 
+  // Set of order IDs acknowledged/handled by staff (permanently stops ringing)
+  const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => new Set());
+
   // 4. Categorize active orders
   const newOrders = useMemo(() => {
     return orders.filter(o => o.status === 'new' || (o.status as any) === 'received');
   }, [orders]);
+
+  // Only truly unacknowledged new orders trigger the loud audio alarm
+  const unacknowledgedNewOrders = useMemo(() => {
+    return newOrders.filter(o => !acknowledgedOrderIds.has(String(o.id)));
+  }, [newOrders, acknowledgedOrderIds]);
 
   const preparingOrders = useMemo(() => {
     return orders.filter(o => o.status === 'preparing');
@@ -117,23 +135,40 @@ export function KitchenTabletKDS() {
     return orders.filter(o => o.status === 'delivering' || (o.status as any) === 'ready');
   }, [orders]);
 
-  // 5. Sound Alarm Management: if any new orders exist and sound is not muted, trigger continuous alarm
+  // 5. Sound Alarm Management: ONLY trigger alarm if there are UNACKNOWLEDGED new orders and sound is enabled
   useEffect(() => {
-    if (newOrders.length > 0 && !soundMuted) {
+    if (unacknowledgedNewOrders.length > 0 && !soundMuted) {
       startContinuousAlarm();
     } else {
       stopContinuousAlarm();
     }
-  }, [newOrders.length, soundMuted]);
+  }, [unacknowledgedNewOrders.length, soundMuted]);
 
-  // Handle Accept Order
+  // Manually silence the alarm with one tap
+  const handleSilenceAlarm = () => {
+    stopContinuousAlarm();
+    setAcknowledgedOrderIds(prev => {
+      const next = new Set(prev);
+      newOrders.forEach(o => next.add(String(o.id)));
+      return next;
+    });
+  };
+
+  // Handle Accept Order (Phase 1)
   const handleAcceptOrder = async (orderId: string, minutes: number = 30) => {
     initKitchenAudio();
+    // Force kill the alarm immediately
     stopContinuousAlarm();
+    // Add to acknowledged set so this order can never trigger the buzzer again
+    setAcknowledgedOrderIds(prev => {
+      const next = new Set(prev);
+      next.add(String(orderId));
+      return next;
+    });
     await updateOrderStatus(orderId, 'preparing');
   };
 
-  // Handle Order Ready
+  // Handle Order Ready (Phase 2: Sfornato / In consegna rider)
   const handleOrderReady = async (orderId: string) => {
     initKitchenAudio();
     await updateOrderStatus(orderId, 'delivering');
@@ -242,6 +277,18 @@ export function KitchenTabletKDS() {
 
         {/* Right: Tablet Controls (WakeLock, Audio, Fullscreen) */}
         <div className="flex items-center gap-1.5">
+          {/* Pulsante rapido FERMA SUONERIA quando la comanda suona */}
+          {unacknowledgedNewOrders.length > 0 && !soundMuted && (
+            <button
+              type="button"
+              onClick={handleSilenceAlarm}
+              className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-bounce shadow-lg shadow-red-600/50 cursor-pointer border border-white/40"
+              title="Silenzia subito la suoneria per questa comanda"
+            >
+              <BellOff className="w-4 h-4 stroke-[3]" />
+              <span>SILENZIA SUONO</span>
+            </button>
+          )}
           {/* Wake Lock Status Badge */}
           <button
             onClick={() => requestScreenWakeLock().then(ok => setWakeLockActive(ok))}
@@ -418,14 +465,29 @@ export function KitchenTabletKDS() {
 
                     {/* Azioni Comanda: ACCETTA SUBITO (FERMA L'ALLARME) */}
                     <div className="pt-1 flex flex-col gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => handleAcceptOrder(order.id, prepTimeCustom[order.id] || 30)}
-                        className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
-                      >
-                        <CheckCircle className="w-5 h-5 text-white stroke-[3]" />
-                        <span>ACCETTA ORDINE ({prepTimeCustom[order.id] || 30} MIN)</span>
-                      </button>
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleAcceptOrder(order.id, prepTimeCustom[order.id] || 30)}
+                          className="flex-1 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
+                        >
+                          <CheckCircle className="w-5 h-5 text-white stroke-[3]" />
+                          <span>ACCETTA ({prepTimeCustom[order.id] || 30} MIN)</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            stopContinuousAlarm();
+                            setAcknowledgedOrderIds(prev => new Set(prev).add(String(order.id)));
+                          }}
+                          className="px-3.5 py-3.5 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-300 hover:text-white font-black text-xs uppercase tracking-wider border border-stone-700 flex items-center justify-center gap-1 cursor-pointer transition-transform"
+                          title="Silenzia la suoneria senza ancora accettare"
+                        >
+                          <BellOff className="w-4 h-4 text-red-400" />
+                          <span className="hidden sm:inline">MUTO</span>
+                        </button>
+                      </div>
 
                       {/* Selettore rapido minuti prep */}
                       <div className="grid grid-cols-3 gap-1">
@@ -548,6 +610,17 @@ export function KitchenTabletKDS() {
                 const { address, lat, lng } = parseCoordsFromAddress(order.address);
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
 
+                // Customer WhatsApp Link (trilingual dispatch notice)
+                const cleanPhone = formatWhatsAppPhone(order.phone);
+                const customerMsg = encodeURIComponent(
+                  `🍕 *FLOWER POWER PIZZA RANONG* 🛵\n` +
+                  `Ciao ${order.customer_name}!\n` +
+                  `Il tuo ordine #${orderNumber} è appena stato sfornato ed è partito con il nostro rider!\n\n` +
+                  `Your order #${orderNumber} is freshly baked and on the way with our rider!\n` +
+                  `พิซซ่าของคุณอบเสร็จแล้วและกำลังเดินทางไปส่งนะคะ ✨\n\n` +
+                  `Arriviamo tra pochissimo!`
+                );
+
                 // WhatsApp message link for driver
                 const driverMsg = encodeURIComponent(
                   `🛵 *CONSEGNA FLOWER POWER PIZZA*\n` +
@@ -577,13 +650,37 @@ export function KitchenTabletKDS() {
                       </p>
                     </div>
 
-                    {/* Driver WhatsApp Helper */}
+                    {/* FASE 2: Avviso al Cliente (WhatsApp o Chiamata) */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <a
+                        href={`https://wa.me/${cleanPhone}?text=${customerMsg}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="py-2.5 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-sm transition-transform cursor-pointer"
+                        title="Avvisa subito il cliente su WhatsApp che il rider sta arrivando"
+                      >
+                        <MessageCircle className="w-4 h-4 fill-white/20" />
+                        <span>AVVISA CLIENTE</span>
+                      </a>
+
+                      <a
+                        href={`tel:${order.phone}`}
+                        className="py-2.5 px-2 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-transform"
+                        title="Chiama al telefono il cliente"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>Chiama</span>
+                      </a>
+                    </div>
+
+                    {/* FASE 2: Driver Helper & Mappa */}
                     <div className="flex gap-2">
                       <a
                         href={`https://wa.me/?text=${driverMsg}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                        title="Invia posizione e comanda al rider su WhatsApp"
                       >
                         <Send className="w-3.5 h-3.5" />
                         <span>Invia a Rider</span>
@@ -593,7 +690,8 @@ export function KitchenTabletKDS() {
                         href={`https://www.google.com/maps?q=${lat},${lng}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="py-2 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold flex items-center justify-center gap-1"
+                        className="py-2 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold flex items-center justify-center gap-1 active:scale-95 transition-transform"
+                        title="Apri navigazione Google Maps"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
                         <span>Mappa</span>
