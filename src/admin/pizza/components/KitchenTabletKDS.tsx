@@ -17,6 +17,8 @@ import {
   XCircle,
   PauseCircle,
   PlayCircle,
+  Moon,
+  Save,
   X
 } from 'lucide-react';
 import { usePizzaAdminStore, PizzaOrder } from '../store/usePizzaAdminStore';
@@ -121,10 +123,20 @@ export function KitchenTabletKDS() {
   const [serviceCalc, setServiceCalc] = useState<ServiceCalculationResult>(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
   const [showPauseModal, setShowPauseModal] = useState(false);
 
+  // Opening hours inputs and custom pause time
+  const [editOpenTime, setEditOpenTime] = useState<string>('17:00');
+  const [editCloseTime, setEditCloseTime] = useState<string>('22:30');
+  const [customPauseMinutes, setCustomPauseMinutes] = useState<number>(45);
+  const [hoursSavedSuccess, setHoursSavedSuccess] = useState<boolean>(false);
+
   const refreshServiceStatus = async () => {
     const st = await fetchPizzeriaStatus();
     setServiceStatus(st);
     setServiceCalc(calculateServiceState(st));
+    if (st.openingHours) {
+      setEditOpenTime(st.openingHours.openTime || '17:00');
+      setEditCloseTime(st.openingHours.closeTime || '22:30');
+    }
   };
 
   useEffect(() => {
@@ -138,6 +150,10 @@ export function KitchenTabletKDS() {
         if (ev.data?.type === 'STATUS_UPDATED' && ev.data?.status) {
           setServiceStatus(ev.data.status);
           setServiceCalc(calculateServiceState(ev.data.status));
+          if (ev.data.status.openingHours) {
+            setEditOpenTime(ev.data.status.openingHours.openTime || '17:00');
+            setEditCloseTime(ev.data.status.openingHours.closeTime || '22:30');
+          }
         }
       };
     } catch (e) {}
@@ -147,6 +163,45 @@ export function KitchenTabletKDS() {
       if (bc) bc.close();
     };
   }, []);
+
+  // Save Opening Hours
+  const handleSaveOpeningHours = async () => {
+    const updated = await updatePizzeriaStatus({
+      openingHours: {
+        ...serviceStatus.openingHours,
+        openTime: editOpenTime,
+        closeTime: editCloseTime
+      }
+    });
+    setServiceStatus(updated);
+    setServiceCalc(calculateServiceState(updated));
+    setHoursSavedSuccess(true);
+    setTimeout(() => setHoursSavedSuccess(false), 3000);
+  };
+
+  // Force Open Now (start service immediately even if before regular open time)
+  const handleForceOpenNow = async () => {
+    const now = new Date();
+    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const bangkokDate = new Date(utcMs + (7 * 3600000));
+    const currentH = String(bangkokDate.getHours()).padStart(2, '0');
+    const currentM = String(bangkokDate.getMinutes()).padStart(2, '0');
+    const newOpen = `${currentH}:${currentM}`;
+
+    const updated = await updatePizzeriaStatus({
+      isOpen: true,
+      pausedUntil: null,
+      pauseReason: '',
+      openingHours: {
+        ...serviceStatus.openingHours,
+        openTime: newOpen
+      }
+    });
+    setEditOpenTime(newOpen);
+    setServiceStatus(updated);
+    setServiceCalc(calculateServiceState(updated));
+    setShowPauseModal(false);
+  };
 
   // Set Pause / Resume handlers
   const handleApplyPause = async (minutes: number) => {
@@ -334,6 +389,15 @@ export function KitchenTabletKDS() {
     testSound: kdsLang === 'th' ? 'ทดสอบ 🔔' : 'TEST 🔔',
     serviceOpen: kdsLang === 'th' ? 'เปิดรับออเดอร์' : 'ONLINE: OPEN',
     servicePaused: kdsLang === 'th' ? 'พักรับออเดอร์' : 'ONLINE: PAUSED',
+    serviceClosed: kdsLang === 'th' ? 'ปิดตามเวลา' : 'ONLINE: CLOSED',
+    hoursTitle: kdsLang === 'th' ? 'เวลาเปิด - ปิดร้าน' : 'OPENING & CLOSING HOURS',
+    openTimeLabel: kdsLang === 'th' ? 'เวลาเปิด:' : 'Open Time:',
+    closeTimeLabel: kdsLang === 'th' ? 'เวลาปิด:' : 'Close Time:',
+    saveHoursBtn: kdsLang === 'th' ? 'บันทึกเวลาเปิด-ปิด' : 'SAVE HOURS',
+    hoursSaved: kdsLang === 'th' ? 'บันทึกเรียบร้อย!' : 'HOURS SAVED!',
+    customPauseLabel: kdsLang === 'th' ? 'กำหนดเวลาหยุดพักเอง (นาที):' : 'Custom Pause Duration (min):',
+    applyCustomPause: kdsLang === 'th' ? 'ตั้งเวลาพัก' : 'SET PAUSE',
+    openNowEarly: kdsLang === 'th' ? 'เปิดรับออเดอร์ทันที (เริ่มบริการ)' : 'START SERVICE NOW (OPEN EARLY)',
     sizeLabel: kdsLang === 'th' ? 'ขนาด' : 'Size',
     extraLabel: kdsLang === 'th' ? 'พิเศษ' : 'Extra'
   };
@@ -422,20 +486,29 @@ export function KitchenTabletKDS() {
             className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 border transition-all cursor-pointer ${
               serviceCalc.state === 'OPEN'
                 ? 'bg-emerald-950/80 border-emerald-600 text-emerald-300 hover:bg-emerald-900'
-                : 'bg-amber-950/90 border-amber-500 text-amber-300 animate-pulse hover:bg-amber-900 shadow-md shadow-amber-600/30'
+                : serviceCalc.state === 'PAUSED'
+                  ? 'bg-amber-950/90 border-amber-500 text-amber-300 animate-pulse hover:bg-amber-900 shadow-md shadow-amber-600/30'
+                  : 'bg-stone-800 border-stone-700 text-stone-300 hover:border-stone-500 hover:text-white'
             }`}
-            title="Manage delivery service & pause orders"
+            title="Manage delivery service, pause & opening hours"
           >
             {serviceCalc.state === 'OPEN' ? (
               <>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span className="hidden sm:inline">{t.serviceOpen}</span>
               </>
-            ) : (
+            ) : serviceCalc.state === 'PAUSED' ? (
               <>
                 <PauseCircle className="w-4 h-4 text-amber-400" />
                 <span>
                   {kdsLang === 'th' ? `พัก: ${serviceCalc.remainingMinutes} น.` : `PAUSED: ${serviceCalc.remainingMinutes}m`}
+                </span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-4 h-4 text-blue-300" />
+                <span>
+                  {kdsLang === 'th' ? `ปิด (เปิด ${serviceStatus.openingHours.openTime})` : `CLOSED (OPENS ${serviceStatus.openingHours.openTime})`}
                 </span>
               </>
             )}
@@ -941,68 +1014,163 @@ export function KitchenTabletKDS() {
             </div>
 
             {/* Current State Info */}
-            <div className="p-3 rounded-2xl bg-[#0d1017] border border-stone-800 text-xs space-y-1">
+            <div className="p-3.5 rounded-2xl bg-[#0d1017] border border-stone-800 text-xs space-y-2">
               <div className="flex justify-between items-center">
-                <span className="text-stone-400">
+                <span className="text-stone-400 font-bold">
                   {kdsLang === 'th' ? 'สถานะปัจจุบัน:' : 'Current Status:'}
                 </span>
-                <span className={`font-black uppercase px-2 py-0.5 rounded-md ${
+                <span className={`font-black uppercase px-2.5 py-1 rounded-md text-xs ${
                   serviceCalc.state === 'OPEN' 
                     ? 'bg-emerald-950 text-emerald-300 border border-emerald-600' 
-                    : 'bg-amber-950 text-amber-300 border border-amber-600'
+                    : serviceCalc.state === 'PAUSED'
+                      ? 'bg-amber-950 text-amber-300 border border-amber-600 animate-pulse'
+                      : 'bg-stone-800 text-stone-300 border border-stone-700'
                 }`}>
-                  {serviceCalc.state === 'OPEN' ? t.serviceOpen : t.servicePaused}
+                  {serviceCalc.state === 'OPEN' ? t.serviceOpen : serviceCalc.state === 'PAUSED' ? t.servicePaused : t.serviceClosed}
                 </span>
               </div>
-              {serviceCalc.state !== 'OPEN' && serviceCalc.remainingMinutes > 0 && (
-                <div className="flex justify-between items-center pt-1 text-amber-400 font-bold">
+
+              {serviceCalc.state === 'PAUSED' && serviceCalc.remainingMinutes > 0 && (
+                <div className="flex justify-between items-center pt-1 text-amber-400 font-bold border-t border-stone-800/80">
                   <span>{kdsLang === 'th' ? 'จะเปิดรับในอีก:' : 'Reopening In:'}</span>
                   <span>{serviceCalc.remainingMinutes} {t.min} ({serviceCalc.reopenTimeFormatted})</span>
                 </div>
               )}
+
+              {serviceCalc.state === 'CLOSED_OFF_HOURS' && (
+                <div className="flex justify-between items-center pt-1 text-stone-300 font-bold border-t border-stone-800/80">
+                  <span>{kdsLang === 'th' ? 'เวลาเปิดตามรอบ:' : 'Regular Opening:'}</span>
+                  <span>{serviceStatus.openingHours.openTime} - {serviceStatus.openingHours.closeTime}</span>
+                </div>
+              )}
             </div>
 
-            {/* If currently paused: REOPEN NOW BUTTON */}
-            {serviceCalc.state !== 'OPEN' && (
+            {/* Quick Action: REOPEN NOW OR OPEN EARLY */}
+            {serviceCalc.state === 'PAUSED' && (
               <button
                 type="button"
                 onClick={handleResumeService}
-                className="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
+                className="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
               >
-                <PlayCircle className="w-6 h-6 text-white stroke-[2.5]" />
+                <PlayCircle className="w-5 h-5 text-white stroke-[2.5]" />
                 <span>{kdsLang === 'th' ? 'เปิดรับออเดอร์ทันที' : 'REOPEN ONLINE ORDERS NOW'}</span>
               </button>
             )}
 
-            {/* Quick Pause Duration Options */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-stone-400 uppercase tracking-wider block">
-                {kdsLang === 'th' ? 'เลือกเวลาหยุดพักชั่วคราว:' : 'Temporary Pause Duration:'}
+            {serviceCalc.state === 'CLOSED_OFF_HOURS' && (
+              <button
+                type="button"
+                onClick={handleForceOpenNow}
+                className="w-full py-3 rounded-2xl bg-emerald-700 hover:bg-emerald-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider shadow flex items-center justify-center gap-2 cursor-pointer transition-transform"
+              >
+                <PlayCircle className="w-4 h-4 text-white stroke-[2.5]" />
+                <span>{t.openNowEarly}</span>
+              </button>
+            )}
+
+            {/* SECTION 1: PAUSE BUTTONS (30 MIN, 60 MIN & CUSTOM TIME) */}
+            <div className="space-y-2 pt-1 border-t border-stone-800">
+              <span className="text-xs font-black text-amber-400 uppercase tracking-wider block">
+                {kdsLang === 'th' ? '⏸️ พักรับออเดอร์ชั่วคราว:' : '⏸️ TEMPORARY PAUSE:'}
               </span>
 
+              {/* 30 Min and 60 Min */}
               <div className="grid grid-cols-2 gap-2">
-                {[20, 30, 45, 60].map(mins => (
-                  <button
-                    key={mins}
-                    type="button"
-                    onClick={() => handleApplyPause(mins)}
-                    className="py-3 rounded-xl bg-stone-800 hover:bg-amber-600 hover:text-stone-950 text-stone-200 font-black text-xs uppercase border border-stone-700 flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
-                  >
-                    <span>⏸️ +{mins} {t.min}</span>
-                  </button>
-                ))}
+                <button
+                  type="button"
+                  onClick={() => handleApplyPause(30)}
+                  className="py-3 rounded-xl bg-stone-800 hover:bg-amber-600 hover:text-stone-950 text-stone-200 font-black text-xs uppercase border border-stone-700 flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-sm"
+                >
+                  <span>⏸️ 30 {t.min}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyPause(60)}
+                  className="py-3 rounded-xl bg-stone-800 hover:bg-amber-600 hover:text-stone-950 text-stone-200 font-black text-xs uppercase border border-stone-700 flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-sm"
+                >
+                  <span>⏸️ 60 {t.min}</span>
+                </button>
               </div>
-            </div>
 
-            {/* Stop For Tonight Button */}
-            <div className="pt-1">
+              {/* Custom Pause Duration Input */}
+              <div className="pt-1 space-y-1">
+                <label className="text-[11px] font-bold text-stone-400 block">
+                  {t.customPauseLabel}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="5"
+                    max="240"
+                    step="5"
+                    value={customPauseMinutes}
+                    onChange={(e) => setCustomPauseMinutes(Math.max(5, parseInt(e.target.value) || 5))}
+                    className="w-24 px-3 py-2 bg-[#090b0e] border border-stone-700 rounded-xl text-white font-mono text-center font-bold text-sm focus:border-amber-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleApplyPause(customPauseMinutes)}
+                    className="flex-1 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider cursor-pointer transition-all shadow"
+                  >
+                    {t.applyCustomPause} ({customPauseMinutes} {t.min})
+                  </button>
+                </div>
+              </div>
+
+              {/* Stop For Tonight Button */}
               <button
                 type="button"
                 onClick={handleStopTonight}
-                className="w-full py-3 rounded-xl bg-red-950/70 hover:bg-red-800 text-red-200 font-black text-xs uppercase border border-red-700/60 flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                className="w-full py-2.5 rounded-xl bg-red-950/70 hover:bg-red-800 text-red-200 font-black text-xs uppercase border border-red-700/60 flex items-center justify-center gap-1.5 cursor-pointer transition-colors mt-2"
               >
                 <XCircle className="w-4 h-4 text-red-400" />
                 <span>{kdsLang === 'th' ? 'ปิดรับออเดอร์สำหรับคืนนี้' : 'STOP ORDERS FOR TONIGHT'}</span>
+              </button>
+            </div>
+
+            {/* SECTION 2: OPENING & CLOSING HOURS CONFIGURATION */}
+            <div className="space-y-2 pt-2 border-t border-stone-800">
+              <span className="text-xs font-black text-stone-300 uppercase tracking-wider block">
+                🕒 {t.hoursTitle}
+              </span>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label className="text-[11px] font-bold text-stone-400 block mb-1">
+                    {t.openTimeLabel}
+                  </label>
+                  <input
+                    type="time"
+                    value={editOpenTime}
+                    onChange={(e) => setEditOpenTime(e.target.value)}
+                    className="w-full px-2.5 py-2 bg-[#090b0e] border border-stone-700 rounded-xl text-white font-mono text-center font-bold text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-stone-400 block mb-1">
+                    {t.closeTimeLabel}
+                  </label>
+                  <input
+                    type="time"
+                    value={editCloseTime}
+                    onChange={(e) => setEditCloseTime(e.target.value)}
+                    className="w-full px-2.5 py-2 bg-[#090b0e] border border-stone-700 rounded-xl text-white font-mono text-center font-bold text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSaveOpeningHours}
+                className={`w-full py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow ${
+                  hoursSavedSuccess 
+                    ? 'bg-emerald-600 text-white' 
+                    : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 hover:text-white'
+                }`}
+              >
+                <Save className="w-4 h-4 text-amber-400" />
+                <span>{hoursSavedSuccess ? t.hoursSaved : t.saveHoursBtn}</span>
               </button>
             </div>
 
