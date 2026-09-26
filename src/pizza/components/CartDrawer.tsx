@@ -1,5 +1,7 @@
-import { X, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, Phone, Clock } from 'lucide-react';
 import { useCartStore, calcItemTotal } from '../store/cartStore';
+import { fetchPizzeriaStatus, calculateServiceState, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
+import { useState, useEffect } from 'react';
 
 interface Props {
   onCheckout: () => void;
@@ -17,6 +19,9 @@ const labels = {
     freeText: 'Gratis',
     freeDeliveryApplied: 'Consegna gratuita applicata! (Ordine > 200฿)',
     checkoutBtn: 'Procedi al Checkout',
+    ordersPausedBtn: 'Ordinazioni Momentaneamente Sospese',
+    ordersClosedBtn: 'Pizzeria al momento Chiusa',
+    callPizzeria: 'Chiama la Pizzeria (Ranong)',
     footerInfo: 'Pagamento tramite PromptPay • Carica screenshot di conferma',
   },
   EN: {
@@ -29,6 +34,9 @@ const labels = {
     freeText: 'Free',
     freeDeliveryApplied: 'Free delivery applied! (Order > 200฿)',
     checkoutBtn: 'Proceed to Checkout',
+    ordersPausedBtn: 'Orders Temporarily Paused',
+    ordersClosedBtn: 'Pizzeria Currently Closed',
+    callPizzeria: 'Call Pizzeria (Ranong)',
     footerInfo: 'Payment via PromptPay • Upload confirmation screenshot',
   },
   TH: {
@@ -41,6 +49,9 @@ const labels = {
     freeText: 'ฟรี',
     freeDeliveryApplied: 'จัดส่งฟรี! (ยอดสั่งซื้อ > 200฿)',
     checkoutBtn: 'ดำเนินการชำระเงิน',
+    ordersPausedBtn: 'ระงับการสั่งซื้อชั่วคราว',
+    ordersClosedBtn: 'ร้านพิซซ่าปิดบริการในขณะนี้',
+    callPizzeria: 'โทรหาร้านพิซซ่า (ระนอง)',
     footerInfo: 'ชำระเงินผ่าน PromptPay • โปรดอัปโหลดภาพหน้าจอเพื่อยืนยัน',
   },
   DE: {
@@ -53,6 +64,9 @@ const labels = {
     freeText: 'Gratis',
     freeDeliveryApplied: 'Kostenlose Lieferung angewendet! (Bestellung > 200฿)',
     checkoutBtn: 'Zur Kasse gehen',
+    ordersPausedBtn: 'Bestellungen vorübergehend pausiert',
+    ordersClosedBtn: 'Pizzeria derzeit geschlossen',
+    callPizzeria: 'Pizzeria anrufen (Ranong)',
     footerInfo: 'Zahlung per PromptPay • Quittungs-Screenshot hochladen',
   },
 };
@@ -63,6 +77,32 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
   const deliveryFee = total >= 200 ? 0 : 30;
   const finalTotal = total + deliveryFee;
   const t = labels[lang];
+
+  const [serviceCalc, setServiceCalc] = useState(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
+
+  useEffect(() => {
+    let isMounted = true;
+    const check = async () => {
+      const st = await fetchPizzeriaStatus();
+      if (isMounted) setServiceCalc(calculateServiceState(st));
+    };
+    check();
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('flower_power_service_status');
+      bc.onmessage = (ev) => {
+        if (ev.data?.type === 'STATUS_UPDATED' && ev.data?.status && isMounted) {
+          setServiceCalc(calculateServiceState(ev.data.status));
+        }
+      };
+    } catch (e) {}
+
+    return () => {
+      isMounted = false;
+      if (bc) bc.close();
+    };
+  }, []);
 
   const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string; nameDe?: string }) => {
     if (lang === 'TH' && o.nameTh) return o.nameTh;
@@ -270,13 +310,32 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
               </span>
             </div>
             
-            <button
-              onClick={() => { closeCart(); onCheckout(); }}
-              className="w-full py-3.5 bg-[#8B1E1E] hover:bg-[#721818] text-white text-xs tracking-widest uppercase font-bold rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer duration-200 transform active:scale-[0.98]"
-              style={{ fontFamily: 'Inter, sans-serif' }}
-            >
-              {t.checkoutBtn}
-            </button>
+            {serviceCalc.canOrder ? (
+              <button
+                onClick={() => { closeCart(); onCheckout(); }}
+                className="w-full py-3.5 bg-[#8B1E1E] hover:bg-[#721818] text-white text-xs tracking-widest uppercase font-bold rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer duration-200 transform active:scale-[0.98]"
+                style={{ fontFamily: 'Inter, sans-serif' }}
+              >
+                {t.checkoutBtn}
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <button
+                  disabled
+                  className="w-full py-3.5 bg-stone-300 text-stone-600 text-xs tracking-widest uppercase font-bold rounded-full cursor-not-allowed border border-stone-300 shadow-sm"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  {serviceCalc.state === 'PAUSED' ? t.ordersPausedBtn : t.ordersClosedBtn}
+                </button>
+                <a
+                  href="tel:0958825698"
+                  className="w-full py-2.5 bg-stone-800 hover:bg-stone-700 text-amber-300 text-xs font-bold rounded-full flex items-center justify-center gap-2 transition-colors cursor-pointer shadow"
+                >
+                  <Phone size={14} className="text-emerald-400" />
+                  <span>{t.callPizzeria}</span>
+                </a>
+              </div>
+            )}
             <p className="text-center text-stone-400 text-[10px] leading-relaxed">
               {t.footerInfo}
             </p>

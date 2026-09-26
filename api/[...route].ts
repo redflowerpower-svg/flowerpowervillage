@@ -33,6 +33,7 @@ import { handleWineCollection } from "./_handlers/wine-collection.js";
 import { handleDocumentReader } from "./_handlers/reader.js";
 import { handleDocumentsApi } from "./_handlers/documents-api.js";
 import { handlePaymentsAdmin } from "./_handlers/payments-admin.js";
+import { handlePizzaServiceStatus } from "./_handlers/pizza-service-status.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -83,6 +84,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('wine-collection') || cleanPath.includes('wine_collection')) {
     return handleWineCollection(req, res);
+  }
+
+  if (cleanPath.includes('pizza-service-status') || cleanPath.includes('pizza_service_status')) {
+    return handlePizzaServiceStatus(req, res);
   }
 
   if (cleanPath.includes('update-rateplan-restrictions-bulk') || cleanPath.includes('update_rateplan_restrictions_bulk')) {

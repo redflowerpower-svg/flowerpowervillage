@@ -10,6 +10,7 @@ import { useCartStore } from '../store/cartStore';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { INITIAL_WINE_COLLECTION, WINE_COUNTRY_OPTIONS, resolveWineCategoryType, sortWinesByCountryOrder, getCountryRank, WineCardData } from '../data/wineData';
 import { fetchCloudWineCollection } from '../data/wineCloudService';
+import { ServiceStatusBanner } from '../components/ServiceStatusBanner';
 
 
 const translations = {
@@ -1073,6 +1074,11 @@ export default function DeliveryMenu() {
             </div>
           </div>
         </header>
+
+        {/* Dynamic Kitchen Service Status Banner (Paused / Closed Countdown in 4 Languages) */}
+        <div className="max-w-6xl mx-auto mt-4 px-2">
+          <ServiceStatusBanner lang={lang} />
+        </div>
 
         {/* Red Promotions & Delivery Banner (Solid Red background) */}
         <div className="p-5 md:p-6 bg-[#8B1E1E] text-stone-100 rounded-3xl max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-6 shadow-md mb-8 mt-2 border border-[#721818]">
