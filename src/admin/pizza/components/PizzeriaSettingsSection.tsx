@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { usePizzaSettingsStore, PizzaRoutingMode } from '../store/usePizzaSettingsStore';
+import { PizzaServiceScheduleModal } from './PizzaServiceScheduleModal';
+import { 
+  fetchPizzeriaStatus, 
+  calculateServiceState, 
+  PizzeriaServiceStatus, 
+  DEFAULT_PIZZERIA_STATUS,
+  ServiceCalculationResult 
+} from '../../../pizza/services/pizzaServiceStatus';
 import { 
   Pizza, 
   Globe, 
@@ -13,7 +21,10 @@ import {
   Smartphone,
   Utensils,
   CalendarCheck,
-  ShoppingBag
+  ShoppingBag,
+  Clock,
+  PauseCircle,
+  Moon
 } from 'lucide-react';
 
 export const PizzeriaSettingsSection: React.FC = () => {
@@ -21,6 +32,40 @@ export const PizzeriaSettingsSection: React.FC = () => {
   const [deliveryUrl, setDeliveryUrl] = useState('');
   const [tableUrl, setTableUrl] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
+  const [serviceCalc, setServiceCalc] = useState<ServiceCalculationResult>(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
+
+  useEffect(() => {
+    fetchPizzeriaStatus().then(st => {
+      setServiceStatus(st);
+      setServiceCalc(calculateServiceState(st));
+    });
+    const interval = setInterval(() => {
+      fetchPizzeriaStatus().then(st => {
+        setServiceStatus(st);
+        setServiceCalc(calculateServiceState(st));
+      });
+    }, 20000);
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        bc = new BroadcastChannel('flower_power_service_status');
+        bc.onmessage = (ev) => {
+          if (ev.data?.type === 'STATUS_UPDATED' && ev.data?.status) {
+            setServiceStatus(ev.data.status);
+            setServiceCalc(calculateServiceState(ev.data.status));
+          }
+        };
+      }
+    } catch (e) {}
+
+    return () => {
+      clearInterval(interval);
+      if (bc) bc.close();
+    };
+  }, []);
 
   useEffect(() => {
     fetchSettings();
@@ -109,6 +154,66 @@ export const PizzeriaSettingsSection: React.FC = () => {
           <span>Impostazioni e link aggiornati con successo!</span>
         </div>
       )}
+
+      {/* SECTION: ORARI & CONTROLLO SERVIZIO LIVE */}
+      <div className="p-5 bg-stone-950/70 rounded-2xl border border-stone-800 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-850">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-amber-500/10 rounded-2xl border border-amber-500/20 text-amber-400">
+              <Clock className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-white uppercase tracking-tight">
+                Orari di Esercizio Delivery Food & Stato Servizio
+              </h3>
+              <p className="text-[11px] text-stone-400">
+                Regola gli orari di apertura/chiusura e gestisci le pause direttamente da qui o dal Kitchen Monitor.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsScheduleModalOpen(true)}
+            className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md shadow-amber-950/20"
+          >
+            <Clock className="w-4 h-4" />
+            <span>Modifica Orari & Pause</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="p-3 bg-stone-900/80 rounded-xl border border-stone-800 text-center">
+            <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">Stato Corrente</span>
+            <span className={`inline-flex items-center gap-1.5 text-xs font-black uppercase px-2.5 py-0.5 rounded-full ${
+              serviceCalc.state === 'OPEN'
+                ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/40'
+                : serviceCalc.state === 'PAUSED'
+                  ? 'bg-amber-950 text-amber-300 border border-amber-500/40 animate-pulse'
+                  : 'bg-stone-800 text-stone-300 border border-stone-700'
+            }`}>
+              {serviceCalc.state === 'OPEN' && '🟢 Aperto'}
+              {serviceCalc.state === 'PAUSED' && `⏸️ In Pausa (${serviceCalc.remainingMinutes}m)`}
+              {serviceCalc.state === 'CLOSED_OFF_HOURS' && '🌙 Chiuso'}
+            </span>
+          </div>
+
+          <div className="p-3 bg-stone-900/80 rounded-xl border border-stone-800 text-center">
+            <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">Orario Ufficiale</span>
+            <span className="text-sm font-black text-stone-200 font-mono">
+              {serviceStatus.openingHours.openTime} – {serviceStatus.openingHours.closeTime}
+            </span>
+          </div>
+
+          <div className="p-3 bg-stone-900/80 rounded-xl border border-stone-800 text-center">
+            <span className="text-[10px] uppercase font-bold text-stone-500 block mb-1">Sincronizzazione</span>
+            <span className="text-xs font-bold text-emerald-400 inline-flex items-center gap-1">
+              <CheckCircle className="w-3.5 h-3.5" />
+              <span>Sito & KDS Allineati</span>
+            </span>
+          </div>
+        </div>
+      </div>
 
       {/* Main Switch Selector */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -289,6 +394,16 @@ export const PizzeriaSettingsSection: React.FC = () => {
         </form>
       </div>
 
+      {/* Pizza Service & Hours Schedule Modal */}
+      <PizzaServiceScheduleModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        onStatusChanged={(st) => {
+          setServiceStatus(st);
+          setServiceCalc(calculateServiceState(st));
+        }}
+      />
     </div>
   );
 };
+

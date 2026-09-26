@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Flame, 
   Bike, 
@@ -27,6 +27,9 @@ import {
   startContinuousAlarm, 
   stopContinuousAlarm, 
   testKitchenAlarm,
+  startDispatchReminderAlarm,
+  stopDispatchReminderAlarm,
+  playGentleReminderChime,
   requestScreenWakeLock, 
   releaseScreenWakeLock 
 } from '../utils/kitchenAudioWakeLock';
@@ -35,6 +38,7 @@ import {
   fetchPizzeriaStatus, 
   updatePizzeriaStatus, 
   calculateServiceState, 
+  getBangkokTime,
   PizzeriaServiceStatus, 
   DEFAULT_PIZZERIA_STATUS,
   ServiceCalculationResult
@@ -55,10 +59,27 @@ type CartItemSaved = {
 
 // Build quick lookup map for Thai names from menuData
 const menuThaiLookup: Record<string, string> = {};
+// Universal Extra Translation Dictionary (mapping all extras from menuData)
+const extraLookup: Record<string, { th: string; en: string }> = {};
+
 menuData.forEach(cat => {
   cat.items.forEach((it: any) => {
     if (it.name) {
       menuThaiLookup[it.name.trim().toLowerCase()] = it.nameTh || '';
+    }
+    if (it.extras && Array.isArray(it.extras)) {
+      it.extras.forEach((ex: any) => {
+        const th = ex.nameTh || '';
+        const en = ex.name || '';
+        const itName = ex.nameIt || ex.name_it || '';
+        const deName = ex.nameDe || ex.name_de || '';
+
+        const entry = { th: th || en, en: en || th };
+        if (en) extraLookup[en.trim().toLowerCase()] = entry;
+        if (itName) extraLookup[itName.trim().toLowerCase()] = entry;
+        if (th) extraLookup[th.trim().toLowerCase()] = entry;
+        if (deName) extraLookup[deName.trim().toLowerCase()] = entry;
+      });
     }
   });
 });
@@ -71,12 +92,51 @@ const getThaiName = (item: CartItemSaved): string => {
   return menuThaiLookup[clean] || '';
 };
 
-const formatWhatsAppPhone = (rawPhone: string) => {
-  let clean = rawPhone.replace(/[^0-9]/g, '');
-  if (clean.startsWith('0')) {
-    clean = '66' + clean.slice(1);
+export const getExtraDisplayName = (ex: any, lang: 'en' | 'th'): string => {
+  if (!ex) return '';
+  if (typeof ex === 'object') {
+    if (lang === 'th' && ex.nameTh && typeof ex.nameTh === 'string' && ex.nameTh.trim()) {
+      return ex.nameTh.trim();
+    }
+    const candidate = (ex.name || ex.nameIt || '').trim().toLowerCase();
+    if (candidate && extraLookup[candidate]) {
+      return lang === 'th' ? extraLookup[candidate].th : extraLookup[candidate].en;
+    }
+    return ex.name || ex.nameIt || (lang === 'th' ? 'พิเศษ' : 'Extra');
   }
-  return clean;
+
+  // If ex is a string (e.g. "Doppia Mozzarella" or "Extra Cheese")
+  const str = String(ex).trim();
+  const lower = str.toLowerCase();
+  if (extraLookup[lower]) {
+    return lang === 'th' ? extraLookup[lower].th : extraLookup[lower].en;
+  }
+  return str;
+};
+
+const translateAddressToThai = (addr: string): string => {
+  if (!addr) return '';
+  if (/[\u0E00-\u0E7F]/.test(addr)) return addr;
+
+  let thAddr = addr;
+  const replacements: [RegExp, string][] = [
+    [/Bang\s*Rin/gi, 'ต.บางริ้น'],
+    [/Khao\s*Niwet/gi, 'ต.เขานิเวศน์'],
+    [/Pak\s*Nam/gi, 'ต.ปากน้ำ'],
+    [/Ngao/gi, 'ต.หงาว'],
+    [/Bang\s*Non/gi, 'ต.บางนอน'],
+    [/Mueang\s*Ranong|Muang\s*Ranong/gi, 'อ.เมืองระนอง'],
+    [/Raksawarin|Hot\s*Springs?/gi, 'บ่อน้ำร้อนรักษะวาริน'],
+    [/Ranong/gi, 'จ.ระนอง'],
+    [/Thailand(ia)?/gi, 'ประเทศไทย'],
+    [/Soi\s*(\d+)/gi, 'ซอย $1'],
+    [/Moo\s*(\d+)/gi, 'หมู่ $1'],
+  ];
+
+  for (const [pattern, rep] of replacements) {
+    thAddr = thAddr.replace(pattern, rep);
+  }
+  return thAddr;
 };
 
 const formatProductName = (name: any) => {
@@ -87,16 +147,36 @@ const formatProductName = (name: any) => {
 
 const parseCoordsFromAddress = (addressStr: string) => {
   if (!addressStr || typeof addressStr !== 'string') {
-    return { address: addressStr || 'N/A', lat: RESTAURANT_LAT, lng: RESTAURANT_LNG };
+    return { address: addressStr || 'N/A', addressTh: addressStr || 'N/A', lat: RESTAURANT_LAT, lng: RESTAURANT_LNG };
   }
-  const match = addressStr.match(/\[Lat:\s*([0-9.-]+),\s*Lng:\s*([0-9.-]+)\]/);
-  if (match) {
-    const lat = parseFloat(match[1]);
-    const lng = parseFloat(match[2]);
-    const cleanAddress = addressStr.replace(/\s*\[Lat:[^\]]+\]/, '').trim();
-    return { address: cleanAddress, lat, lng };
+
+  // Extract explicit Thai address if present
+  let addressTh = '';
+  const thMatch = addressStr.match(/\[ADDR_TH:\s*([^\]]+)\]/i);
+  if (thMatch) {
+    addressTh = thMatch[1].trim();
   }
-  return { address: addressStr, lat: RESTAURANT_LAT, lng: RESTAURANT_LNG };
+
+  let lat = RESTAURANT_LAT;
+  let lng = RESTAURANT_LNG;
+
+  const coordMatch = addressStr.match(/\[COORD:\s*([0-9.-]+)\s*,\s*([0-9.-]+)\]/i)
+                  || addressStr.match(/\[Lat:\s*([0-9.-]+)\s*,\s*Lng:\s*([0-9.-]+)\]/i);
+  if (coordMatch) {
+    lat = parseFloat(coordMatch[1]);
+    lng = parseFloat(coordMatch[2]);
+  }
+
+  const cleanAddress = addressStr
+    .replace(/\s*\[ADDR_TH:[^\]]+\]/gi, '')
+    .replace(/\s*\[(COORD|Lat)[^\]]*\]/gi, '')
+    .trim();
+
+  if (!addressTh) {
+    addressTh = translateAddressToThai(cleanAddress);
+  }
+
+  return { address: cleanAddress, addressTh, lat, lng };
 };
 
 export function KitchenTabletKDS() {
@@ -122,10 +202,12 @@ export function KitchenTabletKDS() {
   const [serviceStatus, setServiceStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
   const [serviceCalc, setServiceCalc] = useState<ServiceCalculationResult>(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
   const [showPauseModal, setShowPauseModal] = useState(false);
+  const showPauseModalRef = useRef(false);
+  showPauseModalRef.current = showPauseModal;
 
   // Opening hours inputs and custom pause time
-  const [editOpenTime, setEditOpenTime] = useState<string>('17:00');
-  const [editCloseTime, setEditCloseTime] = useState<string>('22:30');
+  const [editOpenTime, setEditOpenTime] = useState<string>('11:00');
+  const [editCloseTime, setEditCloseTime] = useState<string>('21:30');
   const [customPauseMinutes, setCustomPauseMinutes] = useState<number>(45);
   const [hoursSavedSuccess, setHoursSavedSuccess] = useState<boolean>(false);
 
@@ -133,9 +215,10 @@ export function KitchenTabletKDS() {
     const st = await fetchPizzeriaStatus();
     setServiceStatus(st);
     setServiceCalc(calculateServiceState(st));
-    if (st.openingHours) {
-      setEditOpenTime(st.openingHours.openTime || '17:00');
-      setEditCloseTime(st.openingHours.closeTime || '22:30');
+    // CRITICAL: NEVER overwrite inputs if the modal is currently open and being edited!
+    if (!showPauseModalRef.current && st.openingHours) {
+      setEditOpenTime(st.openingHours.openTime || '11:00');
+      setEditCloseTime(st.openingHours.closeTime || '21:30');
     }
   };
 
@@ -150,9 +233,10 @@ export function KitchenTabletKDS() {
         if (ev.data?.type === 'STATUS_UPDATED' && ev.data?.status) {
           setServiceStatus(ev.data.status);
           setServiceCalc(calculateServiceState(ev.data.status));
-          if (ev.data.status.openingHours) {
-            setEditOpenTime(ev.data.status.openingHours.openTime || '17:00');
-            setEditCloseTime(ev.data.status.openingHours.closeTime || '22:30');
+          // Do NOT overwrite user editing inputs if modal is currently open
+          if (!showPauseModalRef.current && ev.data.status.openingHours) {
+            setEditOpenTime(ev.data.status.openingHours.openTime || '11:00');
+            setEditCloseTime(ev.data.status.openingHours.closeTime || '21:30');
           }
         }
       };
@@ -164,38 +248,66 @@ export function KitchenTabletKDS() {
     };
   }, []);
 
-  // Save Opening Hours
-  const handleSaveOpeningHours = async () => {
-    const updated = await updatePizzeriaStatus({
-      openingHours: {
-        ...serviceStatus.openingHours,
-        openTime: editOpenTime,
-        closeTime: editCloseTime
-      }
-    });
-    setServiceStatus(updated);
-    setServiceCalc(calculateServiceState(updated));
-    setHoursSavedSuccess(true);
-    setTimeout(() => setHoursSavedSuccess(false), 3000);
+  // Open Pause / Schedule Modal
+  const handleOpenPauseModal = () => {
+    if (serviceStatus.openingHours) {
+      setEditOpenTime(serviceStatus.openingHours.openTime || '11:00');
+      setEditCloseTime(serviceStatus.openingHours.closeTime || '21:30');
+    }
+    setShowPauseModal(true);
   };
 
-  // Force Open Now (start service immediately even if before regular open time)
+  // Save Opening Hours
+  const handleSaveOpeningHours = async () => {
+    const newOpeningHours = {
+      openTime: editOpenTime,
+      closeTime: editCloseTime,
+      closedDays: serviceStatus.openingHours?.closedDays || []
+    };
+
+    // 1. Immediately apply optimistic state
+    const optimistic: PizzeriaServiceStatus = {
+      ...serviceStatus,
+      openingHours: newOpeningHours,
+      lastUpdated: new Date().toISOString()
+    };
+    setServiceStatus(optimistic);
+    setServiceCalc(calculateServiceState(optimistic));
+    setHoursSavedSuccess(true);
+
+    // 2. Persist to API & Supabase
+    const updated = await updatePizzeriaStatus({
+      openingHours: newOpeningHours
+    });
+
+    setServiceStatus(updated);
+    setServiceCalc(calculateServiceState(updated));
+    if (updated.openingHours) {
+      setEditOpenTime(updated.openingHours.openTime);
+      setEditCloseTime(updated.openingHours.closeTime);
+    }
+
+    setTimeout(() => {
+      setHoursSavedSuccess(false);
+      setShowPauseModal(false);
+    }, 1200);
+  };
+
+  // Force Open Now (start service immediately in Thailand time even if before regular open time)
   const handleForceOpenNow = async () => {
-    const now = new Date();
-    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const bangkokDate = new Date(utcMs + (7 * 3600000));
-    const currentH = String(bangkokDate.getHours()).padStart(2, '0');
-    const currentM = String(bangkokDate.getMinutes()).padStart(2, '0');
-    const newOpen = `${currentH}:${currentM}`;
+    const bangkok = getBangkokTime();
+    const newOpen = bangkok.timeStr;
+
+    const newOpeningHours = {
+      ...serviceStatus.openingHours,
+      openTime: newOpen
+    };
 
     const updated = await updatePizzeriaStatus({
       isOpen: true,
       pausedUntil: null,
       pauseReason: '',
-      openingHours: {
-        ...serviceStatus.openingHours,
-        openTime: newOpen
-      }
+      openingHours: newOpeningHours
     });
     setEditOpenTime(newOpen);
     setServiceStatus(updated);
@@ -238,11 +350,11 @@ export function KitchenTabletKDS() {
     setShowPauseModal(false);
   };
 
-  // 3. Clock timer
+  // 3. Clock timer - ALWAYS Thailand / Ranong local time (Asia/Bangkok, UTC+7)
   useEffect(() => {
     const updateClock = () => {
-      const now = new Date();
-      setCurrentTime(now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      const bangkok = getBangkokTime();
+      setCurrentTime(bangkok.fullTimeStr);
     };
     updateClock();
     const interval = setInterval(updateClock, 1000);
@@ -256,6 +368,7 @@ export function KitchenTabletKDS() {
     return () => {
       unsubscribe();
       stopContinuousAlarm();
+      stopDispatchReminderAlarm();
       releaseScreenWakeLock();
     };
   }, []);
@@ -282,41 +395,101 @@ export function KitchenTabletKDS() {
     };
   }, []);
 
-  // Set of order IDs acknowledged/handled by staff
+  // Timestamps when orders were accepted into preparation (persisted to localStorage)
+  const [acceptedTimestamps, setAcceptedTimestamps] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem('kitchen_accepted_timestamps');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  // Set of order IDs whose 15-minute dispatch reminder has been manually snoozed/silenced
+  const [silencedReminderIds, setSilencedReminderIds] = useState<Set<string>>(() => new Set());
+
+  // Set of order IDs acknowledged/handled by staff for new incoming buzzer
   const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => new Set());
 
   // 6. Group into 2 PHASES:
-  // Phase 1: In Kitchen (New & Preparing)
+  // Phase 1: In Kitchen (New orders to accept)
   const kitchenOrders = useMemo(() => {
-    return orders.filter(o => o.status === 'new' || (o.status as any) === 'received' || o.status === 'preparing');
+    return orders.filter(o => o.status === 'new' || (o.status as any) === 'received');
   }, [orders]);
 
-  // Phase 2: Ready & Delivering
+  // Phase 2: In Preparation & Delivering (Orders confirmed, cooking or out for delivery)
   const readyOrders = useMemo(() => {
-    return orders.filter(o => o.status === 'delivering' || (o.status as any) === 'ready');
+    return orders.filter(o => o.status === 'preparing' || o.status === 'delivering' || (o.status as any) === 'ready');
   }, [orders]);
+
+  // Helper to calculate minutes spent in preparation
+  const getElapsedPrepMinutes = (order: PizzaOrder) => {
+    const acceptedAt = acceptedTimestamps[String(order.id)];
+    if (acceptedAt) {
+      return Math.floor((Date.now() - acceptedAt) / 60000);
+    }
+    if (order.created_at) {
+      return Math.floor((Date.now() - new Date(order.created_at).getTime()) / 60000);
+    }
+    return 0;
+  };
 
   // Truly unacknowledged new orders trigger the buzzer
   const unacknowledgedNewOrders = useMemo(() => {
     return orders.filter(o => (o.status === 'new' || (o.status as any) === 'received') && !acknowledgedOrderIds.has(String(o.id)));
   }, [orders, acknowledgedOrderIds]);
 
-  // 7. Sound Alarm Management
+  // Phase 2 orders cooking for 15+ minutes that need rider dispatch reminder
+  const overdueDispatchOrders = useMemo(() => {
+    return readyOrders.filter(o => {
+      if (o.status !== 'preparing') return false;
+      const mins = getElapsedPrepMinutes(o);
+      return mins >= 15 && !silencedReminderIds.has(String(o.id));
+    });
+  }, [readyOrders, acceptedTimestamps, silencedReminderIds, currentTime]);
+
+  // 7. Sound Alarm Management (Urgent Alarm for New Orders + Gentle Chime for 15-min Dispatch Reminder)
   useEffect(() => {
-    if (unacknowledgedNewOrders.length > 0 && !soundMuted) {
+    if (soundMuted) {
+      stopContinuousAlarm();
+      stopDispatchReminderAlarm();
+      return;
+    }
+
+    // Priority 1: High-urgency loud alarm for unacknowledged new orders
+    if (unacknowledgedNewOrders.length > 0) {
+      stopDispatchReminderAlarm();
       startContinuousAlarm();
     } else {
       stopContinuousAlarm();
+
+      // Priority 2: Gentle melodic reminder chime for orders cooking for 15+ minutes
+      if (overdueDispatchOrders.length > 0) {
+        startDispatchReminderAlarm();
+      } else {
+        stopDispatchReminderAlarm();
+      }
     }
-  }, [unacknowledgedNewOrders.length, soundMuted]);
+  }, [unacknowledgedNewOrders.length, overdueDispatchOrders.length, soundMuted]);
 
   const handleSilenceAlarm = () => {
     stopContinuousAlarm();
+    stopDispatchReminderAlarm();
     setAcknowledgedOrderIds(prev => {
       const next = new Set(prev);
       unacknowledgedNewOrders.forEach(o => next.add(String(o.id)));
       return next;
     });
+    setSilencedReminderIds(prev => {
+      const next = new Set(prev);
+      overdueDispatchOrders.forEach(o => next.add(String(o.id)));
+      return next;
+    });
+  };
+
+  const handleSnoozeReminder = (orderId: string) => {
+    initKitchenAudio();
+    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
   };
 
   // Actions
@@ -324,16 +497,23 @@ export function KitchenTabletKDS() {
     initKitchenAudio();
     stopContinuousAlarm();
     setAcknowledgedOrderIds(prev => new Set(prev).add(String(orderId)));
+    setAcceptedTimestamps(prev => {
+      const next = { ...prev, [orderId]: Date.now() };
+      try { localStorage.setItem('kitchen_accepted_timestamps', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
     await updateOrderStatus(orderId, 'preparing');
   };
 
   const handleOrderReady = async (orderId: string) => {
     initKitchenAudio();
+    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
     await updateOrderStatus(orderId, 'delivering');
   };
 
   const handleOrderCompleted = async (orderId: string) => {
     initKitchenAudio();
+    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
     await updateOrderStatus(orderId, 'completed');
   };
 
@@ -341,6 +521,7 @@ export function KitchenTabletKDS() {
     initKitchenAudio();
     stopContinuousAlarm();
     setAcknowledgedOrderIds(prev => new Set(prev).add(String(orderId)));
+    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
     await updateOrderStatus(orderId, 'cancelled');
   };
 
@@ -364,15 +545,16 @@ export function KitchenTabletKDS() {
   const t = {
     kitchenTitle: kdsLang === 'th' ? 'ครัวพิซซ่า' : 'KITCHEN MONITOR',
     brandSubtitle: kdsLang === 'th' ? 'ฟลาวเวอร์ พาวเวอร์ พิซซ่า ระนอง' : 'FLOWER POWER PIZZA RANONG',
-    col1Title: kdsLang === 'th' ? 'ในครัว (ต้องทำ & กำลังอบ)' : 'IN KITCHEN (TO PREPARE & COOK)',
-    col2Title: kdsLang === 'th' ? 'พร้อมส่ง (ส่งต่อให้ไรเดอร์)' : 'READY (DISPATCH RIDER)',
-    noKitchenOrders: kdsLang === 'th' ? 'ไม่มีออเดอร์ในครัว' : 'NO ORDERS IN KITCHEN',
+    col1Title: kdsLang === 'th' ? 'ออเดอร์ใหม่ (รอรับ & เริ่มทำ)' : 'NEW ORDERS (TO ACCEPT)',
+    col2Title: kdsLang === 'th' ? 'กำลังเตรียม & กำลังส่ง' : 'PREPARING & DELIVERING',
+    noKitchenOrders: kdsLang === 'th' ? 'ไม่มีออเดอร์ใหม่' : 'NO NEW ORDERS',
     noKitchenSub: kdsLang === 'th' ? 'แท็บเล็ตจะส่งเสียงเตือนเมื่อมีออเดอร์ใหม่เข้ามา' : 'Tablet will ring when a new order arrives.',
-    noReadyOrders: kdsLang === 'th' ? 'ไม่มีออเดอร์พร้อมส่ง' : 'NO ORDERS READY FOR RIDER',
-    noReadySub: kdsLang === 'th' ? 'พิซซ่าที่อบเสร็จแล้วจะแสดงที่นี่' : 'Baked pizzas ready for delivery will appear here.',
+    noReadyOrders: kdsLang === 'th' ? 'ไม่มีออเดอร์กำลังทำหรือส่ง' : 'NO ORDERS IN PREPARATION',
+    noReadySub: kdsLang === 'th' ? 'ออเดอร์ที่รับแล้วจะแสดงที่นี่เพื่อจัดเตรียมและส่ง' : 'Accepted orders will appear here for preparation & delivery.',
     acceptBtn: kdsLang === 'th' ? 'รับออเดอร์' : 'ACCEPT ORDER',
     muteBtn: kdsLang === 'th' ? 'ปิดเสียง' : 'MUTE',
     muteAlarmBar: kdsLang === 'th' ? 'ปิดเสียงเตือน' : 'MUTE ALARM',
+    dispatchRiderBtn: kdsLang === 'th' ? '🛵 ไรเดอร์ออกไปส่งแล้ว' : '🛵 DISPATCH RIDER (OUT)',
     bakedBtn: kdsLang === 'th' ? 'อบเสร็จแล้ว ➔ ส่งให้ไรเดอร์' : 'BAKED ➔ READY FOR RIDER',
     directArchiveBtn: kdsLang === 'th' ? '✓ ปิดงานทันที' : '✓ ARCHIVE DIRECTLY',
     deliveredBtn: kdsLang === 'th' ? '✓ ส่งเรียบร้อยแล้ว / บันทึกประวัติ' : '✓ DELIVERED & ARCHIVED',
@@ -399,7 +581,9 @@ export function KitchenTabletKDS() {
     applyCustomPause: kdsLang === 'th' ? 'ตั้งเวลาพัก' : 'SET PAUSE',
     openNowEarly: kdsLang === 'th' ? 'เปิดรับออเดอร์ทันที (เริ่มบริการ)' : 'START SERVICE NOW (OPEN EARLY)',
     sizeLabel: kdsLang === 'th' ? 'ขนาด' : 'Size',
-    extraLabel: kdsLang === 'th' ? 'พิเศษ' : 'Extra'
+    extraLabel: kdsLang === 'th' ? 'พิเศษ' : 'Extra',
+    dispatchReminderBadge: kdsLang === 'th' ? '⏰ เกิน 15 นาที: ไรเดอร์ออกส่งหรือยัง?' : '⏰ 15+ MIN: DISPATCH RIDER!',
+    snoozeReminderBtn: kdsLang === 'th' ? 'ปิดเสียงเตือน' : 'SNOOZE CHIME',
   };
 
   return (
@@ -413,9 +597,9 @@ export function KitchenTabletKDS() {
         {/* Left: Official Brand Logo + Title + Clock */}
         <div className="flex items-center gap-3">
           <img 
-            src="/Flower_Power_Pizza_-_HotSpring.png" 
-            alt="Flower Power Pizza Logo" 
-            className="w-10 h-10 object-contain drop-shadow-md shrink-0"
+            src="/flower-power-pizza-emblem.png" 
+            alt="Flower Power Pizza" 
+            className="w-11 h-11 sm:w-12 sm:h-12 object-contain shrink-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
           />
 
           <div>
@@ -427,9 +611,15 @@ export function KitchenTabletKDS() {
             </span>
           </div>
 
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#080a0f] border border-stone-800 font-mono text-base lg:text-lg font-black text-amber-400 tracking-wider">
-            <Clock className="w-4 h-4 text-amber-500 animate-pulse" />
-            <span>{currentTime}</span>
+          <div className="hidden md:flex flex-col items-center justify-center px-3 py-1 rounded-xl bg-[#080a0f] border border-stone-800 font-mono tracking-wider leading-tight">
+            <div className="flex items-center gap-1.5 text-base lg:text-lg font-black text-amber-400">
+              <Clock className="w-4 h-4 text-amber-500 animate-pulse" />
+              <span>{currentTime}</span>
+            </div>
+            <span className="text-[10px] font-bold text-stone-500 tracking-normal flex items-center gap-1">
+              <span>🇹🇭 Ranong</span>
+              <span className="text-amber-500/80 font-mono">UTC+7</span>
+            </span>
           </div>
         </div>
 
@@ -480,9 +670,22 @@ export function KitchenTabletKDS() {
             </button>
           )}
 
+          {/* Quick Mute Dispatch Reminder chime when sounding */}
+          {unacknowledgedNewOrders.length === 0 && overdueDispatchOrders.length > 0 && !soundMuted && (
+            <button
+              type="button"
+              onClick={handleSilenceAlarm}
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-pulse shadow-lg shadow-amber-500/40 cursor-pointer border border-amber-300"
+              title={t.snoozeReminderBtn}
+            >
+              <Clock className="w-4 h-4 stroke-[2.5]" />
+              <span>{kdsLang === 'th' ? `เตือนส่ง: ${overdueDispatchOrders.length}` : `DISPATCH: ${overdueDispatchOrders.length}`}</span>
+            </button>
+          )}
+
           {/* Service Status / Pause Management Button */}
           <button
-            onClick={() => setShowPauseModal(true)}
+            onClick={handleOpenPauseModal}
             className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 border transition-all cursor-pointer ${
               serviceCalc.state === 'OPEN'
                 ? 'bg-emerald-950/80 border-emerald-600 text-emerald-300 hover:bg-emerald-900'
@@ -508,7 +711,7 @@ export function KitchenTabletKDS() {
               <>
                 <Moon className="w-4 h-4 text-blue-300" />
                 <span>
-                  {kdsLang === 'th' ? `ปิด (เปิด ${serviceStatus.openingHours.openTime})` : `CLOSED (OPENS ${serviceStatus.openingHours.openTime})`}
+                  {kdsLang === 'th' ? `ปิด (เปิด ${serviceStatus.openingHours?.openTime || '11:00'})` : `CLOSED (OPENS ${serviceStatus.openingHours?.openTime || '11:00'})`}
                 </span>
               </>
             )}
@@ -567,6 +770,7 @@ export function KitchenTabletKDS() {
               } else {
                 setSoundMuted(true);
                 stopContinuousAlarm();
+                stopDispatchReminderAlarm();
               }
             }}
             className={`p-2 rounded-xl border font-bold text-xs flex items-center gap-1 transition-all cursor-pointer ${
@@ -583,10 +787,10 @@ export function KitchenTabletKDS() {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              testKitchenAlarm();
+              playGentleReminderChime();
             }}
             className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 text-xs font-black cursor-pointer"
-            title="Test alarm sound"
+            title="Test 15-min dispatch reminder alarm"
           >
             {t.testSound}
           </button>
@@ -639,25 +843,13 @@ export function KitchenTabletKDS() {
               kitchenOrders.map(order => {
                 const elapsed = getElapsedMinutes(order.created_at);
                 const items = (Array.isArray(order.items) ? order.items : []) as CartItemSaved[];
-                const { address } = parseCoordsFromAddress(order.address);
+                const { address, addressTh, lat, lng } = parseCoordsFromAddress(order.address);
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
-                const isNew = order.status === 'new' || (order.status as any) === 'received';
-
-                // Timer badge color
-                const timerColor = elapsed > 25 
-                  ? 'bg-red-600 text-white animate-pulse' 
-                  : elapsed > 15 
-                    ? 'bg-amber-500 text-stone-950 font-black' 
-                    : 'bg-emerald-600 text-white';
 
                 return (
                   <div 
                     key={order.id}
-                    className={`bg-[#171c26] border-2 rounded-2xl p-3.5 shadow-lg flex flex-col gap-3 transition-all ${
-                      isNew 
-                        ? 'border-red-500 shadow-red-950/50 animate-pulse' 
-                        : 'border-amber-500/60'
-                    }`}
+                    className="bg-[#171c26] border-2 border-red-500 rounded-2xl p-3.5 shadow-xl shadow-red-950/40 flex flex-col gap-3 transition-all animate-pulse"
                   >
                     {/* Header: Order Number, Elapsed Time & Total */}
                     <div className="flex items-center justify-between border-b border-stone-700/80 pb-2.5">
@@ -665,37 +857,39 @@ export function KitchenTabletKDS() {
                         <span className="font-black text-2xl text-white tracking-wider font-mono">
                           #{orderNumber}
                         </span>
-                        {isNew ? (
-                          <span className="text-xs font-black px-2.5 py-1 rounded-md bg-red-600 text-white uppercase tracking-wider animate-bounce">
-                            🚨 {t.newBadge} ({elapsed} {t.minAgo})
-                          </span>
-                        ) : (
-                          <span className={`text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider ${timerColor}`}>
-                            🔥 {t.cookingFor} {elapsed} {t.min}
-                          </span>
-                        )}
+                        <span className="text-xs font-black px-2.5 py-1 rounded-md bg-red-600 text-white uppercase tracking-wider animate-bounce">
+                          🚨 {t.newBadge} ({elapsed} {t.minAgo})
+                        </span>
                       </div>
                       <span className="font-black text-xl text-emerald-400 font-mono">
                         {order.total} ฿
                       </span>
                     </div>
 
-                    {/* Customer & Address */}
+                    {/* Customer & Address (Clean text + Maps button, no phone dialer / no WhatsApp) */}
                     <div className="text-xs space-y-1 text-stone-300">
                       <div className="font-black text-white text-sm flex items-center justify-between">
                         <span>👤 {order.customer_name}</span>
-                        <a 
-                          href={`tel:${order.phone}`} 
-                          className="px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-amber-300 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                        <span className="px-2.5 py-1 bg-stone-800 text-amber-300 rounded-lg text-xs font-mono font-bold">
+                          📞 {order.phone}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 pt-0.5">
+                        <p className="text-stone-300 text-xs flex items-center gap-1.5 truncate flex-1 font-medium">
+                          <MapPin className="w-4 h-4 text-red-400 shrink-0" />
+                          <span className="truncate">{kdsLang === 'th' ? addressTh : address}</span>
+                        </p>
+                        <a
+                          href={`https://www.google.com/maps?q=${lat},${lng}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-2.5 py-1 rounded-lg bg-blue-950/80 hover:bg-blue-800 text-blue-300 hover:text-white border border-blue-600/40 text-[11px] font-black flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
+                          title="Open Maps"
                         >
-                          <Phone className="w-3 h-3" />
-                          <span>{order.phone}</span>
+                          <ExternalLink className="w-3 h-3" />
+                          <span>{t.mapBtn}</span>
                         </a>
                       </div>
-                      <p className="text-stone-400 text-xs flex items-center gap-1 truncate">
-                        <MapPin className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                        <span className="truncate">{address}</span>
-                      </p>
                     </div>
 
                     {/* Giant Items List */}
@@ -731,13 +925,11 @@ export function KitchenTabletKDS() {
                               </div>
                             </div>
 
-                            {/* Extra ingredients highlighted in bright amber badge */}
+                            {/* Extra ingredients translated universally */}
                             {extras.length > 0 && (
                               <div className="mt-1.5 pl-7 flex flex-wrap gap-1">
                                 {extras.map((ex: any, exIdx: number) => {
-                                  const exName = typeof ex === 'string' 
-                                    ? ex 
-                                    : (kdsLang === 'th' ? (ex.nameTh || ex.name || 'Extra') : (ex.name || ex.nameIt || 'Extra'));
+                                  const exName = getExtraDisplayName(ex, kdsLang);
                                   return (
                                     <span 
                                       key={exIdx}
@@ -754,92 +946,59 @@ export function KitchenTabletKDS() {
                       })}
                     </div>
 
-                    {/* Card Action Buttons */}
-                    {isNew ? (
-                      /* NEW ORDER: ACCEPT OR MUTE */
-                      <div className="pt-1 flex flex-col gap-2">
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleAcceptOrder(order.id, prepTimeCustom[order.id] || 30)}
-                            className="flex-1 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
-                          >
-                            <CheckCircle className="w-5 h-5 text-white stroke-[3]" />
-                            <span>{t.acceptBtn} ({prepTimeCustom[order.id] || 30} {t.min})</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              stopContinuousAlarm();
-                              setAcknowledgedOrderIds(prev => new Set(prev).add(String(order.id)));
-                            }}
-                            className="px-4 py-3.5 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-300 hover:text-white font-black text-xs uppercase tracking-wider border border-stone-700 flex items-center justify-center gap-1 cursor-pointer transition-transform"
-                            title={t.muteBtn}
-                          >
-                            <BellOff className="w-4 h-4 text-red-400" />
-                            <span>{t.muteBtn}</span>
-                          </button>
-                        </div>
-
-                        {/* Fast prep time selector + Cancel */}
-                        <div className="flex items-center gap-1.5">
-                          {[20, 30, 45].map(min => (
-                            <button
-                              key={min}
-                              type="button"
-                              onClick={() => setPrepTimeCustom(prev => ({ ...prev, [order.id]: min }))}
-                              className={`flex-1 py-1.5 rounded-lg text-xs font-black uppercase transition-colors cursor-pointer ${
-                                (prepTimeCustom[order.id] || 30) === min 
-                                  ? 'bg-amber-400 text-stone-950' 
-                                  : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white'
-                              }`}
-                            >
-                              {min} {t.min}
-                            </button>
-                          ))}
-
-                          <button
-                            type="button"
-                            onClick={() => handleOrderCancelled(order.id)}
-                            className="px-3 py-1.5 rounded-lg bg-stone-800/80 hover:bg-red-950 text-stone-400 hover:text-red-400 text-xs font-bold border border-stone-700 cursor-pointer transition-colors"
-                            title="Reject/Cancel"
-                          >
-                            {t.cancelBtn}
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      /* COOKING / PREPARING: BAKED OR DIRECT ARCHIVE */
-                      <div className="pt-1 flex flex-col gap-2">
+                    {/* NEW ORDER ACTIONS: ACCEPT OR MUTE */}
+                    <div className="pt-1 flex flex-col gap-2">
+                      <div className="flex gap-2">
                         <button
                           type="button"
-                          onClick={() => handleOrderReady(order.id)}
-                          className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
+                          onClick={() => handleAcceptOrder(order.id, prepTimeCustom[order.id] || 30)}
+                          className="flex-1 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
                         >
-                          <Flame className="w-5 h-5 text-amber-300" />
-                          <span>{t.bakedBtn}</span>
+                          <CheckCircle className="w-5 h-5 text-white stroke-[3]" />
+                          <span>{t.acceptBtn} ({prepTimeCustom[order.id] || 30} {t.min})</span>
                         </button>
 
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleOrderCompleted(order.id)}
-                            className="flex-1 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-300 hover:text-white font-bold text-xs uppercase tracking-wider border border-stone-700 transition-colors cursor-pointer"
-                          >
-                            {t.directArchiveBtn}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => handleOrderCancelled(order.id)}
-                            className="px-3 py-2 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
-                          >
-                            {t.cancelBtn}
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            stopContinuousAlarm();
+                            setAcknowledgedOrderIds(prev => new Set(prev).add(String(order.id)));
+                          }}
+                          className="px-4 py-3.5 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-300 hover:text-white font-black text-xs uppercase tracking-wider border border-stone-700 flex items-center justify-center gap-1 cursor-pointer transition-transform"
+                          title={t.muteBtn}
+                        >
+                          <BellOff className="w-4 h-4 text-red-400" />
+                          <span>{t.muteBtn}</span>
+                        </button>
                       </div>
-                    )}
+
+                      {/* Fast prep time selector + Cancel */}
+                      <div className="flex items-center gap-1.5">
+                        {[20, 30, 45].map(min => (
+                          <button
+                            key={min}
+                            type="button"
+                            onClick={() => setPrepTimeCustom(prev => ({ ...prev, [order.id]: min }))}
+                            className={`flex-1 py-1.5 rounded-lg text-xs font-black uppercase transition-colors cursor-pointer ${
+                              (prepTimeCustom[order.id] || 30) === min 
+                                ? 'bg-amber-400 text-stone-950' 
+                                : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white'
+                            }`}
+                          >
+                            {min} {t.min}
+                          </button>
+                        ))}
+
+                        <button
+                          type="button"
+                          onClick={() => handleOrderCancelled(order.id)}
+                          className="px-3 py-1.5 rounded-lg bg-stone-800/80 hover:bg-red-950 text-stone-400 hover:text-red-400 text-xs font-bold border border-stone-700 cursor-pointer transition-colors"
+                          title="Reject/Cancel"
+                        >
+                          {t.cancelBtn}
+                        </button>
+                      </div>
+                    </div>
 
                   </div>
                 );
@@ -873,116 +1032,204 @@ export function KitchenTabletKDS() {
               </div>
             ) : (
               readyOrders.map(order => {
-                const { address, lat, lng } = parseCoordsFromAddress(order.address);
+                const elapsed = getElapsedMinutes(order.created_at);
+                const elapsedPrep = getElapsedPrepMinutes(order);
+                const isOverdue = order.status === 'preparing' && elapsedPrep >= 15;
+                const items = (Array.isArray(order.items) ? order.items : []) as CartItemSaved[];
+                const { address, addressTh, lat, lng } = parseCoordsFromAddress(order.address);
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
-
-                // Customer WhatsApp Link (bilingual dispatch notice EN / TH)
-                const cleanPhone = formatWhatsAppPhone(order.phone);
-                const customerMsg = encodeURIComponent(
-                  `🍕 *FLOWER POWER PIZZA RANONG* 🛵\n` +
-                  `Hello ${order.customer_name}!\n` +
-                  `Your order #${orderNumber} is freshly baked and on the way with our rider!\n\n` +
-                  `พิซซ่าของคุณออเดอร์ #${orderNumber} อบเสร็จแล้วและกำลังเดินทางไปส่งนะคะ ✨\n\n` +
-                  `See you very soon! / จะถึงในไม่ช้าค่ะ!`
-                );
-
-                // Driver WhatsApp Link with Maps
-                const driverMsg = encodeURIComponent(
-                  `🛵 *FLOWER POWER PIZZA DELIVERY · ส่งพิซซ่า*\n` +
-                  `Order #${orderNumber} for ${order.customer_name}\n` +
-                  `📞 Tel / โทร: ${order.phone}\n` +
-                  `🏠 Address / ที่อยู่: ${address}\n` +
-                  `🗺️ Map / แผนที่: https://www.google.com/maps?q=${lat},${lng}`
-                );
+                const isDelivering = order.status === 'delivering';
 
                 return (
                   <div 
                     key={order.id}
-                    className="bg-[#171c26] border-2 border-blue-500/60 rounded-2xl p-3.5 shadow-md flex flex-col gap-3"
+                    className={`bg-[#171c26] border-2 rounded-2xl p-3.5 shadow-lg flex flex-col gap-3 transition-all ${
+                      isDelivering 
+                        ? 'border-blue-500/80 shadow-blue-950/40' 
+                        : isOverdue 
+                          ? 'border-amber-400 border-dashed shadow-amber-500/30 ring-2 ring-amber-400/30' 
+                          : 'border-amber-500/80 shadow-amber-950/30'
+                    }`}
                   >
+                    {/* Header: Order Number, Status Badge & Total */}
                     <div className="flex items-center justify-between border-b border-stone-700/80 pb-2.5">
-                      <span className="font-black text-2xl text-white tracking-wider font-mono">
-                        #{orderNumber}
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-2xl text-white tracking-wider font-mono">
+                          #{orderNumber}
+                        </span>
+                        {isDelivering ? (
+                          <span className="text-xs font-black px-2.5 py-1 rounded-md bg-blue-600 text-white uppercase tracking-wider flex items-center gap-1.5 animate-pulse">
+                            <Bike className="w-3.5 h-3.5" />
+                            <span>{kdsLang === 'th' ? 'ไรเดอร์กำลังไปส่ง' : 'DELIVERING'}</span>
+                          </span>
+                        ) : (
+                          <span className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-500 text-stone-950 uppercase tracking-wider flex items-center gap-1 font-black">
+                            <Flame className="w-3.5 h-3.5 text-stone-950" />
+                            <span>{t.cookingFor} {elapsed} {t.min}</span>
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-black text-xl text-emerald-400 font-mono">
+                        {order.total} ฿
                       </span>
-                      <span className="text-xs font-black px-2.5 py-1 rounded-md bg-blue-600 text-white uppercase tracking-wider">
-                        🛵 {t.col2Title.split('(')[0]}
-                      </span>
                     </div>
 
-                    <div className="text-xs space-y-1 text-stone-300">
-                      <p className="font-black text-white text-sm">👤 {order.customer_name} ({order.phone})</p>
-                      <p className="text-stone-400 text-xs flex items-center gap-1 truncate">
-                        <MapPin className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                        <span className="truncate">{address}</span>
-                      </p>
+                    {/* 15+ Minutes Dispatch Alert Banner */}
+                    {isOverdue && !isDelivering && (
+                      <div className="bg-amber-500/20 border border-amber-400/80 text-amber-200 px-3 py-2 rounded-xl flex items-center justify-between text-xs font-black animate-pulse">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-amber-400 shrink-0 stroke-[2.5]" />
+                          <span>{t.dispatchReminderBadge} ({elapsedPrep} {t.min})</span>
+                        </div>
+                        {!silencedReminderIds.has(String(order.id)) && (
+                          <button
+                            type="button"
+                            onClick={() => handleSnoozeReminder(order.id)}
+                            className="px-2 py-1 rounded bg-amber-400 text-stone-950 text-[10px] font-black uppercase hover:bg-amber-300 cursor-pointer shadow"
+                            title={t.snoozeReminderBtn}
+                          >
+                            {t.snoozeReminderBtn}
+                          </button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Customer & Address + Open Maps Button (NO TEL/NO WHATSAPP) */}
+                    <div className="text-xs space-y-1.5 text-stone-300">
+                      <div className="font-black text-white text-sm flex items-center justify-between">
+                        <span>👤 {order.customer_name}</span>
+                        <span className="px-2.5 py-1 bg-stone-800 text-amber-300 rounded-lg text-xs font-mono font-bold">
+                          📞 {order.phone}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2 pt-0.5">
+                        <p className="text-stone-300 text-xs flex items-center gap-1.5 truncate flex-1 font-medium">
+                          <MapPin className="w-4 h-4 text-red-400 shrink-0" />
+                          <span className="truncate">{kdsLang === 'th' ? addressTh : address}</span>
+                        </p>
+                        <a
+                          href={`https://www.google.com/maps?q=${lat},${lng}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-black flex items-center gap-1.5 shrink-0 transition-transform shadow-md cursor-pointer"
+                          title="Open Google Maps"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>{t.mapBtn}</span>
+                        </a>
+                      </div>
                     </div>
 
-                    {/* Customer Action (WhatsApp or Phone) */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <a
-                        href={`https://wa.me/${cleanPhone}?text=${customerMsg}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="py-2.5 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-sm transition-transform cursor-pointer"
-                        title="WhatsApp Customer"
-                      >
-                        <MessageCircle className="w-4 h-4 fill-white/20" />
-                        <span>{t.notifyCustBtn}</span>
-                      </a>
+                    {/* Full Ordered Items List with Universal Translated Extras */}
+                    <div className="bg-[#0b0e14] p-3 rounded-xl border border-stone-800 space-y-3">
+                      {items.map((item, idx) => {
+                        const nameEn = formatProductName(item.name);
+                        const thaiName = getThaiName(item);
+                        const displayName = kdsLang === 'th' ? (thaiName || nameEn) : nameEn;
+                        const subName = kdsLang === 'th' ? (thaiName ? nameEn : '') : thaiName;
+                        const variant = item.selectedVariant ? (typeof item.selectedVariant === 'object' ? item.selectedVariant.name : String(item.selectedVariant)) : '';
+                        const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
 
-                      <a
-                        href={`tel:${order.phone}`}
-                        className="py-2.5 px-2 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-transform cursor-pointer"
-                        title="Call Customer"
-                      >
-                        <Phone className="w-3.5 h-3.5" />
-                        <span>{t.callBtn}</span>
-                      </a>
+                        return (
+                          <div key={idx} className="border-b border-stone-800/80 last:border-0 pb-2.5 last:pb-0">
+                            <div className="flex items-baseline gap-2.5">
+                              <span className="font-black text-xl lg:text-2xl text-amber-400 font-mono shrink-0">
+                                {item.quantity}x
+                              </span>
+                              <div className="flex-1">
+                                <span className="font-black text-base lg:text-lg text-white leading-tight block">
+                                  {displayName}
+                                </span>
+                                {subName && (
+                                  <span className="text-xs font-semibold text-stone-400 block mt-0.5">
+                                    {subName}
+                                  </span>
+                                )}
+                                {variant && (
+                                  <span className="text-xs font-bold text-stone-300 uppercase tracking-wide block mt-0.5">
+                                    {t.sizeLabel}: {variant}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Extra ingredients translated universally */}
+                            {extras.length > 0 && (
+                              <div className="mt-1.5 pl-7 flex flex-wrap gap-1">
+                                {extras.map((ex: any, exIdx: number) => {
+                                  const exName = getExtraDisplayName(ex, kdsLang);
+                                  return (
+                                    <span 
+                                      key={exIdx}
+                                      className="px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 font-black text-xs uppercase"
+                                    >
+                                      + {exName}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
 
-                    {/* Driver Helper (WhatsApp & Google Maps) */}
-                    <div className="flex gap-2">
-                      <a
-                        href={`https://wa.me/?text=${driverMsg}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex-1 py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform cursor-pointer"
-                        title="Send to Driver"
-                      >
-                        <Send className="w-3.5 h-3.5" />
-                        <span>{t.sendRiderBtn}</span>
-                      </a>
+                    {/* Action Buttons for Phase 2 */}
+                    {!isDelivering ? (
+                      /* Status is 'preparing': Dispatch Rider OR Direct Archive */
+                      <div className="pt-1 flex flex-col gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOrderReady(order.id)}
+                          className={`w-full py-3.5 rounded-xl font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform ${
+                            isOverdue 
+                              ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-blue-600 hover:from-amber-400 hover:to-blue-500 text-white animate-pulse shadow-amber-500/30' 
+                              : 'bg-blue-600 hover:bg-blue-500 text-white active:scale-95'
+                          }`}
+                        >
+                          <Bike className="w-5 h-5 text-white" />
+                          <span>{t.dispatchRiderBtn} {isOverdue ? `(15+ ${t.min})` : ''}</span>
+                        </button>
 
-                      <a
-                        href={`https://www.google.com/maps?q=${lat},${lng}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="py-2 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold flex items-center justify-center gap-1 active:scale-95 transition-transform cursor-pointer"
-                        title="Open Maps"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span>{t.mapBtn}</span>
-                      </a>
-                    </div>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleOrderCompleted(order.id)}
+                            className="flex-1 py-2 rounded-xl bg-emerald-800/80 hover:bg-emerald-700 active:scale-95 text-emerald-100 hover:text-white font-bold text-xs uppercase tracking-wider border border-emerald-600 transition-colors cursor-pointer"
+                          >
+                            {t.directArchiveBtn}
+                          </button>
 
-                    {/* Complete & Archive Order Button */}
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={() => handleOrderCompleted(order.id)}
-                        className="flex-1 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider border border-emerald-600 shadow-md cursor-pointer transition-colors"
-                      >
-                        {t.deliveredBtn}
-                      </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOrderCancelled(order.id)}
+                            className="px-3 py-2 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
+                          >
+                            {t.cancelBtn}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Status is 'delivering': Delivered & Archived */
+                      <div className="pt-1 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleOrderCompleted(order.id)}
+                          className="flex-1 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider border border-emerald-500 shadow-lg cursor-pointer transition-transform flex items-center justify-center gap-2"
+                        >
+                          <CheckCircle className="w-5 h-5 text-white stroke-[2.5]" />
+                          <span>{t.deliveredBtn}</span>
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => handleOrderCancelled(order.id)}
-                        className="px-3 py-3 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
-                      >
-                        {t.cancelBtn}
-                      </button>
-                    </div>
+                        <button
+                          type="button"
+                          onClick={() => handleOrderCancelled(order.id)}
+                          className="px-3 py-3.5 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
+                        >
+                          {t.cancelBtn}
+                        </button>
+                      </div>
+                    )}
 
                   </div>
                 );
@@ -1130,9 +1377,15 @@ export function KitchenTabletKDS() {
 
             {/* SECTION 2: OPENING & CLOSING HOURS CONFIGURATION */}
             <div className="space-y-2 pt-2 border-t border-stone-800">
-              <span className="text-xs font-black text-stone-300 uppercase tracking-wider block">
-                🕒 {t.hoursTitle}
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-stone-300 uppercase tracking-wider block">
+                  🕒 {t.hoursTitle}
+                </span>
+                <span className="text-[10px] font-bold text-amber-400 bg-amber-950/60 border border-amber-600/40 px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <span>🇹🇭</span>
+                  <span>Ranong (UTC+7)</span>
+                </span>
+              </div>
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>

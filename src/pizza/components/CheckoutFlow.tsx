@@ -213,7 +213,7 @@ function MapCircle({ center, radius }: { center: { lat: number; lng: number }; r
 }
 
 // Helper to format and clean Google address data
-const formatGoogleAddress = (result: google.maps.GeocoderResult, _lang: string): string => {
+const formatGoogleAddress = (result: google.maps.GeocoderResult, lang: string): string => {
   if (!result || !result.address_components) return '';
   const addressComponents = result.address_components;
 
@@ -240,7 +240,7 @@ const formatGoogleAddress = (result: google.maps.GeocoderResult, _lang: string):
 
   let rawAddress = '';
   if (placeName) {
-    rawAddress = `${placeName.toUpperCase()}`;
+    rawAddress = `${placeName}`;
     const details = [roadDetails, localDetails].filter(Boolean).join(', ');
     if (details) {
       rawAddress += ` - ${details}`;
@@ -249,8 +249,12 @@ const formatGoogleAddress = (result: google.maps.GeocoderResult, _lang: string):
     rawAddress = result.formatted_address || [roadDetails, localDetails].filter(Boolean).join(', ');
   }
 
-  // Clean Thai characters and orphan punctuation/parentheses/spaces
-  let cleaned = rawAddress.replace(/[\u0e00-\u0e7f]+/g, '');
+  // Clean Thai characters ONLY if not Thai language
+  let cleaned = rawAddress;
+  const isThai = lang === 'TH' || lang === 'th';
+  if (!isThai) {
+    cleaned = cleaned.replace(/[\u0e00-\u0e7f]+/g, '');
+  }
   cleaned = cleaned.replace(/\(\s*\)/g, '').replace(/\[\s*\]/g, '');
   cleaned = cleaned.replace(/\s+/g, ' ');
   cleaned = cleaned.replace(/,\s*,/g, ',');
@@ -281,6 +285,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   const [whatsAppActive, setWhatsAppActive] = useState(false);
   const [lineActive, setLineActive] = useState(false);
   const [address, setAddress] = useState('');
+  const [thaiAddress, setThaiAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('promptpay');
   const [loading, setLoading] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -337,6 +342,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     return () => clearInterval(interval);
   }, [submitPhase, step, isDeliveringActive, travelMins]);
 
+  // Auto-close banner when delivery countdown expires
+  useEffect(() => {
+    if (isDeliveringActive && countdownSeconds === 0) {
+      clearCart();
+      onSuccess();
+    }
+  }, [isDeliveringActive, countdownSeconds, clearCart, onSuccess]);
+
   const formatMMSS = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
@@ -383,6 +396,10 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
           setLoading(false);
           setStep(3);
           setIsDeliveringActive(true);
+          clearCart();
+        } else if (type === 'ORDER_COMPLETED') {
+          clearCart();
+          onSuccess();
         }
       } catch (e) {
         console.warn('BroadcastChannel message parse error:', e);
@@ -436,8 +453,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         setSubmitPhase('idle');
         setLoading(false);
         setStep(3);
+        clearCart();
         try { const ch = new BroadcastChannel('pizza_orders_channel'); ch.postMessage({ type: 'ORDER_DELIVERING', orderId: activeOrderId }); ch.close(); } catch (e) {}
         try { const ch = new BroadcastChannel('flower_power_orders_channel'); ch.postMessage({ type: 'ORDER_DELIVERING', orderId: activeOrderId }); ch.close(); } catch (e) {}
+      } else if (status === 'completed') {
+        clearCart();
+        onSuccess();
+        try { const ch = new BroadcastChannel('pizza_orders_channel'); ch.postMessage({ type: 'ORDER_COMPLETED', orderId: activeOrderId }); ch.close(); } catch (e) {}
+        try { const ch = new BroadcastChannel('flower_power_orders_channel'); ch.postMessage({ type: 'ORDER_COMPLETED', orderId: activeOrderId }); ch.close(); } catch (e) {}
       } else if (status === 'rejected' && submitPhaseRef.current !== 'rejected') {
         currentOrderIdRef.current = null;
         setOrderId(null);
@@ -511,11 +534,27 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
           if (status === 'OK' && results && results[0]) {
             const formatted = formatGoogleAddress(results[0], lang);
             setAddress(formatted);
+            if (lang === 'TH') {
+              setThaiAddress(formatted);
+            }
           } else {
             console.error('Google Geocoding failed with status:', status);
           }
         }
       );
+
+      // If user is browsing in a European language, also geocode in Thai so staff & rider have Thai script
+      if (lang !== 'TH') {
+        geocoder.geocode(
+          { location: { lat, lng }, language: 'th' },
+          (results, status) => {
+            if (status === 'OK' && results && results[0]) {
+              const formattedTh = formatGoogleAddress(results[0], 'TH');
+              setThaiAddress(formattedTh);
+            }
+          }
+        );
+      }
     } catch (err) {
       console.error('Google Maps Geocoding error:', err);
     }
@@ -626,10 +665,15 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         receiptUrl = urlData.publicUrl;
       }
 
-      // Serialize coordinates into the address string as a fallback for the admin panel
-      const finalAddress = markerPos
-        ? `${address || 'Nessun indirizzo'} [COORD: ${markerPos.lat},${markerPos.lng}]`
-        : (address || 'Nessun indirizzo');
+      // Serialize coordinates and Thai address into the address string as a fallback for the admin panel and rider
+      let finalAddress = address || 'Nessun indirizzo';
+      const thAddr = thaiAddress || (lang === 'TH' ? address : '');
+      if (thAddr) {
+        finalAddress += ` [ADDR_TH: ${thAddr}]`;
+      }
+      if (markerPos) {
+        finalAddress += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
+      }
 
       const orderData: Record<string, unknown> = {
         customer_name: name || 'Cliente',

@@ -1,4 +1,4 @@
-import { X, Trash2, Plus, Minus, ShoppingBag, Phone, Clock } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, Phone } from 'lucide-react';
 import { useCartStore, calcItemTotal } from '../store/cartStore';
 import { fetchPizzeriaStatus, calculateServiceState, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
 import { useState, useEffect } from 'react';

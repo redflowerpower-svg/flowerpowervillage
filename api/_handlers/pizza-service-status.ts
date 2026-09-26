@@ -12,8 +12,8 @@ export interface PizzeriaServiceStatus {
   pausedUntil: string | null;
   pauseReason: string;
   openingHours: {
-    openTime: string; // "17:00"
-    closeTime: string; // "22:30"
+    openTime: string; // "11:00"
+    closeTime: string; // "21:30"
     closedDays: number[]; // e.g. []
   };
   lastUpdated: string;
@@ -24,21 +24,53 @@ const DEFAULT_STATUS: PizzeriaServiceStatus = {
   pausedUntil: null,
   pauseReason: 'busy',
   openingHours: {
-    openTime: '17:00',
-    closeTime: '22:30',
+    openTime: '11:00',
+    closeTime: '21:30',
     closedDays: []
   },
   lastUpdated: new Date().toISOString()
 };
 
+const PUBLIC_JSON_URL = 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/site-images/pizzeria_service_status.json';
+
+// In-memory runtime cache for 0ms serverless responsiveness
+let memoryStatus: PizzeriaServiceStatus | null = null;
+
+async function fetchFromStorageFresh(): Promise<PizzeriaServiceStatus | null> {
+  try {
+    const res = await fetch(`${PUBLIC_JSON_URL}?_t=${Date.now()}_${Math.random()}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data === 'object' && data.openingHours) {
+        return data as PizzeriaServiceStatus;
+      }
+    }
+  } catch (err: any) {
+    console.warn('[pizza-service-status] Fetch fresh error:', err?.message);
+  }
+  return null;
+}
+
 export async function handlePizzaServiceStatus(req: VercelRequest, res: VercelResponse) {
   const supabase = getSupabaseAdmin();
 
-  // Enable CORS
+  // Enable CORS & Disable Caching
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.setHeader('Surrogate-Control', 'no-store');
+  res.setHeader('CDN-Cache-Control', 'no-store');
+  res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -46,41 +78,47 @@ export async function handlePizzaServiceStatus(req: VercelRequest, res: VercelRe
 
   if (req.method === 'GET') {
     try {
-      const { data, error } = await supabase.storage
-        .from('site-images')
-        .download('pizzeria_service_status.json');
-
-      if (error || !data) {
-        return res.status(200).json({ success: true, status: DEFAULT_STATUS });
+      const fresh = await fetchFromStorageFresh();
+      if (fresh) {
+        memoryStatus = fresh;
+        return res.status(200).json({ success: true, status: fresh });
       }
 
-      const text = await data.text();
-      const status: PizzeriaServiceStatus = JSON.parse(text);
-      return res.status(200).json({ success: true, status });
-    } catch (err: any) {
-      console.warn('[pizza-service-status GET] Falling back to default:', err.message);
+      if (memoryStatus) {
+        return res.status(200).json({ success: true, status: memoryStatus });
+      }
+
       return res.status(200).json({ success: true, status: DEFAULT_STATUS });
+    } catch (err: any) {
+      console.warn('[pizza-service-status GET] Falling back:', err.message);
+      return res.status(200).json({ success: true, status: memoryStatus || DEFAULT_STATUS });
     }
   }
 
   if (req.method === 'POST') {
     try {
-      const newStatus = req.body as Partial<PizzeriaServiceStatus>;
-      
-      // Fetch existing status to merge
-      let existingStatus = { ...DEFAULT_STATUS };
-      try {
-        const { data } = await supabase.storage
-          .from('site-images')
-          .download('pizzeria_service_status.json');
-        if (data) {
-          existingStatus = JSON.parse(await data.text());
+      let newStatus: Partial<PizzeriaServiceStatus> = {};
+      if (typeof req.body === 'string') {
+        try {
+          newStatus = JSON.parse(req.body);
+        } catch (e) {
+          newStatus = {};
         }
-      } catch (e) {}
+      } else if (req.body && typeof req.body === 'object') {
+        newStatus = req.body;
+      }
+
+      // Fetch current status directly from public storage (fresh bypass) or memory
+      const fresh = await fetchFromStorageFresh();
+      const existingStatus: PizzeriaServiceStatus = fresh || memoryStatus || { ...DEFAULT_STATUS };
 
       const mergedStatus: PizzeriaServiceStatus = {
         ...existingStatus,
         ...newStatus,
+        openingHours: {
+          ...existingStatus.openingHours,
+          ...(newStatus.openingHours || {})
+        },
         lastUpdated: new Date().toISOString()
       };
 
@@ -90,12 +128,16 @@ export async function handlePizzaServiceStatus(req: VercelRequest, res: VercelRe
         .from('site-images')
         .upload('pizzeria_service_status.json', buffer, {
           contentType: 'application/json',
-          upsert: true
+          upsert: true,
+          cacheControl: '0'
         });
 
       if (uploadError) {
         throw uploadError;
       }
+
+      // Update in-memory status immediately
+      memoryStatus = mergedStatus;
 
       return res.status(200).json({ success: true, status: mergedStatus });
     } catch (err: any) {

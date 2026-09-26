@@ -11,6 +11,7 @@ import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { INITIAL_WINE_COLLECTION, WINE_COUNTRY_OPTIONS, resolveWineCategoryType, sortWinesByCountryOrder, getCountryRank, WineCardData } from '../data/wineData';
 import { fetchCloudWineCollection } from '../data/wineCloudService';
 import { ServiceStatusBanner } from '../components/ServiceStatusBanner';
+import { usePizzeriaStatus, PizzeriaServiceStatus, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
 
 
 const translations = {
@@ -739,6 +740,9 @@ export default function DeliveryMenu() {
     });
   }, []);
 
+  // Orari di apertura dinamici sincronizzati dal Kitchen Monitor KDS & BroadcastChannel
+  const serviceStatus = usePizzeriaStatus();
+
   const unavailableIds = new Set<string>();
   const priceOverrides: Record<string, number> = {};
 
@@ -1066,7 +1070,11 @@ export default function DeliveryMenu() {
                 <div className="flex flex-row flex-wrap justify-center lg:justify-end gap-x-2 gap-y-0.5 text-[9px] md:text-xs font-light text-stone-200">
                   <span>{t.info1}</span>
                   <span className="text-stone-400">•</span>
-                  <span>{t.info2}</span>
+                  <span className="font-semibold text-amber-200">
+                    {serviceStatus.openingHours?.openTime && serviceStatus.openingHours?.closeTime
+                      ? `${serviceStatus.openingHours.openTime} – ${serviceStatus.openingHours.closeTime}`
+                      : t.info2}
+                  </span>
                   <span className="text-stone-400">•</span>
                   <span>{t.info3}</span>
                 </div>

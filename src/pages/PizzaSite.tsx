@@ -5,6 +5,14 @@ import DeliveryMenu from '../pizza/pages/DeliveryMenu';
 import { GloriaFoodLanding } from '../pizza/pages/GloriaFoodLanding';
 import { useCartStore } from '../pizza/store/cartStore';
 import PizzaSlideshow from '../components/PizzaSlideshow';
+import { fetchPizzeriaStatus, usePizzeriaStatus, DEFAULT_PIZZERIA_STATUS } from '../pizza/services/pizzaServiceStatus';
+
+function usePizzeriaHours() {
+  const st = usePizzeriaStatus();
+  return st.openingHours?.openTime && st.openingHours?.closeTime
+    ? `${st.openingHours.openTime} – ${st.openingHours.closeTime}`
+    : '11:00 – 21:30';
+}
 
 
 // Custom robust TikTok SVG icon matching Lucide style
@@ -298,6 +306,7 @@ function PizzaNav({
 }
 
 function PizzaHero({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
+  const hours = usePizzeriaHours();
   return (
     <section className="relative h-screen min-h-[600px] overflow-hidden">
       <PizzaSlideshow />
@@ -328,7 +337,7 @@ function PizzaHero({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
           className="text-sm tracking-[0.2em] uppercase font-light mb-10 animate-fade-in-up"
           style={{ opacity: 0.7, animationDelay: '0.45s', fontFamily: 'Inter, sans-serif' }}
         >
-          Authentic Italian · Open Daily 08:00 – 21:15
+          Authentic Italian · Open Daily {hours}
         </p>
         <div className="flex gap-4 flex-wrap justify-center animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
           <button
@@ -352,6 +361,7 @@ function PizzaHero({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
 }
 
 function PizzaAboutPage() {
+  const hours = usePizzeriaHours();
   return (
     <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
       <div className="max-w-4xl mx-auto px-6">
@@ -384,7 +394,7 @@ function PizzaAboutPage() {
             <div className="grid grid-cols-2 gap-3 pt-2">
               {[
                 { label: 'Cucina', value: '100% Italiana' },
-                { label: 'Orari', value: '11:00 – 21:30' },
+                { label: 'Orari', value: hours },
                 { label: 'Servizi', value: 'Consegna & Ritiro' },
                 { label: 'Impasto', value: 'Lenta Lievitazione' },
               ].map((f, i) => (
@@ -420,6 +430,7 @@ function PizzaAboutPage() {
 }
 
 function PizzaContactPage() {
+  const hours = usePizzeriaHours();
   return (
     <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
       <div className="max-w-4xl mx-auto px-6">
@@ -466,7 +477,7 @@ function PizzaContactPage() {
               </div>
               <div>
                 <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Orari di Apertura</p>
-                <p className="text-stone-850 text-sm font-extrabold">Tutti i giorni · 11:00 – 21:30</p>
+                <p className="text-stone-850 text-sm font-extrabold">Tutti i giorni · {hours}</p>
                 <p className="text-stone-550 text-xs mt-0.5 font-light">Servizio di consegna e ritiro</p>
               </div>
             </div>
@@ -520,6 +531,7 @@ function PizzaContactPage() {
 }
 
 export function PizzaHomePage({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
+  const hours = usePizzeriaHours();
   return (
     <>
       <PizzaHero onNavigate={onNavigate} />
@@ -596,7 +608,7 @@ export function PizzaHomePage({ onNavigate }: { onNavigate: (p: PizzaPage) => vo
           <h3 className="text-white mb-3" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '2rem', fontWeight: 300 }}>
             Come taste <em>the real Italy</em>
           </h3>
-          <p className="text-red-200 text-sm mb-6">Open daily · 08:00 – 21:15 · Ranong Province, Thailand</p>
+          <p className="text-red-200 text-sm mb-6">Open daily · {hours} · Ranong Province, Thailand</p>
           <div className="flex gap-4 justify-center flex-wrap">
             <a href="tel:+66958825573"
               className="inline-block px-8 py-3 border border-red-300 text-white text-xs tracking-[0.2em] uppercase hover:bg-white hover:text-red-800 transition-all duration-300"

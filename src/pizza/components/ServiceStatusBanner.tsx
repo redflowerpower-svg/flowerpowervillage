@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Clock, Phone, AlertCircle, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Clock, Phone, AlertCircle } from 'lucide-react';
 import { 
   fetchPizzeriaStatus, 
   calculateServiceState, 
@@ -14,7 +14,7 @@ interface ServiceStatusBannerProps {
 }
 
 export function ServiceStatusBanner({ lang, onStatusChange }: ServiceStatusBannerProps) {
-  const [status, setStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
+  const [, setStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
   const [calc, setCalc] = useState<ServiceCalculationResult>(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
 
   useEffect(() => {

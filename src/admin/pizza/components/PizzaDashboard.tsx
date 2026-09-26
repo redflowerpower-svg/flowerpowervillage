@@ -3,6 +3,14 @@ import { usePizzaAdminStore, sanitizePizzaOrder } from '../store/usePizzaAdminSt
 import { PizzaOrderHistoryModal } from './PizzaOrderHistoryModal';
 import { PizzeriaSettingsSection } from './PizzeriaSettingsSection';
 import { WineCardStudio } from './WineCardStudio';
+import { PizzaServiceScheduleModal } from './PizzaServiceScheduleModal';
+import { 
+  fetchPizzeriaStatus, 
+  calculateServiceState, 
+  PizzeriaServiceStatus, 
+  DEFAULT_PIZZERIA_STATUS,
+  ServiceCalculationResult 
+} from '../../../pizza/services/pizzaServiceStatus';
 import { RESTAURANT_LAT, RESTAURANT_LNG } from '../../../pizza/store/locationStore';
 import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
 import type { PizzaOrder, CartItemSaved } from '../../../pizza/types';
@@ -31,7 +39,9 @@ import {
   AlertTriangle,
   Settings,
   Wine,
-  Tablet
+  Tablet,
+  PauseCircle,
+  Moon
 } from 'lucide-react';
 
 const parseAddressAndCoords = (addressStr: string) => {
@@ -135,9 +145,43 @@ export function PizzaDashboard() {
 
   const [activeMainTab, setActiveMainTab] = useState<'orders' | 'menu' | 'wine_studio' | 'settings'>('orders');
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [serviceStatus, setServiceStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
+  const [serviceCalc, setServiceCalc] = useState<ServiceCalculationResult>(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
   const [searchQuery, setSearchQuery] = useState('');
   const [menuSearchQuery, setMenuSearchQuery] = useState('');
   const audioCtxRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    fetchPizzeriaStatus().then(st => {
+      setServiceStatus(st);
+      setServiceCalc(calculateServiceState(st));
+    });
+    const interval = setInterval(() => {
+      fetchPizzeriaStatus().then(st => {
+        setServiceStatus(st);
+        setServiceCalc(calculateServiceState(st));
+      });
+    }, 20000);
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        bc = new BroadcastChannel('flower_power_service_status');
+        bc.onmessage = (ev) => {
+          if (ev.data?.type === 'STATUS_UPDATED' && ev.data?.status) {
+            setServiceStatus(ev.data.status);
+            setServiceCalc(calculateServiceState(ev.data.status));
+          }
+        };
+      }
+    } catch (e) {}
+
+    return () => {
+      clearInterval(interval);
+      if (bc) bc.close();
+    };
+  }, []);
 
   useEffect(() => {
     fetchOrders();
@@ -206,14 +250,45 @@ export function PizzaDashboard() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          {/* Live Service Status & Opening Hours Button */}
+          <button
+            type="button"
+            onClick={() => setIsScheduleModalOpen(true)}
+            className={`py-2 px-3.5 border rounded-2xl text-xs font-black uppercase flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm ${
+              serviceCalc.state === 'OPEN'
+                ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300 hover:bg-emerald-900 shadow-emerald-950/20'
+                : serviceCalc.state === 'PAUSED'
+                  ? 'bg-amber-950/90 border-amber-500 text-amber-300 animate-pulse hover:bg-amber-900 shadow-amber-950/30'
+                  : 'bg-stone-800 border-stone-700 text-stone-300 hover:border-stone-500 hover:text-white'
+            }`}
+            title="Gestisci orari di apertura, chiusura e pause delivery"
+          >
+            {serviceCalc.state === 'OPEN' ? (
+              <>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>APERTO ({serviceStatus.openingHours.openTime} – {serviceStatus.openingHours.closeTime})</span>
+              </>
+            ) : serviceCalc.state === 'PAUSED' ? (
+              <>
+                <PauseCircle className="w-4 h-4 text-amber-400" />
+                <span>PAUSA ({serviceCalc.remainingMinutes}m)</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-4 h-4 text-blue-300" />
+                <span>CHIUSO (Apre {serviceStatus.openingHours.openTime})</span>
+              </>
+            )}
+          </button>
+
           <button
             onClick={() => {
               fetchOrders();
               fetchMenuItems();
             }}
             disabled={loading || menuLoading}
-            className="flex-1 md:flex-initial py-2.5 px-4 bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700 rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="flex-1 md:flex-initial py-2 px-3.5 bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700 rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${(loading || menuLoading) ? 'animate-spin text-amber-400' : ''}`} />
             <span>Aggiorna</span>
@@ -221,7 +296,7 @@ export function PizzaDashboard() {
 
           <button
             onClick={() => setIsHistoryModalOpen(true)}
-            className="py-2.5 px-4 bg-red-600/10 text-red-400 hover:bg-red-600/20 border border-red-500/30 rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+            className="py-2 px-3.5 bg-red-600/10 text-red-400 hover:bg-red-600/20 border border-red-500/30 rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
           >
             <Calendar className="w-4 h-4 text-red-400" />
             <span className="hidden sm:inline">Archivio Storico & CSV</span>
@@ -229,7 +304,7 @@ export function PizzaDashboard() {
 
           <button
             onClick={toggleSound}
-            className={`py-2.5 px-4 border rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`py-2 px-3.5 border rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 transition-all cursor-pointer ${
               soundEnabled 
                 ? 'bg-amber-500/10 text-amber-400 border-amber-500/30 hover:bg-amber-500/20' 
                 : 'bg-stone-800 text-stone-400 border-stone-700'
@@ -690,6 +765,16 @@ export function PizzaDashboard() {
       <PizzaOrderHistoryModal 
         isOpen={isHistoryModalOpen} 
         onClose={() => setIsHistoryModalOpen(false)} 
+      />
+
+      {/* Pizza Service & Hours Schedule Modal */}
+      <PizzaServiceScheduleModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        onStatusChanged={(st) => {
+          setServiceStatus(st);
+          setServiceCalc(calculateServiceState(st));
+        }}
       />
     </div>
   );

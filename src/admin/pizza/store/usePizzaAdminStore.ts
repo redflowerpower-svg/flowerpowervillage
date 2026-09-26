@@ -170,13 +170,21 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
     // 2. Broadcast immediately on local channels
     try {
       const ch1 = new BroadcastChannel('flower_power_orders_channel');
-      ch1.postMessage({ type: status === 'preparing' ? 'ORDER_ACCEPTED' : status === 'delivering' ? 'ORDER_DELIVERING' : 'ORDER_UPDATED', orderId: id, status });
+      ch1.postMessage({ 
+        type: status === 'preparing' ? 'ORDER_ACCEPTED' : status === 'delivering' ? 'ORDER_DELIVERING' : status === 'completed' ? 'ORDER_COMPLETED' : 'ORDER_UPDATED', 
+        orderId: id, 
+        status 
+      });
       ch1.close();
     } catch (e) {}
 
     try {
       const ch2 = new BroadcastChannel('pizza_orders_channel');
-      ch2.postMessage({ type: status === 'preparing' ? 'ORDER_ACCEPTED' : status === 'delivering' ? 'ORDER_DELIVERING' : 'ORDER_UPDATED', orderId: id, status });
+      ch2.postMessage({ 
+        type: status === 'preparing' ? 'ORDER_ACCEPTED' : status === 'delivering' ? 'ORDER_DELIVERING' : status === 'completed' ? 'ORDER_COMPLETED' : 'ORDER_UPDATED', 
+        orderId: id, 
+        status 
+      });
       ch2.close();
     } catch (e) {}
 

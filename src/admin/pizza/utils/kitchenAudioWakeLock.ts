@@ -137,6 +137,84 @@ export function testKitchenAlarm() {
   setTimeout(() => playDualTonePulse(), 350);
 }
 
+let reminderIntervalId: any = null;
+let isReminderCurrentlyPlaying = false;
+
+/**
+ * Emette un doppio bip elettronico ad alta frequenza (2700 Hz -> 3400 Hz),
+ * penetrante e nitido, studiato per tagliare il rumore di fondo della cucina
+ * (cappe di aspirazione, forni e conversazioni) senza l'ansia dell'allarme a martello.
+ */
+export function playHighPitchReminderChime() {
+  const ctx = initKitchenAudio();
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+
+  // Primo impulso acuto penetrante (2700 Hz)
+  const osc1 = ctx.createOscillator();
+  const gain1 = ctx.createGain();
+  osc1.type = 'sine';
+  osc1.frequency.setValueAtTime(2700, now);
+  gain1.gain.setValueAtTime(0.001, now);
+  gain1.gain.linearRampToValueAtTime(0.72, now + 0.015);
+  gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.11);
+  osc1.connect(gain1);
+  gain1.connect(ctx.destination);
+  osc1.start(now);
+  osc1.stop(now + 0.12);
+
+  // Secondo impulso ancora più acuto (3400 Hz) a 140ms di distanza
+  const osc2 = ctx.createOscillator();
+  const gain2 = ctx.createGain();
+  osc2.type = 'sine';
+  osc2.frequency.setValueAtTime(3400, now + 0.14);
+  gain2.gain.setValueAtTime(0.001, now + 0.14);
+  gain2.gain.linearRampToValueAtTime(0.78, now + 0.155);
+  gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.27);
+  osc2.connect(gain2);
+  gain2.connect(ctx.destination);
+  osc2.start(now + 0.14);
+  osc2.stop(now + 0.28);
+}
+
+// Alias per compatibilità con codice esistente
+export const playGentleReminderChime = playHighPitchReminderChime;
+
+/**
+ * Avvia la suoneria di promemoria: un doppio bip acuto ogni 4.5 secondi
+ * per ricordare con decisione all'operatore che sono trascorsi 15 minuti
+ * e il rider deve essere inviato o notificato.
+ */
+export function startDispatchReminderAlarm() {
+  if (isReminderCurrentlyPlaying) return;
+  isReminderCurrentlyPlaying = true;
+  initKitchenAudio();
+
+  // Primo segnale immediato
+  playHighPitchReminderChime();
+
+  if (reminderIntervalId) clearInterval(reminderIntervalId);
+  reminderIntervalId = setInterval(() => {
+    playHighPitchReminderChime();
+  }, 4500);
+}
+
+/**
+ * Ferma la suoneria di promemoria
+ */
+export function stopDispatchReminderAlarm() {
+  isReminderCurrentlyPlaying = false;
+  if (reminderIntervalId) {
+    clearInterval(reminderIntervalId);
+    reminderIntervalId = null;
+  }
+}
+
+export function isDispatchReminderPlaying(): boolean {
+  return isReminderCurrentlyPlaying;
+}
+
 export function isAlarmPlaying(): boolean {
   return isAlarmCurrentlyPlaying;
 }

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { usePizzaSettingsStore, DEFAULT_FOOD_DELIVERY_URL, DEFAULT_TABLE_RESERVATION_URL } from '../store/pizzaSettingsStore';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
+import { usePizzeriaStatus } from '../services/pizzaServiceStatus';
 
 interface GloriaFoodLandingProps {
   onSwitchToCustom?: () => void;
@@ -564,6 +565,11 @@ export const GloriaFoodLanding: React.FC<GloriaFoodLandingProps> = ({ onSwitchTo
     }
   }[lang];
 
+  const serviceStatus = usePizzeriaStatus();
+  const dynamicHours = serviceStatus.openingHours?.openTime && serviceStatus.openingHours?.closeTime
+    ? `${serviceStatus.openingHours.openTime} – ${serviceStatus.openingHours.closeTime}`
+    : '11:00 – 21:30';
+
   const visibleCategories = selectedCategory === 'all'
     ? SHOWCASE_CATEGORIES
     : SHOWCASE_CATEGORIES.filter(c => c.id === selectedCategory);
@@ -653,7 +659,7 @@ export const GloriaFoodLanding: React.FC<GloriaFoodLandingProps> = ({ onSwitchTo
                 <div className="flex flex-row flex-wrap justify-center lg:justify-end gap-x-2 gap-y-0.5 text-[9px] md:text-xs font-light text-stone-200">
                   <span>{t.info1}</span>
                   <span>•</span>
-                  <span>{t.info2}</span>
+                  <span className="font-semibold text-amber-200">{dynamicHours}</span>
                   <span>•</span>
                   <span>{t.info3}</span>
                 </div>
@@ -674,7 +680,7 @@ export const GloriaFoodLanding: React.FC<GloriaFoodLandingProps> = ({ onSwitchTo
             </div>
             <div>
               <span className="text-[11px] text-stone-500 block font-medium uppercase tracking-wider">{t.hoursLabel}</span>
-              <span className="text-sm font-bold text-stone-900">{t.info1} · {t.info2}</span>
+              <span className="text-sm font-bold text-stone-900">{t.info1} · {dynamicHours}</span>
             </div>
           </div>
 
