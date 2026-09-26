@@ -134,3 +134,8 @@ CREATE TABLE pizza_orders (
 ### C. Simulazione in Dev Mode
 *   **Problema:** In locale senza DB/Telegram il checkout era bloccato.
 *   **Soluzione:** Simulazione d'ordine in memoria locale e notifica broadcast su `flower_power_orders_channel`.
+
+### D. Master Catalogo Vini Resiliente & Sincronizzazione Cross-Workstation
+*   **Problema:** La collezione vini completata nel WineCardStudio risiedeva inizialmente solo nel `localStorage` del browser, con conseguente perdita visiva o caricamento del segnaposto generico su postazioni differenti (Koh Phayam <-> Ranong) o su smartphone.
+*   **Soluzione:** Scrittura definitiva e permanente dell'intera collezione di 20 vini (con URL WebP delle bottiglie su Supabase Storage `14-Wines`, prezzi, gradi e traduzioni complete nelle 4 lingue IT, EN, TH, DE) all'interno del codice sorgente master (`INITIAL_WINE_COLLECTION` in `wineData.tsx`).
+*   **Auto-Healing Dinamico:** In `DeliveryMenu.tsx` è stata inserita una routine che analizza il `localStorage` e aggiorna automaticamente qualsiasi vecchia scheda che conteneva l'immagine generica di fallback con la foto reale master da Supabase, garantendo uniformità al 100% su qualsiasi dispositivo e browser.

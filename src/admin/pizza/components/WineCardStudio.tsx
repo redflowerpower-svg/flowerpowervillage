@@ -22,7 +22,9 @@ import {
   GripVertical,
   Copy,
   Loader2,
-  Zap
+  Zap,
+  Download,
+  RotateCcw
 } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import { translateWineCardAllLanguages, WineLang } from '../../../pizza/data/wineTranslatorEngine';
@@ -278,6 +280,7 @@ export const WineCardStudio: React.FC = () => {
   const [dragOverWineId, setDragOverWineId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const jsonInputRef = useRef<HTMLInputElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -287,6 +290,47 @@ export const WineCardStudio: React.FC = () => {
       console.error('Error saving wine collection:', e);
     }
   }, [collection]);
+
+  const handleExportJson = () => {
+    const data = JSON.stringify(collection, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `backup_vini_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+  };
+
+  const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCollection(parsed);
+          localStorage.setItem('fp_wine_collection', JSON.stringify(parsed));
+          localStorage.removeItem('fp_deleted_wine_ids');
+          alert(`Collezione importata con successo! ${parsed.length} vini caricati.`);
+        } else {
+          alert('File non valido: deve contenere un elenco di vini.');
+        }
+      } catch {
+        alert('Errore nella lettura del file JSON.');
+      }
+    };
+    reader.readAsText(file);
+    if (e.target) e.target.value = '';
+  };
+
+  const handleResetToMaster = () => {
+    if (window.confirm(`Vuoi ripristinare il catalogo ufficiale (${INITIAL_WINE_COLLECTION.length} vini)? Le eventuali modifiche non esportate verranno sostituite dal catalogo master.`)) {
+      setCollection(INITIAL_WINE_COLLECTION);
+      localStorage.setItem('fp_wine_collection', JSON.stringify(INITIAL_WINE_COLLECTION));
+      localStorage.removeItem('fp_deleted_wine_ids');
+      alert('Catalogo ufficiale master ripristinato con successo!');
+    }
+  };
 
   const getWineStudioDesc = (w: WineCardData | null, targetLang: 'IT' | 'EN' | 'TH' | 'DE' = previewLang) => {
     if (!w) return '';
@@ -1335,41 +1379,84 @@ export const WineCardStudio: React.FC = () => {
           </div>
         </div>
 
-        {/* View Switcher Tabs */}
-        <div className="flex items-center gap-2 bg-stone-950/60 p-1.5 rounded-2xl border border-stone-800 w-full md:w-auto">
-          <button
-            type="button"
-            onClick={() => setSubView('gallery')}
-            className={`flex-1 md:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              subView === 'gallery'
-                ? 'bg-amber-500 text-stone-950 shadow-md font-black'
-                : 'text-stone-300 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Layers className="w-4 h-4" />
-            <span>Carta dei Vini ({collection.length})</span>
-          </button>
+        {/* Backup & Actions Bar */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          {/* View Switcher Tabs */}
+          <div className="flex items-center gap-2 bg-stone-950/60 p-1.5 rounded-2xl border border-stone-800 w-full md:w-auto">
+            <button
+              type="button"
+              onClick={() => setSubView('gallery')}
+              className={`flex-1 md:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                subView === 'gallery'
+                  ? 'bg-amber-500 text-stone-950 shadow-md font-black'
+                  : 'text-stone-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Carta dei Vini ({collection.length})</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setFormData(createBlankWineTemplate());
-              setImageHistory([]);
-              setShowGuideSilhouette(true);
-              setShowCutSilhouette(false);
-              setIsCutConfigOpen(false);
-              setPreviewMode('card');
-              setSubView('editor');
-            }}
-            className={`flex-1 md:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-              subView === 'editor'
-                ? 'bg-amber-500 text-stone-950 shadow-md font-black'
-                : 'text-stone-300 hover:text-white hover:bg-white/5'
-            }`}
-          >
-            <Edit3 className="w-4 h-4" />
-            <span>Studio & Modifica</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setFormData(createBlankWineTemplate());
+                setImageHistory([]);
+                setShowGuideSilhouette(true);
+                setShowCutSilhouette(false);
+                setIsCutConfigOpen(false);
+                setPreviewMode('card');
+                setSubView('editor');
+              }}
+              className={`flex-1 md:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                subView === 'editor'
+                  ? 'bg-amber-500 text-stone-950 shadow-md font-black'
+                  : 'text-stone-300 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <Edit3 className="w-4 h-4" />
+              <span>Studio & Modifica</span>
+            </button>
+          </div>
+
+          {/* Quick Backup & Master Controls */}
+          <div className="flex items-center gap-1.5 bg-stone-950/60 p-1.5 rounded-2xl border border-stone-800">
+            <button
+              type="button"
+              onClick={handleExportJson}
+              className="px-3 py-2 rounded-xl text-xs font-bold text-stone-200 hover:text-white hover:bg-white/10 transition-all cursor-pointer flex items-center gap-1.5"
+              title="Scarica il backup JSON di tutte le schede e traduzioni sul tuo computer"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Esporta Backup</span>
+            </button>
+
+            <input
+              type="file"
+              ref={jsonInputRef}
+              onChange={handleImportJson}
+              accept=".json"
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => jsonInputRef.current?.click()}
+              className="px-3 py-2 rounded-xl text-xs font-bold text-stone-200 hover:text-white hover:bg-white/10 transition-all cursor-pointer flex items-center gap-1.5"
+              title="Carica un file di backup JSON precedentemente salvato"
+            >
+              <Upload className="w-3.5 h-3.5 text-blue-400" />
+              <span>Importa</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleResetToMaster}
+              className="px-3 py-2 rounded-xl text-xs font-bold text-stone-300 hover:text-amber-400 hover:bg-white/10 transition-all cursor-pointer flex items-center gap-1.5"
+              title="Ripristina le 20 schede ufficiali salvate nel codice sorgente master"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <span>Ripristina Master</span>
+            </button>
+          </div>
         </div>
       </div>
 

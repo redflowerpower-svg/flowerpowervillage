@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useCartStore } from '../store/cartStore';
 import { useLocationStore, RESTAURANT_LAT, RESTAURANT_LNG } from '../store/locationStore';
+import { calculateDistance } from '../utils/distance';
 import { supabase } from '../../lib/supabase';
-import { X, MapPin } from 'lucide-react';
+import { X, MapPin, Check, Search, Pencil, Navigation, Maximize2, Minimize2 } from 'lucide-react';
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
 
 type SubmitPhase = 'idle' | 'sending' | 'timeout' | 'rejected';
@@ -37,9 +38,12 @@ const translations = {
     successDesc: 'Grazie! Il tuo ordine è stato registrato ed è in fase di preparazione. A breve riceverai una chiamata di conferma.',
     closeBtn: 'Chiudi',
     waitText: 'Attendere...',
-    confirmMapLoc: 'Conferma Posizione sulla Mappa',
-    mapInstructions: 'Trascina il pin rosso sulla tua esatta posizione di consegna',
-    locConfirmed: (dist: number) => `Posizione confermata! (Distanza: ${dist.toFixed(1)} km)`,
+    confirmMapLoc: 'PORTALO QUI (CONFERMA POSIZIONE)',
+    mapInstructions: 'Tocca la mappa o sposta il pin dove vuoi la consegna',
+    tapHint: 'Tocca la mappa per segnare il punto',
+    expandMap: 'Espandi',
+    collapseMap: 'Riduci',
+    locConfirmed: (dist: number) => `Posizione confermata! (~${dist.toFixed(1)} km)`,
     detectLocBtn: 'Trova la mia posizione',
     sendingTitle: "Invio ordine in corso...",
     sendingHint: "Attendi la conferma della cucina",
@@ -72,9 +76,12 @@ const translations = {
     successDesc: 'Thank you! Your order has been recorded and is being prepared. You will receive a confirmation call shortly.',
     closeBtn: 'Close',
     waitText: 'Please wait...',
-    confirmMapLoc: 'Confirm Location on Map',
-    mapInstructions: 'Drag the red pin to your exact delivery location',
-    locConfirmed: (dist: number) => `Location confirmed! (Distance: ${dist.toFixed(1)} km)`,
+    confirmMapLoc: 'DELIVER HERE (CONFIRM LOCATION)',
+    mapInstructions: 'Tap map or move pin to your delivery spot',
+    tapHint: 'Tap map to drop pin',
+    expandMap: 'Expand',
+    collapseMap: 'Minimize',
+    locConfirmed: (dist: number) => `Location confirmed! (~${dist.toFixed(1)} km)`,
     detectLocBtn: 'Find my location',
     sendingTitle: 'Sending your order...',
     sendingHint: 'Waiting for kitchen confirmation',
@@ -107,9 +114,12 @@ const translations = {
     successDesc: 'ขอบคุณ! คำสั่งซื้อของคุณได้รับการบันทึกแล้วและกำลังอยู่ในขั้นตอนการเตรียมการ คุณจะได้รับสายยืนยันในไม่ช้า',
     closeBtn: 'ปิด',
     waitText: 'กรุณารอสักครู่...',
-    confirmMapLoc: 'ยืนยันตำแหน่งบนแผนที่',
-    mapInstructions: 'ลากหมุดสีแดงไปยังตำแหน่งจัดส่งที่ถูกต้องของคุณ',
-    locConfirmed: (dist: number) => `ยืนยันตำแหน่งแล้ว! (ระยะทาง: ${dist.toFixed(1)} กม.)`,
+    confirmMapLoc: 'ส่งที่นี่ (ยืนยันตำแหน่ง)',
+    mapInstructions: 'แตะบนแผนที่หรือลากหมุดไปยังจุดจัดส่ง',
+    tapHint: 'แตะบนแผนที่เพื่อปักหมุด',
+    expandMap: 'ขยาย',
+    collapseMap: 'ย่อ',
+    locConfirmed: (dist: number) => `ยืนยันตำแหน่งแล้ว! (~${dist.toFixed(1)} กม.)`,
     detectLocBtn: 'ค้นหาตำแหน่งของฉัน',
     sendingTitle: 'กำลังส่งคำสั่งซื้อ...',
     sendingHint: 'รอการยืนยันจากครัว',
@@ -142,9 +152,12 @@ const translations = {
     successDesc: 'Vielen Dank! Ihre Bestellung wurde registriert und wird vorbereitet. Sie erhalten in Kürze einen Bestätigungsanruf.',
     closeBtn: 'Schließen',
     waitText: 'Bitte warten...',
-    confirmMapLoc: 'Standort auf Karte bestätigen',
-    mapInstructions: 'Ziehen Sie die rote Nadel auf Ihren genauen Lieferort',
-    locConfirmed: (dist: number) => `Standort bestätigt! (Entfernung: ${dist.toFixed(1)} km)`,
+    confirmMapLoc: 'HIERHER LIEFERN (STANDORT BESTÄTIGEN)',
+    mapInstructions: 'Tippen Sie auf die Karte oder ziehen Sie die Nadel',
+    tapHint: 'Tippen Sie auf die Karte',
+    expandMap: 'Vergrößern',
+    collapseMap: 'Verkleinern',
+    locConfirmed: (dist: number) => `Standort bestätigt! (~${dist.toFixed(1)} km)`,
     detectLocBtn: 'Meinen Standort finden',
     sendingTitle: 'Bestellung wird gesendet...',
     sendingHint: 'Warte auf Küchenbestätigung',
@@ -158,19 +171,25 @@ const translations = {
   },
 };
 
-// React component to dynamically center and zoom the Google Map
+// React component to dynamically center Google Map smoothly without breaking user zoom
 function MapController({ center }: { center: { lat: number; lng: number } }) {
   const map = useMap();
+  const isFirstMount = useRef(true);
+
   useEffect(() => {
-    if (map) {
+    if (!map) return;
+    if (isFirstMount.current) {
       map.setCenter(center);
-      map.setZoom(15); // Forced zoom=15 as requested for Bang Rin, Ranong
+      map.setZoom(15); // Default zoom=15 for Bang Rin, Ranong
+      isFirstMount.current = false;
+    } else {
+      map.panTo(center);
     }
   }, [center.lat, center.lng, map]);
   return null;
 }
 
-// React component to draw a 5 km circle around the restaurant
+// React component to draw a 5 km circle around the restaurant (clickable: false so clicks hit the map)
 function MapCircle({ center, radius }: { center: { lat: number; lng: number }; radius: number }) {
   const map = useMap();
   useEffect(() => {
@@ -183,7 +202,8 @@ function MapCircle({ center, radius }: { center: { lat: number; lng: number }; r
       fillOpacity: 0.08,
       strokeColor: '#8B1E1E',
       strokeOpacity: 0.5,
-      strokeWeight: 1.5
+      strokeWeight: 1.5,
+      clickable: false
     });
     return () => {
       circle.setMap(null);
@@ -268,6 +288,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
   const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number }>({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
   const [isLocationConfirmed, setIsLocationConfirmed] = useState(false);
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   // Advanced browser autofill prevention states and hooks
   const [addressFieldId] = useState(() => 'addr-' + Math.random().toString(36).substring(2, 9));
@@ -500,28 +521,83 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     }
   };
 
-  const detectUserGPS = async () => {
-    if (!navigator.geolocation) return;
+  const handlePointSelected = useCallback(async (lat: number, lng: number) => {
+    setMarkerPos({ lat, lng });
+    setIsLocationConfirmed(false);
+    useLocationStore.setState({ distanceKm: null, userLat: null, userLng: null });
+    await fetchReverseGeocoding(lat, lng);
+  }, [lang]);
+
+  const geocodeAddressText = async (textToSearch: string) => {
+    if (!textToSearch || !textToSearch.trim()) return;
+    if (typeof google === 'undefined' || !google.maps) return;
+    try {
+      const geocoder = new google.maps.Geocoder();
+      const targetLang = lang === 'TH' ? 'th' : 'en';
+      geocoder.geocode(
+        {
+          address: textToSearch,
+          language: targetLang,
+          bounds: new google.maps.LatLngBounds(
+            { lat: 9.85, lng: 98.55 },
+            { lat: 10.05, lng: 98.75 }
+          )
+        },
+        (results, status) => {
+          if (status === 'OK' && results && results[0] && results[0].geometry) {
+            const loc = results[0].geometry.location;
+            handlePointSelected(loc.lat(), loc.lng());
+          }
+        }
+      );
+    } catch (err) {
+      console.warn('Geocoding search error:', err);
+    }
+  };
+
+  const detectUserGPS = async (isManualClick: boolean = true) => {
+    if (!navigator.geolocation) {
+      setMarkerPos({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
+      await fetchReverseGeocoding(RESTAURANT_LAT, RESTAURANT_LNG);
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        const { latitude, longitude } = position.coords;
-        setMarkerPos({ lat: latitude, lng: longitude });
-        setIsLocationConfirmed(false);
-        // Clear confirmed state
-        useLocationStore.setState({ distanceKm: null, userLat: null, userLng: null });
-        await fetchReverseGeocoding(latitude, longitude);
+        const { latitude, longitude, accuracy } = position.coords;
+        const distFromPizzeria = calculateDistance(RESTAURANT_LAT, RESTAURANT_LNG, latitude, longitude);
+
+        // If it's an automatic detection and the coordinates are a remote ISP IP
+        // (e.g. Chumphon gateway at 120km away) or accuracy is poor (> 1500m), stay at our Pizzeria in Ranong!
+        if (!isManualClick && (distFromPizzeria > 15 || (accuracy && accuracy > 1500))) {
+          setMarkerPos({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
+          await fetchReverseGeocoding(RESTAURANT_LAT, RESTAURANT_LNG);
+          return;
+        }
+
+        await handlePointSelected(latitude, longitude);
       },
-      () => {
-        // Geolocation failed or denied, keep default restaurant center
+      async () => {
+        // Geolocation failed or denied: default to Pizzeria in Ranong
+        setMarkerPos({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
+        await fetchReverseGeocoding(RESTAURANT_LAT, RESTAURANT_LNG);
       },
-      { enableHighAccuracy: true, timeout: 5000 }
+      { enableHighAccuracy: true, timeout: 6000 }
     );
   };
 
-  // Trigger GPS detection when Step 1 is active
+  // Initialize map and location on Step 1: on PC/computers, open strictly on our Pizzeria
   useEffect(() => {
     if (step === 1) {
-      detectUserGPS();
+      const isMobile = typeof navigator !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        // On mobile phones with native GPS hardware, attempt auto-detect (rejecting distant ISP coordinates)
+        detectUserGPS(false);
+      } else {
+        // On computers / desktop devices without native GPS: open strictly at our Pizzeria in Ranong
+        setMarkerPos({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
+        fetchReverseGeocoding(RESTAURANT_LAT, RESTAURANT_LNG);
+      }
     }
   }, [step]);
 
@@ -706,15 +782,15 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-white w-full max-w-md h-[630px] p-5 border border-stone-300 text-stone-850 relative rounded-[2rem] shadow-2xl flex flex-col justify-between overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+      <div className="bg-white w-full max-w-md h-[92dvh] max-h-[720px] min-h-[580px] p-4 sm:p-5 border border-stone-300 text-stone-850 relative rounded-[2rem] shadow-2xl flex flex-col justify-between overflow-hidden">
         
         {/* Flower Power Pizza Logo at the top of all states */}
-        <div className="flex justify-center w-full border-b border-stone-100 pb-3 flex-shrink-0">
+        <div className="flex justify-center w-full border-b border-stone-100 pb-2.5 pt-0.5 flex-shrink-0">
           <img
             src="/Flower_Power_Pizza_-_HotSpring.png"
             alt="Flower Power Pizza Logo"
-            className="h-11 w-auto object-contain"
+            className="h-14 sm:h-16 w-auto object-contain drop-shadow-xs"
           />
         </div>
 
@@ -722,156 +798,229 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         {!(step === 3 && !isDeliveringActive) && submitPhase === 'idle' && (
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-850 hover:bg-stone-100 transition-all cursor-pointer z-20"
+            className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-850 hover:bg-stone-100 transition-all cursor-pointer z-20"
           >
             <X size={18} />
           </button>
         )}
 
         {submitPhase === 'idle' && step === 1 && (
-          <div className="flex-grow flex flex-col justify-between overflow-hidden mt-2.5 space-y-3">
-            <div className="space-y-2.5 px-0.5">
-              <h2 className="text-lg font-black tracking-tight text-stone-850" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
-                {t.step1Title}
-              </h2>
-              
-              <input
-                className="w-full bg-stone-50 border border-stone-300 p-2 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
-                placeholder={t.namePlaceholder}
-                value={name}
-                onChange={e => setName(e.target.value)}
-              />
-              
-              <input
-                className="w-full bg-stone-50 border border-stone-300 p-2 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
-                placeholder={t.phonePlaceholder}
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-              />
-
-              <div className="flex gap-4 px-1 py-1">
-                <label className="flex items-center gap-1.5 text-[11px] text-stone-600 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={whatsAppActive}
-                    onChange={(e) => setWhatsAppActive(e.target.checked)}
-                    className="accent-[#8B1E1E]"
-                  />
-                  WhatsApp
-                </label>
-                <label className="flex items-center gap-1.5 text-[11px] text-stone-600 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={lineActive}
-                    onChange={(e) => setLineActive(e.target.checked)}
-                    className="accent-[#8B1E1E]"
-                  />
-                  LINE
-                </label>
+          <div className="flex-grow flex flex-col justify-between overflow-y-auto mt-2 space-y-3 pr-0.5 custom-scrollbar">
+            
+            {/* Top Form Section: Spaced & Elegant */}
+            <div className="space-y-2.5 px-0.5 shrink-0">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base sm:text-lg font-black tracking-tight text-stone-850" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
+                  {t.step1Title}
+                </h2>
+                <div className="flex gap-3.5 text-[11px] text-stone-600 font-medium">
+                  <label className="flex items-center gap-1.5 cursor-pointer hover:text-stone-900 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={whatsAppActive}
+                      onChange={(e) => setWhatsAppActive(e.target.checked)}
+                      className="accent-[#8B1E1E]"
+                    />
+                    <span>WhatsApp</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer hover:text-stone-900 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={lineActive}
+                      onChange={(e) => setLineActive(e.target.checked)}
+                      className="accent-[#8B1E1E]"
+                    />
+                    <span>LINE</span>
+                  </label>
+                </div>
               </div>
+              
+              {!isMapExpanded && (
+                <div className="grid grid-cols-2 gap-2 animate-fadeIn">
+                  <input
+                    className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
+                    placeholder={t.namePlaceholder}
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                  />
+                  <input
+                    className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
+                    placeholder={t.phonePlaceholder}
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                  />
+                </div>
+              )}
 
+              {/* Address Container: Elegant & No unwanted scrollbars */}
               {isEditingAddress ? (
-                <textarea
-                  ref={addressInputRef}
-                  className="w-full bg-stone-50 border border-[#8B1E1E] p-2 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs h-14 resize-none"
-                  placeholder={t.addressPlaceholder}
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                  onBlur={() => setIsEditingAddress(false)}
-                  readOnly={isReadOnly}
-                  autoComplete="new-password"
-                  name={addressFieldId}
-                  id={addressFieldId}
-                />
+                <div className="relative">
+                  <textarea
+                    ref={addressInputRef}
+                    className="w-full bg-stone-50 border border-[#8B1E1E] p-2.5 pr-9 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs h-14 resize-none leading-relaxed"
+                    placeholder={t.addressPlaceholder}
+                    value={address}
+                    onChange={e => setAddress(e.target.value)}
+                    onBlur={() => {
+                      setIsEditingAddress(false);
+                      if (address.trim()) geocodeAddressText(address);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        setIsEditingAddress(false);
+                        if (address.trim()) geocodeAddressText(address);
+                      }
+                    }}
+                    readOnly={isReadOnly}
+                    autoComplete="new-password"
+                    name={addressFieldId}
+                    id={addressFieldId}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingAddress(false);
+                      if (address.trim()) geocodeAddressText(address);
+                    }}
+                    className="absolute right-2.5 top-2.5 p-1 text-stone-400 hover:text-[#8B1E1E] cursor-pointer"
+                    title="Cerca sulla mappa"
+                  >
+                    <Search size={15} />
+                  </button>
+                </div>
               ) : (
                 <div
                   onClick={() => setIsEditingAddress(true)}
-                  className="w-full bg-stone-50 border border-stone-300 p-2 rounded-xl text-stone-800 text-xs h-14 overflow-y-auto cursor-pointer select-none flex items-start"
+                  className="w-full bg-stone-50/80 hover:bg-stone-100/60 border border-stone-300 p-2.5 rounded-xl text-stone-800 text-xs min-h-[44px] cursor-pointer select-none flex items-center justify-between group hover:border-stone-400 transition-all shadow-2xs"
                 >
                   {address ? (
-                    <span className="text-stone-800 break-words w-full leading-normal">{address}</span>
+                    <span className="text-stone-850 break-words w-full leading-snug font-medium text-[11.5px] pr-2 line-clamp-2">{address}</span>
                   ) : (
                     <span className="text-stone-400 w-full">{t.addressPlaceholder}</span>
                   )}
+                  <div className="flex items-center text-stone-400 group-hover:text-[#8B1E1E] flex-shrink-0 transition-colors">
+                    <Pencil size={13} />
+                  </div>
                 </div>
               )}
+            </div>
 
-              {/* Map Area */}
-              <div className="space-y-1">
-                <p className="text-[9px] text-stone-500 font-bold uppercase tracking-wider pl-1">{t.mapInstructions}</p>
-                <div className="relative w-full h-[130px] rounded-xl border border-stone-300 overflow-hidden bg-stone-100">
-                  <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-                    <Map
-                      defaultCenter={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }}
-                      defaultZoom={15}
-                      disableDefaultUI={true}
-                      gestureHandling="cooperative"
-                      style={{ height: '100%', width: '100%' }}
-                    >
-                      <MapController center={markerPos} />
-                      <MapCircle center={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }} radius={maxRadiusKm * 1000} />
-                      
-                      <Marker
-                        position={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG + 0.00005 }}
-                        icon={{
-                          url: '/Flower_Power_Pizza_-_HotSpring.png',
-                          scaledSize: (typeof google !== 'undefined' && google.maps && google.maps.Size) ? new google.maps.Size(32, 32) : undefined
-                        }}
-                      />
-
-                      <Marker
-                        position={{ lat: markerPos.lat, lng: markerPos.lng }}
-                        draggable={true}
-                        onDragEnd={async (e) => {
-                          if (e.latLng) {
-                            const lat = e.latLng.lat();
-                            const lng = e.latLng.lng();
-                            setMarkerPos({ lat, lng });
-                            setIsLocationConfirmed(false);
-                            useLocationStore.setState({ distanceKm: null, userLat: null, userLng: null });
-                            await fetchReverseGeocoding(lat, lng);
-                          }
-                        }}
-                      />
-                    </Map>
-                  </APIProvider>
-
-                  <button
-                    type="button"
-                    onClick={detectUserGPS}
-                    className="absolute bottom-2 right-2 z-[400] bg-white hover:bg-stone-55 text-stone-700 p-1.5 rounded-lg border border-stone-300 shadow-md flex items-center justify-center transition-all cursor-pointer"
-                    title={t.detectLocBtn}
-                  >
-                    <MapPin size={12} className="text-[#8B1E1E]" />
-                  </button>
-                </div>
+            {/* Middle Section: Generous, Prominent Map filling available height */}
+            <div className="space-y-1.5 flex-1 flex flex-col min-h-[250px] sm:min-h-[280px]">
+              <div className="flex items-center justify-between pl-1 pr-1 shrink-0">
+                <p className="text-[9.5px] text-stone-500 font-bold uppercase tracking-wider">{t.mapInstructions}</p>
+                <button
+                  type="button"
+                  onClick={() => setIsMapExpanded(prev => !prev)}
+                  className="text-[9.5px] font-bold text-[#8B1E1E] hover:underline flex items-center gap-1 cursor-pointer select-none"
+                >
+                  {isMapExpanded ? (
+                    <>
+                      <Minimize2 size={12} />
+                      <span>{t.collapseMap}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Maximize2 size={12} />
+                      <span>{t.expandMap}</span>
+                    </>
+                  )}
+                </button>
               </div>
+              
+              <div className={`relative w-full rounded-2xl border border-stone-300 overflow-hidden bg-stone-100 shadow-inner transition-all duration-300 ${
+                isMapExpanded ? 'h-[360px]' : 'flex-1 min-h-[240px] sm:min-h-[270px]'
+              }`}>
+                <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+                  <Map
+                    defaultCenter={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }}
+                    defaultZoom={15}
+                    disableDefaultUI={true}
+                    gestureHandling="cooperative"
+                    style={{ height: '100%', width: '100%', cursor: 'crosshair' }}
+                    onClick={(e) => {
+                      if (e.detail?.latLng) {
+                        handlePointSelected(e.detail.latLng.lat, e.detail.latLng.lng);
+                      }
+                    }}
+                  >
+                    <MapController center={markerPos} />
+                    <MapCircle center={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }} radius={maxRadiusKm * 1000} />
+                    
+                    <Marker
+                      position={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG + 0.00005 }}
+                      icon={{
+                        url: '/Flower_Power_Pizza_-_HotSpring.png',
+                        scaledSize: (typeof google !== 'undefined' && google.maps && google.maps.Size) ? new google.maps.Size(34, 34) : undefined
+                      }}
+                    />
 
-              {/* Map confirmation button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setConfirmedLocation(markerPos.lat, markerPos.lng);
-                  setIsLocationConfirmed(true);
-                }}
-                className={`w-full py-2 text-[9px] tracking-wider uppercase font-extrabold transition-all rounded-full border cursor-pointer ${
-                  isLocationConfirmed && distanceKm !== null && isDeliverable
-                    ? 'bg-stone-100 border-stone-300 text-stone-500'
-                    : 'bg-stone-900 border-stone-900 text-white hover:bg-stone-850'
-                }`}
-              >
-                {t.confirmMapLoc}
-              </button>
+                    <Marker
+                      position={{ lat: markerPos.lat, lng: markerPos.lng }}
+                      draggable={true}
+                      onDragEnd={(e) => {
+                        if (e.latLng) {
+                          handlePointSelected(e.latLng.lat(), e.latLng.lng());
+                        }
+                      }}
+                    />
+                  </Map>
+                </APIProvider>
 
-              {/* Location status / error messages */}
+                {/* Tap helper pill */}
+                <div className="absolute top-2.5 left-2.5 z-[400] bg-white/95 backdrop-blur-xs text-stone-750 px-2.5 py-1 rounded-lg border border-stone-200/90 shadow-xs text-[9.5px] font-bold flex items-center gap-1.5 pointer-events-none select-none">
+                  <span>👆</span>
+                  <span>{t.tapHint}</span>
+                </div>
+
+                {/* Expand / Collapse floating button */}
+                <button
+                  type="button"
+                  onClick={() => setIsMapExpanded(prev => !prev)}
+                  className="absolute top-2.5 right-2.5 z-[400] bg-white hover:bg-stone-50 text-stone-750 p-2 rounded-lg border border-stone-300 shadow-sm flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                  title={isMapExpanded ? t.collapseMap : t.expandMap}
+                >
+                  {isMapExpanded ? <Minimize2 size={13} className="text-[#8B1E1E]" /> : <Maximize2 size={13} />}
+                </button>
+
+                {/* GPS locate button */}
+                <button
+                  type="button"
+                  onClick={() => detectUserGPS(true)}
+                  className="absolute bottom-2.5 right-2.5 z-[400] bg-white hover:bg-stone-50 text-stone-750 p-2.5 rounded-xl border border-stone-300 shadow-md flex items-center justify-center transition-all cursor-pointer active:scale-95 hover:shadow-lg"
+                  title={t.detectLocBtn}
+                >
+                  <Navigation size={14} className="text-[#8B1E1E]" />
+                </button>
+              </div>
+            </div>
+
+            {/* Bottom Actions Section: Harmonious & Balanced (No empty gaps) */}
+            <div className="space-y-2.5 shrink-0 pt-0.5">
+              {/* Map confirmation button with checkmark (spunta) */}
+              {isLocationConfirmed && distanceKm !== null && isDeliverable ? (
+                <div className="w-full py-2.5 px-3 text-[10px] tracking-wider uppercase font-black rounded-full bg-emerald-50 border-2 border-emerald-500 text-emerald-800 shadow-sm flex items-center justify-center gap-2">
+                  <Check size={16} className="text-emerald-600 stroke-[3]" />
+                  <span>{t.locConfirmed(distanceKm)}</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmedLocation(markerPos.lat, markerPos.lng);
+                    setIsLocationConfirmed(true);
+                  }}
+                  className="w-full py-2.5 text-[10px] tracking-wider uppercase font-black transition-all rounded-full border border-[#8B1E1E] bg-[#8B1E1E] text-white hover:bg-[#721818] shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                >
+                  <MapPin size={14} className="text-white fill-white" />
+                  <span>{t.confirmMapLoc}</span>
+                </button>
+              )}
+
+              {/* Location error message */}
               {locationError && !distanceKm && (
                 <p className="text-amber-600 text-[9px] text-center font-bold">{locationError}</p>
-              )}
-
-              {distanceKm !== null && isDeliverable && (
-                <p className="text-green-800 text-[9px] text-center font-bold bg-green-50/50 p-1.5 rounded-xl border border-green-200/60">
-                  {t.locConfirmed(distanceKm)}
-                </p>
               )}
 
               {outOfRange && (
@@ -887,16 +1036,17 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   </button>
                 </div>
               )}
+
+              <button
+                onClick={() => setStep(2)}
+                disabled={distanceKm === null || outOfRange || !name || !phone || !address}
+                className="w-full bg-[#8B1E1E] hover:bg-[#721818] text-white p-2.5 rounded-full font-bold transition-all disabled:bg-stone-100 disabled:text-stone-400 disabled:shadow-none shadow-sm hover:shadow-md cursor-pointer duration-200 transform active:scale-95 text-[9px] tracking-wider uppercase flex-shrink-0"
+                style={{ fontFamily: 'Inter, sans-serif' }}
+              >
+                {t.continueBtn}
+              </button>
             </div>
 
-            <button
-              onClick={() => setStep(2)}
-              disabled={distanceKm === null || outOfRange || !name || !phone || !address}
-              className="w-full bg-[#8B1E1E] hover:bg-[#721818] text-white p-2.5 rounded-full font-bold transition-all disabled:bg-stone-100 disabled:text-stone-400 disabled:shadow-none shadow-sm hover:shadow-md cursor-pointer duration-200 transform active:scale-95 text-[9px] tracking-wider uppercase flex-shrink-0"
-              style={{ fontFamily: 'Inter, sans-serif' }}
-            >
-              {t.continueBtn}
-            </button>
           </div>
         )}
 

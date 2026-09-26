@@ -765,9 +765,28 @@ export default function DeliveryMenu() {
       let rawWines: any[] = [];
       const saved = localStorage.getItem('fp_wine_collection');
       if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          rawWines = parsed;
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const masterMap = new Map(INITIAL_WINE_COLLECTION.map(w => [w.id, w]));
+            rawWines = parsed.map((w: any) => {
+              if (!w.bottleImage || w.bottleImage.includes('01-italian-wines.webp')) {
+                const master = masterMap.get(w.id);
+                if (master && master.bottleImage && !master.bottleImage.includes('01-italian-wines.webp')) {
+                  return { ...w, bottleImage: master.bottleImage };
+                }
+              }
+              return w;
+            });
+            const currentIds = new Set(rawWines.map((w: any) => w.id));
+            INITIAL_WINE_COLLECTION.forEach((masterWine) => {
+              if (!currentIds.has(masterWine.id) && !deletedSet.has(masterWine.id)) {
+                rawWines.push(masterWine);
+              }
+            });
+          }
+        } catch {
+          rawWines = [];
         }
       }
       
