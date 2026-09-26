@@ -51,40 +51,43 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
     const itemsText = items
       .map((item: any) => {
         let itemStr = `• <b>${item.quantity}x ${item.name}</b>`;
+        if (item.nameTh) {
+          itemStr += `\n  <i>${item.nameTh}</i>`;
+        }
         if (item.selectedVariant) {
           const variantName = typeof item.selectedVariant === "object" ? item.selectedVariant.name : item.selectedVariant;
-          itemStr += ` (Taglia: ${variantName})`;
+          itemStr += ` (Size / ขนาด: ${variantName})`;
         }
         if (Array.isArray(item.selectedExtras) && item.selectedExtras.length > 0) {
-          const extrasNames = item.selectedExtras.map((e: any) => e.name).join(", ");
-          itemStr += `\n  <i>+ ${extrasNames}</i>`;
+          const extrasNames = item.selectedExtras.map((e: any) => e.name || e).join(", ");
+          itemStr += `\n  <i>+ Extra: ${extrasNames}</i>`;
         }
         return itemStr;
       })
       .join("\n");
 
-    let cleanAddress = order.address || "Nessun indirizzo specificato";
+    let cleanAddress = order.address || "No address specified / ไม่ได้ระบุที่อยู่";
     if (cleanAddress.includes("[COORD:")) {
       cleanAddress = cleanAddress.split("[COORD:")[0].trim();
     }
 
     const messageText = [
-      `📦 <b>NUOVO ORDINE PIZZA</b>`,
+      `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
       ``,
-      `<b>Cliente:</b> ${order.customer_name}`,
+      `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
       ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
-      `<b>Indirizzo:</b> ${cleanAddress}`,
+      `<b>Address / ที่อยู่:</b> ${cleanAddress}`,
       ``,
-      `<b>Articoli:</b>`,
+      `<b>Items / รายการอาหาร:</b>`,
       itemsText,
       ``,
-      `<b>Totale:</b> ${order.total} THB`,
-      `<b>Metodo di pagamento:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR)" : "Contanti"}`,
-      order.receipt_url ? `📎 <a href="${order.receipt_url}">Visualizza Ricevuta</a>` : ``,
+      `<b>Total / ยอดรวม:</b> ${order.total} THB`,
+      `<b>Payment / วิธีชำระเงิน:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR) / สแกนจ่าย" : "Cash on Delivery / เก็บเงินสด"}`,
+      order.receipt_url ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>` : ``,
       ``,
       order.latitude && order.longitude
-        ? `📍 <a href="https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}">Apri Posizione su Google Maps</a>`
-        : `📍 Nessuna coordinata GPS disponibile`
+        ? `📍 <a href="https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}">Open Google Maps / เปิด Google Maps</a>`
+        : `📍 No GPS coordinates / ไม่มีพิกัด GPS`
     ]
       .filter((line) => line !== null)
       .join("\n");
@@ -92,12 +95,12 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
     const inlineKeyboard = {
       inline_keyboard: [
         [
-          { text: "🟢 Conferma Ordine", callback_data: `prepare_${order.id}` },
-          { text: "✖ Rifiuta Ordine", callback_data: `reject_${order.id}` }
+          { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
+          { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
         ],
         [
-          { text: "🛫 PARTENZA", callback_data: `start_track_${order.id}` },
-          { text: "🛬 ARRIVO", callback_data: `stop_track_${order.id}` }
+          { text: "🛵 Rider Departed / ไรเดอร์ออกแล้ว", callback_data: `start_track_${order.id}` },
+          { text: "🏁 Delivered / ถึงแล้ว", callback_data: `stop_track_${order.id}` }
         ]
       ]
     };
@@ -183,59 +186,62 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
     const itemsText = items
       .map((item: any) => {
         let itemStr = `• <b>${item.quantity}x ${item.name}</b>`;
+        if (item.nameTh) {
+          itemStr += `\n  <i>${item.nameTh}</i>`;
+        }
         if (item.selectedVariant) {
           const variantName = typeof item.selectedVariant === "object" ? item.selectedVariant.name : item.selectedVariant;
-          itemStr += ` (Taglia: ${variantName})`;
+          itemStr += ` (Size / ขนาด: ${variantName})`;
         }
         if (Array.isArray(item.selectedExtras) && item.selectedExtras.length > 0) {
-          const extrasNames = item.selectedExtras.map((e: any) => e.name).join(", ");
-          itemStr += `\n  <i>+ ${extrasNames}</i>`;
+          const extrasNames = item.selectedExtras.map((e: any) => e.name || e).join(", ");
+          itemStr += `\n  <i>+ Extra: ${extrasNames}</i>`;
         }
         return itemStr;
       })
       .join("\n");
 
-    let cleanAddress = order.address || "Nessun indirizzo specificato";
+    let cleanAddress = order.address || "No address specified / ไม่ได้ระบุที่อยู่";
     if (cleanAddress.includes("[COORD:")) {
       cleanAddress = cleanAddress.split("[COORD:")[0].trim();
     }
 
     let messageText = [
-      `📦 <b>NUOVO ORDINE PIZZA</b>`,
+      `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
       ``,
-      `<b>Cliente:</b> ${order.customer_name}`,
+      `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
       ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
-      `<b>Indirizzo:</b> ${cleanAddress}`,
+      `<b>Address / ที่อยู่:</b> ${cleanAddress}`,
       ``,
-      `<b>Articoli:</b>`,
+      `<b>Items / รายการอาหาร:</b>`,
       itemsText,
       ``,
-      `<b>Totale:</b> ${order.total} THB`,
-      `<b>Metodo di pagamento:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR)" : "Contanti"}`,
-      order.receipt_url ? `📎 <a href="${order.receipt_url}">Visualizza Ricevuta</a>` : ``,
+      `<b>Total / ยอดรวม:</b> ${order.total} THB`,
+      `<b>Payment / วิธีชำระเงิน:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR) / สแกนจ่าย" : "Cash on Delivery / เก็บเงินสด"}`,
+      order.receipt_url ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>` : ``,
       ``,
       order.latitude && order.longitude
-        ? `📍 <a href="https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}">Apri Posizione su Google Maps</a>`
-        : `📍 Nessuna coordinata GPS disponibile`
+        ? `📍 <a href="https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}">Open Google Maps / เปิด Google Maps</a>`
+        : `📍 No GPS coordinates / ไม่มีพิกัด GPS`
     ]
       .filter((line) => line !== null)
       .join("\n");
 
-    const actor = "Flower Power Pizza";
+    const actor = "Flower Power Pizza Ranong";
     let statusText = "";
     let actorText = "";
     if (status === "preparing") {
-      statusText = `\n\n👨‍🍳 <b>Stato: In Preparazione</b>`;
-      actorText = `\n<i>Confermato da ${actor}</i>`;
+      statusText = `\n\n👨‍🍳 <b>Status: In Preparation / กำลังอบ & เตรียมอาหาร</b>`;
+      actorText = `\n<i>Confirmed by / ยืนยันโดย ${actor}</i>`;
     } else if (status === "delivering") {
-      statusText = `\n\n🛵 <b>Stato: In Consegna</b>`;
-      actorText = `\n<i>Aggiornato da ${actor}</i>`;
+      statusText = `\n\n🛵 <b>Status: Out for Delivery / กำลังจัดส่ง (ไรเดอร์ออกเดินทาง)</b>`;
+      actorText = `\n<i>Dispatched by / จัดส่งโดย ${actor}</i>`;
     } else if (status === "completed") {
-      statusText = `\n\n✅ <b>Stato: Consegnato & Completato</b>`;
-      actorText = `\n<i>Completato da ${actor}</i>`;
+      statusText = `\n\n✅ <b>Status: Delivered & Completed / จัดส่งเรียบร้อยแล้ว</b>`;
+      actorText = `\n<i>Completed by / สำเร็จโดย ${actor}</i>`;
     } else if (status === "rejected") {
-      statusText = `\n\n❌ <b>Stato: Rifiutato / Annullato</b>`;
-      actorText = `\n<i>Annullato da ${actor}</i>`;
+      statusText = `\n\n❌ <b>Status: Cancelled / ยกเลิกออเดอร์</b>`;
+      actorText = `\n<i>Cancelled by / ยกเลิกโดย ${actor}</i>`;
     }
 
     messageText += statusText + actorText;
@@ -243,12 +249,12 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
     const inlineKeyboard = {
       inline_keyboard: [
         [
-          { text: "🟢 Conferma Ordine", callback_data: `prepare_${order.id}` },
-          { text: "✖ Rifiuta Ordine", callback_data: `reject_${order.id}` }
+          { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
+          { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
         ],
         [
-          { text: "🛫 PARTENZA", callback_data: `start_track_${order.id}` },
-          { text: "🛬 ARRIVO", callback_data: `stop_track_${order.id}` }
+          { text: "🛵 Rider Departed / ไรเดอร์ออกแล้ว", callback_data: `start_track_${order.id}` },
+          { text: "🏁 Delivered / ถึงแล้ว", callback_data: `stop_track_${order.id}` }
         ]
       ]
     };
@@ -345,22 +351,22 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
 
     if (action === "prepare") {
       targetStatus = "preparing";
-      answerText = "Ordine confermato! 🟢";
+      answerText = "Order confirmed! 🟢 / ยืนยันออเดอร์แล้ว";
     } else if (action === "deliver") {
       targetStatus = "delivering";
-      answerText = "Consegna avviata! 🛵";
+      answerText = "Delivery started! 🛵 / กำลังไปส่ง";
     } else if (action === "reject") {
       targetStatus = "rejected";
-      answerText = "Ordine Rifiutato! ✖";
+      answerText = "Order cancelled! ✖ / ยกเลิกออเดอร์แล้ว";
     } else if (action === "complete") {
       targetStatus = "completed";
-      answerText = "Ordine completato! 🏁";
+      answerText = "Order completed! 🏁 / จัดส่งสำเร็จ";
     } else if (action === "start_track") {
       isTrackingAction = true;
-      answerText = "Tracciamento Live PARTITO! 🛫 (Condividi la tua posizione Telegram in chat)";
+      answerText = "Live GPS tracking started! 🛵 / เริ่มแชร์ตำแหน่ง GPS";
     } else if (action === "stop_track") {
       isTrackingAction = true;
-      answerText = "Tracciamento Live FERMATO! 🛬";
+      answerText = "Live GPS tracking stopped! 🛬 / หยุดแชร์ตำแหน่ง GPS";
     }
 
     if (isTrackingAction) {
@@ -398,60 +404,63 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
       const itemsText = items
         .map((item: any) => {
           let itemStr = `• <b>${item.quantity}x ${item.name}</b>`;
+          if (item.nameTh) {
+            itemStr += `\n  <i>${item.nameTh}</i>`;
+          }
           if (item.selectedVariant) {
             const variantName = typeof item.selectedVariant === "object" ? item.selectedVariant.name : item.selectedVariant;
-            itemStr += ` (Taglia: ${variantName})`;
+            itemStr += ` (Size / ขนาด: ${variantName})`;
           }
           if (Array.isArray(item.selectedExtras) && item.selectedExtras.length > 0) {
-            const extrasNames = item.selectedExtras.map((e: any) => e.name).join(", ");
-            itemStr += `\n  <i>+ ${extrasNames}</i>`;
+            const extrasNames = item.selectedExtras.map((e: any) => e.name || e).join(", ");
+            itemStr += `\n  <i>+ Extra: ${extrasNames}</i>`;
           }
           return itemStr;
         })
         .join("\n");
 
-      let cleanAddress = order.address || "Nessun indirizzo specificato";
+      let cleanAddress = order.address || "No address specified / ไม่ได้ระบุที่อยู่";
       if (cleanAddress.includes("[COORD:")) {
         cleanAddress = cleanAddress.split("[COORD:")[0].trim();
       }
 
       let messageText = [
-        `📦 <b>NUOVO ORDINE PIZZA</b>`,
+        `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
         ``,
-        `<b>Cliente:</b> ${order.customer_name}`,
+        `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
         ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
-        `<b>Indirizzo:</b> ${cleanAddress}`,
+        `<b>Address / ที่อยู่:</b> ${cleanAddress}`,
         ``,
-        `<b>Articoli:</b>`,
+        `<b>Items / รายการอาหาร:</b>`,
         itemsText,
         ``,
-        `<b>Totale:</b> ${order.total} THB`,
-        `<b>Metodo di pagamento:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR)" : "Contanti"}`,
-        order.receipt_url ? `📎 <a href="${order.receipt_url}">Visualizza Ricevuta</a>` : ``,
+        `<b>Total / ยอดรวม:</b> ${order.total} THB`,
+        `<b>Payment / วิธีชำระเงิน:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR) / สแกนจ่าย" : "Cash on Delivery / เก็บเงินสด"}`,
+        order.receipt_url ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>` : ``,
         ``,
         order.latitude && order.longitude
-          ? `📍 <a href="https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}">Apri Posizione su Google Maps</a>`
-          : `📍 Nessuna coordinata GPS disponibile`
+          ? `📍 <a href="https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}">Open Google Maps / เปิด Google Maps</a>`
+          : `📍 No GPS coordinates / ไม่มีพิกัด GPS`
       ]
         .filter((line) => line !== null)
         .join("\n");
 
       let statusText = "";
-      let actorText = `\n<i>Premuto da ${actor}</i>`;
+      let actorText = `\n<i>Updated by / อัปเดตโดย ${actor}</i>`;
 
       if (order.status === "preparing") {
-        statusText = `\n\n👨‍🍳 <b>Stato: In Preparazione</b>`;
+        statusText = `\n\n👨‍🍳 <b>Status: In Preparation / กำลังอบ & เตรียมอาหาร</b>`;
       } else if (order.status === "delivering") {
-        statusText = `\n\n🛵 <b>Stato: In Consegna</b>`;
+        statusText = `\n\n🛵 <b>Status: Out for Delivery / กำลังจัดส่ง (ไรเดอร์ออกเดินทาง)</b>`;
       } else if (order.status === "completed") {
-        statusText = `\n\n✅ <b>Stato: Consegnato & Completato</b>`;
+        statusText = `\n\n✅ <b>Status: Delivered & Completed / จัดส่งเรียบร้อยแล้ว</b>`;
       } else if (order.status === "rejected") {
-        statusText = `\n\n❌ <b>Stato: Rifiutato / Annullato</b>`;
+        statusText = `\n\n❌ <b>Status: Cancelled / ยกเลิกออเดอร์</b>`;
       }
 
       let trackingText = "";
       if (order.tracking_active) {
-        trackingText = `\n📡 <b>Tracciamento GPS: ATTIVO 🛫</b>`;
+        trackingText = `\n📡 <b>GPS Tracking / ติดตามตำแหน่ง: ACTIVE 🛫 / กำลังเปิดแชร์</b>`;
       }
 
       messageText += statusText + trackingText + actorText;
@@ -459,12 +468,12 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
       const inlineKeyboard = {
         inline_keyboard: [
           [
-            { text: "🟢 Conferma Ordine", callback_data: `prepare_${order.id}` },
-            { text: "✖ Rifiuta Ordine", callback_data: `reject_${order.id}` }
+            { text: "🟢 Confirm / ยืนยัน", callback_data: `prepare_${order.id}` },
+            { text: "✖ Reject / ยกเลิก", callback_data: `reject_${order.id}` }
           ],
           [
-            { text: order.tracking_active ? "🛫 TRACKING ATTIVO" : "🛫 PARTENZA", callback_data: `start_track_${order.id}` },
-            { text: "🛬 ARRIVO", callback_data: `stop_track_${order.id}` }
+            { text: order.tracking_active ? "🛵 GPS Active / กำลังแชร์" : "🛵 Rider Departed / ไรเดอร์ออกแล้ว", callback_data: `start_track_${order.id}` },
+            { text: "🏁 Delivered / ถึงแล้ว", callback_data: `stop_track_${order.id}` }
           ]
         ]
       };

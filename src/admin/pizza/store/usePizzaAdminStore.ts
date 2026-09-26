@@ -93,6 +93,7 @@ export const sanitizePizzaOrder = (rawOrder: any): PizzaOrder => {
     return {
       id: String(item?.id || `item-${idx}`),
       name: nameStr,
+      nameTh: extractString(item?.nameTh || item?.name_th || ''),
       quantity: typeof item?.quantity === 'number' ? item.quantity : 1,
       price: typeof item?.price === 'number' ? item.price : (typeof item?.basePrice === 'number' ? item.basePrice : 0),
       selectedVariant: variantStr || null,

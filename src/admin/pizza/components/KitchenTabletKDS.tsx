@@ -31,6 +31,28 @@ import {
   Eye,
   ArrowLeft
 } from 'lucide-react';
+import { menuData } from '../../../pizza/data/menuData';
+
+// Lookup map for fast retrieval of Thai translations
+const menuThaiLookup: Record<string, string> = {};
+try {
+  menuData.forEach(cat => {
+    cat.items.forEach(item => {
+      if (item.name && item.nameTh) {
+        menuThaiLookup[item.name.toLowerCase().trim()] = item.nameTh;
+      }
+    });
+  });
+} catch (e) {}
+
+const getThaiName = (item: any): string => {
+  if (item?.nameTh && typeof item.nameTh === 'string' && item.nameTh.trim().length > 0) {
+    return item.nameTh.trim();
+  }
+  const rawName = typeof item === 'string' ? item : (item?.name || item?.nameIt || '');
+  const key = String(rawName).toLowerCase().trim();
+  return menuThaiLookup[key] || '';
+};
 
 const formatWhatsAppPhone = (phone: string) => {
   let clean = (phone || '').replace(/[^0-9]/g, '');
@@ -209,7 +231,7 @@ export function KitchenTabletKDS() {
           <Link 
             to="/admin" 
             className="p-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 transition-colors"
-            title="Torna al Back Office Amministrativo"
+            title="Back to Admin Dashboard / กลับหน้าหลัก"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
@@ -217,9 +239,9 @@ export function KitchenTabletKDS() {
           <div>
             <h1 className="text-base sm:text-lg font-black tracking-tight text-white uppercase leading-none flex items-center gap-2">
               <span className="text-[#e11d48]">🍕</span>
-              <span>KITCHEN MONITOR</span>
+              <span>KITCHEN MONITOR · ครัวพิซซ่า</span>
             </h1>
-            <span className="text-[11px] font-bold text-stone-400">FLOWER POWER PIZZA RANONG</span>
+            <span className="text-[11px] font-bold text-stone-400">FLOWER POWER PIZZA RANONG · ระนอง</span>
           </div>
 
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#090b0e] border border-stone-800 font-mono text-lg font-black text-amber-400 tracking-wider">
@@ -228,7 +250,7 @@ export function KitchenTabletKDS() {
           </div>
         </div>
 
-        {/* Center: Live Order Counters */}
+        {/* Center: Live Order Counters (Bilingual EN / TH) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={() => setSelectedMobileTab('new')}
@@ -238,7 +260,7 @@ export function KitchenTabletKDS() {
                 : 'bg-stone-800 text-stone-400'
             }`}
           >
-            <span>DA FARE</span>
+            <span>NEW · รอรับ</span>
             <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-white text-[11px]">
               {newOrders.length}
             </span>
@@ -253,7 +275,7 @@ export function KitchenTabletKDS() {
             }`}
           >
             <Flame className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">IN FORNO</span>
+            <span className="hidden sm:inline">OVEN · กำลังอบ</span>
             <span className="px-1.5 py-0.2 rounded-full bg-black/20 text-stone-950 text-[11px]">
               {preparingOrders.length}
             </span>
@@ -268,7 +290,7 @@ export function KitchenTabletKDS() {
             }`}
           >
             <Bike className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">PRONTE</span>
+            <span className="hidden sm:inline">READY · พร้อมส่ง</span>
             <span className="px-1.5 py-0.2 rounded-full bg-black/40 text-white text-[11px]">
               {readyOrders.length}
             </span>
@@ -277,18 +299,19 @@ export function KitchenTabletKDS() {
 
         {/* Right: Tablet Controls (WakeLock, Audio, Fullscreen) */}
         <div className="flex items-center gap-1.5">
-          {/* Pulsante rapido FERMA SUONERIA quando la comanda suona */}
+          {/* Quick Mute Alarm button when alarm is ringing */}
           {unacknowledgedNewOrders.length > 0 && !soundMuted && (
             <button
               type="button"
               onClick={handleSilenceAlarm}
               className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-bounce shadow-lg shadow-red-600/50 cursor-pointer border border-white/40"
-              title="Silenzia subito la suoneria per questa comanda"
+              title="Mute alarm immediately · ปิดเสียงเตือนทันที"
             >
               <BellOff className="w-4 h-4 stroke-[3]" />
-              <span>SILENZIA SUONO</span>
+              <span>MUTE ALARM · ปิดเสียง</span>
             </button>
           )}
+
           {/* Wake Lock Status Badge */}
           <button
             onClick={() => requestScreenWakeLock().then(ok => setWakeLockActive(ok))}
@@ -297,13 +320,13 @@ export function KitchenTabletKDS() {
                 ? 'bg-emerald-950/70 border-emerald-600 text-emerald-300' 
                 : 'bg-stone-800 border-stone-700 text-stone-400 hover:text-white'
             }`}
-            title={wakeLockActive ? 'Schermo sempre acceso attivo' : 'Tocca per bloccare lo spegnimento schermo'}
+            title={wakeLockActive ? 'Screen Stay-Awake active · เปิดจอค้างอยู่' : 'Tap to keep screen awake · กดเพื่อให้หน้าจอเปิดตลอด'}
           >
             <span className={`w-2.5 h-2.5 rounded-full ${wakeLockActive ? 'bg-emerald-400 animate-ping' : 'bg-stone-500'}`} />
-            <span className="hidden lg:inline">{wakeLockActive ? 'SCHERMO ATTIVO' : 'SVEGLIA SCHERMO'}</span>
+            <span className="hidden lg:inline">{wakeLockActive ? 'SCREEN ON · เปิดจอค้าง' : 'KEEP AWAKE · เปิดจอค้าง'}</span>
           </button>
 
-          {/* Sound Alarm Toggle & Test */}
+          {/* Sound Alarm Toggle */}
           <button
             onClick={() => {
               if (soundMuted) {
@@ -319,7 +342,7 @@ export function KitchenTabletKDS() {
                 ? 'bg-red-950 border-red-700 text-red-300' 
                 : 'bg-stone-800 border-stone-700 text-emerald-400 hover:bg-stone-700'
             }`}
-            title={soundMuted ? 'Suoneria disattivata (tocca per attivare)' : 'Suoneria attiva (tocca per silenziare)'}
+            title={soundMuted ? 'Sound muted - Tap to unmute · ปิดเสียงอยู่ (กดเพื่อเปิด)' : 'Sound active - Tap to mute · เปิดเสียงอยู่ (กดเพื่อปิด)'}
           >
             {soundMuted ? <VolumeX className="w-5 h-5 text-red-400" /> : <Volume2 className="w-5 h-5 text-emerald-400" />}
           </button>
@@ -331,7 +354,7 @@ export function KitchenTabletKDS() {
               testKitchenAlarm();
             }}
             className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 text-xs font-black"
-            title="Ascolta tono allarme comanda"
+            title="Test alarm sound · ทดสอบเสียงเตือน"
           >
             TEST 🔔
           </button>
@@ -340,7 +363,7 @@ export function KitchenTabletKDS() {
           <button
             onClick={toggleFullscreen}
             className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700"
-            title={isFullscreen ? 'Esci da schermo intero' : 'Attiva schermo intero per tablet'}
+            title={isFullscreen ? 'Exit Fullscreen · ออกจากเต็มจอ' : 'Enter Fullscreen · ขยายเต็มจอ'}
           >
             {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
           </button>
@@ -350,7 +373,7 @@ export function KitchenTabletKDS() {
       {/* ─── MAIN 3-COLUMN KITCHEN BOARD ────────────────────────────────── */}
       <main className="flex-1 p-2 sm:p-3 overflow-hidden grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
 
-        {/* ─── COLONNA 1: NUOVE COMANDE (DA ACCETTARE) ────────────────────── */}
+        {/* ─── COLUMN 1: NEW ORDERS (TO ACCEPT) ───────────────────────────── */}
         <section className={`flex flex-col bg-[#131720] border-2 rounded-2xl overflow-hidden ${
           newOrders.length > 0 ? 'border-red-600 shadow-xl shadow-red-950/40' : 'border-stone-800'
         } ${selectedMobileTab !== 'new' ? 'hidden md:flex' : 'flex'}`}>
@@ -358,11 +381,11 @@ export function KitchenTabletKDS() {
           <div className="bg-[#1b202c] px-3 py-2.5 border-b border-stone-800 flex items-center justify-between">
             <h2 className="font-black text-sm uppercase tracking-wider text-red-400 flex items-center gap-2">
               <span className="w-3 h-3 rounded-full bg-red-500 animate-ping" />
-              <span>DA ACCETTARE ({newOrders.length})</span>
+              <span>NEW ORDERS · ออเดอร์ใหม่ ({newOrders.length})</span>
             </h2>
             {newOrders.length > 0 && (
               <span className="text-[10px] font-black bg-red-600/30 text-red-300 border border-red-500/40 px-2 py-0.5 rounded-full uppercase animate-pulse">
-                🔔 SUONA IN CUCINA
+                🔔 RINGING · กำลังส่งเสียง
               </span>
             )}
           </div>
@@ -371,8 +394,8 @@ export function KitchenTabletKDS() {
             {newOrders.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 text-stone-500">
                 <CheckCircle className="w-12 h-12 text-stone-700 mb-2" />
-                <p className="font-black text-sm uppercase text-stone-400">Nessuna nuova comanda</p>
-                <p className="text-xs text-stone-600">Il tablet suonerà appena arriva un nuovo ordine.</p>
+                <p className="font-black text-sm uppercase text-stone-400">NO NEW ORDERS · ไม่มีออเดอร์ใหม่</p>
+                <p className="text-xs text-stone-600">The tablet will ring when a new order arrives.<br/>แท็บเล็ตจะส่งเสียงเตือนเมื่อมีออเดอร์ใหม่เข้ามา</p>
               </div>
             ) : (
               newOrders.map(order => {
@@ -391,7 +414,7 @@ export function KitchenTabletKDS() {
                       <div className="flex items-center gap-2">
                         <span className="font-black text-xl text-white tracking-wider">#{orderNumber}</span>
                         <span className="text-xs font-black px-2 py-0.5 rounded-md bg-red-600 text-white">
-                          RICEVUTO DA {elapsed} MIN
+                          {elapsed} MIN AGO · {elapsed} นาทีที่แล้ว
                         </span>
                       </div>
                       <span className="font-black text-lg text-emerald-400 font-mono">
@@ -399,7 +422,7 @@ export function KitchenTabletKDS() {
                       </span>
                     </div>
 
-                    {/* Cliente & Indirizzo */}
+                    {/* Customer & Address */}
                     <div className="text-xs space-y-0.5 text-stone-300">
                       <div className="font-black text-white text-sm flex items-center justify-between">
                         <span>👤 {order.customer_name}</span>
@@ -417,36 +440,42 @@ export function KitchenTabletKDS() {
                       </p>
                     </div>
 
-                    {/* Lista Pizze & Piatti da preparare (FONT GIGANTI PER IL BANCO) */}
-                    <div className="bg-[#0f131a] p-2.5 rounded-xl border border-stone-800 space-y-2">
+                    {/* Items List (Bilingual EN / TH with giant fonts for kitchen display) */}
+                    <div className="bg-[#0f131a] p-2.5 rounded-xl border border-stone-800 space-y-2.5">
                       {items.map((item, idx) => {
-                        const name = formatProductName(item.name);
+                        const nameEn = formatProductName(item.name);
+                        const thaiName = getThaiName(item);
                         const variant = item.selectedVariant ? String(item.selectedVariant) : '';
                         const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
 
                         return (
-                          <div key={idx} className="border-b border-stone-800 last:border-0 pb-1.5 last:pb-0">
+                          <div key={idx} className="border-b border-stone-800 last:border-0 pb-2 last:pb-0">
                             <div className="flex items-baseline gap-2">
                               <span className="font-black text-lg sm:text-xl text-amber-400 font-mono">
                                 {item.quantity}x
                               </span>
                               <div className="flex-1">
                                 <span className="font-black text-base sm:text-lg text-white leading-tight block">
-                                  {name}
+                                  {nameEn}
                                 </span>
+                                {thaiName && (
+                                  <span className="font-black text-sm text-amber-300 leading-tight block mt-0.5">
+                                    {thaiName}
+                                  </span>
+                                )}
                                 {variant && (
-                                  <span className="text-xs font-bold text-stone-300 uppercase tracking-wide">
-                                    Taglia: {variant}
+                                  <span className="text-xs font-bold text-stone-300 uppercase tracking-wide block mt-0.5">
+                                    Size / ขนาด: {variant}
                                   </span>
                                 )}
                               </div>
                             </div>
 
-                            {/* Ingredienti EXTRA evidenziati in giallo brillante */}
+                            {/* Extra ingredients highlighted in bright amber */}
                             {extras.length > 0 && (
                               <div className="mt-1 pl-6 flex flex-wrap gap-1">
                                 {extras.map((ex: any, exIdx: number) => {
-                                  const exName = typeof ex === 'string' ? ex : (ex.name || ex.nameIt || 'Extra');
+                                  const exName = typeof ex === 'string' ? ex : (ex.name || ex.nameIt || ex.nameEn || 'Extra');
                                   return (
                                     <span 
                                       key={exIdx}
@@ -463,7 +492,7 @@ export function KitchenTabletKDS() {
                       })}
                     </div>
 
-                    {/* Azioni Comanda: ACCETTA SUBITO (FERMA L'ALLARME) */}
+                    {/* Actions: ACCEPT ORDER (SILENCES CONTINUOUS ALARM) */}
                     <div className="pt-1 flex flex-col gap-1.5">
                       <div className="flex gap-1.5">
                         <button
@@ -472,7 +501,7 @@ export function KitchenTabletKDS() {
                           className="flex-1 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
                         >
                           <CheckCircle className="w-5 h-5 text-white stroke-[3]" />
-                          <span>ACCETTA ({prepTimeCustom[order.id] || 30} MIN)</span>
+                          <span>ACCEPT · ยืนยัน ({prepTimeCustom[order.id] || 30} MIN / นาที)</span>
                         </button>
 
                         <button
@@ -482,14 +511,14 @@ export function KitchenTabletKDS() {
                             setAcknowledgedOrderIds(prev => new Set(prev).add(String(order.id)));
                           }}
                           className="px-3.5 py-3.5 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-300 hover:text-white font-black text-xs uppercase tracking-wider border border-stone-700 flex items-center justify-center gap-1 cursor-pointer transition-transform"
-                          title="Silenzia la suoneria senza ancora accettare"
+                          title="Mute alarm without accepting yet · ปิดเสียงเตือนไว้ก่อน"
                         >
                           <BellOff className="w-4 h-4 text-red-400" />
-                          <span className="hidden sm:inline">MUTO</span>
+                          <span className="hidden sm:inline">MUTE · ปิดเสียง</span>
                         </button>
                       </div>
 
-                      {/* Selettore rapido minuti prep */}
+                      {/* Prep time fast selector */}
                       <div className="grid grid-cols-3 gap-1">
                         {[20, 30, 45].map(min => (
                           <button
@@ -502,7 +531,7 @@ export function KitchenTabletKDS() {
                                 : 'bg-stone-800 text-stone-400 hover:bg-stone-700 hover:text-white'
                             }`}
                           >
-                            {min} min
+                            {min} MIN · นาที
                           </button>
                         ))}
                       </div>
@@ -515,14 +544,14 @@ export function KitchenTabletKDS() {
           </div>
         </section>
 
-        {/* ─── COLONNA 2: IN FORNO & IN PREPARAZIONE ──────────────────────── */}
+        {/* ─── COLUMN 2: IN OVEN & PREPARATION ────────────────────────────── */}
         <section className={`flex flex-col bg-[#131720] border-2 border-stone-800 rounded-2xl overflow-hidden ${
           selectedMobileTab !== 'preparing' ? 'hidden md:flex' : 'flex'
         }`}>
           <div className="bg-[#1b202c] px-3 py-2.5 border-b border-stone-800 flex items-center justify-between">
             <h2 className="font-black text-sm uppercase tracking-wider text-amber-400 flex items-center gap-2">
               <Flame className="w-4 h-4 text-amber-500" />
-              <span>IN FORNO & PREPARAZIONE ({preparingOrders.length})</span>
+              <span>IN OVEN & PREP · กำลังอบ & เตรียมอาหาร ({preparingOrders.length})</span>
             </h2>
           </div>
 
@@ -530,8 +559,8 @@ export function KitchenTabletKDS() {
             {preparingOrders.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 text-stone-500">
                 <Flame className="w-12 h-12 text-stone-700 mb-2" />
-                <p className="font-black text-sm uppercase text-stone-400">Nessun ordine in forno</p>
-                <p className="text-xs text-stone-600">Gli ordini accettati appariranno qui con il timer.</p>
+                <p className="font-black text-sm uppercase text-stone-400">NO ORDERS IN OVEN · ไม่มีออเดอร์ในเตาอบ</p>
+                <p className="text-xs text-stone-600">Accepted orders will appear here with timer.<br/>ออเดอร์ที่ยืนยันแล้วจะแสดงที่นี่พร้อมเวลานับถอยหลัง</p>
               </div>
             ) : (
               preparingOrders.map(order => {
@@ -551,34 +580,46 @@ export function KitchenTabletKDS() {
                       <div className="flex items-center gap-2">
                         <span className="font-black text-xl text-white tracking-wider">#{orderNumber}</span>
                         <span className={`text-xs font-black px-2.5 py-0.5 rounded-md ${timerColor}`}>
-                          IN FORNO DA {elapsed} MIN
+                          IN OVEN {elapsed} MIN · กำลังอบ {elapsed} นาที
                         </span>
                       </div>
                       <span className="text-xs font-bold text-stone-400">👤 {order.customer_name}</span>
                     </div>
 
-                    {/* Dettaglio Pizze */}
+                    {/* Bilingual Items List (EN / TH) */}
                     <div className="bg-[#0f131a] p-2.5 rounded-xl border border-stone-800 space-y-2">
-                      {items.map((item, idx) => (
-                        <div key={idx} className="flex items-baseline gap-2">
-                          <span className="font-black text-lg text-amber-400 font-mono">
-                            {item.quantity}x
-                          </span>
-                          <span className="font-black text-base text-white">
-                            {formatProductName(item.name)}
-                          </span>
-                        </div>
-                      ))}
+                      {items.map((item, idx) => {
+                        const nameEn = formatProductName(item.name);
+                        const thaiName = getThaiName(item);
+
+                        return (
+                          <div key={idx} className="flex items-baseline gap-2">
+                            <span className="font-black text-lg text-amber-400 font-mono">
+                              {item.quantity}x
+                            </span>
+                            <div className="flex-1">
+                              <span className="font-black text-base text-white block">
+                                {nameEn}
+                              </span>
+                              {thaiName && (
+                                <span className="font-black text-xs text-amber-300 block">
+                                  {thaiName}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
 
-                    {/* Tasto Gigante: ORDINE PRONTO / SFORNATO */}
+                    {/* Big Action: BAKED / READY FOR RIDER */}
                     <button
                       type="button"
                       onClick={() => handleOrderReady(order.id)}
                       className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
                     >
                       <CheckCircle className="w-5 h-5 text-white stroke-[3]" />
-                      <span>PIZZE SFORNATE ➔ PRONTE PER RIDER</span>
+                      <span>BAKED ➔ READY FOR RIDER · อบเสร็จแล้ว ➔ พร้อมส่ง</span>
                     </button>
                   </div>
                 );
@@ -587,14 +628,14 @@ export function KitchenTabletKDS() {
           </div>
         </section>
 
-        {/* ─── COLONNA 3: PRONTE / IN CONSEGNA ────────────────────────────── */}
+        {/* ─── COLUMN 3: READY / DELIVERING ───────────────────────────────── */}
         <section className={`flex flex-col bg-[#131720] border-2 border-stone-800 rounded-2xl overflow-hidden ${
           selectedMobileTab !== 'ready' ? 'hidden md:flex' : 'flex'
         }`}>
           <div className="bg-[#1b202c] px-3 py-2.5 border-b border-stone-800 flex items-center justify-between">
             <h2 className="font-black text-sm uppercase tracking-wider text-blue-400 flex items-center gap-2">
               <Bike className="w-4 h-4 text-blue-500" />
-              <span>PRONTE & IN CONSEGNA ({readyOrders.length})</span>
+              <span>READY & DELIVERING · พร้อมส่ง & ออกส่งแล้ว ({readyOrders.length})</span>
             </h2>
           </div>
 
@@ -602,32 +643,31 @@ export function KitchenTabletKDS() {
             {readyOrders.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 text-stone-500">
                 <Bike className="w-12 h-12 text-stone-700 mb-2" />
-                <p className="font-black text-sm uppercase text-stone-400">Nessuna pizza in consegna</p>
-                <p className="text-xs text-stone-600">Le pizze sfornate appariranno qui per il rider.</p>
+                <p className="font-black text-sm uppercase text-stone-400">NO ORDERS DELIVERING · ไม่มีออเดอร์พร้อมส่ง</p>
+                <p className="text-xs text-stone-600">Baked orders will appear here for rider.<br/>พิซซ่าที่อบเสร็จแล้วจะแสดงที่นี่เพื่อส่งต่อให้ไรเดอร์</p>
               </div>
             ) : (
               readyOrders.map(order => {
                 const { address, lat, lng } = parseCoordsFromAddress(order.address);
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
 
-                // Customer WhatsApp Link (trilingual dispatch notice)
+                // Customer WhatsApp Link (bilingual dispatch notice EN / TH)
                 const cleanPhone = formatWhatsAppPhone(order.phone);
                 const customerMsg = encodeURIComponent(
                   `🍕 *FLOWER POWER PIZZA RANONG* 🛵\n` +
-                  `Ciao ${order.customer_name}!\n` +
-                  `Il tuo ordine #${orderNumber} è appena stato sfornato ed è partito con il nostro rider!\n\n` +
-                  `Your order #${orderNumber} is freshly baked and on the way with our rider!\n` +
-                  `พิซซ่าของคุณอบเสร็จแล้วและกำลังเดินทางไปส่งนะคะ ✨\n\n` +
-                  `Arriviamo tra pochissimo!`
+                  `Hello ${order.customer_name}!\n` +
+                  `Your order #${orderNumber} is freshly baked and on the way with our rider!\n\n` +
+                  `พิซซ่าของคุณออเดอร์ #${orderNumber} อบเสร็จแล้วและกำลังเดินทางไปส่งนะคะ ✨\n\n` +
+                  `See you very soon! / จะถึงในไม่ช้าค่ะ!`
                 );
 
-                // WhatsApp message link for driver
+                // WhatsApp message link for driver (EN / TH)
                 const driverMsg = encodeURIComponent(
-                  `🛵 *CONSEGNA FLOWER POWER PIZZA*\n` +
-                  `Ordine #${orderNumber} per ${order.customer_name}\n` +
-                  `📞 Tel: ${order.phone}\n` +
-                  `🏠 Indirizzo: ${address}\n` +
-                  `🗺️ Mappa: https://www.google.com/maps?q=${lat},${lng}`
+                  `🛵 *FLOWER POWER PIZZA DELIVERY · ส่งพิซซ่า*\n` +
+                  `Order #${orderNumber} for ${order.customer_name}\n` +
+                  `📞 Tel / โทร: ${order.phone}\n` +
+                  `🏠 Address / ที่อยู่: ${address}\n` +
+                  `🗺️ Map / แผนที่: https://www.google.com/maps?q=${lat},${lng}`
                 );
 
                 return (
@@ -638,7 +678,7 @@ export function KitchenTabletKDS() {
                     <div className="flex items-center justify-between border-b border-stone-700 pb-2">
                       <span className="font-black text-xl text-white tracking-wider">#{orderNumber}</span>
                       <span className="text-xs font-black px-2 py-0.5 rounded-md bg-blue-600 text-white">
-                        PRONTO PER IL RIDER
+                        READY FOR RIDER · พร้อมส่งไรเดอร์
                       </span>
                     </div>
 
@@ -650,40 +690,40 @@ export function KitchenTabletKDS() {
                       </p>
                     </div>
 
-                    {/* FASE 2: Avviso al Cliente (WhatsApp o Chiamata) */}
+                    {/* PHASE 2: Customer WhatsApp or Call */}
                     <div className="grid grid-cols-2 gap-2">
                       <a
                         href={`https://wa.me/${cleanPhone}?text=${customerMsg}`}
                         target="_blank"
                         rel="noreferrer"
                         className="py-2.5 px-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-sm transition-transform cursor-pointer"
-                        title="Avvisa subito il cliente su WhatsApp che il rider sta arrivando"
+                        title="Notify customer via WhatsApp · ส่งข้อความแจ้งลูกค้าทาง WhatsApp"
                       >
                         <MessageCircle className="w-4 h-4 fill-white/20" />
-                        <span>AVVISA CLIENTE</span>
+                        <span>NOTIFY · แจ้งลูกค้า</span>
                       </a>
 
                       <a
                         href={`tel:${order.phone}`}
                         className="py-2.5 px-2 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-transform"
-                        title="Chiama al telefono il cliente"
+                        title="Call customer · โทรหาลูกค้า"
                       >
                         <Phone className="w-3.5 h-3.5" />
-                        <span>Chiama</span>
+                        <span>CALL · โทร</span>
                       </a>
                     </div>
 
-                    {/* FASE 2: Driver Helper & Mappa */}
+                    {/* PHASE 2: Driver Helper & Map */}
                     <div className="flex gap-2">
                       <a
                         href={`https://wa.me/?text=${driverMsg}`}
                         target="_blank"
                         rel="noreferrer"
                         className="flex-1 py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
-                        title="Invia posizione e comanda al rider su WhatsApp"
+                        title="Send order and location to driver · ส่งข้อมูลและแผนที่ให้ไรเดอร์"
                       >
                         <Send className="w-3.5 h-3.5" />
-                        <span>Invia a Rider</span>
+                        <span>RIDER · ส่งไรเดอร์</span>
                       </a>
 
                       <a
@@ -691,20 +731,20 @@ export function KitchenTabletKDS() {
                         target="_blank"
                         rel="noreferrer"
                         className="py-2 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-bold flex items-center justify-center gap-1 active:scale-95 transition-transform"
-                        title="Apri navigazione Google Maps"
+                        title="Open Google Maps · เปิดแผนที่ Google Maps"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
-                        <span>Mappa</span>
+                        <span>MAP · แผนที่</span>
                       </a>
                     </div>
 
-                    {/* Tasto: CONSEGNATO & ARCHIVIA */}
+                    {/* Button: DELIVERED & ARCHIVED */}
                     <button
                       type="button"
                       onClick={() => handleOrderCompleted(order.id)}
                       className="w-full py-3 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-200 hover:text-white font-bold text-xs uppercase tracking-wider border border-stone-700 transition-colors"
                     >
-                      ✓ CONSEGNATO / ARCHIVIA ORDINE
+                      ✓ DELIVERED & ARCHIVED · จัดส่งแล้ว / บันทึกประวัติ
                     </button>
                   </div>
                 );

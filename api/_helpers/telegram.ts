@@ -167,9 +167,9 @@ function normalizeThaiPhone(phone: string): string {
 export function buildContactLines(phone: string, _hasWhatsApp?: boolean, _hasLine?: boolean): string[] {
   const normalized = normalizeThaiPhone(phone);
   return [
-    `📞 <b>Telefono:</b> ${phone}`,
-    `🟢 <a href="https://wa.me/${normalized}">Scrivi su WhatsApp</a>`,
-    `🟩 <a href="https://line.me/ti/p/~${normalized}">Contatta su LINE</a>`
+    `📞 <b>Phone / เบอร์โทร:</b> ${phone}`,
+    `🟢 <a href="https://wa.me/${normalized}">Chat on WhatsApp / แชท WhatsApp</a>`,
+    `🟩 <a href="https://line.me/ti/p/~${normalized}">Contact on LINE / แชท LINE</a>`
   ];
 }
 
