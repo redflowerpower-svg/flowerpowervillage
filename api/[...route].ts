@@ -29,6 +29,7 @@ import { handleUpdateRateplanRestrictionsBulk } from "./_handlers/update-ratepla
 import { handleUpdatePricesStagionale } from "./_handlers/api-update-prices-stagionale.js";
 import { handleOctorateRestrictionsGrid } from "./_handlers/octorate-restrictions-grid.js";
 import { handleWineTranslate } from "./_handlers/wine-translate.js";
+import { handleWineCollection } from "./_handlers/wine-collection.js";
 import { handleDocumentReader } from "./_handlers/reader.js";
 import { handleDocumentsApi } from "./_handlers/documents-api.js";
 import { handlePaymentsAdmin } from "./_handlers/payments-admin.js";
@@ -78,6 +79,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('wine-translate') || cleanPath.includes('wine_translate')) {
     return handleWineTranslate(req, res);
+  }
+
+  if (cleanPath.includes('wine-collection') || cleanPath.includes('wine_collection')) {
+    return handleWineCollection(req, res);
   }
 
   if (cleanPath.includes('update-rateplan-restrictions-bulk') || cleanPath.includes('update_rateplan_restrictions_bulk')) {

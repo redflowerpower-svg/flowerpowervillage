@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import { translateWineCardAllLanguages, WineLang } from '../../../pizza/data/wineTranslatorEngine';
+import { fetchCloudWineCollection, saveCloudWineCollection } from '../../../pizza/data/wineCloudService';
 
 import { 
   WineCardData, 
@@ -283,6 +284,15 @@ export const WineCardStudio: React.FC = () => {
   const jsonInputRef = useRef<HTMLInputElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
 
+  // Carica automaticamente la collezione dal Cloud Supabase all'avvio dello Studio
+  useEffect(() => {
+    fetchCloudWineCollection().then(cloudWines => {
+      if (cloudWines && cloudWines.length > 0) {
+        setCollection(cloudWines);
+      }
+    });
+  }, []);
+
   useEffect(() => {
     try {
       localStorage.setItem('fp_wine_collection', JSON.stringify(collection));
@@ -304,14 +314,14 @@ export const WineCardStudio: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       try {
         const parsed = JSON.parse(event.target?.result as string);
         if (Array.isArray(parsed) && parsed.length > 0) {
           setCollection(parsed);
-          localStorage.setItem('fp_wine_collection', JSON.stringify(parsed));
+          await saveCloudWineCollection(parsed);
           localStorage.removeItem('fp_deleted_wine_ids');
-          alert(`Collezione importata con successo! ${parsed.length} vini caricati.`);
+          alert(`Collezione importata e sincronizzata sul Cloud con successo! ${parsed.length} vini caricati.`);
         } else {
           alert('File non valido: deve contenere un elenco di vini.');
         }
@@ -323,12 +333,12 @@ export const WineCardStudio: React.FC = () => {
     if (e.target) e.target.value = '';
   };
 
-  const handleResetToMaster = () => {
+  const handleResetToMaster = async () => {
     if (window.confirm(`Vuoi ripristinare il catalogo ufficiale (${INITIAL_WINE_COLLECTION.length} vini)? Le eventuali modifiche non esportate verranno sostituite dal catalogo master.`)) {
       setCollection(INITIAL_WINE_COLLECTION);
-      localStorage.setItem('fp_wine_collection', JSON.stringify(INITIAL_WINE_COLLECTION));
+      await saveCloudWineCollection(INITIAL_WINE_COLLECTION);
       localStorage.removeItem('fp_deleted_wine_ids');
-      alert('Catalogo ufficiale master ripristinato con successo!');
+      alert('Catalogo ufficiale master ripristinato con successo nel Cloud e in locale!');
     }
   };
 
@@ -347,16 +357,20 @@ export const WineCardStudio: React.FC = () => {
 
   const handleToggleAvailability = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    setCollection(prev => prev.map(w => {
-      if (w.id === id) {
-        const updated = { ...w, isAvailable: !w.isAvailable };
-        if (formData.id === id) {
-          setFormData(updated);
+    setCollection(prev => {
+      const updated = prev.map(w => {
+        if (w.id === id) {
+          const up = { ...w, isAvailable: !w.isAvailable };
+          if (formData.id === id) {
+            setFormData(up);
+          }
+          return up;
         }
-        return updated;
-      }
-      return w;
-    }));
+        return w;
+      });
+      saveCloudWineCollection(updated);
+      return updated;
+    });
   };
 
   const changeBottleImageWithHistory = (newImage: string) => {
@@ -786,26 +800,21 @@ export const WineCardStudio: React.FC = () => {
 
     try {
       let finalBottleImage = formData.bottleImage;
+      let imageUploadParam: { fileName: string; dataBase64: string } | undefined = undefined;
 
       if (formData.bottleImage && (formData.bottleImage.startsWith('data:') || formData.bottleImage.startsWith('blob:'))) {
-        setSaveStatusText('Caricamento WebP su Supabase...');
-        try {
-          const wineSlug = (formData.title || 'wine')
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, '-')
-            .replace(/-+/g, '-')
-            .slice(0, 30) || 'wine';
-
-          const uploadedUrl = await uploadBottleImageToSupabase(
-            formData.bottleImage,
-            `${wineSlug}-${Date.now()}`
-          );
-          finalBottleImage = uploadedUrl;
-        } catch (uploadErr) {
-          console.warn('Upload Supabase fallito, mantengo WebP compresso locale:', uploadErr);
-          const optimized = await convertImageToOptimizedWebP(formData.bottleImage);
-          finalBottleImage = optimized.dataUrl;
-        }
+        setSaveStatusText('Ottimizzazione e upload Cloud...');
+        const optimized = await convertImageToOptimizedWebP(formData.bottleImage);
+        finalBottleImage = optimized.dataUrl;
+        const wineSlug = (formData.title || 'wine')
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '-')
+          .replace(/-+/g, '-')
+          .slice(0, 30) || 'wine';
+        imageUploadParam = {
+          fileName: `${wineSlug}-${Date.now()}`,
+          dataBase64: optimized.dataUrl
+        };
       }
 
       const existingIndex = collection.findIndex(w => w.id === formData.id);
@@ -822,21 +831,27 @@ export const WineCardStudio: React.FC = () => {
       if (existingIndex >= 0) {
         updated = [...collection];
         updated[existingIndex] = itemToSave;
-        setCollection(updated);
       } else {
         const newId = `wine-${Date.now()}`;
         const newItem = { ...itemToSave, id: newId };
         updated = [newItem, ...collection];
-        setCollection(updated);
-        setFormData(newItem);
       }
 
-      try {
-        localStorage.setItem('fp_wine_collection', JSON.stringify(updated));
-      } catch (storageErr) {
-        console.error('Errore salvataggio localStorage:', storageErr);
+      setSaveStatusText('Salvataggio Cloud Supabase...');
+      const cloudRes = await saveCloudWineCollection(updated, imageUploadParam);
+
+      if (cloudRes.success && cloudRes.imageUrl) {
+        itemToSave.bottleImage = cloudRes.imageUrl;
+        finalBottleImage = cloudRes.imageUrl;
+        if (existingIndex >= 0) {
+          updated[existingIndex] = itemToSave;
+        } else {
+          updated[0] = itemToSave;
+        }
+        await saveCloudWineCollection(updated);
       }
 
+      setCollection(updated);
       setFormData(prev => ({ ...prev, bottleImage: finalBottleImage }));
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 2500);
@@ -1057,6 +1072,7 @@ export const WineCardStudio: React.FC = () => {
     if (confirm('Sei sicuro di voler eliminare questa scheda vino dalla galleria?')) {
       const updated = collection.filter(w => w.id !== id);
       setCollection(updated);
+      saveCloudWineCollection(updated);
       try {
         localStorage.setItem('fp_wine_collection', JSON.stringify(updated));
         const deletedRaw = localStorage.getItem('fp_deleted_wine_ids');
