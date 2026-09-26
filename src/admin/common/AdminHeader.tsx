@@ -1,4 +1,4 @@
-import { LogOut, ArrowLeftRight, Shield, Pizza, Hotel, FileText, CreditCard } from 'lucide-react';
+import { LogOut, ArrowLeftRight, Shield, Pizza, Hotel, FileText, CreditCard, Tablet } from 'lucide-react';
 
 interface AdminHeaderProps {
   userEmail?: string;
@@ -52,6 +52,16 @@ export function AdminHeader({ userEmail, activeDept, onSelectDept, onLogout }: A
                 <ArrowLeftRight className="w-3.5 h-3.5 text-amber-400" />
                 <span className="hidden md:inline font-semibold">Cambia Reparto</span>
               </button>
+              <a
+                href="/kitchen"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-white bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-700/50 px-2.5 py-1 rounded-xl transition-all cursor-pointer font-bold shadow-sm"
+                title="Apri lo Schermo Cucina (KDS) per Tablet Samsung o cellulare orizzontale"
+              >
+                <Tablet className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">Tablet Cucina</span>
+              </a>
             </div>
           )}
           {activeDept === 'resort' && (

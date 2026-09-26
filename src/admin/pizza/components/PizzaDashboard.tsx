@@ -30,7 +30,8 @@ import {
   PackageCheck,
   AlertTriangle,
   Settings,
-  Wine
+  Wine,
+  Tablet
 } from 'lucide-react';
 
 const parseAddressAndCoords = (addressStr: string) => {
@@ -292,6 +293,17 @@ export function PizzaDashboard() {
           <Settings className="w-4 h-4" />
           <span>⚙️ Instradamento & Impostazioni</span>
         </button>
+
+        <a
+          href="/kitchen"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-500/40 ml-auto shadow-sm"
+          title="Apri visualizzazione speciale KDS per Tablet Samsung Galaxy Tab o cellulare in orizzontale"
+        >
+          <Tablet className="w-4 h-4 text-emerald-400" />
+          <span>📱 Schermo Tablet Cucina (KDS)</span>
+        </a>
       </div>
 
       {/* TAB 1: ORDERS LIVE & TRACKING */}
