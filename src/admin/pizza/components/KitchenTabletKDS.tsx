@@ -434,6 +434,10 @@ export function KitchenTabletKDS() {
     return 0;
   };
 
+  // Test alarm toggle states
+  const [testingNewOrderAlarm, setTestingNewOrderAlarm] = useState(false);
+  const [testingReminderAlarm, setTestingReminderAlarm] = useState(false);
+
   // Truly unacknowledged new orders trigger the buzzer
   const unacknowledgedNewOrders = useMemo(() => {
     return orders.filter(o => (o.status === 'new' || (o.status as any) === 'received') && !acknowledgedOrderIds.has(String(o.id)));
@@ -448,31 +452,63 @@ export function KitchenTabletKDS() {
     });
   }, [readyOrders, acceptedTimestamps, silencedReminderIds, currentTime]);
 
-  // 7. Sound Alarm Management (Urgent Alarm for New Orders + Gentle Chime for 15-min Dispatch Reminder)
+  // 7. Sound Alarm Management (Urgent Alarm for New Orders + Chime for 15-min Dispatch Reminder + Test modes)
   useEffect(() => {
     if (soundMuted) {
       stopContinuousAlarm();
       stopDispatchReminderAlarm();
+      if (testingNewOrderAlarm) setTestingNewOrderAlarm(false);
+      if (testingReminderAlarm) setTestingReminderAlarm(false);
       return;
     }
 
-    // Priority 1: High-urgency loud alarm for unacknowledged new orders
-    if (unacknowledgedNewOrders.length > 0) {
+    // Priority 1: High-urgency loud alarm for unacknowledged new orders OR Test New Orders Alarm
+    if (unacknowledgedNewOrders.length > 0 || testingNewOrderAlarm) {
       stopDispatchReminderAlarm();
       startContinuousAlarm();
     } else {
       stopContinuousAlarm();
 
-      // Priority 2: Gentle melodic reminder chime for orders cooking for 15+ minutes
-      if (overdueDispatchOrders.length > 0) {
+      // Priority 2: Melodic reminder chime for orders cooking for 15+ minutes OR Test Reminder Alarm
+      if (overdueDispatchOrders.length > 0 || testingReminderAlarm) {
         startDispatchReminderAlarm();
       } else {
         stopDispatchReminderAlarm();
       }
     }
-  }, [unacknowledgedNewOrders.length, overdueDispatchOrders.length, soundMuted]);
+  }, [unacknowledgedNewOrders.length, overdueDispatchOrders.length, soundMuted, testingNewOrderAlarm, testingReminderAlarm]);
+
+  const toggleTestNewOrderAlarm = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    initKitchenAudio();
+    if (testingNewOrderAlarm) {
+      setTestingNewOrderAlarm(false);
+      stopContinuousAlarm();
+    } else {
+      if (soundMuted) setSoundMuted(false);
+      setTestingReminderAlarm(false);
+      stopDispatchReminderAlarm();
+      setTestingNewOrderAlarm(true);
+    }
+  };
+
+  const toggleTestReminderAlarm = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    initKitchenAudio();
+    if (testingReminderAlarm) {
+      setTestingReminderAlarm(false);
+      stopDispatchReminderAlarm();
+    } else {
+      if (soundMuted) setSoundMuted(false);
+      setTestingNewOrderAlarm(false);
+      stopContinuousAlarm();
+      setTestingReminderAlarm(true);
+    }
+  };
 
   const handleSilenceAlarm = () => {
+    setTestingNewOrderAlarm(false);
+    setTestingReminderAlarm(false);
     stopContinuousAlarm();
     stopDispatchReminderAlarm();
     setAcknowledgedOrderIds(prev => {
@@ -584,6 +620,9 @@ export function KitchenTabletKDS() {
     extraLabel: kdsLang === 'th' ? 'พิเศษ' : 'Extra',
     dispatchReminderBadge: kdsLang === 'th' ? '⏰ เกิน 15 นาที: ไรเดอร์ออกส่งหรือยัง?' : '⏰ 15+ MIN: DISPATCH RIDER!',
     snoozeReminderBtn: kdsLang === 'th' ? 'ปิดเสียงเตือน' : 'SNOOZE CHIME',
+    testAlarmBtn: kdsLang === 'th' ? 'ทดสอบเสียง 1' : 'TEST 1 🔔',
+    testChimeBtn: kdsLang === 'th' ? 'ทดสอบเสียง 2' : 'TEST 2 ⏰',
+    stopTestBtn: kdsLang === 'th' ? 'หยุดเสียง' : 'STOP',
   };
 
   return (
@@ -783,18 +822,6 @@ export function KitchenTabletKDS() {
             {soundMuted ? <VolumeX className="w-5 h-5 text-red-400" /> : <Volume2 className="w-5 h-5 text-emerald-400" />}
           </button>
 
-          {/* Test Sound Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              playGentleReminderChime();
-            }}
-            className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 text-xs font-black cursor-pointer"
-            title="Test 15-min dispatch reminder alarm"
-          >
-            {t.testSound}
-          </button>
-
           {/* Fullscreen Button */}
           <button
             onClick={toggleFullscreen}
@@ -815,14 +842,40 @@ export function KitchenTabletKDS() {
         } ${selectedMobileTab !== 'kitchen' ? 'hidden md:flex' : 'flex'}`}>
           
           {/* Column Header */}
-          <div className="bg-[#181d28] px-4 py-3 border-b border-stone-800 flex items-center justify-between">
-            <h2 className="font-black text-sm lg:text-base uppercase tracking-wider text-red-400 flex items-center gap-2">
-              <span className={`w-3.5 h-3.5 rounded-full ${unacknowledgedNewOrders.length > 0 ? 'bg-red-500 animate-ping' : 'bg-amber-500'}`} />
-              <span>{t.col1Title}</span>
-              <span className="ml-1 px-2 py-0.5 rounded-full bg-red-600/30 text-red-300 border border-red-500/40 text-xs font-mono">
-                {kitchenOrders.length}
-              </span>
-            </h2>
+          <div className="bg-[#181d28] px-4 py-3 border-b border-stone-800 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="font-black text-sm lg:text-base uppercase tracking-wider text-red-400 flex items-center gap-2">
+                <span className={`w-3.5 h-3.5 rounded-full ${unacknowledgedNewOrders.length > 0 ? 'bg-red-500 animate-ping' : 'bg-amber-500'}`} />
+                <span>{t.col1Title}</span>
+                <span className="ml-1 px-2 py-0.5 rounded-full bg-red-600/30 text-red-300 border border-red-500/40 text-xs font-mono">
+                  {kitchenOrders.length}
+                </span>
+              </h2>
+
+              {/* TEST SUONERIA 1 (NEW ORDERS LOUD ALARM) */}
+              <button
+                type="button"
+                onClick={toggleTestNewOrderAlarm}
+                className={`px-2.5 py-1 rounded-lg text-xs font-black uppercase transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                  testingNewOrderAlarm
+                    ? 'bg-red-600 text-white border border-red-400 animate-pulse shadow-red-600/50'
+                    : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 hover:text-white active:scale-95'
+                }`}
+                title={testingNewOrderAlarm ? 'Stop test' : 'Test suoneria nuovi ordini (continua fino al prossimo click)'}
+              >
+                {testingNewOrderAlarm ? (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5 text-white" />
+                    <span>{t.stopTestBtn} ⏹</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-red-400" />
+                    <span>{t.testAlarmBtn}</span>
+                  </>
+                )}
+              </button>
+            </div>
 
             {unacknowledgedNewOrders.length > 0 && (
               <span className="text-[11px] font-black bg-red-600 text-white px-2.5 py-0.5 rounded-full uppercase animate-pulse shadow">
@@ -861,9 +914,20 @@ export function KitchenTabletKDS() {
                           🚨 {t.newBadge} ({elapsed} {t.minAgo})
                         </span>
                       </div>
-                      <span className="font-black text-xl text-emerald-400 font-mono">
-                        {order.total} ฿
-                      </span>
+                      <div className="flex flex-col items-end">
+                        <span className="font-black text-xl text-emerald-400 font-mono">
+                          {order.total} ฿
+                        </span>
+                        {order.payment_method?.includes('omise') || order.payment_status === 'paid' ? (
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-600 uppercase tracking-wider mt-0.5">
+                            ✅ {order.payment_method?.includes('card') ? '💳 CARD 3DS (PAID)' : '📱 PROMPTPAY (PAID)'}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
+                            💵 {kdsLang === 'th' ? 'เก็บเงินปลายทาง' : 'CASH (COLLECT)'}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Customer & Address (Clean text + Maps button, no phone dialer / no WhatsApp) */}
@@ -1012,14 +1076,40 @@ export function KitchenTabletKDS() {
           selectedMobileTab !== 'ready' ? 'hidden md:flex' : 'flex'
         }`}>
           {/* Column Header */}
-          <div className="bg-[#181d28] px-4 py-3 border-b border-stone-800 flex items-center justify-between">
-            <h2 className="font-black text-sm lg:text-base uppercase tracking-wider text-blue-400 flex items-center gap-2">
-              <Bike className="w-4 h-4 text-blue-500" />
-              <span>{t.col2Title}</span>
-              <span className="ml-1 px-2 py-0.5 rounded-full bg-blue-600/30 text-blue-300 border border-blue-500/40 text-xs font-mono">
-                {readyOrders.length}
-              </span>
-            </h2>
+          <div className="bg-[#181d28] px-4 py-3 border-b border-stone-800 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="font-black text-sm lg:text-base uppercase tracking-wider text-blue-400 flex items-center gap-2">
+                <Bike className="w-4 h-4 text-blue-500" />
+                <span>{t.col2Title}</span>
+                <span className="ml-1 px-2 py-0.5 rounded-full bg-blue-600/30 text-blue-300 border border-blue-500/40 text-xs font-mono">
+                  {readyOrders.length}
+                </span>
+              </h2>
+
+              {/* TEST SUONERIA 2 (15-MIN DISPATCH REMINDER) */}
+              <button
+                type="button"
+                onClick={toggleTestReminderAlarm}
+                className={`px-2.5 py-1 rounded-lg text-xs font-black uppercase transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                  testingReminderAlarm
+                    ? 'bg-amber-500 text-stone-950 border border-amber-300 animate-pulse shadow-amber-500/50 font-black'
+                    : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 hover:text-white active:scale-95'
+                }`}
+                title={testingReminderAlarm ? 'Stop test' : 'Test suoneria promemoria rider 15 min (continua fino al prossimo click)'}
+              >
+                {testingReminderAlarm ? (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5 text-stone-950" />
+                    <span>{t.stopTestBtn} ⏹</span>
+                  </>
+                ) : (
+                  <>
+                    <Clock className="w-3.5 h-3.5 text-amber-400" />
+                    <span>{t.testChimeBtn}</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Orders Scrollable Container */}
@@ -1069,9 +1159,20 @@ export function KitchenTabletKDS() {
                           </span>
                         )}
                       </div>
-                      <span className="font-black text-xl text-emerald-400 font-mono">
-                        {order.total} ฿
-                      </span>
+                      <div className="flex flex-col items-end">
+                        <span className="font-black text-xl text-emerald-400 font-mono">
+                          {order.total} ฿
+                        </span>
+                        {order.payment_method?.includes('omise') || order.payment_status === 'paid' ? (
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-600 uppercase tracking-wider mt-0.5">
+                            ✅ {order.payment_method?.includes('card') ? '💳 CARD 3DS (PAID)' : '📱 PROMPTPAY (PAID)'}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
+                            💵 {kdsLang === 'th' ? 'เก็บเงินปลายทาง' : 'CASH (COLLECT)'}
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* 15+ Minutes Dispatch Alert Banner */}

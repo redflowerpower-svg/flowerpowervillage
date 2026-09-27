@@ -305,6 +305,19 @@ function testKsher() {
   }
 }
 
+async function testOmise() {
+  const pkey = envVars.OMISE_PUBLIC_KEY || envVars.VITE_OMISE_PUBLIC_KEY;
+  const skey = envVars.OMISE_SECRET_KEY;
+  if (pkey && skey) {
+    const isTest = skey.startsWith('skey_test_') || pkey.startsWith('pkey_test_');
+    console.log(`✅ Omise (Pizza Delivery): Configurato OK (Modalità: ${isTest ? 'TEST / Sandbox' : 'LIVE'} | PKey: ${pkey.slice(0, 14)}...)`);
+    return true;
+  } else {
+    console.log('❌ Omise (Pizza Delivery): OMISE_PUBLIC_KEY o OMISE_SECRET_KEY mancante');
+    return false;
+  }
+}
+
 async function runAll() {
   await testSupabase();
   await testStripe();
@@ -315,6 +328,7 @@ async function runAll() {
   await testGeminiVision();
   testKsher();
   await testPayPal();
+  await testOmise();
   console.log('\n--- VERIFICA COMPLETATA ---');
 }
 

@@ -3,8 +3,37 @@ import { useCartStore } from '../store/cartStore';
 import { useLocationStore, RESTAURANT_LAT, RESTAURANT_LNG } from '../store/locationStore';
 import { calculateDistance } from '../utils/distance';
 import { supabase } from '../../lib/supabase';
-import { X, MapPin, Check, Search, Pencil, Navigation, Maximize2, Minimize2 } from 'lucide-react';
+import { 
+  X, 
+  MapPin, 
+  Check, 
+  Search, 
+  Pencil, 
+  Navigation, 
+  Maximize2, 
+  Minimize2, 
+  CreditCard, 
+  QrCode, 
+  Banknote, 
+  ShieldCheck, 
+  Loader2, 
+  AlertCircle,
+  RefreshCw,
+  ZoomIn,
+  Download,
+  Smartphone,
+  Share2
+} from 'lucide-react';
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
+import { 
+  tokenizeCreditCard, 
+  createPromptPayCharge, 
+  createCardCharge, 
+  checkOmiseChargeStatus,
+  loadOmiseScript,
+  type CardFormData
+} from '../services/omiseClient';
+import PizzaPoliciesModal, { PolicyTab } from './PizzaPoliciesModal';
 
 type SubmitPhase = 'idle' | 'sending' | 'timeout' | 'rejected';
 
@@ -14,7 +43,8 @@ interface Props {
   lang: 'IT' | 'EN' | 'TH' | 'DE';
 }
 
-const QR_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/receipts/qr_promptpay.jpg`;
+const QR_FALLBACK_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/receipts/qr_promptpay.jpg`;
+const QR_URL = QR_FALLBACK_URL;
 
 const translations = {
   IT: {
@@ -28,8 +58,20 @@ const translations = {
     simLoc: 'Simula posizione (Test)',
     continueBtn: 'Continua',
     step2Title: 'Metodo di Pagamento',
-    optPromptPay: 'PromptPay (QR Code)',
+    optPromptPay: 'PromptPay QR (Omise)',
+    optCard: 'Carta (Visa/MC)',
     optCash: 'Contanti alla consegna',
+    cardHolderLabel: 'Titolare della Carta',
+    cardNumberLabel: 'Numero Carta (16 cifre)',
+    cardExpLabel: 'Scadenza (MM/AA)',
+    cardCvvLabel: 'CVV',
+    cardSecurityNotice: 'Transazione 3D Secure con crittografia Omise Vault (SSL 256-bit)',
+    generateQrBtn: 'GENERA QR CODE PROMPTPAY',
+    payCardBtn: 'CONFERMA E PAGA CON CARTA',
+    scanningPrompt: 'Inquadra il QR con la tua App Bancaria thailandese (SCB, KBank, Bangkok Bank, Krungthai)',
+    awaitingPayment: 'In attesa del pagamento via banca...',
+    paymentConfirmedTitle: 'PAGAMENTO RICEVUTO!',
+    manualSlipFallback: 'Oppure carica screenshot ricevuta manuale',
     uploadBtn: 'Carica screenshot ricevuta',
     submitBtn: 'CONFERMA E INVIA ORDINE',
     uploadPromptBtn: 'CARICA RICEVUTA PER PROCEDERE',
@@ -66,8 +108,20 @@ const translations = {
     simLoc: 'Simulate location (Test)',
     continueBtn: 'Continue',
     step2Title: 'Payment Method',
-    optPromptPay: 'PromptPay (QR Code)',
+    optPromptPay: 'PromptPay QR (Omise)',
+    optCard: 'Card (Visa/MC)',
     optCash: 'Cash on delivery',
+    cardHolderLabel: 'Cardholder Name',
+    cardNumberLabel: 'Card Number (16 digits)',
+    cardExpLabel: 'Expires (MM/YY)',
+    cardCvvLabel: 'CVV',
+    cardSecurityNotice: '3D Secure protected via Omise Vault (256-bit SSL encryption)',
+    generateQrBtn: 'GENERATE PROMPTPAY QR',
+    payCardBtn: 'CONFIRM & PAY WITH CARD',
+    scanningPrompt: 'Scan QR with any Thai mobile banking app (SCB, KBank, Bangkok Bank, Krungthai)',
+    awaitingPayment: 'Awaiting bank confirmation...',
+    paymentConfirmedTitle: 'PAYMENT RECEIVED!',
+    manualSlipFallback: 'Or upload receipt screenshot manually',
     uploadBtn: 'Upload receipt screenshot',
     submitBtn: 'CONFIRM AND SEND ORDER',
     uploadPromptBtn: 'UPLOAD RECEIPT TO PROCEED',
@@ -104,8 +158,20 @@ const translations = {
     simLoc: 'จำลองตำแหน่ง (ทดสอบ)',
     continueBtn: 'ดำเนินการต่อ',
     step2Title: 'วิธีการชำระเงิน',
-    optPromptPay: 'PromptPay (QR Code)',
+    optPromptPay: 'พร้อมเพย์ QR (Omise)',
+    optCard: 'บัตรเครดิต (Visa/MC)',
     optCash: 'เก็บเงินปลายทาง',
+    cardHolderLabel: 'ชื่อผู้ถือบัตร',
+    cardNumberLabel: 'หมายเลขบัตร (16 หลัก)',
+    cardExpLabel: 'วันหมดอายุ (ดด/ปป)',
+    cardCvvLabel: 'รหัส CVV',
+    cardSecurityNotice: 'ปลอดภัยด้วยระบบ 3D Secure ผ่าน Omise Vault',
+    generateQrBtn: 'สร้าง QR Code พร้อมเพย์',
+    payCardBtn: 'ยืนยันและชำระด้วยบัตร',
+    scanningPrompt: 'สแกนจ่ายได้ทันทีผ่านทุกแอปธนาคารในไทย (SCB, KBank, BBL, KTB)',
+    awaitingPayment: 'กำลังรอการยืนยันจากธนาคาร...',
+    paymentConfirmedTitle: 'ชำระเงินเรียบร้อยแล้ว!',
+    manualSlipFallback: 'หรือแนบสลิปโอนเงินด้วยตนเอง',
     uploadBtn: 'อัปโหลดภาพหน้าจอใบเสร็จ',
     submitBtn: 'ยืนยันและส่งคำสั่งซื้อ',
     uploadPromptBtn: 'อัปโหลดใบเสร็จเพื่อดำเนินการต่อ',
@@ -142,8 +208,20 @@ const translations = {
     simLoc: 'Standort simulieren (Test)',
     continueBtn: 'Weiter',
     step2Title: 'Zahlungsmethode',
-    optPromptPay: 'PromptPay (QR-Code)',
+    optPromptPay: 'PromptPay QR (Omise)',
+    optCard: 'Karte (Visa/MC)',
     optCash: 'Barzahlung bei Lieferung',
+    cardHolderLabel: 'Karteninhaber',
+    cardNumberLabel: 'Kartennummer (16 Ziffern)',
+    cardExpLabel: 'Gültig bis (MM/JJ)',
+    cardCvvLabel: 'CVV',
+    cardSecurityNotice: '3D Secure geschützt über Omise Vault Verschlüsselung',
+    generateQrBtn: 'PROMPTPAY QR GENERIEREN',
+    payCardBtn: 'MIT KARTE BESTÄTIGEN & BEZAHLEN',
+    scanningPrompt: 'Mit jeder thailändischen Banking-App scannen (SCB, KBank, BBL)',
+    awaitingPayment: 'Warte auf Bankbestätigung...',
+    paymentConfirmedTitle: 'ZAHLUNG ERHALTEN!',
+    manualSlipFallback: 'Oder Quittungs-Screenshot hochladen',
     uploadBtn: 'Quittungs-Screenshot hochladen',
     submitBtn: 'BESTÄTIGEN UND SENDEN',
     uploadPromptBtn: 'QUITTUNG HOCHLADEN',
@@ -277,7 +355,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   } = useLocationStore();
 
   const total = getTotal();
-  const deliveryFee = total >= 200 ? 0 : 30;
+  const deliveryFee = total >= 300 ? 0 : 30;
   const finalTotal = total + deliveryFee;
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
@@ -286,10 +364,28 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   const [lineActive, setLineActive] = useState(false);
   const [address, setAddress] = useState('');
   const [thaiAddress, setThaiAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('promptpay');
+  const [paymentMethod, setPaymentMethod] = useState<'promptpay' | 'card' | 'cash'>('promptpay');
   const [loading, setLoading] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Omise Payment states
+  const [omiseQrUrl, setOmiseQrUrl] = useState<string | null>(null);
+  const [omiseChargeId, setOmiseChargeId] = useState<string | null>(null);
+  const [isGeneratingQr, setIsGeneratingQr] = useState(false);
+  const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [isQrZoomed, setIsQrZoomed] = useState(false);
+  const [isQrSaved, setIsQrSaved] = useState(false);
+  const [policyModalOpen, setPolicyModalOpen] = useState(false);
+  const [policyTab, setPolicyTab] = useState<PolicyTab>('delivery');
+  const [cardData, setCardData] = useState<CardFormData>({
+    name: '',
+    number: '',
+    expMonth: '',
+    expYear: '',
+    cvv: ''
+  });
 
   const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number }>({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
   const [isLocationConfirmed, setIsLocationConfirmed] = useState(false);
@@ -640,7 +736,256 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     }
   }, [step]);
 
+  // Check 3DS redirect return (e.g. ?omise_order_id=...&charge_id=...)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const returnedOrderId = urlParams.get('omise_order_id');
+    const returnedChargeId = urlParams.get('charge_id');
+
+    if (returnedOrderId) {
+      window.history.replaceState({}, '', window.location.pathname);
+
+      setLoading(true);
+      setStep(2);
+      setPaymentMethod('card');
+
+      checkOmiseChargeStatus({
+        orderId: returnedOrderId,
+        chargeId: returnedChargeId || undefined
+      })
+        .then((res) => {
+          if (res.paid) {
+            currentOrderIdRef.current = returnedOrderId;
+            setOrderId(returnedOrderId);
+            setIsPaymentConfirmed(true);
+            clearCart();
+            setSubmitPhase('sending');
+          } else {
+            setPaymentError(res.failureMessage || '3D Secure payment was not completed or failed.');
+          }
+        })
+        .catch((err) => {
+          console.error('[Omise 3DS Return] Status error:', err);
+          setPaymentError(err.message || 'Error checking payment status.');
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [clearCart]);
+
+  // Omise PromptPay QR live polling
+  useEffect(() => {
+    if (!omiseChargeId || isPaymentConfirmed || paymentMethod !== 'promptpay') return;
+
+    let isCancelled = false;
+    const interval = setInterval(async () => {
+      try {
+        const res = await checkOmiseChargeStatus({
+          chargeId: omiseChargeId,
+          orderId: orderId || currentOrderIdRef.current || undefined
+        });
+
+        if (isCancelled) return;
+
+        if (res.paid) {
+          setIsPaymentConfirmed(true);
+          clearInterval(interval);
+          clearCart();
+          setSubmitPhase('sending');
+        } else if (res.status === 'failed') {
+          setPaymentError(res.failureMessage || 'PromptPay payment failed');
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.warn('[Omise Polling] Error:', err);
+      }
+    }, 3000);
+
+    return () => {
+      isCancelled = true;
+      clearInterval(interval);
+    };
+  }, [omiseChargeId, isPaymentConfirmed, paymentMethod, orderId, clearCart]);
+
+  // Helper to ensure an order row exists in pizza_orders before initializing Omise charge
+  const ensureOrderCreated = async (method: string): Promise<string> => {
+    if (currentOrderIdRef.current) return currentOrderIdRef.current;
+    if (orderId) return orderId;
+
+    let finalAddress = address || 'Nessun indirizzo';
+    const thAddr = thaiAddress || (lang === 'TH' ? address : '');
+    if (thAddr) finalAddress += ` [ADDR_TH: ${thAddr}]`;
+    if (markerPos) finalAddress += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
+
+    const orderData = {
+      customer_name: name || 'Cliente',
+      phone: phone || '0000000000',
+      address: finalAddress,
+      items,
+      total: finalTotal,
+      status: 'new',
+      payment_method: method,
+      payment_status: 'pending',
+      latitude: markerPos ? markerPos.lat : null,
+      longitude: markerPos ? markerPos.lng : null,
+      has_whatsapp: whatsAppActive,
+      has_line: lineActive
+    };
+
+    const { data: insertedRows, error } = await supabase
+      .from('pizza_orders')
+      .insert([orderData])
+      .select();
+
+    if (error) {
+      console.warn('Database insert error in ensureOrderCreated:', error);
+      const simulatedId = 'ord-sim-' + Math.random().toString(36).substring(2, 9);
+      currentOrderIdRef.current = simulatedId;
+      setOrderId(simulatedId);
+      return simulatedId;
+    }
+
+    const newId = String(insertedRows[0].id);
+    currentOrderIdRef.current = newId;
+    setOrderId(newId);
+    return newId;
+  };
+
+  // Omise PromptPay QR generator
+  const handleGeneratePromptPayQr = async () => {
+    try {
+      setIsGeneratingQr(true);
+      setPaymentError(null);
+      const targetOrderId = await ensureOrderCreated('omise_promptpay');
+      const chargeRes = await createPromptPayCharge({
+        orderId: targetOrderId,
+        amount: finalTotal,
+        customerName: name,
+        phone
+      });
+      setOmiseQrUrl(chargeRes.qrCodeUrl);
+      setOmiseChargeId(chargeRes.chargeId);
+    } catch (err: any) {
+      console.error('[Omise PromptPay] Generate QR error:', err);
+      setPaymentError(err.message || 'Error generating PromptPay QR');
+    } finally {
+      setIsGeneratingQr(false);
+    }
+  };
+
+  // Save QR Code to Photos / Device Download for Mobile Banking
+  const handleSaveQrImage = async () => {
+    const qrSource = omiseQrUrl || QR_URL;
+    if (!qrSource) return;
+
+    try {
+      const fileName = `PromptPay_FlowerPower_${finalTotal}THB.png`;
+      const res = await fetch(qrSource);
+      const blob = await res.blob();
+      const file = new File([blob], fileName, { type: blob.type || 'image/png' });
+
+      setIsQrSaved(true);
+      setTimeout(() => setIsQrSaved(false), 3000);
+
+      // 1. Mobile Web Share API (native share sheet on iOS / Android allows "Save Image" to Photos)
+      if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `PromptPay QR - ${finalTotal} ฿`,
+            text: `Flower Power Pizza Ranong - PromptPay QR: ${finalTotal} ฿`
+          });
+          return;
+        } catch (shareErr: any) {
+          if (shareErr.name === 'AbortError') return;
+        }
+      }
+
+      // 2. Direct browser download trigger
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
+    } catch (err) {
+      console.warn('Blob download failed, using direct anchor fallback:', err);
+      const a = document.createElement('a');
+      a.href = qrSource;
+      a.target = '_blank';
+      a.download = `PromptPay_FlowerPower_${finalTotal}THB.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setIsQrSaved(true);
+      setTimeout(() => setIsQrSaved(false), 3000);
+    }
+  };
+
+  // Manual PromptPay generation trigger on user button click or submit
+
+  // Omise Card payment execution
+  const handlePayCard = async () => {
+    if (!cardData.name || !cardData.number || !cardData.expMonth || !cardData.expYear || !cardData.cvv) {
+      setPaymentError(
+        lang === 'IT' ? 'Compila tutti i campi della carta' :
+        lang === 'TH' ? 'กรุณากรอกข้อมูลบัตรให้ครบถ้วน' :
+        lang === 'DE' ? 'Bitte füllen Sie alle Kartenfelder aus' :
+        'Please fill in all card fields'
+      );
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setPaymentError(null);
+      const targetOrderId = await ensureOrderCreated('omise_card');
+
+      // 1. Tokenize card securely with Omise.js Vault
+      const cardToken = await tokenizeCreditCard(cardData);
+
+      // 2. Create card charge
+      const origin = typeof window !== 'undefined' ? window.location.origin : 'https://flower-power-village.com';
+      const returnUri = `${origin}/pizza?omise_order_id=${targetOrderId}`;
+
+      const chargeRes = await createCardCharge({
+        orderId: targetOrderId,
+        amount: finalTotal,
+        cardToken,
+        returnUri,
+        customerName: name,
+        phone
+      });
+
+      // 3. 3D Secure redirect if requested by issuing bank
+      if (chargeRes.requires3DS && chargeRes.authorizeUri) {
+        window.location.href = chargeRes.authorizeUri;
+        return;
+      }
+
+      if (chargeRes.paid || chargeRes.status === 'successful') {
+        setIsPaymentConfirmed(true);
+        clearCart();
+        setSubmitPhase('sending');
+      } else {
+        throw new Error('Payment could not be completed.');
+      }
+    } catch (err: any) {
+      console.error('[Omise Card Pay] Error:', err);
+      setPaymentError(err.message || 'Card payment failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const doSubmit = useCallback(async () => {
+    if (paymentMethod === 'card') {
+      await handlePayCard();
+      return;
+    }
+
     setIsDeliveringActive(false);
     setSubmitPhase('sending');
     setLoading(true);
@@ -665,108 +1010,115 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         receiptUrl = urlData.publicUrl;
       }
 
-      // Serialize coordinates and Thai address into the address string as a fallback for the admin panel and rider
+      // Serialize coordinates and Thai address into the address string
       let finalAddress = address || 'Nessun indirizzo';
       const thAddr = thaiAddress || (lang === 'TH' ? address : '');
-      if (thAddr) {
-        finalAddress += ` [ADDR_TH: ${thAddr}]`;
-      }
-      if (markerPos) {
-        finalAddress += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
-      }
+      if (thAddr) finalAddress += ` [ADDR_TH: ${thAddr}]`;
+      if (markerPos) finalAddress += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
 
-      const orderData: Record<string, unknown> = {
-        customer_name: name || 'Cliente',
-        phone: phone || '0000000000',
-        address: finalAddress,
-        items,
-        total: finalTotal,
-        status: 'new',
-        payment_method: paymentMethod,
-        receipt_url: receiptUrl,
-        latitude: markerPos ? markerPos.lat : null,
-        longitude: markerPos ? markerPos.lng : null,
-        has_whatsapp: whatsAppActive,
-        has_line: lineActive
-      };
+      const targetMethod = paymentMethod === 'promptpay' ? 'omise_promptpay' : 'cash';
 
-      const { data: insertedRows, error } = await supabase
-        .from('pizza_orders')
-        .insert([orderData])
-        .select();
+      let savedOrder: any = null;
+      if (currentOrderIdRef.current) {
+        const { data: updatedRows } = await supabase
+          .from('pizza_orders')
+          .update({
+            customer_name: name || 'Cliente',
+            phone: phone || '0000000000',
+            address: finalAddress,
+            items,
+            total: finalTotal,
+            status: 'new',
+            payment_method: targetMethod,
+            payment_status: isPaymentConfirmed ? 'paid' : (targetMethod === 'cash' ? 'cash_on_delivery' : 'pending'),
+            receipt_url: receiptUrl || omiseQrUrl || undefined,
+            latitude: markerPos ? markerPos.lat : null,
+            longitude: markerPos ? markerPos.lng : null,
+            has_whatsapp: whatsAppActive,
+            has_line: lineActive
+          })
+          .eq('id', currentOrderIdRef.current)
+          .select();
+        if (updatedRows && updatedRows[0]) savedOrder = updatedRows[0];
+      } else {
+        const orderData = {
+          customer_name: name || 'Cliente',
+          phone: phone || '0000000000',
+          address: finalAddress,
+          items,
+          total: finalTotal,
+          status: 'new',
+          payment_method: targetMethod,
+          payment_status: isPaymentConfirmed ? 'paid' : (targetMethod === 'cash' ? 'cash_on_delivery' : 'pending'),
+          receipt_url: receiptUrl || omiseQrUrl || undefined,
+          latitude: markerPos ? markerPos.lat : null,
+          longitude: markerPos ? markerPos.lng : null,
+          has_whatsapp: whatsAppActive,
+          has_line: lineActive
+        };
 
-      if (error) {
-        console.error('Database insert error:', error.message, error.details || '');
-        if (import.meta.env.DEV) {
-          console.warn('DEV MODE: Simulating order — overlay stays open waiting for Dashboard.');
-          const simulatedInserted = {
-            id: 'ord-simulated-' + Math.random().toString(36).substring(2, 9),
-            created_at: new Date().toISOString(),
-            ...orderData
-          } as any;
+        const { data: insertedRows, error } = await supabase
+          .from('pizza_orders')
+          .insert([orderData])
+          .select();
 
-          // Register the order ID so the stable listener can match it
-          currentOrderIdRef.current = simulatedInserted.id;
-          setOrderId(simulatedInserted.id);
-
-          try {
-            const { useAdminOrderStore } = await import('../../admin/store/adminOrderStore');
-            useAdminOrderStore.getState().addOrder(simulatedInserted);
-          } catch (e) {
-            console.warn('Admin store not loaded yet:', e);
+        if (error) {
+          console.error('Database insert error:', error.message, error.details || '');
+          if (import.meta.env.DEV) {
+            const simulatedInserted = {
+              id: 'ord-simulated-' + Math.random().toString(36).substring(2, 9),
+              created_at: new Date().toISOString(),
+              ...orderData
+            } as any;
+            currentOrderIdRef.current = simulatedInserted.id;
+            setOrderId(simulatedInserted.id);
+            savedOrder = simulatedInserted;
+          } else {
+            throw error;
           }
-
-          try {
-            const channel = new BroadcastChannel('flower_power_orders_channel');
-            channel.postMessage({ type: 'NEW_ORDER', order: simulatedInserted });
-            channel.close();
-          } catch (e) {
-            console.warn('BroadcastChannel error:', e);
-          }
-        } else {
-          throw error;
+        } else if (insertedRows && insertedRows[0]) {
+          savedOrder = insertedRows[0];
         }
-      } else if (insertedRows && insertedRows[0]) {
-        // Register the real DB order ID so the stable listener can match it
-        const orderIdStr = String(insertedRows[0].id);
+      }
+
+      if (savedOrder) {
+        const orderIdStr = String(savedOrder.id);
         currentOrderIdRef.current = orderIdStr;
         setOrderId(orderIdStr);
 
         try {
           const { useAdminOrderStore } = await import('../../admin/store/adminOrderStore');
-          useAdminOrderStore.getState().addOrder(insertedRows[0]);
+          useAdminOrderStore.getState().addOrder(savedOrder);
         } catch (e) {
           console.warn('Admin store not loaded yet:', e);
         }
 
         try {
           const channel = new BroadcastChannel('flower_power_orders_channel');
-          channel.postMessage({ type: 'NEW_ORDER', order: insertedRows[0] });
+          channel.postMessage({ type: 'NEW_ORDER', order: savedOrder });
           channel.close();
         } catch (e) {
           console.warn('BroadcastChannel error:', e);
         }
 
-        // Trigger Telegram notification asynchronously (failsafe)
         try {
           fetch('/api/telegram-notify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId: insertedRows[0].id })
+            body: JSON.stringify({ orderId: savedOrder.id })
           }).catch(e => console.error('Telegram notify fetch failed:', e));
         } catch (e) {
           console.warn('Failed triggering Telegram notify call:', e);
         }
       }
     } catch (err) {
-      console.error('Checkout submission crash caught:', err);
+      console.error('Checkout submission error:', err);
       currentOrderIdRef.current = null;
       setOrderId(null);
       setLoading(false);
-      // Show timeout/failure UI with retry button — never silently bypass in any mode
       setSubmitPhase('timeout');
     }
-  }, [paymentMethod, receiptFile, address, markerPos, name, phone, items, finalTotal, whatsAppActive, lineActive]);
+  }, [paymentMethod, receiptFile, address, markerPos, name, phone, items, finalTotal, whatsAppActive, lineActive, isPaymentConfirmed, omiseQrUrl, handlePayCard]);
 
   const handleSubmit = () => {
     doSubmit();
@@ -1095,85 +1447,348 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         )}
 
         {submitPhase === 'idle' && step === 2 && (
-          <div className="flex-grow flex flex-col justify-between overflow-hidden mt-2.5 space-y-2.5">
-            <div className="space-y-3 px-0.5">
+          <div className="flex-grow flex flex-col justify-between overflow-hidden mt-2 space-y-2">
+            <div className="space-y-2.5 px-0.5">
               <h2 className="text-lg font-black tracking-tight text-stone-850" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
                 {t.step2Title}
               </h2>
               
-              <div className="grid grid-cols-2 gap-3 mb-1.5 shrink-0">
+              {/* 3 Payment Methods Tabs: PromptPay QR (Omise) | Card (Omise 3DS) | Cash */}
+              <div className="grid grid-cols-3 gap-1.5 mb-1 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('promptpay')}
-                  className={`p-2 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
+                  onClick={() => { setPaymentMethod('promptpay'); setPaymentError(null); }}
+                  className={`p-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
                     paymentMethod === 'promptpay'
-                      ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] ring-2 ring-inset ring-[#8B1E1E]/20'
+                      ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] ring-2 ring-inset ring-[#8B1E1E]/20 shadow-xs'
                       : 'border-stone-300 bg-stone-50 text-stone-600 hover:bg-stone-100/50'
                   }`}
                 >
-                  <span className="font-bold text-xs uppercase tracking-wider">{t.optPromptPay}</span>
+                  <QrCode className="w-3.5 h-3.5 text-[#8B1E1E]" />
+                  <span className="font-black text-[9px] uppercase tracking-wider leading-tight">{t.optPromptPay}</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('cash')}
-                  className={`p-2 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
-                    paymentMethod === 'cash'
-                      ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] ring-2 ring-inset ring-[#8B1E1E]/20'
+                  onClick={() => { setPaymentMethod('card'); setPaymentError(null); }}
+                  className={`p-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
+                    paymentMethod === 'card'
+                      ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] ring-2 ring-inset ring-[#8B1E1E]/20 shadow-xs'
                       : 'border-stone-300 bg-stone-50 text-stone-600 hover:bg-stone-100/50'
                   }`}
                 >
-                  <span className="font-bold text-xs uppercase tracking-wider">{t.optCash}</span>
+                  <CreditCard className="w-3.5 h-3.5 text-[#8B1E1E]" />
+                  <span className="font-black text-[9px] uppercase tracking-wider leading-tight">{t.optCard}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setPaymentMethod('cash'); setPaymentError(null); }}
+                  className={`p-1.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-0.5 ${
+                    paymentMethod === 'cash'
+                      ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] ring-2 ring-inset ring-[#8B1E1E]/20 shadow-xs'
+                      : 'border-stone-300 bg-stone-50 text-stone-600 hover:bg-stone-100/50'
+                  }`}
+                >
+                  <Banknote className="w-3.5 h-3.5 text-[#8B1E1E]" />
+                  <span className="font-black text-[9px] uppercase tracking-wider leading-tight">{t.optCash}</span>
                 </button>
               </div>
 
-              {paymentMethod === 'promptpay' ? (
-                /* ── BANNER 1: SCELTA METODO DI PAGAMENTO (PROMPTPAY) ── */
-                <div className="space-y-2.5 pt-0.5 animate-fadeIn flex flex-col items-center">
-                  <div className="bg-white border border-stone-200 p-1.5 rounded-xl shadow-sm max-w-[160px] mx-auto">
-                    <img src={QR_URL} alt="QR PromptPay" className="w-full h-auto object-contain" />
+              {/* ── METHOD 1: PROMPTPAY QR (OMISE) ── */}
+              {paymentMethod === 'promptpay' && (
+                <div className="space-y-2 pt-0.5 animate-fadeIn flex flex-col items-center">
+                  {isPaymentConfirmed ? (
+                    <div className="py-4 text-center animate-fadeIn space-y-1.5">
+                      <div className="w-10 h-10 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs">
+                        <Check size={24} className="stroke-[3]" />
+                      </div>
+                      <p className="text-sm font-black text-emerald-700 uppercase tracking-wider">{t.paymentConfirmedTitle}</p>
+                      <p className="text-[10px] text-stone-500 font-medium">Omise live confirmation received.</p>
+                    </div>
+                  ) : (
+                    <>
+                      {isGeneratingQr ? (
+                        <div className="w-36 h-36 bg-stone-50 border border-stone-200 rounded-xl flex flex-col items-center justify-center gap-2">
+                          <Loader2 className="w-6 h-6 text-[#8B1E1E] animate-spin" />
+                          <span className="text-[10px] font-bold text-stone-500">Omise QR...</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-1.5">
+                          <div 
+                            onClick={() => setIsQrZoomed(true)}
+                            className="bg-white border-2 border-stone-200 hover:border-[#8B1E1E] p-1.5 rounded-xl shadow-xs hover:shadow-md max-w-[150px] mx-auto relative cursor-pointer group transition-all duration-200 transform hover:scale-[1.02]"
+                            title="Tocca per ingrandire / Tap to zoom"
+                          >
+                            <img 
+                              src={omiseQrUrl || QR_URL} 
+                              alt="PromptPay QR" 
+                              className="w-full h-auto object-contain rounded-lg" 
+                            />
+                            {/* Hover zoom overlay */}
+                            <div className="absolute inset-0 bg-stone-900/15 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <span className="p-1.5 rounded-full bg-white text-[#8B1E1E] shadow-md transform group-hover:scale-110 transition-transform">
+                                <ZoomIn size={16} />
+                              </span>
+                            </div>
+
+                            {omiseQrUrl && (
+                              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider shadow whitespace-nowrap flex items-center gap-1 pointer-events-none">
+                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                                <span>Live QR</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Action Buttons: Save QR & Zoom */}
+                          <div className="flex items-center gap-1.5 pt-1 w-full max-w-[210px] justify-center">
+                            <button
+                              type="button"
+                              onClick={handleSaveQrImage}
+                              className={`flex-1 py-1.5 px-2 rounded-lg text-[9.5px] font-bold tracking-tight transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs ${
+                                isQrSaved
+                                  ? 'bg-emerald-600 text-white'
+                                  : 'bg-[#8B1E1E] hover:bg-[#721818] text-white'
+                              }`}
+                            >
+                              {isQrSaved ? (
+                                <>
+                                  <Check size={11} className="stroke-[3]" />
+                                  <span>{lang === 'IT' ? 'Salvato!' : lang === 'TH' ? 'บันทึกแล้ว!' : 'Saved!'}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Download size={11} />
+                                  <span>{lang === 'IT' ? 'Salva QR' : lang === 'TH' ? 'บันทึกรูป QR' : lang === 'DE' ? 'QR Speichern' : 'Save QR'}</span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setIsQrZoomed(true)}
+                              className="py-1.5 px-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[9.5px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer border border-stone-200"
+                              title="Zoom"
+                            >
+                              <ZoomIn size={11} className="text-[#8B1E1E]" />
+                              <span>{lang === 'IT' ? 'Zoom' : lang === 'TH' ? 'ซูม' : lang === 'DE' ? 'Zoom' : 'Zoom'}</span>
+                            </button>
+                          </div>
+
+                          {/* 3-Step Mobile Banking Micro-Guide */}
+                          <div className="w-full max-w-xs bg-stone-50/90 border border-stone-200/80 rounded-xl p-2 text-left text-[8.5px] text-stone-600 space-y-1">
+                            <p className="flex items-center gap-1 font-bold text-stone-800 text-[9px]">
+                              <Smartphone size={11} className="text-[#8B1E1E] shrink-0" />
+                              <span>
+                                {lang === 'IT' && 'Pagamento da smartphone:'}
+                                {lang === 'EN' && 'Pay with mobile banking:'}
+                                {lang === 'TH' && 'วิธีสแกนจ่ายผ่านมือถือ:'}
+                                {lang === 'DE' && 'Per Smartphone bezahlen:'}
+                              </span>
+                            </p>
+                            <ol className="space-y-0.5 pl-3.5 list-decimal marker:text-[#8B1E1E] marker:font-bold leading-tight">
+                              <li>
+                                {lang === 'IT' && 'Salva il QR (o cattura uno screenshot).'}
+                                {lang === 'EN' && 'Save the QR (or take a screenshot).'}
+                                {lang === 'TH' && 'กดบันทึกรูป QR (หรือแคปภาพหน้าจอ)'}
+                                {lang === 'DE' && 'QR-Code speichern oder Screenshot machen.'}
+                              </li>
+                              <li>
+                                {lang === 'IT' && 'Apri l\'app della tua banca e tocca "Scan".'}
+                                {lang === 'EN' && 'Open your Thai bank app and tap "Scan".'}
+                                {lang === 'TH' && 'เปิดแอปธนาคารของคุณ แล้วเลือกเมนู "สแกน (Scan)"'}
+                                {lang === 'DE' && 'Bank-App öffnen und auf „Scan“ tippen.'}
+                              </li>
+                              <li>
+                                {lang === 'IT' && 'Seleziona il QR dalla galleria del telefono.'}
+                                {lang === 'EN' && 'Select the saved QR from your photo gallery.'}
+                                {lang === 'TH' && 'แตะไอคอนรูปภาพ แล้วเลือกรูป QR เพื่อยืนยัน'}
+                                {lang === 'DE' && 'Gespeichertes QR-Bild aus der Galerie wählen.'}
+                              </li>
+                            </ol>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="text-center space-y-0.5 shrink-0">
+                        <p className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Importo da pagare</p>
+                        <p className="text-base font-black text-[#8B1E1E] tracking-tight inline-flex items-baseline justify-center gap-0.5">
+                          <span>{finalTotal}</span>
+                          <span className="font-black select-none text-[#8B1E1E] text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                        </p>
+                        {deliveryFee > 0 ? (
+                          <p className="text-[8px] text-stone-400 font-medium">
+                            (inclusi {deliveryFee} <span style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span> di consegna)
+                          </p>
+                        ) : (
+                          <p className="text-[9.5px] font-extrabold text-emerald-600 uppercase tracking-wider">
+                            {lang === 'IT' && 'Consegna GRATIS'}
+                            {lang === 'EN' && 'FREE Delivery'}
+                            {lang === 'TH' && 'ฟรีค่าจัดส่ง'}
+                            {lang === 'DE' && 'Gratis-Lieferung'}
+                          </p>
+                        )}
+                      </div>
+
+                      {omiseQrUrl && !isPaymentConfirmed && (
+                        <div className="w-full max-w-xs bg-amber-50/90 border border-amber-200/90 rounded-lg p-1.5 text-center">
+                          <p className="text-[9.5px] text-amber-800 font-bold flex items-center justify-center gap-1.5">
+                            <Loader2 className="w-3 h-3 animate-spin text-amber-600 shrink-0" />
+                            <span>{t.awaitingPayment}</span>
+                          </p>
+                          <p className="text-[8px] text-stone-500 mt-0.5 leading-tight">{t.scanningPrompt}</p>
+                        </div>
+                      )}
+
+                      {!omiseQrUrl && !isGeneratingQr && (
+                        <button
+                          type="button"
+                          onClick={handleGeneratePromptPayQr}
+                          className="px-3 py-1 bg-[#8B1E1E] text-white rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-[#721818] transition-colors"
+                        >
+                          {t.generateQrBtn}
+                        </button>
+                      )}
+
+                      {/* Manual Slip upload fallback */}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        className="hidden"
+                        onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full max-w-xs border border-dashed border-stone-300 p-1 text-[9px] text-stone-550 font-bold rounded-xl hover:border-[#8B1E1E] hover:text-[#8B1E1E] transition-colors cursor-pointer bg-stone-50/50 truncate"
+                      >
+                        {receiptFile ? `📎 ${receiptFile.name}` : `📁 ${t.uploadBtn}`}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* ── METHOD 2: CREDIT / DEBIT CARD (OMISE 3DS) ── */}
+              {paymentMethod === 'card' && (
+                <form 
+                  onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}
+                  className="space-y-2 pt-0.5 animate-fadeIn max-w-xs mx-auto w-full"
+                >
+                  <div className="space-y-1.5">
+                    <div>
+                      <label htmlFor="cc-name" className="text-[9px] font-bold text-stone-600 uppercase tracking-wider block mb-0.5">
+                        {t.cardHolderLabel}
+                      </label>
+                      <input
+                        id="cc-name"
+                        name="ccname"
+                        type="text"
+                        autoComplete="cc-name"
+                        value={cardData.name}
+                        onChange={(e) => setCardData(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="Cardholder Name"
+                        className="w-full px-2 py-1 text-xs rounded-lg border border-stone-300 focus:border-[#8B1E1E] focus:outline-none bg-white font-medium"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="cc-number" className="text-[9px] font-bold text-stone-600 uppercase tracking-wider block mb-0.5">
+                        {t.cardNumberLabel}
+                      </label>
+                      <input
+                        id="cc-number"
+                        name="cardnumber"
+                        type="text"
+                        autoComplete="cc-number"
+                        inputMode="numeric"
+                        maxLength={19}
+                        value={cardData.number}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ');
+                          setCardData(prev => ({ ...prev, number: val }));
+                        }}
+                        placeholder="•••• •••• •••• ••••"
+                        className="w-full px-2 py-1 text-xs rounded-lg border border-stone-300 focus:border-[#8B1E1E] focus:outline-none bg-white font-mono"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label htmlFor="cc-exp-month" className="text-[9px] font-bold text-stone-600 uppercase tracking-wider block mb-0.5">
+                          {t.cardExpLabel}
+                        </label>
+                        <div className="flex gap-1 items-center">
+                          <input
+                            id="cc-exp-month"
+                            name="cc-exp-month"
+                            type="text"
+                            autoComplete="cc-exp-month"
+                            inputMode="numeric"
+                            maxLength={2}
+                            value={cardData.expMonth}
+                            onChange={(e) => setCardData(prev => ({ ...prev, expMonth: e.target.value.replace(/\D/g, '') }))}
+                            placeholder="MM"
+                            className="w-1/2 px-1.5 py-1 text-xs text-center rounded-lg border border-stone-300 focus:border-[#8B1E1E] focus:outline-none bg-white font-mono"
+                          />
+                          <span className="text-stone-400">/</span>
+                          <input
+                            id="cc-exp-year"
+                            name="cc-exp-year"
+                            type="text"
+                            autoComplete="cc-exp-year"
+                            inputMode="numeric"
+                            maxLength={4}
+                            value={cardData.expYear}
+                            onChange={(e) => setCardData(prev => ({ ...prev, expYear: e.target.value.replace(/\D/g, '') }))}
+                            placeholder="YY"
+                            className="w-1/2 px-1.5 py-1 text-xs text-center rounded-lg border border-stone-300 focus:border-[#8B1E1E] focus:outline-none bg-white font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label htmlFor="cc-csc" className="text-[9px] font-bold text-stone-600 uppercase tracking-wider block mb-0.5">
+                          {t.cardCvvLabel}
+                        </label>
+                        <input
+                          id="cc-csc"
+                          name="cvc"
+                          type="password"
+                          autoComplete="cc-csc"
+                          inputMode="numeric"
+                          maxLength={4}
+                          value={cardData.cvv}
+                          onChange={(e) => setCardData(prev => ({ ...prev, cvv: e.target.value.replace(/\D/g, '') }))}
+                          placeholder="CVV"
+                          className="w-full px-2 py-1 text-xs text-center rounded-lg border border-stone-300 focus:border-[#8B1E1E] focus:outline-none bg-white font-mono"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="text-center space-y-0.5 shrink-0">
-                    <p className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Importo da pagare</p>
+                  <div className="bg-emerald-50/80 border border-emerald-200/90 rounded-lg p-1.5 flex items-center gap-1.5 text-[8.5px] text-emerald-800">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <span>{t.cardSecurityNotice}</span>
+                  </div>
+
+                  <div className="text-center space-y-0.5 shrink-0 pt-0.5">
+                    <p className="text-[8.5px] text-stone-400 uppercase tracking-widest font-bold">Totale da addebitare</p>
                     <p className="text-base font-black text-[#8B1E1E] tracking-tight inline-flex items-baseline justify-center gap-0.5">
                       <span>{finalTotal}</span>
                       <span className="font-black select-none text-[#8B1E1E] text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
                     </p>
-                    {deliveryFee > 0 ? (
-                      <p className="text-[8px] text-stone-400 font-medium">
-                        (inclusi {deliveryFee} <span style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span> di consegna)
-                      </p>
-                    ) : (
-                      <p className="text-[9.5px] font-extrabold text-emerald-600 uppercase tracking-wider">
-                        {lang === 'IT' && 'Consegna GRATIS'}
-                        {lang === 'EN' && 'FREE Delivery'}
-                        {lang === 'TH' && 'ฟรีค่าจัดส่ง'}
-                        {lang === 'DE' && 'Gratis-Lieferung'}
-                      </p>
-                    )}
                   </div>
-                  
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-                  />
-                  
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full max-w-xs border border-dashed border-stone-300 p-1.5 text-[10px] text-stone-550 font-bold rounded-xl hover:border-[#8B1E1E] hover:text-[#8B1E1E] transition-colors cursor-pointer bg-stone-50/50"
-                  >
-                    {receiptFile ? receiptFile.name : t.uploadBtn}
-                  </button>
-                </div>
-              ) : (
-                /* ── BANNER 2: SCELTA METODO DI PAGAMENTO (CONTANTI) ── */
-                <div className="py-6 text-center animate-fadeIn space-y-3">
+                </form>
+              )}
+
+              {/* ── METHOD 3: CASH ON DELIVERY ── */}
+              {paymentMethod === 'cash' && (
+                <div className="py-5 text-center animate-fadeIn space-y-2.5">
                   <p className="text-stone-600 text-xs leading-relaxed max-w-xs mx-auto font-medium">
-                    Il pagamento verrà effettuato in contanti al momento della consegna del tuo ordine.
+                    {lang === 'IT' && 'Il pagamento verrà effettuato in contanti al momento della consegna del tuo ordine.'}
+                    {lang === 'EN' && 'Payment will be made in cash upon delivery of your order.'}
+                    {lang === 'TH' && 'ชำระเงินสดกับพนักงานส่งอาหารเมื่อได้รับสินค้า'}
+                    {lang === 'DE' && 'Die Zahlung erfolgt in bar bei Lieferung Ihrer Bestellung.'}
                   </p>
                   <div className="text-center space-y-0.5 shrink-0">
                     <p className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Importo da pagare alla consegna</p>
@@ -1198,30 +1813,78 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
               )}
             </div>
 
-            <div className="space-y-2 flex-shrink-0">
+            {/* Error badge */}
+            {paymentError && (
+              <div className="p-1.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-[9.5px] font-bold text-center">
+                {paymentError}
+              </div>
+            )}
+
+            {/* Bottom Actions */}
+            <div className="space-y-1.5 flex-shrink-0 pt-1">
               <button
                 onClick={handleSubmit}
-                disabled={loading || (paymentMethod === 'promptpay' && !receiptFile)}
-                className={`w-full p-3 font-bold rounded-full text-[10px] tracking-wider uppercase transition-all duration-200 transform active:scale-95 shadow-md ${
-                  paymentMethod === 'promptpay' && !receiptFile
+                disabled={
+                  loading ||
+                  (paymentMethod === 'card' && (!cardData.name || !cardData.number || !cardData.expMonth || !cardData.expYear || !cardData.cvv)) ||
+                  (paymentMethod === 'promptpay' && !isPaymentConfirmed && !receiptFile && !omiseQrUrl)
+                }
+                className={`w-full p-2.5 font-bold rounded-full text-[10px] tracking-wider uppercase transition-all duration-200 transform active:scale-95 shadow-md ${
+                  (paymentMethod === 'card' && (!cardData.name || !cardData.number || !cardData.expMonth || !cardData.expYear || !cardData.cvv))
                     ? 'bg-stone-200 text-stone-400 shadow-none cursor-not-allowed'
                     : 'bg-[#8B1E1E] hover:bg-[#721818] text-white hover:shadow-lg cursor-pointer'
                 }`}
                 style={{ fontFamily: 'Inter, sans-serif' }}
               >
-                {loading
-                  ? t.waitText
-                  : paymentMethod === 'promptpay' && !receiptFile
-                    ? t.uploadPromptBtn
-                    : t.submitBtn}
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>{t.waitText}</span>
+                  </span>
+                ) : paymentMethod === 'card' ? (
+                  t.payCardBtn
+                ) : isPaymentConfirmed ? (
+                  t.submitBtn
+                ) : paymentMethod === 'promptpay' && !receiptFile && !omiseQrUrl ? (
+                  t.uploadPromptBtn
+                ) : (
+                  t.submitBtn
+                )}
               </button>
 
               <button
                 onClick={() => setStep(1)}
-                className="w-full bg-stone-100 hover:bg-stone-200 p-2 text-[10px] text-stone-500 font-semibold rounded-full cursor-pointer transition-all"
+                className="w-full bg-stone-100 hover:bg-stone-200 p-1.5 text-[9.5px] text-stone-500 font-semibold rounded-full cursor-pointer transition-all"
               >
                 {t.backBtn}
               </button>
+
+              {/* Legal & Service Policy Links for Omise KYC compliance */}
+              <div className="pt-1 flex items-center justify-center gap-2 text-[9px] text-stone-600">
+                <button
+                  type="button"
+                  onClick={() => { setPolicyTab('delivery'); setPolicyModalOpen(true); }}
+                  className="underline hover:text-[#8B1E1E] transition-colors cursor-pointer"
+                >
+                  {lang === 'IT' ? 'Consegna' : lang === 'TH' ? 'การจัดส่ง' : lang === 'DE' ? 'Lieferung' : 'Shipping'}
+                </button>
+                <span>•</span>
+                <button
+                  type="button"
+                  onClick={() => { setPolicyTab('refund'); setPolicyModalOpen(true); }}
+                  className="underline hover:text-[#8B1E1E] transition-colors cursor-pointer"
+                >
+                  {lang === 'IT' ? 'Rimborsi' : lang === 'TH' ? 'การคืนเงิน' : lang === 'DE' ? 'Erstattung' : 'Refunds'}
+                </button>
+                <span>•</span>
+                <button
+                  type="button"
+                  onClick={() => { setPolicyTab('privacy'); setPolicyModalOpen(true); }}
+                  className="underline hover:text-[#8B1E1E] transition-colors cursor-pointer"
+                >
+                  {lang === 'IT' ? 'Privacy & Sicurezza' : lang === 'TH' ? 'นโยบายความเป็นส่วนตัว' : lang === 'DE' ? 'Datenschutz' : 'Privacy'}
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -1340,6 +2003,110 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
           </div>
         )}
       </div>
+
+      <PizzaPoliciesModal
+        isOpen={policyModalOpen}
+        onClose={() => setPolicyModalOpen(false)}
+        initialTab={policyTab}
+        lang={lang}
+      />
+
+      {/* ── FULLSCREEN QR ZOOM MODAL ── */}
+      {isQrZoomed && (
+        <div 
+          onClick={() => setIsQrZoomed(false)}
+          className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-4 animate-fadeIn cursor-pointer"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            className="bg-white rounded-3xl p-6 sm:p-7 max-w-sm sm:max-w-md w-full shadow-2xl border border-stone-200 flex flex-col items-center text-center relative cursor-default transition-all transform scale-100"
+          >
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setIsQrZoomed(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 hover:text-stone-900 transition-colors cursor-pointer"
+              title="Close"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Header info */}
+            <div className="space-y-1 mb-3 pt-1">
+              <span className="text-[10px] font-black text-[#8B1E1E] uppercase tracking-widest bg-red-50 border border-red-100 px-3 py-1 rounded-full">
+                PromptPay QR
+              </span>
+              <h3 className="text-2xl font-black text-stone-900 tracking-tight pt-1">
+                <span>{finalTotal}</span>{' '}
+                <span className="text-[#8B1E1E] font-black" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+              </h3>
+              <p className="text-xs text-stone-500 font-medium">
+                Flower Power Pizza Ranong
+              </p>
+            </div>
+
+            {/* Big High-Res QR code box with clear quiet zone */}
+            <div className="bg-white p-3.5 rounded-2xl border-2 border-stone-100 shadow-inner w-full max-w-[270px] sm:max-w-[310px] aspect-square flex items-center justify-center">
+              <img 
+                src={omiseQrUrl || QR_URL} 
+                alt="PromptPay QR Fullscreen" 
+                className="w-full h-full object-contain select-none rounded-lg" 
+              />
+            </div>
+
+            {/* Status or Live indicator */}
+            {omiseQrUrl ? (
+              <div className="mt-3 flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-emerald-800 text-[11px] font-bold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>{lang === 'TH' ? 'Omise Live QR พร้อมสแกน' : 'Omise Live PromptPay QR'}</span>
+              </div>
+            ) : (
+              <div className="mt-3 flex items-center gap-2 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full text-amber-800 text-[11px] font-semibold">
+                <span>PromptPay Direct Scan</span>
+              </div>
+            )}
+
+            {/* Save to Phone Button */}
+            <button
+              type="button"
+              onClick={handleSaveQrImage}
+              className={`mt-3 w-full max-w-[270px] sm:max-w-[310px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer ${
+                isQrSaved
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-[#8B1E1E] hover:bg-[#721818] text-white'
+              }`}
+            >
+              {isQrSaved ? (
+                <>
+                  <Check size={14} className="stroke-[3]" />
+                  <span>{lang === 'IT' ? 'Immagine salvata nel telefono!' : lang === 'TH' ? 'บันทึกรูป QR ลงเครื่องแล้ว!' : 'QR Image Saved!'}</span>
+                </>
+              ) : (
+                <>
+                  <Download size={14} />
+                  <span>{lang === 'IT' ? '📥 Salva QR nel Telefono (Rullino Foto)' : lang === 'TH' ? '📥 บันทึกรูป QR Code ลงเครื่อง' : lang === 'DE' ? '📥 QR-Code auf Handy speichern' : '📥 Save QR to Phone / Photos'}</span>
+                </>
+              )}
+            </button>
+
+            {/* Instruction */}
+            <p className="mt-3 text-[11px] text-stone-600 leading-relaxed max-w-xs">
+              {lang === 'IT' && 'Puoi salvare il QR o fotografarlo con un secondo dispositivo. Per pagare da questo smartphone: salvalo, apri l\'app della tua banca e tocca "Scan da foto".'}
+              {lang === 'EN' && 'You can save this QR or scan it from a second device. To pay on this phone: save it, open your banking app and tap "Scan from photos".'}
+              {lang === 'TH' && 'บันทึกรูป QR นี้เพื่อเปิดในแอปธนาคารของคุณ (เมนูสแกนจากรูปภาพ) หรือสแกนโดยตรงจากมือถืออีกเครื่อง'}
+              {lang === 'DE' && 'QR-Code speichern und in Ihrer Banking-App per „Foto scannen“ öffnen, oder direkt mit einem Zweitgerät scannen.'}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setIsQrZoomed(false)}
+              className="mt-4 w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer shadow-md"
+            >
+              {lang === 'IT' ? 'Chiudi Ingrandimento' : lang === 'TH' ? 'ปิดหน้าต่าง' : lang === 'DE' ? 'Schließen' : 'Close Zoom'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

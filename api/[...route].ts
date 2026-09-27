@@ -34,6 +34,11 @@ import { handleDocumentReader } from "./_handlers/reader.js";
 import { handleDocumentsApi } from "./_handlers/documents-api.js";
 import { handlePaymentsAdmin } from "./_handlers/payments-admin.js";
 import { handlePizzaServiceStatus } from "./_handlers/pizza-service-status.js";
+import { 
+  handleOmiseCharge, 
+  handleOmiseCheckStatus, 
+  handleOmiseWebhook 
+} from "./_handlers/omise-payment.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -72,6 +77,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('payments-admin') || cleanPath.includes('payment-settings') || cleanPath.includes('payment_settings')) {
     return handlePaymentsAdmin(req, res);
+  }
+
+  if (cleanPath.includes('omise-webhook') || cleanPath.includes('webhooks/omise')) {
+    return handleOmiseWebhook(req, res);
+  }
+
+  if (cleanPath.includes('omise-charge') || cleanPath.includes('omise-payment') || cleanPath.includes('pizza-payment')) {
+    return handleOmiseCharge(req, res);
+  }
+
+  if (cleanPath.includes('omise-status') || cleanPath.includes('omise-check-status')) {
+    return handleOmiseCheckStatus(req, res);
   }
 
   if (cleanPath.startsWith('read') || cleanPath.includes('document-reader')) {
@@ -197,6 +214,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     case 'octorate-webhook':
     case 'webhooks/octoraate':
       return handleOctorateWebhook(req, res);
+
+    case 'omise-charge':
+    case 'omise-payment':
+    case 'pizza-payment':
+      return handleOmiseCharge(req, res);
+
+    case 'omise-check-status':
+    case 'omise-status':
+      return handleOmiseCheckStatus(req, res);
+
+    case 'webhooks/omise':
+    case 'omise-webhook':
+      return handleOmiseWebhook(req, res);
 
     default:
       return res.status(404).json({ error: `Route not found: /api/${cleanPath}` });

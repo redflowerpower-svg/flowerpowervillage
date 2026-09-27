@@ -27,7 +27,7 @@ const translations = {
     cartItem: 'prodotto nel carrello',
     promoTitle: 'Promozioni & Consegna a Domicilio',
     deliveryLimit: 'Le consegne si effettuano esclusivamente per la città di Ranong.',
-    promoFreeDelivery: 'Consegna GRATIS per ordini sopra i 200฿',
+    promoFreeDelivery: 'Consegna GRATIS per ordini sopra i 300฿',
     promoFirstOrder: '10% di sconto sul tuo primo ordine',
   },
   EN: {
@@ -42,7 +42,7 @@ const translations = {
     cartItem: 'item in cart',
     promoTitle: 'Promotions & Delivery Info',
     deliveryLimit: 'Deliveries are made exclusively within the city of Ranong.',
-    promoFreeDelivery: 'FREE delivery for orders over 200฿',
+    promoFreeDelivery: 'FREE delivery for orders over 300฿',
     promoFirstOrder: '10% discount on your first order',
   },
   TH: {
@@ -57,7 +57,7 @@ const translations = {
     cartItem: 'รายการในรถเข็น',
     promoTitle: 'โปรโมชั่นและข้อมูลการจัดส่ง',
     deliveryLimit: 'บริการจัดส่งเฉพาะในเขตตัวเมืองระนองเท่านั้น',
-    promoFreeDelivery: 'จัดส่งฟรี เมื่อสั่งซื้อครบ 200฿ ขึ้นไป',
+    promoFreeDelivery: 'จัดส่งฟรี เมื่อสั่งซื้อครบ 300฿ ขึ้นไป',
     promoFirstOrder: 'ส่วนลด 10% สำหรับการสั่งซื้อครั้งแรก',
   },
   DE: {
@@ -72,7 +72,7 @@ const translations = {
     cartItem: 'Artikel im Warenkorb',
     promoTitle: 'Aktionen & Lieferbedingungen',
     deliveryLimit: 'Lieferungen erfolgen ausschließlich innerhalb der Stadt Ranong.',
-    promoFreeDelivery: 'KOSTENLOSE Lieferung ab 200฿ Bestellwert',
+    promoFreeDelivery: 'KOSTENLOSE Lieferung ab 300฿ Bestellwert',
     promoFirstOrder: '10% Rabatt auf Ihre erste Bestellung',
   },
 };

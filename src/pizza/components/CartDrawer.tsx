@@ -74,7 +74,7 @@ const labels = {
 export default function CartDrawer({ onCheckout, lang }: Props) {
   const { items, isOpen, closeCart, removeItem, updateQuantity, getTotal } = useCartStore();
   const total = getTotal();
-  const deliveryFee = total >= 200 ? 0 : 30;
+  const deliveryFee = total >= 300 ? 0 : 30;
   const finalTotal = total + deliveryFee;
   const t = labels[lang];
 

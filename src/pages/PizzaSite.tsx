@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate as useRRNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Menu, X, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Menu, X, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart, ShieldCheck, Truck, RotateCcw, Building2 } from 'lucide-react';
 import DeliveryMenu from '../pizza/pages/DeliveryMenu';
 import { GloriaFoodLanding } from '../pizza/pages/GloriaFoodLanding';
 import { useCartStore } from '../pizza/store/cartStore';
 import PizzaSlideshow from '../components/PizzaSlideshow';
 import { fetchPizzeriaStatus, usePizzeriaStatus, DEFAULT_PIZZERIA_STATUS } from '../pizza/services/pizzaServiceStatus';
+import PizzaPoliciesModal, { PolicyTab } from '../pizza/components/PizzaPoliciesModal';
 
 function usePizzeriaHours() {
   const st = usePizzeriaStatus();
@@ -455,18 +456,38 @@ function PizzaContactPage() {
                 <MapPin size={15} className="text-[#8B1E1E]" />
               </div>
               <div>
-                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Indirizzo</p>
-                <p className="text-stone-850 text-sm font-extrabold">129/6 Mo 1, Tambon Bang Rin,<br />Muang Ranong 85000</p>
-                <p className="text-stone-550 text-xs mt-0.5 mb-1.5 font-light">Chiedici le indicazioni stradali esatte</p>
+                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Indirizzo Pizzeria / Restaurant Address</p>
+                <p className="text-stone-850 text-sm font-extrabold">FLOWER POWER PIZZA</p>
+                <p className="text-stone-700 text-xs font-semibold">129/6 Mo 1, Tambon Bang Rin, Muang Ranong 85000</p>
+                <p className="text-stone-500 text-xs font-thai">129/6 หมู่1 ต.บางริ้น อ.เมือง จ.ระนอง 85000</p>
                 <a
                   href="https://maps.app.goo.gl/6xdREhJ3bu7kzVzY6"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-[#8B1E1E] hover:text-[#721818] font-semibold inline-flex items-center gap-1 transition-colors"
+                  className="text-xs text-[#8B1E1E] hover:text-[#721818] font-semibold inline-flex items-center gap-1 transition-colors mt-1.5"
                 >
                   <span>Vedi su Google Maps</span>
                   <span className="text-[10px]">↗</span>
                 </a>
+              </div>
+            </div>
+
+            {/* Dati Societari / Head Office */}
+            <div className="flex items-start gap-4">
+              <div className="w-9 h-9 bg-[#8B1E1E]/5 flex items-center justify-center shrink-0 rounded-lg">
+                <Building2 size={15} className="text-[#8B1E1E]" />
+              </div>
+              <div className="text-xs">
+                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Sede Legale / Head Office</p>
+                <p className="text-stone-850 font-bold">ONLY PON CO., LTD (Head office)</p>
+                <p className="text-stone-600 font-thai text-[11px]">บริษัท โอนลี่พล จำกัด (สำนักงานใหญ่)</p>
+                <p className="text-stone-500 text-[11px] mt-0.5 leading-relaxed">
+                  14/32 M.1 Sub-district Koh Phayam, District Meaung Ranong, Province Ranong 85000<br />
+                  <span className="font-thai text-[10px]">14/32 ม.1 ต. เกาะพยาม อ.เมืองระนอง จ.ระนอง 85000</span>
+                </p>
+                <p className="text-stone-700 mt-1 font-semibold">
+                  Tax ID: <span className="font-mono text-[#8B1E1E] font-bold">0845562009083</span> <span className="font-thai text-[10px] text-stone-500">(เลขประจำตัวผู้เสียภาษี)</span>
+                </p>
               </div>
             </div>
 
@@ -481,17 +502,26 @@ function PizzaContactPage() {
                 <p className="text-stone-550 text-xs mt-0.5 font-light">Servizio di consegna e ritiro</p>
               </div>
             </div>
+
+            {/* Telefoni */}
             <div className="flex items-start gap-4">
               <div className="w-9 h-9 bg-[#8B1E1E]/5 flex items-center justify-center shrink-0 rounded-lg">
                 <Phone size={15} className="text-[#8B1E1E]" />
               </div>
-              <div>
-                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Telefono (LINE / WhatsApp)</p>
-                <a href="tel:+66949800200" className="text-[#8B1E1E] text-sm font-extrabold hover:text-[#721818] transition-colors">
-                  +66 (0) 949 800 200
-                </a>
+              <div className="space-y-1">
+                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Telefoni / Contact Numbers</p>
+                <p className="text-stone-800 text-xs font-bold">
+                  Phone Pon: <a href="tel:0858844852" className="text-[#8B1E1E] hover:underline font-mono">0858844852</a>
+                </p>
+                <p className="text-stone-800 text-xs font-bold">
+                  เบอร์โทร (Thai): <a href="tel:0956502969" className="text-[#8B1E1E] hover:underline font-mono">0956502969</a>
+                </p>
+                <p className="text-stone-600 text-xs font-medium">
+                  Direct / WhatsApp: <a href="tel:+66949800200" className="text-[#8B1E1E] hover:underline font-mono">+66 (0) 949 800 200</a>
+                </p>
               </div>
             </div>
+
             <div className="flex items-start gap-4">
               <div className="w-9 h-9 bg-[#8B1E1E]/5 flex items-center justify-center shrink-0 rounded-lg">
                 <Mail size={15} className="text-[#8B1E1E]" />
@@ -642,6 +672,27 @@ export default function PizzaSite() {
     const saved = localStorage.getItem('flower_power_pizza_mode');
     return (saved === 'legacy' || saved === 'custom') ? saved : 'custom';
   });
+  const [policyModalOpen, setPolicyModalOpen] = useState(false);
+  const [policyTab, setPolicyTab] = useState<PolicyTab>('delivery');
+  const [currentLang, setCurrentLang] = useState<'IT' | 'EN' | 'TH' | 'DE'>('EN');
+
+  useEffect(() => {
+    const detect = () => {
+      const attr = document.documentElement.getAttribute('data-lang');
+      if (attr && ['IT', 'EN', 'TH', 'DE'].includes(attr)) {
+        setCurrentLang(attr as any);
+      }
+    };
+    detect();
+    const observer = new MutationObserver(detect);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+    return () => observer.disconnect();
+  }, []);
+
+  const openPolicy = (tab: PolicyTab) => {
+    setPolicyTab(tab);
+    setPolicyModalOpen(true);
+  };
 
   const handleToggleMode = (mode: 'custom' | 'legacy') => {
     setPizzaMode(mode);
@@ -680,30 +731,138 @@ export default function PizzaSite() {
       />
       <main>{renderPage()}</main>
 
-      <footer className="bg-stone-950 border-t border-stone-900 py-10">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-stone-500 text-sm italic" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
-            Flower Power Pizza Ranong
+      <footer className="bg-stone-950 border-t border-stone-850 pt-12 pb-8 text-stone-400">
+        <div className="max-w-7xl mx-auto px-6">
+          {/* Main 3-column Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10 border-b border-stone-850 text-xs">
+            {/* Column 1: Restaurant Branch & Contact */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-white font-black text-sm tracking-wide">
+                <MapPin className="w-4 h-4 text-[#8B1E1E]" />
+                <span>FLOWER POWER PIZZA</span>
+              </div>
+              <p className="text-stone-300 font-semibold leading-relaxed">
+                129/6 Mo 1, Tambon Bang Rin, Muang Ranong 85000<br />
+                <span className="font-thai text-stone-400">129/6 หมู่1 ต.บางริ้น อ.เมือง จ.ระนอง 85000</span>
+              </p>
+              <div className="space-y-1.5 text-stone-300 pt-1">
+                <p className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-stone-500" />
+                  <span>Phone Pon: <a href="tel:0858844852" className="hover:text-white underline font-mono">0858844852</a></span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-stone-500" />
+                  <span>เบอร์โทร (Thai): <a href="tel:0956502969" className="hover:text-white underline font-mono">0956502969</a></span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 text-stone-500" />
+                  <a href="mailto:flowerpowerpizzaranong.th@gmail.com" className="hover:text-white truncate underline">flowerpowerpizzaranong.th@gmail.com</a>
+                </p>
+              </div>
+            </div>
+
+            {/* Column 2: Legal Corporate Info (Head Office) */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-white font-black text-sm tracking-wide">
+                <Building2 className="w-4 h-4 text-amber-500" />
+                <span>CORPORATE / HEAD OFFICE</span>
+              </div>
+              <div>
+                <p className="text-stone-200 font-bold">ONLY PON CO., LTD (Head office)</p>
+                <p className="font-thai text-stone-400 text-[11px]">บริษัท โอนลี่พล จำกัด (สำนักงานใหญ่)</p>
+              </div>
+              <p className="text-stone-400 leading-relaxed text-[11px]">
+                14/32 M.1 Sub-district Koh Phayam, District Meaung Ranong, Province Ranong 85000<br />
+                <span className="font-thai">14/32 ม.1 ต. เกาะพยาม อ.เมืองระนอง จ.ระนอง 85000</span>
+              </p>
+              <div className="pt-1">
+                <p className="text-stone-300">
+                  <span className="text-stone-400">Taxpayer ID:</span> <span className="font-mono text-amber-400 font-bold">0845562009083</span>
+                </p>
+                <p className="font-thai text-stone-500 text-[10px]">เลขประจำตัวผู้เสียภาษี 0845562009083</p>
+              </div>
+            </div>
+
+            {/* Column 3: Business Policies & Payment Security */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-white font-black text-sm tracking-wide">
+                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                <span>POLICIES & COMPLIANCE</span>
+              </div>
+              <p className="text-stone-400 leading-relaxed text-[11px]">
+                Transparent policies for safe ordering, fully compliant with Omise Payment Gateway & Thai PDPA.
+              </p>
+              <div className="flex flex-col gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => openPolicy('delivery')}
+                  className="flex items-center gap-2 text-stone-300 hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  <Truck className="w-3.5 h-3.5 text-[#8B1E1E]" />
+                  <span className="underline">Delivery & Shipping Policy (Free over 300฿)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openPolicy('refund')}
+                  className="flex items-center gap-2 text-stone-300 hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="underline">Cancellation & Refund Policy (100% Refund)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openPolicy('privacy')}
+                  className="flex items-center gap-2 text-stone-300 hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="underline">Privacy Policy (Thai PDPA & Omise PCI-DSS)</span>
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-6">
-            {(['order', 'about', 'contact'] as PizzaPage[]).map(p => (
-              <button key={p} onClick={() => navigate(p)}
-                className="text-xs text-stone-600 uppercase tracking-wide hover:text-red-400 transition-colors uppercase font-semibold">
-                {p === 'order' ? 'ORDINA ONLINE' : p === 'about' ? 'CHI SIAMO' : p.toUpperCase()}
-              </button>
-            ))}
-            <a 
-              href="/admin"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-stone-600 uppercase tracking-wide hover:text-red-400 transition-colors uppercase font-semibold"
-            >
-              PRIVATE AREA
-            </a>
+
+          {/* Middle bar: Nav items + Payment methods */}
+          <div className="py-6 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-stone-850">
+            <div className="flex flex-wrap gap-5">
+              {(['order', 'about', 'contact'] as PizzaPage[]).map(p => (
+                <button key={p} onClick={() => navigate(p)}
+                  className="text-xs text-stone-400 uppercase tracking-wider hover:text-red-400 transition-colors font-bold cursor-pointer">
+                  {p === 'order' ? 'ORDINA ONLINE' : p === 'about' ? 'CHI SIAMO' : p.toUpperCase()}
+                </button>
+              ))}
+              <a 
+                href="/admin"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-stone-500 uppercase tracking-wider hover:text-red-400 transition-colors font-bold"
+              >
+                PRIVATE AREA
+              </a>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 text-xs text-stone-400">
+              <span className="text-[10px] uppercase font-bold tracking-widest text-stone-500">Accepted Payments:</span>
+              <span className="px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-300 font-mono text-[10px]">PromptPay QR</span>
+              <span className="px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-300 font-mono text-[10px]">Visa / Mastercard</span>
+              <span className="px-2 py-0.5 rounded bg-stone-900 border border-stone-800 text-stone-300 font-mono text-[10px]">Cash on Delivery</span>
+              <span className="text-emerald-400 text-[10px] font-semibold">● Powered by Opn Payments (Omise)</span>
+            </div>
           </div>
-          <p className="text-xs text-stone-700">© {new Date().getFullYear()} Flower Power · Ranong, Thailand</p>
+
+          {/* Bottom Bar: Copyright */}
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-stone-600">
+            <p>© {new Date().getFullYear()} Flower Power Pizza · Ranong, Thailand · All Rights Reserved.</p>
+            <p>ONLY PON CO., LTD (Head office) · Tax ID: 0845562009083</p>
+          </div>
         </div>
       </footer>
+
+      <PizzaPoliciesModal
+        isOpen={policyModalOpen}
+        onClose={() => setPolicyModalOpen(false)}
+        initialTab={policyTab}
+        lang={currentLang}
+      />
     </div>
   );
 }
