@@ -110,6 +110,11 @@ function PizzaNav({
   const cartCount = useCartStore((s) => s.getCount());
   const openCart = useCartStore((s) => s.openCart);
 
+  const isOfficialDomain = typeof window !== 'undefined' && (
+    window.location.hostname.toLowerCase().includes('flowerpowerpizza.com') ||
+    window.location.hostname.toLowerCase().includes('flowerpowervillage.com')
+  );
+
   const previewNotice = {
     IT: {
       badge: 'ANTEPRIMA & COLLAUDO',
