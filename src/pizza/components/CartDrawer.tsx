@@ -1,6 +1,7 @@
-import { X, Trash2, Plus, Minus, ShoppingBag, Phone } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, Phone, Sparkles } from 'lucide-react';
 import { useCartStore, calcItemTotal } from '../store/cartStore';
 import { fetchPizzeriaStatus, calculateServiceState, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
+import { checkFirstOrderEligibility, getOrCreateDeviceId } from '../services/firstOrderService';
 import { withCacheBust } from '../utils/cacheBust';
 import { useState, useEffect } from 'react';
 
@@ -16,14 +17,18 @@ const labels = {
     emptyDesc: 'Aggiungi le nostre specialità dal menu online',
     totalText: 'Totale Ordine',
     subtotalText: 'Subtotale',
+    firstOrderDiscountText: 'Sconto 1° Ordine (10%)',
     deliveryText: 'Consegna',
     freeText: 'Gratis',
-    freeDeliveryApplied: 'Consegna gratuita applicata! (Ordine > 200฿)',
+    freeDeliveryApplied: 'Consegna gratuita applicata! (Ordine > 300฿)',
+    welcomeTitle: 'BENVENUTO! SCONTO 10% APPLICATO',
+    welcomePromoDesc: 'Questa è la tua prima ordinazione: abbiamo applicato per te il 10% di sconto sui piatti!',
+    youSaveText: (s: number) => `Risparmi ${s}฿`,
     checkoutBtn: 'Procedi al Checkout',
     ordersPausedBtn: 'Ordinazioni Momentaneamente Sospese',
     ordersClosedBtn: 'Pizzeria al momento Chiusa',
     callPizzeria: 'Chiama la Pizzeria (Ranong)',
-    footerInfo: 'Pagamento tramite PromptPay • Carica screenshot di conferma',
+    footerInfo: 'Pagamento tramite PromptPay / Carta • Consegna a Ranong',
   },
   EN: {
     title: 'Your Order',
@@ -31,14 +36,18 @@ const labels = {
     emptyDesc: 'Add items from our online menu',
     totalText: 'Order Total',
     subtotalText: 'Subtotal',
+    firstOrderDiscountText: '1st Order Discount (10%)',
     deliveryText: 'Delivery',
     freeText: 'Free',
-    freeDeliveryApplied: 'Free delivery applied! (Order > 200฿)',
+    freeDeliveryApplied: 'Free delivery applied! (Order > 300฿)',
+    welcomeTitle: 'WELCOME! 10% DISCOUNT UNLOCKED',
+    welcomePromoDesc: 'This is your first order: 10% welcome discount has been applied to your food!',
+    youSaveText: (s: number) => `You save ${s}฿`,
     checkoutBtn: 'Proceed to Checkout',
     ordersPausedBtn: 'Orders Temporarily Paused',
     ordersClosedBtn: 'Pizzeria Currently Closed',
     callPizzeria: 'Call Pizzeria (Ranong)',
-    footerInfo: 'Payment via PromptPay • Upload confirmation screenshot',
+    footerInfo: 'Payment via PromptPay / Card • Delivery in Ranong',
   },
   TH: {
     title: 'รายการของคุณ',
@@ -46,14 +55,18 @@ const labels = {
     emptyDesc: 'เพิ่มเมนูอร่อยจากเมนูออนไลน์ของเรา',
     totalText: 'ยอดรวมทั้งหมด',
     subtotalText: 'ยอดรวมสินค้า',
+    firstOrderDiscountText: 'ส่วนลดสั่งครั้งแรก (10%)',
     deliveryText: 'ค่าจัดส่ง',
     freeText: 'ฟรี',
-    freeDeliveryApplied: 'จัดส่งฟรี! (ยอดสั่งซื้อ > 200฿)',
+    freeDeliveryApplied: 'จัดส่งฟรี! (ยอดสั่งซื้อ > 300฿)',
+    welcomeTitle: 'ยินดีต้อนรับ! รับส่วนลด 10% ทันที',
+    welcomePromoDesc: 'นี่คือการสั่งซื้อครั้งแรกของคุณ: เรามอบส่วนลด 10% พิเศษสำหรับอาหารของคุณ!',
+    youSaveText: (s: number) => `ประหยัด ${s}฿`,
     checkoutBtn: 'ดำเนินการชำระเงิน',
     ordersPausedBtn: 'ระงับการสั่งซื้อชั่วคราว',
     ordersClosedBtn: 'ร้านพิซซ่าปิดบริการในขณะนี้',
     callPizzeria: 'โทรหาร้านพิซซ่า (ระนอง)',
-    footerInfo: 'ชำระเงินผ่าน PromptPay • โปรดอัปโหลดภาพหน้าจอเพื่อยืนยัน',
+    footerInfo: 'ชำระเงินผ่าน พร้อมเพย์ / บัตรเครดิต • จัดส่งในตัวเมืองระนอง',
   },
   DE: {
     title: 'Ihre Bestellung',
@@ -61,22 +74,50 @@ const labels = {
     emptyDesc: 'Fügen Sie Spezialitäten aus unserer Online-Speisekarte hinzu',
     totalText: 'Gesamtsumme',
     subtotalText: 'Zwischensumme',
+    firstOrderDiscountText: 'Erstbesteller-Rabatt (10%)',
     deliveryText: 'Lieferung',
     freeText: 'Gratis',
-    freeDeliveryApplied: 'Kostenlose Lieferung angewendet! (Bestellung > 200฿)',
+    freeDeliveryApplied: 'Kostenlose Lieferung angewendet! (Bestellung > 300฿)',
+    welcomeTitle: 'WILLKOMMEN! 10% RABATT AKTIVIERT',
+    welcomePromoDesc: 'Dies ist Ihre erste Bestellung: 10% Willkommensrabatt auf Ihre Speisen aktiviert!',
+    youSaveText: (s: number) => `Sie sparen ${s}฿`,
     checkoutBtn: 'Zur Kasse gehen',
     ordersPausedBtn: 'Bestellungen vorübergehend pausiert',
     ordersClosedBtn: 'Pizzeria derzeit geschlossen',
     callPizzeria: 'Pizzeria anrufen (Ranong)',
-    footerInfo: 'Zahlung per PromptPay • Quittungs-Screenshot hochladen',
+    footerInfo: 'Zahlung per PromptPay / Karte • Lieferung in Ranong',
   },
 };
 
 export default function CartDrawer({ onCheckout, lang }: Props) {
   const { items, isOpen, closeCart, removeItem, updateQuantity, getTotal } = useCartStore();
-  const total = getTotal();
-  const deliveryFee = total >= 300 ? 0 : 30;
-  const finalTotal = total + deliveryFee;
+  const subtotal = getTotal();
+  const [isEligible, setIsEligible] = useState(true);
+  const [isHotelGuest, setIsHotelGuest] = useState(false);
+
+  // Check first order eligibility based on device ID and saved phone
+  useEffect(() => {
+    let active = true;
+    const deviceId = getOrCreateDeviceId();
+    let savedPhone = '';
+    try { savedPhone = localStorage.getItem('fp_pizza_customer_phone') || ''; } catch {}
+    let savedEmail = '';
+    try { savedEmail = localStorage.getItem('fp_pizza_customer_email') || ''; } catch {}
+
+    checkFirstOrderEligibility({ phone: savedPhone, email: savedEmail, deviceId }).then((res) => {
+      if (active) {
+        setIsEligible(res.eligible);
+        setIsHotelGuest(res.isHotelGuest);
+      }
+    });
+
+    return () => { active = false; };
+  }, [isOpen]);
+
+  const discountAmount = isEligible ? Math.round(subtotal * 0.1) : 0;
+  const subtotalAfterDiscount = subtotal - discountAmount;
+  const deliveryFee = subtotal >= 300 ? 0 : 30;
+  const finalTotal = subtotalAfterDiscount + deliveryFee;
   const t = labels[lang];
 
   const [serviceCalc, setServiceCalc] = useState(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
@@ -271,14 +312,44 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
         {/* DRAWER FOOTER */}
         {items.length > 0 && (
           <div className="border-t border-stone-200 px-5 py-5 space-y-4 bg-white">
+            
+            {/* Promotional Welcome First-Order Banner */}
+            {isEligible && (
+              <div className="bg-gradient-to-r from-emerald-50 via-amber-50 to-emerald-50 border-2 border-emerald-400/40 rounded-2xl p-3 flex items-start gap-2.5 shadow-sm animate-fadeIn">
+                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs text-sm font-black">
+                  10%
+                </div>
+                <div className="text-[11px] leading-snug flex-1">
+                  <p className="font-black text-emerald-950 uppercase tracking-wide flex items-center gap-1.5">
+                    <span>{t.welcomeTitle}</span>
+                  </p>
+                  <p className="text-stone-700 font-medium mt-0.5">{t.welcomePromoDesc}</p>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-1.5 text-stone-600 text-xs" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
               <div className="flex justify-between items-center">
                 <span>{t.subtotalText}</span>
                 <span className="font-semibold inline-flex items-baseline gap-0.5">
-                  <span>{total}</span>
+                  <span>{subtotal}</span>
                   <span className="font-black select-none text-stone-700 text-xs" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
                 </span>
               </div>
+
+              {isEligible && discountAmount > 0 && (
+                <div className="flex justify-between items-center text-emerald-700 font-bold animate-fadeIn">
+                  <span className="flex items-center gap-1">
+                    <Sparkles size={13} className="text-amber-500 animate-pulse" />
+                    <span>{t.firstOrderDiscountText}</span>
+                  </span>
+                  <span className="font-black inline-flex items-baseline gap-0.5 text-emerald-700">
+                    <span>-{discountAmount}</span>
+                    <span className="font-black select-none text-xs" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                  </span>
+                </div>
+              )}
+
               <div className="flex justify-between items-center">
                 <span>{t.deliveryText}</span>
                 <span className="font-semibold">
@@ -295,20 +366,34 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
             </div>
 
             {deliveryFee === 0 && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] py-2 px-3 rounded-xl font-extrabold flex items-center gap-1.5 animate-fadeIn" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] py-1.5 px-3 rounded-xl font-extrabold flex items-center gap-1.5 animate-fadeIn" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
                 <span>{t.freeDeliveryApplied}</span>
               </div>
             )}
 
             <div className="flex justify-between items-center gap-2 border-t border-stone-100 pt-3">
-              <span className="text-stone-500 text-xs uppercase tracking-widest flex-shrink-0 font-bold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                {t.totalText}
-              </span>
-              <span className="text-[#8B1E1E] text-xl font-black text-right inline-flex items-baseline gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                <span>{finalTotal}</span>
-                <span className="font-black select-none text-[#8B1E1E] text-base" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-              </span>
+              <div>
+                <span className="text-stone-500 text-xs uppercase tracking-widest block font-bold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                  {t.totalText}
+                </span>
+                {isEligible && discountAmount > 0 && (
+                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full inline-block mt-0.5">
+                    {t.youSaveText(discountAmount)}
+                  </span>
+                )}
+              </div>
+              <div className="text-right">
+                {isEligible && discountAmount > 0 && (
+                  <span className="text-stone-400 line-through text-xs mr-2 font-medium">
+                    {subtotal + deliveryFee}฿
+                  </span>
+                )}
+                <span className="text-[#8B1E1E] text-xl font-black inline-flex items-baseline gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                  <span>{finalTotal}</span>
+                  <span className="font-black select-none text-[#8B1E1E] text-base" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                </span>
+              </div>
             </div>
             
             {serviceCalc.canOrder ? (

@@ -74,9 +74,13 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
     const cleanAddress = meta.cleanAddress;
     const customerEmail = meta.customerEmail;
     const deliveryNotes = meta.deliveryNotes;
+    const discountAmount = meta.discountAmount;
+    const isHotelGuest = meta.isHotelGuest;
 
     const messageText = [
       `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
+      discountAmount > 0 ? `🎁 <b>1st ORDER DISCOUNT (10%):</b> -${discountAmount} THB / ส่วนลดสั่งครั้งแรก 10%` : null,
+      isHotelGuest ? `🏨 <b>LOCATION NOTE:</b> Guest at known hotel/resort / ลูกค้าพักที่โรงแรม/สถานที่ที่เคยส่ง` : null,
       ``,
       `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
       ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
@@ -87,7 +91,7 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
       `<b>Items / รายการอาหาร:</b>`,
       itemsText,
       ``,
-      `<b>Total / ยอดรวม:</b> ${order.total} THB`,
+      `<b>Total / ยอดรวม:</b> ${order.total} THB` + (discountAmount > 0 ? ` <i>(Discount 10% applied: -${discountAmount} THB)</i>` : ``),
       `<b>Payment / วิธีชำระเงิน:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR) / สแกนจ่าย" : "Cash on Delivery / เก็บเงินสด"}`,
       order.receipt_url ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>` : ``,
       ``,

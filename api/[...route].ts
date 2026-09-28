@@ -39,6 +39,7 @@ import {
   handleOmiseCheckStatus, 
   handleOmiseWebhook 
 } from "./_handlers/omise-payment.js";
+import { handlePizzaFirstOrderCheck } from "./_handlers/pizza-first-order.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -105,6 +106,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('pizza-service-status') || cleanPath.includes('pizza_service_status')) {
     return handlePizzaServiceStatus(req, res);
+  }
+
+  if (cleanPath.includes('pizza-first-order') || cleanPath.includes('check-first-order') || cleanPath.includes('first-order-check')) {
+    return handlePizzaFirstOrderCheck(req, res);
   }
 
   if (cleanPath.includes('update-rateplan-restrictions-bulk') || cleanPath.includes('update_rateplan_restrictions_bulk')) {

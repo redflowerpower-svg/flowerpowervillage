@@ -35,6 +35,7 @@ import {
 } from '../services/omiseClient';
 import PizzaPoliciesModal, { PolicyTab } from './PizzaPoliciesModal';
 import { usePaymentsAdminStore } from '../../admin/payments/store/usePaymentsAdminStore';
+import { checkFirstOrderEligibility, getOrCreateDeviceId } from '../services/firstOrderService';
 
 type SubmitPhase = 'idle' | 'sending' | 'timeout' | 'rejected';
 
@@ -395,9 +396,15 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   const activeProviderRaw = paymentSettings?.active_promptpay_provider;
   const promptPayProvider: 'kbank' | 'omise' = activeProviderRaw === 'omise' ? 'omise' : 'kbank';
 
-  const total = getTotal();
-  const deliveryFee = total >= 300 ? 0 : 30;
-  const finalTotal = total + deliveryFee;
+  const subtotal = getTotal();
+  const [isEligible, setIsEligible] = useState(true);
+  const [isHotelGuest, setIsHotelGuest] = useState(false);
+  const [deviceId] = useState(() => getOrCreateDeviceId());
+
+  const discountAmount = isEligible ? Math.round(subtotal * 0.1) : 0;
+  const subtotalAfterDiscount = subtotal - discountAmount;
+  const deliveryFee = subtotal >= 300 ? 0 : 30;
+  const finalTotal = subtotalAfterDiscount + deliveryFee;
   const [step, setStep] = useState(1);
   const [name, setName] = useState(() => {
     try { return localStorage.getItem('fp_pizza_customer_name') || ''; } catch { return ''; }
@@ -678,6 +685,25 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
   };
 
+  // Asynchronously verify first order discount eligibility whenever phone, email or location change
+  useEffect(() => {
+    let active = true;
+    checkFirstOrderEligibility({
+      phone,
+      email,
+      deviceId,
+      latitude: markerPos?.lat,
+      longitude: markerPos?.lng,
+      customerName: name
+    }).then((res) => {
+      if (active) {
+        setIsEligible(res.eligible);
+        setIsHotelGuest(res.isHotelGuest);
+      }
+    });
+    return () => { active = false; };
+  }, [phone, email, deviceId, markerPos?.lat, markerPos?.lng, name]);
+
   const buildFinalAddress = useCallback(() => {
     let final = address || 'Nessun indirizzo';
     const thAddr = thaiAddress || (lang === 'TH' ? address : '');
@@ -685,9 +711,12 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     if (markerPos) final += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
     if (email.trim()) final += ` [EMAIL: ${email.trim()}]`;
     if (notes.trim()) final += ` [NOTE: ${notes.trim()}]`;
+    if (deviceId) final += ` [DID: ${deviceId}]`;
+    if (discountAmount > 0) final += ` [DISCOUNT: ${discountAmount}]`;
+    if (isHotelGuest) final += ` [HOTEL: true]`;
     final += ` [LANG: ${lang || 'EN'}]`;
     return final;
-  }, [address, thaiAddress, lang, markerPos, email, notes]);
+  }, [address, thaiAddress, lang, markerPos, email, notes, deviceId, discountAmount, isHotelGuest]);
 
   const outOfRange = distanceKm !== null && !isDeliverable;
   const t = translations[lang];
@@ -1706,6 +1735,24 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                 </div>
               )}
 
+              {/* Welcome First Order Promotional Box */}
+              {isEligible && discountAmount > 0 && (
+                <div className="bg-gradient-to-r from-emerald-50 via-amber-50 to-emerald-50 border border-emerald-400/50 rounded-xl p-2 flex items-center justify-between shadow-2xs animate-fadeIn">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs">🎉</span>
+                    <span className="text-[10px] font-black text-emerald-950 uppercase tracking-wide">
+                      {lang === 'TH' ? 'ส่วนลดต้อนรับ 10% สั่งครั้งแรก' :
+                       lang === 'IT' ? 'Sconto 1° Ordine (10%) Applicato' :
+                       lang === 'DE' ? '10% Erstbesteller-Rabatt Aktiviert' :
+                       '10% 1st Order Welcome Discount'}
+                    </span>
+                  </div>
+                  <span className="text-[10.5px] font-black text-emerald-700 bg-emerald-100/90 px-2 py-0.5 rounded-lg border border-emerald-300">
+                    -{discountAmount}฿
+                  </span>
+                </div>
+              )}
+
               <button
                 onClick={() => {
                   try {
@@ -2097,18 +2144,35 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   </div>
 
                   <div className="text-center space-y-0.5 shrink-0 pt-0.5">
-                    <p className="text-[8.5px] text-stone-400 uppercase tracking-widest font-bold">Totale da addebitare</p>
-                    <p className="text-base font-black text-[#8B1E1E] tracking-tight inline-flex items-baseline justify-center gap-0.5">
-                      <span>{finalTotal}</span>
-                      <span className="font-black select-none text-[#8B1E1E] text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                    <p className="text-[8.5px] text-stone-400 uppercase tracking-widest font-bold">
+                      {lang === 'TH' ? 'ยอดชำระเงินทั้งหมด' : 'Totale da addebitare'}
                     </p>
+                    <div className="flex items-baseline justify-center gap-2">
+                      {isEligible && discountAmount > 0 && (
+                        <span className="text-stone-400 line-through text-xs font-medium">
+                          {subtotal + deliveryFee}฿
+                        </span>
+                      )}
+                      <p className="text-base font-black text-[#8B1E1E] tracking-tight inline-flex items-baseline justify-center gap-0.5">
+                        <span>{finalTotal}</span>
+                        <span className="font-black select-none text-[#8B1E1E] text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                      </p>
+                    </div>
+                    {isEligible && discountAmount > 0 && (
+                      <p className="text-[9px] font-black text-emerald-700">
+                        🎉 {lang === 'TH' ? `ประหยัด ${discountAmount}฿ (ส่วนลดสั่งครั้งแรก 10%)` :
+                             lang === 'IT' ? `Risparmi ${discountAmount}฿ (Sconto 1° Ordine 10%)` :
+                             lang === 'DE' ? `Sie sparen ${discountAmount}฿ (10% Erstbesteller-Rabatt)` :
+                             `You save ${discountAmount}฿ (10% 1st Order Discount)`}
+                      </p>
+                    )}
                   </div>
                 </form>
               )}
 
               {/* ── METHOD 3: CASH ON DELIVERY ── */}
               {paymentMethod === 'cash' && (
-                <div className="py-5 text-center animate-fadeIn space-y-2.5">
+                <div className="py-4 text-center animate-fadeIn space-y-2">
                   <p className="text-stone-600 text-xs leading-relaxed max-w-xs mx-auto font-medium">
                     {lang === 'IT' && 'Il pagamento verrà effettuato in contanti al momento della consegna del tuo ordine.'}
                     {lang === 'EN' && 'Payment will be made in cash upon delivery of your order.'}
@@ -2116,11 +2180,28 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                     {lang === 'DE' && 'Die Zahlung erfolgt in bar bei Lieferung Ihrer Bestellung.'}
                   </p>
                   <div className="text-center space-y-0.5 shrink-0">
-                    <p className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Importo da pagare alla consegna</p>
-                    <p className="text-base font-black text-stone-850 tracking-tight inline-flex items-baseline justify-center gap-0.5">
-                      <span>{finalTotal}</span>
-                      <span className="font-black select-none text-stone-850 text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                    <p className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">
+                      {lang === 'TH' ? 'ยอดชำระเงินปลายทาง' : 'Importo da pagare alla consegna'}
                     </p>
+                    <div className="flex items-baseline justify-center gap-2">
+                      {isEligible && discountAmount > 0 && (
+                        <span className="text-stone-400 line-through text-xs font-medium">
+                          {subtotal + deliveryFee}฿
+                        </span>
+                      )}
+                      <p className="text-base font-black text-stone-850 tracking-tight inline-flex items-baseline justify-center gap-0.5">
+                        <span>{finalTotal}</span>
+                        <span className="font-black select-none text-stone-850 text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                      </p>
+                    </div>
+                    {isEligible && discountAmount > 0 && (
+                      <p className="text-[9px] font-black text-emerald-700">
+                        🎉 {lang === 'TH' ? `ประหยัด ${discountAmount}฿ (ส่วนลด 10%)` :
+                             lang === 'IT' ? `Risparmi ${discountAmount}฿ (Sconto 1° Ordine 10%)` :
+                             lang === 'DE' ? `Sie sparen ${discountAmount}฿ (10% Rabatt)` :
+                             `You save ${discountAmount}฿ (10% Discount)`}
+                      </p>
+                    )}
                     {deliveryFee > 0 ? (
                       <p className="text-[8px] text-stone-400 font-medium">
                         (inclusi {deliveryFee} <span style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span> di consegna)

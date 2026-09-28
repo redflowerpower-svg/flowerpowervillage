@@ -191,3 +191,19 @@ CREATE TABLE pizza_orders (
     *   Privacy & Trattamento Dati: conformità Thai PDPA e certificazione PCI-DSS tramite crittografia Omise Vault.
 *   **Banner di Anteprima & Collaudo Gateway (4 Lingue: IT, EN, TH, DE):** Banner globale posizionato nella navbar superiore e all'interno del menu, oltre all'avviso dedicato nel modale di Checkout (Step 1 e 2) indicante che la piattaforma è in fase di allestimento e verifica tecnica del gateway con sandbox di test attiva.
 
+### H. Motore di Controllo Sconto 10% Primo Ordine & Gestione Ospiti Hotel/Resort
+*   **Endpoint Serverless (`/api/pizza-first-order` in `api/_handlers/pizza-first-order.ts`):**
+    *   Riceve `phone`, `email`, `deviceId`, `latitude`, `longitude`.
+    *   Normalizza i numeri di telefono thailandesi (`normalizeThaiPhone`).
+    *   Query sullo storico di `pizza_orders` (escludendo `status = 'rejected'`).
+    *   Verifica tripla identità: se Telefono, Email o Device ID sono già noti ➔ `eligible: false` (sconto non applicato per clienti ricorrenti).
+    *   **Gestione Ospiti Hotel/Resort (Risoluzione Paradosso GPS):** Calcolo della distanza Haversine entro 50 metri da ordini passati. Se la posizione coincide con una struttura già servita ma Telefono e Device ID sono nuovi, l'utente è considerato un nuovo ospite della struttura (`eligible: true`, `isHotelGuest: true`).
+*   **Esperienza Utente & Banner Promozionale Motivante (`CartDrawer.tsx` & `CheckoutFlow.tsx`):**
+    *   Generazione e persistenza del token univoco del dispositivo `fp_pizza_device_id` in `localStorage`.
+    *   Banner motivante bilingue in 4 lingue (IT, EN, TH, DE): `🎉 BENVENUTO! Sconto 10% applicato sul tuo primo ordine!`.
+    *   Evidenza trasparente del risparmio nel carrello e in fase di checkout: subtotale prodotti, voce sconto `-10%`, spese di consegna fisse (30฿ o GRATIS sopra 300฿, non soggette a sconto) e totale finale con prezzo precedente barrato e badge di risparmio.
+*   **Validazione Serverless & Notifica Telegram:**
+    *   Il calcolo matematico finale avviene sempre lato server prima dell'inserimento nel database e dell'addebito.
+    *   Nel messaggio Telegram per la cucina viene allegato il badge promozionale `🎁 1st ORDER DISCOUNT (10%): -XX THB` e l'eventuale nota informativa `🏨 LOCATION NOTE: Guest at known hotel/resort`.
+
+
