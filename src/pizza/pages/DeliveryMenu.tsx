@@ -1155,20 +1155,20 @@ export default function DeliveryMenu() {
 
         {/* Official Preview & Gateway Testing Banner */}
         <div className="max-w-6xl mx-auto mt-4 px-2">
-          <div className="bg-amber-950/25 border border-amber-500/40 backdrop-blur-sm rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3.5 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/30 text-lg">
+          <div className="bg-amber-100/95 border-2 border-amber-400 rounded-3xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3.5 shadow-md">
+            <div className="w-11 h-11 rounded-2xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 shadow-sm text-xl font-bold">
               🚧
             </div>
             <div className="flex-1 space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] font-black uppercase tracking-wider bg-amber-500 text-stone-950 px-2.5 py-0.5 rounded-md shadow-xs">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-stone-950 text-amber-300 px-2.5 py-0.5 rounded-md shadow-xs">
                   {previewNotice[lang].badge}
                 </span>
-                <h4 className="text-stone-900 font-extrabold text-xs md:text-sm">
+                <h4 className="text-stone-950 font-black text-sm md:text-base">
                   {previewNotice[lang].title}
                 </h4>
               </div>
-              <p className="text-stone-600 text-xs leading-relaxed">
+              <p className="text-stone-800 text-xs md:text-sm font-medium leading-relaxed">
                 {previewNotice[lang].desc}
               </p>
             </div>

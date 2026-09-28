@@ -747,16 +747,50 @@ export default function PizzaSite() {
     return true; // Visible in staging / local dev
   })();
 
+  const previewNotice = {
+    IT: {
+      badge: 'ANTEPRIMA & COLLAUDO',
+      text: 'Sito in Allestimento & Collaudo Gateway — Apertura ordini online a breve! Il checkout opera in modalità di prova.',
+    },
+    EN: {
+      badge: 'OFFICIAL PREVIEW',
+      text: 'Website Under Preparation & Payment Gateway Review — Online delivery launching soon! Checkout is in sandbox test mode.',
+    },
+    TH: {
+      badge: 'โหมดทดสอบระบบ',
+      text: 'เว็บไซต์อยู่ในช่วงเตรียมความพร้อม & ตรวจสอบระบบชำระเงิน — จะเปิดให้บริการเร็วๆ นี้ การทดลองสั่งซื้ออยู่ในโหมดทดสอบ',
+    },
+    DE: {
+      badge: 'VORSCHAU & TEST',
+      text: 'Website im Aufbau & Payment Gateway Überprüfung — Lieferservice startet in Kürze! Bezahlung im Testmodus.',
+    },
+  };
+
+  const notice = previewNotice[currentLang] || previewNotice.EN;
+
   return (
     <div className="min-h-screen" style={{ background: '#1c1917' }}>
-      <PizzaNav 
-        activePage={activePage} 
-        onNavigate={navigate}
-        pizzaMode={pizzaMode}
-        onToggleMode={handleToggleMode}
-        showSwitcher={showSwitcher}
-      />
-      <main>{renderPage()}</main>
+      {/* Top Global Announcement Banner (Visible to all visitors & gateway reviewers) */}
+      <div className="fixed top-0 left-0 right-0 z-[60] bg-amber-400 text-stone-950 font-bold px-3 py-1.5 text-[10.5px] md:text-xs flex items-center justify-center gap-2 shadow-md text-center border-b border-amber-500">
+        <span className="text-xs">🚧</span>
+        <span className="bg-stone-950 text-amber-300 text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider shrink-0">
+          {notice.badge}
+        </span>
+        <span className="font-semibold truncate sm:whitespace-normal">
+          {notice.text}
+        </span>
+      </div>
+
+      <div className="pt-7">
+        <PizzaNav 
+          activePage={activePage} 
+          onNavigate={navigate}
+          pizzaMode={pizzaMode}
+          onToggleMode={handleToggleMode}
+          showSwitcher={showSwitcher}
+        />
+        <main>{renderPage()}</main>
+      </div>
 
       <footer className="bg-stone-950 border-t border-stone-850 pt-12 pb-8 text-stone-400">
         <div className="max-w-7xl mx-auto px-6">
