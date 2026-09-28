@@ -9,7 +9,7 @@ export interface TelegramCredentials {
  * Helper to build Supabase client, optionally using client-side admin JWT.
  */
 export function getSupabaseClient(authHeader?: string) {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL || "";
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
   
   const options: any = {};

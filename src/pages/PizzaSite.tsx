@@ -7,6 +7,8 @@ import { useCartStore } from '../pizza/store/cartStore';
 import PizzaSlideshow from '../components/PizzaSlideshow';
 import { fetchPizzeriaStatus, usePizzeriaStatus, DEFAULT_PIZZERIA_STATUS } from '../pizza/services/pizzaServiceStatus';
 import PizzaPoliciesModal, { PolicyTab } from '../pizza/components/PizzaPoliciesModal';
+import { PizzaStructuredData } from '../pizza/components/PizzaStructuredData';
+import { TableReservationModal } from '../pizza/components/TableReservationModal';
 
 function usePizzeriaHours() {
   const st = usePizzeriaStatus();
@@ -78,10 +80,10 @@ export const pizzaMenu = [
     items: [
       { name: 'Tiramisù', desc: 'Classic recipe — mascarpone, espresso, ladyfingers, cocoa' },
       { name: 'Panna Cotta', desc: 'Vanilla cream, seasonal berry coulis' },
-      { name: 'Gelato Artigianale', desc: "Ask our team for today's flavours" },
     ],
   },
 ];
+
 
 const navItems = [
   { label: 'ORDINA ONLINE', id: 'order' as PizzaPage },
@@ -95,7 +97,8 @@ function PizzaNav({
   pizzaMode,
   onToggleMode,
   showSwitcher = true,
-  currentLang = 'IT'
+  currentLang = 'IT',
+  onOpenReservation
 }: { 
   activePage: PizzaPage; 
   onNavigate: (p: PizzaPage) => void;
@@ -103,6 +106,7 @@ function PizzaNav({
   onToggleMode: (mode: 'custom' | 'legacy') => void;
   showSwitcher?: boolean;
   currentLang?: 'IT' | 'EN' | 'TH' | 'DE';
+  onOpenReservation?: () => void;
 }) {
   const rrNavigate = useRRNavigate();
   const [scrolled, setScrolled] = useState(false);
@@ -247,6 +251,16 @@ function PizzaNav({
             })}
 
             <button
+              type="button"
+              onClick={onOpenReservation}
+              className="text-xs font-black uppercase tracking-wider text-amber-300 hover:text-white transition-all cursor-pointer px-2.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center gap-1.5"
+              style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+            >
+              <span>🍽️</span>
+              <span>PRENOTA TAVOLO</span>
+            </button>
+
+            <button
               onClick={openCart}
               className="relative flex items-center gap-2 bg-[#8B1E1E] hover:bg-[#721818] text-white px-3.5 py-1.5 rounded-xl transition-all duration-200 font-bold text-xs shadow-sm active:scale-95 cursor-pointer"
             >
@@ -333,7 +347,19 @@ function PizzaNav({
               </div>
             )}
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuOpen(false);
+                  onOpenReservation?.();
+                }}
+                className="text-left text-xs font-black uppercase tracking-wider py-3 px-3.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:text-white flex items-center justify-between transition-all cursor-pointer shadow-sm"
+              >
+                <span>🍽️ PRENOTA TAVOLO</span>
+                <span>👉</span>
+              </button>
+
               {navItems.map((item) => {
                 const isActive = activePage === item.id;
                 return (
@@ -351,6 +377,7 @@ function PizzaNav({
                 );
               })}
             </div>
+
           </div>
         </>
       )}
@@ -420,13 +447,13 @@ function PizzaAboutPage() {
       <div className="max-w-4xl mx-auto px-6">
         <div className="text-center mb-14">
           <p className="text-xs tracking-[0.4em] uppercase text-[#8B1E1E] mb-3 font-semibold">
-            La nostra storia
+            La nostra storia & Tradizione Artigianale
           </p>
           <h2
             className="text-stone-900 mb-4 font-black tracking-tight"
             style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
           >
-            Cuore Italiano, Anima <em>Thai</em>
+            Cuore Italiano, Anima <em>Ranong</em>
           </h2>
           <div className="w-12 h-0.5 bg-[#8B1E1E] mx-auto" />
         </div>
@@ -434,22 +461,22 @@ function PizzaAboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-14">
           <img
             src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800"
-            alt="Italian cooking"
-            className="w-full h-72 object-cover rounded-3xl border border-stone-300 shadow-sm"
+            alt="Authentic Italian cooking"
+            className="w-full h-80 object-cover rounded-3xl border border-stone-300 shadow-sm"
           />
           <div className="space-y-4">
             <p className="text-stone-700 text-sm leading-relaxed font-light">
-              Flower Power Pizza Ranong porta i sapori autentici dell'Italia nel cuore della provincia di Ranong. Nato dalla stessa passione che ha dato vita al Flower Power Farm Village & Spa a Koh Phayam, la nostra pizzeria celebra l'artigianalità del cibo italiano.
+              <strong>Flower Power Pizza Ranong</strong> porta i sapori autentici della grande tradizione gastronomica italiana nel cuore di Ranong. Immerso in una splendida oasi naturale con una <strong>cascata privata</strong>, un tranquillo laghetto, sala interna climatizzata, terrazza all'aperto e caratteristiche <strong>capanne tradizionali</strong> nel giardino.
             </p>
             <p className="text-stone-600 text-sm leading-relaxed font-light">
-              Ogni impasto viene steso a mano e lasciato lievitare lentamente per garantire leggerezza e fragranza, utilizzando solo ingredienti di prima scelta importati e sapientemente selezionati.
+              Tutte le nostre pizze nascono da un impasto a <strong>lunga lievitazione naturale (48 ore)</strong> preparato esclusivamente con <strong>farina 100% italiana</strong>. Prepariamo quotidianamente a mano la nostra <strong>pasta fresca</strong>, la <strong>salsiccia artigianale</strong> secondo antica ricetta norcina, focacce fragranti, piatti speciali periodici dello Chef, una selezione di vini di qualità, autentica caffetteria italiana e succhi naturali di frutta fresca.
             </p>
             <div className="grid grid-cols-2 gap-3 pt-2">
               {[
-                { label: 'Cucina', value: '100% Italiana' },
-                { label: 'Orari', value: hours },
-                { label: 'Servizi', value: 'Consegna & Ritiro' },
-                { label: 'Impasto', value: 'Lenta Lievitazione' },
+                { label: 'Cucina & Pasta', value: '100% Artigianale' },
+                { label: 'Orari Pizzeria', value: hours },
+                { label: 'Servizi', value: 'Sala, Capanne & Delivery' },
+                { label: 'Impasto Pizza', value: 'Lievitazione 48h' },
               ].map((f, i) => (
                 <div key={i} className="bg-white border border-stone-300 rounded-2xl p-4 shadow-sm text-center">
                   <p className="text-stone-400 text-[10px] uppercase font-bold tracking-wider mb-1">{f.label}</p>
@@ -462,9 +489,9 @@ function PizzaAboutPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { quote: "La migliore pizza mangiata fuori dall'Italia. L'impasto è digeribile e croccante al punto giusto.", author: 'Marco V.' },
-            { quote: "Ingredienti eccellenti e sapori veraci. La cuoca italiana è una garanzia di autenticità.", author: 'Sarah L.' },
-            { quote: "Una carbonara eccezionale con vero guanciale, non la solita rivisitazione. Consigliatissimo!", author: 'Giovanni R.' },
+            { quote: "La pizza è spettacolare, l'impasto 48h è leggerissimo e gli ingredienti sono davvero italiani. La cascata privata nel giardino crea un'atmosfera magica!", author: 'Marco V.' },
+            { quote: "La pasta fresca fatta in casa e la salsiccia artigianale sono eccezionali. Il posto con il laghetto e le capanne è unico in tutta Ranong.", author: 'Sarah L.' },
+            { quote: "Vera pizza italiana cotta a regola d'arte, servizio delivery velocissimo in hotel e caffè espresso perfetto. Super consigliato!", author: 'Giovanni R.' },
           ].map((r, i) => (
             <div key={i} className="bg-white border border-stone-300 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
               <div className="flex gap-1 mb-3">
@@ -477,6 +504,7 @@ function PizzaAboutPage() {
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );
@@ -726,6 +754,7 @@ export default function PizzaSite() {
   });
   const [policyModalOpen, setPolicyModalOpen] = useState(false);
   const [policyTab, setPolicyTab] = useState<PolicyTab>('delivery');
+  const [isReservationOpen, setIsReservationOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState<'IT' | 'EN' | 'TH' | 'DE'>('EN');
 
   useEffect(() => {
@@ -790,6 +819,7 @@ export default function PizzaSite() {
 
   return (
     <div className="min-h-screen" style={{ background: '#1c1917' }}>
+      <PizzaStructuredData />
       <PizzaNav 
         activePage={activePage} 
         onNavigate={navigate}
@@ -797,6 +827,7 @@ export default function PizzaSite() {
         onToggleMode={handleToggleMode}
         showSwitcher={showSwitcher}
         currentLang={currentLang}
+        onOpenReservation={() => setIsReservationOpen(true)}
       />
       <main>{renderPage()}</main>
 
@@ -932,6 +963,13 @@ export default function PizzaSite() {
         initialTab={policyTab}
         lang={currentLang}
       />
+
+      <TableReservationModal
+        isOpen={isReservationOpen}
+        onClose={() => setIsReservationOpen(false)}
+        lang={currentLang}
+      />
     </div>
   );
 }
+

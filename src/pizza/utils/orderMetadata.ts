@@ -3,34 +3,43 @@ export interface ExtractedOrderMetadata {
   customerEmail: string;
   deliveryNotes: string;
   orderLang: 'IT' | 'EN' | 'TH' | 'DE';
+  promoCode?: string;
+  discountAmount?: number;
 }
 
 /**
  * Parses embedded bracket tags from the serialized address string safely in both browser and backend:
- * e.g. "Ranong 85000 [ADDR_TH: ...] [COORD: 9.9,98.6] [EMAIL: user@example.com] [NOTE: Ring bell] [LANG: IT]"
+ * e.g. "Ranong 85000 [ADDR_TH: ...] [COORD: 9.9,98.6] [EMAIL: user@example.com] [NOTE: Ring bell] [LANG: IT] [PROMO: PIZZA2026] [DISCOUNT: 45]"
  */
 export function extractOrderMetadata(rawAddress?: string): ExtractedOrderMetadata {
   if (!rawAddress || typeof rawAddress !== 'string') {
-    return { cleanAddress: 'Ranong', customerEmail: '', deliveryNotes: '', orderLang: 'EN' };
+    return { cleanAddress: 'Ranong', customerEmail: '', deliveryNotes: '', orderLang: 'EN', promoCode: '', discountAmount: 0 };
   }
 
   const emailMatch = rawAddress.match(/\[EMAIL:\s*([^\]]+)\]/i);
   const noteMatch = rawAddress.match(/\[NOTE:\s*([^\]]+)\]/i);
   const langMatch = rawAddress.match(/\[LANG:\s*([^\]]+)\]/i);
+  const promoMatch = rawAddress.match(/\[PROMO:\s*([^\]]+)\]/i);
+  const discountMatch = rawAddress.match(/\[DISCOUNT:\s*([^\]]+)\]/i);
 
   let cleanAddress = rawAddress
-    .replace(/\[(COORD|ADDR_TH|EMAIL|NOTE|LANG):[^\]]+\]/gi, '')
+    .replace(/\[(COORD|ADDR_TH|EMAIL|NOTE|LANG|DID|PROMO|DISCOUNT|HOTEL):[^\]]+\]/gi, '')
     .trim();
 
   const customerEmail = emailMatch ? emailMatch[1].trim() : '';
   const deliveryNotes = noteMatch ? noteMatch[1].trim() : '';
   const rawLang = langMatch ? langMatch[1].trim().toUpperCase() : 'EN';
   const orderLang = (['IT', 'EN', 'TH', 'DE'].includes(rawLang) ? rawLang : 'EN') as 'IT' | 'EN' | 'TH' | 'DE';
+  const promoCode = promoMatch ? promoMatch[1].trim().toUpperCase() : '';
+  const discountAmount = discountMatch ? parseFloat(discountMatch[1].trim()) || 0 : 0;
 
   return {
     cleanAddress: cleanAddress || 'Ranong, Thailand',
     customerEmail,
     deliveryNotes,
-    orderLang
+    orderLang,
+    promoCode,
+    discountAmount
   };
 }
+

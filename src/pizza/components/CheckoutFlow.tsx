@@ -36,6 +36,13 @@ import {
 import PizzaPoliciesModal, { PolicyTab } from './PizzaPoliciesModal';
 import { usePaymentsAdminStore } from '../../admin/payments/store/usePaymentsAdminStore';
 import { checkFirstOrderEligibility, getOrCreateDeviceId } from '../services/firstOrderService';
+import {
+  PizzaPromoCode,
+  validatePizzaPromoCode,
+  getAppliedPizzaPromo,
+  incrementPizzaPromoUsage,
+  clearAppliedPizzaPromo
+} from '../services/pizzaPromoService';
 
 type SubmitPhase = 'idle' | 'sending' | 'timeout' | 'rejected';
 
@@ -400,10 +407,27 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   const [isEligible, setIsEligible] = useState(true);
   const [isHotelGuest, setIsHotelGuest] = useState(false);
   const [deviceId] = useState(() => getOrCreateDeviceId());
+  const [appliedPromo] = useState<PizzaPromoCode | null>(() => getAppliedPizzaPromo());
 
-  const discountAmount = isEligible ? Math.round(subtotal * 0.1) : 0;
-  const subtotalAfterDiscount = subtotal - discountAmount;
-  const deliveryFee = subtotal >= 300 ? 0 : 30;
+  // Non-stacking discount: Promo Coupon takes priority over 10% welcome discount
+  let discountAmount = 0;
+  let activePromoCode: string | null = null;
+  let discountLabel = '';
+
+  if (appliedPromo) {
+    const promoRes = validatePizzaPromoCode(appliedPromo.code, subtotal);
+    if (promoRes.valid) {
+      discountAmount = promoRes.discountAmount;
+      activePromoCode = appliedPromo.code;
+      discountLabel = `Coupon ${appliedPromo.code} (${appliedPromo.discountType === 'percentage' ? `-${appliedPromo.discountValue}%` : `-${appliedPromo.discountValue}฿`})`;
+    }
+  } else if (isEligible) {
+    discountAmount = Math.round(subtotal * 0.1);
+    discountLabel = lang === 'TH' ? 'ส่วนลดสั่งครั้งแรก 10%' : lang === 'IT' ? 'Sconto 1° Ordine 10%' : lang === 'DE' ? '10% Erstbesteller-Rabatt' : '10% 1st Order Discount';
+  }
+
+  const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
+  const deliveryFee = subtotal >= 300 ? 0 : 30; // Delivery fee is calculated on raw subtotal and NEVER discounted
   const finalTotal = subtotalAfterDiscount + deliveryFee;
   const [step, setStep] = useState(1);
   const [name, setName] = useState(() => {
@@ -712,11 +736,12 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     if (email.trim()) final += ` [EMAIL: ${email.trim()}]`;
     if (notes.trim()) final += ` [NOTE: ${notes.trim()}]`;
     if (deviceId) final += ` [DID: ${deviceId}]`;
+    if (activePromoCode) final += ` [PROMO: ${activePromoCode}]`;
     if (discountAmount > 0) final += ` [DISCOUNT: ${discountAmount}]`;
     if (isHotelGuest) final += ` [HOTEL: true]`;
     final += ` [LANG: ${lang || 'EN'}]`;
     return final;
-  }, [address, thaiAddress, lang, markerPos, email, notes, deviceId, discountAmount, isHotelGuest]);
+  }, [address, thaiAddress, lang, markerPos, email, notes, deviceId, activePromoCode, discountAmount, isHotelGuest]);
 
   const outOfRange = distanceKm !== null && !isDeliverable;
   const t = translations[lang];
@@ -1320,6 +1345,16 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         const orderIdStr = String(savedOrder.id);
         currentOrderIdRef.current = orderIdStr;
         setOrderId(orderIdStr);
+
+        // If a promo code was used, increment usage counter & clear session promo
+        if (activePromoCode) {
+          try {
+            incrementPizzaPromoUsage(activePromoCode);
+            clearAppliedPizzaPromo();
+          } catch (e) {
+            console.warn('Failed incrementing promo usage:', e);
+          }
+        }
 
         try {
           const { useAdminOrderStore } = await import('../../admin/store/adminOrderStore');

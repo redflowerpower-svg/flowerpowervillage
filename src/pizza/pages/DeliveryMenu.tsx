@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Globe, ChevronDown, Wine, Sparkles, Filter, RotateCcw, Check } from 'lucide-react';
+import { ShoppingCart, Globe, ChevronDown, Wine, Sparkles, Filter, RotateCcw, Check, UtensilsCrossed, Truck, Percent, ArrowRight, MapPin, AlertTriangle } from 'lucide-react';
 import { menuData, type MenuItem } from '../data/menuData';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuGrid from '../components/MenuGrid';
@@ -13,6 +13,7 @@ import { fetchCloudWineCollection } from '../data/wineCloudService';
 import { ServiceStatusBanner } from '../components/ServiceStatusBanner';
 import { usePizzeriaStatus, PizzeriaServiceStatus, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
 import PizzaPoliciesModal, { PolicyTab } from '../components/PizzaPoliciesModal';
+import { TableReservationModal } from '../components/TableReservationModal';
 import { checkFirstOrderEligibility, getOrCreateDeviceId } from '../services/firstOrderService';
 
 
@@ -31,6 +32,10 @@ const translations = {
     deliveryLimit: 'Le consegne si effettuano esclusivamente per la città di Ranong.',
     promoFreeDelivery: 'Consegna GRATIS per ordini sopra i 300฿',
     promoFirstOrder: '10% di sconto sul tuo primo ordine',
+    bookTableBadge: 'RISTORANTE',
+    bookTableTitle: 'Prenota un Tavolo o Capanna',
+    bookTableSubtitle: 'Sala interna, Tavoli esterni o Capanna',
+    bookTableBtn: 'PRENOTA ORA',
   },
   EN: {
     title: 'Flower Power Pizza',
@@ -46,6 +51,10 @@ const translations = {
     deliveryLimit: 'Deliveries are made exclusively within the city of Ranong.',
     promoFreeDelivery: 'FREE delivery for orders over 300฿',
     promoFirstOrder: '10% discount on your first order',
+    bookTableBadge: 'DINE-IN',
+    bookTableTitle: 'Book a Table or Hut',
+    bookTableSubtitle: 'Indoor hall, Outdoor tables or Hut',
+    bookTableBtn: 'BOOK NOW',
   },
   TH: {
     title: 'ฟลาวเวอร์ พาวเวอร์ พิซซ่า',
@@ -61,6 +70,10 @@ const translations = {
     deliveryLimit: 'บริการจัดส่งเฉพาะในเขตตัวเมืองระนองเท่านั้น',
     promoFreeDelivery: 'จัดส่งฟรี เมื่อสั่งซื้อครบ 300฿ ขึ้นไป',
     promoFirstOrder: 'ส่วนลด 10% สำหรับการสั่งซื้อครั้งแรก',
+    bookTableBadge: 'ทานที่ร้าน',
+    bookTableTitle: 'จองโต๊ะหรือซุ้มกระท่อม',
+    bookTableSubtitle: 'ห้องด้านใน, โต๊ะด้านนอก หรือ ซุ้มกระท่อม',
+    bookTableBtn: 'จองเลย',
   },
   DE: {
     title: 'Flower Power Pizza',
@@ -76,6 +89,10 @@ const translations = {
     deliveryLimit: 'Lieferungen erfolgen ausschließlich innerhalb der Stadt Ranong.',
     promoFreeDelivery: 'KOSTENLOSE Lieferung ab 300฿ Bestellwert',
     promoFirstOrder: '10% Rabatt auf Ihre erste Bestellung',
+    bookTableBadge: 'RESTAURANT',
+    bookTableTitle: 'Tisch oder Hütte reservieren',
+    bookTableSubtitle: 'Innenbereich, Außenbereich oder Gartenhütte',
+    bookTableBtn: 'RESERVIEREN',
   },
 };
 
@@ -757,6 +774,7 @@ export default function DeliveryMenu() {
   // Policy Modal state for compliance review & customer transparency
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
   const [policyTab, setPolicyTab] = useState<PolicyTab>('delivery');
+  const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
 
   // Ensure activeCategoryId is valid when categories change
   useEffect(() => {
@@ -1174,8 +1192,8 @@ export default function DeliveryMenu() {
         {isOfficialDomain && (
           <div className="max-w-6xl mx-auto mt-4 px-2 animate-fadeIn">
             <div className="bg-amber-100/95 border-2 border-amber-400 rounded-3xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3.5 shadow-md">
-              <div className="w-11 h-11 rounded-2xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 shadow-sm text-xl font-bold">
-                🚧
+              <div className="w-11 h-11 rounded-2xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 shadow-sm">
+                <AlertTriangle className="w-5 h-5 text-stone-950" />
               </div>
               <div className="flex-1 space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -1199,94 +1217,108 @@ export default function DeliveryMenu() {
           <ServiceStatusBanner lang={lang} />
         </div>
 
-        {/* Dynamic Promotions & Welcome Cards (Side-by-Side 2-Column Grid) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-w-6xl mx-auto px-2 mb-6 mt-4">
-          {/* Left Card: Delivery area & Free Delivery >300฿ */}
-          <div className="p-4 sm:p-4.5 bg-[#8B1E1E] text-stone-100 rounded-3xl flex items-center gap-3.5 shadow-md border border-[#721818] transition-all">
-            <div className="w-11 h-11 bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 rounded-2xl text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 16v-4" />
-                <path d="M12 8h.01" />
-              </svg>
+        {/* Dynamic Promotions & Table Booking Cards (Italian Tricolore Layout: 🟢 Verde - ⚪ Bianco - 🔴 Rosso) */}
+        <div className={`grid gap-3.5 max-w-6xl mx-auto px-2 mb-6 mt-4 ${
+          isFirstOrderEligible ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-2'
+        }`}>
+          {/* Card 1 (🟢 VERDE): Prenota un Tavolo o Capanna */}
+          <div 
+            onClick={() => setIsReservationModalOpen(true)}
+            className="p-4 sm:p-4.5 bg-gradient-to-br from-[#064e3b] to-[#043629] text-white rounded-3xl flex items-center gap-3.5 shadow-md border border-emerald-700/60 hover:border-emerald-400 transition-all cursor-pointer group"
+          >
+            <div className="w-11 h-11 bg-emerald-800/80 border border-emerald-500/40 text-emerald-300 group-hover:scale-105 group-hover:bg-emerald-400 group-hover:text-stone-950 transition-all flex items-center justify-center shrink-0 rounded-2xl shadow-sm">
+              <UtensilsCrossed className="w-5 h-5 transition-colors" />
             </div>
             <div className="flex-1 min-w-0 space-y-1 text-left">
               <div className="flex items-center gap-2 flex-wrap">
-                <h4 className="text-white font-black text-sm md:text-base leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  {t.promoTitle}
+                <span className="bg-emerald-950/90 text-emerald-300 border border-emerald-600/40 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">
+                  {t.bookTableBadge}
+                </span>
+                <h4 className="text-white font-black text-sm md:text-base leading-tight group-hover:text-emerald-300 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  {t.bookTableTitle}
                 </h4>
               </div>
-              <p className="text-stone-200 text-xs leading-snug">
-                📍 <span className="font-semibold">{t.deliveryLimit}</span>
+              <p className="text-emerald-100/90 text-xs leading-snug">
+                {t.bookTableSubtitle}
               </p>
               <div className="pt-0.5">
-                <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold bg-white/10 px-2.5 py-0.5 rounded-md">
-                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
-                  {t.promoFreeDelivery}
-                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsReservationModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs text-stone-950 font-black bg-emerald-400 hover:bg-emerald-300 px-3 py-1 rounded-xl shadow-xs transition-all cursor-pointer"
+                >
+                  <span>{t.bookTableBtn}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Right Card: 10% Welcome Discount (or Authentic Italian Food if returning customer on official domain) */}
-          {isFirstOrderEligible ? (
-            <div className="p-4 sm:p-4.5 bg-gradient-to-br from-emerald-950 via-stone-900 to-[#8B1E1E] text-white rounded-3xl flex items-center gap-3.5 shadow-md border-2 border-amber-400/50 transition-all animate-fadeIn">
-              <div className="w-11 h-11 bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 rounded-2xl text-xl font-black shadow-sm">
-                🎉
+          {/* Card 2 (⚪ BIANCO): 10% Welcome Discount (Visible when isFirstOrderEligible, gentle pulse animation) */}
+          {isFirstOrderEligible && (
+            <div className="p-4 sm:p-4.5 bg-white text-stone-900 rounded-3xl flex items-center gap-3.5 shadow-lg border-2 border-amber-300/80 ring-2 ring-amber-400/20 hover:border-amber-400 transition-all animate-fadeIn animate-pulse hover:animate-none hover:shadow-xl cursor-pointer group">
+              <div className="w-11 h-11 bg-amber-400 text-stone-950 group-hover:scale-105 group-hover:bg-stone-950 group-hover:text-amber-300 transition-all flex items-center justify-center shrink-0 rounded-2xl shadow-sm">
+                <Percent className="w-5 h-5 stroke-[2.5] transition-colors" />
               </div>
               <div className="flex-1 min-w-0 space-y-1 text-left">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="bg-amber-400 text-stone-950 text-[10px] font-black uppercase px-2 py-0.5 rounded-md shadow-xs">
+                  <span className="bg-stone-950 text-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-md shadow-xs tracking-wider">
                     {lang === 'TH' ? 'สิทธิพิเศษต้อนรับ' : lang === 'IT' ? 'BENVENUTO 10%' : lang === 'DE' ? 'WILLKOMMEN 10%' : '10% WELCOME'}
                   </span>
-                  <h4 className="text-white font-black text-sm md:text-base leading-tight">
+                  <h4 className="text-stone-950 font-black text-sm md:text-base leading-tight group-hover:text-amber-600 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     {lang === 'TH' ? 'รับส่วนลด 10% สั่งครั้งแรก!' :
                      lang === 'IT' ? '10% di Sconto sul 1° Ordine!' :
                      lang === 'DE' ? '10% Rabatt auf 1. Bestellung!' :
                      '10% OFF on your 1st Order!'}
                   </h4>
                 </div>
-                <p className="text-stone-200 text-xs leading-snug">
+                <p className="text-stone-600 text-xs leading-snug font-medium">
                   {lang === 'TH' ? 'ส่วนลดจะถูกหักลบอัตโนมัติในขั้นตอนสั่งซื้อ' :
                    lang === 'IT' ? 'Applicato in automatico nel carrello al checkout' :
                    lang === 'DE' ? 'Wird automatisch im Warenkorb abgezogen' :
                    'Applied automatically at checkout'}
                 </p>
                 <div className="pt-0.5">
-                  <span className="inline-flex items-center gap-1.5 text-xs text-amber-300 font-extrabold">
-                    <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
+                  <span className="inline-flex items-center gap-1.5 text-xs text-emerald-800 font-black bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 rounded-md">
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
                     {t.promoFirstOrder}
                   </span>
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="p-4 sm:p-4.5 bg-stone-900 text-stone-100 rounded-3xl flex items-center gap-3.5 shadow-md border border-stone-800 transition-all">
-              <div className="w-11 h-11 bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0 rounded-2xl text-xl font-bold border border-amber-500/30">
-                ⭐
+          )}
+
+          {/* Card 3 (🔴 ROSSO): Delivery Area & Free Delivery >300฿ */}
+          <div className="p-4 sm:p-4.5 bg-gradient-to-br from-[#8B1E1E] to-[#6d1717] text-white rounded-3xl flex items-center gap-3.5 shadow-md border border-[#721818] hover:border-red-400 transition-all cursor-pointer group">
+            <div className="w-11 h-11 bg-white/15 border border-white/20 group-hover:scale-105 group-hover:bg-white group-hover:text-[#8B1E1E] transition-all flex items-center justify-center shrink-0 rounded-2xl text-white shadow-sm">
+              <Truck className="w-5 h-5 transition-colors" />
+            </div>
+            <div className="flex-1 min-w-0 space-y-1 text-left">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="bg-red-950/90 text-red-200 border border-red-800/60 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">
+                  DELIVERY
+                </span>
+                <h4 className="text-white font-black text-sm md:text-base leading-tight group-hover:text-red-200 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  {t.promoTitle}
+                </h4>
               </div>
-              <div className="flex-1 min-w-0 space-y-1 text-left">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="bg-stone-800 text-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">
-                    {lang === 'TH' ? 'สูตรอิตาเลียนแท้' : lang === 'IT' ? 'AUTENTICITÀ' : lang === 'DE' ? 'AUTHENTISCH' : 'AUTHENTIC'}
-                  </span>
-                  <h4 className="text-white font-black text-sm md:text-base leading-tight">
-                    {lang === 'TH' ? 'อาหารอิตาเลียนดั้งเดิม' :
-                     lang === 'IT' ? 'Cucina Tradizionale Italiana' :
-                     lang === 'DE' ? 'Traditionelle italienische Küche' :
-                     'Traditional Italian Cuisine'}
-                  </h4>
-                </div>
-                <p className="text-stone-300 text-xs leading-snug">
-                  {lang === 'TH' ? 'วัตถุดิบนำเข้าจากอิตาลี อบสดใหม่ทุกวันในระนอง' :
-                   lang === 'IT' ? 'Ingredienti autentici importati, sfornati freschi ogni giorno' :
-                   lang === 'DE' ? 'Echte italienische Zutaten, täglich frisch zubereitet' :
-                   'Imported Italian ingredients, freshly baked every day'}
-                </p>
+              <p className="text-red-100/90 text-xs leading-snug flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 shrink-0 text-red-200" />
+                <span className="font-semibold">{t.deliveryLimit}</span>
+              </p>
+              <div className="pt-0.5">
+                <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold bg-white/15 border border-white/20 px-2.5 py-0.5 rounded-md shadow-xs">
+                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                  {t.promoFreeDelivery}
+                </span>
               </div>
             </div>
-          )}
+          </div>
         </div>
+
 
         {/* Category Tabs directly on background */}
         <div className="mb-6">
@@ -1610,6 +1642,12 @@ export default function DeliveryMenu() {
         isOpen={isPolicyModalOpen}
         onClose={() => setIsPolicyModalOpen(false)}
         initialTab={policyTab}
+        lang={lang}
+      />
+
+      <TableReservationModal
+        isOpen={isReservationModalOpen}
+        onClose={() => setIsReservationModalOpen(false)}
         lang={lang}
       />
 

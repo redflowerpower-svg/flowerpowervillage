@@ -40,6 +40,7 @@ import {
   handleOmiseWebhook 
 } from "./_handlers/omise-payment.js";
 import { handlePizzaFirstOrderCheck } from "./_handlers/pizza-first-order.js";
+import { handleTableReservation } from "./_handlers/table-reservation.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -232,6 +233,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     case 'webhooks/omise':
     case 'omise-webhook':
       return handleOmiseWebhook(req, res);
+
+    case 'table-reservation':
+    case 'table-reservations':
+    case 'pizza-table-reservation':
+      return handleTableReservation(req, res);
 
     default:
       return res.status(404).json({ error: `Route not found: /api/${cleanPath}` });

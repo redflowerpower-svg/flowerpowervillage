@@ -20,7 +20,10 @@ import {
   Moon,
   Save,
   RotateCcw,
-  X
+  X,
+  UtensilsCrossed,
+  Calendar,
+  Users
 } from 'lucide-react';
 import { usePizzaAdminStore, PizzaOrder } from '../store/usePizzaAdminStore';
 import { 
@@ -44,6 +47,33 @@ import {
   DEFAULT_PIZZERIA_STATUS,
   ServiceCalculationResult
 } from '../../../pizza/services/pizzaServiceStatus';
+
+export interface TableReservationKDS {
+  id: string;
+  customer_name: string;
+  contact: string;
+  email?: string;
+  guests: number | string;
+  reservation_date: string;
+  reservation_time: string;
+  seating_area: 'indoor' | 'outdoor' | 'hut' | 'any';
+  occasion?: string;
+  notes?: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  created_at: string;
+}
+
+export const isTableReservationOrder = (o: any) => {
+  if (!o) return false;
+  if (o.payment_method === 'table_reservation' || o.payment_method === 'table') return true;
+  const addr = String(o.address || '');
+  if (addr.includes('[TABLE_RESERVATION]') || addr.includes('[TB_CODE:') || addr.includes('[GUESTS:')) return true;
+  const items = Array.isArray(o.items) ? o.items : [];
+  if (items.some((it: any) => String(it.name || '').toLowerCase().includes('prenotazione tavolo') || String(it.nameTh || '').includes('จองโต๊ะ'))) {
+    return true;
+  }
+  return false;
+};
 
 // Coords fallback for Flower Power Pizza Ranong
 const RESTAURANT_LAT = 9.958742;
@@ -223,6 +253,50 @@ export function KitchenTabletKDS() {
   showPauseModalRef.current = showPauseModal;
   const [showCompletedModal, setShowCompletedModal] = useState(false);
 
+  // 2b. Table Reservations on Kitchen KDS (derived directly and reactively from Supabase Realtime orders)
+  const tableReservations: TableReservationKDS[] = useMemo(() => {
+    const tableOrders = orders.filter(isTableReservationOrder);
+    return tableOrders.map(order => {
+      const addr = String(order.address || '');
+      const dateMatch = addr.match(/\[DATE:\s*([^\]]+)\]/i);
+      const timeMatch = addr.match(/\[TIME:\s*([^\]]+)\]/i);
+      const guestsMatch = addr.match(/\[GUESTS:\s*([^\]]+)\]/i);
+      const areaMatch = addr.match(/\[AREA:\s*([^\]]+)\]/i);
+      const emailMatch = addr.match(/\[EMAIL:\s*([^\]]+)\]/i);
+      const occasionMatch = addr.match(/\[OCCASION:\s*([^\]]+)\]/i);
+      const noteMatch = addr.match(/\[NOTE:\s*([^\]]+)\]/i);
+      const isCancelledFlag = addr.includes('[CANCELLED:true]') || addr.includes('[CANCELLED]');
+
+      const rawArea = areaMatch ? areaMatch[1].trim().toLowerCase() : 'any';
+      const seatingArea = (['indoor', 'outdoor', 'hut', 'any'].includes(rawArea) ? rawArea : 'any') as TableReservationKDS['seating_area'];
+      const guestsNum = guestsMatch ? parseInt(guestsMatch[1].trim(), 10) : 2;
+
+      let status: TableReservationKDS['status'] = 'pending';
+      if (isCancelledFlag || order.status === 'cancelled' || order.status === 'rejected') {
+        status = 'cancelled';
+      } else if (order.status === 'completed' || order.status === 'preparing' || order.status === 'delivering') {
+        status = 'confirmed';
+      } else {
+        status = 'pending';
+      }
+
+      return {
+        id: String(order.id),
+        customer_name: order.customer_name || 'Cliente',
+        contact: order.phone || '',
+        email: emailMatch ? emailMatch[1].trim() : '',
+        guests: isNaN(guestsNum) ? 2 : guestsNum,
+        reservation_date: dateMatch ? dateMatch[1].trim() : new Date().toISOString().split('T')[0],
+        reservation_time: timeMatch ? timeMatch[1].trim() : '19:00',
+        seating_area: seatingArea,
+        occasion: occasionMatch ? occasionMatch[1].trim() : '',
+        notes: noteMatch ? noteMatch[1].trim() : '',
+        status,
+        created_at: order.created_at || new Date().toISOString()
+      };
+    });
+  }, [orders]);
+
   // Opening hours inputs and custom pause time
   const [editOpenTime, setEditOpenTime] = useState<string>('11:00');
   const [editCloseTime, setEditCloseTime] = useState<string>('21:30');
@@ -391,12 +465,12 @@ export function KitchenTabletKDS() {
     };
     acquireLock();
 
-    // Heartbeat safety polling every 20 seconds while tablet screen is open/visible
+    // Heartbeat safety polling every 15 seconds while tablet screen is open/visible
     const pollInterval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         fetchOrders();
       }
-    }, 20000);
+    }, 15000);
 
     // Instant re-fetch when tablet screen turns on, unlocks, or tab regains focus
     const handleWakeupAndFocus = () => {
@@ -443,19 +517,32 @@ export function KitchenTabletKDS() {
   const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => new Set());
 
   // 6. Group into PHASES:
-  // Phase 1: In Kitchen (New orders to accept)
+  // Table Reservations
+  const pendingTableReservations = useMemo(() => {
+    return tableReservations.filter(r => r.status === 'pending');
+  }, [tableReservations]);
+
+  const completedTableReservations = useMemo(() => {
+    return tableReservations.filter(r => r.status === 'confirmed' || r.status === 'completed');
+  }, [tableReservations]);
+
+  const unacknowledgedTableReservations = useMemo(() => {
+    return pendingTableReservations.filter(r => !acknowledgedOrderIds.has(r.id));
+  }, [pendingTableReservations, acknowledgedOrderIds]);
+
+  // Phase 1: In Kitchen (New orders to accept - delivery/takeaway only)
   const kitchenOrders = useMemo(() => {
-    return orders.filter(o => o.status === 'new' || (o.status as any) === 'received');
+    return orders.filter(o => !isTableReservationOrder(o) && (o.status === 'new' || (o.status as any) === 'received'));
   }, [orders]);
 
   // Phase 2: In Preparation & Delivering (Orders confirmed, cooking or out for delivery)
   const readyOrders = useMemo(() => {
-    return orders.filter(o => o.status === 'preparing' || o.status === 'delivering' || (o.status as any) === 'ready');
+    return orders.filter(o => !isTableReservationOrder(o) && (o.status === 'preparing' || o.status === 'delivering' || (o.status as any) === 'ready'));
   }, [orders]);
 
   // Phase 3: Completed Orders Today (Archived & delivered in the last 24h)
   const completedTodayOrders = useMemo(() => {
-    return orders.filter(o => o.status === 'completed');
+    return orders.filter(o => !isTableReservationOrder(o) && o.status === 'completed');
   }, [orders]);
 
   // Helper to calculate minutes spent in preparation
@@ -476,7 +563,7 @@ export function KitchenTabletKDS() {
 
   // Truly unacknowledged new orders trigger the buzzer
   const unacknowledgedNewOrders = useMemo(() => {
-    return orders.filter(o => (o.status === 'new' || (o.status as any) === 'received') && !acknowledgedOrderIds.has(String(o.id)));
+    return orders.filter(o => !isTableReservationOrder(o) && (o.status === 'new' || (o.status as any) === 'received') && !acknowledgedOrderIds.has(String(o.id)));
   }, [orders, acknowledgedOrderIds]);
 
   // Phase 2 orders cooking for 15+ minutes that need rider dispatch reminder
@@ -498,8 +585,8 @@ export function KitchenTabletKDS() {
       return;
     }
 
-    // Priority 1: High-urgency loud alarm for unacknowledged new orders OR Test New Orders Alarm
-    if (unacknowledgedNewOrders.length > 0 || testingNewOrderAlarm) {
+    // Priority 1: High-urgency loud alarm for unacknowledged new orders OR unacknowledged table reservations OR Test New Orders Alarm
+    if (unacknowledgedNewOrders.length > 0 || unacknowledgedTableReservations.length > 0 || testingNewOrderAlarm) {
       stopDispatchReminderAlarm();
       startContinuousAlarm();
     } else {
@@ -512,7 +599,7 @@ export function KitchenTabletKDS() {
         stopDispatchReminderAlarm();
       }
     }
-  }, [unacknowledgedNewOrders.length, overdueDispatchOrders.length, soundMuted, testingNewOrderAlarm, testingReminderAlarm]);
+  }, [unacknowledgedNewOrders.length, unacknowledgedTableReservations.length, overdueDispatchOrders.length, soundMuted, testingNewOrderAlarm, testingReminderAlarm]);
 
   const toggleTestNewOrderAlarm = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
@@ -550,6 +637,7 @@ export function KitchenTabletKDS() {
     setAcknowledgedOrderIds(prev => {
       const next = new Set(prev);
       unacknowledgedNewOrders.forEach(o => next.add(String(o.id)));
+      unacknowledgedTableReservations.forEach(r => next.add(String(r.id)));
       return next;
     });
     setSilencedReminderIds(prev => {
@@ -565,6 +653,22 @@ export function KitchenTabletKDS() {
   };
 
   // Actions
+  const handleArchiveTableReservation = async (resId: string) => {
+    initKitchenAudio();
+    stopContinuousAlarm();
+    setAcknowledgedOrderIds(prev => new Set(prev).add(resId));
+    await updateOrderStatus(resId, 'completed');
+    try {
+      await fetch('/api/table-reservation', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: resId, status: 'confirmed' })
+      });
+    } catch (err) {
+      console.warn('Error archiving table reservation on KDS:', err);
+    }
+  };
+
   const handleAcceptOrder = async (orderId: string, minutes: number = 30) => {
     initKitchenAudio();
     stopContinuousAlarm();
@@ -832,7 +936,7 @@ export function KitchenTabletKDS() {
             <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="hidden sm:inline">{kdsLang === 'th' ? 'ส่งแล้ว' : 'Archivio'}</span>
             <span className="px-1.5 py-0.2 rounded-full bg-emerald-950 text-emerald-300 text-[11px] font-black border border-emerald-600/60">
-              {completedTodayOrders.length}
+              {completedTodayOrders.length + completedTableReservations.length}
             </span>
           </button>
 
@@ -895,10 +999,10 @@ export function KitchenTabletKDS() {
           <div className="bg-[#181d28] px-4 py-3 border-b border-stone-800 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 flex-wrap">
               <h2 className="font-black text-sm lg:text-base uppercase tracking-wider text-red-400 flex items-center gap-2">
-                <span className={`w-3.5 h-3.5 rounded-full ${unacknowledgedNewOrders.length > 0 ? 'bg-red-500 animate-ping' : 'bg-amber-500'}`} />
+                <span className={`w-3.5 h-3.5 rounded-full ${unacknowledgedNewOrders.length > 0 || unacknowledgedTableReservations.length > 0 ? 'bg-red-500 animate-ping' : 'bg-amber-500'}`} />
                 <span>{t.col1Title}</span>
                 <span className="ml-1 px-2 py-0.5 rounded-full bg-red-600/30 text-red-300 border border-red-500/40 text-xs font-mono">
-                  {kitchenOrders.length}
+                  {kitchenOrders.length + pendingTableReservations.length}
                 </span>
               </h2>
 
@@ -936,14 +1040,121 @@ export function KitchenTabletKDS() {
 
           {/* Orders Scrollable Container */}
           <div className="flex-1 p-3 space-y-3 overflow-y-auto">
-            {kitchenOrders.length === 0 ? (
+            {kitchenOrders.length === 0 && pendingTableReservations.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-8 text-stone-500">
                 <CheckCircle className="w-16 h-16 text-stone-700 mb-3" />
                 <p className="font-black text-base uppercase text-stone-400">{t.noKitchenOrders}</p>
                 <p className="text-xs text-stone-600 mt-1 max-w-sm">{t.noKitchenSub}</p>
               </div>
             ) : (
-              kitchenOrders.map(order => {
+              <>
+                {/* 1. Pending Table Reservations Cards */}
+                {pendingTableReservations.map(res => {
+                  const cleanPhone = res.contact.replace(/[^0-9]/g, '');
+                  const whatsappUrl = `https://wa.me/${cleanPhone.startsWith('0') ? '66' + cleanPhone.slice(1) : cleanPhone}?text=${encodeURIComponent(
+                    `Ciao ${res.customer_name}, ti confermiamo la tua prenotazione a Flower Power Pizza per ${res.guests} persone in data ${res.reservation_date} alle ore ${res.reservation_time}. A presto!`
+                  )}`;
+
+                  return (
+                    <div 
+                      key={res.id}
+                      className="bg-gradient-to-br from-[#064e3b] via-[#053d2e] to-[#042d22] border-2 border-emerald-400 rounded-2xl p-4 shadow-xl shadow-emerald-950/60 flex flex-col gap-3 transition-all animate-pulse hover:animate-none"
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between border-b border-emerald-600/50 pb-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-xl bg-emerald-400 text-stone-950 flex items-center justify-center font-black shadow-sm">
+                            <UtensilsCrossed className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-black text-white text-base">
+                                #{res.id}
+                              </span>
+                              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-400 text-stone-950 shadow-xs">
+                                {kdsLang === 'th' ? 'จองโต๊ะใหม่' : 'NUOVA PRENOTAZIONE'}
+                              </span>
+                            </div>
+                            <span className="text-[11px] font-bold text-emerald-200">
+                              {kdsLang === 'th' ? 'ทานที่ร้าน' : 'Tavolo Ristorante'}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="text-right">
+                          <span className="font-mono text-emerald-300 text-xs font-black block">
+                            📅 {res.reservation_date}
+                          </span>
+                          <span className="font-mono text-white text-sm font-black bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-600/60 inline-block mt-0.5">
+                            🕒 {res.reservation_time}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Details */}
+                      <div className="bg-black/35 rounded-xl p-3 border border-emerald-600/40 text-xs space-y-2">
+                        <div className="flex items-center justify-between font-black text-white text-sm">
+                          <span>👤 {res.customer_name}</span>
+                          <span className="text-amber-300 font-bold bg-stone-900/90 px-2.5 py-0.5 rounded-lg border border-amber-500/30">
+                            👥 {res.guests} {kdsLang === 'th' ? 'ท่าน' : 'Ospiti'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-stone-300 text-[11px] font-medium">{kdsLang === 'th' ? 'โซนที่นั่ง:' : 'Ambiente:'}</span>
+                            <span className="font-bold text-white px-2 py-0.5 rounded-md bg-emerald-950 border border-emerald-500/60 text-xs">
+                              {res.seating_area === 'hut' ? '🛖 Capanna' : res.seating_area === 'indoor' ? '🏠 Sala Interna' : res.seating_area === 'outdoor' ? '🌿 Tavoli Esterni' : '🎲 Nessuna Preferenza'}
+                            </span>
+                          </div>
+                          <span className="text-stone-300 font-mono text-[11px]">
+                            📞 {res.contact}
+                          </span>
+                        </div>
+
+                        {res.email && (
+                          <div className="text-[11px] text-stone-300 font-mono flex items-center gap-1 truncate pt-0.5">
+                            <span>✉️</span>
+                            <span className="truncate text-emerald-300">{res.email}</span>
+                          </div>
+                        )}
+
+                        {res.notes && (
+                          <div className="px-2.5 py-1.5 rounded-lg bg-amber-950/70 border border-amber-500/40 text-amber-200 text-xs font-semibold mt-1">
+                            <span>📝 {res.notes}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action Button */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => handleArchiveTableReservation(res.id)}
+                          className="flex-1 py-3 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/50 cursor-pointer transition-all active:scale-95"
+                        >
+                          <CheckCircle className="w-5 h-5 stroke-[2.5]" />
+                          <span>{kdsLang === 'th' ? '✓ รับ & บันทึกประวัติ' : '✓ PRESO IN CARICO / ARCHIVIA'}</span>
+                        </button>
+
+                        {cleanPhone && (
+                          <a
+                            href={whatsappUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white flex items-center justify-center transition-all cursor-pointer shadow shrink-0"
+                            title="WhatsApp"
+                          >
+                            <Phone className="w-4 h-4" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* 2. Pizza Delivery & Pickup Orders */}
+                {kitchenOrders.map(order => {
                 const elapsed = getElapsedMinutes(order.created_at);
                 const items = (Array.isArray(order.items) ? order.items : []) as CartItemSaved[];
                 const { address, addressTh, notes, lat, lng } = parseCoordsFromAddress(order.address);
@@ -1122,9 +1333,10 @@ export function KitchenTabletKDS() {
 
                   </div>
                 );
-              })
-            )}
-          </div>
+              })}
+            </>
+          )}
+        </div>
         </section>
 
         {/* ─── PHASE 2: READY FOR RIDER & DELIVERING ──────────────────────── */}
@@ -1607,10 +1819,10 @@ export function KitchenTabletKDS() {
                 </div>
                 <div>
                   <h3 className="font-black text-base sm:text-lg text-white uppercase leading-none">
-                    {kdsLang === 'th' ? 'ประวัติออเดอร์ที่ส่งแล้ววันนี้' : 'ORDINI COMPLETATI / CONSEGNATI OGGI'}
+                    {kdsLang === 'th' ? 'ประวัติออเดอร์ & จองโต๊ะที่บันทึกแล้ว' : 'ARCHIVIO ORDINI & PRENOTAZIONI DI OGGI'}
                   </h3>
                   <span className="text-[11px] font-bold text-stone-400">
-                    {completedTodayOrders.length} {kdsLang === 'th' ? 'ออเดอร์' : 'ordini completati nelle ultime 24 ore'}
+                    {completedTodayOrders.length + completedTableReservations.length} {kdsLang === 'th' ? 'รายการ' : 'ordini e tavoli archiviati nelle ultime 24 ore'}
                   </span>
                 </div>
               </div>
@@ -1623,14 +1835,57 @@ export function KitchenTabletKDS() {
               </button>
             </div>
 
-            {/* Orders List */}
+            {/* Orders & Reservations List */}
             <div className="overflow-y-auto flex-1 space-y-2.5 pr-1 min-h-[150px]">
-              {completedTodayOrders.length === 0 ? (
+              {completedTodayOrders.length === 0 && completedTableReservations.length === 0 ? (
                 <div className="py-12 text-center text-stone-500 font-bold text-sm">
-                  {kdsLang === 'th' ? 'ยังไม่มีออเดอร์ที่จัดส่งสำเร็จในวันนี้' : 'Nessun ordine completato oggi.'}
+                  {kdsLang === 'th' ? 'ยังไม่มีรายการที่จัดส่งหรือบันทึกสำเร็จในวันนี้' : 'Nessun ordine o prenotazione archiviata oggi.'}
                 </div>
               ) : (
-                completedTodayOrders.map((order) => {
+                <>
+                  {/* Archived Table Reservations */}
+                  {completedTableReservations.map((res) => (
+                    <div
+                      key={`arch-${res.id}`}
+                      className="p-3.5 rounded-2xl bg-[#064e3b]/30 border border-emerald-700/60 text-xs space-y-2 hover:border-emerald-500 transition-colors"
+                    >
+                      <div className="flex items-center justify-between gap-2 border-b border-emerald-800/60 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-300 font-mono font-black text-xs border border-emerald-700/60">
+                            #{res.id}
+                          </span>
+                          <span className="font-black text-white text-sm">
+                            {res.customer_name}
+                          </span>
+                          <span className="text-stone-300 text-[11px] font-mono">
+                            ({res.contact})
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-emerald-400 text-xs font-bold">
+                            📅 {res.reservation_date} · 🕒 {res.reservation_time}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-500 text-stone-950">
+                            ✓ {kdsLang === 'th' ? 'บันทึกแล้ว' : 'PRESO IN CARICO'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 text-stone-300 text-[11px]">
+                        <div className="flex items-center gap-2">
+                          <span>👥 {res.guests} {kdsLang === 'th' ? 'ท่าน' : 'Ospiti'}</span>
+                          <span>•</span>
+                          <span className="text-emerald-300 font-semibold">
+                            {res.seating_area === 'hut' ? '🛖 Capanna' : res.seating_area === 'indoor' ? '🏠 Sala Interna' : res.seating_area === 'outdoor' ? '🌿 Tavoli Esterni' : 'Tavolo'}
+                          </span>
+                        </div>
+                        {res.notes && <span className="italic text-stone-400">"{res.notes}"</span>}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Archived Delivery Orders */}
+                  {completedTodayOrders.map((order) => {
                   const items = Array.isArray(order.items) ? order.items : [];
                   const timeFormatted = order.created_at
                     ? new Date(order.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' })
@@ -1709,7 +1964,8 @@ export function KitchenTabletKDS() {
                       </div>
                     </div>
                   );
-                })
+                })}
+                </>
               )}
             </div>
 

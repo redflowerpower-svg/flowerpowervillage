@@ -4,6 +4,8 @@ import { PizzaOrderHistoryModal } from './PizzaOrderHistoryModal';
 import { PizzeriaSettingsSection } from './PizzeriaSettingsSection';
 import { WineCardStudio } from './WineCardStudio';
 import { PizzaNewsletterSection } from './PizzaNewsletterSection';
+import { PizzaPromoCodesSection } from './PizzaPromoCodesSection';
+import { PizzaTableReservationsSection } from './PizzaTableReservationsSection';
 import { PizzaServiceScheduleModal } from './PizzaServiceScheduleModal';
 import { 
   fetchPizzeriaStatus, 
@@ -42,6 +44,7 @@ import {
   Wine,
   Mail,
   Tablet,
+  Ticket,
   PauseCircle,
   Moon
 } from 'lucide-react';
@@ -145,7 +148,7 @@ export function PizzaDashboard() {
     setFilterMenuCategory
   } = usePizzaAdminStore();
 
-  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'menu' | 'wine_studio' | 'newsletter' | 'settings'>('orders');
+  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'tables' | 'menu' | 'wine_studio' | 'newsletter' | 'promos' | 'settings'>('orders');
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
@@ -334,6 +337,19 @@ export function PizzaDashboard() {
 
         <button
           type="button"
+          onClick={() => setActiveMainTab('tables')}
+          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeMainTab === 'tables'
+              ? 'bg-red-700 text-white shadow-lg'
+              : 'text-stone-400 hover:text-white hover:bg-stone-800'
+          }`}
+        >
+          <Calendar className="w-4 h-4" />
+          <span>📅 Prenotazioni Tavoli</span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveMainTab('menu')}
           className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
             activeMainTab === 'menu'
@@ -369,6 +385,19 @@ export function PizzaDashboard() {
         >
           <Mail className="w-4 h-4" />
           <span>📧 Marketing & Newsletter</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveMainTab('promos')}
+          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeMainTab === 'promos'
+              ? 'bg-red-700 text-white shadow-lg'
+              : 'text-stone-400 hover:text-white hover:bg-stone-800'
+          }`}
+        >
+          <Ticket className="w-4 h-4" />
+          <span>🎟️ Coupon & Codici Sconto</span>
         </button>
 
         <button
@@ -595,6 +624,11 @@ export function PizzaDashboard() {
         </div>
       )}
 
+      {/* TAB: TABLE & HUT RESERVATIONS */}
+      {activeMainTab === 'tables' && (
+        <PizzaTableReservationsSection />
+      )}
+
       {/* TAB 2: MENU CATALOG & PRICE MANAGEMENT */}
       {activeMainTab === 'menu' && (
         <div className="space-y-6">
@@ -776,7 +810,12 @@ export function PizzaDashboard() {
         <PizzaNewsletterSection />
       )}
 
-      {/* TAB 5: SETTINGS & ROUTING */}
+      {/* TAB 5: PROMO CODES & COUPON STUDIO */}
+      {activeMainTab === 'promos' && (
+        <PizzaPromoCodesSection />
+      )}
+
+      {/* TAB 6: SETTINGS & ROUTING */}
       {activeMainTab === 'settings' && (
         <PizzeriaSettingsSection />
       )}

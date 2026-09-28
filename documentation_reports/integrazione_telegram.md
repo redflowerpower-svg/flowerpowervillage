@@ -92,3 +92,12 @@ La funzione helper `normalizeThaiPhone` converte i numeri di telefono inseriti d
     *   Date di Check-in e Check-out previste.
     *   Stato di invio dell'email transazionale di conferma all'indirizzo email del cliente (o errore in caso di mancato recapito).
 
+### E. Approvazione Interattiva Prenotazioni Tavoli e Capanne (`approve_table` & `reject_table`)
+*   **Pulsanti Inline dedicati:** Le notifiche di prenotazione tavolo inviate al canale Telegram dello staff includono i pulsanti:
+    *   `[✅ APPROVA PRENOTAZIONE]` ➔ Callback `approve_table_<id>`
+    *   `[❌ RIFIUTA]` ➔ Callback `reject_table_<id>`
+*   **Webhook & Sincronizzazione Supabase / KDS:**
+    *   All'approvazione da Telegram, il webhook aggiorna l'ordine su Supabase a `status = 'completed'` (o con tag di cancellazione se rifiutata).
+    *   Il messaggio Telegram viene immediatamente modificato via `editMessageText` con l'indicazione `[PRENOTAZIONE CONFERMATA DA @operatore]` o `[PRENOTAZIONE RIFIUTATA]`.
+    *   Il tablet KDS in cucina riceve la notifica in tempo reale via Supabase Realtime, archivia la comanda del tavolo e spegne automaticamente l'allarme sonoro.
+

@@ -57,28 +57,36 @@ function DynamicHeadManager() {
     const isPizza = host.includes('flowerpowerpizza.com') || pathname.startsWith('/pizza') || pathname.startsWith('/kitchen');
     const isVillage = host.includes('flowerpowervillage.com') || pathname.startsWith('/village') || pathname.startsWith('/rooms');
 
-    const favicon = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+    const metaDesc = document.querySelector<HTMLMetaElement>("meta[name='description']");
+    const ogImage = document.querySelector<HTMLMetaElement>("meta[property='og:image']");
 
     if (isPizza) {
-      document.title = 'Flower Power Pizza Ranong · Authentic Italian Pizza & Delivery';
-      if (favicon) {
-        favicon.href = '/flower-power-pizza-logo-256.png';
+      document.title = 'Flower Power Pizza Ranong · Authentic Italian Pizza & Homemade Fresh Pasta';
+      if (metaDesc) {
+        metaDesc.content = 'Flower Power Pizza Ranong — Authentic Italian pizza (48h slow-fermented crust, 100% Italian flour), homemade fresh pasta, artisan sausage, and fine wines in a tropical oasis with a private waterfall near Raksawarin Hot Springs. Fast delivery in Ranong.';
+      }
+      if (ogImage) {
+        ogImage.content = '/flower-power-pizza-emblem.png';
       }
     } else if (isVillage) {
       document.title = 'Flower Power · Farm Village & Spa · Koh Phayam';
-      if (favicon) {
-        favicon.href = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+      if (metaDesc) {
+        metaDesc.content = "Flower Power Farm Village & Spa on Koh Phayam, Thailand — eco-resort bungalows, villas, pool club, wellness spa, and authentic restaurant on Thailand's tropical island paradise.";
+      }
+      if (ogImage) {
+        ogImage.content = '/FP_04_-_LOGO_OFFICIAL_HD.png';
       }
     } else {
       document.title = 'Flower Power · Farm Village & Spa · Pizza Ranong';
-      if (favicon) {
-        favicon.href = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+      if (metaDesc) {
+        metaDesc.content = 'Flower Power — Koh Phayam Eco Resort & Spa and Authentic Italian Pizzeria in Ranong, Thailand.';
       }
     }
   }, []);
 
   return null;
 }
+
 
 function RootRouter() {
   if (typeof window !== 'undefined') {

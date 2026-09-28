@@ -7,27 +7,29 @@ interface ExtractedMetadata {
   orderLang: "IT" | "EN" | "TH" | "DE";
   deviceId: string;
   discountAmount: number;
+  promoCode?: string;
   isHotelGuest: boolean;
 }
 
 /**
  * Parses embedded bracket tags from the serialized address string:
- * e.g. "Ranong 85000 [ADDR_TH: ...] [COORD: 9.9,98.6] [EMAIL: user@example.com] [NOTE: Ring bell] [LANG: IT] [DID: ...] [DISCOUNT: 45] [HOTEL: true]"
+ * e.g. "Ranong 85000 [ADDR_TH: ...] [COORD: 9.9,98.6] [EMAIL: user@example.com] [NOTE: Ring bell] [LANG: IT] [DID: ...] [PROMO: PIZZA2026] [DISCOUNT: 45] [HOTEL: true]"
  */
 export function extractOrderMetadata(rawAddress?: string): ExtractedMetadata {
   if (!rawAddress) {
-    return { cleanAddress: "Ranong", customerEmail: "", deliveryNotes: "", orderLang: "EN", deviceId: "", discountAmount: 0, isHotelGuest: false };
+    return { cleanAddress: "Ranong", customerEmail: "", deliveryNotes: "", orderLang: "EN", deviceId: "", discountAmount: 0, promoCode: "", isHotelGuest: false };
   }
 
   const emailMatch = rawAddress.match(/\[EMAIL:\s*([^\]]+)\]/i);
   const noteMatch = rawAddress.match(/\[NOTE:\s*([^\]]+)\]/i);
   const langMatch = rawAddress.match(/\[LANG:\s*([^\]]+)\]/i);
   const didMatch = rawAddress.match(/\[DID:\s*([^\]]+)\]/i);
+  const promoMatch = rawAddress.match(/\[PROMO:\s*([^\]]+)\]/i);
   const discountMatch = rawAddress.match(/\[DISCOUNT:\s*([^\]]+)\]/i);
   const hotelMatch = rawAddress.match(/\[HOTEL:\s*([^\]]+)\]/i);
 
   let cleanAddress = rawAddress
-    .replace(/\[(COORD|ADDR_TH|EMAIL|NOTE|LANG|DID|DISCOUNT|HOTEL):[^\]]+\]/gi, "")
+    .replace(/\[(COORD|ADDR_TH|EMAIL|NOTE|LANG|DID|PROMO|DISCOUNT|HOTEL):[^\]]+\]/gi, "")
     .trim();
 
   const customerEmail = emailMatch ? emailMatch[1].trim() : "";
@@ -35,6 +37,7 @@ export function extractOrderMetadata(rawAddress?: string): ExtractedMetadata {
   const rawLang = langMatch ? langMatch[1].trim().toUpperCase() : "EN";
   const orderLang = (["IT", "EN", "TH", "DE"].includes(rawLang) ? rawLang : "EN") as "IT" | "EN" | "TH" | "DE";
   const deviceId = didMatch ? didMatch[1].trim() : "";
+  const promoCode = promoMatch ? promoMatch[1].trim().toUpperCase() : "";
   const discountAmount = discountMatch ? parseFloat(discountMatch[1].trim()) || 0 : 0;
   const isHotelGuest = hotelMatch ? hotelMatch[1].trim().toLowerCase() === "true" : false;
 
@@ -44,6 +47,7 @@ export function extractOrderMetadata(rawAddress?: string): ExtractedMetadata {
     deliveryNotes,
     orderLang,
     deviceId,
+    promoCode,
     discountAmount,
     isHotelGuest
   };

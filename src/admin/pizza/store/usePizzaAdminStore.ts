@@ -2,6 +2,13 @@ import { create } from 'zustand';
 import { supabase } from '../../../lib/supabase';
 import type { PizzaOrder } from '../../../pizza/types';
 import { menuData } from '../../../pizza/data/menuData';
+import {
+  PizzaPromoCode,
+  loadPizzaPromoCodes,
+  savePizzaPromoCodes
+} from '../../../pizza/services/pizzaPromoService';
+
+export type { PizzaPromoCode };
 
 export interface PizzaMenuItem {
   id: string;
@@ -41,6 +48,14 @@ interface PizzaAdminState {
   toggleItemAvailability: (id: string, currentStatus: boolean) => Promise<void>;
   updateItemPrice: (id: string, newPrice: number) => Promise<void>;
   setFilterMenuCategory: (category: string) => void;
+
+  // Promo Codes / Coupon Actions
+  promoCodes: PizzaPromoCode[];
+  addPromoCode: (promo: Omit<PizzaPromoCode, 'id' | 'slotsUsed' | 'createdAt'>) => void;
+  togglePromoCodeActive: (id: string) => void;
+  deletePromoCode: (id: string) => void;
+  incrementPromoCodeUsage: (codeOrId: string) => void;
+  refreshPromoCodes: () => void;
 }
 
 // Helper per sanitize ordini
@@ -122,7 +137,7 @@ export const sanitizePizzaOrder = (rawOrder: any): PizzaOrder => {
     items: sanitizedItems,
     total: typeof rawOrder.total === 'number' ? rawOrder.total : 0,
     status: status,
-    payment_method: rawOrder.payment_method === 'transfer' ? 'transfer' : 'cash',
+    payment_method: String(rawOrder.payment_method || 'cash'),
     receipt_url: rawOrder.receipt_url ? String(rawOrder.receipt_url) : null,
     delivery_lat: typeof rawOrder.delivery_lat === 'number' ? rawOrder.delivery_lat : undefined,
     delivery_lng: typeof rawOrder.delivery_lng === 'number' ? rawOrder.delivery_lng : undefined,
@@ -142,6 +157,8 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
   menuLoading: false,
   menuError: null,
   filterMenuCategory: 'All',
+
+  promoCodes: loadPizzaPromoCodes(),
 
   fetchOrders: async () => {
     set({ loading: true, error: null });
@@ -341,6 +358,54 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
   },
 
   setFilterMenuCategory: (filterMenuCategory) => set({ filterMenuCategory }),
+
+  addPromoCode: (promoData) => {
+    const newPromo: PizzaPromoCode = {
+      ...promoData,
+      id: 'pizza-promo-' + Math.random().toString(36).substring(2, 9) + '-' + Date.now(),
+      slotsUsed: 0,
+      createdAt: new Date().toISOString()
+    };
+    const updated = [newPromo, ...get().promoCodes];
+    savePizzaPromoCodes(updated);
+    set({ promoCodes: updated });
+  },
+
+  togglePromoCodeActive: (id) => {
+    const updated = get().promoCodes.map((p) =>
+      p.id === id ? { ...p, active: !p.active } : p
+    );
+    savePizzaPromoCodes(updated);
+    set({ promoCodes: updated });
+  },
+
+  deletePromoCode: (id) => {
+    const updated = get().promoCodes.filter((p) => p.id !== id);
+    savePizzaPromoCodes(updated);
+    set({ promoCodes: updated });
+  },
+
+  incrementPromoCodeUsage: (codeOrId) => {
+    const clean = codeOrId.trim().toUpperCase();
+    const updated = get().promoCodes.map((p) => {
+      if (p.id === codeOrId || p.code.trim().toUpperCase() === clean) {
+        const nextUsed = (p.slotsUsed || 0) + 1;
+        return {
+          ...p,
+          slotsUsed: nextUsed,
+          active: p.isSingleUse ? false : (p.slotsTotal > 0 && nextUsed >= p.slotsTotal ? false : p.active)
+        };
+      }
+      return p;
+    });
+    savePizzaPromoCodes(updated);
+    set({ promoCodes: updated });
+  },
+
+  refreshPromoCodes: () => {
+    const refreshed = loadPizzaPromoCodes();
+    set({ promoCodes: refreshed });
+  },
 
   subscribeToRealtime: () => {
     const subscription = supabase

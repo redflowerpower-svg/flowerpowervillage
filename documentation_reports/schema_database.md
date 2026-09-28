@@ -20,8 +20,8 @@ Memorizza gli ordini del modulo di online delivery per la pizzeria.
 | `address` | `text` | `NOT NULL` • `''` | Indirizzo di consegna (include coordinate `[COORD: lat,lng]`). |
 | `items` | `jsonb` | `NOT NULL` • `'[]'::jsonb` | Elenco articoli carrello (tipo `CartItemSaved[]`). |
 | `total` | `numeric(10,2)`| `NOT NULL` • `0` | Importo totale dell'ordine in THB. |
-| `status` | `text` | `CHECK (status IN ('new', 'preparing', 'delivering', 'completed', 'rejected'))` • `'new'` | Stato dell'ordine per la cucina e il tracking. |
-| `payment_method`| `text` | `CHECK (payment_method IN ('promptpay', 'cash'))` • `'promptpay'` | Metodo di pagamento. |
+| `status` | `text` | `CHECK (status IN ('new', 'preparing', 'delivering', 'completed', 'rejected'))` • `'new'` | Stato dell'ordine/prenotazione. Per i tavoli: 'new' = in attesa, 'completed' = confermata/archiviata. |
+| `payment_method`| `text` | `CHECK (payment_method IN ('promptpay', 'cash', 'table_reservation'))` • `'promptpay'` | Metodo di pagamento o tipo richiesta ('table_reservation'). |
 | `receipt_url` | `text` | `NULL` | URL dello screenshot di pagamento (se PromptPay). |
 | `telegram_notified`| `boolean`| `NOT NULL` • `false` | Flag per impedire notifiche Telegram duplicate. |
 | `latitude` | `numeric(10,8)`| `NULL` | Coordinata latitudine della consegna. |

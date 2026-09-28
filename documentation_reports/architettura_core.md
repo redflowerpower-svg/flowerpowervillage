@@ -155,6 +155,14 @@ Di seguito sono documentate le principali criticità architetturali emerse duran
     *   **🟢 Ambiente Virtuale / Staging (`*.vercel.app`):** Canvas genera un anello circolare verde smeraldo (`#10B981`) per distinguere a colpo d'occhio i test remoti.
     *   **🌐 Dominio Ufficiale Produzione (`flowerpowerpizza.com` / `flowerpowervillage.com`):** Nessun anello, favicon ufficiale standard per la clientela finale.
 
+### M. Gestione API Prenotazione Tavoli e Codici Promo nel Gateway Catch-All
+*   **Routing Serverless Unificato (`api/[...route].ts` & `api/_handlers/table-reservation.ts`):** Instrada in modo trasparente `/api/pizza/table-reservations` e `/api/pizza/promo-codes` mantenendo il conteggio funzioni serverless Vercel a sole 2 unità.
+*   **Integrazione Webhook Telegram Multi-Azione:** I bot callback e le approvazioni/rifiuti avvengono via `/api/telegram-webhook` collegandosi reattivamente a Supabase.
+
+### N. Ottimizzazione SEO & AI Search (`llms.txt`, `sitemap.xml`, `Structured Data`)
+*   **Standardizzazione Schema.org JSON-LD (`PizzaStructuredData.tsx`):** Dati strutturati `Restaurant`, `Menu` e `GeoCoordinates` per motori di ricerca e assistenti vocali.
+*   **AI Crawler Discovery Files (`public/llms.txt`, `public/llms-full.txt`):** Documentazione sintetica ed esaustiva per agenti LLM (Perplexity, ChatGPT Search, Claude, Gemini) con catalogo menu e contatti ufficiali.
+
 
 
 

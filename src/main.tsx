@@ -2,10 +2,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { applyEnvironmentFavicon } from './utils/environmentFavicon.ts';
+import { initEnvironmentFaviconObserver } from './utils/environmentFavicon.ts';
 
-// Apply environment ring to favicon (🔴 Red in Localhost, 🟢 Green in Virtual/Staging, Clean in Production)
-applyEnvironmentFavicon();
+// Dynamic Department & Environment Favicon (🍕 Pizza, 🌴 Village, 👨‍🍳 Kitchen, 🛡️ Gateway + 🔴 Local / 🟢 Virtual ring)
+initEnvironmentFaviconObserver();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -208,5 +208,34 @@ CREATE TABLE pizza_orders (
 *   **Banner di Anteprima & Collaudo Gateway (`previewNotice`):**
     *   Visibile esclusivamente sul dominio ufficiale di produzione, nascosto in locale e virtuale.
 
+### I. Sistema di Prenotazione Tavoli e Capanne (`TableReservationModal.tsx` & `/api/pizza/table-reservations`)
+*   **Modal Interattivo Multilingua (4 Lingue: IT, EN, TH, DE):**
+    *   Permette la prenotazione 24H di tavoli e caratteristiche capanne (`TAVOLO IN CAPANNA`, `SALA INTERNA`, `DEHOR ESTERNO`).
+    *   Raccolta dati cliente: Nome, Telefono/WhatsApp, Email (per invio conferma), Data, Ora, Numero Ospiti e Note speciali.
+    *   Layout responsive con allineamento tipografico multilingua uniforme.
+*   **Backend Serverless & Archiviazione (`api/_handlers/table-reservation.ts`):**
+    *   Persiste la prenotazione nella tabella `pizza_orders` con `payment_method: 'table_reservation'` e dettagli serializzati in formato standard nel campo `address` (`[TAVOLO: ...] [PERS: ...] [DATA: ...] [EMAIL: ...]`).
+    *   Permessi espliciti Supabase Data API (`GRANT SELECT, INSERT, UPDATE, DELETE ON public.pizza_orders / pizza_table_reservations TO anon, authenticated, service_role`).
+*   **Invio Email di Conferma Automatica (`table-reservation-email.ts`):**
+    *   Email HTML multilingua inviata all'ospite tramite account SMTP ufficiale (`flowerpowerpizzaranong.th@gmail.com`).
+*   **Notifica Telegram con Pulsanti Interattivi:**
+    *   Invia una notifica ricca con dettagli prenotazione al gruppo staff Telegram dotata di tasti inline `APPROVA PRENOTAZIONE` e `RIFIUTA`.
 
+### J. Sincronizzazione Kitchen Monitor (KDS) & Telegram per Prenotazioni Tavoli
+*   **Scheda Smeraldo Dedicata nel KDS (`KitchenTabletKDS.tsx`):**
+    *   Le prenotazioni dei tavoli appaiono in evidenza con badge verde smeraldo `📅 RICHIESTA TAVOLO` in FASE 1 e FASE 2.
+    *   **Isolamento Comande Food:** Il predicato `isTableReservationOrder()` separa nettamente le prenotazioni tavolo dagli ordini alimentari, impedendo la duplicazione di comande cibo.
+    *   **Controllo Buzzer & Accettazione:** La richiesta tavolo attiva il segnale sonoro e resta in attesa di approvazione esplicita senza auto-accettazione accidentale.
+    *   **Sincronizzazione Bidirezionale Tablet <-> Telegram:**
+        *   Cliccando `[✓ PRESO IN CARICO / ARCHIVIA]` sul tablet KDS, l'allarme si spegne all'istante, lo stato su Supabase passa a `completed`, la scheda si archivia e il messaggio Telegram dello staff viene aggiornato in tempo reale a `[APPROVATA DAL MONITOR CUCINA]`.
+        *   Premendo `APPROVA PRENOTAZIONE` da Telegram, il webhook aggiorna Supabase e il monitor KDS recepisce la conferma istantaneamente via Supabase Realtime silenziando la suoneria.
 
+### K. Banner Top Tricolore con Icone Lucide Animate (`DeliveryMenu.tsx`)
+*   **Design Tricolore 3 Colonne:**
+    *   🟢 **Verde Smeraldo:** `PRENOTA UN TAVOLO O CAPANNA` con apertura diretta del modal di prenotazione.
+    *   ⚪ **Neutro / Oro:** `10% DI SCONTO SUL 1° ORDINE!` con spiegazione rapida delle condizioni.
+    *   🔴 **Rosso Granata (#8B1E1E):** `CONSEGNA A RANONG - GRATIS > 300฿` con evidenza raggio consegna.
+*   **Reattività Hover Sincronizzata:** Icone Lucide animate su tutti e tre i banner con transizione fluida e zero emoji per conformità UI.
+
+### L. Gestione Codici Promo & Sconti Admin (`PizzaPromoCodesSection.tsx`)
+*   **Sezione Dashboard Admin:** Creazione, monitoraggio e disattivazione codici promozionali percentuali o a importo fisso con date di validità e limiti di utilizzo.

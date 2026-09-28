@@ -10,6 +10,11 @@ import {
   sendPizzaOrderEmail,
   extractOrderMetadata
 } from "../_helpers/pizza-order-email.js";
+import {
+  parseTableReservationFromOrder,
+  AREA_LABELS,
+  escapeHtml
+} from "../_helpers/table-reservation-parser.js";
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
@@ -73,13 +78,19 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
     const meta = extractOrderMetadata(order.address);
     const cleanAddress = meta.cleanAddress;
     const customerEmail = meta.customerEmail;
-    const deliveryNotes = meta.deliveryNotes;
     const discountAmount = meta.discountAmount;
+    const promoCode = meta.promoCode;
     const isHotelGuest = meta.isHotelGuest;
+
+    const discountLine = promoCode && discountAmount > 0
+      ? `🎟️ <b>PROMO COUPON (${promoCode}):</b> -${discountAmount} THB / ใช้คูปองส่วนลด`
+      : discountAmount > 0
+        ? `🎁 <b>1st ORDER DISCOUNT (10%):</b> -${discountAmount} THB / ส่วนลดสั่งครั้งแรก 10%`
+        : null;
 
     const messageText = [
       `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
-      discountAmount > 0 ? `🎁 <b>1st ORDER DISCOUNT (10%):</b> -${discountAmount} THB / ส่วนลดสั่งครั้งแรก 10%` : null,
+      discountLine,
       isHotelGuest ? `🏨 <b>LOCATION NOTE:</b> Guest at known hotel/resort / ลูกค้าพักที่โรงแรม/สถานที่ที่เคยส่ง` : null,
       ``,
       `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
@@ -91,7 +102,7 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
       `<b>Items / รายการอาหาร:</b>`,
       itemsText,
       ``,
-      `<b>Total / ยอดรวม:</b> ${order.total} THB` + (discountAmount > 0 ? ` <i>(Discount 10% applied: -${discountAmount} THB)</i>` : ``),
+      `<b>Total / ยอดรวม:</b> ${order.total} THB` + (discountAmount > 0 ? ` <i>(Discount applied: -${discountAmount} THB)</i>` : ``),
       `<b>Payment / วิธีชำระเงิน:</b> ${order.payment_method === "promptpay" ? "PromptPay (QR) / สแกนจ่าย" : "Cash on Delivery / เก็บเงินสด"}`,
       order.receipt_url ? `📎 <a href="${order.receipt_url}">View Receipt / ดูสลิปโอนเงิน</a>` : ``,
       ``,
@@ -356,7 +367,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
     return res.status(200).json({ status: "unauthorized" });
   }
 
-  const match = callbackData.match(/^(prepare|deliver|reject|complete|start_track|stop_track)_(.+)$/);
+  const match = callbackData.match(/^(prepare|deliver|reject|complete|start_track|stop_track|approve_table|reject_table)_(.+)$/);
   if (!match) {
     console.warn(`[Telegram Webhook] Invalid callback data: ${callbackData}`);
     return res.status(200).json({ status: "invalid_data" });
@@ -369,6 +380,114 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
     : callbackQuery.from?.first_name || "Sconosciuto";
 
   try {
+    // ── Table Reservation Actions ──
+    if (action === "approve_table" || action === "reject_table") {
+      const isApproved = action === "approve_table";
+      const answerText = isApproved 
+        ? "Prenotazione tavolo confermata! 🟢 / ยืนยันการจองโต๊ะแล้ว" 
+        : "Prenotazione tavolo annullata ✖ / ยกเลิกการจองโต๊ะแล้ว";
+
+      const { data: existingRes } = await supabase
+        .from("pizza_orders")
+        .select("*")
+        .eq("id", orderId)
+        .single();
+
+      let updatedAddr = existingRes?.address || '';
+      if (!isApproved && !updatedAddr.includes('[CANCELLED]')) {
+        updatedAddr += ' [CANCELLED:true]';
+      } else if (isApproved && updatedAddr.includes('[CANCELLED')) {
+        updatedAddr = updatedAddr.replace(/\s*\[CANCELLED:[^\]]+\]/gi, '').replace(/\s*\[CANCELLED\]/gi, '');
+      }
+
+      await supabase
+        .from("pizza_orders")
+        .update({ 
+          status: 'completed',
+          address: updatedAddr
+        })
+        .eq("id", orderId);
+
+      const answerUrl = `https://api.telegram.org/bot${botToken}/answerCallbackQuery`;
+      await fetch(answerUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          callback_query_id: callbackQueryId,
+          text: answerText,
+          show_alert: false
+        })
+      });
+
+      const { data: resOrder } = await supabase
+        .from("pizza_orders")
+        .select("*")
+        .eq("id", orderId)
+        .single();
+
+      if (resOrder && resOrder.telegram_message_id) {
+        const resData = parseTableReservationFromOrder(resOrder);
+        const seatingLabel = AREA_LABELS[resData.seating_area] || resData.seating_area;
+        
+        let text = `🍽️ <b>PRENOTAZIONE TAVOLO / CAPANNA</b>\n`;
+        text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+        text += `📌 <b>ID Prenotazione</b>: <code>#${resData.id}</code>\n`;
+        text += `👤 <b>Cliente</b>: <b>${escapeHtml(resData.customer_name)}</b>\n`;
+        text += `📞 <b>Contatto (LINE / Tel)</b>: <code>${escapeHtml(resData.contact)}</code>\n`;
+        if (resData.email) {
+          text += `✉️ <b>Email</b>: <code>${escapeHtml(resData.email)}</code>\n`;
+        }
+        text += `👥 <b>Ospiti</b>: <b>${resData.guests} persone</b>\n`;
+        text += `📅 <b>Data</b>: <b>${resData.reservation_date}</b>\n`;
+        text += `🕒 <b>Orario</b>: <b>${resData.reservation_time}</b>\n`;
+        text += `🛖 <b>Ambiente</b>: <b>${seatingLabel}</b>\n`;
+        if (resData.occasion) {
+          text += `🎉 <b>Occasione</b>: ${escapeHtml(resData.occasion)}\n`;
+        }
+        if (resData.notes) {
+          text += `📝 <b>Note Speciali</b>: <i>${escapeHtml(resData.notes)}</i>\n`;
+        }
+        text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+        if (isApproved) {
+          text += `✅ <b>STATO: PRENOTAZIONE CONFERMATA / ยืนยันแล้ว</b>\n`;
+          text += `👤 <i>Approvato dallo staff via Telegram (${actor})</i>`;
+        } else {
+          text += `❌ <b>STATO: PRENOTAZIONE ANNULLATA / ยกเลิกแล้ว</b>\n`;
+          text += `👤 <i>Rifiutato da ${actor}</i>`;
+        }
+
+        const inlineKeyboard = isApproved ? {
+          inline_keyboard: [
+            [
+              { text: "✖ Annulla / ยกเลิก", callback_data: `reject_table_${orderId}` }
+            ]
+          ]
+        } : {
+          inline_keyboard: [
+            [
+              { text: "🟢 Ri-approva / ยืนยันอีกครั้ง", callback_data: `approve_table_${orderId}` }
+            ]
+          ]
+        };
+
+        const editUrl = `https://api.telegram.org/bot${botToken}/editMessageText`;
+        await fetch(editUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: messageChatId,
+            message_id: resOrder.telegram_message_id,
+            text,
+            parse_mode: "HTML",
+            reply_markup: inlineKeyboard
+          })
+        });
+      }
+
+      return res.status(200).json({ status: "table_reservation_updated", reservationStatus: isApproved ? 'confirmed' : 'cancelled' });
+    }
+
+    // ── Delivery Pizza Order Actions ──
     let targetStatus: "preparing" | "delivering" | "rejected" | "completed" | null = null;
     let answerText = "";
     let isTrackingAction = false;
