@@ -74,6 +74,8 @@ const translations = {
     promoTitle: 'Aktionen & Lieferbedingungen',
     deliveryLimit: 'Lieferungen erfolgen ausschließlich innerhalb der Stadt Ranong.',
     promoFreeDelivery: 'KOSTENLOSE Lieferung ab 300฿ Bestellwert',
+    promoFirstOrder: '10% Rabatt auf Ihre erste Bestellung',
+  },
 };
 
 const previewNotice = {

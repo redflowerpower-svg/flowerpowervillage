@@ -181,3 +181,13 @@ CREATE TABLE pizza_orders (
     *   **Protezione Carrello:** Se le ordinazioni sono sospese o fuori orario, il pulsante di checkout nel carrello laterale viene disabilitato e sostituito dal pulsante rapido per chiamare la pizzeria al telefono.
 *   **Backend Status API (`/api/pizza-order-status`):** L'aggiornamento dello stato da parte del tablet viene instradato tramite endpoint serverless con privilegi `SUPABASE_SERVICE_ROLE_KEY` e aggiorna contestualmente il messaggio Telegram del gruppo staff.
 *   **Screen Wake Lock API:** Mantiene costantemente acceso lo schermo del tablet evitando lo spegnimento durante il servizio.
+
+### G. Produzione Domini Ufficiali & Conformità Ispezione Payment Gateway (`MARKDOWN-WEBSITE`)
+*   **Routing Multi-Dominio:** Configurazione del dominio ufficiale `www.flowerpowerpizza.com` con routing diretto su `PizzaSite` e rimozione automatica dello switcher "Sito Nuovo / Sito Vecchio" al pubblico.
+*   **Conformità Payment Gateway (Zero Alcolici):** Esclusione totale delle schede Vini e Birre/Alcolici su `flowerpowerpizza.com`, lasciando attive 10 categorie alimentari pure, bibite analcoliche, caffè e frullati di frutta.
+*   **Policy & Informative Legali (`PizzaPoliciesModal`):**
+    *   Consegna e Spedizioni: consegna limitata alla città di Ranong (raggio 5km), gratuita sopra i 300฿ (30฿ sotto soglia).
+    *   Cancellazioni e Rimborsi: rimborso 100% prima della preparazione, assistenza via telefono/WhatsApp.
+    *   Privacy & Trattamento Dati: conformità Thai PDPA e certificazione PCI-DSS tramite crittografia Omise Vault.
+*   **Banner di Anteprima & Collaudo Gateway (4 Lingue: IT, EN, TH, DE):** Banner globale posizionato nella navbar superiore e all'interno del menu, oltre all'avviso dedicato nel modale di Checkout (Step 1 e 2) indicante che la piattaforma è in fase di allestimento e verifica tecnica del gateway con sandbox di test attiva.
+
