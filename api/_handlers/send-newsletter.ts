@@ -22,12 +22,17 @@ export async function handleSendNewsletter(req: VercelRequest, res: VercelRespon
     }
 
     // Selezione dinamica delle credenziali
-    let authUser = process.env.SMTP_USER_PHAYAM || process.env.SMTP_USER;
+    let authUser = process.env.SMTP_USER_PHAYAM || process.env.SMTP_USER || 'flowerpowerphayam@gmail.com';
     let authPass = process.env.SMTP_PASS_PHAYAM || process.env.SMTP_PASS;
+    let fromName = 'Flower Power Village';
 
     if (senderAccount === 'red') {
       authUser = process.env.SMTP_USER_RED || authUser;
       authPass = process.env.SMTP_PASS_RED || authPass;
+    } else if (senderAccount === 'pizza' || senderAccount === 'ranong') {
+      authUser = process.env.PIZZA_SMTP_USER || 'flowerpowerpizzaranong.th@gmail.com';
+      authPass = (process.env.PIZZA_SMTP_PASS || 'uwai psxe chzi pawb').replace(/\s+/g, '');
+      fromName = 'Flower Power Pizza Ranong';
     }
 
     if (!authUser || !authPass) {
@@ -36,8 +41,8 @@ export async function handleSendNewsletter(req: VercelRequest, res: VercelRespon
       return;
     }
 
-    const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const smtpPort = Number(process.env.SMTP_PORT || 465);
+    const smtpHost = (senderAccount === 'pizza' ? process.env.PIZZA_SMTP_HOST : process.env.SMTP_HOST) || 'smtp.gmail.com';
+    const smtpPort = Number((senderAccount === 'pizza' ? process.env.PIZZA_SMTP_PORT : process.env.SMTP_PORT) || 465);
 
     const transporter = nodemailer.createTransport({
       host: smtpHost,
@@ -61,14 +66,29 @@ export async function handleSendNewsletter(req: VercelRequest, res: VercelRespon
       return;
     }
 
-    const htmlContent = String(message).replace(/\n/g, '<br>');
+    const htmlContent = body.html || `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e7e5e4; border-radius: 16px; overflow: hidden; color: #1c1917;">
+        <div style="background-color: ${senderAccount === 'pizza' ? '#8B1E1E' : '#1c1917'}; padding: 24px; text-align: center;">
+          <h1 style="color: #ffffff; font-size: 20px; margin: 0; font-weight: 900; letter-spacing: 0.5px;">
+            ${senderAccount === 'pizza' ? '🍕 FLOWER POWER PIZZA RANONG' : 'FLOWER POWER VILLAGE'}
+          </h1>
+        </div>
+        <div style="padding: 28px 24px; line-height: 1.7; font-size: 14px;">
+          ${String(message).replace(/\n/g, '<br>')}
+        </div>
+        <div style="background-color: #f5f5f4; padding: 18px 24px; text-align: center; font-size: 11px; color: #78716c; border-top: 1px solid #e7e5e4;">
+          <p style="margin: 0 0 6px;"><b>${fromName}</b> · Ranong, Thailand</p>
+          <p style="margin: 0;">Ricevi questa email perché hai effettuato un ordine o una richiesta presso la nostra struttura.</p>
+        </div>
+      </div>
+    `;
 
     await transporter.sendMail({
-      from: `"Flower Power Village" <${authUser}>`,
+      from: `"${fromName}" <${authUser}>`,
       to: authUser,
       bcc: cleanEmails,
       subject: subject,
-      html: `<div style="font-family: sans-serif; color: #333; line-height: 1.6; max-width: 600px;">${htmlContent}</div>`
+      html: htmlContent
     });
 
     res.status(200).json({ success: true, count: cleanEmails.length });

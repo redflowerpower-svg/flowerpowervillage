@@ -1,6 +1,7 @@
 import { X, Trash2, Plus, Minus, ShoppingBag, Phone } from 'lucide-react';
 import { useCartStore, calcItemTotal } from '../store/cartStore';
 import { fetchPizzeriaStatus, calculateServiceState, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
+import { withCacheBust } from '../utils/cacheBust';
 import { useState, useEffect } from 'react';
 
 interface Props {
@@ -183,7 +184,7 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
               return (
                 <div key={item.cartId} className="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm">
                   <div className="flex gap-3">
-                    <img src={item.image} alt={getTranslatedName(item)} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" />
+                    <img src={withCacheBust(item.image)} alt={getTranslatedName(item)} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>

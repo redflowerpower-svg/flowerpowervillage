@@ -50,10 +50,7 @@ async function run() {
     console.log('No orders found in the database.');
   } else {
     console.log('\n--- LAST ORDER FOUND ---');
-    console.log('ID:', data[0].id);
-    console.log('Customer:', data[0].customer_name);
-    console.log('Status:', data[0].status);
-    console.log('Created At:', data[0].created_at);
+    console.log(JSON.stringify(data[0], null, 2));
   }
 }
 

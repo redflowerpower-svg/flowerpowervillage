@@ -7,6 +7,7 @@ import {
   retrieveOmiseCharge 
 } from "../_helpers/omise.js";
 import { getTelegramCredentials, buildContactLines } from "../_helpers/telegram.js";
+import { sendPizzaOrderEmail, extractOrderMetadata } from "../_helpers/pizza-order-email.js";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -47,10 +48,10 @@ async function notifyKitchenTelegram(orderId: string | number) {
       })
       .join("\n");
 
-    let cleanAddress = order.address || "No address specified";
-    if (cleanAddress.includes("[COORD:")) {
-      cleanAddress = cleanAddress.split("[COORD:")[0].trim();
-    }
+    const meta = extractOrderMetadata(order.address);
+    const cleanAddress = meta.cleanAddress;
+    const customerEmail = meta.customerEmail;
+    const deliveryNotes = meta.deliveryNotes;
 
     const payLabel = order.payment_method?.includes("card") 
       ? "💳 OMISE (Credit Card 3DS) - PAID ONLINE" 
@@ -62,7 +63,9 @@ async function notifyKitchenTelegram(orderId: string | number) {
       ``,
       `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
       ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
+      customerEmail ? `📧 <b>Email / อีเมล:</b> ${customerEmail}` : null,
       `<b>Address / ที่อยู่:</b> ${cleanAddress}`,
+      deliveryNotes ? `📝 <b>Note / หมายเหตุ:</b> <i>${deliveryNotes}</i>` : null,
       ``,
       `<b>Items / รายการอาหาร:</b>`,
       itemsText,
@@ -110,6 +113,11 @@ async function notifyKitchenTelegram(orderId: string | number) {
         })
         .eq("id", order.id);
     }
+
+    // Send payment receipt and order confirmation email to the customer
+    sendPizzaOrderEmail(order, "received").catch(err => {
+      console.error("[Omise] Failed sending customer order confirmation email:", err);
+    });
   } catch (err) {
     console.error("[Omise] Error notifying kitchen Telegram:", err);
   }
@@ -171,17 +179,24 @@ export async function handleOmiseCharge(req: VercelRequest, res: VercelResponse)
 
       const qrCodeUrl = charge.source?.scannable_code?.image?.download_uri || source.scannable_code?.image?.download_uri;
 
-      // Update order in Supabase
+      // Update order in Supabase if orderId is an existing numeric database ID
       if (supabase) {
-        await supabase
-          .from("pizza_orders")
-          .update({
-            payment_method: "omise_promptpay",
-            payment_status: "pending",
-            omise_charge_id: charge.id,
-            receipt_url: qrCodeUrl || undefined
-          })
-          .eq("id", orderId);
+        const numericId = Number(orderId);
+        if (!isNaN(numericId) && numericId > 0) {
+          try {
+            await supabase
+              .from("pizza_orders")
+              .update({
+                payment_method: "omise_promptpay",
+                payment_status: "pending",
+                omise_charge_id: charge.id,
+                receipt_url: qrCodeUrl || undefined
+              })
+              .eq("id", numericId);
+          } catch (dbErr) {
+            console.warn("[Omise] Non-critical error updating pending order:", dbErr);
+          }
+        }
       }
 
       return res.status(200).json({
@@ -219,14 +234,18 @@ export async function handleOmiseCharge(req: VercelRequest, res: VercelResponse)
       // If 3DS is required:
       if (charge.authorize_uri) {
         if (supabase) {
-          await supabase
-            .from("pizza_orders")
-            .update({
-              payment_method: "omise_card",
-              payment_status: "pending",
-              omise_charge_id: charge.id
-            })
-            .eq("id", orderId);
+          try {
+            await supabase
+              .from("pizza_orders")
+              .update({
+                payment_method: "omise_card",
+                receipt_url: charge.id,
+                status: "new"
+              })
+              .eq("id", orderId);
+          } catch (dbErr) {
+            console.warn("[Omise] Error updating order pending charge:", dbErr);
+          }
         }
 
         return res.status(200).json({
@@ -243,15 +262,18 @@ export async function handleOmiseCharge(req: VercelRequest, res: VercelResponse)
       // If immediate direct success (non-3DS card or test mode):
       if (charge.status === "successful") {
         if (supabase) {
-          await supabase
-            .from("pizza_orders")
-            .update({
-              payment_method: "omise_card",
-              payment_status: "paid",
-              omise_charge_id: charge.id,
-              status: "new"
-            })
-            .eq("id", orderId);
+          try {
+            await supabase
+              .from("pizza_orders")
+              .update({
+                payment_method: "omise_card",
+                receipt_url: charge.id,
+                status: "new"
+              })
+              .eq("id", orderId);
+          } catch (dbErr) {
+            console.warn("[Omise] Error updating order paid charge:", dbErr);
+          }
         }
 
         await notifyKitchenTelegram(orderId);
@@ -342,16 +364,22 @@ export async function handleOmiseCheckStatus(req: VercelRequest, res: VercelResp
     let resolvedChargeId = chargeId;
 
     if (!resolvedChargeId && orderId && supabase) {
-      const { data } = await supabase
-        .from("pizza_orders")
-        .select("omise_charge_id, payment_status")
-        .eq("id", orderId)
-        .maybeSingle();
+      try {
+        const numericId = Number(orderId);
+        if (!isNaN(numericId)) {
+          const { data } = await supabase
+            .from("pizza_orders")
+            .select("id, receipt_url, status, payment_method")
+            .eq("id", numericId)
+            .maybeSingle();
 
-      if (data?.payment_status === "paid") {
-        return res.status(200).json({ success: true, paid: true, status: "successful" });
+          if (data?.receipt_url?.startsWith("chrg_")) {
+            resolvedChargeId = data.receipt_url;
+          }
+        }
+      } catch (err) {
+        console.warn("[Omise Check Status] Error querying order for charge:", err);
       }
-      resolvedChargeId = data?.omise_charge_id;
     }
 
     if (!resolvedChargeId) {
@@ -363,15 +391,25 @@ export async function handleOmiseCheckStatus(req: VercelRequest, res: VercelResp
     if (charge.status === "successful") {
       const matchedOrderId = charge.metadata?.order_id || orderId;
       if (matchedOrderId && supabase) {
-        await supabase
-          .from("pizza_orders")
-          .update({
-            payment_status: "paid",
-            status: "new"
-          })
-          .eq("id", matchedOrderId);
+        try {
+          const numericId = Number(matchedOrderId);
+          if (!isNaN(numericId) && numericId > 0) {
+            const payMethod = charge.source?.type === "promptpay" ? "omise_promptpay" : "omise_card";
+            await supabase
+              .from("pizza_orders")
+              .update({
+                receipt_url: charge.id,
+                payment_method: payMethod,
+                payment_status: "paid",
+                status: "new"
+              })
+              .eq("id", numericId);
 
-        await notifyKitchenTelegram(matchedOrderId);
+            await notifyKitchenTelegram(numericId);
+          }
+        } catch (dbErr) {
+          console.warn("[Omise Check Status] Error updating order status:", dbErr);
+        }
       }
 
       return res.status(200).json({
@@ -442,18 +480,31 @@ export async function handleOmiseWebhook(req: VercelRequest, res: VercelResponse
         if (orderType === "pizza" || orderId) {
           console.log(`[Omise Webhook] Charge ${chargeId} successful for Pizza Order #${orderId}`);
 
-          if (supabase && orderId) {
-            await supabase
-              .from("pizza_orders")
-              .update({
-                payment_status: "paid",
-                omise_charge_id: verifiedCharge.id,
-                status: "new"
-              })
-              .eq("id", orderId);
+          if (supabase) {
+            const numericId = Number(orderId);
+            let query = supabase.from("pizza_orders").select("id, status, payment_status");
+            if (!isNaN(numericId) && numericId > 0) {
+              query = query.or(`omise_charge_id.eq.${verifiedCharge.id},id.eq.${numericId}`);
+            } else {
+              query = query.eq("omise_charge_id", verifiedCharge.id);
+            }
+            const { data: existingOrder } = await query.maybeSingle();
 
-            // Notify Kitchen Telegram Bot
-            await notifyKitchenTelegram(orderId);
+            if (existingOrder) {
+              if (existingOrder.status !== "new" || existingOrder.payment_status !== "paid") {
+                await supabase
+                  .from("pizza_orders")
+                  .update({
+                    payment_status: "paid",
+                    omise_charge_id: verifiedCharge.id,
+                    status: "new"
+                  })
+                  .eq("id", existingOrder.id);
+
+                // Notify Kitchen Telegram Bot
+                await notifyKitchenTelegram(existingOrder.id);
+              }
+            }
           }
         }
       }

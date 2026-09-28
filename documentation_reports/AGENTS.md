@@ -61,7 +61,8 @@ To ensure the application is optimized for web agents (including Antigravity, se
 # New Services Integration & Onboarding
 - **New Services Integration & API Specs**: Whenever a new external service, SDK, API, or library is introduced to the project, the agent **MUST** first perform a comprehensive web search of its official documentation, endpoints, request/response formats, and security guidelines.
 - **Local Documentation**: Before writing any implementation code, the agent must create a dedicated local reference file (e.g., `.agents/docs_servicename.md`) containing the service's base specifications.
-- **Monthly Scheduler Inclusion**: Once documented, this new service must be automatically appended to the checklist of the monthly scheduler for updates, deprecations, and changelog verification.
+- **Monthly Scheduler Inclusion**: Once documented, this new service must be automatically appended to the checklist of the monthly scheduler for updates, deprecations, and changelog verification:
+  - *Active External Services Checklist*: Supabase, Stripe, Telegram, Octorate, DeepSeek AI, Google Maps, Ksher Pay (Village Booking), Omise / Opn Payments (Pizza Delivery).
 
 # Pizzeria / Delivery Food Design Rules
 - **Product Name Line Breaking (Double Line Layout)**: Per tutti i prodotti del reparto delivery food (`/pizza`), i nomi dei prodotti che contengono connettori logici devono essere mandati a capo per visualizzarsi sempre su due righe. La logica di formattazione a capo (`formatProductName` nei componenti React) deve dividere il nome prima dei seguenti connettori:
@@ -94,7 +95,7 @@ Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** (dopo un `git pull
 4. **Check Sicurezza Git**: Esegui la verifica per confermare che `.secret_docs/api_credentials_report.md` e i file `.env` siano bloccati da `.gitignore`.
 5. **Conferma Operatività**: Mostra un report chiaro dell'esito dei test e dell'allineamento.
 
-### 2. `MARKDOWN-PROJECT` (Pre-PUSH Workflow)
+### 2. `MARKDOWN-PROJECT` (Pre-PUSH Workflow - Virtual & Staging)
 Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un `git push` a fine sessione):
 1. **Analisi Modifiche**: Ispeziona i file modificati nella sessione corrente (`git status`).
 2. **Aggiornamento FISICO Documentazione Tecnica & Allineamento Istruzioni**:
@@ -121,6 +122,17 @@ Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un
    - **Punto 3: Stato della Cassaforte Credenziali (`.secret_docs/`)** (Esito cifratura `.md.enc`).
    - **Punto 4: Stato dei Test di Connessione e Sicurezza Git** (Esito check `test-credentials-verification.mjs` e `.gitignore`).
    - **Punto 5: Istruzioni per la Nuova Postazione (Koh Phayam / Ranong)** (Promemoria per `git pull` seguito da `VAULT-SYNC`).
+
+### 3. `MARKDOWN-WEBSITE` (Production Release Workflow - Domini Ufficiali)
+Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WEBSITE`**:
+1. **Esecuzione Completa di MARKDOWN-PROJECT**: Esegue preliminarmente tutti i 6 passaggi del workflow `MARKDOWN-PROJECT` (analisi, report, copie sicurezza, vault encryption, git push su `main`).
+2. **Attivazione Modalità Domini Ufficiali**:
+   - 🍕 **Pizzeria Ranong (`www.flowerpowerpizza.com`)**: Attiva e convalida la conformità Payment Gateway (Zero Alcolici: schede Vini e Birre nascoste, 10 categorie alimentari/caffè/frullati pure, informative legali e conformità PDPA/PCI-DSS attive nel footer).
+   - 🏖️ **Villaggio Koh Phayam (`www.flowerpowervillage.com`)**: Booking engine ufficiale villaggio e alloggi.
+3. **Verifica Build & Healthcheck Produzione**:
+   - Esegue `npx tsc --noEmit` per garantire zero errori di compilazione TypeScript.
+4. **Report di Rilascio Produzione**:
+   - Notifica di avvenuta pubblicazione e riepilogo dello stato dei domini ufficiali.
 
 # Protocollo di Compressione e Frazionamento dei Report (Gemini-Friendly)
 Per evitare che i report generati per l'utente superino i limiti di input di Gemini Notebook (impedendo l'invio del messaggio), l'agente DEVE seguire rigorosamente queste regole di formattazione:

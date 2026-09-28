@@ -12,6 +12,7 @@ import { INITIAL_WINE_COLLECTION, WINE_COUNTRY_OPTIONS, resolveWineCategoryType,
 import { fetchCloudWineCollection } from '../data/wineCloudService';
 import { ServiceStatusBanner } from '../components/ServiceStatusBanner';
 import { usePizzeriaStatus, PizzeriaServiceStatus, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
+import PizzaPoliciesModal, { PolicyTab } from '../components/PizzaPoliciesModal';
 
 
 const translations = {
@@ -707,14 +708,62 @@ function CustomFilterDropdown({
 
 export default function DeliveryMenu() {
   const navigate = useNavigate();
-  const [activeCategoryId, setActiveCategoryId] = useState(menuData[0].id);
-  const [showCheckout, setShowCheckout] = useState(false);
+
+  // Compliance Mode Check (Active on flowerpowerpizza.com or ?compliance=true / ?compliance=1)
+  const isCompliance = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const host = window.location.hostname.toLowerCase();
+    if (host.includes('flowerpowerpizza.com')) return true;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('compliance') === 'true' || params.get('compliance') === '1') return true;
+    if (localStorage.getItem('fp_compliance_mode') === 'true') return true;
+    return false;
+  }, []);
+
+  // Filtered Categories (Hides soft-drinks and wines in compliance mode, keeping the 10 food/cafe/fruit categories)
+  const availableCategories = useMemo(() => {
+    if (isCompliance) {
+      return menuData.filter((c) => c.id !== 'soft-drinks' && c.id !== 'beers-and-wines' && c.id !== 'wines');
+    }
+    return menuData;
+  }, [isCompliance]);
+
+  const [activeCategoryId, setActiveCategoryId] = useState(() => availableCategories[0]?.id || menuData[0].id);
+
+  // Policy Modal state for compliance review & customer transparency
+  const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
+  const [policyTab, setPolicyTab] = useState<PolicyTab>('delivery');
+
+  // Ensure activeCategoryId is valid when categories change
+  useEffect(() => {
+    if (!availableCategories.some((c) => c.id === activeCategoryId)) {
+      setActiveCategoryId(availableCategories[0]?.id || 'traditional-italian-pizza');
+    }
+  }, [availableCategories, activeCategoryId]);
+
+  const [showCheckout, setShowCheckout] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.has('omise_order_id') || params.has('charge_id');
+    }
+    return false;
+  });
   const { getCount, getTotal, openCart } = useCartStore();
   const count = getCount();
   const total = getTotal();
 
   const [lang, setLang] = useState<'IT' | 'EN' | 'TH' | 'DE'>('IT');
   const [isLangOpen, setIsLangOpen] = useState(false);
+
+  // Auto-open checkout if returning from Omise 3D Secure
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('omise_order_id') || params.has('charge_id')) {
+        setShowCheckout(true);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const browserLang = navigator.language.slice(0, 2).toUpperCase();
@@ -753,7 +802,7 @@ export default function DeliveryMenu() {
   const [selectedPastaSauce, setSelectedPastaSauce] = useState<string>('all');
 
   const t = translations[lang];
-  const activeCategory = menuData.find((c) => c.id === activeCategoryId) ?? menuData[0];
+  const activeCategory = availableCategories.find((c) => c.id === activeCategoryId) ?? availableCategories[0] ?? menuData[0];
   const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
 
   const isItalianWine = (item: any) => {
@@ -1115,7 +1164,7 @@ export default function DeliveryMenu() {
 
         {/* Category Tabs directly on background */}
         <div className="mb-6">
-          <CategoryTabs categories={menuData} activeId={activeCategoryId} onChange={setActiveCategoryId} lang={lang} />
+          <CategoryTabs categories={availableCategories} activeId={activeCategoryId} onChange={setActiveCategoryId} lang={lang} />
         </div>
 
         {/* Section Title */}
@@ -1371,6 +1420,38 @@ export default function DeliveryMenu() {
         </div>
       </div>
 
+      {/* Compliance & Legal Footer (Mandatory for Payment Gateways & Consumer Transparency) */}
+      <footer className="mt-16 pt-8 pb-12 border-t border-stone-300/80 max-w-6xl mx-auto px-4 text-center">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs font-semibold text-stone-600 mb-4">
+          <button
+            type="button"
+            onClick={() => { setPolicyTab('delivery'); setIsPolicyModalOpen(true); }}
+            className="hover:text-[#8B1E1E] transition-colors underline-offset-4 hover:underline cursor-pointer"
+          >
+            {lang === 'IT' ? 'Spedizioni & Consegna' : lang === 'TH' ? 'การจัดส่งสินค้า' : lang === 'DE' ? 'Lieferung & Versand' : 'Shipping & Delivery'}
+          </button>
+          <span className="text-stone-300">•</span>
+          <button
+            type="button"
+            onClick={() => { setPolicyTab('refund'); setIsPolicyModalOpen(true); }}
+            className="hover:text-[#8B1E1E] transition-colors underline-offset-4 hover:underline cursor-pointer"
+          >
+            {lang === 'IT' ? 'Cancellazioni & Rimborsi' : lang === 'TH' ? 'นโยบายการคืนเงิน' : lang === 'DE' ? 'Stornierung & Erstattung' : 'Cancellation & Refunds'}
+          </button>
+          <span className="text-stone-300">•</span>
+          <button
+            type="button"
+            onClick={() => { setPolicyTab('privacy'); setIsPolicyModalOpen(true); }}
+            className="hover:text-[#8B1E1E] transition-colors underline-offset-4 hover:underline cursor-pointer"
+          >
+            {lang === 'IT' ? 'Privacy & Pagamenti Sicuri' : lang === 'TH' ? 'ความเป็นส่วนตัวและความปลอดภัย' : lang === 'DE' ? 'Datenschutz & Security' : 'Privacy & Security'}
+          </button>
+        </div>
+        <p className="text-[11px] text-stone-500">
+          © {new Date().getFullYear()} Flower Power Pizza Ranong. All Rights Reserved. Ranong Hot Springs, Bang Rin, Mueang Ranong, Thailand.
+        </p>
+      </footer>
+
       {/* Floating Bottom Cart Button */}
       {count > 0 && (
         <div className="fixed bottom-6 left-0 right-0 flex justify-center z-30 px-4">
@@ -1398,6 +1479,13 @@ export default function DeliveryMenu() {
       {showCheckout && (
         <CheckoutFlow onClose={() => setShowCheckout(false)} onSuccess={() => setShowCheckout(false)} lang={lang} />
       )}
+
+      <PizzaPoliciesModal
+        isOpen={isPolicyModalOpen}
+        onClose={() => setIsPolicyModalOpen(false)}
+        initialTab={policyTab}
+        lang={lang}
+      />
 
       {count > 0 && <div className="h-24" />}
     </div>

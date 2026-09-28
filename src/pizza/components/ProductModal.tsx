@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Plus, Minus, ShoppingCart } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
+import { withCacheBust } from '../utils/cacheBust';
 
 interface Props {
   item: MenuItem;
@@ -253,7 +254,7 @@ export default function ProductModal({ item, onClose, lang }: Props) {
       >
         {/* Header Section with Image Background */}
         <div className="relative h-48 sm:h-56 flex-shrink-0 overflow-hidden">
-          <img src={item.image} alt={getTranslatedName(item)} className="w-full h-full object-cover" />
+          <img src={withCacheBust(item.image)} alt={getTranslatedName(item)} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/20 to-transparent" />
           
           <button

@@ -3,6 +3,7 @@ import { usePizzaAdminStore, sanitizePizzaOrder } from '../store/usePizzaAdminSt
 import { PizzaOrderHistoryModal } from './PizzaOrderHistoryModal';
 import { PizzeriaSettingsSection } from './PizzeriaSettingsSection';
 import { WineCardStudio } from './WineCardStudio';
+import { PizzaNewsletterSection } from './PizzaNewsletterSection';
 import { PizzaServiceScheduleModal } from './PizzaServiceScheduleModal';
 import { 
   fetchPizzeriaStatus, 
@@ -39,6 +40,7 @@ import {
   AlertTriangle,
   Settings,
   Wine,
+  Mail,
   Tablet,
   PauseCircle,
   Moon
@@ -143,7 +145,7 @@ export function PizzaDashboard() {
     setFilterMenuCategory
   } = usePizzaAdminStore();
 
-  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'menu' | 'wine_studio' | 'settings'>('orders');
+  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'menu' | 'wine_studio' | 'newsletter' | 'settings'>('orders');
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
@@ -354,6 +356,19 @@ export function PizzaDashboard() {
         >
           <Wine className="w-4 h-4" />
           <span>🍷 Wine Card Studio</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveMainTab('newsletter')}
+          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeMainTab === 'newsletter'
+              ? 'bg-red-700 text-white shadow-lg'
+              : 'text-stone-400 hover:text-white hover:bg-stone-800'
+          }`}
+        >
+          <Mail className="w-4 h-4" />
+          <span>📧 Marketing & Newsletter</span>
         </button>
 
         <button
@@ -756,7 +771,12 @@ export function PizzaDashboard() {
         <WineCardStudio />
       )}
 
-      {/* TAB 4: SETTINGS & ROUTING */}
+      {/* TAB 4: MARKETING & NEWSLETTER STUDIO */}
+      {activeMainTab === 'newsletter' && (
+        <PizzaNewsletterSection />
+      )}
+
+      {/* TAB 5: SETTINGS & ROUTING */}
       {activeMainTab === 'settings' && (
         <PizzeriaSettingsSection />
       )}

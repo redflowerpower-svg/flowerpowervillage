@@ -25,7 +25,12 @@ export const KsherTab: React.FC = () => {
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
-    setRecordedTransactions(getKsherTransactions());
+    const list = getKsherTransactions().sort((a, b) => {
+      const timeA = a.date ? new Date(a.date).getTime() : 0;
+      const timeB = b.date ? new Date(b.date).getTime() : 0;
+      return timeB - timeA;
+    });
+    setRecordedTransactions(list);
   }, []);
 
   const directPaymentUrl = `https://gateway.ksher.com/pay/card/${config.appId || 'mch39593'}/KSHER-39593-${directLinkAmount}`;
@@ -281,9 +286,11 @@ export const KsherTab: React.FC = () => {
                 const purchaseLabel = tx.purchaseType || 'Prenotazione Alloggio';
                 const accommodation = tx.roomName || tx.itemDescription || 'Alloggio Villaggio';
                 const dates = tx.datesSummary ? ` (${tx.datesSummary})` : '';
+                const d = tx.date ? new Date(tx.date) : null;
+                const timeStr = d ? `${d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}` : '--:--';
                 return (
                   <option key={tx.orderNo} value={tx.orderNo}>
-                    {tx.orderNo} | {tx.customerName || 'Ospite'} | 🏠 {purchaseLabel}: {accommodation}{dates} | ฿{tx.amount.toLocaleString()} THB | {tx.channel === 'card' ? '💳 Carta' : '📱 PromptPay'} | {tx.status === 'REFUNDED' ? '↩️ GIÀ STORNATO' : '✅ PAGATO'}
+                    🕒 {timeStr} | #{tx.orderNo} | {tx.customerName || 'Ospite'} | 🏠 {purchaseLabel}: {accommodation}{dates} | ฿{tx.amount.toLocaleString()} THB | {tx.channel === 'card' ? '💳 Carta' : '📱 PromptPay'} | {tx.status === 'REFUNDED' ? '↩️ GIÀ STORNATO' : '✅ PAGATO'}
                   </option>
                 );
               })}
@@ -293,6 +300,7 @@ export const KsherTab: React.FC = () => {
           {selectedTxOrderNo && (() => {
             const selectedTx = recordedTransactions.find((t) => t.orderNo === selectedTxOrderNo);
             if (!selectedTx) return null;
+            const d = selectedTx.date ? new Date(selectedTx.date) : null;
             return (
               <div className="p-3.5 bg-stone-900/80 rounded-xl border border-stone-800 space-y-2.5 text-xs">
                 {/* Dettagli Tipo Acquisto & Prenotazione */}
@@ -306,6 +314,11 @@ export const KsherTab: React.FC = () => {
                   {selectedTx.datesSummary && (
                     <span className="text-stone-300 font-mono text-[11px] bg-stone-950 px-2 py-0.5 rounded border border-stone-800">
                       🗓️ {selectedTx.datesSummary}
+                    </span>
+                  )}
+                  {d && (
+                    <span className="text-amber-300 font-mono text-[11px] bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
+                      🕒 Ricevuto: {d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })} alle ore {d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                     </span>
                   )}
                   {selectedTx.customerEmail && (

@@ -5,6 +5,7 @@ import { stripe } from "../_helpers/stripe.js";
 import { signKsherPayload, getKsherAppId, getKsherPrivateKey } from "../_helpers/ksher.js";
 import { generatePromptPayPayload } from "../_helpers/promptpay.js";
 import { getPayPalCredentials, getPayPalAccessToken } from "../_helpers/paypal.js";
+import { retrieveOmiseCharge, createOmiseRefund } from "../_helpers/omise.js";
 
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -48,13 +49,11 @@ export async function handlePaymentsAdmin(req: VercelRequest, res: VercelRespons
 
     // 2. SAVE SETTINGS
     if (req.method === "POST" && action === "save-settings") {
-      if (!supabase) {
-        return res.status(500).json({ error: "Supabase service client not initialized" });
-      }
-
+      const normalizedPromptPay = req.body.active_promptpay_provider === "omise" ? "omise" : "kbank";
       const payload = {
         id: "singleton",
         active_primary_gateway: req.body.active_primary_gateway || "ksher",
+        active_promptpay_provider: normalizedPromptPay,
         paypal_enabled: req.body.paypal_enabled ?? true,
         stripe_config: req.body.stripe_config || {},
         ksher_config: req.body.ksher_config || {},
@@ -63,17 +62,29 @@ export async function handlePaymentsAdmin(req: VercelRequest, res: VercelRespons
         updated_at: new Date().toISOString()
       };
 
-      const { data, error } = await supabase
-        .from("payment_settings")
-        .upsert(payload, { onConflict: "id" })
-        .select()
-        .single();
+      if (supabase) {
+        // Upload to site-images storage bucket with service_role privileges
+        try {
+          await supabase.storage.from("site-images").upload(
+            "payment_settings.json",
+            Buffer.from(JSON.stringify(payload, null, 2)),
+            { upsert: true, contentType: "application/json", cacheControl: "0" }
+          );
+        } catch (storageErr: any) {
+          console.warn("[PaymentsAdmin] Storage upload error:", storageErr.message || storageErr);
+        }
 
-      if (error) {
-        return res.status(500).json({ error: error.message });
+        // Upsert to payment_settings table if available
+        try {
+          await supabase
+            .from("payment_settings")
+            .upsert(payload, { onConflict: "id" });
+        } catch (dbErr: any) {
+          console.warn("[PaymentsAdmin] DB upsert error:", dbErr.message || dbErr);
+        }
       }
 
-      return res.status(200).json({ success: true, settings: data });
+      return res.status(200).json({ success: true, settings: payload });
     }
 
     // 3. REAL TRANSACTION & CHECKOUT ENGINE (End-to-End Execution for all 4 Gateways)
@@ -544,6 +555,119 @@ export async function handlePaymentsAdmin(req: VercelRequest, res: VercelRespons
         success: refundData.code === 0 && refundData.data?.result === 'SUCCESS',
         refundData
       });
+    }
+
+    // 8. OMISE QUERY CHARGE / ORDER
+    if (action === "omise-query" || req.query.action === "omise-query") {
+      const chargeId = (req.body?.charge_id || req.query.charge_id || req.body?.order_no || req.query.order_no || "").toString().trim();
+      if (!chargeId) {
+        return res.status(400).json({ error: "charge_id o order_no è obbligatorio" });
+      }
+
+      let effectiveChargeId = chargeId;
+      const potentialOrderId = effectiveChargeId.replace(/^chrg_/, '');
+      if (supabase && (!effectiveChargeId.startsWith('chrg_') || !isNaN(Number(potentialOrderId)))) {
+        try {
+          const numericId = Number(potentialOrderId);
+          if (!isNaN(numericId)) {
+            const { data: orderRow } = await supabase
+              .from('pizza_orders')
+              .select('id, receipt_url, payment_method, total, status')
+              .eq('id', numericId)
+              .maybeSingle();
+
+            if (orderRow?.receipt_url && orderRow.receipt_url.startsWith('chrg_')) {
+              effectiveChargeId = orderRow.receipt_url;
+            }
+          }
+        } catch (_) {}
+      }
+
+      try {
+        const chargeData = await retrieveOmiseCharge(effectiveChargeId);
+        return res.status(200).json({
+          success: true,
+          charge: chargeData
+        });
+      } catch (err: any) {
+        return res.status(400).json({
+          success: false,
+          error: err.message || "Impossibile recuperare la transazione Omise"
+        });
+      }
+    }
+
+    // 9. OMISE REFUND CHARGE
+    if (req.method === "POST" && (action === "omise-refund" || req.query.action === "omise-refund")) {
+      const { charge_id, refund_amount, order_no } = req.body || {};
+      const targetId = (charge_id || order_no || "").toString().trim();
+
+      if (!targetId) {
+        return res.status(400).json({ error: "charge_id o order_no è obbligatorio" });
+      }
+
+      let effectiveChargeId = targetId;
+      let matchedPizzaOrderId: string | null = null;
+
+      const potentialOrderId = effectiveChargeId.replace(/^chrg_/, '');
+      if (supabase && (!effectiveChargeId.startsWith('chrg_') || !isNaN(Number(potentialOrderId)))) {
+        try {
+          const numericId = Number(potentialOrderId);
+          if (!isNaN(numericId)) {
+            const { data: orderRow } = await supabase
+              .from('pizza_orders')
+              .select('id, receipt_url, payment_method, total, status')
+              .eq('id', numericId)
+              .maybeSingle();
+
+            if (orderRow) {
+              matchedPizzaOrderId = String(orderRow.id);
+              if (orderRow.receipt_url && orderRow.receipt_url.startsWith('chrg_')) {
+                effectiveChargeId = orderRow.receipt_url;
+              }
+            }
+          }
+        } catch (_) {}
+      }
+
+      try {
+        const existingCharge = await retrieveOmiseCharge(effectiveChargeId);
+        if (existingCharge.source?.type === 'promptpay') {
+          return res.status(400).json({
+            success: false,
+            error: "PromptPay QR non supporta lo storno automatico via API (regola interbancaria thailandese). Effettua un bonifico manuale dal tuo conto bancario al numero di telefono del cliente."
+          });
+        }
+
+        const refundSatang = refund_amount ? Math.round(Number(refund_amount) * 100) : undefined;
+        const refundData = await createOmiseRefund({
+          chargeId: effectiveChargeId,
+          amount: refundSatang
+        });
+
+        // Aggiorna lo stato dell'ordine se collegato a pizza_orders
+        if (matchedPizzaOrderId && supabase) {
+          try {
+            await supabase
+              .from('pizza_orders')
+              .update({
+                status: 'rejected',
+                payment_status: 'refunded'
+              })
+              .eq('id', matchedPizzaOrderId);
+          } catch (_) {}
+        }
+
+        return res.status(200).json({
+          success: true,
+          refundData
+        });
+      } catch (err: any) {
+        return res.status(400).json({
+          success: false,
+          error: err.message || "Errore durante lo storno su Omise"
+        });
+      }
     }
 
     return res.status(404).json({ error: "Azione non riconosciuta" });

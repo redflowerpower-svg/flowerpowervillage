@@ -19,6 +19,7 @@ import {
   PlayCircle,
   Moon,
   Save,
+  RotateCcw,
   X
 } from 'lucide-react';
 import { usePizzaAdminStore, PizzaOrder } from '../store/usePizzaAdminStore';
@@ -157,6 +158,19 @@ const parseCoordsFromAddress = (addressStr: string) => {
     addressTh = thMatch[1].trim();
   }
 
+  // Extract notes and email
+  let notes = '';
+  const noteMatch = addressStr.match(/\[NOTE:\s*([^\]]+)\]/i);
+  if (noteMatch) {
+    notes = noteMatch[1].trim();
+  }
+
+  let email = '';
+  const emailMatch = addressStr.match(/\[EMAIL:\s*([^\]]+)\]/i);
+  if (emailMatch) {
+    email = emailMatch[1].trim();
+  }
+
   let lat = RESTAURANT_LAT;
   let lng = RESTAURANT_LNG;
 
@@ -170,13 +184,16 @@ const parseCoordsFromAddress = (addressStr: string) => {
   const cleanAddress = addressStr
     .replace(/\s*\[ADDR_TH:[^\]]+\]/gi, '')
     .replace(/\s*\[(COORD|Lat)[^\]]*\]/gi, '')
+    .replace(/\s*\[EMAIL:[^\]]+\]/gi, '')
+    .replace(/\s*\[NOTE:[^\]]+\]/gi, '')
+    .replace(/\s*\[LANG:[^\]]+\]/gi, '')
     .trim();
 
   if (!addressTh) {
     addressTh = translateAddressToThai(cleanAddress);
   }
 
-  return { address: cleanAddress, addressTh, lat, lng };
+  return { address: cleanAddress, addressTh, notes, email, lat, lng };
 };
 
 export function KitchenTabletKDS() {
@@ -204,6 +221,7 @@ export function KitchenTabletKDS() {
   const [showPauseModal, setShowPauseModal] = useState(false);
   const showPauseModalRef = useRef(false);
   showPauseModalRef.current = showPauseModal;
+  const [showCompletedModal, setShowCompletedModal] = useState(false);
 
   // Opening hours inputs and custom pause time
   const [editOpenTime, setEditOpenTime] = useState<string>('11:00');
@@ -361,36 +379,49 @@ export function KitchenTabletKDS() {
     return () => clearInterval(interval);
   }, []);
 
-  // 4. Fetch orders and subscribe to Supabase Realtime
+  // 4. Fetch orders, subscribe to Supabase Realtime, and Screen Wake Lock with auto-sync on wakeup
   useEffect(() => {
+    // Initial fetch
     fetchOrders();
     const unsubscribe = subscribeToRealtime();
-    return () => {
-      unsubscribe();
-      stopContinuousAlarm();
-      stopDispatchReminderAlarm();
-      releaseScreenWakeLock();
-    };
-  }, []);
 
-  // 5. Screen Wake Lock
-  useEffect(() => {
     const acquireLock = async () => {
       const ok = await requestScreenWakeLock();
       setWakeLockActive(ok);
     };
-
     acquireLock();
 
-    const handleVisibilityChange = () => {
+    // Heartbeat safety polling every 20 seconds while tablet screen is open/visible
+    const pollInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchOrders();
+      }
+    }, 20000);
+
+    // Instant re-fetch when tablet screen turns on, unlocks, or tab regains focus
+    const handleWakeupAndFocus = () => {
       if (document.visibilityState === 'visible') {
         acquireLock();
+        fetchOrders();
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    const handleOnline = () => {
+      fetchOrders();
+    };
+
+    document.addEventListener('visibilitychange', handleWakeupAndFocus);
+    window.addEventListener('focus', handleWakeupAndFocus);
+    window.addEventListener('online', handleOnline);
+
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      unsubscribe();
+      clearInterval(pollInterval);
+      document.removeEventListener('visibilitychange', handleWakeupAndFocus);
+      window.removeEventListener('focus', handleWakeupAndFocus);
+      window.removeEventListener('online', handleOnline);
+      stopContinuousAlarm();
+      stopDispatchReminderAlarm();
       releaseScreenWakeLock();
     };
   }, []);
@@ -411,7 +442,7 @@ export function KitchenTabletKDS() {
   // Set of order IDs acknowledged/handled by staff for new incoming buzzer
   const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => new Set());
 
-  // 6. Group into 2 PHASES:
+  // 6. Group into PHASES:
   // Phase 1: In Kitchen (New orders to accept)
   const kitchenOrders = useMemo(() => {
     return orders.filter(o => o.status === 'new' || (o.status as any) === 'received');
@@ -420,6 +451,11 @@ export function KitchenTabletKDS() {
   // Phase 2: In Preparation & Delivering (Orders confirmed, cooking or out for delivery)
   const readyOrders = useMemo(() => {
     return orders.filter(o => o.status === 'preparing' || o.status === 'delivering' || (o.status as any) === 'ready');
+  }, [orders]);
+
+  // Phase 3: Completed Orders Today (Archived & delivered in the last 24h)
+  const completedTodayOrders = useMemo(() => {
+    return orders.filter(o => o.status === 'completed');
   }, [orders]);
 
   // Helper to calculate minutes spent in preparation
@@ -786,6 +822,20 @@ export function KitchenTabletKDS() {
             </button>
           </div>
 
+          {/* Completed Orders Archive Today Button */}
+          <button
+            type="button"
+            onClick={() => setShowCompletedModal(true)}
+            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 hover:text-white text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+            title={kdsLang === 'th' ? 'ดูประวัติออเดอร์ที่ส่งแล้ววันนี้' : 'Visualizza archivio ordini completati di oggi'}
+          >
+            <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="hidden sm:inline">{kdsLang === 'th' ? 'ส่งแล้ว' : 'Archivio'}</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-emerald-950 text-emerald-300 text-[11px] font-black border border-emerald-600/60">
+              {completedTodayOrders.length}
+            </span>
+          </button>
+
           {/* Screen Wake Lock Status Badge */}
           <button
             onClick={() => requestScreenWakeLock().then(ok => setWakeLockActive(ok))}
@@ -896,7 +946,7 @@ export function KitchenTabletKDS() {
               kitchenOrders.map(order => {
                 const elapsed = getElapsedMinutes(order.created_at);
                 const items = (Array.isArray(order.items) ? order.items : []) as CartItemSaved[];
-                const { address, addressTh, lat, lng } = parseCoordsFromAddress(order.address);
+                const { address, addressTh, notes, lat, lng } = parseCoordsFromAddress(order.address);
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
 
                 return (
@@ -954,6 +1004,12 @@ export function KitchenTabletKDS() {
                           <span>{t.mapBtn}</span>
                         </a>
                       </div>
+                      {notes && (
+                        <div className="px-2.5 py-1.5 rounded-lg bg-amber-950/70 border border-amber-500/40 text-amber-200 text-xs font-semibold flex items-start gap-1.5 mt-1">
+                          <span className="shrink-0 text-sm">📝</span>
+                          <span className="break-words leading-tight">{notes}</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Giant Items List */}
@@ -1126,7 +1182,7 @@ export function KitchenTabletKDS() {
                 const elapsedPrep = getElapsedPrepMinutes(order);
                 const isOverdue = order.status === 'preparing' && elapsedPrep >= 15;
                 const items = (Array.isArray(order.items) ? order.items : []) as CartItemSaved[];
-                const { address, addressTh, lat, lng } = parseCoordsFromAddress(order.address);
+                const { address, addressTh, notes, lat, lng } = parseCoordsFromAddress(order.address);
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
                 const isDelivering = order.status === 'delivering';
 
@@ -1219,6 +1275,12 @@ export function KitchenTabletKDS() {
                           <span>{t.mapBtn}</span>
                         </a>
                       </div>
+                      {notes && (
+                        <div className="px-2.5 py-1.5 rounded-lg bg-amber-950/70 border border-amber-500/40 text-amber-200 text-xs font-semibold flex items-start gap-1.5 mt-1">
+                          <span className="shrink-0 text-sm">📝</span>
+                          <span className="break-words leading-tight">{notes}</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Full Ordered Items List with Universal Translated Extras */}
@@ -1525,6 +1587,140 @@ export function KitchenTabletKDS() {
               >
                 <Save className="w-4 h-4 text-amber-400" />
                 <span>{hoursSavedSuccess ? t.hoursSaved : t.saveHoursBtn}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ─── COMPLETED ORDERS ARCHIVE TODAY MODAL ─────────────────────────── */}
+      {showCompletedModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+          <div className="bg-[#161b26] border-2 border-stone-700 rounded-3xl p-5 sm:p-6 max-w-2xl w-full shadow-2xl flex flex-col max-h-[85vh] space-y-4">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-950/80 border border-emerald-600/50 flex items-center justify-center text-emerald-400 shrink-0">
+                  <CheckCircle className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-black text-base sm:text-lg text-white uppercase leading-none">
+                    {kdsLang === 'th' ? 'ประวัติออเดอร์ที่ส่งแล้ววันนี้' : 'ORDINI COMPLETATI / CONSEGNATI OGGI'}
+                  </h3>
+                  <span className="text-[11px] font-bold text-stone-400">
+                    {completedTodayOrders.length} {kdsLang === 'th' ? 'ออเดอร์' : 'ordini completati nelle ultime 24 ore'}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCompletedModal(false)}
+                className="p-1.5 rounded-xl bg-stone-800 text-stone-400 hover:text-white cursor-pointer transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Orders List */}
+            <div className="overflow-y-auto flex-1 space-y-2.5 pr-1 min-h-[150px]">
+              {completedTodayOrders.length === 0 ? (
+                <div className="py-12 text-center text-stone-500 font-bold text-sm">
+                  {kdsLang === 'th' ? 'ยังไม่มีออเดอร์ที่จัดส่งสำเร็จในวันนี้' : 'Nessun ordine completato oggi.'}
+                </div>
+              ) : (
+                completedTodayOrders.map((order) => {
+                  const items = Array.isArray(order.items) ? order.items : [];
+                  const timeFormatted = order.created_at
+                    ? new Date(order.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' })
+                    : '--:--';
+
+                  return (
+                    <div 
+                      key={order.id} 
+                      className="p-3.5 rounded-2xl bg-[#0d1017] border border-stone-800 text-xs space-y-2 hover:border-stone-700 transition-colors"
+                    >
+                      <div className="flex items-center justify-between gap-2 border-b border-stone-800/80 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 rounded-md bg-stone-800 text-white font-mono font-black text-xs">
+                            #{order.id}
+                          </span>
+                          <span className="font-black text-white text-sm">
+                            {order.customer_name || 'Cliente'}
+                          </span>
+                          {order.phone && (
+                            <span className="text-stone-400 text-[11px] font-mono">
+                              ({order.phone})
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-amber-400 text-xs font-bold">
+                            🕒 {timeFormatted}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-950 text-emerald-300 border border-emerald-700/60">
+                            {order.total} ฿
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Items */}
+                      <div className="space-y-1 text-stone-300">
+                        {items.map((item: any, idx: number) => {
+                          const vName = typeof item.selectedVariant === 'object' ? item.selectedVariant.name : item.selectedVariant;
+                          const extras = Array.isArray(item.selectedExtras) && item.selectedExtras.length > 0 
+                            ? item.selectedExtras.map((e: any) => e.name || e).join(', ') 
+                            : '';
+                          return (
+                            <div key={idx} className="flex justify-between items-baseline gap-2">
+                              <span>
+                                <strong className="text-white font-black">{item.quantity}x</strong> {item.name || item.nameIt}
+                                {vName && <span className="text-stone-400 text-[11px]"> ({vName})</span>}
+                                {extras && <span className="text-amber-400/90 text-[10px] block pl-4">+ {extras}</span>}
+                              </span>
+                              <span className="font-mono text-stone-400 text-[11px] shrink-0">
+                                {item.itemTotal || item.total || ''} ฿
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Address & Restore Button */}
+                      <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between gap-2 text-[11px]">
+                        <span className="text-stone-400 truncate max-w-[280px] sm:max-w-md">
+                          📍 {order.address || 'Ritiro / Ranong'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (window.confirm(kdsLang === 'th' ? `ต้องการนำออเดอร์ #${order.id} กลับมาในครัวหรือไม่?` : `Riportare l'ordine #${order.id} nella schermata della cucina?`)) {
+                              await updateOrderStatus(String(order.id), 'preparing');
+                              setShowCompletedModal(false);
+                            }
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-blue-950 hover:bg-blue-900 border border-blue-700 text-blue-300 hover:text-white font-bold text-[10px] uppercase flex items-center gap-1 cursor-pointer transition-colors shrink-0"
+                          title="Riporta ordine in preparazione"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>{kdsLang === 'th' ? 'นำกลับมาทำใหม่' : 'Riporta in cucina'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="pt-2 border-t border-stone-800 flex justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowCompletedModal(false)}
+                className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-white font-black text-xs uppercase cursor-pointer transition-colors"
+              >
+                {kdsLang === 'th' ? 'ปิดหน้าต่าง' : 'Chiudi'}
               </button>
             </div>
 

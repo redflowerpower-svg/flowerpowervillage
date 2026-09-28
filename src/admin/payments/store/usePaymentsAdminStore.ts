@@ -3,6 +3,7 @@ import { supabase } from '../../../lib/supabase';
 import {
   PaymentSettings,
   PrimaryGateway,
+  PromptPayProvider,
   StripeConfig,
   KsherConfig,
   OmiseConfig,
@@ -14,6 +15,7 @@ import {
 const DEFAULT_SETTINGS: PaymentSettings = {
   id: 'singleton',
   active_primary_gateway: 'ksher',
+  active_promptpay_provider: 'kbank',
   paypal_enabled: true,
   stripe_config: {
     target: 'TEST',
@@ -62,6 +64,7 @@ interface PaymentsAdminState {
   setActiveTab: (tab: 'overview' | 'stripe' | 'ksher' | 'omise' | 'paypal' | 'testlab' | 'accounting') => void;
   fetchSettings: () => Promise<void>;
   updatePrimaryGateway: (gateway: PrimaryGateway) => void;
+  updatePromptPayProvider: (provider: PromptPayProvider) => void;
   updateStripeConfig: (config: Partial<StripeConfig>) => void;
   updateKsherConfig: (config: Partial<KsherConfig>) => void;
   updateOmiseConfig: (config: Partial<OmiseConfig>) => void;
@@ -86,31 +89,41 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
   fetchSettings: async () => {
     set({ loading: true, errorMessage: null });
     try {
+      // 1. Try public storage JSON first (instant cross-device sync without DB table dependency)
+      try {
+        const publicUrl = `https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/site-images/payment_settings.json?_ts=${Date.now()}`;
+        const sRes = await fetch(publicUrl, { cache: 'no-store' });
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          if (sData && sData.active_promptpay_provider) {
+            const normalizedProvider = sData.active_promptpay_provider === 'omise' ? 'omise' : 'kbank';
+            const merged: PaymentSettings = {
+              ...DEFAULT_SETTINGS,
+              ...sData,
+              active_promptpay_provider: normalizedProvider,
+            };
+            localStorage.setItem('fp_payment_settings', JSON.stringify(merged));
+            set({ settings: merged, loading: false });
+            return;
+          }
+        }
+      } catch (storageErr) {
+        console.warn('Storage payment_settings fetch fallback:', storageErr);
+      }
+
+      // 2. Try Supabase DB table if available
       const { data, error } = await supabase
         .from('payment_settings')
         .select('*')
         .eq('id', 'singleton')
         .maybeSingle();
 
-      if (error) {
-        // If table does not exist or network fails, fallback to defaults gracefully
-        console.warn('payment_settings table not available or error:', error.message);
-        // Try reading local storage cache if available
-        const cached = localStorage.getItem('fp_payment_settings');
-        if (cached) {
-          try {
-            set({ settings: JSON.parse(cached), loading: false });
-            return;
-          } catch {}
-        }
-        set({ settings: DEFAULT_SETTINGS, loading: false });
-        return;
-      }
-
-      if (data) {
+      if (!error && data) {
+        const normalizedProvider = data.active_promptpay_provider === 'omise' ? 'omise' : 'kbank';
         const merged: PaymentSettings = {
           id: 'singleton',
           active_primary_gateway: data.active_primary_gateway || 'ksher',
+          active_promptpay_provider: normalizedProvider,
           paypal_enabled: data.paypal_enabled ?? true,
           stripe_config: { ...DEFAULT_SETTINGS.stripe_config, ...(data.stripe_config || {}) },
           ksher_config: { ...DEFAULT_SETTINGS.ksher_config, ...(data.ksher_config || {}) },
@@ -120,9 +133,22 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
         };
         localStorage.setItem('fp_payment_settings', JSON.stringify(merged));
         set({ settings: merged, loading: false });
-      } else {
-        set({ settings: DEFAULT_SETTINGS, loading: false });
+        return;
       }
+
+      // 3. Fallback to localStorage cache
+      const cached = localStorage.getItem('fp_payment_settings');
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          const normalizedProvider = parsed.active_promptpay_provider === 'omise' ? 'omise' : 'kbank';
+          set({ settings: { ...DEFAULT_SETTINGS, ...parsed, active_promptpay_provider: normalizedProvider }, loading: false });
+          return;
+        }
+        catch {}
+      }
+
+      set({ settings: DEFAULT_SETTINGS, loading: false });
     } catch (err: any) {
       console.error('Fetch payment settings exception:', err);
       set({ errorMessage: err.message, loading: false });
@@ -137,6 +163,21 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
       },
       saveSuccess: false
     }));
+  },
+
+  updatePromptPayProvider: (provider) => {
+    const normalized = provider === 'omise' ? 'omise' : 'kbank';
+    const current = get().settings;
+    const newSettings = { ...current, active_promptpay_provider: normalized };
+    try {
+      localStorage.setItem('fp_payment_settings', JSON.stringify(newSettings));
+    } catch {}
+    set({
+      settings: newSettings,
+      saveSuccess: false
+    });
+    // Auto-save to cloud via backend API
+    get().saveSettings();
   },
 
   updateStripeConfig: (config) => {
@@ -199,6 +240,7 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
       const payload = {
         id: 'singleton',
         active_primary_gateway: settings.active_primary_gateway,
+        active_promptpay_provider: settings.active_promptpay_provider,
         paypal_enabled: settings.paypal_config.enabled,
         stripe_config: settings.stripe_config,
         ksher_config: settings.ksher_config,
@@ -207,16 +249,24 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
         updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
-        .from('payment_settings')
-        .upsert(payload, { onConflict: 'id' });
+      // 1. Always update local cache immediately
+      try {
+        localStorage.setItem('fp_payment_settings', JSON.stringify({ ...payload }));
+      } catch {}
 
-      if (error) {
-        console.warn('Upsert to payment_settings returned error, fallback to local storage:', error.message);
+      // 2. Save via Backend API (which has service_role to upload to site-images storage & upsert DB)
+      try {
+        const res = await fetch('/api/payments-admin?action=save-settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          console.warn('API save-settings HTTP warning:', res.status);
+        }
+      } catch (apiErr) {
+        console.warn('API save-settings call error:', apiErr);
       }
-
-      // Always update local cache
-      localStorage.setItem('fp_payment_settings', JSON.stringify({ ...payload }));
 
       set({ saving: false, saveSuccess: true, settings: { ...settings, updated_at: payload.updated_at } });
       setTimeout(() => set({ saveSuccess: false }), 4000);

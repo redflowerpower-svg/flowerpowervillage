@@ -49,12 +49,22 @@ class ErrorBoundary extends React.Component<
   }
 }
 
+function RootRouter() {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname.toLowerCase();
+    if (host.includes('flowerpowerpizza.com')) {
+      return <PizzaSite />;
+    }
+  }
+  return <SplitScreen />;
+}
+
 function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<SplitScreen />} />
+          <Route path="/" element={<RootRouter />} />
           <Route path="/village/*" element={<VillageSite />} />
           <Route path="/pizza/*" element={<PizzaSite />} />
           <Route path="/admin" element={<AdminMain />} />

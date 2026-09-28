@@ -33,7 +33,16 @@ Il sistema gestisce l'intero catalogo dei prodotti e l'inoltro degli ordini via 
 ### C. Allineamento Geometrico Schede Menu Food
 *   **Ancoraggio Badge Extra a Fondo Scheda (`mt-auto`):** L'indicatore `• N INGREDIENTI EXTRA` e le opzioni di taglia sono posizionati stabilmente a contatto con la riga sottile divisoria (`border-t border-stone-200`) in tutte le schede della griglia, garantendo perfetto allineamento visivo a prescindere dalla lunghezza del testo descrittivo.
 
-### D. Switcher "Sito Nuovo / Sito Vecchio"
+### D. Dominio Ufficiale, Routing Dedicato & Conformità Payment Gateway (`www.flowerpowerpizza.com`)
+*   **Routing Automatico per Dominio (`RootRouter` in `App.tsx`):** I visitatori che accedono a `www.flowerpowerpizza.com` (o `flowerpowerpizza.com`) vengono indirizzati direttamente al menu delivery della Pizzeria (`PizzaSite`), mentre chi visita il dominio del villaggio o lo staging virtuale visualizza la consueta home multi-reparto (`SplitScreen`).
+*   **Modalità di Conformità Normativa Gateway (Zero Alcolici):** In conformità con i requisiti dei Payment Gateway internazionali e thailandesi (Opn / Omise, Ksher, Stripe), sul dominio ufficiale `www.flowerpowerpizza.com` vengono **automaticamente escluse** le categorie alcoliche (`Vini` e `Bibite & Birre`), lasciando attive esattamente le **10 categorie pure alimentari, caffetteria e bevande alla frutta fresca**.
+*   **Footer di Conformità & Informative Legali (`PizzaPoliciesModal.tsx`):** Accessibile direttamente dal footer del menu delivery con modale in 4 lingue contenente:
+    1. *Termini di Consegna e Spedizione (raggio 5,0 km da Bang Rin Ranong, soglia consegna gratuita 300฿).*
+    2. *Politica di Cancellazione e Rimborso Integrale al 100%.*
+    3. *Informativa sulla Privacy (PDPA / GDPR) e Sicurezza dei Pagamenti Elettronici (PCI-DSS Level 1, crittografia 256-bit, 3D Secure, zero salvataggio carte).*
+*   **Notifiche Email Ordini & Newsletter Studio (`flowerpowerpizzaranong.th@gmail.com`):** Configurato sender SMTP dedicato con template HTML brandizzati per conferme d'ordine e ricevute clienti, oltre al modulo Admin Marketing & Newsletter per campagne promozionali multilingua (`src/admin/pizza/components/PizzaNewsletterSection.tsx`).
+
+### E. Switcher "Sito Nuovo / Sito Vecchio"
 *   **Toggle Header Navigation:** Nella barra marrone superiore di `PizzaSite.tsx` è integrato un interruttore persistito in `localStorage` (`flower_power_pizza_mode`) per passare rapidamente tra la **Nuova Delivery App** (`DeliveryMenu`) e la **Landing Provvisoria GloriaFood** (`GloriaFoodLanding`).
 
 ---

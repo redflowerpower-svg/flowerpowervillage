@@ -4,6 +4,9 @@ import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
 import { renderCountryFlag, formatSubtitle, renderWinePrice, renderFormattedPrice, formatWineProductName } from '../data/wineData';
 
+import { withCacheBust } from '../utils/cacheBust';
+
+
 interface Props {
   items: MenuItem[];
   lang: 'IT' | 'EN' | 'TH' | 'DE';
@@ -355,7 +358,7 @@ export default function MenuGrid({ items, lang }: Props) {
                     }}
                   >
                     <img
-                      src={item.image}
+                      src={withCacheBust(item.image)}
                       alt={getTranslatedName(item)}
                       loading="lazy"
                       decoding="async"
@@ -451,7 +454,7 @@ export default function MenuGrid({ items, lang }: Props) {
               }}
             >
               <img
-                src={item.image}
+                src={withCacheBust(item.image)}
                 alt={getTranslatedName(item)}
                 loading="lazy"
                 decoding="async"
@@ -816,7 +819,7 @@ export default function MenuGrid({ items, lang }: Props) {
           </button>
           <div className="relative max-w-4xl max-h-[85vh] overflow-hidden rounded-[2rem] shadow-2xl border border-stone-800/50 bg-stone-900 cursor-default" onClick={(e) => e.stopPropagation()}>
             <img 
-              src={zoomedImage} 
+              src={withCacheBust(zoomedImage)} 
               alt="Zoomed preview" 
               className="max-w-full max-h-[80vh] object-contain rounded-[2rem]"
             />

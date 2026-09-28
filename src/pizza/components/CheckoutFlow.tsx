@@ -34,6 +34,7 @@ import {
   type CardFormData
 } from '../services/omiseClient';
 import PizzaPoliciesModal, { PolicyTab } from './PizzaPoliciesModal';
+import { usePaymentsAdminStore } from '../../admin/payments/store/usePaymentsAdminStore';
 
 type SubmitPhase = 'idle' | 'sending' | 'timeout' | 'rejected';
 
@@ -51,6 +52,9 @@ const translations = {
     step1Title: 'I Tuoi Dati',
     namePlaceholder: 'Nome',
     phonePlaceholder: 'Telefono',
+    emailPlaceholder: 'Email per ricevuta e tracking',
+    notesPlaceholder: 'Note per la consegna (es. citofono, piano, allergie...)',
+    invalidEmailHint: 'Inserisci un indirizzo email valido',
     addressPlaceholder: 'Indirizzo di Consegna',
     verifyLoc: 'Verifica Posizione',
     verifyingLoc: 'Verifica in corso...',
@@ -75,6 +79,7 @@ const translations = {
     uploadBtn: 'Carica screenshot ricevuta',
     submitBtn: 'CONFERMA E INVIA ORDINE',
     uploadPromptBtn: 'CARICA RICEVUTA PER PROCEDERE',
+    kbankStep4: 'Carica screenshot della ricevuta di pagamento',
     backBtn: 'Torna indietro',
     successTitle: "LA CUOCA É ALL'OPERA!",
     successDesc: 'Grazie! Il tuo ordine è stato registrato ed è in fase di preparazione. A breve riceverai una chiamata di conferma.',
@@ -101,6 +106,9 @@ const translations = {
     step1Title: 'Your Information',
     namePlaceholder: 'Name',
     phonePlaceholder: 'Phone',
+    emailPlaceholder: 'Email for receipt & tracking',
+    notesPlaceholder: 'Delivery notes (e.g. buzzer, floor, allergies...)',
+    invalidEmailHint: 'Please enter a valid email address',
     addressPlaceholder: 'Delivery Address',
     verifyLoc: 'Verify Location',
     verifyingLoc: 'Verifying...',
@@ -125,6 +133,7 @@ const translations = {
     uploadBtn: 'Upload receipt screenshot',
     submitBtn: 'CONFIRM AND SEND ORDER',
     uploadPromptBtn: 'UPLOAD RECEIPT TO PROCEED',
+    kbankStep4: 'Upload a screenshot of your payment receipt',
     backBtn: 'Go Back',
     successTitle: "Kitchen is at work!",
     successDesc: 'Thank you! Your order has been recorded and is being prepared. You will receive a confirmation call shortly.',
@@ -151,6 +160,9 @@ const translations = {
     step1Title: 'ข้อมูลของคุณ',
     namePlaceholder: 'ชื่อ',
     phonePlaceholder: 'เบอร์โทรศัพท์',
+    emailPlaceholder: 'อีเมลสำหรับรับใบเสร็จและการติดตาม',
+    notesPlaceholder: 'หมายเหตุการจัดส่ง (เช่น กริ่งประตู, ชั้น, แพ้อาหาร...)',
+    invalidEmailHint: 'กรุณากรอกอีเมลให้ถูกต้อง',
     addressPlaceholder: 'ที่อยู่จัดส่ง',
     verifyLoc: 'ตรวจสอบตำแหน่ง',
     verifyingLoc: 'กำลังตรวจสอบ...',
@@ -175,6 +187,7 @@ const translations = {
     uploadBtn: 'อัปโหลดภาพหน้าจอใบเสร็จ',
     submitBtn: 'ยืนยันและส่งคำสั่งซื้อ',
     uploadPromptBtn: 'อัปโหลดใบเสร็จเพื่อดำเนินการต่อ',
+    kbankStep4: 'อัปโหลดภาพหน้าจอยืนยันการชำระเงิน',
     backBtn: 'ย้อนกลับ',
     successTitle: 'ส่งคำสั่งซื้อสำเร็จแล้ว!',
     successDesc: 'ขอบคุณ! คำสั่งซื้อของคุณได้รับการบันทึกแล้วและกำลังอยู่ในขั้นตอนการเตรียมการ คุณจะได้รับสายยืนยันในไม่ช้า',
@@ -201,6 +214,9 @@ const translations = {
     step1Title: 'Ihre Daten',
     namePlaceholder: 'Name',
     phonePlaceholder: 'Telefon',
+    emailPlaceholder: 'E-Mail für Beleg & Tracking',
+    notesPlaceholder: 'Lieferhinweise (z.B. Klingel, Etage, Allergien...)',
+    invalidEmailHint: 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
     addressPlaceholder: 'Lieferadresse',
     verifyLoc: 'Standort verifizieren',
     verifyingLoc: 'Überprüfung...',
@@ -225,6 +241,7 @@ const translations = {
     uploadBtn: 'Quittungs-Screenshot hochladen',
     submitBtn: 'BESTÄTIGEN UND SENDEN',
     uploadPromptBtn: 'QUITTUNG HOCHLADEN',
+    kbankStep4: 'Laden Sie einen Screenshot Ihrer Zahlungsbestätigung hoch',
     backBtn: 'Zurück',
     successTitle: 'Bestellung erfolgreich gesendet!',
     successDesc: 'Vielen Dank! Ihre Bestellung wurde registriert und wird vorbereitet. Sie erhalten in Kürze einen Bestätigungsanruf.',
@@ -354,12 +371,44 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     error: locationError,
   } = useLocationStore();
 
+  // Read active PromptPay provider from admin dashboard settings (fallback to kbank / K-Shop)
+  const { settings: paymentSettings, fetchSettings } = usePaymentsAdminStore();
+
+  useEffect(() => {
+    fetchSettings();
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'fp_payment_settings') {
+        fetchSettings();
+      }
+    };
+    const handleFocus = () => {
+      fetchSettings();
+    };
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('focus', handleFocus);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [fetchSettings]);
+
+  const activeProviderRaw = paymentSettings?.active_promptpay_provider;
+  const promptPayProvider: 'kbank' | 'omise' = activeProviderRaw === 'omise' ? 'omise' : 'kbank';
+
   const total = getTotal();
   const deliveryFee = total >= 300 ? 0 : 30;
   const finalTotal = total + deliveryFee;
   const [step, setStep] = useState(1);
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [name, setName] = useState(() => {
+    try { return localStorage.getItem('fp_pizza_customer_name') || ''; } catch { return ''; }
+  });
+  const [phone, setPhone] = useState(() => {
+    try { return localStorage.getItem('fp_pizza_customer_phone') || ''; } catch { return ''; }
+  });
+  const [email, setEmail] = useState(() => {
+    try { return localStorage.getItem('fp_pizza_customer_email') || ''; } catch { return ''; }
+  });
+  const [notes, setNotes] = useState('');
   const [whatsAppActive, setWhatsAppActive] = useState(false);
   const [lineActive, setLineActive] = useState(false);
   const [address, setAddress] = useState('');
@@ -612,6 +661,34 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     }
   }, [isEditingAddress]);
 
+  const handleNameChange = (val: string) => {
+    setName(val);
+    try { localStorage.setItem('fp_pizza_customer_name', val); } catch (_) {}
+  };
+  const handlePhoneChange = (val: string) => {
+    setPhone(val);
+    try { localStorage.setItem('fp_pizza_customer_phone', val); } catch (_) {}
+  };
+  const handleEmailChange = (val: string) => {
+    setEmail(val);
+    try { localStorage.setItem('fp_pizza_customer_email', val); } catch (_) {}
+  };
+
+  const isValidEmail = (val: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  };
+
+  const buildFinalAddress = useCallback(() => {
+    let final = address || 'Nessun indirizzo';
+    const thAddr = thaiAddress || (lang === 'TH' ? address : '');
+    if (thAddr) final += ` [ADDR_TH: ${thAddr}]`;
+    if (markerPos) final += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
+    if (email.trim()) final += ` [EMAIL: ${email.trim()}]`;
+    if (notes.trim()) final += ` [NOTE: ${notes.trim()}]`;
+    final += ` [LANG: ${lang || 'EN'}]`;
+    return final;
+  }, [address, thaiAddress, lang, markerPos, email, notes]);
+
   const outOfRange = distanceKm !== null && !isDeliverable;
   const t = translations[lang];
 
@@ -619,8 +696,8 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   const fetchReverseGeocoding = async (lat: number, lng: number) => {
     const targetLang = lang === 'TH' ? 'th' : 'en';
     try {
-      if (typeof google === 'undefined' || !google.maps) {
-        console.warn('Google Maps API not loaded yet for geocoding.');
+      if (typeof google === 'undefined' || !google.maps || typeof google.maps.Geocoder !== 'function') {
+        console.warn('Google Maps API or Geocoder not loaded yet for geocoding.');
         return;
       }
       const geocoder = new google.maps.Geocoder();
@@ -665,7 +742,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
   const geocodeAddressText = async (textToSearch: string) => {
     if (!textToSearch || !textToSearch.trim()) return;
-    if (typeof google === 'undefined' || !google.maps) return;
+    if (typeof google === 'undefined' || !google.maps || typeof google.maps.Geocoder !== 'function') return;
     try {
       const geocoder = new google.maps.Geocoder();
       const targetLang = lang === 'TH' ? 'th' : 'en';
@@ -740,10 +817,10 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const urlParams = new URLSearchParams(window.location.search);
-    const returnedOrderId = urlParams.get('omise_order_id');
-    const returnedChargeId = urlParams.get('charge_id');
+    const returnedOrderId = urlParams.get('omise_order_id') || sessionStorage.getItem('omise_pending_order_id');
+    const returnedChargeId = urlParams.get('charge_id') || sessionStorage.getItem('omise_pending_charge_id');
 
-    if (returnedOrderId) {
+    if (returnedOrderId || returnedChargeId) {
       window.history.replaceState({}, '', window.location.pathname);
 
       setLoading(true);
@@ -751,16 +828,33 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
       setPaymentMethod('card');
 
       checkOmiseChargeStatus({
-        orderId: returnedOrderId,
+        orderId: returnedOrderId || undefined,
         chargeId: returnedChargeId || undefined
       })
         .then((res) => {
           if (res.paid) {
-            currentOrderIdRef.current = returnedOrderId;
-            setOrderId(returnedOrderId);
+            sessionStorage.removeItem('omise_pending_charge_id');
+            sessionStorage.removeItem('omise_pending_order_id');
+            const resolvedId = String(returnedOrderId || res.chargeId || '');
+            if (resolvedId) {
+              currentOrderIdRef.current = resolvedId;
+              setOrderId(resolvedId);
+            }
             setIsPaymentConfirmed(true);
             clearCart();
             setSubmitPhase('sending');
+
+            // Notify KDS tablet & kitchen channels immediately
+            try {
+              const ch = new BroadcastChannel('flower_power_orders_channel');
+              ch.postMessage({ type: 'NEW_ORDER', orderId: resolvedId });
+              ch.close();
+            } catch (_) {}
+            try {
+              const ch2 = new BroadcastChannel('pizza_orders_channel');
+              ch2.postMessage({ type: 'NEW_ORDER', orderId: resolvedId });
+              ch2.close();
+            } catch (_) {}
           } else {
             setPaymentError(res.failureMessage || '3D Secure payment was not completed or failed.');
           }
@@ -772,6 +866,84 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         .finally(() => setLoading(false));
     }
   }, [clearCart]);
+
+  // Finalize paid Omise PromptPay order — only inserts into pizza_orders AFTER payment is confirmed
+  const finalizeOmisePromptPayOrder = async (confirmedChargeId: string, confirmedQrUrl?: string) => {
+    const finalAddress = buildFinalAddress();
+
+    const orderData = {
+      customer_name: name || 'Cliente',
+      phone: phone || '0000000000',
+      address: finalAddress,
+      items,
+      total: finalTotal,
+      status: 'new',
+      payment_method: 'omise_promptpay',
+      payment_status: 'paid',
+      omise_charge_id: confirmedChargeId,
+      receipt_url: confirmedQrUrl || omiseQrUrl || undefined,
+      latitude: markerPos ? markerPos.lat : null,
+      longitude: markerPos ? markerPos.lng : null,
+      has_whatsapp: whatsAppActive,
+      has_line: lineActive
+    };
+
+    let savedOrder: any = null;
+    const { data: insertedRows, error } = await supabase
+      .from('pizza_orders')
+      .insert([orderData])
+      .select();
+
+    if (error) {
+      console.error('[Omise] Database insert error after payment:', error);
+      const simulatedId = 'ord-sim-' + Math.random().toString(36).substring(2, 9);
+      savedOrder = { id: simulatedId, ...orderData, created_at: new Date().toISOString() };
+    } else if (insertedRows && insertedRows[0]) {
+      savedOrder = insertedRows[0];
+    }
+
+    if (savedOrder) {
+      const orderIdStr = String(savedOrder.id);
+      currentOrderIdRef.current = orderIdStr;
+      setOrderId(orderIdStr);
+
+      try {
+        const { useAdminOrderStore } = await import('../../admin/store/adminOrderStore');
+        useAdminOrderStore.getState().addOrder(savedOrder);
+      } catch (e) {
+        console.warn('Admin store not loaded yet:', e);
+      }
+
+      try {
+        const ch1 = new BroadcastChannel('flower_power_orders_channel');
+        ch1.postMessage({ type: 'NEW_ORDER', order: savedOrder });
+        ch1.close();
+      } catch (e) {
+        console.warn('BroadcastChannel error:', e);
+      }
+      try {
+        const ch2 = new BroadcastChannel('pizza_orders_channel');
+        ch2.postMessage({ type: 'NEW_ORDER', order: savedOrder });
+        ch2.close();
+      } catch (e) {
+        console.warn('BroadcastChannel error:', e);
+      }
+
+      try {
+        fetch('/api/telegram-notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: savedOrder.id })
+        }).catch(e => console.error('Telegram notify fetch failed:', e));
+      } catch (e) {
+        console.warn('Failed triggering Telegram notify call:', e);
+      }
+    }
+
+    setIsPaymentConfirmed(true);
+    clearCart();
+    setSubmitPhase('sending');
+  };
 
   // Omise PromptPay QR live polling
   useEffect(() => {
@@ -788,10 +960,8 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         if (isCancelled) return;
 
         if (res.paid) {
-          setIsPaymentConfirmed(true);
           clearInterval(interval);
-          clearCart();
-          setSubmitPhase('sending');
+          await finalizeOmisePromptPayOrder(omiseChargeId, omiseQrUrl || undefined);
         } else if (res.status === 'failed') {
           setPaymentError(res.failureMessage || 'PromptPay payment failed');
           clearInterval(interval);
@@ -805,17 +975,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
       isCancelled = true;
       clearInterval(interval);
     };
-  }, [omiseChargeId, isPaymentConfirmed, paymentMethod, orderId, clearCart]);
+  }, [omiseChargeId, isPaymentConfirmed, paymentMethod, orderId, omiseQrUrl, finalTotal, name, phone, address, thaiAddress, markerPos, items, whatsAppActive, lineActive, clearCart]);
 
-  // Helper to ensure an order row exists in pizza_orders before initializing Omise charge
+  // Helper to ensure an order row exists in pizza_orders before initializing Omise Card charge
   const ensureOrderCreated = async (method: string): Promise<string> => {
     if (currentOrderIdRef.current) return currentOrderIdRef.current;
     if (orderId) return orderId;
 
-    let finalAddress = address || 'Nessun indirizzo';
-    const thAddr = thaiAddress || (lang === 'TH' ? address : '');
-    if (thAddr) finalAddress += ` [ADDR_TH: ${thAddr}]`;
-    if (markerPos) finalAddress += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
+    const finalAddress = buildFinalAddress();
 
     const orderData = {
       customer_name: name || 'Cliente',
@@ -825,7 +992,6 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
       total: finalTotal,
       status: 'new',
       payment_method: method,
-      payment_status: 'pending',
       latitude: markerPos ? markerPos.lat : null,
       longitude: markerPos ? markerPos.lng : null,
       has_whatsapp: whatsAppActive,
@@ -851,17 +1017,17 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     return newId;
   };
 
-  // Omise PromptPay QR generator
+  // Omise PromptPay QR generator (client reference only — order created in pizza_orders ONLY after payment confirmation)
   const handleGeneratePromptPayQr = async () => {
     try {
       setIsGeneratingQr(true);
       setPaymentError(null);
-      const targetOrderId = await ensureOrderCreated('omise_promptpay');
+      const tempRef = 'FP-' + Date.now();
       const chargeRes = await createPromptPayCharge({
-        orderId: targetOrderId,
+        orderId: tempRef,
         amount: finalTotal,
-        customerName: name,
-        phone
+        customerName: name || 'Cliente',
+        phone: phone || ''
       });
       setOmiseQrUrl(chargeRes.qrCodeUrl);
       setOmiseChargeId(chargeRes.chargeId);
@@ -872,6 +1038,33 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
       setIsGeneratingQr(false);
     }
   };
+
+  // Auto-generate Omise PromptPay QR code upon entering Step 2 without needing a button click
+  useEffect(() => {
+    if (
+      step === 2 &&
+      paymentMethod === 'promptpay' &&
+      promptPayProvider === 'omise' &&
+      !omiseQrUrl &&
+      !isGeneratingQr &&
+      !isPaymentConfirmed &&
+      finalTotal > 0
+    ) {
+      handleGeneratePromptPayQr();
+    }
+  }, [step, paymentMethod, promptPayProvider, omiseQrUrl, isGeneratingQr, isPaymentConfirmed, finalTotal]);
+
+  // Reset QR if total amount changes while unpaid
+  const lastTotalRef = useRef(finalTotal);
+  useEffect(() => {
+    if (lastTotalRef.current !== finalTotal) {
+      lastTotalRef.current = finalTotal;
+      if (omiseQrUrl && !isPaymentConfirmed) {
+        setOmiseQrUrl(null);
+        setOmiseChargeId(null);
+      }
+    }
+  }, [finalTotal, omiseQrUrl, isPaymentConfirmed]);
 
   // Save QR Code to Photos / Device Download for Mobile Banking
   const handleSaveQrImage = async () => {
@@ -959,6 +1152,12 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         phone
       });
 
+      // Save pending identifiers in sessionStorage before 3DS redirect
+      if (typeof window !== 'undefined' && chargeRes.chargeId) {
+        sessionStorage.setItem('omise_pending_charge_id', chargeRes.chargeId);
+        sessionStorage.setItem('omise_pending_order_id', String(targetOrderId));
+      }
+
       // 3. 3D Secure redirect if requested by issuing bank
       if (chargeRes.requires3DS && chargeRes.authorizeUri) {
         window.location.href = chargeRes.authorizeUri;
@@ -966,9 +1165,22 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
       }
 
       if (chargeRes.paid || chargeRes.status === 'successful') {
+        currentOrderIdRef.current = targetOrderId;
+        setOrderId(targetOrderId);
         setIsPaymentConfirmed(true);
         clearCart();
         setSubmitPhase('sending');
+
+        try {
+          const ch = new BroadcastChannel('flower_power_orders_channel');
+          ch.postMessage({ type: 'NEW_ORDER', orderId: targetOrderId });
+          ch.close();
+        } catch (_) {}
+        try {
+          const ch2 = new BroadcastChannel('pizza_orders_channel');
+          ch2.postMessage({ type: 'NEW_ORDER', orderId: targetOrderId });
+          ch2.close();
+        } catch (_) {}
       } else {
         throw new Error('Payment could not be completed.');
       }
@@ -1010,11 +1222,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         receiptUrl = urlData.publicUrl;
       }
 
-      // Serialize coordinates and Thai address into the address string
-      let finalAddress = address || 'Nessun indirizzo';
-      const thAddr = thaiAddress || (lang === 'TH' ? address : '');
-      if (thAddr) finalAddress += ` [ADDR_TH: ${thAddr}]`;
-      if (markerPos) finalAddress += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
+      const finalAddress = buildFinalAddress();
 
       const targetMethod = paymentMethod === 'promptpay' ? 'omise_promptpay' : 'cash';
 
@@ -1030,7 +1238,6 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
             total: finalTotal,
             status: 'new',
             payment_method: targetMethod,
-            payment_status: isPaymentConfirmed ? 'paid' : (targetMethod === 'cash' ? 'cash_on_delivery' : 'pending'),
             receipt_url: receiptUrl || omiseQrUrl || undefined,
             latitude: markerPos ? markerPos.lat : null,
             longitude: markerPos ? markerPos.lng : null,
@@ -1049,7 +1256,6 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
           total: finalTotal,
           status: 'new',
           payment_method: targetMethod,
-          payment_status: isPaymentConfirmed ? 'paid' : (targetMethod === 'cash' ? 'cash_on_delivery' : 'pending'),
           receipt_url: receiptUrl || omiseQrUrl || undefined,
           latitude: markerPos ? markerPos.lat : null,
           longitude: markerPos ? markerPos.lng : null,
@@ -1118,7 +1324,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
       setLoading(false);
       setSubmitPhase('timeout');
     }
-  }, [paymentMethod, receiptFile, address, markerPos, name, phone, items, finalTotal, whatsAppActive, lineActive, isPaymentConfirmed, omiseQrUrl, handlePayCard]);
+  }, [paymentMethod, receiptFile, address, markerPos, name, phone, items, finalTotal, whatsAppActive, lineActive, isPaymentConfirmed, omiseQrUrl, handlePayCard, buildFinalAddress]);
 
   const handleSubmit = () => {
     doSubmit();
@@ -1179,14 +1385,15 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
-      <div className="bg-white w-full max-w-md h-[92dvh] max-h-[720px] min-h-[580px] p-4 sm:p-5 border border-stone-300 text-stone-850 relative rounded-[2rem] shadow-2xl flex flex-col justify-between overflow-hidden">
+      <div className="bg-white w-full max-w-md h-[92dvh] max-h-[740px] p-4 sm:p-5 border border-stone-300 text-stone-850 relative rounded-[2rem] shadow-2xl flex flex-col overflow-hidden">
         
         {/* Flower Power Pizza Logo at the top of all states */}
-        <div className="flex justify-center w-full border-b border-stone-100 pb-2.5 pt-0.5 flex-shrink-0">
+        <div className="flex justify-center w-full border-b border-stone-100 pb-2 pt-0.5 flex-shrink-0">
           <img
             src="/Flower_Power_Pizza_-_HotSpring.png"
             alt="Flower Power Pizza Logo"
-            className="h-14 sm:h-16 w-auto object-contain drop-shadow-xs"
+            className="h-12 max-h-12 w-auto object-contain drop-shadow-xs"
+            style={{ height: '48px', maxHeight: '48px' }}
           />
         </div>
 
@@ -1201,10 +1408,10 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         )}
 
         {submitPhase === 'idle' && step === 1 && (
-          <div className="flex-grow flex flex-col justify-between overflow-y-auto mt-2 space-y-3 pr-0.5 custom-scrollbar">
+          <div className="flex-1 flex flex-col min-h-0 mt-2 gap-2 justify-between overflow-y-auto pr-0.5 custom-scrollbar">
             
             {/* Top Form Section: Spaced & Elegant */}
-            <div className="space-y-2.5 px-0.5 shrink-0">
+            <div className="space-y-2 px-0.5 shrink-0">
               <div className="flex items-center justify-between">
                 <h2 className="text-base sm:text-lg font-black tracking-tight text-stone-850" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
                   {t.step1Title}
@@ -1232,19 +1439,66 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
               </div>
               
               {!isMapExpanded && (
-                <div className="grid grid-cols-2 gap-2 animate-fadeIn">
-                  <input
-                    className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
-                    placeholder={t.namePlaceholder}
-                    value={name}
-                    onChange={e => setName(e.target.value)}
-                  />
-                  <input
-                    className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
-                    placeholder={t.phonePlaceholder}
-                    value={phone}
-                    onChange={e => setPhone(e.target.value)}
-                  />
+                <div className="space-y-2 animate-fadeIn">
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      id="pizza-customer-name"
+                      name="name"
+                      type="text"
+                      autoComplete="name"
+                      className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
+                      placeholder={t.namePlaceholder}
+                      value={name}
+                      onChange={e => handleNameChange(e.target.value)}
+                    />
+                    <input
+                      id="pizza-customer-phone"
+                      name="tel"
+                      type="tel"
+                      autoComplete="tel"
+                      className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
+                      placeholder={t.phonePlaceholder}
+                      value={phone}
+                      onChange={e => handlePhoneChange(e.target.value)}
+                    />
+                  </div>
+                  <div className="relative">
+                    <input
+                      id="pizza-customer-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      className={`w-full bg-stone-50/80 border p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none transition-all text-xs ${
+                        email && !isValidEmail(email)
+                          ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400'
+                          : 'border-stone-300 focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E]'
+                      }`}
+                      placeholder={t.emailPlaceholder}
+                      value={email}
+                      onChange={e => handleEmailChange(e.target.value)}
+                      required
+                    />
+                    {email && !isValidEmail(email) && (
+                      <span className="text-[10px] text-red-600 font-medium mt-0.5 block pl-1">
+                        {t.invalidEmailHint}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Delivery Notes between Email and Address */}
+                  <div>
+                    <input
+                      id="pizza-delivery-notes"
+                      name="delivery_notes"
+                      type="text"
+                      autoComplete="off"
+                      className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
+                      placeholder={t.notesPlaceholder}
+                      value={notes}
+                      onChange={e => setNotes(e.target.value)}
+                      maxLength={150}
+                    />
+                  </div>
                 </div>
               )}
 
@@ -1303,7 +1557,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
             </div>
 
             {/* Middle Section: Generous, Prominent Map filling available height */}
-            <div className="space-y-1.5 flex-1 flex flex-col min-h-[250px] sm:min-h-[280px]">
+            <div className="flex-1 flex flex-col min-h-0 space-y-1">
               <div className="flex items-center justify-between pl-1 pr-1 shrink-0">
                 <p className="text-[9.5px] text-stone-500 font-bold uppercase tracking-wider">{t.mapInstructions}</p>
                 <button
@@ -1326,7 +1580,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
               </div>
               
               <div className={`relative w-full rounded-2xl border border-stone-300 overflow-hidden bg-stone-100 shadow-inner transition-all duration-300 ${
-                isMapExpanded ? 'h-[360px]' : 'flex-1 min-h-[240px] sm:min-h-[270px]'
+                isMapExpanded ? 'h-[360px] shrink-0' : 'flex-1 min-h-[200px]'
               }`}>
                 <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                   <Map
@@ -1393,10 +1647,10 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
             </div>
 
             {/* Bottom Actions Section: Harmonious & Balanced (No empty gaps) */}
-            <div className="space-y-2.5 shrink-0 pt-0.5">
+            <div className="space-y-1.5 shrink-0 pt-0.5">
               {/* Map confirmation button with checkmark (spunta) */}
               {isLocationConfirmed && distanceKm !== null && isDeliverable ? (
-                <div className="w-full py-2.5 px-3 text-[10px] tracking-wider uppercase font-black rounded-full bg-emerald-50 border-2 border-emerald-500 text-emerald-800 shadow-sm flex items-center justify-center gap-2">
+                <div className="w-full py-2 px-3 text-[10px] tracking-wider uppercase font-black rounded-full bg-emerald-50 border-2 border-emerald-500 text-emerald-800 shadow-sm flex items-center justify-center gap-2">
                   <Check size={16} className="text-emerald-600 stroke-[3]" />
                   <span>{t.locConfirmed(distanceKm)}</span>
                 </div>
@@ -1406,8 +1660,11 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   onClick={() => {
                     setConfirmedLocation(markerPos.lat, markerPos.lng);
                     setIsLocationConfirmed(true);
+                    if (!address) {
+                      fetchReverseGeocoding(markerPos.lat, markerPos.lng);
+                    }
                   }}
-                  className="w-full py-2.5 text-[10px] tracking-wider uppercase font-black transition-all rounded-full border border-[#8B1E1E] bg-[#8B1E1E] text-white hover:bg-[#721818] shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                  className="w-full py-2 text-[10px] tracking-wider uppercase font-black transition-all rounded-full border border-[#8B1E1E] bg-[#8B1E1E] text-white hover:bg-[#721818] shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
                 >
                   <MapPin size={14} className="text-white fill-white" />
                   <span>{t.confirmMapLoc}</span>
@@ -1420,7 +1677,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
               )}
 
               {outOfRange && (
-                <div className="bg-red-50/50 p-2 rounded-xl border border-red-200/60 text-center">
+                <div className="bg-red-50/50 p-1.5 rounded-xl border border-red-200/60 text-center">
                   <p className="text-[#8B1E1E] text-[9px] leading-relaxed font-bold">
                     {t.outOfRange(distanceKm!, maxRadiusKm)}
                   </p>
@@ -1434,9 +1691,16 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
               )}
 
               <button
-                onClick={() => setStep(2)}
-                disabled={distanceKm === null || outOfRange || !name || !phone || !address}
-                className="w-full bg-[#8B1E1E] hover:bg-[#721818] text-white p-2.5 rounded-full font-bold transition-all disabled:bg-stone-100 disabled:text-stone-400 disabled:shadow-none shadow-sm hover:shadow-md cursor-pointer duration-200 transform active:scale-95 text-[9px] tracking-wider uppercase flex-shrink-0"
+                onClick={() => {
+                  try {
+                    localStorage.setItem('fp_pizza_customer_name', name);
+                    localStorage.setItem('fp_pizza_customer_phone', phone);
+                    localStorage.setItem('fp_pizza_customer_email', email);
+                  } catch (_) {}
+                  setStep(2);
+                }}
+                disabled={distanceKm === null || outOfRange || !name.trim() || !phone.trim() || !email.trim() || !isValidEmail(email) || !address}
+                className="w-full bg-[#8B1E1E] hover:bg-[#721818] text-white py-2 px-3 rounded-full font-bold transition-all disabled:bg-stone-100 disabled:text-stone-400 disabled:shadow-none shadow-sm hover:shadow-md cursor-pointer duration-200 transform active:scale-95 text-[9px] tracking-wider uppercase flex-shrink-0"
                 style={{ fontFamily: 'Inter, sans-serif' }}
               >
                 {t.continueBtn}
@@ -1447,13 +1711,13 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
         )}
 
         {submitPhase === 'idle' && step === 2 && (
-          <div className="flex-grow flex flex-col justify-between overflow-hidden mt-2 space-y-2">
-            <div className="space-y-2.5 px-0.5">
+          <div className="flex-grow flex flex-col justify-between min-h-0 overflow-y-auto mt-1 space-y-2 pr-0.5 custom-scrollbar">
+            <div className="space-y-2 px-0.5">
               <h2 className="text-lg font-black tracking-tight text-stone-850" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
                 {t.step2Title}
               </h2>
               
-              {/* 3 Payment Methods Tabs: PromptPay QR (Omise) | Card (Omise 3DS) | Cash */}
+              {/* 3 Payment Methods Tabs: PromptPay QR (Dynamic K-Shop vs Omise) | Card (Omise 3DS) | Cash */}
               <div className="grid grid-cols-3 gap-1.5 mb-1 shrink-0">
                 <button
                   type="button"
@@ -1465,7 +1729,11 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   }`}
                 >
                   <QrCode className="w-3.5 h-3.5 text-[#8B1E1E]" />
-                  <span className="font-black text-[9px] uppercase tracking-wider leading-tight">{t.optPromptPay}</span>
+                  <span className="font-black text-[9px] uppercase tracking-wider leading-tight">
+                    {promptPayProvider === 'kbank'
+                      ? (lang === 'TH' ? 'พร้อมเพย์ (K-Shop)' : 'PROMPTPAY (K-SHOP)')
+                      : (lang === 'TH' ? 'พร้อมเพย์ (OMISE)' : 'PROMPTPAY (OMISE)')}
+                  </span>
                 </button>
                 <button
                   type="button"
@@ -1493,8 +1761,122 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                 </button>
               </div>
 
-              {/* ── METHOD 1: PROMPTPAY QR (OMISE) ── */}
-              {paymentMethod === 'promptpay' && (
+              {/* ── METHOD 1a: PROMPTPAY — KBANK / K-SHOP (Kasikorn) ── */}
+              {paymentMethod === 'promptpay' && promptPayProvider === 'kbank' && (
+                <div className="w-full border border-stone-200 rounded-2xl p-2.5 bg-stone-50/80 space-y-2.5 animate-fadeIn">
+
+                  {/* Static K-Shop / KBank QR (Already available, no generate button needed) */}
+                  <div className="flex flex-col items-center gap-1">
+                    <div
+                      onClick={() => setIsQrZoomed(true)}
+                      className="bg-white border-2 border-stone-200 hover:border-[#8B1E1E] p-1 rounded-xl shadow-xs hover:shadow-md max-w-[125px] mx-auto relative cursor-pointer group transition-all duration-200 transform hover:scale-[1.02]"
+                      title="Tocca per ingrandire / Tap to zoom"
+                    >
+                      <img
+                        src={QR_URL}
+                        alt="PromptPay QR K-Shop (Kasikorn Bank)"
+                        className="w-full h-auto object-contain rounded-lg"
+                      />
+                      <div className="absolute inset-0 bg-stone-900/15 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="p-1 rounded-full bg-white text-[#8B1E1E] shadow-md">
+                          <ZoomIn size={14} />
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Save & Zoom buttons */}
+                    <div className="flex items-center gap-1.5 w-full max-w-[190px] justify-center pt-0.5">
+                      <button
+                        type="button"
+                        onClick={handleSaveQrImage}
+                        className={`flex-1 py-1 px-2 rounded-lg text-[9px] font-bold tracking-tight transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs ${
+                          isQrSaved ? 'bg-emerald-600 text-white' : 'bg-[#8B1E1E] hover:bg-[#721818] text-white'
+                        }`}
+                      >
+                        {isQrSaved ? (
+                          <><Check size={10} className="stroke-[3]" /><span>{lang === 'TH' ? 'บันทึกแล้ว!' : 'Saved!'}</span></>
+                        ) : (
+                          <><Download size={10} /><span>{lang === 'IT' ? 'Salva QR' : lang === 'TH' ? 'บันทึกรูป QR' : lang === 'DE' ? 'QR Speichern' : 'Save QR'}</span></>
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsQrZoomed(true)}
+                        className="py-1 px-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[9px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer border border-stone-200"
+                      >
+                        <ZoomIn size={10} className="text-[#8B1E1E]" />
+                        <span>Zoom</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 4-step guide — Step 2 manually enter amount, Step 4 upload receipt */}
+                  <div className="w-full bg-white border border-stone-200 rounded-xl p-2 text-left text-[8.5px] text-stone-600 space-y-1">
+                    <p className="flex items-center gap-1 font-bold text-stone-800 text-[9px]">
+                      <Smartphone size={11} className="text-[#8B1E1E] shrink-0" />
+                      <span>
+                        {lang === 'IT' && 'Come pagare con K-Shop (Kasikorn Bank):'}
+                        {lang === 'EN' && 'How to pay with K-Shop (Kasikorn Bank):'}
+                        {lang === 'TH' && 'วิธีชำระเงินผ่าน K-Shop (ธนาคารกสิกรไทย):'}
+                        {lang === 'DE' && 'So zahlen Sie mit K-Shop (Kasikorn Bank):'}
+                      </span>
+                    </p>
+                    <ol className="space-y-1 pl-3.5 list-decimal marker:text-[#8B1E1E] marker:font-bold leading-tight">
+                      <li>
+                        {lang === 'IT' && 'Salva il QR code o inquadralo direttamente con la tua App Bancaria.'}
+                        {lang === 'EN' && 'Save the QR code or scan it directly with your Banking App.'}
+                        {lang === 'TH' && 'บันทึกรูป QR หรือสแกนผ่านแอปธนาคาร'}
+                        {lang === 'DE' && 'QR-Code speichern oder direkt mit Banking-App scannen.'}
+                      </li>
+                      <li>
+                        {lang === 'IT' && `Inserisci manualmente l'importo esatto: ${finalTotal} ฿`}
+                        {lang === 'EN' && `Manually enter the exact order total: ${finalTotal} ฿`}
+                        {lang === 'TH' && `ระบุยอดเงินชำระให้ตรงกับยอดสั่งซื้อ: ${finalTotal} ฿`}
+                        {lang === 'DE' && `Geben Sie den genauen Gesamtbetrag manuell ein: ${finalTotal} ฿`}
+                      </li>
+                      <li>
+                        {lang === 'IT' && 'Conferma il bonifico ed effettua il pagamento.'}
+                        {lang === 'EN' && 'Confirm the transfer and complete the payment.'}
+                        {lang === 'TH' && 'ยืนยันการโอนเงินและทำรายการให้เรียบร้อย'}
+                        {lang === 'DE' && 'Überweisung bestätigen und Zahlung abschließen.'}
+                      </li>
+                      <li className="font-bold text-[#8B1E1E]">
+                        {lang === 'IT' && 'Carica lo screenshot della ricevuta di pagamento (slip) qui sotto.'}
+                        {lang === 'EN' && 'Upload your payment receipt screenshot (slip) below.'}
+                        {lang === 'TH' && 'อัปโหลดภาพหน้าจอสลิปหลักฐานการโอนเงินด้านล่าง'}
+                        {lang === 'DE' && 'Laden Sie den Zahlungsbeleg-Screenshot (Slip) unten hoch.'}
+                      </li>
+                    </ol>
+                  </div>
+
+                  {/* Upload receipt — Step 4 action */}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    className="hidden"
+                    onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`w-full border-2 border-dashed p-2 text-[9.5px] font-bold rounded-xl transition-colors cursor-pointer truncate flex items-center justify-center gap-1.5 ${
+                      receiptFile
+                        ? 'border-emerald-500 bg-emerald-50 text-emerald-800 shadow-xs'
+                        : 'border-stone-300 bg-white text-stone-600 hover:border-[#8B1E1E] hover:text-[#8B1E1E]'
+                    }`}
+                  >
+                    {receiptFile ? (
+                      <><Check size={12} className="stroke-[3] text-emerald-600 shrink-0" /><span className="truncate">📎 {receiptFile.name}</span></>
+                    ) : (
+                      <><span>📁</span><span>{t.uploadBtn}</span></>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* ── METHOD 1b: PROMPTPAY — OMISE (dynamic QR, auto-confirm) ── */}
+              {paymentMethod === 'promptpay' && promptPayProvider === 'omise' && (
                 <div className="space-y-2 pt-0.5 animate-fadeIn flex flex-col items-center">
                   {isPaymentConfirmed ? (
                     <div className="py-4 text-center animate-fadeIn space-y-1.5">
@@ -1507,162 +1889,79 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   ) : (
                     <>
                       {isGeneratingQr ? (
-                        <div className="w-36 h-36 bg-stone-50 border border-stone-200 rounded-xl flex flex-col items-center justify-center gap-2">
+                        <div className="w-36 h-36 bg-stone-50 border border-stone-200 rounded-xl flex flex-col items-center justify-center gap-2 shadow-xs">
                           <Loader2 className="w-6 h-6 text-[#8B1E1E] animate-spin" />
-                          <span className="text-[10px] font-bold text-stone-500">Omise QR...</span>
+                          <span className="text-[10px] font-bold text-stone-600">
+                            {lang === 'IT' && 'Generazione QR Omise...'}
+                            {lang === 'EN' && 'Generating Omise QR...'}
+                            {lang === 'TH' && 'กำลังสร้าง QR Code...'}
+                            {lang === 'DE' && 'Omise QR wird generiert...'}
+                          </span>
+                        </div>
+                      ) : omiseQrUrl ? (
+                        <div className="flex flex-col items-center gap-1.5 w-full">
+                          <div
+                            onClick={() => setIsQrZoomed(true)}
+                            className="bg-white border-2 border-sky-300 hover:border-sky-500 p-1.5 rounded-xl shadow-xs hover:shadow-md max-w-[150px] mx-auto relative cursor-pointer group transition-all duration-200 transform hover:scale-[1.02]"
+                          >
+                            <img src={omiseQrUrl} alt="Omise PromptPay QR" className="w-full h-auto object-contain rounded-lg" />
+                            <div className="absolute inset-0 bg-stone-900/15 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <span className="p-1.5 rounded-full bg-white text-sky-600 shadow-md"><ZoomIn size={16} /></span>
+                            </div>
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-sky-500 text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider shadow whitespace-nowrap flex items-center gap-1 pointer-events-none">
+                              <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                              <span>Live QR</span>
+                            </div>
+                          </div>
+
+                          {/* Save & Zoom */}
+                          <div className="flex items-center gap-1.5 pt-1 w-full max-w-[210px] justify-center">
+                            <button type="button" onClick={handleSaveQrImage}
+                              className={`flex-1 py-1.5 px-2 rounded-lg text-[9.5px] font-bold tracking-tight transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs ${isQrSaved ? 'bg-emerald-600 text-white' : 'bg-sky-500 hover:bg-sky-600 text-white'}`}>
+                              {isQrSaved ? <><Check size={11} className="stroke-[3]" /><span>Saved!</span></> : <><Download size={11} /><span>{lang === 'IT' ? 'Salva QR' : lang === 'TH' ? 'บันทึกรูป QR' : lang === 'DE' ? 'QR Speichern' : 'Save QR'}</span></>}
+                            </button>
+                            <button type="button" onClick={() => setIsQrZoomed(true)}
+                              className="py-1.5 px-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[9.5px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer border border-stone-200">
+                              <ZoomIn size={11} className="text-sky-500" /><span>Zoom</span>
+                            </button>
+                          </div>
+
+                          {/* Awaiting payment */}
+                          <div className="w-full max-w-xs bg-sky-50/90 border border-sky-200/90 rounded-lg p-1.5 text-center">
+                            <p className="text-[9.5px] text-sky-800 font-bold flex items-center justify-center gap-1.5">
+                              <Loader2 className="w-3 h-3 animate-spin text-sky-600 shrink-0" />
+                              <span>{t.awaitingPayment}</span>
+                            </p>
+                            <p className="text-[8px] text-stone-500 mt-0.5 leading-tight">{t.scanningPrompt}</p>
+                          </div>
+
+                          {/* Omise auto-confirm notice — no upload needed */}
+                          <div className="w-full max-w-xs bg-emerald-50 border border-emerald-200 rounded-xl p-2 text-[8.5px] text-emerald-800 text-center font-semibold">
+                            {lang === 'IT' && '✅ Nessun upload richiesto — conferma automatica dopo il pagamento.'}
+                            {lang === 'EN' && '✅ No upload needed — payment confirmed automatically.'}
+                            {lang === 'TH' && '✅ ไม่ต้องอัปโหลดสลิป — ระบบยืนยันอัตโนมัติหลังชำระเงิน'}
+                            {lang === 'DE' && '✅ Kein Upload nötig — Zahlung wird automatisch bestätigt.'}
+                          </div>
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center gap-1.5">
-                          <div 
-                            onClick={() => setIsQrZoomed(true)}
-                            className="bg-white border-2 border-stone-200 hover:border-[#8B1E1E] p-1.5 rounded-xl shadow-xs hover:shadow-md max-w-[150px] mx-auto relative cursor-pointer group transition-all duration-200 transform hover:scale-[1.02]"
-                            title="Tocca per ingrandire / Tap to zoom"
+                        /* Only show retry button if generation failed */
+                        <div className="flex flex-col items-center gap-2 py-3">
+                          <p className="text-[9px] text-stone-500 text-center max-w-[200px] leading-tight">
+                            {lang === 'IT' && 'Impossibile caricare il QR Omise. Riprova.'}
+                            {lang === 'EN' && 'Failed to load Omise QR. Please retry.'}
+                            {lang === 'TH' && 'ไม่สามารถโหลด QR Code ได้ กรุณาลองใหม่อีกครั้ง'}
+                            {lang === 'DE' && 'Omise QR konnte nicht geladen werden. Bitte erneut versuchen.'}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={handleGeneratePromptPayQr}
+                            className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                           >
-                            <img 
-                              src={omiseQrUrl || QR_URL} 
-                              alt="PromptPay QR" 
-                              className="w-full h-auto object-contain rounded-lg" 
-                            />
-                            {/* Hover zoom overlay */}
-                            <div className="absolute inset-0 bg-stone-900/15 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <span className="p-1.5 rounded-full bg-white text-[#8B1E1E] shadow-md transform group-hover:scale-110 transition-transform">
-                                <ZoomIn size={16} />
-                              </span>
-                            </div>
-
-                            {omiseQrUrl && (
-                              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider shadow whitespace-nowrap flex items-center gap-1 pointer-events-none">
-                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
-                                <span>Live QR</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Action Buttons: Save QR & Zoom */}
-                          <div className="flex items-center gap-1.5 pt-1 w-full max-w-[210px] justify-center">
-                            <button
-                              type="button"
-                              onClick={handleSaveQrImage}
-                              className={`flex-1 py-1.5 px-2 rounded-lg text-[9.5px] font-bold tracking-tight transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs ${
-                                isQrSaved
-                                  ? 'bg-emerald-600 text-white'
-                                  : 'bg-[#8B1E1E] hover:bg-[#721818] text-white'
-                              }`}
-                            >
-                              {isQrSaved ? (
-                                <>
-                                  <Check size={11} className="stroke-[3]" />
-                                  <span>{lang === 'IT' ? 'Salvato!' : lang === 'TH' ? 'บันทึกแล้ว!' : 'Saved!'}</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Download size={11} />
-                                  <span>{lang === 'IT' ? 'Salva QR' : lang === 'TH' ? 'บันทึกรูป QR' : lang === 'DE' ? 'QR Speichern' : 'Save QR'}</span>
-                                </>
-                              )}
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => setIsQrZoomed(true)}
-                              className="py-1.5 px-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[9.5px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer border border-stone-200"
-                              title="Zoom"
-                            >
-                              <ZoomIn size={11} className="text-[#8B1E1E]" />
-                              <span>{lang === 'IT' ? 'Zoom' : lang === 'TH' ? 'ซูม' : lang === 'DE' ? 'Zoom' : 'Zoom'}</span>
-                            </button>
-                          </div>
-
-                          {/* 3-Step Mobile Banking Micro-Guide */}
-                          <div className="w-full max-w-xs bg-stone-50/90 border border-stone-200/80 rounded-xl p-2 text-left text-[8.5px] text-stone-600 space-y-1">
-                            <p className="flex items-center gap-1 font-bold text-stone-800 text-[9px]">
-                              <Smartphone size={11} className="text-[#8B1E1E] shrink-0" />
-                              <span>
-                                {lang === 'IT' && 'Pagamento da smartphone:'}
-                                {lang === 'EN' && 'Pay with mobile banking:'}
-                                {lang === 'TH' && 'วิธีสแกนจ่ายผ่านมือถือ:'}
-                                {lang === 'DE' && 'Per Smartphone bezahlen:'}
-                              </span>
-                            </p>
-                            <ol className="space-y-0.5 pl-3.5 list-decimal marker:text-[#8B1E1E] marker:font-bold leading-tight">
-                              <li>
-                                {lang === 'IT' && 'Salva il QR (o cattura uno screenshot).'}
-                                {lang === 'EN' && 'Save the QR (or take a screenshot).'}
-                                {lang === 'TH' && 'กดบันทึกรูป QR (หรือแคปภาพหน้าจอ)'}
-                                {lang === 'DE' && 'QR-Code speichern oder Screenshot machen.'}
-                              </li>
-                              <li>
-                                {lang === 'IT' && 'Apri l\'app della tua banca e tocca "Scan".'}
-                                {lang === 'EN' && 'Open your Thai bank app and tap "Scan".'}
-                                {lang === 'TH' && 'เปิดแอปธนาคารของคุณ แล้วเลือกเมนู "สแกน (Scan)"'}
-                                {lang === 'DE' && 'Bank-App öffnen und auf „Scan“ tippen.'}
-                              </li>
-                              <li>
-                                {lang === 'IT' && 'Seleziona il QR dalla galleria del telefono.'}
-                                {lang === 'EN' && 'Select the saved QR from your photo gallery.'}
-                                {lang === 'TH' && 'แตะไอคอนรูปภาพ แล้วเลือกรูป QR เพื่อยืนยัน'}
-                                {lang === 'DE' && 'Gespeichertes QR-Bild aus der Galerie wählen.'}
-                              </li>
-                            </ol>
-                          </div>
+                            <QrCode size={13} />
+                            <span>{lang === 'IT' ? 'Riprova QR Omise' : lang === 'TH' ? 'ลองใหม่' : lang === 'DE' ? 'Erneut versuchen' : 'Retry QR'}</span>
+                          </button>
                         </div>
                       )}
-
-                      <div className="text-center space-y-0.5 shrink-0">
-                        <p className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Importo da pagare</p>
-                        <p className="text-base font-black text-[#8B1E1E] tracking-tight inline-flex items-baseline justify-center gap-0.5">
-                          <span>{finalTotal}</span>
-                          <span className="font-black select-none text-[#8B1E1E] text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                        </p>
-                        {deliveryFee > 0 ? (
-                          <p className="text-[8px] text-stone-400 font-medium">
-                            (inclusi {deliveryFee} <span style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span> di consegna)
-                          </p>
-                        ) : (
-                          <p className="text-[9.5px] font-extrabold text-emerald-600 uppercase tracking-wider">
-                            {lang === 'IT' && 'Consegna GRATIS'}
-                            {lang === 'EN' && 'FREE Delivery'}
-                            {lang === 'TH' && 'ฟรีค่าจัดส่ง'}
-                            {lang === 'DE' && 'Gratis-Lieferung'}
-                          </p>
-                        )}
-                      </div>
-
-                      {omiseQrUrl && !isPaymentConfirmed && (
-                        <div className="w-full max-w-xs bg-amber-50/90 border border-amber-200/90 rounded-lg p-1.5 text-center">
-                          <p className="text-[9.5px] text-amber-800 font-bold flex items-center justify-center gap-1.5">
-                            <Loader2 className="w-3 h-3 animate-spin text-amber-600 shrink-0" />
-                            <span>{t.awaitingPayment}</span>
-                          </p>
-                          <p className="text-[8px] text-stone-500 mt-0.5 leading-tight">{t.scanningPrompt}</p>
-                        </div>
-                      )}
-
-                      {!omiseQrUrl && !isGeneratingQr && (
-                        <button
-                          type="button"
-                          onClick={handleGeneratePromptPayQr}
-                          className="px-3 py-1 bg-[#8B1E1E] text-white rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-[#721818] transition-colors"
-                        >
-                          {t.generateQrBtn}
-                        </button>
-                      )}
-
-                      {/* Manual Slip upload fallback */}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        ref={fileInputRef}
-                        className="hidden"
-                        onChange={(e) => setReceiptFile(e.target.files?.[0] || null)}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="w-full max-w-xs border border-dashed border-stone-300 p-1 text-[9px] text-stone-550 font-bold rounded-xl hover:border-[#8B1E1E] hover:text-[#8B1E1E] transition-colors cursor-pointer bg-stone-50/50 truncate"
-                      >
-                        {receiptFile ? `📎 ${receiptFile.name}` : `📁 ${t.uploadBtn}`}
-                      </button>
                     </>
                   )}
                 </div>
@@ -1827,10 +2126,13 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                 disabled={
                   loading ||
                   (paymentMethod === 'card' && (!cardData.name || !cardData.number || !cardData.expMonth || !cardData.expYear || !cardData.cvv)) ||
-                  (paymentMethod === 'promptpay' && !isPaymentConfirmed && !receiptFile && !omiseQrUrl)
+                  (paymentMethod === 'promptpay' && promptPayProvider === 'kbank' && !receiptFile) ||
+                  (paymentMethod === 'promptpay' && promptPayProvider === 'omise' && !isPaymentConfirmed)
                 }
                 className={`w-full p-2.5 font-bold rounded-full text-[10px] tracking-wider uppercase transition-all duration-200 transform active:scale-95 shadow-md ${
-                  (paymentMethod === 'card' && (!cardData.name || !cardData.number || !cardData.expMonth || !cardData.expYear || !cardData.cvv))
+                  (paymentMethod === 'card' && (!cardData.name || !cardData.number || !cardData.expMonth || !cardData.expYear || !cardData.cvv)) ||
+                  (paymentMethod === 'promptpay' && promptPayProvider === 'kbank' && !receiptFile) ||
+                  (paymentMethod === 'promptpay' && promptPayProvider === 'omise' && !isPaymentConfirmed)
                     ? 'bg-stone-200 text-stone-400 shadow-none cursor-not-allowed'
                     : 'bg-[#8B1E1E] hover:bg-[#721818] text-white hover:shadow-lg cursor-pointer'
                 }`}
@@ -1843,10 +2145,13 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   </span>
                 ) : paymentMethod === 'card' ? (
                   t.payCardBtn
-                ) : isPaymentConfirmed ? (
-                  t.submitBtn
-                ) : paymentMethod === 'promptpay' && !receiptFile && !omiseQrUrl ? (
+                ) : paymentMethod === 'promptpay' && promptPayProvider === 'kbank' && !receiptFile ? (
                   t.uploadPromptBtn
+                ) : paymentMethod === 'promptpay' && promptPayProvider === 'omise' && !isPaymentConfirmed ? (
+                  <span className="flex items-center justify-center gap-1.5">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-stone-400" />
+                    <span>{t.awaitingPayment}</span>
+                  </span>
                 ) : (
                   t.submitBtn
                 )}

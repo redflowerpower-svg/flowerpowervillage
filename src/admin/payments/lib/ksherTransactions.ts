@@ -79,12 +79,19 @@ export function getKsherTransactions(): KsherRecordedTransaction[] {
           purchaseType: t.purchaseType || (t.roomName ? 'Prenotazione Alloggio' : 'Pagamento Servizi / Alloggio')
         };
       });
-
       // Ensure FPBK27797776 is present in the list
       const hasRealTest = enriched.some((t: any) => t.orderNo === 'FPBK27797776');
       if (!hasRealTest) {
-        enriched.unshift(INITIAL_TRANSACTIONS[0]);
+        enriched.push(INITIAL_TRANSACTIONS[1]);
       }
+
+      // Sort descending by date (newest first at the top)
+      enriched.sort((a: any, b: any) => {
+        const timeA = a.date ? new Date(a.date).getTime() : 0;
+        const timeB = b.date ? new Date(b.date).getTime() : 0;
+        return timeB - timeA;
+      });
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(enriched));
       return enriched;
     }

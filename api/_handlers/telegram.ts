@@ -6,6 +6,10 @@ import {
   buildContactLines,
   getSupabaseClient
 } from "../_helpers/telegram.js";
+import {
+  sendPizzaOrderEmail,
+  extractOrderMetadata
+} from "../_helpers/pizza-order-email.js";
 
 // Initialize Supabase Client
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
@@ -66,17 +70,19 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
       })
       .join("\n");
 
-    let cleanAddress = order.address || "No address specified / ไม่ได้ระบุที่อยู่";
-    if (cleanAddress.includes("[COORD:")) {
-      cleanAddress = cleanAddress.split("[COORD:")[0].trim();
-    }
+    const meta = extractOrderMetadata(order.address);
+    const cleanAddress = meta.cleanAddress;
+    const customerEmail = meta.customerEmail;
+    const deliveryNotes = meta.deliveryNotes;
 
     const messageText = [
       `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
       ``,
       `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
       ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
+      customerEmail ? `📧 <b>Email / อีเมล:</b> ${customerEmail}` : null,
       `<b>Address / ที่อยู่:</b> ${cleanAddress}`,
+      deliveryNotes ? `📝 <b>Note / หมายเหตุ:</b> <i>${deliveryNotes}</i>` : null,
       ``,
       `<b>Items / รายการอาหาร:</b>`,
       itemsText,
@@ -133,6 +139,11 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
       })
       .eq("id", order.id);
 
+    // Asynchronously send order received & payment receipt email to customer in their language
+    sendPizzaOrderEmail(order, "received").catch(err => {
+      console.error("[Telegram Notify] Failed sending order confirmation email to customer:", err);
+    });
+
     return res.status(200).json({ success: true, messageId: result.result?.message_id });
   } catch (err: any) {
     console.error("[Telegram Notification Server Error]:", err);
@@ -168,6 +179,13 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
 
     console.log(`[Order Update] Order #${orderId} status successfully updated to "${status}" in database.`);
 
+    // Send customer status update email asynchronously
+    if (["preparing", "delivering", "completed"].includes(status)) {
+      sendPizzaOrderEmail(order, status as any).catch(err => {
+        console.error(`[Order Update] Failed sending ${status} email to customer:`, err);
+      });
+    }
+
     // 2. Sync to Telegram staff channel if configured
     const creds = await getTelegramCredentials();
     if (!creds) {
@@ -201,17 +219,19 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
       })
       .join("\n");
 
-    let cleanAddress = order.address || "No address specified / ไม่ได้ระบุที่อยู่";
-    if (cleanAddress.includes("[COORD:")) {
-      cleanAddress = cleanAddress.split("[COORD:")[0].trim();
-    }
+    const meta = extractOrderMetadata(order.address);
+    const cleanAddress = meta.cleanAddress;
+    const customerEmail = meta.customerEmail;
+    const deliveryNotes = meta.deliveryNotes;
 
     let messageText = [
       `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
       ``,
       `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
       ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
+      customerEmail ? `📧 <b>Email / อีเมล:</b> ${customerEmail}` : null,
       `<b>Address / ที่อยู่:</b> ${cleanAddress}`,
+      deliveryNotes ? `📝 <b>Note / หมายเหตุ:</b> <i>${deliveryNotes}</i>` : null,
       ``,
       `<b>Items / รายการอาหาร:</b>`,
       itemsText,
@@ -400,6 +420,17 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
       .single();
 
     if (order) {
+      // Trigger customer email notification asynchronously for relevant status transitions
+      if (targetStatus && ["preparing", "delivering", "completed"].includes(targetStatus)) {
+        sendPizzaOrderEmail(order, targetStatus).catch(err => {
+          console.error(`[Telegram Webhook] Failed sending ${targetStatus} email:`, err);
+        });
+      } else if (action === "start_track") {
+        sendPizzaOrderEmail(order, "delivering").catch(err => {
+          console.error("[Telegram Webhook] Failed sending delivering email on start_track:", err);
+        });
+      }
+
       const items = Array.isArray(order.items) ? order.items : [];
       const itemsText = items
         .map((item: any) => {
@@ -419,17 +450,19 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
         })
         .join("\n");
 
-      let cleanAddress = order.address || "No address specified / ไม่ได้ระบุที่อยู่";
-      if (cleanAddress.includes("[COORD:")) {
-        cleanAddress = cleanAddress.split("[COORD:")[0].trim();
-      }
+      const meta = extractOrderMetadata(order.address);
+      const cleanAddress = meta.cleanAddress;
+      const customerEmail = meta.customerEmail;
+      const deliveryNotes = meta.deliveryNotes;
 
       let messageText = [
         `📦 <b>NEW PIZZA ORDER / ออเดอร์พิซซ่าใหม่</b>`,
         ``,
         `<b>Customer / ลูกค้า:</b> ${order.customer_name}`,
         ...buildContactLines(order.phone, order.has_whatsapp, order.has_line),
+        customerEmail ? `📧 <b>Email / อีเมล:</b> ${customerEmail}` : null,
         `<b>Address / ที่อยู่:</b> ${cleanAddress}`,
+        deliveryNotes ? `📝 <b>Note / หมายเหตุ:</b> <i>${deliveryNotes}</i>` : null,
         ``,
         `<b>Items / รายการอาหาร:</b>`,
         itemsText,

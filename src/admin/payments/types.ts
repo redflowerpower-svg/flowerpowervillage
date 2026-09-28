@@ -1,4 +1,5 @@
 export type PrimaryGateway = 'ksher' | 'stripe' | 'omise';
+export type PromptPayProvider = 'kbank' | 'omise' | 'ksher';
 
 export type GatewayMode = 'test' | 'live' | 'sandbox';
 
@@ -41,6 +42,7 @@ export interface PayPalConfig {
 export interface PaymentSettings {
   id: string;
   active_primary_gateway: PrimaryGateway;
+  active_promptpay_provider: PromptPayProvider;
   paypal_enabled: boolean;
   stripe_config: StripeConfig;
   ksher_config: KsherConfig;

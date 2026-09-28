@@ -209,13 +209,26 @@ function testSMTP() {
   const host = envVars.SMTP_HOST;
   const user = envVars.SMTP_USER;
   const pass = envVars.SMTP_PASS;
+
+  const pizzaHost = envVars.PIZZA_SMTP_HOST || host;
+  const pizzaUser = envVars.PIZZA_SMTP_USER;
+  const pizzaPass = envVars.PIZZA_SMTP_PASS;
+
+  let allOk = true;
   if (host && user && pass) {
-    console.log(`✅ SMTP Email: Configurazione presente (${user} via ${host})`);
-    return true;
+    console.log(`✅ SMTP Email Village: Configurazione presente (${user} via ${host})`);
   } else {
-    console.log('❌ SMTP Email: Configurazione incompleta');
-    return false;
+    console.log('❌ SMTP Email Village: Configurazione incompleta');
+    allOk = false;
   }
+
+  if (pizzaUser && pizzaPass) {
+    console.log(`✅ SMTP Email Pizza Delivery: Configurazione presente (${pizzaUser} via ${pizzaHost})`);
+  } else {
+    console.log('⚠️ SMTP Email Pizza Delivery: PIZZA_SMTP_USER/PASS mancanti');
+  }
+
+  return allOk;
 }
 
 function testGoogleMaps() {

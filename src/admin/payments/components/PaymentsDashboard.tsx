@@ -34,13 +34,13 @@ export const PaymentsDashboard: React.FC = () => {
   }, [fetchSettings]);
 
   const navItems = [
-    { id: 'overview', label: 'Panoramica & Switch', icon: <Settings className="w-4 h-4" /> },
-    { id: 'ksher', label: 'Ksher (THB)', icon: <QrCode className="w-4 h-4" />, badge: 'Primario' },
-    { id: 'paypal', label: 'PayPal', icon: <span className="font-bold text-xs">P</span>, badge: settings.paypal_config.enabled ? 'Attivo' : 'Off' },
-    { id: 'accounting', label: '📊 Fatture & Commercialista', icon: <Receipt className="w-4 h-4" />, badge: 'Report' },
-    { id: 'stripe', label: 'Stripe Global', icon: <CreditCard className="w-4 h-4" />, badge: settings.stripe_config.target },
-    { id: 'omise', label: 'Omise', icon: <Zap className="w-4 h-4" />, badge: 'Sandbox' },
-    { id: 'testlab', label: '🧪 Test Lab', icon: <FlaskConical className="w-4 h-4" />, badge: 'Simulatore' }
+    { id: 'overview', label: 'Panoramica & Switch', icon: <Settings className="w-4 h-4" />, brandColor: '' },
+    { id: 'ksher',   label: 'Ksher Pay (THB)',     icon: <QrCode className="w-4 h-4" />,    badge: 'Primario',   brandColor: 'ksher' },
+    { id: 'omise',   label: 'Omise',               icon: <Zap className="w-4 h-4" />,        badge: 'Sandbox',    brandColor: 'omise' },
+    { id: 'paypal',  label: 'PayPal',              icon: <span className="font-black text-xs">P</span>, badge: settings.paypal_config.enabled ? 'Attivo' : 'Off', brandColor: 'paypal' },
+    { id: 'accounting', label: '📊 Fatture & Commercialista', icon: <Receipt className="w-4 h-4" />, badge: 'Report', brandColor: '' },
+    { id: 'stripe',  label: 'Stripe Global',       icon: <CreditCard className="w-4 h-4" />, badge: settings.stripe_config.target, brandColor: '' },
+    { id: 'testlab', label: '🧪 Test Lab',          icon: <FlaskConical className="w-4 h-4" />, badge: 'Simulatore', brandColor: '' }
   ];
 
   return (
@@ -89,24 +89,36 @@ export const PaymentsDashboard: React.FC = () => {
         <div className="flex items-center gap-2 mt-8 pt-4 border-t border-stone-800 overflow-x-auto pb-1">
           {navItems.map((item) => {
             const isTabActive = activeTab === item.id;
+            // Brand color classes for inactive state
+            const brandInactive =
+              item.brandColor === 'ksher'  ? 'hover:border-[#e87c7c]/60 hover:text-[#f4a0a0]' :
+              item.brandColor === 'omise'  ? 'hover:border-sky-500/60 hover:text-sky-300' :
+              item.brandColor === 'paypal' ? 'hover:border-[#003087]/60 hover:text-[#009cde]' : '';
+            // Brand color classes for active state
+            const brandActive =
+              item.brandColor === 'ksher'  ? 'bg-[#e87c7c] text-white border-[#e87c7c] shadow-[#e87c7c]/20' :
+              item.brandColor === 'omise'  ? 'bg-sky-500 text-white border-sky-400 shadow-sky-500/20' :
+              item.brandColor === 'paypal' ? 'bg-[#003087] text-white border-[#003087] shadow-[#003087]/20' :
+              'bg-amber-500 text-stone-950 border-amber-400 shadow-amber-500/20';
             return (
               <button
                 key={item.id}
                 type="button"
+                id={`payment-tab-${item.id}`}
                 onClick={() => setActiveTab(item.id as any)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer border ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer border shadow-lg ${
                   isTabActive
-                    ? 'bg-amber-500 text-stone-950 border-amber-400 shadow-lg shadow-amber-500/20 font-black'
-                    : 'bg-stone-950/60 hover:bg-stone-850 text-stone-300 border-stone-800 hover:border-stone-700'
+                    ? `${brandActive} font-black`
+                    : `bg-stone-950/60 text-stone-300 border-stone-800 ${brandInactive}`
                 }`}
               >
                 {item.icon}
                 <span>{item.label}</span>
                 {item.badge && (
                   <span
-                    className={`text-[9px] px-1.5 py-0.2 rounded-full uppercase tracking-wider font-mono ${
+                    className={`text-[9px] px-1.5 py-0.5 rounded-full uppercase tracking-wider font-mono ${
                       isTabActive
-                        ? 'bg-stone-950/40 text-stone-950 font-black'
+                        ? 'bg-black/20 text-white font-black'
                         : 'bg-stone-900 text-stone-400 border border-stone-800'
                     }`}
                   >
