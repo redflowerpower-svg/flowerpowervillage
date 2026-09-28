@@ -838,6 +838,7 @@ export default function DeliveryMenu() {
   const priceOverrides: Record<string, number> = {};
 
   // Sub-filtering states
+  const [selectedPastaSauce, setSelectedPastaSauce] = useState<string>('all');
   const [selectedWineType, setSelectedWineType] = useState<'all' | 'red' | 'white' | 'rose' | 'sparkling'>('all');
   const [selectedWineCountry, setSelectedWineCountry] = useState<string>('all');
   const [selectedDrinkType, setSelectedDrinkType] = useState<'all' | 'drinks' | 'beers'>('all');
