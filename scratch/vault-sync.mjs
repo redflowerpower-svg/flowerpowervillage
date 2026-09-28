@@ -111,28 +111,28 @@ function syncEnvFromReport(reportText) {
   const telegramBotToken = extract(/\*\*Bot Token:\*\*\s*`([^`]+)`/);
   const telegramChatId = extract(/\*\*Chat \(Group\) ID:\*\*\s*`([^`]+)`/);
 
-  const telegramVillageBotToken = extract(/\*\*Village Bot Token:\*\*\s*`([^`]+)`/) || '8839760252:AAERwG89b_W_5G0Cgh7ubFjkatVYq2oJ6BE';
-  const telegramVillageChatId = extract(/\*\*Village Chat ID:\*\*\s*`([^`]+)`/) || '-1004336693553';
+  const telegramVillageBotToken = extract(/\*\*Village Bot Token:\*\*\s*`([^`]+)`/);
+  const telegramVillageChatId = extract(/\*\*Village Chat ID:\*\*\s*`([^`]+)`/);
 
   // SMTP Village
   const villageSmtpMatch = reportText.match(/###\s*5\.1\.\s*Villaggio[\s\S]*?\*\*SMTP User:\*\*\s*`([^`]+)`[\s\S]*?\*\*SMTP App Password \(Gmail\):\*\*\s*`([^`]+)`/i);
   const smtpHost = 'smtp.gmail.com';
   const smtpPort = '465';
-  const smtpUser = villageSmtpMatch ? villageSmtpMatch[1].trim() : (extract(/\*\*SMTP User:\*\*\s*`([^`]+)`/) || 'flowerpowerphayam@gmail.com');
-  const smtpPass = villageSmtpMatch ? villageSmtpMatch[2].trim() : (extract(/\*\*SMTP App Password \(Gmail\):\*\*\s*`([^`]+)`/) || 'feoz edoy nzrl glid');
+  const smtpUser = villageSmtpMatch ? villageSmtpMatch[1].trim() : (extract(/\*\*SMTP User:\*\*\s*`([^`]+)`/));
+  const smtpPass = villageSmtpMatch ? villageSmtpMatch[2].trim() : (extract(/\*\*SMTP App Password \(Gmail\):\*\*\s*`([^`]+)`/));
 
   // SMTP Pizza Delivery
   const pizzaSmtpMatch = reportText.match(/###\s*5\.2\.\s*Pizzeria[\s\S]*?\*\*SMTP User:\*\*\s*`([^`]+)`[\s\S]*?\*\*SMTP App Password \(Gmail\):\*\*\s*`([^`]+)`/i);
   const pizzaSmtpHost = 'smtp.gmail.com';
   const pizzaSmtpPort = '465';
-  const pizzaSmtpUser = pizzaSmtpMatch ? pizzaSmtpMatch[1].trim() : 'flowerpowerpizzaranong.th@gmail.com';
-  const pizzaSmtpPass = pizzaSmtpMatch ? pizzaSmtpMatch[2].trim() : 'uwai psxe chzi pawb';
+  const pizzaSmtpUser = pizzaSmtpMatch ? pizzaSmtpMatch[1].trim() : '';
+  const pizzaSmtpPass = pizzaSmtpMatch ? pizzaSmtpMatch[2].trim() : '';
 
   const googleMapsKey = extract(/\*\*Google Maps API Key:\*\*\s*`([^`]+)`/);
 
   // Omise
-  const omisePublicKey = extract(/\*\*Public Key \(Client Omise\.js\):\*\*\s*`([^`]+)`/) || 'pkey_test_68i6gpt92ssk3a9fxnd';
-  const omiseSecretKey = extract(/\*\*Secret Key \(Serverless \/ Webhook verification\):\*\*\s*`([^`]+)`/) || 'skey_test_68i6gptsryifdzf9m62';
+  const omisePublicKey = extract(/\*\*Public Key \(Client Omise\.js\):\*\*\s*`([^`]+)`/);
+  const omiseSecretKey = extract(/\*\*Secret Key \(Serverless \/ Webhook verification\):\*\*\s*`([^`]+)`/);
 
   // Ksher
   const ksherAppId = extract(/\*\*App ID \/ Merchant ID:\*\*\s*`([^`]*)`/);
