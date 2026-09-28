@@ -42,8 +42,13 @@ Il sistema gestisce l'intero catalogo dei prodotti e l'inoltro degli ordini via 
     3. *Informativa sulla Privacy (PDPA / GDPR) e Sicurezza dei Pagamenti Elettronici (PCI-DSS Level 1, crittografia 256-bit, 3D Secure, zero salvataggio carte).*
 *   **Notifiche Email Ordini & Newsletter Studio (`flowerpowerpizzaranong.th@gmail.com`):** Configurato sender SMTP dedicato con template HTML brandizzati per conferme d'ordine e ricevute clienti, oltre al modulo Admin Marketing & Newsletter per campagne promozionali multilingua (`src/admin/pizza/components/PizzaNewsletterSection.tsx`).
 
-### E. Switcher "Sito Nuovo / Sito Vecchio"
-*   **Toggle Header Navigation:** Nella barra marrone superiore di `PizzaSite.tsx` è integrato un interruttore persistito in `localStorage` (`flower_power_pizza_mode`) per passare rapidamente tra la **Nuova Delivery App** (`DeliveryMenu`) e la **Landing Provvisoria GloriaFood** (`GloriaFoodLanding`).
+### E. Dynamic Branding & Favicon (`flowerpowerpizza.com`)
+*   **Favicon & Tab Title Intelligente (`DynamicHeadManager` in `App.tsx`):** Riconosce automaticamente il dominio o percorso: per `flowerpowerpizza.com` e `/pizza` imposta l'icona ufficiale rotonda della Pizzeria (`/flower-power-pizza-logo-256.png`) e il titolo *Flower Power Pizza Ranong*, mentre per il Villaggio imposta l'icona del logo storico (`/FP_04_-_LOGO_OFFICIAL_HD.png`).
+*   **Logo Emblema in Navbar (`PizzaNav` in `PizzaSite.tsx`):** Inserito il logo rotondo ufficiale accanto alla scritta *FLOWER POWER Pizza*.
+
+### F. Switcher "Sito Nuovo / Sito Vecchio" (Gestione Domini Ufficiali)
+*   **Nascosto al Pubblico su Produzione:** Sui domini ufficiali (`flowerpowerpizza.com` e `flowerpowervillage.com`), il pulsante switcher è **automaticamente nascosto**, visualizzando direttamente e in modo pulito l'ultima versione scelta.
+*   **Disponibile in Staging / Sviluppo:** Sull'ambiente virtuale Vercel (`flowerpowervillage.vercel.app`) e in locale (`localhost:3000`), il pulsante rimane accessibile per test e confronti.
 
 ---
 
