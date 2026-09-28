@@ -128,6 +128,7 @@ Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WEBSITE`**:
 1. **Esecuzione Completa di MARKDOWN-PROJECT**: Esegue preliminarmente tutti i 6 passaggi del workflow `MARKDOWN-PROJECT` (analisi, report, copie sicurezza, vault encryption, git push su `main`).
 2. **Attivazione Modalità Domini Ufficiali**:
    - 🍕 **Pizzeria Ranong (`www.flowerpowerpizza.com`)**: Attiva e convalida la conformità Payment Gateway (Zero Alcolici: schede Vini e Birre nascoste, 10 categorie alimentari/caffè/frullati pure, informative legali e conformità PDPA/PCI-DSS attive nel footer).
+   - 🔘 **Rimozione Selettore Versione**: Il pulsante Switcher *"Sito Nuovo / Sito Vecchio"* viene **automaticamente nascosto al pubblico** sui domini ufficiali, mostrando direttamente e in modo pulito l'ultima versione scelta.
    - 🏖️ **Villaggio Koh Phayam (`www.flowerpowervillage.com`)**: Booking engine ufficiale villaggio e alloggi.
 3. **Verifica Build & Healthcheck Produzione**:
    - Esegue `npx tsc --noEmit` per garantire zero errori di compilazione TypeScript.

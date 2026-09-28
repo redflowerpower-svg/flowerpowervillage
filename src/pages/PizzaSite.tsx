@@ -93,12 +93,14 @@ function PizzaNav({
   activePage, 
   onNavigate,
   pizzaMode,
-  onToggleMode
+  onToggleMode,
+  showSwitcher = true
 }: { 
   activePage: PizzaPage; 
   onNavigate: (p: PizzaPage) => void;
   pizzaMode: 'custom' | 'legacy';
   onToggleMode: (mode: 'custom' | 'legacy') => void;
+  showSwitcher?: boolean;
 }) {
   const rrNavigate = useRRNavigate();
   const [scrolled, setScrolled] = useState(false);
@@ -148,33 +150,35 @@ function PizzaNav({
               </span>
             </button>
 
-            {/* Switcher Sito Nuovo vs Sito Vecchio (Provvisorio) */}
-            <div className="hidden sm:flex items-center bg-stone-900/80 p-0.5 rounded-xl border border-stone-700/80 shadow-inner ml-2">
-              <button
-                type="button"
-                onClick={() => onToggleMode('custom')}
-                className={`px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer ${
-                  pizzaMode === 'custom'
-                    ? 'bg-[#8B1E1E] text-white shadow-sm font-black'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-              >
-                Sito Nuovo
-              </button>
-              <button
-                type="button"
-                onClick={() => onToggleMode('legacy')}
-                className={`px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer ${
-                  pizzaMode === 'legacy'
-                    ? 'bg-amber-600 text-white shadow-sm font-black'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-              >
-                Sito Vecchio
-              </button>
-            </div>
+            {/* Switcher Sito Nuovo vs Sito Vecchio (Visibile solo in Staging / Sviluppo, Nascosto sui Domini Ufficiali) */}
+            {showSwitcher && (
+              <div className="hidden sm:flex items-center bg-stone-900/80 p-0.5 rounded-xl border border-stone-700/80 shadow-inner ml-2">
+                <button
+                  type="button"
+                  onClick={() => onToggleMode('custom')}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer ${
+                    pizzaMode === 'custom'
+                      ? 'bg-[#8B1E1E] text-white shadow-sm font-black'
+                      : 'text-stone-400 hover:text-stone-200'
+                  }`}
+                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                >
+                  Sito Nuovo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onToggleMode('legacy')}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] uppercase font-bold tracking-wider transition-all cursor-pointer ${
+                    pizzaMode === 'legacy'
+                      ? 'bg-amber-600 text-white shadow-sm font-black'
+                      : 'text-stone-400 hover:text-stone-200'
+                  }`}
+                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                >
+                  Sito Vecchio
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="hidden md:flex items-center gap-6">
@@ -253,33 +257,35 @@ function PizzaNav({
               </button>
             </div>
 
-            {/* Mobile Switcher Sito Nuovo vs Sito Vecchio */}
-            <div className="mb-5 p-1 bg-stone-900/90 rounded-2xl border border-stone-700 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => { onToggleMode('custom'); setMenuOpen(false); }}
-                className={`flex-1 py-1.5 rounded-xl text-[11px] uppercase font-extrabold tracking-wider transition-all text-center cursor-pointer ${
-                  pizzaMode === 'custom'
-                    ? 'bg-[#8B1E1E] text-white shadow-sm'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-              >
-                Sito Nuovo
-              </button>
-              <button
-                type="button"
-                onClick={() => { onToggleMode('legacy'); setMenuOpen(false); }}
-                className={`flex-1 py-1.5 rounded-xl text-[11px] uppercase font-extrabold tracking-wider transition-all text-center cursor-pointer ${
-                  pizzaMode === 'legacy'
-                    ? 'bg-amber-600 text-white shadow-sm'
-                    : 'text-stone-400 hover:text-stone-200'
-                }`}
-                style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-              >
-                Sito Vecchio
-              </button>
-            </div>
+            {/* Mobile Switcher Sito Nuovo vs Sito Vecchio (Nascosto sui Domini Ufficiali) */}
+            {showSwitcher && (
+              <div className="mb-5 p-1 bg-stone-900/90 rounded-2xl border border-stone-700 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => { onToggleMode('custom'); setMenuOpen(false); }}
+                  className={`flex-1 py-1.5 rounded-xl text-[11px] uppercase font-extrabold tracking-wider transition-all text-center cursor-pointer ${
+                    pizzaMode === 'custom'
+                      ? 'bg-[#8B1E1E] text-white shadow-sm'
+                      : 'text-stone-400 hover:text-stone-200'
+                  }`}
+                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                >
+                  Sito Nuovo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { onToggleMode('legacy'); setMenuOpen(false); }}
+                  className={`flex-1 py-1.5 rounded-xl text-[11px] uppercase font-extrabold tracking-wider transition-all text-center cursor-pointer ${
+                    pizzaMode === 'legacy'
+                      ? 'bg-amber-600 text-white shadow-sm'
+                      : 'text-stone-400 hover:text-stone-200'
+                  }`}
+                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                >
+                  Sito Vecchio
+                </button>
+              </div>
+            )}
 
             <div className="flex flex-col gap-4">
               {navItems.map((item) => {
@@ -721,6 +727,21 @@ export default function PizzaSite() {
     }
   };
 
+  const isOfficialDomain = (() => {
+    if (typeof window === 'undefined') return false;
+    const host = window.location.hostname.toLowerCase();
+    return host.includes('flowerpowerpizza.com') || host.includes('flowerpowervillage.com');
+  })();
+
+  const showSwitcher = (() => {
+    if (typeof window === 'undefined') return false;
+    if (isOfficialDomain) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('switcher') === 'true'; // Hidden on official production domain
+    }
+    return true; // Visible in staging / local dev
+  })();
+
   return (
     <div className="min-h-screen" style={{ background: '#1c1917' }}>
       <PizzaNav 
@@ -728,6 +749,7 @@ export default function PizzaSite() {
         onNavigate={navigate}
         pizzaMode={pizzaMode}
         onToggleMode={handleToggleMode}
+        showSwitcher={showSwitcher}
       />
       <main>{renderPage()}</main>
 
