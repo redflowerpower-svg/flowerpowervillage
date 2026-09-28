@@ -13,6 +13,7 @@ import { fetchCloudWineCollection } from '../data/wineCloudService';
 import { ServiceStatusBanner } from '../components/ServiceStatusBanner';
 import { usePizzeriaStatus, PizzeriaServiceStatus, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
 import PizzaPoliciesModal, { PolicyTab } from '../components/PizzaPoliciesModal';
+import { checkFirstOrderEligibility, getOrCreateDeviceId } from '../services/firstOrderService';
 
 
 const translations = {
@@ -822,7 +823,21 @@ export default function DeliveryMenu() {
   const [selectedWineType, setSelectedWineType] = useState<'all' | 'red' | 'white' | 'rose' | 'sparkling'>('all');
   const [selectedWineCountry, setSelectedWineCountry] = useState<string>('all');
   const [selectedDrinkType, setSelectedDrinkType] = useState<'all' | 'drinks' | 'beers'>('all');
-  const [selectedPastaSauce, setSelectedPastaSauce] = useState<string>('all');
+  // First-order discount eligibility & official domain check
+  const [isFirstOrderEligible, setIsFirstOrderEligible] = useState(true);
+  const isOfficialDomain = typeof window !== 'undefined' && window.location.hostname.toLowerCase().includes('flowerpowerpizza.com');
+
+  useEffect(() => {
+    const deviceId = getOrCreateDeviceId();
+    let savedPhone = '';
+    try { savedPhone = localStorage.getItem('fp_pizza_customer_phone') || ''; } catch {}
+    let savedEmail = '';
+    try { savedEmail = localStorage.getItem('fp_pizza_customer_email') || ''; } catch {}
+
+    checkFirstOrderEligibility({ phone: savedPhone, email: savedEmail, deviceId }).then(res => {
+      setIsFirstOrderEligible(res.eligible);
+    });
+  }, []);
 
   const t = translations[lang];
   const activeCategory = availableCategories.find((c) => c.id === activeCategoryId) ?? availableCategories[0] ?? menuData[0];
@@ -1155,35 +1170,67 @@ export default function DeliveryMenu() {
           </div>
         </header>
 
-        {/* Official Preview & Gateway Testing Banner */}
-        <div className="max-w-6xl mx-auto mt-4 px-2">
-          <div className="bg-amber-100/95 border-2 border-amber-400 rounded-3xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3.5 shadow-md">
-            <div className="w-11 h-11 rounded-2xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 shadow-sm text-xl font-bold">
-              🚧
-            </div>
-            <div className="flex-1 space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-[10px] font-black uppercase tracking-wider bg-stone-950 text-amber-300 px-2.5 py-0.5 rounded-md shadow-xs">
-                  {previewNotice[lang].badge}
-                </span>
-                <h4 className="text-stone-950 font-black text-sm md:text-base">
-                  {previewNotice[lang].title}
-                </h4>
+        {/* Official Preview & Gateway Testing Banner (Official Production Domain only) */}
+        {isOfficialDomain && (
+          <div className="max-w-6xl mx-auto mt-4 px-2 animate-fadeIn">
+            <div className="bg-amber-100/95 border-2 border-amber-400 rounded-3xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3.5 shadow-md">
+              <div className="w-11 h-11 rounded-2xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 shadow-sm text-xl font-bold">
+                🚧
               </div>
-              <p className="text-stone-800 text-xs md:text-sm font-medium leading-relaxed">
-                {previewNotice[lang].desc}
-              </p>
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-stone-950 text-amber-300 px-2.5 py-0.5 rounded-md shadow-xs">
+                    {previewNotice[lang].badge}
+                  </span>
+                  <h4 className="text-stone-950 font-black text-sm md:text-base">
+                    {previewNotice[lang].title}
+                  </h4>
+                </div>
+                <p className="text-stone-800 text-xs md:text-sm font-medium leading-relaxed">
+                  {previewNotice[lang].desc}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Dynamic Kitchen Service Status Banner (Paused / Closed Countdown in 4 Languages) */}
         <div className="max-w-6xl mx-auto mt-4 px-2">
           <ServiceStatusBanner lang={lang} />
         </div>
 
+        {/* Dynamic 10% Welcome Discount Banner (Visible immediately when entering the menu if eligible) */}
+        {isFirstOrderEligible && (
+          <div className="max-w-6xl mx-auto mt-4 px-2 animate-fadeIn">
+            <div className="bg-gradient-to-r from-emerald-800 via-[#8B1E1E] to-emerald-900 text-white rounded-3xl p-4 md:p-5 shadow-lg flex flex-col sm:flex-row items-center gap-4 border-2 border-amber-400/50">
+              <div className="w-12 h-12 rounded-2xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 text-2xl font-black shadow-md">
+                🎉
+              </div>
+              <div className="flex-1 text-center sm:text-left space-y-1">
+                <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                  <span className="bg-amber-400 text-stone-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md shadow-xs">
+                    {lang === 'TH' ? 'สิทธิพิเศษต้อนรับ' : lang === 'IT' ? 'OFFERTA BENVENUTO' : lang === 'DE' ? 'WILLKOMMENS-ANGEBOT' : 'WELCOME OFFER'}
+                  </span>
+                  <h3 className="text-white font-black text-sm md:text-base">
+                    {lang === 'TH' ? 'คุณได้รับสิทธิ์ส่วนลด 10% สำหรับการสั่งซื้อครั้งแรก!' :
+                     lang === 'IT' ? 'Oggi hai diritto al 10% DI SCONTO sul tuo primo ordine!' :
+                     lang === 'DE' ? 'Heute erhalten Sie 10% RABATT auf Ihre erste Bestellung!' :
+                     'You unlocked 10% OFF on your first online pizza order!'}
+                  </h3>
+                </div>
+                <p className="text-stone-100 text-xs md:text-sm font-medium leading-relaxed">
+                  {lang === 'TH' ? 'เลือกเมนูที่ต้องการ สั่งซื้อตอนนี้เพื่อรับส่วนลด 10% หักลบในรถเข็นโดยอัตโนมัติ' :
+                   lang === 'IT' ? 'Scegli i tuoi piatti: lo sconto del 10% verrà applicato automaticamente nel carrello al momento dell\'ordine!' :
+                   lang === 'DE' ? 'Wählen Sie Ihre Gerichte: Der 10% Rabatt wird automatisch im Warenkorb abgezogen!' :
+                   'Pick your favorite dishes: your 10% welcome discount will be applied automatically in your cart!'}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Red Promotions & Delivery Banner (Solid Red background) */}
-        <div className="p-5 md:p-6 bg-[#8B1E1E] text-stone-100 rounded-3xl max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-6 shadow-md mb-8 mt-2 border border-[#721818]">
+        <div className="p-5 md:p-6 bg-[#8B1E1E] text-stone-100 rounded-3xl max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-6 shadow-md mb-8 mt-4 border border-[#721818]">
           <div className="w-10 h-10 md:w-12 md:h-12 bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 rounded-full text-white">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
           </div>
@@ -1196,13 +1243,19 @@ export default function DeliveryMenu() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-x-6 gap-y-1 pt-1.5">
               <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold">
-                <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
                 {t.promoFreeDelivery}
               </span>
-              <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold">
-                <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
-                {t.promoFirstOrder}
-              </span>
+              {isFirstOrderEligible ? (
+                <span className="inline-flex items-center gap-1.5 text-xs text-amber-300 font-extrabold">
+                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
+                  {t.promoFirstOrder}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 text-xs text-stone-200 font-medium">
+                  ✨ {lang === 'TH' ? 'อาหารอิตาเลียนแท้โดยเชฟชาวอิตาลี' : 'Cucina Tradizionale Italiana'}
+                </span>
+              )}
             </div>
           </div>
         </div>

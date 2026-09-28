@@ -153,16 +153,18 @@ function PizzaNav({
             : 'bg-[#3b3530] border-b border-stone-800'
         }`}
       >
-        {/* Top Global Preview & Gateway Inspection Notice */}
-        <div className="bg-amber-400 text-stone-950 font-bold px-3 py-1.5 text-[10.5px] sm:text-xs flex items-center justify-center gap-2 shadow-inner border-b border-amber-500 text-center">
-          <span className="text-xs">🚧</span>
-          <span className="bg-stone-950 text-amber-300 text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider shrink-0">
-            {notice.badge}
-          </span>
-          <span className="font-semibold truncate sm:whitespace-normal">
-            {notice.text}
-          </span>
-        </div>
+        {/* Top Global Preview & Gateway Inspection Notice (Official Domain only) */}
+        {isOfficialDomain && (
+          <div className="bg-amber-400 text-stone-950 font-bold px-3 py-1.5 text-[10.5px] sm:text-xs flex items-center justify-center gap-2 shadow-inner border-b border-amber-500 text-center">
+            <span className="text-xs">🚧</span>
+            <span className="bg-stone-950 text-amber-300 text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider shrink-0">
+              {notice.badge}
+            </span>
+            <span className="font-semibold truncate sm:whitespace-normal">
+              {notice.text}
+            </span>
+          </div>
+        )}
 
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
