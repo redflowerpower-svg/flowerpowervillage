@@ -143,8 +143,13 @@ function PizzaNav({
             <div className="h-4 w-px bg-stone-700/60 hidden sm:block" />
             <button
               onClick={() => handleNavClick('order')}
-              className="flex items-center gap-2 text-left cursor-pointer group bg-transparent border-0"
+              className="flex items-center gap-2.5 text-left cursor-pointer group bg-transparent border-0"
             >
+              <img 
+                src="/flower-power-pizza-logo-160.png" 
+                alt="Flower Power Pizza Ranong" 
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-red-800/80 shadow-xs group-hover:scale-105 transition-transform" 
+              />
               <span className="font-sans font-black tracking-tight text-white text-base md:text-lg group-hover:text-[#f87171] transition-colors">
                 FLOWER POWER <span className="font-light italic text-[#f87171]">Pizza</span>
               </span>

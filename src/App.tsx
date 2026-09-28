@@ -49,6 +49,37 @@ class ErrorBoundary extends React.Component<
   }
 }
 
+function DynamicHeadManager() {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const host = window.location.hostname.toLowerCase();
+    const pathname = window.location.pathname.toLowerCase();
+    const isPizza = host.includes('flowerpowerpizza.com') || pathname.startsWith('/pizza') || pathname.startsWith('/kitchen');
+    const isVillage = host.includes('flowerpowervillage.com') || pathname.startsWith('/village') || pathname.startsWith('/rooms');
+
+    const favicon = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
+
+    if (isPizza) {
+      document.title = 'Flower Power Pizza Ranong · Authentic Italian Pizza & Delivery';
+      if (favicon) {
+        favicon.href = '/flower-power-pizza-logo-256.png';
+      }
+    } else if (isVillage) {
+      document.title = 'Flower Power · Farm Village & Spa · Koh Phayam';
+      if (favicon) {
+        favicon.href = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+      }
+    } else {
+      document.title = 'Flower Power · Farm Village & Spa · Pizza Ranong';
+      if (favicon) {
+        favicon.href = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+      }
+    }
+  }, []);
+
+  return null;
+}
+
 function RootRouter() {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname.toLowerCase();
@@ -63,6 +94,7 @@ function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        <DynamicHeadManager />
         <Routes>
           <Route path="/" element={<RootRouter />} />
           <Route path="/village/*" element={<VillageSite />} />
