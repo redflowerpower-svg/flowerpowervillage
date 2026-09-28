@@ -50,6 +50,10 @@ Il sistema gestisce l'intero catalogo dei prodotti e l'inoltro degli ordini via 
 *   **Nascosto al Pubblico su Produzione:** Sui domini ufficiali (`flowerpowerpizza.com` e `flowerpowervillage.com`), il pulsante switcher è **automaticamente nascosto**, visualizzando direttamente e in modo pulito l'ultima versione scelta.
 *   **Disponibile in Staging / Sviluppo:** Sull'ambiente virtuale Vercel (`flowerpowervillage.vercel.app`) e in locale (`localhost:3000`), il pulsante rimane accessibile per test e confronti.
 
+### G. Banner Istituzionale "Anteprima & Collaudo Gateway" e Sandbox Mode
+*   **Banner Istituzionale Multilingua (`DeliveryMenu.tsx`):** Espone in cima alla pagina un banner informativo satinato in 4 lingue (`IT`, `EN`, `TH`, `DE`) che dichiara l'imminente apertura del servizio e l'apertura della piattaforma per le verifiche di conformità e underwriting del Payment Gateway.
+*   **Ispezione Checkout Completa in Sicurezza (`CheckoutFlow.tsx`):** Il flusso di cassa è navigabile al 100% per i revisori (carrello, calcolo consegna, indirizzo, mappa GPS, informativa legale e form di pagamento carta / PromptPay), operando in ambiente Sandbox protetto per impedire addebiti a clienti reali durante l'onboarding.
+
 ---
 
 ## 3. Flussi Logici dell'Ordine
