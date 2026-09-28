@@ -198,12 +198,15 @@ CREATE TABLE pizza_orders (
     *   Query sullo storico di `pizza_orders` (escludendo `status = 'rejected'`).
     *   Verifica tripla identità: se Telefono, Email o Device ID sono già noti ➔ `eligible: false` (sconto non applicato per clienti ricorrenti).
     *   **Gestione Ospiti Hotel/Resort (Risoluzione Paradosso GPS):** Calcolo della distanza Haversine entro 50 metri da ordini passati. Se la posizione coincide con una struttura già servita ma Telefono e Device ID sono nuovi, l'utente è considerato un nuovo ospite della struttura (`eligible: true`, `isHotelGuest: true`).
-*   **Esperienza Utente & Banner Promozionale Motivante (`CartDrawer.tsx` & `CheckoutFlow.tsx`):**
-    *   Generazione e persistenza del token univoco del dispositivo `fp_pizza_device_id` in `localStorage`.
-    *   Banner motivante bilingue in 4 lingue (IT, EN, TH, DE): `🎉 BENVENUTO! Sconto 10% applicato sul tuo primo ordine!`.
-    *   Evidenza trasparente del risparmio nel carrello e in fase di checkout: subtotale prodotti, voce sconto `-10%`, spese di consegna fisse (30฿ o GRATIS sopra 300฿, non soggette a sconto) e totale finale con prezzo precedente barrato e badge di risparmio.
-*   **Validazione Serverless & Notifica Telegram:**
-    *   Il calcolo matematico finale avviene sempre lato server prima dell'inserimento nel database e dell'addebito.
-    *   Nel messaggio Telegram per la cucina viene allegato il badge promozionale `🎁 1st ORDER DISCOUNT (10%): -XX THB` e l'eventuale nota informativa `🏨 LOCATION NOTE: Guest at known hotel/resort`.
+*   **Layout Banner Promozionali & Consegna Side-by-Side (2 Colonne Compatte):**
+    *   In `DeliveryMenu.tsx`, i banner verticali impilati sono sostituiti da una griglia snella a 2 colonne (`grid-cols-1 md:grid-cols-2`):
+        *   **Colonna Sinistra (Rosso `#8B1E1E`):** Indicazione consegne a Ranong + Consegna GRATIS sopra 300฿ con indicatore pulsante.
+        *   **Colonna Destra (Gradiente Gold/Smeraldo/Rosso):** Badge motivante *"10% di Sconto sul 1° Ordine!"* attivo all'ingresso del menu.
+*   **Regola Ambienti per lo Sconto Primo Ordine (Bypass in Locale & Virtuale):**
+    *   In ambiente di sviluppo **Locale (`localhost:3000`)** e **Virtuale / Staging (`*.vercel.app`)**, il controllo dello sconto è **sempre bypassato (`eligible: true`)** per permettere al team di visualizzare e testare continuamente l'interfaccia.
+    *   Il controllo hardware/telefono/email rigoroso opera esclusivamente sul dominio ufficiale di produzione (`www.flowerpowerpizza.com`).
+*   **Banner di Anteprima & Collaudo Gateway (`previewNotice`):**
+    *   Visibile esclusivamente sul dominio ufficiale di produzione, nascosto in locale e virtuale.
+
 
 

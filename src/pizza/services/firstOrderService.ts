@@ -56,8 +56,21 @@ export function normalizeThaiPhone(raw?: string): string {
 
 /**
  * Performs asynchronous backend verification for 10% first order eligibility
+ * (In Local Dev & Virtual/Staging environments, ALWAYS grants eligible: true so developer/staff can preview and test)
  */
 export async function checkFirstOrderEligibility(params: FirstOrderCheckParams): Promise<FirstOrderCheckResult> {
+  const isOfficialProduction = typeof window !== 'undefined' && window.location.hostname.toLowerCase().includes('flowerpowerpizza.com');
+
+  // In Localhost / Virtual / Staging environments: always active and 100% eligible
+  if (!isOfficialProduction) {
+    return {
+      eligible: true,
+      discountPercent: 10,
+      isHotelGuest: false,
+      message: 'Development & Virtual Staging Mode: 10% discount always granted for testing.'
+    };
+  }
+
   const deviceId = params.deviceId || getOrCreateDeviceId();
   try {
     const res = await fetch('/api/pizza-first-order', {

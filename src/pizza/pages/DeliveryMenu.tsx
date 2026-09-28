@@ -1199,65 +1199,93 @@ export default function DeliveryMenu() {
           <ServiceStatusBanner lang={lang} />
         </div>
 
-        {/* Dynamic 10% Welcome Discount Banner (Visible immediately when entering the menu if eligible) */}
-        {isFirstOrderEligible && (
-          <div className="max-w-6xl mx-auto mt-4 px-2 animate-fadeIn">
-            <div className="bg-gradient-to-r from-emerald-800 via-[#8B1E1E] to-emerald-900 text-white rounded-3xl p-4 md:p-5 shadow-lg flex flex-col sm:flex-row items-center gap-4 border-2 border-amber-400/50">
-              <div className="w-12 h-12 rounded-2xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 text-2xl font-black shadow-md">
+        {/* Dynamic Promotions & Welcome Cards (Side-by-Side 2-Column Grid) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 max-w-6xl mx-auto px-2 mb-6 mt-4">
+          {/* Left Card: Delivery area & Free Delivery >300฿ */}
+          <div className="p-4 sm:p-4.5 bg-[#8B1E1E] text-stone-100 rounded-3xl flex items-center gap-3.5 shadow-md border border-[#721818] transition-all">
+            <div className="w-11 h-11 bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 rounded-2xl text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0 space-y-1 text-left">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h4 className="text-white font-black text-sm md:text-base leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  {t.promoTitle}
+                </h4>
+              </div>
+              <p className="text-stone-200 text-xs leading-snug">
+                📍 <span className="font-semibold">{t.deliveryLimit}</span>
+              </p>
+              <div className="pt-0.5">
+                <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold bg-white/10 px-2.5 py-0.5 rounded-md">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
+                  {t.promoFreeDelivery}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Card: 10% Welcome Discount (or Authentic Italian Food if returning customer on official domain) */}
+          {isFirstOrderEligible ? (
+            <div className="p-4 sm:p-4.5 bg-gradient-to-br from-emerald-950 via-stone-900 to-[#8B1E1E] text-white rounded-3xl flex items-center gap-3.5 shadow-md border-2 border-amber-400/50 transition-all animate-fadeIn">
+              <div className="w-11 h-11 bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 rounded-2xl text-xl font-black shadow-sm">
                 🎉
               </div>
-              <div className="flex-1 text-center sm:text-left space-y-1">
-                <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <span className="bg-amber-400 text-stone-950 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md shadow-xs">
-                    {lang === 'TH' ? 'สิทธิพิเศษต้อนรับ' : lang === 'IT' ? 'OFFERTA BENVENUTO' : lang === 'DE' ? 'WILLKOMMENS-ANGEBOT' : 'WELCOME OFFER'}
+              <div className="flex-1 min-w-0 space-y-1 text-left">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="bg-amber-400 text-stone-950 text-[10px] font-black uppercase px-2 py-0.5 rounded-md shadow-xs">
+                    {lang === 'TH' ? 'สิทธิพิเศษต้อนรับ' : lang === 'IT' ? 'BENVENUTO 10%' : lang === 'DE' ? 'WILLKOMMEN 10%' : '10% WELCOME'}
                   </span>
-                  <h3 className="text-white font-black text-sm md:text-base">
-                    {lang === 'TH' ? 'คุณได้รับสิทธิ์ส่วนลด 10% สำหรับการสั่งซื้อครั้งแรก!' :
-                     lang === 'IT' ? 'Oggi hai diritto al 10% DI SCONTO sul tuo primo ordine!' :
-                     lang === 'DE' ? 'Heute erhalten Sie 10% RABATT auf Ihre erste Bestellung!' :
-                     'You unlocked 10% OFF on your first online pizza order!'}
-                  </h3>
+                  <h4 className="text-white font-black text-sm md:text-base leading-tight">
+                    {lang === 'TH' ? 'รับส่วนลด 10% สั่งครั้งแรก!' :
+                     lang === 'IT' ? '10% di Sconto sul 1° Ordine!' :
+                     lang === 'DE' ? '10% Rabatt auf 1. Bestellung!' :
+                     '10% OFF on your 1st Order!'}
+                  </h4>
                 </div>
-                <p className="text-stone-100 text-xs md:text-sm font-medium leading-relaxed">
-                  {lang === 'TH' ? 'เลือกเมนูที่ต้องการ สั่งซื้อตอนนี้เพื่อรับส่วนลด 10% หักลบในรถเข็นโดยอัตโนมัติ' :
-                   lang === 'IT' ? 'Scegli i tuoi piatti: lo sconto del 10% verrà applicato automaticamente nel carrello al momento dell\'ordine!' :
-                   lang === 'DE' ? 'Wählen Sie Ihre Gerichte: Der 10% Rabatt wird automatisch im Warenkorb abgezogen!' :
-                   'Pick your favorite dishes: your 10% welcome discount will be applied automatically in your cart!'}
+                <p className="text-stone-200 text-xs leading-snug">
+                  {lang === 'TH' ? 'ส่วนลดจะถูกหักลบอัตโนมัติในขั้นตอนสั่งซื้อ' :
+                   lang === 'IT' ? 'Applicato in automatico nel carrello al checkout' :
+                   lang === 'DE' ? 'Wird automatisch im Warenkorb abgezogen' :
+                   'Applied automatically at checkout'}
+                </p>
+                <div className="pt-0.5">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-amber-300 font-extrabold">
+                    <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
+                    {t.promoFirstOrder}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-4 sm:p-4.5 bg-stone-900 text-stone-100 rounded-3xl flex items-center gap-3.5 shadow-md border border-stone-800 transition-all">
+              <div className="w-11 h-11 bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0 rounded-2xl text-xl font-bold border border-amber-500/30">
+                ⭐
+              </div>
+              <div className="flex-1 min-w-0 space-y-1 text-left">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="bg-stone-800 text-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">
+                    {lang === 'TH' ? 'สูตรอิตาเลียนแท้' : lang === 'IT' ? 'AUTENTICITÀ' : lang === 'DE' ? 'AUTHENTISCH' : 'AUTHENTIC'}
+                  </span>
+                  <h4 className="text-white font-black text-sm md:text-base leading-tight">
+                    {lang === 'TH' ? 'อาหารอิตาเลียนดั้งเดิม' :
+                     lang === 'IT' ? 'Cucina Tradizionale Italiana' :
+                     lang === 'DE' ? 'Traditionelle italienische Küche' :
+                     'Traditional Italian Cuisine'}
+                  </h4>
+                </div>
+                <p className="text-stone-300 text-xs leading-snug">
+                  {lang === 'TH' ? 'วัตถุดิบนำเข้าจากอิตาลี อบสดใหม่ทุกวันในระนอง' :
+                   lang === 'IT' ? 'Ingredienti autentici importati, sfornati freschi ogni giorno' :
+                   lang === 'DE' ? 'Echte italienische Zutaten, täglich frisch zubereitet' :
+                   'Imported Italian ingredients, freshly baked every day'}
                 </p>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Red Promotions & Delivery Banner (Solid Red background) */}
-        <div className="p-5 md:p-6 bg-[#8B1E1E] text-stone-100 rounded-3xl max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-6 shadow-md mb-8 mt-4 border border-[#721818]">
-          <div className="w-10 h-10 md:w-12 md:h-12 bg-white/15 backdrop-blur-md flex items-center justify-center shrink-0 rounded-full text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-          </div>
-          <div className="flex-1 text-center md:text-left space-y-1">
-            <h4 className="text-white font-extrabold text-sm md:text-base" style={{ fontFamily: 'Outfit, sans-serif' }}>
-              {t.promoTitle}
-            </h4>
-            <p className="text-stone-200 text-xs leading-relaxed">
-              📍 <span className="font-semibold">{t.deliveryLimit}</span>
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center md:justify-start gap-x-6 gap-y-1 pt-1.5">
-              <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping" />
-                {t.promoFreeDelivery}
-              </span>
-              {isFirstOrderEligible ? (
-                <span className="inline-flex items-center gap-1.5 text-xs text-amber-300 font-extrabold">
-                  <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
-                  {t.promoFirstOrder}
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-xs text-stone-200 font-medium">
-                  ✨ {lang === 'TH' ? 'อาหารอิตาเลียนแท้โดยเชฟชาวอิตาลี' : 'Cucina Tradizionale Italiana'}
-                </span>
-              )}
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Category Tabs directly on background */}

@@ -149,10 +149,12 @@ Di seguito sono documentate le principali criticità architetturali emerse duran
 - **Aggiornamento Webhook Octorate**: Rieseguire lo script `node scratch/register-octorate-webhooks.mjs` inserendo il nuovo URL `https://www.flowerpowervillage.com/api/webhooks/octorate` per istruire Octorate sulla nuova destinazione delle notifiche in background.
 - **Aggiornamento Stripe**: Modificare nella dashboard di Stripe gli URL di reindirizzamento post-pagamento e l'eventuale Webhook di Stripe, facendoli puntare al nuovo dominio definitivo.
 
-### I. Architettura V19/V20 Promo Codes & Ticket Engine (06/08/2026)
-* **Zustand State (`useResortAdminStore.ts`)**: Stato `promoCodes` persistito in `localStorage` (`'fpv_promo_codes'`).
-* **Componente Admin (`PromoCodesSection.tsx`)**: Layout single-line V20 in stile Fuchsia/Rose Gold. Form con generatore ticket random 🎲 interno all'input, date picker unificato Dal ➔ Al e pulsante `+ AGGIUNGI` (`h-10`).
-* **Integrazione Engine Prenotazione (`booking-engine.tsx`)**: Rilevamento automatico di `?promo=CODICE` dalla URL ed incremento automatizzato di `slotsUsed` tramite `incrementPromoCodeUsage` alla conferma di prenotazione (`verifyAndConfirmBooking`).
+### L. Favicon Dinamica Differenziata per Ambiente (Locale / Virtuale / Produzione)
+*   **Modulo (`src/utils/environmentFavicon.ts`) & Init (`src/main.tsx`):**
+    *   **🔴 Ambiente Locale (`localhost` / `127.0.0.1`):** Canvas genera dinamicamente un anello circolare rosso vivo (`#EF4444`) ad alto contrasto intorno al logo.
+    *   **🟢 Ambiente Virtuale / Staging (`*.vercel.app`):** Canvas genera un anello circolare verde smeraldo (`#10B981`) per distinguere a colpo d'occhio i test remoti.
+    *   **🌐 Dominio Ufficiale Produzione (`flowerpowerpizza.com` / `flowerpowervillage.com`):** Nessun anello, favicon ufficiale standard per la clientela finale.
+
 
 
 

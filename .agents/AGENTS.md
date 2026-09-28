@@ -77,6 +77,16 @@ All'interno di TUTTO il sito web (sia nel reparto Pizzeria / Delivery `/pizze` c
 - **OBBLIGO ASSOLUTO DI UTILIZZO API DEEPSEEK**: È tassativo e imprescindibile utilizzare sempre e solo l'API di DeepSeek (`deepseek-chat` / `DEEPSEEK_API_KEY`) tramite endpoint backend dedicato.
 - È severamente vietato l'uso di traduttori statici o dizionari empirici hardcoded: le traduzioni devono essere vive, contestuali, fluide e professionali in tutte e 4 le lingue (`IT`, `EN`, `TH`, `DE`), garantendo il massimo livello qualitativo per la lingua thailandese.
 
+# 🛡️ REGOLA D'ORO SVILUPPO LOCALE & REGOLE AMBIENTI (LOCALE / VIRTUALE / PRODUZIONE)
+1. **LAVORO ORDINARIO 100% LOCALE (ZERO GIT PUSH SPONTANEO)**:
+   - Durante le normali sessioni di sviluppo e correzione bug, l'agente lavora **ESCLUSIVAMENTE SUL CODICE LOCALE** (`http://localhost:3000`).
+   - È **SEVERAMENTE VIETATO** eseguire `git push` o pubblicazioni su GitHub/Vercel di propria iniziativa senza che l'utente abbia espressamente digitato la parola d'ordine `MARKDOWN-PROJECT` o `MARKDOWN-WEBSITE`.
+2. **SCONTO 10% PRIMO ORDINE (BYPASS IN LOCALE & VIRTUALE)**:
+   - In ambiente **Locale (`localhost`)** e **Virtuale / Staging**, il controllo hardware/telefono/email è **TOTALMENTE BYPASSATO (`eligible: true`)**: lo sconto del 10% è sempre concesso e visibile a schermo per permettere lo sviluppo, la preview e il test continuo.
+   - Il controllo anti-abuso reale (3 fattori: Telefono, Email, Device ID + GPS Haversine 50m con eccezione Hotel/Resort) viene applicato **SOLO ED ESCLUSIVAMENTE** quando si naviga sul dominio ufficiale di produzione (`www.flowerpowerpizza.com`) attivato via `MARKDOWN-WEBSITE`.
+3. **BANNER ANTEPRIMA / ISPEZIONE GATEWAY (`previewNotice`)**:
+   - Gli avvisi di cantiere, conformità payment gateway e sandbox compaiono **SOLO sul dominio ufficiale di produzione**, MAI in locale o nel virtuale.
+
 # Vault-Sync & Multi-Workstation Protocol (Koh Phayam <-> Ranong)
 
 ## Vault-Sync & Security (.gitignore)
