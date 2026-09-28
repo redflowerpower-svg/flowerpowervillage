@@ -2070,6 +2070,16 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                     <span>{t.cardSecurityNotice}</span>
                   </div>
 
+                  <div className="bg-amber-50/90 border border-amber-200/90 rounded-lg p-1.5 flex items-center gap-1.5 text-[8.5px] text-amber-900">
+                    <span className="text-[10px]">🧪</span>
+                    <span className="font-semibold">
+                      {lang === 'IT' ? 'Sandbox Gateway: Transazione in modalità di collaudo e ispezione.' :
+                       lang === 'TH' ? 'โหมดทดสอบระบบ (Sandbox): ไม่มีการเรียกเก็บเงินจริง' :
+                       lang === 'DE' ? 'Gateway-Sandbox: Testtransaktion zu Prüfungszwecken.' :
+                       'Sandbox Mode: Test transaction for payment gateway review.'}
+                    </span>
+                  </div>
+
                   <div className="text-center space-y-0.5 shrink-0 pt-0.5">
                     <p className="text-[8.5px] text-stone-400 uppercase tracking-widest font-bold">Totale da addebitare</p>
                     <p className="text-base font-black text-[#8B1E1E] tracking-tight inline-flex items-baseline justify-center gap-0.5">

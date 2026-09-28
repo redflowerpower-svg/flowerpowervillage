@@ -74,7 +74,28 @@ const translations = {
     promoTitle: 'Aktionen & Lieferbedingungen',
     deliveryLimit: 'Lieferungen erfolgen ausschließlich innerhalb der Stadt Ranong.',
     promoFreeDelivery: 'KOSTENLOSE Lieferung ab 300฿ Bestellwert',
-    promoFirstOrder: '10% Rabatt auf Ihre erste Bestellung',
+};
+
+const previewNotice = {
+  IT: {
+    badge: 'ANTEPRIMA & COLLAUDO GATEWAY',
+    title: 'Piattaforma Ufficiale in Fase di Allestimento & Ispezione Gateway',
+    desc: 'Il servizio di consegna a domicilio Flower Power Pizza Ranong sarà attivo a breve. La piattaforma è attualmente aperta per le verifiche di conformità e sicurezza del Payment Gateway. Il checkout opera in modalità Sandbox di test.',
+  },
+  EN: {
+    badge: 'OFFICIAL PREVIEW & GATEWAY REVIEW',
+    title: 'Website Under Preparation & Payment Gateway Compliance Review',
+    desc: 'Flower Power Pizza Ranong online delivery is launching soon. The website is currently open for underwriting, compliance review, and technical gateway inspection. Checkout is operating in secure sandbox test mode.',
+  },
+  TH: {
+    badge: 'โหมดทดสอบ & ตรวจสอบระบบ',
+    title: 'เว็บไซต์อยู่ในช่วงเตรียมความพร้อม & ตรวจสอบมาตรฐานระบบชำระเงิน',
+    desc: 'บริการจัดส่งอาหารเดลิเวอรี่ออนไลน์ ฟลาวเวอร์ พาวเวอร์ พิซซ่า ระนอง จะเปิดให้บริการเร็วๆ นี้ ขณะนี้ระบบเปิดสำหรับการตรวจสอบมาตรฐานและความปลอดภัย การทดลองสั่งซื้อและชำระเงินอยู่ในโหมดทดสอบ Sandbox',
+  },
+  DE: {
+    badge: 'VORSCHAU & GATEWAY-PRÜFUNG',
+    title: 'Website im Aufbau & Payment Gateway Konformitätsprüfung',
+    desc: 'Der Online-Lieferservice von Flower Power Pizza Ranong startet in Kürze. Die Plattform ist derzeit für die Sicherheits- und Konformitätsprüfungen des Zahlungsanbieters aktiv. Der Bezahlvorgang befindet sich im Sandbox-Testmodus.',
   },
 };
 
@@ -1131,6 +1152,28 @@ export default function DeliveryMenu() {
             </div>
           </div>
         </header>
+
+        {/* Official Preview & Gateway Testing Banner */}
+        <div className="max-w-6xl mx-auto mt-4 px-2">
+          <div className="bg-amber-950/25 border border-amber-500/40 backdrop-blur-sm rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3.5 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0 border border-amber-500/30 text-lg">
+              🚧
+            </div>
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-amber-500 text-stone-950 px-2.5 py-0.5 rounded-md shadow-xs">
+                  {previewNotice[lang].badge}
+                </span>
+                <h4 className="text-stone-900 font-extrabold text-xs md:text-sm">
+                  {previewNotice[lang].title}
+                </h4>
+              </div>
+              <p className="text-stone-600 text-xs leading-relaxed">
+                {previewNotice[lang].desc}
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Dynamic Kitchen Service Status Banner (Paused / Closed Countdown in 4 Languages) */}
         <div className="max-w-6xl mx-auto mt-4 px-2">
