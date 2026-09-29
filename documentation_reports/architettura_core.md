@@ -12,9 +12,10 @@ Il sistema è strutturato come un'applicazione a pagina singola (SPA) con backen
 *   **State Management:** Zustand 5.x per la gestione reattiva del carrello e dello stato locale.
 *   **Database & Storage:** Supabase (PostgreSQL) per la memorizzazione dei dati degli alloggi, degli ordini e dei token di autenticazione. I bucket di Supabase Storage gestiscono le foto degli alloggi e le ricevute di pagamento.
 *   **Payment Gateways (Multi-Gateway Switcher):**
+    *   **Omise / Opn Payments (Pizza Delivery):** Gateway attivo in produzione LIVE (`pkey_68v...` e `skey_696...`) per pagamenti con carta 3D Secure e PromptPay in Baht thailandesi.
     *   **Cash (Ksher API):** Gateway primario per pagamenti in Thai Baht (THB) con PromptPay QR Code dinamico e carte di credito/debito internazionali con firma crittografica RSA-MD5.
     *   **PayPal API (Orders v2):** Metodo parallelo con calcolo trasparente e gestione commissioni (+10%).
-    *   **Stripe API (Stripe Checkout):** Fallback opzionale per pagamenti con carta di credito.
+    *   **Stripe API (Stripe Checkout):** Fallback per prenotazioni resort con carta di credito.
 *   **Motore Fiscale & Contabilità Commercialista (`paymentCalculations.ts`):** Calcolo centralizzato di VAT 7% e costi incorporati (+4% Ksher, +10% PayPal, 0% Bonifico) con esportazione CSV e diciture fiscali 100% saldato senza voci di deposito.
 *   **Channel Manager & PMS:** API Octorate (REST v1) per il controllo in tempo reale della disponibilità delle camere, delle tariffe dinamiche e per la registrazione automatica delle prenotazioni.
 *   **Image Proxy (Ottimizzazione CDN):** Proxy `wsrv.nl` per il ridimensionamento dinamico e la conversione in formato WebP ad alta efficienza delle immagini caricate sui bucket Supabase Storage.

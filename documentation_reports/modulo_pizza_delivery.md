@@ -50,9 +50,13 @@ Il sistema gestisce l'intero catalogo dei prodotti e l'inoltro degli ordini via 
 *   **Nascosto al Pubblico su Produzione:** Sui domini ufficiali (`flowerpowerpizza.com` e `flowerpowervillage.com`), il pulsante switcher è **automaticamente nascosto**, visualizzando direttamente e in modo pulito l'ultima versione scelta.
 *   **Disponibile in Staging / Sviluppo:** Sull'ambiente virtuale Vercel (`flowerpowervillage.vercel.app`) e in locale (`localhost:3000`), il pulsante rimane accessibile per test e confronti.
 
-### G. Banner Istituzionale "Anteprima & Collaudo Gateway" e Sandbox Mode
-*   **Banner Istituzionale Multilingua (`DeliveryMenu.tsx`):** Espone in cima alla pagina un banner informativo satinato in 4 lingue (`IT`, `EN`, `TH`, `DE`) che dichiara l'imminente apertura del servizio e l'apertura della piattaforma per le verifiche di conformità e underwriting del Payment Gateway.
-*   **Ispezione Checkout Completa in Sicurezza (`CheckoutFlow.tsx`):** Il flusso di cassa è navigabile al 100% per i revisori (carrello, calcolo consegna, indirizzo, mappa GPS, informativa legale e form di pagamento carta / PromptPay), operando in ambiente Sandbox protetto per impedire addebiti a clienti reali durante l'onboarding.
+### G. Opzione "100% Pollo (Halal-Friendly) 🐔" (+0฿) & Pulizia Varianti Pizze
+*   **Selezione Pollo al 100% (Sostituzione Carne di Maiale):** Per tutte le 16 pizze che prevedono insaccati o carne di maiale (Bacon, Salame, Prosciutto, Wurstel, Capricciosa, 4 Stagioni, ecc.), è stato introdotto un selettore ultra-compatto a capsula (`~36px`) posizionato direttamente dopo la scelta della taglia (`MenuGrid.tsx`). L'opzione non allunga la scheda mobile, è a costo zero (+0฿) e contrassegna il prodotto nel carrello (`CartDrawer.tsx`), nelle notifiche Telegram e sul tablet KDS della cucina.
+*   **Auditing Completo Varianti (32 Pizze Uniformate):** Tutte le 32 pizze in `menuData.ts` sono state bonificate da residui storici di vecchi import POS (eliminate le varianti inquinate come Bismark su Pizza Bacon o varianti Gorgonzola/Calabrese su Salame), garantendo uniformità assoluta sulle taglie standard `12"` e `8"`.
+
+### H. Gateway Omise / Opn Payments (Produzione LIVE Attiva)
+*   **Attivazione Live:** Configurazione delle chiavi di produzione Live (`pkey_68v...` e `skey_696...`) per l'accettazione diretta di pagamenti con carta di credito (3D Secure) e PromptPay thailandese.
+*   **Isolamento Avvisi di Collaudo:** I banner e le diciture di Sandbox/Collaudo sono stati rigidamente confinati al solo dominio ufficiale di produzione `flowerpowerpizza.com`, mantenendo l'ambiente locale (`localhost`) e virtuale di staging (`*.vercel.app`) completamente privi di avvisi di prova.
 
 ---
 
