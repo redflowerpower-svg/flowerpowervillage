@@ -406,40 +406,55 @@ const ABOUT_SLIDES = [
   {
     url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/02-pizza-margherita.webp',
     title: 'Pizza Margherita Artigianale',
-    desc: 'Lievitazione naturale 48h con farina 100% italiana'
+    desc: 'Lenta lievitazione 48h con farina 100% italiana',
+    category: '🍕 Pizza Tradizionale'
   },
   {
     url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato%20Sauce/06-spaghetti-al-pomodoro.webp',
-    title: 'Pasta Fresca Fatta a Mano',
-    desc: 'Preparata ogni mattina secondo tradizione'
+    title: 'Spaghetti al Pomodoro & Basilico',
+    desc: 'Pasta fresca tirata a mano e sugo lento',
+    category: '🍝 Pasta Fresca'
   },
   {
     url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/28-pizza-capricciosa.webp',
     title: 'Pizza Capricciosa Tradizionale',
-    desc: 'Ingredienti genuini e cottura a regola d\'arte'
+    desc: 'Carciofi, funghi, prosciutto e olive',
+    category: '🍕 Specialità Italiana'
   },
   {
     url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto%20Genovese/13-tagliatelle-al-pesto.webp',
     title: 'Tagliatelle al Pesto Genovese',
-    desc: 'Basilico fresco e profumi autentici della Liguria'
+    desc: 'Basilico fresco, pinoli e olio extravergine',
+    category: '🍝 Fatta a Mano'
   },
   {
     url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/03-tiramisu.webp',
-    title: 'Tiramisù della Tradizione',
-    desc: 'Savoiardi, mascarpone e caffè espresso italiano'
+    title: 'Tiramisù Tradizionale',
+    desc: 'Savoiardi, mascarpone e caffè espresso',
+    category: '🍰 Pasticceria'
   }
 ];
 
 function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void }) {
   const hours = usePizzeriaHours();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
+    if (isPaused) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % ABOUT_SLIDES.length);
-    }, 4000);
+    }, 3800);
     return () => clearInterval(timer);
-  }, []);
+  }, [isPaused]);
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev === 0 ? ABOUT_SLIDES.length - 1 : prev - 1));
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % ABOUT_SLIDES.length);
+  };
 
   return (
     <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
@@ -465,40 +480,46 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
         {/* Main 2-Column Section: Slideshow with Watermark + Storytelling */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center mb-14 sm:mb-16">
           
-          {/* Left Column: Interactive Slideshow with Official Watermark Logo (5 cols) */}
-          <div className="lg:col-span-5 relative group">
-            <div className="relative w-full h-[320px] sm:h-[380px] lg:h-[440px] rounded-[2.5rem] overflow-hidden border border-stone-300 shadow-xl bg-stone-900">
+          {/* Left Column: Artistic Showcase with uncropped dishes and warm ambient light (5 cols) */}
+          <div 
+            className="lg:col-span-5 relative group"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            <div className="relative w-full aspect-square max-w-md mx-auto rounded-[2.5rem] overflow-hidden border border-amber-900/40 shadow-2xl bg-gradient-to-br from-[#2a221d] via-[#1a1411] to-[#0c0908] flex items-center justify-center">
               
-              {/* Slides */}
-              {ABOUT_SLIDES.map((slide, idx) => (
-                <div
-                  key={idx}
-                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                    idx === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'
-                  }`}
-                  style={{ transition: 'opacity 1s ease-in-out, transform 4s ease-out' }}
-                >
-                  <img
-                    src={slide.url}
-                    alt={slide.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
-                  
-                  {/* Slide Title & Description on Bottom */}
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <p className="font-extrabold text-sm sm:text-base leading-tight drop-shadow-md">
-                      {slide.title}
-                    </p>
-                    <p className="text-stone-300 text-[11px] sm:text-xs font-light drop-shadow-xs mt-0.5">
-                      {slide.desc}
-                    </p>
+              {/* Radial warm lighting behind food */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-48 sm:w-64 h-48 sm:h-64 rounded-full bg-amber-500/15 blur-3xl animate-pulse" />
+                <div className="w-36 sm:w-48 h-36 sm:h-48 rounded-full bg-[#8B1E1E]/20 blur-2xl" />
+              </div>
+
+              {/* Dish Presentation (Full uncropped circular view) */}
+              {ABOUT_SLIDES.map((slide, idx) => {
+                const isActive = idx === currentSlide;
+                return (
+                  <div
+                    key={idx}
+                    className={`absolute inset-0 p-6 sm:p-8 flex items-center justify-center transition-all duration-700 ease-out ${
+                      isActive 
+                        ? 'opacity-100 scale-100 rotate-0' 
+                        : 'opacity-0 scale-90 -rotate-3 pointer-events-none'
+                    }`}
+                  >
+                    <img
+                      src={slide.url}
+                      alt={slide.title}
+                      className="max-h-[75%] max-w-[85%] w-auto h-auto object-contain transition-transform duration-700 hover:scale-105"
+                      style={{
+                        filter: 'drop-shadow(0 20px 25px rgba(0, 0, 0, 0.65)) drop-shadow(0 8px 10px rgba(0, 0, 0, 0.4))'
+                      }}
+                    />
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {/* Watermark Logo (Top Left Corner) */}
-              <div className="absolute top-3.5 left-3.5 z-20 flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-2xl shadow-lg">
+              <div className="absolute top-3.5 left-3.5 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md border border-amber-500/30 px-3 py-1.5 rounded-2xl shadow-xl">
                 <img
                   src="/Flower_Power_Pizza_-_HotSpring.png"
                   alt="Flower Power Pizza Watermark"
@@ -514,18 +535,51 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
                 </div>
               </div>
 
-              {/* Slide Dots Indicator */}
-              <div className="absolute top-4 right-4 z-20 flex gap-1.5 bg-black/40 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10">
-                {ABOUT_SLIDES.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentSlide(idx)}
-                    className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
-                      idx === currentSlide ? 'bg-amber-400 w-5' : 'bg-white/50 hover:bg-white/80'
-                    }`}
-                    aria-label={`Slide ${idx + 1}`}
-                  />
-                ))}
+              {/* Category Badge (Top Right Corner) */}
+              <div className="absolute top-3.5 right-3.5 z-20 bg-amber-400/20 backdrop-blur-md border border-amber-400/30 text-amber-200 text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md">
+                {ABOUT_SLIDES[currentSlide].category}
+              </div>
+
+              {/* Prev / Next Navigation Controls */}
+              <button
+                onClick={prevSlide}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs"
+                aria-label="Previous dish"
+              >
+                ◀
+              </button>
+              <button
+                onClick={nextSlide}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs"
+                aria-label="Next dish"
+              >
+                ▶
+              </button>
+
+              {/* Bottom Frosted Glass Caption & Indicators */}
+              <div className="absolute bottom-3 left-3 right-3 z-20 bg-black/70 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl flex items-center justify-between shadow-lg">
+                <div className="text-left pr-2 min-w-0">
+                  <p className="text-white font-extrabold text-xs sm:text-sm leading-tight truncate">
+                    {ABOUT_SLIDES[currentSlide].title}
+                  </p>
+                  <p className="text-amber-300 text-[10.5px] font-medium leading-tight truncate mt-0.5">
+                    {ABOUT_SLIDES[currentSlide].desc}
+                  </p>
+                </div>
+
+                {/* Slide Dots Indicator */}
+                <div className="flex gap-1.5 shrink-0">
+                  {ABOUT_SLIDES.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentSlide(idx)}
+                      className={`h-2 rounded-full transition-all cursor-pointer ${
+                        idx === currentSlide ? 'bg-amber-400 w-5' : 'bg-white/40 hover:bg-white/70 w-2'
+                      }`}
+                      aria-label={`Slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
 
             </div>
