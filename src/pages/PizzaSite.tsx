@@ -115,8 +115,7 @@ function PizzaNav({
   const openCart = useCartStore((s) => s.openCart);
 
   const isOfficialDomain = typeof window !== 'undefined' && (
-    window.location.hostname.toLowerCase().includes('flowerpowerpizza.com') ||
-    window.location.hostname.toLowerCase().includes('flowerpowervillage.com')
+    window.location.hostname.toLowerCase().includes('flowerpowerpizza.com')
   );
 
   const previewNotice = {

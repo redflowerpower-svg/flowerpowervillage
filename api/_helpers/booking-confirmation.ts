@@ -1008,7 +1008,7 @@ export async function sendConfirmationEmail(
   const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
   const smtpPort = process.env.SMTP_PORT || "465";
   const smtpUser = process.env.SMTP_USER || "flowerpowerphayam@gmail.com";
-  const smtpPass = process.env.SMTP_PASS || "SnookeR01";
+  const smtpPass = (process.env.SMTP_PASS || "").replace(/\s+/g, "");
 
   const emailLang = (metadata.lang || "EN").toUpperCase();
   const t = LABELS[emailLang] || LABELS["EN"];

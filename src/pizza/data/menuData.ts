@@ -1310,20 +1310,6 @@ export const menuData: MenuCategory[] = [
             "nameDe": "12\""
           },
           {
-            "id": "10014",
-            "name": "12\" (Ham & Cheese)",
-            "nameTh": "12\" (Ham & Cheese)",
-            "sku": "10014",
-            "price": 250,
-            "priceModifier": 40,
-            "description_it": "",
-            "description_de": "",
-            "name_it": "12\" (Ham & Cheese)",
-            "nameIt": "12\" (Ham & Cheese)",
-            "name_de": "12\" (Ham & Cheese)",
-            "nameDe": "12\" (Ham & Cheese)"
-          },
-          {
             "id": "10041",
             "name": "8\"",
             "nameTh": "8\"",
@@ -1336,20 +1322,6 @@ export const menuData: MenuCategory[] = [
             "nameIt": "8\"",
             "name_de": "8\"",
             "nameDe": "8\""
-          },
-          {
-            "id": "10066",
-            "name": "8\" (Ham & Cheese)",
-            "nameTh": "8\" (Ham & Cheese)",
-            "sku": "10066",
-            "price": 165,
-            "priceModifier": -45,
-            "description_it": "",
-            "description_de": "",
-            "name_it": "8\" (Ham & Cheese)",
-            "nameIt": "8\" (Ham & Cheese)",
-            "name_de": "8\" (Ham & Cheese)",
-            "nameDe": "8\" (Ham & Cheese)"
           }
         ],
         "extras": [
@@ -3821,20 +3793,6 @@ export const menuData: MenuCategory[] = [
             "nameDe": "12\""
           },
           {
-            "id": "10018",
-            "name": "12\" (Bismark)",
-            "nameTh": "12\" (Bismark)",
-            "sku": "10018",
-            "price": 270,
-            "priceModifier": 20,
-            "description_it": "",
-            "description_de": "",
-            "name_it": "12\" (Bismark)",
-            "nameIt": "12\" (Bismark)",
-            "name_de": "12\" (Bismark)",
-            "nameDe": "12\" (Bismark)"
-          },
-          {
             "id": "10091",
             "name": "8\"",
             "nameTh": "8\"",
@@ -3847,20 +3805,6 @@ export const menuData: MenuCategory[] = [
             "nameIt": "8\"",
             "name_de": "8\"",
             "nameDe": "8\""
-          },
-          {
-            "id": "10101",
-            "name": "8\" (Bismark)",
-            "nameTh": "8\" (Bismark)",
-            "sku": "10101",
-            "price": 170,
-            "priceModifier": -80,
-            "description_it": "",
-            "description_de": "",
-            "name_it": "8\" (Bismark)",
-            "nameIt": "8\" (Bismark)",
-            "name_de": "8\" (Bismark)",
-            "nameDe": "8\" (Bismark)"
           }
         ],
         "extras": [
@@ -5864,34 +5808,6 @@ export const menuData: MenuCategory[] = [
             "nameDe": "12\""
           },
           {
-            "id": "10024",
-            "name": "12\" (Gorgonzola)",
-            "nameTh": "12\" (Gorgonzola)",
-            "sku": "10024",
-            "price": 320,
-            "priceModifier": 70,
-            "description_it": "",
-            "description_de": "",
-            "name_it": "12\" (Gorgonzola)",
-            "nameIt": "12\" (Gorgonzola)",
-            "name_de": "12\" (Gorgonzola)",
-            "nameDe": "12\" (Gorgonzola)"
-          },
-          {
-            "id": "10016",
-            "name": "12\" (Calabrese)",
-            "nameTh": "12\" (Calabrese)",
-            "sku": "10016",
-            "price": 250,
-            "priceModifier": 0,
-            "description_it": "",
-            "description_de": "",
-            "name_it": "12\" (Calabrese)",
-            "nameIt": "12\" (Calabrese)",
-            "name_de": "12\" (Calabrese)",
-            "nameDe": "12\" (Calabrese)"
-          },
-          {
             "id": "10247",
             "name": "8\"",
             "nameTh": "8\"",
@@ -5904,34 +5820,6 @@ export const menuData: MenuCategory[] = [
             "nameIt": "8\"",
             "name_de": "8\"",
             "nameDe": "8\""
-          },
-          {
-            "id": "10256",
-            "name": "8\" (Gorgonzola)",
-            "nameTh": "8\" (Gorgonzola)",
-            "sku": "10256",
-            "price": 210,
-            "priceModifier": -40,
-            "description_it": "",
-            "description_de": "",
-            "name_it": "8\" (Gorgonzola)",
-            "nameIt": "8\" (Gorgonzola)",
-            "name_de": "8\" (Gorgonzola)",
-            "nameDe": "8\" (Gorgonzola)"
-          },
-          {
-            "id": "10248",
-            "name": "8\" (Calabrese)",
-            "nameTh": "8\" (Calabrese)",
-            "sku": "10248",
-            "price": 160,
-            "priceModifier": -90,
-            "description_it": "",
-            "description_de": "",
-            "name_it": "8\" (Calabrese)",
-            "nameIt": "8\" (Calabrese)",
-            "name_de": "8\" (Calabrese)",
-            "nameDe": "8\" (Calabrese)"
           }
         ],
         "extras": [
@@ -9937,31 +9825,31 @@ export const menuData: MenuCategory[] = [
         "variants": [
           {
             "id": "10025",
-            "name": "12\" (4)",
-            "nameTh": "12\" (4)",
+            "name": "12\"",
+            "nameTh": "12\"",
             "sku": "10025",
             "price": 330,
             "priceModifier": 0,
             "description_it": "",
             "description_de": "",
-            "name_it": "12\" (4)",
-            "nameIt": "12\" (4)",
-            "name_de": "12\" (4)",
-            "nameDe": "12\" (4)"
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10067",
-            "name": "8\" (4)",
-            "nameTh": "8\" (4)",
+            "name": "8\"",
+            "nameTh": "8\"",
             "sku": "10067",
             "price": 220,
             "priceModifier": -110,
             "description_it": "",
             "description_de": "",
-            "name_it": "8\" (4)",
-            "nameIt": "8\" (4)",
-            "name_de": "8\" (4)",
-            "nameDe": "8\" (4)"
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [
@@ -10340,31 +10228,31 @@ export const menuData: MenuCategory[] = [
         "variants": [
           {
             "id": "10026",
-            "name": "12\" (4)",
-            "nameTh": "12\" (4)",
+            "name": "12\"",
+            "nameTh": "12\"",
             "sku": "10026",
             "price": 350,
             "priceModifier": 0,
             "description_it": "",
             "description_de": "",
-            "name_it": "12\" (4)",
-            "nameIt": "12\" (4)",
-            "name_de": "12\" (4)",
-            "nameDe": "12\" (4)"
+            "name_it": "12\"",
+            "nameIt": "12\"",
+            "name_de": "12\"",
+            "nameDe": "12\""
           },
           {
             "id": "10089",
-            "name": "8\" (4)",
-            "nameTh": "8\" (4)",
+            "name": "8\"",
+            "nameTh": "8\"",
             "sku": "10089",
             "price": 240,
             "priceModifier": -110,
             "description_it": "",
             "description_de": "",
-            "name_it": "8\" (4)",
-            "nameIt": "8\" (4)",
-            "name_de": "8\" (4)",
-            "nameDe": "8\" (4)"
+            "name_it": "8\"",
+            "nameIt": "8\"",
+            "name_de": "8\"",
+            "nameDe": "8\""
           }
         ],
         "extras": [

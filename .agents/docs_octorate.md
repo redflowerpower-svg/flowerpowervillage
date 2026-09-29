@@ -4,10 +4,10 @@
 Octorate è il Property Management System (PMS) channel manager per Flower Power Village (Koh Phayam). Gestisce le disponibilità in tempo reale, i piani tariffari dinamici e l'inserimento delle prenotazioni dal Booking Engine.
 
 ## Environment Variables
-* `VITE_OCTORATE_CLIENT_ID`: Client ID pubblico per l'integrazione OAuth (`public_5b03d32645444204a1fcdbf7af2a978d`).
-* `OCTORATE_SECRET_KEY`: Secret key privata dell'API (`secret_9f5edc3ed29f4e30abb9d8f801b6b555DDKOPIUXMA`).
-* `VITE_OCTORATE_STRUCTURE_ID`: ID struttura hotel Octorate (`366879`).
-* `VITE_OCTORATE_CHANNEL_ID`: ID canale prenotazioni dirette (`233`).
+* `VITE_OCTORATE_CLIENT_ID`: Client ID pubblico per l'integrazione OAuth.
+* `OCTORATE_SECRET_KEY`: Secret key privata dell'API (custodita in `.env` / Vault).
+* `VITE_OCTORATE_STRUCTURE_ID`: ID struttura hotel Octorate.
+* `VITE_OCTORATE_CHANNEL_ID`: ID canale prenotazioni dirette.
 * `VITE_OCTORATE_REDIRECT_URI`: OAuth redirect target (`https://localhost/`).
 
 ---

@@ -43,10 +43,6 @@ export async function getOmiseCredentials(): Promise<OmiseCredentials> {
     }
   }
 
-  // Fallback defaults for test sandbox if no keys defined yet
-  if (!publicKey) publicKey = "pkey_test_68i6gpt92ssk3a9fxnd";
-  if (!secretKey) secretKey = "skey_test_68i6gptsryifdzf9m62";
-
   return { publicKey, secretKey, mode };
 }
 

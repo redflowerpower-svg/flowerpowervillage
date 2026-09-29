@@ -285,7 +285,7 @@ export async function handleDirectReservationCancellation(booking: any): Promise
         secure: true,
         auth: {
           user: process.env.SMTP_USER || "flowerpowerphayam@gmail.com",
-          pass: process.env.SMTP_PASS || "feoz edoy nzrl glid",
+          pass: (process.env.SMTP_PASS || "").replace(/\s+/g, ""),
         },
       });
 

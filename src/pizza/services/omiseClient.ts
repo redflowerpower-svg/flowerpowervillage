@@ -38,7 +38,7 @@ export function getOmisePublicKey(): string {
   return (
     import.meta.env.VITE_OMISE_PUBLIC_KEY ||
     (typeof process !== 'undefined' && process.env?.OMISE_PUBLIC_KEY) ||
-    'pkey_test_68i6gpt92ssk3a9fxnd'
+    ''
   );
 }
 

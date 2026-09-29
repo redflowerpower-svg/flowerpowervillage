@@ -112,7 +112,7 @@ export async function sendTableReservationEmail(
   const smtpHost = process.env.PIZZA_SMTP_HOST || process.env.SMTP_HOST || "smtp.gmail.com";
   const smtpPort = Number(process.env.PIZZA_SMTP_PORT || process.env.SMTP_PORT || 465);
   const smtpUser = process.env.PIZZA_SMTP_USER || "flowerpowerpizzaranong.th@gmail.com";
-  const smtpPass = (process.env.PIZZA_SMTP_PASS || "uwai psxe chzi pawb").replace(/\s+/g, "");
+  const smtpPass = (process.env.PIZZA_SMTP_PASS || process.env.SMTP_PASS || "").replace(/\s+/g, "");
 
   if (!smtpPass) {
     console.warn("[Table Email] SMTP password missing. Skipping email.");

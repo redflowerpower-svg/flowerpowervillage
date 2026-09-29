@@ -31,7 +31,7 @@ export async function handleSendNewsletter(req: VercelRequest, res: VercelRespon
       authPass = process.env.SMTP_PASS_RED || authPass;
     } else if (senderAccount === 'pizza' || senderAccount === 'ranong') {
       authUser = process.env.PIZZA_SMTP_USER || 'flowerpowerpizzaranong.th@gmail.com';
-      authPass = (process.env.PIZZA_SMTP_PASS || 'uwai psxe chzi pawb').replace(/\s+/g, '');
+      authPass = (process.env.PIZZA_SMTP_PASS || process.env.SMTP_PASS || '').replace(/\s+/g, '');
       fromName = 'Flower Power Pizza Ranong';
     }
 

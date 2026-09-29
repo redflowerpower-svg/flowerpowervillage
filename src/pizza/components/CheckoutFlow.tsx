@@ -408,6 +408,10 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   const [isHotelGuest, setIsHotelGuest] = useState(false);
   const [deviceId] = useState(() => getOrCreateDeviceId());
   const [appliedPromo] = useState<PizzaPromoCode | null>(() => getAppliedPizzaPromo());
+  const isOfficialDomain = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.location.hostname.toLowerCase().includes('flowerpowerpizza.com');
+  }, []);
 
   // Non-stacking discount: Promo Coupon takes priority over 10% welcome discount
   let discountAmount = 0;
@@ -1461,8 +1465,8 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
           />
         </div>
 
-        {/* Gateway Inspection & Preview Mode Notice */}
-        {(step === 1 || step === 2) && submitPhase === 'idle' && (
+        {/* Gateway Inspection & Preview Mode Notice (Official Production Domain only) */}
+        {isOfficialDomain && (step === 1 || step === 2) && submitPhase === 'idle' && (
           <div className="mx-0 mt-1 mb-1 px-2.5 py-1.5 bg-amber-50 border border-amber-300 rounded-xl flex items-center gap-2 text-[10px] text-amber-900 shrink-0">
             <span className="text-xs shrink-0">🚧</span>
             <div className="leading-tight">
@@ -2168,15 +2172,17 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                     <span>{t.cardSecurityNotice}</span>
                   </div>
 
-                  <div className="bg-amber-50/90 border border-amber-200/90 rounded-lg p-1.5 flex items-center gap-1.5 text-[8.5px] text-amber-900">
-                    <span className="text-[10px]">🧪</span>
-                    <span className="font-semibold">
-                      {lang === 'IT' ? 'Sandbox Gateway: Transazione in modalità di collaudo e ispezione.' :
-                       lang === 'TH' ? 'โหมดทดสอบระบบ (Sandbox): ไม่มีการเรียกเก็บเงินจริง' :
-                       lang === 'DE' ? 'Gateway-Sandbox: Testtransaktion zu Prüfungszwecken.' :
-                       'Sandbox Mode: Test transaction for payment gateway review.'}
-                    </span>
-                  </div>
+                  {isOfficialDomain && (
+                    <div className="bg-amber-50/90 border border-amber-200/90 rounded-lg p-1.5 flex items-center gap-1.5 text-[8.5px] text-amber-900">
+                      <span className="text-[10px]">🧪</span>
+                      <span className="font-semibold">
+                        {lang === 'IT' ? 'Sandbox Gateway: Transazione in modalità di collaudo e ispezione.' :
+                         lang === 'TH' ? 'โหมดทดสอบระบบ (Sandbox): ไม่มีการเรียกเก็บเงินจริง' :
+                         lang === 'DE' ? 'Gateway-Sandbox: Testtransaktion zu Prüfungszwecken.' :
+                         'Sandbox Mode: Test transaction for payment gateway review.'}
+                      </span>
+                    </div>
+                  )}
 
                   <div className="text-center space-y-0.5 shrink-0 pt-0.5">
                     <p className="text-[8.5px] text-stone-400 uppercase tracking-widest font-bold">

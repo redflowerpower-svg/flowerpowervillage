@@ -6,6 +6,7 @@ import { WineCardStudio } from './WineCardStudio';
 import { PizzaNewsletterSection } from './PizzaNewsletterSection';
 import { PizzaPromoCodesSection } from './PizzaPromoCodesSection';
 import { PizzaTableReservationsSection } from './PizzaTableReservationsSection';
+import { StoryboardStudio } from './StoryboardStudio';
 import { PizzaServiceScheduleModal } from './PizzaServiceScheduleModal';
 import { 
   fetchPizzeriaStatus, 
@@ -45,6 +46,7 @@ import {
   Mail,
   Tablet,
   Ticket,
+  Film,
   PauseCircle,
   Moon
 } from 'lucide-react';
@@ -148,7 +150,7 @@ export function PizzaDashboard() {
     setFilterMenuCategory
   } = usePizzaAdminStore();
 
-  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'tables' | 'menu' | 'wine_studio' | 'newsletter' | 'promos' | 'settings'>('orders');
+  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'tables' | 'menu' | 'wine_studio' | 'newsletter' | 'promos' | 'storyboard' | 'settings'>('orders');
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
@@ -397,7 +399,20 @@ export function PizzaDashboard() {
           }`}
         >
           <Ticket className="w-4 h-4" />
-          <span>🎟️ Coupon & Codici Sconto</span>
+          <span>🎟️ Codici Sconto</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveMainTab('storyboard')}
+          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeMainTab === 'storyboard'
+              ? 'bg-gradient-to-r from-rose-600 to-[#8B1E1E] text-white shadow-lg ring-1 ring-rose-400/30'
+              : 'text-stone-400 hover:text-white hover:bg-stone-800'
+          }`}
+        >
+          <Film className="w-4 h-4 text-rose-400" />
+          <span>🎬 Storyboard Studio (9:16)</span>
         </button>
 
         <button
@@ -410,7 +425,7 @@ export function PizzaDashboard() {
           }`}
         >
           <Settings className="w-4 h-4" />
-          <span>⚙️ Instradamento & Impostazioni</span>
+          <span>⚙️ Impostazioni</span>
         </button>
 
         <a
@@ -815,7 +830,12 @@ export function PizzaDashboard() {
         <PizzaPromoCodesSection />
       )}
 
-      {/* TAB 6: SETTINGS & ROUTING */}
+      {/* TAB 6: STORYBOARD STUDIO TIKTOK (9:16) */}
+      {activeMainTab === 'storyboard' && (
+        <StoryboardStudio />
+      )}
+
+      {/* TAB 7: SETTINGS & ROUTING */}
       {activeMainTab === 'settings' && (
         <PizzeriaSettingsSection />
       )}

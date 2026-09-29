@@ -89,6 +89,11 @@ All'interno di TUTTO il sito web (sia nel reparto Pizzeria / Delivery `/pizze` c
 
 # Vault-Sync & Multi-Workstation Protocol (Koh Phayam <-> Ranong)
 
+## 🔒 REGOLA FERREA ANTI-SECRET LEAK & ZERO HARDCODED CREDENTIALS
+- È **TASSATIVAMENTE E SEVERAMENTE VIETATO** inserire password, secret keys, token API, credenziali SMTP o chiavi private in chiaro all'interno di file sorgente (`.ts`, `.tsx`, `.js`, `.mjs`, `.html`, `.md`), né come costanti né come valori di fallback (`process.env.KEY || "valore_segreto"`).
+- Tutte le credenziali DEVONO risiedere **esclusivamente** nei file `.env` locali (bloccati da Git) e nella cassaforte cifrata `.secret_docs/api_credentials_report.md.enc`.
+- Prima di qualsiasi `git commit` o workflow `MARKDOWN-PROJECT` / `MARKDOWN-WEBSITE`, l'agente DEVE eseguire tassativamente `node scratch/security-audit.mjs` verificando che restituisca `0 SECRETS DETECTED`.
+
 ## Vault-Sync & Security (.gitignore)
 - `scratch/vault-sync.mjs` gestisce la cifratura e la decifratura delle chiavi di progetto.
 - Il report in chiaro `.secret_docs/api_credentials_report.md` DEVE rimanere strettamente bloccato da Git (`.secret_docs/*`).

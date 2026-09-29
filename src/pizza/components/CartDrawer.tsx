@@ -366,6 +366,16 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
                         </div>
                       )}
 
+                      {/* 100% Halal Chicken Badge */}
+                      {item.isHalalChicken && (
+                        <div className="mt-2 inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 rounded-lg px-2 py-0.5 shadow-2xs">
+                          <span className="text-xs">🐔</span>
+                          <span className="text-emerald-800 text-[10px] font-extrabold">
+                            {lang === 'TH' ? 'เนื้อไก่ 100% (Halal-friendly)' : lang === 'IT' ? '100% Pollo (Halal-friendly)' : lang === 'DE' ? '100% Geflügel (Halal-friendly)' : '100% Chicken (Halal-friendly)'}
+                          </span>
+                        </div>
+                      )}
+
                       {/* Lasagna pre-order date badge */}
                       {item.lasagnaDate && (
                         <div className="mt-2 inline-flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1">

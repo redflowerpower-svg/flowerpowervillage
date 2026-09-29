@@ -14,6 +14,7 @@ export interface CartItem {
   selectedExtras?: ExtraOption[];
   image: string;
   lasagnaDate?: string; // Pre-order date for lasagna (required, min 1 day in advance)
+  isHalalChicken?: boolean; // Replaces pork ingredients with 100% chicken meat
 }
 
 export function calcItemTotal(item: CartItem): number {

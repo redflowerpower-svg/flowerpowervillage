@@ -513,8 +513,8 @@ export async function handleOctorateGrid(req: VercelRequest, res: VercelResponse
     };
 
     const tryRefreshToken = async () => {
-      const clientId = process.env.VITE_OCTORATE_CLIENT_ID || "public_5b03d32645444204a1fcdbf7af2a978d";
-      const clientSecret = process.env.OCTORATE_SECRET_KEY || "secret_9f5edc3ed29f4e30abb9d8f801b6b555DDKOPIUXMA";
+      const clientId = process.env.VITE_OCTORATE_CLIENT_ID;
+      const clientSecret = process.env.OCTORATE_SECRET_KEY || process.env.VITE_OCTORATE_SECRET_KEY;
 
       if (!refreshToken || !clientId || !clientSecret) return null;
 
