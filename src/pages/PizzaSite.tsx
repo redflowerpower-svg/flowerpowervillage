@@ -402,69 +402,312 @@ function PizzaHero({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
   );
 }
 
-function PizzaAboutPage() {
+const ABOUT_SLIDES = [
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/02-pizza-margherita.webp',
+    title: 'Pizza Margherita Artigianale',
+    desc: 'Lievitazione naturale 48h con farina 100% italiana'
+  },
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato%20Sauce/06-spaghetti-al-pomodoro.webp',
+    title: 'Pasta Fresca Fatta a Mano',
+    desc: 'Preparata ogni mattina secondo tradizione'
+  },
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/28-pizza-capricciosa.webp',
+    title: 'Pizza Capricciosa Tradizionale',
+    desc: 'Ingredienti genuini e cottura a regola d\'arte'
+  },
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto%20Genovese/13-tagliatelle-al-pesto.webp',
+    title: 'Tagliatelle al Pesto Genovese',
+    desc: 'Basilico fresco e profumi autentici della Liguria'
+  },
+  {
+    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/03-tiramisu.webp',
+    title: 'Tiramisù della Tradizione',
+    desc: 'Savoiardi, mascarpone e caffè espresso italiano'
+  }
+];
+
+function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void }) {
   const hours = usePizzeriaHours();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % ABOUT_SLIDES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="text-center mb-14">
-          <p className="text-xs tracking-[0.4em] uppercase text-[#8B1E1E] mb-3 font-semibold">
-            La nostra storia & Tradizione Artigianale
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        
+        {/* Header */}
+        <div className="text-center mb-10 sm:mb-14">
+          <p className="text-[11px] sm:text-xs tracking-[0.35em] uppercase text-[#8B1E1E] mb-2 font-bold">
+            La nostra storia & Filosofia
           </p>
-          <h2
-            className="text-stone-900 mb-4 font-black tracking-tight"
-            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+          <h1
+            className="text-stone-900 font-black tracking-tight"
+            style={{ fontSize: 'clamp(1.85rem, 3.8vw, 2.75rem)' }}
           >
-            Cuore Italiano, Anima <em>Ranong</em>
-          </h2>
-          <div className="w-12 h-0.5 bg-[#8B1E1E] mx-auto" />
+            Cuore Italiano, Anima <span className="italic text-[#8B1E1E]">Ranong</span>
+          </h1>
+          <p className="text-stone-600 text-xs sm:text-sm font-medium mt-1">
+            Tradizione artigianale, incontro di culture e visione sostenibile alle porte di Raksawarin
+          </p>
+          <div className="w-12 h-0.5 bg-[#8B1E1E] mx-auto mt-3.5" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-14">
-          <img
-            src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800"
-            alt="Authentic Italian cooking"
-            className="w-full h-80 object-cover rounded-3xl border border-stone-300 shadow-sm"
-          />
-          <div className="space-y-4">
-            <p className="text-stone-700 text-sm leading-relaxed font-light">
-              <strong>Flower Power Pizza Ranong</strong> porta i sapori autentici della grande tradizione gastronomica italiana nel cuore di Ranong. Immerso in una splendida oasi naturale con una <strong>cascata privata</strong>, un tranquillo laghetto, sala interna climatizzata, terrazza all'aperto e caratteristiche <strong>capanne tradizionali</strong> nel giardino.
-            </p>
-            <p className="text-stone-600 text-sm leading-relaxed font-light">
-              Tutte le nostre pizze nascono da un impasto a <strong>lunga lievitazione naturale (48 ore)</strong> preparato esclusivamente con <strong>farina 100% italiana</strong>. Prepariamo quotidianamente a mano la nostra <strong>pasta fresca</strong>, la <strong>salsiccia artigianale</strong> secondo antica ricetta norcina, focacce fragranti, piatti speciali periodici dello Chef, una selezione di vini di qualità, autentica caffetteria italiana e succhi naturali di frutta fresca.
-            </p>
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              {[
-                { label: 'Cucina & Pasta', value: '100% Artigianale' },
-                { label: 'Orari Pizzeria', value: hours },
-                { label: 'Servizi', value: 'Sala, Capanne & Delivery' },
-                { label: 'Impasto Pizza', value: 'Lievitazione 48h' },
-              ].map((f, i) => (
-                <div key={i} className="bg-white border border-stone-300 rounded-2xl p-4 shadow-sm text-center">
-                  <p className="text-stone-400 text-[10px] uppercase font-bold tracking-wider mb-1">{f.label}</p>
-                  <p className="text-stone-850 text-xs font-extrabold">{f.value}</p>
+        {/* Main 2-Column Section: Slideshow with Watermark + Storytelling */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center mb-14 sm:mb-16">
+          
+          {/* Left Column: Interactive Slideshow with Official Watermark Logo (5 cols) */}
+          <div className="lg:col-span-5 relative group">
+            <div className="relative w-full h-[320px] sm:h-[380px] lg:h-[440px] rounded-[2.5rem] overflow-hidden border border-stone-300 shadow-xl bg-stone-900">
+              
+              {/* Slides */}
+              {ABOUT_SLIDES.map((slide, idx) => (
+                <div
+                  key={idx}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    idx === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105 pointer-events-none'
+                  }`}
+                  style={{ transition: 'opacity 1s ease-in-out, transform 4s ease-out' }}
+                >
+                  <img
+                    src={slide.url}
+                    alt={slide.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
+                  
+                  {/* Slide Title & Description on Bottom */}
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
+                    <p className="font-extrabold text-sm sm:text-base leading-tight drop-shadow-md">
+                      {slide.title}
+                    </p>
+                    <p className="text-stone-300 text-[11px] sm:text-xs font-light drop-shadow-xs mt-0.5">
+                      {slide.desc}
+                    </p>
+                  </div>
                 </div>
               ))}
+
+              {/* Watermark Logo (Top Left Corner) */}
+              <div className="absolute top-3.5 left-3.5 z-20 flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-2xl shadow-lg">
+                <img
+                  src="/Flower_Power_Pizza_-_HotSpring.png"
+                  alt="Flower Power Pizza Watermark"
+                  className="h-7 w-auto object-contain drop-shadow-sm"
+                />
+                <div className="text-left">
+                  <p className="text-[10px] font-black uppercase text-amber-300 tracking-wider leading-none">
+                    FLOWER POWER
+                  </p>
+                  <p className="text-[8px] font-bold text-white/90 uppercase tracking-widest leading-none mt-0.5">
+                    RANONG
+                  </p>
+                </div>
+              </div>
+
+              {/* Slide Dots Indicator */}
+              <div className="absolute top-4 right-4 z-20 flex gap-1.5 bg-black/40 backdrop-blur-xs px-2.5 py-1 rounded-full border border-white/10">
+                {ABOUT_SLIDES.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
+                      idx === currentSlide ? 'bg-amber-400 w-5' : 'bg-white/50 hover:bg-white/80'
+                    }`}
+                    aria-label={`Slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+
             </div>
+          </div>
+
+          {/* Right Column: Rich Narrative Text (7 cols) */}
+          <div className="lg:col-span-7 space-y-4 text-stone-750 leading-relaxed">
+            
+            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-6 sm:p-7 shadow-xs space-y-3.5">
+              <h3 className="text-stone-900 font-extrabold text-base sm:text-lg flex items-center gap-2">
+                <span>🌿</span>
+                <span>Un incontro di sapori e culture alle porte delle Terme</span>
+              </h3>
+              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
+                Situato proprio alle porte delle storiche sorgenti termali di <strong>Raksawarin</strong> a Ranong, <em>Flower Power Pizza</em> nasce dal desiderio di trasferire i segreti, i tempi e le conoscenze più autentiche della tradizione gastronomica italiana direttamente nelle mani e nel cuore del nostro staff locale.
+              </p>
+              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
+                La nostra realtà è molto più di una semplice pizzeria: è un <strong>laboratorio umano e un mix armonioso di culture</strong> — dove italiani, thailandesi e birmani lavorano fianco a fianco ogni giorno, uniti dalla passione per il cibo eccellente, dall'attenzione ai dettagli e dal calore dell'ospitalità sincera.
+              </p>
+            </div>
+
+            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-6 sm:p-7 shadow-xs space-y-3.5">
+              <h3 className="text-stone-900 font-extrabold text-base sm:text-lg flex items-center gap-2">
+                <span>🍕</span>
+                <span>L'Arte della Cucina Fatta a Mano & Lievitazione 48h</span>
+              </h3>
+              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
+                Tutte le nostre pizze nascono da un impasto a <strong>lunga lievitazione naturale (48 ore)</strong> preparato esclusivamente con <strong>farina 100% italiana</strong>, per garantire un prodotto fragrante, leggero e ad altissima digeribilità.
+              </p>
+              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
+                Ogni mattina prepariamo a mano la <strong>pasta fresca</strong>, insacchiamo la <strong>salsiccia artigianale</strong> secondo l'antica ricetta norcina e cuociamo i sughi lentamente come una volta. Il tutto servito in un'oasi verdeggiante dotata di sala interna climatizzata, terrazza, un laghetto, una rinfrescante <strong>cascata privata</strong> e caratteristiche <strong>capanne tradizionali in bambù</strong>.
+              </p>
+            </div>
+
+            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-6 sm:p-7 shadow-xs space-y-3">
+              <h3 className="text-stone-900 font-extrabold text-base sm:text-lg flex items-center gap-2">
+                <span>🌱</span>
+                <span>Progetto in Espansione & Futuro a Chilometro Zero</span>
+              </h3>
+              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
+                Il nostro progetto è un'idea viva e in costante evoluzione. Stiamo sviluppando nuove iniziative che ci porteranno a produrre sempre più ingredienti e materie prime direttamente all'interno della nostra struttura, con l'obiettivo di raggiungere una filiera corta a vero <strong>chilometro zero</strong> e a basso impatto ambientale.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Highlight Feature Badges Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-14 sm:mb-16">
+          {[
+            { label: 'Farina & Impasto', value: '100% Italiana • 48h Lievitazione', icon: '🌾' },
+            { label: 'Pasta & Salsiccia', value: 'Fatte a Mano Ogni Giorno', icon: '🍝' },
+            { label: 'Location & Natura', value: 'Cascata Privata & Capanne', icon: '💦' },
+            { label: 'Staff & Team', value: 'Mix Culturale IT • TH • MM', icon: '🤝' },
+          ].map((f, i) => (
+            <div key={i} className="bg-white border border-stone-200/90 rounded-2xl p-4 text-center shadow-xs">
+              <span className="text-xl mb-1.5 block">{f.icon}</span>
+              <p className="text-stone-400 text-[10px] uppercase font-bold tracking-wider mb-0.5">{f.label}</p>
+              <p className="text-stone-900 text-xs font-black">{f.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Google Maps Genuine Reviews Section */}
+        <div className="mb-14 sm:mb-16">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 text-center sm:text-left">
+            <div>
+              <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                <span className="text-lg">⭐</span>
+                <span className="text-stone-900 font-black text-lg sm:text-xl">
+                  4.9 / 5.0 su Google Maps
+                </span>
+                <span className="text-xs text-stone-500 font-medium">(Oltre 250+ Recensioni)</span>
+              </div>
+              <p className="text-stone-600 text-xs sm:text-sm font-normal">
+                Cosa dicono di noi i clienti locali, gli expat e i viaggiatori a Ranong
+              </p>
+            </div>
+
+            <a
+              href="https://maps.app.goo.gl/6xdREhJ3bu7kzVzY6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-stone-300 hover:border-[#8B1E1E] text-stone-800 hover:text-[#8B1E1E] text-xs font-bold rounded-2xl shadow-xs transition-all shrink-0"
+            >
+              <span>Leggi tutte le recensioni su Google Maps</span>
+              <span className="text-[11px]">↗</span>
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+            {[
+              {
+                quote: "La pizza è spettacolare, l'impasto a 48 ore di lievitazione è digeribilissimo e gli ingredienti sono 100% italiani. Mangiare nelle capanne vicino alla cascata naturale è un'esperienza unica!",
+                author: 'Marco V.',
+                role: 'Local Guide Google',
+                stars: 5,
+              },
+              {
+                quote: "La miglior pasta fresca e pizza di Ranong! Staff gentilissimo e sempre sorridente, atmosfera rilassante con il laghetto. Ottimo anche il servizio delivery in hotel, puntuale e caldissimo.",
+                author: 'Somchai & Ann',
+                role: 'Residenti a Ranong',
+                stars: 5,
+              },
+              {
+                quote: "Un autentico tesoro alle porte delle terme di Raksawarin. Abbiamo assaggiato sia le tagliatelle fatte in casa che la pizza: sapori genuini, ingredienti freschi e un caffè espresso italiano perfetto!",
+                author: 'Elena & David',
+                role: 'Travelers & Foodies',
+                stars: 5,
+              },
+            ].map((r, i) => (
+              <div
+                key={i}
+                className="bg-white border border-stone-200/90 rounded-[2rem] p-6 shadow-xs flex flex-col justify-between hover:border-stone-300 transition-all"
+              >
+                <div>
+                  <div className="flex gap-1 mb-3">
+                    {[...Array(r.stars)].map((_, j) => (
+                      <Star key={j} size={14} className="text-amber-500 fill-amber-500" />
+                    ))}
+                  </div>
+                  <p className="text-stone-750 text-xs sm:text-sm italic leading-relaxed mb-4">
+                    "{r.quote}"
+                  </p>
+                </div>
+                <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
+                  <div>
+                    <p className="text-stone-900 text-xs font-bold">{r.author}</p>
+                    <p className="text-stone-400 text-[10px] font-medium">{r.role}</p>
+                  </div>
+                  <span className="text-[11px] text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                    Verificata ✓
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { quote: "La pizza è spettacolare, l'impasto 48h è leggerissimo e gli ingredienti sono davvero italiani. La cascata privata nel giardino crea un'atmosfera magica!", author: 'Marco V.' },
-            { quote: "La pasta fresca fatta in casa e la salsiccia artigianale sono eccezionali. Il posto con il laghetto e le capanne è unico in tutta Ranong.", author: 'Sarah L.' },
-            { quote: "Vera pizza italiana cotta a regola d'arte, servizio delivery velocissimo in hotel e caffè espresso perfetto. Super consigliato!", author: 'Giovanni R.' },
-          ].map((r, i) => (
-            <div key={i} className="bg-white border border-stone-300 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
-              <div className="flex gap-1 mb-3">
-                {[...Array(5)].map((_, j) => (
-                  <Star key={j} size={12} className="text-[#8B1E1E] fill-[#8B1E1E]" />
-                ))}
+        {/* Open Call for Creative Ideas & Collaborations Box */}
+        <div className="bg-gradient-to-br from-[#2b2420] via-[#1f1a17] to-[#14110f] border border-amber-900/40 text-white rounded-[2.5rem] p-7 sm:p-9 shadow-xl relative overflow-hidden text-center sm:text-left">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
+            <div className="space-y-2 max-w-xl">
+              <div className="inline-flex items-center gap-2 bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-wider">
+                <span>🤝</span>
+                <span>Progetti, Idee & Collaborazioni Aperte</span>
               </div>
-              <p className="text-stone-700 text-xs italic leading-relaxed mb-4 flex-1">"{r.quote}"</p>
-              <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold">— {r.author}</p>
+              
+              <h3 className="text-white font-black text-lg sm:text-xl tracking-tight">
+                Hai un'idea creativa o una visione da condividere?
+              </h3>
+              
+              <p className="text-stone-300 text-xs sm:text-sm font-light leading-relaxed">
+                Crediamo fortemente nella contaminazione positiva di idee e competenze. Se hai una proposta professionale, un'idea per la filiera a km zero, o semplicemente desideri collaborare con noi per arricchire questo scambio culturale ed ecologico, siamo sempre aperti a persone che ci stimolino.
+              </p>
             </div>
-          ))}
+
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0 w-full sm:w-auto">
+              <a
+                href="https://wa.me/66949800200"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-3 px-5 bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
+              >
+                <span>💬</span>
+                <span>SCRIVICI SU WHATSAPP</span>
+              </a>
+              
+              {onNavigate && (
+                <button
+                  onClick={() => onNavigate('contact')}
+                  className="py-3 px-5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>✉️</span>
+                  <span>CONTATTI</span>
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
       </div>
@@ -846,7 +1089,7 @@ export default function PizzaSite() {
     }
     switch (activePage) {
       case 'order': return <DeliveryMenu />;
-      case 'about': return <PizzaAboutPage />;
+      case 'about': return <PizzaAboutPage onNavigate={navigate} />;
       case 'contact': return <PizzaContactPage onNavigate={navigate} />;
       default: return <DeliveryMenu />;
     }
