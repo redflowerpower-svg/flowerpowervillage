@@ -472,130 +472,218 @@ function PizzaAboutPage() {
   );
 }
 
-function PizzaContactPage() {
+function PizzaContactPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void }) {
   const hours = usePizzeriaHours();
   return (
     <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="text-center mb-14">
-          <p className="text-xs tracking-[0.4em] uppercase text-[#8B1E1E] mb-3 font-semibold">
-            Contattaci
+      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        {/* Clean, Elegant Header */}
+        <div className="text-center mb-10 sm:mb-12">
+          <p className="text-[11px] sm:text-xs tracking-[0.35em] uppercase text-[#8B1E1E] mb-2 font-bold">
+            Contatti & Posizione
           </p>
-          <h2
-            className="text-stone-900 mb-4 font-black tracking-tight"
-            style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}
+          <h1
+            className="text-stone-900 font-black tracking-tight"
+            style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)' }}
           >
-            Trova Flower Power Pizza
-          </h2>
-          <div className="w-12 h-0.5 bg-[#8B1E1E] mx-auto" />
+            Flower Power Pizza Ranong
+          </h1>
+          <p className="text-stone-600 text-xs sm:text-sm font-medium mt-1">
+            Autentica Pizzeria & Ristorante Italiano • Raksawarin Hot Springs
+          </p>
+          <div className="w-12 h-0.5 bg-[#8B1E1E] mx-auto mt-3.5" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          <div className="bg-white border border-stone-300 rounded-[2rem] p-8 space-y-6 shadow-sm">
-            {/* Indirizzo con link Google Maps */}
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 bg-[#8B1E1E]/5 flex items-center justify-center shrink-0 rounded-lg">
-                <MapPin size={15} className="text-[#8B1E1E]" />
+        {/* 2-Column Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+          
+          {/* Left Column: Direct Contact, Location & Hours (7 cols) */}
+          <div className="lg:col-span-7 space-y-4 sm:space-y-5">
+            
+            {/* Card 1: Indirizzo Pizzeria con link Maps */}
+            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-5 sm:p-6 shadow-xs hover:border-stone-300 transition-all">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-[#8B1E1E]/10 flex items-center justify-center shrink-0 rounded-2xl">
+                  <MapPin size={18} className="text-[#8B1E1E]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-0.5">Indirizzo / Location</p>
+                  <p className="text-stone-900 text-sm font-extrabold">FLOWER POWER PIZZA</p>
+                  <p className="text-stone-700 text-xs font-medium mt-0.5">129/6 Mo 1, Tambon Bang Rin, Muang Ranong 85000</p>
+                  <p className="text-stone-500 text-xs font-thai mt-0.5">129/6 หมู่1 ต.บางริ้น อ.เมือง จ.ระนอง 85000</p>
+                  <div className="mt-3">
+                    <a
+                      href="https://maps.app.goo.gl/6xdREhJ3bu7kzVzY6"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#8B1E1E]/5 hover:bg-[#8B1E1E]/10 text-[#8B1E1E] text-xs font-bold rounded-xl border border-[#8B1E1E]/20 transition-all"
+                    >
+                      <span>Apri su Google Maps</span>
+                      <span className="text-[11px]">↗</span>
+                    </a>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Indirizzo Pizzeria / Restaurant Address</p>
-                <p className="text-stone-850 text-sm font-extrabold">FLOWER POWER PIZZA</p>
-                <p className="text-stone-700 text-xs font-semibold">129/6 Mo 1, Tambon Bang Rin, Muang Ranong 85000</p>
-                <p className="text-stone-500 text-xs font-thai">129/6 หมู่1 ต.บางริ้น อ.เมือง จ.ระนอง 85000</p>
-                <a
-                  href="https://maps.app.goo.gl/6xdREhJ3bu7kzVzY6"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#8B1E1E] hover:text-[#721818] font-semibold inline-flex items-center gap-1 transition-colors mt-1.5"
+            </div>
+
+            {/* Card 2: Orari di Apertura */}
+            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-5 sm:p-6 shadow-xs hover:border-stone-300 transition-all">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-emerald-500/10 flex items-center justify-center shrink-0 rounded-2xl">
+                  <Clock size={18} className="text-emerald-700" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-0.5">Orari di Servizio</p>
+                  <p className="text-stone-900 text-sm font-extrabold">Tutti i giorni · {hours}</p>
+                  <p className="text-stone-600 text-xs font-medium mt-0.5">
+                    Servizio al tavolo, asporto e consegna a domicilio (fino a 5 km da Bang Rin)
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3: Telefoni & WhatsApp */}
+            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-5 sm:p-6 shadow-xs hover:border-stone-300 transition-all">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-amber-500/10 flex items-center justify-center shrink-0 rounded-2xl">
+                  <Phone size={18} className="text-amber-800" />
+                </div>
+                <div className="flex-1 min-w-0 space-y-2">
+                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold">Telefoni & Assistenza</p>
+                  
+                  <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-stone-50 rounded-xl border border-stone-100">
+                    <span className="text-xs font-semibold text-stone-700">Direct & WhatsApp:</span>
+                    <a href="tel:+66949800200" className="text-xs font-mono font-extrabold text-[#8B1E1E] hover:underline">
+                      +66 (0) 949 800 200
+                    </a>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-stone-50 rounded-xl border border-stone-100">
+                    <span className="text-xs font-semibold text-stone-700">Thai Support (Pon):</span>
+                    <a href="tel:0858844852" className="text-xs font-mono font-extrabold text-[#8B1E1E] hover:underline">
+                      085 884 4852
+                    </a>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-stone-50 rounded-xl border border-stone-100">
+                    <span className="text-xs font-semibold text-stone-700">Ordini Rapidi (Thai):</span>
+                    <a href="tel:0956502969" className="text-xs font-mono font-extrabold text-[#8B1E1E] hover:underline">
+                      095 650 2969
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 4: Email & Canali Social */}
+            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-5 sm:p-6 shadow-xs hover:border-stone-300 transition-all">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-indigo-500/10 flex items-center justify-center shrink-0 rounded-2xl">
+                  <Mail size={18} className="text-indigo-700" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Email Ufficiale</p>
+                  <a
+                    href="mailto:flowerpowerpizzaranong.th@gmail.com"
+                    className="text-[#8B1E1E] hover:text-[#721818] font-bold text-xs sm:text-sm break-all inline-block transition-colors"
+                  >
+                    flowerpowerpizzaranong.th@gmail.com
+                  </a>
+
+                  {/* Social Buttons */}
+                  <div className="pt-3.5 flex flex-wrap gap-2">
+                    <a
+                      href="https://www.tiktok.com/@flowerpowerpizzaranong"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-200 text-stone-700 text-xs hover:border-[#8B1E1E] hover:text-[#8B1E1E] transition-all bg-stone-50 rounded-xl font-bold shadow-2xs"
+                    >
+                      <TiktokIcon size={13} className="text-[#8B1E1E]" /> TikTok
+                    </a>
+                    <a
+                      href="https://www.instagram.com/flowerpowerpizzaranong"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-200 text-stone-700 text-xs hover:border-[#8B1E1E] hover:text-[#8B1E1E] transition-all bg-stone-50 rounded-xl font-bold shadow-2xs"
+                    >
+                      <Instagram size={13} className="text-[#8B1E1E]" /> Instagram
+                    </a>
+                    <a
+                      href="https://www.facebook.com/flowerpowerpizzaranong"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 border border-stone-200 text-stone-700 text-xs hover:border-[#8B1E1E] hover:text-[#8B1E1E] transition-all bg-stone-50 rounded-xl font-bold shadow-2xs"
+                    >
+                      <Facebook size={13} className="text-[#8B1E1E]" /> Facebook
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Column: Official Brand Card & Company Head Office (5 cols) */}
+          <div className="lg:col-span-5 space-y-4 sm:space-y-5">
+            
+            {/* Brand Logo Presentation Card */}
+            <div className="bg-gradient-to-br from-[#2e2621] via-[#221c18] to-[#151210] border border-amber-900/30 text-white rounded-[2.5rem] p-6 sm:p-8 shadow-xl text-center flex flex-col items-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+              
+              <img
+                src="/Flower_Power_Pizza_-_HotSpring.png"
+                alt="Flower Power Pizza Emblem"
+                className="h-28 sm:h-36 max-w-[240px] w-auto object-contain drop-shadow-md mb-4"
+              />
+
+              <span className="bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-wider mb-2.5">
+                Raksawarin Hot Springs · Ranong
+              </span>
+
+              <h3 className="text-white font-black text-base sm:text-lg tracking-tight">
+                Tradizione Artigianale Italiana
+              </h3>
+
+              <p className="text-stone-300 text-xs font-normal leading-relaxed mt-2 max-w-xs">
+                Farine italiane selezionate, lievitazione naturale 48 ore, pasta fresca artigianale e carni genuine in un'oasi tropicale rilassante.
+              </p>
+
+              {onNavigate && (
+                <button
+                  onClick={() => onNavigate('order')}
+                  className="w-full mt-5 py-3 px-5 bg-[#8B1E1E] hover:bg-[#a12424] text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer group"
                 >
-                  <span>Vedi su Google Maps</span>
-                  <span className="text-[10px]">↗</span>
-                </a>
-              </div>
+                  <span className="group-hover:scale-110 transition-transform">🍕</span>
+                  <span>SFOGLIA IL MENU DELIVERY</span>
+                </button>
+              )}
             </div>
 
             {/* Dati Societari / Head Office */}
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 bg-[#8B1E1E]/5 flex items-center justify-center shrink-0 rounded-lg">
-                <Building2 size={15} className="text-[#8B1E1E]" />
-              </div>
-              <div className="text-xs">
-                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Sede Legale / Head Office</p>
-                <p className="text-stone-850 font-bold">ONLY PON CO., LTD (Head office)</p>
-                <p className="text-stone-600 font-thai text-[11px]">บริษัท โอนลี่พล จำกัด (สำนักงานใหญ่)</p>
-                <p className="text-stone-500 text-[11px] mt-0.5 leading-relaxed">
-                  14/32 M.1 Sub-district Koh Phayam, District Meaung Ranong, Province Ranong 85000<br />
-                  <span className="font-thai text-[10px]">14/32 ม.1 ต. เกาะพยาม อ.เมืองระนอง จ.ระนอง 85000</span>
-                </p>
-                <p className="text-stone-700 mt-1 font-semibold">
-                  Tax ID: <span className="font-mono text-[#8B1E1E] font-bold">0845562009083</span> <span className="font-thai text-[10px] text-stone-500">(เลขประจำตัวผู้เสียภาษี)</span>
-                </p>
-              </div>
-            </div>
-
-            {/* Orari di Apertura */}
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 bg-[#8B1E1E]/5 flex items-center justify-center shrink-0 rounded-lg">
-                <Clock size={15} className="text-[#8B1E1E]" />
-              </div>
-              <div>
-                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Orari di Apertura</p>
-                <p className="text-stone-850 text-sm font-extrabold">Tutti i giorni · {hours}</p>
-                <p className="text-stone-550 text-xs mt-0.5 font-light">Servizio di consegna e ritiro</p>
+            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-5 sm:p-6 shadow-xs">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-[#8B1E1E]/10 flex items-center justify-center shrink-0 rounded-2xl">
+                  <Building2 size={18} className="text-[#8B1E1E]" />
+                </div>
+                <div className="text-xs flex-1 min-w-0">
+                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Sede Legale / Head Office</p>
+                  <p className="text-stone-900 font-extrabold text-xs sm:text-sm">ONLY PON CO., LTD</p>
+                  <p className="text-stone-600 font-thai text-[11px] font-semibold">บริษัท โอนลี่พล จำกัด (สำนักงานใหญ่)</p>
+                  <p className="text-stone-500 text-[11px] mt-1 leading-relaxed">
+                    14/32 M.1 Sub-district Koh Phayam, District Meaung Ranong, Province Ranong 85000<br />
+                    <span className="font-thai text-[10px]">14/32 ม.1 ต. เกาะพยาม อ.เมืองระนอง จ.ระนอง 85000</span>
+                  </p>
+                  <div className="mt-2.5 pt-2 border-t border-stone-100 flex items-baseline gap-1.5 flex-wrap">
+                    <span className="text-stone-500 text-[11px] font-medium">Tax ID:</span>
+                    <span className="font-mono text-[#8B1E1E] font-black text-xs">0845562009083</span>
+                    <span className="font-thai text-[10px] text-stone-400">(เลขประจำตัวผู้เสียภาษี)</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Telefoni */}
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 bg-[#8B1E1E]/5 flex items-center justify-center shrink-0 rounded-lg">
-                <Phone size={15} className="text-[#8B1E1E]" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Telefoni / Contact Numbers</p>
-                <p className="text-stone-800 text-xs font-bold">
-                  Phone Pon: <a href="tel:0858844852" className="text-[#8B1E1E] hover:underline font-mono">0858844852</a>
-                </p>
-                <p className="text-stone-800 text-xs font-bold">
-                  เบอร์โทร (Thai): <a href="tel:0956502969" className="text-[#8B1E1E] hover:underline font-mono">0956502969</a>
-                </p>
-                <p className="text-stone-600 text-xs font-medium">
-                  Direct / WhatsApp: <a href="tel:+66949800200" className="text-[#8B1E1E] hover:underline font-mono">+66 (0) 949 800 200</a>
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="w-9 h-9 bg-[#8B1E1E]/5 flex items-center justify-center shrink-0 rounded-lg">
-                <Mail size={15} className="text-[#8B1E1E]" />
-              </div>
-              <div>
-                <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">Email</p>
-                <a href="mailto:flowerpowerpizzaranong.th@gmail.com" className="text-[#8B1E1E] text-sm font-extrabold hover:text-[#721818] transition-colors">
-                  flowerpowerpizzaranong.th@gmail.com
-                </a>
-              </div>
-            </div>
-            <div className="pt-4 flex flex-wrap gap-2">
-              <a href="https://www.tiktok.com/@flowerpowerpizzaranong" target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3.5 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-[#8B1E1E] hover:text-[#8B1E1E] transition-all bg-stone-50 rounded-xl shadow-xs font-semibold">
-                <TiktokIcon size={14} className="text-[#8B1E1E]" /> TikTok
-              </a>
-              <a href="https://www.instagram.com/flowerpowerpizzaranong" target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3.5 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-[#8B1E1E] hover:text-[#8B1E1E] transition-all bg-stone-50 rounded-xl shadow-xs font-semibold">
-                <Instagram size={14} className="text-[#8B1E1E]" /> Instagram
-              </a>
-              <a href="https://www.facebook.com/flowerpowerpizzaranong" target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 px-3.5 py-2.5 border border-stone-200 text-stone-600 text-xs hover:border-[#8B1E1E] hover:text-[#8B1E1E] transition-all bg-stone-50 rounded-xl shadow-xs font-semibold">
-                <Facebook size={14} className="text-[#8B1E1E]" /> Facebook
-              </a>
-            </div>
           </div>
-          <img
-            src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=800"
-            alt="Inside Flower Power Pizza"
-            className="w-full object-cover rounded-[2rem] border border-stone-300 shadow-sm"
-            style={{ minHeight: '340px' }}
-          />
+
         </div>
       </div>
     </section>
@@ -759,7 +847,7 @@ export default function PizzaSite() {
     switch (activePage) {
       case 'order': return <DeliveryMenu />;
       case 'about': return <PizzaAboutPage />;
-      case 'contact': return <PizzaContactPage />;
+      case 'contact': return <PizzaContactPage onNavigate={navigate} />;
       default: return <DeliveryMenu />;
     }
   };
