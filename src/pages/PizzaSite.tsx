@@ -114,31 +114,6 @@ function PizzaNav({
   const cartCount = useCartStore((s) => s.getCount());
   const openCart = useCartStore((s) => s.openCart);
 
-  const isOfficialDomain = typeof window !== 'undefined' && (
-    window.location.hostname.toLowerCase().includes('flowerpowerpizza.com')
-  );
-
-  const previewNotice = {
-    IT: {
-      badge: 'ANTEPRIMA & COLLAUDO',
-      text: 'Sito in Allestimento & Collaudo Gateway — Apertura ordini online a breve! Il checkout opera in modalità di prova.',
-    },
-    EN: {
-      badge: 'OFFICIAL PREVIEW',
-      text: 'Website Under Preparation & Payment Gateway Review — Online delivery launching soon! Checkout is in sandbox test mode.',
-    },
-    TH: {
-      badge: 'โหมดทดสอบระบบ',
-      text: 'เว็บไซต์อยู่ในช่วงเตรียมความพร้อม & ตรวจสอบระบบชำระเงิน — จะเปิดให้บริการเร็วๆ นี้ การทดลองสั่งซื้ออยู่ในโหมดทดสอบ',
-    },
-    DE: {
-      badge: 'VORSCHAU & TEST',
-      text: 'Website im Aufbau & Payment Gateway Überprüfung — Lieferservice startet in Kürze! Bezahlung im Testmodus.',
-    },
-  };
-
-  const notice = previewNotice[currentLang] || previewNotice.EN;
-
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -161,18 +136,6 @@ function PizzaNav({
             : 'bg-[#3b3530] border-b border-stone-800'
         }`}
       >
-        {/* Top Global Preview & Gateway Inspection Notice (Official Domain only) */}
-        {isOfficialDomain && (
-          <div className="bg-amber-400 text-stone-950 font-bold px-3 py-1.5 text-[10.5px] sm:text-xs flex items-center justify-center gap-2 shadow-inner border-b border-amber-500 text-center">
-            <span className="text-xs">🚧</span>
-            <span className="bg-stone-950 text-amber-300 text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider shrink-0">
-              {notice.badge}
-            </span>
-            <span className="font-semibold truncate sm:whitespace-normal">
-              {notice.text}
-            </span>
-          </div>
-        )}
 
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">

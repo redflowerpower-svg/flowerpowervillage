@@ -52,11 +52,13 @@ export function applyEnvironmentFavicon(): void {
 
   const section = getActiveSection();
 
-  // If official production public site, leave standard clean favicon
+  // If official production public site, set clean official department favicon
   if (isOfficial && section === 'public') {
+    const isPizza = hostname.includes('flowerpowerpizza.com') || window.location.pathname.toLowerCase().startsWith('/pizza');
+    const targetIcon = isPizza ? '/flower-power-pizza-logo-256.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png';
     let link: HTMLLinkElement | null = document.querySelector("link[rel*='icon']");
-    if (link && link.href !== '/FP_04_-_LOGO_OFFICIAL_HD.png') {
-      link.href = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+    if (link && !link.href.endsWith(targetIcon)) {
+      link.href = targetIcon;
     }
     return;
   }

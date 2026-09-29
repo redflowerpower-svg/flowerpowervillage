@@ -1465,22 +1465,6 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
           />
         </div>
 
-        {/* Gateway Inspection & Preview Mode Notice (Official Production Domain only) */}
-        {isOfficialDomain && (step === 1 || step === 2) && submitPhase === 'idle' && (
-          <div className="mx-0 mt-1 mb-1 px-2.5 py-1.5 bg-amber-50 border border-amber-300 rounded-xl flex items-center gap-2 text-[10px] text-amber-900 shrink-0">
-            <span className="text-xs shrink-0">🚧</span>
-            <div className="leading-tight">
-              <span className="font-bold uppercase tracking-wider bg-amber-200 text-amber-950 px-1.5 py-0.5 rounded text-[9px] mr-1">
-                {lang === 'TH' ? 'โหมดทดสอบ' : lang === 'IT' ? 'COLLAUDO GATEWAY' : lang === 'DE' ? 'TESTMODUS' : 'TEST MODE'}
-              </span>
-              {lang === 'TH' && 'ระบบอยู่ในโหมดตรวจสอบมาตรฐาน Sandbox — ยังไม่มีการตัดเงินจริง'}
-              {lang === 'IT' && 'Checkout attivo in modalità Collaudo/Sandbox per ispezione tecnica — nessun addebito reale.'}
-              {lang === 'DE' && 'Checkout im Sandbox-Testmodus zur technischen Prüfung — keine echten Abbuchungen.'}
-              {lang === 'EN' && 'Checkout operating in Sandbox test mode for gateway review — no live charges.'}
-            </div>
-          </div>
-        )}
-
         {/* X Close Button: only shown on Step 1, Step 2 (when idle), and Step 3 (when delivering is active) */}
         {!(step === 3 && !isDeliveringActive) && submitPhase === 'idle' && (
           <button
@@ -2171,18 +2155,6 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span>{t.cardSecurityNotice}</span>
                   </div>
-
-                  {isOfficialDomain && (
-                    <div className="bg-amber-50/90 border border-amber-200/90 rounded-lg p-1.5 flex items-center gap-1.5 text-[8.5px] text-amber-900">
-                      <span className="text-[10px]">🧪</span>
-                      <span className="font-semibold">
-                        {lang === 'IT' ? 'Sandbox Gateway: Transazione in modalità di collaudo e ispezione.' :
-                         lang === 'TH' ? 'โหมดทดสอบระบบ (Sandbox): ไม่มีการเรียกเก็บเงินจริง' :
-                         lang === 'DE' ? 'Gateway-Sandbox: Testtransaktion zu Prüfungszwecken.' :
-                         'Sandbox Mode: Test transaction for payment gateway review.'}
-                      </span>
-                    </div>
-                  )}
 
                   <div className="text-center space-y-0.5 shrink-0 pt-0.5">
                     <p className="text-[8.5px] text-stone-400 uppercase tracking-widest font-bold">

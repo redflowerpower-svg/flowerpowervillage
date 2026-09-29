@@ -96,29 +96,6 @@ const translations = {
   },
 };
 
-const previewNotice = {
-  IT: {
-    badge: 'ANTEPRIMA & COLLAUDO GATEWAY',
-    title: 'Piattaforma Ufficiale in Fase di Allestimento & Ispezione Gateway',
-    desc: 'Il servizio di consegna a domicilio Flower Power Pizza Ranong sarà attivo a breve. La piattaforma è attualmente aperta per le verifiche di conformità e sicurezza del Payment Gateway. Il checkout opera in modalità Sandbox di test.',
-  },
-  EN: {
-    badge: 'OFFICIAL PREVIEW & GATEWAY REVIEW',
-    title: 'Website Under Preparation & Payment Gateway Compliance Review',
-    desc: 'Flower Power Pizza Ranong online delivery is launching soon. The website is currently open for underwriting, compliance review, and technical gateway inspection. Checkout is operating in secure sandbox test mode.',
-  },
-  TH: {
-    badge: 'โหมดทดสอบ & ตรวจสอบระบบ',
-    title: 'เว็บไซต์อยู่ในช่วงเตรียมความพร้อม & ตรวจสอบมาตรฐานระบบชำระเงิน',
-    desc: 'บริการจัดส่งอาหารเดลิเวอรี่ออนไลน์ ฟลาวเวอร์ พาวเวอร์ พิซซ่า ระนอง จะเปิดให้บริการเร็วๆ นี้ ขณะนี้ระบบเปิดสำหรับการตรวจสอบมาตรฐานและความปลอดภัย การทดลองสั่งซื้อและชำระเงินอยู่ในโหมดทดสอบ Sandbox',
-  },
-  DE: {
-    badge: 'VORSCHAU & GATEWAY-PRÜFUNG',
-    title: 'Website im Aufbau & Payment Gateway Konformitätsprüfung',
-    desc: 'Der Online-Lieferservice von Flower Power Pizza Ranong startet in Kürze. Die Plattform ist derzeit für die Sicherheits- und Konformitätsprüfungen des Zahlungsanbieters aktiv. Der Bezahlvorgang befindet sich im Sandbox-Testmodus.',
-  },
-};
-
 const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
   'traditional-italian-pizza': {
     IT: { name: 'Pizze Classiche', desc: 'Impasto a fermentazione naturale' },
@@ -1188,30 +1165,6 @@ export default function DeliveryMenu() {
             </div>
           </div>
         </header>
-
-        {/* Official Preview & Gateway Testing Banner (Official Production Domain only) */}
-        {isOfficialDomain && (
-          <div className="max-w-6xl mx-auto mt-4 px-2 animate-fadeIn">
-            <div className="bg-amber-100/95 border-2 border-amber-400 rounded-3xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3.5 shadow-md">
-              <div className="w-11 h-11 rounded-2xl bg-amber-400 text-stone-950 flex items-center justify-center shrink-0 shadow-sm">
-                <AlertTriangle className="w-5 h-5 text-stone-950" />
-              </div>
-              <div className="flex-1 space-y-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-black uppercase tracking-wider bg-stone-950 text-amber-300 px-2.5 py-0.5 rounded-md shadow-xs">
-                    {previewNotice[lang].badge}
-                  </span>
-                  <h4 className="text-stone-950 font-black text-sm md:text-base">
-                    {previewNotice[lang].title}
-                  </h4>
-                </div>
-                <p className="text-stone-800 text-xs md:text-sm font-medium leading-relaxed">
-                  {previewNotice[lang].desc}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Dynamic Kitchen Service Status Banner (Paused / Closed Countdown in 4 Languages) */}
         <div className="max-w-6xl mx-auto mt-4 px-2">
