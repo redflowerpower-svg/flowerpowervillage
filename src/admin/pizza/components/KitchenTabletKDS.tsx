@@ -535,6 +535,28 @@ export function KitchenTabletKDS() {
   // Set of order IDs acknowledged/handled by staff for new incoming buzzer
   const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => new Set());
 
+  // Set of dining table order IDs minimized in bottom dock tray
+  const [minimizedTableOrderIds, setMinimizedTableOrderIds] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('kitchen_minimized_table_orders');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch (e) {
+      return new Set();
+    }
+  });
+
+  const [selectedTrayOrder, setSelectedTrayOrder] = useState<PizzaOrder | null>(null);
+
+  const updateMinimizedTableOrders = (updater: (prev: Set<string>) => Set<string>) => {
+    setMinimizedTableOrderIds(prev => {
+      const next = updater(prev);
+      try {
+        localStorage.setItem('kitchen_minimized_table_orders', JSON.stringify(Array.from(next)));
+      } catch (e) {}
+      return next;
+    });
+  };
+
   // Active Dining Tables in Hall (Read-only overview for kitchen display)
   const activeDiningOrders = useMemo(() => {
     return orders.filter(o => isDiningTableOrder(o) && o.status !== 'completed' && o.status !== 'cancelled');
@@ -554,15 +576,24 @@ export function KitchenTabletKDS() {
     return pendingTableReservations.filter(r => !acknowledgedOrderIds.has(r.id));
   }, [pendingTableReservations, acknowledgedOrderIds]);
 
-  // Phase 1: In Kitchen (New orders to accept - delivery/takeaway only)
+  // Phase 1: In Kitchen (New orders to accept - delivery/takeaway and dining tables)
   const kitchenOrders = useMemo(() => {
     return orders.filter(o => !isTableReservationOrder(o) && (o.status === 'new' || (o.status as any) === 'received'));
   }, [orders]);
 
   // Phase 2: In Preparation & Delivering (Orders confirmed, cooking or out for delivery)
+  // Excludes dining table orders that are currently minimized down in the kitchen dock
   const readyOrders = useMemo(() => {
-    return orders.filter(o => !isTableReservationOrder(o) && (o.status === 'preparing' || o.status === 'delivering' || (o.status as any) === 'ready'));
-  }, [orders]);
+    return orders.filter(o => {
+      if (isTableReservationOrder(o)) return false;
+      const isReadyStatus = o.status === 'preparing' || o.status === 'delivering' || (o.status as any) === 'ready';
+      if (!isReadyStatus) return false;
+      if (isDiningTableOrder(o) && minimizedTableOrderIds.has(String(o.id))) {
+        return false;
+      }
+      return true;
+    });
+  }, [orders, minimizedTableOrderIds]);
 
   // Phase 3: Completed Orders Today (Archived & delivered in the last 24h)
   const completedTodayOrders = useMemo(() => {
@@ -727,7 +758,25 @@ export function KitchenTabletKDS() {
       try { localStorage.setItem('kitchen_accepted_timestamps', JSON.stringify(next)); } catch (e) {}
       return next;
     });
+
+    const target = orders.find(o => String(o.id) === String(orderId));
+    if (target && isDiningTableOrder(target)) {
+      // Put dining table order into minimized bottom tray
+      updateMinimizedTableOrders(prev => new Set(prev).add(String(orderId)));
+    }
+
     await updateOrderStatus(orderId, 'preparing');
+  };
+
+  const handleDispatchTableOrder = (orderId: string) => {
+    initKitchenAudio();
+    // Remove from minimized dock tray so it moves to Phase 2 (Right column)
+    updateMinimizedTableOrders(prev => {
+      const next = new Set(prev);
+      next.delete(String(orderId));
+      return next;
+    });
+    setSelectedTrayOrder(null);
   };
 
   const handleOrderReady = async (orderId: string) => {
@@ -1666,35 +1715,24 @@ export function KitchenTabletKDS() {
                       /* Status is 'preparing' */
                       <div className="pt-1 flex flex-col gap-2">
                         {isDiningTableOrder(order) ? (
-                          <>
+                          <div className="flex gap-2">
                             <button
                               type="button"
-                              onClick={() => setTableOrderForAddition(order)}
-                              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md cursor-pointer transition-all active:scale-95"
+                              onClick={() => handleCompleteTableOrder(order.id)}
+                              className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs uppercase tracking-wider border border-emerald-500 shadow-md transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                             >
-                              <UtensilsCrossed className="w-4 h-4" />
-                              <span>{kdsLang === 'th' ? '+ เพิ่มรายการเข้าโต๊ะ' : '+ AGGIUNGI PIATTI / BEVANDE AL TAVOLO'}</span>
+                              <CheckCircle className="w-4 h-4 stroke-[2.5]" />
+                              <span>{kdsLang === 'th' ? '✓ เสิร์ฟแล้ว / ปิดโต๊ะ' : '✓ SERVITO AL TAVOLO / CHIUDI'}</span>
                             </button>
 
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handleCompleteTableOrder(order.id)}
-                                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs uppercase tracking-wider border border-emerald-500 shadow-md transition-colors cursor-pointer flex items-center justify-center gap-1.5"
-                              >
-                                <CheckCircle className="w-4 h-4 stroke-[2.5]" />
-                                <span>{kdsLang === 'th' ? '✓ เช็คบิล / ปิดโต๊ะ' : '✓ INCASSA & CHIUDI TAVOLO'}</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => handleOrderCancelled(order.id)}
-                                className="px-3 py-2.5 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
-                              >
-                                {t.cancelBtn}
-                              </button>
-                            </div>
-                          </>
+                            <button
+                              type="button"
+                              onClick={() => handleOrderCancelled(order.id)}
+                              className="px-3 py-3 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
+                            >
+                              {t.cancelBtn}
+                            </button>
+                          </div>
                         ) : (
                           <>
                             <button
@@ -1761,12 +1799,12 @@ export function KitchenTabletKDS() {
 
       </main>
 
-      {/* ─── BOTTOM READ-ONLY RIBBON: ACTIVE DINING TABLES IN HALL ───────── */}
+      {/* ─── BOTTOM INTERACTIVE DOCK: ACTIVE DINING TABLES & MINIMIZED ORDERS ───────── */}
       {activeDiningOrders.length > 0 && (
         <div className="bg-[#131722] border-t-2 border-stone-800 px-3 sm:px-5 py-2.5 shrink-0 flex items-center gap-3 overflow-x-auto select-none shadow-2xl z-30">
           <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs uppercase tracking-wider shrink-0 pr-3 border-r border-stone-800">
             <UtensilsCrossed className="w-4 h-4" />
-            <span>{kdsLang === 'th' ? 'โต๊ะเปิดบริการ:' : 'TAVOLI ATTIVI IN SALA:'}</span>
+            <span>{kdsLang === 'th' ? 'ออเดอร์ในครัว & โต๊ะ:' : 'ORDINI IN CUCINA & TAVOLI:'}</span>
             <span className="px-1.5 py-0.2 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-mono font-bold">
               {activeDiningOrders.length}
             </span>
@@ -1778,31 +1816,180 @@ export function KitchenTabletKDS() {
               const itemsCount = Array.isArray(order.items) 
                 ? order.items.reduce((acc: number, it: any) => acc + (it.quantity || 1), 0) 
                 : 0;
+              const isMinimized = minimizedTableOrderIds.has(String(order.id));
               const isPreparing = order.status === 'preparing';
 
               return (
-                <div
+                <button
                   key={order.id}
-                  className={`px-3 py-1.5 rounded-xl border flex items-center gap-2.5 shrink-0 transition-all ${
-                    isPreparing 
-                      ? 'bg-amber-950/50 border-amber-500/70 text-amber-200 shadow-sm' 
-                      : 'bg-[#0d1017] border-stone-800 text-stone-300'
+                  type="button"
+                  onClick={() => setSelectedTrayOrder(order)}
+                  className={`px-3 py-1.5 rounded-xl border flex items-center gap-2.5 shrink-0 transition-all cursor-pointer active:scale-95 ${
+                    isMinimized
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-md shadow-amber-950/40 animate-pulse hover:bg-amber-500/30'
+                      : isPreparing 
+                        ? 'bg-blue-950/50 border-blue-500/70 text-blue-200 shadow-sm hover:bg-blue-900/50' 
+                        : 'bg-[#0d1017] border-stone-800 text-stone-300 hover:border-stone-600'
                   }`}
+                  title={kdsLang === 'th' ? 'แตะเพื่อเปิดดูรายการและกดส่ง' : 'Tocca per aprire comanda e visualizzare/evadere'}
                 >
+                  <UtensilsCrossed className={`w-3.5 h-3.5 ${isMinimized ? 'text-amber-400' : 'text-stone-400'}`} />
                   <span className="font-black text-xs sm:text-sm text-white uppercase tracking-tight">{tableRaw}</span>
+                  <span className="text-[11px] font-mono text-amber-300 font-bold">
+                    {order.total} ฿
+                  </span>
                   <span className="text-[11px] font-mono text-stone-400">
-                    ({itemsCount} {kdsLang === 'th' ? 'จาน' : 'piatti'})
+                    ({itemsCount} {kdsLang === 'th' ? 'จาน' : 'pz'})
                   </span>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
-                    isPreparing 
-                      ? 'bg-amber-400 text-stone-950 shadow-xs' 
-                      : 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
+                    isMinimized
+                      ? 'bg-amber-400 text-stone-950 font-black'
+                      : isPreparing 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
                   }`}>
-                    {isPreparing ? (kdsLang === 'th' ? 'กำลังอบ' : 'IN FORNO') : (kdsLang === 'th' ? 'เปิดบิล' : 'APERTO')}
+                    {isMinimized 
+                      ? (kdsLang === 'th' ? 'รอส่ง' : 'IN CUCINA') 
+                      : isPreparing 
+                        ? (kdsLang === 'th' ? 'กำลังเสิร์ฟ' : 'IN SALA') 
+                        : (kdsLang === 'th' ? 'เปิดบิล' : 'APERTO')}
                   </span>
-                </div>
+                </button>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* ─── DINING TABLE ORDER PREVIEW & EVADI MODAL ───────────────────────── */}
+      {selectedTrayOrder && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
+          <div className="bg-[#161b26] border-2 border-stone-700 rounded-3xl p-5 sm:p-6 max-w-lg w-full shadow-2xl flex flex-col max-h-[85vh] space-y-4">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-400 text-stone-950 flex items-center justify-center font-black shadow-md shrink-0">
+                  <UtensilsCrossed className="w-5 h-5 stroke-[2.5]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-black text-base sm:text-lg text-white uppercase leading-none">
+                      {extractTableFromAddress(selectedTrayOrder.address) || 'TAVOLO'}
+                    </h3>
+                    <span className="font-mono text-xs font-bold text-stone-400">
+                      #{String(selectedTrayOrder.id).slice(-4).toUpperCase()}
+                    </span>
+                  </div>
+                  <span className="text-[11px] font-bold text-amber-400 block mt-0.5">
+                    {selectedTrayOrder.customer_name || 'Cliente'} {selectedTrayOrder.phone ? `(${selectedTrayOrder.phone})` : ''}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <span className="font-black text-xl text-emerald-400 font-mono block leading-none">
+                    {selectedTrayOrder.total} ฿
+                  </span>
+                  <span className="text-[10px] font-black uppercase text-amber-400">
+                    {selectedTrayOrder.payment_status === 'paid' ? 'PAGATO' : 'CONTO AL TAVOLO'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedTrayOrder(null)}
+                  className="p-1.5 rounded-xl bg-stone-800 text-stone-400 hover:text-white cursor-pointer transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Dishes / Ordered Items List */}
+            <div className="overflow-y-auto flex-1 space-y-2 pr-1">
+              <div className="bg-[#0b0e14] p-3 rounded-2xl border border-stone-800 space-y-3">
+                {((Array.isArray(selectedTrayOrder.items) ? selectedTrayOrder.items : []) as CartItemSaved[]).map((item, idx) => {
+                  const nameEn = formatProductName(item.name);
+                  const thaiName = getThaiName(item);
+                  const displayName = kdsLang === 'th' ? (thaiName || nameEn) : nameEn;
+                  const subName = kdsLang === 'th' ? (thaiName ? nameEn : '') : thaiName;
+                  const variant = item.selectedVariant ? (typeof item.selectedVariant === 'object' ? item.selectedVariant.name : String(item.selectedVariant)) : '';
+                  const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
+
+                  return (
+                    <div key={idx} className="border-b border-stone-800/80 last:border-0 pb-2.5 last:pb-0">
+                      <div className="flex items-baseline gap-2.5">
+                        <span className="font-black text-xl text-amber-400 font-mono shrink-0">
+                          {item.quantity}x
+                        </span>
+                        <div className="flex-1">
+                          <span className="font-black text-base text-white leading-tight block">
+                            {displayName}
+                          </span>
+                          {subName && (
+                            <span className="text-xs font-semibold text-stone-400 block mt-0.5">
+                              {subName}
+                            </span>
+                          )}
+                          {variant && (
+                            <span className="text-xs font-bold text-stone-300 uppercase tracking-wide block mt-0.5">
+                              {t.sizeLabel}: {variant}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {extras.length > 0 && (
+                        <div className="mt-1.5 pl-6 flex flex-wrap gap-1">
+                          {extras.map((ex: any, exIdx: number) => (
+                            <span 
+                              key={exIdx}
+                              className="px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 font-black text-xs uppercase"
+                            >
+                              + {getExtraDisplayName(ex, kdsLang)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {selectedTrayOrder.address && parseCoordsFromAddress(selectedTrayOrder.address).notes && (
+                <div className="px-3 py-2 rounded-xl bg-amber-950/70 border border-amber-500/40 text-amber-200 text-xs font-semibold">
+                  📝 {parseCoordsFromAddress(selectedTrayOrder.address).notes}
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons: EVADI ORDINE or Close */}
+            <div className="pt-2 border-t border-stone-800 flex items-center gap-2 shrink-0">
+              {minimizedTableOrderIds.has(String(selectedTrayOrder.id)) ? (
+                <button
+                  type="button"
+                  onClick={() => handleDispatchTableOrder(String(selectedTrayOrder.id))}
+                  className="flex-1 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
+                >
+                  <CheckCircle className="w-5 h-5 text-white stroke-[2.5]" />
+                  <span>{kdsLang === 'th' ? '✓ เริ่มส่งอาหารที่โต๊ะ (ย้ายไปขวา)' : '✓ EVADI ORDINE (SPOSTA A DESTRA)'}</span>
+                </button>
+              ) : (
+                <div className="flex-1 text-center py-2.5 px-3 rounded-xl bg-blue-950/60 border border-blue-600/40 text-blue-300 font-bold text-xs uppercase">
+                  {kdsLang === 'th' ? '✓ ออเดอร์นี้อยู่ในคอลัมน์ขวาแล้ว' : '✓ ORDINE GIA\' IN SALA / COLONNA DESTRA'}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setSelectedTrayOrder(null)}
+                className="px-4 py-3.5 rounded-2xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-black text-xs uppercase cursor-pointer transition-colors shrink-0"
+              >
+                {kdsLang === 'th' ? 'ปิด' : 'CHIUDI'}
+              </button>
+            </div>
+
           </div>
         </div>
       )}
