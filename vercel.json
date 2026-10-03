@@ -10,6 +10,38 @@
       "destination": "https://api.octorate.com/:path*"
     },
     {
+      "source": "/dining",
+      "destination": "/dining.html"
+    },
+    {
+      "source": "/dining/:path*",
+      "destination": "/dining.html"
+    },
+    {
+      "source": "/tavoli",
+      "destination": "/dining.html"
+    },
+    {
+      "source": "/tavoli/:path*",
+      "destination": "/dining.html"
+    },
+    {
+      "source": "/kitchen",
+      "destination": "/kitchen.html"
+    },
+    {
+      "source": "/kitchen/:path*",
+      "destination": "/kitchen.html"
+    },
+    {
+      "source": "/kds",
+      "destination": "/kitchen.html"
+    },
+    {
+      "source": "/kds/:path*",
+      "destination": "/kitchen.html"
+    },
+    {
       "source": "/((?!api/|api-octorate/|@|src/|node_modules/|.*\\.).*)",
       "destination": "/index.html"
     }
