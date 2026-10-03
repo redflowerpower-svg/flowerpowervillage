@@ -761,8 +761,8 @@ export function KitchenTabletKDS() {
     }
   });
 
-  // Set of order IDs whose 15-minute dispatch reminder has been manually snoozed/silenced
-  const [silencedReminderIds, setSilencedReminderIds] = useState<Set<string>>(() => new Set());
+  // Map of order IDs to snooze timestamp for 15-minute dispatch/closure reminder
+  const [reminderSnoozedUntil, setReminderSnoozedUntil] = useState<Record<string, number>>({});
 
   // Set of order IDs acknowledged/handled by staff for new incoming buzzer
   const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => new Set());
@@ -853,14 +853,20 @@ export function KitchenTabletKDS() {
     return orders.filter(o => !isTableReservationOrder(o) && (o.status === 'new' || (o.status as any) === 'received') && !acknowledgedOrderIds.has(String(o.id)));
   }, [orders, acknowledgedOrderIds]);
 
-  // Phase 2 orders cooking for 15+ minutes that need rider dispatch reminder
+  // Phase 2 orders cooking for 15+ minutes that need rider dispatch reminder (checks if 10-min snooze is active)
   const overdueDispatchOrders = useMemo(() => {
+    const now = Date.now();
     return readyOrders.filter(o => {
       if (o.status !== 'preparing') return false;
       const mins = getElapsedPrepMinutes(o);
-      return mins >= 15 && !silencedReminderIds.has(String(o.id));
+      if (mins < 15) return false;
+      const snoozedUntil = reminderSnoozedUntil[String(o.id)];
+      if (snoozedUntil && now < snoozedUntil) {
+        return false;
+      }
+      return true;
     });
-  }, [readyOrders, acceptedTimestamps, silencedReminderIds, currentTime]);
+  }, [readyOrders, acceptedTimestamps, reminderSnoozedUntil, currentTime]);
 
   // 7. Sound Alarm Management (Urgent Alarm for New Orders + Chime for 15-min Dispatch Reminder + Test modes)
   useEffect(() => {
@@ -927,16 +933,24 @@ export function KitchenTabletKDS() {
       unacknowledgedTableReservations.forEach(r => next.add(String(r.id)));
       return next;
     });
-    setSilencedReminderIds(prev => {
-      const next = new Set(prev);
-      overdueDispatchOrders.forEach(o => next.add(String(o.id)));
+    const tenMinLater = Date.now() + 10 * 60 * 1000;
+    setReminderSnoozedUntil(prev => {
+      const next = { ...prev };
+      overdueDispatchOrders.forEach(o => {
+        next[String(o.id)] = tenMinLater;
+      });
       return next;
     });
   };
 
-  const handleSnoozeReminder = (orderId: string) => {
+  const handleSnoozeReminder = (orderId: string, minutes: number = 10) => {
     initKitchenAudio();
-    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+    stopDispatchReminderAlarm();
+    const snoozeUntil = Date.now() + minutes * 60 * 1000;
+    setReminderSnoozedUntil(prev => ({
+      ...prev,
+      [String(orderId)]: snoozeUntil
+    }));
   };
 
   // Actions
@@ -960,7 +974,11 @@ export function KitchenTabletKDS() {
     initKitchenAudio();
     stopContinuousAlarm();
     setAcknowledgedOrderIds(prev => new Set(prev).add(String(resId)));
-    setSilencedReminderIds(prev => new Set(prev).add(String(resId)));
+    setReminderSnoozedUntil(prev => {
+      const next = { ...prev };
+      delete next[String(resId)];
+      return next;
+    });
     await updateOrderStatus(resId, 'cancelled');
     try {
       await fetch('/api/table-reservation', {
@@ -977,7 +995,11 @@ export function KitchenTabletKDS() {
     initKitchenAudio();
     stopContinuousAlarm();
     setAcknowledgedOrderIds(prev => new Set(prev).add(String(orderId)));
-    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+    setReminderSnoozedUntil(prev => {
+      const next = { ...prev };
+      delete next[String(orderId)];
+      return next;
+    });
     await deleteOrder(orderId);
   };
 
@@ -1013,19 +1035,31 @@ export function KitchenTabletKDS() {
 
   const handleOrderReady = async (orderId: string) => {
     initKitchenAudio();
-    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+    setReminderSnoozedUntil(prev => {
+      const next = { ...prev };
+      delete next[String(orderId)];
+      return next;
+    });
     await updateOrderStatus(orderId, 'delivering');
   };
 
   const handleOrderCompleted = async (orderId: string) => {
     initKitchenAudio();
-    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+    setReminderSnoozedUntil(prev => {
+      const next = { ...prev };
+      delete next[String(orderId)];
+      return next;
+    });
     await updateOrderStatus(orderId, 'completed');
   };
 
   const handleCompleteTableOrder = async (orderId: string) => {
     initKitchenAudio();
-    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+    setReminderSnoozedUntil(prev => {
+      const next = { ...prev };
+      delete next[String(orderId)];
+      return next;
+    });
     try {
       await supabase
         .from('pizza_orders')
@@ -1041,7 +1075,11 @@ export function KitchenTabletKDS() {
     initKitchenAudio();
     stopContinuousAlarm();
     setAcknowledgedOrderIds(prev => new Set(prev).add(String(orderId)));
-    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+    setReminderSnoozedUntil(prev => {
+      const next = { ...prev };
+      delete next[String(orderId)];
+      return next;
+    });
 
     const target = orders.find(o => String(o.id) === String(orderId));
     if (target && isTableReservationOrder(target)) {
@@ -1109,8 +1147,9 @@ export function KitchenTabletKDS() {
     openNowEarly: kdsLang === 'th' ? 'เปิดรับออเดอร์ทันที (เริ่มบริการ)' : 'START SERVICE NOW (OPEN EARLY)',
     sizeLabel: kdsLang === 'th' ? 'ขนาด' : 'Size',
     extraLabel: kdsLang === 'th' ? 'พิเศษ' : 'Extra',
-    dispatchReminderBadge: kdsLang === 'th' ? '⏰ เกิน 15 นาที: ไรเดอร์ออกส่งหรือยัง?' : '⏰ 15+ MIN: DISPATCH RIDER!',
-    snoozeReminderBtn: kdsLang === 'th' ? 'ปิดเสียงเตือน' : 'SNOOZE CHIME',
+    dispatchReminderBadge: kdsLang === 'th' ? '⏰ เกิน 15 นาที: ปิดงานหรือส่งไรเดอร์หรือยัง?' : '⏰ 15+ MIN: RICORDA DI CHIUDERE ORDINE',
+    snoozeReminderBtn: kdsLang === 'th' ? 'เลื่อน 10 นาที' : 'Posticipa 10 minuti',
+    snoozedBadge: kdsLang === 'th' ? 'เลื่อนเตือนอยู่' : 'Posticipato',
     testAlarmBtn: kdsLang === 'th' ? 'ทดสอบเสียง 1' : 'TEST 1 🔔',
     testChimeBtn: kdsLang === 'th' ? 'ทดสอบเสียง 2' : 'TEST 2 ⏰',
     stopTestBtn: kdsLang === 'th' ? 'หยุดเสียง' : 'STOP',
@@ -1207,11 +1246,11 @@ export function KitchenTabletKDS() {
             <button
               type="button"
               onClick={handleSilenceAlarm}
-              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-pulse shadow-lg shadow-amber-500/40 cursor-pointer border border-amber-300"
-              title={t.snoozeReminderBtn}
+              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-pulse shadow-lg shadow-amber-500/40 cursor-pointer border border-amber-300 active:scale-95 transition-all"
+              title="Posticipa la suoneria promemoria di 10 minuti"
             >
               <Clock className="w-4 h-4 stroke-[2.5]" />
-              <span>{kdsLang === 'th' ? `เตือนส่ง: ${overdueDispatchOrders.length}` : `DISPATCH: ${overdueDispatchOrders.length}`}</span>
+              <span>{kdsLang === 'th' ? `เลื่อน 10 น. (${overdueDispatchOrders.length})` : `POSTICIPA 10 MIN (${overdueDispatchOrders.length})`}</span>
             </button>
           )}
 
@@ -1786,6 +1825,9 @@ export function KitchenTabletKDS() {
                 const elapsed = getElapsedMinutes(order.created_at);
                 const elapsedPrep = getElapsedPrepMinutes(order);
                 const isOverdue = order.status === 'preparing' && elapsedPrep >= 15;
+                const snoozedUntil = reminderSnoozedUntil[String(order.id)] || 0;
+                const isSnoozed = isOverdue && Date.now() < snoozedUntil;
+                const snoozeRemainingMin = isSnoozed ? Math.max(1, Math.ceil((snoozedUntil - Date.now()) / 60000)) : 0;
                 const items = (Array.isArray(order.items) ? order.items : []) as CartItemSaved[];
                 const { address, addressTh, notes, lat, lng } = parseCoordsFromAddress(order.address);
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
@@ -1798,7 +1840,9 @@ export function KitchenTabletKDS() {
                       isDelivering 
                         ? 'border-blue-500/80 shadow-blue-950/40' 
                         : isOverdue 
-                          ? 'border-amber-400 border-dashed shadow-amber-500/30 ring-2 ring-amber-400/30' 
+                          ? isSnoozed
+                            ? 'border-amber-500/50 shadow-amber-950/30'
+                            : 'border-amber-400 border-dashed shadow-amber-500/30 ring-2 ring-amber-400/30' 
                           : 'border-amber-500/80 shadow-amber-950/30'
                     }`}
                   >
@@ -1842,23 +1886,30 @@ export function KitchenTabletKDS() {
                       </div>
                     </div>
 
-                    {/* 15+ Minutes Dispatch Alert Banner */}
+                    {/* 15+ Minutes Dispatch Alert Banner with Posticipa 10 minuti button */}
                     {isOverdue && !isDelivering && (
-                      <div className="bg-amber-500/20 border border-amber-400/80 text-amber-200 px-3 py-2 rounded-xl flex items-center justify-between text-xs font-black animate-pulse">
+                      <div className={`border-2 px-3 py-2 rounded-xl flex items-center justify-between text-xs font-black transition-all ${
+                        isSnoozed
+                          ? 'bg-stone-900/90 border-stone-700 text-stone-300'
+                          : 'bg-amber-500/20 border-amber-400/90 text-amber-200 animate-pulse'
+                      }`}>
                         <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-amber-400 shrink-0 stroke-[2.5]" />
-                          <span>{t.dispatchReminderBadge} ({elapsedPrep} {t.min})</span>
+                          <Clock className={`w-4 h-4 shrink-0 stroke-[2.5] ${isSnoozed ? 'text-stone-400' : 'text-amber-400'}`} />
+                          <span>
+                            {isSnoozed 
+                              ? `⏳ ${t.snoozedBadge} (${snoozeRemainingMin} ${t.min})` 
+                              : `${t.dispatchReminderBadge} (${elapsedPrep} ${t.min})`}
+                          </span>
                         </div>
-                        {!silencedReminderIds.has(String(order.id)) && (
-                          <button
-                            type="button"
-                            onClick={() => handleSnoozeReminder(order.id)}
-                            className="px-2 py-1 rounded bg-amber-400 text-stone-950 text-[10px] font-black uppercase hover:bg-amber-300 cursor-pointer shadow"
-                            title={t.snoozeReminderBtn}
-                          >
-                            {t.snoozeReminderBtn}
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleSnoozeReminder(order.id, 10)}
+                          className="px-2.5 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-stone-950 text-xs font-black uppercase transition-all shadow cursor-pointer flex items-center gap-1 active:scale-95 shrink-0"
+                          title="Posticipa la suoneria promemoria di 10 minuti"
+                        >
+                          <Clock className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
+                          <span>{t.snoozeReminderBtn}</span>
+                        </button>
                       </div>
                     )}
 
