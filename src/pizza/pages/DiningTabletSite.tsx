@@ -1263,49 +1263,61 @@ export default function DiningTabletSite() {
           {/* MAIN CONTAINER */}
           <main className="pt-16 max-w-6xl mx-auto px-2 sm:px-4">
             
-            {/* EXCLUSIVE DINING PRIVILEGE HERO BANNER (Identical Background to Official Website) */}
-            <header className="relative text-stone-100 py-5 lg:py-7 px-4 md:px-8 rounded-3xl shadow-xl my-4 z-30 border border-amber-400/40 overflow-hidden" style={{ backgroundColor: '#3b3530' }}>
-              {/* Inner Background Slideshow with rounded corners & clipping (Identical to Official Site) */}
-              <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
-                <div className="absolute inset-0 opacity-40">
+            {/* EXCLUSIVE DINING PRIVILEGE HERO BANNER (Compact, Sleek & Well Distributed) */}
+            <header className="relative text-stone-100 py-3 sm:py-3.5 px-4 sm:px-6 md:px-7 rounded-2xl sm:rounded-3xl shadow-lg my-2.5 z-30 border border-amber-400/40 overflow-hidden" style={{ backgroundColor: '#3b3530' }}>
+              {/* Inner Background Slideshow with rounded corners & clipping */}
+              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden pointer-events-none">
+                <div className="absolute inset-0 opacity-35">
                   <PizzaSlideshow />
                 </div>
-                <div className="absolute inset-0 bg-stone-950/45 backdrop-blur-[0.5px]" />
+                <div className="absolute inset-0 bg-stone-950/60 backdrop-blur-[0.5px]" />
               </div>
               
-              <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 sm:gap-8">
-                {/* Left Side: Official Flower Power Pizza Logo & Brand Identity */}
-                <div className="flex flex-row md:flex-col items-center justify-center gap-4 shrink-0 text-left md:text-center md:border-r md:border-amber-400/30 md:pr-8">
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-3.5 md:gap-6">
+                {/* Left Side: Brand Logo & Title */}
+                <div className="flex items-center gap-3 shrink-0 md:border-r md:border-amber-400/25 md:pr-6">
                   <img
                     src="/Flower_Power_Pizza_-_HotSpring.png"
                     alt="Flower Power Pizza Logo"
-                    width={180}
-                    height={180}
-                    className="h-24 sm:h-32 md:h-36 w-auto drop-shadow-2xl flex-shrink-0 object-contain hover:scale-105 transition-transform"
+                    width={120}
+                    height={120}
+                    className="h-16 sm:h-20 md:h-22 w-auto drop-shadow-xl flex-shrink-0 object-contain hover:scale-105 transition-transform"
                   />
                   <div>
-                    <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white leading-none">
+                    <h2 className="text-base sm:text-lg font-black tracking-tight text-white leading-none">
                       FLOWER POWER
                     </h2>
-                    <span className="font-light italic text-[#f87171] text-lg sm:text-xl block -mt-0.5">
+                    <span className="font-light italic text-[#f87171] text-sm sm:text-base block -mt-0.5">
                       Pizza
                     </span>
-                    <span className="text-[#fca5a5] font-black tracking-widest text-[9.5px] uppercase block pt-1">
+                    <span className="text-[#fca5a5] font-black tracking-widest text-[8.5px] uppercase block pt-0.5">
                       {LOCATION_BY_LANG[lang] || LOCATION_BY_LANG.IT}
                     </span>
                   </div>
                 </div>
 
-                {/* Right Side: Exclusive Table Dining Promotion & Table Info */}
-                <div className="flex-1 space-y-3 text-left">
-                  {/* Privilege Badge */}
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 font-black text-xs uppercase tracking-wider shadow-lg">
-                    <Sparkles className="w-3.5 h-3.5 fill-stone-950 stroke-none" />
-                    <span>{lang === 'IT' ? 'PROMOZIONE ESCLUSIVA AL TAVOLO' : lang === 'TH' ? 'สิทธิพิเศษสั่งที่โต๊ะอาหาร' : lang === 'DE' ? 'EXKLUSIVER TISCH-RABATT' : 'EXCLUSIVE TABLE DINING PROMO'}</span>
+                {/* Right Side: Promotion Info & Table Pills */}
+                <div className="flex-1 min-w-0 space-y-1.5 text-center md:text-left">
+                  {/* Top Bar: Privilege Badge + Pills */}
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 font-black text-[10px] sm:text-[10.5px] uppercase tracking-wider shadow-sm">
+                      <Sparkles className="w-3 h-3 fill-stone-950 stroke-none" />
+                      <span>{lang === 'IT' ? 'PROMOZIONE AL TAVOLO' : lang === 'TH' ? 'สิทธิพิเศษสั่งที่โต๊ะอาหาร' : lang === 'DE' ? 'TISCH-RABATT' : 'TABLE PROMO'}</span>
+                    </div>
+
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-black/40 border border-white/20 text-white text-[10px] sm:text-[10.5px] font-bold backdrop-blur-sm">
+                      <UtensilsCrossed className="w-3 h-3 text-amber-400" />
+                      <span>Postazione: {currentTable}</span>
+                    </span>
+
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-500/30 border border-emerald-400/60 text-emerald-300 text-[10px] sm:text-[10.5px] font-black backdrop-blur-sm">
+                      <Percent className="w-3 h-3 text-emerald-400" />
+                      <span>-5% Sconto Diretto</span>
+                    </span>
                   </div>
 
                   {/* Hero Title */}
-                  <h1 className="font-sans text-2xl sm:text-3xl font-black tracking-tight text-white leading-tight">
+                  <h1 className="font-sans text-sm sm:text-base md:text-lg font-black tracking-tight text-white leading-snug">
                     {lang === 'TH' ? (
                       <>รับส่วนลดทันที <span className="text-amber-300">5% ทุกเมนู</span> เมื่อสั่งผ่านแท็บเล็ต!</>
                     ) : lang === 'IT' ? (
@@ -1318,29 +1330,17 @@ export default function DiningTabletSite() {
                   </h1>
 
                   {/* Subtitle & Delivery Gift Incentive */}
-                  <p className="text-xs sm:text-sm text-stone-200 leading-relaxed font-normal">
+                  <p className="text-[10.5px] sm:text-[11.5px] text-stone-200 leading-relaxed font-normal">
                     {lang === 'IT' ? (
-                      <>Gusta la vera cucina italiana al tavolo: ottieni il <strong>-5% sul conto finale</strong> e ricevi un <strong>Coupon Sconto del 10%</strong> da utilizzare per il tuo prossimo ordine delivery a casa su flowerpowerpizza.com!</>
+                      <>Gusta la vera cucina italiana al tavolo con il <strong>-5% sul conto</strong> e ricevi un <strong>Coupon Sconto del 10%</strong> per i tuoi ordini delivery da casa su flowerpowerpizza.com!</>
                     ) : lang === 'TH' ? (
                       <>เพลิดเพลินกับอาหารอิตาเลียนและไวน์แท้ที่โต๊ะอาหาร รับส่วนลดทันที 5% และรับคูปองพิเศษลด 10% สำหรับสั่งเดลิเวอรี่ส่งตรงถึงบ้าน!</>
                     ) : lang === 'DE' ? (
-                      <>Genießen Sie echte italienische Küche und Weine am Tisch mit <strong>5% Rabatt</strong> und erhalten Sie einen <strong>10% Willkommens-Gutschein</strong> für Ihre nächste Lieferung nach Hause!</>
+                      <>Genießen Sie echte italienische Küche am Tisch mit <strong>5% Rabatt</strong> und erhalten Sie einen <strong>10% Willkommens-Gutschein</strong> für Ihre nächste Lieferung nach Hause!</>
                     ) : (
-                      <>Enjoy authentic Italian cuisine and fine wines at your table: get <strong>5% OFF your total bill</strong> and receive an exclusive <strong>10% Welcome Coupon</strong> for your next delivery order at home!</>
+                      <>Enjoy authentic Italian cuisine at your table: get <strong>5% OFF your total bill</strong> and receive a <strong>10% Welcome Coupon</strong> for your next delivery order at home!</>
                     )}
                   </p>
-
-                  {/* Table & Discount summary pill */}
-                  <div className="pt-1 flex items-center gap-3 flex-wrap">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-black/40 border border-white/20 text-white text-xs font-bold backdrop-blur-sm">
-                      <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Postazione: {currentTable}</span>
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-500/30 border border-emerald-400/60 text-emerald-300 text-xs font-black backdrop-blur-sm">
-                      <Percent className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>-5% Applicato Automaticamente</span>
-                    </span>
-                  </div>
                 </div>
               </div>
             </header>
