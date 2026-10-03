@@ -1,0 +1,25 @@
+{
+  "name": "Flower Power Dining — Tablet Sala & Tavoli",
+  "short_name": "FP Dining",
+  "description": "Menu digitale e ordinazione autonoma al tavolo Flower Power Pizza Ranong",
+  "start_url": "/dining",
+  "scope": "/dining",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1c1917",
+  "theme_color": "#d97706",
+  "icons": [
+    {
+      "src": "/Flower_Power_Pizza_-_HotSpring.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Flower_Power_Pizza_-_HotSpring.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

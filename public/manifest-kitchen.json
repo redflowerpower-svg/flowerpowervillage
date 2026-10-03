@@ -1,0 +1,25 @@
+{
+  "name": "Flower Power Pizza — Kitchen KDS",
+  "short_name": "FP Kitchen",
+  "description": "Terminale touch comande per la cucina e pizzeria Flower Power Pizza Ranong",
+  "start_url": "/kitchen",
+  "scope": "/kitchen",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b0e14",
+  "theme_color": "#8b1e1e",
+  "icons": [
+    {
+      "src": "/flower-power-pizza-emblem.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/flower-power-pizza-emblem.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
