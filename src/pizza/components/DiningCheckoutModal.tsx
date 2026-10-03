@@ -244,6 +244,24 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
   const [isSuccess, setIsSuccess] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState('');
 
+  const handleFinish = () => {
+    setIsSuccess(false);
+    onSuccess();
+    onClose();
+  };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsSuccess(false);
+      return;
+    }
+    if (!isSuccess) return;
+    const timer = setTimeout(() => {
+      handleFinish();
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [isSuccess, isOpen]);
+
   if (!isOpen) return null;
 
   const rawSubtotal = getTotal();
@@ -350,20 +368,6 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
       setLoading(false);
     }
   };
-
-  const handleFinish = () => {
-    setIsSuccess(false);
-    onSuccess();
-    onClose();
-  };
-
-  useEffect(() => {
-    if (!isSuccess) return;
-    const timer = setTimeout(() => {
-      handleFinish();
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [isSuccess]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
