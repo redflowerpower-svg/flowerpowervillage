@@ -38,7 +38,7 @@ import { DiningCheckoutModal } from '../components/DiningCheckoutModal';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { supabase } from '../../lib/supabase';
-import { DINING_TABLES, getCanonicalTableKey, formatTableStationName } from '../utils/tableUtils';
+import { DINING_TABLES, getCanonicalTableKey, formatTableStationName, extractTableFromAddress } from '../utils/tableUtils';
 
 const I18N_TABLE_PICKER: Record<Language, {
   title: string;
@@ -681,15 +681,19 @@ export default function DiningTabletSite() {
       const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
       const { data, error } = await supabase
         .from('pizza_orders')
-        .select('id, table_number, total, status, payment_status, created_at, items')
-        .eq('delivery_type', 'dine_in')
+        .select('id, address, total, status, payment_method, created_at, items')
         .gte('created_at', twelveHoursAgo)
         .neq('status', 'cancelled')
-        .neq('payment_status', 'paid_settled')
+        .neq('status', 'completed')
         .order('created_at', { ascending: false });
 
       if (data && !error) {
-        setActiveDineInOrders(data);
+        const dineInOnly = data.filter((ord: any) => {
+          const addr = String(ord.address || '');
+          const meth = String(ord.payment_method || '');
+          return addr.includes('[DINE-IN') || meth.includes('table') || extractTableFromAddress(addr);
+        });
+        setActiveDineInOrders(dineInOnly);
       }
     } catch (err) {
       console.warn('Error fetching active dine-in orders:', err);
@@ -719,9 +723,10 @@ export default function DiningTabletSite() {
   const activeTableOrderMap = useMemo(() => {
     const map: Record<string, { count: number; total: number; latestOrderId: string; itemsCount: number }> = {};
     activeDineInOrders.forEach((ord: any) => {
-      const tbl = (ord.table_number || '').trim();
-      if (!tbl) return;
-      const canonicalKey = getCanonicalTableKey(tbl);
+      const addr = String(ord.address || '');
+      const rawTbl = ord.table_number || extractTableFromAddress(addr);
+      if (!rawTbl) return;
+      const canonicalKey = getCanonicalTableKey(rawTbl);
       if (!map[canonicalKey]) {
         map[canonicalKey] = { count: 0, total: 0, latestOrderId: String(ord.id), itemsCount: 0 };
       }

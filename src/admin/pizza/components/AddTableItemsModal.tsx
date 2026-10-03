@@ -207,6 +207,8 @@ export const AddTableItemsModal: React.FC<AddTableItemsModalProps> = ({
       }));
 
       const mergedItems = [...currentItems, ...newItemsToAdd];
+      const additionNote = `[Aggiunta ${timeStr}]: ${stagedItems.map(i => `${i.quantity}x ${i.name}`).join(', ')}`;
+      const updatedAddress = order.address ? `${order.address} [NOTE: ${additionNote}]` : `[NOTE: ${additionNote}]`;
 
       // Update in Supabase
       const { error } = await supabase
@@ -214,9 +216,7 @@ export const AddTableItemsModal: React.FC<AddTableItemsModalProps> = ({
         .update({
           items: mergedItems,
           total: newGrandTotal,
-          notes: order.notes 
-            ? `${order.notes}\n[Aggiunta ${timeStr}]: ${stagedItems.map(i => `${i.quantity}x ${i.name}`).join(', ')}`
-            : `[Aggiunta ${timeStr}]: ${stagedItems.map(i => `${i.quantity}x ${i.name}`).join(', ')}`
+          address: updatedAddress
         })
         .eq('id', order.id);
 

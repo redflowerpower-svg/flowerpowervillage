@@ -98,3 +98,20 @@ export const formatTableStationName = (tableName: string, lang: Language = 'IT')
 
   return trimmed;
 };
+
+export const extractTableFromAddress = (rawAddress?: string): string => {
+  if (!rawAddress) return '';
+  const match = rawAddress.match(/\[DINE-IN:\s*([^\]]+)\]/i) 
+             || rawAddress.match(/\[DINE-IN\]\s*([^\[]+)/i)
+             || rawAddress.match(/\[TABLE:\s*([^\]]+)\]/i);
+  if (match) return match[1].trim();
+
+  // Fallback: check if address starts with Tavolo / Table / Cliente / Guest / etc.
+  const firstPart = rawAddress.split('[')[0].trim();
+  if (firstPart && (
+    /^(?:Tavolo|Table|Tisch|โต๊ะ|Cliente|Guest|Customer|Gast|Kunde|ลูกค้า|Terrazza|Terrace|Terrasse|ระเบียง|Bancone|Counter|Bar|เคาน์เตอร์|Giardino|Garden|Garten)/i.test(firstPart)
+  )) {
+    return firstPart;
+  }
+  return '';
+};

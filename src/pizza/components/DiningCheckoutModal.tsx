@@ -267,13 +267,15 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
     const paymentLabel = paymentMethod === 'promptpay' ? 'promptpay_kshop_at_table' : paymentMethod === 'card' ? 'card_pos_at_table' : 'cash_at_table';
 
+    const formattedAddress = `[DINE-IN: ${activeTable}]` + 
+      (lang ? ` [LANG: ${lang}]` : '') + 
+      (customerEmail.trim() ? ` [EMAIL: ${customerEmail.trim()}]` : '') + 
+      (specialNotes.trim() ? ` [NOTE: ${specialNotes.trim()}]` : '');
+
     const orderPayload = {
-      customer_name: customerName,
-      phone: customerPhone,
-      email: customerEmail || null,
-      address: `[DINE-IN] ${activeTable}`,
-      delivery_type: 'dine_in',
-      table_number: activeTable,
+      customer_name: customerName.trim(),
+      phone: customerPhone.trim(),
+      address: formattedAddress,
       items: items.map(i => ({
         cartId: i.cartId,
         productId: i.productId,
@@ -287,14 +289,11 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         extras: (i.selectedExtras || []).map(e => e.name),
         total: calcItemTotal(i)
       })),
-      subtotal: rawSubtotal,
-      discount_amount: discountAmount,
-      discount_percent: 5,
       total: finalTotal,
-      notes: specialNotes ? `[Note al tavolo]: ${specialNotes}` : null,
       payment_method: paymentLabel,
-      payment_status: 'pending_table_settlement',
       status: 'new',
+      has_whatsapp: true,
+      has_line: false,
       created_at: new Date().toISOString()
     };
 
@@ -307,13 +306,13 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         .select();
 
       if (error) {
-        console.warn('Supabase insert warning:', error);
+        console.error('Supabase order insert error:', error);
         savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
       } else if (inserted && inserted[0]) {
         savedOrder = inserted[0];
       }
     } catch (err) {
-      console.warn('Fallback order payload:', err);
+      console.error('Fallback order payload:', err);
       savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
     }
 
