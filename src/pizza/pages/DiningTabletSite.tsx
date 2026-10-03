@@ -668,6 +668,7 @@ function CustomFilterDropdown({
 
 export default function DiningTabletSite() {
   const { language: lang, setLanguage } = useLanguageStore();
+  const { clearCart } = useCartStore();
   
   // Table Session State: Must select table before accessing menu
   const [currentTable, setCurrentTable] = useState<string>('');
@@ -717,8 +718,14 @@ export default function DiningTabletSite() {
 
     const sub = supabase
       .channel('dining_orders_realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'pizza_orders' }, () => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pizza_orders' }, (payload: any) => {
         fetchActiveDineInOrders();
+        if (payload?.new?.status === 'completed' || payload?.new?.status === 'settled') {
+          const rawTable = extractTableFromAddress(payload?.new?.address) || payload?.new?.table_number || '';
+          if (rawTable && currentTable && getCanonicalTableKey(rawTable) === getCanonicalTableKey(currentTable)) {
+            clearCart();
+          }
+        }
       })
       .subscribe();
 
@@ -741,11 +748,14 @@ export default function DiningTabletSite() {
       if (bc2) bc2.close();
       clearInterval(interval);
     };
-  }, []);
+  }, [currentTable, clearCart]);
 
   const handleSelectTable = (tableName: string) => {
     const trimmed = tableName.trim();
     if (!trimmed) return;
+    if (currentTable && currentTable !== trimmed) {
+      clearCart();
+    }
     setCurrentTable(trimmed);
     setIsTableSelected(true);
   };
@@ -1829,8 +1839,6 @@ export default function DiningTabletSite() {
         onClose={() => setIsCheckoutModalOpen(false)}
         onSuccess={() => {
           setIsCheckoutModalOpen(false);
-          setIsTableSelected(false);
-          setCurrentTable('');
           fetchActiveDineInOrders();
         }}
         initialTable={currentTable}

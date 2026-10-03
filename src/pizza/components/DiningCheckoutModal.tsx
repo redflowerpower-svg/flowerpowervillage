@@ -347,9 +347,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderId: ordId })
         }).catch(e => console.warn('Telegram notify error:', e));
-      } catch {}
-
-      clearCart();
+      // Cart remains active with table items until payment is completed
       setIsSuccess(true);
       setLoading(false);
     }
