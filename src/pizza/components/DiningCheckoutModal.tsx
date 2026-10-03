@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   UtensilsCrossed, 
@@ -220,6 +220,12 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
   const [selectedTable, setSelectedTable] = useState<string>(initialTable);
   const [isCustomTable, setIsCustomTable] = useState(false);
   const [customTableText, setCustomTableText] = useState('');
+
+  useEffect(() => {
+    if (initialTable) {
+      setSelectedTable(initialTable);
+    }
+  }, [initialTable]);
   
   const [customerName, setCustomerName] = useState(() => {
     try { return localStorage.getItem('fp_last_dining_customer_name') || ''; } catch { return ''; }
@@ -350,6 +356,14 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
     onSuccess();
     onClose();
   };
+
+  useEffect(() => {
+    if (!isSuccess) return;
+    const timer = setTimeout(() => {
+      handleFinish();
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [isSuccess]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>

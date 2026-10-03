@@ -14,8 +14,10 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
    - Nessun vincolo di primo ordine o minimo di spesa: applicato istantaneamente a tutto il carrello.
 3. **Vini & Birre 100% Sbloccati**:
    - Tutte le schede dei vini italiani ed esteri (sincronizzati da Supabase Cloud) e delle birre sono aperte e ordinabili al tavolo con filtri enoteca dedicati.
-4. **Accesso e Navigazione**:
-   - Accesso protetto all'avvio con login PIN/credenziali staff (`DiningAdminAuth`).
+4. **Esperienza Fluida Roving Tablet (Dispositivo Singolo Itinerante)**:
+   - Accesso diretto immediato al menu senza schermate bloccanti o richieste di PIN all'avvio.
+   - Cambio tavolo istantaneo in 1 tap direttamente dal selettore nella barra di navigazione superiore (`Tavolo 1..12`, `Capanne`, `Terrazza`, `Bancone`, o campo libero).
+   - Reset automatico del carrello e della schermata dopo l'invio dell'ordine (4 secondi) per essere subito pronto a essere consegnato al tavolo successivo.
    - Linguetta flottante laterale destra (Edge-Hugger) identica al sito ufficiale, eliminando barre inferiori per non ostacolare la visuale dei piatti.
    - Modale prenotazione tavolo disattivata nel carrello (il cliente è già seduto al ristorante).
 5. **Modalità Pagamento al Tavolo (3 Opzioni)**:
@@ -23,4 +25,4 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
    - **Carta di Credito / Bancomat (POS Portatile al Tavolo)** portato dal personale.
    - **Contanti al Tavolo (Cash)** pagati al cameriere.
 6. **Lead Gen & Cross-Selling**:
-   - Al checkout rilascia un **Coupon Sconto del 10%** utilizzabile per futuri ordini delivery da casa su `flowerpowerpizza.com`.
+   - Al checkout rilascia un **Coupon Sconto del 10%** inviato via messaggio per futuri ordini delivery da casa su `flowerpowerpizza.com`.

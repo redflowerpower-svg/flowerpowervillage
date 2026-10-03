@@ -34,7 +34,6 @@ import { fetchCloudWineCollection } from '../data/wineCloudService';
 import { useLanguageStore } from '../store/languageStore';
 import { SUPPORTED_LANGUAGES, LANGUAGE_METAS, Language } from '../config/languages';
 import { getDietaryType, type DietaryType } from '../utils/dietary';
-import { DiningAdminAuth } from '../components/DiningAdminAuth';
 import { DiningCheckoutModal } from '../components/DiningCheckoutModal';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
@@ -618,19 +617,16 @@ export default function DiningTabletSite() {
   const { language: lang, setLanguage } = useLanguageStore();
   const [isLangOpen, setIsLangOpen] = useState(false);
   
-  // Table State (Locks tablet to specific table until closed by staff)
+  // Table State (Roving single tablet: defaults to Tavolo 1, switchable anytime in 1 tap)
   const [currentTable, setCurrentTable] = useState<string>(() => {
     try {
-      return localStorage.getItem('fp_dining_active_table') || '';
+      return localStorage.getItem('fp_dining_active_table') || 'Tavolo 1';
     } catch {
-      return '';
+      return 'Tavolo 1';
     }
   });
-  const [selectedTableCandidate, setSelectedTableCandidate] = useState<string>(DINING_TABLES[0]);
+  const [isTablePickerOpen, setIsTablePickerOpen] = useState(false);
   const [customTableInput, setCustomTableInput] = useState<string>('');
-  const [isStaffPinModalOpen, setIsStaffPinModalOpen] = useState(false);
-  const [staffPinInput, setStaffPinInput] = useState('');
-  const [pinError, setPinError] = useState('');
 
   // Cloud Wine Collection Sync
   const [cloudWines, setCloudWines] = useState<WineCardData[]>([]);
@@ -1024,241 +1020,169 @@ export default function DiningTabletSite() {
   }).filter(group => group.items.length > 0) : [];
 
   return (
-    <DiningAdminAuth>
-      {(session, handleLogout) => {
-        if (!currentTable) {
-          return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1c1917] via-[#292524] to-[#141210] px-4 py-8 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-              <div className="w-full max-w-lg bg-stone-900/95 border-2 border-amber-400/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 text-white backdrop-blur-md">
-                <div className="text-center space-y-2">
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#8B1E1E] to-[#5a1111] border-2 border-amber-400/50 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
-                    <UtensilsCrossed className="w-8 h-8 text-amber-300" />
-                  </div>
-                  <h1 className="text-2xl font-black text-white tracking-tight">
-                    Flower Power Dining
-                  </h1>
-                  <p className="text-xs font-bold text-amber-300 uppercase tracking-widest">
-                    Assegnazione & Blocco Tavolo (Staff)
-                  </p>
-                  <p className="text-stone-400 text-xs leading-relaxed max-w-sm mx-auto">
-                    Seleziona il tavolo prima di consegnare il tablet al cliente. Il dispositivo rimarrà bloccato su questo tavolo fino al pagamento del conto.
-                  </p>
+    <div className="min-h-screen bg-[#e7e5e4] text-stone-900 pb-16 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+      
+      {/* TOP FIXED BAR FOR DINING TABLET */}
+      <nav className="fixed top-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-md border-b border-amber-400/30 text-white px-3 sm:px-6 py-2.5 flex items-center justify-between shadow-xl">
+        
+        {/* Left: Brand Logo & Title */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#8B1E1E] to-[#5a1111] border border-amber-400/40 flex items-center justify-center shadow-md">
+            <UtensilsCrossed className="w-4 h-4 text-amber-300" />
+          </div>
+          <div>
+            <span className="font-black text-sm sm:text-base tracking-tight text-white block leading-none">
+              Flower Power Dining
+            </span>
+            <span className="text-[10px] text-amber-400/90 font-bold uppercase tracking-wider block mt-0.5">
+              Dining Tablet • Ranong
+            </span>
+          </div>
+        </div>
+
+        {/* Center: 1-Tap Table Switcher with -5% Discount */}
+        <button
+          type="button"
+          onClick={() => { setIsTablePickerOpen(true); setCustomTableInput(''); }}
+          className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 border border-amber-400/60 hover:border-amber-300 text-amber-300 font-extrabold text-xs sm:text-sm shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+          title="Tocca per cambiare tavolo"
+        >
+          <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span className="truncate max-w-[130px] sm:max-w-none font-black">{currentTable}</span>
+          <span className="text-[10px] text-amber-200/90 uppercase font-semibold hidden sm:inline">▼ Cambia</span>
+          <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
+            -5% AL TAVOLO
+          </span>
+        </button>
+
+        {/* Right: Language Selector */}
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsLangOpen(!isLangOpen)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-900 border border-stone-700 hover:border-amber-400/50 text-xs font-bold text-stone-200 transition-all cursor-pointer"
+            >
+              <Globe className="w-3.5 h-3.5 text-amber-400" />
+              <span>{LANGUAGE_METAS[lang].flag}</span>
+              <span className="text-[10px] hidden sm:inline uppercase">{lang}</span>
+            </button>
+
+            {isLangOpen && (
+              <div className="absolute right-0 top-full mt-2 w-36 bg-stone-900 border border-stone-700 rounded-2xl shadow-2xl p-1.5 z-50 animate-fadeIn">
+                {SUPPORTED_LANGUAGES.map(l => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => { setLanguage(l); setIsLangOpen(false); }}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-all ${
+                      lang === l ? 'bg-amber-400 text-stone-950 font-black' : 'text-stone-300 hover:bg-stone-800'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{LANGUAGE_METAS[l].flag}</span>
+                      <span>{LANGUAGE_METAS[l].label}</span>
+                    </span>
+                    {lang === l && <Check className="w-3.5 h-3.5" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* 1-TAP FAST TABLE PICKER MODAL */}
+      {isTablePickerOpen && (
+        <div 
+          className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
+          onClick={() => setIsTablePickerOpen(false)}
+        >
+          <div 
+            className="bg-stone-900 border-2 border-amber-400/40 rounded-3xl w-full max-w-lg p-6 text-white space-y-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+              <div className="flex items-center gap-2">
+                <UtensilsCrossed className="w-5 h-5 text-amber-400" />
+                <span className="font-black text-base uppercase tracking-wider">Seleziona Tavolo</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsTablePickerOpen(false)}
+                className="p-1.5 rounded-xl bg-stone-800 text-stone-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-bold text-stone-300 uppercase tracking-wider block mb-2.5">
+                  Tocca il tavolo per selezionarlo all'istante:
+                </p>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  {DINING_TABLES.map(t => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => {
+                        setCurrentTable(t);
+                        try { localStorage.setItem('fp_dining_active_table', t); } catch {}
+                        setIsTablePickerOpen(false);
+                      }}
+                      className={`p-3 rounded-xl text-xs font-black uppercase transition-all cursor-pointer border text-center ${
+                        currentTable === t
+                          ? 'bg-amber-400 text-stone-950 border-amber-300 shadow-md scale-[1.02]'
+                          : 'bg-stone-950/70 border-stone-800 text-stone-300 hover:border-amber-400/40 hover:text-white'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
                 </div>
+              </div>
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-stone-300 uppercase tracking-wider block">
-                      1. Seleziona Tavolo dalla Sala
-                    </label>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                      {DINING_TABLES.map(t => (
-                        <button
-                          key={t}
-                          type="button"
-                          onClick={() => { setSelectedTableCandidate(t); setCustomTableInput(''); }}
-                          className={`p-3 rounded-xl text-xs font-black uppercase transition-all cursor-pointer border ${
-                            selectedTableCandidate === t && !customTableInput
-                              ? 'bg-amber-400 text-stone-950 border-amber-300 shadow-md scale-[1.02]'
-                              : 'bg-stone-950/70 border-stone-800 text-stone-300 hover:border-amber-400/40 hover:text-white'
-                          }`}
-                        >
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-stone-300 uppercase tracking-wider block">
-                      Oppure Inserimento Libero
-                    </label>
-                    <input
-                      type="text"
-                      value={customTableInput}
-                      onChange={(e) => setCustomTableInput(e.target.value)}
-                      placeholder="es. Terrazza 2 / Bancone / Capanna"
-                      className="w-full bg-stone-950/80 border border-stone-700 text-white rounded-xl px-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-amber-400"
-                    />
-                  </div>
-
+              <div className="space-y-1.5 pt-3 border-t border-stone-800">
+                <label className="text-xs font-bold text-stone-300 uppercase tracking-wider block">
+                  Oppure Inserimento Libero
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={customTableInput}
+                    onChange={(e) => setCustomTableInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && customTableInput.trim()) {
+                        const val = customTableInput.trim();
+                        setCurrentTable(val);
+                        try { localStorage.setItem('fp_dining_active_table', val); } catch {}
+                        setIsTablePickerOpen(false);
+                      }
+                    }}
+                    placeholder="es. Terrazza 2 / Bancone / Capanna"
+                    className="flex-1 bg-stone-950 border border-stone-700 text-white rounded-xl px-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-amber-400"
+                  />
                   <button
                     type="button"
                     onClick={() => {
-                      const finalT = customTableInput.trim() || selectedTableCandidate;
-                      setCurrentTable(finalT);
-                      try { localStorage.setItem('fp_dining_active_table', finalT); } catch {}
+                      if (customTableInput.trim()) {
+                        const val = customTableInput.trim();
+                        setCurrentTable(val);
+                        try { localStorage.setItem('fp_dining_active_table', val); } catch {}
+                        setIsTablePickerOpen(false);
+                      }
                     }}
-                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99]"
+                    className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs uppercase tracking-wider cursor-pointer transition-all"
                   >
-                    <Check className="w-5 h-5 stroke-[3]" />
-                    <span>Conferma & Blocca Tablet ({customTableInput.trim() || selectedTableCandidate})</span>
+                    OK
                   </button>
-
-                  <div className="flex justify-center pt-2">
-                    <button
-                      type="button"
-                      onClick={handleLogout}
-                      className="text-stone-500 hover:text-red-400 text-xs font-bold uppercase transition-colors"
-                    >
-                      Disconnetti Amministratore
-                    </button>
-                  </div>
                 </div>
               </div>
             </div>
-          );
-        }
-
-        return (
-          <div className="min-h-screen bg-[#e7e5e4] text-stone-900 pb-16 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-            
-            {/* TOP FIXED BAR FOR DINING TABLET */}
-            <nav className="fixed top-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-md border-b border-amber-400/30 text-white px-3 sm:px-6 py-2.5 flex items-center justify-between shadow-xl">
-              
-              {/* Left: Brand Logo & Title */}
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#8B1E1E] to-[#5a1111] border border-amber-400/40 flex items-center justify-center shadow-md">
-                  <UtensilsCrossed className="w-4 h-4 text-amber-300" />
-                </div>
-                <div>
-                  <span className="font-black text-sm sm:text-base tracking-tight text-white block leading-none">
-                    Flower Power Dining
-                  </span>
-                  <span className="text-[10px] text-amber-400/90 font-bold uppercase tracking-wider block mt-0.5">
-                    Dining Tablet • Ranong
-                  </span>
-                </div>
-              </div>
-
-              {/* Center: Locked Table Badge with -5% Discount */}
-              <div className="flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-amber-400/10 to-amber-500/20 border border-amber-400/60 text-amber-300 font-extrabold text-xs sm:text-sm shadow-md">
-                <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="truncate max-w-[140px] sm:max-w-none">{currentTable}</span>
-                <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
-                  -5% AL TAVOLO
-                </span>
-              </div>
-
-              {/* Right: Language Selector & Staff Table Management */}
-              <div className="flex items-center gap-2">
-                
-                {/* Language Selector */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setIsLangOpen(!isLangOpen)}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-900 border border-stone-700 hover:border-amber-400/50 text-xs font-bold text-stone-200 transition-all cursor-pointer"
-                  >
-                    <Globe className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{LANGUAGE_METAS[lang].flag}</span>
-                    <span className="text-[10px] hidden sm:inline uppercase">{lang}</span>
-                  </button>
-
-                  {isLangOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-36 bg-stone-900 border border-stone-700 rounded-2xl shadow-2xl p-1.5 z-50 animate-fadeIn">
-                      {SUPPORTED_LANGUAGES.map(l => (
-                        <button
-                          key={l}
-                          type="button"
-                          onClick={() => { setLanguage(l); setIsLangOpen(false); }}
-                          className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-all ${
-                            lang === l ? 'bg-amber-400 text-stone-950 font-black' : 'text-stone-300 hover:bg-stone-800'
-                          }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <span>{LANGUAGE_METAS[l].flag}</span>
-                            <span>{LANGUAGE_METAS[l].label}</span>
-                          </span>
-                          {lang === l && <Check className="w-3.5 h-3.5" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Staff Unlock / Table Management Button */}
-                <button
-                  type="button"
-                  onClick={() => { setIsStaffPinModalOpen(true); setPinError(''); setStaffPinInput(''); }}
-                  className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:border-amber-400/60 text-stone-400 hover:text-amber-400 transition-all cursor-pointer"
-                  title="Gestione Tavolo (Staff PIN)"
-                >
-                  <Lock className="w-4 h-4" />
-                </button>
-              </div>
-            </nav>
-
-            {/* STAFF PIN MANAGEMENT MODAL */}
-            {isStaffPinModalOpen && (
-              <div className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-                <div className="bg-stone-900 border-2 border-amber-400/40 rounded-3xl w-full max-w-md p-6 text-white space-y-5 shadow-2xl">
-                  <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-                    <div className="flex items-center gap-2">
-                      <Lock className="w-5 h-5 text-amber-400" />
-                      <span className="font-black text-sm uppercase tracking-wider">Gestione Tavolo (Staff)</span>
-                    </div>
-                    <button
-                      onClick={() => setIsStaffPinModalOpen(false)}
-                      className="p-1.5 rounded-xl bg-stone-800 text-stone-400 hover:text-white"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <div className="space-y-3 text-xs">
-                    <p className="text-stone-400">
-                      Tavolo attualmente attivo: <strong className="text-amber-300 text-sm font-mono">{currentTable}</strong>
-                    </p>
-
-                    <div className="space-y-1.5">
-                      <label className="font-bold text-stone-300 uppercase tracking-wider block">
-                        Inserisci PIN Staff (Predefinito: 1234)
-                      </label>
-                      <input
-                        type="password"
-                        value={staffPinInput}
-                        onChange={(e) => setStaffPinInput(e.target.value)}
-                        placeholder="••••"
-                        maxLength={6}
-                        className="w-full bg-stone-950 border border-stone-700 text-white rounded-xl px-4 py-3 text-center text-lg font-mono tracking-widest focus:outline-none focus:border-amber-400"
-                      />
-                    </div>
-
-                    {pinError && (
-                      <p className="text-red-400 text-xs font-semibold">{pinError}</p>
-                    )}
-
-                    <div className="pt-2 space-y-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (staffPinInput === '1234' || staffPinInput === '0000' || staffPinInput === '1111') {
-                            setCurrentTable('');
-                            try { localStorage.removeItem('fp_dining_active_table'); } catch {}
-                            useCartStore.getState().clearCart();
-                            setIsStaffPinModalOpen(false);
-                          } else {
-                            setPinError('PIN errato (PIN predefinito: 1234)');
-                          }
-                        }}
-                        className="w-full py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black uppercase tracking-wider text-xs shadow cursor-pointer transition-all active:scale-95 flex items-center justify-center gap-2"
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                        <span>Chiudi Conto & Assegna a Nuovo Tavolo</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="w-full py-2.5 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold uppercase tracking-wider text-xs border border-stone-700 cursor-pointer transition-colors"
-                      >
-                        Disconnetti Modalità Dining
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+          </div>
+        </div>
+      )}
 
           {/* MAIN CONTAINER */}
           <main className="pt-16 max-w-6xl mx-auto px-2 sm:px-4">
@@ -1743,17 +1667,14 @@ export default function DiningTabletSite() {
             }}
           />
 
-          {/* DEDICATED TABLE CHECKOUT MODAL */}
-          <DiningCheckoutModal
-            isOpen={isCheckoutModalOpen}
-            onClose={() => setIsCheckoutModalOpen(false)}
-            onSuccess={() => setIsCheckoutModalOpen(false)}
-            initialTable={currentTable}
-            lang={lang}
-          />
-          </div>
-        );
-      }}
-    </DiningAdminAuth>
+      {/* DEDICATED TABLE CHECKOUT MODAL */}
+      <DiningCheckoutModal
+        isOpen={isCheckoutModalOpen}
+        onClose={() => setIsCheckoutModalOpen(false)}
+        onSuccess={() => setIsCheckoutModalOpen(false)}
+        initialTable={currentTable}
+        lang={lang}
+      />
+    </div>
   );
 }
