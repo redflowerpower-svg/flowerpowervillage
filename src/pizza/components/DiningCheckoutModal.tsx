@@ -34,7 +34,7 @@ interface DiningCheckoutModalProps {
   lang?: Language;
 }
 
-import { DINING_TABLES, formatTableStationName } from '../utils/tableUtils';
+import { DINING_TABLES, formatTableStationName, getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
 
 const I18N_CHECKOUT = {
   IT: {
@@ -272,48 +272,102 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
       (customerEmail.trim() ? ` [EMAIL: ${customerEmail.trim()}]` : '') + 
       (specialNotes.trim() ? ` [NOTE: ${specialNotes.trim()}]` : '');
 
-    const orderPayload = {
-      customer_name: customerName.trim(),
-      phone: customerPhone.trim(),
-      address: formattedAddress,
-      items: items.map(i => ({
-        cartId: i.cartId,
-        productId: i.productId,
-        name: i.name,
-        nameIt: i.nameIt,
-        nameTh: i.nameTh,
-        nameDe: i.nameDe,
-        quantity: i.quantity,
-        basePrice: i.basePrice,
-        variant: i.selectedVariant?.name || null,
-        extras: (i.selectedExtras || []).map(e => e.name),
-        total: calcItemTotal(i)
-      })),
-      total: finalTotal,
-      payment_method: paymentLabel,
-      status: 'new',
-      has_whatsapp: true,
-      has_line: false,
-      created_at: new Date().toISOString()
-    };
+    const canonicalCurrentTable = getCanonicalTableKey(activeTable);
+
+    // 1. Check if an active (uncompleted) order already exists for this table
+    let existingActiveOrder: any = null;
+    try {
+      const { data: openOrders } = await supabase
+        .from('pizza_orders')
+        .select('*')
+        .not('status', 'in', '("completed","cancelled","rejected","settled")')
+        .order('created_at', { ascending: false });
+
+      if (openOrders && openOrders.length > 0) {
+        existingActiveOrder = openOrders.find((o: any) => {
+          const raw = extractTableFromAddress(o.address) || o.table_number || '';
+          return raw && getCanonicalTableKey(raw) === canonicalCurrentTable;
+        });
+      }
+    } catch (e) {
+      console.warn('Could not query active table orders:', e);
+    }
+
+    const formattedItems = items.map(i => ({
+      cartId: i.cartId,
+      productId: i.productId,
+      name: i.name,
+      nameIt: i.nameIt,
+      nameTh: i.nameTh,
+      nameDe: i.nameDe,
+      quantity: i.quantity,
+      basePrice: i.basePrice,
+      variant: i.selectedVariant?.name || null,
+      extras: (i.selectedExtras || []).map(e => e.name),
+      total: calcItemTotal(i)
+    }));
 
     let savedOrder: any = null;
 
-    try {
-      const { data: inserted, error } = await supabase
-        .from('pizza_orders')
-        .insert([orderPayload])
-        .select();
+    if (existingActiveOrder) {
+      // 2a. MERGE / UPDATE EXISTING TABLE ORDER (Single ticket per table!)
+      const updatePayload = {
+        customer_name: customerName.trim() || existingActiveOrder.customer_name,
+        phone: customerPhone.trim() || existingActiveOrder.phone,
+        address: formattedAddress,
+        items: formattedItems,
+        total: finalTotal,
+        payment_method: paymentLabel,
+      };
 
-      if (error) {
-        console.error('Supabase order insert error:', error);
-        savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
-      } else if (inserted && inserted[0]) {
-        savedOrder = inserted[0];
+      try {
+        const { data: updated, error } = await supabase
+          .from('pizza_orders')
+          .update(updatePayload)
+          .eq('id', existingActiveOrder.id)
+          .select();
+
+        if (error) {
+          console.error('Supabase order update error:', error);
+          savedOrder = { ...existingActiveOrder, ...updatePayload };
+        } else if (updated && updated[0]) {
+          savedOrder = updated[0];
+        }
+      } catch (err) {
+        console.error('Fallback order update error:', err);
+        savedOrder = { ...existingActiveOrder, ...updatePayload };
       }
-    } catch (err) {
-      console.error('Fallback order payload:', err);
-      savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
+    } else {
+      // 2b. INSERT NEW TABLE ORDER
+      const orderPayload = {
+        customer_name: customerName.trim(),
+        phone: customerPhone.trim(),
+        address: formattedAddress,
+        items: formattedItems,
+        total: finalTotal,
+        payment_method: paymentLabel,
+        status: 'new',
+        has_whatsapp: true,
+        has_line: false,
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        const { data: inserted, error } = await supabase
+          .from('pizza_orders')
+          .insert([orderPayload])
+          .select();
+
+        if (error) {
+          console.error('Supabase order insert error:', error);
+          savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
+        } else if (inserted && inserted[0]) {
+          savedOrder = inserted[0];
+        }
+      } catch (err) {
+        console.error('Fallback order payload:', err);
+        savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
+      }
     }
 
     if (savedOrder) {
@@ -327,16 +381,17 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         if (customerEmail) localStorage.setItem('fp_last_dining_customer_email', customerEmail);
       } catch {}
 
-      // Broadcast to Kitchen Display System (KDS)
+      // Broadcast to Kitchen Display System (KDS) & Local Listeners
+      const broadcastMsgType = existingActiveOrder ? 'ORDER_UPDATED' : 'NEW_ORDER';
       try {
         const ch = new BroadcastChannel('pizza_orders_channel');
-        ch.postMessage({ type: 'NEW_ORDER', order: savedOrder });
+        ch.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId });
         ch.close();
       } catch {}
 
       try {
         const chFP = new BroadcastChannel('flower_power_orders_channel');
-        chFP.postMessage({ type: 'NEW_ORDER', order: savedOrder });
+        chFP.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId });
         chFP.close();
       } catch {}
 
