@@ -52,6 +52,10 @@ const DINING_TABLES = [
   'Tavolo 10',
   'Tavolo 11',
   'Tavolo 12',
+  'Terrazza 1',
+  'Terrazza 2',
+  'Bancone',
+  'Capanna 1',
 ];
 
 const LOCATION_BY_LANG: Record<Language, string> = {
@@ -617,16 +621,83 @@ export default function DiningTabletSite() {
   const { language: lang, setLanguage } = useLanguageStore();
   const [isLangOpen, setIsLangOpen] = useState(false);
   
-  // Table State (Roving single tablet: defaults to Tavolo 1, switchable anytime in 1 tap)
-  const [currentTable, setCurrentTable] = useState<string>(() => {
-    try {
-      return localStorage.getItem('fp_dining_active_table') || 'Tavolo 1';
-    } catch {
-      return 'Tavolo 1';
-    }
-  });
-  const [isTablePickerOpen, setIsTablePickerOpen] = useState(false);
+  // Table Session State: Must select table before accessing menu
+  const [currentTable, setCurrentTable] = useState<string>('');
+  const [isTableSelected, setIsTableSelected] = useState<boolean>(false);
   const [customTableInput, setCustomTableInput] = useState<string>('');
+  const [activeDineInOrders, setActiveDineInOrders] = useState<any[]>([]);
+  const [tableNotification, setTableNotification] = useState<string>('');
+
+  const fetchActiveDineInOrders = async () => {
+    try {
+      const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+      const { data, error } = await supabase
+        .from('pizza_orders')
+        .select('id, table_number, total, status, payment_status, created_at, items')
+        .eq('delivery_type', 'dine_in')
+        .gte('created_at', twelveHoursAgo)
+        .neq('status', 'cancelled')
+        .neq('payment_status', 'paid_settled')
+        .order('created_at', { ascending: false });
+
+      if (data && !error) {
+        setActiveDineInOrders(data);
+      }
+    } catch (err) {
+      console.warn('Error fetching active dine-in orders:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveDineInOrders();
+    const interval = setInterval(fetchActiveDineInOrders, 12000);
+
+    let bc: BroadcastChannel | null = null;
+    if ('BroadcastChannel' in window) {
+      bc = new BroadcastChannel('pizza_orders_channel');
+      bc.onmessage = (ev) => {
+        if (ev.data?.type === 'NEW_ORDER' || ev.data?.type === 'ORDER_COMPLETED' || ev.data?.type === 'ORDER_CANCELLED') {
+          fetchActiveDineInOrders();
+        }
+      };
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (bc) bc.close();
+    };
+  }, []);
+
+  const activeTableOrderMap = useMemo(() => {
+    const map: Record<string, { count: number; total: number; latestOrderId: string; itemsCount: number }> = {};
+    activeDineInOrders.forEach((ord: any) => {
+      const tbl = (ord.table_number || '').trim();
+      if (!tbl) return;
+      if (!map[tbl]) {
+        map[tbl] = { count: 0, total: 0, latestOrderId: String(ord.id), itemsCount: 0 };
+      }
+      map[tbl].count += 1;
+      map[tbl].total += (ord.total || 0);
+      map[tbl].itemsCount += Array.isArray(ord.items) ? ord.items.reduce((acc: number, it: any) => acc + (it.quantity || 1), 0) : 0;
+    });
+    return map;
+  }, [activeDineInOrders]);
+
+  const handleSelectTable = (tableName: string) => {
+    const trimmed = tableName.trim();
+    if (!trimmed) return;
+    setCurrentTable(trimmed);
+    setIsTableSelected(true);
+    try { localStorage.setItem('fp_dining_active_table', trimmed); } catch {}
+
+    const existing = activeTableOrderMap[trimmed];
+    if (existing) {
+      setTableNotification(`Tavolo attivo: ${existing.count} ${existing.count === 1 ? 'ordine' : 'ordini'} in corso (Conto attuale: ${existing.total} ฿). I nuovi piatti selezionati verranno aggiunti a questa sessione.`);
+    } else {
+      useCartStore.getState().clearCart();
+      setTableNotification('');
+    }
+  };
 
   // Cloud Wine Collection Sync
   const [cloudWines, setCloudWines] = useState<WineCardData[]>([]);
@@ -916,11 +987,7 @@ export default function DiningTabletSite() {
   const discountedTotal = Math.max(0, rawSubtotal - discountAmount);
   const cartCount = getCount();
 
-  const handleSelectTable = (table: string) => {
-    setCurrentTable(table);
-    try { localStorage.setItem('fp_dining_active_table', table); } catch {}
-    setIsTableSelectorOpen(false);
-  };
+
 
   const activeCategory = availableCategories.find((c) => c.id === activeCategoryId) ?? availableCategories[0];
   const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
@@ -1043,12 +1110,12 @@ export default function DiningTabletSite() {
         {/* Center: 1-Tap Table Switcher with -5% Discount */}
         <button
           type="button"
-          onClick={() => { setIsTablePickerOpen(true); setCustomTableInput(''); }}
+          onClick={() => { setIsTableSelected(false); setCustomTableInput(''); }}
           className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 border border-amber-400/60 hover:border-amber-300 text-amber-300 font-extrabold text-xs sm:text-sm shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
           title="Tocca per cambiare tavolo"
         >
           <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <span className="truncate max-w-[130px] sm:max-w-none font-black">{currentTable}</span>
+          <span className="truncate max-w-[130px] sm:max-w-none font-black">{currentTable || 'Seleziona Tavolo'}</span>
           <span className="text-[10px] text-amber-200/90 uppercase font-semibold hidden sm:inline">▼ Cambia</span>
           <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
             -5% AL TAVOLO
@@ -1092,60 +1159,72 @@ export default function DiningTabletSite() {
         </div>
       </nav>
 
-      {/* 1-TAP FAST TABLE PICKER MODAL */}
-      {isTablePickerOpen && (
-        <div 
-          className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn"
-          onClick={() => setIsTablePickerOpen(false)}
-        >
-          <div 
-            className="bg-stone-900 border-2 border-amber-400/40 rounded-3xl w-full max-w-lg p-6 text-white space-y-5 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-              <div className="flex items-center gap-2">
-                <UtensilsCrossed className="w-5 h-5 text-amber-400" />
-                <span className="font-black text-base uppercase tracking-wider">Seleziona Tavolo</span>
+      {/* MANDATORY TABLE SELECTION OVERLAY (When session not yet picked or changed) */}
+      {!isTableSelected && (
+        <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
+          <div className="bg-stone-900 border-2 border-amber-400/50 rounded-3xl w-full max-w-2xl p-5 sm:p-7 text-white space-y-6 shadow-2xl max-h-[95vh] overflow-y-auto">
+            <div className="text-center space-y-2">
+              <div className="w-14 h-14 bg-gradient-to-br from-[#8B1E1E] to-[#5a1111] border-2 border-amber-400/50 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
+                <UtensilsCrossed className="w-7 h-7 text-amber-300" />
               </div>
-              <button
-                type="button"
-                onClick={() => setIsTablePickerOpen(false)}
-                className="p-1.5 rounded-xl bg-stone-800 text-stone-400 hover:text-white cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                Flower Power Pizza Dining
+              </h2>
+              <p className="text-xs sm:text-sm font-bold text-amber-300 uppercase tracking-widest">
+                Seleziona il tuo Tavolo per Iniziare
+              </p>
+              <p className="text-stone-400 text-xs max-w-md mx-auto leading-relaxed">
+                Tocca la tua postazione per accedere al menu completo con lo <strong>sconto del 5% al tavolo</strong> applicato a tutte le portate.
+              </p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <p className="text-xs font-bold text-stone-300 uppercase tracking-wider block mb-2.5">
-                  Tocca il tavolo per selezionarlo all'istante:
-                </p>
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                  {DINING_TABLES.map(t => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => {
-                        setCurrentTable(t);
-                        try { localStorage.setItem('fp_dining_active_table', t); } catch {}
-                        setIsTablePickerOpen(false);
-                      }}
-                      className={`p-3 rounded-xl text-xs font-black uppercase transition-all cursor-pointer border text-center ${
-                        currentTable === t
-                          ? 'bg-amber-400 text-stone-950 border-amber-300 shadow-md scale-[1.02]'
-                          : 'bg-stone-950/70 border-stone-800 text-stone-300 hover:border-amber-400/40 hover:text-white'
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+                <div className="flex items-center justify-between text-xs font-bold text-stone-300 uppercase tracking-wider mb-2.5">
+                  <span>Tavoli della Sala & Postazioni</span>
+                  <span className="text-[11px] text-stone-400 font-normal flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> Libero</span>
+                    <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> Ordine in corso</span>
+                  </span>
+                </div>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                  {DINING_TABLES.map(t => {
+                    const activeInfo = activeTableOrderMap[t];
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => handleSelectTable(t)}
+                        className={`p-3.5 rounded-2xl text-left transition-all cursor-pointer border flex flex-col justify-between gap-2 relative overflow-hidden ${
+                          activeInfo
+                            ? 'bg-gradient-to-br from-amber-950/80 to-stone-900 border-amber-400/80 text-white shadow-lg hover:border-amber-300 hover:scale-[1.02]'
+                            : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/50 hover:bg-stone-850 hover:scale-[1.02]'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs sm:text-sm font-black uppercase tracking-tight">{t}</span>
+                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${activeInfo ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
+                        </div>
+                        
+                        {activeInfo ? (
+                          <div className="text-[10px] text-amber-300 font-bold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/40 truncate">
+                            Conto Aperto: {activeInfo.total} ฿
+                          </div>
+                        ) : (
+                          <div className="text-[10px] text-emerald-400/90 font-semibold truncate">
+                            Libero / Nuovo Ordine
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               <div className="space-y-1.5 pt-3 border-t border-stone-800">
                 <label className="text-xs font-bold text-stone-300 uppercase tracking-wider block">
-                  Oppure Inserimento Libero
+                  Oppure Inserimento Postazione Libera
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -1154,28 +1233,22 @@ export default function DiningTabletSite() {
                     onChange={(e) => setCustomTableInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && customTableInput.trim()) {
-                        const val = customTableInput.trim();
-                        setCurrentTable(val);
-                        try { localStorage.setItem('fp_dining_active_table', val); } catch {}
-                        setIsTablePickerOpen(false);
+                        handleSelectTable(customTableInput.trim());
                       }
                     }}
-                    placeholder="es. Terrazza 2 / Bancone / Capanna"
+                    placeholder="es. Terrazza 3 / Giardino / Letto Spiaggia"
                     className="flex-1 bg-stone-950 border border-stone-700 text-white rounded-xl px-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-amber-400"
                   />
                   <button
                     type="button"
                     onClick={() => {
                       if (customTableInput.trim()) {
-                        const val = customTableInput.trim();
-                        setCurrentTable(val);
-                        try { localStorage.setItem('fp_dining_active_table', val); } catch {}
-                        setIsTablePickerOpen(false);
+                        handleSelectTable(customTableInput.trim());
                       }
                     }}
-                    className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs uppercase tracking-wider cursor-pointer transition-all"
+                    className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs uppercase tracking-wider cursor-pointer transition-all active:scale-95"
                   >
-                    OK
+                    Entra
                   </button>
                 </div>
               </div>
@@ -1268,6 +1341,23 @@ export default function DiningTabletSite() {
                 </div>
               </div>
             </header>
+
+            {/* ACTIVE TAB ALERT / NOTIFICATION */}
+            {tableNotification && (
+              <div className="mb-3.5 p-3 rounded-2xl bg-gradient-to-r from-amber-950/90 via-stone-900 to-amber-950/90 border border-amber-400/50 text-amber-200 text-xs flex items-center justify-between gap-3 shadow-md animate-fadeIn">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>{tableNotification}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setTableNotification('')}
+                  className="p-1 rounded-lg bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
 
             {/* CATEGORY TABS */}
             <div id="dining-category-section" className="mb-4 scroll-mt-24">
@@ -1671,7 +1761,12 @@ export default function DiningTabletSite() {
       <DiningCheckoutModal
         isOpen={isCheckoutModalOpen}
         onClose={() => setIsCheckoutModalOpen(false)}
-        onSuccess={() => setIsCheckoutModalOpen(false)}
+        onSuccess={() => {
+          setIsCheckoutModalOpen(false);
+          setIsTableSelected(false);
+          setCurrentTable('');
+          setTableNotification('');
+        }}
         initialTable={currentTable}
         lang={lang}
       />
