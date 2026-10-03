@@ -35,11 +35,9 @@ import { useLanguageStore } from '../store/languageStore';
 import { SUPPORTED_LANGUAGES, LANGUAGE_METAS, Language } from '../config/languages';
 import { getDietaryType, type DietaryType } from '../utils/dietary';
 import { DiningCheckoutModal } from '../components/DiningCheckoutModal';
-import { TableSettlementModal } from '../components/TableSettlementModal';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
-import { supabase } from '../../lib/supabase';
-import { DINING_TABLES, getCanonicalTableKey, formatTableStationName, extractTableFromAddress } from '../utils/tableUtils';
+import { DINING_TABLES, formatTableStationName } from '../utils/tableUtils';
 
 const I18N_TABLE_PICKER: Record<Language, {
   title: string;
@@ -674,70 +672,17 @@ export default function DiningTabletSite() {
   const [currentTable, setCurrentTable] = useState<string>('');
   const [isTableSelected, setIsTableSelected] = useState<boolean>(false);
   const [customTableInput, setCustomTableInput] = useState<string>('');
-  const [activeDineInOrders, setActiveDineInOrders] = useState<any[]>([]);
-  const [tableNotification, setTableNotification] = useState<string>('');
-  const [settlementTableKey, setSettlementTableKey] = useState<string | null>(null);
 
-  const fetchActiveDineInOrders = async () => {
-    try {
-      const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
-      const { data, error } = await supabase
-        .from('pizza_orders')
-        .select('id, address, total, status, payment_method, created_at, items')
-        .gte('created_at', twelveHoursAgo)
-        .neq('status', 'cancelled')
-        .neq('status', 'completed')
-        .order('created_at', { ascending: false });
-
-      if (data && !error) {
-        const dineInOnly = data.filter((ord: any) => {
-          const addr = String(ord.address || '');
-          const meth = String(ord.payment_method || '');
-          return addr.includes('[DINE-IN') || meth.includes('table') || extractTableFromAddress(addr);
-        });
-        setActiveDineInOrders(dineInOnly);
-      }
-    } catch (err) {
-      console.warn('Error fetching active dine-in orders:', err);
-    }
-  };
-
+  // Restore table from localStorage on mount if present
   useEffect(() => {
-    fetchActiveDineInOrders();
-    const interval = setInterval(fetchActiveDineInOrders, 12000);
-
-    let bc: BroadcastChannel | null = null;
-    if ('BroadcastChannel' in window) {
-      bc = new BroadcastChannel('pizza_orders_channel');
-      bc.onmessage = (ev) => {
-        if (ev.data?.type === 'NEW_ORDER' || ev.data?.type === 'ORDER_COMPLETED' || ev.data?.type === 'ORDER_CANCELLED') {
-          fetchActiveDineInOrders();
-        }
-      };
-    }
-
-    return () => {
-      clearInterval(interval);
-      if (bc) bc.close();
-    };
-  }, []);
-
-  const activeTableOrderMap = useMemo(() => {
-    const map: Record<string, { count: number; total: number; latestOrderId: string; itemsCount: number }> = {};
-    activeDineInOrders.forEach((ord: any) => {
-      const addr = String(ord.address || '');
-      const rawTbl = ord.table_number || extractTableFromAddress(addr);
-      if (!rawTbl) return;
-      const canonicalKey = getCanonicalTableKey(rawTbl);
-      if (!map[canonicalKey]) {
-        map[canonicalKey] = { count: 0, total: 0, latestOrderId: String(ord.id), itemsCount: 0 };
+    try {
+      const saved = localStorage.getItem('fp_dining_active_table');
+      if (saved && saved.trim()) {
+        setCurrentTable(saved.trim());
+        setIsTableSelected(true);
       }
-      map[canonicalKey].count += 1;
-      map[canonicalKey].total += (ord.total || 0);
-      map[canonicalKey].itemsCount += Array.isArray(ord.items) ? ord.items.reduce((acc: number, it: any) => acc + (it.quantity || 1), 0) : 0;
-    });
-    return map;
-  }, [activeDineInOrders]);
+    } catch {}
+  }, []);
 
   const handleSelectTable = (tableName: string) => {
     const trimmed = tableName.trim();
@@ -745,22 +690,6 @@ export default function DiningTabletSite() {
     setCurrentTable(trimmed);
     setIsTableSelected(true);
     try { localStorage.setItem('fp_dining_active_table', trimmed); } catch {}
-
-    const canonicalKey = getCanonicalTableKey(trimmed);
-    const existing = activeTableOrderMap[canonicalKey] || activeTableOrderMap[trimmed];
-    if (existing) {
-      const translatedStation = formatTableStationName(trimmed, lang);
-      const notifByLang: Record<Language, string> = {
-        IT: `${translatedStation} attivo: ${existing.count} ${existing.count === 1 ? 'ordine' : 'ordini'} in corso (Conto attuale: ${existing.total} ฿). I nuovi piatti selezionati verranno aggiunti a questa sessione.`,
-        EN: `${translatedStation} active: ${existing.count} ${existing.count === 1 ? 'order' : 'orders'} in progress (Current tab: ${existing.total} ฿). Any new items added will join this session.`,
-        TH: `${translatedStation} กำลังเปิดใช้งาน: มี ${existing.count} รายการค้างชำระ (ยอดรวมปัจจุบัน: ${existing.total} ฿) อาหารที่สั่งเพิ่มจะรวมเข้ากับบิลนี้`,
-        DE: `${translatedStation} aktiv: ${existing.count} ${existing.count === 1 ? 'Bestellung' : 'Bestellungen'} offen (Aktueller Betrag: ${existing.total} ฿). Neue Artikel werden dieser Sitzung hinzugefügt.`
-      };
-      setTableNotification(notifByLang[lang] || notifByLang.IT);
-    } else {
-      useCartStore.getState().clearCart();
-      setTableNotification('');
-    }
   };
 
   // Cloud Wine Collection Sync
@@ -1269,34 +1198,26 @@ export default function DiningTabletSite() {
                 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                   {DINING_TABLES.map(t => {
-                    const canonical = getCanonicalTableKey(t);
-                    const activeInfo = activeTableOrderMap[canonical] || activeTableOrderMap[t];
                     const displayName = formatTableStationName(t, lang);
+                    const isSelected = currentTable === t;
                     return (
                       <button
                         key={t}
                         type="button"
                         onClick={() => handleSelectTable(t)}
-                        className={`p-3.5 rounded-2xl text-left transition-all cursor-pointer border flex flex-col justify-between gap-2 relative overflow-hidden ${
-                          activeInfo
-                            ? 'bg-gradient-to-br from-amber-950/80 to-stone-900 border-amber-400/80 text-white shadow-lg hover:border-amber-300 hover:scale-[1.02]'
-                            : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/50 hover:bg-stone-850 hover:scale-[1.02]'
+                        className={`p-4 rounded-2xl text-left transition-all cursor-pointer border flex flex-col justify-between gap-2.5 relative overflow-hidden ${
+                          isSelected
+                            ? 'bg-gradient-to-br from-amber-950/90 to-stone-900 border-amber-400 text-white shadow-xl scale-[1.02] ring-1 ring-amber-400/50'
+                            : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850 hover:scale-[1.02]'
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="text-xs sm:text-sm font-black uppercase tracking-tight">{displayName}</span>
-                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${activeInfo ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
+                          <span className="text-sm font-black uppercase tracking-tight text-white">{displayName}</span>
+                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isSelected ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
                         </div>
-                        
-                        {activeInfo ? (
-                          <div className="text-[10px] text-amber-300 font-bold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/40 truncate">
-                            {(I18N_TABLE_PICKER[lang]?.activeCardPrefix || I18N_TABLE_PICKER.IT.activeCardPrefix)} {activeInfo.total} ฿
-                          </div>
-                        ) : (
-                          <div className="text-[10px] text-emerald-400/90 font-semibold truncate">
-                            {I18N_TABLE_PICKER[lang]?.freeCard || I18N_TABLE_PICKER.IT.freeCard}
-                          </div>
-                        )}
+                        <div className="text-[11px] text-emerald-400/90 font-bold uppercase tracking-wider truncate">
+                          {I18N_TABLE_PICKER[lang]?.freeCard || I18N_TABLE_PICKER.IT.freeCard}
+                        </div>
                       </button>
                     );
                   })}
@@ -1851,111 +1772,10 @@ export default function DiningTabletSite() {
           setIsCheckoutModalOpen(false);
           setIsTableSelected(false);
           setCurrentTable('');
-          setTableNotification('');
         }}
         initialTable={currentTable}
         lang={lang}
       />
-
-      {/* DEDICATED TABLE SETTLEMENT & CHECKOUT MODAL */}
-      <TableSettlementModal
-        isOpen={Boolean(settlementTableKey)}
-        onClose={() => setSettlementTableKey(null)}
-        tableKey={settlementTableKey || ''}
-        ordersForTable={activeDineInOrders.filter(o => {
-          const rawTbl = o.table_number || extractTableFromAddress(o.address);
-          const canonical = getCanonicalTableKey(rawTbl);
-          return canonical === settlementTableKey || rawTbl === settlementTableKey;
-        })}
-        lang={lang}
-        onSettled={() => {
-          if (currentTable === settlementTableKey) {
-            setCurrentTable('');
-            setIsTableSelected(false);
-            setTableNotification('');
-          }
-          fetchActiveDineInOrders();
-        }}
-      />
-
-      {/* ─── BOTTOM OPERATIONAL DOCK: ACTIVE OPEN TABLES & SETTLEMENT ─────── */}
-      {Object.keys(activeTableOrderMap).length > 0 && (
-        <aside
-          aria-label="Active dining tables dock"
-          className="fixed bottom-0 left-0 right-0 z-30 bg-stone-950/95 backdrop-blur-md border-t-2 border-amber-400/40 px-3 sm:px-6 py-2 shadow-2xl flex items-center justify-between gap-3 overflow-x-auto select-none"
-        >
-          {/* Left Title */}
-          <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs uppercase tracking-wider shrink-0 pr-3 border-r border-stone-800">
-            <UtensilsCrossed className="w-4 h-4" />
-            <span className="hidden sm:inline">
-              {lang === 'TH' ? 'โต๊ะที่เปิดอยู่:' : lang === 'EN' ? 'Open Tables:' : lang === 'DE' ? 'Offene Tische:' : 'Tavoli Aperti:'}
-            </span>
-            <span className="px-1.5 py-0.2 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-mono font-bold">
-              {Object.keys(activeTableOrderMap).length}
-            </span>
-          </div>
-
-          {/* Horizontal scrollable cards */}
-          <div className="flex items-center gap-2.5 flex-1 min-w-0 overflow-x-auto py-0.5">
-            {Object.entries(activeTableOrderMap).map(([tblKey, info]) => {
-              const displayName = formatTableStationName(tblKey, lang);
-              const isCurrentSession = currentTable === tblKey;
-
-              return (
-                <div
-                  key={tblKey}
-                  className={`px-3 py-1.5 rounded-2xl border flex items-center gap-2.5 shrink-0 transition-all ${
-                    isCurrentSession
-                      ? 'bg-gradient-to-r from-amber-950/80 to-stone-900 border-amber-400 text-white shadow-md ring-1 ring-amber-400/40'
-                      : 'bg-stone-900/90 border-stone-800 text-stone-200 hover:border-amber-400/40'
-                  }`}
-                >
-                  <div className="flex flex-col">
-                    <span className="font-black text-xs sm:text-sm uppercase tracking-tight text-white flex items-center gap-1">
-                      <span>{displayName}</span>
-                      {isCurrentSession && (
-                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                      )}
-                    </span>
-                    <span className="text-[10px] text-amber-300 font-bold font-mono">
-                      {info.total} ฿ <span className="text-stone-400 font-normal">({info.itemsCount} {lang === 'TH' ? 'จาน' : 'portate'})</span>
-                    </span>
-                  </div>
-
-                  {/* Actions for this table */}
-                  <div className="flex items-center gap-1.5 pl-2 border-l border-stone-800">
-                    {/* Add Items Button */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectTable(tblKey)}
-                      className={`px-2.5 py-1 rounded-xl text-[11px] font-black uppercase flex items-center gap-1 transition-all cursor-pointer ${
-                        isCurrentSession
-                          ? 'bg-amber-400 text-stone-950 shadow-xs'
-                          : 'bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white'
-                      }`}
-                      title={lang === 'TH' ? 'เพิ่มรายการอาหาร' : 'Aggiungi piatti a questo tavolo'}
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span className="hidden md:inline">{lang === 'TH' ? 'เพิ่ม' : 'Aggiungi'}</span>
-                    </button>
-
-                    {/* Settle / Close Tab Button */}
-                    <button
-                      type="button"
-                      onClick={() => setSettlementTableKey(tblKey)}
-                      className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-black uppercase flex items-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95"
-                      title={lang === 'TH' ? 'เช็คบิล / ปิดโต๊ะ' : 'Salda conto e chiudi tavolo'}
-                    >
-                      <Check className="w-3.5 h-3.5 stroke-[3]" />
-                      <span>{lang === 'TH' ? 'เช็คบิล' : lang === 'EN' ? 'Settle' : lang === 'DE' ? 'Abrechnen' : 'Salda'}</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </aside>
-      )}
     </div>
   );
 }
