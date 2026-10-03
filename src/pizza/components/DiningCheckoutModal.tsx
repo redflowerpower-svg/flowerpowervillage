@@ -300,6 +300,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
       nameIt: i.nameIt,
       nameTh: i.nameTh,
       nameDe: i.nameDe,
+      image: i.image || '',
       quantity: i.quantity,
       basePrice: i.basePrice,
       variant: i.selectedVariant?.name || null,

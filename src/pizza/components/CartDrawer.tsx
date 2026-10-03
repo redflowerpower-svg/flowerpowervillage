@@ -197,6 +197,24 @@ const getProductCategory = (productId: string): string => {
   return '';
 };
 
+const resolveDishImage = (item: any): string => {
+  if (item?.image && typeof item.image === 'string' && item.image.trim().length > 0) {
+    return item.image;
+  }
+  const pid = (item?.productId || item?.id || '').trim().toLowerCase();
+  const name = (item?.name || '').trim().toLowerCase();
+  const nameIt = (item?.nameIt || '').trim().toLowerCase();
+
+  for (const cat of menuData) {
+    for (const m of cat.items) {
+      if (pid && m.id.toLowerCase() === pid) return m.image;
+      if (name && m.name.toLowerCase() === name) return m.image;
+      if (nameIt && (m.nameIt?.toLowerCase() === nameIt || m.name_it?.toLowerCase() === nameIt)) return m.image;
+    }
+  }
+  return '';
+};
+
 const labels = {
   IT: {
     title: 'Il Tuo Carrello',
@@ -685,7 +703,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                         {/* Compact 4:3 Photo with Living Breathing Zoom */}
                         <div className="w-20 sm:w-24 aspect-[4/3] rounded-lg overflow-hidden flex-shrink-0 border border-stone-200/90 bg-stone-100 shadow-2xs relative">
                           <img
-                            src={withCacheBust(item.image)}
+                            src={withCacheBust(resolveDishImage(item) || item.image)}
                             alt={getTranslatedName(item)}
                             className="w-full h-full object-cover select-none main-dish-zoom"
                           />
