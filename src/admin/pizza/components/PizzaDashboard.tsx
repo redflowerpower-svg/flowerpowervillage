@@ -3,6 +3,7 @@ import { usePizzaAdminStore, sanitizePizzaOrder } from '../store/usePizzaAdminSt
 import { PizzaOrderHistoryModal } from './PizzaOrderHistoryModal';
 import { PizzeriaSettingsSection } from './PizzeriaSettingsSection';
 import { WineCardStudio } from './WineCardStudio';
+import { DishCardStudio } from './DishCardStudio';
 import { PizzaNewsletterSection } from './PizzaNewsletterSection';
 import { PizzaPromoCodesSection } from './PizzaPromoCodesSection';
 import { PizzaTableReservationsSection } from './PizzaTableReservationsSection';
@@ -48,7 +49,9 @@ import {
   Ticket,
   Film,
   PauseCircle,
-  Moon
+  Moon,
+  Edit3,
+  Star
 } from 'lucide-react';
 
 const parseAddressAndCoords = (addressStr: string) => {
@@ -145,12 +148,14 @@ export function PizzaDashboard() {
     menuError,
     fetchMenuItems,
     toggleItemAvailability,
+    toggleDailySpecial,
     updateItemPrice,
     filterMenuCategory,
     setFilterMenuCategory
   } = usePizzaAdminStore();
 
-  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'tables' | 'menu' | 'wine_studio' | 'newsletter' | 'promos' | 'storyboard' | 'settings'>('orders');
+  const [activeMainTab, setActiveMainTab] = useState<'orders' | 'tables' | 'menu' | 'dish_studio' | 'wine_studio' | 'newsletter' | 'promos' | 'storyboard' | 'settings'>('orders');
+  const [selectedDishForStudio, setSelectedDishForStudio] = useState<string | null>(null);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [serviceStatus, setServiceStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
@@ -213,7 +218,13 @@ export function PizzaDashboard() {
   // Filter menu items by category & search
   const filteredMenuItems = (menuItems || []).filter(item => {
     if (!item) return false;
-    const matchesCategory = filterMenuCategory === 'All' ? true : item.category === filterMenuCategory;
+    const isSpecial = item.is_daily_special === true || (item.category === 'daily-specials' && item.is_daily_special !== false);
+    const matchesCategory = filterMenuCategory === 'All' 
+      ? true 
+      : filterMenuCategory === 'daily-specials'
+        ? isSpecial
+        : (item.category === filterMenuCategory || (item as any).nativeCategory === filterMenuCategory);
+
     const searchLower = menuSearchQuery.toLowerCase();
     const matchesSearch = !menuSearchQuery ||
       (item.name && item.name.toLowerCase().includes(searchLower)) ||
@@ -324,119 +335,132 @@ export function PizzaDashboard() {
       </div>
 
       {/* Main Tab Switcher */}
-      <div className="flex items-center gap-2 bg-stone-900 p-1.5 rounded-2xl border border-stone-800">
+      <div className="flex items-center gap-2 bg-stone-900 p-1.5 rounded-2xl border border-stone-800 flex-wrap">
         <button
           onClick={() => setActiveMainTab('orders')}
-          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             activeMainTab === 'orders'
               ? 'bg-red-700 text-white shadow-lg'
               : 'text-stone-400 hover:text-white hover:bg-stone-800'
           }`}
         >
           <PackageCheck className="w-4 h-4" />
-          <span>📦 Ordini Live & Tracking ({orders.length})</span>
+          <span>Ordini Live ({orders.length})</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveMainTab('tables')}
-          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             activeMainTab === 'tables'
               ? 'bg-red-700 text-white shadow-lg'
               : 'text-stone-400 hover:text-white hover:bg-stone-800'
           }`}
         >
           <Calendar className="w-4 h-4" />
-          <span>📅 Prenotazioni Tavoli</span>
+          <span>Prenotazioni Tavoli</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveMainTab('menu')}
-          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             activeMainTab === 'menu'
               ? 'bg-red-700 text-white shadow-lg'
               : 'text-stone-400 hover:text-white hover:bg-stone-800'
           }`}
         >
           <UtensilsCrossed className="w-4 h-4" />
-          <span>📋 Gestione Menu & Prezzi ({menuItems.length})</span>
+          <span>Menu & Prezzi ({menuItems.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveMainTab('dish_studio')}
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+            activeMainTab === 'dish_studio'
+              ? 'bg-red-700 text-white shadow-lg'
+              : 'text-stone-400 hover:text-white hover:bg-stone-800'
+          }`}
+        >
+          <UtensilsCrossed className="w-4 h-4 text-red-400" />
+          <span>Dish & Pizza Studio</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveMainTab('wine_studio')}
-          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             activeMainTab === 'wine_studio'
               ? 'bg-amber-600 text-white shadow-lg'
               : 'text-stone-400 hover:text-white hover:bg-stone-800'
           }`}
         >
           <Wine className="w-4 h-4" />
-          <span>🍷 Wine Card Studio</span>
+          <span>Wine Card Studio</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveMainTab('newsletter')}
-          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             activeMainTab === 'newsletter'
               ? 'bg-red-700 text-white shadow-lg'
               : 'text-stone-400 hover:text-white hover:bg-stone-800'
           }`}
         >
           <Mail className="w-4 h-4" />
-          <span>📧 Marketing & Newsletter</span>
+          <span>Marketing & Newsletter</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveMainTab('promos')}
-          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             activeMainTab === 'promos'
               ? 'bg-red-700 text-white shadow-lg'
               : 'text-stone-400 hover:text-white hover:bg-stone-800'
           }`}
         >
           <Ticket className="w-4 h-4" />
-          <span>🎟️ Codici Sconto</span>
+          <span>Codici Sconto</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveMainTab('storyboard')}
-          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             activeMainTab === 'storyboard'
               ? 'bg-gradient-to-r from-rose-600 to-[#8B1E1E] text-white shadow-lg ring-1 ring-rose-400/30'
               : 'text-stone-400 hover:text-white hover:bg-stone-800'
           }`}
         >
           <Film className="w-4 h-4 text-rose-400" />
-          <span>🎬 Storyboard Studio (9:16)</span>
+          <span>Storyboard Studio (9:16)</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveMainTab('settings')}
-          className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
             activeMainTab === 'settings'
               ? 'bg-red-700 text-white shadow-lg'
               : 'text-stone-400 hover:text-white hover:bg-stone-800'
           }`}
         >
           <Settings className="w-4 h-4" />
-          <span>⚙️ Impostazioni</span>
+          <span>Impostazioni</span>
         </button>
 
         <a
           href="/kitchen"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-500/40 ml-auto shadow-sm"
+          className="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 bg-emerald-600/20 text-emerald-300 hover:bg-emerald-600 hover:text-white border border-emerald-500/40 ml-auto shadow-sm"
           title="Apri visualizzazione speciale KDS per Tablet Samsung Galaxy Tab o cellulare in orizzontale"
         >
           <Tablet className="w-4 h-4 text-emerald-400" />
-          <span>📱 Schermo Tablet Cucina (KDS)</span>
+          <span>Schermo Tablet Cucina (KDS)</span>
         </a>
       </div>
 
@@ -653,13 +677,17 @@ export function PizzaDashboard() {
             <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
               {[
                 { id: 'All', label: 'Tutti i Piatti' },
-                { id: 'traditional-italian-pizza', label: '🍕 Pizze' },
-                { id: 'pasta', label: '🍝 Pasta' },
-                { id: 'italian-salads', label: '🥗 Insalate' },
-                { id: 'pizza-sandwich', label: '🥪 Sandwich' },
-                { id: 'french-fries', label: '🍟 Patatine' },
-                { id: 'desserts', label: '🍰 Dolci' },
-                { id: 'soft-drinks', label: '🍺 Birre & Bibite' }
+                { id: 'daily-specials', label: 'Specialità del Giorno' },
+                { id: 'traditional-italian-pizza', label: 'Pizze' },
+                { id: 'pasta', label: 'Pasta & Lasagne' },
+                { id: 'italian-salads', label: 'Insalate' },
+                { id: 'snacks-and-fries', label: 'Snack & Fritti' },
+                { id: 'breakfast-and-snacks', label: 'Colazioni & Toast' },
+                { id: 'desserts', label: 'Dolci & Dessert' },
+                { id: 'coffee-shop', label: 'Caffetteria & Tè' },
+                { id: 'fruit-drinks', label: 'Fruit Drinks' },
+                { id: 'soft-drinks', label: 'Bibite & Acqua' },
+                { id: 'beers', label: 'Birre in Bottiglia' }
               ].map((cat) => (
                 <button
                   key={cat.id}
@@ -805,6 +833,38 @@ export function PizzaDashboard() {
                           <ToggleLeft className="w-5 h-5 text-red-400" />
                         )}
                       </button>
+
+                      {/* Specialità del Giorno Toggle Switch */}
+                      <button
+                        type="button"
+                        onClick={() => toggleDailySpecial(item.id, item.is_daily_special)}
+                        className={`w-full py-2 px-3 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-between transition-all cursor-pointer border ${
+                          item.is_daily_special
+                            ? 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-400/40 shadow-xs'
+                            : 'bg-stone-950 hover:bg-stone-850 text-stone-400 border-stone-800'
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <Star className={`w-3.5 h-3.5 ${item.is_daily_special ? 'fill-amber-400 text-amber-400' : 'text-stone-600'}`} />
+                          <span>{item.is_daily_special ? 'Vetrina Piatti del Giorno' : 'Solo Categoria Madre'}</span>
+                        </span>
+                        <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full ${item.is_daily_special ? 'bg-amber-400 text-stone-950 font-black' : 'bg-stone-850 text-stone-400'}`}>
+                          {item.is_daily_special ? 'In Vetrina' : 'Non in Vetrina'}
+                        </span>
+                      </button>
+
+                      {/* Full Card Editor Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedDishForStudio(item.id);
+                          setActiveMainTab('dish_studio');
+                        }}
+                        className="w-full py-2 px-3 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 bg-stone-950 hover:bg-stone-850 text-amber-300 hover:text-amber-200 border border-stone-800 hover:border-amber-500/40 transition-all cursor-pointer shadow-sm active:scale-98"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Modifica Scheda Completa</span>
+                      </button>
                     </div>
 
                   </div>
@@ -815,7 +875,15 @@ export function PizzaDashboard() {
         </div>
       )}
 
-      {/* TAB 3: WINE CARD STUDIO */}
+      {/* TAB 3: DISH & PIZZA CARD STUDIO */}
+      {activeMainTab === 'dish_studio' && (
+        <DishCardStudio 
+          initialDishId={selectedDishForStudio}
+          onClearInitialDish={() => setSelectedDishForStudio(null)}
+        />
+      )}
+
+      {/* TAB 4: WINE CARD STUDIO */}
       {activeMainTab === 'wine_studio' && (
         <WineCardStudio />
       )}

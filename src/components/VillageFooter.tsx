@@ -142,6 +142,17 @@ export default function VillageFooter({ onNavigate, lang = 'IT' }: Props) {
                 🔒 {lang === 'IT' ? 'Area Privata' : lang === 'EN' ? 'Staff Portal' : lang === 'TH' ? 'พื้นที่เจ้าหน้าที่' : 'Mitarbeiterbereich'}
               </a>
             </li>
+            <li>
+              <a
+                href="/dining"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-stone-400 hover:text-amber-400 transition-colors uppercase text-xs font-bold tracking-wider text-left border-0 cursor-pointer inline-flex items-center gap-1 mt-0.5"
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, sans-serif' }}
+              >
+                📱 {lang === 'IT' ? 'Dining Tablet (-5%)' : lang === 'EN' ? 'Dining Tablet (-5%)' : lang === 'TH' ? 'แท็บเล็ตสั่งที่โต๊ะ (-5%)' : 'Dining Tablet (-5%)'}
+              </a>
+            </li>
           </ul>
         </div>
 

@@ -14,12 +14,17 @@ export interface PizzaMenuItem {
   id: string;
   name: string;
   nameTh?: string;
+  nameIt?: string;
+  nameDe?: string;
   category: string;
+  nativeCategory?: string;
   price: number;
   is_available: boolean;
+  is_daily_special?: boolean;
   image?: string;
   description?: string;
   variants?: any[];
+  extras?: any[];
 }
 
 interface PizzaAdminState {
@@ -46,7 +51,9 @@ interface PizzaAdminState {
   // Menu Catalog Actions
   fetchMenuItems: () => Promise<void>;
   toggleItemAvailability: (id: string, currentStatus: boolean) => Promise<void>;
+  toggleDailySpecial: (id: string, currentStatus?: boolean) => Promise<void>;
   updateItemPrice: (id: string, newPrice: number) => Promise<void>;
+  upsertMenuItem: (item: any) => Promise<void>;
   setFilterMenuCategory: (category: string) => void;
 
   // Promo Codes / Coupon Actions
@@ -249,6 +256,14 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
   fetchMenuItems: async () => {
     set({ menuLoading: true, menuError: null });
     try {
+      const storedOverrides = (() => {
+        try {
+          return JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
+        } catch {
+          return {};
+        }
+      })();
+
       const { data, error } = await supabase
         .from('pizza_menu_items')
         .select('*')
@@ -264,27 +279,75 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
           ...item,
           name: typeof item.name === 'string' ? item.name : (item.name?.name || item.name?.nameIt || item.name?.sku || 'Prodotto'),
           nameTh: typeof item.nameTh === 'string' ? item.nameTh : (item.nameTh?.nameTh || ''),
-          description: typeof item.description === 'string' ? item.description : (item.description?.it || item.description?.description_it || '')
+          description: typeof item.description === 'string' ? item.description : (item.description?.it || item.description?.description_it || ''),
+          is_daily_special: item.is_daily_special !== undefined && item.is_daily_special !== null ? item.is_daily_special : storedOverrides[item.id]
         }));
         set({ menuItems: sanitizedData, menuLoading: false });
       } else {
         // Build initial items catalog from menuData
+        const dailyCat = menuData.find(c => c.id === 'daily-specials');
+        const dailySpecialItemIds = new Set(dailyCat ? dailyCat.items.map(i => i.id) : []);
+
         const defaultItems: PizzaMenuItem[] = [];
+        const seenIds = new Set<string>();
+
+        // First pass: add items from native categories
         menuData.forEach((cat) => {
+          if (cat.id === 'daily-specials') return;
           cat.items.forEach((item: any) => {
+            if (seenIds.has(item.id)) return;
+            seenIds.add(item.id);
+            const isSpecial = storedOverrides[item.id] !== undefined
+              ? !!storedOverrides[item.id]
+              : dailySpecialItemIds.has(item.id);
+
             defaultItems.push({
               id: item.id,
               name: typeof item.name === 'string' ? item.name : (item.name?.name || item.name?.nameIt || item.name?.sku || 'Prodotto'),
               nameTh: item.nameTh,
+              nameIt: item.nameIt,
+              nameDe: item.nameDe,
               category: cat.id,
+              nativeCategory: cat.id,
               price: item.price,
               is_available: true,
+              is_daily_special: isSpecial,
               image: item.image,
               description: typeof item.description === 'string' ? item.description : (item.description_it || item.description?.it || ''),
-              variants: item.variants
+              variants: item.variants,
+              extras: item.extras
             });
           });
         });
+
+        // Second pass: add any items that only exist in daily-specials
+        if (dailyCat) {
+          dailyCat.items.forEach((item: any) => {
+            if (seenIds.has(item.id)) return;
+            seenIds.add(item.id);
+            const isSpecial = storedOverrides[item.id] !== undefined
+              ? !!storedOverrides[item.id]
+              : true;
+
+            defaultItems.push({
+              id: item.id,
+              name: typeof item.name === 'string' ? item.name : (item.name?.name || item.name?.nameIt || item.name?.sku || 'Prodotto'),
+              nameTh: item.nameTh,
+              nameIt: item.nameIt,
+              nameDe: item.nameDe,
+              category: 'daily-specials',
+              nativeCategory: 'daily-specials',
+              price: item.price,
+              is_available: true,
+              is_daily_special: isSpecial,
+              image: item.image,
+              description: typeof item.description === 'string' ? item.description : (item.description_it || item.description?.it || ''),
+              variants: item.variants,
+              extras: item.extras
+            });
+          });
+        }
+
         set({ menuItems: defaultItems, menuLoading: false });
       }
     } catch (err: any) {
@@ -325,6 +388,48 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
     }
   },
 
+  toggleDailySpecial: async (id: string, currentStatus?: boolean) => {
+    const nextStatus = !currentStatus;
+    set((state) => ({
+      menuItems: state.menuItems.map((item) =>
+        item.id === id ? { ...item, is_daily_special: nextStatus } : item
+      )
+    }));
+
+    try {
+      const stored = JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
+      stored[id] = nextStatus;
+      localStorage.setItem('fp_pizza_daily_specials_overrides', JSON.stringify(stored));
+      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+        new BroadcastChannel('fp_pizza_menu_sync').postMessage({ type: 'DAILY_SPECIAL_TOGGLE', id, isDailySpecial: nextStatus });
+      }
+    } catch {}
+
+    try {
+      const item = get().menuItems.find((i) => i.id === id);
+      if (!item) return;
+
+      const { error } = await supabase
+        .from('pizza_menu_items')
+        .upsert({
+          id: item.id,
+          name: item.name,
+          category: item.category,
+          price: item.price,
+          is_available: item.is_available,
+          is_daily_special: nextStatus,
+          image: item.image,
+          description: item.description
+        }, { onConflict: 'id' });
+
+      if (error && error.code !== '42P01') {
+        console.warn('[usePizzaAdminStore] toggleDailySpecial notice:', error.message);
+      }
+    } catch (e) {
+      console.error('[usePizzaAdminStore] toggleDailySpecial error:', e);
+    }
+  },
+
   updateItemPrice: async (id: string, newPrice: number) => {
     const safePrice = Math.max(0, isNaN(newPrice) ? 0 : newPrice);
     set((state) => ({
@@ -354,6 +459,48 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       }
     } catch (e) {
       console.error('[usePizzaAdminStore] updateItemPrice error:', e);
+    }
+  },
+
+  upsertMenuItem: async (newItem: any) => {
+    set((state) => {
+      const exists = state.menuItems.some((i) => i.id === newItem.id);
+      if (exists) {
+        return {
+          menuItems: state.menuItems.map((i) => (i.id === newItem.id ? { ...i, ...newItem } : i))
+        };
+      }
+      return {
+        menuItems: [newItem, ...state.menuItems]
+      };
+    });
+
+    try {
+      const { error } = await supabase
+        .from('pizza_menu_items')
+        .upsert({
+          id: newItem.id,
+          name: typeof newItem.name === 'string' ? newItem.name : newItem.name?.name || 'Prodotto',
+          name_it: newItem.nameIt || newItem.name_it || (typeof newItem.name === 'string' ? newItem.name : ''),
+          name_th: newItem.nameTh || newItem.name_th || '',
+          name_de: newItem.nameDe || newItem.name_de || '',
+          category: newItem.category,
+          price: Number(newItem.price) || 0,
+          is_available: newItem.is_available !== false,
+          image: newItem.image,
+          description: typeof newItem.description === 'string' ? newItem.description : '',
+          description_it: newItem.descriptionIt || newItem.description_it || '',
+          description_th: newItem.descriptionTh || newItem.description_th || '',
+          description_de: newItem.descriptionDe || newItem.description_de || '',
+          variants: newItem.variants,
+          extras: newItem.extras
+        }, { onConflict: 'id' });
+
+      if (error && error.code !== '42P01') {
+        console.warn('[usePizzaAdminStore] upsertMenuItem notice:', error.message);
+      }
+    } catch (e) {
+      console.error('[usePizzaAdminStore] upsertMenuItem error:', e);
     }
   },
 

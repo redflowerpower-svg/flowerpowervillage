@@ -70,6 +70,15 @@ To ensure the application is optimized for web agents (including Antigravity, se
   - ` & ` (in tutte le lingue, specialmente per le patatine fritte)
   - ` WITH ` (in inglese)
   - ` พร้อม` (in tailandese)
+- **Ereditarietà Automatica Personalizzazioni di Categoria (Extras)**: Quando una nuova scheda prodotto viene creata o assegnata a una categoria (es. Pizza Tradizionale, Pasta, Focaccia Sandwich, Dolci, Snack), essa DEVE ereditare automaticamente tutte le personalizzazioni e opzioni extra identiche a quelle standard della categoria di appartenenza (es. Pizza Extras, Pasta Extras, salse e ingredienti aggiuntivi). Questo garantisce coerenza e uniformità totale tra tutti i piatti del catalogo.
+
+# 🖋️ REGOLA D'ORO TIPOGRAFIA, ESTETICA DELLA SCRITTURA & TONO EDITORIALE (SCHELETRO DEL SISTEMA)
+Tutti i testi dell'applicazione, descrizioni, titoli, etichette, banner, modali e pulsanti devono rispettare un'estetica visiva e una cura tipografica/giornalistica di altissimo livello:
+1. **Due Punti (`:`) & A Capo Strutturato**: Quando un'etichetta o introduzione contiene i due punti (`:`), il valore o la descrizione successiva deve essere gestita con a capo pulito o separazione strutturata, evitando che il testo si spezzi in posizioni sgraziate.
+2. **Parentesi & Specifiche Protette (`(...)`)**: Le parentesi (es. percentuali `(10%)`, città `(Ranong)`, prezzi `(+30฿)`, note) non devono MAI trovarsi orfane o spezzate da sole all'inizio della riga successiva. Devono essere protette con `whitespace-nowrap`, `&nbsp;` o mandate a capo insieme alla loro locuzione logica.
+3. **Zero Orfani / Vedove Tipografiche**: I titoli e i testi in evidenza devono utilizzare bilanciamento del testo (`text-balance` / `text-pretty` o interruzioni mirate) per non lasciare mai una singola parola isolata a fine riga.
+4. **Tono Giornalistico ed Esperienziale di Prestigio**: Il registro comunicativo deve essere fluido, coinvolgente, autorevole e curato nei minimi dettagli stilistici in tutte le 4 lingue (`IT`, `EN`, `TH`, `DE`).
+
 
 
 # 🌐 REGOLA IMPRESCINDIBILE TRADUZIONI (DEEPSEEK AI NATIVO)
@@ -86,6 +95,18 @@ All'interno di TUTTO il sito web (sia nel reparto Pizzeria / Delivery `/pizze` c
    - Il controllo anti-abuso reale (3 fattori: Telefono, Email, Device ID + GPS Haversine 50m con eccezione Hotel/Resort) viene applicato **SOLO ED ESCLUSIVAMENTE** quando si naviga sul dominio ufficiale di produzione (`www.flowerpowerpizza.com`) attivato via `MARKDOWN-WEBSITE`.
 3. **BANNER ANTEPRIMA / ISPEZIONE GATEWAY (`previewNotice`)**:
    - Gli avvisi di cantiere, conformità payment gateway e sandbox compaiono **SOLO sul dominio ufficiale di produzione**, MAI in locale o nel virtuale.
+
+# 📱 REGOLA D'ORO DINING TABLET AL TAVOLO (`/dining`, `/dining-tablet`, `/tavoli`)
+La modalità **Dining Tablet** è il modulo dedicato all'ordinazione autonoma direttamente al tavolo del ristorante:
+1. **Sconto Fisso al Tavolo (-5%)**: Tutti i prodotti mostrano il prezzo normale barrato (`<del>price ฿</del>`) e il prezzo scontato del 5% in evidenza con badge verde `-5% SCONTO TAVOLO`. Nessun limite o soglia minima d'ordine. Lo sconto del 10% del primo ordine delivery NON compare mai nel tablet.
+2. **Vini & Birre 100% Sbloccati**: Tutte le schede dei vini italiani ed esteri (sincronizzati da Supabase Cloud) e delle birre sono visibili e ordinabili al tavolo con filtri enoteca e calici/bottiglie.
+3. **Carrello Drawer & Linguetta Flottante Laterale Destra (Zero Barre in Basso)**: Nel tablet l'accesso al carrello avviene **esclusivamente tramite la linguetta flottante destra (Edge-Hugger)** identica al sito ufficiale, eliminando completamente la barra flottante in basso per non ostacolare la visuale e lo scorrimento dei prodotti. Stesso `CartDrawer` completo con pairing consigliati e breakdown del 5% di sconto.
+4. **Scelta Pagamento al Tavolo (3 Metodi)**:
+   - 📱 **PromptPay K-Shop Kasikorn Bank (0% Commissioni)** con QR Code zoomabile tap-to-zoom.
+   - 💳 **Carta di Credito / Bancomat (POS Portatile al Tavolo)** portato dal personale.
+   - 💵 **Contanti al Tavolo (Cash)** pagati al cameriere.
+5. **Sicurezza Accesso & Lead Gen**: Protetto all'avvio da login PIN/credenziali staff/admin (`DiningAdminAuth`). Raccoglie Nome/Tel/Email del cliente rilasciando un **Coupon Sconto del 10%** utilizzabile per futuri ordini da casa su `flowerpowerpizza.com`.
+6. **Zero Modali di Prenotazione Tavolo nel Carrello**: Nel `CartDrawer` del tablet la sezione *"Esperienza al Ristorante / Desideri scoprire i nostri vini italiani?"* e la relativa modale di prenotazione tavolo sono **tassativamente nascoste**, poiché il cliente è già seduto al ristorante e sta già usufruendo del servizio.
 
 # Vault-Sync & Multi-Workstation Protocol (Koh Phayam <-> Ranong)
 
@@ -115,7 +136,7 @@ Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un
 1. **Analisi Modifiche**: Ispeziona i file modificati nella sessione corrente (`git status`).
 2. **Aggiornamento FISICO Documentazione Tecnica & Allineamento Istruzioni**:
    - L'agente DEVE TASSATIVAMENTE usare i tool del file system (edit_file / write_file) per SOVRASCRIVERE FISICAMENTE i file sul disco. È severamente vietato allucinare l'aggiornamento o stampare il contenuto dei report solo nella chat.
-   - Apri e scrivi materialmente i file interessati dalle modifiche all'interno di `/documentation_reports/`: `architettura_core.md`, `modulo_pizza_delivery.md`, `modulo_village.md`, `integrazione_telegram.md`, `schema_database.md`, `motore_prezzi_sconti.md`.
+   - Apri e scrivi materialmente i file interessati dalle modifiche all'interno di `/documentation_reports/`: `architettura_core.md`, `modulo_pizza_delivery.md`, `modulo_dining_tablet.md`, `modulo_village.md`, `integrazione_telegram.md`, `schema_database.md`, `motore_prezzi_sconti.md`.
    - L'agente DEVE usare il tool del terminale per eseguire fisicamente le copie di sicurezza:
      `cp .agents/AGENTS.md documentation_reports/AGENTS.md`
      `cp .agentinstructions documentation_reports/agentinstructions.txt`
@@ -124,7 +145,7 @@ Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un
 4. **Automazione Git (Commit & Push Automatico)**:
    Esegui automaticamente in autonomia la sequenza di salvataggio finale su GitHub (branch `main`):
    - `git add .`
-   - Analizza le modifiche della sessione e genera un messaggio di commit sintetico e descrittivo (es. `"Update Octorate Tree component"` o `"Fix API webhook"`).
+   - Analizza le modifiche della sessione e genera un messaggio di commit sintetico e descrittivo (es. `"Update Dining Tablet and Octorate Tree component"` o `"Fix API webhook"`).
    - `git commit -m "<messaggio_generato_da_te>"`
    - `git push`
 5. **Notifica di Allineamento Notebook**: Al termine della procedura, l'agente DEVE stampare in chat una notifica visivamente evidente elencando ESATTAMENTE quali file (e solo quelli) all'interno della cartella `/documentation_reports/` sono stati modificati o sovrascritti in questa specifica sessione. Il formato richiesto è:
@@ -149,6 +170,27 @@ Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WEBSITE`**:
    - Esegue `npx tsc --noEmit` per garantire zero errori di compilazione TypeScript.
 4. **Report di Rilascio Produzione**:
    - Notifica di avvenuta pubblicazione e riepilogo dello stato dei domini ufficiali.
+
+### 4. `MARKDOWN-ALL` (All-in-One Global Release & Sync)
+Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-ALL`** (oppure `MARKDOWN ALL`):
+Esegue in un'unica sequenza automatica e ininterrotta l'allineamento globale e totale dell'intero ecosistema:
+1. **Allineamento Documentale Fisico (`MARKDOWN-PROJECT`)**:
+   - Ispezione delle modifiche con `git status`.
+   - Aggiornamento fisico e riscrittura su disco dei report in `/documentation_reports/`.
+   - Copie di sicurezza automatiche: `cp .agents/AGENTS.md documentation_reports/AGENTS.md` e `cp .agentinstructions documentation_reports/agentinstructions.txt`.
+   - Cifratura cassaforte API: `node scratch/vault-sync.mjs encrypt`.
+2. **Verifica di Conformità & Build Produzione (`MARKDOWN-WEBSITE`)**:
+   - Convalida zero errori TypeScript (`npx tsc --noEmit`).
+   - Verifica di sicurezza zero secret leak (`node scratch/security-audit.mjs`).
+   - Convalida conformità payment gateway per `www.flowerpowerpizza.com` e booking engine per `www.flowerpowervillage.com`.
+3. **Automazione Git & Deploy Live**:
+   - `git add .`
+   - Generazione messaggio di commit esaustivo e descrittivo.
+   - `git commit -m "..."` e `git push origin main` per il deploy automatico live su Vercel.
+4. **Report Handoff a 5 Punti & Notifica Notebook**:
+   - Stampa della notifica visiva con l'elenco dei file aggiornati da caricare in Gemini Notebook.
+   - Emissione del report riassuntivo a 5 punti.
+
 
 # Protocollo di Compressione e Frazionamento dei Report (Gemini-Friendly)
 Per evitare che i report generati per l'utente superino i limiti di input di Gemini Notebook (impedendo l'invio del messaggio), l'agente DEVE seguire rigorosamente queste regole di formattazione:

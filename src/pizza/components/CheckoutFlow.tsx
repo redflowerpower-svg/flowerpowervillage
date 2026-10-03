@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useCartStore } from '../store/cartStore';
 import { useLocationStore, RESTAURANT_LAT, RESTAURANT_LNG } from '../store/locationStore';
 import { calculateDistance } from '../utils/distance';
@@ -44,12 +44,15 @@ import {
   clearAppliedPizzaPromo
 } from '../services/pizzaPromoService';
 
+import { useLanguageStore } from '../store/languageStore';
+import { Language } from '../config/languages';
+
 type SubmitPhase = 'idle' | 'sending' | 'timeout' | 'rejected';
 
 interface Props {
   onClose: () => void;
   onSuccess: () => void;
-  lang: 'IT' | 'EN' | 'TH' | 'DE';
+  lang?: Language;
 }
 
 const QR_FALLBACK_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/receipts/qr_promptpay.jpg`;
@@ -57,7 +60,13 @@ const QR_URL = QR_FALLBACK_URL;
 
 const translations = {
   IT: {
-    step1Title: 'I Tuoi Dati',
+    step1Title: 'I Tuoi Dati & Servizio',
+    fulfillmentDelivery: 'Consegna a Domicilio',
+    fulfillmentTakeaway: 'Ritiro al Locale (Takeaway)',
+    pickupLocationTitle: 'Ritiro presso il Ristorante',
+    pickupLocationAddress: 'Flower Power Pizza – Ranong Hot Springs, Bang Rin',
+    pickupLocationHours: '⏰ Orario Ritiro: 11:00 – 21:30 (Aperto)',
+    pickupNotesPlaceholder: 'Note per il ritiro (es. orario desiderato, richieste...)',
     namePlaceholder: 'Nome',
     phonePlaceholder: 'Telefono',
     emailPlaceholder: 'Email per ricevuta e tracking',
@@ -73,6 +82,7 @@ const translations = {
     optPromptPay: 'PromptPay QR (Omise)',
     optCard: 'Carta (Visa/MC)',
     optCash: 'Contanti alla consegna',
+    optCashTakeaway: 'Contanti al ritiro in cassa',
     cardHolderLabel: 'Titolare della Carta',
     cardNumberLabel: 'Numero Carta (16 cifre)',
     cardExpLabel: 'Scadenza (MM/AA)',
@@ -107,11 +117,20 @@ const translations = {
     retryBtn: 'Riprova l\'invio dell\'ordine',
     emergencyTitle: 'Preferisci contattarci direttamente?',
     trackerPreparing: 'Rimani su questa pagina! Stiamo preparando le tue pizze. Questa schermata si aggiornerà automaticamente non appena il fattorino salirà in motorino.',
+    trackerTakeawayPreparing: "Rimani su questa pagina! Stiamo preparando le tue pizze per l'asporto. Questa schermata si aggiornerà non appena saranno calde e pronte per il ritiro!",
     trackerEstimate: (mins: number) => `Tempo stimato di consegna: ~${mins} minuti`,
     trackerDelivering: 'DELIVERY IN ARRIVO!',
+    trackerTakeawayReady: 'IL TUO ORDINE È PRONTO!',
+    trackerTakeawayReadyDesc: 'Le tue pizze sono state appena sfornate calde! Ti aspettiamo al banco della nostra pizzeria a Ranong Hot Springs per il ritiro.',
   },
   EN: {
-    step1Title: 'Your Information',
+    step1Title: 'Your Information & Service',
+    fulfillmentDelivery: 'Home Delivery',
+    fulfillmentTakeaway: 'Restaurant Pickup (Takeaway)',
+    pickupLocationTitle: 'Pickup at Restaurant',
+    pickupLocationAddress: 'Flower Power Pizza – Ranong Hot Springs, Bang Rin',
+    pickupLocationHours: '⏰ Pickup Hours: 11:00 – 21:30 (Open)',
+    pickupNotesPlaceholder: 'Pickup notes (e.g. estimated arrival, requests...)',
     namePlaceholder: 'Name',
     phonePlaceholder: 'Phone',
     emailPlaceholder: 'Email for receipt & tracking',
@@ -127,6 +146,7 @@ const translations = {
     optPromptPay: 'PromptPay QR (Omise)',
     optCard: 'Card (Visa/MC)',
     optCash: 'Cash on delivery',
+    optCashTakeaway: 'Cash on pickup at counter',
     cardHolderLabel: 'Cardholder Name',
     cardNumberLabel: 'Card Number (16 digits)',
     cardExpLabel: 'Expires (MM/YY)',
@@ -161,11 +181,20 @@ const translations = {
     retryBtn: 'Retry sending the order',
     emergencyTitle: 'Prefer to contact us directly?',
     trackerPreparing: 'Stay on this page! We are preparing your pizzas. This screen will update automatically as soon as the driver gets on the scooter.',
+    trackerTakeawayPreparing: 'Stay on this page! We are preparing your takeaway order. This screen will update as soon as your pizzas are freshly baked and ready for pickup!',
     trackerEstimate: (mins: number) => `Estimated delivery time: ~${mins} minutes`,
     trackerDelivering: 'Delivery is on the way!',
+    trackerTakeawayReady: 'YOUR ORDER IS READY!',
+    trackerTakeawayReadyDesc: 'Your pizzas have just been freshly baked! We are waiting for you at the Flower Power Pizza counter at Ranong Hot Springs.',
   },
   TH: {
-    step1Title: 'ข้อมูลของคุณ',
+    step1Title: 'ข้อมูลและประเภทบริการ',
+    fulfillmentDelivery: 'บริการจัดส่งถึงบ้าน',
+    fulfillmentTakeaway: 'รับที่ร้าน (Takeaway)',
+    pickupLocationTitle: 'รับสินค้าที่ร้านอาหาร',
+    pickupLocationAddress: 'ฟลาวเวอร์ พาวเวอร์ พิซซ่า – บ่อน้ำพุร้อนรักษะวาริน, บางริ้น',
+    pickupLocationHours: '⏰ เวลาเปิดรับสินค้า: 11:00 – 21:30 (เปิดบริการ)',
+    pickupNotesPlaceholder: 'หมายเหตุการรับสินค้า (เช่น มารับในอีก 20 นาที, แจ้งล่วงหน้า...)',
     namePlaceholder: 'ชื่อ',
     phonePlaceholder: 'เบอร์โทรศัพท์',
     emailPlaceholder: 'อีเมลสำหรับรับใบเสร็จและการติดตาม',
@@ -181,6 +210,7 @@ const translations = {
     optPromptPay: 'พร้อมเพย์ QR (Omise)',
     optCard: 'บัตรเครดิต (Visa/MC)',
     optCash: 'เก็บเงินปลายทาง',
+    optCashTakeaway: 'ชำระเงินสดที่เคาน์เตอร์ร้าน',
     cardHolderLabel: 'ชื่อผู้ถือบัตร',
     cardNumberLabel: 'หมายเลขบัตร (16 หลัก)',
     cardExpLabel: 'วันหมดอายุ (ดด/ปป)',
@@ -215,11 +245,20 @@ const translations = {
     retryBtn: 'ลองส่งคำสั่งซื้ออีกครั้ง',
     emergencyTitle: 'ต้องการติดต่อเราโดยตรง?',
     trackerPreparing: 'โปรดเปิดหน้านี้ค้างไว้! เรากำลังเตรียมพิซซ่าของคุณ หน้าจอนี้จะอัปเดตโดยอัตโนมัติทันทีที่พนักงานขับรถมอเตอร์ไซค์ออกเดินทาง',
+    trackerTakeawayPreparing: 'โปรดเปิดหน้านี้ค้างไว้! เรากำลังเตรียมอาหารสำหรับสั่งกลับบ้าน หน้าจอนี้จะอัปเดตทันทีที่พิซซ่าอบเสร็จร้อนๆ พร้อมให้คุณมารับที่ร้าน!',
     trackerEstimate: (mins: number) => `เวลาจัดส่งโดยประมาณ: ~${mins} นาที`,
     trackerDelivering: 'พนักงานจัดส่งออกเดินทางแล้ว! พิซซ่าของคุณกำลังเดินทางไปส่ง',
+    trackerTakeawayReady: 'อาหารของคุณพร้อมแล้ว!',
+    trackerTakeawayReadyDesc: 'พิซซ่าอบร้อนๆ พร้อมให้คุณมารับได้ที่เคาน์เตอร์ ฟลาวเวอร์ พาวเวอร์ พิซซ่า บ่อน้ำพุร้อนรักษะวาริน',
   },
   DE: {
-    step1Title: 'Ihre Daten',
+    step1Title: 'Ihre Daten & Service',
+    fulfillmentDelivery: 'Lieferung nach Hause',
+    fulfillmentTakeaway: 'Selbstabholung (Takeaway)',
+    pickupLocationTitle: 'Abholung im Restaurant',
+    pickupLocationAddress: 'Flower Power Pizza – Ranong Hot Springs, Bang Rin',
+    pickupLocationHours: '⏰ Abholzeiten: 11:00 – 21:30 (Geöffnet)',
+    pickupNotesPlaceholder: 'Abholhinweise (z.B. gewünschte Uhrzeit, Wünsche...)',
     namePlaceholder: 'Name',
     phonePlaceholder: 'Telefon',
     emailPlaceholder: 'E-Mail für Beleg & Tracking',
@@ -235,6 +274,7 @@ const translations = {
     optPromptPay: 'PromptPay QR (Omise)',
     optCard: 'Karte (Visa/MC)',
     optCash: 'Barzahlung bei Lieferung',
+    optCashTakeaway: 'Barzahlung bei Abholung an der Kasse',
     cardHolderLabel: 'Karteninhaber',
     cardNumberLabel: 'Kartennummer (16 Ziffern)',
     cardExpLabel: 'Gültig bis (MM/JJ)',
@@ -269,8 +309,11 @@ const translations = {
     retryBtn: 'Bestellung erneut senden',
     emergencyTitle: 'Möchten Sie uns direkt kontaktieren?',
     trackerPreparing: 'Bleiben Sie auf dieser Seite! Wir bereiten Ihre Pizzen vor. Dieser Bildschirm wird automatisch aktualisiert, sobald sich der Fahrer auf den Roller setzt.',
+    trackerTakeawayPreparing: 'Bleiben Sie auf dieser Seite! Wir bereiten Ihre Bestellung zur Abholung vor. Dieser Bildschirm aktualisiert sich automatisch, sobald Ihre Pizzen heiß und abholbereit sind!',
     trackerEstimate: (mins: number) => `Geschätzte Lieferzeit: ~${mins} Minuten`,
     trackerDelivering: 'Der Fahrer ist losgefahren! Ihre Pizza ist auf dem Weg.',
+    trackerTakeawayReady: 'IHRE BESTELLUNG IST BEREIT!',
+    trackerTakeawayReadyDesc: 'Ihre Pizzen wurden soeben frisch gebacken! Sie können sie an der Theke der Pizzeria bei den Ranong Hot Springs abholen.',
   },
 };
 
@@ -368,7 +411,9 @@ const formatGoogleAddress = (result: google.maps.GeocoderResult, lang: string): 
   return cleaned.trim();
 };
 
-export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
+export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Props) {
+  const storeLang = useLanguageStore((s) => s.lang);
+  const lang = propLang || storeLang || 'IT';
   const { items, getTotal, clearCart } = useCartStore();
   const {
     setConfirmedLocation,
@@ -430,8 +475,9 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
     discountLabel = lang === 'TH' ? 'ส่วนลดสั่งครั้งแรก 10%' : lang === 'IT' ? 'Sconto 1° Ordine 10%' : lang === 'DE' ? '10% Erstbesteller-Rabatt' : '10% 1st Order Discount';
   }
 
+  const [orderType, setOrderType] = useState<'delivery' | 'takeaway'>('delivery');
   const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
-  const deliveryFee = subtotal >= 300 ? 0 : 30; // Delivery fee is calculated on raw subtotal and NEVER discounted
+  const deliveryFee = orderType === 'takeaway' ? 0 : (subtotal >= 300 ? 0 : 30); // Delivery fee is 0 for takeaway, and free for delivery over 300฿
   const finalTotal = subtotalAfterDiscount + deliveryFee;
   const [step, setStep] = useState(1);
   const [name, setName] = useState(() => {
@@ -733,19 +779,22 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
   }, [phone, email, deviceId, markerPos?.lat, markerPos?.lng, name]);
 
   const buildFinalAddress = useCallback(() => {
-    let final = address || 'Nessun indirizzo';
+    let final = orderType === 'takeaway'
+      ? 'RITIRO AL LOCALE (TAKEAWAY) - Flower Power Pizza Ranong Hot Springs'
+      : (address || 'Nessun indirizzo');
     const thAddr = thaiAddress || (lang === 'TH' ? address : '');
-    if (thAddr) final += ` [ADDR_TH: ${thAddr}]`;
-    if (markerPos) final += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
+    if (orderType === 'delivery' && thAddr) final += ` [ADDR_TH: ${thAddr}]`;
+    if (orderType === 'delivery' && markerPos) final += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
     if (email.trim()) final += ` [EMAIL: ${email.trim()}]`;
     if (notes.trim()) final += ` [NOTE: ${notes.trim()}]`;
     if (deviceId) final += ` [DID: ${deviceId}]`;
     if (activePromoCode) final += ` [PROMO: ${activePromoCode}]`;
     if (discountAmount > 0) final += ` [DISCOUNT: ${discountAmount}]`;
     if (isHotelGuest) final += ` [HOTEL: true]`;
+    final += ` [ORDER_TYPE: ${orderType.toUpperCase()}]`;
     final += ` [LANG: ${lang || 'EN'}]`;
     return final;
-  }, [address, thaiAddress, lang, markerPos, email, notes, deviceId, activePromoCode, discountAmount, isHotelGuest]);
+  }, [orderType, address, thaiAddress, lang, markerPos, email, notes, deviceId, activePromoCode, discountAmount, isHotelGuest]);
 
   const outOfRange = distanceKm !== null && !isDeliverable;
   const t = translations[lang];
@@ -1505,6 +1554,34 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   </label>
                 </div>
               </div>
+
+              {/* Order Type Selector: Delivery vs Takeaway */}
+              <div className="grid grid-cols-2 gap-1.5 bg-stone-100 p-1 rounded-2xl border border-stone-200 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setOrderType('delivery')}
+                  className={`py-1.5 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                    orderType === 'delivery'
+                      ? 'bg-white text-[#8B1E1E] shadow-sm border border-stone-200/80 ring-1 ring-[#8B1E1E]/20'
+                      : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  <span>🛵</span>
+                  <span className="truncate">{t.fulfillmentDelivery}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOrderType('takeaway')}
+                  className={`py-1.5 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                    orderType === 'takeaway'
+                      ? 'bg-white text-[#8B1E1E] shadow-sm border border-stone-200/80 ring-1 ring-[#8B1E1E]/20'
+                      : 'text-stone-500 hover:text-stone-800'
+                  }`}
+                >
+                  <span>🛍️</span>
+                  <span className="truncate">{t.fulfillmentTakeaway}</span>
+                </button>
+              </div>
               
               {!isMapExpanded && (
                 <div className="space-y-2 animate-fadeIn">
@@ -1553,7 +1630,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                     )}
                   </div>
 
-                  {/* Delivery Notes between Email and Address */}
+                  {/* Notes: Delivery notes or Pickup notes */}
                   <div>
                     <input
                       id="pizza-delivery-notes"
@@ -1561,7 +1638,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                       type="text"
                       autoComplete="off"
                       className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
-                      placeholder={t.notesPlaceholder}
+                      placeholder={orderType === 'takeaway' ? t.pickupNotesPlaceholder : t.notesPlaceholder}
                       value={notes}
                       onChange={e => setNotes(e.target.value)}
                       maxLength={150}
@@ -1570,181 +1647,211 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                 </div>
               )}
 
-              {/* Address Container: Elegant & No unwanted scrollbars */}
-              {isEditingAddress ? (
-                <div className="relative">
-                  <textarea
-                    ref={addressInputRef}
-                    className="w-full bg-stone-50 border border-[#8B1E1E] p-2.5 pr-9 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs h-14 resize-none leading-relaxed"
-                    placeholder={t.addressPlaceholder}
-                    value={address}
-                    onChange={e => setAddress(e.target.value)}
-                    onBlur={() => {
-                      setIsEditingAddress(false);
-                      if (address.trim()) geocodeAddressText(address);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
+              {/* Address Container: Only for Delivery */}
+              {orderType === 'delivery' && (
+                isEditingAddress ? (
+                  <div className="relative animate-fadeIn">
+                    <textarea
+                      ref={addressInputRef}
+                      className="w-full bg-stone-50 border border-[#8B1E1E] p-2.5 pr-9 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs h-14 resize-none leading-relaxed"
+                      placeholder={t.addressPlaceholder}
+                      value={address}
+                      onChange={e => setAddress(e.target.value)}
+                      onBlur={() => {
                         setIsEditingAddress(false);
                         if (address.trim()) geocodeAddressText(address);
-                      }
-                    }}
-                    readOnly={isReadOnly}
-                    autoComplete="new-password"
-                    name={addressFieldId}
-                    id={addressFieldId}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsEditingAddress(false);
-                      if (address.trim()) geocodeAddressText(address);
-                    }}
-                    className="absolute right-2.5 top-2.5 p-1 text-stone-400 hover:text-[#8B1E1E] cursor-pointer"
-                    title="Cerca sulla mappa"
-                  >
-                    <Search size={15} />
-                  </button>
-                </div>
-              ) : (
-                <div
-                  onClick={() => setIsEditingAddress(true)}
-                  className="w-full bg-stone-50/80 hover:bg-stone-100/60 border border-stone-300 p-2.5 rounded-xl text-stone-800 text-xs min-h-[44px] cursor-pointer select-none flex items-center justify-between group hover:border-stone-400 transition-all shadow-2xs"
-                >
-                  {address ? (
-                    <span className="text-stone-850 break-words w-full leading-snug font-medium text-[11.5px] pr-2 line-clamp-2">{address}</span>
-                  ) : (
-                    <span className="text-stone-400 w-full">{t.addressPlaceholder}</span>
-                  )}
-                  <div className="flex items-center text-stone-400 group-hover:text-[#8B1E1E] flex-shrink-0 transition-colors">
-                    <Pencil size={13} />
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          setIsEditingAddress(false);
+                          if (address.trim()) geocodeAddressText(address);
+                        }
+                      }}
+                      readOnly={isReadOnly}
+                      autoComplete="new-password"
+                      name={addressFieldId}
+                      id={addressFieldId}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEditingAddress(false);
+                        if (address.trim()) geocodeAddressText(address);
+                      }}
+                      className="absolute right-2.5 top-2.5 p-1 text-stone-400 hover:text-[#8B1E1E] cursor-pointer"
+                      title="Cerca sulla mappa"
+                    >
+                      <Search size={15} />
+                    </button>
                   </div>
-                </div>
+                ) : (
+                  <div
+                    onClick={() => setIsEditingAddress(true)}
+                    className="w-full bg-stone-50/80 hover:bg-stone-100/60 border border-stone-300 p-2.5 rounded-xl text-stone-800 text-xs min-h-[44px] cursor-pointer select-none flex items-center justify-between group hover:border-stone-400 transition-all shadow-2xs animate-fadeIn"
+                  >
+                    {address ? (
+                      <span className="text-stone-850 break-words w-full leading-snug font-medium text-[11.5px] pr-2 line-clamp-2">{address}</span>
+                    ) : (
+                      <span className="text-stone-400 w-full">{t.addressPlaceholder}</span>
+                    )}
+                    <div className="flex items-center text-stone-400 group-hover:text-[#8B1E1E] flex-shrink-0 transition-colors">
+                      <Pencil size={13} />
+                    </div>
+                  </div>
+                )
               )}
             </div>
 
-            {/* Middle Section: Generous, Prominent Map filling available height */}
-            <div className="flex-1 flex flex-col min-h-0 space-y-1">
-              <div className="flex items-center justify-between pl-1 pr-1 shrink-0">
-                <p className="text-[9.5px] text-stone-500 font-bold uppercase tracking-wider">{t.mapInstructions}</p>
-                <button
-                  type="button"
-                  onClick={() => setIsMapExpanded(prev => !prev)}
-                  className="text-[9.5px] font-bold text-[#8B1E1E] hover:underline flex items-center gap-1 cursor-pointer select-none"
-                >
-                  {isMapExpanded ? (
-                    <>
-                      <Minimize2 size={12} />
-                      <span>{t.collapseMap}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Maximize2 size={12} />
-                      <span>{t.expandMap}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-              
-              <div className={`relative w-full rounded-2xl border border-stone-300 overflow-hidden bg-stone-100 shadow-inner transition-all duration-300 ${
-                isMapExpanded ? 'h-[360px] shrink-0' : 'flex-1 min-h-[200px]'
-              }`}>
-                <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-                  <Map
-                    defaultCenter={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }}
-                    defaultZoom={15}
-                    disableDefaultUI={true}
-                    gestureHandling="cooperative"
-                    style={{ height: '100%', width: '100%', cursor: 'crosshair' }}
-                    onClick={(e) => {
-                      if (e.detail?.latLng) {
-                        handlePointSelected(e.detail.latLng.lat, e.detail.latLng.lng);
-                      }
-                    }}
+            {/* Middle Section: Map for Delivery vs Restaurant Card for Takeaway */}
+            {orderType === 'delivery' ? (
+              <div className="flex-1 flex flex-col min-h-0 space-y-1 animate-fadeIn">
+                <div className="flex items-center justify-between pl-1 pr-1 shrink-0">
+                  <p className="text-[9.5px] text-stone-500 font-bold uppercase tracking-wider">{t.mapInstructions}</p>
+                  <button
+                    type="button"
+                    onClick={() => setIsMapExpanded(prev => !prev)}
+                    className="text-[9.5px] font-bold text-[#8B1E1E] hover:underline flex items-center gap-1 cursor-pointer select-none"
                   >
-                    <MapController center={markerPos} />
-                    <MapCircle center={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }} radius={maxRadiusKm * 1000} />
-                    
-                    <Marker
-                      position={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG + 0.00005 }}
-                      icon={{
-                        url: '/Flower_Power_Pizza_-_HotSpring.png',
-                        scaledSize: (typeof google !== 'undefined' && google.maps && google.maps.Size) ? new google.maps.Size(34, 34) : undefined
-                      }}
-                    />
-
-                    <Marker
-                      position={{ lat: markerPos.lat, lng: markerPos.lng }}
-                      draggable={true}
-                      onDragEnd={(e) => {
-                        if (e.latLng) {
-                          handlePointSelected(e.latLng.lat(), e.latLng.lng());
+                    {isMapExpanded ? (
+                      <>
+                        <Minimize2 size={12} />
+                        <span>{t.collapseMap}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Maximize2 size={12} />
+                        <span>{t.expandMap}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                
+                <div className={`relative w-full rounded-2xl border border-stone-300 overflow-hidden bg-stone-100 shadow-inner transition-all duration-300 ${
+                  isMapExpanded ? 'h-[360px] shrink-0' : 'flex-1 min-h-[200px]'
+                }`}>
+                  <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+                    <Map
+                      defaultCenter={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }}
+                      defaultZoom={15}
+                      disableDefaultUI={true}
+                      gestureHandling="cooperative"
+                      style={{ height: '100%', width: '100%', cursor: 'crosshair' }}
+                      onClick={(e) => {
+                        if (e.detail?.latLng) {
+                          handlePointSelected(e.detail.latLng.lat, e.detail.latLng.lng);
                         }
                       }}
-                    />
-                  </Map>
-                </APIProvider>
+                    >
+                      <MapController center={markerPos} />
+                      <MapCircle center={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG }} radius={maxRadiusKm * 1000} />
+                      
+                      <Marker
+                        position={{ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG + 0.00005 }}
+                        icon={{
+                          url: '/Flower_Power_Pizza_-_HotSpring.png',
+                          scaledSize: (typeof google !== 'undefined' && google.maps && google.maps.Size) ? new google.maps.Size(34, 34) : undefined
+                        }}
+                      />
 
-                {/* Tap helper pill */}
-                <div className="absolute top-2.5 left-2.5 z-[400] bg-white/95 backdrop-blur-xs text-stone-750 px-2.5 py-1 rounded-lg border border-stone-200/90 shadow-xs text-[9.5px] font-bold flex items-center gap-1.5 pointer-events-none select-none">
-                  <span>👆</span>
-                  <span>{t.tapHint}</span>
+                      <Marker
+                        position={{ lat: markerPos.lat, lng: markerPos.lng }}
+                        draggable={true}
+                        onDragEnd={(e) => {
+                          if (e.latLng) {
+                            handlePointSelected(e.latLng.lat(), e.latLng.lng());
+                          }
+                        }}
+                      />
+                    </Map>
+                  </APIProvider>
+
+                  {/* Tap helper pill */}
+                  <div className="absolute top-2.5 left-2.5 z-[400] bg-white/95 backdrop-blur-xs text-stone-750 px-2.5 py-1 rounded-lg border border-stone-200/90 shadow-xs text-[9.5px] font-bold flex items-center gap-1.5 pointer-events-none select-none">
+                    <span>👆</span>
+                    <span>{t.tapHint}</span>
+                  </div>
+
+                  {/* Expand / Collapse floating button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsMapExpanded(prev => !prev)}
+                    className="absolute top-2.5 right-2.5 z-[400] bg-white hover:bg-stone-50 text-stone-750 p-2 rounded-lg border border-stone-300 shadow-sm flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                    title={isMapExpanded ? t.collapseMap : t.expandMap}
+                  >
+                    {isMapExpanded ? <Minimize2 size={13} className="text-[#8B1E1E]" /> : <Maximize2 size={13} />}
+                  </button>
+
+                  {/* GPS locate button */}
+                  <button
+                    type="button"
+                    onClick={() => detectUserGPS(true)}
+                    className="absolute bottom-2.5 right-2.5 z-[400] bg-white hover:bg-stone-50 text-stone-750 p-2.5 rounded-xl border border-stone-300 shadow-md flex items-center justify-center transition-all cursor-pointer active:scale-95 hover:shadow-lg"
+                    title={t.detectLocBtn}
+                  >
+                    <Navigation size={14} className="text-[#8B1E1E]" />
+                  </button>
                 </div>
-
-                {/* Expand / Collapse floating button */}
-                <button
-                  type="button"
-                  onClick={() => setIsMapExpanded(prev => !prev)}
-                  className="absolute top-2.5 right-2.5 z-[400] bg-white hover:bg-stone-50 text-stone-750 p-2 rounded-lg border border-stone-300 shadow-sm flex items-center justify-center transition-all cursor-pointer active:scale-95"
-                  title={isMapExpanded ? t.collapseMap : t.expandMap}
-                >
-                  {isMapExpanded ? <Minimize2 size={13} className="text-[#8B1E1E]" /> : <Maximize2 size={13} />}
-                </button>
-
-                {/* GPS locate button */}
-                <button
-                  type="button"
-                  onClick={() => detectUserGPS(true)}
-                  className="absolute bottom-2.5 right-2.5 z-[400] bg-white hover:bg-stone-50 text-stone-750 p-2.5 rounded-xl border border-stone-300 shadow-md flex items-center justify-center transition-all cursor-pointer active:scale-95 hover:shadow-lg"
-                  title={t.detectLocBtn}
-                >
-                  <Navigation size={14} className="text-[#8B1E1E]" />
-                </button>
               </div>
-            </div>
+            ) : (
+              /* Takeaway Restaurant Pickup Info Card */
+              <div className="flex-1 flex flex-col justify-center items-center text-center p-4 bg-gradient-to-b from-stone-50 via-amber-50/40 to-stone-50 rounded-2xl border border-stone-200/90 shadow-inner space-y-3 animate-fadeIn my-1">
+                <div className="w-14 h-14 rounded-full bg-red-50 border border-red-200 flex items-center justify-center text-2xl shadow-xs">
+                  🛍️
+                </div>
+                <div className="space-y-1 max-w-xs">
+                  <h3 className="font-black text-stone-900 text-sm tracking-tight" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
+                    {t.pickupLocationTitle}
+                  </h3>
+                  <p className="text-stone-750 text-xs font-semibold leading-snug">
+                    {t.pickupLocationAddress}
+                  </p>
+                  <p className="text-emerald-700 text-[11px] font-bold">
+                    {t.pickupLocationHours}
+                  </p>
+                </div>
+                <div className="bg-white/90 border border-stone-200 rounded-xl px-3 py-2 text-[10.5px] text-stone-600 max-w-xs leading-relaxed shadow-2xs">
+                  {lang === 'IT' && 'Le tue pizze verranno sfornate calde e confezionate in scatole termiche pronte per il tuo arrivo al banco del ristorante.'}
+                  {lang === 'EN' && 'Your pizzas will be baked fresh and packed in thermal boxes ready for your arrival at our restaurant counter.'}
+                  {lang === 'TH' && 'พิซซ่าอบสดใหม่ร้อนๆ พร้อมกล่องเก็บความร้อนเพื่อรอคุณมารับที่เคาน์เตอร์ร้าน'}
+                  {lang === 'DE' && 'Ihre Pizzen werden frisch gebacken und in Wärmeboxen abholbereit an unserer Theke für Sie bereitgestellt.'}
+                </div>
+              </div>
+            )}
 
             {/* Bottom Actions Section: Harmonious & Balanced (No empty gaps) */}
             <div className="space-y-1.5 shrink-0 pt-0.5">
-              {/* Map confirmation button with checkmark (spunta) */}
-              {isLocationConfirmed && distanceKm !== null && isDeliverable ? (
-                <div className="w-full py-2 px-3 text-[10px] tracking-wider uppercase font-black rounded-full bg-emerald-50 border-2 border-emerald-500 text-emerald-800 shadow-sm flex items-center justify-center gap-2">
-                  <Check size={16} className="text-emerald-600 stroke-[3]" />
-                  <span>{t.locConfirmed(distanceKm)}</span>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setConfirmedLocation(markerPos.lat, markerPos.lng);
-                    setIsLocationConfirmed(true);
-                    if (!address) {
-                      fetchReverseGeocoding(markerPos.lat, markerPos.lng);
-                    }
-                  }}
-                  className="w-full py-2 text-[10px] tracking-wider uppercase font-black transition-all rounded-full border border-[#8B1E1E] bg-[#8B1E1E] text-white hover:bg-[#721818] shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-                >
-                  <MapPin size={14} className="text-white fill-white" />
-                  <span>{t.confirmMapLoc}</span>
-                </button>
+              {/* Map confirmation button with checkmark: only for delivery */}
+              {orderType === 'delivery' && (
+                isLocationConfirmed && distanceKm !== null && isDeliverable ? (
+                  <div className="w-full py-2 px-3 text-[10px] tracking-wider uppercase font-black rounded-full bg-emerald-50 border-2 border-emerald-500 text-emerald-800 shadow-sm flex items-center justify-center gap-2">
+                    <Check size={16} className="text-emerald-600 stroke-[3]" />
+                    <span>{t.locConfirmed(distanceKm)}</span>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmedLocation(markerPos.lat, markerPos.lng);
+                      setIsLocationConfirmed(true);
+                      if (!address) {
+                        fetchReverseGeocoding(markerPos.lat, markerPos.lng);
+                      }
+                    }}
+                    className="w-full py-2 text-[10px] tracking-wider uppercase font-black transition-all rounded-full border border-[#8B1E1E] bg-[#8B1E1E] text-white hover:bg-[#721818] shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                  >
+                    <MapPin size={14} className="text-white fill-white" />
+                    <span>{t.confirmMapLoc}</span>
+                  </button>
+                )
               )}
 
-              {/* Location error message */}
-              {locationError && !distanceKm && (
+              {/* Location error message for delivery */}
+              {orderType === 'delivery' && locationError && !distanceKm && (
                 <p className="text-amber-600 text-[9px] text-center font-bold">{locationError}</p>
               )}
 
-              {outOfRange && (
+              {orderType === 'delivery' && outOfRange && (
                 <div className="bg-red-50/50 p-1.5 rounded-xl border border-red-200/60 text-center">
                   <p className="text-[#8B1E1E] text-[9px] leading-relaxed font-bold">
                     {t.outOfRange(distanceKm!, maxRadiusKm)}
@@ -1758,7 +1865,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                 </div>
               )}
 
-              {/* Welcome First Order Promotional Box */}
+              {/* Welcome First Order / Promo Box */}
               {isEligible && discountAmount > 0 && (
                 <div className="bg-gradient-to-r from-emerald-50 via-amber-50 to-emerald-50 border border-emerald-400/50 rounded-xl p-2 flex items-center justify-between shadow-2xs animate-fadeIn">
                   <div className="flex items-center gap-1.5">
@@ -1785,7 +1892,11 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   } catch (_) {}
                   setStep(2);
                 }}
-                disabled={distanceKm === null || outOfRange || !name.trim() || !phone.trim() || !email.trim() || !isValidEmail(email) || !address}
+                disabled={
+                  orderType === 'delivery'
+                    ? (distanceKm === null || outOfRange || !name.trim() || !phone.trim() || !email.trim() || !isValidEmail(email) || !address)
+                    : (!name.trim() || !phone.trim() || !email.trim() || !isValidEmail(email))
+                }
                 className="w-full bg-[#8B1E1E] hover:bg-[#721818] text-white py-2 px-3 rounded-full font-bold transition-all disabled:bg-stone-100 disabled:text-stone-400 disabled:shadow-none shadow-sm hover:shadow-md cursor-pointer duration-200 transform active:scale-95 text-[9px] tracking-wider uppercase flex-shrink-0"
                 style={{ fontFamily: 'Inter, sans-serif' }}
               >
@@ -1843,7 +1954,9 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                   }`}
                 >
                   <Banknote className="w-3.5 h-3.5 text-[#8B1E1E]" />
-                  <span className="font-black text-[9px] uppercase tracking-wider leading-tight">{t.optCash}</span>
+                  <span className="font-black text-[9px] uppercase tracking-wider leading-tight">
+                    {orderType === 'takeaway' ? t.optCashTakeaway : t.optCash}
+                  </span>
                 </button>
               </div>
 
@@ -2183,18 +2296,27 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                 </form>
               )}
 
-              {/* ── METHOD 3: CASH ON DELIVERY ── */}
+              {/* ── METHOD 3: CASH (DELIVERY OR TAKEAWAY COUNTER) ── */}
               {paymentMethod === 'cash' && (
                 <div className="py-4 text-center animate-fadeIn space-y-2">
                   <p className="text-stone-600 text-xs leading-relaxed max-w-xs mx-auto font-medium">
-                    {lang === 'IT' && 'Il pagamento verrà effettuato in contanti al momento della consegna del tuo ordine.'}
-                    {lang === 'EN' && 'Payment will be made in cash upon delivery of your order.'}
-                    {lang === 'TH' && 'ชำระเงินสดกับพนักงานส่งอาหารเมื่อได้รับสินค้า'}
-                    {lang === 'DE' && 'Die Zahlung erfolgt in bar bei Lieferung Ihrer Bestellung.'}
+                    {orderType === 'takeaway' ? (
+                      lang === 'IT' ? 'Il pagamento verrà effettuato in contanti direttamente alla cassa del nostro locale al momento del ritiro.' :
+                      lang === 'EN' ? 'Payment will be made in cash directly at our restaurant counter upon pickup.' :
+                      lang === 'TH' ? 'ชำระเงินสดโดยตรงที่เคาน์เตอร์ร้านเมื่อมารับอาหาร' :
+                      'Die Zahlung erfolgt in bar direkt an der Kasse unseres Restaurants bei der Abholung.'
+                    ) : (
+                      lang === 'IT' ? 'Il pagamento verrà effettuato in contanti al momento della consegna del tuo ordine.' :
+                      lang === 'EN' ? 'Payment will be made in cash upon delivery of your order.' :
+                      lang === 'TH' ? 'ชำระเงินสดกับพนักงานส่งอาหารเมื่อได้รับสินค้า' :
+                      'Die Zahlung erfolgt in bar bei Lieferung Ihrer Bestellung.'
+                    )}
                   </p>
                   <div className="text-center space-y-0.5 shrink-0">
                     <p className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">
-                      {lang === 'TH' ? 'ยอดชำระเงินปลายทาง' : 'Importo da pagare alla consegna'}
+                      {orderType === 'takeaway'
+                        ? (lang === 'TH' ? 'ยอดชำระเงินที่เคาน์เตอร์' : 'Importo da pagare al ritiro')
+                        : (lang === 'TH' ? 'ยอดชำระเงินปลายทาง' : 'Importo da pagare alla consegna')}
                     </p>
                     <div className="flex items-baseline justify-center gap-2">
                       {isEligible && discountAmount > 0 && (
@@ -2215,7 +2337,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
                              `You save ${discountAmount}฿ (10% Discount)`}
                       </p>
                     )}
-                    {deliveryFee > 0 ? (
+                    {orderType === 'takeaway' ? (
+                      <p className="text-[9.5px] font-extrabold text-emerald-600 uppercase tracking-wider">
+                        {lang === 'IT' && 'Ritiro al Locale (0฿ Spedizione)'}
+                        {lang === 'EN' && 'Restaurant Pickup (0฿ Delivery Fee)'}
+                        {lang === 'TH' && 'รับที่ร้าน (ฟรีค่าส่ง 0฿)'}
+                        {lang === 'DE' && 'Selbstabholung (0฿ Versand)'}
+                      </p>
+                    ) : deliveryFee > 0 ? (
                       <p className="text-[8px] text-stone-400 font-medium">
                         (inclusi {deliveryFee} <span style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span> di consegna)
                       </p>
@@ -2390,7 +2519,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
               </h2>
               
               <p className="text-stone-700 text-xs leading-relaxed px-4 mx-auto">
-                Stiamo preparando il tuo ordine con cura, al momento. Resta su questa pagina: ti avviseremo automaticamente non appena il tuo ordine lascerà il nostro ristorante per la consegna.
+                {orderType === 'takeaway' ? t.trackerTakeawayPreparing : t.trackerPreparing}
               </p>
 
               {renderCountdownCircle(1500)}
@@ -2400,16 +2529,18 @@ export default function CheckoutFlow({ onClose, onSuccess, lang }: Props) {
           </div>
         )}
 
-        {/* ── BANNER 5: DELIVERY IN VIAGGIO (MOTORINO PARTITO) ── */}
+        {/* ── BANNER 5: DELIVERY IN VIAGGIO / TAKEAWAY PRONTO AL BANCO ── */}
         {submitPhase === 'idle' && step === 3 && isDeliveringActive && (
           <div className="flex-grow flex flex-col justify-between overflow-hidden mt-4 space-y-4">
             <div className="text-center space-y-4 py-1">
               <h2 className="text-lg font-black text-emerald-600 tracking-tight uppercase" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
-                {t.trackerDelivering}
+                {orderType === 'takeaway' ? t.trackerTakeawayReady : t.trackerDelivering}
               </h2>
               
               <p className="text-stone-700 text-xs leading-relaxed px-4 mx-auto font-semibold">
-                Distanza dalla pizzeria: {(distanceKm || 0).toFixed(1)} km — Tempo stimato di viaggio: ~{travelMins} minuti
+                {orderType === 'takeaway'
+                  ? t.trackerTakeawayReadyDesc
+                  : `Distanza dalla pizzeria: ${(distanceKm || 0).toFixed(1)} km — Tempo stimato di viaggio: ~${travelMins} minuti`}
               </p>
 
               {renderCountdownCircle(travelMins * 60, "#059669")}

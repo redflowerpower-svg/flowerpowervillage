@@ -7,6 +7,7 @@ import AdminMain from './admin/AdminMain';
 import AccommodationDetailPage from './pages/AccommodationDetailPage';
 import DocumentReaderPage from './pages/DocumentReaderPage';
 import { KitchenTabletKDS } from './admin/pizza/components/KitchenTabletKDS';
+import DiningTabletSite from './pizza/pages/DiningTabletSite';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -108,6 +109,10 @@ function App() {
           <Route path="/village/*" element={<VillageSite />} />
           <Route path="/pizza/*" element={<PizzaSite />} />
           <Route path="/admin" element={<AdminMain />} />
+          <Route path="/dining" element={<DiningTabletSite />} />
+          <Route path="/dining-tablet" element={<DiningTabletSite />} />
+          <Route path="/tavoli" element={<DiningTabletSite />} />
+          <Route path="/table" element={<DiningTabletSite />} />
           <Route path="/kitchen" element={<KitchenTabletKDS />} />
           <Route path="/kds" element={<Navigate to="/kitchen" replace />} />
           <Route path="/rooms/:slug" element={<AccommodationDetailPage />} />

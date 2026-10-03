@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { X, Calendar, Clock, Users, UtensilsCrossed, Phone, Sparkles, CheckCircle2, MessageSquare, Home, Sun, Tent, PartyPopper, Mail } from 'lucide-react';
+import { useLanguageStore } from '../store/languageStore';
+import { Language } from '../config/languages';
 
 export type SeatingArea = 'indoor' | 'outdoor' | 'hut';
 
 interface TableReservationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  lang?: 'IT' | 'EN' | 'TH' | 'DE';
+  lang?: Language;
+  initialNotes?: string;
+  isWinePrivilege?: boolean;
 }
 
 const translations = {
@@ -26,8 +30,8 @@ const translations = {
     guestsLabelLine1: 'Numero di',
     guestsLabelLine2: 'Persone',
     areaLabel: 'Scegli Ambiente',
-    areaIndoor: 'Sala interna',
-    areaOutdoor: 'Tavoli esterni',
+    areaIndoor: 'Al chiuso',
+    areaOutdoor: "All'aperto",
     areaHut: 'Capanna',
     notesLabel: 'Note o Richieste Particolari (Opzionale)',
     notesPlaceholder: 'es. Compleanno, festa o preferenze particolari...',
@@ -57,8 +61,8 @@ const translations = {
     guestsLabelLine1: 'Number of',
     guestsLabelLine2: 'Guests',
     areaLabel: 'Choose Seating Area',
-    areaIndoor: 'Indoor Hall',
-    areaOutdoor: 'Outdoor Tables',
+    areaIndoor: 'Indoor',
+    areaOutdoor: 'Outdoor',
     areaHut: 'Garden Hut',
     notesLabel: 'Notes or Special Requests (Optional)',
     notesPlaceholder: 'e.g. Birthday, anniversary or special requests...',
@@ -88,8 +92,8 @@ const translations = {
     guestsLabelLine1: 'จำนวน',
     guestsLabelLine2: 'ผู้มาใช้บริการ',
     areaLabel: 'เลือกโซนที่นั่ง',
-    areaIndoor: 'ห้องด้านใน',
-    areaOutdoor: 'โต๊ะด้านนอก',
+    areaIndoor: 'โซนในร่ม',
+    areaOutdoor: 'โต๊ะกลางแจ้ง',
     areaHut: 'ซุ้มกระท่อม',
     notesLabel: 'หมายเหตุหรือคำขอเพิ่มเติม (ถ้ามี)',
     notesPlaceholder: 'เช่น ฉลองวันเกิด, นัดเลี้ยงสังสรรค์...',
@@ -141,7 +145,9 @@ const TIME_SLOTS = [
   '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'
 ];
 
-export function TableReservationModal({ isOpen, onClose, lang = 'IT' }: TableReservationModalProps) {
+export function TableReservationModal({ isOpen, onClose, lang: propLang, initialNotes, isWinePrivilege }: TableReservationModalProps) {
+  const storeLang = useLanguageStore((s) => s.lang);
+  const lang = propLang || storeLang || 'IT';
   const t = translations[lang] || translations.IT;
 
   const todayStr = new Date().toISOString().split('T')[0];
@@ -153,10 +159,16 @@ export function TableReservationModal({ isOpen, onClose, lang = 'IT' }: TableRes
   const [reservationDate, setReservationDate] = useState(todayStr);
   const [reservationTime, setReservationTime] = useState('19:00');
   const [seatingArea, setSeatingArea] = useState<SeatingArea>('hut');
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(initialNotes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [bookingId, setBookingId] = useState('');
+
+  React.useEffect(() => {
+    if (isOpen && initialNotes !== undefined) {
+      setNotes(initialNotes);
+    }
+  }, [isOpen, initialNotes]);
 
   if (!isOpen) return null;
 
@@ -294,6 +306,31 @@ export function TableReservationModal({ isOpen, onClose, lang = 'IT' }: TableRes
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Wine Privilege Banner */}
+              {isWinePrivilege && (
+                <div className="p-3.5 bg-gradient-to-r from-amber-950/90 via-stone-900 to-amber-950/80 border border-amber-500/50 rounded-2xl flex items-center gap-3 shadow-lg">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center shrink-0 text-lg">
+                    🍷
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] sm:text-[11px] font-black uppercase text-amber-300 tracking-wider">
+                        {lang === 'TH' ? 'สิทธิพิเศษไวน์' : lang === 'IT' ? 'Privilegio Cantina' : lang === 'DE' ? 'Weinkeller-Vorteil' : 'Wine Cellar Privilege'}
+                      </span>
+                      <span className="text-[9px] font-extrabold bg-amber-400 text-stone-950 px-1.5 py-0.5 rounded shadow-xs">
+                        -10% SCONTO
+                      </span>
+                    </div>
+                    <p className="text-amber-100/95 text-xs font-medium leading-snug mt-0.5">
+                      {lang === 'TH' ? 'รับส่วนลด 10% สำหรับไวน์ทุกขวดที่โต๊ะอาหารเมื่อจองผ่านระบบนี้!' :
+                       lang === 'IT' ? 'Sconto del 10% sui vini al tavolo attivato per questa prenotazione!' :
+                       lang === 'DE' ? '10% Rabatt auf Weine am Tisch für diese Reservierung aktiviert!' :
+                       '10% discount on wines at your table activated for this reservation!'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Name & Contact */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>

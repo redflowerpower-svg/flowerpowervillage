@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate as useRRNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Menu, X, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart, ShieldCheck, Truck, RotateCcw, Building2 } from 'lucide-react';
+import { ArrowLeft, Menu, X, Clock, Phone, Mail, MapPin, Instagram, Facebook, Star, ShoppingCart, ShieldCheck, Truck, RotateCcw, Building2, Wheat, UtensilsCrossed, Waves, Users, Sparkles, HeartHandshake, Leaf, MessageSquare } from 'lucide-react';
 import DeliveryMenu from '../pizza/pages/DeliveryMenu';
 import { GloriaFoodLanding } from '../pizza/pages/GloriaFoodLanding';
 import { useCartStore } from '../pizza/store/cartStore';
@@ -9,6 +9,7 @@ import { fetchPizzeriaStatus, usePizzeriaStatus, DEFAULT_PIZZERIA_STATUS } from 
 import PizzaPoliciesModal, { PolicyTab } from '../pizza/components/PizzaPoliciesModal';
 import { PizzaStructuredData } from '../pizza/components/PizzaStructuredData';
 import { TableReservationModal } from '../pizza/components/TableReservationModal';
+import { EditorialHeading } from '../pizza/components/EditorialHeading';
 
 function usePizzeriaHours() {
   const st = usePizzeriaStatus();
@@ -85,10 +86,14 @@ export const pizzaMenu = [
 ];
 
 
-const navItems = [
-  { label: 'ORDINA ONLINE', id: 'order' as PizzaPage },
-  { label: 'CHI SIAMO', id: 'about' as PizzaPage },
-  { label: 'CONTATTI', id: 'contact' as PizzaPage },
+import { useLanguageStore } from '../pizza/store/languageStore';
+import { i18n } from '../pizza/data/i18n';
+import { SUPPORTED_LANGUAGES, LANGUAGE_METAS, Language } from '../pizza/config/languages';
+
+const getNavItems = (lang: Language) => [
+  { label: i18n.nav.order[lang] || 'ORDINA ONLINE', id: 'order' as PizzaPage },
+  { label: i18n.nav.about[lang] || 'CHI SIAMO', id: 'about' as PizzaPage },
+  { label: i18n.nav.contact[lang] || 'CONTATTI', id: 'contact' as PizzaPage },
 ];
 
 function PizzaNav({ 
@@ -97,7 +102,6 @@ function PizzaNav({
   pizzaMode,
   onToggleMode,
   showSwitcher = true,
-  currentLang = 'IT',
   onOpenReservation
 }: { 
   activePage: PizzaPage; 
@@ -105,12 +109,13 @@ function PizzaNav({
   pizzaMode: 'custom' | 'legacy';
   onToggleMode: (mode: 'custom' | 'legacy') => void;
   showSwitcher?: boolean;
-  currentLang?: 'IT' | 'EN' | 'TH' | 'DE';
   onOpenReservation?: () => void;
 }) {
   const rrNavigate = useRRNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const { language: lang, setLanguage } = useLanguageStore();
   const cartCount = useCartStore((s) => s.getCount());
   const openCart = useCartStore((s) => s.openCart);
 
@@ -126,6 +131,8 @@ function PizzaNav({
     onNavigate(id);
     setMenuOpen(false);
   };
+
+  const navItems = getNavItems(lang);
 
   return (
     <>
@@ -145,7 +152,7 @@ function PizzaNav({
               title="Home"
             >
               <ArrowLeft size={16} />
-              <span className="hidden sm:inline">HOME</span>
+              <span className="hidden sm:inline">{i18n.nav.home[lang] || 'HOME'}</span>
             </button>
             <div className="h-4 w-px bg-stone-700/60 hidden sm:block" />
             <button
@@ -193,7 +200,7 @@ function PizzaNav({
             )}
           </div>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-5">
             {navItems.map((item) => {
               const isActive = activePage === item.id;
               return (
@@ -219,15 +226,55 @@ function PizzaNav({
               style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
             >
               <span>🍽️</span>
-              <span>PRENOTA TAVOLO</span>
+              <span>{i18n.nav.bookTable[lang] || 'PRENOTA TAVOLO'}</span>
             </button>
+
+            {/* Language Selector Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-900 text-amber-300 border border-stone-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+              >
+                <span>{LANGUAGE_METAS[lang]?.flag}</span>
+                <span>{lang}</span>
+                <span className="text-[10px]">▼</span>
+              </button>
+
+              {isLangOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 mt-1.5 w-32 bg-stone-900 border border-stone-700 rounded-xl shadow-2xl py-1 z-50 overflow-hidden animate-fadeIn">
+                    {SUPPORTED_LANGUAGES.map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => {
+                          setLanguage(l);
+                          setIsLangOpen(false);
+                        }}
+                        className={`w-full px-3 py-2 text-left text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                          lang === l ? 'bg-[#8B1E1E] text-white' : 'text-stone-300 hover:bg-stone-800'
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span>{LANGUAGE_METAS[l]?.flag}</span>
+                          <span>{LANGUAGE_METAS[l]?.label}</span>
+                        </span>
+                        {lang === l && <span className="text-[10px]">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
             <button
               onClick={openCart}
               className="relative flex items-center gap-2 bg-[#8B1E1E] hover:bg-[#721818] text-white px-3.5 py-1.5 rounded-xl transition-all duration-200 font-bold text-xs shadow-sm active:scale-95 cursor-pointer"
             >
               <ShoppingCart size={15} />
-              <span>CARRELLO</span>
+              <span>{i18n.nav.cart[lang] || 'CARRELLO'}</span>
               {cartCount > 0 && (
                 <span className="bg-white text-[#8B1E1E] text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center">
                   {cartCount}
@@ -237,6 +284,20 @@ function PizzaNav({
           </div>
 
           <div className="flex md:hidden items-center gap-2">
+            {/* Mobile Language Selector */}
+            <button
+              type="button"
+              onClick={() => {
+                const currentIndex = SUPPORTED_LANGUAGES.indexOf(lang);
+                const nextLang = SUPPORTED_LANGUAGES[(currentIndex + 1) % SUPPORTED_LANGUAGES.length];
+                setLanguage(nextLang);
+              }}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-stone-900/80 text-amber-300 border border-stone-700 text-[11px] font-bold"
+              title="Cambia Lingua"
+            >
+              <span>{LANGUAGE_METAS[lang]?.flag}</span>
+              <span>{lang}</span>
+            </button>
             <button
               onClick={openCart}
               className="relative p-2 text-white bg-[#8B1E1E] rounded-xl hover:bg-[#721818] transition-colors"
@@ -318,7 +379,7 @@ function PizzaNav({
                 }}
                 className="text-left text-xs font-black uppercase tracking-wider py-3 px-3.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:text-white flex items-center justify-between transition-all cursor-pointer shadow-sm"
               >
-                <span>🍽️ PRENOTA TAVOLO</span>
+                <span>🍽️ {i18n.nav.bookTable[lang] || 'PRENOTA TAVOLO'}</span>
                 <span>👉</span>
               </button>
 
@@ -402,255 +463,195 @@ function PizzaHero({ onNavigate }: { onNavigate: (p: PizzaPage) => void }) {
   );
 }
 
-const ABOUT_SLIDES = [
-  {
-    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/02-pizza-margherita.webp',
-    title: 'Pizza Margherita Artigianale',
-    desc: 'Lenta lievitazione 48h con farina 100% italiana',
-    category: '🍕 Pizza Tradizionale'
-  },
-  {
-    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Tomato%20Sauce/06-spaghetti-al-pomodoro.webp',
-    title: 'Spaghetti al Pomodoro & Basilico',
-    desc: 'Pasta fresca tirata a mano e sugo lento',
-    category: '🍝 Pasta Fresca'
-  },
-  {
-    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/01-Pizza/28-pizza-capricciosa.webp',
-    title: 'Pizza Capricciosa Tradizionale',
-    desc: 'Carciofi, funghi, prosciutto e olive',
-    category: '🍕 Specialità Italiana'
-  },
-  {
-    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/02-Pasta/Pesto%20Genovese/13-tagliatelle-al-pesto.webp',
-    title: 'Tagliatelle al Pesto Genovese',
-    desc: 'Basilico fresco, pinoli e olio extravergine',
-    category: '🍝 Fatta a Mano'
-  },
-  {
-    url: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/08-Desserts/03-tiramisu.webp',
-    title: 'Tiramisù Tradizionale',
-    desc: 'Savoiardi, mascarpone e caffè espresso',
-    category: '🍰 Pasticceria'
-  }
-];
-
 function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void }) {
-  const hours = usePizzeriaHours();
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % ABOUT_SLIDES.length);
-    }, 3800);
-    return () => clearInterval(timer);
-  }, [isPaused]);
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? ABOUT_SLIDES.length - 1 : prev - 1));
-  };
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % ABOUT_SLIDES.length);
-  };
+  const { language: lang } = useLanguageStore();
+  const a = i18n.about;
 
   return (
-    <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+    <section className="pt-24 pb-20 bg-[#f4f2ee] min-h-screen text-stone-900" style={{ fontFamily: lang === 'TH' ? 'Prompt, Kanit, Outfit, system-ui, sans-serif' : 'Outfit, system-ui, sans-serif' }}>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         
-        {/* Header */}
+        {/* 1. Header in Cima */}
         <div className="text-center mb-10 sm:mb-14">
-          <p className="text-[11px] sm:text-xs tracking-[0.35em] uppercase text-[#8B1E1E] mb-2 font-bold">
-            La nostra storia & Filosofia
-          </p>
+          <div className="inline-flex items-center gap-2 bg-[#8B1E1E]/10 border border-[#8B1E1E]/20 text-[#8B1E1E] text-[11px] font-extrabold uppercase px-3.5 py-1 rounded-full tracking-widest mb-3.5">
+            <Sparkles size={13} className="text-[#8B1E1E]" />
+            <span>{a.badge[lang] || a.badge.IT}</span>
+          </div>
           <h1
             className="text-stone-900 font-black tracking-tight"
             style={{ fontSize: 'clamp(1.85rem, 3.8vw, 2.75rem)' }}
           >
-            Cuore Italiano, Anima <span className="italic text-[#8B1E1E]">Ranong</span>
+            {a.titlePart1[lang] || a.titlePart1.IT} <span className="italic text-[#8B1E1E]">{a.titleCity[lang] || a.titleCity.IT}</span>
           </h1>
-          <p className="text-stone-600 text-xs sm:text-sm font-medium mt-1">
-            Tradizione artigianale, incontro di culture e visione sostenibile alle porte di Raksawarin
+          <p className="text-stone-600 text-xs sm:text-sm font-medium max-w-2xl mx-auto mt-2 leading-relaxed">
+            {a.subtitle[lang] || a.subtitle.IT}
           </p>
-          <div className="w-12 h-0.5 bg-[#8B1E1E] mx-auto mt-3.5" />
+          <div className="w-14 h-0.5 bg-[#8B1E1E] rounded-full mx-auto mt-3.5" />
         </div>
 
-        {/* Main 2-Column Section: Slideshow with Watermark + Storytelling */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center mb-14 sm:mb-16">
+        {/* 2. Struttura in Colonna: La Nostra Storia, Scienza & Filosofia */}
+        <div className="space-y-6 sm:space-y-8 mb-14 sm:mb-16">
           
-          {/* Left Column: Artistic Showcase with uncropped dishes and warm ambient light (5 cols) */}
-          <div 
-            className="lg:col-span-5 relative group"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
-            <div className="relative w-full aspect-square max-w-md mx-auto rounded-[2.5rem] overflow-hidden border border-amber-900/40 shadow-2xl bg-gradient-to-br from-[#2a221d] via-[#1a1411] to-[#0c0908] flex items-center justify-center">
-              
-              {/* Radial warm lighting behind food */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-48 sm:w-64 h-48 sm:h-64 rounded-full bg-amber-500/15 blur-3xl animate-pulse" />
-                <div className="w-36 sm:w-48 h-36 sm:h-48 rounded-full bg-[#8B1E1E]/20 blur-2xl" />
+          {/* Blocco 1: Incontro di Culture alle Terme */}
+          <div className="bg-white border border-stone-200/90 rounded-3xl p-6 sm:p-8 shadow-xs hover:border-stone-300 transition-all flex flex-col md:flex-row gap-6 items-start">
+            <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center shrink-0">
+              <Users size={24} className="text-amber-800" />
+            </div>
+            <div className="space-y-2.5 flex-1">
+              <div className="inline-block text-[10px] font-extrabold uppercase text-amber-800 tracking-wider bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-200/60">
+                {a.block1.tag[lang] || a.block1.tag.IT}
               </div>
-
-              {/* Dish Presentation (Full uncropped circular view) */}
-              {ABOUT_SLIDES.map((slide, idx) => {
-                const isActive = idx === currentSlide;
-                return (
-                  <div
-                    key={idx}
-                    className={`absolute inset-0 p-6 sm:p-8 flex items-center justify-center transition-all duration-700 ease-out ${
-                      isActive 
-                        ? 'opacity-100 scale-100 rotate-0' 
-                        : 'opacity-0 scale-90 -rotate-3 pointer-events-none'
-                    }`}
-                  >
-                    <img
-                      src={slide.url}
-                      alt={slide.title}
-                      className="max-h-[75%] max-w-[85%] w-auto h-auto object-contain transition-transform duration-700 hover:scale-105"
-                      style={{
-                        filter: 'drop-shadow(0 20px 25px rgba(0, 0, 0, 0.65)) drop-shadow(0 8px 10px rgba(0, 0, 0, 0.4))'
-                      }}
-                    />
-                  </div>
-                );
-              })}
-
-              {/* Watermark Logo (Top Left Corner) */}
-              <div className="absolute top-3.5 left-3.5 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md border border-amber-500/30 px-3 py-1.5 rounded-2xl shadow-xl">
-                <img
-                  src="/Flower_Power_Pizza_-_HotSpring.png"
-                  alt="Flower Power Pizza Watermark"
-                  className="h-7 w-auto object-contain drop-shadow-sm"
-                />
-                <div className="text-left">
-                  <p className="text-[10px] font-black uppercase text-amber-300 tracking-wider leading-none">
-                    FLOWER POWER
-                  </p>
-                  <p className="text-[8px] font-bold text-white/90 uppercase tracking-widest leading-none mt-0.5">
-                    RANONG
-                  </p>
-                </div>
-              </div>
-
-              {/* Category Badge (Top Right Corner) */}
-              <div className="absolute top-3.5 right-3.5 z-20 bg-amber-400/20 backdrop-blur-md border border-amber-400/30 text-amber-200 text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md">
-                {ABOUT_SLIDES[currentSlide].category}
-              </div>
-
-              {/* Prev / Next Navigation Controls */}
-              <button
-                onClick={prevSlide}
-                className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs"
-                aria-label="Previous dish"
-              >
-                ◀
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center backdrop-blur-xs border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs"
-                aria-label="Next dish"
-              >
-                ▶
-              </button>
-
-              {/* Bottom Frosted Glass Caption & Indicators */}
-              <div className="absolute bottom-3 left-3 right-3 z-20 bg-black/70 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl flex items-center justify-between shadow-lg">
-                <div className="text-left pr-2 min-w-0">
-                  <p className="text-white font-extrabold text-xs sm:text-sm leading-tight truncate">
-                    {ABOUT_SLIDES[currentSlide].title}
-                  </p>
-                  <p className="text-amber-300 text-[10.5px] font-medium leading-tight truncate mt-0.5">
-                    {ABOUT_SLIDES[currentSlide].desc}
-                  </p>
-                </div>
-
-                {/* Slide Dots Indicator */}
-                <div className="flex gap-1.5 shrink-0">
-                  {ABOUT_SLIDES.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentSlide(idx)}
-                      className={`h-2 rounded-full transition-all cursor-pointer ${
-                        idx === currentSlide ? 'bg-amber-400 w-5' : 'bg-white/40 hover:bg-white/70 w-2'
-                      }`}
-                      aria-label={`Slide ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-              </div>
-
+              <EditorialHeading text={a.block1.title[lang] || a.block1.title.IT} />
+              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
+                {a.block1.p1[lang] || a.block1.p1.IT}
+              </p>
+              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
+                {a.block1.p2[lang] || a.block1.p2.IT}
+              </p>
             </div>
           </div>
 
-          {/* Right Column: Rich Narrative Text (7 cols) */}
-          <div className="lg:col-span-7 space-y-4 text-stone-750 leading-relaxed">
-            
-            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-6 sm:p-7 shadow-xs space-y-3.5">
-              <h3 className="text-stone-900 font-extrabold text-base sm:text-lg flex items-center gap-2">
-                <span>🌿</span>
-                <span>Un incontro di sapori e culture alle porte delle Terme</span>
-              </h3>
-              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
-                Situato proprio alle porte delle storiche sorgenti termali di <strong>Raksawarin</strong> a Ranong, <em>Flower Power Pizza</em> nasce dal desiderio di trasferire i segreti, i tempi e le conoscenze più autentiche della tradizione gastronomica italiana direttamente nelle mani e nel cuore del nostro staff locale.
+          {/* Blocco 2: La Nostra Pizza (La Verità oltre le Mode: 90% Idratazione & Scienza delle 48h) */}
+          <div className="bg-white border border-stone-200/90 rounded-3xl p-6 sm:p-8 shadow-xs hover:border-stone-300 transition-all flex flex-col md:flex-row gap-6 items-start">
+            <div className="w-14 h-14 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-center shrink-0">
+              <UtensilsCrossed size={24} className="text-[#8B1E1E]" />
+            </div>
+            <div className="space-y-4 flex-1">
+              <div>
+                <div className="inline-block text-[10px] font-extrabold uppercase text-[#8B1E1E] tracking-wider bg-red-50 px-2.5 py-0.5 rounded-md border border-red-200/60 mb-2">
+                  {a.block2.tag[lang] || a.block2.tag.IT}
+                </div>
+                <EditorialHeading
+                  text={a.block2.title[lang] || a.block2.title.IT}
+                  hookClassName="text-stone-500 font-extrabold text-xs sm:text-sm uppercase tracking-wider"
+                  punchlineClassName="text-stone-950 font-black text-xl sm:text-2xl tracking-tight leading-snug"
+                />
+              </div>
+
+              <div className="space-y-3 text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
+                <p>
+                  {a.block2.intro[lang] || a.block2.intro.IT}
+                </p>
+
+                <div className="bg-stone-50 border border-stone-200/80 rounded-2xl p-4 sm:p-5 space-y-3 my-2">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#8B1E1E]/10 text-[#8B1E1E] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                      1
+                    </div>
+                    <div className="flex-1">
+                      <EditorialHeading
+                        text={a.block2.point1Title[lang] || a.block2.point1Title.IT}
+                        punchlineClassName="text-stone-900 font-bold text-xs sm:text-sm"
+                      />
+                      <p className="text-stone-500 text-xs mt-1 leading-relaxed">
+                        {a.block2.point1Desc[lang] || a.block2.point1Desc.IT}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#8B1E1E]/10 text-[#8B1E1E] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                      2
+                    </div>
+                    <div className="flex-1">
+                      <EditorialHeading
+                        text={a.block2.point2Title[lang] || a.block2.point2Title.IT}
+                        punchlineClassName="text-stone-900 font-bold text-xs sm:text-sm"
+                      />
+                      <p className="text-stone-500 text-xs mt-1 leading-relaxed">
+                        {a.block2.point2Desc[lang] || a.block2.point2Desc.IT}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#8B1E1E]/10 text-[#8B1E1E] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                      3
+                    </div>
+                    <div className="flex-1">
+                      <EditorialHeading
+                        text={a.block2.point3Title[lang] || a.block2.point3Title.IT}
+                        punchlineClassName="text-stone-900 font-bold text-xs sm:text-sm"
+                      />
+                      <p className="text-stone-500 text-xs mt-1 leading-relaxed">
+                        {a.block2.point3Desc[lang] || a.block2.point3Desc.IT}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="font-medium text-stone-800 italic">
+                  {a.block2.quote[lang] || a.block2.quote.IT}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Blocco 3: Pasta Fresca Fatta a Mano, Salsiccia Norcina & Location */}
+          <div className="bg-white border border-stone-200/90 rounded-3xl p-6 sm:p-8 shadow-xs hover:border-stone-300 transition-all flex flex-col md:flex-row gap-6 items-start">
+            <div className="w-14 h-14 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-center shrink-0">
+              <Wheat size={24} className="text-amber-800" />
+            </div>
+            <div className="space-y-2.5 flex-1">
+              <div className="inline-block text-[10px] font-extrabold uppercase text-amber-800 tracking-wider bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-200/60">
+                {a.block3.tag[lang] || a.block3.tag.IT}
+              </div>
+              <EditorialHeading text={a.block3.title[lang] || a.block3.title.IT} />
+              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
+                {a.block3.p1[lang] || a.block3.p1.IT}
               </p>
-              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
-                La nostra realtà è molto più di una semplice pizzeria: è un <strong>laboratorio umano e un mix armonioso di culture</strong> — dove italiani, thailandesi e birmani lavorano fianco a fianco ogni giorno, uniti dalla passione per il cibo eccellente, dall'attenzione ai dettagli e dal calore dell'ospitalità sincera.
+              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
+                {a.block3.p2[lang] || a.block3.p2.IT}
               </p>
             </div>
+          </div>
 
-            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-6 sm:p-7 shadow-xs space-y-3.5">
-              <h3 className="text-stone-900 font-extrabold text-base sm:text-lg flex items-center gap-2">
-                <span>🍕</span>
-                <span>L'Arte della Cucina Fatta a Mano & Lievitazione 48h</span>
-              </h3>
-              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
-                Tutte le nostre pizze nascono da un impasto a <strong>lunga lievitazione naturale (48 ore)</strong> preparato esclusivamente con <strong>farina 100% italiana</strong>, per garantire un prodotto fragrante, leggero e ad altissima digeribilità.
+          {/* Blocco 4: Progetto Vivo & Futuro a Km Zero */}
+          <div className="bg-white border border-stone-200/90 rounded-3xl p-6 sm:p-8 shadow-xs hover:border-stone-300 transition-all flex flex-col md:flex-row gap-6 items-start">
+            <div className="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center shrink-0">
+              <Leaf size={24} className="text-emerald-800" />
+            </div>
+            <div className="space-y-2.5 flex-1">
+              <div className="inline-block text-[10px] font-extrabold uppercase text-emerald-800 tracking-wider bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200/60">
+                {a.block4.tag[lang] || a.block4.tag.IT}
+              </div>
+              <EditorialHeading text={a.block4.title[lang] || a.block4.title.IT} />
+              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
+                {a.block4.p1[lang] || a.block4.p1.IT}
               </p>
-              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
-                Ogni mattina prepariamo a mano la <strong>pasta fresca</strong>, insacchiamo la <strong>salsiccia artigianale</strong> secondo l'antica ricetta norcina e cuociamo i sughi lentamente come una volta. Il tutto servito in un'oasi verdeggiante dotata di sala interna climatizzata, terrazza, un laghetto, una rinfrescante <strong>cascata privata</strong> e caratteristiche <strong>capanne tradizionali in bambù</strong>.
+              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-normal">
+                {a.block4.p2[lang] || a.block4.p2.IT}
               </p>
             </div>
-
-            <div className="bg-white border border-stone-200/90 rounded-[2rem] p-6 sm:p-7 shadow-xs space-y-3">
-              <h3 className="text-stone-900 font-extrabold text-base sm:text-lg flex items-center gap-2">
-                <span>🌱</span>
-                <span>Progetto in Espansione & Futuro a Chilometro Zero</span>
-              </h3>
-              <p className="text-xs sm:text-sm font-normal text-stone-700 leading-relaxed">
-                Il nostro progetto è un'idea viva e in costante evoluzione. Stiamo sviluppando nuove iniziative che ci porteranno a produrre sempre più ingredienti e materie prime direttamente all'interno della nostra struttura, con l'obiettivo di raggiungere una filiera corta a vero <strong>chilometro zero</strong> e a basso impatto ambientale.
-              </p>
-            </div>
-
           </div>
 
         </div>
 
-        {/* Highlight Feature Badges Grid */}
+        {/* 3. Highlight Feature Badges */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-14 sm:mb-16">
           {[
-            { label: 'Farina & Impasto', value: '100% Italiana • 48h Lievitazione', icon: '🌾' },
-            { label: 'Pasta & Salsiccia', value: 'Fatte a Mano Ogni Giorno', icon: '🍝' },
-            { label: 'Location & Natura', value: 'Cascata Privata & Capanne', icon: '💦' },
-            { label: 'Staff & Team', value: 'Mix Culturale IT • TH • MM', icon: '🤝' },
+            { label: a.v1Title[lang] || a.v1Title.IT, value: a.v1Desc[lang] || a.v1Desc.IT, icon: <Wheat size={22} className="text-amber-800 mx-auto mb-2" /> },
+            { label: a.v2Title[lang] || a.v2Title.IT, value: a.v2Desc[lang] || a.v2Desc.IT, icon: <UtensilsCrossed size={22} className="text-[#8B1E1E] mx-auto mb-2" /> },
+            { label: a.v4Title[lang] || a.v4Title.IT, value: a.v4Desc[lang] || a.v4Desc.IT, icon: <Waves size={22} className="text-sky-700 mx-auto mb-2" /> },
+            { label: a.v3Title[lang] || a.v3Title.IT, value: a.v3Desc[lang] || a.v3Desc.IT, icon: <HeartHandshake size={22} className="text-emerald-800 mx-auto mb-2" /> },
           ].map((f, i) => (
-            <div key={i} className="bg-white border border-stone-200/90 rounded-2xl p-4 text-center shadow-xs">
-              <span className="text-xl mb-1.5 block">{f.icon}</span>
-              <p className="text-stone-400 text-[10px] uppercase font-bold tracking-wider mb-0.5">{f.label}</p>
-              <p className="text-stone-900 text-xs font-black">{f.value}</p>
+            <div key={i} className="bg-white border border-stone-200/90 rounded-2xl p-4 text-center shadow-xs flex flex-col justify-between">
+              <div>
+                {f.icon}
+                <p className="text-stone-400 text-[10px] uppercase font-bold tracking-wider mb-1">{f.label}</p>
+              </div>
+              <p className="text-stone-900 text-xs font-bold leading-snug">{f.value}</p>
             </div>
           ))}
         </div>
 
-        {/* Google Maps Genuine Reviews Section */}
+        {/* 4. Recensioni Genuine Google Maps 4.9★ */}
         <div className="mb-14 sm:mb-16">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8 text-center sm:text-left">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 text-center sm:text-left">
             <div>
               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                <span className="text-lg">⭐</span>
-                <span className="text-stone-900 font-black text-lg sm:text-xl">
+                <Star size={20} className="text-amber-500 fill-amber-500" />
+                <span className="text-stone-950 font-black text-lg sm:text-xl">
                   4.9 / 5.0 su Google Maps
                 </span>
                 <span className="text-xs text-stone-500 font-medium">(Oltre 250+ Recensioni)</span>
@@ -666,7 +667,7 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-stone-300 hover:border-[#8B1E1E] text-stone-800 hover:text-[#8B1E1E] text-xs font-bold rounded-2xl shadow-xs transition-all shrink-0"
             >
-              <span>Leggi tutte le recensioni su Google Maps</span>
+              <span>Tutte le recensioni su Google</span>
               <span className="text-[11px]">↗</span>
             </a>
           </div>
@@ -694,7 +695,7 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
             ].map((r, i) => (
               <div
                 key={i}
-                className="bg-white border border-stone-200/90 rounded-[2rem] p-6 shadow-xs flex flex-col justify-between hover:border-stone-300 transition-all"
+                className="bg-white border border-stone-200/90 rounded-3xl p-6 shadow-xs flex flex-col justify-between hover:border-stone-300 transition-all"
               >
                 <div>
                   <div className="flex gap-1 mb-3">
@@ -720,14 +721,14 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
           </div>
         </div>
 
-        {/* Open Call for Creative Ideas & Collaborations Box */}
-        <div className="bg-gradient-to-br from-[#2b2420] via-[#1f1a17] to-[#14110f] border border-amber-900/40 text-white rounded-[2.5rem] p-7 sm:p-9 shadow-xl relative overflow-hidden text-center sm:text-left">
+        {/* 5. Box Collaborazioni, Idee & Creatività Aperta */}
+        <div className="bg-gradient-to-br from-[#2b2420] via-[#1f1a17] to-[#14110f] border border-amber-900/40 text-white rounded-3xl sm:rounded-[2.5rem] p-7 sm:p-9 shadow-xl relative overflow-hidden text-center sm:text-left">
           <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
           
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10">
             <div className="space-y-2 max-w-xl">
               <div className="inline-flex items-center gap-2 bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[10px] font-extrabold uppercase px-3 py-1 rounded-full tracking-wider">
-                <span>🤝</span>
+                <HeartHandshake size={14} className="text-amber-400" />
                 <span>Progetti, Idee & Collaborazioni Aperte</span>
               </div>
               
@@ -736,7 +737,7 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
               </h3>
               
               <p className="text-stone-300 text-xs sm:text-sm font-light leading-relaxed">
-                Crediamo fortemente nella contaminazione positiva di idee e competenze. Se hai una proposta professionale, un'idea per la filiera a km zero, o semplicemente desideri collaborare con noi per arricchire questo scambio culturale ed ecologico, siamo sempre aperti a persone che ci stimolino.
+                Crediamo fortemente nella contaminazione positiva di idee e competenze. Se hai una proposta professionale, un'idea per la filiera a km zero, o semplicemente desideri collaborare con noi per arricchire questo scambio culturale ed ecologico, siamo sempre alla ricerca di persone che ci stimolino a crescere.
               </p>
             </div>
 
@@ -747,7 +748,7 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
                 rel="noopener noreferrer"
                 className="py-3 px-5 bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl shadow-md transition-all flex items-center justify-center gap-2"
               >
-                <span>💬</span>
+                <MessageSquare size={16} className="text-white" />
                 <span>SCRIVICI SU WHATSAPP</span>
               </a>
               
@@ -756,7 +757,7 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
                   onClick={() => onNavigate('contact')}
                   className="py-3 px-5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold text-xs uppercase tracking-wider rounded-2xl transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>✉️</span>
+                  <Mail size={16} className="text-white" />
                   <span>CONTATTI</span>
                 </button>
               )}
@@ -770,23 +771,26 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
 }
 
 function PizzaContactPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void }) {
+  const { language: lang } = useLanguageStore();
+  const c = i18n.contact;
   const hours = usePizzeriaHours();
+
   return (
-    <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+    <section className="pt-24 pb-20 bg-[#e7e5e4] min-h-screen" style={{ fontFamily: lang === 'TH' ? 'Prompt, Kanit, Outfit, system-ui, sans-serif' : 'Outfit, system-ui, sans-serif' }}>
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         {/* Clean, Elegant Header */}
         <div className="text-center mb-10 sm:mb-12">
           <p className="text-[11px] sm:text-xs tracking-[0.35em] uppercase text-[#8B1E1E] mb-2 font-bold">
-            Contatti & Posizione
+            {c.badge[lang] || c.badge.IT}
           </p>
           <h1
             className="text-stone-900 font-black tracking-tight"
             style={{ fontSize: 'clamp(1.75rem, 3.5vw, 2.5rem)' }}
           >
-            Flower Power Pizza Ranong
+            {c.title[lang] || c.title.IT}
           </h1>
           <p className="text-stone-600 text-xs sm:text-sm font-medium mt-1">
-            Autentica Pizzeria & Ristorante Italiano • Raksawarin Hot Springs
+            {c.subtitle[lang] || c.subtitle.IT}
           </p>
           <div className="w-12 h-0.5 bg-[#8B1E1E] mx-auto mt-3.5" />
         </div>
@@ -804,7 +808,7 @@ function PizzaContactPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void 
                   <MapPin size={18} className="text-[#8B1E1E]" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-0.5">Indirizzo / Location</p>
+                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-0.5">{c.addressTitle[lang] || c.addressTitle.IT}</p>
                   <p className="text-stone-900 text-sm font-extrabold">FLOWER POWER PIZZA</p>
                   <p className="text-stone-700 text-xs font-medium mt-0.5">129/6 Mo 1, Tambon Bang Rin, Muang Ranong 85000</p>
                   <p className="text-stone-500 text-xs font-thai mt-0.5">129/6 หมู่1 ต.บางริ้น อ.เมือง จ.ระนอง 85000</p>
@@ -815,7 +819,7 @@ function PizzaContactPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void 
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#8B1E1E]/5 hover:bg-[#8B1E1E]/10 text-[#8B1E1E] text-xs font-bold rounded-xl border border-[#8B1E1E]/20 transition-all"
                     >
-                      <span>Apri su Google Maps</span>
+                      <span>{c.directionsBtn[lang] || c.directionsBtn.IT}</span>
                       <span className="text-[11px]">↗</span>
                     </a>
                   </div>
@@ -830,11 +834,8 @@ function PizzaContactPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void 
                   <Clock size={18} className="text-emerald-700" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-0.5">Orari di Servizio</p>
-                  <p className="text-stone-900 text-sm font-extrabold">Tutti i giorni · {hours}</p>
-                  <p className="text-stone-600 text-xs font-medium mt-0.5">
-                    Servizio al tavolo, asporto e consegna a domicilio (fino a 5 km da Bang Rin)
-                  </p>
+                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-0.5">{c.hoursTitle[lang] || c.hoursTitle.IT}</p>
+                  <p className="text-stone-900 text-sm font-extrabold">{c.hoursDesc[lang] || `Tutti i giorni · ${hours}`}</p>
                 </div>
               </div>
             </div>
@@ -1281,9 +1282,17 @@ export default function PizzaSite() {
                 href="/admin"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-stone-500 uppercase tracking-wider hover:text-red-400 transition-colors font-bold"
+                className="text-xs text-stone-500 uppercase tracking-wider hover:text-red-400 transition-colors font-bold flex items-center gap-1"
               >
-                PRIVATE AREA
+                🔒 PRIVATE AREA
+              </a>
+              <a 
+                href="/dining"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-amber-400/90 uppercase tracking-wider hover:text-amber-300 transition-colors font-bold flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
+              >
+                📱 DINING TABLET
               </a>
             </div>
 

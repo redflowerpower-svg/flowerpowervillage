@@ -8,12 +8,17 @@ import {
   ServiceCalculationResult 
 } from '../services/pizzaServiceStatus';
 
+import { useLanguageStore } from '../store/languageStore';
+import { Language } from '../config/languages';
+
 interface ServiceStatusBannerProps {
-  lang: 'IT' | 'EN' | 'TH' | 'DE';
+  lang?: Language;
   onStatusChange?: (canOrder: boolean) => void;
 }
 
-export function ServiceStatusBanner({ lang, onStatusChange }: ServiceStatusBannerProps) {
+export function ServiceStatusBanner({ lang: propLang, onStatusChange }: ServiceStatusBannerProps) {
+  const storeLang = useLanguageStore((s) => s.lang);
+  const lang = propLang || storeLang || 'IT';
   const [, setStatus] = useState<PizzeriaServiceStatus>(DEFAULT_PIZZERIA_STATUS);
   const [calc, setCalc] = useState<ServiceCalculationResult>(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
 

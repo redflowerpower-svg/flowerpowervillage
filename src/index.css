@@ -129,3 +129,45 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.25s ease-out forwards;
 }
+
+/* ─── Living Food Ken Burns Animations ─── */
+@keyframes mainDishBreathing {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.15);
+  }
+}
+
+.main-dish-zoom,
+.living-food-img {
+  animation: mainDishBreathing 6s ease-in-out infinite alternate !important;
+  transform-origin: center center !important;
+  will-change: transform !important;
+  display: block !important;
+}
+
+/* One-way Forward Approach Zoom (Non torna MAI indietro, avanza sempre verso il cliente) */
+@keyframes forwardApproachZoom {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.15);
+  }
+  60% {
+    transform: scale(1.27);
+  }
+  100% {
+    transform: scale(1.36);
+  }
+}
+
+.pairing-forward-zoom {
+  animation: forwardApproachZoom 20s cubic-bezier(0.08, 0.75, 0.18, 1) forwards !important;
+  transform-origin: center center !important;
+  will-change: transform !important;
+  display: block !important;
+}
+

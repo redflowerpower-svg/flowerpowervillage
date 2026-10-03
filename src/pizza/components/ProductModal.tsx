@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
-import { X, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { X, Plus, Minus, ShoppingCart, ChevronDown } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
 import { withCacheBust } from '../utils/cacheBust';
+import { useLanguageStore } from '../store/languageStore';
+import { Language } from '../config/languages';
+import { DietaryWatermark } from './DietaryWatermark';
+import { getDietaryType } from '../utils/dietary';
 
 interface Props {
   item: MenuItem;
   onClose: () => void;
-  lang: 'IT' | 'EN' | 'TH' | 'DE';
+  lang?: Language;
 }
 
 const labels = {
@@ -37,7 +41,9 @@ const labels = {
   },
 };
 
-export default function ProductModal({ item, onClose, lang }: Props) {
+export default function ProductModal({ item, onClose, lang: propLang }: Props) {
+  const storeLang = useLanguageStore((s) => s.lang);
+  const lang = propLang || storeLang || 'IT';
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
 
@@ -187,6 +193,10 @@ export default function ProductModal({ item, onClose, lang }: Props) {
   };
 
   const handleAdd = () => {
+    const finalItemBasePrice = (selectedVariant?.price != null && Number(selectedVariant.price) > 0)
+      ? Number(selectedVariant.price)
+      : item.price;
+
     addItem({
       productId: item.id,
       name: item.name,
@@ -194,7 +204,7 @@ export default function ProductModal({ item, onClose, lang }: Props) {
       nameIt: item.nameIt,
       nameDe: item.nameDe,
       quantity,
-      basePrice: item.price,
+      basePrice: finalItemBasePrice,
       selectedVariant,
       selectedExtras,
       image: item.image,
@@ -212,6 +222,18 @@ export default function ProductModal({ item, onClose, lang }: Props) {
 
   const formatProductName = (name: string) => {
     if (!name) return "";
+    if (name.includes('\n')) {
+      const lines = name.split('\n');
+      return (
+        <>
+          {lines.map((line, idx) => (
+            <span key={idx} className="block">
+              {line}
+            </span>
+          ))}
+        </>
+      );
+    }
     const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
     const upperName = name.toUpperCase();
     for (const kw of splitKeywords) {
@@ -233,9 +255,10 @@ export default function ProductModal({ item, onClose, lang }: Props) {
   };
 
   const getTranslatedDesc = (i: MenuItem) => {
-    if (lang === 'TH' && i.descriptionTh) return i.descriptionTh;
-    if (lang === 'IT' && i.descriptionIt) return i.descriptionIt;
-    return i.description;
+    if (lang === 'TH' && (i.descriptionTh || i.description_th)) return i.descriptionTh || i.description_th;
+    if (lang === 'IT' && (i.descriptionIt || i.description_it)) return i.descriptionIt || i.description_it;
+    if (lang === 'DE' && (i.descriptionDe || i.description_de)) return i.descriptionDe || i.description_de;
+    return i.description || i.descriptionIt || i.description_it || '';
   };
 
   const t = labels[lang];
@@ -257,6 +280,13 @@ export default function ProductModal({ item, onClose, lang }: Props) {
           <img src={withCacheBust(item.image)} alt={getTranslatedName(item)} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-stone-950/70 via-stone-950/20 to-transparent" />
           
+          {/* Top-Left Minimal Dietary Watermark */}
+          {getDietaryType(item) && (
+            <div className="absolute top-4 left-4 z-20 pointer-events-none">
+              <DietaryWatermark type={getDietaryType(item)} />
+            </div>
+          )}
+
           <button
             onClick={onClose}
             className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/45 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-all cursor-pointer border border-white/10"
@@ -284,33 +314,66 @@ export default function ProductModal({ item, onClose, lang }: Props) {
           {item.variants && item.variants.length > 0 && (
             <div>
               <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
-                {t.sizeTitle}
+                {item.variants.some(v => v.id.startsWith('format-')) || item.id.includes('pasta') || item.id.includes('scoglio') || item.id.includes('salmone') || item.id.includes('ravioli') || item.id.includes('seppia') || item.id.includes('granchio')
+                  ? (lang === 'TH' ? 'เลือกรูปแบบเส้นพาสต้า' : lang === 'DE' ? 'Pasta-Format wählen' : lang === 'EN' ? 'Choose Pasta Format' : 'Scegli il Formato di Pasta')
+                  : t.sizeTitle}
               </p>
-              <div className="flex gap-2.5 flex-wrap">
-                {item.variants.map((v) => {
-                  const active = selectedVariant?.id === v.id;
-                  return (
-                    <button
-                      key={v.id}
-                      onClick={() => setSelectedVariant(v)}
-                      className={`px-4 py-2.5 text-xs font-semibold rounded-xl border transition-all duration-150 cursor-pointer ${
-                        active
-                          ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] font-extrabold shadow-sm'
-                          : 'border-stone-300 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-800'
-                      }`}
-                      style={{ fontFamily: 'Inter, sans-serif' }}
+              {item.variants.some(v => v.id.startsWith('format-')) || item.variants.length > 2 ? (
+                <div className="relative">
+                  <div className="relative flex items-center">
+                    <select
+                      id={`modal-variant-select-${item.id}`}
+                      value={selectedVariant?.id || item.variants[0]?.id}
+                      onChange={(e) => {
+                        const v = item.variants?.find(opt => opt.id === e.target.value);
+                        if (v) setSelectedVariant(v);
+                      }}
+                      className="w-full bg-white border-2 border-stone-200 hover:border-[#8B1E1E]/60 focus:border-[#8B1E1E] text-stone-800 text-xs font-bold rounded-xl px-4 py-3 appearance-none pr-10 transition-all shadow-xs focus:outline-none cursor-pointer"
+                      style={{ fontFamily: 'Inter, Prompt, sans-serif' }}
                     >
-                      {getTranslatedName(v)}
-                      {v.priceModifier > 0 && (
-                        <span className="ml-1.5 text-stone-400 inline-flex items-baseline gap-0.5">
-                          <span>+{v.priceModifier}</span>
-                          <span className="text-[10px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+                      {item.variants.map((v) => {
+                        const mod = v.priceModifier || 0;
+                        const finalPrice = item.price + mod;
+                        return (
+                          <option key={v.id} value={v.id} className="py-1 text-stone-800 font-medium">
+                            {getTranslatedName(v)} {finalPrice}฿
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <div className="absolute right-3.5 pointer-events-none text-stone-400">
+                      <ChevronDown size={18} className="stroke-[2.5]" />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex gap-2.5 flex-wrap">
+                  {item.variants.map((v) => {
+                    const active = selectedVariant?.id === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setSelectedVariant(v)}
+                        className={`px-4 py-2.5 text-xs font-semibold rounded-xl border transition-all duration-150 cursor-pointer ${
+                          active
+                            ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] font-extrabold shadow-sm'
+                            : 'border-stone-300 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-800'
+                        }`}
+                        style={{ fontFamily: 'Inter, sans-serif' }}
+                      >
+                        {getTranslatedName(v)}
+                        {v.priceModifier > 0 && (
+                          <span className="ml-1.5 text-stone-400 inline-flex items-baseline gap-0.5">
+                            <span>+{v.priceModifier}</span>
+                            <span className="text-[10px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 

@@ -62,6 +62,16 @@ export function AdminHeader({ userEmail, activeDept, onSelectDept, onLogout }: A
                 <Tablet className="w-3.5 h-3.5" />
                 <span className="hidden lg:inline">Tablet Cucina</span>
               </a>
+              <a
+                href="/dining"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-white bg-amber-950/40 hover:bg-amber-900/60 border border-amber-700/50 px-2.5 py-1 rounded-xl transition-all cursor-pointer font-bold shadow-sm"
+                title="Apri la Modalità Tablet Tavoli (Sconto 5% al tavolo + Lead Capture)"
+              >
+                <Tablet className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">Tablet Tavoli (-5%)</span>
+              </a>
             </div>
           )}
           {activeDept === 'resort' && (

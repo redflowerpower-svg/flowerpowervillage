@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import { Plus, Minus, ZoomIn, X, Search, Check } from 'lucide-react';
+import { Plus, Minus, ZoomIn, X, Search, Check, ChevronDown } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { menuData } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
 import { renderCountryFlag, formatSubtitle, renderWinePrice, renderFormattedPrice, formatWineProductName } from '../data/wineData';
-
 import { withCacheBust } from '../utils/cacheBust';
-
+import { useLanguageStore } from '../store/languageStore';
+import { Language } from '../config/languages';
+import { DietaryWatermark } from './DietaryWatermark';
+import { getDietaryType } from '../utils/dietary';
 
 interface Props {
   items: MenuItem[];
-  lang: 'IT' | 'EN' | 'TH' | 'DE';
+  lang?: Language;
+  onBookTable?: (wineItem: MenuItem) => void;
+  isDiningMode?: boolean;
 }
 
 export const hasPorkMeat = (item: MenuItem): boolean => {
@@ -170,9 +174,17 @@ function getTomorrowDateString() {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-export default function MenuGrid({ items, lang }: Props) {
+export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningMode: propIsDiningMode }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
+  const storeLang = useLanguageStore((s) => s.language);
+  const lang = propLang || storeLang || 'IT';
+
+  const isDiningMode = propIsDiningMode || (typeof window !== 'undefined' && (
+    window.location.pathname.includes('/dining') || 
+    window.location.pathname.includes('/tavoli') || 
+    window.location.pathname.includes('/table')
+  ));
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
@@ -181,10 +193,11 @@ export default function MenuGrid({ items, lang }: Props) {
   const [secondHalfSearch, setSecondHalfSearch] = useState<string>('');
   const [isHalalChicken, setIsHalalChicken] = useState<boolean>(false);
   const [quantity, setQuantity] = useState(1);
-  const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+  const [zoomedItem, setZoomedItem] = useState<MenuItem | null>(null);
   const [lasagnaDate, setLasagnaDate] = useState<string>('');
+  const [selectedBeerVariants, setSelectedBeerVariants] = useState<Record<string, Variant>>({});
 
-  const t = labels[lang];
+  const t = labels[lang] || labels['IT'];
 
   const isLasagna = (item: MenuItem) => item.id.includes('lasagna');
 
@@ -316,7 +329,7 @@ export default function MenuGrid({ items, lang }: Props) {
 
     if (fruitItems.length > 0) {
       groups.push({
-        title: lang === 'TH' ? 'เลือกผลไม้' : lang === 'IT' ? 'Scelta della Frutta' : 'Choose Fruit',
+        title: lang === 'TH' ? 'เลือกผลไม้สด' : lang === 'IT' ? 'Scegli il Frutto Fresco' : lang === 'DE' ? 'Frische Frucht nach Wahl' : 'Choose Fresh Fruit',
         maxSelection: 1,
         items: fruitItems,
         type: 'option',
@@ -344,6 +357,28 @@ export default function MenuGrid({ items, lang }: Props) {
     }
 
     return groups;
+  };
+
+  const getFruitEmoji = (fruitId: string) => {
+    if (fruitId.includes('watermelon')) return '🍉';
+    if (fruitId.includes('pineapple')) return '🍍';
+    if (fruitId.includes('banana')) return '🍌';
+    if (fruitId.includes('papaya')) return '🧡';
+    if (fruitId.includes('lime')) return '🍋';
+    return '';
+  };
+
+  const getVariantHeaderLabel = (it: MenuItem) => {
+    if (it.variants?.some(v => v.id.startsWith('format-')) || it.id.includes('pasta') || it.id.includes('scoglio') || it.id.includes('salmone') || it.id.includes('ravioli') || it.id.includes('seppia') || it.id.includes('granchio')) {
+      return lang === 'TH' ? 'เลือกรูปแบบเส้นพาสต้า' : lang === 'DE' ? 'Pasta-Format wählen' : lang === 'EN' ? 'Choose Pasta Format' : 'Scegli il Formato di Pasta';
+    }
+    if (it.id === 'soft-drink-cans' || it.id.includes('drink') || it.id.includes('can') || it.id.includes('bibit')) {
+      return lang === 'TH' ? 'เลือกรสชาติ / เครื่องดื่มกระป๋อง' : lang === 'DE' ? 'Wähle deine Dose' : lang === 'EN' ? 'Choose your Can' : 'Scegli la tua Lattina';
+    }
+    if (it.id.includes('beer') || it.id.includes('water')) {
+      return lang === 'TH' ? 'เลือกขนาด / รูปแบบ' : lang === 'DE' ? 'Format wählen' : lang === 'EN' ? 'Choose Size' : 'Scegli Formato';
+    }
+    return lang === 'TH' ? 'ขนาด' : lang === 'DE' ? 'Größe' : lang === 'EN' ? 'Size' : 'Taglia';
   };
 
   const getTranslatedName = (item: { name: string; nameTh?: string; nameIt?: string; nameDe?: string }) => {
@@ -391,6 +426,9 @@ export default function MenuGrid({ items, lang }: Props) {
       });
     } else {
       const isChicken = hasPorkMeat(item) && isHalalChicken;
+      const finalItemBasePrice = (selectedVariant?.price != null && Number(selectedVariant.price) > 0)
+        ? Number(selectedVariant.price)
+        : item.price;
       addItem({
         productId: isChicken ? `${item.id}-chicken` : item.id,
         name: isChicken ? `${item.name} (100% Chicken 🐔)` : item.name,
@@ -398,7 +436,7 @@ export default function MenuGrid({ items, lang }: Props) {
         nameIt: isChicken ? `${item.nameIt || item.name} (100% Pollo 🐔)` : item.nameIt,
         nameDe: isChicken ? `${item.nameDe || item.name} (100% Geflügel 🐔)` : item.nameDe,
         quantity,
-        basePrice: item.price,
+        basePrice: finalItemBasePrice,
         selectedVariant,
         selectedExtras,
         image: item.image,
@@ -449,10 +487,38 @@ export default function MenuGrid({ items, lang }: Props) {
   };
 
   const getTranslatedDesc = (item: MenuItem) => {
-    if (lang === 'TH' && item.descriptionTh) return item.descriptionTh;
-    if (lang === 'IT' && item.descriptionIt) return item.descriptionIt;
-    if (lang === 'DE' && item.descriptionDe) return item.descriptionDe;
-    return item.description;
+    if (lang === 'TH' && (item.descriptionTh || item.description_th)) return item.descriptionTh || item.description_th;
+    if (lang === 'IT' && (item.descriptionIt || item.description_it)) return item.descriptionIt || item.description_it;
+    if (lang === 'DE' && (item.descriptionDe || item.description_de)) return item.descriptionDe || item.description_de;
+    return item.description || item.descriptionIt || item.description_it || '';
+  };
+
+  const handleAddBeer = (beerItem: MenuItem, variant?: Variant | null) => {
+    const activeVariant = variant || (beerItem.variants && beerItem.variants.length > 0 ? beerItem.variants[0] : null);
+    const finalPrice = activeVariant ? beerItem.price + (activeVariant.priceModifier || 0) : beerItem.price;
+
+    addItem({
+      productId: activeVariant ? `${beerItem.id}-${activeVariant.id}` : beerItem.id,
+      name: activeVariant ? `${beerItem.name} (${activeVariant.name})` : beerItem.name,
+      nameTh: activeVariant ? `${beerItem.nameTh || beerItem.name} (${activeVariant.nameTh || activeVariant.name})` : beerItem.nameTh,
+      nameIt: activeVariant ? `${beerItem.nameIt || beerItem.name} (${activeVariant.nameIt || activeVariant.name_it || activeVariant.name})` : beerItem.nameIt,
+      nameDe: activeVariant ? `${beerItem.nameDe || beerItem.name} (${activeVariant.nameDe || activeVariant.name_de || activeVariant.name})` : beerItem.nameDe,
+      quantity: 1,
+      basePrice: finalPrice,
+      image: activeVariant?.id === '10074' || activeVariant?.name?.toLowerCase() === 'small' ? (beerItem.image.replace('big', 'small')) : beerItem.image,
+      selectedVariant: activeVariant ? {
+        id: activeVariant.id,
+        name: activeVariant.name,
+        nameTh: activeVariant.nameTh,
+        nameIt: activeVariant.nameIt || activeVariant.name_it,
+        nameDe: activeVariant.nameDe || activeVariant.name_de,
+        price: finalPrice,
+        priceModifier: activeVariant.priceModifier || 0,
+        sku: activeVariant.sku || '',
+      } : null,
+      selectedExtras: [],
+    });
+    openCart();
   };
 
   const handleAddWine = (wineItem: MenuItem) => {
@@ -484,13 +550,177 @@ export default function MenuGrid({ items, lang }: Props) {
           const secondHalfPrice = selectedSecondHalf ? selectedSecondHalf.price : item.price;
           unitPriceWithCustoms = Math.round((item.price + secondHalfPrice) / 2);
         } else {
-          const activeVariantPrice = selectedVariant?.priceModifier ?? 0;
+          const variantBase = (selectedVariant?.price != null && Number(selectedVariant.price) > 0)
+            ? Number(selectedVariant.price)
+            : (item.price + (selectedVariant?.priceModifier ?? 0));
           const activeExtrasPrice = selectedExtras.reduce((s, e) => s + e.price, 0);
-          unitPriceWithCustoms = item.price + activeVariantPrice + activeExtrasPrice;
+          unitPriceWithCustoms = variantBase + activeExtrasPrice;
         }
         const currentTotalPrice = unitPriceWithCustoms * quantity;
 
-        const isWine = item.category === 'wines' || item.category === 'beers-and-wines' || (item as any).bottleScale !== undefined || !!(item as any).flag;
+        const isBeer = (item as any).category === 'beers' || item.id === 'chang-beer' || item.id === 'leo-beer' || item.id === 'singha-beer' || item.id.includes('beer');
+        const isWine = !isBeer && (item.category === 'wines' || item.category === 'beers-and-wines' || (item as any).bottleScale !== undefined || !!(item as any).flag);
+
+        if (isBeer) {
+          const currentBeerVariant = selectedBeerVariants[item.id] || (item.variants && item.variants.length > 0 ? item.variants[0] : null);
+          const currentBeerPrice = currentBeerVariant ? (item.price + (currentBeerVariant.priceModifier || 0)) : item.price;
+          const isSmall = currentBeerVariant?.id === '10074' || currentBeerVariant?.name?.toLowerCase() === 'small';
+          const bottleImg = isSmall ? item.image.replace('big', 'small') : item.image;
+
+          return (
+            <article
+              key={item.id}
+              className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative select-none min-h-[380px] sm:min-h-[410px]"
+            >
+              <div 
+                onClick={() => setZoomedItem(item)}
+                className="flex flex-row flex-grow cursor-pointer relative min-h-[380px] sm:min-h-[410px]"
+              >
+                {/* Left (36%): Vertical Beer Bottle Portion */}
+                <div className="w-[36%] bg-stone-50 border-r border-stone-200 p-3 flex items-center justify-center relative overflow-hidden flex-shrink-0 min-h-[380px] sm:min-h-[410px]">
+                  <div className="w-full h-full flex items-center justify-center transition-transform duration-300">
+                    <img
+                      src={withCacheBust(bottleImg)}
+                      alt={getTranslatedName(item)}
+                      loading="lazy"
+                      decoding="async"
+                      className="max-h-[310px] sm:max-h-[340px] max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
+                    <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
+                      <ZoomIn size={15} className="text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right (64%): Beer Info, Size Toggle & Add to Cart */}
+                <div className="w-[64%] p-4 sm:p-5 flex flex-col justify-between flex-grow">
+                  <div>
+                    {/* Beer Name */}
+                    <h3
+                      className="font-sans font-bold text-stone-900 leading-tight tracking-tight text-base sm:text-lg"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      {formatProductName(getTranslatedName(item))}
+                    </h3>
+
+                    {/* Clean Beer Badge (no country flag or origins) */}
+                    <div className="mt-2 flex items-center gap-1.5">
+                      <span className="text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider text-amber-900 bg-amber-100/90 border border-amber-300/60 px-2 py-0.5 rounded-md">
+                        🍺 {lang === 'TH' ? 'เบียร์ขวดเย็น' : lang === 'IT' ? 'Birra Fresca in Bottiglia' : lang === 'DE' ? 'Kühles Flaschenbier' : 'Chilled Bottled Beer'}
+                      </span>
+                    </div>
+
+                    {/* Description */}
+                    <p
+                      className="text-stone-500 text-xs font-light leading-relaxed mt-2.5 line-clamp-3"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      {getTranslatedDesc(item)}
+                    </p>
+
+                    {/* Size / Variant Selector (Big / Small) */}
+                    {item.variants && item.variants.length > 0 && (
+                      <div className="mt-3.5 pt-3 border-t border-stone-100" onClick={(e) => e.stopPropagation()}>
+                        <span className="text-[9px] uppercase tracking-wider text-stone-400 font-extrabold block mb-1.5">
+                          {lang === 'TH' ? 'เลือกขนาดขวด' : lang === 'IT' ? 'Formato Bottiglia' : lang === 'DE' ? 'Flaschengröße' : 'Bottle Size'}
+                        </span>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {item.variants.map((variant) => {
+                            const isVarSelected = (currentBeerVariant?.id || item.variants![0].id) === variant.id;
+                            const varPrice = item.price + (variant.priceModifier || 0);
+                            const varDisplayPrice = isDiningMode ? Math.round(varPrice * 0.95) : varPrice;
+
+                            return (
+                              <button
+                                key={variant.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedBeerVariants(prev => ({ ...prev, [item.id]: variant }));
+                                }}
+                                className={`px-2 py-1.5 rounded-xl text-center transition-all border cursor-pointer ${
+                                  isVarSelected
+                                    ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm ring-1 ring-[#8B1E1E]/20'
+                                    : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-100'
+                                }`}
+                              >
+                                <div className="text-[10px] sm:text-[10.5px] font-black uppercase leading-none">
+                                  {lang === 'TH' ? (variant.nameTh || variant.name) : lang === 'IT' ? (variant.nameIt || variant.name_it || variant.name) : lang === 'DE' ? (variant.nameDe || variant.name_de || variant.name) : variant.name}
+                                </div>
+                                <div className={`text-[10px] font-bold mt-0.5 ${isVarSelected ? 'text-amber-200' : 'text-stone-500'}`}>
+                                  {varDisplayPrice}฿
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bottom Action Bar: Price + Add Button / Delivery Compliance */}
+                  {isDiningMode ? (
+                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                            {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
+                          </span>
+                          <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
+                            -5% TAVOLO
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
+                          <span className="text-base sm:text-lg font-black text-[#8B1E1E]">
+                            {Math.round(currentBeerPrice * 0.95)}฿
+                          </span>
+                          <span className="text-xs text-stone-400 line-through font-semibold">
+                            {currentBeerPrice}฿
+                          </span>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleAddBeer(item, currentBeerVariant)}
+                        className="px-3.5 sm:px-4 py-2 text-white text-xs font-bold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center gap-1.5"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                      >
+                        <Plus size={13} className="stroke-[3]" />
+                        <span>{lang === 'TH' ? 'เพิ่ม' : lang === 'IT' ? 'Aggiungi' : lang === 'DE' ? 'Hinzufügen' : 'Add'}</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                          {lang === 'TH' ? 'ราคาที่ร้าน' : lang === 'DE' ? 'Preis im Restaurant' : lang === 'EN' ? 'Restaurant Price' : 'Prezzo al Ristorante'}
+                        </span>
+                        <div className="flex items-baseline gap-1 leading-tight">
+                          <span className="text-base sm:text-lg font-black text-stone-900">
+                            {currentBeerPrice}
+                          </span>
+                          <span className="text-xs font-black text-stone-900 select-none">฿</span>
+                        </div>
+                      </div>
+
+                      <div className="w-full py-1.5 px-2 bg-stone-100/90 text-stone-600 border border-stone-200/90 rounded-xl text-center text-[10.5px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5">
+                        <span>🍺</span>
+                        <span>
+                          {lang === 'TH' ? 'เฉพาะที่ร้าน • ไม่จัดส่งออนไลน์' :
+                           lang === 'IT' ? 'Solo al Ristorante • Non ordinabile online' :
+                           lang === 'DE' ? 'Nur vor Ort • Nicht online lieferbar' :
+                           'Dine-in Only • Not available for delivery'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </article>
+          );
+        }
 
         if (isWine) {
           return (
@@ -499,7 +729,7 @@ export default function MenuGrid({ items, lang }: Props) {
               className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative select-none min-h-[460px] sm:min-h-[500px]"
             >
               <div 
-                onClick={() => setZoomedImage(item.image)}
+                onClick={() => setZoomedItem(item)}
                 className="flex flex-row flex-grow cursor-pointer relative min-h-[460px] sm:min-h-[500px]"
               >
                 {/* Left (35%): Vertical Bottle Portion */}
@@ -564,28 +794,92 @@ export default function MenuGrid({ items, lang }: Props) {
                     )}
                   </div>
 
-                  {/* Bottom Action Bar */}
-                  <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2">
-                    <div className="flex flex-col">
-                      <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                        {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
-                      </span>
-                      {renderWinePrice(item.price)}
-                    </div>
+                  {/* Bottom Action Bar: Add to Cart (Dining Tablet) OR Dine-in Booking (Delivery Site) */}
+                  {onBookTable ? (
+                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                          {lang === 'TH' ? 'ราคาที่โต๊ะ' : lang === 'DE' ? 'Tischpreis' : lang === 'EN' ? 'Table Price' : 'Prezzo al Tavolo'}
+                        </span>
+                        <div className="flex items-baseline gap-1.5 leading-tight">
+                          <span className="text-base sm:text-lg font-black text-[#8B1E1E]">
+                            {Math.round(item.price * 0.9)}฿
+                          </span>
+                          <span className="text-xs text-stone-400 line-through font-semibold">
+                            {item.price}฿
+                          </span>
+                        </div>
+                      </div>
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddWine(item);
-                      }}
-                      className="px-3.5 py-2 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-1 bg-[#8B1E1E] hover:bg-[#721818] active:scale-95 transition-all cursor-pointer"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                    >
-                      <Plus size={13} />
-                      <span>{t?.confirmText || 'Aggiungi'}</span>
-                    </button>
-                  </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onBookTable(item);
+                        }}
+                        className="w-full py-1.5 px-2 text-stone-950 rounded-xl shadow-xs hover:shadow-md flex flex-col items-center justify-center bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 border border-amber-500/40 active:scale-[0.98] transition-all cursor-pointer text-center"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                      >
+                        <span className="text-xs font-black uppercase tracking-tight leading-snug">
+                          {lang === 'TH' ? 'จองที่โต๊ะอาหาร' :
+                           lang === 'IT' ? 'Prenota al Tavolo' :
+                           lang === 'DE' ? 'Am Tisch reservieren' :
+                           'Book at Table'}
+                        </span>
+                        <span className="text-[10px] font-bold text-amber-950/80 leading-tight">
+                          {lang === 'TH' ? 'รับส่วนลด 10%' :
+                           lang === 'IT' ? '10% di sconto' :
+                           lang === 'DE' ? '10% Rabatt' :
+                           '10% Discount'}
+                        </span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2">
+                      <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                            {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
+                          </span>
+                          {isDiningMode && (
+                            <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
+                              -5% TAVOLO
+                            </span>
+                          )}
+                        </div>
+                        {isDiningMode ? (
+                          <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
+                            <span className="text-base sm:text-lg font-black text-[#8B1E1E]">
+                              {Math.round(item.price * 0.95)}฿
+                            </span>
+                            <span className="text-xs text-stone-400 line-through font-semibold">
+                              {item.price}฿
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-baseline gap-1 leading-tight mt-0.5">
+                            <span className="text-base sm:text-lg font-black text-stone-900">
+                              {item.price}
+                            </span>
+                            <span className="text-xs font-black text-stone-900 select-none">฿</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddWine(item);
+                        }}
+                        className="px-3.5 sm:px-4 py-2 text-white text-xs font-bold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center gap-1.5"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                      >
+                        <Plus size={13} className="stroke-[3]" />
+                        <span>{lang === 'TH' ? 'เพิ่ม' : lang === 'IT' ? 'Aggiungi' : lang === 'DE' ? 'Hinzufügen' : 'Add'}</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </article>
@@ -613,7 +907,7 @@ export default function MenuGrid({ items, lang }: Props) {
               onClick={(e) => {
                 if (!isExpanded) {
                   e.stopPropagation();
-                  setZoomedImage(item.image);
+                  setZoomedItem(item);
                 }
               }}
             >
@@ -624,6 +918,13 @@ export default function MenuGrid({ items, lang }: Props) {
                 decoding="async"
                 className="w-full h-full object-cover select-none pointer-events-none group-hover:scale-105 transition-transform duration-500"
               />
+
+              {/* Minimal Vertical Dietary Watermark (Top-Right, or Top-Left when expanded so it does not collide with the close button) */}
+              {getDietaryType(item) && (
+                <div className={`absolute top-2.5 ${isExpanded ? 'left-2.5' : 'right-2.5'} z-10 transition-all duration-300 pointer-events-none`}>
+                  <DietaryWatermark type={getDietaryType(item)} />
+                </div>
+              )}
 
               {/* Close Button when expanded */}
               {isExpanded && (
@@ -695,74 +996,131 @@ export default function MenuGrid({ items, lang }: Props) {
                     className="mt-4 pt-4 border-t border-stone-200 space-y-4 animate-fadeIn"
                     onClick={(e) => e.stopPropagation()} // Prevent card toggle click
                   >
-                    {/* Size Options */}
+                    {/* Size / Variant Options */}
                     {item.variants && item.variants.length > 0 && (
                       <div>
                         <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold mb-2" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                          {lang === 'TH' ? 'ขนาด' : lang === 'DE' ? 'Größe' : lang === 'EN' ? 'Size' : 'Taglia'}
+                          {getVariantHeaderLabel(item)}
                         </p>
-                        <div className="flex gap-2 flex-wrap">
-                          {item.variants.map((v) => {
-                            const active = selectedVariant?.id === v.id;
-                            return (
+                        {item.id === 'soft-drink-cans' ? (
+                          <div className="grid grid-cols-2 gap-2">
+                            {item.variants.map((v) => {
+                              const active = selectedVariant?.id === v.id;
+                              const getCanColor = () => {
+                                if (v.id === '10071') return active ? 'border-red-700 bg-red-700 text-white shadow-md font-bold' : 'border-red-200 bg-red-50 text-red-900 hover:border-red-400';
+                                if (v.id === '10082') return active ? 'border-black bg-stone-900 text-white shadow-md font-bold' : 'border-stone-300 bg-stone-100 text-stone-900 hover:border-stone-400';
+                                if (v.id === '10072') return active ? 'border-orange-600 bg-orange-600 text-white shadow-md font-bold' : 'border-orange-200 bg-orange-50 text-orange-950 hover:border-orange-400';
+                                return active ? 'border-emerald-600 bg-emerald-600 text-white shadow-md font-bold' : 'border-emerald-200 bg-emerald-50 text-emerald-950 hover:border-emerald-400';
+                              };
+                              return (
+                                <button
+                                  key={v.id}
+                                  type="button"
+                                  onClick={() => setSelectedVariant(v)}
+                                  className={`px-3 py-2 text-xs rounded-xl border transition-all duration-150 cursor-pointer flex items-center justify-between ${getCanColor()}`}
+                                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                                >
+                                  <span>{getTranslatedName(v)}</span>
+                                  {active && <span className="text-xs">✓</span>}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        ) : item.variants.some(v => v.id.startsWith('format-')) || item.variants.length > 2 ? (
+                          <div className="relative">
+                            <div className="relative flex items-center">
+                              <select
+                                id={`variant-select-${item.id}`}
+                                value={selectedVariant?.id || item.variants[0]?.id}
+                                onChange={(e) => {
+                                  const v = item.variants?.find(opt => opt.id === e.target.value);
+                                  if (v) {
+                                    setSelectedVariant(v);
+                                    setSelectedSecondHalf(null);
+                                  }
+                                }}
+                                className="w-full bg-white border-2 border-stone-200 hover:border-[#8B1E1E]/60 focus:border-[#8B1E1E] text-stone-800 text-xs font-bold rounded-xl px-3.5 py-2.5 appearance-none pr-9 transition-all shadow-2xs focus:outline-none cursor-pointer"
+                                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                              >
+                                {item.variants.map((v) => {
+                                  const mod = v.priceModifier || 0;
+                                  const finalPrice = item.price + mod;
+                                  return (
+                                    <option key={v.id} value={v.id} className="py-1 text-stone-800 font-medium">
+                                      {getTranslatedName(v)} {finalPrice}฿
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                              <div className="absolute right-3 pointer-events-none text-stone-400">
+                                <ChevronDown size={16} className="stroke-[2.5]" />
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2 flex-wrap">
+                            {item.variants.map((v) => {
+                              const active = selectedVariant?.id === v.id;
+                              return (
+                                <button
+                                  key={v.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedVariant(v);
+                                    setSelectedSecondHalf(null);
+                                  }}
+                                  className={`px-3 py-1.5 text-[10px] font-semibold rounded-lg border transition-all duration-150 cursor-pointer ${
+                                    active
+                                      ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] font-bold shadow-sm'
+                                      : 'border-stone-300 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-850'
+                                  }`}
+                                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                                >
+                                  {getTranslatedName(v)}
+                                  {v.priceModifier > 0 && (
+                                    <span className="ml-1 text-stone-400 inline-flex items-baseline gap-0.5">
+                                      <span>+{v.priceModifier}</span>
+                                      <span className="text-[9px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                                    </span>
+                                  )}
+                                  {v.priceModifier < 0 && (
+                                    <span className="ml-1 text-stone-400 inline-flex items-baseline gap-0.5">
+                                      <span>{v.priceModifier}</span>
+                                      <span className="text-[9px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
+
+                            {/* 12" Half & Half Option Button (if eligible) */}
+                            {isEligibleForSplit(item) && (
                               <button
-                                key={v.id}
                                 type="button"
                                 onClick={() => {
-                                  setSelectedVariant(v);
-                                  setSelectedSecondHalf(null);
+                                  setSelectedVariant({
+                                    id: 'variant-half-half',
+                                    name: '12" Half & Half 🌓',
+                                    nameIt: '12" Metà & Metà 🌓',
+                                    nameTh: '12" ฮาล์ฟ & ฮาล์ฟ 🌓',
+                                    nameDe: '12" Halb & Halb 🌓',
+                                    sku: 'SPLIT-12',
+                                    price: item.price,
+                                    priceModifier: 0,
+                                  });
                                 }}
-                                className={`px-3 py-1.5 text-[10px] font-semibold rounded-lg border transition-all duration-150 cursor-pointer ${
-                                  active
-                                    ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] font-bold shadow-sm'
-                                    : 'border-stone-300 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-850'
+                                className={`px-3 py-1.5 text-[10px] font-semibold rounded-lg border transition-all duration-150 cursor-pointer flex items-center gap-1 ${
+                                  selectedVariant?.id === 'variant-half-half'
+                                    ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white font-bold shadow-md'
+                                    : 'border-amber-300 bg-amber-50/60 text-amber-900 hover:border-amber-400 hover:bg-amber-100/60'
                                 }`}
                                 style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                               >
-                                {getTranslatedName(v)}
-                                {v.priceModifier > 0 && (
-                                  <span className="ml-1 text-stone-400 inline-flex items-baseline gap-0.5">
-                                    <span>+{v.priceModifier}</span>
-                                    <span className="text-[9px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                                  </span>
-                                )}
-                                {v.priceModifier < 0 && (
-                                  <span className="ml-1 text-stone-400 inline-flex items-baseline gap-0.5">
-                                    <span>{v.priceModifier}</span>
-                                    <span className="text-[9px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                                  </span>
-                                )}
+                                <span>{t.splitVariantName}</span>
                               </button>
-                            );
-                          })}
-
-                          {/* 12" Half & Half Option Button (if eligible) */}
-                          {isEligibleForSplit(item) && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedVariant({
-                                  id: 'variant-half-half',
-                                  name: '12" Half & Half 🌓',
-                                  nameIt: '12" Metà & Metà 🌓',
-                                  nameTh: '12" ฮาล์ฟ & ฮาล์ฟ 🌓',
-                                  nameDe: '12" Halb & Halb 🌓',
-                                  sku: 'SPLIT-12',
-                                  price: item.price,
-                                  priceModifier: 0,
-                                });
-                              }}
-                              className={`px-3 py-1.5 text-[10px] font-semibold rounded-lg border transition-all duration-150 cursor-pointer flex items-center gap-1 ${
-                                selectedVariant?.id === 'variant-half-half'
-                                  ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white font-bold shadow-md'
-                                  : 'border-amber-300 bg-amber-50/60 text-amber-900 hover:border-amber-400 hover:bg-amber-100/60'
-                              }`}
-                              style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                            >
-                              <span>{t.splitVariantName}</span>
-                            </button>
-                          )}
-                        </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -831,7 +1189,7 @@ export default function MenuGrid({ items, lang }: Props) {
                             <p className="text-xs font-bold text-stone-900 truncate">
                               {getTranslatedName(item)}
                             </p>
-                            <span className="text-[10px] font-extrabold text-[#8B1E1E]">
+                            <span className="text-[10px] font-extrabold text-[#8B1E1E] whitespace-nowrap inline-block">
                               {item.price} ฿ (12")
                             </span>
                           </div>
@@ -846,7 +1204,7 @@ export default function MenuGrid({ items, lang }: Props) {
                                   <Check size={12} className="text-emerald-600 shrink-0" />
                                   <span>{getTranslatedName(selectedSecondHalf)}</span>
                                 </p>
-                                <span className="text-[10px] font-extrabold text-[#8B1E1E]">
+                                <span className="text-[10px] font-extrabold text-[#8B1E1E] whitespace-nowrap inline-block">
                                   {selectedSecondHalf.price} ฿ (12")
                                 </span>
                               </div>
@@ -1011,6 +1369,7 @@ export default function MenuGrid({ items, lang }: Props) {
                                               <div className="w-1.5 h-1.5 bg-white rounded-full" />
                                             )}
                                           </div>
+                                          {getFruitEmoji(extra.id) && <span className="text-xs">{getFruitEmoji(extra.id)}</span>}
                                           <span className="text-stone-850 text-[11px] font-semibold">{getTranslatedName(extra)}</span>
                                         </div>
                                         {extra.price > 0 ? (
@@ -1156,16 +1515,40 @@ export default function MenuGrid({ items, lang }: Props) {
 
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <span
-                      className="block text-[10px] uppercase tracking-wider text-stone-400 font-bold"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                    >
-                      {isExpanded ? t.totalFinito : t.startingAt}
-                    </span>
-                    {renderFormattedPrice(isExpanded ? currentTotalPrice : item.price, {
-                      numClass: `text-xl font-extrabold transition-colors duration-300 ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`,
-                      symbolClass: `text-sm font-black transition-colors duration-300 select-none ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`
-                    })}
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="block text-[10px] uppercase tracking-wider text-stone-400 font-bold"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                      >
+                        {isExpanded ? t.totalFinito : t.startingAt}
+                      </span>
+                      {isDiningMode && (
+                        <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
+                          -5% TAVOLO
+                        </span>
+                      )}
+                    </div>
+                    {isDiningMode ? (
+                      <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
+                        <span 
+                          className={`text-xl font-extrabold transition-colors duration-300 ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`}
+                          style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                        >
+                          {Math.round((isExpanded ? currentTotalPrice : item.price) * 0.95)}
+                        </span>
+                        <span className={`text-sm font-black transition-colors duration-300 select-none ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`}>
+                          ฿
+                        </span>
+                        <span className="text-xs text-stone-400 line-through font-semibold ml-0.5">
+                          {isExpanded ? currentTotalPrice : item.price}฿
+                        </span>
+                      </div>
+                    ) : (
+                      renderFormattedPrice(isExpanded ? currentTotalPrice : item.price, {
+                        numClass: `text-xl font-extrabold transition-colors duration-300 ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`,
+                        symbolClass: `text-sm font-black transition-colors duration-300 select-none ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`
+                      })
+                    )}
                   </div>
 
                   <button
@@ -1196,24 +1579,148 @@ export default function MenuGrid({ items, lang }: Props) {
       })}
     </div>
 
-      {/* Lightbox Zoom Modal */}
-      {zoomedImage && (
+      {/* Lightbox Zoom Preview Modal with Dish Name & Ingredients */}
+      {zoomedItem && (
         <div 
-          className="fixed inset-0 z-[100] bg-stone-950/90 backdrop-blur-sm flex items-center justify-center p-4 cursor-zoom-out animate-fadeIn"
-          onClick={() => setZoomedImage(null)}
+          className="fixed inset-0 z-[100] bg-stone-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 cursor-zoom-out animate-fadeIn"
+          onClick={() => setZoomedItem(null)}
         >
+          {/* Floating Screen Corner Close Button */}
           <button
-            onClick={() => setZoomedImage(null)}
-            className="absolute top-6 right-6 w-12 h-12 bg-stone-900/80 border border-stone-800 rounded-full flex items-center justify-center text-stone-300 hover:text-white hover:bg-stone-800 transition-all cursor-pointer shadow-xl"
+            type="button"
+            onClick={() => setZoomedItem(null)}
+            className="absolute top-4 right-4 sm:top-6 sm:right-6 w-11 h-11 bg-stone-900/90 hover:bg-stone-800 text-white rounded-full flex items-center justify-center shadow-2xl border border-white/20 transition-all cursor-pointer active:scale-95 z-30"
+            aria-label="Chiudi anteprima"
           >
-            <X size={24} />
+            <X size={22} />
           </button>
-          <div className="relative max-w-4xl max-h-[85vh] overflow-hidden rounded-[2rem] shadow-2xl border border-stone-800/50 bg-stone-900 cursor-default" onClick={(e) => e.stopPropagation()}>
-            <img 
-              src={withCacheBust(zoomedImage)} 
-              alt="Zoomed preview" 
-              className="max-w-full max-h-[80vh] object-contain rounded-[2rem]"
-            />
+
+          {/* Modal Container */}
+          <div 
+            className="relative max-w-2xl w-full max-h-[90vh] flex flex-col rounded-[2rem] shadow-2xl border border-stone-800/80 bg-stone-900 overflow-hidden cursor-default animate-scaleIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Card Corner Close Button (Always visible on modal) */}
+            <button
+              type="button"
+              onClick={() => setZoomedItem(null)}
+              className="absolute top-3.5 right-3.5 z-20 w-9 h-9 rounded-full bg-black/65 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg cursor-pointer transition-all active:scale-95"
+              aria-label="Chiudi"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Dish Image Box */}
+            <div className="relative w-full max-h-[58vh] sm:max-h-[64vh] bg-stone-950 flex items-center justify-center overflow-hidden">
+              {/* Minimal Vertical Dietary Watermark in Zoom Modal */}
+              {getDietaryType(zoomedItem) && (
+                <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none">
+                  <DietaryWatermark type={getDietaryType(zoomedItem)} />
+                </div>
+              )}
+              <img 
+                src={withCacheBust(zoomedItem.image)} 
+                alt={getTranslatedName(zoomedItem)} 
+                className="max-w-full max-h-[58vh] sm:max-h-[64vh] object-contain select-none"
+              />
+            </div>
+
+            {/* Bottom Dish Name & Ingredients Card */}
+            <div className="p-4 sm:p-5 bg-gradient-to-b from-stone-900 to-stone-950 border-t border-stone-800 flex flex-col gap-1.5">
+              <div className="flex items-start justify-between gap-3">
+                <h2 
+                  className="text-white font-black text-lg sm:text-2xl leading-tight"
+                  style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', letterSpacing: '0.01em' }}
+                >
+                  {formatProductName(getTranslatedName(zoomedItem))}
+                </h2>
+                <div className="flex flex-col items-end shrink-0">
+                  {isDiningMode ? (
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-amber-400 font-black text-lg sm:text-2xl inline-flex items-baseline gap-0.5" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        <span>{Math.round(zoomedItem.price * 0.95)}</span>
+                        <span className="text-xs font-black select-none text-amber-300">฿</span>
+                      </span>
+                      <span className="text-xs sm:text-sm text-stone-400 line-through font-semibold">
+                        {zoomedItem.price}฿
+                      </span>
+                      <span className="text-[8px] font-black uppercase text-emerald-400 bg-emerald-950/80 border border-emerald-500/50 px-1.5 py-0.5 rounded">
+                        -5%
+                      </span>
+                    </div>
+                  ) : (
+                    <span 
+                      className="text-amber-400 font-black text-lg sm:text-xl shrink-0 inline-flex items-baseline gap-0.5"
+                      style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                    >
+                      <span>{zoomedItem.price}</span>
+                      <span className="text-xs font-black select-none text-amber-300">฿</span>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Ingredients / Description */}
+              {getTranslatedDesc(zoomedItem) && (
+                <p className="text-stone-300 text-xs sm:text-sm font-normal leading-relaxed">
+                  {getTranslatedDesc(zoomedItem)}
+                </p>
+              )}
+
+              {/* Wine Action in Zoom Modal: Book Table (Delivery) OR Add to Cart (Dining Tablet) */}
+              {(zoomedItem.category === 'wines' || (zoomedItem as any).bottleScale !== undefined) && (
+                <div className="mt-3 pt-3 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  {onBookTable ? (
+                    <>
+                      <div className="text-left">
+                        <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider flex items-center gap-1">
+                          <span>✨</span>
+                          <span>{lang === 'TH' ? 'ส่วนลด 10% สำหรับไวน์ที่โต๊ะอาหาร' : lang === 'IT' ? '10% di Sconto al Tavolo' : lang === 'DE' ? '10% Rabatt am Tisch' : '10% Wine Discount at Table'}</span>
+                        </span>
+                        <p className="text-stone-400 text-[11px] leading-tight mt-0.5">
+                          {lang === 'TH' ? 'เสิร์ฟเฉพาะที่ร้านอาหารเท่านั้น (Dine-in Only)' : lang === 'IT' ? 'Servito esclusivamente al Ristorante' : lang === 'DE' ? 'Ausschließlich im Restaurant serviert' : 'Served exclusively at the Restaurant'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const wine = zoomedItem;
+                          setZoomedItem(null);
+                          onBookTable(wine);
+                        }}
+                        className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 active:scale-95 shrink-0"
+                      >
+                        <span>{lang === 'TH' ? 'จองโต๊ะรับส่วนลด 10%' : lang === 'IT' ? 'Prenota al Tavolo (-10%)' : lang === 'DE' ? 'Tisch mit 10% Rabatt buchen' : 'Book at Table (-10%)'}</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-left">
+                        <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider flex items-center gap-1">
+                          <span>✨</span>
+                          <span>{lang === 'TH' ? 'ไวน์นำเข้าคุณภาพพรีเมียม' : lang === 'IT' ? 'Vino Pregiato Selezionato' : lang === 'DE' ? 'Ausgewählter Spitzenwein' : 'Selected Fine Wine'}</span>
+                        </span>
+                        <p className="text-stone-400 text-[11px] leading-tight mt-0.5">
+                          {lang === 'TH' ? 'สั่งที่โต๊ะพร้อมรับส่วนลด 5% ทันที' : lang === 'IT' ? 'Ordinabile al tavolo con sconto 5% attivo' : lang === 'DE' ? 'Am Tisch bestellbar mit 5% Rabatt' : 'Order at table with 5% discount'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const wine = zoomedItem;
+                          setZoomedItem(null);
+                          handleAddWine(wine);
+                        }}
+                        className="w-full sm:w-auto px-5 py-2.5 bg-[#8B1E1E] hover:bg-[#721818] text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 active:scale-95 shrink-0"
+                      >
+                        <Plus size={14} className="stroke-[3]" />
+                        <span>{lang === 'TH' ? 'เพิ่มลงตะกร้า' : lang === 'IT' ? 'Aggiungi al Carrello' : lang === 'DE' ? 'In den Warenkorb' : 'Add to Table Order'}</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

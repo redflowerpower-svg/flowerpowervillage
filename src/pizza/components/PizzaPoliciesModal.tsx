@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { X, ShieldCheck, Truck, RotateCcw, Building2, Phone, Mail, MapPin, CheckCircle2 } from 'lucide-react';
+import { useLanguageStore } from '../store/languageStore';
+import { Language } from '../config/languages';
 
 export type PolicyTab = 'delivery' | 'refund' | 'privacy';
 
@@ -7,7 +9,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   initialTab?: PolicyTab;
-  lang: 'IT' | 'EN' | 'TH' | 'DE';
+  lang?: Language;
 }
 
 const content = {
@@ -177,7 +179,9 @@ const content = {
   }
 };
 
-export default function PizzaPoliciesModal({ isOpen, onClose, initialTab = 'delivery', lang = 'IT' }: Props) {
+export default function PizzaPoliciesModal({ isOpen, onClose, initialTab = 'delivery', lang: propLang }: Props) {
+  const storeLang = useLanguageStore((s) => s.lang);
+  const lang = propLang || storeLang || 'IT';
   const [activeTab, setActiveTab] = useState<PolicyTab>(initialTab);
   const t = content[lang] || content.EN;
 

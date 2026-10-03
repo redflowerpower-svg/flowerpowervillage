@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Globe, ChevronDown, Wine, Sparkles, Filter, RotateCcw, Check, UtensilsCrossed, Truck, Percent, ArrowRight, MapPin, AlertTriangle } from 'lucide-react';
+import { ShoppingCart, Globe, ChevronDown, ChevronLeft, Wine, Beer, Sparkles, Filter, RotateCcw, Check, UtensilsCrossed, Truck, Percent, ArrowRight, MapPin, AlertTriangle, Clock, Leaf, Wheat } from 'lucide-react';
 import { menuData, type MenuItem } from '../data/menuData';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuGrid from '../components/MenuGrid';
@@ -15,6 +15,11 @@ import { usePizzeriaStatus, PizzeriaServiceStatus, DEFAULT_PIZZERIA_STATUS } fro
 import PizzaPoliciesModal, { PolicyTab } from '../components/PizzaPoliciesModal';
 import { TableReservationModal } from '../components/TableReservationModal';
 import { checkFirstOrderEligibility, getOrCreateDeviceId } from '../services/firstOrderService';
+import { useLanguageStore } from '../store/languageStore';
+import { i18n } from '../data/i18n';
+import { SUPPORTED_LANGUAGES, LANGUAGE_METAS } from '../config/languages';
+import { getDietaryType, type DietaryType } from '../utils/dietary';
+import { supabase } from '../../lib/supabase';
 
 
 const translations = {
@@ -25,7 +30,7 @@ const translations = {
     tagline2: 'Cuoca Italiana • Ingredienti Importati',
     info1: 'Aperto tutti i giorni',
     info2: '11:00 – 21:30',
-    info3: 'Consegna & Ritiro',
+    info3: 'Delivery & Takeaway',
     cartItems: 'prodotti nel carrello',
     cartItem: 'prodotto nel carrello',
     promoTitle: 'Promozioni & Consegna a Domicilio',
@@ -34,7 +39,7 @@ const translations = {
     promoFirstOrder: '10% di sconto sul tuo primo ordine',
     bookTableBadge: 'RISTORANTE',
     bookTableTitle: 'Prenota un Tavolo o Capanna',
-    bookTableSubtitle: 'Sala interna, Tavoli esterni o Capanna',
+    bookTableSubtitle: "Al chiuso, all'aperto o in capanna",
     bookTableBtn: 'PRENOTA ORA',
   },
   EN: {
@@ -44,7 +49,7 @@ const translations = {
     tagline2: 'Italian Chef • Imported Ingredients',
     info1: 'Open Daily',
     info2: '11:00 – 21:30',
-    info3: 'Delivery & Pickup',
+    info3: 'Delivery & Takeaway',
     cartItems: 'items in cart',
     cartItem: 'item in cart',
     promoTitle: 'Promotions & Delivery Info',
@@ -53,7 +58,7 @@ const translations = {
     promoFirstOrder: '10% discount on your first order',
     bookTableBadge: 'DINE-IN',
     bookTableTitle: 'Book a Table or Hut',
-    bookTableSubtitle: 'Indoor hall, Outdoor tables or Hut',
+    bookTableSubtitle: 'Indoor, outdoor tables or hut',
     bookTableBtn: 'BOOK NOW',
   },
   TH: {
@@ -63,7 +68,7 @@ const translations = {
     tagline2: 'เชฟหญิงชาวอิตาลี • วัตถุดิบนำเข้า',
     info1: 'เปิดบริการทุกวัน',
     info2: '11:00 – 21:30',
-    info3: 'บริการจัดส่งและรับที่ร้าน',
+    info3: 'เดลิเวอรี่ & สั่งกลับบ้าน (Takeaway)',
     cartItems: 'รายการในรถเข็น',
     cartItem: 'รายการในรถเข็น',
     promoTitle: 'โปรโมชั่นและข้อมูลการจัดส่ง',
@@ -72,7 +77,7 @@ const translations = {
     promoFirstOrder: 'ส่วนลด 10% สำหรับการสั่งซื้อครั้งแรก',
     bookTableBadge: 'ทานที่ร้าน',
     bookTableTitle: 'จองโต๊ะหรือซุ้มกระท่อม',
-    bookTableSubtitle: 'ห้องด้านใน, โต๊ะด้านนอก หรือ ซุ้มกระท่อม',
+    bookTableSubtitle: 'โซนในร่ม, โต๊ะกลางแจ้ง หรือ ซุ้มกระท่อม',
     bookTableBtn: 'จองเลย',
   },
   DE: {
@@ -82,7 +87,7 @@ const translations = {
     tagline2: 'Italienische Köchin • Importierte Zutaten',
     info1: 'Täglich geöffnet',
     info2: '11:00 – 21:30',
-    info3: 'Lieferung & Abholung',
+    info3: 'Lieferung & Takeaway',
     cartItems: 'Artikel im Warenkorb',
     cartItem: 'Artikel im Warenkorb',
     promoTitle: 'Aktionen & Lieferbedingungen',
@@ -97,6 +102,12 @@ const translations = {
 };
 
 const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
+  'daily-specials': {
+    IT: { name: 'Specialità del Giorno', desc: 'Creazioni esclusive e piatti speciali del giorno preparati dal nostro chef con ingredienti freschi di stagione' },
+    EN: { name: 'Daily Specials', desc: 'Exclusive daily creations and seasonal specialties freshly prepared by our Italian chef with premium ingredients' },
+    TH: { name: 'เมนูพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
+    DE: { name: 'Tagesempfehlungen', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs aus frischen Zutaten' },
+  },
   'traditional-italian-pizza': {
     IT: { name: 'Pizze Classiche', desc: 'Impasto a fermentazione naturale' },
     EN: { name: 'Classic Pizzas', desc: 'Slow-fermented Italian dough' },
@@ -116,10 +127,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     DE: { name: 'Italienische Salate', desc: 'Frische Salate mit Olivenöl' },
   },
   'pizza-sandwich': {
-    IT: { name: 'Pizza Sandwich', desc: 'Pane appena sfornato farcito' },
-    EN: { name: 'Pizza Sandwich', desc: 'Freshly baked sandwich' },
-    TH: { name: 'พิตซ่าแซนด์วิช', desc: 'อบใหม่ร้อนๆ ไส้แน่น' },
-    DE: { name: 'Pizza Sandwich', desc: 'Frisch gebackenes Sandwich' },
+    IT: { name: 'Focaccia Pizza Sandwich', desc: 'Focaccia ligure appena sfornata e farcita' },
+    EN: { name: 'Focaccia Pizza Sandwiches', desc: 'Freshly baked stuffed focaccia sandwiches' },
+    TH: { name: 'ฟอคคาเซีย & พิตซ่าแซนด์วิช', desc: 'อบใหม่ร้อนๆ ไส้แน่น' },
+    DE: { name: 'Focaccia Pizza Sandwich', desc: 'Frisch gebackenes Focaccia-Sandwich' },
   },
   'pizza-burgers': {
     IT: { name: 'Pizza Burger', desc: 'Hamburger in stile italiano' },
@@ -158,10 +169,16 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     DE: { name: 'Fruchtgetränke', desc: 'Frische Frucht-Shakes' },
   },
   'soft-drinks': {
-    IT: { name: 'Bibite & Birre', desc: 'Bibite analcoliche, acqua minerale naturale e birre fresche in bottiglia servite fredde.' },
-    EN: { name: 'Soft Drinks & Beers', desc: 'Refreshing soft drinks, natural mineral water, and chilled bottled beers.' },
-    TH: { name: 'เครื่องดื่มและเบียร์', desc: 'น้ำอัดลม น้ำดื่มสดชื่น และเบียร์ขวดเย็นๆ' },
-    DE: { name: 'Erfrischungsgetränke & Biere', desc: 'Erfrischende alkoholfreie Getränke, Mineralwasser und gekühlte Flaschenbiere.' },
+    IT: { name: 'Bibite & Acqua', desc: 'Bibite analcoliche in lattina, acqua minerale naturale e bevande rinfrescanti servite fredde.' },
+    EN: { name: 'Soft Drinks & Water', desc: 'Canned soft drinks, natural mineral water, and chilled refreshing beverages.' },
+    TH: { name: 'น้ำอัดลมและน้ำดื่ม', desc: 'น้ำอัดลมกระป๋อง น้ำดื่มธรรมชาติ และเครื่องดื่มเพิ่มความสดชื่นเสิร์ฟเย็น' },
+    DE: { name: 'Erfrischungsgetränke & Wasser', desc: 'Erfrischungsgetränke in der Dose, natürliches Mineralwasser und gekühlte Getränke.' },
+  },
+  'beers': {
+    IT: { name: 'Birre', desc: 'Le migliori marche di birra in bottiglia grande e piccola, servite ghiacciate.' },
+    EN: { name: 'Beers', desc: 'The best Thai and international bottled beers served ice cold.' },
+    TH: { name: 'เบียร์', desc: 'เบียร์ขวดเย็นเจี๊ยบคุณภาพดี มีให้เลือกทั้งขวดใหญ่และขวดเล็ก' },
+    DE: { name: 'Biere', desc: 'Beste thailändische und internationale Flaschenbiere eiskalt serviert.' },
   },
   'beers-and-wines': {
     IT: { name: 'Birre & Vini', desc: 'Birre fresche e selezione di vini italiani' },
@@ -177,7 +194,119 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
   },
 };
 
+const DAILY_SPECIALS_SECTIONS = [
+  {
+    id: 'pasta',
+    name: {
+      IT: 'Primi Piatti, Frutti di Mare & Paste Ripiene',
+      EN: 'First Courses, Seafood & Stuffed Pasta',
+      TH: 'พาสต้าและราวิโอลีโฮมเมด',
+      DE: 'Pastagerichte & Gefüllte Nudeln'
+    },
+    desc: {
+      IT: 'Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali con formati a scelta.',
+      EN: 'Seafood Spaghetti, Fresh Crab Meat, Salmon Penne, Squid Ink Tagliatelle, and artisanal Ravioli with your choice of pasta format.',
+      TH: 'สปาเก็ตตี้ซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมด เลือกเส้นและรูปแบบได้ตามใจชอบ',
+      DE: 'Meeresfrüchte-Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte Ravioli mit wählbaren Formaten.'
+    }
+  },
+  {
+    id: 'traditional-italian-pizza',
+    name: {
+      IT: 'Pizze Gourmet Speciali',
+      EN: 'Gourmet Special Pizzas',
+      TH: 'พิซซ่ากูร์เมต์สูตรพิเศษ',
+      DE: 'Gourmet-Spezialpizzen'
+    },
+    desc: {
+      IT: 'Pizze artigianali a lievitazione naturale con polpa di granchio fresca o salsiccia nostrana e stilacci.',
+      EN: 'Artisanal sourdough pizzas topped with fresh blue crab meat or Italian sausage and sautéed stilacci greens.',
+      TH: 'พิซซ่าแป้งหมักยีสต์ธรรมชาติ หน้าเนื้อปูม้าสด และไส้กรอกหมูอิตาเลียนกับผักสตีลัชชี',
+      DE: 'Handgemachte Sauerteigpizzen belegt mit frischem Krabbenfleisch oder italienischer Salsiccia und Stilacci-Gemüse.'
+    }
+  },
+  {
+    id: 'daily-specials',
+    name: {
+      IT: 'Secondi Piatti Tradizionali',
+      EN: 'Traditional Main Courses',
+      TH: 'อาหารจานหลักแบบดั้งเดิม',
+      DE: 'Traditionelle Hauptgerichte'
+    },
+    desc: {
+      IT: 'Grandi classici e torte salate della tradizione italiana preparati al momento: Cotoletta alla Milanese, Cotechino artigianale con Purè e autentica Torta Pasqualina ligure.',
+      EN: 'Italian culinary classics & savory pies made fresh: Crispy Milanese Cutlet with fries, Artisanal Cotechino with mashed potatoes, and Ligurian Torta Pasqualina.',
+      TH: 'เมนูคลาสสิกและพายอบสไตล์อิตาเลียน: มิลานีสคัตเล็ตหมูทอดกรอบ ไส้กรอกโคเตคิโนโบราณพร้อมมันบด และพายตอร์ตา ปาสควาลินา',
+      DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.'
+    }
+  },
+  {
+    id: 'pizza-sandwich',
+    name: {
+      IT: 'Focacce Artigianali',
+      EN: 'Artisanal Focaccias',
+      TH: 'ฟอคคาเซียอบสดสไตล์อิตาเลียน',
+      DE: 'Hausgemachte Focaccia'
+    },
+    desc: {
+      IT: 'Focacce fragranti da impasto pizza cotte al forno e farcite con i migliori salumi italiani selezionati: Finocchiona, Pancetta arrotolata, Porchetta, Prosciutto Cotto e Salame.',
+      EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Finocchiona, Rolled Pancetta, Porchetta, Cooked Ham, and Salami.',
+      TH: 'ฟอคคาเซียอบสดใหม่กรอบนอกนุ่มใน สอดไส้โคลด์คัทอิตาเลียนชั้นเลิศ: ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
+      DE: 'Ofenfrische Focaccia gefüllt mit feinsten italienischen Wurstspezialitäten: Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.'
+    }
+  }
+];
+
+const FOCACCIA_SANDWICH_SECTIONS = [
+  {
+    id: 'focacce',
+    name: {
+      IT: 'Focacce Artigianali',
+      EN: 'Artisanal Focaccias',
+      TH: 'ฟอคคาเซียอบสดสไตล์อิตาเลียน',
+      DE: 'Hausgemachte Focaccia'
+    },
+    desc: {
+      IT: 'Focacce fragranti da impasto pizza cotte al forno e farcite con i migliori salumi italiani selezionati: Finocchiona toscana, Pancetta arrotolata, Porchetta romana, Prosciutto Cotto e Salame.',
+      EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Tuscan Finocchiona, Rolled Pancetta, Roasted Porchetta, Cooked Ham, and Salami.',
+      TH: 'ฟอคคาเซียแป้งพิซซ่าอบสดใหม่สไตล์โฮมเมด สอดไส้โคลด์คัทอิตาเลียนพรีเมียม: ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
+      DE: 'Ofenfrische Pizza-Focaccia gefüllt mit feinsten italienischen Spezialitäten: Toskanische Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.'
+    }
+  },
+  {
+    id: 'pizza-sandwiches',
+    name: {
+      IT: 'Pizza Sandwiches',
+      EN: 'Pizza Sandwiches',
+      TH: 'พิตซ่าแซนด์วิช',
+      DE: 'Pizza Sandwiches'
+    },
+    desc: {
+      IT: 'Gustosi panini racchiusi nel nostro impasto pizza dorato e croccante con formaggio filante, pomodoro fresco e verdure croccanti.',
+      EN: 'Flavorful sandwiches wrapped in our golden, crispy pizza crust with melted cheese, fresh tomatoes, and crisp lettuce.',
+      TH: 'แซนด์วิชแป้งพิซซ่ากรอบนอกนุ่มใน สอดไส้ชีสเยิ้มๆ มะเขือเทศสด และผักสลัดกรอบอร่อย',
+      DE: 'Köstliche Sandwiches in knusprigem Pizzateig mit geschmolzenem Käse, frischen Tomaten und knackigem Salat.'
+    }
+  }
+];
+
 const PASTA_SAUCES = [
+  { 
+    id: 'special-pasta', 
+    name: { 
+      IT: 'Specialità & Paste Ripiene', 
+      EN: "Chef's Specials & Stuffed Pasta", 
+      TH: 'พาสต้าและราวิโอลีสูตรพิเศษ', 
+      DE: 'Spezialitäten & Gefüllte Pasta' 
+    }, 
+    desc: {
+      IT: 'Creazioni di mare e di terra della nostra cuoca: Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali ripieni.',
+      EN: 'Seafood and artisan specialties: Seafood Spaghetti, Blue Crab Meat, Salmon Penne, Squid Ink Tagliatelle, and handmade stuffed Ravioli.',
+      TH: 'พาสต้าซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมดสอดไส้สูตรดั้งเดิม',
+      DE: 'Meeresfrüchte- und Spezialitätenkreationen: Frutti di Mare Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte gefüllte Ravioli.'
+    },
+    pattern: 'special' 
+  },
   { 
     id: 'aglio-olio', 
     name: { 
@@ -324,41 +453,11 @@ const PASTA_SAUCES = [
   }
 ];
 
-const SOFT_DRINKS_SECTIONS = [
-  { 
-    id: 'drinks', 
-    name: { IT: 'Bibite & Acqua', EN: 'Soft Drinks & Water', TH: 'น้ำอัดลมและน้ำดื่ม', DE: 'Erfrischungsgetränke & Wasser' },
-    desc: {
-      IT: 'Bibite analcoliche in lattina, acqua minerale naturale e bevande rinfrescanti servite fredde.',
-      EN: 'Canned soft drinks, natural mineral water, and chilled refreshing beverages.',
-      TH: 'น้ำอัดลมกระป๋อง น้ำดื่มธรรมชาติ และเครื่องดื่มเพิ่มความสดชื่นเสิร์ฟเย็น',
-      DE: 'Erfrischungsgetränke in der Dose, natürliches Mineralwasser und gekühlte Getränke.'
-    }
-  },
-  { 
-    id: 'beers', 
-    name: { IT: 'Birre', EN: 'Beers', TH: 'เบียร์', DE: 'Biere' },
-    desc: {
-      IT: 'Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché le bottiglie in vetro preservano ed esaltano il sapore per un\'esperienza completa.',
-      EN: 'The Best Thai Beer Brands Served In Large And Small Bottles, Because Glass Bottles Enhance The Flavor, Bringing Out The Full Beer Experience',
-      TH: 'เบียร์ไทยคุณภาพเยี่ยม เสิร์ฟในขวดแก้วทั้งขนาดเล็กและใหญ่เพื่อรสชาติที่ดีที่สุด',
-      DE: 'Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen, da Glasflaschen den Geschmack verbessern und das volle Biererlebnis entfalten.'
-    }
-  }
-];
-
 const PASTA_FILTER_LABELS = {
   IT: { all: 'Tutti i Primi' },
   EN: { all: 'All Pasta' },
   TH: { all: 'พาสต้าทั้งหมด' },
   DE: { all: 'Alle Nudelgerichte' },
-};
-
-const DRINK_FILTER_LABELS = {
-  IT: { all: 'Tutte le Bevande', drinks: 'Bibite & Acqua', beers: 'Birre' },
-  EN: { all: 'All Beverages', drinks: 'Soft Drinks & Water', beers: 'Beers' },
-  TH: { all: 'เครื่องดื่มทั้งหมด', drinks: 'น้ำอัดลมและน้ำดื่ม', beers: 'เบียร์' },
-  DE: { all: 'Alle Getränke', drinks: 'Erfrischungsgetränke & Wasser', beers: 'Biere' },
 };
 
 // ─── Wine Filtering Definitions & Subsections ──────────────────────────────
@@ -738,10 +837,10 @@ export default function DeliveryMenu() {
     return false;
   }, []);
 
-  // Filtered Categories (Hides soft-drinks and wines in compliance mode, keeping the 10 food/cafe/fruit categories)
+  // Filtered Categories (Hides beers and wines in compliance mode, keeping the 11 food/cafe/fruit/soft-drink categories)
   const availableCategories = useMemo(() => {
     if (isCompliance) {
-      return menuData.filter((c) => c.id !== 'soft-drinks' && c.id !== 'beers-and-wines' && c.id !== 'wines');
+      return menuData.filter((c) => c.id !== 'beers' && c.id !== 'beers-and-wines' && c.id !== 'wines');
     }
     return menuData;
   }, [isCompliance]);
@@ -752,6 +851,24 @@ export default function DeliveryMenu() {
   const [isPolicyModalOpen, setIsPolicyModalOpen] = useState(false);
   const [policyTab, setPolicyTab] = useState<PolicyTab>('delivery');
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
+
+  // Ensure that every time the page loads or refreshes, it always starts on the first category (Traditional Italian Pizzas) and at the top of the page
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        if ('scrollRestoration' in window.history) {
+          window.history.scrollRestoration = 'manual';
+        }
+      } catch {}
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+    }
+    const firstCat = availableCategories[0]?.id || 'traditional-italian-pizza';
+    setActiveCategoryId(firstCat);
+    setSelectedPastaSauce('all');
+    setSelectedWineType('all');
+    setSelectedWineCountry('all');
+    setDietaryFilter('all');
+  }, []);
 
   // Ensure activeCategoryId is valid when categories change
   useEffect(() => {
@@ -771,7 +888,57 @@ export default function DeliveryMenu() {
   const count = getCount();
   const total = getTotal();
 
-  const [lang, setLang] = useState<'IT' | 'EN' | 'TH' | 'DE'>('IT');
+  // Floating Cart Lateral Tab state (Compact by default, expands on desktop hover or mobile tap)
+  const [isCartTabExpanded, setIsCartTabExpanded] = useState(false);
+  const cartTabTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleCartTabClick = (e: React.MouseEvent) => {
+    // If on mobile / compact and not expanded yet -> 1st tap expands details
+    if (!isCartTabExpanded) {
+      e.stopPropagation();
+      setIsCartTabExpanded(true);
+      // Auto-collapse back to compact after 4s of inactivity
+      if (cartTabTimerRef.current) clearTimeout(cartTabTimerRef.current);
+      cartTabTimerRef.current = setTimeout(() => {
+        setIsCartTabExpanded(false);
+      }, 4000);
+      return;
+    }
+
+    // 2nd tap when already expanded -> opens the cart drawer
+    if (cartTabTimerRef.current) clearTimeout(cartTabTimerRef.current);
+    setIsCartTabExpanded(false);
+    openCart();
+  };
+
+  // Chiudi immediatamente la linguetta espansa se l'utente scorre la pagina o clicca altrove
+  useEffect(() => {
+    if (!isCartTabExpanded) return;
+
+    const handleOutsideInteraction = (e: Event) => {
+      const target = e.target as HTMLElement | null;
+      if (target && target.closest('#floating-edge-cart-btn')) return;
+      setIsCartTabExpanded(false);
+      if (cartTabTimerRef.current) clearTimeout(cartTabTimerRef.current);
+    };
+
+    const handleScroll = () => {
+      setIsCartTabExpanded(false);
+      if (cartTabTimerRef.current) clearTimeout(cartTabTimerRef.current);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    document.addEventListener('pointerdown', handleOutsideInteraction);
+    document.addEventListener('click', handleOutsideInteraction);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('pointerdown', handleOutsideInteraction);
+      document.removeEventListener('click', handleOutsideInteraction);
+    };
+  }, [isCartTabExpanded]);
+
+  const { language: lang, setLanguage: setLang } = useLanguageStore();
   const [isLangOpen, setIsLangOpen] = useState(false);
 
   // Auto-open checkout if returning from Omise 3D Secure
@@ -783,20 +950,6 @@ export default function DeliveryMenu() {
       }
     }
   }, []);
-
-  useEffect(() => {
-    const browserLang = navigator.language.slice(0, 2).toUpperCase();
-    if (['IT', 'EN', 'TH', 'DE'].includes(browserLang)) {
-      setLang(browserLang as any);
-    } else {
-      setLang('EN');
-    }
-  }, []);
-
-  // Sync lang → <html data-lang="..."> so CSS applies IBM Plex Sans Thai for TH
-  useEffect(() => {
-    document.documentElement.setAttribute('data-lang', lang);
-  }, [lang]);
 
   // Caricamento in tempo reale della collezione vini dal Cloud Supabase
   const [cloudWines, setCloudWines] = useState<WineCardData[]>([]);
@@ -818,7 +971,7 @@ export default function DeliveryMenu() {
   const [selectedPastaSauce, setSelectedPastaSauce] = useState<string>('all');
   const [selectedWineType, setSelectedWineType] = useState<'all' | 'red' | 'white' | 'rose' | 'sparkling'>('all');
   const [selectedWineCountry, setSelectedWineCountry] = useState<string>('all');
-  const [selectedDrinkType, setSelectedDrinkType] = useState<'all' | 'drinks' | 'beers'>('all');
+  const [dietaryFilter, setDietaryFilter] = useState<'all' | 'veggie' | 'vegan'>('all');
   // First-order discount eligibility & official domain check
   const [isFirstOrderEligible, setIsFirstOrderEligible] = useState(true);
   const isOfficialDomain = typeof window !== 'undefined' && window.location.hostname.toLowerCase().includes('flowerpowerpizza.com');
@@ -834,6 +987,85 @@ export default function DeliveryMenu() {
       setIsFirstOrderEligible(res.eligible);
     });
   }, []);
+
+  // Sync daily specials overrides from admin dashboard
+  const [dailySpecialsOverrides, setDailySpecialsOverrides] = useState<Record<string, boolean>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const syncFromStorage = () => {
+      try {
+        const overrides = JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
+        setDailySpecialsOverrides(overrides);
+      } catch {}
+    };
+    window.addEventListener('storage', syncFromStorage);
+
+    let bc: BroadcastChannel | null = null;
+    if ('BroadcastChannel' in window) {
+      bc = new BroadcastChannel('fp_pizza_menu_sync');
+      bc.onmessage = (ev) => {
+        if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE') {
+          syncFromStorage();
+        }
+      };
+    }
+
+    supabase.from('pizza_menu_items').select('id, is_daily_special').then(({ data }) => {
+      if (data && Array.isArray(data)) {
+        setDailySpecialsOverrides(prev => {
+          const next = { ...prev };
+          data.forEach((item: any) => {
+            if (item.is_daily_special !== undefined && item.is_daily_special !== null) {
+              next[item.id] = item.is_daily_special;
+            }
+          });
+          try { localStorage.setItem('fp_pizza_daily_specials_overrides', JSON.stringify(next)); } catch {}
+          return next;
+        });
+      }
+    });
+
+    return () => {
+      window.removeEventListener('storage', syncFromStorage);
+      if (bc) bc.close();
+    };
+  }, []);
+
+  // Table reservation initial notes & wine privilege state
+  const [reservationInitialNotes, setReservationInitialNotes] = useState('');
+  const [isWineReservation, setIsWineReservation] = useState(false);
+
+  const handleBookWineTable = (wineItem?: MenuItem) => {
+    if (wineItem) {
+      const wineName = wineItem.name;
+      const note = lang === 'TH'
+        ? `ต้องการลิ้มลองไวน์: ${wineName} (รับส่วนลด 10% สำหรับไวน์ที่โต๊ะ)`
+        : lang === 'IT'
+        ? `Richiesta degustazione: ${wineName} (Sconto 10% Vini al Tavolo)`
+        : lang === 'DE'
+        ? `Weinverkostung gewünscht: ${wineName} (10% Weinkeller-Rabatt am Tisch)`
+        : `Wine tasting requested: ${wineName} (10% Wine Cellar Discount at Table)`;
+      setReservationInitialNotes(note);
+    } else {
+      const note = lang === 'TH'
+        ? `สิทธิพิเศษส่วนลดไวน์ 10% (Wine Privilege)`
+        : lang === 'IT'
+        ? `Sconto 10% Carta Vini al Tavolo (Privilegio Cantina)`
+        : lang === 'DE'
+        ? `10% Weinkeller-Rabatt am Tisch`
+        : `10% Wine Cellar Discount at Table`;
+      setReservationInitialNotes(note);
+    }
+    setIsWineReservation(true);
+    setIsReservationModalOpen(true);
+  };
 
   const t = translations[lang];
   const activeCategory = availableCategories.find((c) => c.id === activeCategoryId) ?? availableCategories[0] ?? menuData[0];
@@ -1012,11 +1244,42 @@ export default function DeliveryMenu() {
     return filterWineItems(selectedWineType);
   }, [allDynamicWines, selectedWineType, selectedWineCountry]);
 
-  const filteredCategoryItems = activeCategoryId === 'wines'
-    ? filterWineItems(selectedWineType)
-    : activeCategory.items
-        .filter((item: any) => !unavailableIds.has(item.id))
-        .map((item: any) => priceOverrides[item.id] !== undefined ? { ...item, price: priceOverrides[item.id] } : item);
+  const filteredCategoryItems = useMemo(() => {
+    if (activeCategoryId === 'wines') {
+      return filterWineItems(selectedWineType);
+    }
+    const rawItems = activeCategory.items
+      .filter((item: any) => !unavailableIds.has(item.id))
+      .map((item: any) => priceOverrides[item.id] !== undefined ? { ...item, price: priceOverrides[item.id] } : item);
+
+    if (dietaryFilter === 'all') {
+      return rawItems;
+    }
+    if (dietaryFilter === 'veggie') {
+      return rawItems.filter((item: any) => {
+        const diet = getDietaryType(item, activeCategoryId);
+        return diet === 'veggie' || diet === 'vegan';
+      });
+    }
+    if (dietaryFilter === 'vegan') {
+      return rawItems.filter((item: any) => {
+        const diet = getDietaryType(item, activeCategoryId);
+        return diet === 'vegan';
+      });
+    }
+    return rawItems;
+  }, [activeCategoryId, activeCategory, dietaryFilter, selectedWineType, selectedWineCountry, allDynamicWines]);
+
+  const isSpecialPasta = (item: any) => {
+    const id = item.id || '';
+    return id === 'spaghetti-allo-scoglio' || 
+           id === 'penne-al-salmone' || 
+           id === 'ravioli-alla-crema-di-gamberi' || 
+           id === 'ravioli-al-sugo-di-noci' || 
+           id === 'tagliatelle-al-nero-di-seppia-e-calamari' || 
+           id === 'spaghetti-alla-polpa-di-granchio' ||
+           id.startsWith('special-');
+  };
 
   const pastaSauceCounts = useMemo(() => {
     const counts: Record<string, number> = { all: filteredCategoryItems.length };
@@ -1024,6 +1287,10 @@ export default function DeliveryMenu() {
       const c = filteredCategoryItems.filter((item: any) => {
         const path = item.image_file || "";
         const name = item.id || "";
+        if (sauce.id === 'special-pasta') {
+          return isSpecialPasta(item);
+        }
+        if (isSpecialPasta(item)) return false;
         if (path.includes(sauce.pattern)) return true;
         if (sauce.id === 'lasagne' && name.includes('lasagna')) return true;
         return false;
@@ -1037,6 +1304,10 @@ export default function DeliveryMenu() {
     const items = filteredCategoryItems.filter((item: any) => {
       const path = item.image_file || "";
       const name = item.id || "";
+      if (sauce.id === 'special-pasta') {
+        return isSpecialPasta(item);
+      }
+      if (isSpecialPasta(item)) return false;
       if (path.includes(sauce.pattern)) return true;
       if (sauce.id === 'lasagne' && name.includes('lasagna')) return true;
       return false;
@@ -1047,110 +1318,235 @@ export default function DeliveryMenu() {
     return group.items.length > 0;
   }) : [];
 
-  const drinkCounts = useMemo(() => {
-    const drinks = filteredCategoryItems.filter((item: any) => !item.id.toLowerCase().includes('beer') && !item.name.toLowerCase().includes('beer')).length;
-    const beers = filteredCategoryItems.filter((item: any) => item.id.toLowerCase().includes('beer') || item.name.toLowerCase().includes('beer')).length;
-    return {
-      all: drinks + beers,
-      drinks,
-      beers
-    };
-  }, [filteredCategoryItems]);
+  const groupedDailySpecials = activeCategoryId === 'daily-specials' ? DAILY_SPECIALS_SECTIONS.map(sec => {
+    const items = filteredCategoryItems.filter((item: any) => {
+      const id = item.id || '';
+      if (dailySpecialsOverrides[id] === false) return false;
+      if (sec.id === 'pasta') {
+        return id === 'spaghetti-allo-scoglio' || 
+               id === 'penne-al-salmone' || 
+               id === 'ravioli-alla-crema-di-gamberi' || 
+               id === 'ravioli-al-sugo-di-noci' || 
+               id === 'tagliatelle-al-nero-di-seppia-e-calamari' || 
+               id === 'spaghetti-alla-polpa-di-granchio';
+      }
+      if (sec.id === 'traditional-italian-pizza') {
+        return id === 'pizza-con-polpa-di-granchio' || 
+               id === 'pizza-rustica-con-salsiccia-e-stilacci' ||
+               (id.startsWith('pizza-') && !id.includes('sandwich') && !id.includes('focaccia'));
+      }
+      if (sec.id === 'daily-specials') {
+        return id === 'cotoletta-alla-milanese-con-patatine-fritte' || 
+               id === 'cotechino-artigianale-con-pure-di-patate' ||
+               id === 'torta-pasqualina-agli-spinaci-e-uova' ||
+               id.includes('milanese') || 
+               id.includes('cotechino') ||
+               id.includes('torta');
+      }
+      if (sec.id === 'pizza-sandwich') {
+        return id.startsWith('focaccia-') || id.includes('sandwich');
+      }
+      return false;
+    });
+    return { ...sec, items };
+  }).filter(group => group.items.length > 0) : [];
 
-  const groupedSoftDrinksAndBeers = (activeCategoryId === 'soft-drinks' || activeCategoryId === 'beers-and-wines') ? SOFT_DRINKS_SECTIONS.map(sec => {
-    if (sec.id === 'drinks') {
-      const items = filteredCategoryItems.filter((item: any) => !item.id.toLowerCase().includes('beer') && !item.name.toLowerCase().includes('beer'));
-      return { ...sec, name: sec.name[lang], items };
-    }
-    const items = filteredCategoryItems.filter((item: any) => item.id.toLowerCase().includes('beer') || item.name.toLowerCase().includes('beer'));
-    return { ...sec, name: sec.name[lang], items };
-  }).filter(group => {
-    if (selectedDrinkType !== 'all' && group.id !== selectedDrinkType) return false;
-    return group.items.length > 0;
-  }) : [];
+  const groupedSandwiches = activeCategoryId === 'pizza-sandwich' ? FOCACCIA_SANDWICH_SECTIONS.map(sec => {
+    const items = filteredCategoryItems.filter((item: any) => {
+      const id = item.id || '';
+      if (sec.id === 'focacce') {
+        return id.startsWith('focaccia-') || (item.nameIt && item.nameIt.includes('FOCACCIA'));
+      }
+      if (sec.id === 'pizza-sandwiches') {
+        return id.startsWith('pizza-sandwich-') || (item.name && item.name.includes('PIZZA SANDWICH'));
+      }
+      return false;
+    });
+    return { ...sec, items };
+  }).filter(group => group.items.length > 0) : [];
 
   return (
     <div className="min-h-screen bg-[#e7e5e4] pb-12 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
       <div className="max-w-6xl mx-auto px-4 mt-24 md:mt-28">
         
         {/* Italian Chef Header Card */}
-        <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg mb-6" style={{ backgroundColor: '#3b3530' }}>
+        <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 rounded-2xl shadow-lg mb-6 z-30" style={{ backgroundColor: '#3b3530' }}>
+          {/* Inner Background with rounded corners & clipping */}
+          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+            <div className="absolute inset-0 opacity-40">
+              <PizzaSlideshow />
+            </div>
+            <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
+          </div>
           <div className="absolute inset-0 opacity-40 overflow-hidden pointer-events-none">
             <PizzaSlideshow />
           </div>
           <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
 
+          {/* MOBILE HERO BANNER (Prominent Large Logo, Brand Title, Tagline & Hours Info) */}
+          <div className="block lg:hidden relative z-10 py-3 px-2.5 sm:px-4">
+            {/* Top-Right Language Selector */}
+            <div className="absolute top-2.5 right-2.5 z-20">
+              <button
+                type="button"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                className="flex items-center gap-1 bg-black/55 backdrop-blur-md px-2 py-1 rounded-xl border border-white/15 shadow-sm text-stone-200 hover:text-white transition-all cursor-pointer font-bold text-[10px] uppercase"
+              >
+                <Globe className="w-3 h-3" />
+                <span>{lang}</span>
+                <ChevronDown className="w-2.5 h-2.5 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
+              </button>
 
-          {/* Symmetrical Language Dropdown Selector */}
-          <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
-            <button
-              type="button"
-              onClick={() => setIsLangOpen(!isLangOpen)}
-              className="flex items-center gap-1 bg-black/45 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/10 shadow-sm text-stone-300 hover:text-white transition-all cursor-pointer font-bold text-[10px] uppercase"
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span>{lang}</span>
-              <ChevronDown className="w-3 h-3 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
-            </button>
+              {isLangOpen && (
+                <>
+                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 mt-1.5 w-28 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
+                    {SUPPORTED_LANGUAGES.map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => {
+                          setLang(l);
+                          setIsLangOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer flex items-center justify-between ${
+                          lang === l ? "text-[#fca5a5] bg-white/5" : "text-stone-300"
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span>{LANGUAGE_METAS[l]?.flag}</span>
+                          <span>{l}</span>
+                        </span>
+                        {lang === l && <span className="text-[10px]">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
 
-            {isLangOpen && (
-              <>
-                <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
-                <div className="absolute right-0 mt-1.5 w-24 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
-                  {(['IT', 'EN', 'TH', 'DE'] as const).map((l) => (
-                    <button
-                      key={l}
-                      type="button"
-                      onClick={() => {
-                        setLang(l);
-                        setIsLangOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer ${
-                        lang === l ? "text-[#fca5a5] bg-white/5" : "text-stone-300"
-                      }`}
-                    >
-                      {l === 'IT' && '🇮🇹 IT'}
-                      {l === 'EN' && '🇬🇧 EN'}
-                      {l === 'TH' && '🇹🇭 TH'}
-                      {l === 'DE' && '🇩🇪 DE'}
-                    </button>
-                  ))}
+            {/* Main Content: Large Logo on the Left + Brand Details on the Right */}
+            <div className="flex items-center gap-2.5 sm:gap-3.5 pr-14">
+              {/* Brand Logo (Larger & Close to the edge) */}
+              <img
+                src="/Flower_Power_Pizza_-_HotSpring.png"
+                alt="Flower Power Pizza Logo"
+                width={88}
+                height={88}
+                className="h-20 sm:h-24 w-auto drop-shadow-lg flex-shrink-0 object-contain -ml-1 sm:ml-0"
+              />
+
+              {/* Brand Info, Tagline & Hours */}
+              <div className="min-w-0 space-y-0.5 sm:space-y-1">
+                <h1 className="text-lg sm:text-2xl font-sans font-black tracking-tight text-white leading-tight">
+                  FLOWER POWER <br className="sm:hidden" />
+                  <span className="font-light italic text-[#f87171]">Pizza</span>
+                </h1>
+
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[#fca5a5] font-bold tracking-widest text-[9px] sm:text-[10px] uppercase">
+                    RANONG • THAILANDIA
+                  </span>
                 </div>
-              </>
-            )}
+
+                <p className="text-stone-200 font-semibold text-[9.5px] sm:text-xs leading-tight">
+                  {t.tagline2}
+                </p>
+
+                {/* Hours & Service Status */}
+                <div className="flex items-center gap-1.5 pt-0.5 flex-wrap text-[8.5px] sm:text-[9.5px]">
+                  <span className="inline-flex items-center gap-1 font-bold text-amber-200 bg-black/50 border border-amber-400/30 px-1.5 py-0.5 rounded-md shadow-xs">
+                    <Clock className="w-2.5 h-2.5 text-amber-300 shrink-0" />
+                    <span>
+                      {serviceStatus.openingHours?.openTime && serviceStatus.openingHours?.closeTime
+                        ? `${serviceStatus.openingHours.openTime} – ${serviceStatus.openingHours.closeTime}`
+                        : t.info2}
+                    </span>
+                  </span>
+                  <span className="text-stone-300 font-medium">
+                    {t.info1}
+                  </span>
+                  <span className="text-stone-400 hidden sm:inline">•</span>
+                  <span className="text-stone-300 font-medium hidden sm:inline">
+                    {t.info3}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="relative z-10 my-auto py-2">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8 min-h-[160px] lg:min-h-[180px]">
-              {/* Left Side: Logo & Brand Name (Equally spaced vertically) */}
-              <div className="flex flex-col lg:flex-row items-center gap-3.5 lg:gap-6 text-center lg:text-left w-full lg:w-auto my-auto">
+          {/* DESKTOP SCENIC HERO (Large Logo & Tagline) */}
+          <div className="hidden lg:block relative z-10 my-auto py-2">
+            {/* Symmetrical Language Dropdown Selector (Desktop) */}
+            <div className="absolute top-2 right-2 z-20">
+              <button
+                type="button"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                className="flex items-center gap-1 bg-black/45 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/10 shadow-sm text-stone-300 hover:text-white transition-all cursor-pointer font-bold text-[10px] uppercase"
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>{lang}</span>
+                <ChevronDown className="w-3 h-3 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
+              </button>
+
+              {isLangOpen && (
+                <>
+                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 mt-1.5 w-28 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
+                    {SUPPORTED_LANGUAGES.map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => {
+                          setLang(l);
+                          setIsLangOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer flex items-center justify-between ${
+                          lang === l ? "text-[#fca5a5] bg-white/5" : "text-stone-300"
+                        }`}
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span>{LANGUAGE_METAS[l]?.flag}</span>
+                          <span>{l}</span>
+                        </span>
+                        {lang === l && <span className="text-[10px]">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="flex flex-row items-center justify-between gap-8 min-h-[180px]">
+              {/* Left Side: Logo & Brand Name */}
+              <div className="flex flex-row items-center gap-6 text-left my-auto">
                 <img
                   src="/Flower_Power_Pizza_-_HotSpring.png"
                   alt="Flower Power Pizza Logo"
                   width={200}
                   height={200}
-                  className="h-16 lg:h-44 w-auto drop-shadow-md mx-auto lg:mx-0 flex-shrink-0 object-contain my-auto"
+                  className="h-40 w-auto drop-shadow-md mx-0 flex-shrink-0 object-contain my-auto"
                 />
-                <div className="flex flex-col justify-between items-center lg:items-start lg:pl-4 my-auto space-y-2">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-sans font-black tracking-tight text-white leading-none text-center lg:text-left">
+                <div className="flex flex-col justify-between items-start pl-4 my-auto space-y-2">
+                  <h1 className="text-4xl lg:text-5xl font-sans font-black tracking-tight text-white leading-none text-left">
                     FLOWER POWER <br />
                     <span className="font-light italic text-[#f87171]">Pizza</span>
                   </h1>
-                  <span className="text-[#fca5a5] font-bold tracking-widest text-[9px] md:text-xs uppercase text-center lg:text-left block pt-1">
+                  <span className="text-[#fca5a5] font-bold tracking-widest text-xs uppercase text-left block pt-1">
                     RANONG, THAILANDIA
                   </span>
                 </div>
               </div>
 
-              {/* Right Side: Information Details (Equally spaced vertically) */}
-              <div className="flex flex-col justify-between items-center lg:items-end gap-2 text-center lg:text-right max-w-md w-full lg:w-auto my-auto space-y-1">
-                <span className="text-xs sm:text-sm md:text-xl lg:text-2xl font-extrabold text-stone-100 tracking-tight block uppercase bg-white/10 lg:bg-transparent px-3 py-0.5 rounded-full lg:p-0">
+              {/* Right Side: Information Details */}
+              <div className="flex flex-col justify-between items-end gap-2 text-right max-w-md my-auto space-y-1">
+                <span className="text-xl lg:text-2xl font-extrabold text-stone-100 tracking-tight block uppercase">
                   {t.tagline1}
                 </span>
-                <span className="text-[9px] md:text-xs lg:text-sm font-bold text-[#fca5a5] tracking-widest block uppercase">
+                <span className="text-xs lg:text-sm font-bold text-[#fca5a5] tracking-widest block uppercase">
                   {t.tagline2}
                 </span>
-                <div className="flex flex-row flex-wrap justify-center lg:justify-end gap-x-2 gap-y-0.5 text-[9px] md:text-xs font-light text-stone-200">
+                <div className="flex flex-row flex-wrap justify-end gap-x-2 gap-y-0.5 text-xs font-light text-stone-200">
                   <span>{t.info1}</span>
                   <span className="text-stone-400">•</span>
                   <span className="font-semibold text-amber-200">
@@ -1167,129 +1563,206 @@ export default function DeliveryMenu() {
         </header>
 
         {/* Dynamic Kitchen Service Status Banner (Paused / Closed Countdown in 4 Languages) */}
-        <div className="max-w-6xl mx-auto mt-4 px-2">
+        <div className="max-w-6xl mx-auto mt-2 sm:mt-4 px-2">
           <ServiceStatusBanner lang={lang} />
         </div>
 
-        {/* Dynamic Promotions & Table Booking Cards (Italian Tricolore Layout: 🟢 Verde - ⚪ Bianco - 🔴 Rosso) */}
-        <div className={`grid gap-3.5 max-w-6xl mx-auto px-2 mb-6 mt-4 ${
-          isFirstOrderEligible ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-2'
+        {/* Dynamic Promotions & Table Booking Cards (3 Rich Vertical Cards Side-by-Side on Mobile / Expansive on Desktop) */}
+        <div className={`grid gap-2 sm:gap-3.5 max-w-6xl mx-auto px-2 mb-4 sm:mb-6 mt-2 sm:mt-4 ${
+          isFirstOrderEligible ? 'grid-cols-3 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-2'
         }`}>
           {/* Card 1 (🟢 VERDE): Prenota un Tavolo o Capanna */}
           <div 
             onClick={() => setIsReservationModalOpen(true)}
-            className="p-4 sm:p-4.5 bg-gradient-to-br from-[#064e3b] to-[#043629] text-white rounded-3xl flex items-center gap-3.5 shadow-md border border-emerald-700/60 hover:border-emerald-400 transition-all cursor-pointer group"
+            className="p-2.5 sm:p-3.5 md:p-4.5 bg-gradient-to-br from-[#064e3b] via-[#053d2e] to-[#032b20] text-white rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2.5 shadow-md border border-emerald-600/50 hover:border-emerald-400 hover:shadow-emerald-950/40 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]"
           >
-            <div className="w-11 h-11 bg-emerald-800/80 border border-emerald-500/40 text-emerald-300 group-hover:scale-105 group-hover:bg-emerald-400 group-hover:text-stone-950 transition-all flex items-center justify-center shrink-0 rounded-2xl shadow-sm">
-              <UtensilsCrossed className="w-5 h-5 transition-colors" />
+            <div className="flex items-center gap-1.5 sm:gap-2.5">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-emerald-800/90 border border-emerald-500/50 text-emerald-300 group-hover:scale-105 group-hover:bg-emerald-400 group-hover:text-stone-950 transition-all flex items-center justify-center shrink-0 rounded-xl shadow-xs">
+                <UtensilsCrossed className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-colors" />
+              </div>
+              <h4 className="text-white font-black text-[9.5px] sm:text-xs md:text-sm leading-tight group-hover:text-emerald-300 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                {lang === 'TH' ? 'จองโต๊ะ' :
+                 lang === 'IT' ? 'Prenota Tavolo' :
+                 lang === 'DE' ? 'Tisch Buchen' :
+                 'Book a Table'}
+              </h4>
             </div>
-            <div className="flex-1 min-w-0 space-y-1 text-left">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="bg-emerald-950/90 text-emerald-300 border border-emerald-600/40 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">
-                  {t.bookTableBadge}
-                </span>
-                <h4 className="text-white font-black text-sm md:text-base leading-tight group-hover:text-emerald-300 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  {t.bookTableTitle}
-                </h4>
-              </div>
-              <p className="text-emerald-100/90 text-xs leading-snug">
-                {t.bookTableSubtitle}
+
+            <div className="space-y-0.5">
+              <p className="text-emerald-100/90 text-[8px] sm:text-[9.5px] md:text-xs leading-snug font-normal line-clamp-3">
+                {lang === 'TH' ? 'โต๊ะในร่ม กลางแจ้ง หรือซุ้มไม้ไผ่ในสวน' :
+                 lang === 'IT' ? "Tavoli al chiuso, all'aperto o in capanna" :
+                 lang === 'DE' ? 'Innen-, Außenbereich oder Bambushütte' :
+                 'Indoor, outdoor tables or bamboo garden hut'}
               </p>
-              <div className="pt-0.5">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsReservationModalOpen(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 text-xs text-stone-950 font-black bg-emerald-400 hover:bg-emerald-300 px-3 py-1 rounded-xl shadow-xs transition-all cursor-pointer"
-                >
-                  <span>{t.bookTableBtn}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            </div>
+
+            <div className="pt-0.5">
+              <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-stone-950 font-black bg-emerald-400 group-hover:bg-emerald-300 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs transition-all">
+                <span>{lang === 'TH' ? 'จองเลย' : lang === 'IT' ? 'Prenota' : lang === 'DE' ? 'Reservieren' : 'Book Now'}</span>
+                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              </span>
             </div>
           </div>
 
-          {/* Card 2 (⚪ BIANCO): 10% Welcome Discount (Visible when isFirstOrderEligible, gentle pulse animation) */}
+          {/* Card 2 (⚪ BIANCO & ORO): 10% Welcome Discount */}
           {isFirstOrderEligible && (
-            <div className="p-4 sm:p-4.5 bg-white text-stone-900 rounded-3xl flex items-center gap-3.5 shadow-lg border-2 border-amber-300/80 ring-2 ring-amber-400/20 hover:border-amber-400 transition-all animate-fadeIn animate-pulse hover:animate-none hover:shadow-xl cursor-pointer group">
-              <div className="w-11 h-11 bg-amber-400 text-stone-950 group-hover:scale-105 group-hover:bg-stone-950 group-hover:text-amber-300 transition-all flex items-center justify-center shrink-0 rounded-2xl shadow-sm">
-                <Percent className="w-5 h-5 stroke-[2.5] transition-colors" />
+            <div className="p-2.5 sm:p-3.5 md:p-4.5 bg-gradient-to-br from-white via-amber-50/60 to-amber-100/40 text-stone-900 rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2.5 shadow-md border-2 border-amber-300/90 ring-1 ring-amber-400/30 hover:border-amber-400 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]">
+              <div className="flex items-center gap-1.5 sm:gap-2.5">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-amber-400 text-stone-950 group-hover:scale-105 group-hover:bg-stone-950 group-hover:text-amber-300 transition-all flex items-center justify-center shrink-0 rounded-xl shadow-xs">
+                  <Percent className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 stroke-[2.5] transition-colors" />
+                </div>
+                <h4 className="text-stone-950 font-black text-[9.5px] sm:text-xs md:text-sm leading-tight group-hover:text-amber-600 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  {lang === 'TH' ? 'ลด 10%' :
+                   lang === 'IT' ? '10% Sconto' :
+                   lang === 'DE' ? '10% Rabatt' :
+                   '10% OFF'}
+                </h4>
               </div>
-              <div className="flex-1 min-w-0 space-y-1 text-left">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="bg-stone-950 text-amber-300 text-[10px] font-black uppercase px-2 py-0.5 rounded-md shadow-xs tracking-wider">
-                    {lang === 'TH' ? 'สิทธิพิเศษต้อนรับ' : lang === 'IT' ? 'BENVENUTO 10%' : lang === 'DE' ? 'WILLKOMMEN 10%' : '10% WELCOME'}
-                  </span>
-                  <h4 className="text-stone-950 font-black text-sm md:text-base leading-tight group-hover:text-amber-600 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {lang === 'TH' ? 'รับส่วนลด 10% สั่งครั้งแรก!' :
-                     lang === 'IT' ? '10% di Sconto sul 1° Ordine!' :
-                     lang === 'DE' ? '10% Rabatt auf 1. Bestellung!' :
-                     '10% OFF on your 1st Order!'}
-                  </h4>
-                </div>
-                <p className="text-stone-600 text-xs leading-snug font-medium">
-                  {lang === 'TH' ? 'ส่วนลดจะถูกหักลบอัตโนมัติในขั้นตอนสั่งซื้อ' :
-                   lang === 'IT' ? 'Applicato in automatico nel carrello al checkout' :
-                   lang === 'DE' ? 'Wird automatisch im Warenkorb abgezogen' :
-                   'Applied automatically at checkout'}
+
+              <div className="space-y-0.5">
+                <p className="text-stone-700 text-[8px] sm:text-[9.5px] md:text-xs leading-snug font-medium line-clamp-3">
+                  {lang === 'TH' ? 'สั่งครั้งแรก? รับส่วนลดอัตโนมัติในตะกร้าทันที' :
+                   lang === 'IT' ? 'Il tuo 1° ordine? Sconto applicato nel carrello!' :
+                   lang === 'DE' ? '1. Bestellung? Rabatt direkt im Warenkorb!' :
+                   '1st order? Discount applied automatically in cart!'}
                 </p>
-                <div className="pt-0.5">
-                  <span className="inline-flex items-center gap-1.5 text-xs text-emerald-800 font-black bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 rounded-md">
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-                    {t.promoFirstOrder}
-                  </span>
-                </div>
+              </div>
+
+              <div className="pt-0.5">
+                <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-emerald-900 font-bold bg-emerald-100/95 border border-emerald-300/90 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+                  <span>{lang === 'TH' ? 'ในตะกร้า' : lang === 'IT' ? 'Nel Carrello' : lang === 'DE' ? 'Im Warenkorb' : 'In Cart'}</span>
+                </span>
               </div>
             </div>
           )}
 
-          {/* Card 3 (🔴 ROSSO): Delivery Area & Free Delivery >300฿ */}
-          <div className="p-4 sm:p-4.5 bg-gradient-to-br from-[#8B1E1E] to-[#6d1717] text-white rounded-3xl flex items-center gap-3.5 shadow-md border border-[#721818] hover:border-red-400 transition-all cursor-pointer group">
-            <div className="w-11 h-11 bg-white/15 border border-white/20 group-hover:scale-105 group-hover:bg-white group-hover:text-[#8B1E1E] transition-all flex items-center justify-center shrink-0 rounded-2xl text-white shadow-sm">
-              <Truck className="w-5 h-5 transition-colors" />
+          {/* Card 3 (🔴 ROSSO): Delivery Area & Free Delivery >300฿ + Takeaway */}
+          <div 
+            onClick={() => {
+              const el = document.getElementById('menu-category-section');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="p-2.5 sm:p-3.5 md:p-4.5 bg-gradient-to-br from-[#8B1E1E] via-[#781818] to-[#5a1111] text-white rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2.5 shadow-md border border-red-700/60 hover:border-red-400 hover:shadow-red-950/40 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]"
+          >
+            <div className="flex items-center gap-1.5 sm:gap-2.5">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-white/15 border border-white/25 group-hover:scale-105 group-hover:bg-white group-hover:text-[#8B1E1E] transition-all flex items-center justify-center shrink-0 rounded-xl text-white shadow-xs">
+                <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-colors" />
+              </div>
+              <h4 className="text-white font-black text-[9.5px] sm:text-xs md:text-sm leading-tight group-hover:text-red-200 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                {lang === 'TH' ? <><span>เดลิเวอรี่ &amp;</span><br className="sm:hidden"/><span> รับที่ร้าน</span></> :
+                 lang === 'IT' ? <><span>Delivery &amp;</span><br className="sm:hidden"/><span> Asporto</span></> :
+                 lang === 'DE' ? <><span>Lieferung &amp;</span><br className="sm:hidden"/><span> Abholung</span></> :
+                 <><span>Delivery &amp;</span><br className="sm:hidden"/><span> Takeaway</span></>}
+              </h4>
             </div>
-            <div className="flex-1 min-w-0 space-y-1 text-left">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="bg-red-950/90 text-red-200 border border-red-800/60 text-[10px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider">
-                  DELIVERY
-                </span>
-                <h4 className="text-white font-black text-sm md:text-base leading-tight group-hover:text-red-200 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  {t.promoTitle}
-                </h4>
-              </div>
-              <p className="text-red-100/90 text-xs leading-snug flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 shrink-0 text-red-200" />
-                <span className="font-semibold">{t.deliveryLimit}</span>
+
+            <div className="space-y-0.5">
+              <p className="text-red-100/90 text-[8px] sm:text-[9.5px] md:text-xs leading-snug font-normal line-clamp-3">
+                {lang === 'TH' ? 'ส่งไว (>300฿ ฟรี) และรับเองที่ร้านฟรีเสมอ' :
+                 lang === 'IT' ? 'A Ranong (>300฿ gratis), asporto sempre gratis!' :
+                 lang === 'DE' ? 'In Ranong (>300฿ gratis), Abholung immer gratis!' :
+                 'Ranong (>300฿ free), takeaway always free!'}
               </p>
-              <div className="pt-0.5">
-                <span className="inline-flex items-center gap-1.5 text-xs text-white font-bold bg-white/15 border border-white/20 px-2.5 py-0.5 rounded-md shadow-xs">
-                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
-                  {t.promoFreeDelivery}
-                </span>
-              </div>
+            </div>
+
+            <div className="pt-0.5">
+              <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-white font-black bg-white/20 group-hover:bg-white group-hover:text-[#8B1E1E] border border-white/25 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs transition-all">
+                <span>{lang === 'TH' ? 'ดูเมนู' : lang === 'IT' ? 'Al Menu' : lang === 'DE' ? 'Zur Karte' : 'To Menu'}</span>
+                <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              </span>
             </div>
           </div>
         </div>
-
-
+        
         {/* Category Tabs directly on background */}
-        <div className="mb-6">
+        <div id="menu-category-section" className="mb-2 sm:mb-4 scroll-mt-4">
           <CategoryTabs categories={availableCategories} activeId={activeCategoryId} onChange={setActiveCategoryId} lang={lang} />
         </div>
 
-        {/* Section Title */}
-        <div className="mt-8 mb-6 px-2">
-          <h2 className="font-sans text-xl md:text-2xl font-black tracking-tight text-stone-900" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-            {activeCategoryName}
-          </h2>
-          {categoryDetails[activeCategory.id]?.[lang]?.desc && (
-            <p className="text-stone-500 text-xs mt-1 font-light italic">
-              {categoryDetails[activeCategory.id][lang].desc}
-            </p>
-          )}
-          <div className="w-8 h-0.5 bg-[#8B1E1E] mt-2.5 mb-4" />
+        {/* Section Title & Dietary Filter Bar */}
+        <div className="mt-1.5 sm:mt-3 mb-3 sm:mb-4 px-2">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-2">
+            <div>
+              <h2 className="font-sans text-xl md:text-2xl font-black tracking-tight text-stone-900" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                {activeCategoryName}
+              </h2>
+              {categoryDetails[activeCategory.id]?.[lang]?.desc && (
+                <p className="text-stone-500 text-xs mt-0.5 font-light italic">
+                  {categoryDetails[activeCategory.id][lang].desc}
+                </p>
+              )}
+            </div>
+
+            {/* Dietary Filter Segmented Bar (Tutti / Veggie / Vegan) */}
+            {!['soft-drinks', 'beers', 'wines'].includes(activeCategoryId) && (
+              <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
+                <div className="inline-flex items-center p-1 bg-stone-200/90 backdrop-blur-md rounded-2xl border border-stone-300/80 shadow-inner gap-1">
+                  {/* Option 1: ALL / TUTTI */}
+                  <button
+                    type="button"
+                    onClick={() => setDietaryFilter('all')}
+                    className={`px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                      dietaryFilter === 'all'
+                        ? 'bg-stone-950 text-white shadow-md'
+                        : 'text-stone-700 hover:text-stone-950 hover:bg-white/60'
+                    }`}
+                    style={{ fontFamily: 'Outfit, sans-serif' }}
+                  >
+                    <span>🍽️</span>
+                    <span>
+                      {lang === 'TH' ? 'ทั้งหมด' :
+                       lang === 'IT' ? 'Tutti' :
+                       lang === 'DE' ? 'Alle' :
+                       'All'}
+                    </span>
+                  </button>
+
+                  {/* Option 2: VEGGIE (Vegetariano + Vegano) */}
+                  <button
+                    type="button"
+                    onClick={() => setDietaryFilter('veggie')}
+                    className={`px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                      dietaryFilter === 'veggie'
+                        ? 'bg-amber-400 text-stone-950 shadow-md ring-1 ring-amber-500'
+                        : 'text-stone-700 hover:text-amber-900 hover:bg-white/60'
+                    }`}
+                    style={{ fontFamily: 'Outfit, sans-serif' }}
+                  >
+                    <Wheat className={`w-3.5 h-3.5 ${dietaryFilter === 'veggie' ? 'text-stone-950 stroke-[2.5]' : 'text-amber-600'}`} />
+                    <span>
+                      {lang === 'TH' ? 'มังสวิรัติ' :
+                       lang === 'IT' ? 'Veggie' :
+                       lang === 'DE' ? 'Veggie' :
+                       'Veggie'}
+                    </span>
+                  </button>
+
+                  {/* Option 3: VEGAN (Solo 100% Vegano) */}
+                  <button
+                    type="button"
+                    onClick={() => setDietaryFilter('vegan')}
+                    className={`px-3 py-1 sm:py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                      dietaryFilter === 'vegan'
+                        ? 'bg-emerald-600 text-white shadow-md ring-1 ring-emerald-400'
+                        : 'text-stone-700 hover:text-emerald-900 hover:bg-white/60'
+                    }`}
+                    style={{ fontFamily: 'Outfit, sans-serif' }}
+                  >
+                    <Leaf className={`w-3.5 h-3.5 ${dietaryFilter === 'vegan' ? 'text-emerald-100 stroke-[2.5]' : 'text-emerald-600'}`} />
+                    <span>
+                      {lang === 'TH' ? 'วีแกน' :
+                       lang === 'IT' ? 'Vegan' :
+                       lang === 'DE' ? 'Vegan' :
+                       'Vegan'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="w-8 h-0.5 bg-[#8B1E1E] mt-1 mb-2 sm:mb-3" />
         </div>
 
         {/* Submenu for Pasta (Stylish Dropdown Menu) */}
@@ -1321,85 +1794,187 @@ export default function DeliveryMenu() {
           </div>
         )}
 
-        {/* Submenu for Soft Drinks & Beers (Stylish Dropdown Menu) */}
-        {(activeCategoryId === 'soft-drinks' || activeCategoryId === 'beers-and-wines') && (
-          <div className="relative z-30 mb-6 px-1 flex items-end gap-3 flex-wrap animate-fadeIn">
-            <CustomFilterDropdown
-              label={DROPDOWN_LABELS[lang].drinkFilter}
-              selectedId={selectedDrinkType}
-              options={[
-                { id: 'all', label: DRINK_FILTER_LABELS[lang].all, count: drinkCounts.all },
-                ...SOFT_DRINKS_SECTIONS.map(s => ({
-                  id: s.id,
-                  label: s.name[lang],
-                  count: s.id === 'drinks' ? drinkCounts.drinks : drinkCounts.beers
-                }))
-              ]}
-              onSelect={(id) => setSelectedDrinkType(id as any)}
-            />
-            {selectedDrinkType !== 'all' && (
-              <button
-                type="button"
-                onClick={() => setSelectedDrinkType('all')}
-                className="px-3.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold uppercase tracking-wider rounded-2xl transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 shadow-xs"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-stone-500" />
-                <span>Reset</span>
-              </button>
-            )}
+        {/* Submenu / Compliance Banner for Beers */}
+        {activeCategoryId === 'beers' && (
+          <div className="mb-6 p-3.5 sm:p-4.5 bg-gradient-to-br from-stone-900 via-stone-850 to-stone-900 text-white rounded-2xl sm:rounded-3xl border border-stone-700/80 shadow-xl relative overflow-hidden animate-fadeIn">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-1.5 max-w-3xl">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9.5px] sm:text-[10.5px] font-black uppercase tracking-wider shadow-xs">
+                    <Beer className="w-3 h-3 text-amber-300" />
+                    <span>
+                      {lang === 'TH' ? '🍺 เบียร์สดชื่น • บริการเฉพาะที่ร้าน' :
+                       lang === 'IT' ? '🍺 SERVIZIO ESCLUSIVO AL RISTORANTE' :
+                       lang === 'DE' ? '🍺 AUSSCHANK NUR IM RESTAURANT' :
+                       '🍺 SERVED EXCLUSIVELY AT RESTAURANT'}
+                    </span>
+                  </span>
+                  <span className="text-[9px] sm:text-[10px] text-stone-300/80 font-medium">
+                    {lang === 'TH' ? '• กฎหมายแอลกอฮอล์แห่งประเทศไทย' :
+                     lang === 'IT' ? '• Normativa Alcolici Thailandia' :
+                     lang === 'DE' ? '• Alkoholgesetzgebung Thailand' :
+                     '• Thai Alcohol Regulation'}
+                  </span>
+                </div>
+
+                <h3 className="text-sm sm:text-base font-black text-white tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  {lang === 'TH' ? 'เบียร์เย็นสดชื่น • พร้อมเสิร์ฟที่โต๊ะอาหารเท่านั้น' :
+                   lang === 'IT' ? 'Birre Fresche in Bottiglia • Disponibili esclusivamente per consumo al tavolo' :
+                   lang === 'DE' ? 'Kühle Flaschenbiere • Ausschank ausschließlich vor Ort am Tisch' :
+                   'Chilled Bottled Beers • Available exclusively for dine-in table service'}
+                </h3>
+
+                <p className="text-stone-300 text-[11px] sm:text-xs leading-relaxed font-normal">
+                  {lang === 'TH'
+                    ? 'ตามกฎหมายแห่งราชอาณาจักรไทย การจำหน่ายและจัดส่งเครื่องดื่มแอลกอฮอล์ออนไลน์ไม่สามารถดำเนินการได้ ขอเชิญท่านมาดื่มด่ำความสดชื่นได้โดยตรงที่ร้านอาหารของเรา'
+                    : lang === 'IT'
+                    ? 'In conformità con le leggi del Regno di Thailandia, la vendita e la consegna a domicilio di bevande alcoliche online non è consentita. Le nostre birre possono essere ordinate e gustate esclusivamente direttamente al tavolo del ristorante.'
+                    : lang === 'DE'
+                    ? 'Gemäß den gesetzlichen Bestimmungen Thailands ist die Online-Lieferung von alkoholischen Getränken untersagt. Unsere Biere sind ausschließlich zum Verzehr vor Ort im Restaurant erhältlich.'
+                    : 'In compliance with Thai law, online sale and delivery of alcoholic beverages is strictly prohibited. Our beers can be ordered and enjoyed exclusively at our restaurant.'}
+                </p>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Submenu for Wines (Stylish Dual Dropdown Menu: Type & Origin) */}
         {activeCategoryId === 'wines' && (
-          <div className="relative z-30 mb-6 px-1 flex items-end gap-3 flex-wrap animate-fadeIn">
-            <CustomFilterDropdown
-              label={DROPDOWN_LABELS[lang].wineTypeFilter}
-              selectedId={selectedWineType}
-              options={[
-                { id: 'all', label: WINE_FILTER_LABELS[lang].allTypes, count: wineTypeCounts.all },
-                ...WINE_TYPE_SECTIONS.map(s => ({
-                  id: s.id,
-                  label: s.name[lang],
-                  count: wineTypeCounts[s.id] || 0
-                }))
-              ]}
-              onSelect={(id) => setSelectedWineType(id as any)}
-            />
+          <div className="space-y-4 mb-6">
+            {/* Thai Alcohol Compliance & 10% Table Discount Callout Banner */}
+            <div className="p-3.5 sm:p-4.5 bg-gradient-to-br from-[#2a1717] via-[#1f1212] to-[#150a0a] text-white rounded-2xl sm:rounded-3xl border border-amber-500/40 shadow-xl relative overflow-hidden animate-fadeIn">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3.5 sm:gap-4">
+                <div className="space-y-1.5 max-w-2xl">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[9.5px] sm:text-[10.5px] font-black uppercase tracking-wider shadow-xs">
+                      <Wine className="w-3 h-3 text-amber-300" />
+                      <span>
+                        {lang === 'TH' ? '🍷 สิทธิพิเศษไวน์ • ลด 10% ที่โต๊ะอาหาร' :
+                         lang === 'IT' ? '🍷 DEGUSTAZIONE IN LOCALE • SCONTO 10%' :
+                         lang === 'DE' ? '🍷 WEINVERKOSTUNG VOR ORT • 10% RABATT' :
+                         '🍷 DINE-IN WINE PRIVILEGE • 10% OFF'}
+                      </span>
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] text-stone-300/80 font-medium">
+                      {lang === 'TH' ? '• กฎหมายแอลกอฮอล์แห่งประเทศไทย' :
+                       lang === 'IT' ? '• Normativa Alcolici Thailandia' :
+                       lang === 'DE' ? '• Alkoholgesetzgebung Thailand' :
+                       '• Thai Alcohol Regulation'}
+                    </span>
+                  </div>
 
-            <CustomFilterDropdown
-              label={DROPDOWN_LABELS[lang].wineCountryFilter}
-              selectedId={selectedWineCountry}
-              options={[
-                { id: 'all', label: WINE_FILTER_LABELS[lang].allCountries },
-                ...availableWineCountries.map(c => ({
-                  id: c.flag,
-                  label: c.names?.[lang] || c.label,
-                  flag: c.flag
-                }))
-              ]}
-              onSelect={setSelectedWineCountry}
-            />
+                  <h3 className="text-sm sm:text-base md:text-lg font-black text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    {lang === 'TH' ? 'ไวน์นำเข้าชั้นเลิศ • จองโต๊ะล่วงหน้ารับส่วนลดพิเศษ 10%' :
+                     lang === 'IT' ? 'Selezione Vini al Ristorante • Prenota dal sito e ricevi il 10% di sconto' :
+                     lang === 'DE' ? 'Erlesene Weinkarte • Online reservieren und 10% Rabatt genießen' :
+                     'Fine Wine Selection • Book online to receive an exclusive 10% table discount'}
+                  </h3>
 
-            {(selectedWineType !== 'all' || selectedWineCountry !== 'all') && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedWineType('all');
-                  setSelectedWineCountry('all');
-                }}
-                className="px-3.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold uppercase tracking-wider rounded-2xl transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 shadow-xs"
-              >
-                <RotateCcw className="w-3.5 h-3.5 text-stone-500" />
-                <span>Reset</span>
-              </button>
-            )}
+                  <p className="text-stone-300 text-[11px] sm:text-xs leading-relaxed font-normal">
+                    {lang === 'TH'
+                      ? 'ตามกฎหมายแห่งราชอาณาจักรไทย การสั่งซื้อเครื่องดื่มแอลกอฮอล์ออนไลน์เพื่อจัดส่งถึงบ้านไม่สามารถทำได้ ขอเชิญท่านมาลิ้มลองไวน์ชั้นเลิศในบรรยากาศสบายๆ ณ ร้านของเรา: จองโต๊ะผ่านเว็บไซต์ รับส่วนลด 10% สำหรับไวน์ทุกขวดที่โต๊ะอาหารทันที!'
+                      : lang === 'IT'
+                      ? 'In conformità con le leggi del Regno di Thailandia, la vendita e consegna a domicilio di alcolici online non è consentita. Ti invitiamo a degustare i nostri vini direttamente al ristorante: prenotando dal nostro sito web ricevi subito il 10% di sconto su tutte le bottiglie al tavolo!'
+                      : lang === 'DE'
+                      ? 'Gemäß den gesetzlichen Bestimmungen Thailands ist die Online-Lieferung von Alkohol untersagt. Genießen Sie unsere Weine vor Ort im Restaurant: Bei einer Tischreservierung über unsere Website erhalten Sie 10% Rabatt auf alle Weinflaschen am Tisch!'
+                      : 'In compliance with Thai law, online delivery of alcohol is not permitted. We invite you to enjoy our cellar selection at our restaurant in Ranong: reserve a table from our website to get a 10% discount on all wine bottles at your table!'}
+                  </p>
+                </div>
+
+                <div className="shrink-0 flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => handleBookWineTable()}
+                    className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg hover:shadow-amber-400/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center gap-2"
+                  >
+                    <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>
+                      {lang === 'TH' ? 'จองโต๊ะรับส่วนลด 10%' :
+                       lang === 'IT' ? 'Prenota Tavolo (-10% Vini)' :
+                       lang === 'DE' ? 'Tisch Reservieren (-10%)' :
+                       'Book Table (-10% Wine)'}
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter Dropdowns */}
+            <div className="relative z-30 px-1 flex items-end gap-3 flex-wrap animate-fadeIn">
+              <CustomFilterDropdown
+                label={DROPDOWN_LABELS[lang].wineTypeFilter}
+                selectedId={selectedWineType}
+                options={[
+                  { id: 'all', label: WINE_FILTER_LABELS[lang].allTypes, count: wineTypeCounts.all },
+                  ...WINE_TYPE_SECTIONS.map(s => ({
+                    id: s.id,
+                    label: s.name[lang],
+                    count: wineTypeCounts[s.id] || 0
+                  }))
+                ]}
+                onSelect={(id) => setSelectedWineType(id as any)}
+              />
+
+              <CustomFilterDropdown
+                label={DROPDOWN_LABELS[lang].wineCountryFilter}
+                selectedId={selectedWineCountry}
+                options={[
+                  { id: 'all', label: WINE_FILTER_LABELS[lang].allCountries },
+                  ...availableWineCountries.map(c => ({
+                    id: c.flag,
+                    label: c.names?.[lang] || c.label,
+                    flag: c.flag
+                  }))
+                ]}
+                onSelect={setSelectedWineCountry}
+              />
+
+              {(selectedWineType !== 'all' || selectedWineCountry !== 'all') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedWineType('all');
+                    setSelectedWineCountry('all');
+                  }}
+                  className="px-3.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold uppercase tracking-wider rounded-2xl transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 shadow-xs"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-stone-500" />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
           </div>
         )}
 
         {/* Products Grid */}
         <div className="px-1 relative z-10">
-          {activeCategoryId === 'pasta' ? (
+          {activeCategoryId === 'daily-specials' ? (
+            <div className="space-y-12">
+              {groupedDailySpecials.map(group => (
+                <div key={group.id} id={`specials-${group.id}`} className="scroll-mt-24">
+                  <div className="px-2 mb-6">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {group.name[lang]}
+                      </h3>
+                      <span className="text-xs text-stone-400 font-medium">
+                        ({group.items.length})
+                      </span>
+                      <div className="flex-1 h-px bg-stone-300/60" />
+                    </div>
+                    {group.desc && (
+                      <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {group.desc[lang]}
+                      </p>
+                    )}
+                  </div>
+                  <MenuGrid items={group.items} lang={lang} onBookTable={handleBookWineTable} />
+                </div>
+              ))}
+            </div>
+          ) : activeCategoryId === 'pasta' ? (
             <div className="space-y-12">
               {groupedPasta.map(group => (
                 <div key={group.id} id={`sauce-${group.id}`} className="scroll-mt-24">
@@ -1416,28 +1991,31 @@ export default function DeliveryMenu() {
                       </p>
                     )}
                   </div>
-                  <MenuGrid items={group.items} lang={lang} />
+                  <MenuGrid items={group.items} lang={lang} onBookTable={handleBookWineTable} />
                 </div>
               ))}
             </div>
-          ) : (activeCategoryId === 'soft-drinks' || activeCategoryId === 'beers-and-wines') ? (
+          ) : activeCategoryId === 'pizza-sandwich' ? (
             <div className="space-y-12">
-              {groupedSoftDrinksAndBeers.map(group => (
-                <div key={group.id} id={`sec-${group.id}`} className="scroll-mt-24">
+              {groupedSandwiches.map(group => (
+                <div key={group.id} id={`sw-${group.id}`} className="scroll-mt-24">
                   <div className="px-2 mb-6">
                     <div className="flex items-center gap-3">
-                      <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                        {group.name}
+                      <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {group.name[lang]}
                       </h3>
+                      <span className="text-xs text-stone-400 font-medium">
+                        ({group.items.length})
+                      </span>
                       <div className="flex-1 h-px bg-stone-300/60" />
                     </div>
                     {group.desc && (
-                      <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                      <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
                         {group.desc[lang]}
                       </p>
                     )}
                   </div>
-                  <MenuGrid items={group.items} lang={lang} />
+                  <MenuGrid items={group.items} lang={lang} onBookTable={handleBookWineTable} />
                 </div>
               ))}
             </div>
@@ -1461,7 +2039,7 @@ export default function DeliveryMenu() {
                           <div className="flex-1 h-px bg-stone-300/60" />
                         </div>
                       </div>
-                      <MenuGrid items={group.items} lang={lang} />
+                      <MenuGrid items={group.items} lang={lang} onBookTable={handleBookWineTable} />
                     </div>
                   ))}
                 </div>
@@ -1506,7 +2084,7 @@ export default function DeliveryMenu() {
                         </div>
                       );
                     })()}
-                    <MenuGrid items={currentWinesForSelectedType} lang={lang} />
+                    <MenuGrid items={currentWinesForSelectedType} lang={lang} onBookTable={handleBookWineTable} />
                   </div>
                 ) : (
                   <div className="text-center py-16 px-4 bg-white rounded-2xl border border-stone-200 my-6 shadow-sm">
@@ -1527,7 +2105,7 @@ export default function DeliveryMenu() {
               </div>
             )
           ) : (
-            <MenuGrid items={filteredCategoryItems} lang={lang} />
+            <MenuGrid items={filteredCategoryItems} lang={lang} onBookTable={handleBookWineTable} />
           )}
         </div>
       </div>
@@ -1559,34 +2137,139 @@ export default function DeliveryMenu() {
             {lang === 'IT' ? 'Privacy & Pagamenti Sicuri' : lang === 'TH' ? 'ความเป็นส่วนตัวและความปลอดภัย' : lang === 'DE' ? 'Datenschutz & Security' : 'Privacy & Security'}
           </button>
         </div>
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-xs font-semibold text-stone-500 mb-4">
+          <a
+            href="/admin"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-red-700 transition-colors inline-flex items-center gap-1"
+          >
+            🔒 {lang === 'IT' ? 'Area Privata Staff' : lang === 'TH' ? 'พื้นที่เจ้าหน้าที่' : lang === 'DE' ? 'Mitarbeiterbereich' : 'Staff Portal'}
+          </a>
+          <span className="text-stone-300">•</span>
+          <a
+            href="/dining"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-amber-800 hover:text-amber-700 font-bold transition-colors inline-flex items-center gap-1 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20"
+          >
+            📱 {lang === 'IT' ? 'Dining Tablet (-5%)' : lang === 'TH' ? 'แท็บเล็ตสั่งที่โต๊ะ (-5%)' : lang === 'DE' ? 'Dining Tablet (-5%)' : 'Dining Tablet (-5%)'}
+          </a>
+        </div>
         <p className="text-[11px] text-stone-500">
           © {new Date().getFullYear()} Flower Power Pizza Ranong. All Rights Reserved. Ranong Hot Springs, Bang Rin, Mueang Ranong, Thailand.
         </p>
       </footer>
 
-      {/* Floating Bottom Cart Button */}
+      {/* Edge-Hugger Lateral Floating Cart Tab (Ultra-Compact micro-dock by default, expands on desktop hover or mobile tap) */}
       {count > 0 && (
-        <div className="fixed bottom-6 left-0 right-0 flex justify-center z-30 px-4">
+        <aside
+          aria-label={lang === 'TH' ? 'รถเข็นของคุณ' : lang === 'IT' ? 'Il tuo carrello' : 'Your cart'}
+          className="fixed right-0 top-[58%] -translate-y-1/2 z-40"
+          onMouseEnter={() => setIsCartTabExpanded(true)}
+          onMouseLeave={() => setIsCartTabExpanded(false)}
+        >
           <button
-            onClick={openCart}
-            className="flex items-center gap-4 px-6 py-4 bg-[#8B1E1E] hover:bg-[#721818] text-white shadow-2xl rounded-full transition-all duration-300 transform active:scale-[0.98] cursor-pointer font-bold border border-red-900/10"
-            style={{ minWidth: '280px', maxWidth: '420px', width: '100%' }}
+            type="button"
+            onClick={handleCartTabClick}
+            id="floating-edge-cart-btn"
+            aria-label={`${count} items in cart, total ${total} Baht`}
+            className={`group flex items-center bg-gradient-to-l from-[#721818] via-[#8B1E1E] to-[#9e2222] text-white shadow-2xl rounded-l-full border-l border-y border-amber-300/40 hover:border-amber-300 transition-all duration-300 cursor-pointer active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-400 ${
+              isCartTabExpanded
+                ? 'pl-3 pr-2.5 py-2 sm:py-2.5'
+                : 'pl-2 pr-1 py-1.5 sm:py-2'
+            }`}
+            style={{
+              boxShadow: '-3px 4px 16px rgba(139, 30, 30, 0.4), 0 2px 6px rgba(0, 0, 0, 0.2)',
+              fontFamily: lang === 'TH' ? 'Prompt, Kanit, Outfit, system-ui, sans-serif' : 'Outfit, system-ui, sans-serif',
+            }}
           >
-            <div className="flex items-center gap-2 flex-1">
-              <ShoppingCart size={18} />
-              <span className="text-xs tracking-widest uppercase" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                {count} {count === 1 ? t.cartItem : t.cartItems}
+            {/* Left expand arrow indicator (only visible when expanded) */}
+            {isCartTabExpanded && (
+              <ChevronLeft
+                size={13}
+                className="text-amber-300/90 shrink-0 mr-1 animate-pulse"
+              />
+            )}
+
+            {/* Bag Icon with Counter Badge (Micro-footprint) */}
+            <div className="relative flex items-center justify-center shrink-0">
+              <div className="w-7 h-7 rounded-full bg-black/25 flex items-center justify-center text-amber-300 group-hover:scale-105 transition-transform shadow-inner">
+                <ShoppingCart size={14} />
+              </div>
+              <span className="absolute -top-1 -left-1 bg-amber-400 text-stone-950 font-black text-[9.5px] min-w-[16px] h-[16px] px-0.5 rounded-full flex items-center justify-center shadow-md border border-stone-900/20">
+                {count}
               </span>
             </div>
-            <span className="font-light inline-flex items-baseline gap-1" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-              <span>{total}</span>
-              <span className="font-black select-none text-white" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-            </span>
+
+            {/* Expandable Details: Price & Free Delivery Threshold (Smooth sliding reveal) */}
+            <div
+              className={`flex items-center transition-all duration-300 ease-out overflow-hidden ${
+                isCartTabExpanded
+                  ? 'max-w-[240px] opacity-100 ml-2 pl-2.5 border-l border-white/20'
+                  : 'max-w-0 opacity-0 ml-0 pl-0 border-l-0 pointer-events-none'
+              }`}
+            >
+              <div className="flex flex-col text-right leading-none whitespace-nowrap space-y-0.5">
+                <div className="flex items-center justify-end gap-1.5">
+                  <span className="text-[9px] text-amber-200/90 uppercase tracking-widest font-black">
+                    {lang === 'TH' ? 'ยอดรวม' : lang === 'IT' ? 'Totale' : lang === 'DE' ? 'Summe' : 'Total'}
+                  </span>
+                  <span className="text-xs sm:text-sm font-black text-white inline-flex items-baseline gap-0.5">
+                    <span>{total}</span>
+                    <span
+                      className="font-black text-[10px] text-amber-300 select-none"
+                      style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      ฿
+                    </span>
+                  </span>
+                </div>
+
+                {/* Free Delivery Threshold Status */}
+                <div className="text-[9px] font-extrabold text-emerald-300 inline-flex items-center justify-end gap-1">
+                  {total < 300 ? (
+                    <span className="text-emerald-300/95 font-bold">
+                      {lang === 'IT' ? `Mancano ${300 - total}฿ per consegna GRATIS` :
+                       lang === 'TH' ? `อีก ${300 - total}฿ ส่งฟรี!` :
+                       lang === 'DE' ? `Noch ${300 - total}฿ bis GRATIS-Lieferung` :
+                       `Only ${300 - total}฿ to FREE delivery`}
+                    </span>
+                  ) : (
+                    <span className="text-amber-200 font-black">
+                      {lang === 'IT' ? '✓ Spedizione GRATIS!' :
+                       lang === 'TH' ? '✓ ส่งฟรีแล้ว!' :
+                       lang === 'DE' ? '✓ GRATIS-Versand!' :
+                       '✓ FREE Delivery!'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </button>
-        </div>
+        </aside>
       )}
 
-      <CartDrawer onCheckout={() => setShowCheckout(true)} lang={lang} />
+      <CartDrawer
+        onCheckout={() => setShowCheckout(true)}
+        onSelectCategory={(catId) => {
+          setActiveCategoryId(catId);
+          window.scrollTo({ top: 380, behavior: 'smooth' });
+        }}
+        onContinueShopping={() => {
+          // Reset to initial category (Pizze Classiche)
+          const firstCatId = availableCategories[0]?.id || 'traditional-italian-pizza';
+          setActiveCategoryId(firstCatId);
+          // Scroll smoothly to the top of menu / dishes
+          const anchor = document.getElementById('menu-category-section');
+          if (anchor) {
+            anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            window.scrollTo({ top: 320, behavior: 'smooth' });
+          }
+        }}
+        lang={lang}
+      />
 
       {showCheckout && (
         <CheckoutFlow onClose={() => setShowCheckout(false)} onSuccess={() => setShowCheckout(false)} lang={lang} />
@@ -1601,7 +2284,13 @@ export default function DeliveryMenu() {
 
       <TableReservationModal
         isOpen={isReservationModalOpen}
-        onClose={() => setIsReservationModalOpen(false)}
+        onClose={() => {
+          setIsReservationModalOpen(false);
+          setIsWineReservation(false);
+          setReservationInitialNotes('');
+        }}
+        initialNotes={reservationInitialNotes}
+        isWinePrivilege={isWineReservation}
         lang={lang}
       />
 

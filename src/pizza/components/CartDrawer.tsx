@@ -1,147 +1,491 @@
-import { X, Trash2, Plus, Minus, ShoppingBag, Phone, Sparkles, Ticket, Check, AlertCircle } from 'lucide-react';
-import { useCartStore, calcItemTotal } from '../store/cartStore';
+import { X, Trash2, Plus, Minus, ShoppingBag, Phone, Sparkles, ArrowLeft, Wine, GlassWater, Coffee, CupSoda, ChevronRight, ChevronDown, ExternalLink, UtensilsCrossed } from 'lucide-react';
+import { useCartStore, calcItemTotal, CartItem } from '../store/cartStore';
 import { fetchPizzeriaStatus, calculateServiceState, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
 import { checkFirstOrderEligibility, getOrCreateDeviceId } from '../services/firstOrderService';
 import {
   PizzaPromoCode,
   validatePizzaPromoCode,
   getAppliedPizzaPromo,
-  setAppliedPizzaPromo,
-  clearAppliedPizzaPromo
 } from '../services/pizzaPromoService';
 import { withCacheBust } from '../utils/cacheBust';
 import { useState, useEffect } from 'react';
+import { useLanguageStore } from '../store/languageStore';
+import { Language } from '../config/languages';
+import { MenuItem, Variant, ExtraOption, menuData } from '../data/menuData';
+import { TableReservationModal } from './TableReservationModal';
 
 interface Props {
   onCheckout: () => void;
-  lang: 'IT' | 'EN' | 'TH' | 'DE';
+  onSelectCategory?: (categoryId: string) => void;
+  onContinueShopping?: () => void;
+  lang?: Language;
+  isDiningMode?: boolean;
+  tableNumber?: string;
 }
 
-const labels = {
-  IT: {
-    title: 'Il Tuo Ordine',
-    emptyTitle: 'Il tuo carrello è vuoto',
-    emptyDesc: 'Aggiungi le nostre specialità dal menu online',
-    totalText: 'Totale Ordine',
-    subtotalText: 'Subtotale',
-    firstOrderDiscountText: 'Sconto 1° Ordine (10%)',
-    couponLabel: 'Codice Promo / Coupon',
-    couponPlaceholder: 'Inserisci codice',
-    applyBtn: 'Applica',
-    removeBtn: 'Rimuovi',
-    deliveryText: 'Consegna',
-    freeText: 'Gratis',
-    freeDeliveryApplied: 'Consegna gratuita applicata! (Ordine > 300฿)',
-    welcomeTitle: 'BENVENUTO! SCONTO 10% APPLICATO',
-    welcomePromoDesc: 'Questa è la tua prima ordinazione: abbiamo applicato per te il 10% di sconto sui piatti!',
-    youSaveText: (s: number) => `Risparmi ${s}฿`,
-    checkoutBtn: 'Procedi al Checkout',
-    ordersPausedBtn: 'Ordinazioni Momentaneamente Sospese',
-    ordersClosedBtn: 'Pizzeria al momento Chiusa',
-    callPizzeria: 'Chiama la Pizzeria (Ranong)',
-    footerInfo: 'Pagamento tramite PromptPay / Carta • Consegna a Ranong',
+export interface QuickDrinkItem {
+  id: string;
+  name: string;
+  nameTh: string;
+  nameIt: string;
+  nameDe: string;
+  price: number;
+  image: string;
+  category: string;
+}
+
+const findMenuItem = (id: string): MenuItem | undefined => {
+  for (const cat of menuData) {
+    const it = cat.items.find((i) => i.id === id);
+    if (it) return it;
+  }
+  return undefined;
+};
+
+const makePairingItem = (id: string, category: string, overrides?: Partial<QuickDrinkItem>): QuickDrinkItem => {
+  const m = findMenuItem(id);
+  if (!m) {
+    return {
+      id,
+      name: overrides?.name || id,
+      nameTh: overrides?.nameTh || id,
+      nameIt: overrides?.nameIt || id,
+      nameDe: overrides?.nameDe || id,
+      price: overrides?.price || 0,
+      image: overrides?.image || '',
+      category,
+      ...overrides,
+    };
+  }
+  return {
+    id: m.id,
+    name: m.name,
+    nameTh: m.nameTh || m.name,
+    nameIt: m.nameIt || m.name,
+    nameDe: m.nameDe || m.name,
+    price: m.price,
+    image: m.image,
+    category,
+    ...overrides,
+  };
+};
+
+export const PAIRING_POOLS: Record<
+  string,
+  {
+    id: string;
+    categoryKey: string;
+    icon: string;
+    items: QuickDrinkItem[];
+  }
+> = {
+  'soft-drinks': {
+    id: 'soft-drinks',
+    categoryKey: 'soft-drinks',
+    icon: '🥤',
+    items: [
+      makePairingItem('soft-drink-cans', 'soft-drinks', {
+        id: 'soft-drink-coke',
+        name: 'Coca-Cola (Can)',
+        nameTh: 'โค้ก (กระป๋อง)',
+        nameIt: 'Coca-Cola (Lattina)',
+        nameDe: 'Coca-Cola (Dose)',
+        price: 30,
+      }),
+      makePairingItem('soft-drink-cans', 'soft-drinks', {
+        id: 'soft-drink-coke-zero',
+        name: 'Coke Zero (Can)',
+        nameTh: 'โค้ก ซีโร่ (กระป๋อง)',
+        nameIt: 'Coca-Cola Zero (Lattina)',
+        nameDe: 'Cola Zero (Dose)',
+        price: 30,
+      }),
+      makePairingItem('soft-drink-cans', 'soft-drinks', {
+        id: 'soft-drink-sprite',
+        name: 'Sprite (Can)',
+        nameTh: 'สไปรท์ (กระป๋อง)',
+        nameIt: 'Sprite (Lattina)',
+        nameDe: 'Sprite (Dose)',
+        price: 30,
+      }),
+      makePairingItem('soda-water', 'soft-drinks', {
+        id: 'soda-water-singha',
+        name: 'Soda Water (Bottle)',
+        nameTh: 'น้ำโซดา (ขวด)',
+        nameIt: 'Acqua Gassata / Soda',
+        nameDe: 'Sodawasser (Flasche)',
+        price: 20,
+      }),
+      makePairingItem('drinking-water', 'soft-drinks', {
+        id: 'mineral-water-bottle',
+        name: 'Mineral Water (Bottle)',
+        nameTh: 'น้ำดื่มขวด',
+        nameIt: 'Acqua Naturale (Bottiglia)',
+        nameDe: 'Mineralwasser (Flasche)',
+        price: 20,
+      }),
+    ],
   },
-  EN: {
-    title: 'Your Order',
-    emptyTitle: 'Your cart is empty',
-    emptyDesc: 'Add items from our online menu',
-    totalText: 'Order Total',
-    subtotalText: 'Subtotal',
-    firstOrderDiscountText: '1st Order Discount (10%)',
-    couponLabel: 'Promo Code / Coupon',
-    couponPlaceholder: 'Enter promo code',
-    applyBtn: 'Apply',
-    removeBtn: 'Remove',
-    deliveryText: 'Delivery',
-    freeText: 'Free',
-    freeDeliveryApplied: 'Free delivery applied! (Order > 300฿)',
-    welcomeTitle: 'WELCOME! 10% DISCOUNT UNLOCKED',
-    welcomePromoDesc: 'This is your first order: 10% welcome discount has been applied to your food!',
-    youSaveText: (s: number) => `You save ${s}฿`,
-    checkoutBtn: 'Proceed to Checkout',
-    ordersPausedBtn: 'Orders Temporarily Paused',
-    ordersClosedBtn: 'Pizzeria Currently Closed',
-    callPizzeria: 'Call Pizzeria (Ranong)',
-    footerInfo: 'Payment via PromptPay / Card • Delivery in Ranong',
+  'coffee-shop': {
+    id: 'coffee-shop',
+    categoryKey: 'coffee-shop',
+    icon: '☕',
+    items: [
+      makePairingItem('caffè-espresso', 'coffee-shop'),
+      makePairingItem('cappuccino', 'coffee-shop'),
+      makePairingItem('americano', 'coffee-shop'),
+      makePairingItem('latte-macchiato', 'coffee-shop'),
+    ],
   },
-  TH: {
-    title: 'รายการของคุณ',
-    emptyTitle: 'ไม่มีสินค้าในตะกร้า',
-    emptyDesc: 'เพิ่มเมนูอร่อยจากเมนูออนไลน์ของเรา',
-    totalText: 'ยอดรวมทั้งหมด',
-    subtotalText: 'ยอดรวมสินค้า',
-    firstOrderDiscountText: 'ส่วนลดสั่งครั้งแรก (10%)',
-    couponLabel: 'โค้ดส่วนลด / คูปอง',
-    couponPlaceholder: 'กรอกรหัสส่วนลด',
-    applyBtn: 'ใช้โค้ด',
-    removeBtn: 'ยกเลิก',
-    deliveryText: 'ค่าจัดส่ง',
-    freeText: 'ฟรี',
-    freeDeliveryApplied: 'จัดส่งฟรี! (ยอดสั่งซื้อ > 300฿)',
-    welcomeTitle: 'ยินดีต้อนรับ! รับส่วนลด 10% ทันที',
-    welcomePromoDesc: 'นี่คือการสั่งซื้อครั้งแรกของคุณ: เรามอบส่วนลด 10% พิเศษสำหรับอาหารของคุณ!',
-    youSaveText: (s: number) => `ประหยัด ${s}฿`,
-    checkoutBtn: 'ดำเนินการชำระเงิน',
-    ordersPausedBtn: 'ระงับการสั่งซื้อชั่วคราว',
-    ordersClosedBtn: 'ร้านพิซซ่าปิดบริการในขณะนี้',
-    callPizzeria: 'โทรหาร้านพิซซ่า (ระนอง)',
-    footerInfo: 'ชำระเงินผ่าน พร้อมเพย์ / บัตรเครดิต • จัดส่งในตัวเมืองระนอง',
+  'desserts': {
+    id: 'desserts',
+    categoryKey: 'desserts',
+    icon: '🍰',
+    items: [
+      makePairingItem('tiramisu', 'desserts'),
+      makePairingItem('cake-of-the-day', 'desserts'),
+      makePairingItem('affogato-al-caffè', 'desserts'),
+      makePairingItem('crepes', 'desserts'),
+    ],
   },
-  DE: {
-    title: 'Ihre Bestellung',
-    emptyTitle: 'Ihr Warenkorb ist leer',
-    emptyDesc: 'Fügen Sie Spezialitäten aus unserer Online-Speisekarte hinzu',
-    totalText: 'Gesamtsumme',
-    subtotalText: 'Zwischensumme',
-    firstOrderDiscountText: 'Erstbesteller-Rabatt (10%)',
-    couponLabel: 'Gutscheincode / Rabatt',
-    couponPlaceholder: 'Gutschein eingeben',
-    applyBtn: 'Anwenden',
-    removeBtn: 'Entfernen',
-    deliveryText: 'Lieferung',
-    freeText: 'Gratis',
-    freeDeliveryApplied: 'Kostenlose Lieferung angewendet! (Bestellung > 300฿)',
-    welcomeTitle: 'WILLKOMMEN! 10% RABATT AKTIVIERT',
-    welcomePromoDesc: 'Dies ist Ihre erste Bestellung: 10% Willkommensrabatt auf Ihre Speisen aktiviert!',
-    youSaveText: (s: number) => `Sie sparen ${s}฿`,
-    checkoutBtn: 'Zur Kasse gehen',
-    ordersPausedBtn: 'Bestellungen vorübergehend pausiert',
-    ordersClosedBtn: 'Pizzeria derzeit geschlossen',
-    callPizzeria: 'Pizzeria anrufen (Ranong)',
-    footerInfo: 'Zahlung per PromptPay / Karte • Lieferung in Ranong',
+  'random-pizzas': {
+    id: 'traditional-italian-pizza',
+    categoryKey: 'traditional-italian-pizza',
+    icon: '🍕',
+    items: [
+      makePairingItem('pizza-margherita', 'traditional-italian-pizza'),
+      makePairingItem('pizza-marinara-vegan', 'traditional-italian-pizza'),
+    ],
+  },
+  'random-pasta': {
+    id: 'pasta',
+    categoryKey: 'pasta',
+    icon: '🍝',
+    items: [
+      makePairingItem('spaghetti-alla-carbonara', 'pasta'),
+      makePairingItem('spaghetti-alla-bolognese', 'pasta'),
+    ],
+  },
+  'random-snacks': {
+    id: 'french-fries',
+    categoryKey: 'french-fries',
+    icon: '🍟',
+    items: [
+      makePairingItem('french-fries', 'french-fries'),
+      makePairingItem('pizza-sandwich-parma-ham', 'pizza-sandwich'),
+    ],
   },
 };
 
-export default function CartDrawer({ onCheckout, lang }: Props) {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, getTotal } = useCartStore();
+const EXCLUDED_CATEGORIES = new Set([
+  'desserts',
+  'breakfast-and-snacks',
+  'coffee-shop',
+  'fruit-drinks',
+  'soft-drinks',
+  'beers',
+  'wines',
+  'beers-and-wines',
+]);
+
+const getProductCategory = (productId: string): string => {
+  for (const cat of menuData) {
+    if (cat.items.some((it) => it.id === productId)) {
+      return cat.id;
+    }
+  }
+  return '';
+};
+
+const labels = {
+  IT: {
+    title: 'Il Tuo Carrello',
+    emptyTitle: 'Il tuo carrello è vuoto',
+    emptyDesc: 'Scegli le specialità preparate con cura dalla nostra cuoca italiana',
+    totalText: 'TOTALE DA PAGARE',
+    subtotalText: 'Subtotale piatti',
+    firstOrderDiscountText: 'Sconto 1° Ordine (10%)',
+    deliveryText: 'Consegna a Ranong',
+    freeText: 'GRATIS',
+    freeDeliveryApplied: 'Consegna GRATUITA applicata (Ordine > 300฿)',
+    welcomePrivilegeNote: 'Sconto 10% 1° Ordine applicato sui piatti!',
+    checkoutBtn: 'PROCEDI AL CHECKOUT',
+    continueShoppingBtn: '← Torna al Menù e scegli altri piatti',
+    addMoreDishesBtn: '+ Continua a scegliere dal nostro Menù',
+    ordersPausedBtn: 'Ordinazioni Momentaneamente Sospese',
+    ordersClosedBtn: 'Pizzeria al momento Chiusa',
+    callPizzeria: 'Chiama la Pizzeria (Ranong)',
+    footerInfo: 'Cucina Italiana Artigianale • Consegna veloce a Ranong',
+    pairingRitualTitle: 'Completa il tuo Ordine',
+    pairingRitualSubtitle: 'I 3 abbinamenti consigliati dalla nostra cucina',
+    slot1Badge: '1. Bibita',
+    slot2Badge: '2. Caffè',
+    slot3Badge: '3. Dolce',
+    openSlot1: 'Tutte le Bibite',
+    openSlot2: 'Tutta la Caffetteria',
+    openSlot3: 'Tutti i Dessert',
+    slotAlt1Badge: '1. Pizza',
+    slotAlt2Badge: '2. Pasta',
+    slotAlt3Badge: '3. Sfizio',
+    openSlotAlt1: 'Tutte le Pizze',
+    openSlotAlt2: 'Tutta la Pasta',
+    openSlotAlt3: 'Tutti gli Sfizi',
+    addDrinkBtn: '+ Aggiungi',
+    freeDeliveryRemaining: (amount: number) => `Mancano solo ${amount}฿ per la Consegna GRATIS!`,
+    freeDeliveryAchieved: 'Consegna GRATIS sbloccata! 🎉',
+    wineDineInBadge: 'ESPERIENZA AL RISTORANTE',
+    wineDineInTitle: '🍷 Desideri scoprire i nostri Vini Italiani?',
+    wineDineInDesc: 'Vieni a trovarci nel giardino alle Terme di Raksawarin per una degustazione speciale con la nostra cantina.',
+    wineDineInBtn: 'Prenota un Tavolo o Capanna',
+  },
+  EN: {
+    title: 'Your Cart',
+    emptyTitle: 'Your cart is empty',
+    emptyDesc: 'Select authentic dishes handcrafted by our Italian Chef',
+    totalText: 'TOTAL TO PAY',
+    subtotalText: 'Dishes subtotal',
+    firstOrderDiscountText: '1st Order Discount (10%)',
+    deliveryText: 'Ranong Delivery',
+    freeText: 'FREE',
+    freeDeliveryApplied: 'FREE Delivery applied (Order > 300฿)',
+    welcomePrivilegeNote: '10% Welcome Discount applied to your food!',
+    checkoutBtn: 'PROCEED TO CHECKOUT',
+    continueShoppingBtn: '← Back to Menu & choose more dishes',
+    addMoreDishesBtn: '+ Keep choosing from our Menu',
+    ordersPausedBtn: 'Orders Temporarily Paused',
+    ordersClosedBtn: 'Pizzeria Currently Closed',
+    callPizzeria: 'Call Kitchen (Ranong)',
+    footerInfo: 'Handcrafted Italian Cuisine • Fast Delivery in Ranong',
+    pairingRitualTitle: 'Complete your Meal',
+    pairingRitualSubtitle: '3 recommended pairings from our kitchen',
+    slot1Badge: '1. Soft Drink',
+    slot2Badge: '2. Coffee',
+    slot3Badge: '3. Dessert',
+    openSlot1: 'All Drinks',
+    openSlot2: 'All Coffee & Tea',
+    openSlot3: 'All Desserts',
+    slotAlt1Badge: '1. Pizza',
+    slotAlt2Badge: '2. Pasta',
+    slotAlt3Badge: '3. Side Dish',
+    openSlotAlt1: 'All Pizzas',
+    openSlotAlt2: 'All Pasta',
+    openSlotAlt3: 'All Sides',
+    addDrinkBtn: '+ Add',
+    freeDeliveryRemaining: (amount: number) => `Only ${amount}฿ away from FREE Delivery!`,
+    freeDeliveryAchieved: 'FREE Delivery unlocked! 🎉',
+    wineDineInBadge: 'DINE-IN EXPERIENCE',
+    wineDineInTitle: '🍷 Looking for an Italian Wine Tasting?',
+    wineDineInDesc: 'Visit our garden restaurant at Raksawarin Hot Springs for an exclusive dine-in wine experience.',
+    wineDineInBtn: 'Book a Table or Garden Hut',
+  },
+  TH: {
+    title: 'ตะกร้าสินค้าของคุณ',
+    emptyTitle: 'ไม่มีสินค้าในตะกร้า',
+    emptyDesc: 'เลือกเมนูอร่อยปรุงสดใหม่โดยเชฟหญิงชาวอิตาลีของเรา',
+    totalText: 'ยอดชำระเงินสุทธิ',
+    subtotalText: 'ยอดรวมอาหาร',
+    firstOrderDiscountText: 'ส่วนลดสั่งครั้งแรก (10%)',
+    deliveryText: 'ค่าจัดส่งในระนอง',
+    freeText: 'ฟรี',
+    freeDeliveryApplied: 'จัดส่งฟรี! (ยอดสั่งซื้อครบ 300฿)',
+    welcomePrivilegeNote: 'รับส่วนลดพิเศษ 10% สำหรับการสั่งซื้อครั้งแรก!',
+    checkoutBtn: 'ดำเนินการชำระเงิน',
+    continueShoppingBtn: '← กลับไปเลือกอาหารจากเมนู',
+    addMoreDishesBtn: '+ เลือกเมนูอร่อยเพิ่มเติม',
+    ordersPausedBtn: 'ระงับการสั่งซื้อชั่วคราว',
+    ordersClosedBtn: 'ร้านพิซซ่าปิดบริการในขณะนี้',
+    callPizzeria: 'โทรหาร้านพิซซ่า (ระนอง)',
+    footerInfo: 'อาหารอิตาเลียนแท้ • จัดส่งรวดเร็วในตัวเมืองระนอง',
+    pairingRitualTitle: 'เพิ่มความอร่อยให้มื้อนี้',
+    pairingRitualSubtitle: '3 เมนูแนะนำยอดนิยมสำหรับทานคู่กัน',
+    slot1Badge: '1. เครื่องดื่ม',
+    slot2Badge: '2. กาแฟ',
+    slot3Badge: '3. ของหวาน',
+    openSlot1: 'ดูเครื่องดื่มทั้งหมด',
+    openSlot2: 'ดูกาแฟทั้งหมด',
+    openSlot3: 'ดูของหวานทั้งหมด',
+    slotAlt1Badge: '1. พิซซ่า',
+    slotAlt2Badge: '2. พาสต้า',
+    slotAlt3Badge: '3. ทานเล่น',
+    openSlotAlt1: 'ดูพิซซ่าทั้งหมด',
+    openSlotAlt2: 'ดูพาสต้าทั้งหมด',
+    openSlotAlt3: 'ดูของทานเล่นทั้งหมด',
+    addDrinkBtn: '+ เพิ่ม',
+    freeDeliveryRemaining: (amount: number) => `อีกเพียง ${amount}฿ เพื่อรับสิทธิ์ส่งฟรี!`,
+    freeDeliveryAchieved: 'รับสิทธิ์จัดส่งฟรีแล้ว! 🎉',
+    wineDineInBadge: 'ทานที่ร้านอาหาร',
+    wineDineInTitle: '🍷 สัมผัสประสบการณ์ดื่มไวน์อิตาเลียนชั้นเลิศ',
+    wineDineInDesc: 'แวะมาทานที่ร้านริมน้ำตกรักษะวาริน จองโต๊ะหรือซุ้มไม้ไผ่เพื่อความประทับใจ',
+    wineDineInBtn: 'จองโต๊ะหรือซุ้มกระท่อม',
+  },
+  DE: {
+    title: 'Ihr Warenkorb',
+    emptyTitle: 'Ihr Warenkorb ist leer',
+    emptyDesc: 'Wählen Sie Spezialitäten unserer italienischen Köchin',
+    totalText: 'GESAMTBETRAG',
+    subtotalText: 'Zwischensumme Speisen',
+    firstOrderDiscountText: 'Erstbesteller-Rabatt (10%)',
+    deliveryText: 'Lieferung in Ranong',
+    freeText: 'GRATIS',
+    freeDeliveryApplied: 'Kostenlose Lieferung angewendet (ab 300฿)',
+    welcomePrivilegeNote: '10% Willkommensrabatt auf Speisen angewendet!',
+    checkoutBtn: 'ZUR KASSE GEHEN',
+    continueShoppingBtn: '← Zurück zur Speisekarte',
+    addMoreDishesBtn: '+ Weiter aus der Speisekarte wählen',
+    ordersPausedBtn: 'Bestellungen vorübergehend pausiert',
+    ordersClosedBtn: 'Pizzeria derzeit geschlossen',
+    callPizzeria: 'Pizzeria anrufen (Ranong)',
+    footerInfo: 'Handgemachte italienische Küche • Schnelle Lieferung in Ranong',
+    pairingRitualTitle: 'Bestellung vervollständigen',
+    pairingRitualSubtitle: '3 empfohlene Beigaben aus unserer Küche',
+    slot1Badge: '1. Getränk',
+    slot2Badge: '2. Kaffee',
+    slot3Badge: '3. Dessert',
+    openSlot1: 'Alle Getränke',
+    openSlot2: 'Alle Kaffees',
+    openSlot3: 'Alle Desserts',
+    slotAlt1Badge: '1. Pizza',
+    slotAlt2Badge: '2. Pasta',
+    slotAlt3Badge: '3. Beilage',
+    openSlotAlt1: 'Alle Pizzas',
+    openSlotAlt2: 'Alle Pasta',
+    openSlotAlt3: 'Alle Beilagen',
+    addDrinkBtn: '+ Hinzufügen',
+    freeDeliveryRemaining: (amount: number) => `Noch ${amount}฿ bis zur GRATIS-Lieferung!`,
+    freeDeliveryAchieved: 'GRATIS-Lieferung freigeschaltet! 🎉',
+    wineDineInBadge: 'RESTAURANT-ERLEBNIS',
+    wineDineInTitle: '🍷 Italienische Weine im Restaurant erleben?',
+    wineDineInDesc: 'Besuchen Sie unser Gartenrestaurant an den Raksawarin-Quellen für eine besondere Weinverkostung.',
+    wineDineInBtn: 'Tisch oder Bambushütte reservieren',
+  },
+};
+
+const CAN_VARIANTS: Variant[] = [
+  {
+    id: "10071",
+    name: "Coca-Cola",
+    nameIt: "Coca-Cola",
+    nameTh: "โค้ก (Coca-Cola)",
+    nameDe: "Coca-Cola",
+    sku: "10071",
+    price: 30,
+    priceModifier: 0,
+  },
+  {
+    id: "10082",
+    name: "Coca-Cola Zero",
+    nameIt: "Coca-Cola Zero",
+    nameTh: "โค้ก ซีโร่ (Coca-Cola Zero)",
+    nameDe: "Coca-Cola Zero",
+    sku: "10082",
+    price: 30,
+    priceModifier: 0,
+  },
+  {
+    id: "10072",
+    name: "Fanta Orange",
+    nameIt: "Fanta Aranciata",
+    nameTh: "แฟนต้า (Fanta)",
+    nameDe: "Fanta Orange",
+    sku: "10072",
+    price: 30,
+    priceModifier: 0,
+  },
+  {
+    id: "10073",
+    name: "Sprite",
+    nameIt: "Sprite",
+    nameTh: "สไปรท์ (Sprite)",
+    nameDe: "Sprite",
+    sku: "10073",
+    price: 30,
+    priceModifier: 0,
+  },
+];
+
+const FRUIT_OPTIONS: ExtraOption[] = [
+  { id: 'fruit-watermelon', name: 'Watermelon', nameIt: 'Anguria', nameTh: 'แตงโม', nameDe: 'Wassermelone', sku: 'fruit-watermelon', price: 0 },
+  { id: 'fruit-pineapple', name: 'Pineapple', nameIt: 'Ananas', nameTh: 'สับปะรด', nameDe: 'Ananas', sku: 'fruit-pineapple', price: 0 },
+  { id: 'fruit-banana', name: 'Banana', nameIt: 'Banana', nameTh: 'กล้วย', nameDe: 'Banane', sku: 'fruit-banana', price: 0 },
+  { id: 'fruit-papaya', name: 'Papaya', nameIt: 'Papaya', nameTh: 'มะละกอ', nameDe: 'Papaya', sku: 'fruit-papaya', price: 0 },
+  { id: 'fruit-lime', name: 'Lime', nameIt: 'Lime', nameTh: 'มะนาว', nameDe: 'Limette', sku: 'fruit-lime', price: 0 },
+];
+
+const SUGAR_OPTIONS: ExtraOption[] = [
+  { id: 'sugar-none', name: 'No Sugar', nameIt: 'Senza Zucchero', nameTh: 'ไม่หวาน', nameDe: 'Ohne Zucker', sku: 'sugar-none', price: 0 },
+  { id: 'sugar-low', name: 'Low Sugar', nameIt: 'Poco Zucchero', nameTh: 'หวานน้อย', nameDe: 'Wenig Zucker', sku: 'sugar-low', price: 0 },
+  { id: 'sugar-regular', name: 'Regular Sugar', nameIt: 'Zucchero Classico', nameTh: 'หวานปกติ', nameDe: 'Normaler Zucker', sku: 'sugar-regular', price: 0 },
+];
+
+const getFruitEmoji = (fruitId: string) => {
+  if (fruitId.includes('watermelon')) return '🍉';
+  if (fruitId.includes('pineapple')) return '🍍';
+  if (fruitId.includes('banana')) return '🍌';
+  if (fruitId.includes('papaya')) return '🧡';
+  if (fruitId.includes('lime')) return '🍋';
+  return '🍹';
+};
+
+const isCannedDrinkItem = (it: CartItem): boolean => {
+  return (
+    it.productId === 'soft-drink-cans' ||
+    it.productId === 'soft-drink-coke' ||
+    it.productId === 'soft-drink-coke-zero' ||
+    it.productId === 'soft-drink-sprite' ||
+    it.productId.startsWith('soft-drink-') ||
+    (it.nameIt && it.nameIt.toUpperCase().includes('LATTINA')) ||
+    it.name.toUpperCase().includes('CAN') ||
+    it.name.toUpperCase().includes('COCA-COLA') ||
+    it.name.toUpperCase().includes('SPRITE') ||
+    it.name.toUpperCase().includes('FANTA')
+  );
+};
+
+const isFruitDrinkItem = (it: CartItem): boolean => {
+  return (
+    it.productId.includes('fruit') ||
+    it.productId.includes('shake') ||
+    it.productId.includes('smoothie') ||
+    it.productId.includes('lassi') ||
+    it.productId.includes('frapp') ||
+    Boolean(it.selectedExtras && it.selectedExtras.some((e) => e.id.startsWith('fruit-')))
+  );
+};
+
+export default function CartDrawer({ onCheckout, onSelectCategory, onContinueShopping, lang: propLang, isDiningMode: propIsDiningMode, tableNumber }: Props) {
+  const storeLang = useLanguageStore((s) => s.lang);
+  const lang = propLang || storeLang || 'IT';
+  const { items, isOpen, closeCart, removeItem, updateQuantity, updateCartItem, getTotal, addItem } = useCartStore();
+
+  const isDiningMode = propIsDiningMode || (typeof window !== 'undefined' && (
+    window.location.pathname.includes('/dining') || 
+    window.location.pathname.includes('/tavoli') || 
+    window.location.pathname.includes('/table')
+  ));
+
+  const handleContinueShopping = () => {
+    closeCart();
+    if (onContinueShopping) {
+      onContinueShopping();
+    }
+  };
   const subtotal = getTotal();
   const [isEligible, setIsEligible] = useState(true);
-  const [isHotelGuest, setIsHotelGuest] = useState(false);
+  const [showTableModal, setShowTableModal] = useState(false);
+
+  const hasMainFoodInCart =
+    items.length === 0 ||
+    items.some((item) => {
+      const cat = getProductCategory(item.productId);
+      return cat ? !EXCLUDED_CATEGORIES.has(cat) : true;
+    });
 
   // Promo Code State
   const [appliedPromo, setAppliedPromo] = useState<PizzaPromoCode | null>(() => getAppliedPizzaPromo());
-  const [promoInput, setPromoInput] = useState('');
-  const [promoError, setPromoError] = useState<string | null>(null);
-  const [promoSuccess, setPromoSuccess] = useState<string | null>(null);
 
-  // Intercept ?promo=CODE from URL on mount/open
+  // Check first order eligibility (only for online delivery)
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const urlPromo = params.get('promo');
-      if (urlPromo && !appliedPromo) {
-        const res = validatePizzaPromoCode(urlPromo, subtotal);
-        if (res.valid && res.promo) {
-          setAppliedPromo(res.promo);
-          setAppliedPizzaPromo(res.promo);
-          setPromoSuccess(`Coupon ${res.promo.code} applicato con successo!`);
-        }
-      }
-    }
-  }, [subtotal]);
-
-  // Check first order eligibility based on device ID and saved phone
-  useEffect(() => {
+    if (isDiningMode) return;
     let active = true;
     const deviceId = getOrCreateDeviceId();
     let savedPhone = '';
@@ -152,68 +496,48 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
     checkFirstOrderEligibility({ phone: savedPhone, email: savedEmail, deviceId }).then((res) => {
       if (active) {
         setIsEligible(res.eligible);
-        setIsHotelGuest(res.isHotelGuest);
       }
     });
 
     return () => { active = false; };
-  }, [isOpen]);
+  }, [isOpen, isDiningMode]);
 
-  const handleApplyPromo = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPromoError(null);
-    setPromoSuccess(null);
-
-    if (!promoInput.trim()) {
-      setPromoError('Inserisci un codice valido');
-      return;
-    }
-
-    const res = validatePizzaPromoCode(promoInput, subtotal);
-    if (!res.valid || !res.promo) {
-      setPromoError(res.error || 'Codice non valido o scaduto');
-      return;
-    }
-
-    setAppliedPromo(res.promo);
-    setAppliedPizzaPromo(res.promo);
-    setPromoSuccess(`Coupon ${res.promo.code} applicato! (-${res.discountAmount}฿)`);
-    setPromoInput('');
+  const handleQuickAddDrink = (drink: QuickDrinkItem) => {
+    addItem({
+      productId: drink.id,
+      name: drink.name,
+      nameTh: drink.nameTh,
+      nameIt: drink.nameIt,
+      nameDe: drink.nameDe,
+      quantity: 1,
+      basePrice: drink.price,
+      image: drink.image,
+      selectedVariant: null,
+      selectedExtras: [],
+    });
   };
 
-  const handleRemovePromo = () => {
-    setAppliedPromo(null);
-    clearAppliedPizzaPromo();
-    setPromoError(null);
-    setPromoSuccess(null);
-  };
-
-  // NON-STACKING DISCOUNT ENGINE:
-  // 1. If a promo coupon is applied and valid, it takes priority and replaces the 10% welcome discount.
-  // 2. Else if the user is eligible for the 10% first order welcome discount, that is applied.
-  // 3. Delivery fee is NEVER discounted.
+  // NON-STACKING DISCOUNT ENGINE
   let discountAmount = 0;
-  let discountLabel = '';
-  let isPromoActive = false;
+  let isDiscountActive = false;
 
-  if (appliedPromo) {
+  if (isDiningMode) {
+    discountAmount = Math.round(subtotal * 0.05);
+    isDiscountActive = true;
+  } else if (appliedPromo) {
     const res = validatePizzaPromoCode(appliedPromo.code, subtotal);
     if (res.valid) {
       discountAmount = res.discountAmount;
-      discountLabel = `Coupon ${appliedPromo.code} (${appliedPromo.discountType === 'percentage' ? `-${appliedPromo.discountValue}%` : `-${appliedPromo.discountValue}฿`})`;
-      isPromoActive = true;
-    } else {
-      // Subtotal dropped below minOrder threshold
-      discountAmount = 0;
+      isDiscountActive = true;
     }
   } else if (isEligible) {
     discountAmount = Math.round(subtotal * 0.1);
-    discountLabel = labels[lang].firstOrderDiscountText;
+    isDiscountActive = true;
   }
 
   const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
-  const deliveryFee = subtotal >= 300 ? 0 : 30;
-  const finalTotal = subtotalAfterDiscount + deliveryFee;
+  const deliveryFee = isDiningMode ? 0 : (subtotal >= 300 ? 0 : 30);
+  const finalTotal = isDiningMode ? subtotalAfterDiscount : (subtotalAfterDiscount + deliveryFee);
   const t = labels[lang];
 
   const [serviceCalc, setServiceCalc] = useState(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
@@ -251,6 +575,18 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
 
   const formatProductName = (name: string) => {
     if (!name) return "";
+    if (name.includes('\n')) {
+      const lines = name.split('\n');
+      return (
+        <>
+          {lines.map((line, idx) => (
+            <span key={idx} className="block">
+              {line}
+            </span>
+          ))}
+        </>
+      );
+    }
     const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
     const upperName = name.toUpperCase();
     for (const kw of splitKeywords) {
@@ -281,312 +617,620 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
       )}
 
       <div
-        className="fixed top-0 right-0 h-full z-50 flex flex-col w-full max-w-[420px] bg-stone-50 border-l border-stone-300 shadow-2xl transition-transform duration-300 ease-out"
+        className="fixed top-0 right-0 h-full z-50 flex flex-col w-full sm:max-w-[480px] bg-stone-100 text-stone-900 border-l border-stone-300 shadow-2xl transition-transform duration-300 ease-out"
         style={{
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+          fontFamily: lang === 'TH' ? 'Prompt, Kanit, Outfit, system-ui, sans-serif' : 'Outfit, system-ui, sans-serif'
         }}
       >
-        {/* DRAWER HEADER */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-stone-200 bg-white">
+        {/* BRIGHT CRISP HEADER */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-stone-200 bg-white shadow-xs">
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleContinueShopping}
+              className="p-1.5 -ml-1 text-stone-600 hover:text-stone-950 hover:bg-stone-100 rounded-xl transition-all cursor-pointer flex items-center gap-1 text-xs font-bold"
+              title="Torna al menu"
+            >
+              <ArrowLeft size={16} className="text-[#8B1E1E]" />
+              <span className="hidden sm:inline">Menu</span>
+            </button>
+            <div className="h-4 w-px bg-stone-200 mx-0.5" />
             <ShoppingBag size={18} className="text-[#8B1E1E]" />
-            <span className="text-stone-850 text-xs sm:text-sm font-bold tracking-widest uppercase" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <span className="text-stone-900 text-sm sm:text-base font-black tracking-tight uppercase">
               {t.title}
             </span>
             {items.length > 0 && (
-              <span className="w-5 h-5 rounded-full bg-[#8B1E1E] flex items-center justify-center text-white text-[10px] font-extrabold ml-1">
+              <span className="w-5 h-5 rounded-full bg-[#8B1E1E] flex items-center justify-center text-white text-[11px] font-black ml-1 shadow-xs">
                 {items.length}
               </span>
             )}
           </div>
           <button
             onClick={closeCart}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-705 hover:bg-stone-100 transition-all cursor-pointer"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition-all cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* DRAWER CONTENT */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+        {/* DRAWER SCROLLABLE CONTENT (COMPACT & OPTIMIZED FOR FULL VISIBILITY) */}
+        <div className="flex-1 overflow-y-auto px-3.5 sm:px-4 py-3 space-y-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {items.length === 0 ? (
-            <div className="text-center py-24 px-4">
-              <ShoppingBag size={44} className="text-stone-300 mx-auto mb-4" />
-              <p className="text-stone-600 text-sm font-semibold">{t.emptyTitle}</p>
-              <p className="text-stone-400 text-xs mt-1">{t.emptyDesc}</p>
+            <div className="text-center py-20 px-4 space-y-3">
+              <div className="w-14 h-14 mx-auto rounded-2xl bg-white border border-stone-200 flex items-center justify-center text-stone-400 shadow-sm">
+                <ShoppingBag size={26} />
+              </div>
+              <p className="text-stone-800 text-sm font-bold">{t.emptyTitle}</p>
+              <p className="text-stone-500 text-xs max-w-xs mx-auto leading-relaxed">{t.emptyDesc}</p>
+              <button
+                onClick={handleContinueShopping}
+                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-[#8B1E1E] hover:bg-[#721818] text-white text-xs font-black uppercase tracking-wider rounded-full shadow-md transition-all cursor-pointer active:scale-95"
+              >
+                <ArrowLeft size={13} />
+                <span>{t.continueShoppingBtn.replace('← ', '')}</span>
+              </button>
             </div>
           ) : (
-            items.map((item) => {
-              const lineTotal = calcItemTotal(item);
-              return (
-                <div key={item.cartId} className="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm">
-                  <div className="flex gap-3">
-                    <img src={withCacheBust(item.image)} alt={getTranslatedName(item)} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-stone-850 font-bold text-sm leading-snug" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.05rem' }}>
-                            {formatProductName(getTranslatedName(item))}
-                          </p>
+            <>
+              {/* CART ITEMS LIST (COMPACT CRISP CARDS & INLINE CONTROLS) */}
+              <div className="space-y-2.5">
+                {items.map((item) => {
+                  const lineTotal = calcItemTotal(item);
+                  return (
+                    <div
+                      key={item.cartId}
+                      className="bg-white border border-stone-200/90 rounded-xl p-2.5 shadow-2xs hover:border-stone-300 transition-all"
+                    >
+                      <div className="flex gap-3 items-center">
+                        {/* Compact 4:3 Photo with Living Breathing Zoom */}
+                        <div className="w-20 sm:w-24 aspect-[4/3] rounded-lg overflow-hidden flex-shrink-0 border border-stone-200/90 bg-stone-100 shadow-2xs relative">
+                          <img
+                            src={withCacheBust(item.image)}
+                            alt={getTranslatedName(item)}
+                            className="w-full h-full object-cover select-none main-dish-zoom"
+                          />
                         </div>
-                        <button
-                          onClick={() => removeItem(item.cartId)}
-                          className="text-stone-400 hover:text-[#8B1E1E] transition-colors flex-shrink-0 p-1 hover:bg-stone-50 rounded cursor-pointer"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
 
-                      {item.selectedVariant && (
-                        <p className="text-stone-500 text-xs mt-1.5 font-medium">
-                          Size: {getTranslatedName(item.selectedVariant)}
-                          {item.selectedVariant.priceModifier > 0 && (
-                            <span className="ml-1 inline-flex items-baseline gap-0.5">
-                              <span>(+{item.selectedVariant.priceModifier}</span>
-                              <span className="font-black select-none text-stone-500 text-[10px]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                              <span>)</span>
-                            </span>
-                          )}
-                        </p>
-                      )}
+                        {/* Details with seamlessly integrated controls */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between self-stretch py-0.5">
+                          <div>
+                            <div className="flex items-start justify-between gap-1">
+                              <p
+                                className="text-stone-900 font-bold text-sm leading-snug truncate"
+                                style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.08rem' }}
+                              >
+                                {formatProductName(getTranslatedName(item))}
+                              </p>
+                              <button
+                                onClick={() => removeItem(item.cartId)}
+                                className="text-stone-400 hover:text-[#8B1E1E] transition-colors p-0.5 hover:bg-stone-50 rounded-lg cursor-pointer shrink-0"
+                                title="Elimina"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
 
-                      {item.selectedExtras.length > 0 && (
-                        <div className="mt-1.5 space-y-0.5">
-                          {item.selectedExtras.map((e) => (
-                            <p key={e.id} className="text-stone-400 text-xs font-normal">
-                              + {getTranslatedName(e)} {e.price > 0 && (
-                                <span className="inline-flex items-baseline gap-0.5 ml-1">
-                                  <span>(+{e.price}</span>
-                                  <span className="font-black select-none text-stone-400 text-[10px]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                                  <span>)</span>
+                            {/* Interactive In-Cart Flavor / Can / Fruit / Sugar Dropdown Selectors */}
+                            {isCannedDrinkItem(item) ? (
+                              <div className="mt-1 pt-1 border-t border-stone-100 flex items-center justify-between gap-2">
+                                <span className="text-[9.5px] font-bold text-stone-500 uppercase tracking-wider shrink-0 flex items-center gap-1">
+                                  <span>🥤</span>
+                                  <span>{lang === 'TH' ? 'รสชาติ:' : lang === 'DE' ? 'Dose:' : lang === 'EN' ? 'Can:' : 'Lattina:'}</span>
                                 </span>
-                              )}
+                                <div className="relative flex-1 min-w-0 max-w-[170px]">
+                                  <select
+                                    value={
+                                      item.selectedVariant?.id ||
+                                      (item.productId === 'soft-drink-coke' ? '10071' :
+                                       item.productId === 'soft-drink-coke-zero' ? '10082' :
+                                       item.productId === 'soft-drink-sprite' ? '10073' :
+                                       CAN_VARIANTS.find(v => item.name.toLowerCase().includes(v.name.toLowerCase()))?.id || '10071')
+                                    }
+                                    onChange={(e) => {
+                                      const v = CAN_VARIANTS.find((cand) => cand.id === e.target.value);
+                                      if (v) {
+                                        updateCartItem(item.cartId, {
+                                          selectedVariant: v,
+                                          name: 'SOFT DRINK CANS',
+                                          nameIt: 'BIBITE IN LATTINA',
+                                          nameTh: 'กระป๋องน้ำอัดลม',
+                                          nameDe: 'ERFRISCHUNGSGETRÄNKE',
+                                        });
+                                      }
+                                    }}
+                                    className="w-full text-[10.5px] font-bold py-0.5 pl-2 pr-5 bg-stone-50 hover:bg-stone-100 border border-stone-300 rounded-md text-stone-900 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#8B1E1E] truncate"
+                                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                                  >
+                                    {CAN_VARIANTS.map((v) => (
+                                      <option key={v.id} value={v.id}>
+                                        {getTranslatedName(v)}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <ChevronDown size={11} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-stone-500 pointer-events-none" />
+                                </div>
+                              </div>
+                            ) : isFruitDrinkItem(item) ? (
+                              <div className="mt-1 pt-1 border-t border-stone-100 flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+                                {/* Fruit Dropdown */}
+                                <div className="relative flex-1 min-w-[110px]">
+                                  <select
+                                    value={
+                                      (item.selectedExtras || []).find((e) => e.id.startsWith('fruit-'))?.id || FRUIT_OPTIONS[0].id
+                                    }
+                                    onChange={(e) => {
+                                      const fruit = FRUIT_OPTIONS.find((f) => f.id === e.target.value);
+                                      if (fruit) {
+                                        const otherExtras = (item.selectedExtras || []).filter((e) => !e.id.startsWith('fruit-'));
+                                        updateCartItem(item.cartId, {
+                                          selectedExtras: [...otherExtras, fruit],
+                                        });
+                                      }
+                                    }}
+                                    className="w-full text-[10px] font-bold py-0.5 pl-2 pr-5 bg-amber-50/90 hover:bg-amber-100/90 border border-amber-300/80 rounded-md text-amber-950 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-amber-500 truncate"
+                                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                                  >
+                                    {FRUIT_OPTIONS.map((fruit) => (
+                                      <option key={fruit.id} value={fruit.id}>
+                                        {getFruitEmoji(fruit.id)} {getTranslatedName(fruit)}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <ChevronDown size={11} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-amber-800 pointer-events-none" />
+                                </div>
+
+                                {/* Sugar Level Dropdown */}
+                                <div className="relative flex-1 min-w-[95px]">
+                                  <select
+                                    value={
+                                      (item.selectedExtras || []).find((e) => e.id.startsWith('sugar-'))?.id || SUGAR_OPTIONS[0].id
+                                    }
+                                    onChange={(e) => {
+                                      const sugar = SUGAR_OPTIONS.find((s) => s.id === e.target.value);
+                                      if (sugar) {
+                                        const otherExtras = (item.selectedExtras || []).filter((e) => !e.id.startsWith('sugar-'));
+                                        updateCartItem(item.cartId, {
+                                          selectedExtras: [...otherExtras, sugar],
+                                        });
+                                      }
+                                    }}
+                                    className="w-full text-[10px] font-semibold py-0.5 pl-2 pr-5 bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-md text-stone-800 appearance-none cursor-pointer focus:outline-none focus:ring-1 focus:ring-stone-400 truncate"
+                                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                                  >
+                                    {SUGAR_OPTIONS.map((sugar) => (
+                                      <option key={sugar.id} value={sugar.id}>
+                                        {getTranslatedName(sugar)}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <ChevronDown size={11} className="absolute right-1.5 top-1/2 -translate-y-1/2 text-stone-500 pointer-events-none" />
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                {item.selectedVariant && (
+                                  <p className="text-stone-600 text-[11px] font-medium mt-0.5 flex flex-wrap items-center gap-1">
+                                    <span className="text-stone-400 font-normal">
+                                      {item.productId.includes('beer') || item.productId.includes('water')
+                                        ? (lang === 'TH' ? 'ขนาด:' : lang === 'DE' ? 'Format:' : lang === 'EN' ? 'Size:' : 'Formato:')
+                                        : (lang === 'TH' ? 'ขนาด:' : lang === 'DE' ? 'Größe:' : lang === 'EN' ? 'Size:' : 'Taglia:')}
+                                    </span>
+                                    <span className="font-semibold text-stone-700">{getTranslatedName(item.selectedVariant)}</span>
+                                    {item.selectedVariant.priceModifier > 0 && (
+                                      <span className="text-stone-500 font-semibold whitespace-nowrap">
+                                        (+{item.selectedVariant.priceModifier}฿)
+                                      </span>
+                                    )}
+                                  </p>
+                                )}
+
+                                {item.selectedExtras && item.selectedExtras.length > 0 && (
+                                  <div className="mt-0.5 space-y-0.5">
+                                    {item.selectedExtras.map((e) => (
+                                      <p key={e.id} className="text-stone-500 text-[10.5px] font-normal flex items-center justify-between gap-1">
+                                        <span className="truncate">+ {getTranslatedName(e)}</span>
+                                        {e.price > 0 && (
+                                          <span className="font-semibold text-stone-600 whitespace-nowrap shrink-0">
+                                            (+{e.price}฿)
+                                          </span>
+                                        )}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                              </>
+                            )}
+
+                            {/* 100% Halal Chicken Badge */}
+                            {item.isHalalChicken && (
+                              <div className="mt-0.5 inline-flex items-center gap-1 bg-emerald-50 border border-emerald-300 rounded px-1.5 py-0.5">
+                                <span className="text-[9px]">🐔</span>
+                                <span className="text-emerald-800 text-[9px] font-bold">
+                                  {lang === 'TH' ? 'เนื้อไก่ 100%' : lang === 'IT' ? '100% Pollo' : lang === 'DE' ? '100% Geflügel' : '100% Chicken'}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Lasagna pre-order date badge */}
+                            {item.lasagnaDate && (
+                              <div className="mt-0.5 inline-flex items-center gap-1 bg-amber-50 border border-amber-300 rounded px-1.5 py-0.5">
+                                <span className="text-amber-800 text-[9px] font-bold">
+                                  📅 {item.lasagnaDate}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Seamless Inline Controls: Quantity + Price on same clean line */}
+                          <div className="flex items-center justify-between mt-1.5 pt-1 border-t border-stone-100">
+                            <div className="flex items-center gap-1 bg-stone-100/90 rounded-full px-1.5 py-0.5 border border-stone-200">
+                              <button
+                                onClick={() => updateQuantity(item.cartId, (item.quantity || 1) - 1)}
+                                className="w-4.5 h-4.5 rounded-full bg-white flex items-center justify-center text-stone-700 hover:text-[#8B1E1E] shadow-2xs transition-all cursor-pointer"
+                              >
+                                <Minus size={9} />
+                              </button>
+                              <span className="text-stone-900 font-black text-xs w-3 text-center">{item.quantity || 1}</span>
+                              <button
+                                onClick={() => updateQuantity(item.cartId, (item.quantity || 1) + 1)}
+                                className="w-4.5 h-4.5 rounded-full bg-white flex items-center justify-center text-stone-700 hover:text-[#8B1E1E] shadow-2xs transition-all cursor-pointer"
+                              >
+                                <Plus size={9} />
+                              </button>
+                            </div>
+                            <p className="text-[#8B1E1E] font-black text-sm sm:text-base inline-flex items-baseline gap-0.5">
+                              <span>{lineTotal}</span>
+                              <span className="text-xs font-black select-none">฿</span>
                             </p>
-                          ))}
+                          </div>
                         </div>
-                      )}
-
-                      {/* 100% Halal Chicken Badge */}
-                      {item.isHalalChicken && (
-                        <div className="mt-2 inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 rounded-lg px-2 py-0.5 shadow-2xs">
-                          <span className="text-xs">🐔</span>
-                          <span className="text-emerald-800 text-[10px] font-extrabold">
-                            {lang === 'TH' ? 'เนื้อไก่ 100% (Halal-friendly)' : lang === 'IT' ? '100% Pollo (Halal-friendly)' : lang === 'DE' ? '100% Geflügel (Halal-friendly)' : '100% Chicken (Halal-friendly)'}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Lasagna pre-order date badge */}
-                      {item.lasagnaDate && (
-                        <div className="mt-2 inline-flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1">
-                          <span className="text-amber-700 text-[10px] font-bold">
-                            📅 {item.lasagnaDate}
-                          </span>
-                        </div>
-                      )}
-
-                      <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-stone-100">
-                        {/* Quantity selector */}
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
-                            className="w-6.5 h-6.5 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-500 hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 active:scale-95 transition-all cursor-pointer"
-                          >
-                            <Minus size={10} />
-                          </button>
-                          <span className="text-stone-850 font-bold text-xs w-4 text-center">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
-                            className="w-6.5 h-6.5 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-500 hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 active:scale-95 transition-all cursor-pointer"
-                          >
-                            <Plus size={10} />
-                          </button>
-                        </div>
-                        <p className="text-[#8B1E1E] font-extrabold text-sm inline-flex items-baseline gap-0.5">
-                          <span>{lineTotal}</span>
-                          <span className="font-black select-none text-[#8B1E1E] text-xs" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                        </p>
                       </div>
                     </div>
+                  );
+                })}
+              </div>
+
+              {/* 🍹 INNOVATIVE INTERACTIVE PAIRING TRIO (3 VERTICAL CARDS SIDE-BY-SIDE IN A GRID) */}
+              <div className="bg-white border border-amber-300/80 rounded-2xl p-3 shadow-2xs space-y-2.5">
+                <div className="flex items-center justify-between gap-1">
+                  <div>
+                    <p className="text-xs font-black text-stone-900 tracking-tight flex items-center gap-1 uppercase">
+                      <Sparkles size={13} className="text-amber-500 animate-pulse" />
+                      <span>{t.pairingRitualTitle}</span>
+                    </p>
+                    <p className="text-[10px] text-stone-500 font-medium">
+                      {t.pairingRitualSubtitle}
+                    </p>
                   </div>
                 </div>
-              );
-            })
+
+                {/* 3 VERTICAL CARDS IN A 3-COLUMN GRID - ALL 3 ALWAYS VISIBLE */}
+                <div className="grid grid-cols-3 gap-2">
+                  {(hasMainFoodInCart
+                    ? [
+                        {
+                          key: 'soft-drinks',
+                          targetCategory: 'soft-drinks',
+                          badge: t.slot1Badge,
+                          pool: PAIRING_POOLS['soft-drinks'],
+                          openLabel: t.openSlot1,
+                          accentColor: 'from-amber-50/70 via-white to-orange-50/30 border-amber-200/80',
+                        },
+                        {
+                          key: 'coffee-shop',
+                          targetCategory: 'coffee-shop',
+                          badge: t.slot2Badge,
+                          pool: PAIRING_POOLS['coffee-shop'],
+                          openLabel: t.openSlot2,
+                          accentColor: 'from-stone-50/80 via-white to-amber-50/30 border-stone-200/80',
+                        },
+                        {
+                          key: 'desserts',
+                          targetCategory: 'desserts',
+                          badge: t.slot3Badge,
+                          pool: PAIRING_POOLS['desserts'],
+                          openLabel: t.openSlot3,
+                          accentColor: 'from-emerald-50/70 via-white to-teal-50/30 border-emerald-200/80',
+                        },
+                      ]
+                    : [
+                        {
+                          key: 'random-pizzas',
+                          targetCategory: 'traditional-italian-pizza',
+                          badge: t.slotAlt1Badge,
+                          pool: PAIRING_POOLS['random-pizzas'],
+                          openLabel: t.openSlotAlt1,
+                          accentColor: 'from-amber-50/70 via-white to-orange-50/30 border-amber-200/80',
+                        },
+                        {
+                          key: 'random-pasta',
+                          targetCategory: 'pasta',
+                          badge: t.slotAlt2Badge,
+                          pool: PAIRING_POOLS['random-pasta'],
+                          openLabel: t.openSlotAlt2,
+                          accentColor: 'from-emerald-50/70 via-white to-teal-50/30 border-emerald-200/80',
+                        },
+                        {
+                          key: 'random-snacks',
+                          targetCategory: 'french-fries',
+                          badge: t.slotAlt3Badge,
+                          pool: PAIRING_POOLS['random-snacks'],
+                          openLabel: t.openSlotAlt3,
+                          accentColor: 'from-stone-50/80 via-white to-amber-50/30 border-stone-200/80',
+                        },
+                      ]
+                  ).map((slot) => {
+                    const currentItem = slot.pool.items[0];
+                    return (
+                      <div
+                        key={slot.key}
+                        className={`bg-gradient-to-b ${slot.accentColor} border rounded-xl p-2 flex flex-col justify-between shadow-2xs hover:shadow-xs transition-all text-center relative group`}
+                      >
+                        {/* Top Category Badge */}
+                        <div className="mb-1 flex items-center justify-center">
+                          <span className="text-[8px] sm:text-[8.5px] font-black uppercase tracking-wider text-stone-700 bg-white/95 px-1 py-0.5 rounded border border-stone-200/70 shadow-2xs truncate max-w-full">
+                            {slot.badge}
+                          </span>
+                        </div>
+
+                        {/* Living 4:3 Photo with Zoom */}
+                        <div className="relative w-full aspect-[4/3] bg-white rounded-lg border border-stone-200/80 overflow-hidden shadow-2xs flex items-center justify-center mb-1">
+                          <img
+                            key={`${slot.key}-${currentItem.id}`}
+                            src={withCacheBust(currentItem.image)}
+                            alt={getTranslatedName(currentItem)}
+                            className="w-full h-full object-cover pairing-forward-zoom"
+                          />
+                        </div>
+
+                        {/* Item Title (2-line clamp) */}
+                        <div className="min-h-[26px] flex items-center justify-center px-0.5 mb-1">
+                          <p className="text-[9.5px] sm:text-[10.5px] font-bold text-stone-900 leading-tight line-clamp-2">
+                            {getTranslatedName(currentItem)}
+                          </p>
+                        </div>
+
+                        {/* Category Jump Link */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            closeCart();
+                            if (onSelectCategory) onSelectCategory(slot.targetCategory);
+                          }}
+                          className="text-[8px] sm:text-[8.5px] font-bold text-[#8B1E1E] hover:underline inline-flex items-center justify-center gap-0.5 mb-1.5 cursor-pointer"
+                        >
+                          <span className="truncate">{slot.openLabel}</span>
+                          <ChevronRight size={8} className="shrink-0" />
+                        </button>
+
+                        {/* Price & 1-Tap Add Action */}
+                        <div className="pt-1 border-t border-stone-200/60 space-y-1">
+                          <span className="text-[11px] font-black text-[#8B1E1E] block leading-none">
+                            {currentItem.price}฿
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleQuickAddDrink(currentItem)}
+                            className="w-full py-1 bg-[#8B1E1E] hover:bg-[#721818] text-white text-[9px] sm:text-[9.5px] font-black uppercase rounded-lg shadow-2xs hover:shadow transition-all cursor-pointer active:scale-95 flex items-center justify-center gap-0.5"
+                          >
+                            <Plus size={9} />
+                            <span>{t.addDrinkBtn.replace('+ ', '')}</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 🍷 COMPACT ATMOSPHERIC ITALIAN VINEYARD & WINE EXPERIENCE CARD (Only for Home Delivery users, hidden in Dining Tablet mode) */}
+              {!isDiningMode && (
+                <div className="relative rounded-2xl overflow-hidden shadow-xs border border-amber-900/30 group">
+                  {/* Vineyard Sunset Background Image */}
+                  <div className="absolute inset-0 z-0">
+                    <img
+                      src="https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=1000&q=85"
+                      alt="Italian Tuscan Vineyard"
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
+                    />
+                    {/* Warm atmospheric golden-hour vignette */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-stone-950/92 via-stone-900/80 to-amber-950/55 backdrop-blur-[0.5px]" />
+                  </div>
+
+                  {/* Content Overlay */}
+                  <div className="relative z-10 p-3 sm:p-3.5 flex items-center gap-3">
+                    {/* Wine Glass Icon */}
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/30 to-red-950/60 border border-amber-400/50 text-amber-300 flex items-center justify-center shrink-0 shadow-md backdrop-blur-sm">
+                      <Wine size={18} className="text-amber-200" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <span className="text-[8.5px] font-black uppercase tracking-widest text-amber-300/90 bg-amber-950/70 border border-amber-500/30 px-1.5 py-0.5 rounded-full shadow-2xs">
+                          🍇 {t.wineDineInBadge}
+                        </span>
+                      </div>
+
+                      <p
+                        className="text-white font-bold text-xs sm:text-sm leading-tight drop-shadow-sm"
+                        style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.08rem' }}
+                      >
+                        {t.wineDineInTitle}
+                      </p>
+
+                      <p className="text-[10px] text-amber-100/85 font-normal leading-tight drop-shadow-xs mt-0.5 line-clamp-1">
+                        {t.wineDineInDesc}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowTableModal(true)}
+                      className="shrink-0 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black text-[10px] uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-sm active:scale-95 flex items-center gap-1"
+                    >
+                      <span>{t.wineDineInBtn.split(' ')[0]}</span>
+                      <ChevronRight size={11} className="text-stone-950 font-black" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        {/* DRAWER FOOTER */}
+        {/* ULTRA-PUNCHY CHECKOUT FOOTER (IMMEDIATE VISUAL TOTAL) */}
         {items.length > 0 && (
-          <div className="border-t border-stone-200 px-5 py-5 space-y-4 bg-white">
+          <div className="border-t-2 border-stone-200 px-4 sm:px-5 py-4 space-y-3 bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
             
-            {/* Promotional Welcome First-Order Banner (Shown only if no promo coupon is overriding it) */}
-            {!appliedPromo && isEligible && (
-              <div className="bg-gradient-to-r from-emerald-50 via-amber-50 to-emerald-50 border-2 border-emerald-400/40 rounded-2xl p-3 flex items-start gap-2.5 shadow-sm animate-fadeIn">
-                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs text-sm font-black">
-                  10%
-                </div>
-                <div className="text-[11px] leading-snug flex-1">
-                  <p className="font-black text-emerald-950 uppercase tracking-wide flex items-center gap-1.5">
-                    <span>{t.welcomeTitle}</span>
-                  </p>
-                  <p className="text-stone-700 font-medium mt-0.5">{t.welcomePromoDesc}</p>
-                </div>
+            {/* Sconto Pill Banner */}
+            {isDiscountActive && (
+              <div className={`${isDiningMode ? 'bg-amber-50 border-amber-300 text-amber-950' : 'bg-emerald-50 border-emerald-300 text-emerald-900'} border rounded-xl px-3 py-1.5 flex items-center justify-between text-xs font-bold shadow-2xs`}>
+                <span className="flex items-center gap-1.5">
+                  <Sparkles size={13} className={isDiningMode ? 'text-amber-600' : 'text-emerald-600'} />
+                  <span>
+                    {isDiningMode 
+                      ? (lang === 'TH' ? '✨ สิทธิพิเศษสั่งที่โต๊ะ (-5%):' : lang === 'IT' ? '✨ Sconto Dining Privilege al Tavolo (-5%):' : lang === 'DE' ? '✨ Tisch-Rabatt (-5%):' : '✨ Table Dining Privilege (-5%):')
+                      : t.welcomePrivilegeNote
+                    }
+                  </span>
+                </span>
+                <span className={`${isDiningMode ? 'text-amber-700' : 'text-emerald-700'} font-black`}>-{discountAmount}฿</span>
               </div>
             )}
 
-            {/* Promo / Coupon Box */}
-            <div className="bg-stone-50 border border-stone-200 rounded-2xl p-3 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <Ticket size={13} className="text-[#8B1E1E]" />
-                  <span>{t.couponLabel}</span>
-                </span>
-                {appliedPromo && (
-                  <button
-                    type="button"
-                    onClick={handleRemovePromo}
-                    className="text-[10px] font-bold text-red-600 hover:text-red-700 underline cursor-pointer"
-                  >
-                    {t.removeBtn}
-                  </button>
-                )}
-              </div>
-
-              {appliedPromo ? (
-                <div className="bg-emerald-50 border border-emerald-300/80 rounded-xl p-2.5 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs shrink-0 font-black">
-                      ✓
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-xs font-black text-emerald-950 font-mono tracking-wider truncate">
-                        {appliedPromo.code}
-                      </p>
-                      <p className="text-[10px] font-medium text-emerald-800">
-                        {appliedPromo.discountType === 'percentage'
-                          ? `-${appliedPromo.discountValue}% sui piatti`
-                          : `-${appliedPromo.discountValue}฿ sui piatti`}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="text-xs font-black text-emerald-700 shrink-0">
-                    -{discountAmount}฿
-                  </span>
-                </div>
-              ) : (
-                <form onSubmit={handleApplyPromo} className="flex gap-1.5">
-                  <input
-                    type="text"
-                    value={promoInput}
-                    onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                    placeholder={t.couponPlaceholder}
-                    className="flex-1 bg-white border border-stone-300 focus:border-[#8B1E1E] rounded-xl px-3 py-1.5 text-xs font-bold uppercase text-stone-900 placeholder:text-stone-400 focus:outline-none"
-                  />
-                  <button
-                    type="submit"
-                    className="px-3.5 py-1.5 bg-stone-900 hover:bg-[#8B1E1E] text-white text-xs font-bold uppercase rounded-xl transition-all cursor-pointer shadow-xs active:scale-95 shrink-0"
-                  >
-                    {t.applyBtn}
-                  </button>
-                </form>
-              )}
-
-              {promoError && (
-                <p className="text-[10px] font-semibold text-red-600 flex items-center gap-1 animate-fadeIn">
-                  <AlertCircle size={11} />
-                  <span>{promoError}</span>
-                </p>
-              )}
-              {promoSuccess && !promoError && (
-                <p className="text-[10px] font-semibold text-emerald-700 flex items-center gap-1 animate-fadeIn">
-                  <Check size={11} />
-                  <span>{promoSuccess}</span>
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-1.5 text-stone-600 text-xs" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+            {/* Breakdown lines */}
+            <div className="space-y-1 text-stone-600 text-xs">
               <div className="flex justify-between items-center">
                 <span>{t.subtotalText}</span>
-                <span className="font-semibold inline-flex items-baseline gap-0.5">
-                  <span>{subtotal}</span>
-                  <span className="font-black select-none text-stone-700 text-xs" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                </span>
+                <span className="font-bold text-stone-800">{subtotal}฿</span>
               </div>
-
-              {discountAmount > 0 && (
-                <div className="flex justify-between items-center text-emerald-700 font-bold animate-fadeIn">
-                  <span className="flex items-center gap-1">
-                    <Sparkles size={13} className="text-amber-500 animate-pulse" />
-                    <span>{discountLabel}</span>
-                  </span>
-                  <span className="font-black inline-flex items-baseline gap-0.5 text-emerald-700">
-                    <span>-{discountAmount}</span>
-                    <span className="font-black select-none text-xs" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+              {isDiningMode ? (
+                <div className="flex justify-between items-center text-emerald-700">
+                  <span>{lang === 'TH' ? 'บริการที่โต๊ะ' : lang === 'IT' ? 'Servizio al Tavolo' : lang === 'DE' ? 'Tischservice' : 'Table Service'}</span>
+                  <span className="font-bold">{lang === 'TH' ? 'ฟรี' : lang === 'IT' ? 'Gratuito' : lang === 'DE' ? 'Kostenlos' : 'Free'}</span>
+                </div>
+              ) : (
+                <div className="flex justify-between items-center">
+                  <span>{t.deliveryText}</span>
+                  <span className="font-bold">
+                    {deliveryFee === 0 ? (
+                      <span className="text-emerald-600 font-black">{t.freeText}</span>
+                    ) : (
+                      <span className="text-stone-800">{deliveryFee}฿</span>
+                    )}
                   </span>
                 </div>
               )}
-
-              <div className="flex justify-between items-center">
-                <span>{t.deliveryText}</span>
-                <span className="font-semibold">
-                  {deliveryFee === 0 ? (
-                    <span className="text-emerald-600 font-extrabold">{t.freeText}</span>
-                  ) : (
-                    <span className="inline-flex items-baseline gap-0.5">
-                      <span>{deliveryFee}</span>
-                      <span className="font-black select-none text-stone-700 text-xs" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                    </span>
-                  )}
-                </span>
-              </div>
             </div>
 
-            {deliveryFee === 0 && (
-              <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] py-1.5 px-3 rounded-xl font-extrabold flex items-center gap-1.5 animate-fadeIn" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                <span>{t.freeDeliveryApplied}</span>
-              </div>
-            )}
-
-            <div className="flex justify-between items-center gap-2 border-t border-stone-100 pt-3">
+            {/* TOTALISSIMO GIGANTE SPUNTO IN FACCIA */}
+            <div className="flex justify-between items-end border-t border-stone-200 pt-2.5">
               <div>
-                <span className="text-stone-500 text-xs uppercase tracking-widest block font-bold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                <span className="text-stone-500 text-xs font-extrabold uppercase tracking-wider block">
                   {t.totalText}
                 </span>
-                {discountAmount > 0 && (
-                  <span className="text-[10px] font-black text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full inline-block mt-0.5">
-                    {t.youSaveText(discountAmount)}
+                {isDiningMode ? (
+                  <span className="text-[10.5px] text-amber-700 font-black">
+                    Postazione: {tableNumber || 'Al Tavolo'}
                   </span>
+                ) : (
+                  deliveryFee === 0 && (
+                    <span className="text-[10.5px] text-emerald-700 font-black">
+                      ✓ Consegna inclusa
+                    </span>
+                  )
                 )}
               </div>
-              <div className="text-right">
-                {discountAmount > 0 && (
-                  <span className="text-stone-400 line-through text-xs mr-2 font-medium">
-                    {subtotal + deliveryFee}฿
-                  </span>
-                )}
-                <span className="text-[#8B1E1E] text-xl font-black inline-flex items-baseline gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+              <div className="text-right leading-none">
+                <span className="text-[#8B1E1E] text-3xl font-black inline-flex items-baseline gap-1">
                   <span>{finalTotal}</span>
-                  <span className="font-black select-none text-[#8B1E1E] text-base" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
+                  <span className="text-xl font-black select-none text-[#8B1E1E]">฿</span>
                 </span>
               </div>
             </div>
             
-            {serviceCalc.canOrder ? (
-              <button
-                onClick={() => { closeCart(); onCheckout(); }}
-                className="w-full py-3.5 bg-[#8B1E1E] hover:bg-[#721818] text-white text-xs tracking-widest uppercase font-bold rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer duration-200 transform active:scale-[0.98]"
-                style={{ fontFamily: 'Inter, sans-serif' }}
-              >
-                {t.checkoutBtn}
-              </button>
+            {isDiningMode ? (
+              /* DINING TABLET BUTTONS */
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => { closeCart(); onCheckout(); }}
+                  className="w-full py-3.5 px-4 bg-gradient-to-r from-[#8B1E1E] via-[#781818] to-[#5a1111] hover:from-[#781818] hover:to-[#4a0d0d] text-white text-xs sm:text-sm tracking-wider uppercase font-black rounded-2xl transition-all border-2 border-amber-400/70 shadow-xl cursor-pointer active:scale-[0.98] flex items-center justify-between"
+                  style={{ boxShadow: '0 6px 20px rgba(139, 30, 30, 0.4)' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <UtensilsCrossed size={16} className="text-amber-300" />
+                    <span>{lang === 'TH' ? 'สั่งที่โต๊ะเลย' : lang === 'IT' ? 'Invia Ordine al Tavolo' : lang === 'DE' ? 'Bestellung absenden' : 'Proceed Table Order'}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-stone-300 line-through text-[11px] font-normal">{subtotal}฿</span>
+                    <span className="bg-amber-400 text-stone-950 px-2 py-0.5 rounded-lg text-xs font-black shadow-xs">
+                      {finalTotal}฿
+                    </span>
+                    <ChevronRight size={14} className="text-white" />
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleContinueShopping}
+                  className="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Plus size={14} className="text-stone-600" />
+                  <span>{lang === 'TH' ? '+ เลือกอาหารและเครื่องดื่มเพิ่ม' : lang === 'IT' ? '+ Aggiungi altri piatti / bevande' : lang === 'DE' ? '+ Weitere Gerichte hinzufügen' : '+ Add more dishes / drinks'}</span>
+                </button>
+              </div>
+            ) : serviceCalc.canOrder ? (
+              <div className="space-y-2 pt-1">
+                {/* 1. HERO GREEN INCENTIVE BUTTON: ADD MORE DISHES / KEEP ORDERING + DYNAMIC THRESHOLD */}
+                <button
+                  type="button"
+                  onClick={handleContinueShopping}
+                  className="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white rounded-2xl transition-all shadow-md hover:shadow-lg cursor-pointer active:scale-[0.98] flex flex-col items-center justify-center gap-1 border border-emerald-400/40"
+                >
+                  <div className="flex items-center justify-center gap-1.5 text-[11px] sm:text-xs md:text-[13px] uppercase tracking-wider font-black whitespace-nowrap">
+                    <Plus size={15} className="text-emerald-200 stroke-[3] shrink-0" />
+                    <span className="whitespace-nowrap">{t.addMoreDishesBtn.replace('+ ', '')}</span>
+                  </div>
+
+                  {/* Appetizing Free Delivery status badge inside button */}
+                  <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-950/40 border border-emerald-300/40 text-[10.5px] sm:text-[11px] font-extrabold text-emerald-100 shadow-inner">
+                    <span>🛵</span>
+                    {subtotal < 300 ? (
+                      <span>
+                        {lang === 'IT' && <>Mancano solo <span className="text-amber-300 font-black">{300 - subtotal}฿</span> per la Consegna GRATIS!</>}
+                        {lang === 'EN' && <>Only <span className="text-amber-300 font-black">{300 - subtotal}฿</span> to FREE Delivery!</>}
+                        {lang === 'TH' && <>อีกเพียง <span className="text-amber-300 font-black">{300 - subtotal}฿</span> ส่งฟรี!</>}
+                        {lang === 'DE' && <>Noch <span className="text-amber-300 font-black">{300 - subtotal}฿</span> bis GRATIS-Lieferung!</>}
+                      </span>
+                    ) : (
+                      <span className="text-amber-200 font-black">
+                        {lang === 'IT' && '🎉 Consegna GRATUITA sbloccata!'}
+                        {lang === 'EN' && '🎉 FREE Delivery unlocked!'}
+                        {lang === 'TH' && '🎉 ได้รับสิทธิ์จัดส่งฟรีแล้ว!'}
+                        {lang === 'DE' && '🎉 GRATIS-Lieferung freigeschaltet!'}
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                {/* 2. SECONDARY CHECKOUT CTA */}
+                <button
+                  onClick={() => { closeCart(); onCheckout(); }}
+                  className="w-full py-2.5 bg-[#8B1E1E] hover:bg-[#721818] text-white text-xs sm:text-sm tracking-wider uppercase font-extrabold rounded-xl transition-all border border-red-900/30 shadow-xs hover:shadow-md cursor-pointer active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <span>{t.checkoutBtn}</span>
+                  <span className="bg-white/20 px-2 py-0.5 rounded-full text-white text-xs font-black">
+                    {finalTotal}฿
+                  </span>
+                  <ChevronRight size={14} className="text-red-200" />
+                </button>
+              </div>
             ) : (
               <div className="space-y-2">
                 <button
                   disabled
-                  className="w-full py-3.5 bg-stone-300 text-stone-600 text-xs tracking-widest uppercase font-bold rounded-full cursor-not-allowed border border-stone-300 shadow-sm"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                  className="w-full py-3.5 bg-stone-300 text-stone-600 text-xs tracking-wider uppercase font-bold rounded-full cursor-not-allowed border border-stone-300"
                 >
                   {serviceCalc.state === 'PAUSED' ? t.ordersPausedBtn : t.ordersClosedBtn}
                 </button>
@@ -599,12 +1243,22 @@ export default function CartDrawer({ onCheckout, lang }: Props) {
                 </a>
               </div>
             )}
+
             <p className="text-center text-stone-400 text-[10px] leading-relaxed">
               {t.footerInfo}
             </p>
           </div>
         )}
       </div>
+
+      {/* Embedded Table Reservation Modal (Dine-in Wine Experience - Only for Delivery Website) */}
+      {!isDiningMode && (
+        <TableReservationModal
+          isOpen={showTableModal}
+          onClose={() => setShowTableModal(false)}
+          lang={lang}
+        />
+      )}
     </>
   );
 }

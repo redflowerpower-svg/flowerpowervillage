@@ -1,0 +1,56 @@
+import React from 'react';
+import { Leaf, Wheat } from 'lucide-react';
+import type { DietaryType } from '../utils/dietary';
+
+interface DietaryWatermarkProps {
+  type?: DietaryType;
+  className?: string;
+  size?: 'sm' | 'md';
+}
+
+/**
+ * Minimal vertical watermark badge for dish previews.
+ * Features a minimalist SVG icon on top and clean uppercase label below.
+ */
+export const DietaryWatermark: React.FC<DietaryWatermarkProps> = ({ 
+  type, 
+  className = '',
+  size = 'md'
+}) => {
+  if (!type) return null;
+
+  const isVegan = type === 'vegan';
+
+  return (
+    <div
+      aria-label={isVegan ? '100% Vegan (Plant-based)' : 'Vegetarian (No meat or fish)'}
+      title={isVegan ? '100% Vegan' : 'Vegetarian'}
+      className={`inline-flex flex-col items-center justify-center rounded-xl backdrop-blur-md shadow-md select-none pointer-events-none transition-all duration-300 ${
+        size === 'sm' ? 'px-1.5 py-0.5' : 'px-2 py-1'
+      } ${
+        isVegan
+          ? 'bg-stone-950/75 border border-emerald-400/50 text-emerald-300 shadow-emerald-950/30'
+          : 'bg-stone-950/75 border border-amber-400/50 text-amber-300 shadow-amber-950/30'
+      } ${className}`}
+      style={{
+        boxShadow: isVegan 
+          ? '0 4px 12px rgba(6, 78, 59, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3)' 
+          : '0 4px 12px rgba(120, 53, 15, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3)'
+      }}
+    >
+      <div className="flex items-center justify-center">
+        {isVegan ? (
+          <Leaf className={`${size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5'} stroke-[2.2] text-emerald-400 drop-shadow-sm`} />
+        ) : (
+          <Wheat className={`${size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5'} stroke-[2.2] text-amber-400 drop-shadow-sm`} />
+        )}
+      </div>
+      <span
+        className={`${size === 'sm' ? 'text-[7px]' : 'text-[7.5px] sm:text-[8px]'} font-black uppercase tracking-wider text-white mt-0.5 leading-none`}
+        style={{ fontFamily: 'Outfit, system-ui, sans-serif', letterSpacing: '0.06em' }}
+      >
+        {isVegan ? 'VEGAN' : 'VEGGIE'}
+      </span>
+    </div>
+  );
+};

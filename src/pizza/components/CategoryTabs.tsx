@@ -1,12 +1,14 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import type { MenuCategory } from '../data/menuData';
-import { Pizza, Salad, Coffee, Beer, Sandwich, Dessert, Croissant, GlassWater, CupSoda, Wine } from 'lucide-react';
+import { Pizza, Salad, Coffee, Beer, Sandwich, Dessert, Croissant, GlassWater, CupSoda, Wine, Sparkles } from 'lucide-react';
+import { useLanguageStore } from '../store/languageStore';
+import { Language } from '../config/languages';
 
 interface Props {
   categories: MenuCategory[];
   activeId: string;
   onChange: (id: string) => void;
-  lang: 'IT' | 'EN' | 'TH' | 'DE';
+  lang?: Language;
 }
 
 // Custom highly contextual food icons matching Lucide styling
@@ -74,6 +76,7 @@ const FriesIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  'daily-specials': Sparkles,
   'traditional-italian-pizza': Pizza,
   'pasta': PastaIcon,
   'italian-salads': Salad,
@@ -84,11 +87,18 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
   'breakfast-and-snacks': Croissant,
   'coffee-shop': Coffee,
   'fruit-drinks': GlassWater,
-  'soft-drinks': Beer,
+  'soft-drinks': CupSoda,
+  'beers': Beer,
   'wines': Wine,
 };
 
 const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
+  'daily-specials': {
+    IT: { name: 'Specialità del Giorno', desc: 'Creazioni esclusive e piatti speciali del giorno preparati dal nostro chef con ingredienti freschi di stagione.' },
+    EN: { name: 'Daily Specials', desc: 'Exclusive daily creations and seasonal specialties freshly prepared by our Italian chef with premium ingredients.' },
+    TH: { name: 'เมนูพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาลและรสชาติอิตาเลียนแท้' },
+    DE: { name: 'Tagesempfehlungen', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs aus frischen Zutaten.' },
+  },
   'traditional-italian-pizza': {
     IT: { name: 'Pizze Classiche', desc: "La pizza è il cuore del nostro locale. Utilizziamo solo ingredienti italiani selezionati di prima qualità: dalla farina al pomodoro, dai formaggi ai salumi, senza scendere a compromessi. La nostra pizza tradizionale ad alta idratazione è realizzata con un impasto al 90% d'acqua, fatto maturare lentamente per almeno 36 ore. Il risultato è una pizza croccante, leggera, altamente digeribile e ricca di sapore." },
     EN: { name: "Traditional Italian Pizza", desc: "Pizza Is The Heart Of Our Restaurant. We Use Only Selected Italian Ingredients, From Flour To Tomato, From Cheeses To Cold Cuts, With No Compromise On Quality. Our Traditional High-Hydration Italian Pizza Is Made With A 90% Water Dough, Slowly Matured For At Least 36 Hours. The Result Is A Crispy, Light, Highly Digestible Pizza, Full Of Flavor." },
@@ -108,10 +118,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     DE: { name: 'Italienische Salate', desc: "Salate nach italienischer Art mit frischem Gemüse und gesunden, hochwertigen Zutaten. Serviert mit schmackhaften hausgemachten Dressings und nativem Olivenöl extra: Frisch, köstlich und gesund." },
   },
   'pizza-sandwich': {
-    IT: { name: "Pizza Sandwich", desc: "La focaccia è un delizioso pane tradizionale italiano originario di Genova. Farciscila con i tuoi ingredienti preferiti e crea il tuo panino personalizzato." },
-    EN: { name: "Pizza Sandwich", desc: "Focaccia Is A Italian Traditional Delicius Bread From Genoa. Fill It With Your Favorite Ingredients And Create Your Custom Sandwich" },
-    TH: { name: 'พิตซ่าแซนด์วิช', desc: "ฟอคคาเซียเป็นขนมปังดั้งเดิมแสนอร่อยจากเมืองเจนัว เติมไส้ด้วยวัตถุดิบที่คุณชอบและสร้างแซนด์วิชในแบบของคุณ" },
-    DE: { name: 'Pizza Sandwich', desc: "Die Focaccia ist ein köstliches traditionelles italienisches Brot aus Genua. Belegen Sie sie mit Ihren Lieblingszutaten und kreieren Sie Ihr ganz persönliches Sandwich." },
+    IT: { name: "Focaccia\nPizza Sandwich", desc: "La focaccia è un delizioso pane tradizionale italiano originario di Genova. Farciscila con i tuoi ingredienti preferiti e crea il tuo panino personalizzato." },
+    EN: { name: "Focaccia\nPizza Sandwiches", desc: "Focaccia Is A Italian Traditional Delicius Bread From Genoa. Fill It With Your Favorite Ingredients And Create Your Custom Sandwich" },
+    TH: { name: "ฟอคคาเซีย\nพิตซ่าแซนด์วิช", desc: "ฟอคคาเซียเป็นขนมปังดั้งเดิมแสนอร่อยจากเมืองเจนัว เติมไส้ด้วยวัตถุดิบที่คุณชอบและสร้างแซนด์วิชในแบบของคุณ" },
+    DE: { name: "Focaccia\nPizza Sandwich", desc: "Die Focaccia ist ein köstliches traditionelles italienisches Brot aus Genua. Belegen Sie sie mit Ihren Lieblingszutaten und kreieren Sie Ihr ganz persönliches Sandwich." },
   },
   'pizza-burgers': {
     IT: { name: "Pizza Burger", desc: "Preparati con pane per hamburger appena sfornato e hamburger fatti in casa in stile italiano, serviti con patatine fritte, ketchup e maionese: freschi, gustosi e soddisfacenti." },
@@ -150,10 +160,16 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     DE: { name: 'Fruchtgetränke', desc: "Alle unsere Fruchtgetränke werden frisch auf Bestellung aus frischen Früchten und sorgfältig ausgewählten, hochwertigen Zutaten zubereitet und bieten einen vollen, erfrischenden Geschmack." },
   },
   'soft-drinks': {
-    IT: { name: 'Bibite & Birre', desc: 'Bibite analcoliche, acqua minerale naturale e birre fresche in bottiglia.' },
-    EN: { name: 'Soft Drinks & Beers', desc: 'Refreshing soft drinks, natural mineral water and chilled bottled beers.' },
-    TH: { name: 'เครื่องดื่มและเบียร์', desc: 'น้ำอัดลม น้ำดื่มสดชื่น และเบียร์ขวดเย็นๆ' },
-    DE: { name: 'Erfrischungsgetränke & Biere', desc: 'Erfrischungsgetränke, Mineralwasser und gekühlte Flaschenbiere.' },
+    IT: { name: 'Bibite & Acqua', desc: 'Bibite analcoliche in lattina, acqua minerale naturale e bevande rinfrescanti servite fredde.' },
+    EN: { name: 'Soft Drinks & Water', desc: 'Canned soft drinks, natural mineral water, and chilled refreshing beverages.' },
+    TH: { name: 'น้ำอัดลมและน้ำดื่ม', desc: 'น้ำอัดลมกระป๋อง น้ำดื่มธรรมชาติ และเครื่องดื่มเพิ่มความสดชื่นเสิร์ฟเย็น' },
+    DE: { name: 'Erfrischungsgetränke & Wasser', desc: 'Erfrischungsgetränke in der Dose, natürliches Mineralwasser und gekühlte Getränke.' },
+  },
+  'beers': {
+    IT: { name: 'Birre', desc: 'Le migliori marche di birra servite in bottiglie grandi e piccole ghiacciate.' },
+    EN: { name: 'Beers', desc: 'The best Thai and international bottled beers served ice cold.' },
+    TH: { name: 'เบียร์', desc: 'เบียร์ไทยและต่างประเทศขวดแก้วยอดนิยม เสิร์ฟเย็นเจี๊ยบชื่นใจ' },
+    DE: { name: 'Biere', desc: 'Die besten thailändischen und internationalen Flaschenbiere eiskalt serviert.' },
   },
   'wines': {
     IT: { name: 'Vini', desc: 'Selezione accurata di vini italiani ed internazionali pregiati, ideali da abbinare ai nostri piatti.' },
@@ -163,8 +179,87 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
   },
 };
 
-export default function CategoryTabs({ categories, activeId, onChange, lang }: Props) {
+export default function CategoryTabs({ categories, activeId, onChange, lang: propLang }: Props) {
+  const storeLang = useLanguageStore((s) => s.lang);
+  const lang = propLang || storeLang || 'IT';
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Exact number of columns to ensure all categories always fit across exactly 2 uniform rows
+  const cols = Math.max(1, Math.ceil(categories.length / 2));
+
+  // Engaging intro teaser animation on mobile: scrolls across all categories to show the full variety, then returns smoothly to start
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || typeof window === 'undefined' || window.innerWidth >= 768) return;
+
+    let isUserInteracting = false;
+    let animId: number | null = null;
+    let timeoutId1: NodeJS.Timeout | null = null;
+    let timeoutId2: NodeJS.Timeout | null = null;
+
+    const stopAnimation = () => {
+      isUserInteracting = true;
+      if (animId) cancelAnimationFrame(animId);
+      if (timeoutId1) clearTimeout(timeoutId1);
+      if (timeoutId2) clearTimeout(timeoutId2);
+    };
+
+    el.addEventListener('touchstart', stopAnimation, { passive: true });
+    el.addEventListener('mousedown', stopAnimation, { passive: true });
+    el.addEventListener('wheel', stopAnimation, { passive: true });
+
+    const animateScroll = (from: number, to: number, duration: number, easingFn: (t: number) => number, onComplete?: () => void) => {
+      const startTime = performance.now();
+
+      const step = (currentTime: number) => {
+        if (isUserInteracting) return;
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easingFn(progress);
+
+        el.scrollLeft = from + (to - from) * eased;
+
+        if (progress < 1) {
+          animId = requestAnimationFrame(step);
+        } else if (onComplete && !isUserInteracting) {
+          onComplete();
+        }
+      };
+
+      animId = requestAnimationFrame(step);
+    };
+
+    // Gentle ease for reading as categories pass by
+    const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
+    // Snappy dynamic ease-out for returning swiftly to start
+    const easeOutQuart = (t: number) => 1 - Math.pow(1 - t, 4);
+
+    // Trigger after a brief delay so the user sees the page settle
+    timeoutId1 = setTimeout(() => {
+      if (isUserInteracting || !el) return;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (maxScroll <= 30) return;
+
+      // 1) Very slow, relaxed and clearly readable scroll across all categories (~5200ms)
+      animateScroll(0, maxScroll, 5200, easeInOutSine, () => {
+        // 2) Pause briefly at the end to register the last categories
+        timeoutId2 = setTimeout(() => {
+          if (isUserInteracting || !el) return;
+          // 3) Snappy dynamic return to start (~950ms)
+          animateScroll(el.scrollLeft, 0, 950, easeOutQuart);
+        }, 450);
+      });
+    }, 600);
+
+    return () => {
+      if (animId) cancelAnimationFrame(animId);
+      if (timeoutId1) clearTimeout(timeoutId1);
+      if (timeoutId2) clearTimeout(timeoutId2);
+      el.removeEventListener('touchstart', stopAnimation);
+      el.removeEventListener('mousedown', stopAnimation);
+      el.removeEventListener('wheel', stopAnimation);
+    };
+  }, []);
 
   return (
     <div className="w-full">
@@ -186,20 +281,25 @@ export default function CategoryTabs({ categories, activeId, onChange, lang }: P
               onClick={() => onChange(item.id)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-200 border text-xs font-bold whitespace-nowrap snap-align-start cursor-pointer shadow-sm ${
                 isSelected
-                  ? 'bg-[#8B1E1E] border-[#8B1E1E] text-white'
+                  ? 'bg-[#8B1E1E] border-[#8B1E1E] text-white shadow-md'
                   : 'bg-stone-50 border-stone-300 text-stone-600 active:bg-stone-100'
               }`}
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
             >
               <Icon className="w-4 h-4" />
-              <span className="uppercase">{details.name}</span>
+              <span className="uppercase">{details.name.replace('\n', ' ')}</span>
             </button>
           );
         })}
       </div>
 
-      {/* DESKTOP CATEGORY SELECTOR (Rectangular cards grid) */}
-      <div className="hidden md:grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-6 xl:grid-cols-6 gap-4 mb-4">
+      {/* DESKTOP CATEGORY SELECTOR (Rectangular cards grid - exactly 2 equal rows) */}
+      <div 
+        className="hidden md:grid gap-2.5 lg:gap-3 mb-6 w-full"
+        style={{
+          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`
+        }}
+      >
         {categories.map((item) => {
           const isSelected = item.id === activeId;
           const details = categoryDetails[item.id]?.[lang] || { name: item.name, desc: '' };
@@ -210,23 +310,33 @@ export default function CategoryTabs({ categories, activeId, onChange, lang }: P
               key={item.id}
               type="button"
               onClick={() => onChange(item.id)}
-              className={`flex flex-col items-center justify-center p-5 rounded-2xl transition-all duration-300 border text-center group cursor-pointer ${
+              className={`w-full h-[98px] sm:h-[104px] lg:h-[108px] flex flex-col items-center justify-between p-2.5 sm:p-3 rounded-2xl transition-all duration-200 border text-center group cursor-pointer select-none ${
                 isSelected
-                  ? 'bg-[#8B1E1E] border-[#8B1E1E] text-white shadow-md'
-                  : 'bg-stone-50 border-stone-300 text-stone-600 hover:border-stone-400 hover:bg-stone-100/50'
+                  ? 'bg-gradient-to-b from-[#8B1E1E] to-[#6d1515] border-[#8B1E1E] text-white shadow-md ring-2 ring-[#8B1E1E]/20 scale-[1.02]'
+                  : 'bg-stone-50/90 border-stone-300 text-stone-700 hover:border-stone-400 hover:bg-white hover:text-stone-900 hover:shadow-sm active:scale-[0.98]'
               }`}
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
             >
               <div
-                className={`p-3 rounded-xl mb-3 transition-colors ${
-                  isSelected ? 'bg-white/10 text-white' : 'bg-stone-200/50 text-[#8B1E1E] group-hover:bg-stone-200'
+                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                  isSelected 
+                    ? 'bg-white/15 text-white' 
+                    : 'bg-stone-200/70 text-[#8B1E1E] group-hover:bg-[#8B1E1E]/10'
                 }`}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
               </div>
-              <span className="text-xs font-bold tracking-wider uppercase">
-                {details.name}
-              </span>
+              <div className="flex-1 flex items-center justify-center w-full min-h-[32px] px-0.5 mt-1">
+                <span className="text-[10px] sm:text-[10.5px] lg:text-[11px] font-black tracking-wide uppercase leading-tight line-clamp-2 text-balance">
+                  {details.name.includes('\n') ? (
+                    details.name.split('\n').map((line, idx) => (
+                      <span key={idx} className="block">{line}</span>
+                    ))
+                  ) : (
+                    details.name
+                  )}
+                </span>
+              </div>
             </button>
           );
         })}
