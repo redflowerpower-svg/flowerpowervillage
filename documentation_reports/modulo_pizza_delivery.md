@@ -45,4 +45,6 @@ Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra We
 
 - **Sconto 10% Primo Ordine**: Validato tramite verifica hardware/email/telefono + GPS (bypassato in locale/staging).
 - **Edge-Hugger Floating Cart**: Linguetta laterale destra per l'accesso rapido al carrello drawer con pairing consigliati.
-- **Notifiche Ordini**: Sincronizzazione in tempo reale con Supabase `pizza_orders`, KDS cucina e Telegram Bot.
+- **Notifiche Ordini & Kitchen Monitor (KDS)**: Sincronizzazione in tempo reale con Supabase `pizza_orders`, KDS cucina e Telegram Bot.
+  - Gestione avanzata comande e prenotazioni tavoli con pulsanti dedicati di presa in carico, rifiuto/cancellazione immediata (`[CANCELLED:true]`) ed eliminazione definitiva (`deleteOrder` con bypass RLS tramite `service_role`).
+

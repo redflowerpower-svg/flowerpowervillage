@@ -18,11 +18,28 @@ const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supaba
 
 export async function handleTableReservation(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  // 0. DELETE: Remove table reservation / order permanently
+  if (req.method === 'DELETE' || req.body?.action === 'delete') {
+    const id = req.body?.id || (req.query?.id as string);
+    if (!id) {
+      return res.status(400).json({ error: 'Missing id' });
+    }
+    if (supabase) {
+      try {
+        await supabase.from('pizza_orders').delete().eq('id', id);
+        return res.status(200).json({ success: true, deleted: true, id });
+      } catch (err: any) {
+        return res.status(500).json({ error: 'Failed to delete table reservation', message: err.message });
+      }
+    }
+    return res.status(200).json({ success: true, deleted: true, id });
   }
 
   // 1. GET: Fetch list of reservations (from pizza_orders table where payment_method is table_reservation)
@@ -76,7 +93,7 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
           updatedAddress = updatedAddress.replace(/\s*\[CANCELLED:[^\]]+\]/gi, '').replace(/\s*\[CANCELLED\]/gi, '');
         }
 
-        const dbStatus = isApproved || isCancelled ? 'completed' : 'new';
+        const dbStatus = isApproved ? 'completed' : isCancelled ? 'cancelled' : 'new';
 
         const { data: updatedOrder, error: patchErr } = await supabase
           .from('pizza_orders')

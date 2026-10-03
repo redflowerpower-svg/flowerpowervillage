@@ -43,6 +43,7 @@ interface PizzaAdminState {
   // Order Actions
   fetchOrders: () => Promise<void>;
   updateOrderStatus: (id: string, status: PizzaOrder['status']) => Promise<void>;
+  deleteOrder: (id: string) => Promise<void>;
   addOrder: (order: PizzaOrder) => void;
   setFilterStatus: (status: PizzaAdminState['filterStatus']) => void;
   toggleSound: () => void;
@@ -237,6 +238,53 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       } catch (directErr) {
         console.error('[usePizzaAdminStore] Direct update also failed:', directErr);
       }
+    }
+  },
+
+  deleteOrder: async (id: string) => {
+    // 1. Optimistic removal from store
+    set((state) => ({
+      orders: state.orders.filter((o) => String(o.id) !== String(id))
+    }));
+
+    // 2. Broadcast deletion on local channels
+    try {
+      const ch1 = new BroadcastChannel('flower_power_orders_channel');
+      ch1.postMessage({ type: 'ORDER_DELETED', orderId: id });
+      ch1.close();
+    } catch (e) {}
+
+    try {
+      const ch2 = new BroadcastChannel('pizza_orders_channel');
+      ch2.postMessage({ type: 'ORDER_DELETED', orderId: id });
+      ch2.close();
+    } catch (e) {}
+
+    // 3. Delete via backend API (service_role bypasses RLS)
+    try {
+      await fetch('/api/pizza-order-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: id, status: 'cancelled', action: 'delete' })
+      });
+    } catch (err) {
+      console.warn('[usePizzaAdminStore] API delete failed, trying direct Supabase fallback:', err);
+    }
+
+    // 4. Also call table-reservation endpoint just in case it's a reservation record
+    try {
+      await fetch('/api/table-reservation', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, action: 'delete' })
+      });
+    } catch (e) {}
+
+    // 5. Fallback direct Supabase delete
+    try {
+      await supabase.from('pizza_orders').delete().eq('id', id);
+    } catch (directErr) {
+      console.error('[usePizzaAdminStore] Direct delete error:', directErr);
     }
   },
 

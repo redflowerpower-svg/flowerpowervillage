@@ -172,17 +172,57 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { orderId, status } = req.body;
+  const { orderId, status, action } = req.body || {};
 
-  if (!orderId || !status) {
-    return res.status(400).json({ error: "orderId and status are required." });
+  if (!orderId) {
+    return res.status(400).json({ error: "orderId is required." });
+  }
+
+  // 0. If action is delete, remove directly with service_role
+  if (action === "delete") {
+    try {
+      const { error: delError } = await supabase
+        .from("pizza_orders")
+        .delete()
+        .eq("id", orderId);
+      if (delError) {
+        console.error("[Order Delete] Error deleting order from db:", delError);
+        return res.status(500).json({ error: "Failed to delete order", details: delError });
+      }
+      return res.status(200).json({ success: true, deleted: true, orderId });
+    } catch (e: any) {
+      console.error("[Order Delete] Exception deleting order:", e);
+      return res.status(500).json({ error: "Internal error deleting order", message: e.message });
+    }
+  }
+
+  if (!status) {
+    return res.status(400).json({ error: "status is required." });
   }
 
   try {
     // 1. Crucial: ALWAYS update the database status using service_role credentials
+    const updatePayload: any = { status };
+
+    // If cancelling or rejecting, ensure table reservation addresses get the cancellation tag
+    if (status === "cancelled" || status === "rejected") {
+      try {
+        const { data: existing } = await supabase
+          .from("pizza_orders")
+          .select("address")
+          .eq("id", orderId)
+          .single();
+        if (existing?.address && (existing.address.includes("[TABLE_RESERVATION]") || existing.address.includes("[DATE:"))) {
+          if (!existing.address.includes("[CANCELLED")) {
+            updatePayload.address = existing.address + " [CANCELLED:true]";
+          }
+        }
+      } catch (e) {}
+    }
+
     const { data: order, error: updateError } = await supabase
       .from("pizza_orders")
-      .update({ status })
+      .update(updatePayload)
       .eq("id", orderId)
       .select("*")
       .single();
@@ -274,7 +314,7 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
     } else if (status === "completed") {
       statusText = `\n\n✅ <b>Status: Delivered & Completed / จัดส่งเรียบร้อยแล้ว</b>`;
       actorText = `\n<i>Completed by / สำเร็จโดย ${actor}</i>`;
-    } else if (status === "rejected") {
+    } else if (status === "rejected" || status === "cancelled") {
       statusText = `\n\n❌ <b>Status: Cancelled / ยกเลิกออเดอร์</b>`;
       actorText = `\n<i>Cancelled by / ยกเลิกโดย ${actor}</i>`;
     }

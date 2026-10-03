@@ -23,7 +23,8 @@ import {
   X,
   UtensilsCrossed,
   Calendar,
-  Users
+  Users,
+  Trash2
 } from 'lucide-react';
 import { usePizzaAdminStore, PizzaOrder } from '../store/usePizzaAdminStore';
 import { AddTableItemsModal } from './AddTableItemsModal';
@@ -245,7 +246,7 @@ const parseCoordsFromAddress = (addressStr: string) => {
 };
 
 export function KitchenTabletKDS() {
-  const { orders, fetchOrders, updateOrderStatus, subscribeToRealtime } = usePizzaAdminStore();
+  const { orders, fetchOrders, updateOrderStatus, deleteOrder, subscribeToRealtime } = usePizzaAdminStore();
   const [currentTime, setCurrentTime] = useState<string>('');
   const [wakeLockActive, setWakeLockActive] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
@@ -690,6 +691,31 @@ export function KitchenTabletKDS() {
     }
   };
 
+  const handleRejectTableReservation = async (resId: string) => {
+    initKitchenAudio();
+    stopContinuousAlarm();
+    setAcknowledgedOrderIds(prev => new Set(prev).add(String(resId)));
+    setSilencedReminderIds(prev => new Set(prev).add(String(resId)));
+    await updateOrderStatus(resId, 'cancelled');
+    try {
+      await fetch('/api/table-reservation', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: resId, status: 'cancelled' })
+      });
+    } catch (err) {
+      console.warn('Error rejecting table reservation on KDS:', err);
+    }
+  };
+
+  const handleForceDeleteOrder = async (orderId: string) => {
+    initKitchenAudio();
+    stopContinuousAlarm();
+    setAcknowledgedOrderIds(prev => new Set(prev).add(String(orderId)));
+    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+    await deleteOrder(orderId);
+  };
+
   const handleAcceptOrder = async (orderId: string, minutes: number = 30) => {
     initKitchenAudio();
     stopContinuousAlarm();
@@ -733,6 +759,13 @@ export function KitchenTabletKDS() {
     stopContinuousAlarm();
     setAcknowledgedOrderIds(prev => new Set(prev).add(String(orderId)));
     setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+
+    const target = orders.find(o => String(o.id) === String(orderId));
+    if (target && isTableReservationOrder(target)) {
+      await handleRejectTableReservation(String(orderId));
+      return;
+    }
+
     await updateOrderStatus(orderId, 'cancelled');
   };
 
@@ -798,6 +831,8 @@ export function KitchenTabletKDS() {
     testAlarmBtn: kdsLang === 'th' ? 'ทดสอบเสียง 1' : 'TEST 1 🔔',
     testChimeBtn: kdsLang === 'th' ? 'ทดสอบเสียง 2' : 'TEST 2 ⏰',
     stopTestBtn: kdsLang === 'th' ? 'หยุดเสียง' : 'STOP',
+    rejectResBtn: kdsLang === 'th' ? '✕ ปฏิเสธ' : '✕ RIFIUTA',
+    deleteBtn: kdsLang === 'th' ? '🗑️ ลบถาวร' : '🗑️ ELIMINA',
   };
 
   return (
@@ -1161,15 +1196,34 @@ export function KitchenTabletKDS() {
                         )}
                       </div>
 
-                      {/* Action Button */}
+                      {/* Action Buttons: Accept/Archive, Reject, Delete & WhatsApp */}
                       <div className="flex items-center gap-2 pt-1">
                         <button
                           type="button"
                           onClick={() => handleArchiveTableReservation(res.id)}
-                          className="flex-1 py-3 px-4 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/50 cursor-pointer transition-all active:scale-95"
+                          className="flex-1 py-3 px-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-900/50 cursor-pointer transition-all active:scale-95"
                         >
-                          <CheckCircle className="w-5 h-5 stroke-[2.5]" />
-                          <span>{kdsLang === 'th' ? '✓ รับ & บันทึกประวัติ' : '✓ PRESO IN CARICO / ARCHIVIA'}</span>
+                          <CheckCircle className="w-5 h-5 stroke-[2.5] shrink-0" />
+                          <span>{kdsLang === 'th' ? '✓ รับ & บันทึกประวัติ' : '✓ PRESO IN CARICO'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRejectTableReservation(res.id)}
+                          className="py-3 px-3.5 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 hover:text-white border border-red-700/80 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-md shrink-0"
+                          title={kdsLang === 'th' ? 'ปฏิเสธการจองโต๊ะ' : 'Rifiuta / Cancella Prenotazione'}
+                        >
+                          <XCircle className="w-4 h-4 text-red-400 shrink-0" />
+                          <span>{t.rejectResBtn}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleForceDeleteOrder(res.id)}
+                          className="p-3 rounded-xl bg-stone-900 hover:bg-red-950 text-stone-500 hover:text-red-400 border border-stone-800 hover:border-red-800 flex items-center justify-center transition-all cursor-pointer shadow shrink-0"
+                          title={kdsLang === 'th' ? 'ลบข้อมูลการจองนี้ออกถาวร' : 'Elimina definitivamente dal sistema'}
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
 
                         {cleanPhone && (
@@ -1376,9 +1430,18 @@ export function KitchenTabletKDS() {
                           type="button"
                           onClick={() => handleOrderCancelled(order.id)}
                           className="px-3 py-1.5 rounded-lg bg-stone-800/80 hover:bg-red-950 text-stone-400 hover:text-red-400 text-xs font-bold border border-stone-700 cursor-pointer transition-colors"
-                          title="Reject/Cancel"
+                          title={kdsLang === 'th' ? 'ยกเลิกออเดอร์นี้' : 'Annulla / Rifiuta comanda'}
                         >
                           {t.cancelBtn}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleForceDeleteOrder(order.id)}
+                          className="p-1.5 rounded-lg bg-stone-900 hover:bg-red-950 text-stone-500 hover:text-red-400 border border-stone-800 hover:border-red-800 cursor-pointer transition-colors"
+                          title={kdsLang === 'th' ? 'ลบออเดอร์นี้ออกถาวร' : 'Elimina definitivamente dal sistema'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
