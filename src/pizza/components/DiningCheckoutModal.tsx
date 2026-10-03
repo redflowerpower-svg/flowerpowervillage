@@ -34,20 +34,7 @@ interface DiningCheckoutModalProps {
   lang?: Language;
 }
 
-const DINING_TABLES = [
-  'Tavolo 1',
-  'Tavolo 2',
-  'Tavolo 3',
-  'Tavolo 4',
-  'Tavolo 5',
-  'Tavolo 6',
-  'Tavolo 7',
-  'Tavolo 8',
-  'Tavolo 9',
-  'Tavolo 10',
-  'Tavolo 11',
-  'Tavolo 12',
-];
+import { DINING_TABLES, formatTableStationName } from '../utils/tableUtils';
 
 const I18N_CHECKOUT = {
   IT: {
@@ -387,7 +374,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                 </span>
               </h3>
               <p className="text-amber-200/90 text-xs font-medium">
-                {activeTable}
+                {formatTableStationName(activeTable, lang)}
               </p>
             </div>
           </div>
@@ -414,7 +401,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                   {t.successTitle}
                 </h4>
                 <p className="text-sm text-amber-300 font-bold">
-                  {activeTable}
+                  {formatTableStationName(activeTable, lang)}
                 </p>
                 <p className="text-xs text-stone-400 max-w-sm mx-auto leading-relaxed">
                   {t.successSubtitle}
@@ -480,7 +467,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                     className="w-full bg-stone-950 border border-stone-700 text-white rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-400 cursor-pointer"
                   >
                     {DINING_TABLES.map(tOption => (
-                      <option key={tOption} value={tOption}>{tOption}</option>
+                      <option key={tOption} value={tOption}>{formatTableStationName(tOption, lang)}</option>
                     ))}
                   </select>
                 )}
