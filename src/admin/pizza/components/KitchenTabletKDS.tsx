@@ -27,8 +27,8 @@ import {
   Trash2
 } from 'lucide-react';
 import { usePizzaAdminStore, PizzaOrder } from '../store/usePizzaAdminStore';
-import { AddTableItemsModal } from './AddTableItemsModal';
 import { supabase } from '../../../lib/supabase';
+import { extractTableFromAddress } from '../../../pizza/utils/tableUtils';
 import { 
   initKitchenAudio, 
   startContinuousAlarm, 
@@ -535,8 +535,10 @@ export function KitchenTabletKDS() {
   // Set of order IDs acknowledged/handled by staff for new incoming buzzer
   const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => new Set());
 
-  // Active table order being edited / appended with new items
-  const [tableOrderForAddition, setTableOrderForAddition] = useState<PizzaOrder | null>(null);
+  // Active Dining Tables in Hall (Read-only overview for kitchen display)
+  const activeDiningOrders = useMemo(() => {
+    return orders.filter(o => isDiningTableOrder(o) && o.status !== 'completed' && o.status !== 'cancelled');
+  }, [orders]);
 
   // 6. Group into PHASES:
   // Table Reservations
@@ -1374,17 +1376,6 @@ export function KitchenTabletKDS() {
 
                     {/* NEW ORDER ACTIONS: ACCEPT OR MUTE */}
                     <div className="pt-1 flex flex-col gap-2">
-                      {isDiningTableOrder(order) && (
-                        <button
-                          type="button"
-                          onClick={() => setTableOrderForAddition(order)}
-                          className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md cursor-pointer transition-all active:scale-95"
-                        >
-                          <UtensilsCrossed className="w-4 h-4" />
-                          <span>{kdsLang === 'th' ? '+ เพิ่มรายการเข้าโต๊ะ' : '+ AGGIUNGI PIATTI / BEVANDE AL TAVOLO'}</span>
-                        </button>
-                      )}
-
                       <div className="flex gap-2">
                         <button
                           type="button"
@@ -1770,6 +1761,52 @@ export function KitchenTabletKDS() {
 
       </main>
 
+      {/* ─── BOTTOM READ-ONLY RIBBON: ACTIVE DINING TABLES IN HALL ───────── */}
+      {activeDiningOrders.length > 0 && (
+        <div className="bg-[#131722] border-t-2 border-stone-800 px-3 sm:px-5 py-2.5 shrink-0 flex items-center gap-3 overflow-x-auto select-none shadow-2xl z-30">
+          <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs uppercase tracking-wider shrink-0 pr-3 border-r border-stone-800">
+            <UtensilsCrossed className="w-4 h-4" />
+            <span>{kdsLang === 'th' ? 'โต๊ะเปิดบริการ:' : 'TAVOLI ATTIVI IN SALA:'}</span>
+            <span className="px-1.5 py-0.2 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-mono font-bold">
+              {activeDiningOrders.length}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2.5 flex-1 min-w-0 overflow-x-auto py-0.5">
+            {activeDiningOrders.map(order => {
+              const tableRaw = extractTableFromAddress(order.address) || 'Tavolo';
+              const itemsCount = Array.isArray(order.items) 
+                ? order.items.reduce((acc: number, it: any) => acc + (it.quantity || 1), 0) 
+                : 0;
+              const isPreparing = order.status === 'preparing';
+
+              return (
+                <div
+                  key={order.id}
+                  className={`px-3 py-1.5 rounded-xl border flex items-center gap-2.5 shrink-0 transition-all ${
+                    isPreparing 
+                      ? 'bg-amber-950/50 border-amber-500/70 text-amber-200 shadow-sm' 
+                      : 'bg-[#0d1017] border-stone-800 text-stone-300'
+                  }`}
+                >
+                  <span className="font-black text-xs sm:text-sm text-white uppercase tracking-tight">{tableRaw}</span>
+                  <span className="text-[11px] font-mono text-stone-400">
+                    ({itemsCount} {kdsLang === 'th' ? 'จาน' : 'piatti'})
+                  </span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
+                    isPreparing 
+                      ? 'bg-amber-400 text-stone-950 shadow-xs' 
+                      : 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
+                  }`}>
+                    {isPreparing ? (kdsLang === 'th' ? 'กำลังอบ' : 'IN FORNO') : (kdsLang === 'th' ? 'เปิดบิล' : 'APERTO')}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* ─── PAUSE & SERVICE MANAGEMENT MODAL ────────────────────────────── */}
       {showPauseModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -2138,18 +2175,6 @@ export function KitchenTabletKDS() {
           </div>
         </div>
       )}
-
-      {/* MODAL TO ADD DISHES/DRINKS TO ACTIVE TABLE DINING ORDERS */}
-      <AddTableItemsModal
-        isOpen={Boolean(tableOrderForAddition)}
-        onClose={() => setTableOrderForAddition(null)}
-        order={tableOrderForAddition}
-        onOrderUpdated={() => {
-          fetchOrders();
-          setTableOrderForAddition(null);
-        }}
-        kdsLang={kdsLang}
-      />
 
     </div>
   );

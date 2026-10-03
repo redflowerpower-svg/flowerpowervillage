@@ -35,6 +35,7 @@ import { useLanguageStore } from '../store/languageStore';
 import { SUPPORTED_LANGUAGES, LANGUAGE_METAS, Language } from '../config/languages';
 import { getDietaryType, type DietaryType } from '../utils/dietary';
 import { DiningCheckoutModal } from '../components/DiningCheckoutModal';
+import { TableSettlementModal } from '../components/TableSettlementModal';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { supabase } from '../../lib/supabase';
@@ -675,6 +676,7 @@ export default function DiningTabletSite() {
   const [customTableInput, setCustomTableInput] = useState<string>('');
   const [activeDineInOrders, setActiveDineInOrders] = useState<any[]>([]);
   const [tableNotification, setTableNotification] = useState<string>('');
+  const [settlementTableKey, setSettlementTableKey] = useState<string | null>(null);
 
   const fetchActiveDineInOrders = async () => {
     try {
@@ -1149,7 +1151,7 @@ export default function DiningTabletSite() {
   }).filter(group => group.items.length > 0) : [];
 
   return (
-    <div className="min-h-screen bg-[#e7e5e4] text-stone-900 pb-16 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+    <div className="min-h-screen bg-[#e7e5e4] text-stone-900 pb-28 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
       
       {/* TOP FIXED BAR FOR DINING TABLET */}
       <nav className="fixed top-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-md border-b border-amber-400/30 text-white px-3 sm:px-6 py-2.5 flex items-center justify-between shadow-xl">
@@ -1854,6 +1856,106 @@ export default function DiningTabletSite() {
         initialTable={currentTable}
         lang={lang}
       />
+
+      {/* DEDICATED TABLE SETTLEMENT & CHECKOUT MODAL */}
+      <TableSettlementModal
+        isOpen={Boolean(settlementTableKey)}
+        onClose={() => setSettlementTableKey(null)}
+        tableKey={settlementTableKey || ''}
+        ordersForTable={activeDineInOrders.filter(o => {
+          const rawTbl = o.table_number || extractTableFromAddress(o.address);
+          const canonical = getCanonicalTableKey(rawTbl);
+          return canonical === settlementTableKey || rawTbl === settlementTableKey;
+        })}
+        lang={lang}
+        onSettled={() => {
+          if (currentTable === settlementTableKey) {
+            setCurrentTable('');
+            setIsTableSelected(false);
+            setTableNotification('');
+          }
+          fetchActiveDineInOrders();
+        }}
+      />
+
+      {/* ─── BOTTOM OPERATIONAL DOCK: ACTIVE OPEN TABLES & SETTLEMENT ─────── */}
+      {Object.keys(activeTableOrderMap).length > 0 && (
+        <aside
+          aria-label="Active dining tables dock"
+          className="fixed bottom-0 left-0 right-0 z-30 bg-stone-950/95 backdrop-blur-md border-t-2 border-amber-400/40 px-3 sm:px-6 py-2 shadow-2xl flex items-center justify-between gap-3 overflow-x-auto select-none"
+        >
+          {/* Left Title */}
+          <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs uppercase tracking-wider shrink-0 pr-3 border-r border-stone-800">
+            <UtensilsCrossed className="w-4 h-4" />
+            <span className="hidden sm:inline">
+              {lang === 'TH' ? 'โต๊ะที่เปิดอยู่:' : lang === 'EN' ? 'Open Tables:' : lang === 'DE' ? 'Offene Tische:' : 'Tavoli Aperti:'}
+            </span>
+            <span className="px-1.5 py-0.2 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-mono font-bold">
+              {Object.keys(activeTableOrderMap).length}
+            </span>
+          </div>
+
+          {/* Horizontal scrollable cards */}
+          <div className="flex items-center gap-2.5 flex-1 min-w-0 overflow-x-auto py-0.5">
+            {Object.entries(activeTableOrderMap).map(([tblKey, info]) => {
+              const displayName = formatTableStationName(tblKey, lang);
+              const isCurrentSession = currentTable === tblKey;
+
+              return (
+                <div
+                  key={tblKey}
+                  className={`px-3 py-1.5 rounded-2xl border flex items-center gap-2.5 shrink-0 transition-all ${
+                    isCurrentSession
+                      ? 'bg-gradient-to-r from-amber-950/80 to-stone-900 border-amber-400 text-white shadow-md ring-1 ring-amber-400/40'
+                      : 'bg-stone-900/90 border-stone-800 text-stone-200 hover:border-amber-400/40'
+                  }`}
+                >
+                  <div className="flex flex-col">
+                    <span className="font-black text-xs sm:text-sm uppercase tracking-tight text-white flex items-center gap-1">
+                      <span>{displayName}</span>
+                      {isCurrentSession && (
+                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                      )}
+                    </span>
+                    <span className="text-[10px] text-amber-300 font-bold font-mono">
+                      {info.total} ฿ <span className="text-stone-400 font-normal">({info.itemsCount} {lang === 'TH' ? 'จาน' : 'portate'})</span>
+                    </span>
+                  </div>
+
+                  {/* Actions for this table */}
+                  <div className="flex items-center gap-1.5 pl-2 border-l border-stone-800">
+                    {/* Add Items Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectTable(tblKey)}
+                      className={`px-2.5 py-1 rounded-xl text-[11px] font-black uppercase flex items-center gap-1 transition-all cursor-pointer ${
+                        isCurrentSession
+                          ? 'bg-amber-400 text-stone-950 shadow-xs'
+                          : 'bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white'
+                      }`}
+                      title={lang === 'TH' ? 'เพิ่มรายการอาหาร' : 'Aggiungi piatti a questo tavolo'}
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span className="hidden md:inline">{lang === 'TH' ? 'เพิ่ม' : 'Aggiungi'}</span>
+                    </button>
+
+                    {/* Settle / Close Tab Button */}
+                    <button
+                      type="button"
+                      onClick={() => setSettlementTableKey(tblKey)}
+                      className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-black uppercase flex items-center gap-1 transition-all cursor-pointer shadow-xs active:scale-95"
+                      title={lang === 'TH' ? 'เช็คบิล / ปิดโต๊ะ' : 'Salda conto e chiudi tavolo'}
+                    >
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>{lang === 'TH' ? 'เช็คบิล' : lang === 'EN' ? 'Settle' : lang === 'DE' ? 'Abrechnen' : 'Salda'}</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </aside>
+      )}
     </div>
   );
 }
