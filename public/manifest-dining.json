@@ -11,16 +11,16 @@
   "theme_color": "#d97706",
   "icons": [
     {
-      "src": "/flower-power-pizza-logo-256.png",
-      "sizes": "256x256",
+      "src": "/Flower_Power_Pizza_-_HotSpring.png",
+      "sizes": "192x192 256x256 512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/flower-power-pizza-logo-512.png",
+      "src": "/Flower_Power_Pizza_-_HotSpring.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }
