@@ -1349,22 +1349,6 @@ export default function DiningTabletSite() {
               </div>
             </header>
 
-            {/* ACTIVE TAB ALERT / NOTIFICATION */}
-            {tableNotification && (
-              <div className="mb-3.5 p-3 rounded-2xl bg-gradient-to-r from-amber-950/90 via-stone-900 to-amber-950/90 border border-amber-400/50 text-amber-200 text-xs flex items-center justify-between gap-3 shadow-md animate-fadeIn">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>{tableNotification}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setTableNotification('')}
-                  className="p-1 rounded-lg bg-stone-800/80 hover:bg-stone-700 text-stone-300 hover:text-white cursor-pointer"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
 
             {/* CATEGORY TABS */}
             <div id="dining-category-section" className="mb-4 scroll-mt-24">
