@@ -18,7 +18,7 @@ export async function getOmiseCredentials(): Promise<OmiseCredentials> {
   let secretKey = process.env.OMISE_SECRET_KEY || "";
   let mode: 'test' | 'live' = secretKey.startsWith('skey_test_') || publicKey.startsWith('pkey_test_') ? 'test' : 'live';
 
-  // Fallback to payment_settings singleton in database if env vars not provided
+  // Fallback to payment_settings singleton in database or storage if env vars not provided
   if ((!publicKey || !secretKey) && supabase) {
     try {
       const { data } = await supabase
@@ -39,7 +39,31 @@ export async function getOmiseCredentials(): Promise<OmiseCredentials> {
         }
       }
     } catch (err) {
-      console.warn("[Omise] Failed reading payment_settings fallback:", err);
+      console.warn("[Omise] Failed reading payment_settings table fallback:", err);
+    }
+
+    // Fallback to storage bucket JSON if database table is not present
+    if (!publicKey || !secretKey) {
+      try {
+        const { data: fileData } = await supabase.storage.from("site-images").download("payment_settings.json");
+        if (fileData) {
+          const text = await fileData.text();
+          const parsed = JSON.parse(text);
+          if (parsed?.omise_config) {
+            if (!publicKey && parsed.omise_config.publicKey) {
+              publicKey = parsed.omise_config.publicKey;
+            }
+            if (!secretKey && parsed.omise_config.secretKey) {
+              secretKey = parsed.omise_config.secretKey;
+            }
+            if (parsed.omise_config.mode) {
+              mode = parsed.omise_config.mode;
+            }
+          }
+        }
+      } catch (storageErr) {
+        console.warn("[Omise] Failed reading payment_settings storage fallback:", storageErr);
+      }
     }
   }
 

@@ -1154,12 +1154,13 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
       promptPayProvider === 'omise' &&
       !omiseQrUrl &&
       !isGeneratingQr &&
+      !paymentError &&
       !isPaymentConfirmed &&
       finalTotal > 0
     ) {
       handleGeneratePromptPayQr();
     }
-  }, [step, paymentMethod, promptPayProvider, omiseQrUrl, isGeneratingQr, isPaymentConfirmed, finalTotal]);
+  }, [step, paymentMethod, promptPayProvider, omiseQrUrl, isGeneratingQr, paymentError, isPaymentConfirmed, finalTotal]);
 
   // Reset QR if total amount changes while unpaid
   const lastTotalRef = useRef(finalTotal);
@@ -2096,6 +2097,20 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                             {lang === 'TH' && 'กำลังสร้าง QR Code...'}
                             {lang === 'DE' && 'Omise QR wird generiert...'}
                           </span>
+                        </div>
+                      ) : paymentError && !omiseQrUrl ? (
+                        <div className="w-full max-w-xs bg-red-50 border border-red-200 rounded-xl p-3 text-center space-y-2">
+                          <p className="text-xs text-red-700 font-bold">{paymentError}</p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPaymentError(null);
+                              handleGeneratePromptPayQr();
+                            }}
+                            className="px-3 py-1.5 bg-[#8B1E1E] text-white text-xs font-bold rounded-lg shadow hover:bg-[#701616] cursor-pointer"
+                          >
+                            {lang === 'IT' ? 'Riprova Generazione QR' : lang === 'TH' ? 'ลองใหม่อีกครั้ง' : lang === 'DE' ? 'QR erneut generieren' : 'Retry Generate QR'}
+                          </button>
                         </div>
                       ) : omiseQrUrl ? (
                         <div className="flex flex-col items-center gap-1.5 w-full">
