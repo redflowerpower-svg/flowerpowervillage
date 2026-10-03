@@ -1751,8 +1751,9 @@ export default function DiningTabletSite() {
             initialTable={currentTable}
             lang={lang}
           />
-        </div>
-      )}
+          </div>
+        );
+      }}
     </DiningAdminAuth>
   );
 }
