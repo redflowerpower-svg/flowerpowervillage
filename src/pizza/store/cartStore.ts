@@ -36,6 +36,7 @@ interface CartState {
   updateQuantity: (cartId: string, quantity: number) => void;
   updateCartItem: (cartId: string, updates: Partial<CartItem>) => void;
   clearCart: () => void;
+  setItems: (items: CartItem[]) => void;
   openCart: () => void;
   closeCart: () => void;
   getTotal: () => number;
@@ -91,6 +92,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   clearCart: () => set({ items: [] }),
+  setItems: (items) => set({ items: Array.isArray(items) ? items : [] }),
   openCart: () => set({ isOpen: true }),
   closeCart: () => set({ isOpen: false }),
 

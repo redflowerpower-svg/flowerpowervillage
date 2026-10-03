@@ -668,7 +668,7 @@ function CustomFilterDropdown({
 
 export default function DiningTabletSite() {
   const { language: lang, setLanguage } = useLanguageStore();
-  const { clearCart } = useCartStore();
+  const { clearCart, setItems } = useCartStore();
   
   // Table Session State: Must select table before accessing menu
   const [currentTable, setCurrentTable] = useState<string>('');
@@ -753,9 +753,40 @@ export default function DiningTabletSite() {
   const handleSelectTable = (tableName: string) => {
     const trimmed = tableName.trim();
     if (!trimmed) return;
-    if (currentTable && currentTable !== trimmed) {
+    const canonical = getCanonicalTableKey(trimmed);
+    const openOrders = activeTableOrderMap[canonical] || [];
+
+    if (openOrders.length > 0) {
+      // Rehydrate table cart with existing items from the active order
+      const existingItems: any[] = [];
+      openOrders.forEach(o => {
+        const orderItems = Array.isArray(o.items) ? o.items : [];
+        orderItems.forEach((it: any, idx: number) => {
+          existingItems.push({
+            cartId: it.cartId || `order-${o.id}-${idx}-${Date.now()}`,
+            productId: it.productId || it.id || '',
+            name: it.name || '',
+            nameIt: it.nameIt,
+            nameTh: it.nameTh || it.name || '',
+            nameDe: it.nameDe,
+            image: it.image || '',
+            basePrice: Number(it.basePrice || it.price || 0),
+            quantity: Number(it.quantity || 1),
+            selectedVariant: it.variant ? { id: it.variant, name: it.variant, priceModifier: 0 } as any : (it.selectedVariant || null),
+            selectedExtras: Array.isArray(it.extras)
+              ? it.extras.map((ex: any) => typeof ex === 'string' ? { id: ex, name: ex, price: 0 } : ex)
+              : (it.selectedExtras || []),
+            lasagnaDate: it.lasagnaDate,
+            isHalalChicken: it.isHalalChicken
+          });
+        });
+      });
+      setItems(existingItems);
+    } else {
+      // Free table with no active orders
       clearCart();
     }
+
     setCurrentTable(trimmed);
     setIsTableSelected(true);
   };
