@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { usePizzaAdminStore, PizzaOrder } from '../store/usePizzaAdminStore';
 import { supabase } from '../../../lib/supabase';
-import { extractTableFromAddress } from '../../../pizza/utils/tableUtils';
+import { extractTableFromAddress, formatTableStationName } from '../../../pizza/utils/tableUtils';
 import { 
   initKitchenAudio, 
   startContinuousAlarm, 
@@ -107,39 +107,261 @@ type CartItemSaved = {
   selectedExtras?: any[];
 };
 
-// Build quick lookup map for Thai names from menuData
+// Comprehensive Bilingual Extra / Topping / Variant Translation Dictionary
+const EXTRA_TRANSLATIONS: Record<string, { th: string; en: string }> = {
+  // Cheeses & Dairy
+  'mozzarella': { th: 'มอสซาเรลล่าชีส', en: 'Mozzarella Cheese' },
+  'doppia mozzarella': { th: 'เพิ่มมอสซาเรลล่าชีส 2 เท่า', en: 'Double Mozzarella' },
+  'extra mozzarella': { th: 'เพิ่มมอสซาเรลล่าชีส', en: 'Extra Mozzarella' },
+  'bufala': { th: 'มอสซาเรลล่าชีสนมควาย', en: 'Buffalo Mozzarella' },
+  'mozzarella di bufala': { th: 'มอสซาเรลล่าชีสนมควาย', en: 'Buffalo Mozzarella' },
+  'burrata': { th: 'บูร์ราต้าชีสสด', en: 'Fresh Burrata' },
+  'burratina': { th: 'บูร์ราติน่าชีสสด', en: 'Mini Burrata' },
+  'gorgonzola': { th: 'กอร์กอนโซล่าบลูชีส', en: 'Gorgonzola Blue Cheese' },
+  'parmigiano': { th: 'พาร์เมซานชีส', en: 'Parmesan Cheese' },
+  'parmigiano reggiano': { th: 'พาร์มิจาโนเรจจาโนชีส', en: 'Parmigiano Reggiano' },
+  'grana': { th: 'กรานาปาดาโนชีส', en: 'Grana Padano' },
+  'grana padano': { th: 'กรานาปาดาโนชีส', en: 'Grana Padano' },
+  'pecorino': { th: 'เปโคริโน่ชีสนมแกะ', en: 'Pecorino Cheese' },
+  'pecorino romano': { th: 'เปโคริโน่โรมาโนชีส', en: 'Pecorino Romano' },
+  'ricotta': { th: 'ริคอตต้าชีส', en: 'Ricotta Cheese' },
+  'mascarpone': { th: 'มาสคาโปเนชีส', en: 'Mascarpone' },
+  'scamorza': { th: 'สคามอร์ซารมควัน', en: 'Smoked Scamorza' },
+  'scamorza affumicata': { th: 'สคามอร์ซารมควัน', en: 'Smoked Scamorza' },
+  'fontina': { th: 'ฟอนติน่าชีส', en: 'Fontina Cheese' },
+  'formaggio': { th: 'ชีส', en: 'Cheese' },
+  '4 formaggi': { th: 'ชีส 4 ชนิด', en: '4 Cheeses' },
+  
+  // Meats & Cold Cuts
+  'prosciutto': { th: 'แฮม', en: 'Ham' },
+  'prosciutto cotto': { th: 'แฮมสุกอิตาเลียน', en: 'Cooked Ham' },
+  'cotto': { th: 'แฮมสุก', en: 'Cooked Ham' },
+  'prosciutto crudo': { th: 'พาร์มาแฮมดิบ', en: 'Parma Ham (Crudo)' },
+  'crudo': { th: 'พาร์มาแฮม', en: 'Parma Ham' },
+  'prosciutto di parma': { th: 'พาร์มาแฮมแท้', en: 'Parma Ham' },
+  'salame': { th: 'ซาลามี่', en: 'Salami' },
+  'salame piccante': { th: 'เปปเปอโรนี่รสเผ็ด', en: 'Spicy Salami (Pepperoni)' },
+  'salame dolce': { th: 'ซาลามี่รสกลมกล่อม', en: 'Mild Salami' },
+  'salame milano': { th: 'มิลาโนซาลามี่', en: 'Milano Salami' },
+  'salsiccia': { th: 'ไส้กรอกหมูสดอิตาเลียน', en: 'Italian Pork Sausage' },
+  'salsiccia fresca': { th: 'ไส้กรอกหมูสดอิตาเลียน', en: 'Italian Fresh Sausage' },
+  'bacon': { th: 'เบคอนกรอบ', en: 'Crispy Bacon' },
+  'pancetta': { th: 'แพนเช็ตต้าหมูสามชั้นอิตาเลียน', en: 'Italian Pancetta' },
+  'guanciale': { th: 'กวนชาเล่แก้มหมูอิตาเลียน', en: 'Guanciale (Pork Jowl)' },
+  'speck': { th: 'สเปคแฮมรมควัน', en: 'Smoked Speck Ham' },
+  'bresaola': { th: 'เบรซาโอล่าเนื้อวัวแห้งอิตาเลียน', en: 'Bresaola (Cured Beef)' },
+  'wurstel': { th: 'ไส้กรอกเวียนนา', en: 'Vienna Sausage (Wurstel)' },
+  'pollo': { th: 'เนื้อไก่', en: 'Chicken' },
+  'petto di pollo': { th: 'อกไก่', en: 'Chicken Breast' },
+  'manzo': { th: 'เนื้อวัว', en: 'Beef' },
+  'macinato': { th: 'เนื้อบด', en: 'Minced Meat' },
+  'carne trita': { th: 'เนื้อบด', en: 'Minced Meat' },
+  'nduja': { th: 'อันดูยาพริกซาลามี่เผ็ดคาลาเบรีย', en: "'Nduja Spicy Sausage" },
+  'mortadella': { th: 'มอร์ทาเดลล่าแฮมอิตาเลียน', en: 'Italian Mortadella' },
+
+  // Seafood
+  'tonno': { th: 'ปลาทูน่า', en: 'Tuna' },
+  'tonno sott\'olio': { th: 'ปลาทูน่าในน้ำมันมะกอก', en: 'Tuna in Olive Oil' },
+  'acciughe': { th: 'ปลาแอนโชวี่เค็ม', en: 'Anchovies' },
+  'alici': { th: 'ปลาแอนโชวี่', en: 'Anchovies' },
+  'gamberi': { th: 'กุ้งสด', en: 'Fresh Prawns' },
+  'gamberetti': { th: 'กุ้งตัวเล็ก', en: 'Shrimps' },
+  'salmone': { th: 'แซลมอน', en: 'Salmon' },
+  'salmone affumicato': { th: 'แซลมอนรมควัน', en: 'Smoked Salmon' },
+  'calamari': { th: 'ปลาหมึก', en: 'Squid / Calamari' },
+  'cozze': { th: 'หอยแมลงภู่', en: 'Mussels' },
+  'vongole': { th: 'หอยตลับ', en: 'Clams' },
+  'frutti di mare': { th: 'อาหารทะเลรวม', en: 'Seafood Mix' },
+  'seafood': { th: 'ซีฟู้ดรวม', en: 'Seafood' },
+
+  // Vegetables & Herbs
+  'funghi': { th: 'เห็ดแชมปิญองสด', en: 'Fresh Mushrooms' },
+  'funghi freschi': { th: 'เห็ดสด', en: 'Fresh Mushrooms' },
+  'funghi porcini': { th: 'เห็ดพอร์ชินี่', en: 'Porcini Mushrooms' },
+  'porcini': { th: 'เห็ดพอร์ชินี่', en: 'Porcini Mushrooms' },
+  'tartufo': { th: 'เห็ดทรัฟเฟิลดำ', en: 'Black Truffle' },
+  'olio al tartufo': { th: 'น้ำมันเห็ดทรัฟเฟิล', en: 'Truffle Oil' },
+  'pomodoro': { th: 'มะเขือเทศ', en: 'Tomato' },
+  'pomodorini': { th: 'มะเขือเทศราชินีสด', en: 'Cherry Tomatoes' },
+  'pomodori secchi': { th: 'มะเขือเทศอบแห้ง', en: 'Sun-Dried Tomatoes' },
+  'salsa pomodoro': { th: 'ซอสมะเขือเทศเข้มข้น', en: 'Tomato Sauce' },
+  'olive': { th: 'มะกอก', en: 'Olives' },
+  'olive nere': { th: 'มะกอกดำ', en: 'Black Olives' },
+  'olive verdi': { th: 'มะกอกเขียว', en: 'Green Olives' },
+  'capperi': { th: 'เคเปอร์', en: 'Capers' },
+  'carciofi': { th: 'อาร์ติโชก', en: 'Artichokes' },
+  'cipolla': { th: 'หอมใหญ่', en: 'Onion' },
+  'cipolla rossa': { th: 'หอมแดง', en: 'Red Onion' },
+  'peperoni': { th: 'พริกหวานย่าง', en: 'Bell Peppers' },
+  'peperoncino': { th: 'พริกเผ็ดสด', en: 'Chili Peppers' },
+  'peperoncino fresco': { th: 'พริกสดเผ็ด', en: 'Fresh Chili' },
+  'olio piccante': { th: 'น้ำมันพริกเผ็ด', en: 'Spicy Chili Oil' },
+  'melanzane': { th: 'มะเขือม่วงย่าง', en: 'Grilled Eggplants' },
+  'zucchine': { th: 'ซูกินีย่าง', en: 'Grilled Zucchini' },
+  'rucola': { th: 'ผักร็อคเก็ตสด', en: 'Fresh Rocket Salad' },
+  'spinaci': { th: 'ผักโขม', en: 'Spinach' },
+  'basilico': { th: 'ใบโหระพาอิตาเลียน', en: 'Fresh Basil' },
+  'origano': { th: 'ออริกาโน่', en: 'Oregano' },
+  'aglio': { th: 'กระเทียมสด', en: 'Garlic' },
+  'prezzemolo': { th: 'พาร์สลีย์', en: 'Parsley' },
+  'rosmarino': { th: 'โรสแมรี่', en: 'Rosemary' },
+  'ananas': { th: 'สับปะรด', en: 'Pineapple' },
+  'mais': { th: 'ข้าวโพดหวาน', en: 'Sweet Corn' },
+  'patate': { th: 'มันฝรั่ง', en: 'Potatoes' },
+  'patatine': { th: 'เฟรนช์ฟรายส์', en: 'French Fries' },
+  'patatine fritte': { th: 'เฟรนช์ฟรายส์กรอบ', en: 'French Fries' },
+  'french fries': { th: 'เฟรนช์ฟรายส์กรอบ', en: 'French Fries' },
+
+  // Eggs & Sauces
+  'uovo': { th: 'ไข่ไก่สด', en: 'Egg' },
+  'uovo sodo': { th: 'ไข่ต้ม', en: 'Boiled Egg' },
+  'uovo all\'occhio': { th: 'ไข่ดาว', en: 'Fried Egg' },
+  'pesto': { th: 'ซอสเพสโต้ใบโหระพา', en: 'Basil Pesto Sauce' },
+  'pesto genovese': { th: 'ซอสเพสโต้เจโนเวเซ่', en: 'Genoese Pesto' },
+  'panna': { th: 'ครีมสด', en: 'Fresh Cream' },
+  'maionese': { th: 'มายองเนส', en: 'Mayonnaise' },
+  'ketchup': { th: 'ซอสมะเขือเทศ', en: 'Ketchup' },
+  'salsa bbq': { th: 'ซอสบาร์บีคิว', en: 'BBQ Sauce' },
+  'bbq sauce': { th: 'ซอสบาร์บีคิว', en: 'BBQ Sauce' },
+  'salsa tartara': { th: 'ซอสทาร์ทาร์', en: 'Tartar Sauce' },
+  'senape': { th: 'มัสตาร์ด', en: 'Mustard' },
+  'tabasco': { th: 'ทาบาสโก้', en: 'Tabasco' },
+  'olio evo': { th: 'น้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิ้น', en: 'Extra Virgin Olive Oil' },
+  'aceto balsamico': { th: 'น้ำส้มสายชูบัลซามิก', en: 'Balsamic Glaze' },
+  'crema di tartufo': { th: 'ครีมเห็ดทรัฟเฟิล', en: 'Truffle Cream' },
+
+  // Variants & Formats
+  'normale': { th: 'ขนาดปกติ (33 ซม.)', en: 'Normal Size (33cm)' },
+  'baby': { th: 'ขนาดเล็กสำหรับเด็ก (24 ซม.)', en: 'Baby Size (24cm)' },
+  'maxi': { th: 'ขนาดใหญ่พิเศษ (45 ซม.)', en: 'Maxi Size (45cm)' },
+  'famiglia': { th: 'ขนาดครอบครัว', en: 'Family Size' },
+  'calzone': { th: 'แบบพับ (คาลโซเน่)', en: 'Calzone Folded' },
+  'doppio impasto': { th: 'แป้งหนานุ่ม 2 เท่า', en: 'Double Thick Dough' },
+  'senza glutine': { th: 'แป้งปลอดกลูเตน', en: 'Gluten Free Dough' },
+  'gluten free': { th: 'แป้งปลอดกลูเตน', en: 'Gluten Free' },
+  'integrale': { th: 'แป้งโฮลวีท', en: 'Whole Wheat Dough' },
+  'ben cotta': { th: 'อบกรอบพิเศษ', en: 'Well Done / Crispy' },
+  'poco cotta': { th: 'อบนุ่มพอดี', en: 'Lightly Baked' },
+  'tagliata a fette': { th: 'ตัดแบ่งชิ้นพร้อมทาน', en: 'Sliced' },
+  'non tagliata': { th: 'ไม่ตัดเป็นชิ้น', en: 'Not Sliced' },
+};
+
+// Build quick lookup map for Thai and English names from menuData
 const menuThaiLookup: Record<string, string> = {};
-// Universal Extra Translation Dictionary (mapping all extras from menuData)
+const menuEnLookup: Record<string, string> = {};
 const extraLookup: Record<string, { th: string; en: string }> = {};
 
 menuData.forEach(cat => {
   cat.items.forEach((it: any) => {
-    if (it.name) {
-      menuThaiLookup[it.name.trim().toLowerCase()] = it.nameTh || '';
+    const enName = it.name ? it.name.trim() : '';
+    const thName = it.nameTh ? it.nameTh.trim() : '';
+    const itName = it.nameIt || it.name_it || '';
+
+    if (enName) {
+      menuThaiLookup[enName.toLowerCase()] = thName || enName;
+      menuEnLookup[enName.toLowerCase()] = enName;
     }
+    if (itName) {
+      menuThaiLookup[itName.trim().toLowerCase()] = thName || enName;
+      menuEnLookup[itName.trim().toLowerCase()] = enName;
+    }
+    if (thName) {
+      menuThaiLookup[thName.toLowerCase()] = thName;
+      menuEnLookup[thName.toLowerCase()] = enName || thName;
+    }
+
     if (it.extras && Array.isArray(it.extras)) {
       it.extras.forEach((ex: any) => {
         const th = ex.nameTh || '';
         const en = ex.name || '';
-        const itName = ex.nameIt || ex.name_it || '';
-        const deName = ex.nameDe || ex.name_de || '';
+        const itN = ex.nameIt || ex.name_it || '';
+        const deN = ex.nameDe || ex.name_de || '';
 
         const entry = { th: th || en, en: en || th };
         if (en) extraLookup[en.trim().toLowerCase()] = entry;
-        if (itName) extraLookup[itName.trim().toLowerCase()] = entry;
+        if (itN) extraLookup[itN.trim().toLowerCase()] = entry;
         if (th) extraLookup[th.trim().toLowerCase()] = entry;
-        if (deName) extraLookup[deName.trim().toLowerCase()] = entry;
+        if (deN) extraLookup[deN.trim().toLowerCase()] = entry;
+      });
+    }
+
+    if (it.variants && Array.isArray(it.variants)) {
+      it.variants.forEach((v: any) => {
+        const th = v.nameTh || '';
+        const en = v.name || '';
+        const itN = v.nameIt || v.name_it || '';
+        const deN = v.nameDe || v.name_de || '';
+
+        const entry = { th: th || en, en: en || th };
+        if (en) extraLookup[en.trim().toLowerCase()] = entry;
+        if (itN) extraLookup[itN.trim().toLowerCase()] = entry;
+        if (th) extraLookup[th.trim().toLowerCase()] = entry;
+        if (deN) extraLookup[deN.trim().toLowerCase()] = entry;
       });
     }
   });
 });
 
-const getThaiName = (item: CartItemSaved): string => {
-  if (item.nameTh && typeof item.nameTh === 'string' && item.nameTh.trim()) {
-    return item.nameTh.trim();
-  }
+export const getDishDisplayName = (item: CartItemSaved, lang: 'en' | 'th'): string => {
+  if (!item) return '';
   const clean = String(item.name || '').trim().toLowerCase();
-  return menuThaiLookup[clean] || '';
+
+  if (lang === 'th') {
+    if (item.nameTh && typeof item.nameTh === 'string' && item.nameTh.trim()) {
+      return item.nameTh.trim();
+    }
+    if (menuThaiLookup[clean]) {
+      return menuThaiLookup[clean];
+    }
+    if (EXTRA_TRANSLATIONS[clean]) {
+      return EXTRA_TRANSLATIONS[clean].th;
+    }
+    if (menuEnLookup[clean]) {
+      return menuEnLookup[clean];
+    }
+    return String(item.name || '').toUpperCase();
+  }
+
+  // English mode
+  if (menuEnLookup[clean]) {
+    return menuEnLookup[clean].toUpperCase();
+  }
+  if (EXTRA_TRANSLATIONS[clean]) {
+    return EXTRA_TRANSLATIONS[clean].en.toUpperCase();
+  }
+  return String(item.name || '').toUpperCase();
+};
+
+export const getVariantDisplayName = (v: any, lang: 'en' | 'th'): string => {
+  if (!v) return '';
+  if (typeof v === 'object') {
+    if (lang === 'th' && v.nameTh && typeof v.nameTh === 'string' && v.nameTh.trim()) {
+      return v.nameTh.trim();
+    }
+    if (lang === 'en' && v.name && typeof v.name === 'string' && v.name.trim()) {
+      const lower = v.name.trim().toLowerCase();
+      if (EXTRA_TRANSLATIONS[lower]) return EXTRA_TRANSLATIONS[lower].en;
+      return v.name.trim();
+    }
+    const cand = (v.name || v.nameIt || '').trim().toLowerCase();
+    if (EXTRA_TRANSLATIONS[cand]) {
+      return lang === 'th' ? EXTRA_TRANSLATIONS[cand].th : EXTRA_TRANSLATIONS[cand].en;
+    }
+    if (extraLookup[cand]) {
+      return lang === 'th' ? extraLookup[cand].th : extraLookup[cand].en;
+    }
+    return String(v.name || v.nameIt || (lang === 'th' ? 'ปกติ' : 'Standard'));
+  }
+
+  const str = String(v).trim();
+  const lower = str.toLowerCase();
+  if (EXTRA_TRANSLATIONS[lower]) {
+    return lang === 'th' ? EXTRA_TRANSLATIONS[lower].th : EXTRA_TRANSLATIONS[lower].en;
+  }
+  if (extraLookup[lower]) {
+    return lang === 'th' ? extraLookup[lower].th : extraLookup[lower].en;
+  }
+  return str;
 };
 
 export const getExtraDisplayName = (ex: any, lang: 'en' | 'th'): string => {
@@ -148,16 +370,26 @@ export const getExtraDisplayName = (ex: any, lang: 'en' | 'th'): string => {
     if (lang === 'th' && ex.nameTh && typeof ex.nameTh === 'string' && ex.nameTh.trim()) {
       return ex.nameTh.trim();
     }
+    if (lang === 'en' && ex.name && typeof ex.name === 'string' && ex.name.trim()) {
+      const lower = ex.name.trim().toLowerCase();
+      if (EXTRA_TRANSLATIONS[lower]) return EXTRA_TRANSLATIONS[lower].en;
+      return ex.name.trim();
+    }
     const candidate = (ex.name || ex.nameIt || '').trim().toLowerCase();
-    if (candidate && extraLookup[candidate]) {
+    if (EXTRA_TRANSLATIONS[candidate]) {
+      return lang === 'th' ? EXTRA_TRANSLATIONS[candidate].th : EXTRA_TRANSLATIONS[candidate].en;
+    }
+    if (extraLookup[candidate]) {
       return lang === 'th' ? extraLookup[candidate].th : extraLookup[candidate].en;
     }
-    return ex.name || ex.nameIt || (lang === 'th' ? 'พิเศษ' : 'Extra');
+    return ex.name || (lang === 'th' ? 'พิเศษ' : 'Extra');
   }
 
-  // If ex is a string (e.g. "Doppia Mozzarella" or "Extra Cheese")
   const str = String(ex).trim();
   const lower = str.toLowerCase();
+  if (EXTRA_TRANSLATIONS[lower]) {
+    return lang === 'th' ? EXTRA_TRANSLATIONS[lower].th : EXTRA_TRANSLATIONS[lower].en;
+  }
   if (extraLookup[lower]) {
     return lang === 'th' ? extraLookup[lower].th : extraLookup[lower].en;
   }
@@ -882,8 +1114,8 @@ export function KitchenTabletKDS() {
     testAlarmBtn: kdsLang === 'th' ? 'ทดสอบเสียง 1' : 'TEST 1 🔔',
     testChimeBtn: kdsLang === 'th' ? 'ทดสอบเสียง 2' : 'TEST 2 ⏰',
     stopTestBtn: kdsLang === 'th' ? 'หยุดเสียง' : 'STOP',
-    rejectResBtn: kdsLang === 'th' ? '✕ ปฏิเสธ' : '✕ RIFIUTA',
-    deleteBtn: kdsLang === 'th' ? '🗑️ ลบถาวร' : '🗑️ ELIMINA',
+    rejectResBtn: kdsLang === 'th' ? '✕ ปฏิเสธ' : '✕ REJECT',
+    deleteBtn: kdsLang === 'th' ? '🗑️ ลบถาวร' : '🗑️ DELETE',
   };
 
   return (
@@ -1052,10 +1284,10 @@ export function KitchenTabletKDS() {
             type="button"
             onClick={() => setShowCompletedModal(true)}
             className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 hover:text-white text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
-            title={kdsLang === 'th' ? 'ดูประวัติออเดอร์ที่ส่งแล้ววันนี้' : 'Visualizza archivio ordini completati di oggi'}
+            title={kdsLang === 'th' ? 'ดูประวัติออเดอร์ที่ส่งแล้ววันนี้' : 'View today completed orders archive'}
           >
             <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span className="hidden sm:inline">{kdsLang === 'th' ? 'ส่งแล้ว' : 'Archivio'}</span>
+            <span className="hidden sm:inline">{kdsLang === 'th' ? 'ประวัติ' : 'Archive'}</span>
             <span className="px-1.5 py-0.2 rounded-full bg-emerald-950 text-emerald-300 text-[11px] font-black border border-emerald-600/60">
               {completedTodayOrders.length + completedTableReservations.length}
             </span>
@@ -1172,9 +1404,10 @@ export function KitchenTabletKDS() {
                 {/* 1. Pending Table Reservations Cards */}
                 {pendingTableReservations.map(res => {
                   const cleanPhone = res.contact.replace(/[^0-9]/g, '');
-                  const whatsappUrl = `https://wa.me/${cleanPhone.startsWith('0') ? '66' + cleanPhone.slice(1) : cleanPhone}?text=${encodeURIComponent(
-                    `Ciao ${res.customer_name}, ti confermiamo la tua prenotazione a Flower Power Pizza per ${res.guests} persone in data ${res.reservation_date} alle ore ${res.reservation_time}. A presto!`
-                  )}`;
+                  const whatsappText = kdsLang === 'th'
+                    ? `สวัสดีคุณ ${res.customer_name} ร้าน ฟลาวเวอร์ พาวเวอร์ พิซซ่า ยืนยันการจองโต๊ะสำหรับ ${res.guests} ท่าน วันที่ ${res.reservation_date} เวลา ${res.reservation_time} เจอกันครับ/ค่ะ!`
+                    : `Hello ${res.customer_name}, we confirm your table reservation at Flower Power Pizza for ${res.guests} guests on ${res.reservation_date} at ${res.reservation_time}. See you soon!`;
+                  const whatsappUrl = `https://wa.me/${cleanPhone.startsWith('0') ? '66' + cleanPhone.slice(1) : cleanPhone}?text=${encodeURIComponent(whatsappText)}`;
 
                   return (
                     <div 
@@ -1193,11 +1426,11 @@ export function KitchenTabletKDS() {
                                 #{res.id}
                               </span>
                               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-400 text-stone-950 shadow-xs">
-                                {kdsLang === 'th' ? 'จองโต๊ะใหม่' : 'NUOVA PRENOTAZIONE'}
+                                {kdsLang === 'th' ? 'จองโต๊ะใหม่' : 'NEW RESERVATION'}
                               </span>
                             </div>
                             <span className="text-[11px] font-bold text-emerald-200">
-                              {kdsLang === 'th' ? 'ทานที่ร้าน' : 'Tavolo Ristorante'}
+                              {kdsLang === 'th' ? 'ทานที่ร้าน' : 'Dine-In Table'}
                             </span>
                           </div>
                         </div>
@@ -1217,15 +1450,21 @@ export function KitchenTabletKDS() {
                         <div className="flex items-center justify-between font-black text-white text-sm">
                           <span>👤 {res.customer_name}</span>
                           <span className="text-amber-300 font-bold bg-stone-900/90 px-2.5 py-0.5 rounded-lg border border-amber-500/30">
-                            👥 {res.guests} {kdsLang === 'th' ? 'ท่าน' : 'Ospiti'}
+                            👥 {res.guests} {kdsLang === 'th' ? 'ท่าน' : 'Guests'}
                           </span>
                         </div>
 
                         <div className="flex items-center justify-between gap-2 pt-1">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-stone-300 text-[11px] font-medium">{kdsLang === 'th' ? 'โซนที่นั่ง:' : 'Ambiente:'}</span>
+                            <span className="text-stone-300 text-[11px] font-medium">{kdsLang === 'th' ? 'โซนที่นั่ง:' : 'Seating Area:'}</span>
                             <span className="font-bold text-white px-2 py-0.5 rounded-md bg-emerald-950 border border-emerald-500/60 text-xs">
-                              {res.seating_area === 'hut' ? '🛖 Capanna' : res.seating_area === 'indoor' ? '🏠 Sala Interna' : res.seating_area === 'outdoor' ? '🌿 Tavoli Esterni' : '🎲 Nessuna Preferenza'}
+                              {res.seating_area === 'hut' 
+                                ? (kdsLang === 'th' ? '🛖 กระท่อมไม้ไผ่' : '🛖 Bamboo Hut') 
+                                : res.seating_area === 'indoor' 
+                                  ? (kdsLang === 'th' ? '🏠 ห้องแอร์' : '🏠 Indoor Room') 
+                                  : res.seating_area === 'outdoor' 
+                                    ? (kdsLang === 'th' ? '🌿 โซนสวน' : '🌿 Outdoor Garden') 
+                                    : (kdsLang === 'th' ? '🎲 ไม่ระบุ' : '🎲 Any Area')}
                             </span>
                           </div>
                           <span className="text-stone-300 font-mono text-[11px]">
@@ -1255,14 +1494,14 @@ export function KitchenTabletKDS() {
                           className="flex-1 py-3 px-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-900/50 cursor-pointer transition-all active:scale-95"
                         >
                           <CheckCircle className="w-5 h-5 stroke-[2.5] shrink-0" />
-                          <span>{kdsLang === 'th' ? '✓ รับ & บันทึกประวัติ' : '✓ PRESO IN CARICO'}</span>
+                          <span>{kdsLang === 'th' ? '✓ รับ & บันทึกประวัติ' : '✓ CONFIRM & ARCHIVE'}</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => handleRejectTableReservation(res.id)}
                           className="py-3 px-3.5 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 hover:text-white border border-red-700/80 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-md shrink-0"
-                          title={kdsLang === 'th' ? 'ปฏิเสธการจองโต๊ะ' : 'Rifiuta / Cancella Prenotazione'}
+                          title={kdsLang === 'th' ? 'ปฏิเสธการจองโต๊ะ' : 'Reject Table Reservation'}
                         >
                           <XCircle className="w-4 h-4 text-red-400 shrink-0" />
                           <span>{t.rejectResBtn}</span>
@@ -1272,7 +1511,7 @@ export function KitchenTabletKDS() {
                           type="button"
                           onClick={() => handleForceDeleteOrder(res.id)}
                           className="p-3 rounded-xl bg-stone-900 hover:bg-red-950 text-stone-500 hover:text-red-400 border border-stone-800 hover:border-red-800 flex items-center justify-center transition-all cursor-pointer shadow shrink-0"
-                          title={kdsLang === 'th' ? 'ลบข้อมูลการจองนี้ออกถาวร' : 'Elimina definitivamente dal sistema'}
+                          title={kdsLang === 'th' ? 'ลบข้อมูลการจองนี้ออกถาวร' : 'Delete reservation permanently'}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1299,6 +1538,7 @@ export function KitchenTabletKDS() {
                 const items = (Array.isArray(order.items) ? order.items : []) as CartItemSaved[];
                 const { address, addressTh, notes, lat, lng } = parseCoordsFromAddress(order.address);
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
+                const tableStationDisplay = formatTableStationName(extractTableFromAddress(order.address) || order.table_number || 'Tavolo', kdsLang === 'th' ? 'TH' : 'EN');
 
                 return (
                   <div 
@@ -1314,7 +1554,7 @@ export function KitchenTabletKDS() {
                         {isDiningTableOrder(order) && (
                           <span className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-400 text-stone-950 uppercase tracking-wider flex items-center gap-1 font-mono shadow-sm">
                             <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
-                            <span>{order.table_number || (order.address?.includes('Tavolo') ? order.address.replace(/^\[.*?\]\s*/, '') : 'TAVOLO')}</span>
+                            <span>{tableStationDisplay}</span>
                           </span>
                         )}
                         <span className="text-xs font-black px-2.5 py-1 rounded-md bg-red-600 text-white uppercase tracking-wider animate-bounce">
@@ -1331,7 +1571,7 @@ export function KitchenTabletKDS() {
                           </span>
                         ) : (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
-                            💵 {kdsLang === 'th' ? 'ชำระที่โต๊ะ' : isDiningTableOrder(order) ? 'CONTO AL TAVOLO' : 'CASH (COLLECT)'}
+                            💵 {kdsLang === 'th' ? 'ชำระที่โต๊ะ' : isDiningTableOrder(order) ? 'PAY AT TABLE' : 'CASH (COLLECT)'}
                           </span>
                         )}
                       </div>
@@ -1372,11 +1612,9 @@ export function KitchenTabletKDS() {
                     {/* Giant Items List */}
                     <div className="bg-[#0b0e14] p-3 rounded-xl border border-stone-800 space-y-3">
                       {items.map((item, idx) => {
-                        const nameEn = formatProductName(item.name);
-                        const thaiName = getThaiName(item);
-                        const displayName = kdsLang === 'th' ? (thaiName || nameEn) : nameEn;
-                        const subName = kdsLang === 'th' ? (thaiName ? nameEn : '') : thaiName;
-                        const variant = item.selectedVariant ? (typeof item.selectedVariant === 'object' ? item.selectedVariant.name : String(item.selectedVariant)) : '';
+                        const displayName = getDishDisplayName(item, kdsLang);
+                        const subName = kdsLang === 'th' ? getDishDisplayName(item, 'en') : getDishDisplayName(item, 'th');
+                        const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
                         const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
 
                         return (
@@ -1389,7 +1627,7 @@ export function KitchenTabletKDS() {
                                 <span className="font-black text-base lg:text-lg text-white leading-tight block">
                                   {displayName}
                                 </span>
-                                {subName && (
+                                {subName && subName !== displayName && (
                                   <span className="text-xs font-semibold text-stone-400 block mt-0.5">
                                     {subName}
                                   </span>
@@ -1573,7 +1811,7 @@ export function KitchenTabletKDS() {
                         {isDiningTableOrder(order) && (
                           <span className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-400 text-stone-950 uppercase tracking-wider flex items-center gap-1 font-mono shadow-sm">
                             <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
-                            <span>{order.table_number || (order.address?.includes('Tavolo') ? order.address.replace(/^\[.*?\]\s*/, '') : 'TAVOLO')}</span>
+                            <span>{formatTableStationName(extractTableFromAddress(order.address) || order.table_number || 'Tavolo', kdsLang === 'th' ? 'TH' : 'EN')}</span>
                           </span>
                         )}
                         {isDelivering ? (
@@ -1598,7 +1836,7 @@ export function KitchenTabletKDS() {
                           </span>
                         ) : (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
-                            💵 {kdsLang === 'th' ? 'ชำระที่โต๊ะ' : isDiningTableOrder(order) ? 'CONTO APERTO' : 'CASH (COLLECT)'}
+                            💵 {kdsLang === 'th' ? 'ชำระที่โต๊ะ' : isDiningTableOrder(order) ? 'PAY AT TABLE' : 'CASH (COLLECT)'}
                           </span>
                         )}
                       </div>
@@ -1659,11 +1897,9 @@ export function KitchenTabletKDS() {
                     {/* Full Ordered Items List with Universal Translated Extras */}
                     <div className="bg-[#0b0e14] p-3 rounded-xl border border-stone-800 space-y-3">
                       {items.map((item, idx) => {
-                        const nameEn = formatProductName(item.name);
-                        const thaiName = getThaiName(item);
-                        const displayName = kdsLang === 'th' ? (thaiName || nameEn) : nameEn;
-                        const subName = kdsLang === 'th' ? (thaiName ? nameEn : '') : thaiName;
-                        const variant = item.selectedVariant ? (typeof item.selectedVariant === 'object' ? item.selectedVariant.name : String(item.selectedVariant)) : '';
+                        const displayName = getDishDisplayName(item, kdsLang);
+                        const subName = kdsLang === 'th' ? getDishDisplayName(item, 'en') : getDishDisplayName(item, 'th');
+                        const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
                         const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
 
                         return (
@@ -1676,7 +1912,7 @@ export function KitchenTabletKDS() {
                                 <span className="font-black text-base lg:text-lg text-white leading-tight block">
                                   {displayName}
                                 </span>
-                                {subName && (
+                                {subName && subName !== displayName && (
                                   <span className="text-xs font-semibold text-stone-400 block mt-0.5">
                                     {subName}
                                   </span>
@@ -1722,7 +1958,7 @@ export function KitchenTabletKDS() {
                               className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs uppercase tracking-wider border border-emerald-500 shadow-md transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                             >
                               <CheckCircle className="w-4 h-4 stroke-[2.5]" />
-                              <span>{kdsLang === 'th' ? '✓ เสิร์ฟแล้ว / ปิดโต๊ะ' : '✓ SERVITO AL TAVOLO / CHIUDI'}</span>
+                              <span>{kdsLang === 'th' ? '✓ เสิร์ฟแล้ว / ปิดโต๊ะ' : '✓ SERVED AT TABLE / COMPLETE'}</span>
                             </button>
 
                             <button
@@ -1804,7 +2040,7 @@ export function KitchenTabletKDS() {
         <div className="bg-[#131722] border-t-2 border-stone-800 px-3 sm:px-5 py-2.5 shrink-0 flex items-center gap-3 overflow-x-auto select-none shadow-2xl z-30">
           <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs uppercase tracking-wider shrink-0 pr-3 border-r border-stone-800">
             <UtensilsCrossed className="w-4 h-4" />
-            <span>{kdsLang === 'th' ? 'ออเดอร์ในครัว & โต๊ะ:' : 'ORDINI IN CUCINA & TAVOLI:'}</span>
+            <span>{kdsLang === 'th' ? 'ออเดอร์ในครัว & โต๊ะ:' : 'KITCHEN ORDERS & TABLES:'}</span>
             <span className="px-1.5 py-0.2 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-mono font-bold">
               {activeDiningOrders.length}
             </span>
@@ -1812,7 +2048,8 @@ export function KitchenTabletKDS() {
 
           <div className="flex items-center gap-2.5 flex-1 min-w-0 overflow-x-auto py-0.5">
             {activeDiningOrders.map(order => {
-              const tableRaw = extractTableFromAddress(order.address) || 'Tavolo';
+              const tableRaw = extractTableFromAddress(order.address) || order.table_number || 'Tavolo';
+              const tableDisplay = formatTableStationName(tableRaw, kdsLang === 'th' ? 'TH' : 'EN');
               const itemsCount = Array.isArray(order.items) 
                 ? order.items.reduce((acc: number, it: any) => acc + (it.quantity || 1), 0) 
                 : 0;
@@ -1831,15 +2068,15 @@ export function KitchenTabletKDS() {
                         ? 'bg-blue-950/50 border-blue-500/70 text-blue-200 shadow-sm hover:bg-blue-900/50' 
                         : 'bg-[#0d1017] border-stone-800 text-stone-300 hover:border-stone-600'
                   }`}
-                  title={kdsLang === 'th' ? 'แตะเพื่อเปิดดูรายการและกดส่ง' : 'Tocca per aprire comanda e visualizzare/evadere'}
+                  title={kdsLang === 'th' ? 'แตะเพื่อเปิดดูรายการและกดส่ง' : 'Tap to view order details and dispatch'}
                 >
                   <UtensilsCrossed className={`w-3.5 h-3.5 ${isMinimized ? 'text-amber-400' : 'text-stone-400'}`} />
-                  <span className="font-black text-xs sm:text-sm text-white uppercase tracking-tight">{tableRaw}</span>
+                  <span className="font-black text-xs sm:text-sm text-white uppercase tracking-tight">{tableDisplay}</span>
                   <span className="text-[11px] font-mono text-amber-300 font-bold">
                     {order.total} ฿
                   </span>
                   <span className="text-[11px] font-mono text-stone-400">
-                    ({itemsCount} {kdsLang === 'th' ? 'จาน' : 'pz'})
+                    ({itemsCount} {kdsLang === 'th' ? 'จาน' : 'items'})
                   </span>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
                     isMinimized
@@ -1849,10 +2086,10 @@ export function KitchenTabletKDS() {
                         : 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
                   }`}>
                     {isMinimized 
-                      ? (kdsLang === 'th' ? 'รอส่ง' : 'IN CUCINA') 
+                      ? (kdsLang === 'th' ? 'รอส่ง' : 'IN KITCHEN') 
                       : isPreparing 
-                        ? (kdsLang === 'th' ? 'กำลังเสิร์ฟ' : 'IN SALA') 
-                        : (kdsLang === 'th' ? 'เปิดบิล' : 'APERTO')}
+                        ? (kdsLang === 'th' ? 'กำลังเสิร์ฟ' : 'IN DINING ROOM') 
+                        : (kdsLang === 'th' ? 'เปิดบิล' : 'OPEN BILL')}
                   </span>
                 </button>
               );
@@ -1875,14 +2112,14 @@ export function KitchenTabletKDS() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-black text-base sm:text-lg text-white uppercase leading-none">
-                      {extractTableFromAddress(selectedTrayOrder.address) || 'TAVOLO'}
+                      {formatTableStationName(extractTableFromAddress(selectedTrayOrder.address) || selectedTrayOrder.table_number || 'Tavolo', kdsLang === 'th' ? 'TH' : 'EN')}
                     </h3>
                     <span className="font-mono text-xs font-bold text-stone-400">
                       #{String(selectedTrayOrder.id).slice(-4).toUpperCase()}
                     </span>
                   </div>
                   <span className="text-[11px] font-bold text-amber-400 block mt-0.5">
-                    {selectedTrayOrder.customer_name || 'Cliente'} {selectedTrayOrder.phone ? `(${selectedTrayOrder.phone})` : ''}
+                    {selectedTrayOrder.customer_name || (kdsLang === 'th' ? 'ลูกค้า' : 'Guest')} {selectedTrayOrder.phone ? `(${selectedTrayOrder.phone})` : ''}
                   </span>
                 </div>
               </div>
@@ -1893,7 +2130,7 @@ export function KitchenTabletKDS() {
                     {selectedTrayOrder.total} ฿
                   </span>
                   <span className="text-[10px] font-black uppercase text-amber-400">
-                    {selectedTrayOrder.payment_status === 'paid' ? 'PAGATO' : 'CONTO AL TAVOLO'}
+                    {selectedTrayOrder.payment_status === 'paid' ? (kdsLang === 'th' ? 'ชำระแล้ว' : 'PAID') : (kdsLang === 'th' ? 'ชำระที่โต๊ะ' : 'PAY AT TABLE')}
                   </span>
                 </div>
                 <button
@@ -1910,11 +2147,9 @@ export function KitchenTabletKDS() {
             <div className="overflow-y-auto flex-1 space-y-2 pr-1">
               <div className="bg-[#0b0e14] p-3 rounded-2xl border border-stone-800 space-y-3">
                 {((Array.isArray(selectedTrayOrder.items) ? selectedTrayOrder.items : []) as CartItemSaved[]).map((item, idx) => {
-                  const nameEn = formatProductName(item.name);
-                  const thaiName = getThaiName(item);
-                  const displayName = kdsLang === 'th' ? (thaiName || nameEn) : nameEn;
-                  const subName = kdsLang === 'th' ? (thaiName ? nameEn : '') : thaiName;
-                  const variant = item.selectedVariant ? (typeof item.selectedVariant === 'object' ? item.selectedVariant.name : String(item.selectedVariant)) : '';
+                  const displayName = getDishDisplayName(item, kdsLang);
+                  const subName = kdsLang === 'th' ? getDishDisplayName(item, 'en') : getDishDisplayName(item, 'th');
+                  const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
                   const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
 
                   return (
@@ -1927,7 +2162,7 @@ export function KitchenTabletKDS() {
                           <span className="font-black text-base text-white leading-tight block">
                             {displayName}
                           </span>
-                          {subName && (
+                          {subName && subName !== displayName && (
                             <span className="text-xs font-semibold text-stone-400 block mt-0.5">
                               {subName}
                             </span>
@@ -1973,11 +2208,11 @@ export function KitchenTabletKDS() {
                   className="flex-1 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
                 >
                   <CheckCircle className="w-5 h-5 text-white stroke-[2.5]" />
-                  <span>{kdsLang === 'th' ? '✓ เริ่มส่งอาหารที่โต๊ะ (ย้ายไปขวา)' : '✓ EVADI ORDINE (SPOSTA A DESTRA)'}</span>
+                  <span>{kdsLang === 'th' ? '✓ เริ่มส่งอาหารที่โต๊ะ (ย้ายไปขวา)' : '✓ DISPATCH ORDER (MOVE TO PREPARING)'}</span>
                 </button>
               ) : (
                 <div className="flex-1 text-center py-2.5 px-3 rounded-xl bg-blue-950/60 border border-blue-600/40 text-blue-300 font-bold text-xs uppercase">
-                  {kdsLang === 'th' ? '✓ ออเดอร์นี้อยู่ในคอลัมน์ขวาแล้ว' : '✓ ORDINE GIA\' IN SALA / COLONNA DESTRA'}
+                  {kdsLang === 'th' ? '✓ ออเดอร์นี้อยู่ในคอลัมน์ขวาแล้ว' : '✓ ORDER IS IN PREPARATION / SERVING'}
                 </div>
               )}
 
@@ -1986,7 +2221,7 @@ export function KitchenTabletKDS() {
                 onClick={() => setSelectedTrayOrder(null)}
                 className="px-4 py-3.5 rounded-2xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-black text-xs uppercase cursor-pointer transition-colors shrink-0"
               >
-                {kdsLang === 'th' ? 'ปิด' : 'CHIUDI'}
+                {kdsLang === 'th' ? 'ปิด' : 'CLOSE'}
               </button>
             </div>
 
@@ -2198,10 +2433,10 @@ export function KitchenTabletKDS() {
                 </div>
                 <div>
                   <h3 className="font-black text-base sm:text-lg text-white uppercase leading-none">
-                    {kdsLang === 'th' ? 'ประวัติออเดอร์ & จองโต๊ะที่บันทึกแล้ว' : 'ARCHIVIO ORDINI & PRENOTAZIONI DI OGGI'}
+                    {kdsLang === 'th' ? 'ประวัติออเดอร์ & จองโต๊ะที่บันทึกแล้ว' : 'TODAY COMPLETED ARCHIVE (ORDERS & TABLES)'}
                   </h3>
                   <span className="text-[11px] font-bold text-stone-400">
-                    {completedTodayOrders.length + completedTableReservations.length} {kdsLang === 'th' ? 'รายการ' : 'ordini e tavoli archiviati nelle ultime 24 ore'}
+                    {completedTodayOrders.length + completedTableReservations.length} {kdsLang === 'th' ? 'รายการที่บันทึกใน 24 ชั่วโมงที่ผ่านมา' : 'items archived in the last 24 hours'}
                   </span>
                 </div>
               </div>
@@ -2218,7 +2453,7 @@ export function KitchenTabletKDS() {
             <div className="overflow-y-auto flex-1 space-y-2.5 pr-1 min-h-[150px]">
               {completedTodayOrders.length === 0 && completedTableReservations.length === 0 ? (
                 <div className="py-12 text-center text-stone-500 font-bold text-sm">
-                  {kdsLang === 'th' ? 'ยังไม่มีรายการที่จัดส่งหรือบันทึกสำเร็จในวันนี้' : 'Nessun ordine o prenotazione archiviata oggi.'}
+                  {kdsLang === 'th' ? 'ยังไม่มีรายการที่จัดส่งหรือบันทึกสำเร็จในวันนี้' : 'No orders or table reservations archived today.'}
                 </div>
               ) : (
                 <>
@@ -2245,17 +2480,23 @@ export function KitchenTabletKDS() {
                             📅 {res.reservation_date} · 🕒 {res.reservation_time}
                           </span>
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-500 text-stone-950">
-                            ✓ {kdsLang === 'th' ? 'บันทึกแล้ว' : 'PRESO IN CARICO'}
+                            ✓ {kdsLang === 'th' ? 'บันทึกแล้ว' : 'CONFIRMED'}
                           </span>
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between gap-2 text-stone-300 text-[11px]">
                         <div className="flex items-center gap-2">
-                          <span>👥 {res.guests} {kdsLang === 'th' ? 'ท่าน' : 'Ospiti'}</span>
+                          <span>👥 {res.guests} {kdsLang === 'th' ? 'ท่าน' : 'Guests'}</span>
                           <span>•</span>
                           <span className="text-emerald-300 font-semibold">
-                            {res.seating_area === 'hut' ? '🛖 Capanna' : res.seating_area === 'indoor' ? '🏠 Sala Interna' : res.seating_area === 'outdoor' ? '🌿 Tavoli Esterni' : 'Tavolo'}
+                            {res.seating_area === 'hut' 
+                              ? (kdsLang === 'th' ? '🛖 กระท่อมไม้ไผ่' : '🛖 Bamboo Hut') 
+                              : res.seating_area === 'indoor' 
+                                ? (kdsLang === 'th' ? '🏠 ห้องแอร์' : '🏠 Indoor Room') 
+                                : res.seating_area === 'outdoor' 
+                                  ? (kdsLang === 'th' ? '🌿 โซนสวน' : '🌿 Outdoor Garden') 
+                                  : (kdsLang === 'th' ? '🎲 ไม่ระบุ' : '🎲 Any Area')}
                           </span>
                         </div>
                         {res.notes && <span className="italic text-stone-400">"{res.notes}"</span>}
@@ -2267,7 +2508,7 @@ export function KitchenTabletKDS() {
                   {completedTodayOrders.map((order) => {
                   const items = Array.isArray(order.items) ? order.items : [];
                   const timeFormatted = order.created_at
-                    ? new Date(order.created_at).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Bangkok' })
+                    ? new Date(order.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' })
                     : '--:--';
 
                   return (
@@ -2281,7 +2522,7 @@ export function KitchenTabletKDS() {
                             #{order.id}
                           </span>
                           <span className="font-black text-white text-sm">
-                            {order.customer_name || 'Cliente'}
+                            {order.customer_name || (kdsLang === 'th' ? 'ลูกค้า' : 'Guest')}
                           </span>
                           {order.phone && (
                             <span className="text-stone-400 text-[11px] font-mono">
@@ -2302,17 +2543,24 @@ export function KitchenTabletKDS() {
                       {/* Items */}
                       <div className="space-y-1 text-stone-300">
                         {items.map((item: any, idx: number) => {
-                          const vName = typeof item.selectedVariant === 'object' ? item.selectedVariant.name : item.selectedVariant;
-                          const extras = Array.isArray(item.selectedExtras) && item.selectedExtras.length > 0 
-                            ? item.selectedExtras.map((e: any) => e.name || e).join(', ') 
-                            : '';
+                          const displayName = getDishDisplayName(item, kdsLang);
+                          const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
+                          const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
                           return (
                             <div key={idx} className="flex justify-between items-baseline gap-2">
-                              <span>
-                                <strong className="text-white font-black">{item.quantity}x</strong> {item.name || item.nameIt}
-                                {vName && <span className="text-stone-400 text-[11px]"> ({vName})</span>}
-                                {extras && <span className="text-amber-400/90 text-[10px] block pl-4">+ {extras}</span>}
-                              </span>
+                              <div>
+                                <strong className="text-white font-black">{item.quantity}x</strong> {displayName}
+                                {variant && <span className="text-stone-400 text-[11px]"> ({variant})</span>}
+                                {extras.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 mt-0.5 pl-4">
+                                    {extras.map((ex: any, exIdx: number) => (
+                                      <span key={exIdx} className="text-amber-400/90 text-[10px]">
+                                        + {getExtraDisplayName(ex, kdsLang)}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                               <span className="font-mono text-stone-400 text-[11px] shrink-0">
                                 {item.itemTotal || item.total || ''} ฿
                               </span>
@@ -2324,21 +2572,21 @@ export function KitchenTabletKDS() {
                       {/* Address & Restore Button */}
                       <div className="pt-2 border-t border-stone-800/80 flex items-center justify-between gap-2 text-[11px]">
                         <span className="text-stone-400 truncate max-w-[280px] sm:max-w-md">
-                          📍 {order.address || 'Ritiro / Ranong'}
+                          📍 {order.address || (kdsLang === 'th' ? 'รับที่ร้าน / ระนอง' : 'Pickup / Ranong')}
                         </span>
                         <button
                           type="button"
                           onClick={async () => {
-                            if (window.confirm(kdsLang === 'th' ? `ต้องการนำออเดอร์ #${order.id} กลับมาในครัวหรือไม่?` : `Riportare l'ordine #${order.id} nella schermata della cucina?`)) {
+                            if (window.confirm(kdsLang === 'th' ? `ต้องการนำออเดอร์ #${order.id} กลับมาในครัวหรือไม่?` : `Return order #${order.id} to kitchen screen?`)) {
                               await updateOrderStatus(String(order.id), 'preparing');
                               setShowCompletedModal(false);
                             }
                           }}
                           className="px-2.5 py-1 rounded-lg bg-blue-950 hover:bg-blue-900 border border-blue-700 text-blue-300 hover:text-white font-bold text-[10px] uppercase flex items-center gap-1 cursor-pointer transition-colors shrink-0"
-                          title="Riporta ordine in preparazione"
+                          title={kdsLang === 'th' ? 'นำออเดอร์กลับมาในครัว' : 'Return order to kitchen'}
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
-                          <span>{kdsLang === 'th' ? 'นำกลับมาทำใหม่' : 'Riporta in cucina'}</span>
+                          <span>{kdsLang === 'th' ? 'นำกลับมาทำใหม่' : 'Return to kitchen'}</span>
                         </button>
                       </div>
                     </div>
@@ -2355,7 +2603,7 @@ export function KitchenTabletKDS() {
                 onClick={() => setShowCompletedModal(false)}
                 className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-white font-black text-xs uppercase cursor-pointer transition-colors"
               >
-                {kdsLang === 'th' ? 'ปิดหน้าต่าง' : 'Chiudi'}
+                {kdsLang === 'th' ? 'ปิดหน้าต่าง' : 'Close'}
               </button>
             </div>
 
