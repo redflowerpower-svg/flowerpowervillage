@@ -674,14 +674,10 @@ export default function DiningTabletSite() {
   const [isTableSelected, setIsTableSelected] = useState<boolean>(false);
   const [customTableInput, setCustomTableInput] = useState<string>('');
 
-  // Restore table from localStorage on mount if present
+  // Ensure fresh table selection on reload
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('fp_dining_active_table');
-      if (saved && saved.trim()) {
-        setCurrentTable(saved.trim());
-        setIsTableSelected(true);
-      }
+      localStorage.removeItem('fp_dining_active_table');
     } catch {}
   }, []);
 
@@ -752,7 +748,6 @@ export default function DiningTabletSite() {
     if (!trimmed) return;
     setCurrentTable(trimmed);
     setIsTableSelected(true);
-    try { localStorage.setItem('fp_dining_active_table', trimmed); } catch {}
   };
 
   // Cloud Wine Collection Sync
