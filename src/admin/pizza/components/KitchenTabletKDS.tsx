@@ -26,6 +26,8 @@ import {
   Users
 } from 'lucide-react';
 import { usePizzaAdminStore, PizzaOrder } from '../store/usePizzaAdminStore';
+import { AddTableItemsModal } from './AddTableItemsModal';
+import { supabase } from '../../../lib/supabase';
 import { 
   initKitchenAudio, 
   startContinuousAlarm, 
@@ -73,6 +75,22 @@ export const isTableReservationOrder = (o: any) => {
     return true;
   }
   return false;
+};
+
+export const isDiningTableOrder = (o: any) => {
+  if (!o) return false;
+  if (isTableReservationOrder(o)) return false;
+  const addr = String(o.address || '');
+  const meth = String(o.payment_method || '');
+  const delType = String(o.delivery_type || '');
+  return delType === 'dine_in' || 
+         addr.includes('[DINE-IN]') || 
+         addr.includes('[DINING_TABLE]') || 
+         addr.toLowerCase().includes('tavolo') || 
+         addr.toLowerCase().includes('table') || 
+         meth.includes('table') || 
+         meth.includes('dining') || 
+         Boolean(o.table_number);
 };
 
 // Coords fallback for Flower Power Pizza Ranong
@@ -516,6 +534,9 @@ export function KitchenTabletKDS() {
   // Set of order IDs acknowledged/handled by staff for new incoming buzzer
   const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => new Set());
 
+  // Active table order being edited / appended with new items
+  const [tableOrderForAddition, setTableOrderForAddition] = useState<PizzaOrder | null>(null);
+
   // 6. Group into PHASES:
   // Table Reservations
   const pendingTableReservations = useMemo(() => {
@@ -690,6 +711,20 @@ export function KitchenTabletKDS() {
   const handleOrderCompleted = async (orderId: string) => {
     initKitchenAudio();
     setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+    await updateOrderStatus(orderId, 'completed');
+  };
+
+  const handleCompleteTableOrder = async (orderId: string) => {
+    initKitchenAudio();
+    setSilencedReminderIds(prev => new Set(prev).add(String(orderId)));
+    try {
+      await supabase
+        .from('pizza_orders')
+        .update({ status: 'completed', payment_status: 'paid' })
+        .eq('id', orderId);
+    } catch (e) {
+      console.warn('Error completing table order in db:', e);
+    }
     await updateOrderStatus(orderId, 'completed');
   };
 
@@ -1167,10 +1202,16 @@ export function KitchenTabletKDS() {
                   >
                     {/* Header: Order Number, Elapsed Time & Total */}
                     <div className="flex items-center justify-between border-b border-stone-700/80 pb-2.5">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-black text-2xl text-white tracking-wider font-mono">
                           #{orderNumber}
                         </span>
+                        {isDiningTableOrder(order) && (
+                          <span className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-400 text-stone-950 uppercase tracking-wider flex items-center gap-1 font-mono shadow-sm">
+                            <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>{order.table_number || (order.address?.includes('Tavolo') ? order.address.replace(/^\[.*?\]\s*/, '') : 'TAVOLO')}</span>
+                          </span>
+                        )}
                         <span className="text-xs font-black px-2.5 py-1 rounded-md bg-red-600 text-white uppercase tracking-wider animate-bounce">
                           🚨 {t.newBadge} ({elapsed} {t.minAgo})
                         </span>
@@ -1185,7 +1226,7 @@ export function KitchenTabletKDS() {
                           </span>
                         ) : (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
-                            💵 {kdsLang === 'th' ? 'เก็บเงินปลายทาง' : 'CASH (COLLECT)'}
+                            💵 {kdsLang === 'th' ? 'ชำระที่โต๊ะ' : isDiningTableOrder(order) ? 'CONTO AL TAVOLO' : 'CASH (COLLECT)'}
                           </span>
                         )}
                       </div>
@@ -1279,6 +1320,17 @@ export function KitchenTabletKDS() {
 
                     {/* NEW ORDER ACTIONS: ACCEPT OR MUTE */}
                     <div className="pt-1 flex flex-col gap-2">
+                      {isDiningTableOrder(order) && (
+                        <button
+                          type="button"
+                          onClick={() => setTableOrderForAddition(order)}
+                          className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md cursor-pointer transition-all active:scale-95"
+                        >
+                          <UtensilsCrossed className="w-4 h-4" />
+                          <span>{kdsLang === 'th' ? '+ เพิ่มรายการเข้าโต๊ะ' : '+ AGGIUNGI PIATTI / BEVANDE AL TAVOLO'}</span>
+                        </button>
+                      )}
+
                       <div className="flex gap-2">
                         <button
                           type="button"
@@ -1411,10 +1463,16 @@ export function KitchenTabletKDS() {
                   >
                     {/* Header: Order Number, Status Badge & Total */}
                     <div className="flex items-center justify-between border-b border-stone-700/80 pb-2.5">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-black text-2xl text-white tracking-wider font-mono">
                           #{orderNumber}
                         </span>
+                        {isDiningTableOrder(order) && (
+                          <span className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-400 text-stone-950 uppercase tracking-wider flex items-center gap-1 font-mono shadow-sm">
+                            <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
+                            <span>{order.table_number || (order.address?.includes('Tavolo') ? order.address.replace(/^\[.*?\]\s*/, '') : 'TAVOLO')}</span>
+                          </span>
+                        )}
                         {isDelivering ? (
                           <span className="text-xs font-black px-2.5 py-1 rounded-md bg-blue-600 text-white uppercase tracking-wider flex items-center gap-1.5 animate-pulse">
                             <Bike className="w-3.5 h-3.5" />
@@ -1437,7 +1495,7 @@ export function KitchenTabletKDS() {
                           </span>
                         ) : (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
-                            💵 {kdsLang === 'th' ? 'เก็บเงินปลายทาง' : 'CASH (COLLECT)'}
+                            💵 {kdsLang === 'th' ? 'ชำระที่โต๊ะ' : isDiningTableOrder(order) ? 'CONTO APERTO' : 'CASH (COLLECT)'}
                           </span>
                         )}
                       </div>
@@ -1551,38 +1609,72 @@ export function KitchenTabletKDS() {
 
                     {/* Action Buttons for Phase 2 */}
                     {!isDelivering ? (
-                      /* Status is 'preparing': Dispatch Rider OR Direct Archive */
+                      /* Status is 'preparing' */
                       <div className="pt-1 flex flex-col gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleOrderReady(order.id)}
-                          className={`w-full py-3.5 rounded-xl font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform ${
-                            isOverdue 
-                              ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-blue-600 hover:from-amber-400 hover:to-blue-500 text-white animate-pulse shadow-amber-500/30' 
-                              : 'bg-blue-600 hover:bg-blue-500 text-white active:scale-95'
-                          }`}
-                        >
-                          <Bike className="w-5 h-5 text-white" />
-                          <span>{t.dispatchRiderBtn} {isOverdue ? `(15+ ${t.min})` : ''}</span>
-                        </button>
+                        {isDiningTableOrder(order) ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => setTableOrderForAddition(order)}
+                              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md cursor-pointer transition-all active:scale-95"
+                            >
+                              <UtensilsCrossed className="w-4 h-4" />
+                              <span>{kdsLang === 'th' ? '+ เพิ่มรายการเข้าโต๊ะ' : '+ AGGIUNGI PIATTI / BEVANDE AL TAVOLO'}</span>
+                            </button>
 
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleOrderCompleted(order.id)}
-                            className="flex-1 py-2 rounded-xl bg-emerald-800/80 hover:bg-emerald-700 active:scale-95 text-emerald-100 hover:text-white font-bold text-xs uppercase tracking-wider border border-emerald-600 transition-colors cursor-pointer"
-                          >
-                            {t.directArchiveBtn}
-                          </button>
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleCompleteTableOrder(order.id)}
+                                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs uppercase tracking-wider border border-emerald-500 shadow-md transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                              >
+                                <CheckCircle className="w-4 h-4 stroke-[2.5]" />
+                                <span>{kdsLang === 'th' ? '✓ เช็คบิล / ปิดโต๊ะ' : '✓ INCASSA & CHIUDI TAVOLO'}</span>
+                              </button>
 
-                          <button
-                            type="button"
-                            onClick={() => handleOrderCancelled(order.id)}
-                            className="px-3 py-2 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
-                          >
-                            {t.cancelBtn}
-                          </button>
-                        </div>
+                              <button
+                                type="button"
+                                onClick={() => handleOrderCancelled(order.id)}
+                                className="px-3 py-2.5 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
+                              >
+                                {t.cancelBtn}
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleOrderReady(order.id)}
+                              className={`w-full py-3.5 rounded-xl font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform ${
+                                isOverdue 
+                                  ? 'bg-gradient-to-r from-amber-500 via-orange-500 to-blue-600 hover:from-amber-400 hover:to-blue-500 text-white animate-pulse shadow-amber-500/30' 
+                                  : 'bg-blue-600 hover:bg-blue-500 text-white active:scale-95'
+                              }`}
+                            >
+                              <Bike className="w-5 h-5 text-white" />
+                              <span>{t.dispatchRiderBtn} {isOverdue ? `(15+ ${t.min})` : ''}</span>
+                            </button>
+
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleOrderCompleted(order.id)}
+                                className="flex-1 py-2 rounded-xl bg-emerald-800/80 hover:bg-emerald-700 active:scale-95 text-emerald-100 hover:text-white font-bold text-xs uppercase tracking-wider border border-emerald-600 transition-colors cursor-pointer"
+                              >
+                                {t.directArchiveBtn}
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleOrderCancelled(order.id)}
+                                className="px-3 py-2 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
+                              >
+                                {t.cancelBtn}
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     ) : (
                       /* Status is 'delivering': Delivered & Archived */
@@ -1983,6 +2075,18 @@ export function KitchenTabletKDS() {
           </div>
         </div>
       )}
+
+      {/* MODAL TO ADD DISHES/DRINKS TO ACTIVE TABLE DINING ORDERS */}
+      <AddTableItemsModal
+        isOpen={Boolean(tableOrderForAddition)}
+        onClose={() => setTableOrderForAddition(null)}
+        order={tableOrderForAddition}
+        onOrderUpdated={() => {
+          fetchOrders();
+          setTableOrderForAddition(null);
+        }}
+        kdsLang={kdsLang}
+      />
 
     </div>
   );
