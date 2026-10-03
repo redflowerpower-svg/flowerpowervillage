@@ -35,9 +35,18 @@ export const OmiseTab: React.FC = () => {
           .limit(20);
 
         if (!error && data && data.length > 0) {
-          const fromDb: OmiseRecordedTransaction[] = data.map((o: any) => ({
+          // Only include orders that were actually charged via Omise (have chrg_ id) or have completed status
+          const validOrders = data.filter((o: any) => {
+            const isCard = (o.payment_method || '').includes('card');
+            if (isCard) {
+              return Boolean(o.receipt_url && o.receipt_url.includes('chrg_'));
+            }
+            return o.status === 'completed' || Boolean(o.receipt_url && o.receipt_url.includes('chrg_'));
+          });
+
+          const fromDb: OmiseRecordedTransaction[] = validOrders.map((o: any) => ({
             orderNo: String(o.id),
-            chargeId: (o.receipt_url && o.receipt_url.startsWith('chrg_')) ? o.receipt_url : String(o.id),
+            chargeId: (o.receipt_url && o.receipt_url.includes('chrg_')) ? o.receipt_url : String(o.id),
             customerName: o.customer_name || 'Cliente Pizzeria',
             purchaseType: 'Pizza Delivery Ranong',
             itemDescription: Array.isArray(o.items) ? o.items.map((i: any) => i.name).slice(0, 2).join(', ') : 'Ordine Pizza',

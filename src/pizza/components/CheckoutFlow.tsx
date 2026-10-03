@@ -1242,12 +1242,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     try {
       setLoading(true);
       setPaymentError(null);
-      const targetOrderId = await ensureOrderCreated('omise_card');
 
-      // 1. Tokenize card securely with Omise.js Vault
+      // 1. Tokenize card securely with Omise.js Vault FIRST
       const cardToken = await tokenizeCreditCard(cardData);
 
-      // 2. Create card charge
+      // 2. Ensure order row exists only after card details are validated
+      const targetOrderId = await ensureOrderCreated('omise_card');
+
+      // 3. Create card charge
       const origin = typeof window !== 'undefined' ? window.location.origin : 'https://flower-power-village.com';
       const returnUri = `${origin}/pizza?omise_order_id=${targetOrderId}`;
 
