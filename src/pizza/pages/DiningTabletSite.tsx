@@ -1515,7 +1515,7 @@ export default function DiningTabletSite() {
                           </p>
                         )}
                       </div>
-                      <MenuGrid items={group.items} lang={lang} />
+                      <MenuGrid items={group.items} lang={lang} isDiningMode={true} />
                     </div>
                   ))}
                 </div>
@@ -1536,7 +1536,7 @@ export default function DiningTabletSite() {
                           </p>
                         )}
                       </div>
-                      <MenuGrid items={group.items} lang={lang} />
+                      <MenuGrid items={group.items} lang={lang} isDiningMode={true} />
                     </div>
                   ))}
                 </div>
@@ -1560,7 +1560,7 @@ export default function DiningTabletSite() {
                           </p>
                         )}
                       </div>
-                      <MenuGrid items={group.items} lang={lang} />
+                      <MenuGrid items={group.items} lang={lang} isDiningMode={true} />
                     </div>
                   ))}
                 </div>

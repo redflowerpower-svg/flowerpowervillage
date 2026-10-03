@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Minus, ZoomIn, X, Search, Check, ChevronDown } from 'lucide-react';
+import { Plus, Minus, ZoomIn, X, Search, Check, ChevronDown, ShoppingCart } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { menuData } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
@@ -55,7 +55,7 @@ const labels = {
     extraIngredients: 'ingredienti extra',
     startingAt: 'A partire da',
     totalFinito: 'Totale finito',
-    confirmText: 'Aggiungi',
+    confirmText: 'Aggiungi all\'Ordine',
     closeText: 'Chiudi',
     customizeText: 'Personalizza',
     chooseText: 'Aggiungi',
@@ -83,7 +83,7 @@ const labels = {
     extraIngredients: 'extra ingredients',
     startingAt: 'Starting at',
     totalFinito: 'Total price',
-    confirmText: 'Add to Cart',
+    confirmText: 'Add to Order',
     closeText: 'Close',
     customizeText: 'Customize',
     chooseText: 'Add',
@@ -111,7 +111,7 @@ const labels = {
     extraIngredients: 'เครื่องปรุงเพิ่มเติม',
     startingAt: 'ราคาเริ่มต้น',
     totalFinito: 'ราคารวม',
-    confirmText: 'เพิ่มลงตะกร้า',
+    confirmText: 'เพิ่มลงในออเดอร์',
     closeText: 'ปิด',
     customizeText: 'ปรับแต่ง',
     chooseText: 'เพิ่ม',
@@ -139,7 +139,7 @@ const labels = {
     extraIngredients: 'Zusatzzutaten',
     startingAt: 'Ab-Preis',
     totalFinito: 'Gesamtpreis',
-    confirmText: 'In den Warenkorb',
+    confirmText: 'Zur Bestellung hinzufügen',
     closeText: 'Schließen',
     customizeText: 'Konfigurieren',
     chooseText: 'Hinzufügen',
@@ -186,7 +186,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
     window.location.pathname.includes('/table')
   ));
 
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [selectedExtras, setSelectedExtras] = useState<ExtraOption[]>([]);
   const [selectedSecondHalf, setSelectedSecondHalf] = useState<MenuItem | null>(null);
@@ -201,50 +201,34 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
 
   const isLasagna = (item: MenuItem) => item.id.includes('lasagna');
 
-  const handleExpand = (item: MenuItem) => {
-    if (expandedId === item.id) {
-      setExpandedId(null);
-      setSelectedSecondHalf(null);
-      setSecondHalfSearch('');
-      setIsHalalChicken(false);
-    } else {
-      setExpandedId(item.id);
-      setSelectedVariant(item.variants?.[0] ?? null);
-      setSelectedSecondHalf(null);
-      setSecondHalfSearch('');
-      setIsHalalChicken(false);
-      
-      const defaults: ExtraOption[] = [];
-      if (item.extras) {
-        const defaultSpicy = item.extras.find(e => e.id === 'spicy-no');
-        if (defaultSpicy) defaults.push(defaultSpicy);
-        const defaultSugar = item.extras.find(e => e.id === 'sugar-regular');
-        if (defaultSugar) defaults.push(defaultSugar);
-        const defaultSauce = item.extras.find(e => e.id === 'sauce-none');
-        if (defaultSauce) defaults.push(defaultSauce);
-        const defaultFruit = item.extras.find(e => e.id.startsWith('fruit-'));
-        if (defaultFruit) defaults.push(defaultFruit);
-      }
-      setSelectedExtras(defaults);
-      // Lasagna: minimum 2 portions
-      setQuantity(isLasagna(item) ? 2 : 1);
-      // Reset lasagna date on new expansion
-      setLasagnaDate('');
-
-      // Auto-scroll to the top of the card smoothly
-      setTimeout(() => {
-        const el = document.getElementById(`menu-item-card-${item.id}`);
-        if (el) {
-          const navOffset = 72;
-          const rect = el.getBoundingClientRect();
-          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-          window.scrollTo({
-            top: rect.top + scrollTop - navOffset,
-            behavior: 'smooth'
-          });
-        }
-      }, 60);
+  const handleOpenCustomize = (item: MenuItem) => {
+    setCustomizingItem(item);
+    setSelectedVariant(item.variants?.[0] ?? null);
+    setSelectedSecondHalf(null);
+    setSecondHalfSearch('');
+    setIsHalalChicken(false);
+    
+    const defaults: ExtraOption[] = [];
+    if (item.extras) {
+      const defaultSpicy = item.extras.find(e => e.id === 'spicy-no');
+      if (defaultSpicy) defaults.push(defaultSpicy);
+      const defaultSugar = item.extras.find(e => e.id === 'sugar-regular');
+      if (defaultSugar) defaults.push(defaultSugar);
+      const defaultSauce = item.extras.find(e => e.id === 'sauce-none');
+      if (defaultSauce) defaults.push(defaultSauce);
+      const defaultFruit = item.extras.find(e => e.id.startsWith('fruit-'));
+      if (defaultFruit) defaults.push(defaultFruit);
     }
+    setSelectedExtras(defaults);
+    setQuantity(isLasagna(item) ? 2 : 1);
+    setLasagnaDate('');
+  };
+
+  const handleCloseCustomize = () => {
+    setCustomizingItem(null);
+    setSelectedSecondHalf(null);
+    setSecondHalfSearch('');
+    setIsHalalChicken(false);
   };
 
   const toggleExtra = (extra: ExtraOption) => {
@@ -329,7 +313,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
 
     if (fruitItems.length > 0) {
       groups.push({
-        title: lang === 'TH' ? 'เลือกผลไม้สด' : lang === 'IT' ? 'Scegli il Frutto Fresco' : lang === 'DE' ? 'Frische Frucht nach Wahl' : 'Choose Fresh Fruit',
+        title: lang === 'TH' ? 'เลือกผลไม้' : lang === 'IT' ? 'Scelta della Frutta' : 'Choose Fruit',
         maxSelection: 1,
         items: fruitItems,
         type: 'option',
@@ -389,10 +373,10 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
   };
 
   const handleAdd = (item: MenuItem) => {
-    if (isLasagna(item) && !lasagnaDate) return; // Block if no date selected
+    if (isLasagna(item) && !lasagnaDate) return;
 
     const isSplit = selectedVariant?.id === 'variant-half-half';
-    if (isSplit && !selectedSecondHalf) return; // Block if no 2nd half selected
+    if (isSplit && !selectedSecondHalf) return;
 
     if (isSplit && selectedSecondHalf) {
       const splitPrice = Math.round((item.price + selectedSecondHalf.price) / 2);
@@ -421,7 +405,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
         quantity,
         basePrice: splitPrice,
         selectedVariant: splitVariantObj,
-        selectedExtras: [], // Standard extras are disabled for split
+        selectedExtras: [],
         image: item.image,
       });
     } else {
@@ -445,10 +429,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       });
     }
 
-    setExpandedId(null);
-    setSelectedSecondHalf(null);
-    setSecondHalfSearch('');
-    setIsHalalChicken(false);
+    handleCloseCustomize();
     openCart();
   };
 
@@ -537,1047 +518,1132 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
     openCart();
   };
 
+  // Calculation for active modal customization
+  const isSplit = selectedVariant?.id === 'variant-half-half';
+  let modalUnitPrice = customizingItem ? customizingItem.price : 0;
+  if (customizingItem) {
+    if (isSplit) {
+      const secondHalfPrice = selectedSecondHalf ? selectedSecondHalf.price : customizingItem.price;
+      modalUnitPrice = Math.round((customizingItem.price + secondHalfPrice) / 2);
+    } else {
+      const variantBase = (selectedVariant?.price != null && Number(selectedVariant.price) > 0)
+        ? Number(selectedVariant.price)
+        : (customizingItem.price + (selectedVariant?.priceModifier ?? 0));
+      const activeExtrasPrice = selectedExtras.reduce((s, e) => s + e.price, 0);
+      modalUnitPrice = variantBase + activeExtrasPrice;
+    }
+  }
+  const modalTotalPrice = modalUnitPrice * quantity;
+  const isAddBlocked = !customizingItem || ((isLasagna(customizingItem) && !lasagnaDate) || (isSplit && !selectedSecondHalf));
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-      {items.map((item) => {
-        const isExpanded = expandedId === item.id;
-        const isSplit = selectedVariant?.id === 'variant-half-half';
+        {items.map((item) => {
+          const isBeer = (item as any).category === 'beers' || item.id === 'chang-beer' || item.id === 'leo-beer' || item.id === 'singha-beer' || item.id.includes('beer');
+          const isWine = !isBeer && (item.category === 'wines' || item.category === 'beers-and-wines' || (item as any).bottleScale !== undefined || !!(item as any).flag);
 
-        // Calculate dynamic total price when expanded
-        let unitPriceWithCustoms = item.price;
-        if (isSplit) {
-          const secondHalfPrice = selectedSecondHalf ? selectedSecondHalf.price : item.price;
-          unitPriceWithCustoms = Math.round((item.price + secondHalfPrice) / 2);
-        } else {
-          const variantBase = (selectedVariant?.price != null && Number(selectedVariant.price) > 0)
-            ? Number(selectedVariant.price)
-            : (item.price + (selectedVariant?.priceModifier ?? 0));
-          const activeExtrasPrice = selectedExtras.reduce((s, e) => s + e.price, 0);
-          unitPriceWithCustoms = variantBase + activeExtrasPrice;
-        }
-        const currentTotalPrice = unitPriceWithCustoms * quantity;
+          if (isBeer) {
+            const currentBeerVariant = selectedBeerVariants[item.id] || (item.variants && item.variants.length > 0 ? item.variants[0] : null);
+            const currentBeerPrice = currentBeerVariant ? (item.price + (currentBeerVariant.priceModifier || 0)) : item.price;
+            const isSmall = currentBeerVariant?.id === '10074' || currentBeerVariant?.name?.toLowerCase() === 'small';
+            const bottleImg = isSmall ? item.image.replace('big', 'small') : item.image;
 
-        const isBeer = (item as any).category === 'beers' || item.id === 'chang-beer' || item.id === 'leo-beer' || item.id === 'singha-beer' || item.id.includes('beer');
-        const isWine = !isBeer && (item.category === 'wines' || item.category === 'beers-and-wines' || (item as any).bottleScale !== undefined || !!(item as any).flag);
-
-        if (isBeer) {
-          const currentBeerVariant = selectedBeerVariants[item.id] || (item.variants && item.variants.length > 0 ? item.variants[0] : null);
-          const currentBeerPrice = currentBeerVariant ? (item.price + (currentBeerVariant.priceModifier || 0)) : item.price;
-          const isSmall = currentBeerVariant?.id === '10074' || currentBeerVariant?.name?.toLowerCase() === 'small';
-          const bottleImg = isSmall ? item.image.replace('big', 'small') : item.image;
-
-          return (
-            <article
-              key={item.id}
-              className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative select-none min-h-[380px] sm:min-h-[410px]"
-            >
-              <div 
-                onClick={() => setZoomedItem(item)}
-                className="flex flex-row flex-grow cursor-pointer relative min-h-[380px] sm:min-h-[410px]"
+            return (
+              <article
+                key={item.id}
+                className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative select-none min-h-[380px] sm:min-h-[410px]"
               >
-                {/* Left (36%): Vertical Beer Bottle Portion */}
-                <div className="w-[36%] bg-stone-50 border-r border-stone-200 p-3 flex items-center justify-center relative overflow-hidden flex-shrink-0 min-h-[380px] sm:min-h-[410px]">
-                  <div className="w-full h-full flex items-center justify-center transition-transform duration-300">
-                    <img
-                      src={withCacheBust(bottleImg)}
-                      alt={getTranslatedName(item)}
-                      loading="lazy"
-                      decoding="async"
-                      className="max-h-[310px] sm:max-h-[340px] max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
-                    <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
-                      <ZoomIn size={15} className="text-white" />
+                <div 
+                  onClick={() => setZoomedItem(item)}
+                  className="flex flex-row flex-grow cursor-pointer relative min-h-[380px] sm:min-h-[410px]"
+                >
+                  {/* Left (36%): Vertical Beer Bottle Portion */}
+                  <div className="w-[36%] bg-stone-50 border-r border-stone-200 p-3 flex items-center justify-center relative overflow-hidden flex-shrink-0 min-h-[380px] sm:min-h-[410px]">
+                    <div className="w-full h-full flex items-center justify-center transition-transform duration-300">
+                      <img
+                        src={withCacheBust(bottleImg)}
+                        alt={getTranslatedName(item)}
+                        loading="lazy"
+                        decoding="async"
+                        className="max-h-[310px] sm:max-h-[340px] max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
+                      <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
+                        <ZoomIn size={15} className="text-white" />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Right (64%): Beer Info, Size Toggle & Add to Cart */}
-                <div className="w-[64%] p-4 sm:p-5 flex flex-col justify-between flex-grow">
-                  <div>
-                    {/* Beer Name */}
-                    <h3
-                      className="font-sans font-bold text-stone-900 leading-tight tracking-tight text-base sm:text-lg"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                    >
-                      {formatProductName(getTranslatedName(item))}
-                    </h3>
-
-                    {/* Clean Beer Badge (no country flag or origins) */}
-                    <div className="mt-2 flex items-center gap-1.5">
-                      <span className="text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider text-amber-900 bg-amber-100/90 border border-amber-300/60 px-2 py-0.5 rounded-md">
-                        🍺 {lang === 'TH' ? 'เบียร์ขวดเย็น' : lang === 'IT' ? 'Birra Fresca in Bottiglia' : lang === 'DE' ? 'Kühles Flaschenbier' : 'Chilled Bottled Beer'}
-                      </span>
-                    </div>
-
-                    {/* Description */}
-                    <p
-                      className="text-stone-500 text-xs font-light leading-relaxed mt-2.5 line-clamp-3"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                    >
-                      {getTranslatedDesc(item)}
-                    </p>
-
-                    {/* Size / Variant Selector (Big / Small) */}
-                    {item.variants && item.variants.length > 0 && (
-                      <div className="mt-3.5 pt-3 border-t border-stone-100" onClick={(e) => e.stopPropagation()}>
-                        <span className="text-[9px] uppercase tracking-wider text-stone-400 font-extrabold block mb-1.5">
-                          {lang === 'TH' ? 'เลือกขนาดขวด' : lang === 'IT' ? 'Formato Bottiglia' : lang === 'DE' ? 'Flaschengröße' : 'Bottle Size'}
-                        </span>
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {item.variants.map((variant) => {
-                            const isVarSelected = (currentBeerVariant?.id || item.variants![0].id) === variant.id;
-                            const varPrice = item.price + (variant.priceModifier || 0);
-                            const varDisplayPrice = isDiningMode ? Math.round(varPrice * 0.95) : varPrice;
-
-                            return (
-                              <button
-                                key={variant.id}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedBeerVariants(prev => ({ ...prev, [item.id]: variant }));
-                                }}
-                                className={`px-2 py-1.5 rounded-xl text-center transition-all border cursor-pointer ${
-                                  isVarSelected
-                                    ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm ring-1 ring-[#8B1E1E]/20'
-                                    : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-100'
-                                }`}
-                              >
-                                <div className="text-[10px] sm:text-[10.5px] font-black uppercase leading-none">
-                                  {lang === 'TH' ? (variant.nameTh || variant.name) : lang === 'IT' ? (variant.nameIt || variant.name_it || variant.name) : lang === 'DE' ? (variant.nameDe || variant.name_de || variant.name) : variant.name}
-                                </div>
-                                <div className={`text-[10px] font-bold mt-0.5 ${isVarSelected ? 'text-amber-200' : 'text-stone-500'}`}>
-                                  {varDisplayPrice}฿
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Bottom Action Bar: Price + Add Button / Delivery Compliance */}
-                  {isDiningMode ? (
-                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex flex-col min-w-0">
-                        <div className="flex items-center gap-1">
-                          <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                            {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
-                          </span>
-                          <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
-                            -5% TAVOLO
-                          </span>
-                        </div>
-                        <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
-                          <span className="text-base sm:text-lg font-black text-[#8B1E1E]">
-                            {Math.round(currentBeerPrice * 0.95)}฿
-                          </span>
-                          <span className="text-xs text-stone-400 line-through font-semibold">
-                            {currentBeerPrice}฿
-                          </span>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleAddBeer(item, currentBeerVariant)}
-                        className="px-3.5 sm:px-4 py-2 text-white text-xs font-bold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center gap-1.5"
+                  {/* Right (64%): Beer Info, Size Toggle & Add to Cart */}
+                  <div className="w-[64%] p-4 sm:p-5 flex flex-col justify-between flex-grow">
+                    <div>
+                      {/* Beer Name */}
+                      <h3
+                        className="font-sans font-bold text-stone-900 leading-tight tracking-tight text-base sm:text-lg"
                         style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                       >
-                        <Plus size={13} className="stroke-[3]" />
-                        <span>{lang === 'TH' ? 'เพิ่ม' : lang === 'IT' ? 'Aggiungi' : lang === 'DE' ? 'Hinzufügen' : 'Add'}</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                          {lang === 'TH' ? 'ราคาที่ร้าน' : lang === 'DE' ? 'Preis im Restaurant' : lang === 'EN' ? 'Restaurant Price' : 'Prezzo al Ristorante'}
-                        </span>
-                        <div className="flex items-baseline gap-1 leading-tight">
-                          <span className="text-base sm:text-lg font-black text-stone-900">
-                            {currentBeerPrice}
-                          </span>
-                          <span className="text-xs font-black text-stone-900 select-none">฿</span>
-                        </div>
-                      </div>
+                        {formatProductName(getTranslatedName(item))}
+                      </h3>
 
-                      <div className="w-full py-1.5 px-2 bg-stone-100/90 text-stone-600 border border-stone-200/90 rounded-xl text-center text-[10.5px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5">
-                        <span>🍺</span>
-                        <span>
-                          {lang === 'TH' ? 'เฉพาะที่ร้าน • ไม่จัดส่งออนไลน์' :
-                           lang === 'IT' ? 'Solo al Ristorante • Non ordinabile online' :
-                           lang === 'DE' ? 'Nur vor Ort • Nicht online lieferbar' :
-                           'Dine-in Only • Not available for delivery'}
+                      {/* Clean Beer Badge */}
+                      <div className="mt-2 flex items-center gap-1.5">
+                        <span className="text-[9.5px] sm:text-[10px] font-black uppercase tracking-wider text-amber-900 bg-amber-100/90 border border-amber-300/60 px-2 py-0.5 rounded-md">
+                          🍺 {lang === 'TH' ? 'เบียร์ขวดเย็น' : lang === 'IT' ? 'Birra Fresca in Bottiglia' : lang === 'DE' ? 'Kühles Flaschenbier' : 'Chilled Bottled Beer'}
                         </span>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </article>
-          );
-        }
 
-        if (isWine) {
-          return (
-            <article
-              key={item.id}
-              className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative select-none min-h-[460px] sm:min-h-[500px]"
-            >
-              <div 
-                onClick={() => setZoomedItem(item)}
-                className="flex flex-row flex-grow cursor-pointer relative min-h-[460px] sm:min-h-[500px]"
-              >
-                {/* Left (35%): Vertical Bottle Portion */}
-                <div className="w-[35%] bg-stone-50 border-r border-stone-200 p-3 flex items-center justify-center relative overflow-hidden flex-shrink-0 min-h-[460px] sm:min-h-[500px]">
-                  <div 
-                    className="w-full h-full flex items-center justify-center transition-transform duration-300"
-                    style={{
-                      transform: `scale(${((item as any).bottleScale || 100) / 100}) scaleX(${((item as any).bottleScaleX || 100) / 100}) translateX(${(((item as any).bottleOffsetX || 0) / 3.2)}%) translateY(${(((item as any).bottleOffsetY || 0) / 3.2)}%)`
-                    }}
-                  >
-                    <img
-                      src={withCacheBust(item.image)}
-                      alt={getTranslatedName(item)}
-                      loading="lazy"
-                      decoding="async"
-                      className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
-                    <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
-                      <ZoomIn size={15} className="text-white" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right (65%): Details & Action Portion */}
-                <div className="w-[65%] p-4 sm:p-5 flex flex-col justify-between flex-grow">
-                  <div>
-                    <h3
-                      className="font-sans font-bold text-stone-900 leading-tight tracking-tight"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                    >
-                      {formatWineProductName(getTranslatedName(item))}
-                    </h3>
-
-                    {((item as any).categorySubtitle || (item as any).flag) && (
-                      <div 
-                        className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-amber-900 mt-2.5 sm:mt-3 flex items-center gap-2.5 leading-tight"
-                        style={{ 
-                          fontFamily: lang === 'TH' ? 'Prompt, Kanit, sans-serif' : 'Outfit, system-ui, sans-serif',
-                          fontWeight: 900
-                        }}
-                      >
-                        {(item as any).flag && <span className="shrink-0 flex items-center">{renderCountryFlag((item as any).flag)}</span>}
-                        <span className={`flex-1 flex flex-col justify-center leading-snug ${lang === 'TH' ? 'font-black text-[11px] sm:text-[12px] tracking-tight' : 'font-black'}`}>
-                          {formatSubtitle((item as any).categorySubtitle || '')}
-                        </span>
-                      </div>
-                    )}
-
-                    <p
-                      className="text-stone-500 text-xs font-light leading-snug mt-3 sm:mt-3.5"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                    >
-                      {getTranslatedDesc(item)}
-                    </p>
-
-                    {(item as any).alcohol && (
-                      <span className="inline-block mt-1.5 text-[10px] font-bold text-stone-400">
-                        {String((item as any).alcohol).replace('.', ',')} Vol.
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Bottom Action Bar: Add to Cart (Dining Tablet) OR Dine-in Booking (Delivery Site) */}
-                  {onBookTable ? (
-                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-col gap-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                          {lang === 'TH' ? 'ราคาที่โต๊ะ' : lang === 'DE' ? 'Tischpreis' : lang === 'EN' ? 'Table Price' : 'Prezzo al Tavolo'}
-                        </span>
-                        <div className="flex items-baseline gap-1.5 leading-tight">
-                          <span className="text-base sm:text-lg font-black text-[#8B1E1E]">
-                            {Math.round(item.price * 0.9)}฿
-                          </span>
-                          <span className="text-xs text-stone-400 line-through font-semibold">
-                            {item.price}฿
-                          </span>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onBookTable(item);
-                        }}
-                        className="w-full py-1.5 px-2 text-stone-950 rounded-xl shadow-xs hover:shadow-md flex flex-col items-center justify-center bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 border border-amber-500/40 active:scale-[0.98] transition-all cursor-pointer text-center"
+                      {/* Description */}
+                      <p
+                        className="text-stone-500 text-xs font-light leading-relaxed mt-2.5 line-clamp-3"
                         style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                       >
-                        <span className="text-xs font-black uppercase tracking-tight leading-snug">
-                          {lang === 'TH' ? 'จองที่โต๊ะอาหาร' :
-                           lang === 'IT' ? 'Prenota al Tavolo' :
-                           lang === 'DE' ? 'Am Tisch reservieren' :
-                           'Book at Table'}
-                        </span>
-                        <span className="text-[10px] font-bold text-amber-950/80 leading-tight">
-                          {lang === 'TH' ? 'รับส่วนลด 10%' :
-                           lang === 'IT' ? '10% di sconto' :
-                           lang === 'DE' ? '10% Rabatt' :
-                           '10% Discount'}
-                        </span>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2">
-                      <div className="flex flex-col min-w-0">
-                        <div className="flex items-center gap-1">
-                          <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                            {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
+                        {getTranslatedDesc(item)}
+                      </p>
+
+                      {/* Size / Variant Selector (Big / Small) */}
+                      {item.variants && item.variants.length > 0 && (
+                        <div className="mt-3.5 pt-3 border-t border-stone-100" onClick={(e) => e.stopPropagation()}>
+                          <span className="text-[9px] uppercase tracking-wider text-stone-400 font-extrabold block mb-1.5">
+                            {lang === 'TH' ? 'เลือกขนาดขวด' : lang === 'IT' ? 'Formato Bottiglia' : lang === 'DE' ? 'Flaschengröße' : 'Bottle Size'}
                           </span>
-                          {isDiningMode && (
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {item.variants.map((variant) => {
+                              const isVarSelected = (currentBeerVariant?.id || item.variants![0].id) === variant.id;
+                              const varPrice = item.price + (variant.priceModifier || 0);
+                              const varDisplayPrice = isDiningMode ? Math.round(varPrice * 0.95) : varPrice;
+
+                              return (
+                                <button
+                                  key={variant.id}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedBeerVariants(prev => ({ ...prev, [item.id]: variant }));
+                                  }}
+                                  className={`px-2 py-1.5 rounded-xl text-center transition-all border cursor-pointer ${
+                                    isVarSelected
+                                      ? 'bg-[#8B1E1E] text-white border-[#8B1E1E] shadow-sm ring-1 ring-[#8B1E1E]/20'
+                                      : 'bg-stone-50 text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-stone-100'
+                                  }`}
+                                >
+                                  <div className="text-[10px] sm:text-[10.5px] font-black uppercase leading-none">
+                                    {lang === 'TH' ? (variant.nameTh || variant.name) : lang === 'IT' ? (variant.nameIt || variant.name_it || variant.name) : lang === 'DE' ? (variant.nameDe || variant.name_de || variant.name) : variant.name}
+                                  </div>
+                                  <div className={`text-[10px] font-bold mt-0.5 ${isVarSelected ? 'text-amber-200' : 'text-stone-500'}`}>
+                                    {varDisplayPrice}฿
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom Action Bar: Price + Add Button / Delivery Compliance */}
+                    {isDiningMode ? (
+                      <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex flex-col min-w-0">
+                          <div className="flex items-center gap-1">
+                            <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                              {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
+                            </span>
                             <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
                               -5% TAVOLO
                             </span>
-                          )}
-                        </div>
-                        {isDiningMode ? (
+                          </div>
                           <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
                             <span className="text-base sm:text-lg font-black text-[#8B1E1E]">
+                              {Math.round(currentBeerPrice * 0.95)}฿
+                            </span>
+                            <span className="text-xs text-stone-400 line-through font-semibold">
+                              {currentBeerPrice}฿
+                            </span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAddBeer(item, currentBeerVariant)}
+                          className="px-3.5 sm:px-4 py-2 text-white text-xs font-bold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center gap-1.5"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                        >
+                          <Plus size={13} className="stroke-[3]" />
+                          <span>{lang === 'TH' ? 'เพิ่ม' : lang === 'IT' ? 'Aggiungi' : lang === 'DE' ? 'Hinzufügen' : 'Add'}</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                            {lang === 'TH' ? 'ราคาที่ร้าน' : lang === 'DE' ? 'Preis im Restaurant' : lang === 'EN' ? 'Restaurant Price' : 'Prezzo al Ristorante'}
+                          </span>
+                          <div className="flex items-baseline gap-1 leading-tight">
+                            <span className="text-base sm:text-lg font-black text-stone-900">
+                              {currentBeerPrice}
+                            </span>
+                            <span className="text-xs font-black text-stone-900 select-none">฿</span>
+                          </div>
+                        </div>
+
+                        <div className="w-full py-1.5 px-2 bg-stone-100/90 text-stone-600 border border-stone-200/90 rounded-xl text-center text-[10.5px] sm:text-[11px] font-bold flex items-center justify-center gap-1.5">
+                          <span>🍺</span>
+                          <span>
+                            {lang === 'TH' ? 'เฉพาะที่ร้าน • ไม่จัดส่งออนไลน์' :
+                             lang === 'IT' ? 'Solo al Ristorante • Non ordinabile online' :
+                             lang === 'DE' ? 'Nur vor Ort • Nicht online lieferbar' :
+                             'Dine-in Only • Not available for delivery'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          }
+
+          if (isWine) {
+            return (
+              <article
+                key={item.id}
+                className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative select-none min-h-[460px] sm:min-h-[500px]"
+              >
+                <div 
+                  onClick={() => setZoomedItem(item)}
+                  className="flex flex-row flex-grow cursor-pointer relative min-h-[460px] sm:min-h-[500px]"
+                >
+                  {/* Left (35%): Vertical Bottle Portion */}
+                  <div className="w-[35%] bg-stone-50 border-r border-stone-200 p-3 flex items-center justify-center relative overflow-hidden flex-shrink-0 min-h-[460px] sm:min-h-[500px]">
+                    <div 
+                      className="w-full h-full flex items-center justify-center transition-transform duration-300"
+                      style={{
+                        transform: `scale(${((item as any).bottleScale || 100) / 100}) scaleX(${((item as any).bottleScaleX || 100) / 100}) translateX(${(((item as any).bottleOffsetX || 0) / 3.2)}%) translateY(${(((item as any).bottleOffsetY || 0) / 3.2)}%)`
+                      }}
+                    >
+                      <img
+                        src={withCacheBust(item.image)}
+                        alt={getTranslatedName(item)}
+                        loading="lazy"
+                        decoding="async"
+                        className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
+                      <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
+                        <ZoomIn size={15} className="text-white" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right (65%): Details & Action Portion */}
+                  <div className="w-[65%] p-4 sm:p-5 flex flex-col justify-between flex-grow">
+                    <div>
+                      {/* Wine Product Name */}
+                      <h3
+                        className="font-bold text-stone-900 leading-tight text-base sm:text-lg"
+                        style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', letterSpacing: '0.01em' }}
+                      >
+                        {formatWineProductName(getTranslatedName(item))}
+                      </h3>
+
+                      {/* Subtitle & Badge */}
+                      <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                        {renderCountryFlag(item)}
+                        <span className="text-xs text-stone-500 font-serif italic">
+                          {formatSubtitle(item)}
+                        </span>
+                      </div>
+
+                      {/* Description */}
+                      <p
+                        className="text-stone-500 text-xs font-light leading-relaxed mt-2.5 line-clamp-3"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                      >
+                        {getTranslatedDesc(item)}
+                      </p>
+                    </div>
+
+                    {/* Wine Pricing & Action Bar */}
+                    {onBookTable ? (
+                      <div className="mt-4 pt-3 border-t border-stone-100 flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] uppercase tracking-widest text-stone-400 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                            {lang === 'TH' ? 'ราคาขวด' : lang === 'DE' ? 'Flaschenpreis' : lang === 'EN' ? 'Bottle Price' : 'Prezzo Bottiglia'}
+                          </span>
+                          <div className="flex items-baseline gap-1 leading-tight">
+                            <span className="text-lg sm:text-xl font-black text-stone-900">
+                              {renderWinePrice(item.price)}
+                            </span>
+                            <span className="text-xs font-black text-stone-900 select-none">฿</span>
+                          </div>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => onBookTable(item)}
+                          className="w-full py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-95"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                        >
+                          <span>{lang === 'TH' ? 'จองโต๊ะรับส่วนลด 10%' : lang === 'IT' ? 'Prenota al Tavolo (-10%)' : lang === 'DE' ? 'Tisch mit 10% Rabatt buchen' : 'Book at Table (-10%)'}</span>
+                        </button>
+                      </div>
+                    ) : isDiningMode ? (
+                      <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex flex-col min-w-0">
+                          <div className="flex items-center gap-1">
+                            <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                              {lang === 'TH' ? 'ราคาที่โต๊ะ' : lang === 'DE' ? 'Tischpreis' : lang === 'EN' ? 'Table Price' : 'Prezzo al Tavolo'}
+                            </span>
+                            <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
+                              -5%
+                            </span>
+                          </div>
+                          <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
+                            <span className="text-lg sm:text-xl font-black text-[#8B1E1E]">
                               {Math.round(item.price * 0.95)}฿
                             </span>
                             <span className="text-xs text-stone-400 line-through font-semibold">
                               {item.price}฿
                             </span>
                           </div>
-                        ) : (
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAddWine(item)}
+                          className="px-4 py-2 text-white text-xs font-bold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center gap-1.5"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                        >
+                          <Plus size={13} className="stroke-[3]" />
+                          <span>{lang === 'TH' ? 'เพิ่ม' : lang === 'IT' ? 'Aggiungi' : lang === 'DE' ? 'Hinzufügen' : 'Add'}</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                        <div>
+                          <span className="text-[9px] uppercase tracking-widest text-stone-400 font-extrabold block" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                            {lang === 'TH' ? 'ราคาขวด' : lang === 'DE' ? 'Flaschenpreis' : lang === 'EN' ? 'Bottle Price' : 'Prezzo Bottiglia'}
+                          </span>
                           <div className="flex items-baseline gap-1 leading-tight mt-0.5">
-                            <span className="text-base sm:text-lg font-black text-stone-900">
-                              {item.price}
+                            <span className="text-lg sm:text-xl font-black text-stone-900">
+                              {renderWinePrice(item.price)}
                             </span>
                             <span className="text-xs font-black text-stone-900 select-none">฿</span>
                           </div>
-                        )}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAddWine(item)}
+                          className="px-4 py-2 text-white text-xs font-bold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center gap-1.5"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                        >
+                          <Plus size={13} className="stroke-[3]" />
+                          <span>{lang === 'TH' ? 'เพิ่ม' : lang === 'IT' ? 'Aggiungi' : lang === 'DE' ? 'Hinzufügen' : 'Add'}</span>
+                        </button>
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddWine(item);
-                        }}
-                        className="px-3.5 sm:px-4 py-2 text-white text-xs font-bold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center gap-1.5"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                      >
-                        <Plus size={13} className="stroke-[3]" />
-                        <span>{lang === 'TH' ? 'เพิ่ม' : lang === 'IT' ? 'Aggiungi' : lang === 'DE' ? 'Hinzufügen' : 'Add'}</span>
-                      </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
-              </div>
-            </article>
-          );
-        }
+              </article>
+            );
+          }
 
-        const isAddBlocked = isExpanded && ((isLasagna(item) && !lasagnaDate) || (isSplit && !selectedSecondHalf));
+          // STANDARD FOOD CARD (Always compact and perfectly aligned in 3-column grid)
+          const hasOptions = !!(item.variants?.length || item.extras?.length || isLasagna(item) || isEligibleForSplit(item));
 
-        return (
-          <article
-            key={item.id}
-            id={`menu-item-card-${item.id}`}
-            className={`group bg-white border transition-all duration-300 flex flex-col overflow-hidden will-change-transform ${
-              isExpanded 
-                ? 'col-span-full md:col-span-2 lg:col-span-1 rounded-[2rem] border-[#8B1E1E]/40 shadow-2xl ring-2 ring-[#8B1E1E]/20' 
-                : 'rounded-[2rem] border-stone-300 shadow-sm hover:shadow-2xl hover:-translate-y-1 cursor-pointer'
-            }`}
-            onClick={() => !isExpanded && handleExpand(item)}
-          >
-            {/* IMAGE CONTAINER WITH ZOOM HOOK & CLOSE BUTTON */}
-            <div 
-              className={`relative bg-stone-100 overflow-hidden flex-shrink-0 rounded-t-[2rem] transition-all duration-300 ${
-                isExpanded ? 'h-36 sm:h-44' : 'h-48 cursor-zoom-in'
-              }`}
-              onClick={(e) => {
-                if (!isExpanded) {
+          const handleCardAction = (e: React.MouseEvent) => {
+            e.stopPropagation();
+            if (hasOptions) {
+              handleOpenCustomize(item);
+            } else {
+              addItem({
+                productId: item.id,
+                name: item.name,
+                nameTh: item.nameTh,
+                nameIt: item.nameIt,
+                nameDe: item.nameDe,
+                quantity: 1,
+                basePrice: item.price,
+                selectedVariant: null,
+                selectedExtras: [],
+                image: item.image,
+              });
+              openCart();
+            }
+          };
+
+          return (
+            <article
+              key={item.id}
+              id={`menu-item-card-${item.id}`}
+              className="group bg-white border border-stone-300 rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden relative select-none cursor-pointer"
+              onClick={() => hasOptions ? handleOpenCustomize(item) : handleCardAction}
+            >
+              {/* IMAGE CONTAINER WITH ZOOM ICON */}
+              <div 
+                className="relative h-48 sm:h-52 bg-stone-100 overflow-hidden flex-shrink-0 rounded-t-[2rem]"
+                onClick={(e) => {
                   e.stopPropagation();
                   setZoomedItem(item);
-                }
-              }}
-            >
-              <img
-                src={withCacheBust(item.image)}
-                alt={getTranslatedName(item)}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover select-none pointer-events-none group-hover:scale-105 transition-transform duration-500"
-              />
+                }}
+              >
+                <img
+                  src={withCacheBust(item.image)}
+                  alt={getTranslatedName(item)}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover select-none pointer-events-none group-hover:scale-105 transition-transform duration-500"
+                />
 
-              {/* Minimal Vertical Dietary Watermark (Top-Right, or Top-Left when expanded so it does not collide with the close button) */}
-              {getDietaryType(item) && (
-                <div className={`absolute top-2.5 ${isExpanded ? 'left-2.5' : 'right-2.5'} z-10 transition-all duration-300 pointer-events-none`}>
-                  <DietaryWatermark type={getDietaryType(item)} />
-                </div>
-              )}
+                {/* Dietary Watermark */}
+                {getDietaryType(item) && (
+                  <div className="absolute top-2.5 right-2.5 z-10 pointer-events-none">
+                    <DietaryWatermark type={getDietaryType(item)} />
+                  </div>
+                )}
 
-              {/* Close Button when expanded */}
-              {isExpanded && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setExpandedId(null);
-                    setSelectedSecondHalf(null);
-                    setSecondHalfSearch('');
-                  }}
-                  className="absolute top-3 right-3 z-20 w-8 h-8 rounded-full bg-stone-900/80 hover:bg-stone-950 text-white flex items-center justify-center shadow-lg transition-all cursor-pointer backdrop-blur-md active:scale-95"
-                  aria-label="Chiudi scheda"
-                >
-                  <X size={16} />
-                </button>
-              )}
-
-              {/* Zoom Overlay (only active when NOT expanded) */}
-              {!isExpanded && (
-                <div
-                  className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[1px]"
-                >
+                {/* Zoom Overlay */}
+                <div className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[1px]">
                   <div className="p-3 bg-stone-900/90 rounded-full border border-stone-700 shadow-lg scale-90 group-hover:scale-100 transition-transform duration-300">
                     <ZoomIn size={20} className="text-white" />
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* CONTENT AREA */}
-            <div className="p-6 flex-grow flex flex-col justify-between">
-              <div>
-                <h3
-                  className="font-sans text-lg font-bold text-stone-900 leading-tight tracking-tight"
-                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                >
-                  {formatProductName(getTranslatedName(item))}
-                </h3>
-
-                {/* Lasagna pre-order badge — always visible */}
-                {isLasagna(item) && (
-                  <div className="mt-2 mb-1 flex flex-col gap-1">
-                    <span
-                      className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-800 text-[10px] font-bold px-2.5 py-1.5 rounded-xl leading-tight"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                    >
-                      {t.lasagnaBadge}
-                    </span>
-                    <span
-                      className="text-stone-400 text-[10px] italic leading-tight"
-                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                    >
-                      {t.lasagnaWhyLabel}
-                    </span>
-                  </div>
-                )}
-
-                <p
-                  className="text-stone-500 text-xs font-light leading-relaxed mb-4 flex-grow mt-1.5"
-                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                >
-                  {getTranslatedDesc(item)}
-                </p>
-
-                {/* INLINE DYNAMIC OPTIONS DRAWER */}
-                {isExpanded && (
-                  <div
-                    className="mt-4 pt-4 border-t border-stone-200 space-y-4 animate-fadeIn"
-                    onClick={(e) => e.stopPropagation()} // Prevent card toggle click
+              {/* CONTENT AREA */}
+              <div className="p-5 sm:p-6 flex-grow flex flex-col justify-between">
+                <div>
+                  <h3
+                    className="font-sans text-lg font-bold text-stone-900 leading-tight tracking-tight"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                   >
-                    {/* Size / Variant Options */}
-                    {item.variants && item.variants.length > 0 && (
-                      <div>
-                        <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold mb-2" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                          {getVariantHeaderLabel(item)}
-                        </p>
-                        {item.id === 'soft-drink-cans' ? (
-                          <div className="grid grid-cols-2 gap-2">
-                            {item.variants.map((v) => {
-                              const active = selectedVariant?.id === v.id;
-                              const getCanColor = () => {
-                                if (v.id === '10071') return active ? 'border-red-700 bg-red-700 text-white shadow-md font-bold' : 'border-red-200 bg-red-50 text-red-900 hover:border-red-400';
-                                if (v.id === '10082') return active ? 'border-black bg-stone-900 text-white shadow-md font-bold' : 'border-stone-300 bg-stone-100 text-stone-900 hover:border-stone-400';
-                                if (v.id === '10072') return active ? 'border-orange-600 bg-orange-600 text-white shadow-md font-bold' : 'border-orange-200 bg-orange-50 text-orange-950 hover:border-orange-400';
-                                return active ? 'border-emerald-600 bg-emerald-600 text-white shadow-md font-bold' : 'border-emerald-200 bg-emerald-50 text-emerald-950 hover:border-emerald-400';
-                              };
-                              return (
-                                <button
-                                  key={v.id}
-                                  type="button"
-                                  onClick={() => setSelectedVariant(v)}
-                                  className={`px-3 py-2 text-xs rounded-xl border transition-all duration-150 cursor-pointer flex items-center justify-between ${getCanColor()}`}
-                                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                                >
-                                  <span>{getTranslatedName(v)}</span>
-                                  {active && <span className="text-xs">✓</span>}
-                                </button>
-                              );
-                            })}
-                          </div>
-                        ) : item.variants.some(v => v.id.startsWith('format-')) || item.variants.length > 2 ? (
-                          <div className="relative">
-                            <div className="relative flex items-center">
-                              <select
-                                id={`variant-select-${item.id}`}
-                                value={selectedVariant?.id || item.variants[0]?.id}
-                                onChange={(e) => {
-                                  const v = item.variants?.find(opt => opt.id === e.target.value);
-                                  if (v) {
-                                    setSelectedVariant(v);
-                                    setSelectedSecondHalf(null);
-                                  }
-                                }}
-                                className="w-full bg-white border-2 border-stone-200 hover:border-[#8B1E1E]/60 focus:border-[#8B1E1E] text-stone-800 text-xs font-bold rounded-xl px-3.5 py-2.5 appearance-none pr-9 transition-all shadow-2xs focus:outline-none cursor-pointer"
-                                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                              >
-                                {item.variants.map((v) => {
-                                  const mod = v.priceModifier || 0;
-                                  const finalPrice = item.price + mod;
-                                  return (
-                                    <option key={v.id} value={v.id} className="py-1 text-stone-800 font-medium">
-                                      {getTranslatedName(v)} {finalPrice}฿
-                                    </option>
-                                  );
-                                })}
-                              </select>
-                              <div className="absolute right-3 pointer-events-none text-stone-400">
-                                <ChevronDown size={16} className="stroke-[2.5]" />
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2 flex-wrap">
-                            {item.variants.map((v) => {
-                              const active = selectedVariant?.id === v.id;
-                              return (
-                                <button
-                                  key={v.id}
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedVariant(v);
-                                    setSelectedSecondHalf(null);
-                                  }}
-                                  className={`px-3 py-1.5 text-[10px] font-semibold rounded-lg border transition-all duration-150 cursor-pointer ${
-                                    active
-                                      ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] font-bold shadow-sm'
-                                      : 'border-stone-300 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-850'
-                                  }`}
-                                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                                >
-                                  {getTranslatedName(v)}
-                                  {v.priceModifier > 0 && (
-                                    <span className="ml-1 text-stone-400 inline-flex items-baseline gap-0.5">
-                                      <span>+{v.priceModifier}</span>
-                                      <span className="text-[9px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                                    </span>
-                                  )}
-                                  {v.priceModifier < 0 && (
-                                    <span className="ml-1 text-stone-400 inline-flex items-baseline gap-0.5">
-                                      <span>{v.priceModifier}</span>
-                                      <span className="text-[9px] font-black select-none text-stone-400" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                                    </span>
-                                  )}
-                                </button>
-                              );
-                            })}
+                    {formatProductName(getTranslatedName(item))}
+                  </h3>
 
-                            {/* 12" Half & Half Option Button (if eligible) */}
-                            {isEligibleForSplit(item) && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedVariant({
-                                    id: 'variant-half-half',
-                                    name: '12" Half & Half 🌓',
-                                    nameIt: '12" Metà & Metà 🌓',
-                                    nameTh: '12" ฮาล์ฟ & ฮาล์ฟ 🌓',
-                                    nameDe: '12" Halb & Halb 🌓',
-                                    sku: 'SPLIT-12',
-                                    price: item.price,
-                                    priceModifier: 0,
-                                  });
-                                }}
-                                className={`px-3 py-1.5 text-[10px] font-semibold rounded-lg border transition-all duration-150 cursor-pointer flex items-center gap-1 ${
-                                  selectedVariant?.id === 'variant-half-half'
-                                    ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white font-bold shadow-md'
-                                    : 'border-amber-300 bg-amber-50/60 text-amber-900 hover:border-amber-400 hover:bg-amber-100/60'
-                                }`}
-                                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                              >
-                                <span>{t.splitVariantName}</span>
-                              </button>
-                            )}
-                          </div>
+                  {/* Lasagna pre-order badge */}
+                  {isLasagna(item) && (
+                    <div className="mt-2 mb-1 flex flex-col gap-1">
+                      <span
+                        className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-800 text-[10px] font-bold px-2.5 py-1.5 rounded-xl leading-tight"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                      >
+                        {t.lasagnaBadge}
+                      </span>
+                      <span
+                        className="text-stone-400 text-[10px] italic leading-tight"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                      >
+                        {t.lasagnaWhyLabel}
+                      </span>
+                    </div>
+                  )}
+
+                  <p
+                    className="text-stone-500 text-xs font-light leading-relaxed mb-4 flex-grow mt-1.5 line-clamp-3"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                  >
+                    {getTranslatedDesc(item)}
+                  </p>
+                </div>
+
+                {/* PRICING & ACTION BAR */}
+                <div className="mt-auto pt-3 border-t border-stone-100">
+                  {hasOptions ? (
+                    <div className="pb-2 flex items-center gap-2 text-[9px] text-stone-400 font-bold uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#8B1E1E]/60 flex-shrink-0" />
+                      <span>
+                        {item.variants?.length ? `${t.sizeOptions} · ` : ''}
+                        {item.extras?.length ? `${item.extras.length} ${t.extraIngredients}` : ''}
+                      </span>
+                    </div>
+                  ) : null}
+
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="block text-[10px] uppercase tracking-wider text-stone-400 font-bold"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                        >
+                          {hasOptions ? t.startingAt : (lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo')}
+                        </span>
+                        {isDiningMode && (
+                          <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
+                            -5% TAVOLO
+                          </span>
                         )}
                       </div>
-                    )}
-
-                    {/* 100% Halal Chicken Option Pill (Ultra-compact, only on meat/pork pizzas) */}
-                    {hasPorkMeat(item) && selectedVariant?.id !== 'variant-half-half' && (
-                      <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-amber-50/90 border border-amber-300/80 shadow-2xs">
-                        <div className="flex items-center gap-1.5 min-w-0 pr-2">
-                          <span className="text-base flex-shrink-0">🐔</span>
-                          <div className="min-w-0">
-                            <p className="text-[10px] font-extrabold text-amber-950 leading-tight truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                              {t.chickenOptionTitle}
-                            </p>
-                            <p className="text-[8.5px] text-amber-800/80 leading-none truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                              {t.chickenOptionDesc}
-                            </p>
-                          </div>
+                      {isDiningMode ? (
+                        <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
+                          <span 
+                            className="text-xl font-extrabold text-stone-900"
+                            style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                          >
+                            {Math.round(item.price * 0.95)}
+                          </span>
+                          <span className="text-sm font-black text-stone-900 select-none">
+                            ฿
+                          </span>
+                          <span className="text-xs text-stone-400 line-through font-semibold ml-0.5">
+                            {item.price}฿
+                          </span>
                         </div>
+                      ) : (
+                        renderFormattedPrice(item.price, {
+                          numClass: "text-xl font-extrabold text-stone-900",
+                          symbolClass: "text-sm font-black text-stone-900 select-none"
+                        })
+                      )}
+                    </div>
 
+                    <button
+                      type="button"
+                      onClick={handleCardAction}
+                      className="text-xs font-semibold px-4 sm:px-5 py-2.5 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer bg-[#8B1E1E] text-white hover:bg-[#721818] flex items-center gap-1.5"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    >
+                      {hasOptions ? (
+                        <span>{t.customizeText}</span>
+                      ) : (
+                        <>
+                          <Plus size={13} className="stroke-[3]" />
+                          <span>{t.chooseText}</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      {/* DEDICATED CUSTOMIZATION MODAL (Zero layout shift, 100% structured touch interface) */}
+      {customizingItem && (
+        <div
+          className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fadeIn"
+          onClick={handleCloseCustomize}
+        >
+          <div
+            className="relative w-full max-w-2xl max-h-[92vh] sm:max-h-[88vh] bg-white rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* MODAL HEADER WITH IMAGE */}
+            <div className="relative h-44 sm:h-52 bg-stone-100 flex-shrink-0 overflow-hidden">
+              <img
+                src={withCacheBust(customizingItem.image)}
+                alt={getTranslatedName(customizingItem)}
+                className="w-full h-full object-cover select-none"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/30 to-transparent" />
+
+              {/* Dietary watermark */}
+              {getDietaryType(customizingItem) && (
+                <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none">
+                  <DietaryWatermark type={getDietaryType(customizingItem)} />
+                </div>
+              )}
+
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={handleCloseCustomize}
+                className="absolute top-3.5 right-3.5 z-20 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg cursor-pointer transition-all active:scale-95"
+                aria-label="Chiudi"
+              >
+                <X size={18} />
+              </button>
+
+              {/* Title in Header */}
+              <div className="absolute bottom-3.5 left-4 right-4 text-white">
+                <h2
+                  className="text-white font-black text-xl sm:text-2xl leading-tight drop-shadow-md"
+                  style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', letterSpacing: '0.01em' }}
+                >
+                  {formatProductName(getTranslatedName(customizingItem))}
+                </h2>
+              </div>
+            </div>
+
+            {/* SCROLLABLE BODY */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-grow scrollbar-thin scrollbar-thumb-stone-300">
+              {/* Description */}
+              {getTranslatedDesc(customizingItem) && (
+                <p
+                  className="text-stone-600 text-xs sm:text-sm font-normal leading-relaxed"
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                >
+                  {getTranslatedDesc(customizingItem)}
+                </p>
+              )}
+
+              {/* Lasagna Badge in Modal */}
+              {isLasagna(customizingItem) && (
+                <div className="flex flex-col gap-1 bg-amber-50 border border-amber-300 rounded-xl p-3">
+                  <span
+                    className="text-amber-900 text-xs font-bold leading-tight"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                  >
+                    {t.lasagnaBadge}
+                  </span>
+                  <span
+                    className="text-stone-500 text-[11px] italic leading-tight"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                  >
+                    {t.lasagnaWhyLabel}
+                  </span>
+                </div>
+              )}
+
+              {/* Size / Variant Options */}
+              {customizingItem.variants && customizingItem.variants.length > 0 && (
+                <div>
+                  <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold mb-2" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                    {getVariantHeaderLabel(customizingItem)}
+                  </p>
+                  {customizingItem.id === 'soft-drink-cans' ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {customizingItem.variants.map((v) => {
+                        const active = selectedVariant?.id === v.id;
+                        const getCanColor = () => {
+                          if (v.id === '10071') return active ? 'border-red-700 bg-red-700 text-white shadow-md font-bold' : 'border-red-200 bg-red-50 text-red-900 hover:border-red-400';
+                          if (v.id === '10082') return active ? 'border-black bg-stone-900 text-white shadow-md font-bold' : 'border-stone-300 bg-stone-100 text-stone-900 hover:border-stone-400';
+                          if (v.id === '10072') return active ? 'border-orange-600 bg-orange-600 text-white shadow-md font-bold' : 'border-orange-200 bg-orange-50 text-orange-950 hover:border-orange-400';
+                          return active ? 'border-emerald-600 bg-emerald-600 text-white shadow-md font-bold' : 'border-emerald-200 bg-emerald-50 text-emerald-950 hover:border-emerald-400';
+                        };
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() => setSelectedVariant(v)}
+                            className={`px-3 py-2 text-xs rounded-xl border transition-all duration-150 cursor-pointer flex items-center justify-between ${getCanColor()}`}
+                            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                          >
+                            <span>{getTranslatedName(v)}</span>
+                            {active && <span className="text-xs">✓</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : customizingItem.variants.some(v => v.id.startsWith('format-')) || customizingItem.variants.length > 2 ? (
+                    <div className="relative">
+                      <div className="relative flex items-center">
+                        <select
+                          id={`variant-select-${customizingItem.id}`}
+                          value={selectedVariant?.id || customizingItem.variants[0]?.id}
+                          onChange={(e) => {
+                            const v = customizingItem.variants?.find(opt => opt.id === e.target.value);
+                            if (v) {
+                              setSelectedVariant(v);
+                              setSelectedSecondHalf(null);
+                            }
+                          }}
+                          className="w-full bg-white border-2 border-stone-200 hover:border-[#8B1E1E]/60 focus:border-[#8B1E1E] text-stone-800 text-xs font-bold rounded-xl px-3.5 py-2.5 appearance-none pr-9 transition-all shadow-2xs focus:outline-none cursor-pointer"
+                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                        >
+                          {customizingItem.variants.map((v) => {
+                            const mod = v.priceModifier || 0;
+                            const finalPrice = customizingItem.price + mod;
+                            return (
+                              <option key={v.id} value={v.id} className="py-1 text-stone-800 font-medium">
+                                {getTranslatedName(v)} {finalPrice}฿
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <div className="absolute right-3 pointer-events-none text-stone-400">
+                          <ChevronDown size={16} className="stroke-[2.5]" />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2 flex-wrap">
+                      {customizingItem.variants.map((v) => {
+                        const active = selectedVariant?.id === v.id;
+                        return (
+                          <button
+                            key={v.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedVariant(v);
+                              setSelectedSecondHalf(null);
+                            }}
+                            className={`px-3 py-2 text-xs font-semibold rounded-xl border transition-all duration-150 cursor-pointer ${
+                              active
+                                ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 text-[#8B1E1E] font-bold shadow-sm'
+                                : 'border-stone-300 bg-white text-stone-600 hover:border-stone-400 hover:text-stone-850'
+                            }`}
+                            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                          >
+                            {getTranslatedName(v)}
+                            {v.priceModifier > 0 && (
+                              <span className="ml-1 text-stone-400 inline-flex items-baseline gap-0.5">
+                                <span>+{v.priceModifier}</span>
+                                <span className="text-[9px] font-black select-none text-stone-400">฿</span>
+                              </span>
+                            )}
+                            {v.priceModifier < 0 && (
+                              <span className="ml-1 text-stone-400 inline-flex items-baseline gap-0.5">
+                                <span>{v.priceModifier}</span>
+                                <span className="text-[9px] font-black select-none text-stone-400">฿</span>
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+
+                      {/* 12" Half & Half Option Button (if eligible) */}
+                      {isEligibleForSplit(customizingItem) && (
                         <button
                           type="button"
-                          onClick={() => setIsHalalChicken(!isHalalChicken)}
-                          className={`px-2.5 py-1 text-[10px] font-bold rounded-lg border transition-all cursor-pointer flex-shrink-0 flex items-center gap-1 ${
-                            isHalalChicken
-                              ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
-                              : 'bg-white border-stone-300 text-stone-700 hover:border-amber-400 hover:text-amber-900'
+                          onClick={() => {
+                            setSelectedVariant({
+                              id: 'variant-half-half',
+                              name: '12" Half & Half 🌓',
+                              nameIt: '12" Metà & Metà 🌓',
+                              nameTh: '12" ฮาล์ฟ & ฮาล์ฟ 🌓',
+                              nameDe: '12" Halb & Halb 🌓',
+                              sku: 'SPLIT-12',
+                              price: customizingItem.price,
+                              priceModifier: 0,
+                            });
+                          }}
+                          className={`px-3 py-2 text-xs font-semibold rounded-xl border transition-all duration-150 cursor-pointer flex items-center gap-1 ${
+                            selectedVariant?.id === 'variant-half-half'
+                              ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white font-bold shadow-md'
+                              : 'border-amber-300 bg-amber-50/60 text-amber-900 hover:border-amber-400 hover:bg-amber-100/60'
                           }`}
                           style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                         >
-                          {isHalalChicken ? (
-                            <>
-                              <Check size={11} strokeWidth={3} />
-                              <span>{t.chickenOptionSelected}</span>
-                            </>
-                          ) : (
-                            <span>{t.chickenOptionSelect}</span>
-                          )}
+                          <span>{t.splitVariantName}</span>
                         </button>
-                      </div>
-                    )}
-
-                    {/* HALF & HALF 2ND HALF SELECTION PANEL */}
-                    {selectedVariant?.id === 'variant-half-half' ? (
-                      <div className="bg-amber-50/70 border border-amber-300/80 rounded-2xl p-3.5 space-y-3 mb-2 animate-fadeIn">
-                        {/* Header & Notice */}
-                        <div className="flex flex-col gap-1">
-                          <div className="flex justify-between items-center">
-                            <h4 className="text-[11px] font-extrabold uppercase tracking-wide text-amber-950 flex items-center gap-1.5" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                              <span>🌓</span>
-                              <span>{t.splitChooseSecondHalf}</span>
-                            </h4>
-                            <span className="text-[9px] font-bold text-amber-900 bg-amber-200/70 px-2 py-0.5 rounded-full">
-                              50 / 50
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-amber-800/90 leading-tight" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                            {t.splitAverageNotice}
-                          </p>
-                        </div>
-
-                        {/* 1st Half / 2nd Half Status Preview */}
-                        <div className="grid grid-cols-2 gap-2 bg-white/95 p-2.5 rounded-xl border border-amber-200 shadow-xs">
-                          <div className="border-r border-amber-100 pr-2 min-w-0">
-                            <span className="text-[8.5px] uppercase tracking-wider text-stone-400 font-extrabold block">
-                              {t.splitFirstHalfLabel}
-                            </span>
-                            <p className="text-xs font-bold text-stone-900 truncate">
-                              {getTranslatedName(item)}
-                            </p>
-                            <span className="text-[10px] font-extrabold text-[#8B1E1E] whitespace-nowrap inline-block">
-                              {item.price} ฿ (12")
-                            </span>
-                          </div>
-
-                          <div className="pl-1 min-w-0">
-                            <span className="text-[8.5px] uppercase tracking-wider text-stone-400 font-extrabold block">
-                              {t.splitSecondHalfLabel}
-                            </span>
-                            {selectedSecondHalf ? (
-                              <div>
-                                <p className="text-xs font-bold text-emerald-800 truncate flex items-center gap-1">
-                                  <Check size={12} className="text-emerald-600 shrink-0" />
-                                  <span>{getTranslatedName(selectedSecondHalf)}</span>
-                                </p>
-                                <span className="text-[10px] font-extrabold text-[#8B1E1E] whitespace-nowrap inline-block">
-                                  {selectedSecondHalf.price} ฿ (12")
-                                </span>
-                              </div>
-                            ) : (
-                              <p className="text-xs font-bold text-amber-700 italic">
-                                {t.splitSecondHalfRequired}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Search Filter for 2nd half */}
-                        <div className="relative">
-                          <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
-                          <input
-                            type="text"
-                            value={secondHalfSearch}
-                            onChange={(e) => setSecondHalfSearch(e.target.value)}
-                            placeholder={t.splitSearchPlaceholder}
-                            className="w-full bg-white border border-amber-300/80 rounded-xl pl-8 pr-7 py-1.5 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
-                            style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                          />
-                          {secondHalfSearch && (
-                            <button
-                              type="button"
-                              onClick={() => setSecondHalfSearch('')}
-                              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-0.5"
-                            >
-                              <X size={12} />
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Scrollable Grid of 2nd Half Choices */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-amber-300 scrollbar-track-transparent">
-                          {allEligiblePizzas
-                            .filter((pizza) => {
-                              if (!secondHalfSearch.trim()) return true;
-                              const q = secondHalfSearch.toLowerCase();
-                              return (
-                                pizza.name.toLowerCase().includes(q) ||
-                                (pizza.nameIt && pizza.nameIt.toLowerCase().includes(q)) ||
-                                (pizza.nameTh && pizza.nameTh.toLowerCase().includes(q)) ||
-                                (pizza.nameDe && pizza.nameDe.toLowerCase().includes(q))
-                              );
-                            })
-                            .map((pizza) => {
-                              const isSelected = selectedSecondHalf?.id === pizza.id;
-                              const avgSinglePrice = Math.round((item.price + pizza.price) / 2);
-                              return (
-                                <button
-                                  key={pizza.id}
-                                  type="button"
-                                  onClick={() => setSelectedSecondHalf(pizza)}
-                                  className={`flex items-center gap-2 p-2 rounded-xl border text-left transition-all cursor-pointer ${
-                                    isSelected
-                                      ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white shadow-sm ring-1 ring-[#8B1E1E]'
-                                      : 'border-stone-200 bg-white hover:border-amber-400 hover:bg-amber-50/40 text-stone-800'
-                                  }`}
-                                >
-                                  <img
-                                    src={withCacheBust(pizza.image)}
-                                    alt={getTranslatedName(pizza)}
-                                    className="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-stone-200"
-                                  />
-                                  <div className="min-w-0 flex-grow">
-                                    <p className={`text-[11px] font-bold truncate ${isSelected ? 'text-white' : 'text-stone-900'}`}>
-                                      {getTranslatedName(pizza)}
-                                    </p>
-                                    <div className="flex items-center justify-between mt-0.5">
-                                      <span className={`text-[9.5px] ${isSelected ? 'text-amber-200' : 'text-stone-400'}`}>
-                                        12": {pizza.price}฿
-                                      </span>
-                                      <span className={`text-[10px] font-extrabold ${isSelected ? 'text-white' : 'text-[#8B1E1E]'}`}>
-                                        Avg: {avgSinglePrice}฿
-                                      </span>
-                                    </div>
-                                  </div>
-                                </button>
-                              );
-                            })}
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        {/* Spiciness Section (Differenziata dal resto con bordo ed evidenza visiva) */}
-                        {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.idPrefix === 'spicy-') && (
-                          <div className="bg-[#8B1E1E]/5 border border-[#8B1E1E]/10 rounded-2xl p-3.5 space-y-2 mb-4">
-                            <div className="flex justify-between items-center">
-                              <h4 className="text-[10px] font-extrabold uppercase tracking-widest text-[#8B1E1E] flex items-center gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                                <span>🌶️</span>
-                                {lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level'}
-                              </h4>
-                              <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                                {lang === 'TH' ? 'เลือกได้ 1 อย่าง' : lang === 'IT' ? 'scegli 1 opzione' : 'select 1 option'}
-                              </span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-1.5">
-                              {item.extras.filter(e => e.id.startsWith('spicy-')).map((extra) => {
-                                const checked = !!selectedExtras.find((e) => e.id === extra.id);
-                                return (
-                                  <button
-                                    key={extra.id}
-                                    type="button"
-                                    onClick={() => toggleExtra(extra)}
-                                    className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
-                                      checked
-                                        ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white shadow-sm font-bold'
-                                        : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
-                                    }`}
-                                  >
-                                    <span className="text-[11px] font-semibold">{getTranslatedName(extra)}</span>
-                                    {checked && (
-                                      <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 ml-1.5" />
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Customization Options (Sugar, Fruit, Sauces - escludendo Spiciness) */}
-                        {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.type === 'option' && g.idPrefix !== 'spicy-') && (
-                          <div className="space-y-4 mb-4">
-                            {getGroupedExtras(item).filter(g => g.type === 'option' && g.idPrefix !== 'spicy-').map((group, idx) => (
-                              <div key={idx} className="space-y-1.5">
-                                <div className="flex justify-between items-center">
-                                  <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                                    {group.title}
-                                  </p>
-                                  {group.maxSelection && (
-                                    <span className="text-[9px] text-stone-450 font-bold lowercase" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                                      {lang === 'TH' ? `เลือกได้สูงสุด ${group.maxSelection}` : lang === 'IT' ? `scegli max ${group.maxSelection}` : `select max ${group.maxSelection}`}
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                                  {group.items.map((extra) => {
-                                    const checked = !!selectedExtras.find((e) => e.id === extra.id);
-                                    return (
-                                      <button
-                                        key={extra.id}
-                                        type="button"
-                                        onClick={() => toggleExtra(extra)}
-                                        className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
-                                          checked
-                                            ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold'
-                                            : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
-                                        }`}
-                                      >
-                                        <div className="flex items-center gap-1.5">
-                                          <div
-                                            className={`w-3.5 h-3.5 flex items-center justify-center rounded-full transition-all flex-shrink-0 ${
-                                              checked
-                                                ? 'border-[#8B1E1E] bg-[#8B1E1E]'
-                                                : 'border-stone-300 bg-stone-100'
-                                            }`}
-                                            style={{ borderWidth: '1px' }}
-                                          >
-                                            {checked && (
-                                              <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                                            )}
-                                          </div>
-                                          {getFruitEmoji(extra.id) && <span className="text-xs">{getFruitEmoji(extra.id)}</span>}
-                                          <span className="text-stone-850 text-[11px] font-semibold">{getTranslatedName(extra)}</span>
-                                        </div>
-                                        {extra.price > 0 ? (
-                                          <span className="text-[#8B1E1E] text-[11px] font-extrabold inline-flex items-baseline gap-0.5">
-                                            <span>+{extra.price}</span>
-                                            <span className="text-[9px] font-black select-none text-[#8B1E1E]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                                          </span>
-                                        ) : (
-                                          <span className="text-stone-450 text-[10px]">{t.freeText}</span>
-                                        )}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Extra Ingredients Section (2 Columns compact chips) */}
-                        {item.extras && item.extras.length > 0 && getGroupedExtras(item).some(g => g.type === 'extra') && (
-                          <div className="space-y-1.5 mb-3">
-                            {getGroupedExtras(item).filter(g => g.type === 'extra').map((group, idx) => (
-                              <div key={idx} className="space-y-1.5">
-                                <p className="text-[9px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                                  {group.title}
-                                </p>
-                                <div className="grid grid-cols-2 gap-1.5 max-h-40 sm:max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
-                                  {group.items.map((extra) => {
-                                    const checked = !!selectedExtras.find((e) => e.id === extra.id);
-                                    return (
-                                      <button
-                                        key={extra.id}
-                                        type="button"
-                                        onClick={() => toggleExtra(extra)}
-                                        className={`flex items-center justify-between px-2.5 py-1.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
-                                          checked
-                                            ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold shadow-xs'
-                                            : 'border-stone-200 bg-white hover:border-stone-300'
-                                        }`}
-                                      >
-                                        <div className="flex items-center gap-1.5 min-w-0">
-                                          <div
-                                            className={`w-3 h-3 flex items-center justify-center rounded transition-all flex-shrink-0 ${
-                                              checked
-                                                ? 'border-[#8B1E1E] bg-[#8B1E1E]'
-                                                : 'border-stone-300 bg-stone-100'
-                                            }`}
-                                            style={{ borderWidth: '1px' }}
-                                          >
-                                            {checked && (
-                                              <svg width="6" height="5" viewBox="0 0 10 8" fill="none">
-                                                <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                              </svg>
-                                            )}
-                                          </div>
-                                          <span className="text-stone-850 text-[11px] font-semibold truncate">{getTranslatedName(extra)}</span>
-                                        </div>
-                                        {extra.price > 0 ? (
-                                          <span className="text-[#8B1E1E] text-[10.5px] font-extrabold inline-flex items-baseline gap-0.5 ml-1 flex-shrink-0">
-                                            <span>+{extra.price}</span>
-                                            <span className="text-[9px] font-black select-none text-[#8B1E1E]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
-                                          </span>
-                                        ) : (
-                                          <span className="text-stone-400 text-[9.5px] ml-1 flex-shrink-0">{t.freeText}</span>
-                                        )}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {/* Lasagna Date Picker */}
-                    {isLasagna(item) && (
-                      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 space-y-2">
-                        <p className="text-[9px] uppercase tracking-widest text-amber-700 font-extrabold flex items-center gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                          📅 {t.lasagnaDateLabel}
-                        </p>
-                        <input
-                          id={`lasagna-date-${item.id}`}
-                          type="date"
-                          min={getTomorrowDateString()}
-                          value={lasagnaDate}
-                          onChange={(e) => setLasagnaDate(e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-full bg-white border border-amber-300 text-stone-800 text-xs font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer"
-                          style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                        />
-                        {!lasagnaDate && (
-                          <p className="text-amber-600 text-[10px] font-bold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                            {t.lasagnaDateRequired}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Quantity Selector Box */}
-                    <div className="flex items-center gap-2 bg-stone-100 p-1.5 rounded-full border border-stone-200 justify-between">
-                      <span className="text-stone-500 text-[9.5px] font-extrabold uppercase tracking-wider pl-2" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                        {lang === 'TH' ? 'จำนวน' : lang === 'DE' ? 'Menge' : lang === 'EN' ? 'Quantity' : 'Quantità'}:
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setQuantity(Math.max(isLasagna(item) ? 2 : 1, quantity - 1))}
-                          className="w-7 h-7 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-500 hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 active:scale-95 transition-all cursor-pointer"
-                        >
-                          <Minus size={10} />
-                        </button>
-                        <span className="text-stone-850 font-bold text-xs w-4 text-center">{quantity}</span>
-                        <button
-                          type="button"
-                          onClick={() => setQuantity(quantity + 1)}
-                          className="w-7 h-7 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-500 hover:border-[#8B1E1E] hover:text-[#8B1E1E] hover:bg-[#8B1E1E]/5 active:scale-95 transition-all cursor-pointer"
-                        >
-                          <Plus size={10} />
-                        </button>
-                      </div>
-                    </div>
-
-                  </div>
-                )}
-              </div>
-
-              {/* CARD BOTTOM INTERACT & PRICING BAR (Sticky on expanded) */}
-              <div className={`mt-auto pt-3 border-t border-stone-200 transition-all duration-200 ${
-                isExpanded ? 'sticky bottom-0 bg-white/95 backdrop-blur-md -mx-5 sm:-mx-6 px-5 sm:px-6 pb-2 z-10 shadow-lg rounded-b-[2rem]' : ''
-              }`}>
-                {!isExpanded && (item.extras?.length || item.variants?.length) ? (
-                  <div className="pb-2 flex items-center gap-2 text-[9px] text-stone-400 font-bold uppercase tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#8B1E1E]/60 flex-shrink-0" />
-                    <span>
-                      {item.variants?.length ? `${t.sizeOptions} · ` : ''}
-                      {item.extras?.length ? `${item.extras.length} ${t.extraIngredients}` : ''}
-                    </span>
-                  </div>
-                ) : null}
-
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="block text-[10px] uppercase tracking-wider text-stone-400 font-bold"
-                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                      >
-                        {isExpanded ? t.totalFinito : t.startingAt}
-                      </span>
-                      {isDiningMode && (
-                        <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
-                          -5% TAVOLO
-                        </span>
                       )}
                     </div>
-                    {isDiningMode ? (
-                      <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
-                        <span 
-                          className={`text-xl font-extrabold transition-colors duration-300 ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`}
-                          style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-                        >
-                          {Math.round((isExpanded ? currentTotalPrice : item.price) * 0.95)}
-                        </span>
-                        <span className={`text-sm font-black transition-colors duration-300 select-none ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`}>
-                          ฿
-                        </span>
-                        <span className="text-xs text-stone-400 line-through font-semibold ml-0.5">
-                          {isExpanded ? currentTotalPrice : item.price}฿
-                        </span>
-                      </div>
-                    ) : (
-                      renderFormattedPrice(isExpanded ? currentTotalPrice : item.price, {
-                        numClass: `text-xl font-extrabold transition-colors duration-300 ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`,
-                        symbolClass: `text-sm font-black transition-colors duration-300 select-none ${isExpanded ? 'text-[#8B1E1E]' : 'text-stone-900'}`
-                      })
-                    )}
+                  )}
+                </div>
+              )}
+
+              {/* 100% Halal Chicken Option Pill */}
+              {hasPorkMeat(customizingItem) && selectedVariant?.id !== 'variant-half-half' && (
+                <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-amber-50/90 border border-amber-300/80 shadow-2xs">
+                  <div className="flex items-center gap-2 min-w-0 pr-2">
+                    <span className="text-lg flex-shrink-0">🐔</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-extrabold text-amber-950 leading-tight truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                        {t.chickenOptionTitle}
+                      </p>
+                      <p className="text-[10px] text-amber-800/80 leading-none truncate mt-0.5" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                        {t.chickenOptionDesc}
+                      </p>
+                    </div>
                   </div>
 
                   <button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isExpanded) {
-                        handleAdd(item);
-                      } else {
-                        handleExpand(item);
-                      }
-                    }}
-                    disabled={isAddBlocked}
-                    className={`text-xs font-semibold px-5 py-2.5 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 hover:px-6 cursor-pointer border-0 ${
-                      isAddBlocked
-                        ? 'bg-stone-300 text-stone-500 cursor-not-allowed hover:shadow-md hover:px-5'
-                        : 'bg-[#8B1E1E] text-white hover:bg-[#721818]'
+                    onClick={() => setIsHalalChicken(!isHalalChicken)}
+                    className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer flex-shrink-0 flex items-center gap-1 ${
+                      isHalalChicken
+                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-xs'
+                        : 'bg-white border-stone-300 text-stone-700 hover:border-amber-400 hover:text-amber-900'
                     }`}
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                   >
-                    {isExpanded ? t.confirmText : (item.extras?.length || item.variants?.length ? t.customizeText : t.chooseText)}
+                    {isHalalChicken ? (
+                      <>
+                        <Check size={12} strokeWidth={3} />
+                        <span>{t.chickenOptionSelected}</span>
+                      </>
+                    ) : (
+                      <span>{t.chickenOptionSelect}</span>
+                    )}
                   </button>
                 </div>
+              )}
+
+              {/* HALF & HALF 2ND HALF SELECTION PANEL */}
+              {selectedVariant?.id === 'variant-half-half' ? (
+                <div className="bg-amber-50/70 border border-amber-300/80 rounded-2xl p-3.5 space-y-3 mb-2 animate-fadeIn">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-xs font-extrabold uppercase tracking-wide text-amber-950 flex items-center gap-1.5" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                        <span>🌓</span>
+                        <span>{t.splitChooseSecondHalf}</span>
+                      </h4>
+                      <span className="text-[10px] font-bold text-amber-900 bg-amber-200/70 px-2 py-0.5 rounded-full">
+                        50 / 50
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-amber-800/90 leading-tight" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                      {t.splitAverageNotice}
+                    </p>
+                  </div>
+
+                  {/* 1st Half / 2nd Half Status Preview */}
+                  <div className="grid grid-cols-2 gap-2 bg-white/95 p-3 rounded-xl border border-amber-200 shadow-xs">
+                    <div className="border-r border-amber-100 pr-2 min-w-0">
+                      <span className="text-[9px] uppercase tracking-wider text-stone-400 font-extrabold block">
+                        {t.splitFirstHalfLabel}
+                      </span>
+                      <p className="text-xs font-bold text-stone-900 truncate">
+                        {getTranslatedName(customizingItem)}
+                      </p>
+                      <span className="text-xs font-extrabold text-[#8B1E1E] whitespace-nowrap inline-block mt-0.5">
+                        {customizingItem.price} ฿ (12")
+                      </span>
+                    </div>
+
+                    <div className="pl-1 min-w-0">
+                      <span className="text-[9px] uppercase tracking-wider text-stone-400 font-extrabold block">
+                        {t.splitSecondHalfLabel}
+                      </span>
+                      {selectedSecondHalf ? (
+                        <div>
+                          <p className="text-xs font-bold text-emerald-800 truncate flex items-center gap-1">
+                            <Check size={12} className="text-emerald-600 shrink-0" />
+                            <span>{getTranslatedName(selectedSecondHalf)}</span>
+                          </p>
+                          <span className="text-xs font-extrabold text-[#8B1E1E] whitespace-nowrap inline-block mt-0.5">
+                            {selectedSecondHalf.price} ฿ (12")
+                          </span>
+                        </div>
+                      ) : (
+                        <p className="text-xs font-bold text-amber-700 italic mt-0.5">
+                          {t.splitSecondHalfRequired}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Search Filter for 2nd half */}
+                  <div className="relative">
+                    <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+                    <input
+                      type="text"
+                      value={secondHalfSearch}
+                      onChange={(e) => setSecondHalfSearch(e.target.value)}
+                      placeholder={t.splitSearchPlaceholder}
+                      className="w-full bg-white border border-amber-300/80 rounded-xl pl-9 pr-8 py-2 text-xs text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                      style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                    />
+                    {secondHalfSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setSecondHalfSearch('')}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 p-0.5"
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Scrollable Grid of 2nd Half Choices */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-amber-300 scrollbar-track-transparent">
+                    {allEligiblePizzas
+                      .filter((pizza) => {
+                        if (!secondHalfSearch.trim()) return true;
+                        const q = secondHalfSearch.toLowerCase();
+                        return (
+                          pizza.name.toLowerCase().includes(q) ||
+                          (pizza.nameIt && pizza.nameIt.toLowerCase().includes(q)) ||
+                          (pizza.nameTh && pizza.nameTh.toLowerCase().includes(q)) ||
+                          (pizza.nameDe && pizza.nameDe.toLowerCase().includes(q))
+                        );
+                      })
+                      .map((pizza) => {
+                        const isSelected = selectedSecondHalf?.id === pizza.id;
+                        const avgSinglePrice = Math.round((customizingItem.price + pizza.price) / 2);
+                        return (
+                          <button
+                            key={pizza.id}
+                            type="button"
+                            onClick={() => setSelectedSecondHalf(pizza)}
+                            className={`flex items-center gap-2.5 p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                              isSelected
+                                ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white shadow-sm ring-1 ring-[#8B1E1E]'
+                                : 'border-stone-200 bg-white hover:border-amber-400 hover:bg-amber-50/40 text-stone-800'
+                            }`}
+                          >
+                            <img
+                              src={withCacheBust(pizza.image)}
+                              alt={getTranslatedName(pizza)}
+                              className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-stone-200"
+                            />
+                            <div className="min-w-0 flex-grow">
+                              <p className={`text-xs font-bold truncate ${isSelected ? 'text-white' : 'text-stone-900'}`}>
+                                {getTranslatedName(pizza)}
+                              </p>
+                              <div className="flex items-center justify-between mt-0.5">
+                                <span className={`text-[10px] ${isSelected ? 'text-amber-200' : 'text-stone-400'}`}>
+                                  12": {pizza.price}฿
+                                </span>
+                                <span className={`text-[11px] font-extrabold ${isSelected ? 'text-white' : 'text-[#8B1E1E]'}`}>
+                                  Avg: {avgSinglePrice}฿
+                                </span>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Spiciness Section */}
+                  {customizingItem.extras && customizingItem.extras.length > 0 && getGroupedExtras(customizingItem).some(g => g.idPrefix === 'spicy-') && (
+                    <div className="bg-[#8B1E1E]/5 border border-[#8B1E1E]/10 rounded-2xl p-3.5 space-y-2 mb-3">
+                      <div className="flex justify-between items-center">
+                        <h4 className="text-[11px] font-extrabold uppercase tracking-widest text-[#8B1E1E] flex items-center gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                          <span>🌶️</span>
+                          {lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level'}
+                        </h4>
+                        <span className="text-[10px] text-stone-500 font-bold lowercase">
+                          {lang === 'TH' ? 'เลือกได้ 1 อย่าง' : lang === 'IT' ? 'scegli 1 opzione' : 'select 1 option'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {customizingItem.extras.filter(e => e.id.startsWith('spicy-')).map((extra) => {
+                          const checked = !!selectedExtras.find((e) => e.id === extra.id);
+                          return (
+                            <button
+                              key={extra.id}
+                              type="button"
+                              onClick={() => toggleExtra(extra)}
+                              className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                checked
+                                  ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white shadow-sm font-bold'
+                                  : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                              }`}
+                            >
+                              <span className="text-xs font-semibold">{getTranslatedName(extra)}</span>
+                              {checked && (
+                                <div className="w-2 h-2 bg-white rounded-full flex-shrink-0 ml-1.5" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Customization Options (Sugar, Fruit, Sauces) */}
+                  {customizingItem.extras && customizingItem.extras.length > 0 && getGroupedExtras(customizingItem).some(g => g.type === 'option' && g.idPrefix !== 'spicy-') && (
+                    <div className="space-y-4 mb-3">
+                      {getGroupedExtras(customizingItem).filter(g => g.type === 'option' && g.idPrefix !== 'spicy-').map((group, idx) => (
+                        <div key={idx} className="space-y-1.5">
+                          <div className="flex justify-between items-center">
+                            <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                              {group.title}
+                            </p>
+                            {group.maxSelection && (
+                              <span className="text-[10px] text-stone-500 font-bold lowercase">
+                                {lang === 'TH' ? `เลือกได้สูงสุด ${group.maxSelection}` : lang === 'IT' ? `scegli max ${group.maxSelection}` : `select max ${group.maxSelection}`}
+                              </span>
+                            )}
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {group.items.map((extra) => {
+                              const checked = !!selectedExtras.find((e) => e.id === extra.id);
+                              return (
+                                <button
+                                  key={extra.id}
+                                  type="button"
+                                  onClick={() => toggleExtra(extra)}
+                                  className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                    checked
+                                      ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold'
+                                      : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      className={`w-3.5 h-3.5 flex items-center justify-center rounded-full transition-all flex-shrink-0 ${
+                                        checked
+                                          ? 'border-[#8B1E1E] bg-[#8B1E1E]'
+                                          : 'border-stone-300 bg-stone-100'
+                                      }`}
+                                      style={{ borderWidth: '1px' }}
+                                    >
+                                      {checked && (
+                                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                                      )}
+                                    </div>
+                                    {getFruitEmoji(extra.id) && <span className="text-xs">{getFruitEmoji(extra.id)}</span>}
+                                    <span className="text-stone-850 text-xs font-semibold">{getTranslatedName(extra)}</span>
+                                  </div>
+                                  {extra.price > 0 ? (
+                                    <span className="text-[#8B1E1E] text-xs font-extrabold inline-flex items-baseline gap-0.5">
+                                      <span>+{extra.price}</span>
+                                      <span className="text-[10px] font-black select-none text-[#8B1E1E]">฿</span>
+                                    </span>
+                                  ) : (
+                                    <span className="text-stone-400 text-xs">{t.freeText}</span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Extra Ingredients Section (2 Columns compact chips) */}
+                  {customizingItem.extras && customizingItem.extras.length > 0 && getGroupedExtras(customizingItem).some(g => g.type === 'extra') && (
+                    <div className="space-y-2 mb-3">
+                      {getGroupedExtras(customizingItem).filter(g => g.type === 'extra').map((group, idx) => (
+                        <div key={idx} className="space-y-1.5">
+                          <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                            {group.title}
+                          </p>
+                          <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
+                            {group.items.map((extra) => {
+                              const checked = !!selectedExtras.find((e) => e.id === extra.id);
+                              return (
+                                <button
+                                  key={extra.id}
+                                  type="button"
+                                  onClick={() => toggleExtra(extra)}
+                                  className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                    checked
+                                      ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold shadow-xs'
+                                      : 'border-stone-200 bg-white hover:border-stone-300'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <div
+                                      className={`w-3.5 h-3.5 flex items-center justify-center rounded transition-all flex-shrink-0 ${
+                                        checked
+                                          ? 'border-[#8B1E1E] bg-[#8B1E1E]'
+                                          : 'border-stone-300 bg-stone-100'
+                                      }`}
+                                      style={{ borderWidth: '1px' }}
+                                    >
+                                      {checked && (
+                                        <svg width="7" height="6" viewBox="0 0 10 8" fill="none">
+                                          <path d="M1 4l2.5 2.5L9 1" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                      )}
+                                    </div>
+                                    <span className="text-stone-850 text-xs font-semibold truncate">{getTranslatedName(extra)}</span>
+                                  </div>
+                                  {extra.price > 0 ? (
+                                    <span className="text-[#8B1E1E] text-xs font-extrabold inline-flex items-baseline gap-0.5 ml-1 flex-shrink-0">
+                                      <span>+{extra.price}</span>
+                                      <span className="text-[10px] font-black select-none text-[#8B1E1E]">฿</span>
+                                    </span>
+                                  ) : (
+                                    <span className="text-stone-400 text-[10px] ml-1 flex-shrink-0">{t.freeText}</span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Lasagna Date Picker */}
+              {isLasagna(customizingItem) && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3.5 space-y-2">
+                  <p className="text-[10px] uppercase tracking-widest text-amber-800 font-extrabold flex items-center gap-1" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                    📅 {t.lasagnaDateLabel}
+                  </p>
+                  <input
+                    id={`lasagna-date-${customizingItem.id}`}
+                    type="date"
+                    min={getTomorrowDateString()}
+                    value={lasagnaDate}
+                    onChange={(e) => setLasagnaDate(e.target.value)}
+                    className="w-full bg-white border border-amber-300 text-stone-800 text-xs font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400 cursor-pointer"
+                    style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                  />
+                  {!lasagnaDate && (
+                    <p className="text-amber-700 text-xs font-bold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                      {t.lasagnaDateRequired}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* STICKY FOOTER */}
+            <div className="p-4 sm:px-6 bg-white/95 backdrop-blur-md border-t border-stone-200 flex items-center justify-between gap-3 shrink-0 shadow-lg">
+              {/* Quantity Controls */}
+              <div className="flex items-center gap-1.5 bg-stone-100 p-1.5 rounded-full border border-stone-200">
+                <button
+                  type="button"
+                  onClick={() => setQuantity(Math.max(isLasagna(customizingItem) ? 2 : 1, quantity - 1))}
+                  className="w-8 h-8 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-700 hover:border-[#8B1E1E] hover:text-[#8B1E1E] active:scale-95 transition-all cursor-pointer"
+                >
+                  <Minus size={12} />
+                </button>
+                <span className="text-stone-900 font-black text-sm w-6 text-center">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-8 h-8 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-700 hover:border-[#8B1E1E] hover:text-[#8B1E1E] active:scale-95 transition-all cursor-pointer"
+                >
+                  <Plus size={12} />
+                </button>
+              </div>
+
+              {/* Price & CTA */}
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <span className="text-[9px] uppercase tracking-wider text-stone-400 font-bold">
+                      {t.totalFinito}
+                    </span>
+                    {isDiningMode && (
+                      <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded">
+                        -5%
+                      </span>
+                    )}
+                  </div>
+                  {isDiningMode ? (
+                    <div className="flex items-baseline justify-end gap-1 leading-none mt-0.5">
+                      <span className="text-xl sm:text-2xl font-black text-[#8B1E1E]" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {Math.round(modalTotalPrice * 0.95)}฿
+                      </span>
+                      <span className="text-xs text-stone-400 line-through font-semibold">
+                        {modalTotalPrice}฿
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-baseline justify-end leading-none mt-0.5">
+                      <span className="text-xl sm:text-2xl font-black text-[#8B1E1E]" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {modalTotalPrice}฿
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleAdd(customizingItem)}
+                  disabled={isAddBlocked}
+                  className={`px-5 sm:px-7 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg flex items-center gap-2 transition-all cursor-pointer active:scale-95 ${
+                    isAddBlocked
+                      ? 'bg-stone-300 text-stone-500 cursor-not-allowed shadow-none'
+                      : 'bg-gradient-to-r from-[#8B1E1E] to-[#6e1414] hover:from-[#7a1a1a] hover:to-[#5c1010] text-white'
+                  }`}
+                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                >
+                  <ShoppingCart size={16} />
+                  <span>{t.confirmText}</span>
+                </button>
               </div>
             </div>
-          </article>
-        );
-      })}
-    </div>
+          </div>
+        </div>
+      )}
 
       {/* Lightbox Zoom Preview Modal with Dish Name & Ingredients */}
       {zoomedItem && (
@@ -1585,7 +1651,6 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
           className="fixed inset-0 z-[100] bg-stone-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 cursor-zoom-out animate-fadeIn"
           onClick={() => setZoomedItem(null)}
         >
-          {/* Floating Screen Corner Close Button */}
           <button
             type="button"
             onClick={() => setZoomedItem(null)}
@@ -1595,12 +1660,10 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
             <X size={22} />
           </button>
 
-          {/* Modal Container */}
           <div 
             className="relative max-w-2xl w-full max-h-[90vh] flex flex-col rounded-[2rem] shadow-2xl border border-stone-800/80 bg-stone-900 overflow-hidden cursor-default animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Card Corner Close Button (Always visible on modal) */}
             <button
               type="button"
               onClick={() => setZoomedItem(null)}
@@ -1610,9 +1673,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
               <X size={18} />
             </button>
 
-            {/* Dish Image Box */}
             <div className="relative w-full max-h-[58vh] sm:max-h-[64vh] bg-stone-950 flex items-center justify-center overflow-hidden">
-              {/* Minimal Vertical Dietary Watermark in Zoom Modal */}
               {getDietaryType(zoomedItem) && (
                 <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none">
                   <DietaryWatermark type={getDietaryType(zoomedItem)} />
@@ -1625,7 +1686,6 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
               />
             </div>
 
-            {/* Bottom Dish Name & Ingredients Card */}
             <div className="p-4 sm:p-5 bg-gradient-to-b from-stone-900 to-stone-950 border-t border-stone-800 flex flex-col gap-1.5">
               <div className="flex items-start justify-between gap-3">
                 <h2 
@@ -1660,14 +1720,12 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                 </div>
               </div>
 
-              {/* Ingredients / Description */}
               {getTranslatedDesc(zoomedItem) && (
                 <p className="text-stone-300 text-xs sm:text-sm font-normal leading-relaxed">
                   {getTranslatedDesc(zoomedItem)}
                 </p>
               )}
 
-              {/* Wine Action in Zoom Modal: Book Table (Delivery) OR Add to Cart (Dining Tablet) */}
               {(zoomedItem.category === 'wines' || (zoomedItem as any).bottleScale !== undefined) && (
                 <div className="mt-3 pt-3 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-3">
                   {onBookTable ? (
