@@ -37,6 +37,7 @@ import { getDietaryType, type DietaryType } from '../utils/dietary';
 import { DiningCheckoutModal } from '../components/DiningCheckoutModal';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
+import { supabase } from '../../lib/supabase';
 import { DINING_TABLES, formatTableStationName } from '../utils/tableUtils';
 
 const I18N_TABLE_PICKER: Record<Language, {
