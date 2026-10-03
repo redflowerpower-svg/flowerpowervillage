@@ -1888,6 +1888,9 @@ export default function DiningTabletSite() {
         onClose={() => setIsCheckoutModalOpen(false)}
         onSuccess={() => {
           setIsCheckoutModalOpen(false);
+          setIsTableSelected(false);
+          setCurrentTable('');
+          clearCart();
           fetchActiveDineInOrders();
         }}
         initialTable={currentTable}
