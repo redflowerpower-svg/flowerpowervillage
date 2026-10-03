@@ -686,7 +686,6 @@ function CustomFilterDropdown({
 
 export default function DiningTabletSite() {
   const { language: lang, setLanguage } = useLanguageStore();
-  const [isLangOpen, setIsLangOpen] = useState(false);
   
   // Table Session State: Must select table before accessing menu
   const [currentTable, setCurrentTable] = useState<string>('');
@@ -1189,40 +1188,33 @@ export default function DiningTabletSite() {
           </span>
         </button>
 
-        {/* Right: Language Selector */}
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setIsLangOpen(!isLangOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-900 border border-stone-700 hover:border-amber-400/50 text-xs font-bold text-stone-200 transition-all cursor-pointer"
-            >
-              <Globe className="w-3.5 h-3.5 text-amber-400" />
-              <span>{LANGUAGE_METAS[lang].flag}</span>
-              <span className="text-[10px] hidden sm:inline uppercase">{lang}</span>
-            </button>
+        {/* Right: Language Selector (Exclusively English & Thai) */}
+        <div className="flex items-center gap-1.5 p-1 bg-stone-900/90 rounded-xl border border-stone-800">
+          <button
+            type="button"
+            onClick={() => setLanguage('EN')}
+            className={`py-1 px-2.5 rounded-lg text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer ${
+              lang === 'EN'
+                ? 'bg-amber-400 text-stone-950 shadow scale-[1.03]'
+                : 'text-stone-400 hover:text-white'
+            }`}
+          >
+            <span>🇬🇧</span>
+            <span className="uppercase text-[11px] font-mono">EN</span>
+          </button>
 
-            {isLangOpen && (
-              <div className="absolute right-0 top-full mt-2 w-36 bg-stone-900 border border-stone-700 rounded-2xl shadow-2xl p-1.5 z-50 animate-fadeIn">
-                {SUPPORTED_LANGUAGES.map(l => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => { setLanguage(l); setIsLangOpen(false); }}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-between cursor-pointer transition-all ${
-                      lang === l ? 'bg-amber-400 text-stone-950 font-black' : 'text-stone-300 hover:bg-stone-800'
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span>{LANGUAGE_METAS[l].flag}</span>
-                      <span>{LANGUAGE_METAS[l].label}</span>
-                    </span>
-                    {lang === l && <Check className="w-3.5 h-3.5" />}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={() => setLanguage('TH')}
+            className={`py-1 px-2.5 rounded-lg text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer ${
+              lang === 'TH'
+                ? 'bg-amber-400 text-stone-950 shadow scale-[1.03]'
+                : 'text-stone-400 hover:text-white'
+            }`}
+          >
+            <span>🇹🇭</span>
+            <span className="uppercase text-[11px] font-mono">TH</span>
+          </button>
         </div>
       </nav>
 
@@ -1231,29 +1223,39 @@ export default function DiningTabletSite() {
         <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
           <div className="bg-stone-900 border-2 border-amber-400/50 rounded-3xl w-full max-w-2xl p-5 sm:p-7 text-white space-y-5 shadow-2xl max-h-[95vh] overflow-y-auto">
             
-            {/* Top Language Bar for Staff and Customers (EN / TH / IT / DE) */}
+            {/* Top Language Bar for Staff and Customers (Exclusively English & Thai) */}
             <div className="flex items-center justify-between pb-3 border-b border-stone-800">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-amber-400" />
-                <span className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">Lingua / Language / ภาษา</span>
+                <span className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">Language / ภาษา</span>
               </div>
 
-              <div className="flex items-center gap-1 sm:gap-1.5 p-1 bg-stone-950 rounded-xl border border-stone-800">
-                {SUPPORTED_LANGUAGES.map(l => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setLanguage(l)}
-                    className={`py-1 px-2.5 rounded-lg text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer ${
-                      lang === l
-                        ? 'bg-amber-400 text-stone-950 shadow scale-[1.03]'
-                        : 'text-stone-400 hover:text-white hover:bg-stone-850'
-                    }`}
-                  >
-                    <span>{LANGUAGE_METAS[l].flag}</span>
-                    <span className="uppercase text-[11px] font-mono">{l}</span>
-                  </button>
-                ))}
+              <div className="flex items-center gap-1.5 sm:gap-2 p-1 bg-stone-950 rounded-xl border border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setLanguage('EN')}
+                  className={`py-1.5 px-3.5 rounded-lg text-xs font-black flex items-center gap-2 transition-all cursor-pointer ${
+                    lang === 'EN'
+                      ? 'bg-amber-400 text-stone-950 shadow-md scale-[1.03]'
+                      : 'text-stone-400 hover:text-white hover:bg-stone-850'
+                  }`}
+                >
+                  <span className="text-base">🇬🇧</span>
+                  <span className="uppercase text-xs font-black tracking-wider">English</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setLanguage('TH')}
+                  className={`py-1.5 px-3.5 rounded-lg text-xs font-black flex items-center gap-2 transition-all cursor-pointer ${
+                    lang === 'TH'
+                      ? 'bg-amber-400 text-stone-950 shadow-md scale-[1.03]'
+                      : 'text-stone-400 hover:text-white hover:bg-stone-850'
+                  }`}
+                >
+                  <span className="text-base">🇹🇭</span>
+                  <span className="text-xs font-black tracking-wider">ภาษาไทย</span>
+                </button>
               </div>
             </div>
 
