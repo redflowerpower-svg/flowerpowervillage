@@ -52,11 +52,78 @@ const DINING_TABLES = [
   'Tavolo 10',
   'Tavolo 11',
   'Tavolo 12',
-  'Terrazza 1',
-  'Terrazza 2',
-  'Bancone',
-  'Capanna 1',
+  'Cliente 1',
+  'Cliente 2',
+  'Cliente 3',
+  'Cliente 4',
 ];
+
+const I18N_TABLE_PICKER: Record<Language, {
+  title: string;
+  subtitle: string;
+  desc: string;
+  tablesHeading: string;
+  freeLabel: string;
+  activeLabel: string;
+  freeCard: string;
+  activeCardPrefix: string;
+  customLabel: string;
+  customPlaceholder: string;
+  enterBtn: string;
+}> = {
+  IT: {
+    title: 'Flower Power Pizza Dining',
+    subtitle: 'Seleziona il tuo Tavolo o Cliente',
+    desc: 'Tocca la tua postazione per accedere al menu completo con lo sconto del 5% al tavolo applicato a tutte le portate.',
+    tablesHeading: 'Tavoli della Sala & Clienti',
+    freeLabel: 'Libero',
+    activeLabel: 'Ordine in corso',
+    freeCard: 'Nuovo Ordine',
+    activeCardPrefix: 'Conto Aperto:',
+    customLabel: 'Oppure Inserimento Postazione Libera',
+    customPlaceholder: 'es. Terrazza 3 / Giardino / Bancone',
+    enterBtn: 'Entra nel Menu'
+  },
+  EN: {
+    title: 'Flower Power Pizza Dining',
+    subtitle: 'Select Table or Guest Station',
+    desc: 'Touch your table or station to access the full menu with 5% table discount applied to all dishes.',
+    tablesHeading: 'Dining Tables & Guest Stations',
+    freeLabel: 'Available',
+    activeLabel: 'Active Order',
+    freeCard: 'New Order',
+    activeCardPrefix: 'Open Tab:',
+    customLabel: 'Or Enter Custom Table / Station',
+    customPlaceholder: 'e.g. Terrace 3 / Garden / Counter',
+    enterBtn: 'Access Menu'
+  },
+  TH: {
+    title: 'Flower Power Pizza Dining',
+    subtitle: 'เลือกโต๊ะอาหารหรือหมายเลขลูกค้าเพื่อเริ่มต้น',
+    desc: 'แตะที่โต๊ะของคุณเพื่อเปิดดูเมนูอาหารพร้อมรับส่วนลด 5% ทุกรายการทันที',
+    tablesHeading: 'โต๊ะอาหารและที่นั่งลูกค้า',
+    freeLabel: 'ว่าง / เริ่มใหม่',
+    activeLabel: 'มีออเดอร์ค้างอยู่',
+    freeCard: 'ออเดอร์ใหม่',
+    activeCardPrefix: 'ยอดค้างชำระ:',
+    customLabel: 'หรือระบุชื่อโต๊ะ / ที่นั่งเอง',
+    customPlaceholder: 'เช่น ริมระเบียง 3 / โซนสวน / เคาน์เตอร์',
+    enterBtn: 'เข้าสู่เมนู'
+  },
+  DE: {
+    title: 'Flower Power Pizza Dining',
+    subtitle: 'Wählen Sie Ihren Tisch oder Kunden',
+    desc: 'Tippen Sie auf Ihren Tisch, um das Menü mit 5% Tisch-Rabatt auf alle Gerichte zu öffnen.',
+    tablesHeading: 'Tische & Gäste-Stationen',
+    freeLabel: 'Frei',
+    activeLabel: 'Aktive Bestellung',
+    freeCard: 'Neue Bestellung',
+    activeCardPrefix: 'Offener Tisch:',
+    customLabel: 'Oder Freie Tischnummer Eingeben',
+    customPlaceholder: 'z.B. Terrasse 3 / Garten / Bar',
+    enterBtn: 'Speisekarte öffnen'
+  }
+};
 
 const LOCATION_BY_LANG: Record<Language, string> = {
   IT: 'RANONG, THAILANDIA',
@@ -1162,29 +1229,57 @@ export default function DiningTabletSite() {
       {/* MANDATORY TABLE SELECTION OVERLAY (When session not yet picked or changed) */}
       {!isTableSelected && (
         <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
-          <div className="bg-stone-900 border-2 border-amber-400/50 rounded-3xl w-full max-w-2xl p-5 sm:p-7 text-white space-y-6 shadow-2xl max-h-[95vh] overflow-y-auto">
+          <div className="bg-stone-900 border-2 border-amber-400/50 rounded-3xl w-full max-w-2xl p-5 sm:p-7 text-white space-y-5 shadow-2xl max-h-[95vh] overflow-y-auto">
+            
+            {/* Top Language Bar for Staff and Customers (EN / TH / IT / DE) */}
+            <div className="flex items-center justify-between pb-3 border-b border-stone-800">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-amber-400" />
+                <span className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">Lingua / Language / ภาษา</span>
+              </div>
+
+              <div className="flex items-center gap-1 sm:gap-1.5 p-1 bg-stone-950 rounded-xl border border-stone-800">
+                {SUPPORTED_LANGUAGES.map(l => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => setLanguage(l)}
+                    className={`py-1 px-2.5 rounded-lg text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer ${
+                      lang === l
+                        ? 'bg-amber-400 text-stone-950 shadow scale-[1.03]'
+                        : 'text-stone-400 hover:text-white hover:bg-stone-850'
+                    }`}
+                  >
+                    <span>{LANGUAGE_METAS[l].flag}</span>
+                    <span className="uppercase text-[11px] font-mono">{l}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Header */}
             <div className="text-center space-y-2">
               <div className="w-14 h-14 bg-gradient-to-br from-[#8B1E1E] to-[#5a1111] border-2 border-amber-400/50 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
                 <UtensilsCrossed className="w-7 h-7 text-amber-300" />
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                Flower Power Pizza Dining
+                {I18N_TABLE_PICKER[lang]?.title || I18N_TABLE_PICKER.IT.title}
               </h2>
               <p className="text-xs sm:text-sm font-bold text-amber-300 uppercase tracking-widest">
-                Seleziona il tuo Tavolo per Iniziare
+                {I18N_TABLE_PICKER[lang]?.subtitle || I18N_TABLE_PICKER.IT.subtitle}
               </p>
               <p className="text-stone-400 text-xs max-w-md mx-auto leading-relaxed">
-                Tocca la tua postazione per accedere al menu completo con lo <strong>sconto del 5% al tavolo</strong> applicato a tutte le portate.
+                {I18N_TABLE_PICKER[lang]?.desc || I18N_TABLE_PICKER.IT.desc}
               </p>
             </div>
 
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between text-xs font-bold text-stone-300 uppercase tracking-wider mb-2.5">
-                  <span>Tavoli della Sala & Postazioni</span>
+                  <span>{I18N_TABLE_PICKER[lang]?.tablesHeading || I18N_TABLE_PICKER.IT.tablesHeading}</span>
                   <span className="text-[11px] text-stone-400 font-normal flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> Libero</span>
-                    <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> Ordine in corso</span>
+                    <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.freeLabel || I18N_TABLE_PICKER.IT.freeLabel}</span>
+                    <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.activeLabel || I18N_TABLE_PICKER.IT.activeLabel}</span>
                   </span>
                 </div>
                 
@@ -1209,11 +1304,11 @@ export default function DiningTabletSite() {
                         
                         {activeInfo ? (
                           <div className="text-[10px] text-amber-300 font-bold bg-amber-950/90 px-2 py-0.5 rounded border border-amber-500/40 truncate">
-                            Conto Aperto: {activeInfo.total} ฿
+                            {(I18N_TABLE_PICKER[lang]?.activeCardPrefix || I18N_TABLE_PICKER.IT.activeCardPrefix)} {activeInfo.total} ฿
                           </div>
                         ) : (
                           <div className="text-[10px] text-emerald-400/90 font-semibold truncate">
-                            Libero / Nuovo Ordine
+                            {I18N_TABLE_PICKER[lang]?.freeCard || I18N_TABLE_PICKER.IT.freeCard}
                           </div>
                         )}
                       </button>
@@ -1224,7 +1319,7 @@ export default function DiningTabletSite() {
 
               <div className="space-y-1.5 pt-3 border-t border-stone-800">
                 <label className="text-xs font-bold text-stone-300 uppercase tracking-wider block">
-                  Oppure Inserimento Postazione Libera
+                  {I18N_TABLE_PICKER[lang]?.customLabel || I18N_TABLE_PICKER.IT.customLabel}
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -1236,7 +1331,7 @@ export default function DiningTabletSite() {
                         handleSelectTable(customTableInput.trim());
                       }
                     }}
-                    placeholder="es. Terrazza 3 / Giardino / Letto Spiaggia"
+                    placeholder={I18N_TABLE_PICKER[lang]?.customPlaceholder || I18N_TABLE_PICKER.IT.customPlaceholder}
                     className="flex-1 bg-stone-950 border border-stone-700 text-white rounded-xl px-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-amber-400"
                   />
                   <button
@@ -1248,7 +1343,7 @@ export default function DiningTabletSite() {
                     }}
                     className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs uppercase tracking-wider cursor-pointer transition-all active:scale-95"
                   >
-                    Entra
+                    {I18N_TABLE_PICKER[lang]?.enterBtn || I18N_TABLE_PICKER.IT.enterBtn}
                   </button>
                 </div>
               </div>
