@@ -38,7 +38,7 @@ import { DiningCheckoutModal } from '../components/DiningCheckoutModal';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { supabase } from '../../lib/supabase';
-import { DINING_TABLES, formatTableStationName } from '../utils/tableUtils';
+import { DINING_TABLES, formatTableStationName, getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
 
 const I18N_TABLE_PICKER: Record<Language, {
   title: string;
@@ -685,6 +685,68 @@ export default function DiningTabletSite() {
     } catch {}
   }, []);
 
+  // Active Orders per Table for Table Selection Status
+  const [activeTableOrderMap, setActiveTableOrderMap] = useState<Record<string, any[]>>({});
+
+  const fetchActiveDineInOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('pizza_orders')
+        .select('*')
+        .not('status', 'in', '("completed","cancelled","rejected","settled")')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching active dining orders:', error);
+        return;
+      }
+
+      const map: Record<string, any[]> = {};
+      (data || []).forEach((order: any) => {
+        const rawTable = extractTableFromAddress(order.address) || order.table_number || '';
+        if (rawTable) {
+          const canonical = getCanonicalTableKey(rawTable);
+          if (!map[canonical]) map[canonical] = [];
+          map[canonical].push(order);
+        }
+      });
+      setActiveTableOrderMap(map);
+    } catch (err) {
+      console.error('fetchActiveDineInOrders exception:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveDineInOrders();
+
+    const sub = supabase
+      .channel('dining_orders_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pizza_orders' }, () => {
+        fetchActiveDineInOrders();
+      })
+      .subscribe();
+
+    let bc1: BroadcastChannel | null = null;
+    let bc2: BroadcastChannel | null = null;
+    try {
+      bc1 = new BroadcastChannel('pizza_orders_channel');
+      bc1.onmessage = () => { fetchActiveDineInOrders(); };
+    } catch {}
+    try {
+      bc2 = new BroadcastChannel('flower_power_orders_channel');
+      bc2.onmessage = () => { fetchActiveDineInOrders(); };
+    } catch {}
+
+    const interval = setInterval(fetchActiveDineInOrders, 10000);
+
+    return () => {
+      supabase.removeChannel(sub);
+      if (bc1) bc1.close();
+      if (bc2) bc2.close();
+      clearInterval(interval);
+    };
+  }, []);
+
   const handleSelectTable = (tableName: string) => {
     const trimmed = tableName.trim();
     if (!trimmed) return;
@@ -1201,6 +1263,11 @@ export default function DiningTabletSite() {
                   {DINING_TABLES.map(t => {
                     const displayName = formatTableStationName(t, lang);
                     const isSelected = currentTable === t;
+                    const canonical = getCanonicalTableKey(t);
+                    const orders = activeTableOrderMap[canonical] || [];
+                    const isOccupied = orders.length > 0;
+                    const openTotal = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+
                     return (
                       <button
                         key={t}
@@ -1209,15 +1276,27 @@ export default function DiningTabletSite() {
                         className={`p-4 rounded-2xl text-left transition-all cursor-pointer border flex flex-col justify-between gap-2.5 relative overflow-hidden ${
                           isSelected
                             ? 'bg-gradient-to-br from-amber-950/90 to-stone-900 border-amber-400 text-white shadow-xl scale-[1.02] ring-1 ring-amber-400/50'
-                            : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850 hover:scale-[1.02]'
+                            : isOccupied
+                              ? 'bg-amber-950/30 border-amber-500/60 text-stone-200 hover:border-amber-400 hover:bg-amber-950/50 hover:scale-[1.02]'
+                              : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850 hover:scale-[1.02]'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-black uppercase tracking-tight text-white">{displayName}</span>
-                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isSelected ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
+                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                            isOccupied
+                              ? 'bg-amber-400 animate-pulse'
+                              : isSelected
+                                ? 'bg-amber-400'
+                                : 'bg-emerald-500'
+                          }`} />
                         </div>
-                        <div className="text-[11px] text-emerald-400/90 font-bold uppercase tracking-wider truncate">
-                          {I18N_TABLE_PICKER[lang]?.freeCard || I18N_TABLE_PICKER.IT.freeCard}
+                        <div className={`text-[11px] font-bold uppercase tracking-wider truncate ${
+                          isOccupied ? 'text-amber-400 font-extrabold' : 'text-emerald-400/90'
+                        }`}>
+                          {isOccupied 
+                            ? `${I18N_TABLE_PICKER[lang]?.activeCardPrefix || I18N_TABLE_PICKER.IT.activeCardPrefix} ฿${Math.round(openTotal)}`
+                            : (I18N_TABLE_PICKER[lang]?.freeCard || I18N_TABLE_PICKER.IT.freeCard)}
                         </div>
                       </button>
                     );
@@ -1757,6 +1836,7 @@ export default function DiningTabletSite() {
           setIsCheckoutModalOpen(false);
           setIsTableSelected(false);
           setCurrentTable('');
+          fetchActiveDineInOrders();
         }}
         initialTable={currentTable}
         lang={lang}
