@@ -1336,12 +1336,12 @@ export default function DeliveryMenu() {
                (id.startsWith('pizza-') && !id.includes('sandwich') && !id.includes('focaccia'));
       }
       if (sec.id === 'daily-specials') {
-        return id === 'cotoletta-alla-milanese-con-patatine-fritte' || 
-               id === 'cotechino-artigianale-con-pure-di-patate' ||
-               id === 'torta-pasqualina-agli-spinaci-e-uova' ||
-               id.includes('milanese') || 
-               id.includes('cotechino') ||
-               id.includes('torta');
+        return (id === 'cotoletta-alla-milanese-con-patatine-fritte' || 
+                id === 'cotechino-artigianale-con-pure-di-patate' ||
+                id === 'torta-pasqualina-agli-spinaci-e-uova' ||
+                id.includes('cotoletta') ||
+                id.includes('cotechino') ||
+                id.includes('pasqualina')) && !id.startsWith('focaccia-') && !id.includes('sandwich');
       }
       if (sec.id === 'pizza-sandwich') {
         return id.startsWith('focaccia-') || id.includes('sandwich');
