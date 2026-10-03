@@ -1197,51 +1197,51 @@ export default function DiningTabletSite() {
                 <div className="absolute inset-0 bg-stone-950/60 backdrop-blur-[0.5px]" />
               </div>
               
-              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-3.5 md:gap-6">
+              <div className="relative z-10 flex flex-row items-center justify-between gap-3 sm:gap-6">
                 {/* Left Side: Brand Logo & Title */}
-                <div className="flex items-center gap-3 shrink-0 md:border-r md:border-amber-400/25 md:pr-6">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0 border-r border-amber-400/25 pr-3 sm:pr-6">
                   <img
                     src="/Flower_Power_Pizza_-_HotSpring.png"
                     alt="Flower Power Pizza Logo"
                     width={120}
                     height={120}
-                    className="h-16 sm:h-20 md:h-22 w-auto drop-shadow-xl flex-shrink-0 object-contain hover:scale-105 transition-transform"
+                    className="h-14 sm:h-18 md:h-22 w-auto drop-shadow-xl flex-shrink-0 object-contain hover:scale-105 transition-transform"
                   />
                   <div>
-                    <h2 className="text-base sm:text-lg font-black tracking-tight text-white leading-none">
+                    <h2 className="text-sm sm:text-base md:text-lg font-black tracking-tight text-white leading-none">
                       FLOWER POWER
                     </h2>
-                    <span className="font-light italic text-[#f87171] text-sm sm:text-base block -mt-0.5">
+                    <span className="font-light italic text-[#f87171] text-xs sm:text-sm md:text-base block -mt-0.5">
                       Pizza
                     </span>
-                    <span className="text-[#fca5a5] font-black tracking-widest text-[8.5px] uppercase block pt-0.5">
+                    <span className="text-[#fca5a5] font-black tracking-widest text-[7.5px] sm:text-[8.5px] uppercase block pt-0.5">
                       {LOCATION_BY_LANG[lang] || LOCATION_BY_LANG.IT}
                     </span>
                   </div>
                 </div>
 
                 {/* Right Side: Promotion Info & Table Pills */}
-                <div className="flex-1 min-w-0 space-y-1.5 text-center md:text-left">
+                <div className="flex-1 min-w-0 space-y-1 sm:space-y-1.5 text-left">
                   {/* Top Bar: Privilege Badge + Pills */}
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 font-black text-[10px] sm:text-[10.5px] uppercase tracking-wider shadow-sm">
-                      <Sparkles className="w-3 h-3 fill-stone-950 stroke-none" />
+                  <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2">
+                    <div className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 font-black text-[9px] sm:text-[10px] md:text-[10.5px] uppercase tracking-wider shadow-sm">
+                      <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-stone-950 stroke-none" />
                       <span>{lang === 'IT' ? 'PROMOZIONE AL TAVOLO' : lang === 'TH' ? 'สิทธิพิเศษสั่งที่โต๊ะอาหาร' : lang === 'DE' ? 'TISCH-RABATT' : 'TABLE PROMO'}</span>
                     </div>
 
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-black/40 border border-white/20 text-white text-[10px] sm:text-[10.5px] font-bold backdrop-blur-sm">
-                      <UtensilsCrossed className="w-3 h-3 text-amber-400" />
+                    <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-lg bg-black/40 border border-white/20 text-white text-[9px] sm:text-[10px] md:text-[10.5px] font-bold backdrop-blur-sm">
+                      <UtensilsCrossed className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
                       <span>Postazione: {currentTable}</span>
                     </span>
 
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-500/30 border border-emerald-400/60 text-emerald-300 text-[10px] sm:text-[10.5px] font-black backdrop-blur-sm">
-                      <Percent className="w-3 h-3 text-emerald-400" />
+                    <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-lg bg-emerald-500/30 border border-emerald-400/60 text-emerald-300 text-[9px] sm:text-[10px] md:text-[10.5px] font-black backdrop-blur-sm">
+                      <Percent className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-400" />
                       <span>-5% Sconto Diretto</span>
                     </span>
                   </div>
 
                   {/* Hero Title */}
-                  <h1 className="font-sans text-sm sm:text-base md:text-lg font-black tracking-tight text-white leading-snug">
+                  <h1 className="font-sans text-xs sm:text-base md:text-lg font-black tracking-tight text-white leading-snug">
                     {lang === 'TH' ? (
                       <>รับส่วนลดทันที <span className="text-amber-300">5% ทุกเมนู</span> เมื่อสั่งผ่านแท็บเล็ต!</>
                     ) : lang === 'IT' ? (
@@ -1254,7 +1254,7 @@ export default function DiningTabletSite() {
                   </h1>
 
                   {/* Subtitle & Delivery Gift Incentive */}
-                  <p className="text-[10.5px] sm:text-[11.5px] text-stone-200 leading-relaxed font-normal">
+                  <p className="text-[9.5px] sm:text-[10.5px] md:text-[11.5px] text-stone-200 leading-relaxed font-normal">
                     {lang === 'IT' ? (
                       <>Gusta la vera cucina italiana al tavolo con il <strong>-5% sul conto</strong> e ricevi un <strong>Coupon Sconto del 10%</strong> per i tuoi ordini delivery da casa su flowerpowerpizza.com!</>
                     ) : lang === 'TH' ? (
