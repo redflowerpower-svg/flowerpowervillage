@@ -31,15 +31,26 @@ declare global {
 
 const OMISE_SCRIPT_URL = 'https://cdn.omise.co/omise.js';
 
+let cachedPublicKey: string = import.meta.env.VITE_OMISE_PUBLIC_KEY || '';
+
 /**
- * Returns the client-side Omise Publishable Key
+ * Returns the client-side Omise Publishable Key (fetches from backend if not bundled)
  */
-export function getOmisePublicKey(): string {
-  return (
-    import.meta.env.VITE_OMISE_PUBLIC_KEY ||
-    (typeof process !== 'undefined' && process.env?.OMISE_PUBLIC_KEY) ||
-    ''
-  );
+export async function getOmisePublicKey(): Promise<string> {
+  if (cachedPublicKey) return cachedPublicKey;
+  try {
+    const res = await fetch('/api/omise-charge');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.publicKey) {
+        cachedPublicKey = data.publicKey;
+        return cachedPublicKey;
+      }
+    }
+  } catch (err) {
+    console.warn('[OmiseClient] Failed fetching Omise public key from backend:', err);
+  }
+  return cachedPublicKey;
 }
 
 let omiseScriptPromise: Promise<void> | null = null;
@@ -47,16 +58,20 @@ let omiseScriptPromise: Promise<void> | null = null;
 /**
  * Dynamically loads the official Omise.js library from CDN
  */
-export function loadOmiseScript(): Promise<void> {
-  if (typeof window === 'undefined') return Promise.resolve();
+export async function loadOmiseScript(): Promise<void> {
+  if (typeof window === 'undefined') return;
+
+  const key = await getOmisePublicKey();
 
   if (window.Omise) {
-    try {
-      window.Omise.setPublicKey(getOmisePublicKey());
-    } catch (e) {
-      console.warn('[Omise.js] setPublicKey warning:', e);
+    if (key) {
+      try {
+        window.Omise.setPublicKey(key);
+      } catch (e) {
+        console.warn('[Omise.js] setPublicKey warning:', e);
+      }
     }
-    return Promise.resolve();
+    return;
   }
 
   if (omiseScriptPromise) return omiseScriptPromise;
@@ -65,7 +80,7 @@ export function loadOmiseScript(): Promise<void> {
     const existing = document.querySelector(`script[src="${OMISE_SCRIPT_URL}"]`);
     if (existing) {
       existing.addEventListener('load', () => {
-        window.Omise?.setPublicKey(getOmisePublicKey());
+        if (key) window.Omise?.setPublicKey(key);
         resolve();
       });
       existing.addEventListener('error', () => reject(new Error('Failed loading Omise.js')));
@@ -77,7 +92,7 @@ export function loadOmiseScript(): Promise<void> {
     script.async = true;
     script.onload = () => {
       try {
-        window.Omise?.setPublicKey(getOmisePublicKey());
+        if (key) window.Omise?.setPublicKey(key);
       } catch (e) {
         console.warn('[Omise.js] setPublicKey onload warning:', e);
       }
@@ -108,7 +123,11 @@ export async function tokenizeCreditCard(card: CardFormData): Promise<string> {
     throw new Error('Omise.js is not available in browser environment');
   }
 
-  window.Omise.setPublicKey(getOmisePublicKey());
+  const key = await getOmisePublicKey();
+  if (!key) {
+    throw new Error('Omise payment gateway publishable key is not available');
+  }
+  window.Omise.setPublicKey(key);
 
   const cleanNumber = card.number.replace(/\D/g, '');
   const month = parseInt(String(card.expMonth), 10);

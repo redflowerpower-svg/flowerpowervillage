@@ -128,6 +128,19 @@ async function notifyKitchenTelegram(orderId: string | number) {
  * Supports PromptPay QR, Credit/Debit Cards with 3DS, TrueMoney
  */
 export async function handleOmiseCharge(req: VercelRequest, res: VercelResponse) {
+  if (req.method === "GET") {
+    try {
+      const creds = await getOmiseCredentials();
+      return res.status(200).json({
+        success: true,
+        publicKey: creds.publicKey,
+        mode: creds.mode
+      });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message || "Failed fetching public key" });
+    }
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed. Use POST." });
   }
