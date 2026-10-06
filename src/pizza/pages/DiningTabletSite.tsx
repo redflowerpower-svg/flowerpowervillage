@@ -38,6 +38,7 @@ import { useLanguageStore } from '../store/languageStore';
 import { SUPPORTED_LANGUAGES, LANGUAGE_METAS, Language } from '../config/languages';
 import { getDietaryType, type DietaryType } from '../utils/dietary';
 import { DiningCheckoutModal } from '../components/DiningCheckoutModal';
+import { TableSettlementModal } from '../components/TableSettlementModal';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { supabase } from '../../lib/supabase';
@@ -882,60 +883,14 @@ export default function DiningTabletSite() {
     };
   }, [currentTable, clearCart]);
 
+  const [isSettlementModalOpen, setIsSettlementModalOpen] = useState(false);
+
   const handleSelectTable = (tableName: string) => {
     const trimmed = tableName.trim();
     if (!trimmed) return;
-    const canonical = getCanonicalTableKey(trimmed);
-    const openOrders = activeTableOrderMap[canonical] || [];
-
-    if (openOrders.length > 0) {
-      // Rehydrate table cart with existing items from the active order
-      const existingItems: any[] = [];
-      openOrders.forEach(o => {
-        const orderItems = Array.isArray(o.items) ? o.items : [];
-        orderItems.forEach((it: any, idx: number) => {
-          let dishImage = it.image || '';
-          if (!dishImage) {
-            const pid = (it.productId || it.id || '').toLowerCase();
-            const name = (it.name || '').toLowerCase();
-            const nameIt = (it.nameIt || '').toLowerCase();
-            for (const cat of menuData) {
-              const found = cat.items.find(m => 
-                (pid && m.id.toLowerCase() === pid) ||
-                (name && m.name.toLowerCase() === name) ||
-                (nameIt && (m.nameIt?.toLowerCase() === nameIt || (m as any).name_it?.toLowerCase() === nameIt))
-              );
-              if (found) {
-                dishImage = found.image;
-                break;
-              }
-            }
-          }
-
-          existingItems.push({
-            cartId: it.cartId || `order-${o.id}-${idx}-${Date.now()}`,
-            productId: it.productId || it.id || '',
-            name: it.name || '',
-            nameIt: it.nameIt,
-            nameTh: it.nameTh || it.name || '',
-            nameDe: it.nameDe,
-            image: dishImage,
-            basePrice: Number(it.basePrice || it.price || 0),
-            quantity: Number(it.quantity || 1),
-            selectedVariant: it.variant ? { id: it.variant, name: it.variant, priceModifier: 0 } as any : (it.selectedVariant || null),
-            selectedExtras: Array.isArray(it.extras)
-              ? it.extras.map((ex: any) => typeof ex === 'string' ? { id: ex, name: ex, price: 0 } : ex)
-              : (it.selectedExtras || []),
-            lasagnaDate: it.lasagnaDate,
-            isHalalChicken: it.isHalalChicken
-          });
-        });
-      });
-      setItems(existingItems);
-    } else {
-      // Free table with no active orders
-      clearCart();
-    }
+    
+    // Always start with clean cart for fresh dish selections (existing table orders remain tracked separately in activeTableOrderMap)
+    clearCart();
 
     setCurrentTable(trimmed);
     setIsTableSelected(true);
@@ -1421,24 +1376,40 @@ export default function DiningTabletSite() {
           </div>
         </div>
 
-        {/* Center: 1-Tap Table Switcher with -5% Discount */}
-        <button
-          type="button"
-          onClick={() => { setIsTableSelected(false); setCustomTableInput(''); }}
-          className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 border border-amber-400/60 hover:border-amber-300 text-amber-300 font-extrabold text-xs sm:text-sm shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
-          title={lang === 'TH' ? 'แตะเพื่อเปลี่ยนโต๊ะ' : lang === 'EN' ? 'Tap to change table' : lang === 'DE' ? 'Tippen zum Tischwechsel' : lang === 'MM' ? 'စားပွဲပြောင်းရန် နှိပ်ပါ' : 'Tocca per cambiare tavolo'}
-        >
-          <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-          <span className="truncate max-w-[130px] sm:max-w-none font-black">
-            {currentTable ? formatTableStationName(currentTable, lang) : (lang === 'TH' ? 'เลือกโต๊ะอาหาร' : lang === 'EN' ? 'Select Table' : lang === 'DE' ? 'Tisch wählen' : lang === 'MM' ? 'စားပွဲရွေးပါ' : 'Seleziona Tavolo')}
-          </span>
-          <span className="text-[10px] text-amber-200/90 uppercase font-semibold hidden sm:inline">
-            ▼ {lang === 'TH' ? 'เปลี่ยน' : lang === 'EN' ? 'Change' : lang === 'DE' ? 'Ändern' : lang === 'MM' ? 'ပြောင်းရန်' : 'Cambia'}
-          </span>
-          <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
-            {lang === 'TH' ? '-5% สั่งที่โต๊ะ' : lang === 'EN' ? '-5% AT TABLE' : lang === 'DE' ? '-5% AM TISCH' : lang === 'MM' ? '-5% စားပွဲလျှော့စျေး' : '-5% AL TAVOLO'}
-          </span>
-        </button>
+        {/* Center: 1-Tap Table Switcher with -5% Discount & Quick Settlement Button */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => { setIsTableSelected(false); setCustomTableInput(''); }}
+            className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 border border-amber-400/60 hover:border-amber-300 text-amber-300 font-extrabold text-xs sm:text-sm shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+            title={lang === 'TH' ? 'แตะเพื่อเปลี่ยนโต๊ะ' : lang === 'EN' ? 'Tap to change table' : lang === 'DE' ? 'Tippen zum Tischwechsel' : lang === 'MM' ? 'စားပွဲပြောင်းရန် နှိပ်ပါ' : 'Tocca per cambiare tavolo'}
+          >
+            <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="truncate max-w-[130px] sm:max-w-none font-black">
+              {currentTable ? formatTableStationName(currentTable, lang) : (lang === 'TH' ? 'เลือกโต๊ะอาหาร' : lang === 'EN' ? 'Select Table' : lang === 'DE' ? 'Tisch wählen' : lang === 'MM' ? 'စားပွဲရွေးပါ' : 'Seleziona Tavolo')}
+            </span>
+            <span className="text-[10px] text-amber-200/90 uppercase font-semibold hidden sm:inline">
+              ▼ {lang === 'TH' ? 'เปลี่ยน' : lang === 'EN' ? 'Change' : lang === 'DE' ? 'Ändern' : lang === 'MM' ? 'ပြောင်းရန်' : 'Cambia'}
+            </span>
+            <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
+              {lang === 'TH' ? '-5% สั่งที่โต๊ะ' : lang === 'EN' ? '-5% AT TABLE' : lang === 'DE' ? '-5% AM TISCH' : lang === 'MM' ? '-5% စားပွဲလျှော့စျေး' : '-5% AL TAVOLO'}
+            </span>
+          </button>
+
+          {currentTable && (activeTableOrderMap[getCanonicalTableKey(currentTable)] || []).length > 0 && (
+            <button
+              type="button"
+              onClick={() => setIsSettlementModalOpen(true)}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-900/90 border border-emerald-500/70 hover:bg-emerald-800 text-emerald-200 font-extrabold text-xs shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+            >
+              <span>💳</span>
+              <span>{lang === 'TH' ? 'เช็คบิล' : lang === 'EN' ? 'Settle Bill' : lang === 'DE' ? 'Zahlen' : lang === 'MM' ? 'ဘေလ်ရှင်းမည်' : 'Salda Conto'}</span>
+              <span className="font-mono bg-emerald-950 px-1.5 py-0.5 rounded text-[11px] text-emerald-300">
+                ฿{Math.round((activeTableOrderMap[getCanonicalTableKey(currentTable)] || []).reduce((s, o) => s + (Number(o.total) || 0), 0))}
+              </span>
+            </button>
+          )}
+        </div>
 
         {/* Right: Language Selector (All 5 Languages) */}
         <div className="flex items-center gap-1 p-1 bg-stone-900/90 rounded-xl border border-stone-800">
@@ -2191,6 +2162,22 @@ export default function DiningTabletSite() {
         }}
         initialTable={currentTable}
         lang={lang}
+      />
+
+      {/* TABLE SETTLEMENT & BILL CLOSING MODAL */}
+      <TableSettlementModal
+        isOpen={isSettlementModalOpen}
+        onClose={() => setIsSettlementModalOpen(false)}
+        tableKey={currentTable}
+        ordersForTable={currentTable ? (activeTableOrderMap[getCanonicalTableKey(currentTable)] || []) : []}
+        lang={lang}
+        onSettled={() => {
+          setIsSettlementModalOpen(false);
+          setIsTableSelected(false);
+          setCurrentTable('');
+          clearCart();
+          fetchActiveDineInOrders();
+        }}
       />
     </div>
   );

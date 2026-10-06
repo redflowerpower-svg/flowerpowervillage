@@ -329,12 +329,12 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         total: calcItemTotal(i)
       }));
 
-      // 1. Check if an active order exists for this table (with 2s timeout guard)
-      let existingActiveOrder: any = null;
+      // 1. Check if an active order exists for this table (with 2s timeout guard) to label additions
+      let isTableIntegration = false;
       try {
         const queryPromise = supabase
           .from('pizza_orders')
-          .select('*')
+          .select('id, address, table_number')
           .neq('status', 'completed')
           .neq('status', 'cancelled')
           .neq('status', 'rejected')
@@ -342,94 +342,62 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
           .order('created_at', { ascending: false });
 
         const timeoutPromise = new Promise<{ data: any[] | null }>((resolve) => 
-          setTimeout(() => resolve({ data: null }), 2000)
+          setTimeout(() => resolve({ data: null }), 1500)
         );
 
         const { data: openOrders } = await Promise.race([queryPromise, timeoutPromise]);
 
         if (openOrders && openOrders.length > 0) {
-          existingActiveOrder = openOrders.find((o: any) => {
+          const found = openOrders.find((o: any) => {
             const raw = extractTableFromAddress(o.address) || o.table_number || '';
             return raw && getCanonicalTableKey(raw) === canonicalCurrentTable;
           });
+          if (found) isTableIntegration = true;
         }
       } catch (e) {
-        console.warn('[DiningCheckout] Active table query bypassed:', e);
+        console.warn('[DiningCheckout] Active table check notice:', e);
       }
+
+      const finalAddress = isTableIntegration 
+        ? `${formattedAddress} [INTEGRAZIONE_COMANDA]` 
+        : formattedAddress;
+
+      // 2. ALWAYS perform a clean INSERT into pizza_orders (guaranteed RLS permissions and separate kitchen tickets)
+      const orderPayload = {
+        customer_name: customerName.trim(),
+        phone: customerPhone.trim(),
+        address: finalAddress,
+        items: formattedItems,
+        total: finalTotal,
+        payment_method: paymentLabel,
+        status: 'new',
+        has_whatsapp: true,
+        has_line: false,
+        created_at: new Date().toISOString()
+      };
 
       let savedOrder: any = null;
 
-      if (existingActiveOrder) {
-        // 2a. MERGE / UPDATE EXISTING TABLE ORDER
-        const updatePayload = {
-          customer_name: customerName.trim() || existingActiveOrder.customer_name,
-          phone: customerPhone.trim() || existingActiveOrder.phone,
-          address: formattedAddress,
-          items: formattedItems,
-          total: finalTotal,
-          payment_method: paymentLabel,
-          status: 'new',
-          created_at: new Date().toISOString()
-        };
+      try {
+        const insertPromise = supabase
+          .from('pizza_orders')
+          .insert([orderPayload])
+          .select();
 
-        try {
-          const updatePromise = supabase
-            .from('pizza_orders')
-            .update(updatePayload)
-            .eq('id', existingActiveOrder.id)
-            .select();
+        const timeoutPromise = new Promise<{ data: any[] | null; error: any }>((resolve) =>
+          setTimeout(() => resolve({ data: null, error: 'timeout' }), 2500)
+        );
 
-          const timeoutPromise = new Promise<{ data: any[] | null; error: any }>((resolve) =>
-            setTimeout(() => resolve({ data: null, error: 'timeout' }), 2500)
-          );
+        const { data: inserted, error } = await Promise.race([insertPromise, timeoutPromise]);
 
-          const { data: updated, error } = await Promise.race([updatePromise, timeoutPromise]);
-
-          if (!error && updated && updated[0]) {
-            savedOrder = updated[0];
-          } else {
-            savedOrder = { ...existingActiveOrder, ...updatePayload };
-          }
-        } catch (err) {
-          console.warn('[DiningCheckout] Fallback update:', err);
-          savedOrder = { ...existingActiveOrder, ...updatePayload };
-        }
-      } else {
-        // 2b. INSERT NEW TABLE ORDER
-        const orderPayload = {
-          customer_name: customerName.trim(),
-          phone: customerPhone.trim(),
-          address: formattedAddress,
-          items: formattedItems,
-          total: finalTotal,
-          payment_method: paymentLabel,
-          status: 'new',
-          has_whatsapp: true,
-          has_line: false,
-          created_at: new Date().toISOString()
-        };
-
-        try {
-          const insertPromise = supabase
-            .from('pizza_orders')
-            .insert([orderPayload])
-            .select();
-
-          const timeoutPromise = new Promise<{ data: any[] | null; error: any }>((resolve) =>
-            setTimeout(() => resolve({ data: null, error: 'timeout' }), 2500)
-          );
-
-          const { data: inserted, error } = await Promise.race([insertPromise, timeoutPromise]);
-
-          if (!error && inserted && inserted[0]) {
-            savedOrder = inserted[0];
-          } else {
-            savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
-          }
-        } catch (err) {
-          console.warn('[DiningCheckout] Fallback insert:', err);
+        if (!error && inserted && inserted[0]) {
+          savedOrder = inserted[0];
+        } else {
           savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
         }
+      } catch (err) {
+        console.warn('[DiningCheckout] Fallback insert:', err);
+        savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
       }
 
       if (savedOrder) {

@@ -160,16 +160,24 @@ export const TableSettlementModal: React.FC<TableSettlementModalProps> = ({
         : 'cash_at_table';
 
     try {
-      const orderIds = ordersForTable.map(o => o.id);
-      
       for (const id of orderIds) {
-        await supabase
-          .from('pizza_orders')
-          .update({
-            status: 'completed',
-            payment_method: paymentLabel
-          })
-          .eq('id', id);
+        try {
+          await fetch('/api/pizza-order-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: id, status: 'completed' })
+          });
+        } catch (e) {}
+
+        try {
+          await supabase
+            .from('pizza_orders')
+            .update({
+              status: 'completed',
+              payment_method: paymentLabel
+            })
+            .eq('id', id);
+        } catch (e) {}
       }
 
       // Broadcast completed orders
