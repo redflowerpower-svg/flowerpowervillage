@@ -67,6 +67,13 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
 
 ## 🎧 5. Kitchen Tablet KDS & Audio WakeLock System
 
-- **Audio WakeLock (`src/admin/pizza/utils/kitchenAudioWakeLock.ts`)**: Mantiene attivo lo schermo del tablet da cucina e gestisce l'audio sintetizzato/campione per gli ordini in arrivo senza interruzioni del browser.
-- **Sincronizzazione Comande & Tavoli**: Polling e sottoscrizione realtime Supabase con filtri dedicati per cucina, pizzeria e bar.
+- **Audio WakeLock (`src/admin/pizza/utils/kitchenAudioWakeLock.ts`)**: 
+  - Mantiene attivo lo schermo del tablet da cucina (Screen Wake Lock API).
+  - Suoneria ad alto volume persistente per nuovi ordini in arrivo.
+  - Taglio audio istantaneo a **0 millisecondi** (`audioCtx.suspend()`, cancellazione schedule su master gain e arresto immediato di tutti gli oscillatori attivi) alla pressione di *"Accetta Ordine"* o silenziamento.
+- **Sincronizzazione Comande & Ciclo di Vita Tavoli Sala**: 
+  - Deduplicazione automatica dei ticket per tavolo tramite chiave canonica (`getCanonicalTableKey`).
+  - Minimizzazione a icona nel dock inferiore per ordini al tavolo accettati.
+  - Chiusura atomica con `ORDER PAID`: archivia tutti i record pregressi del tavolo ed emette broadcast `TABLE_SETTLED` per liberare il tavolo su tutti i tablet in sala.
+  - Timer promemoria consegna 15 minuti limitato esclusivamente agli ordini a domicilio/takeaway.
 

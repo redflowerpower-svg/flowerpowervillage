@@ -2045,13 +2045,17 @@ export function KitchenTabletKDS() {
                         <span className="font-black text-xl text-emerald-400 font-mono">
                           {order.total} ฿
                         </span>
-                        {order.payment_method?.includes('omise') || order.payment_status === 'paid' ? (
+                        {order.payment_method?.includes('omise') ? (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-600 uppercase tracking-wider mt-0.5">
                             ✅ {order.payment_method?.includes('card') ? '💳 CARD 3DS (PAID)' : '📱 PROMPTPAY (PAID)'}
                           </span>
+                        ) : isDiningTableOrder(order) ? (
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-400 text-stone-950 uppercase tracking-wider mt-0.5 font-bold shadow-sm">
+                            🏪 {kdsLang === 'th' ? 'ชำระที่แคชเชียร์' : kdsLang === 'mm' ? 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်' : 'CONTO ALLA CASSA'}
+                          </span>
                         ) : (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
-                            💵 {kdsLang === 'th' ? 'ชำระที่โต๊ะ' : isDiningTableOrder(order) ? 'PAY AT TABLE' : 'CASH (COLLECT)'}
+                            💵 {kdsLang === 'th' ? 'เงินสด (เก็บปลายทาง)' : 'CASH (COLLECT)'}
                           </span>
                         )}
                       </div>
@@ -2315,13 +2319,17 @@ export function KitchenTabletKDS() {
                         <span className="font-black text-xl text-emerald-400 font-mono">
                           {order.total} ฿
                         </span>
-                        {order.payment_method?.includes('omise') || order.payment_status === 'paid' ? (
+                        {order.payment_method?.includes('omise') ? (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-600 uppercase tracking-wider mt-0.5">
                             ✅ {order.payment_method?.includes('card') ? '💳 CARD 3DS (PAID)' : '📱 PROMPTPAY (PAID)'}
                           </span>
+                        ) : isDiningTableOrder(order) ? (
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-400 text-stone-950 uppercase tracking-wider mt-0.5 font-bold shadow-sm">
+                            🏪 {kdsLang === 'th' ? 'ชำระที่แคชเชียร์' : kdsLang === 'mm' ? 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်' : 'CONTO ALLA CASSA'}
+                          </span>
                         ) : (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
-                            💵 {kdsLang === 'th' ? 'ชำระที่โต๊ะ' : isDiningTableOrder(order) ? 'PAY AT TABLE' : 'CASH (COLLECT)'}
+                            💵 {kdsLang === 'th' ? 'เงินสด (เก็บปลายทาง)' : 'CASH (COLLECT)'}
                           </span>
                         )}
                       </div>
@@ -2635,7 +2643,7 @@ export function KitchenTabletKDS() {
                     {selectedTrayOrder.total} ฿
                   </span>
                   <span className="text-[10px] font-black uppercase text-amber-400">
-                    {selectedTrayOrder.payment_status === 'paid' ? (kdsLang === 'th' ? 'ชำระแล้ว' : 'PAID') : (kdsLang === 'th' ? 'ชำระที่โต๊ะ' : 'PAY AT TABLE')}
+                    {kdsLang === 'th' ? 'ชำระที่แคชเชียร์' : kdsLang === 'mm' ? 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်' : 'CONTO ALLA CASSA'}
                   </span>
                 </div>
                 <button

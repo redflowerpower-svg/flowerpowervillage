@@ -18,7 +18,9 @@ import {
   Gift,
   ZoomIn,
   Building2,
-  Info
+  Info,
+  Receipt,
+  Send
 } from 'lucide-react';
 import { useCartStore, calcItemTotal } from '../store/cartStore';
 import { supabase } from '../../lib/supabase';
@@ -54,23 +56,15 @@ const I18N_CHECKOUT = {
     emailPlaceholder: 'tuaemail@esempio.com',
     notesLabel: 'Note Speciali per la Cucina / Camerieri (Opzionale)',
     notesPlaceholder: 'es. Portare le pizze insieme, bicchieri extra...',
-    paymentSection: '3. Scelta Modalità di Pagamento',
-    payPromptPay: 'PromptPay K-Shop',
-    payCard: 'Carta / POS al Tavolo',
-    payCash: 'Contanti al Tavolo',
-    kshopTitle: 'K-Shop Kasikorn Bank (0% Commissioni)',
-    kshopDesc: 'Inquadra il QR Code ufficiale Kasikorn Bank con qualsiasi app bancaria thailandese (K PLUS, SCB, Bangkok Bank, Krungthai, ecc.).',
-    kshopZoom: 'Tocca l\'immagine per ingrandire il QR Code',
-    cardTitle: 'Terminale POS Portatile al Tavolo',
-    cardDesc: 'Il personale porterà il POS direttamente al tavolo per pagamento con carta Contactless, Chip o Apple Pay.',
-    cashTitle: 'Pagamento in Contanti',
-    cashDesc: 'Puoi pagare comodamente in contanti direttamente al cameriere quando ti viene servito l\'ordine.',
+    payAtCounterTitle: 'Conto alla Cassa',
+    payAtCounterDesc: 'Il conto verrà regolato comodamente alla cassa al termine della consumazione.',
+    payAtCounterBadge: 'ALLA CASSA',
     subtotalLabel: 'Totale Prodotti',
     discountLabel: 'Sconto Dining Privilege (-5%)',
     finalTotalLabel: 'Totale Conto Finale',
-    submitBtn: 'Invia Ordine in Cucina (-5%)',
-    submittingBtn: 'Invio ordine in corso...',
-    successTitle: 'Ordine Inviato in Cucina!',
+    submitBtn: 'Invia Ordine alla Cassa (-5%)',
+    submittingBtn: 'Invio comanda alla cassa in corso...',
+    successTitle: 'Comanda Inviata alla Cassa!',
     successSubtitle: 'I tuoi piatti e le tue pizze vengono preparati al momento.',
     giftTitle: 'Regalo Speciale Delivery per Te!',
     giftDesc: 'Grazie per aver ordinato al tavolo! Riceverai via WhatsApp/Email il tuo Coupon Sconto del 10% per il tuo prossimo ordine a domicilio su flowerpowerpizza.com.',
@@ -93,23 +87,15 @@ const I18N_CHECKOUT = {
     emailPlaceholder: 'youremail@example.com',
     notesLabel: 'Special Kitchen / Server Notes (Optional)',
     notesPlaceholder: 'e.g. Serve pizzas together, extra glasses...',
-    paymentSection: '3. Payment Method at Table',
-    payPromptPay: 'PromptPay K-Shop',
-    payCard: 'Card / Mobile POS',
-    payCash: 'Cash at Table',
-    kshopTitle: 'K-Shop Kasikorn Bank (0% Commission)',
-    kshopDesc: 'Scan the official Kasikorn Bank QR Code with any Thai mobile banking app (K PLUS, SCB Easy, Bangkok Bank, Krungthai, etc.).',
-    kshopZoom: 'Tap image to zoom in QR Code',
-    cardTitle: 'Portable POS Terminal at Table',
-    cardDesc: 'Staff will bring the mobile POS terminal to your table for contactless, chip card, or Apple Pay settlement.',
-    cashTitle: 'Cash Settlement at Table',
-    cashDesc: 'Pay easily with cash directly to our service staff at your table.',
+    payAtCounterTitle: 'Pay at Counter',
+    payAtCounterDesc: 'The bill can be conveniently settled at the counter at the end of your meal.',
+    payAtCounterBadge: 'AT COUNTER',
     subtotalLabel: 'Products Total',
     discountLabel: 'Dining Privilege (-5%)',
     finalTotalLabel: 'Final Total Bill',
-    submitBtn: 'Send Order to Kitchen (-5%)',
-    submittingBtn: 'Sending order...',
-    successTitle: 'Order Sent to Kitchen!',
+    submitBtn: 'Send Order to Counter (-5%)',
+    submittingBtn: 'Sending order to counter...',
+    successTitle: 'Order Sent to Counter!',
     successSubtitle: 'Your dishes and authentic pizzas are now being freshly prepared.',
     giftTitle: 'Special Delivery Gift for You!',
     giftDesc: 'Thank you for ordering at our table! You will receive a 10% discount voucher for your next home delivery on flowerpowerpizza.com.',
@@ -132,23 +118,15 @@ const I18N_CHECKOUT = {
     emailPlaceholder: 'yourname@example.com',
     notesLabel: 'หมายเหตุถึงเชฟและพนักงาน (ถ้ามี)',
     notesPlaceholder: 'เช่น เสิร์ฟพร้อมกัน, แก้วน้ำเพิ่ม...',
-    paymentSection: '3. เลือกวิธีชำระเงินที่โต๊ะ',
-    payPromptPay: 'พร้อมเพย์ K-Shop',
-    payCard: 'บัตรเครดิต / รูดบัตรที่โต๊ะ',
-    payCash: 'เงินสดที่โต๊ะ',
-    kshopTitle: 'K-Shop ธนาคารกสิกรไทย (ไม่มีค่าธรรมเนียม 0%)',
-    kshopDesc: 'สแกนคิวอาร์โค้ด K-Shop กสิกรไทย ผ่านแอปธนาคารไทยได้ทุกธนาคาร (K PLUS, SCB, กรุงไทย, กรุงเทพ ฯลฯ)',
-    kshopZoom: 'แตะที่รูปภาพเพื่อขยายดู QR Code',
-    cardTitle: 'ชำระด้วยบัตรผ่านเครื่องรูดบัตรพกพาที่โต๊ะ',
-    cardDesc: 'พนักงานจะนำเครื่องรูดบัตร (POS EDC) มาให้ท่านแตะหรือเสียบบัตรที่โต๊ะอย่างสะดวกสบาย',
-    cashTitle: 'ชำระเงินสดที่โต๊ะ',
-    cashDesc: 'ชำระเป็นเงินสดกับพนักงานเมื่อเสิร์ฟอาหารหรือเมื่อรับประทานเสร็จสิ้น',
+    payAtCounterTitle: 'ชำระที่แคชเชียร์',
+    payAtCounterDesc: 'สามารถชำระบิลได้ที่แคชเชียร์เมื่อรับประทานเสร็จเรียบร้อย',
+    payAtCounterBadge: 'ที่แคชเชียร์',
     subtotalLabel: 'ยอดรวมอาหาร',
     discountLabel: 'ส่วนลด Dining Privilege (-5%)',
     finalTotalLabel: 'ยอดสุทธิที่ต้องชำระ',
-    submitBtn: 'ยืนยันส่งออเดอร์เข้าครัว (-5%)',
-    submittingBtn: 'กำลังส่งรายการ...',
-    successTitle: 'ส่งออเดอร์เข้าครัวเรียบร้อยแล้ว!',
+    submitBtn: 'ส่งออเดอร์ไปที่แคชเชียร์ (-5%)',
+    submittingBtn: 'กำลังส่งออเดอร์ไปที่แคชเชียร์...',
+    successTitle: 'ส่งออเดอร์ไปที่แคชเชียร์เรียบร้อยแล้ว!',
     successSubtitle: 'เชฟกำลังปรุงอาหารและอบพิซซ่าสดใหม่ให้คุณ',
     giftTitle: 'ของขวัญพิเศษสำหรับคุณ!',
     giftDesc: 'ขอบคุณที่สั่งอาหารที่โต๊ะ! คุณจะได้รับคูปองส่วนลด 10% สำหรับสั่งเดลิเวอรี่ส่งถึงบ้านผ่าน flowerpowerpizza.com',
@@ -171,23 +149,15 @@ const I18N_CHECKOUT = {
     emailPlaceholder: 'ihre.email@beispiel.de',
     notesLabel: 'Sonderwünsche an Küche / Service (Optional)',
     notesPlaceholder: 'z.B. Pizzen zusammen servieren, extra Gläser...',
-    paymentSection: '3. Zahlungsmethode am Tisch',
-    payPromptPay: 'PromptPay K-Shop',
-    payCard: 'Karte / Mobiles POS',
-    payCash: 'Bargeld am Tisch',
-    kshopTitle: 'K-Shop Kasikorn Bank (0% Gebühren)',
-    kshopDesc: 'Scannen Sie den Kasikorn PromptPay QR-Code mit jeder thailändischen Banking-App (K PLUS, SCB usw.).',
-    kshopZoom: 'Tippen Sie zum Vergrößern auf das Bild',
-    cardTitle: 'Mobiles Kartenterminal am Tisch',
-    cardDesc: 'Unser Servicepersonal bringt das tragbare POS-Terminal für Kartenzahlung (Kontaktlos/Chip) an Ihren Tisch.',
-    cashTitle: 'Barzahlung am Tisch',
-    cashDesc: 'Zahlen Sie bequem in bar direkt bei der Bedienung an Ihrem Tisch.',
+    payAtCounterTitle: 'Rechnung an der Kasse',
+    payAtCounterDesc: 'Die Rechnung wird bequem an der Kasse am Ende des Verzehrs beglichen.',
+    payAtCounterBadge: 'AN DER KASSE',
     subtotalLabel: 'Zwischensumme',
     discountLabel: 'Tisch-Rabatt (-5%)',
     finalTotalLabel: 'Gesamtsumme',
-    submitBtn: 'Bestellung in die Küche senden (-5%)',
-    submittingBtn: 'Wird gesendet...',
-    successTitle: 'Bestellung an die Küche übermittelt!',
+    submitBtn: 'Bestellung an die Kasse senden (-5%)',
+    submittingBtn: 'Bestellung wird an die Kasse gesendet...',
+    successTitle: 'Bestellung an die Kasse gesendet!',
     successSubtitle: 'Ihre Gerichte und frischen Pizzen werden jetzt frisch zubereitet.',
     giftTitle: 'Liefer-Gutschein für Sie!',
     giftDesc: 'Vielen Dank für Ihre Tischbestellung! Sie erhalten per WhatsApp/E-Mail einen 10% Rabattgutschein für flowerpowerpizza.com.',
@@ -210,23 +180,15 @@ const I18N_CHECKOUT = {
     emailPlaceholder: 'youremail@example.com',
     notesLabel: 'မီးဖိုချောင်နှင့် စားပွဲထိုးအတွက် အထူးမှာကြားချက် (စိတ်ကြိုက်)',
     notesPlaceholder: 'ဥပမာ - ပီဇာများကို တစ်ပြိုင်နက် ချပေးပါ၊ ဖန်ခွက်အပို...',
-    paymentSection: '၃။ ငွေပေးချေမှုစနစ် ရွေးချယ်ရန်',
-    payPromptPay: 'PromptPay K-Shop',
-    payCard: 'ကတ် / POS စက်ဖြင့် ပေးချေမည်',
-    payCash: 'စားပွဲ၌ ငွေသားပေးချေမည်',
-    kshopTitle: 'K-Shop Kasikorn Bank (ဝန်ဆောင်ခ ၀%)',
-    kshopDesc: 'မည်သည့် ထိုင်းဘဏ်အက်ပ်ဖြင့်မဆို Kasikorn Bank QR Code ကို စကင်ဖတ်၍ ပေးချေနိုင်ပါသည်။',
-    kshopZoom: 'QR Code ကို ပိုကြီးကြီးကြည့်ရန် ပုံကို နှိပ်ပါ',
-    cardTitle: 'စားပွဲအရောက် အိတ်ဆောင် POS ကတ်စက်',
-    cardDesc: 'ဝန်ထမ်းမှ စားပွဲသို့ POS စက် ယူဆောင်လာပေးမည်ဖြစ်ပြီး ကတ်ဖြင့် အလွယ်တကူ ပေးချေနိုင်ပါသည်။',
-    cashTitle: 'ငွေသားဖြင့် ပေးချေခြင်း',
-    cashDesc: 'ဟင်းလျာများ လာချပေးချိန်တွင် စားပွဲထိုးထံ ငွေသားဖြင့် အဆင်ပြေစွာ ပေးချေနိုင်ပါသည်။',
+    payAtCounterTitle: 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်',
+    payAtCounterDesc: 'အစားအသောက် ပြီးဆုံးချိန်တွင် ငွေရှင်းကောင်တာ၌ အဆင်ပြေစွာ ငွေရှင်းနိုင်ပါသည်။',
+    payAtCounterBadge: 'ကောင်တာ၌',
     subtotalLabel: 'စုစုပေါင်း ပမာဏ',
     discountLabel: 'စားပွဲ အထူးလျှော့စျေး (-၅%)',
     finalTotalLabel: 'ကျသင့်ငွေ စုစုပေါင်း',
-    submitBtn: 'မီးဖိုချောင်သို့ အော်ဒါပို့မည် (-၅%)',
-    submittingBtn: 'အော်ဒါ ပို့နေပါသည်...',
-    successTitle: 'အော်ဒါကို မီးဖိုချောင်သို့ ပို့ပြီးပါပြီ!',
+    submitBtn: 'ငွေရှင်းကောင်တာသို့ အော်ဒါပို့ရန် (-၅%)',
+    submittingBtn: 'ငွေရှင်းကောင်တာသို့ အော်ဒါပို့နေပါသည်...',
+    successTitle: 'ငွေရှင်းကောင်တာသို့ အော်ဒါ အောင်မြင်စွာ ပို့ပြီးပါပြီ။',
     successSubtitle: 'စားဖိုမှူးမှ သင်၏ ဟင်းလျာနှင့် ပီဇာများကို လတ်ဆတ်စွာ ပြင်ဆင်ပေးနေပါသည်။',
     giftTitle: 'သင့်အတွက် အထူးလက်ဆောင် ကူပွန်!',
     giftDesc: 'စားပွဲ၌ မှာယူအားပေးမှုအတွက် ကျေးဇူးတင်ပါသည်! flowerpowerpizza.com တွင် အိမ်အရောက်ပို့အတွက် ၁၀% လျှော့စျေးကူပွန် ရရှိပါမည်။',
@@ -683,139 +645,24 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                 />
               </div>
 
-              {/* 4. Payment Preference (Kasikorn PromptPay 0%, Card POS, Cash) */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-amber-300 uppercase tracking-wider block">
-                  {t.paymentSection}
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('promptpay')}
-                    className={`p-2.5 rounded-xl border text-left flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      paymentMethod === 'promptpay'
-                        ? 'bg-amber-400 text-stone-950 border-amber-300 font-bold shadow-md ring-2 ring-amber-300/60'
-                        : 'bg-stone-950 border-stone-800 text-stone-300 hover:border-stone-700'
-                    }`}
-                  >
-                    <QrCode className="w-4 h-4" />
-                    <span className="text-[10px] uppercase tracking-wider text-center font-black">{t.payPromptPay}</span>
-                    <span className={`text-[8.5px] px-1 py-0.2 rounded font-black ${paymentMethod === 'promptpay' ? 'bg-stone-900 text-emerald-300' : 'bg-emerald-950/80 text-emerald-400'}`}>
-                      0% COMM.
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('card')}
-                    className={`p-2.5 rounded-xl border text-left flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      paymentMethod === 'card'
-                        ? 'bg-amber-400 text-stone-950 border-amber-300 font-bold shadow-md ring-2 ring-amber-300/60'
-                        : 'bg-stone-950 border-stone-800 text-stone-300 hover:border-stone-700'
-                    }`}
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span className="text-[10px] uppercase tracking-wider text-center font-black">{t.payCard}</span>
-                    <span className={`text-[8.5px] px-1 py-0.2 rounded font-bold ${paymentMethod === 'card' ? 'bg-stone-900 text-amber-300' : 'bg-stone-900 text-stone-400'}`}>
-                      POS MOBILE
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod('cash')}
-                    className={`p-2.5 rounded-xl border text-left flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                      paymentMethod === 'cash'
-                        ? 'bg-amber-400 text-stone-950 border-amber-300 font-bold shadow-md ring-2 ring-amber-300/60'
-                        : 'bg-stone-950 border-stone-800 text-stone-300 hover:border-stone-700'
-                    }`}
-                  >
-                    <Banknote className="w-4 h-4" />
-                    <span className="text-[10px] uppercase tracking-wider text-center font-black">{t.payCash}</span>
-                    <span className={`text-[8.5px] px-1 py-0.2 rounded font-bold ${paymentMethod === 'cash' ? 'bg-stone-900 text-amber-300' : 'bg-stone-900 text-stone-400'}`}>
-                      CONTANTI
-                    </span>
-                  </button>
+              {/* 4. Payment at Counter Notice */}
+              <div className="p-3.5 bg-gradient-to-br from-amber-500/10 via-stone-900 to-stone-950 border border-amber-500/30 rounded-2xl flex items-center gap-3 shadow-sm">
+                <div className="w-10 h-10 rounded-xl bg-amber-400 text-stone-950 flex items-center justify-center font-black shrink-0 shadow-md">
+                  <Receipt className="w-5 h-5 stroke-[2.5]" />
                 </div>
-
-                {/* Detailed Payment Explainer Box */}
-                {paymentMethod === 'promptpay' && (
-                  <div className="p-3.5 bg-gradient-to-br from-emerald-950/30 to-stone-950 border border-emerald-500/40 rounded-2xl space-y-3 animate-fadeIn">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                          <Building2 className="w-3.5 h-3.5" />
-                        </div>
-                        <span className="text-xs font-black text-emerald-300">{t.kshopTitle}</span>
-                      </div>
-                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-400/30">
-                        Zero Commissioni
-                      </span>
-                    </div>
-
-                    <p className="text-[11px] text-stone-300 leading-relaxed">
-                      {t.kshopDesc}
-                    </p>
-
-                    {/* K-Shop QR Preview Box with Tap-to-Zoom */}
-                    <div className="flex items-center gap-3 p-2 bg-white rounded-xl text-stone-900 shadow-md">
-                      <div 
-                        onClick={() => setIsQrZoomOpen(true)}
-                        className="relative w-20 h-20 shrink-0 bg-stone-100 rounded-lg overflow-hidden border border-stone-300 cursor-pointer group"
-                      >
-                        <img 
-                          src={QR_KSHOP_URL} 
-                          alt="Kasikorn Bank K-Shop PromptPay QR" 
-                          className="w-full h-full object-contain group-hover:scale-105 transition-transform"
-                        />
-                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <ZoomIn className="w-5 h-5 text-white drop-shadow" />
-                        </div>
-                      </div>
-
-                      <div className="flex-1 space-y-1">
-                        <div className="text-xs font-black text-stone-900 leading-tight">
-                          Flower Power Pizza Ranong
-                        </div>
-                        <div className="text-[10.5px] text-stone-600">
-                          Kasikorn Bank K-Shop Official QR
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setIsQrZoomOpen(true)}
-                          className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer"
-                        >
-                          <ZoomIn className="w-3 h-3" />
-                          <span>{t.kshopZoom}</span>
-                        </button>
-                      </div>
-                    </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-black text-amber-300 uppercase tracking-wide">
+                      {t.payAtCounterTitle}
+                    </span>
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 uppercase tracking-wider shrink-0">
+                      {t.payAtCounterBadge}
+                    </span>
                   </div>
-                )}
-
-                {paymentMethod === 'card' && (
-                  <div className="p-3.5 bg-stone-950 border border-amber-400/30 rounded-2xl space-y-1.5 animate-fadeIn">
-                    <div className="flex items-center gap-2 text-xs font-black text-amber-300">
-                      <CreditCard className="w-4 h-4 text-amber-400" />
-                      <span>{t.cardTitle}</span>
-                    </div>
-                    <p className="text-[11px] text-stone-300 leading-relaxed">
-                      {t.cardDesc}
-                    </p>
-                  </div>
-                )}
-
-                {paymentMethod === 'cash' && (
-                  <div className="p-3.5 bg-stone-950 border border-stone-800 rounded-2xl space-y-1.5 animate-fadeIn">
-                    <div className="flex items-center gap-2 text-xs font-black text-stone-200">
-                      <Banknote className="w-4 h-4 text-amber-400" />
-                      <span>{t.cashTitle}</span>
-                    </div>
-                    <p className="text-[11px] text-stone-300 leading-relaxed">
-                      {t.cashDesc}
-                    </p>
-                  </div>
-                )}
+                  <p className="text-[11px] text-stone-300 mt-0.5 leading-snug">
+                    {t.payAtCounterDesc}
+                  </p>
+                </div>
               </div>
 
               {/* 5. Pricing Breakdown & 5% Privilege */}
@@ -840,7 +687,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
               <button
                 type="submit"
                 disabled={loading || !customerName || !customerPhone}
-                className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black rounded-xl shadow-lg transition-all cursor-pointer disabled:opacity-50 text-sm uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99]"
+                className="w-full py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 font-black rounded-2xl shadow-xl transition-all cursor-pointer disabled:opacity-50 text-sm uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] border border-amber-300"
               >
                 {loading ? (
                   <>
@@ -849,7 +696,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <UtensilsCrossed className="w-4 h-4" />
+                    <Send className="w-4 h-4 text-stone-950 stroke-[2.5]" />
                     <span>{t.submitBtn}</span>
                   </>
                 )}
@@ -858,58 +705,6 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
           )}
         </div>
       </div>
-
-      {/* QR ZOOM LIGHTBOX MODAL */}
-      {isQrZoomOpen && (
-        <div 
-          className="fixed inset-0 z-60 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn"
-          onClick={() => setIsQrZoomOpen(false)}
-        >
-          <div 
-            className="relative bg-white rounded-3xl p-4 sm:p-6 max-w-sm w-full text-stone-900 shadow-2xl text-center space-y-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setIsQrZoomOpen(false)}
-              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-800 flex items-center justify-center cursor-pointer"
-            >
-              <X size={16} />
-            </button>
-
-            <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white mx-auto flex items-center justify-center shadow">
-              <QrCode size={20} />
-            </div>
-
-            <h4 className="font-black text-base text-stone-900 leading-tight">
-              K-Shop Kasikorn Bank PromptPay
-            </h4>
-            <p className="text-xs text-stone-600">
-              Flower Power Pizza Ranong (0% Commissioni)
-            </p>
-
-            <div className="bg-stone-50 border-2 border-dashed border-emerald-500 rounded-2xl p-3 flex justify-center">
-              <img 
-                src={QR_KSHOP_URL} 
-                alt="Kasikorn Bank K-Shop PromptPay QR HD" 
-                className="w-56 h-56 object-contain rounded-xl shadow-sm"
-              />
-            </div>
-
-            <div className="text-xs font-bold text-emerald-800 bg-emerald-50 rounded-xl p-2.5">
-              Totale da Inviare: <span className="text-base font-black text-emerald-950">{finalTotal} ฿</span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsQrZoomOpen(false)}
-              className="w-full py-2.5 bg-stone-900 text-white font-bold text-xs rounded-xl cursor-pointer hover:bg-stone-800"
-            >
-              Chiudi Anteprima QR
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
