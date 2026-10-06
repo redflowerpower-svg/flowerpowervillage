@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Globe, ChevronDown, ChevronLeft, Wine, Beer, Sparkles, Filter, RotateCcw, Check, UtensilsCrossed, Truck, Percent, ArrowRight, MapPin, AlertTriangle, Clock, Leaf, Wheat } from 'lucide-react';
+import { ShoppingCart, Globe, ChevronDown, ChevronLeft, Wine, Beer, Sparkles, Filter, RotateCcw, Check, UtensilsCrossed, Truck, Percent, ArrowRight, MapPin, AlertTriangle, Clock, Leaf, Wheat, Salad, Sandwich } from 'lucide-react';
 import { menuData, type MenuItem } from '../data/menuData';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuGrid from '../components/MenuGrid';
@@ -265,39 +265,92 @@ const DAILY_SPECIALS_SECTIONS = [
   }
 ];
 
+const ITALIAN_SALADS_SECTIONS = [
+  {
+    id: 'salads',
+    name: {
+      IT: 'Insalate Italiane',
+      EN: 'Italian Salads',
+      TH: 'สลัดอิตาเลียน',
+      DE: 'Italienische Salate',
+      MM: 'အီတလီဆလတ်များ',
+    },
+    desc: {
+      IT: 'Insalate fresche con uova, pollo, patate o tonno preparate con verdure selezionate e condite con salse artigianali.',
+      EN: 'Fresh salads with eggs, chicken, potatoes or tuna prepared with selected crisp vegetables and artisan dressings.',
+      TH: 'สลัดสดใหม่ใส่ไข่ ไก่ มันฝรั่ง หรือทูน่า ปรุงด้วยผักสดคัดสรรและน้ำสลัดโฮมเมด',
+      DE: 'Frische Salate mit Eiern, Hähnchen, Kartoffeln oder Thunfisch, zubereitet mit ausgewähltem Gemüse und hausgemachten Dressings.',
+      MM: 'ကြက်ဥ၊ ကြက်သား၊ အာလူး သို့မဟုတ် တူနာငါးတို့ဖြင့် ပြင်ဆင်ထားသော လတ်ဆတ်သည့် အသုပ်များ။',
+    }
+  },
+  {
+    id: 'main-courses',
+    name: {
+      IT: 'Secondi Piatti Tradizionali',
+      EN: 'Traditional Main Courses',
+      TH: 'อาหารจานหลักแบบดั้งเดิม',
+      DE: 'Traditionelle Hauptgerichte',
+      MM: 'ရိုးရာ အဓိက အစားအစာများ',
+    },
+    desc: {
+      IT: 'Grandi classici e torte salate della tradizione italiana: Cotoletta alla Milanese con patate, Cotechino artigianale con purè e autentica Torta Pasqualina ligure.',
+      EN: 'Italian culinary classics & savory pies made fresh: Crispy Milanese Cutlet with fries, Artisanal Cotechino with mashed potatoes, and Ligurian Torta Pasqualina.',
+      TH: 'เมนูคลาสสิกและพายอบสไตล์อิตาเลียน: มิลานีสคัตเล็ตหมูทอดกรอบ ไส้กรอกโคเตคิโนโบราณพร้อมมันบด และพายตอร์ตา ปาสควาลินา',
+      DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.',
+      MM: 'လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ထားသော အီတလီ ရိုးရာ ဂန္တဝင် အစားအစာများနှင့် အရသာရှိ ပီဇာမုန့်များ။',
+    }
+  }
+];
+
+const SALAD_SUBFILTER_LABELS = {
+  IT: { all: 'Tutti i Piatti', salads: 'Insalate Italiane', mains: 'Secondi Piatti' },
+  EN: { all: 'All Dishes', salads: 'Italian Salads', mains: 'Main Courses' },
+  TH: { all: 'ทุกจาน', salads: 'สลัดอิตาเลียน', mains: 'จานหลัก' },
+  DE: { all: 'Alle Gerichte', salads: 'Italienische Salate', mains: 'Hauptgerichte' },
+  MM: { all: 'ဟင်းလျာအားလုံး', salads: 'အီတလီဆလတ်များ', mains: 'အဓိကဟင်းလျာများ' },
+};
+
+const SANDWICH_SUBFILTER_LABELS = {
+  IT: { all: 'Tutti i Piatti', focacce: 'Focacce', sandwiches: 'Pizza Sandwich' },
+  EN: { all: 'All Dishes', focacce: 'Focaccia', sandwiches: 'Pizza Sandwich' },
+  TH: { all: 'ทุกจาน', focacce: 'โฟกัชชา', sandwiches: 'พิซซ่าแซนด์วิช' },
+  DE: { all: 'Alle Gerichte', focacce: 'Focacce', sandwiches: 'Pizza-Sandwich' },
+  MM: { all: 'ဟင်းလျာအားလုံး', focacce: 'ဖိုကာချာများ', sandwiches: 'ပီဇာဆန်းဒဝစ်' },
+};
+
 const FOCACCIA_SANDWICH_SECTIONS = [
   {
     id: 'focacce',
     name: {
-      IT: 'Focacce Artigianali',
-      EN: 'Artisanal Focaccias',
-      TH: 'ฟอคคาเซียอบสดสไตล์อิตาเลียน',
-      DE: 'Hausgemachte Focaccia',
-      MM: 'လက်လုပ် ဖိုကာချာ မုန့်များ',
+      IT: 'Focacce',
+      EN: 'Focaccia',
+      TH: 'โฟกัชชา',
+      DE: 'Focacce',
+      MM: 'ဖိုကာချာများ',
     },
     desc: {
-      IT: 'Focacce fragranti da impasto pizza cotte al forno e farcite con i migliori salumi italiani selezionati: Finocchiona toscana, Pancetta arrotolata, Porchetta romana, Prosciutto Cotto e Salame.',
-      EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Tuscan Finocchiona, Rolled Pancetta, Roasted Porchetta, Cooked Ham, and Salami.',
-      TH: 'ฟอคคาเซียแป้งพิซซ่าอบสดใหม่สไตล์โฮมเมด สอดไส้โคลด์คัทอิตาเลียนพรีเมียม: ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
-      DE: 'Ofenfrische Pizza-Focaccia gefüllt mit feinsten italienischen Spezialitäten: Toskanische Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
-      MM: 'အီတလီ အသားလွှာ အကောင်းစားများ ညှပ်ထားသော မီးဖိုဖုတ် ဖိုကာချာ မုန့်များ။',
+      IT: 'Focacce fragranti da impasto pizza all\'olio extravergine d\'oliva cotte al forno e farcite al momento con i migliori salumi italiani selezionati: Milanese, Finocchiona, Pancetta arrotolata, Porchetta, Prosciutto Cotto e Salame.',
+      EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Milanese cutlet, Tuscan Finocchiona, Rolled Pancetta, Roasted Porchetta, Cooked Ham, and Salami.',
+      TH: 'ฟอคคาเซียแป้งพิซซ่าอบสดใหม่สไตล์โฮมเมด สอดไส้โคลด์คัทอิตาเลียนพรีเมียม: มิลานีส, ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
+      DE: 'Ofenfrische Pizza-Focaccia gefüllt mit feinsten italienischen Spezialitäten: Mailänder Schnitzel, Toskanische Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
+      MM: 'အီတလီ အသားလွှာ အကောင်းစားများနှင့် မီးဖိုဖုတ် ဖိုကာချာ မုန့်များ။',
     }
   },
   {
     id: 'pizza-sandwiches',
     name: {
-      IT: 'Pizza Sandwiches',
-      EN: 'Pizza Sandwiches',
-      TH: 'พิตซ่าแซนด์วิช',
-      DE: 'Pizza Sandwiches',
-      MM: 'ပီဇာ ဆန်းဒဝစ်များ',
+      IT: 'Pizza Sandwich',
+      EN: 'Pizza Sandwich',
+      TH: 'พิซซ่าแซนด์วิช',
+      DE: 'Pizza-Sandwich',
+      MM: 'ပီဇာဆန်းဒဝစ်',
     },
     desc: {
-      IT: 'Gustosi panini racchiusi nel nostro impasto pizza dorato e croccante con formaggio filante, pomodoro fresco e verdure croccanti.',
-      EN: 'Flavorful sandwiches wrapped in our golden, crispy pizza crust with melted cheese, fresh tomatoes, and crisp lettuce.',
-      TH: 'แซนด์วิชแป้งพิซซ่ากรอบนอกนุ่มใน สอดไส้ชีสเยิ้มๆ มะเขือเทศสด และผักสลัดกรอบอร่อย',
-      DE: 'Köstliche Sandwiches in knusprigem Pizzateig mit geschmolzenem Käse, frischen Tomaten und knackigem Salat.',
-      MM: 'ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ ပီဇာမုန့်သား၊ အရည်ပျော်နေသော ချိစ်နှင့် လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များ ပါဝင်သော ဆန်းဒဝစ်။',
+      IT: 'Gustosi panini racchiusi nel nostro impasto pizza dorato e croccante con formaggio filante, pomodoro fresco e salumi italiani selezionati.',
+      EN: 'Flavorful sandwiches wrapped in our golden, crispy pizza crust with melted cheese, fresh tomatoes, and premium Italian cold cuts.',
+      TH: 'แซนด์วิชแป้งพิซซ่ากรอบนอกนุ่มใน สอดไส้ชีสเยิ้มๆ มะเขือเทศสด และโคลด์คัทอิตาเลียนชั้นเลิศ',
+      DE: 'Köstliche Sandwiches in knusprigem Pizzateig mit geschmolzenem Käse, frischen Tomaten und feinen italienischen Wurstwaren.',
+      MM: 'ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ ပီဇာမုန့်သား၊ အရည်ပျော်နေသော ချိစ်နှင့် အသားလွှာများ ပါဝင်သော ပီဇာဆန်းဒဝစ်။',
     }
   }
 ];
@@ -918,6 +971,8 @@ export default function DeliveryMenu() {
     const firstCat = availableCategories[0]?.id || 'traditional-italian-pizza';
     setActiveCategoryId(firstCat);
     setSelectedPastaSauce('all');
+    setSelectedSaladSubFilter('all');
+    setSelectedSandwichSubFilter('all');
     setSelectedWineType('all');
     setSelectedWineCountry('all');
     setDietaryFilter('all');
@@ -1034,6 +1089,8 @@ export default function DeliveryMenu() {
 
   // Sub-filtering states
   const [selectedPastaSauce, setSelectedPastaSauce] = useState<string>('all');
+  const [selectedSaladSubFilter, setSelectedSaladSubFilter] = useState<'all' | 'salads' | 'main-courses'>('all');
+  const [selectedSandwichSubFilter, setSelectedSandwichSubFilter] = useState<'all' | 'focacce' | 'pizza-sandwiches'>('all');
   const [selectedWineType, setSelectedWineType] = useState<'all' | 'red' | 'white' | 'rose' | 'sparkling'>('all');
   const [selectedWineCountry, setSelectedWineCountry] = useState<string>('all');
   const [dietaryFilter, setDietaryFilter] = useState<'all' | 'veggie' | 'vegan'>('all');
@@ -1424,6 +1481,50 @@ export default function DeliveryMenu() {
     return { ...sec, items };
   }).filter(group => group.items.length > 0) : [];
 
+  // Sub-counts for Italian Salads & Main Courses
+  const saladSubCounts = useMemo(() => {
+    if (activeCategoryId !== 'italian-salads') return { all: 0, salads: 0, mains: 0 };
+    let salads = 0;
+    let mains = 0;
+    filteredCategoryItems.forEach((item: any) => {
+      const id = item.id || '';
+      const isMain = id.includes('milanese') || id.includes('cotechino') || id.includes('pasqualina') || id === 'cotoletta-alla-milanese-con-patatine-fritte' || id === 'cotechino-artigianale-con-pure-di-patate' || id === 'torta-pasqualina-agli-spinaci-e-uova';
+      if (isMain) mains++;
+      else salads++;
+    });
+    return { all: filteredCategoryItems.length, salads, mains };
+  }, [activeCategoryId, filteredCategoryItems]);
+
+  // Sub-counts for Focaccia & Pizza Sandwich
+  const sandwichSubCounts = useMemo(() => {
+    if (activeCategoryId !== 'pizza-sandwich') return { all: 0, focacce: 0, sandwiches: 0 };
+    let focacce = 0;
+    let sandwiches = 0;
+    filteredCategoryItems.forEach((item: any) => {
+      const id = item.id || '';
+      if (id.startsWith('focaccia-') || (item.nameIt && item.nameIt.includes('FOCACCIA'))) {
+        focacce++;
+      } else {
+        sandwiches++;
+      }
+    });
+    return { all: filteredCategoryItems.length, focacce, sandwiches };
+  }, [activeCategoryId, filteredCategoryItems]);
+
+  const groupedSalads = activeCategoryId === 'italian-salads' ? ITALIAN_SALADS_SECTIONS.map(sec => {
+    const items = filteredCategoryItems.filter((item: any) => {
+      const id = item.id || '';
+      const isMain = id.includes('milanese') || id.includes('cotechino') || id.includes('pasqualina') || id === 'cotoletta-alla-milanese-con-patatine-fritte' || id === 'cotechino-artigianale-con-pure-di-patate' || id === 'torta-pasqualina-agli-spinaci-e-uova';
+      if (sec.id === 'main-courses') return isMain;
+      if (sec.id === 'salads') return !isMain;
+      return false;
+    });
+    return { ...sec, items };
+  }).filter(group => {
+    if (selectedSaladSubFilter !== 'all' && group.id !== selectedSaladSubFilter) return false;
+    return group.items.length > 0;
+  }) : [];
+
   const groupedSandwiches = activeCategoryId === 'pizza-sandwich' ? FOCACCIA_SANDWICH_SECTIONS.map(sec => {
     const items = filteredCategoryItems.filter((item: any) => {
       const id = item.id || '';
@@ -1436,7 +1537,10 @@ export default function DeliveryMenu() {
       return false;
     });
     return { ...sec, items };
-  }).filter(group => group.items.length > 0) : [];
+  }).filter(group => {
+    if (selectedSandwichSubFilter !== 'all' && group.id !== selectedSandwichSubFilter) return false;
+    return group.items.length > 0;
+  }) : [];
 
   return (
     <div className="min-h-screen bg-[#e7e5e4] pb-12 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
@@ -1876,6 +1980,70 @@ export default function DeliveryMenu() {
           </div>
         )}
 
+        {/* Submenu for Italian Salads & Main Courses (Quick Selection Bar) */}
+        {activeCategoryId === 'italian-salads' && (
+          <div className="relative z-30 mb-6 px-1 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar animate-fadeIn">
+            {[
+              { id: 'all', label: SALAD_SUBFILTER_LABELS[lang].all, icon: Sparkles, count: saladSubCounts.all },
+              { id: 'salads', label: SALAD_SUBFILTER_LABELS[lang].salads, icon: Salad, count: saladSubCounts.salads },
+              { id: 'main-courses', label: SALAD_SUBFILTER_LABELS[lang].mains, icon: UtensilsCrossed, count: saladSubCounts.mains },
+            ].map(tab => {
+              const Icon = tab.icon;
+              const isActive = selectedSaladSubFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setSelectedSaladSubFilter(tab.id as any)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm tracking-tight transition-all cursor-pointer whitespace-nowrap shadow-xs ${
+                    isActive
+                      ? 'bg-[#3b3530] text-white shadow-md scale-[1.02] border border-amber-400/40'
+                      : 'bg-stone-200/90 hover:bg-stone-300/80 text-stone-700 hover:text-stone-900 border border-stone-300/60'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400' : 'text-stone-500'}`} />
+                  <span>{tab.label}</span>
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${isActive ? 'bg-amber-400 text-stone-950' : 'bg-stone-300 text-stone-700'}`}>
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Submenu for Focaccia & Pizza Sandwich (Quick Selection Bar) */}
+        {activeCategoryId === 'pizza-sandwich' && (
+          <div className="relative z-30 mb-6 px-1 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar animate-fadeIn">
+            {[
+              { id: 'all', label: SANDWICH_SUBFILTER_LABELS[lang].all, icon: Sparkles, count: sandwichSubCounts.all },
+              { id: 'focacce', label: SANDWICH_SUBFILTER_LABELS[lang].focacce, icon: Wheat, count: sandwichSubCounts.focacce },
+              { id: 'pizza-sandwiches', label: SANDWICH_SUBFILTER_LABELS[lang].sandwiches, icon: Sandwich, count: sandwichSubCounts.sandwiches },
+            ].map(tab => {
+              const Icon = tab.icon;
+              const isActive = selectedSandwichSubFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setSelectedSandwichSubFilter(tab.id as any)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl font-bold text-xs sm:text-sm tracking-tight transition-all cursor-pointer whitespace-nowrap shadow-xs ${
+                    isActive
+                      ? 'bg-[#3b3530] text-white shadow-md scale-[1.02] border border-amber-400/40'
+                      : 'bg-stone-200/90 hover:bg-stone-300/80 text-stone-700 hover:text-stone-900 border border-stone-300/60'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400' : 'text-stone-500'}`} />
+                  <span>{tab.label}</span>
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${isActive ? 'bg-amber-400 text-stone-950' : 'bg-stone-300 text-stone-700'}`}>
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* Submenu / Compliance Banner for Beers */}
         {activeCategoryId === 'beers' && (
           <div className="mb-6 p-3.5 sm:p-4.5 bg-gradient-to-br from-stone-900 via-stone-850 to-stone-900 text-white rounded-2xl sm:rounded-3xl border border-stone-700/80 shadow-xl relative overflow-hidden animate-fadeIn">
@@ -2065,6 +2233,30 @@ export default function DeliveryMenu() {
                       <h3 className="font-sans text-lg font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
                         {group.name[lang]}
                       </h3>
+                      <div className="flex-1 h-px bg-stone-300/60" />
+                    </div>
+                    {group.desc && (
+                      <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {group.desc[lang]}
+                      </p>
+                    )}
+                  </div>
+                  <MenuGrid items={group.items} lang={lang} onBookTable={handleBookWineTable} />
+                </div>
+              ))}
+            </div>
+          ) : activeCategoryId === 'italian-salads' ? (
+            <div className="space-y-12">
+              {groupedSalads.map(group => (
+                <div key={group.id} id={`salad-${group.id}`} className="scroll-mt-24">
+                  <div className="px-2 mb-6">
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                        {group.name[lang]}
+                      </h3>
+                      <span className="text-xs text-stone-400 font-medium">
+                        ({group.items.length})
+                      </span>
                       <div className="flex-1 h-px bg-stone-300/60" />
                     </div>
                     {group.desc && (
