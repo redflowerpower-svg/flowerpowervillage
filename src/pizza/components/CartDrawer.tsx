@@ -1273,8 +1273,19 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
             </div>
             
             {isDiningMode ? (
-              /* DINING TABLET BUTTONS */
-              <div className="space-y-2 pt-1">
+              /* DINING TABLET BUTTONS: GREEN ADD-MORE ON TOP, RED SUBMIT BELOW */
+              <div className="space-y-2.5 pt-1">
+                {/* 1. TOP GREEN BUTTON: ADD MORE DISHES */}
+                <button
+                  type="button"
+                  onClick={handleContinueShopping}
+                  className="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white rounded-2xl transition-all shadow-md hover:shadow-lg cursor-pointer active:scale-[0.98] flex items-center justify-center gap-2 border border-emerald-400/40 text-xs sm:text-sm font-black uppercase tracking-wider"
+                >
+                  <Plus size={16} className="text-emerald-200 stroke-[3]" />
+                  <span>{t.tableAddMoreBtn}</span>
+                </button>
+
+                {/* 2. BOTTOM RED BUTTON: SEND ORDER TO KITCHEN (-5%) */}
                 <button
                   type="button"
                   onClick={() => { closeCart(); onCheckout(); }}
@@ -1292,15 +1303,6 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                     </span>
                     <ChevronRight size={14} className="text-white" />
                   </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleContinueShopping}
-                  className="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  <Plus size={14} className="text-stone-600" />
-                  <span>{t.tableAddMoreBtn}</span>
                 </button>
               </div>
             ) : serviceCalc.canOrder ? (

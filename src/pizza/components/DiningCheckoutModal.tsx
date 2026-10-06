@@ -252,6 +252,19 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
       setSelectedTable(initialTable);
     }
   }, [initialTable]);
+
+  useEffect(() => {
+    if (isOpen) {
+      try {
+        const savedName = localStorage.getItem('fp_last_dining_customer_name');
+        const savedPhone = localStorage.getItem('fp_last_dining_customer_phone');
+        const savedEmail = localStorage.getItem('fp_last_dining_customer_email');
+        if (savedName) setCustomerName(savedName);
+        if (savedPhone) setCustomerPhone(savedPhone);
+        if (savedEmail) setCustomerEmail(savedEmail);
+      } catch {}
+    }
+  }, [isOpen, initialTable]);
   
   const [customerName, setCustomerName] = useState(() => {
     try { return localStorage.getItem('fp_last_dining_customer_name') || ''; } catch { return ''; }
@@ -330,8 +343,9 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         total: calcItemTotal(i)
       }));
 
-      // 1. Check if an active order exists for this table to label additions
+      // 1. Check if an active order exists for this table to label additions & update existing record
       let isTableIntegration = false;
+      let activeExistingOrderId: string | null = null;
       try {
         const queryPromise = supabase
           .from('pizza_orders')
@@ -353,7 +367,10 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
             const raw = extractTableFromAddress(o.address) || o.table_number || '';
             return raw && getCanonicalTableKey(raw) === canonicalCurrentTable;
           });
-          if (found) isTableIntegration = true;
+          if (found) {
+            isTableIntegration = true;
+            activeExistingOrderId = String(found.id);
+          }
         }
       } catch (e) {
         console.warn('[DiningCheckout] Active table check notice:', e);
@@ -363,7 +380,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         ? `${formattedAddress} [INTEGRAZIONE_COMANDA]` 
         : formattedAddress;
 
-      // 2. ALWAYS perform a clean INSERT into pizza_orders
+      // 2. Prepare order payload
       const orderPayload = {
         customer_name: finalCustomerName,
         phone: finalCustomerPhone,
@@ -379,12 +396,12 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
       let savedOrder: any = null;
 
-      // 3. Primary: Serverless Backend API (service_role bypasses RLS and guaranteed write)
+      // 3. Primary: Serverless Backend API (service_role bypasses RLS and guaranteed write/update)
       try {
         const apiPromise = fetch('/api/pizza-order-submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order: orderPayload })
+          body: JSON.stringify({ order: orderPayload, existingOrderId: activeExistingOrderId })
         }).then(r => r.json());
 
         const timeoutPromise = new Promise<any>((resolve) =>

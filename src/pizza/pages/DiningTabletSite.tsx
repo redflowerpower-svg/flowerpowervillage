@@ -888,9 +888,71 @@ export default function DiningTabletSite() {
   const handleSelectTable = (tableName: string) => {
     const trimmed = tableName.trim();
     if (!trimmed) return;
-    
-    // Always start with clean cart for fresh dish selections (existing table orders remain tracked separately in activeTableOrderMap)
-    clearCart();
+    const canonical = getCanonicalTableKey(trimmed);
+    const openOrders = activeTableOrderMap[canonical] || [];
+
+    if (openOrders.length > 0) {
+      // 1. Rehydrate table cart with all existing items from the active order
+      const existingItems: any[] = [];
+      openOrders.forEach(o => {
+        const orderItems = Array.isArray(o.items) ? o.items : [];
+        orderItems.forEach((it: any, idx: number) => {
+          let dishImage = it.image || '';
+          if (!dishImage) {
+            const pid = (it.productId || it.id || '').toLowerCase();
+            const name = (it.name || '').toLowerCase();
+            const nameIt = (it.nameIt || '').toLowerCase();
+            for (const cat of menuData) {
+              const found = cat.items.find(m => 
+                (pid && m.id.toLowerCase() === pid) ||
+                (name && m.name.toLowerCase() === name) ||
+                (nameIt && (m.nameIt?.toLowerCase() === nameIt || (m as any).name_it?.toLowerCase() === nameIt))
+              );
+              if (found) {
+                dishImage = found.image;
+                break;
+              }
+            }
+          }
+
+          existingItems.push({
+            cartId: it.cartId || `order-${o.id}-${idx}-${Date.now()}`,
+            productId: it.productId || it.id || '',
+            name: it.name || '',
+            nameIt: it.nameIt,
+            nameTh: it.nameTh || it.name || '',
+            nameDe: it.nameDe,
+            image: dishImage,
+            basePrice: Number(it.basePrice || it.price || 0),
+            quantity: Number(it.quantity || 1),
+            selectedVariant: it.variant ? { id: it.variant, name: it.variant, priceModifier: 0 } as any : (it.selectedVariant || null),
+            selectedExtras: Array.isArray(it.extras)
+              ? it.extras.map((ex: any) => typeof ex === 'string' ? { id: ex, name: ex, price: 0 } : ex)
+              : (it.selectedExtras || []),
+            lasagnaDate: it.lasagnaDate,
+            isHalalChicken: it.isHalalChicken
+          });
+        });
+
+        // 2. Pre-fill customer contact in storage for checkout form
+        if (o.customer_name) {
+          try { localStorage.setItem('fp_last_dining_customer_name', o.customer_name); } catch {}
+        }
+        if (o.phone) {
+          try { localStorage.setItem('fp_last_dining_customer_phone', o.phone); } catch {}
+        }
+        if (o.address) {
+          const emailMatch = String(o.address).match(/\[EMAIL:\s*([^\]]+)\]/i);
+          if (emailMatch && emailMatch[1]) {
+            try { localStorage.setItem('fp_last_dining_customer_email', emailMatch[1].trim()); } catch {}
+          }
+        }
+      });
+      setItems(existingItems);
+    } else {
+      // Free table with no active orders
+      clearCart();
+    }
 
     setCurrentTable(trimmed);
     setIsTableSelected(true);
