@@ -20,10 +20,11 @@ export async function handlePizzaOrderSubmit(req: VercelRequest, res: VercelResp
   }
 
   try {
+    const addressStr = String(order.address || '');
     const payload: any = {
       customer_name: String(order.customer_name || 'Cliente Tavolo'),
       phone: String(order.phone || '+66 Dining Table'),
-      address: String(order.address || ''),
+      address: addressStr,
       items: Array.isArray(order.items) ? order.items : [],
       total: Number(order.total) || 0,
       payment_method: String(order.payment_method || 'cash_at_table'),
@@ -33,20 +34,48 @@ export async function handlePizzaOrderSubmit(req: VercelRequest, res: VercelResp
       created_at: new Date().toISOString()
     };
 
+    let targetOrderId = existingOrderId ? String(existingOrderId) : null;
+
+    // Server-side safety net: check if an active table session is already open
+    if (!targetOrderId && (addressStr.includes('[DINE-IN:') || addressStr.toLowerCase().includes('tavolo'))) {
+      const match = addressStr.match(/\[DINE-IN:\s*([^\]]+)\]/i);
+      const rawTable = match ? match[1].trim() : '';
+      if (rawTable) {
+        const { data: openOrders } = await supabase
+          .from('pizza_orders')
+          .select('id, address')
+          .neq('status', 'completed')
+          .neq('status', 'cancelled')
+          .neq('status', 'rejected')
+          .neq('status', 'settled')
+          .order('created_at', { ascending: false });
+
+        if (openOrders && openOrders.length > 0) {
+          const found = openOrders.find((o: any) => {
+            const addr = String(o.address || '').toLowerCase();
+            return addr.includes(`[dine-in: ${rawTable.toLowerCase()}]`) || addr.includes(rawTable.toLowerCase());
+          });
+          if (found) {
+            targetOrderId = String(found.id);
+          }
+        }
+      }
+    }
+
     let resultOrder: any = null;
 
-    if (existingOrderId) {
-      // UPDATE EXISTING TABLE ORDER (Bypassing RLS with service_role)
+    if (targetOrderId) {
+      // UPDATE EXISTING TABLE ORDER (Replaces items with cumulative list, updates total and timestamps)
       const { data: updated, error: updateError } = await supabase
         .from('pizza_orders')
         .update(payload)
-        .eq('id', existingOrderId)
+        .eq('id', targetOrderId)
         .select('*')
         .single();
 
       if (updateError) {
         console.warn('[Order Submit API Update Error]:', updateError);
-        // Fallback to fresh insert if update fails
+        // Fallback to insert only if update fails completely
         const { data: inserted, error: insertError } = await supabase
           .from('pizza_orders')
           .insert([payload])
@@ -58,7 +87,7 @@ export async function handlePizzaOrderSubmit(req: VercelRequest, res: VercelResp
         resultOrder = updated;
       }
     } else {
-      // FRESH INSERT
+      // FRESH INSERT FOR NEW TABLE
       const { data: inserted, error: insertError } = await supabase
         .from('pizza_orders')
         .insert([payload])

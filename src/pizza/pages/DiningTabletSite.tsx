@@ -2223,6 +2223,7 @@ export default function DiningTabletSite() {
         }}
         initialTable={currentTable}
         lang={lang}
+        existingOrderId={currentTable ? (activeTableOrderMap[getCanonicalTableKey(currentTable)]?.[0]?.id || null) : null}
       />
 
       {/* TABLE SETTLEMENT & BILL CLOSING MODAL */}

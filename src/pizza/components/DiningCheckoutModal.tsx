@@ -32,6 +32,7 @@ interface DiningCheckoutModalProps {
   onSuccess: () => void;
   initialTable?: string;
   lang?: Language;
+  existingOrderId?: string | null;
 }
 
 import { DINING_TABLES, formatTableStationName, getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
@@ -236,10 +237,10 @@ const I18N_CHECKOUT = {
 
 export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
   isOpen,
-  onClose,
   onSuccess,
   initialTable = 'Tavolo 1 (Interno)',
-  lang = 'IT'
+  lang = 'IT',
+  existingOrderId = null
 }) => {
   const t = I18N_CHECKOUT[lang] || I18N_CHECKOUT.IT;
   const { items, clearCart, getTotal } = useCartStore();
@@ -344,36 +345,38 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
       }));
 
       // 1. Check if an active order exists for this table to label additions & update existing record
-      let isTableIntegration = false;
-      let activeExistingOrderId: string | null = null;
-      try {
-        const queryPromise = supabase
-          .from('pizza_orders')
-          .select('id, address, table_number')
-          .neq('status', 'completed')
-          .neq('status', 'cancelled')
-          .neq('status', 'rejected')
-          .neq('status', 'settled')
-          .order('created_at', { ascending: false });
+      let isTableIntegration = Boolean(existingOrderId);
+      let activeExistingOrderId: string | null = existingOrderId ? String(existingOrderId) : null;
+      if (!activeExistingOrderId) {
+        try {
+          const queryPromise = supabase
+            .from('pizza_orders')
+            .select('id, address, table_number')
+            .neq('status', 'completed')
+            .neq('status', 'cancelled')
+            .neq('status', 'rejected')
+            .neq('status', 'settled')
+            .order('created_at', { ascending: false });
 
-        const timeoutPromise = new Promise<{ data: any[] | null }>((resolve) => 
-          setTimeout(() => resolve({ data: null }), 1200)
-        );
+          const timeoutPromise = new Promise<{ data: any[] | null }>((resolve) => 
+            setTimeout(() => resolve({ data: null }), 1500)
+          );
 
-        const { data: openOrders } = await Promise.race([queryPromise, timeoutPromise]);
+          const { data: openOrders } = await Promise.race([queryPromise, timeoutPromise]);
 
-        if (openOrders && openOrders.length > 0) {
-          const found = openOrders.find((o: any) => {
-            const raw = extractTableFromAddress(o.address) || o.table_number || '';
-            return raw && getCanonicalTableKey(raw) === canonicalCurrentTable;
-          });
-          if (found) {
-            isTableIntegration = true;
-            activeExistingOrderId = String(found.id);
+          if (openOrders && openOrders.length > 0) {
+            const found = openOrders.find((o: any) => {
+              const raw = extractTableFromAddress(o.address) || o.table_number || '';
+              return raw && getCanonicalTableKey(raw) === canonicalCurrentTable;
+            });
+            if (found) {
+              isTableIntegration = true;
+              activeExistingOrderId = String(found.id);
+            }
           }
+        } catch (e) {
+          console.warn('[DiningCheckout] Active table check notice:', e);
         }
-      } catch (e) {
-        console.warn('[DiningCheckout] Active table check notice:', e);
       }
 
       const finalAddress = isTableIntegration 
