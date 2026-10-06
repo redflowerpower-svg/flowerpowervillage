@@ -4,6 +4,18 @@
       "includeFiles": "public/**"
     }
   },
+  "redirects": [
+    {
+      "source": "/flowerpowerpizzaranong",
+      "destination": "https://www.flowerpowerpizza.com",
+      "permanent": true
+    },
+    {
+      "source": "/flowerpowerpizzaranong/:path*",
+      "destination": "https://www.flowerpowerpizza.com",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api-octorate/:path*",

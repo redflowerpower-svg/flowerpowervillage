@@ -107,6 +107,13 @@ function DynamicHeadManager() {
 }
 
 
+function RedirectToExternal({ url }: { url: string }) {
+  useEffect(() => {
+    window.location.replace(url);
+  }, [url]);
+  return null;
+}
+
 function RootRouter() {
   if (typeof window !== 'undefined') {
     const host = window.location.hostname.toLowerCase();
@@ -136,6 +143,8 @@ function App() {
           <Route path="/rooms/:slug" element={<AccommodationDetailPage />} />
           <Route path="/read/:token" element={<DocumentReaderPage />} />
           <Route path="/read/:token/page/:pageNum" element={<DocumentReaderPage />} />
+          <Route path="/flowerpowerpizzaranong/*" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
+          <Route path="/flowerpowerpizzaranong" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           {/* Legacy hash-based admin redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -142,6 +142,9 @@ function syncEnvFromReport(reportText) {
     ksherPrivateKey = ksherPrivateKeyMatch[1].trim().replace(/\r\n/g, '\n').replace(/\n/g, '\\n');
   }
 
+  // DeepSeek AI API
+  const deepseekApiKey = extract(/DEEPSEEK_API_KEY:\s*([^\s\n\r]+)/) || extract(/\*\*DeepSeek API Key:\*\*\s*`([^`]+)`/);
+
   const masterVaultKey = getMasterKey();
 
   const envLines = [
@@ -150,6 +153,10 @@ function syncEnvFromReport(reportText) {
     `VITE_SUPABASE_ANON_KEY=${supabaseAnonKey}`,
     `SUPABASE_URL=${supabaseUrl}`,
     `SUPABASE_SERVICE_ROLE_KEY=${supabaseServiceKey}`,
+    ``,
+    `# DeepSeek AI API`,
+    `DEEPSEEK_API_KEY=${deepseekApiKey}`,
+    `VITE_DEEPSEEK_API_KEY=${deepseekApiKey}`,
     ``,
     `# Octorate Channel Manager - OAuth Credentials`,
     `VITE_OCTORATE_STRUCTURE_ID=${octorateStructureId}`,

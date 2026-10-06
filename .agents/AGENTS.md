@@ -85,7 +85,8 @@ Tutti i testi dell'applicazione, descrizioni, titoli, etichette, banner, modali 
 
 # 🌐 REGOLA IMPRESCINDIBILE TRADUZIONI (DEEPSEEK AI NATIVO)
 All'interno di TUTTO il sito web (sia nel reparto Pizzeria / Delivery `/pizze` che nel reparto Booking Engine / Village `/villaggio`), ogni qualvolta sia richiesta o implementata una funzionalità di traduzione testi, titoli, descrizioni, servizi, menu o alloggi:
-- **OBBLIGO ASSOLUTO DI UTILIZZO API DEEPSEEK**: È tassativo e imprescindibile utilizzare sempre e solo l'API di DeepSeek (`deepseek-chat` / `DEEPSEEK_API_KEY`) tramite endpoint backend dedicato.
+- **OBBLIGO ASSOLUTO DI UTILIZZO API DEEPSEEK**: È tassativo e imprescindibile utilizzare sempre e solo l'API di DeepSeek (`deepseek-chat` / `DEEPSEEK_API_KEY`) tramite endpoint backend dedicato o tool CLI.
+- **MICRO-COPY & TRADUZIONI ON-DEMAND (`scratch/deepseek-translate.mjs`)**: Anche per singole frasi, banner, modali, pulsanti, pop-up o etichette UI in qualsiasi lingua (`IT`, `EN`, `TH`, `DE`, `MM`, `FR`, `RU`, ecc.), l'agente ha il **DIVIETO ASSOLUTO DI GENERARE TESTI A MEMORIA**: DEVE interrogare live le API di DeepSeek eseguendo `node scratch/deepseek-translate.mjs --text="..." --to=[LINGUA]` e applicare il testo certificato restituito dall'API.
 - È severamente vietato l'uso di traduttori statici o dizionari empirici hardcoded: le traduzioni devono essere vive, contestuali, fluide e professionali in tutte le lingue supportate (`IT`, `EN`, `TH`, `DE`, `MM`), garantendo il massimo livello qualitativo.
 
 # 🌍 PROTOCOLLO UNIVERSALE: `[LINGUA] FULL TRANSLATION` / `[LINGUA] TRADUZIONE TOTALE`

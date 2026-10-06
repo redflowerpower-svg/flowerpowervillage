@@ -23,8 +23,19 @@ Il sistema è strutturato come un'applicazione a pagina singola (SPA) con backen
 *   **Modulo Web Reader & Documenti (3° Reparto Stagno):** Motore autonomo con parsing PDF (`pdfjs-dist`), Excel (`xlsx`), Word (`mammoth`) e OCR multilingua (`tesseract.js`) per generare mini-siti web a 256-bit agent-ready (`/read/[token]`).
 *   **Mailing Service:** Servizio SMTP di Gmail integrato tramite `Nodemailer` per l'invio automatizzato delle email di conferma della prenotazione con il PDF in allegato.
 *   **Serverless Environment:** Vercel Serverless Functions (Node.js) ospitate sotto la cartella `/api`.
+*   **Routing Multi-Dominio & Edge Redirects (`vercel.json`):**
+    *   `flowerpowervillage.com` / `www.flowerpowervillage.com`: Booking engine resort, bungalows & spa a Koh Phayam.
+    *   `flowerpowerpizza.com` / `www.flowerpowerpizza.com`: Ristorante & delivery food a Ranong.
+    *   **Ponte & Redirect 301 Edge:** Regole di reindirizzamento permanente per i vecchi percorsi Flazio (es. `/flowerpowerpizzaranong` e relative sottopagine) indirizzate direttamente a `https://www.flowerpowerpizza.com`.
 
 ---
+
+## 1.1 Gestione Domini & Migrazione da Flazio a Spaceship
+
+Il dominio `flowerpowervillage.com` è in fase di migrazione (Auth-Code/EPP transfer) verso **Spaceship** con puntamento DNS a **Vercel**:
+*   **Record A (`@`)**: `76.76.21.21` (Vercel Edge Global Anycast).
+*   **Record CNAME (`www`)**: `cname.vercel-dns.com`.
+*   **Ponte Transitorio Flazio**: Script di reindirizzamento JavaScript inserito nell'`<head>` di Flazio per dirottare in tempo reale i visitatori della vecchia pagina `/flowerpowerpizzaranong` su `https://www.flowerpowerpizza.com`.
 
 ## 2. Flussi Logici
 
