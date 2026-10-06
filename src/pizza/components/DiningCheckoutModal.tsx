@@ -237,6 +237,7 @@ const I18N_CHECKOUT = {
 
 export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
   isOpen,
+  onClose,
   onSuccess,
   initialTable = 'Tavolo 1 (Interno)',
   lang = 'IT',
@@ -295,11 +296,31 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
       setIsSuccess(false);
       return;
     }
-    if (!isSuccess) return;
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('pizza_orders_channel');
+      bc.onmessage = (ev) => {
+        if (ev.data?.type === 'ORDER_ACCEPTED' || ev.data?.status === 'preparing') {
+          handleFinish();
+        }
+      };
+    } catch {}
+
+    if (!isSuccess) {
+      return () => {
+        if (bc) bc.close();
+      };
+    }
+
     const timer = setTimeout(() => {
       handleFinish();
-    }, 4000);
-    return () => clearTimeout(timer);
+    }, 2500);
+
+    return () => {
+      clearTimeout(timer);
+      if (bc) bc.close();
+    };
   }, [isSuccess, isOpen]);
 
   if (!isOpen) return null;
@@ -397,51 +418,48 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         created_at: new Date().toISOString()
       };
 
-      let savedOrder: any = null;
-
-      // 3. Primary: Serverless Backend API (service_role bypasses RLS and guaranteed write/update)
+      // 3. Primary: Serverless Backend API (service_role bypasses RLS and guaranteed atomic write/update)
       try {
-        const apiPromise = fetch('/api/pizza-order-submit', {
+        const res = await fetch('/api/pizza-order-submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ order: orderPayload, existingOrderId: activeExistingOrderId })
-        }).then(r => r.json());
-
-        const timeoutPromise = new Promise<any>((resolve) =>
-          setTimeout(() => resolve(null), 2500)
-        );
-
-        const apiRes = await Promise.race([apiPromise, timeoutPromise]);
+        });
+        const apiRes = await res.json();
         if (apiRes && apiRes.success && apiRes.order) {
           savedOrder = apiRes.order;
         }
       } catch (apiErr) {
-        console.warn('[DiningCheckout] API submit fallback to client Supabase:', apiErr);
+        console.warn('[DiningCheckout] Backend API submit failed, checking client fallback:', apiErr);
       }
 
-      // 4. Secondary fallback: Direct Supabase client insert
+      // 4. Secondary fallback: Direct Supabase client only if serverless API route is unreachable
       if (!savedOrder) {
         try {
-          const insertPromise = supabase
-            .from('pizza_orders')
-            .insert([orderPayload])
-            .select();
-
-          const timeoutPromise = new Promise<{ data: any[] | null; error: any }>((resolve) =>
-            setTimeout(() => resolve({ data: null, error: 'timeout' }), 2500)
-          );
-
-          const { data: inserted, error } = await Promise.race([insertPromise, timeoutPromise]);
-
-          if (!error && inserted && inserted[0]) {
-            savedOrder = inserted[0];
-          } else {
-            savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
+          if (activeExistingOrderId) {
+            const { data: updated } = await supabase
+              .from('pizza_orders')
+              .update(orderPayload)
+              .eq('id', activeExistingOrderId)
+              .select('*')
+              .single();
+            if (updated) savedOrder = updated;
+          }
+          if (!savedOrder) {
+            const { data: inserted } = await supabase
+              .from('pizza_orders')
+              .insert([orderPayload])
+              .select('*')
+              .single();
+            if (inserted) savedOrder = inserted;
           }
         } catch (err) {
-          console.warn('[DiningCheckout] Fallback insert:', err);
-          savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
+          console.warn('[DiningCheckout] Fallback client write error:', err);
         }
+      }
+
+      if (!savedOrder) {
+        savedOrder = { id: activeExistingOrderId || `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
       }
 
       if (savedOrder) {

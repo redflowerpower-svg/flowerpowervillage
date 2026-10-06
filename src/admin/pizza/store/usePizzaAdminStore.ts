@@ -173,7 +173,6 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
   promoCodes: loadPizzaPromoCodes(),
 
   fetchOrders: async () => {
-    set({ loading: true, error: null });
     try {
       const { data, error } = await supabase
         .from('pizza_orders')
@@ -183,7 +182,39 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       if (error) throw error;
 
       const sanitizedOrders = (data || []).map(sanitizePizzaOrder);
-      set({ orders: sanitizedOrders, loading: false });
+      
+      set((state) => {
+        const orderStatusRank: Record<string, number> = {
+          'new': 1,
+          'received': 1,
+          'preparing': 2,
+          'delivering': 3,
+          'completed': 4,
+          'cancelled': 4,
+          'rejected': 4,
+          'settled': 4
+        };
+
+        const mergedOrders = sanitizedOrders.map(serverOrder => {
+          const serverId = String(serverOrder.id);
+          const localMatch = state.orders.find(lo => String(lo.id) === serverId);
+          if (localMatch) {
+            const localRank = orderStatusRank[localMatch.status] || 0;
+            const serverRank = orderStatusRank[serverOrder.status] || 0;
+            // Anti-stale rollback: if local status is more advanced (e.g. preparing or completed), retain local status
+            if (localRank > serverRank) {
+              return {
+                ...serverOrder,
+                status: localMatch.status,
+                payment_status: localMatch.payment_status || serverOrder.payment_status
+              };
+            }
+          }
+          return serverOrder;
+        });
+
+        return { orders: mergedOrders, loading: false, error: null };
+      });
     } catch (err: any) {
       console.error('[usePizzaAdminStore] Fetch Error:', err);
       set({ error: err.message || 'Impossibile caricare gli ordini.', loading: false });
@@ -605,13 +636,14 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
             get().addOrder(newOrder);
           } else if (payload.eventType === 'UPDATE') {
             const updated = sanitizePizzaOrder(payload.new);
+            const updatedId = String(updated.id);
             set((state) => ({
-              orders: state.orders.map((o) => (o.id === updated.id ? updated : o))
+              orders: state.orders.map((o) => (String(o.id) === updatedId ? updated : o))
             }));
           } else if (payload.eventType === 'DELETE') {
             const deletedId = String(payload.old.id);
             set((state) => ({
-              orders: state.orders.filter((o) => o.id !== deletedId)
+              orders: state.orders.filter((o) => String(o.id) !== deletedId)
             }));
           }
         }

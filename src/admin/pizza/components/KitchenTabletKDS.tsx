@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import { usePizzaAdminStore, PizzaOrder } from '../store/usePizzaAdminStore';
 import { supabase } from '../../../lib/supabase';
-import { extractTableFromAddress, formatTableStationName } from '../../../pizza/utils/tableUtils';
+import { extractTableFromAddress, formatTableStationName, getCanonicalTableKey } from '../../../pizza/utils/tableUtils';
 import { 
   initKitchenAudio, 
   startContinuousAlarm, 
@@ -920,10 +920,11 @@ export function KitchenTabletKDS() {
     const handleIncomingBroadcast = (data: any) => {
       if (!data) return;
       const targetId = data.orderId || data.order?.id;
-      if (targetId) {
-        const idStr = String(targetId);
-        // If it's a new order or table reload with new items, re-arm the buzzer and unminimize
-        if (data.type === 'NEW_ORDER' || data.isTableReload || data.hasNewItems || data.order?.status === 'new') {
+      const idStr = targetId ? String(targetId) : '';
+
+      // If it's a new order or table reload with new items, re-arm buzzer, unminimize, and fetch new items
+      if (data.type === 'NEW_ORDER' || data.isTableReload || data.hasNewItems || data.order?.status === 'new') {
+        if (idStr) {
           setAcknowledgedOrderIds(prev => {
             if (!prev.has(idStr)) return prev;
             const next = new Set(prev);
@@ -939,8 +940,13 @@ export function KitchenTabletKDS() {
             return next;
           });
         }
+        fetchOrders();
+      } else if (data.status && idStr) {
+        // Direct zero-latency in-memory update for status changes (NEVER fetchOrders here to prevent reverting optimistic state!)
+        usePizzaAdminStore.setState(state => ({
+          orders: state.orders.map(o => String(o.id) === idStr ? { ...o, status: data.status } : o)
+        }));
       }
-      fetchOrders();
     };
 
     try {
@@ -990,9 +996,18 @@ export function KitchenTabletKDS() {
     };
   }, []);
 
-  // Active Dining Tables in Hall (Read-only overview for kitchen display)
+  // Active Dining Tables in Hall (Guaranteed 1 single card per table in bottom dock)
   const activeDiningOrders = useMemo(() => {
-    return orders.filter(o => isDiningTableOrder(o) && o.status !== 'completed' && o.status !== 'cancelled');
+    const rawDining = orders.filter(o => isDiningTableOrder(o) && o.status !== 'completed' && o.status !== 'cancelled');
+    const tableMap = new Map<string, PizzaOrder>();
+    rawDining.forEach(o => {
+      const rawTable = extractTableFromAddress(o.address) || o.table_number || String(o.id);
+      const canonicalKey = getCanonicalTableKey(rawTable);
+      if (!tableMap.has(canonicalKey)) {
+        tableMap.set(canonicalKey, o);
+      }
+    });
+    return Array.from(tableMap.values());
   }, [orders]);
 
   // 6. Group into PHASES:
@@ -1010,22 +1025,66 @@ export function KitchenTabletKDS() {
   }, [pendingTableReservations, acknowledgedOrderIds]);
 
   // Phase 1: In Kitchen (New orders to accept - delivery/takeaway and dining tables)
+  // Deduplicates dining table orders by canonical table key so exactly 1 ticket per table is shown
   const kitchenOrders = useMemo(() => {
-    return orders.filter(o => !isTableReservationOrder(o) && (o.status === 'new' || (o.status as any) === 'received'));
+    const rawKitchen = orders.filter(o => !isTableReservationOrder(o) && (o.status === 'new' || (o.status as any) === 'received'));
+    const seenTables = new Set<string>();
+    const result: PizzaOrder[] = [];
+
+    for (const order of rawKitchen) {
+      if (isDiningTableOrder(order)) {
+        const rawTable = extractTableFromAddress(order.address) || order.table_number || String(order.id);
+        const tableKey = getCanonicalTableKey(rawTable);
+        if (seenTables.has(tableKey)) {
+          continue; // Skip duplicate ticket for same table
+        }
+        seenTables.add(tableKey);
+      }
+      result.push(order);
+    }
+    return result;
   }, [orders]);
 
   // Phase 2: In Preparation & Delivering (Orders confirmed, cooking or out for delivery)
   // Excludes dining table orders that are currently minimized down in the kitchen dock
   const readyOrders = useMemo(() => {
-    return orders.filter(o => {
+    // 1. First filter active preparing or delivering orders
+    const active = orders.filter(o => {
       if (isTableReservationOrder(o)) return false;
       const isReadyStatus = o.status === 'preparing' || o.status === 'delivering' || (o.status as any) === 'ready';
-      if (!isReadyStatus) return false;
-      if (isDiningTableOrder(o) && minimizedTableOrderIds.has(String(o.id))) {
-        return false;
-      }
-      return true;
+      return isReadyStatus;
     });
+
+    const seenTables = new Set<string>();
+    const result: PizzaOrder[] = [];
+
+    for (const order of active) {
+      if (isDiningTableOrder(order)) {
+        const rawTable = extractTableFromAddress(order.address) || order.table_number || String(order.id);
+        const tableKey = getCanonicalTableKey(rawTable);
+
+        // Check if ANY order for this table is currently minimized in the bottom dock
+        const isAnyOrderMinimized = minimizedTableOrderIds.has(String(order.id)) || 
+          minimizedTableOrderIds.has(tableKey) ||
+          orders.some(o => {
+            if (o.status === 'completed' || o.status === 'cancelled') return false;
+            const oKey = getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id));
+            return oKey === tableKey && minimizedTableOrderIds.has(String(o.id));
+          });
+
+        if (isAnyOrderMinimized) {
+          continue; // Table is active in dock tray, hide completely from right column
+        }
+
+        // Deduplicate: if dispatched, show exactly 1 card per table in right column
+        if (seenTables.has(tableKey)) {
+          continue;
+        }
+        seenTables.add(tableKey);
+      }
+      result.push(order);
+    }
+    return result;
   }, [orders, minimizedTableOrderIds]);
 
   // Phase 3: Completed Orders Today (Archived & delivered in the last 24h)
@@ -1049,17 +1108,22 @@ export function KitchenTabletKDS() {
   const [testingNewOrderAlarm, setTestingNewOrderAlarm] = useState(false);
   const [testingReminderAlarm, setTestingReminderAlarm] = useState(false);
 
-  // Truly unacknowledged new orders trigger the buzzer
+  // Truly unacknowledged new orders trigger the buzzer (based strictly on visible, deduplicated kitchenOrders)
   const unacknowledgedNewOrders = useMemo(() => {
-    return orders.filter(o => !isTableReservationOrder(o) && (o.status === 'new' || (o.status as any) === 'received') && !acknowledgedOrderIds.has(String(o.id)));
-  }, [orders, acknowledgedOrderIds]);
+    return kitchenOrders.filter(o => !acknowledgedOrderIds.has(String(o.id)));
+  }, [kitchenOrders, acknowledgedOrderIds]);
 
-  // Orders cooking for 15+ minutes (both delivery orders and dining table orders) that need dispatch / closure reminder
+  // Delivery orders cooking for 15+ minutes that need dispatch reminder (EXCLUDES dining room tables & stale orders older than 3h)
   const overdueDispatchOrders = useMemo(() => {
     const now = Date.now();
     return orders.filter(o => {
       if (isTableReservationOrder(o)) return false;
+      if (isDiningTableOrder(o)) return false; // Dining room tables do NOT trigger delivery dispatch buzzer
       if (o.status !== 'preparing') return false;
+      if (o.created_at) {
+        const ageHours = (now - new Date(o.created_at).getTime()) / (3600 * 1000);
+        if (ageHours > 3) return false; // Ignore stale historical test orders
+      }
       const mins = getElapsedPrepMinutes(o);
       if (mins < 15) return false;
       const snoozedUntil = reminderSnoozedUntil[String(o.id)];
@@ -1147,7 +1211,6 @@ export function KitchenTabletKDS() {
   };
 
   const handleSnoozeReminder = (orderId: string | number, minutes: number = 10) => {
-    initKitchenAudio();
     stopAllKitchenAlarms();
     setTestingReminderAlarm(false);
     setTestingNewOrderAlarm(false);
@@ -1180,7 +1243,6 @@ export function KitchenTabletKDS() {
 
   // Actions
   const handleArchiveTableReservation = async (resId: string) => {
-    initKitchenAudio();
     stopContinuousAlarm();
     setAcknowledgedOrderIds(prev => new Set(prev).add(resId));
     await updateOrderStatus(resId, 'completed');
@@ -1196,7 +1258,6 @@ export function KitchenTabletKDS() {
   };
 
   const handleRejectTableReservation = async (resId: string) => {
-    initKitchenAudio();
     stopContinuousAlarm();
     setAcknowledgedOrderIds(prev => new Set(prev).add(String(resId)));
     setReminderSnoozedUntil(prev => {
@@ -1217,7 +1278,6 @@ export function KitchenTabletKDS() {
   };
 
   const handleForceDeleteOrder = async (orderId: string) => {
-    initKitchenAudio();
     stopContinuousAlarm();
     setAcknowledgedOrderIds(prev => new Set(prev).add(String(orderId)));
     setReminderSnoozedUntil(prev => {
@@ -1228,38 +1288,104 @@ export function KitchenTabletKDS() {
     await deleteOrder(orderId);
   };
 
-  const handleAcceptOrder = async (orderId: string, minutes: number = 30) => {
-    initKitchenAudio();
+  const handleAcceptOrder = (orderId: string, minutes: number = 30) => {
     stopContinuousAlarm();
-    setAcknowledgedOrderIds(prev => new Set(prev).add(String(orderId)));
+    stopAllKitchenAlarms();
+
+    const target = orders.find(o => String(o.id) === String(orderId));
+    const targetTableKey = target ? getCanonicalTableKey(extractTableFromAddress(target.address) || target.table_number || String(target.id)) : '';
+
+    setAcknowledgedOrderIds(prev => {
+      const next = new Set(prev);
+      next.add(String(orderId));
+      if (targetTableKey) {
+        orders.forEach(o => {
+          if (getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey) {
+            next.add(String(o.id));
+          }
+        });
+      }
+      try { localStorage.setItem('kitchen_acknowledged_orders', JSON.stringify(Array.from(next))); } catch (e) {}
+      return next;
+    });
+
     setAcceptedTimestamps(prev => {
       const next = { ...prev, [orderId]: Date.now() };
+      if (targetTableKey) {
+        orders.forEach(o => {
+          if (getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey) {
+            next[String(o.id)] = Date.now();
+          }
+        });
+      }
       try { localStorage.setItem('kitchen_accepted_timestamps', JSON.stringify(next)); } catch (e) {}
       return next;
     });
 
-    const target = orders.find(o => String(o.id) === String(orderId));
+    // Snooze any reminder for this order so it can never chime immediately
+    setReminderSnoozedUntil(prev => {
+      const next = { ...prev, [String(orderId)]: Date.now() + 60 * 60 * 1000 };
+      if (targetTableKey) {
+        orders.forEach(o => {
+          if (getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey) {
+            next[String(o.id)] = Date.now() + 60 * 60 * 1000;
+          }
+        });
+      }
+      try { localStorage.setItem('kitchen_reminder_snoozed_until', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
+
     if (target && isDiningTableOrder(target)) {
-      // Put dining table order into minimized bottom tray
-      updateMinimizedTableOrders(prev => new Set(prev).add(String(orderId)));
+      // Put dining table order into minimized bottom tray IMMEDIATELY (all matching table orders and table key)
+      updateMinimizedTableOrders(prev => {
+        const next = new Set(prev);
+        next.add(String(orderId));
+        if (targetTableKey) {
+          next.add(targetTableKey);
+          orders.forEach(o => {
+            if (getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey) {
+              next.add(String(o.id));
+            }
+          });
+        }
+        return next;
+      });
     }
 
-    await updateOrderStatus(orderId, 'preparing');
+    // Trigger instant optimistic update in Zustand store (0ms UI latency)
+    updateOrderStatus(orderId, 'preparing');
+    if (targetTableKey) {
+      orders.forEach(o => {
+        if (String(o.id) !== String(orderId) && getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey) {
+          updateOrderStatus(o.id, 'preparing');
+        }
+      });
+    }
   };
 
   const handleDispatchTableOrder = (orderId: string) => {
-    initKitchenAudio();
-    // Remove from minimized dock tray so it moves to Phase 2 (Right column)
+    const target = orders.find(o => String(o.id) === String(orderId));
+    const targetTableKey = target ? getCanonicalTableKey(extractTableFromAddress(target.address) || target.table_number || String(target.id)) : '';
+
+    // Remove all IDs belonging to this table from minimized dock tray so it moves to Phase 2 (Right column)
     updateMinimizedTableOrders(prev => {
       const next = new Set(prev);
       next.delete(String(orderId));
+      if (targetTableKey) {
+        next.delete(targetTableKey);
+        orders.forEach(o => {
+          if (getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey) {
+            next.delete(String(o.id));
+          }
+        });
+      }
       return next;
     });
     setSelectedTrayOrder(null);
   };
 
   const handleOrderReady = async (orderId: string) => {
-    initKitchenAudio();
     setReminderSnoozedUntil(prev => {
       const next = { ...prev };
       delete next[String(orderId)];
@@ -1269,31 +1395,105 @@ export function KitchenTabletKDS() {
   };
 
   const handleOrderCompleted = async (orderId: string) => {
-    initKitchenAudio();
+    stopContinuousAlarm();
+    stopAllKitchenAlarms();
+    const target = orders.find(o => String(o.id) === String(orderId));
+    const targetTableKey = (target && isDiningTableOrder(target)) ? getCanonicalTableKey(extractTableFromAddress(target.address) || target.table_number || String(target.id)) : '';
+
     setReminderSnoozedUntil(prev => {
       const next = { ...prev };
       delete next[String(orderId)];
+      if (targetTableKey) {
+        orders.forEach(o => {
+          if (getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey) {
+            delete next[String(o.id)];
+          }
+        });
+      }
       return next;
     });
-    await updateOrderStatus(orderId, 'completed');
+
+    if (targetTableKey) {
+      const tableOrders = orders.filter(o => getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey && o.status !== 'completed' && o.status !== 'cancelled');
+      await Promise.all(tableOrders.map(o => updateOrderStatus(o.id, 'completed')));
+      try {
+        const bc = new BroadcastChannel('pizza_table_channel');
+        bc.postMessage({ type: 'TABLE_SETTLED', tableKey: targetTableKey, orderId });
+        bc.close();
+      } catch {}
+    } else {
+      await updateOrderStatus(orderId, 'completed');
+    }
   };
 
   const handleCompleteTableOrder = async (orderId: string) => {
-    initKitchenAudio();
+    stopContinuousAlarm();
+    stopAllKitchenAlarms();
+
+    const target = orders.find(o => String(o.id) === String(orderId));
+    const targetTableKey = target ? getCanonicalTableKey(extractTableFromAddress(target.address) || target.table_number || String(target.id)) : '';
+
+    // 1. Instant 0ms Optimistic UI updates (dismiss alert, close modal, remove from dock & local store)
     setReminderSnoozedUntil(prev => {
       const next = { ...prev };
       delete next[String(orderId)];
+      if (targetTableKey) {
+        orders.forEach(o => {
+          if (getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey) {
+            delete next[String(o.id)];
+          }
+        });
+      }
       return next;
     });
-    try {
-      await supabase
-        .from('pizza_orders')
-        .update({ status: 'completed', payment_status: 'paid' })
-        .eq('id', orderId);
-    } catch (e) {
-      console.warn('Error completing table order in db:', e);
+
+    updateMinimizedTableOrders(prev => {
+      const next = new Set(prev);
+      next.delete(String(orderId));
+      if (targetTableKey) {
+        next.delete(targetTableKey);
+        orders.forEach(o => {
+          if (getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey) {
+            next.delete(String(o.id));
+          }
+        });
+      }
+      return next;
+    });
+    setSelectedTrayOrder(null);
+
+    // Trigger instant optimistic update in Zustand store for ALL matching table orders
+    const tableOrders = targetTableKey 
+      ? orders.filter(o => getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey && o.status !== 'completed' && o.status !== 'cancelled')
+      : [target].filter(Boolean) as PizzaOrder[];
+
+    const updatePromises = tableOrders.map(o => updateOrderStatus(o.id, 'completed'));
+
+    // 2. Broadcast immediately to local tablet channels
+    const rawTableKey = target ? extractTableFromAddress(target.address) : targetTableKey;
+    if (rawTableKey) {
+      try {
+        const bc = new BroadcastChannel('pizza_table_channel');
+        bc.postMessage({ type: 'TABLE_SETTLED', tableKey: rawTableKey, orderId });
+        bc.close();
+      } catch {}
     }
-    await updateOrderStatus(orderId, 'completed');
+
+    // 3. Persist paid status to Supabase in background for all orders of this table
+    try {
+      const idsToComplete = tableOrders.map(o => o.id);
+      if (idsToComplete.length > 0) {
+        await Promise.allSettled([
+          ...updatePromises,
+          supabase
+            .from('pizza_orders')
+            .update({ status: 'completed' })
+            .in('id', idsToComplete)
+        ]);
+      }
+    } catch (err) {
+      console.warn('Error completing table orders in Supabase:', err);
+    }
   };
 
   const handleOrderCancelled = async (orderId: string) => {
@@ -1380,6 +1580,9 @@ export function KitchenTabletKDS() {
     stopTestBtn: kdsLang === 'mm' ? 'အသံရပ်မည်' : kdsLang === 'th' ? 'หยุดเสียง' : 'STOP',
     rejectResBtn: kdsLang === 'mm' ? '✕ ငြင်းပယ်မည်' : kdsLang === 'th' ? '✕ ปฏิเสธ' : '✕ REJECT',
     deleteBtn: kdsLang === 'mm' ? '🗑️ အပြီးဖျက်မည်' : kdsLang === 'th' ? '🗑️ ลบถาวร' : '🗑️ DELETE',
+    orderPaidBtn: kdsLang === 'mm' ? '💳 အော်ဒါ ငွေရှင်းပြီးပါပြီ / ပိတ်ပါ' : kdsLang === 'th' ? '💳 ชำระเงินแล้ว / ปิดโต๊ะ' : '💳 ORDER PAID (CLOSE & ARCHIVE)',
+    readyForSettlementBtn: kdsLang === 'mm' ? '✓ ငွေရှင်းရန် အသင့်ဖြစ်နေသည် (ညာဘက်သို့ ရွှေ့ပါ)' : kdsLang === 'th' ? '✓ พร้อมสำหรับการชำระ (ย้ายไปขวา)' : '✓ READY FOR SETTLEMENT (MOVE TO RIGHT)',
+    openTableNotice: kdsLang === 'mm' ? 'စားပွဲခုံ ဖွင့်ထားသည်- ထပ်တိုးရန် အသင့်ရှိသည်' : kdsLang === 'th' ? 'โต๊ะเปิดในห้องอาหาร: พร้อมรับรายการเพิ่ม' : 'Open table in dining room: ready for extra orders',
   };
 
   return (
@@ -2244,16 +2447,16 @@ export function KitchenTabletKDS() {
                             <button
                               type="button"
                               onClick={() => handleCompleteTableOrder(order.id)}
-                              className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs uppercase tracking-wider border border-emerald-500 shadow-md transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                              className="flex-1 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider border border-emerald-400 shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2"
                             >
-                              <CheckCircle className="w-4 h-4 stroke-[2.5]" />
-                              <span>{kdsLang === 'th' ? '✓ เสิร์ฟแล้ว / ปิดโต๊ะ' : '✓ SERVED AT TABLE / COMPLETE'}</span>
+                              <CheckCircle className="w-5 h-5 text-white stroke-[2.5]" />
+                              <span>{t.orderPaidBtn}</span>
                             </button>
 
                             <button
                               type="button"
                               onClick={() => handleOrderCancelled(order.id)}
-                              className="px-3 py-3 rounded-xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
+                              className="px-3.5 py-3.5 rounded-2xl bg-stone-800 hover:bg-red-950 text-stone-400 hover:text-red-400 font-bold text-xs uppercase border border-stone-700 transition-colors cursor-pointer"
                             >
                               {t.cancelBtn}
                             </button>
@@ -2536,23 +2739,34 @@ export function KitchenTabletKDS() {
                   📝 {parseCoordsFromAddress(selectedTrayOrder.address).notes}
                 </div>
               )}
+
+              {/* Live Listening Notice for Extra Orders from Dining Tablet */}
+              <div className="px-3.5 py-2.5 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-bold flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                <span>{t.openTableNotice}</span>
+              </div>
             </div>
 
-            {/* Action Buttons: EVADI ORDINE or Close */}
+            {/* Action Buttons: READY FOR SETTLEMENT or Direct Pay */}
             <div className="pt-2 border-t border-stone-800 flex items-center gap-2 shrink-0">
               {minimizedTableOrderIds.has(String(selectedTrayOrder.id)) ? (
                 <button
                   type="button"
                   onClick={() => handleDispatchTableOrder(String(selectedTrayOrder.id))}
-                  className="flex-1 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
+                  className="flex-1 py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
                 >
-                  <CheckCircle className="w-5 h-5 text-white stroke-[2.5]" />
-                  <span>{kdsLang === 'th' ? '✓ เริ่มส่งอาหารที่โต๊ะ (ย้ายไปขวา)' : '✓ DISPATCH ORDER (MOVE TO PREPARING)'}</span>
+                  <CheckCircle className="w-5 h-5 text-stone-950 stroke-[2.5]" />
+                  <span>{t.readyForSettlementBtn}</span>
                 </button>
               ) : (
-                <div className="flex-1 text-center py-2.5 px-3 rounded-xl bg-blue-950/60 border border-blue-600/40 text-blue-300 font-bold text-xs uppercase">
-                  {kdsLang === 'th' ? '✓ ออเดอร์นี้อยู่ในคอลัมน์ขวาแล้ว' : '✓ ORDER IS IN PREPARATION / SERVING'}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCompleteTableOrder(selectedTrayOrder.id)}
+                  className="flex-1 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-transform"
+                >
+                  <CheckCircle className="w-5 h-5 text-white stroke-[2.5]" />
+                  <span>{t.orderPaidBtn}</span>
+                </button>
               )}
 
               <button

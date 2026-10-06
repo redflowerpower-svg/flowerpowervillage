@@ -5,6 +5,15 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL ||
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null as any;
 
+function getCanonicalTableKey(str: string): string {
+  if (!str) return '';
+  const match = str.match(/\[DINE-IN:\s*([^\]]+)\]/i);
+  const target = match ? match[1] : str;
+  const numMatch = target.match(/\d+/);
+  if (numMatch) return `table-${numMatch[0]}`;
+  return target.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
 export async function handlePizzaOrderSubmit(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -35,28 +44,35 @@ export async function handlePizzaOrderSubmit(req: VercelRequest, res: VercelResp
     };
 
     let targetOrderId = existingOrderId ? String(existingOrderId) : null;
+    const currentTableKey = getCanonicalTableKey(addressStr);
 
-    // Server-side safety net: check if an active table session is already open
-    if (!targetOrderId && (addressStr.includes('[DINE-IN:') || addressStr.toLowerCase().includes('tavolo'))) {
-      const match = addressStr.match(/\[DINE-IN:\s*([^\]]+)\]/i);
-      const rawTable = match ? match[1].trim() : '';
-      if (rawTable) {
-        const { data: openOrders } = await supabase
-          .from('pizza_orders')
-          .select('id, address')
-          .neq('status', 'completed')
-          .neq('status', 'cancelled')
-          .neq('status', 'rejected')
-          .neq('status', 'settled')
-          .order('created_at', { ascending: false });
+    // Server-side safety net: check if an active table session is already open for this table
+    if (currentTableKey) {
+      const { data: openOrders } = await supabase
+        .from('pizza_orders')
+        .select('id, address, status, created_at')
+        .neq('status', 'completed')
+        .neq('status', 'cancelled')
+        .neq('status', 'rejected')
+        .neq('status', 'settled')
+        .order('created_at', { ascending: false });
 
-        if (openOrders && openOrders.length > 0) {
-          const found = openOrders.find((o: any) => {
-            const addr = String(o.address || '').toLowerCase();
-            return addr.includes(`[dine-in: ${rawTable.toLowerCase()}]`) || addr.includes(rawTable.toLowerCase());
-          });
-          if (found) {
-            targetOrderId = String(found.id);
+      if (openOrders && openOrders.length > 0) {
+        const matchingOrders = openOrders.filter((o: any) => {
+          return getCanonicalTableKey(String(o.address || '')) === currentTableKey;
+        });
+
+        if (matchingOrders.length > 0) {
+          // Use the latest active order for this table
+          targetOrderId = String(matchingOrders[0].id);
+
+          // If extra duplicate rows exist for this table from previous testing, clean them up
+          if (matchingOrders.length > 1) {
+            const duplicateIds = matchingOrders.slice(1).map((o: any) => o.id);
+            await supabase
+              .from('pizza_orders')
+              .update({ status: 'cancelled' })
+              .in('id', duplicateIds);
           }
         }
       }
@@ -75,7 +91,6 @@ export async function handlePizzaOrderSubmit(req: VercelRequest, res: VercelResp
 
       if (updateError) {
         console.warn('[Order Submit API Update Error]:', updateError);
-        // Fallback to insert only if update fails completely
         const { data: inserted, error: insertError } = await supabase
           .from('pizza_orders')
           .insert([payload])

@@ -5,8 +5,12 @@
 
 let wakeLockSentinel: any = null;
 let audioCtx: AudioContext | null = null;
+let masterGain: GainNode | null = null;
+let activeOscillators: OscillatorNode[] = [];
 let alarmIntervalId: any = null;
 let isAlarmCurrentlyPlaying = false;
+let reminderIntervalId: any = null;
+let isReminderCurrentlyPlaying = false;
 
 /**
  * Richiede al browser di tenere lo schermo del tablet perennemente acceso
@@ -42,10 +46,13 @@ export function initKitchenAudio(): AudioContext | null {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
     if (AudioContextClass) {
       audioCtx = new AudioContextClass();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(1, audioCtx.currentTime);
+      masterGain.connect(audioCtx.destination);
     }
   }
   if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
+    audioCtx.resume().catch(() => {});
   }
   return audioCtx;
 }
@@ -55,10 +62,19 @@ export function initKitchenAudio(): AudioContext | null {
  * ottimizzato per tagliare il rumore di fondo dei forni e degli altoparlanti del tablet.
  */
 function playDualTonePulse() {
+  if (!isAlarmCurrentlyPlaying) return;
   const ctx = initKitchenAudio();
-  if (!ctx) return;
+  if (!ctx || !masterGain || !isAlarmCurrentlyPlaying) return;
+
+  if (ctx.state === 'suspended') {
+    ctx.resume().catch(() => {});
+  }
 
   const now = ctx.currentTime;
+  try {
+    masterGain.gain.cancelScheduledValues(0);
+    masterGain.gain.setValueAtTime(1, now);
+  } catch {}
 
   // Tono 1: Frequenza acuta squillante (2400 Hz)
   const osc1 = ctx.createOscillator();
@@ -69,7 +85,7 @@ function playDualTonePulse() {
   gain1.gain.setValueAtTime(0.8, now);
   gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
   osc1.connect(gain1);
-  gain1.connect(ctx.destination);
+  gain1.connect(masterGain);
   osc1.start(now);
   osc1.stop(now + 0.23);
 
@@ -82,7 +98,7 @@ function playDualTonePulse() {
   gain2.gain.setValueAtTime(0.7, now + 0.05);
   gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
   osc2.connect(gain2);
-  gain2.connect(ctx.destination);
+  gain2.connect(masterGain);
   osc2.start(now + 0.05);
   osc2.stop(now + 0.3);
 
@@ -94,9 +110,11 @@ function playDualTonePulse() {
   gain3.gain.setValueAtTime(0.75, now + 0.16);
   gain3.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
   osc3.connect(gain3);
-  gain3.connect(ctx.destination);
+  gain3.connect(masterGain);
   osc3.start(now + 0.16);
   osc3.stop(now + 0.36);
+
+  activeOscillators.push(osc1, osc2, osc3);
 }
 
 /**
@@ -113,18 +131,44 @@ export function startContinuousAlarm() {
   // Ripetizione in loop
   if (alarmIntervalId) clearInterval(alarmIntervalId);
   alarmIntervalId = setInterval(() => {
-    playDualTonePulse();
+    if (isAlarmCurrentlyPlaying) {
+      playDualTonePulse();
+    } else if (alarmIntervalId) {
+      clearInterval(alarmIntervalId);
+      alarmIntervalId = null;
+    }
   }, 1250);
 }
 
 /**
- * Ferma l'allarme sonoro (chiamato quando il pizzaiolo tocca "Accetta Ordine")
+ * Ferma IMMEDIATAMENTE l'allarme sonoro (hard cut a 0ms al tocco di "Accetta Ordine" o "Mute")
  */
 export function stopContinuousAlarm() {
   isAlarmCurrentlyPlaying = false;
   if (alarmIntervalId) {
     clearInterval(alarmIntervalId);
     alarmIntervalId = null;
+  }
+  if (audioCtx) {
+    if (masterGain) {
+      try {
+        masterGain.gain.cancelScheduledValues(0);
+        masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+      } catch {}
+    }
+    while (activeOscillators.length > 0) {
+      const osc = activeOscillators.pop();
+      try {
+        osc?.stop(0);
+      } catch {}
+      try {
+        osc?.disconnect();
+      } catch {}
+    }
+    // Hard cut hardware silence
+    if (audioCtx.state === 'running') {
+      audioCtx.suspend().catch(() => {});
+    }
   }
 }
 
@@ -133,12 +177,15 @@ export function stopContinuousAlarm() {
  */
 export function testKitchenAlarm() {
   initKitchenAudio();
+  isAlarmCurrentlyPlaying = true;
   playDualTonePulse();
-  setTimeout(() => playDualTonePulse(), 350);
+  setTimeout(() => {
+    if (isAlarmCurrentlyPlaying) {
+      playDualTonePulse();
+    }
+    isAlarmCurrentlyPlaying = false;
+  }, 350);
 }
-
-let reminderIntervalId: any = null;
-let isReminderCurrentlyPlaying = false;
 
 /**
  * Emette un doppio bip elettronico ad alta frequenza (2700 Hz -> 3400 Hz),
@@ -146,10 +193,19 @@ let isReminderCurrentlyPlaying = false;
  * (cappe di aspirazione, forni e conversazioni) senza l'ansia dell'allarme a martello.
  */
 export function playHighPitchReminderChime() {
+  if (!isReminderCurrentlyPlaying) return;
   const ctx = initKitchenAudio();
-  if (!ctx) return;
+  if (!ctx || !masterGain || !isReminderCurrentlyPlaying) return;
+
+  if (ctx.state === 'suspended') {
+    ctx.resume().catch(() => {});
+  }
 
   const now = ctx.currentTime;
+  try {
+    masterGain.gain.cancelScheduledValues(0);
+    masterGain.gain.setValueAtTime(1, now);
+  } catch {}
 
   // Primo impulso acuto penetrante (2700 Hz)
   const osc1 = ctx.createOscillator();
@@ -160,7 +216,7 @@ export function playHighPitchReminderChime() {
   gain1.gain.linearRampToValueAtTime(0.72, now + 0.015);
   gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.11);
   osc1.connect(gain1);
-  gain1.connect(ctx.destination);
+  gain1.connect(masterGain);
   osc1.start(now);
   osc1.stop(now + 0.12);
 
@@ -173,9 +229,11 @@ export function playHighPitchReminderChime() {
   gain2.gain.linearRampToValueAtTime(0.78, now + 0.155);
   gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.27);
   osc2.connect(gain2);
-  gain2.connect(ctx.destination);
+  gain2.connect(masterGain);
   osc2.start(now + 0.14);
   osc2.stop(now + 0.28);
+
+  activeOscillators.push(osc1, osc2);
 }
 
 // Alias per compatibilità con codice esistente
@@ -183,8 +241,6 @@ export const playGentleReminderChime = playHighPitchReminderChime;
 
 /**
  * Avvia la suoneria di promemoria: un doppio bip acuto ogni 4.5 secondi
- * per ricordare con decisione all'operatore che sono trascorsi 15 minuti
- * e il rider deve essere inviato o notificato.
  */
 export function startDispatchReminderAlarm() {
   if (isReminderCurrentlyPlaying) return;
@@ -196,7 +252,12 @@ export function startDispatchReminderAlarm() {
 
   if (reminderIntervalId) clearInterval(reminderIntervalId);
   reminderIntervalId = setInterval(() => {
-    playHighPitchReminderChime();
+    if (isReminderCurrentlyPlaying) {
+      playHighPitchReminderChime();
+    } else if (reminderIntervalId) {
+      clearInterval(reminderIntervalId);
+      reminderIntervalId = null;
+    }
   }, 4500);
 }
 
@@ -208,6 +269,23 @@ export function stopDispatchReminderAlarm() {
   if (reminderIntervalId) {
     clearInterval(reminderIntervalId);
     reminderIntervalId = null;
+  }
+  if (audioCtx) {
+    if (masterGain) {
+      try {
+        masterGain.gain.cancelScheduledValues(0);
+        masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+      } catch {}
+    }
+    while (activeOscillators.length > 0) {
+      const osc = activeOscillators.pop();
+      try {
+        osc?.stop(0);
+      } catch {}
+      try {
+        osc?.disconnect();
+      } catch {}
+    }
   }
 }
 
