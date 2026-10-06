@@ -138,13 +138,14 @@ La modalità **Dining Tablet** è il modulo dedicato all'ordinazione autonoma di
 
 ## Mandatory Trigger Words & Workflows
 
-### 1. `VAULT-SYNC` (Post-PULL Workflow)
-Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** (dopo un `git pull` sulla postazione):
-1. **Decifratura Vault**: Esegui `node scratch/vault-sync.mjs decrypt` (usando `MASTER_VAULT_KEY`).
-2. **Allineamento Ambiente**: Rigenera e allinea i file `.env` e `.env.local` locali.
-3. **Verifica Connessioni**: Esegui `node scratch/test-credentials-verification.mjs` per confermare che Supabase, Stripe, Telegram, Octorate, Maps e SMTP siano connessi e operativi.
-4. **Check Sicurezza Git**: Esegui la verifica per confermare che `.secret_docs/api_credentials_report.md` e i file `.env` siano bloccati da `.gitignore`.
-5. **Conferma Operatività**: Mostra un report chiaro dell'esito dei test e dell'allineamento.
+### 1. `VAULT-SYNC` (Workflow Sincronizzazione Nuova Postazione)
+Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** sulla postazione:
+1. **Aggiornamento Automatico Git**: L'agente esegue preliminarmente in autonomia `git pull` da origin/main per scaricare l'ultimo codice e il file cifrato aggiornato `.md.enc`.
+2. **Decifratura Vault**: Esegui `node scratch/vault-sync.mjs decrypt` (usando `MASTER_VAULT_KEY`).
+3. **Allineamento Ambiente**: Rigenera e allinea automaticamente i file `.env` e `.env.local` locali.
+4. **Verifica Connessioni**: Esegui `node scratch/test-credentials-verification.mjs` per confermare che Supabase, Stripe, Telegram, Octorate, Maps e SMTP siano connessi e operativi.
+5. **Check Sicurezza Git**: Esegui la verifica per confermare che `.secret_docs/api_credentials_report.md` e i file `.env` siano bloccati da `.gitignore`.
+6. **Conferma Operatività**: Mostra un report chiaro dell'esito dei test e dell'allineamento.
 
 ### 2. `MARKDOWN-PROJECT` (Pre-PUSH Workflow - Virtual & Staging)
 Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un `git push` a fine sessione):
