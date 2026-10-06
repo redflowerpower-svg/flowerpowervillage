@@ -115,11 +115,11 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     MM: { name: 'ခေါက်ဆွဲ', desc: 'ရိုးရာ အီတလီ ခေါက်ဆွဲ ဟင်းလျာများ' },
   },
   'italian-salads': {
-    IT: { name: "Insalate Italiane", desc: "Insalate in stile italiano con verdure fresche e ingredienti sani e di alta qualità. Servite con gustose salse fatte in casa e olio extravergine d'oliva: fresche, deliziose e salutari." },
-    EN: { name: "Italian Salads", desc: "Italian-style salads with fresh vegetables and healthy, high-quality ingredients. Served with tasty homemade sauces, extra virgin olive oil: fresh, delicious, and healthy." },
-    TH: { name: 'สลัดสไตล์อิตาเลียน', desc: "สลัดสไตล์อิตาเลียน ผักสดกรอบ วัตถุดิบคุณภาพดีต่อสุขภาพ เสิร์ฟพร้อมน้ำสลัดโฮมเมดสูตรพิเศษและน้ำมันมะกอกบริสุทธิ์ สด อร่อย และมีประโยชน์" },
-    DE: { name: 'Italienische Salate', desc: "Salate nach italienischer Art mit frischem Gemüse und gesunden, hochwertigen Zutaten. Serviert mit leckeren hausgemachten Dressings und nativem Olivenöl extra: frisch, lecker und gesund." },
-    MM: { name: 'အီတလီ စာလတ်', desc: "လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် အထူးသံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော ကျန်းမာရေးနှင့်ညီညွတ်သည့် အီတလီစတိုင် စာလတ်များ။" },
+    IT: { name: "Insalate Italiane\nSecondi Piatti", desc: "Insalate fresche mediterranee e grandi secondi piatti della tradizione italiana con ingredienti sani e di alta qualità." },
+    EN: { name: "Italian Salads\n& Main Courses", desc: "Fresh Mediterranean salads and generous main courses from Italian tradition with healthy, premium ingredients." },
+    TH: { name: "สลัดอิตาเลียน\nและจานหลัก", desc: "สลัดสดสไตล์เมดิเตอร์เรเนียนและเมนูจานหลักจานใหญ่ตามแบบฉบับอิตาลี วัตถุดิบคุณภาพดีต่อสุขภาพ" },
+    DE: { name: "Italienische Salate\n& Hauptgerichte", desc: "Frische mediterrane Salate und große Hauptgerichte der italienischen Tradition mit gesunden, hochwertigen Zutaten." },
+    MM: { name: "အီတလီဆလတ်\nနှင့် ဒုတိယဟင်းပွဲများ", desc: "မြေထဲပင်လယ်ဒေသထုံးစံ လတ်ဆတ်သော အသုပ်များနှင့် အီတလီရိုးရာ ပင်မဟင်းလျာကြီးများ။" },
   },
   'pizza-sandwich': {
     IT: { name: "Focaccia\nPizza Sandwich", desc: "La focaccia è un delizioso pane tradizionale italiano originario di Genova. Farciscila con i tuoi ingredienti preferiti e crea il tuo panino personalizzato." },
@@ -136,11 +136,11 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     MM: { name: 'ပီဇာ ဘာဂါ', desc: "အသစ်ဖုတ်ထားသော ပီဇာမုန့်သားဖြင့် ပြုလုပ်ထားသည့် အိမ်လုပ် ဘာဂါနှင့် အာလူးကြော်။" },
   },
   'french-fries': {
-    IT: { name: "Fritti & Sfizi", desc: "Patatine fritte dorate e croccanti, anelli di cipolla e snack sfiziosi." },
-    EN: { name: "French Fries & Snacks", desc: "Golden and crispy french fries, onion rings, and delicious finger food." },
-    TH: { name: 'เฟรนช์ฟรายส์และของทานเล่น', desc: "เฟรนช์ฟรายส์สีทองกรอบอร่อย หอมทอด และของทานเล่นรสเลิศ" },
-    DE: { name: "Pommes & Snacks", desc: "Goldgelbe, knusprige Pommes frites, Zwiebelringe und köstliches Fingerfood." },
-    MM: { name: 'အာလူးကြော်နှင့် အမြည်းများ', desc: "ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ အာလူးကြော်နှင့် ကြက်သွန်ကွင်းကြော်များ။" },
+    IT: { name: "Patatine Fritte", desc: "Patatine fritte dorate, croccanti e servite caldissime con ketchup e maionese." },
+    EN: { name: "French Fries", desc: "Golden, crispy french fries served piping hot with ketchup and mayonnaise." },
+    TH: { name: "มันฝรั่งทอด", desc: "เฟรนช์ฟรายส์สีทองกรอบอร่อย ทอดสดใหม่เสิร์ฟร้อนๆ พร้อมซอสมะเขือเทศและมายองเนส" },
+    DE: { name: "Pommes Frites", desc: "Goldgelbe, knusprige Pommes frites heiß serviert mit Ketchup und Mayonnaise." },
+    MM: { name: "အာလူးကြော်", desc: "ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ အာလူးကြော်များကို အပူပူလေးဖြင့် ကက်ချပ်နှင့် မေယိုနိုက်တွဲဖက်ကျွေးပါသည်။" },
   },
   'desserts': {
     IT: { name: "Dolci & Dessert", desc: "Tiramisù artigianale fatto in casa, cheesecake, torte del giorno e deliziosi dessert italiani." },

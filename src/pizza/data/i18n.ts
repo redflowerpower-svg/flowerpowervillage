@@ -250,18 +250,18 @@ export const i18n = {
     },
     'italian-salads': {
       name: {
-        IT: 'Insalate Italiane',
-        EN: 'Italian Salads',
-        TH: 'สลัดสไตล์อิตาเลียน',
-        DE: 'Italienische Salate',
-        MM: 'အီတလီ သုပ်များ',
+        IT: 'Insalate Italiane\nSecondi Piatti',
+        EN: 'Italian Salads\n& Main Courses',
+        TH: 'สลัดอิตาเลียน\nและจานหลัก',
+        DE: 'Italienische Salate\n& Hauptgerichte',
+        MM: 'အီတလီဆလတ်\nနှင့် ဒုတိယဟင်းပွဲများ',
       },
       desc: {
-        IT: 'Verdure fresche, formaggi italiani e olio extravergine d\'oliva',
-        EN: 'Crisp fresh greens, Italian cheeses, and extra virgin olive oil',
-        TH: 'ผักสดกรอบ ชีสนำเข้าจากอิตาลี และน้ำมันมะกอกบริสุทธิ์พิเศษ',
-        DE: 'Frisches Gemüse, italienischer Käse und natives Olivenöl extra',
-        MM: 'လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များ၊ အီတလီဒိန်ခဲများနှင့် အထူးသီးသန့် သံလွင်ဆီ',
+        IT: 'Insalate fresche mediterranee e grandi secondi piatti della tradizione italiana',
+        EN: 'Fresh Mediterranean salads and generous main courses from Italian tradition',
+        TH: 'สลัดสดสไตล์เมดิเตอร์เรเนียนและเมนูจานหลักจานใหญ่ตามแบบฉบับอิตาลี',
+        DE: 'Frische mediterrane Salate und große Hauptgerichte der italienischen Tradition',
+        MM: 'မြေထဲပင်လယ်ဒေသထုံးစံ လတ်ဆတ်သော အသုပ်များနှင့် အီတလီရိုးရာ ပင်မဟင်းလျာကြီးများ',
       },
     },
     'pizza-sandwich': {
@@ -298,11 +298,11 @@ export const i18n = {
     },
     'french-fries': {
       name: {
-        IT: 'Patatine Fritte & Snack',
-        EN: 'French Fries & Sides',
-        TH: 'เฟรนช์ฟรายส์และของทานเล่น',
-        DE: 'Pommes Frites & Snacks',
-        MM: 'အာလူးကြော်နှင့် အဆာပြေများ',
+        IT: 'Patatine Fritte',
+        EN: 'French Fries',
+        TH: 'มันฝรั่งทอด',
+        DE: 'Pommes Frites',
+        MM: 'အာလူးကြော်',
       },
       desc: {
         IT: 'Dorate, croccanti e servite caldissime',
