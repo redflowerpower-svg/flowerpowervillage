@@ -300,152 +300,175 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName || !customerPhone) return;
+    if (!customerName.trim() || !customerPhone.trim()) return;
 
     setLoading(true);
 
-    const paymentLabel = paymentMethod === 'promptpay' ? 'promptpay_kshop_at_table' : paymentMethod === 'card' ? 'card_pos_at_table' : 'cash_at_table';
-
-    const formattedAddress = `[DINE-IN: ${activeTable}]` + 
-      (lang ? ` [LANG: ${lang}]` : '') + 
-      (customerEmail.trim() ? ` [EMAIL: ${customerEmail.trim()}]` : '') + 
-      (specialNotes.trim() ? ` [NOTE: ${specialNotes.trim()}]` : '');
-
-    const canonicalCurrentTable = getCanonicalTableKey(activeTable);
-
-    // 1. Check if an active (uncompleted) order already exists for this table
-    let existingActiveOrder: any = null;
     try {
-      const { data: openOrders } = await supabase
-        .from('pizza_orders')
-        .select('*')
-        .not('status', 'in', '("completed","cancelled","rejected","settled")')
-        .order('created_at', { ascending: false });
+      const paymentLabel = paymentMethod === 'promptpay' ? 'promptpay_kshop_at_table' : paymentMethod === 'card' ? 'card_pos_at_table' : 'cash_at_table';
 
-      if (openOrders && openOrders.length > 0) {
-        existingActiveOrder = openOrders.find((o: any) => {
-          const raw = extractTableFromAddress(o.address) || o.table_number || '';
-          return raw && getCanonicalTableKey(raw) === canonicalCurrentTable;
-        });
-      }
-    } catch (e) {
-      console.warn('Could not query active table orders:', e);
-    }
+      const formattedAddress = `[DINE-IN: ${activeTable}]` + 
+        (lang ? ` [LANG: ${lang}]` : '') + 
+        (customerEmail.trim() ? ` [EMAIL: ${customerEmail.trim()}]` : '') + 
+        (specialNotes.trim() ? ` [NOTE: ${specialNotes.trim()}]` : '');
 
-    const formattedItems = items.map(i => ({
-      cartId: i.cartId,
-      productId: i.productId,
-      name: i.name,
-      nameIt: i.nameIt,
-      nameTh: i.nameTh,
-      nameDe: i.nameDe,
-      image: i.image || '',
-      quantity: i.quantity,
-      basePrice: i.basePrice,
-      variant: i.selectedVariant?.name || null,
-      extras: (i.selectedExtras || []).map(e => e.name),
-      total: calcItemTotal(i)
-    }));
+      const canonicalCurrentTable = getCanonicalTableKey(activeTable);
 
-    let savedOrder: any = null;
+      const formattedItems = items.map(i => ({
+        cartId: i.cartId,
+        productId: i.productId,
+        name: i.name,
+        nameIt: i.nameIt,
+        nameTh: i.nameTh,
+        nameDe: i.nameDe,
+        image: i.image || '',
+        quantity: i.quantity,
+        basePrice: i.basePrice,
+        variant: i.selectedVariant?.name || null,
+        extras: (i.selectedExtras || []).map(e => e.name),
+        total: calcItemTotal(i)
+      }));
 
-    if (existingActiveOrder) {
-      // 2a. MERGE / UPDATE EXISTING TABLE ORDER (Single ticket per table!)
-      const updatePayload = {
-        customer_name: customerName.trim() || existingActiveOrder.customer_name,
-        phone: customerPhone.trim() || existingActiveOrder.phone,
-        address: formattedAddress,
-        items: formattedItems,
-        total: finalTotal,
-        payment_method: paymentLabel,
-      };
-
+      // 1. Check if an active order exists for this table (with 2s timeout guard)
+      let existingActiveOrder: any = null;
       try {
-        const { data: updated, error } = await supabase
+        const queryPromise = supabase
           .from('pizza_orders')
-          .update(updatePayload)
-          .eq('id', existingActiveOrder.id)
-          .select();
+          .select('*')
+          .neq('status', 'completed')
+          .neq('status', 'cancelled')
+          .neq('status', 'rejected')
+          .neq('status', 'settled')
+          .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Supabase order update error:', error);
+        const timeoutPromise = new Promise<{ data: any[] | null }>((resolve) => 
+          setTimeout(() => resolve({ data: null }), 2000)
+        );
+
+        const { data: openOrders } = await Promise.race([queryPromise, timeoutPromise]);
+
+        if (openOrders && openOrders.length > 0) {
+          existingActiveOrder = openOrders.find((o: any) => {
+            const raw = extractTableFromAddress(o.address) || o.table_number || '';
+            return raw && getCanonicalTableKey(raw) === canonicalCurrentTable;
+          });
+        }
+      } catch (e) {
+        console.warn('[DiningCheckout] Active table query bypassed:', e);
+      }
+
+      let savedOrder: any = null;
+
+      if (existingActiveOrder) {
+        // 2a. MERGE / UPDATE EXISTING TABLE ORDER
+        const updatePayload = {
+          customer_name: customerName.trim() || existingActiveOrder.customer_name,
+          phone: customerPhone.trim() || existingActiveOrder.phone,
+          address: formattedAddress,
+          items: formattedItems,
+          total: finalTotal,
+          payment_method: paymentLabel,
+        };
+
+        try {
+          const updatePromise = supabase
+            .from('pizza_orders')
+            .update(updatePayload)
+            .eq('id', existingActiveOrder.id)
+            .select();
+
+          const timeoutPromise = new Promise<{ data: any[] | null; error: any }>((resolve) =>
+            setTimeout(() => resolve({ data: null, error: 'timeout' }), 2500)
+          );
+
+          const { data: updated, error } = await Promise.race([updatePromise, timeoutPromise]);
+
+          if (!error && updated && updated[0]) {
+            savedOrder = updated[0];
+          } else {
+            savedOrder = { ...existingActiveOrder, ...updatePayload };
+          }
+        } catch (err) {
+          console.warn('[DiningCheckout] Fallback update:', err);
           savedOrder = { ...existingActiveOrder, ...updatePayload };
-        } else if (updated && updated[0]) {
-          savedOrder = updated[0];
         }
-      } catch (err) {
-        console.error('Fallback order update error:', err);
-        savedOrder = { ...existingActiveOrder, ...updatePayload };
-      }
-    } else {
-      // 2b. INSERT NEW TABLE ORDER
-      const orderPayload = {
-        customer_name: customerName.trim(),
-        phone: customerPhone.trim(),
-        address: formattedAddress,
-        items: formattedItems,
-        total: finalTotal,
-        payment_method: paymentLabel,
-        status: 'new',
-        has_whatsapp: true,
-        has_line: false,
-        created_at: new Date().toISOString()
-      };
+      } else {
+        // 2b. INSERT NEW TABLE ORDER
+        const orderPayload = {
+          customer_name: customerName.trim(),
+          phone: customerPhone.trim(),
+          address: formattedAddress,
+          items: formattedItems,
+          total: finalTotal,
+          payment_method: paymentLabel,
+          status: 'new',
+          has_whatsapp: true,
+          has_line: false,
+          created_at: new Date().toISOString()
+        };
 
-      try {
-        const { data: inserted, error } = await supabase
-          .from('pizza_orders')
-          .insert([orderPayload])
-          .select();
+        try {
+          const insertPromise = supabase
+            .from('pizza_orders')
+            .insert([orderPayload])
+            .select();
 
-        if (error) {
-          console.error('Supabase order insert error:', error);
+          const timeoutPromise = new Promise<{ data: any[] | null; error: any }>((resolve) =>
+            setTimeout(() => resolve({ data: null, error: 'timeout' }), 2500)
+          );
+
+          const { data: inserted, error } = await Promise.race([insertPromise, timeoutPromise]);
+
+          if (!error && inserted && inserted[0]) {
+            savedOrder = inserted[0];
+          } else {
+            savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
+          }
+        } catch (err) {
+          console.warn('[DiningCheckout] Fallback insert:', err);
           savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
-        } else if (inserted && inserted[0]) {
-          savedOrder = inserted[0];
         }
-      } catch (err) {
-        console.error('Fallback order payload:', err);
-        savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
       }
-    }
 
-    if (savedOrder) {
-      const ordId = String(savedOrder.id);
-      setCreatedOrderId(ordId);
+      if (savedOrder) {
+        const ordId = String(savedOrder.id);
+        setCreatedOrderId(ordId);
 
-      // Save customer contact in local storage for remarketing
-      try {
-        localStorage.setItem('fp_last_dining_customer_name', customerName);
-        localStorage.setItem('fp_last_dining_customer_phone', customerPhone);
-        if (customerEmail) localStorage.setItem('fp_last_dining_customer_email', customerEmail);
-      } catch {}
+        // Save customer contact in local storage
+        try {
+          localStorage.setItem('fp_last_dining_customer_name', customerName);
+          localStorage.setItem('fp_last_dining_customer_phone', customerPhone);
+          if (customerEmail) localStorage.setItem('fp_last_dining_customer_email', customerEmail);
+        } catch {}
 
-      // Broadcast to Kitchen Display System (KDS) & Local Listeners
-      const broadcastMsgType = existingActiveOrder ? 'ORDER_UPDATED' : 'NEW_ORDER';
-      try {
-        const ch = new BroadcastChannel('pizza_orders_channel');
-        ch.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId });
-        ch.close();
-      } catch {}
+        // Broadcast immediately to Kitchen Display System (KDS) & Local Listeners
+        const broadcastMsgType = existingActiveOrder ? 'ORDER_UPDATED' : 'NEW_ORDER';
+        try {
+          const ch = new BroadcastChannel('pizza_orders_channel');
+          ch.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId });
+          ch.close();
+        } catch {}
 
-      try {
-        const chFP = new BroadcastChannel('flower_power_orders_channel');
-        chFP.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId });
-        chFP.close();
-      } catch {}
+        try {
+          const chFP = new BroadcastChannel('flower_power_orders_channel');
+          chFP.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId });
+          chFP.close();
+        } catch {}
 
-      // Trigger Telegram notification
-      try {
-        fetch('/api/telegram-notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ orderId: ordId })
-        }).catch(e => console.warn('Telegram notify error:', e));
-      } catch {}
+        // Trigger Telegram notification in background
+        try {
+          fetch('/api/telegram-notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: ordId })
+          }).catch(e => console.warn('[DiningCheckout] Telegram notify failed:', e));
+        } catch {}
 
-      // Cart remains active with table items until payment is completed
-      setIsSuccess(true);
+        setIsSuccess(true);
+      }
+    } catch (globalErr) {
+      console.error('[DiningCheckout] Global order submission error:', globalErr);
+    } finally {
       setLoading(false);
     }
   };
