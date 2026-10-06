@@ -134,7 +134,7 @@ const labels = {
     chickenOptionSelected: 'เลือกไก่แล้ว',
     chickenOptionSelect: '+ เลือกไก่',
   },
-  DE: {
+    DE: {
     sizeOptions: 'Größenoptionen',
     extraIngredients: 'Zusatzzutaten',
     startingAt: 'Ab-Preis',
@@ -161,6 +161,34 @@ const labels = {
     chickenOptionDesc: 'Ersetzt Schwein durch Geflügel',
     chickenOptionSelected: 'Geflügel Gewählt',
     chickenOptionSelect: '+ Geflügel Wählen',
+  },
+  MM: {
+    sizeOptions: 'အရွယ်အစား ရွေးချယ်မှု',
+    extraIngredients: 'အပိုထည့်စရာများ',
+    startingAt: 'စတင်သည့်စျေး',
+    totalFinito: 'စုစုပေါင်း စျေးနှုန်း',
+    confirmText: 'အော်ဒါထဲသို့ ထည့်ရန်',
+    closeText: 'ပိတ်မည်',
+    customizeText: 'စိတ်ကြိုက်ပြင်ဆင်မည်',
+    chooseText: 'ထည့်မည်',
+    freeText: 'အခမဲ့',
+    lasagnaBadge: '🍝 အနည်းဆုံး ၂ ယောက်စာ · ၁ ရက် ကြိုတင်မှာယူပါ',
+    lasagnaDateLabel: 'လာယူမည့် / ပို့ဆောင်မည့် ရက်စွဲ ရွေးပါ',
+    lasagnaDatePlaceholder: 'ရက်စွဲ ရွေးပါ...',
+    lasagnaDateRequired: '⚠️ ရှေ့ဆက်ရန် ရက်စွဲ ရွေးချယ်ပါ',
+    lasagnaWhyLabel: 'အကောင်းဆုံး အရသာနှင့် အရည်အသွေး ရရှိရန် အချိန်ယူ ပြင်ဆင်ရပါသည်။',
+    splitVariantName: '12" တဝက်စီ နှစ်မျိုးစပ် (Half & Half) 🌓',
+    splitChooseSecondHalf: 'ဒုတိယ တဝက် ရွေးပါ',
+    splitSearchPlaceholder: 'ဒုတိယ တဝက်အတွက် ပီဇာ ရှာရန်...',
+    splitFirstHalfLabel: 'ပထမ တဝက် (အဓိက)',
+    splitSecondHalfLabel: 'ဒုတိယ တဝက်',
+    splitSecondHalfRequired: '⚠️ ရှေ့ဆက်ရန် ဒုတိယ တဝက်ကို ရွေးပါ',
+    splitAverageNotice: '၅၀/၅၀ စျေးနှုန်း - ၁၂ လက်မ နှစ်မျိုး၏ ပျမ်းမျှ စျေးနှုန်း အတိအကျ',
+    splitSelectedBadge: 'ရွေးချယ်ထားသော အရသာ',
+    chickenOptionTitle: '၁၀၀% ကြက်သား ရွေးချယ်မှု (Halal-friendly)',
+    chickenOptionDesc: 'ဝက်သားနှင့် ဝက်အူချောင်းအစား ကြက်သားဖြင့် ပြောင်းလဲပေးပါသည်',
+    chickenOptionSelected: 'ကြက်သား ရွေးချယ်ထားသည်',
+    chickenOptionSelect: '+ ကြက်သား ရွေးမည်',
   },
 };
 
@@ -365,7 +393,8 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
     return lang === 'TH' ? 'ขนาด' : lang === 'DE' ? 'Größe' : lang === 'EN' ? 'Size' : 'Taglia';
   };
 
-  const getTranslatedName = (item: { name: string; nameTh?: string; nameIt?: string; nameDe?: string }) => {
+  const getTranslatedName = (item: { name: string; nameTh?: string; nameIt?: string; nameDe?: string; nameMm?: string; name_mm?: string }) => {
+    if (lang === 'MM' && (item.nameMm || item.name_mm)) return item.nameMm || item.name_mm;
     if (lang === 'TH' && item.nameTh) return item.nameTh;
     if (lang === 'IT' && item.nameIt) return item.nameIt;
     if (lang === 'DE' && item.nameDe) return item.nameDe;
@@ -395,6 +424,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       const nameTh = `12" ฮาล์ฟ & ฮาล์ฟ: ${item.nameTh || item.name} + ${selectedSecondHalf.nameTh || selectedSecondHalf.name}`;
       const nameIt = `12" Metà & Metà: ${item.nameIt || item.name} + ${selectedSecondHalf.nameIt || selectedSecondHalf.name}`;
       const nameDe = `12" Halb & Halb: ${item.nameDe || item.name} + ${selectedSecondHalf.nameDe || selectedSecondHalf.name}`;
+      const nameMm = `12" နှစ်မျိုးစပ်: ${(item as any).nameMm || item.name} + ${(selectedSecondHalf as any).nameMm || selectedSecondHalf.name}`;
 
       addItem({
         productId: `${item.id}-split-${selectedSecondHalf.id}`,
@@ -402,6 +432,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
         nameTh,
         nameIt,
         nameDe,
+        nameMm,
         quantity,
         basePrice: splitPrice,
         selectedVariant: splitVariantObj,
@@ -419,6 +450,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
         nameTh: isChicken ? `${item.nameTh || item.name} (เนื้อไก่ 100% 🐔)` : item.nameTh,
         nameIt: isChicken ? `${item.nameIt || item.name} (100% Pollo 🐔)` : item.nameIt,
         nameDe: isChicken ? `${item.nameDe || item.name} (100% Geflügel 🐔)` : item.nameDe,
+        nameMm: isChicken ? `${(item as any).nameMm || item.name} (၁၀၀% ကြက်သား 🐔)` : (item as any).nameMm,
         quantity,
         basePrice: finalItemBasePrice,
         selectedVariant,
@@ -447,7 +479,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
         </>
       );
     }
-    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
+    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT ', ' နှင့် '];
     const upperName = name.toUpperCase();
     for (const kw of splitKeywords) {
       if (upperName.includes(kw)) {
@@ -468,6 +500,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
   };
 
   const getTranslatedDesc = (item: MenuItem) => {
+    if (lang === 'MM' && (item.descriptionMm || item.description_mm)) return item.descriptionMm || item.description_mm;
     if (lang === 'TH' && (item.descriptionTh || item.description_th)) return item.descriptionTh || item.description_th;
     if (lang === 'IT' && (item.descriptionIt || item.description_it)) return item.descriptionIt || item.description_it;
     if (lang === 'DE' && (item.descriptionDe || item.description_de)) return item.descriptionDe || item.description_de;
@@ -484,6 +517,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       nameTh: activeVariant ? `${beerItem.nameTh || beerItem.name} (${activeVariant.nameTh || activeVariant.name})` : beerItem.nameTh,
       nameIt: activeVariant ? `${beerItem.nameIt || beerItem.name} (${activeVariant.nameIt || activeVariant.name_it || activeVariant.name})` : beerItem.nameIt,
       nameDe: activeVariant ? `${beerItem.nameDe || beerItem.name} (${activeVariant.nameDe || activeVariant.name_de || activeVariant.name})` : beerItem.nameDe,
+      nameMm: activeVariant ? `${(beerItem as any).nameMm || beerItem.name} (${(activeVariant as any).nameMm || (activeVariant as any).name_mm || activeVariant.name})` : (beerItem as any).nameMm,
       quantity: 1,
       basePrice: finalPrice,
       image: activeVariant?.id === '10074' || activeVariant?.name?.toLowerCase() === 'small' ? (beerItem.image.replace('big', 'small')) : beerItem.image,
@@ -632,7 +666,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                                   }`}
                                 >
                                   <div className="text-[10px] sm:text-[10.5px] font-black uppercase leading-none">
-                                    {lang === 'TH' ? (variant.nameTh || variant.name) : lang === 'IT' ? (variant.nameIt || variant.name_it || variant.name) : lang === 'DE' ? (variant.nameDe || variant.name_de || variant.name) : variant.name}
+                                    {lang === 'MM' ? ((variant as any).nameMm || (variant as any).name_mm || variant.name) : lang === 'TH' ? (variant.nameTh || variant.name) : lang === 'IT' ? (variant.nameIt || variant.name_it || variant.name) : lang === 'DE' ? (variant.nameDe || variant.name_de || variant.name) : variant.name}
                                   </div>
                                   <div className={`text-[10px] font-bold mt-0.5 ${isVarSelected ? 'text-amber-200' : 'text-stone-500'}`}>
                                     {varDisplayPrice}฿

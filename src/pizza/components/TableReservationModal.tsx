@@ -137,6 +137,37 @@ const translations = {
     btnClose: 'Schließen',
     openWhatsApp: 'WhatsApp Chat',
     openLine: 'LINE Chat',
+  },
+  MM: {
+    modalTitle: 'စားပွဲ သို့မဟုတ် ဝါးတဲ ကြိုတင်မှာယူရန်',
+    modalSubtitle: 'ဖလာဝါ ပါဝါ ပီဇာ ရနောင်း',
+    nameLabel: 'အမည် အပြည့်အစုံ',
+    namePlaceholder: 'ဥပမာ - မောင်မောင်',
+    contactLabel: 'ဖုန်းနံပါတ် / LINE ID',
+    contactPlaceholder: 'ဥပမာ - 094-980-0200 သို့မဟုတ် LINE ID',
+    emailLabel: 'အီးမေးလ် (ချက်ချင်း အတည်ပြုချက် လက်ခံရယူရန်)',
+    emailPlaceholder: 'ဥပမာ - customer@email.com',
+    dateLabelLine1: 'ရက်စွဲ',
+    dateLabelLine2: 'ရွေးချယ်ရန်',
+    timeLabelLine1: 'အချိန်',
+    timeLabelLine2: 'ရွေးချယ်ရန်',
+    guestsLabelLine1: 'ဧည့်သည်',
+    guestsLabelLine2: 'ဦးရေ',
+    areaLabel: 'ထိုင်လိုသော နေရာ ရွေးချယ်ပါ',
+    areaIndoor: 'ဆိုင်အတွင်းခန်း',
+    areaOutdoor: 'ပြင်ပ ဥယျာဉ်ဝိုင်း',
+    areaHut: 'ဝါးတဲ သီးသန့်',
+    notesLabel: 'အထူးတောင်းဆိုချက် / မှတ်ချက် (ရှိပါက)',
+    notesPlaceholder: 'ဥပမာ - မွေးနေ့ပွဲ၊ ပါတီပွဲ သို့မဟုတ် အထူးတောင်းဆိုလိုသည်များ...',
+    eventsNoticeTitle: 'မွေးနေ့ပွဲများ၊ ပါတီပွဲများနှင့် အခမ်းအနားများ',
+    eventsNoticeText: 'အထူးဧည့်ခံပွဲများ ကျင်းပလိုပါက စိတ်ကြိုက်မီနူးနှင့် ဈေးနှုန်းများအတွက် ကျွန်ုပ်တို့ထံ တိုက်ရိုက် ဆက်သွယ်ပါ:',
+    btnSubmit: 'စားပွဲ ကြိုတင်မှာယူမှု ပေးပို့မည်',
+    btnSubmitting: 'ပေးပို့နေပါသည်...',
+    successTitle: 'စားပွဲ ကြိုတင်မှာယူမှု အောင်မြင်ပါသည်!',
+    successText: 'ဖလာဝါ ပါဝါ ပီဇာတွင် စားပွဲကြိုတင်မှာယူမှုအတွက် ကျေးဇူးတင်ပါသည်။ အတည်ပြုချက် အီးမေးလ်ကို ပေးပို့ထားပြီး ဆိုင်ဝန်ထမ်းမှ အမြန်ဆုံး အတည်ပြုပေးပါမည်။',
+    btnClose: 'ပိတ်မည်',
+    openWhatsApp: 'WhatsApp တွင် စကားပြောမည်',
+    openLine: 'LINE တွင် စကားပြောမည်',
   }
 };
 
@@ -187,6 +218,7 @@ export function TableReservationModal({ isOpen, onClose, lang: propLang, initial
         reservation_time: reservationTime,
         seating_area: seatingArea,
         notes: notes.trim(),
+        is_wine_privilege: Boolean(isWinePrivilege),
         lang
       };
 

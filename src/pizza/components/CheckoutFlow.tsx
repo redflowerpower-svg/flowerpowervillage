@@ -122,6 +122,11 @@ const translations = {
     trackerDelivering: 'DELIVERY IN ARRIVO!',
     trackerTakeawayReady: 'IL TUO ORDINE È PRONTO!',
     trackerTakeawayReadyDesc: 'Le tue pizze sono state appena sfornate calde! Ti aspettiamo al banco della nostra pizzeria a Ranong Hot Springs per il ritiro.',
+    supportNotice: "Non esitare a contattarci per qualunque informazione o modifica all'ordine",
+    rejectedTitle: 'Siamo spiacenti!',
+    rejectedDesc: "La cucina è al completo o temporaneamente impossibilitata a prendere in carico l'ordine. Ti invitiamo a contattarci direttamente per qualsiasi esigenza.",
+    backToFormBtn: 'Torna al modulo',
+    trackerDeliveryDetails: (dist: number, mins: number) => `Distanza dalla pizzeria: ${dist.toFixed(1)} km — Tempo stimato di viaggio: ~${mins} minuti`,
   },
   EN: {
     step1Title: 'Your Information & Service',
@@ -186,6 +191,11 @@ const translations = {
     trackerDelivering: 'Delivery is on the way!',
     trackerTakeawayReady: 'YOUR ORDER IS READY!',
     trackerTakeawayReadyDesc: 'Your pizzas have just been freshly baked! We are waiting for you at the Flower Power Pizza counter at Ranong Hot Springs.',
+    supportNotice: 'Feel free to contact us for any inquiries or changes to your order',
+    rejectedTitle: 'We are sorry!',
+    rejectedDesc: 'The kitchen is at full capacity or temporarily unable to accept orders. Please contact us directly for any assistance.',
+    backToFormBtn: 'Back to form',
+    trackerDeliveryDetails: (dist: number, mins: number) => `Distance from pizzeria: ${dist.toFixed(1)} km — Estimated travel time: ~${mins} minutes`,
   },
   TH: {
     step1Title: 'ข้อมูลและประเภทบริการ',
@@ -250,6 +260,11 @@ const translations = {
     trackerDelivering: 'พนักงานจัดส่งออกเดินทางแล้ว! พิซซ่าของคุณกำลังเดินทางไปส่ง',
     trackerTakeawayReady: 'อาหารของคุณพร้อมแล้ว!',
     trackerTakeawayReadyDesc: 'พิซซ่าอบร้อนๆ พร้อมให้คุณมารับได้ที่เคาน์เตอร์ ฟลาวเวอร์ พาวเวอร์ พิซซ่า บ่อน้ำพุร้อนรักษะวาริน',
+    supportNotice: 'ติดต่อเราได้ตลอดเวลา หากต้องการสอบถามข้อมูลเพิ่มเติมหรือแก้ไขคำสั่งซื้อ',
+    rejectedTitle: 'ขออภัยเป็นอย่างยิ่ง!',
+    rejectedDesc: 'ครัวเต็มหรือไม่สามารถรับคำสั่งซื้อได้ในขณะนี้ โปรดติดต่อเราโดยตรงเพื่อรับความช่วยเหลือ',
+    backToFormBtn: 'กลับไปที่แบบฟอร์ม',
+    trackerDeliveryDetails: (dist: number, mins: number) => `ระยะทางจากร้าน: ${dist.toFixed(1)} กม. — เวลาเดินทางโดยประมาณ: ~${mins} นาที`,
   },
   DE: {
     step1Title: 'Ihre Daten & Service',
@@ -314,6 +329,80 @@ const translations = {
     trackerDelivering: 'Der Fahrer ist losgefahren! Ihre Pizza ist auf dem Weg.',
     trackerTakeawayReady: 'IHRE BESTELLUNG IST BEREIT!',
     trackerTakeawayReadyDesc: 'Ihre Pizzen wurden soeben frisch gebacken! Sie können sie an der Theke der Pizzeria bei den Ranong Hot Springs abholen.',
+    supportNotice: 'Zögern Sie nicht, uns bei Fragen oder Änderungswünschen zu Ihrer Bestellung zu kontaktieren',
+    rejectedTitle: 'Es tut uns leid!',
+    rejectedDesc: 'Die Küche ist voll ausgelastet oder vorübergehend nicht in der Lage, Bestellungen anzunehmen. Bitte kontaktieren Sie uns direkt.',
+    backToFormBtn: 'Zurück zum Formular',
+    trackerDeliveryDetails: (dist: number, mins: number) => `Entfernung von der Pizzeria: ${dist.toFixed(1)} km — Geschätzte Fahrzeit: ~${mins} Minuten`,
+  },
+  MM: {
+    step1Title: 'သင့်အချက်အလက်များနှင့် ဝန်ဆောင်မှု',
+    fulfillmentDelivery: 'အိမ်အရောက်ပို့ ဝန်ဆောင်မှု',
+    fulfillmentTakeaway: 'ဆိုင်တွင် လာယူမည် (Takeaway)',
+    pickupLocationTitle: 'ဆိုင်တွင် လာယူရန် နေရာ',
+    pickupLocationAddress: 'Flower Power Pizza – Ranong Hot Springs, Bang Rin',
+    pickupLocationHours: '⏰ ဆိုင်ဖွင့်ချိန်: ၁၁:၀၀ – ၂၁:၃၀ (ဖွင့်သည်)',
+    pickupNotesPlaceholder: 'လာယူမည့် မှတ်ချက် (ဥပမာ- ရောက်မည့်အချိန်၊ အထူးမှာကြားချက်...)',
+    namePlaceholder: 'အမည်',
+    phonePlaceholder: 'ဖုန်းနံပါတ်',
+    emailPlaceholder: 'ပြေစာနှင့် ခြေရာခံရန် အီးမေးလ်',
+    notesPlaceholder: 'ပို့ဆောင်မှု မှတ်ချက် (ဥပမာ- အခန်း၊ အလွှာ၊ ဓာတ်မတည့်မှုများ...)',
+    invalidEmailHint: 'ကျေးဇူးပြု၍ မှန်ကန်သော အီးမေးလ် ထည့်ပါ',
+    addressPlaceholder: 'ပို့ဆောင်ရမည့် လိပ်စာ',
+    verifyLoc: 'တည်နေရာ စစ်ဆေးရန်',
+    verifyingLoc: 'စစ်ဆေးနေပါသည်...',
+    outOfRange: (dist: number, max: number) => `တောင်းပန်ပါသည်၊ သင့်တည်နေရာသည် ${dist.toFixed(1)} km အကွာတွင် ရှိနေပါသည်။ ကျွန်ုပ်တို့သည် အများဆုံး ${max} km အထိသာ ပို့ဆောင်ပေးပါသည်။`,
+    simLoc: 'တည်နေရာ စမ်းသပ်မှု (Test)',
+    continueBtn: 'ဆက်လက်လုပ်ဆောင်ရန်',
+    step2Title: 'ငွေပေးချေမှု နည်းလမ်း',
+    optPromptPay: 'PromptPay QR (Omise)',
+    optCard: 'ကတ်ဖြင့် ပေးချေမည် (Visa/MC)',
+    optCash: 'ပစ္စည်းရောက်မှ ငွေချေမည် (Cash on delivery)',
+    optCashTakeaway: 'ဆိုင်ကောင်တာတွင် ငွေသားဖြင့် ချေမည်',
+    cardHolderLabel: 'ကတ်ပိုင်ရှင် အမည်',
+    cardNumberLabel: 'ကတ်နံပါတ် (၁၆ လုံး)',
+    cardExpLabel: 'သက်တမ်းကုန်ဆုံးရက် (MM/YY)',
+    cardCvvLabel: 'CVV',
+    cardSecurityNotice: 'Omise Vault (256-bit SSL) ဖြင့် 3D လုံခြုံစွာ ကာကွယ်ထားပါသည်',
+    generateQrBtn: 'PROMPTPAY QR ရယူရန်',
+    payCardBtn: 'အတည်ပြုပြီး ကတ်ဖြင့် ပေးချေရန်',
+    scanningPrompt: 'မည်သည့် ထိုင်းဘဏ်အက်ပ်ဖြင့်မဆို QR ကို စကင်ဖတ်ပါ (SCB, KBank, Bangkok Bank, Krungthai)',
+    awaitingPayment: 'ဘဏ်မှ အတည်ပြုချက်ကို စောင့်ဆိုင်းနေပါသည်...',
+    paymentConfirmedTitle: 'ငွေပေးချေမှု အောင်မြင်ပါသည်!',
+    manualSlipFallback: 'သို့မဟုတ် ငွေလွှဲပြေစာ စခရင်ရှော့ကို ကိုယ်တိုင် တင်ပါ',
+    uploadBtn: 'ပြေစာ စခရင်ရှော့ တင်ရန်',
+    submitBtn: 'အတည်ပြုပြီး အော်ဒါ ပို့ရန်',
+    uploadPromptBtn: 'ဆက်လက်လုပ်ဆောင်ရန် ပြေစာ တင်ပါ',
+    kbankStep4: 'ငွေပေးချေမှု ပြေစာ စခရင်ရှော့ကို တင်ပါ',
+    backBtn: 'နောက်သို့',
+    successTitle: "မီးဖိုချောင်တွင် စတင်ချက်ပြုတ်နေပါပြီ!",
+    successDesc: 'ကျေးဇူးတင်ပါသည်! သင့်အော်ဒါကို လက်ခံရရှိပြီး ပြင်ဆင်နေပါပြီ။ မကြာမီ အတည်ပြုဖုန်းခေါ်ဆိုမှု ရောက်လာပါမည်။',
+    closeBtn: 'ပိတ်ရန်',
+    waitText: 'ခေတ္တစောင့်ဆိုင်းပါ...',
+    confirmMapLoc: 'ဤနေရာသို့ ပို့ဆောင်ပါ (တည်နေရာ အတည်ပြု)',
+    mapInstructions: 'မြေပုံကို နှိပ်ပါ သို့မဟုတ် ပင်အပ်ကို ပို့ဆောင်လိုသည့် နေရာသို့ ရွှေ့ပါ',
+    tapHint: 'ပင်ထိုးရန် မြေပုံကို နှိပ်ပါ',
+    expandMap: 'ချဲ့ရန်',
+    collapseMap: 'ချုံ့ရန်',
+    locConfirmed: (dist: number) => `တည်နေရာ အတည်ပြုပြီးပါပြီ! (~${dist.toFixed(1)} km)`,
+    detectLocBtn: 'ကျွန်ုပ်၏ လက်ရှိတည်နေရာကို ရှာမည်',
+    sendingTitle: 'သင့်အော်ဒါကို ပို့ပို့နေပါသည်...',
+    sendingHint: 'မီးဖိုချောင်မှ အတည်ပြုချက်ကို စောင့်ဆိုင်းနေပါသည်',
+    timeoutTitle: 'မီးဖိုချောင်တွင် အလွန်အလုပ်များနေပါသည် သို့မဟုတ် တက်ဘလက် အော့ဖ်လိုင်း ဖြစ်နေပါသည်။',
+    timeoutHint: 'သင့်အော်ဒါ ရောက်ရှိသွားနိုင်ပါသည်။ ထပ်မံကြိုးစားပါ သို့မဟုတ် ကျွန်ုပ်တို့ထံ တိုက်ရိုက် ဆက်သွယ်ပါ။',
+    retryBtn: 'အော်ဒါ ပြန်လည် ပို့ဆောင်ရန်',
+    emergencyTitle: 'ကျွန်ုပ်တို့ထံ တိုက်ရိုက် ဆက်သွယ်လိုပါသလား?',
+    trackerPreparing: 'ဤစာမျက်နှာတွင် ဆက်လက်စောင့်ဆိုင်းပါ! သင့်ပီဇာများကို ပြင်ဆင်နေပါပြီ။ ပို့ဆောင်သူ ဆိုင်ကယ်စထွက်သည်နှင့် ဤမျက်နှာပြင်သည် အလိုအလျောက် ပြောင်းလဲသွားပါမည်။',
+    trackerTakeawayPreparing: 'ဤစာမျက်နှာတွင် ဆက်လက်စောင့်ဆိုင်းပါ! သင့် Takeaway အော်ဒါကို ပြင်ဆင်နေပါပြီ။ ပီဇာများ ပူပူနွေးနွေး အသင့်ဖြစ်သည်နှင့် ဤမျက်နှာပြင်သည် အလိုအလျောက် ပြောင်းလဲသွားပါမည်!',
+    trackerEstimate: (mins: number) => `ခန့်မှန်း ပို့ဆောင်ချိန်: ~${mins} မိနစ်`,
+    trackerDelivering: 'ပို့ဆောင်ရေး ထွက်ခွာပါပြီ! သင့်ပီဇာ လာပို့နေပါပြီ။',
+    trackerTakeawayReady: 'သင့်အော်ဒါ အသင့်ဖြစ်ပါပြီ!',
+    trackerTakeawayReadyDesc: 'သင့်ပီဇာများ လတ်ဆတ်စွာ ဖုတ်ပြီးပါပြီ! Ranong Hot Springs ရှိ Flower Power Pizza ကောင်တာတွင် လာရောက်ယူဆောင်နိုင်ပါပြီ။',
+    supportNotice: 'အော်ဒါနှင့် ပတ်သက်၍ အချက်အလက်မေးမြန်းလိုပါက သို့မဟုတ် ပြင်ဆင်လိုပါက ကျွန်ုပ်တို့ထံ အချိန်မရွေး ဆက်သွယ်နိုင်ပါသည်',
+    rejectedTitle: 'တောင်းပန်ပါသည်!',
+    rejectedDesc: 'မီးဖိုချောင်တွင် အော်ဒါများပြည့်နေပါသည် သို့မဟုတ် ယာယီလက်မခံနိုင်သေးပါ။ လိုအပ်ပါက ကျွန်ုပ်တို့ထံ တိုက်ရိုက် ဆက်သွယ်ပေးပါရန် မေတ္တာရပ်ခံအပ်ပါသည်။',
+    backToFormBtn: 'ဖောင်သို့ ပြန်သွားမည်',
+    trackerDeliveryDetails: (dist: number, mins: number) => `ဆိုင်မှ အကွာအဝေး: ${dist.toFixed(1)} km — ခန့်မှန်း ခရီးသွားချိန်: ~${mins} မိနစ်`,
   },
 };
 
@@ -797,7 +886,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
   }, [orderType, address, thaiAddress, lang, markerPos, email, notes, deviceId, activePromoCode, discountAmount, isHotelGuest]);
 
   const outOfRange = distanceKm !== null && !isDeliverable;
-  const t = translations[lang];
+  const t = translations[lang] || translations.EN || translations.IT;
 
   // Geocoding helper with strict language rules and clean text processing
   const fetchReverseGeocoding = async (lat: number, lng: number) => {
@@ -1475,7 +1564,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
   const renderSupportSection = () => (
     <div className="w-full border-t border-stone-100 pt-4 space-y-2 flex-shrink-0">
       <p className="text-stone-500 text-[10px] font-semibold text-center leading-relaxed">
-        Non esitare a contattarci per qualunque informazione o modifica all'ordine
+        {t.supportNotice}
       </p>
       <p className="text-[#8B1E1E] font-black text-center text-sm tracking-wider">
         0949.800.200
@@ -2482,10 +2571,9 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
         {submitPhase === 'rejected' && (
           <div className="flex-grow flex flex-col justify-between overflow-hidden mt-4 space-y-4">
             <div className="text-center py-4 space-y-4">
-              <h3 className="text-lg font-bold text-stone-850" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>Siamo spiacenti!</h3>
+              <h3 className="text-lg font-bold text-stone-850" style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}>{t.rejectedTitle}</h3>
               <p className="text-stone-600 text-xs leading-relaxed px-4 max-w-xs mx-auto">
-                La cucina è al completo o temporaneamente impossibilitata a prendere in carico l'ordine.
-                Ti invitiamo a contattarci direttamente per qualsiasi esigenza.
+                {t.rejectedDesc}
               </p>
             </div>
 
@@ -2496,7 +2584,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                 onClick={() => { setSubmitPhase('idle'); setLoading(false); }}
                 className="w-full bg-stone-100 hover:bg-stone-200 p-2 text-xs text-stone-500 font-semibold rounded-full cursor-pointer transition-all"
               >
-                Torna al modulo
+                {t.backToFormBtn}
               </button>
             </div>
           </div>
@@ -2557,7 +2645,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
               <p className="text-stone-700 text-xs leading-relaxed px-4 mx-auto font-semibold">
                 {orderType === 'takeaway'
                   ? t.trackerTakeawayReadyDesc
-                  : `Distanza dalla pizzeria: ${(distanceKm || 0).toFixed(1)} km — Tempo stimato di viaggio: ~${travelMins} minuti`}
+                  : t.trackerDeliveryDetails(distanceKm || 0, travelMins)}
               </p>
 
               {renderCountdownCircle(travelMins * 60, "#059669")}

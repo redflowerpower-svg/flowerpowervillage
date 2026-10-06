@@ -91,14 +91,22 @@ export function ServiceStatusBanner({ lang: propLang, onStatusChange }: ServiceS
       closedDesc: `จะเปิดรับออเดอร์วันนี้เวลา ${calc.reopenTimeFormatted} น. (อีก ${remH > 0 ? `${remH} ชม. ${remM} นาที` : `${remM} นาที`}) คุณสามารถเลือกดูเมนูล่วงหน้าได้ค่ะ`,
       callText: 'สอบถามข้อมูลเพิ่มเติม: โทรหาร้าน'
     },
-    DE: {
+        DE: {
       pausedTitle: 'Online-Bestellungen vorübergehend pausiert',
       pausedDesc: `Die Küche bereitet gerade Bestellungen vor. Neue Bestellungen sind wieder möglich in: ${calc.remainingMinutes} Min (um ${calc.reopenTimeFormatted} Uhr)`,
       closedTitle: 'Pizzeria derzeit geschlossen',
       closedDesc: `Wir öffnen heute um ${calc.reopenTimeFormatted} Uhr (in ${timeFormatted}). Du kannst gerne unsere Speisekarte durchstöbern!`,
       callText: 'Für dringende Fragen: Pizzeria anrufen'
+    },
+    MM: {
+      pausedTitle: 'အွန်လိုင်း အော်ဒါများကို ခေတ္တရပ်နားထားပါသည်',
+      pausedDesc: `အကောင်းဆုံး အရည်အသွေး ရရှိစေရန် မီးဖိုချောင်တွင် အော်ဒါများ ပြင်ဆင်နေပါသည်။ အော်ဒါ ပြန်လည်လက်ခံမည့်အချိန်: ${calc.remainingMinutes} မိနစ် (${calc.reopenTimeFormatted})`,
+      closedTitle: 'ပီဇာဆိုင် ယခုအချိန်တွင် ပိတ်ထားပါသည်',
+      closedDesc: `ယနေ့ ${calc.reopenTimeFormatted} တွင် ပြန်လည်ဖွင့်ပါမည် (${timeFormatted} အကြာတွင်)။ မီနူးကို ကြိုတင်ကြည့်ရှုနိုင်ပါသည်!`,
+      callText: 'အရေးပေါ် မေးမြန်းရန်: ဆိုင်သို့ ဖုန်းဆက်ပါ'
     }
-  }[lang];
+  } as Record<string, any>;
+  const activeContent = content[lang] || content["IT"];
 
   const isPaused = calc.state === 'PAUSED';
 
@@ -122,7 +130,7 @@ export function ServiceStatusBanner({ lang: propLang, onStatusChange }: ServiceS
         <div className="space-y-1">
           <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
             <h4 className="font-extrabold text-sm sm:text-base text-white tracking-tight">
-              {isPaused ? content.pausedTitle : content.closedTitle}
+              {isPaused ? activeContent.pausedTitle : activeContent.closedTitle}
             </h4>
             <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
               isPaused 
@@ -134,7 +142,7 @@ export function ServiceStatusBanner({ lang: propLang, onStatusChange }: ServiceS
           </div>
 
           <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-2xl">
-            {isPaused ? content.pausedDesc : content.closedDesc}
+            {isPaused ? activeContent.pausedDesc : activeContent.closedDesc}
           </p>
         </div>
       </div>
@@ -146,7 +154,7 @@ export function ServiceStatusBanner({ lang: propLang, onStatusChange }: ServiceS
           className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white text-xs font-bold flex items-center gap-2 border border-white/20 shadow-sm transition-all"
         >
           <Phone className="w-4 h-4 text-emerald-400" />
-          <span>{content.callText}</span>
+          <span>{activeContent.callText}</span>
         </a>
       </div>
     </aside>

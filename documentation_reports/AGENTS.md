@@ -28,6 +28,8 @@ Quando l'utente attiva una richiesta usando il comando `/goal`, la parola chiave
    - **`7d`**: Rimborso 100% se cancellato entro 7 giorni prima del check-in; trattenuta del 100% nei 7 giorni precedenti.
    - **`14d`**: Rimborso 100% se cancellato entro 14 giorni prima del check-in; trattenuta del 100% nei 14 giorni precedenti.
    - NON si riferiscono alla durata del soggiorno, ma alla finestra di rimborso caparra/importo.
+4. **TARIFFA OFF NELLA DASHBOARD = STOP SELL CATEGORICO SU TUTTE LE OTA (IMPLICITO & INTRINSECO)**:
+   - Ogni volta che un piano tariffario o tariffa (es. `AC7d`, `AC14d`, `AC bnb-7d`, `AC bnb-14d`, `AirBnB AC`) risulta impostato su `OFF` (disattivato/spento) nella dashboard, il sistema DEVE garantire tassativamente che sui server Octorate e su tutte le OTA collegate (Booking.com, Agoda, Expedia, Airbnb) lo stato sia **`stopSells: true, closed: true`** per l'intera stagione su tutti i 18 alloggi (tutti i 212 ID di prodotto). L'azione di disattivazione effettua sempre e categoricamente un push reale immediato su Octorate API.
 
 ---
 
@@ -84,7 +86,19 @@ Tutti i testi dell'applicazione, descrizioni, titoli, etichette, banner, modali 
 # 🌐 REGOLA IMPRESCINDIBILE TRADUZIONI (DEEPSEEK AI NATIVO)
 All'interno di TUTTO il sito web (sia nel reparto Pizzeria / Delivery `/pizze` che nel reparto Booking Engine / Village `/villaggio`), ogni qualvolta sia richiesta o implementata una funzionalità di traduzione testi, titoli, descrizioni, servizi, menu o alloggi:
 - **OBBLIGO ASSOLUTO DI UTILIZZO API DEEPSEEK**: È tassativo e imprescindibile utilizzare sempre e solo l'API di DeepSeek (`deepseek-chat` / `DEEPSEEK_API_KEY`) tramite endpoint backend dedicato.
-- È severamente vietato l'uso di traduttori statici o dizionari empirici hardcoded: le traduzioni devono essere vive, contestuali, fluide e professionali in tutte e 4 le lingue (`IT`, `EN`, `TH`, `DE`), garantendo il massimo livello qualitativo per la lingua thailandese.
+- È severamente vietato l'uso di traduttori statici o dizionari empirici hardcoded: le traduzioni devono essere vive, contestuali, fluide e professionali in tutte le lingue supportate (`IT`, `EN`, `TH`, `DE`, `MM`), garantendo il massimo livello qualitativo.
+
+# 🌍 PROTOCOLLO UNIVERSALE: `[LINGUA] FULL TRANSLATION` / `[LINGUA] TRADUZIONE TOTALE`
+Quando l'utente inserisce il comando `[LINGUA] FULL TRANSLATION` oppure `[LINGUA] TRADUZIONE TOTALE` (ad es. `FRANCESE FULL TRANSLATION`, `FRENCH FULL TRANSLATION`, `RUSSO FULL TRANSLATION`, `CINESE FULL TRANSLATION`, `GIAPPONESE FULL TRANSLATION`, `FRANCESE TRADUZIONE TOTALE`), l'agente DEVE eseguire in autonomia la **Pipeline Multilingua Radicale a 9 Fasi** (utilizzando direttamente il motore DeepSeek Batch CLI `node scripts/deepseek-universal-translator.mjs --lang=[CODICE]`):
+1. **Configurazione Lingua (`src/pizza/config/languages.ts`)**: Registrazione codice ISO/Alpha-2, etichette, bandiera, nome nativo e font dedicato.
+2. **Backend & Studi AI DeepSeek (`api/_handlers/dish-translate.ts`, `dishTranslatorEngine.ts`, `wineTranslatorEngine.ts`, `DishCardStudio.tsx`, `WineCardStudio.tsx`)**: Inserimento della nuova lingua nei prompt e schemi JSON di DeepSeek AI, con tab di anteprima/modifica live negli studi admin.
+3. **Catalogo Piatti Completo (`src/pizza/data/menuData.ts`)**: Traduzione DeepSeek di tutti i ~150 piatti (titoli `nameX`, descrizioni `descriptionX`, varianti taglia, ingredienti ed extra) e aggiornamento helper `MenuGrid.tsx` (`getTranslatedName`, `getTranslatedDesc`, `formatProductName`).
+4. **Enoteca & Vini (`src/pizza/data/wineData.tsx`, `wineTranslatorEngine.ts`)**: Traduzione di tutti i vini, vitigni, paesi d'origine in `WINE_COUNTRY_OPTIONS`, tipologie in `WINE_TYPE_OPTIONS`, note di degustazione e abbinamenti cibo-vino.
+5. **Dizionario Globale (`src/pizza/data/i18n.ts`)**: Traduzione di tutte le sezioni: header, navbar, orari, banner promozionali, footer, contatti, informative e disclaimer legali/PDPA.
+6. **Classificazioni Dietetiche & Badge (`src/pizza/components/DietaryWatermark.tsx`, `src/pizza/utils/dietary.ts`)**: Localizzazione badge `VEGAN`, `VEGGIE`, opzione 100% Pollo (Halal-friendly), No Maiale e parole chiave alimentari.
+7. **Esperienza Dining Tablet al Tavolo (`src/pizza/pages/DiningTabletSite.tsx`, `DiningCheckoutModal.tsx`, `TableSettlementModal.tsx`)**: Pop-up introductory al tavolo (-5% sconto), PIN/login staff, modale lead generation & coupon 10%, checkout tavolo e chiusura conto.
+8. **Delivery, Carrello & Checkout (`src/pizza/components/CartDrawer.tsx`, `src/pizza/components/CheckoutFlow.tsx`, `src/pizza/pages/DeliveryMenu.tsx`)**: Flusso d'ordine delivery, metodi di pagamento (PromptPay K-Shop, POS, Contanti), indirizzi e ricevute.
+9. **Collaudo Tecnico & Zero Errori**: Esecuzione `npx tsc --noEmit` per garantire zero errori di compilazione TypeScript.
 
 # 🛡️ REGOLA D'ORO SVILUPPO LOCALE & REGOLE AMBIENTI (LOCALE / VIRTUALE / PRODUZIONE)
 1. **LAVORO ORDINARIO 100% LOCALE (ZERO GIT PUSH SPONTANEO)**:

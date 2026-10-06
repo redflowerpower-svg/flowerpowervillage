@@ -84,7 +84,7 @@ const I18N = {
     successDesc: 'บันทึกการชำระเงินและเคลียร์สถานะโต๊ะเรียบร้อยแล้ว',
     closeBtn: 'กลับสู่หน้าหลัก'
   },
-  DE: {
+    DE: {
     title: 'Tischabrechnung & Bezahlung',
     station: 'Tisch/Gast:',
     itemsHeading: 'Bestellte Speisen & Getränke',
@@ -93,13 +93,30 @@ const I18N = {
     totalPayable: 'Zu zahlender Endbetrag',
     paymentSection: 'Zahlungsart',
     payPromptPay: 'PromptPay K-Shop',
-    payCard: 'Karte / Mobiles POS',
-    payCash: 'Bargeld am Tisch',
-    confirmBtn: 'Zahlung bestätigen & Tisch freigeben',
+    payCard: 'Kartenzahlung am Tisch',
+    payCash: 'Barzahlung am Tisch',
+    confirmBtn: 'Zahlung bestätigen & Tisch schließen',
     processing: 'Wird verarbeitet...',
-    successTitle: 'Abrechnung abgeschlossen & Tisch frei!',
-    successDesc: 'Der Tisch wurde erfolgreich abgerechnet und freigegeben.',
+    successTitle: 'Rechnung beglichen & Tisch freigegeben!',
+    successDesc: 'Tisch-Sitzung erfolgreich archiviert.',
     closeBtn: 'Zurück zur Speisekarte'
+  },
+  MM: {
+    title: 'စားပွဲ ဘေလ်ရှင်းခြင်းနှင့် ငွေပေးချေခြင်း',
+    station: 'စားပွဲ / နေရာ:',
+    itemsHeading: 'မှာယူထားသော အစားအသောက်နှင့် သောက်စရာများ',
+    subtotal: 'အစားအသောက် စုစုပေါင်း',
+    discount: 'စားပွဲ အထူးလျှော့စျေး (-၅%)',
+    totalPayable: 'ပေးချေရမည့် အပြီးသတ် စုစုပေါင်း',
+    paymentSection: 'ငွေပေးချေမှု နည်းလမ်း ရွေးချယ်ပါ',
+    payPromptPay: 'PromptPay K-Shop (QR Code)',
+    payCard: 'ကတ် / POS စက်ဖြင့် ပေးချေမည်',
+    payCash: 'စားပွဲတွင် ငွေသားဖြင့် ပေးချေမည်',
+    confirmBtn: 'ငွေပေးချေမှု အတည်ပြုပြီး စားပွဲပိတ်မည်',
+    processing: 'လုပ်ဆောင်နေပါသည်...',
+    successTitle: 'ဘေလ်ရှင်းပြီး စားပွဲ ရှင်းလင်းပြီးပါပြီ!',
+    successDesc: 'စားပွဲ မှတ်တမ်းကို သိမ်းဆည်းပြီး စားပွဲအား အဆင်သင့်ဖြစ်စေပါပြီ။',
+    closeBtn: 'မီနူးသို့ ပြန်သွားမည်'
   }
 };
 

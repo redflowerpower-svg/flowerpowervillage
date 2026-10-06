@@ -1073,3 +1073,24 @@ executionMode:
 ### C. Localizzazione Interfaccia Promo & Sconti Diretti
 * **Badge Sconto Diretto ([`RoomGrid.tsx`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/resort/components/RoomGrid.tsx))**: Visualizzazione dinamica in 4 lingue (`Sconto Diretto`, `Direct Discount`, `ส่วนลดจองตรง`, `Direktbuchungs-Rabatt`).
 * **Banner Promo Code ([`booking-engine.tsx`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/booking/components/booking-engine.tsx))**: Messaggi di applicazione codice promozionale e rimozione localizzati in `IT`, `EN`, `TH`, `DE`.
+
+---
+
+## 17. Blindatura Radicale Octorate: Auto-Enforcement Stop Sell Tariffe Spente & Audit Overbooking (06/10/2026)
+
+### A. Diagnostica Falla Multi-Rate Overbooking su Booking.com
+* **Analisi Caso Reale (Booking.com #5268037438 - Eric Cocquerez)**: L'ospite ha prenotato contemporaneamente nel carrello OTA la medesima stanza fisica con due tariffe diverse (1x Standard Fan e 1x Aria Condizionata + Colazione `AC bnb-7d`), generando una prenotazione per 2 alloggi su un'unità a disponibilità singola.
+* **Causa Identificata**: Mancato push di Stop Sell verso Octorate sui nodi di 2° livello a restrizione disaccoppiata (`AMR`) e valori di default a `stopSell: false` nella matrice iniziale dello store.
+
+### B. Blindatura Infrastrutturale & Auto-Enforcement ([`useRestrictionsStore.ts`](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/resort/store/useRestrictionsStore.ts))
+* **Default Blindati a `stopSell: true`**: Tutte le matrici predefinite per `ac_7d`, `ac_14d`, `ac_bnb_7d`, `ac_bnb_14d`, `airbnb_ac` nascono categoricamente chiuse (`stopSell: true, closedToArrival: true, closedToDeparture: true`).
+* **Push Live Immediato su Toggle (`toggleRatePlanActive`)**: Disattivare un piano tariffario nella dashboard lancia istantaneamente in background la chiamata bulk all'endpoint `/api/update-rateplan-restrictions-bulk`, imponendo lo Stop Sell a Octorate per tutti i 18 alloggi.
+* **Regola d'Oro #4 Codificata in `AGENTS.md`**: *"Ogni volta che un piano tariffario o tariffa risulta impostato su OFF nella dashboard, il sistema garantisce tassativamente che sui server Octorate e su tutte le OTA collegate lo stato sia `stopSells: true, closed: true` per l'intera stagione su tutti i 18 alloggi (tutti i 212 ID)"*.
+
+### C. Bonifica Live Octorate API & Audit Globale Overbooking
+* **Sincronizzazione Emergenza 87 Tariffe AC**: Eseguito push massivo su `https://api.octorate.com/connect/rest/v1/calendar/bulk` (5/5 batch riusciti con HTTP 200), portando al 100% di chiusura (`stopSells: true`) tutte le 77 tariffe AC per l'intera stagione (`2026-10-06` ➔ `2027-10-31`).
+* **Audit Globale Stagione 2026/2027 (223 Prenotazioni)**:
+  * 128 soggiorni attivi confermati scansionati per collisioni di date sulla medesima camera fisica.
+  * **Risultato**: **0 OVERBOOKING** sull'intera stagione 2026/2027 (nessuna collisione rilevata).
+  * Tutte le 7 tariffe attive (`BE`, `7d`, `Main bnb-7d`, `Main bnb-14d`, `AGD AC-7d`, `AGD AC-14d`, `AirBnB`) risultano perfettamente allineate tra dashboard e server Octorate.
+

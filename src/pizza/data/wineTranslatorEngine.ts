@@ -4,129 +4,149 @@
  * Any language can act as the "Mother / Source" language.
  */
 
-export type WineLang = 'IT' | 'EN' | 'TH' | 'DE';
+export type WineLang = 'IT' | 'EN' | 'TH' | 'DE' | 'MM';
 
 // ── 1. DICTIONARY OF WINE TYPES ───────────────────────────────────────────
 const WINE_TYPE_MAP: Record<string, Record<WineLang, string>> = {
-  'VINO ROSSO': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN' },
-  'RED WINE': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN' },
-  'ROTWEIN': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN' },
-  'ไวน์แดง': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN' },
+  'VINO ROSSO': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN', MM: 'ဝိုင်နီ' },
+  'RED WINE': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN', MM: 'ဝိုင်နီ' },
+  'ROTWEIN': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN', MM: 'ဝိုင်နီ' },
+  'ไวน์แดง': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN', MM: 'ဝိုင်နီ' },
+  'ဝိုင်နီ': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN', MM: 'ဝိုင်နီ' },
 
-  'VINO BIANCO': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN' },
-  'WHITE WINE': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN' },
-  'WEISSWEIN': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN' },
-  'WEIßWEIN': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN' },
-  'ไวน์ขาว': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN' },
+  'VINO BIANCO': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ' },
+  'WHITE WINE': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ' },
+  'WEISSWEIN': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ' },
+  'WEIßWEIN': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ' },
+  'ไวน์ขาว': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ' },
+  'ဝိုင်ဖြူ': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ' },
 
-  'SPUMANTE ROSATO': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ' },
-  'SPARKLING ROSÉ': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ' },
-  'SPARKLING ROSE': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ' },
-  'SCHAUMWEIN ROSÉ': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ' },
-  'สปาร์กลิงโรเซ่': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ' },
+  'SPUMANTE ROSATO': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ', MM: 'စပါကလင် ရိုဇေး' },
+  'SPARKLING ROSÉ': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ', MM: 'စပါကလင် ရိုဇေး' },
+  'SPARKLING ROSE': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ', MM: 'စပါကလင် ရိုဇေး' },
+  'SCHAUMWEIN ROSÉ': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ', MM: 'စပါကလင် ရိုဇေး' },
+  'สปาร์กลิงโรเซ่': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ', MM: 'စပါကလင် ရိုဇေး' },
+  'စပါကလင် ရိုဇေး': { IT: 'SPUMANTE ROSATO', EN: 'SPARKLING ROSÉ', TH: 'สปาร์กลิงโรเซ่', DE: 'SCHAUMWEIN ROSÉ', MM: 'စပါကလင် ရိုဇေး' },
 
-  'BOLLICINE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
-  'SPUMANTE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
-  'SPARKLING WINE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
-  'SCHAUMWEIN': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
-  'PROSECCO': { IT: 'PROSECCO', EN: 'PROSECCO', TH: 'โพรเซกโก', DE: 'PROSECCO' },
-  'สปาร์กลิงไวน์': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN' },
+  'BOLLICINE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်' },
+  'SPUMANTE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်' },
+  'SPARKLING WINE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်' },
+  'SCHAUMWEIN': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်' },
+  'PROSECCO': { IT: 'PROSECCO', EN: 'PROSECCO', TH: 'โพรเซกโก', DE: 'PROSECCO', MM: 'ပရိုဆက်ကို' },
+  'สปาร์กลิงไวน์': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်' },
+  'စပါကလင် ဝိုင်': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်' },
 
-  'VINO ROSATO': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN' },
-  'ROSÉ WINE': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN' },
-  'ROSÈ WINE': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN' },
-  'ROSE WINE': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN' },
-  'ROSÉWEIN': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN' },
-  'ไวน์โรเซ่': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN' },
+  'VINO ROSATO': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်' },
+  'ROSÉ WINE': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်' },
+  'ROSÈ WINE': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်' },
+  'ROSE WINE': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်' },
+  'ROSÉWEIN': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်' },
+  'ไวน์โรเซ่': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်' },
+  'ရိုဇေး ဝိုင်': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်' },
 };
 
 // ── 2. DICTIONARY OF COUNTRIES & REGIONS ───────────────────────────────────
 const COUNTRY_MAP: Record<string, Record<WineLang, string>> = {
-  'ITALIA': { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN' },
-  'ITALY': { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN' },
-  'ITALIEN': { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN' },
-  'อิตาลี': { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN' },
-
-  'FRANCIA': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH' },
-  'FRANCE': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH' },
-  'FRANKREICH': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH' },
-  'ฝรั่งเศส': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH' },
-
-  'CILE': { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE' },
-  'CHILE': { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE' },
-  'ชิลี': { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE' },
-
-  'AUSTRALIA': { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN' },
-  'AUSTRALIEN': { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN' },
-  'ออสเตรเลีย': { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN' },
-
-  'SPAGNA': { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN' },
-  'SPAIN': { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN' },
-  'SPANIEN': { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN' },
-  'สเปน': { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN' },
-
-  'GERMANIA': { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND' },
-  'GERMANY': { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND' },
-  'DEUTSCHLAND': { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND' },
-  'เยอรมนี': { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND' },
-
-  'ARGENTINA': { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN' },
-  'ARGENTINIEN': { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN' },
-  'อาร์เจนตินา': { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN' },
-
-  'NUOVA ZELANDA': { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND' },
-  'NEW ZEALAND': { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND' },
-  'NEUSEELAND': { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND' },
-  'นิวซีแลนด์': { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND' },
-
-  'SUDAFRICA': { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA' },
-  'SOUTH AFRICA': { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA' },
-  'SÜDAFRIKA': { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA' },
-  'แอฟริกาใต้': { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA' },
-
-  'MESSICO': { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO' },
-  'MEXICO': { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO' },
-  'MEXIKO': { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO' },
-  'เม็กซิโก': { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO' },
-
-  'PORTOGALLO': { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL' },
-  'PORTUGAL': { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL' },
-  'โปรตุเกส': { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL' },
-
-  'STATI UNITI': { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA' },
-  'UNITED STATES': { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA' },
-  'USA': { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA' },
-
-  'AUSTRIA': { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH' },
-  'ÖSTERREICH': { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH' },
-  'ออสเตรีย': { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH' },
-
-  'GRECIA': { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND' },
-  'GREECE': { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND' },
-  'GRIECHENLAND': { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND' },
-
-  'SVIZZERA': { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ' },
-  'SWITZERLAND': { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ' },
-  'SCHWEIZ': { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ' },
-
-  'REGNO UNITO': { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH' },
-  'UNITED KINGDOM': { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH' },
-  'UK': { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH' },
-
-  'UNGHERIA': { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN' },
-  'HUNGARY': { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN' },
-  'UNGARN': { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN' },
-
-  'GEORGIA': { IT: 'GEORGIA', EN: 'GEORGIA', TH: 'จอร์เจีย', DE: 'GEORGIEN' },
-  'GEORGIEN': { IT: 'GEORGIA', EN: 'GEORGIA', TH: 'จอร์เจีย', DE: 'GEORGIEN' },
-
-  'TURCHIA': { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI' },
-  'TURKEY': { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI' },
-  'TÜRKEI': { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI' },
-
-  'LIBANO': { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON' },
-  'LEBANON': { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON' },
-  'LIBANON': { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON' },
+  'ITALIA': { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN', MM: 'အီတလီ' },
+  'ITALY': { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN', MM: 'အီတလီ' },
+  'อิตาลี': { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN', MM: 'အီတလီ' },
+  'ITALIEN': { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN', MM: 'အီတလီ' },
+  'အီတလီ': { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN', MM: 'အီတလီ' },
+  'FRANCIA': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH', MM: 'ပြင်သစ်' },
+  'FRANCE': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH', MM: 'ပြင်သစ်' },
+  'ฝรั่งเศส': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH', MM: 'ပြင်သစ်' },
+  'FRANKREICH': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH', MM: 'ပြင်သစ်' },
+  'ပြင်သစ်': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH', MM: 'ပြင်သစ်' },
+  'CILE': { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE', MM: 'ချီလီ' },
+  'CHILE': { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE', MM: 'ချီလီ' },
+  'ชิลี': { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE', MM: 'ချီလီ' },
+  'CHILE': { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE', MM: 'ချီလီ' },
+  'ချီလီ': { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE', MM: 'ချီလီ' },
+  'AUSTRALIA': { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN', MM: 'သြစတြေးလျ' },
+  'AUSTRALIA': { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN', MM: 'သြစတြေးလျ' },
+  'ออสเตรเลีย': { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN', MM: 'သြစတြေးလျ' },
+  'AUSTRALIEN': { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN', MM: 'သြစတြေးလျ' },
+  'သြစတြေးလျ': { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN', MM: 'သြစတြေးလျ' },
+  'SPAGNA': { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN', MM: 'စပိန်' },
+  'SPAIN': { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN', MM: 'စပိန်' },
+  'สเปน': { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN', MM: 'စပိန်' },
+  'SPANIEN': { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN', MM: 'စပိန်' },
+  'စပိန်': { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN', MM: 'စပိန်' },
+  'GERMANIA': { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND', MM: 'ဂျာမနီ' },
+  'GERMANY': { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND', MM: 'ဂျာမနီ' },
+  'เยอรมนี': { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND', MM: 'ဂျာမနီ' },
+  'DEUTSCHLAND': { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND', MM: 'ဂျာမနီ' },
+  'ဂျာမနီ': { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND', MM: 'ဂျာမနီ' },
+  'ARGENTINA': { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN', MM: 'အာဂျင်တီးနား' },
+  'ARGENTINA': { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN', MM: 'အာဂျင်တီးနား' },
+  'อาร์เจนตินา': { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN', MM: 'အာဂျင်တီးနား' },
+  'ARGENTINIEN': { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN', MM: 'အာဂျင်တီးနား' },
+  'အာဂျင်တီးနား': { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN', MM: 'အာဂျင်တီးနား' },
+  'NUOVA ZELANDA': { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND', MM: 'နယူးဇီလန်' },
+  'NEW ZEALAND': { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND', MM: 'နယူးဇီလန်' },
+  'นิวซีแลนด์': { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND', MM: 'နယူးဇီလန်' },
+  'NEUSEELAND': { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND', MM: 'နယူးဇီလန်' },
+  'နယူးဇီလန်': { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND', MM: 'နယူးဇီလန်' },
+  'SUDAFRICA': { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA', MM: 'တောင်အာဖရိက' },
+  'SOUTH AFRICA': { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA', MM: 'တောင်အာဖရိက' },
+  'แอฟริกาใต้': { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA', MM: 'တောင်အာဖရိက' },
+  'SÜDAFRIKA': { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA', MM: 'တောင်အာဖရိက' },
+  'တောင်အာဖရိက': { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA', MM: 'တောင်အာဖရိက' },
+  'MESSICO': { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO', MM: 'မက္ကဆီကို' },
+  'MEXICO': { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO', MM: 'မက္ကဆီကို' },
+  'เม็กซิโก': { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO', MM: 'မက္ကဆီကို' },
+  'MEXIKO': { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO', MM: 'မက္ကဆီကို' },
+  'မက္ကဆီကို': { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO', MM: 'မက္ကဆီကို' },
+  'PORTOGALLO': { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL', MM: 'ပေါ်တူဂီ' },
+  'PORTUGAL': { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL', MM: 'ပေါ်တူဂီ' },
+  'โปรตุเกส': { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL', MM: 'ပေါ်တူဂီ' },
+  'PORTUGAL': { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL', MM: 'ပေါ်တူဂီ' },
+  'ပေါ်တူဂီ': { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL', MM: 'ပေါ်တူဂီ' },
+  'STATI UNITI': { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA', MM: 'အမေရိကန်' },
+  'UNITED STATES': { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA', MM: 'အမေရိကန်' },
+  'สหรัฐอเมริกา': { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA', MM: 'အမေရိကန်' },
+  'USA': { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA', MM: 'အမေရိကန်' },
+  'အမေရိကန်': { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA', MM: 'အမေရိကန်' },
+  'AUSTRIA': { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH', MM: 'သြစတြီးယား' },
+  'AUSTRIA': { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH', MM: 'သြစတြီးယား' },
+  'ออสเตรีย': { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH', MM: 'သြစတြီးယား' },
+  'ÖSTERREICH': { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH', MM: 'သြစတြီးယား' },
+  'သြစတြီးယား': { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH', MM: 'သြစတြီးယား' },
+  'GRECIA': { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND', MM: 'ဂရိ' },
+  'GREECE': { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND', MM: 'ဂရိ' },
+  'กรีซ': { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND', MM: 'ဂရိ' },
+  'GRIECHENLAND': { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND', MM: 'ဂရိ' },
+  'ဂရိ': { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND', MM: 'ဂရိ' },
+  'SVIZZERA': { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ', MM: 'ဆွစ်ဇာလန်' },
+  'SWITZERLAND': { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ', MM: 'ဆွစ်ဇာလန်' },
+  'สวิตเซอร์แลนด์': { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ', MM: 'ဆွစ်ဇာလန်' },
+  'SCHWEIZ': { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ', MM: 'ဆွစ်ဇာလန်' },
+  'ဆွစ်ဇာလန်': { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ', MM: 'ဆွစ်ဇာလန်' },
+  'REGNO UNITO': { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH', MM: 'ယူကေ' },
+  'UNITED KINGDOM': { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH', MM: 'ယူကေ' },
+  'สหราชอาณาจักร': { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH', MM: 'ယူကေ' },
+  'VEREINIGTES KÖNIGREICH': { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH', MM: 'ယူကေ' },
+  'ယူကေ': { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH', MM: 'ယူကေ' },
+  'UNGHERIA': { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN', MM: 'ဟန်ဂေရီ' },
+  'HUNGARY': { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN', MM: 'ဟန်ဂေရီ' },
+  'ฮังการี': { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN', MM: 'ဟန်ဂေရီ' },
+  'UNGARN': { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN', MM: 'ဟန်ဂေရီ' },
+  'ဟန်ဂေရီ': { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN', MM: 'ဟန်ဂေရီ' },
+  'GEORGIA': { IT: 'GEORGIA', EN: 'GEORGIA', TH: 'จอร์เจีย', DE: 'GEORGIEN', MM: 'ဂျော်ဂျီယာ' },
+  'GEORGIA': { IT: 'GEORGIA', EN: 'GEORGIA', TH: 'จอร์เจีย', DE: 'GEORGIEN', MM: 'ဂျော်ဂျီယာ' },
+  'จอร์เจีย': { IT: 'GEORGIA', EN: 'GEORGIA', TH: 'จอร์เจีย', DE: 'GEORGIEN', MM: 'ဂျော်ဂျီယာ' },
+  'GEORGIEN': { IT: 'GEORGIA', EN: 'GEORGIA', TH: 'จอร์เจีย', DE: 'GEORGIEN', MM: 'ဂျော်ဂျီယာ' },
+  'ဂျော်ဂျီယာ': { IT: 'GEORGIA', EN: 'GEORGIA', TH: 'จอร์เจีย', DE: 'GEORGIEN', MM: 'ဂျော်ဂျီယာ' },
+  'TURCHIA': { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI', MM: 'တူရကီ' },
+  'TURKEY': { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI', MM: 'တူရကီ' },
+  'ตุรกี': { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI', MM: 'တူရကီ' },
+  'TÜRKEI': { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI', MM: 'တူရကီ' },
+  'တူရကီ': { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI', MM: 'တူရကီ' },
+  'LIBANO': { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON', MM: 'လက်ဘနွန်' },
+  'LEBANON': { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON', MM: 'လက်ဘနွန်' },
+  'เลบานอน': { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON', MM: 'လက်ဘနွန်' },
+  'LIBANON': { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON', MM: 'လက်ဘနွန်' },
+  'လက်ဘနွန်': { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON', MM: 'လက်ဘနွန်' },
 };
 
 const REGION_MAP: Record<string, Record<WineLang, string>> = {
@@ -381,10 +401,10 @@ export function translateWineCardAllLanguages(params: {
 } {
   const { sourceLang, vigna, dettagli, brand, wineType, origin, description } = params;
 
-  const langs: WineLang[] = ['IT', 'EN', 'TH', 'DE'];
-  const titles: Record<WineLang, string> = { IT: '', EN: '', TH: '', DE: '' };
-  const subtitles: Record<WineLang, string> = { IT: '', EN: '', TH: '', DE: '' };
-  const descriptions: Record<WineLang, string> = { IT: '', EN: '', TH: '', DE: '' };
+  const langs: WineLang[] = ['IT', 'EN', 'TH', 'DE', 'MM'];
+  const titles: Record<WineLang, string> = { IT: '', EN: '', TH: '', DE: '', MM: '' };
+  const subtitles: Record<WineLang, string> = { IT: '', EN: '', TH: '', DE: '', MM: '' };
+  const descriptions: Record<WineLang, string> = { IT: '', EN: '', TH: '', DE: '', MM: '' };
 
   for (const l of langs) {
     if (l === sourceLang) {
@@ -422,14 +442,17 @@ export function translateWineCardAllLanguages(params: {
     titleEn: titles.EN,
     titleTh: titles.TH,
     titleDe: titles.DE,
+    titleMm: titles.MM,
     categorySubtitle: subtitles.EN || subtitles[sourceLang],
     subtitleIt: subtitles.IT,
     subtitleEn: subtitles.EN,
     subtitleTh: subtitles.TH,
     subtitleDe: subtitles.DE,
+    subtitleMm: subtitles.MM,
     descriptionIt: descriptions.IT,
     descriptionEn: descriptions.EN,
     descriptionTh: descriptions.TH,
-    descriptionDe: descriptions.DE
+    descriptionDe: descriptions.DE,
+    descriptionMm: descriptions.MM
   };
 }

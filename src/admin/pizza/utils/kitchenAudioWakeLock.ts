@@ -211,6 +211,11 @@ export function stopDispatchReminderAlarm() {
   }
 }
 
+export function stopAllKitchenAlarms() {
+  stopContinuousAlarm();
+  stopDispatchReminderAlarm();
+}
+
 export function isDispatchReminderPlaying(): boolean {
   return isReminderCurrentlyPlaying;
 }
@@ -218,3 +223,4 @@ export function isDispatchReminderPlaying(): boolean {
 export function isAlarmPlaying(): boolean {
   return isAlarmCurrentlyPlaying;
 }
+

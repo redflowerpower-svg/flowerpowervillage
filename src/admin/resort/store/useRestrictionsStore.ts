@@ -343,9 +343,9 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       name: 'AirBnB AC',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
+      stopSell: true,
+      closedToArrival: true,
+      closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
     }
@@ -356,9 +356,9 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       name: 'AC7d',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
+      stopSell: true,
+      closedToArrival: true,
+      closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
     }
@@ -369,9 +369,9 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       name: 'AC14d',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
+      stopSell: true,
+      closedToArrival: true,
+      closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
     }
@@ -382,9 +382,9 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       name: 'AC bnb-7d',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
+      stopSell: true,
+      closedToArrival: true,
+      closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
     }
@@ -395,14 +395,14 @@ export const INITIAL_PLAN_PERIODS: Record<string, PlannedPeriod[]> = {
       name: 'AC bnb-14d',
       dateFrom: '2026-10-01',
       dateTo: '2027-05-31',
-      stopSell: false,
-      closedToArrival: false,
-      closedToDeparture: false,
+      stopSell: true,
+      closedToArrival: true,
+      closedToDeparture: true,
       onlyCheckOutDays: 0,
       failsafeCheckout: false
     }
   ]
-};;
+};
 
 // Mock live state svuotato: la Tabella 2 usa esclusivamente dati reali da Octorate API
 export const INITIAL_LIVE_MOCK: Record<string, Record<string, LiveMockRestriction>> = {};
@@ -650,6 +650,29 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           localStorage.setItem('fpv_disabled_plans_v9', JSON.stringify(updated));
         } catch (e) {
           console.warn('LocalStorage save error:', e);
+        }
+
+        // Automatic instant live push to Octorate when a plan is switched to OFF
+        if (!exists) {
+          const todayStr = new Date().toISOString().slice(0, 10);
+          fetch('/api/update-rateplan-restrictions-bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              planId: key,
+              ratePlanKey: key,
+              dateFrom: todayStr,
+              dateTo: get().tabulaRasaDateTo || '2027-10-31',
+              stopSell: true,
+              strategy: 'stopsell',
+              testOnly: get().liveViewMode === 'test'
+            })
+          })
+            .then(() => {
+              console.info(`[Auto-Enforcement] Piano ${key} disattivato: Stop Sell inviato a Octorate per tutti i 18 alloggi.`);
+              get().fetchLiveRestrictions();
+            })
+            .catch(e => console.warn('[Auto-Enforcement Warning]:', e));
         }
       },
 

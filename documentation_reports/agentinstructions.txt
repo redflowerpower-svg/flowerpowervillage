@@ -2,6 +2,10 @@
 
 1. **PREZZI**: Le variazioni di prezzo devono colpire sempre e solo l'ID della Tariffa Madre (Livello 0). Octorate calcola lo sconto automaticamente a cascata su tutte le tariffe derivate.
 2. **RESTRIZIONI (Stop Sell, CA, CD, MinStay)**: È consentito scrivere le restrizioni direttamente sulle tariffe derivate (Livello 1 e 2) in cui l'ereditarietà è disattivata (es. R1 7d), e questo verrà specificato di volta in volta.
+3. **POLITICHE DI CANCELLAZIONE (`7d` e `14d`)**: Le sigle `7d` e `14d` indicano **TASSATIVAMENTE I GIORNI DELLA FINESTRA DI CANCELLAZIONE GRATUITA CON RIMBORSO TOTALE 100%**:
+   - `7d`: Rimborso 100% entro 7gg; `14d`: Rimborso 100% entro 14gg.
+4. **TARIFFA OFF NELLA DASHBOARD = STOP SELL CATEGORICO SU TUTTE LE OTA (IMPLICITO & INTRINSECO)**:
+   - Ogni volta che un piano tariffario o tariffa risulta `OFF` (disattivato/spento) nella dashboard, il sistema garantisce tassativamente che sui server Octorate e su tutte le OTA collegate (Booking.com, Agoda, Expedia, Airbnb) lo stato sia **`stopSells: true, closed: true`** per l'intera stagione su tutti i 18 alloggi (tutti i 212 ID). L'azione di disattivazione effettua sempre e categoricamente un push reale immediato su Octorate API.
 
 ---
 
@@ -75,3 +79,17 @@ Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un
    - **Punto 3: Stato della Cassaforte Credenziali (`.secret_docs/`)** (Esito cifratura `.md.enc`).
    - **Punto 4: Stato dei Test di Connessione e Sicurezza Git** (Esito check `test-credentials-verification.mjs` e `.gitignore`).
    - **Punto 5: Istruzioni per la Nuova Postazione (Koh Phayam / Ranong)** (Promemoria per `git pull` seguito da `VAULT-SYNC`).
+
+---
+
+# 🌍 PROTOCOLLO UNIVERSALE: `[LINGUA] FULL TRANSLATION` / `[LINGUA] TRADUZIONE TOTALE`
+Quando l'utente inserisce il comando `[LINGUA] FULL TRANSLATION` oppure `[LINGUA] TRADUZIONE TOTALE` (ad es. `FRANCESE FULL TRANSLATION`, `FRENCH FULL TRANSLATION`, `RUSSO FULL TRANSLATION`, `CINESE FULL TRANSLATION`, `FRANCESE TRADUZIONE TOTALE`), l'agente esegue in autonomia la **Pipeline Multilingua Radicale a 9 Fasi** tramite DeepSeek AI Chat API (motore CLI `node scripts/deepseek-universal-translator.mjs --lang=[CODICE]`):
+1. Configurazione lingua ISO in `languages.ts`.
+2. Integrazione prompt/schemi JSON DeepSeek negli studi admin (`dishTranslatorEngine.ts`, `DishCardStudio.tsx`, `WineCardStudio.tsx`).
+3. Traduzione integrale catalogo ~150 piatti in `menuData.ts`.
+4. Traduzione integrale enoteca/vini in `wineData.tsx`.
+5. Traduzione integrale dizionario UI in `i18n.ts`.
+6. Localizzazione filtri dietetici, badge Halal/Vegan in `dietary.ts`.
+7. Traduzione Dining Tablet in `DiningTabletSite.tsx` e modali tavolo.
+8. Traduzione Delivery, Carrello e Checkout (`CheckoutFlow.tsx`, `CartDrawer.tsx`).
+9. Convalida zero errori con `npx tsc --noEmit`.

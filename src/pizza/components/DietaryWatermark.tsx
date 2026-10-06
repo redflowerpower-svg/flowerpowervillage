@@ -1,11 +1,14 @@
 import React from 'react';
 import { Leaf, Wheat } from 'lucide-react';
 import type { DietaryType } from '../utils/dietary';
+import { useLanguageStore } from '../store/languageStore';
+import { Language } from '../config/languages';
 
 interface DietaryWatermarkProps {
   type?: DietaryType;
   className?: string;
   size?: 'sm' | 'md';
+  lang?: Language;
 }
 
 /**
@@ -15,16 +18,28 @@ interface DietaryWatermarkProps {
 export const DietaryWatermark: React.FC<DietaryWatermarkProps> = ({ 
   type, 
   className = '',
-  size = 'md'
+  size = 'md',
+  lang: propLang
 }) => {
+  const storeLang = useLanguageStore((s) => s.language);
+  const lang = propLang || storeLang || 'IT';
+
   if (!type) return null;
 
   const isVegan = type === 'vegan';
 
+  const labelText = isVegan
+    ? (lang === 'MM' ? 'သက်သတ်လွတ်' : lang === 'IT' ? 'VEGANO' : lang === 'TH' ? 'เจ/วีแกน' : 'VEGAN')
+    : (lang === 'MM' ? 'သက်သတ်လွတ်' : lang === 'IT' ? 'VEGETARIANO' : lang === 'TH' ? 'มังสวิรัติ' : 'VEGGIE');
+
+  const titleText = isVegan
+    ? (lang === 'MM' ? '၁၀၀% သက်သတ်လွတ် စစ်စစ်' : lang === 'IT' ? '100% Vegano (Base vegetale)' : lang === 'TH' ? 'วีแกน 100%' : '100% Vegan (Plant-based)')
+    : (lang === 'MM' ? 'သက်သတ်လွတ် (အသား/ငါး မပါ)' : lang === 'IT' ? 'Vegetariano (Senza carne né pesce)' : lang === 'TH' ? 'มังสวิรัติ' : 'Vegetarian (No meat or fish)');
+
   return (
     <div
-      aria-label={isVegan ? '100% Vegan (Plant-based)' : 'Vegetarian (No meat or fish)'}
-      title={isVegan ? '100% Vegan' : 'Vegetarian'}
+      aria-label={titleText}
+      title={titleText}
       className={`inline-flex flex-col items-center justify-center rounded-xl backdrop-blur-md shadow-md select-none pointer-events-none transition-all duration-300 ${
         size === 'sm' ? 'px-1.5 py-0.5' : 'px-2 py-1'
       } ${
@@ -47,9 +62,9 @@ export const DietaryWatermark: React.FC<DietaryWatermarkProps> = ({
       </div>
       <span
         className={`${size === 'sm' ? 'text-[7px]' : 'text-[7.5px] sm:text-[8px]'} font-black uppercase tracking-wider text-white mt-0.5 leading-none`}
-        style={{ fontFamily: 'Outfit, system-ui, sans-serif', letterSpacing: '0.06em' }}
+        style={{ fontFamily: lang === 'MM' ? 'Noto Sans Myanmar, system-ui, sans-serif' : 'Outfit, system-ui, sans-serif', letterSpacing: '0.06em' }}
       >
-        {isVegan ? 'VEGAN' : 'VEGGIE'}
+        {labelText}
       </span>
     </div>
   );

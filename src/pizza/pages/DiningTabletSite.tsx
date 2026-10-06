@@ -119,86 +119,100 @@ const categoryDetails: Record<string, Record<Language, { name: string; desc: str
     IT: { name: 'Specialità del Giorno', desc: 'Creazioni esclusive e piatti speciali preparati dal nostro chef con ingredienti freschi' },
     EN: { name: 'Daily Specials', desc: 'Exclusive daily creations and seasonal specialties freshly prepared by our Italian chef' },
     TH: { name: 'เมนูพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
-    DE: { name: 'Tagesempfehlungen', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs' }
+    DE: { name: 'Tagesempfehlungen', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs' },
+    MM: { name: 'နေ့စဉ် အထူးဟင်းလျာများ', desc: 'အီတလီစားဖိုမှူးမှ လတ်ဆတ်သော ရာသီပေါ် ကုန်ကြမ်းများဖြင့် နေ့စဉ် သီးသန့် ဖန်တီးထားသော အထူးဟင်းလျာများ' },
   },
   'traditional-italian-pizza': {
     IT: { name: 'Pizze Classiche', desc: 'Impasto a lenta lievitazione naturale 48h con farine 100% italiane' },
-    EN: { name: 'Classic Pizzas', desc: 'Slow-fermented Italian dough (48h) with 100% Italian flour' },
-    TH: { name: 'พิซซ่าอิตาเลียนคลาสสิก', desc: 'แป้งหมักธรรมชาติ 48 ชม. ใช้วัตถุดิบนำเข้าจากอิตาลี' },
-    DE: { name: 'Klassische Pizzen', desc: 'Langsam fermentierter Teig (48h) aus 100% italienischem Mehl' }
+    EN: { name: 'Classic Pizzas', desc: '48h slow-fermented natural dough with 100% Italian flour' },
+    TH: { name: 'พิซซ่าคลาสสิค', desc: 'แป้งหมักธรรมชาติสูตรดั้งเดิม 48 ชม. ด้วยแป้งนำเข้าจากอิตาลี 100%' },
+    DE: { name: 'Klassische Pizzas', desc: '48 Std. natursauerteig-Pizzaboden mit 100% italienischem Mehl' },
+    MM: { name: 'ရိုးရာ အီတလီ ပီဇာ', desc: '၁၀၀% အီတလီဂျုံမှုန့်ဖြင့် ၄၈ နာရီကြာ သဘာဝနည်းဖြင့် နှပ်ထားသော မုန့်သား' },
   },
   'pasta': {
     IT: { name: 'Primi Piatti & Pasta', desc: 'Pasta artigianale con ricette tradizionali e sughi freschi fatti in casa' },
-    EN: { name: 'Pasta Dishes', desc: 'Authentic artisan pasta made fresh with classic homemade Italian sauces' },
-    TH: { name: 'พาสต้าโฮมเมด', desc: 'พาสต้าเส้นสดปรุงรสเข้มข้นสไตล์อิตาเลียนแท้' },
-    DE: { name: 'Pasta-Gerichte', desc: 'Frische hausgemachte Pasta mit traditionellen italienischen Saucen' }
+    EN: { name: 'Pasta Dishes', desc: 'Handcrafted pasta with traditional Italian recipes and fresh homemade sauces' },
+    TH: { name: 'พาสต้า & อาหารจานแรก', desc: 'พาสต้าสูตรต้นตำรับอิตาเลียนแท้ ปรุงสดใหม่พร้อมซอสโฮมเมดเข้มข้น' },
+    DE: { name: 'Pasta & Nudelgerichte', desc: 'Handgemachte Pasta nach traditionellen italienischen Rezepten und hausgemachten Saucen' },
+    MM: { name: 'ခေါက်ဆွဲ ဟင်းလျာများ', desc: 'အိမ်လုပ်ဆော့စ်နှင့် ရိုးရာနည်းဖြင့် ပြုလုပ်ထားသော လက်လုပ် အီတလီ ခေါက်ဆွဲ' },
   },
   'italian-salads': {
     IT: { name: 'Insalate Italiane', desc: 'Insalate fresche con verdure croccanti e condimenti mediterranei' },
-    EN: { name: 'Italian Salads', desc: 'Fresh crispy salads with Mediterranean dressings' },
-    TH: { name: 'สลัดสไตล์อิตาเลียน', desc: 'สลัดผักสดกรอบเพื่อสุขภาพ' },
-    DE: { name: 'Italienische Salate', desc: 'Frische Salate mit mediterranen Dressings' }
+    EN: { name: 'Italian Salads', desc: 'Fresh crisp salads with premium Mediterranean dressing and extra virgin olive oil' },
+    TH: { name: 'สลัดสไตล์อิตาเลียน', desc: 'สลัดผักสดกรอบคลุกเคล้ากับน้ำสลัดเมดิเตอร์เรเนียนและน้ำมันมะกอกบริสุทธิ์' },
+    DE: { name: 'Italienische Salate', desc: 'Frische knackige Salate mit mediterranem Dressing und feinstem Olivenöl' },
+    MM: { name: 'အီတလီ စာလတ်', desc: 'လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော အီတလီစတိုင် စာလတ်များ' },
   },
   'pizza-sandwich': {
     IT: { name: 'Panuozzi & Pizza Sandwich', desc: 'Panuozzo napoletano cotto al forno a legna e farcito con salumi e mozzarella' },
-    EN: { name: 'Pizza Sandwiches', desc: 'Wood-fired oven folded pizza sandwiches stuffed with fine Italian ingredients' },
-    TH: { name: 'พิซซ่าแซนด์วิช', desc: 'แป้งพิซซ่าอบสดใหม่สอดไส้วัตถุดิบพรีเมียม' },
-    DE: { name: 'Pizza-Sandwiches', desc: 'Im Holzofen gebackene gefüllte Pizza-Sandwiches' }
+    EN: { name: 'Panuozzo & Pizza Sandwiches', desc: 'Neapolitan style baked pizza dough sandwich filled with cold cuts and cheese' },
+    TH: { name: 'ปานูออซโซ & แซนด์วิชพิซซ่า', desc: 'แซนด์วิชแป้งพิซซ่าสไตล์เนเปิลส์อบร้อนๆ สอดไส้ชีสและเนื้อสัตว์คุณภาพพรีเมียม' },
+    DE: { name: 'Panuozzi & Pizza-Sandwiches', desc: 'Im Ofen gebackenes neapolitanisches Pizza-Sandwich, gefüllt mit feinstem Aufschnitt und Mozzarella' },
+    MM: { name: 'ဖိုကာချာ ပီဇာ ဆန်းဒဝစ်', desc: 'မီးဖုတ် ပီဇာမုန့်သားဖြင့် အလယ်တွင် အသား၊ ချိစ်နှင့် ဟင်းသီးဟင်းရွက်များ ညှပ်ထားသော ဆန်းဒဝစ်' },
   },
   'pizza-burgers': {
     IT: { name: 'Pizza Burger & Fries', desc: 'Burger saporiti con pane pizza speciale, serviti con patatine fritte' },
-    EN: { name: 'Pizza Burgers & Fries', desc: 'Juicy burgers wrapped in artisan pizza crust, served with french fries' },
-    TH: { name: 'พิซซ่าเบอร์เกอร์และเฟรนช์ฟรายส์', desc: 'เบอร์เกอร์แป้งพิซซ่าเสิร์ฟพร้อมเฟรนช์ฟรายส์' },
-    DE: { name: 'Pizza-Burger & Pommes', desc: 'Saftige Burger im Pizzateig mit knusprigen Pommes' }
+    EN: { name: 'Pizza Burgers & Fries', desc: 'Savory homemade patties in fresh pizza bread, served with crispy fries' },
+    TH: { name: 'พิซซ่าเบอร์เกอร์ & เฟรนช์ฟรายส์', desc: 'เบอร์เกอร์แป้งพิซซ่าโฮมเมดแสนอร่อย เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ' },
+    DE: { name: 'Pizza-Burger & Pommes', desc: 'Herzhafte hausgemachte Burger in frischem Pizzabrot, serviert mit knusprigen Pommes' },
+    MM: { name: 'ပီဇာ ဘာဂါနှင့် အာလူးကြော်', desc: 'ပီဇာမုန့်သားဖြင့် ပြုလုပ်ထားသည့် အရသာရှိသော ဘာဂါနှင့် အာလူးကြော်' },
   },
   'french-fries': {
     IT: { name: 'Fritti & Sfizi', desc: 'Patatine fritte dorate, anelli di cipolla e crocchette calde' },
-    EN: { name: 'French Fries & Bites', desc: 'Crispy golden fries, onion rings, and delicious snacks' },
-    TH: { name: 'เฟรนช์ฟรายส์และของทานเล่น', desc: 'เฟรนช์ฟรายส์ทอดกรอบและของว่าง' },
-    DE: { name: 'Pommes & Snacks', desc: 'Goldene Pommes frites und knusprige Snacks' }
+    EN: { name: 'French Fries & Appetizers', desc: 'Golden french fries, crispy onion rings and hot finger food appetizers' },
+    TH: { name: 'เฟรนช์ฟรายส์ & ของทานเล่น', desc: 'เฟรนช์ฟรายส์สีทองกรอบ หอมทอด และของว่างทอดร้อนๆ แสนอร่อย' },
+    DE: { name: 'Pommes & Fingerfood', desc: 'Goldgelbe Pommes frites, knusprige Zwiebelringe und heiße Appetithäppchen' },
+    MM: { name: 'အာလူးကြော်နှင့် အမြည်းများ', desc: 'ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ အာလူးကြော်နှင့် ကြက်သွန်ကွင်းကြော်များ' },
   },
   'desserts': {
     IT: { name: 'Dolci & Dessert', desc: 'Tiramisù della casa, torte del giorno, crepes e affogato al caffè' },
-    EN: { name: 'Desserts & Sweets', desc: 'Homemade Tiramisù, cake of the day, crepes, and affogato' },
-    TH: { name: 'ของหวานและเบเกอรี่', desc: 'ทีรามิสูโฮมเมดและของหวานสไตล์อิตาเลียน' },
-    DE: { name: 'Desserts & Süßspeisen', desc: 'Hausgemachtes Tiramisù, Kuchen, Crêpes und Affogato' }
+    EN: { name: 'Desserts & Sweets', desc: 'Homemade classic Italian tiramisù, fresh daily cakes and gelato affogato' },
+    TH: { name: 'ของหวาน & เค้ก', desc: 'ทีรามิสุโฮมเมดสูตรคุณยาย เค้กประจำวัน เครป และไอศกรีมกาแฟอัฟโฟกาโต' },
+    DE: { name: 'Desserts & Süßspeisen', desc: 'Hausgemachtes klassisches Tiramisù, frische Tageskuchen und Kaffee-Affogato' },
+    MM: { name: 'အချိုပွဲနှင့် ဒက်ဆာ့တ်', desc: 'အိမ်လုပ် တီရာမီဆု၊ နေ့စဉ် ကိတ်များနှင့် ကော်ဖီ အက်ဖိုဂါတို' },
   },
   'breakfast-and-snacks': {
     IT: { name: 'Colazione & Toast', desc: 'Colazione italiana, toast caldi, uova e macedonia di frutta' },
-    EN: { name: 'Breakfast & Snacks', desc: 'Italian breakfast, toast, eggs, and fresh fruit salad' },
-    TH: { name: 'อาหารเช้าและโทสต์', desc: 'เซ็ตอาหารเช้า โทสต์ และผลไม้สด' },
-    DE: { name: 'Frühstück & Toast', desc: 'Italienisches Frühstück, Toast, Eier und frischer Obstsalat' }
+    EN: { name: 'Breakfast & Toast', desc: 'Hearty Italian breakfast, warm toasts, eggs and fresh tropical fruit' },
+    TH: { name: 'อาหารเช้า & โทสต์', desc: 'อาหารเช้าสไตล์อิตาเลียน โทสต์อบร้อน ไข่ดาว และผลไม้สดรวม' },
+    DE: { name: 'Frühstück & Toast', desc: 'Italienisches Frühstück, warme Toasts, Eierspeisen und frischer Obstsalat' },
+    MM: { name: 'နံနက်စာနှင့် သရေစာ', desc: 'နံနက်စာ၊ ပေါင်မုန့်မီးကင်၊ ကြက်ဥနှင့် လတ်ဆတ်သော သစ်သီးများ' },
   },
   'coffee-shop': {
     IT: { name: 'Caffetteria & Tè', desc: 'Vero espresso italiano, cappuccino cremoso e pregiati tè' },
-    EN: { name: 'Coffee Shop & Tea', desc: 'Authentic Italian espresso, creamy cappuccino, and fine teas' },
-    TH: { name: 'กาแฟสดและชา', desc: 'กาแฟเอสเปรสโซอิตาเลียนและชาคัดพิเศษ' },
-    DE: { name: 'Kaffee & Tee', desc: 'Echter italienischer Espresso, Cappuccino und feine Tees' }
+    EN: { name: 'Coffee & Tea Bar', desc: 'Authentic Italian espresso, creamy cappuccino and premium selected teas' },
+    TH: { name: 'กาแฟ & ชา', desc: 'เอสเพรสโซ่อิตาเลียนแท้ คาปูชิโน่ฟองนุ่มละมุน และชาชั้นดี' },
+    DE: { name: 'Kaffee & Teebar', desc: 'Echter italienischer Espresso, cremiger Cappuccino und erlesene Teesorten' },
+    MM: { name: 'ကော်ဖီဆိုင်', desc: 'စစ်မှန်သော အီတလီ အက်စ်ပရက်ဆို၊ ခရင်မ်ဆန်သော ကာပူချီနိုနှင့် လက်ဖက်ရည်' },
   },
   'fruit-drinks': {
     IT: { name: 'Frullati & Smoothie', desc: 'Frutta fresca tropicale frullata al momento, smoothie e frappè' },
-    EN: { name: 'Fruit Drinks & Shakes', desc: 'Fresh tropical fruit shakes, smoothies, and creamy frappés' },
-    TH: { name: 'น้ำผลไม้ปั่นและสมูทตี้', desc: 'ผลไม้สดปั่น สดชื่น ดีต่อสุขภาพ' },
-    DE: { name: 'Frucht-Shakes & Smoothies', desc: 'Frische tropische Frucht-Shakes und cremige Frappés' }
+    EN: { name: 'Fresh Smoothies & Shakes', desc: 'Fresh tropical fruits blended to order, energizing smoothies and shakes' },
+    TH: { name: 'น้ำผลไม้ปั่น & สมูทตี้', desc: 'ผลไม้เมืองร้อนสดใหม่ปั่นแก้วต่อแก้ว สมูทตี้เพิ่มความสดชื่น' },
+    DE: { name: 'Frische Smoothies & Shakes', desc: 'Frische tropische Früchte auf Bestellung gemixt, vitaminreiche Smoothies und Shakes' },
+    MM: { name: 'သစ်သီးဖျော်ရည်များ', desc: 'လတ်ဆတ်သော သစ်သီးဖျော်ရည်များနှင့် စမုသီများ' },
   },
   'soft-drinks': {
     IT: { name: 'Bibite & Acqua', desc: 'Bibite rinfrescanti in lattina, acqua minerale naturale e soda servite fredde' },
-    EN: { name: 'Soft Drinks & Water', desc: 'Chilled canned soft drinks, mineral water, and soda water' },
-    TH: { name: 'น้ำอัดลมและน้ำดื่ม', desc: 'น้ำอัดลมกระป๋อง น้ำดื่ม และโซดาเย็นสดชื่น' },
-    DE: { name: 'Erfrischungsgetränke & Wasser', desc: 'Kühle Softdrinks in der Dose, Mineralwasser und Soda' }
+    EN: { name: 'Soft Drinks & Chilled Water', desc: 'Canned soft drinks, natural mineral water and iced refreshments' },
+    TH: { name: 'น้ำอัดลม & น้ำดื่มเย็น', desc: 'น้ำอัดลมกระป๋อง น้ำแร่ธรรมชาติ และเครื่องดื่มดับกระหายเสิร์ฟเย็น' },
+    DE: { name: 'Softdrinks & Mineralwasser', desc: 'Erfrischungsgetränke in der Dose, natürliches Mineralwasser und gekühlte Getränke' },
+    MM: { name: 'အအေးနှင့် သောက်ရေသန့်', desc: 'ဗူးသွပ်အအေးများ၊ သဘာဝတွင်းထွက်ရေနှင့် အေးမြလန်းဆန်းစေသော သောက်စရာများ' },
   },
   'beers': {
     IT: { name: 'Birre Fresche', desc: 'Le migliori marche di birra in bottiglia grande e piccola, servite ghiacciate' },
-    EN: { name: 'Chilled Beers', desc: 'Ice-cold premium bottled beers, available in large and small sizes' },
-    TH: { name: 'เบียร์ขวดเย็นเจี๊ยบ', desc: 'เบียร์ขวดเย็นเจี๊ยบคุณภาพดี มีให้เลือกทั้งขวดใหญ่และขวดเล็ก' },
-    DE: { name: 'Kühles Bier', desc: 'Eiskalte Flaschenbiere beliebter Marken in großen und kleinen Flaschen' }
+    EN: { name: 'Ice Cold Beers', desc: 'Premium Thai and international bottled beers served frosty cold' },
+    TH: { name: 'เบียร์เย็นเจี๊ยบ', desc: 'เบียร์ไทยและต่างประเทศชั้นนำ เสิร์ฟเย็นฉ่ำทั้งขวดเล็กและขวดใหญ่' },
+    DE: { name: 'Eiskalte Biere', desc: 'Ausgewählte thailändische und internationale Biere in großen und kleinen Flaschen' },
+    MM: { name: 'ဘီယာများ', desc: 'အကောင်းဆုံး ထိုင်းနှင့် နိုင်ငံတကာ ဘီယာပုလင်း အေးအေးများ' },
   },
   'wines': {
     IT: { name: 'Carta dei Vini Pregiati', desc: 'Selezione esclusiva di vini italiani e internazionali, perfetti per esaltare ogni piatto' },
-    EN: { name: 'Fine Wine Collection', desc: 'Exclusive selection of Italian and international fine wines, perfectly pairing each dish' },
-    TH: { name: 'ไวน์คัดพิเศษ', desc: 'คัดสรรไวน์อิตาเลียนและไวน์นานาชาติชั้นเลิศเพื่อยกระดับมื้ออาหารของคุณ' },
-    DE: { name: 'Weinkarte', desc: 'Exklusive Auswahl an italienischen und internationalen Weinen, perfekt abgestimmt auf jedes Gericht' }
-  }
+    EN: { name: 'Fine Wine Collection', desc: 'Curated selection of fine Italian and international wines to enhance your dining experience' },
+    TH: { name: 'ไวน์ชั้นเลิศ', desc: 'คัดสรรไวน์อิตาเลียนและนานาชาติชั้นยอด เพื่อยกระดับมื้ออาหารสุดพิเศษของคุณ' },
+    DE: { name: 'Erlesene Weinkarte', desc: 'Kuratierte Auswahl an feinen italienischen und internationalen Weinen für ein perfektes Geschmackserlebnis' },
+    MM: { name: 'ဝိုင်များ', desc: 'ကျွန်ုပ်တို့၏ ဟင်းလျာ အရသာတိုင်းကို ပိုမိုပြည့်စုံစေရန် ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်ကောင်းများ' },
+  },
 };
 
 const DAILY_SPECIALS_SECTIONS = [
@@ -496,7 +510,16 @@ const WINE_FILTER_LABELS = {
     resetFilters: 'Alle Weine anzeigen',
     winesCount: 'Weine',
     wineCount: 'Wein',
-  }
+  },
+  MM: {
+    allTypes: 'ဝိုင် အားလုံး',
+    allCountries: 'မူရင်းနိုင်ငံ အားလုံး',
+    italianFirstBadge: 'အီတလီ အထူးရွေးချယ်မှု',
+    noWinesFound: 'ရွေးချယ်ထားသော စစ်ထုတ်မှုနှင့် ကိုက်ညီသော ဝိုင် မရှိပါ။',
+    resetFilters: 'ဝိုင် အားလုံး ပြသရန်',
+    winesCount: 'မျိုး',
+    wineCount: 'မျိုး',
+  },
 };
 
 const WINE_TYPE_SECTIONS = [
@@ -1574,7 +1597,7 @@ export default function DiningTabletSite() {
                     </h2>
                     {categoryDetails[activeCategory.id]?.[lang]?.desc && (
                       <p className="text-stone-500 text-xs mt-0.5 font-light italic">
-                        {categoryDetails[activeCategory.id][lang].desc}
+                        {categoryDetails[activeCategory.id]?.[lang]?.desc || categoryDetails[activeCategory.id]?.["IT"]?.desc || ""}
                       </p>
                     )}
                   </div>
@@ -1594,7 +1617,7 @@ export default function DiningTabletSite() {
                           }`}
                         >
                           <span>🍽️</span>
-                          <span>{lang === 'TH' ? 'ทั้งหมด' : lang === 'IT' ? 'Tutti' : lang === 'DE' ? 'Alle' : 'All'}</span>
+                          <span>{lang === 'TH' ? 'ทั้งหมด' : lang === 'IT' ? 'Tutti' : lang === 'DE' ? 'Alle' : lang === 'MM' ? 'အားလုံး' : 'All'}</span>
                         </button>
 
                         {/* Option 2: VEGGIE */}
@@ -1608,7 +1631,7 @@ export default function DiningTabletSite() {
                           }`}
                         >
                           <Wheat className={`w-3.5 h-3.5 ${dietaryFilter === 'veggie' ? 'text-stone-950 stroke-[2.5]' : 'text-amber-600'}`} />
-                          <span>{lang === 'TH' ? 'มังสวิรัติ' : lang === 'IT' ? 'Veggie' : lang === 'DE' ? 'Veggie' : 'Veggie'}</span>
+                          <span>{lang === 'TH' ? 'มังสวิรัติ' : lang === 'IT' ? 'Veggie' : lang === 'DE' ? 'Veggie' : lang === 'MM' ? 'သတ်သတ်လွတ်' : 'Veggie'}</span>
                         </button>
 
                         {/* Option 3: VEGAN */}
@@ -1622,7 +1645,7 @@ export default function DiningTabletSite() {
                           }`}
                         >
                           <Leaf className={`w-3.5 h-3.5 ${dietaryFilter === 'vegan' ? 'text-emerald-100 stroke-[2.5]' : 'text-emerald-600'}`} />
-                          <span>{lang === 'TH' ? 'วีแกน' : lang === 'IT' ? 'Vegan' : lang === 'DE' ? 'Vegan' : 'Vegan'}</span>
+                          <span>{lang === 'TH' ? 'วีแกน' : lang === 'IT' ? 'Vegan' : lang === 'DE' ? 'Vegan' : lang === 'MM' ? 'ဗီဂျန်' : 'Vegan'}</span>
                         </button>
                       </div>
                     </div>

@@ -4,12 +4,15 @@ export interface ExtraOption {
   nameTh: string;
   nameIt?: string;
   nameDe?: string;
+  nameMm?: string;
   name_it?: string;
   name_de?: string;
+  name_mm?: string;
   sku: string;
   price: number;
   description_it?: string;
   description_de?: string;
+  description_mm?: string;
 }
 
 export interface Variant {
@@ -18,13 +21,16 @@ export interface Variant {
   nameTh: string;
   nameIt?: string;
   nameDe?: string;
+  nameMm?: string;
   name_it?: string;
   name_de?: string;
+  name_mm?: string;
   sku: string;
   price: number;
   priceModifier: number;
   description_it?: string;
   description_de?: string;
+  description_mm?: string;
 }
 
 export interface MenuItem {
@@ -33,14 +39,18 @@ export interface MenuItem {
   nameTh: string;
   nameIt?: string;
   nameDe?: string;
+  nameMm?: string;
   name_it?: string;
   name_de?: string;
+  name_mm?: string;
   description: string;
   descriptionTh: string;
   descriptionIt?: string;
   descriptionDe?: string;
+  descriptionMm?: string;
   description_it?: string;
   description_de?: string;
+  description_mm?: string;
   price: number;
   image: string;
   image_file?: string;
@@ -56,14 +66,18 @@ export interface MenuCategory {
   nameTh: string;
   nameIt?: string;
   nameDe?: string;
+  nameMm?: string;
   name_it?: string;
   name_de?: string;
+  name_mm?: string;
   description?: string;
   descriptionTh?: string;
   descriptionIt?: string;
   descriptionDe?: string;
+  descriptionMm?: string;
   description_it?: string;
   description_de?: string;
+  description_mm?: string;
   icon: string;
   items: MenuItem[];
 }
@@ -113,7 +127,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-1-1",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-scoglio-penne",
@@ -125,7 +141,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-1-2",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-scoglio-linguine",
@@ -137,7 +155,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-1-3",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-scoglio-tagliatelle",
@@ -149,7 +169,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-1-4",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-scoglio-gnocchi",
@@ -161,7 +183,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-1-5",
             "price": 310,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-scoglio-ravioli",
@@ -173,7 +197,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-1-6",
             "price": 350,
-            "priceModifier": 60
+            "priceModifier": 60,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           }
         ],
         "allowed_extras_group": "None",
@@ -189,7 +215,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -202,7 +230,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -215,7 +245,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -228,7 +260,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -241,10 +275,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "စပါဂတီ အလိုစကိုလီယို",
+        "descriptionMm": "ဒူရမ်ဂျုံဆီမိုလီနာ စပါဂတီ၊ လတ်ဆတ်သော ပုဇွန်၊ ဂုံးကောင်များ၊ ဂျုံးကောင်များ၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့် အိုလီဗာဆီ၊ ဝိုင်ဖြူ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်ကောင်းနက်။",
+        "name_mm": "စပါဂတီ အလိုစကိုလီယို",
+        "description_mm": "ဒူရမ်ဂျုံဆီမိုလီနာ စပါဂတီ၊ လတ်ဆတ်သော ပုဇွန်၊ ဂုံးကောင်များ၊ ဂျုံးကောင်များ၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့် အိုလီဗာဆီ၊ ဝိုင်ဖြူ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်ကောင်းနက်။"
       },
       {
         "id": "penne-al-salmone",
@@ -274,7 +314,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-2-1",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-salmone-spaghetti",
@@ -286,7 +328,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-2-2",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-salmone-linguine",
@@ -298,7 +342,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-2-3",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-salmone-tagliatelle",
@@ -310,7 +356,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-2-4",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-salmone-gnocchi",
@@ -322,7 +370,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-2-5",
             "price": 310,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-salmone-ravioli",
@@ -334,7 +384,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-2-6",
             "price": 350,
-            "priceModifier": 60
+            "priceModifier": 60,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           }
         ],
         "allowed_extras_group": "None",
@@ -350,7 +402,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -363,7 +417,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -376,7 +432,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -389,7 +447,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -402,10 +462,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "ပဲန်နေ ဆာမွန်ခရင်မ်ဆော့စ်",
+        "descriptionMm": "ဒူရမ်ဂျုံဆီမိုလီနာ ပဲန်နေရီဂါတာ၊ ဆာမွန်ငါးဖဲ့၊ ခရင်မ်ဆော့စ်၊ ခရမ်းချဉ်သီးအနှစ်၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့် အိုလီဗာဆီ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်ကောင်းနက်။",
+        "name_mm": "ပဲန်နေ ဆာမွန်ခရင်မ်ဆော့စ်",
+        "description_mm": "ဒူရမ်ဂျုံဆီမိုလီနာ ပဲန်နေရီဂါတာ၊ ဆာမွန်ငါးဖဲ့၊ ခရင်မ်ဆော့စ်၊ ခရမ်းချဉ်သီးအနှစ်၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့် အိုလီဗာဆီ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်ကောင်းနက်။"
       },
       {
         "id": "ravioli-alla-crema-di-gamberi",
@@ -435,7 +501,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-3-1",
             "price": 300,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           },
           {
             "id": "var-cremagamberi-tagliatelle",
@@ -447,7 +515,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-3-2",
             "price": 250,
-            "priceModifier": -50
+            "priceModifier": -50,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-cremagamberi-spaghetti",
@@ -459,7 +529,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-3-3",
             "price": 250,
-            "priceModifier": -50
+            "priceModifier": -50,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-cremagamberi-penne",
@@ -471,7 +543,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-3-4",
             "price": 250,
-            "priceModifier": -50
+            "priceModifier": -50,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-cremagamberi-linguine",
@@ -483,7 +557,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-3-5",
             "price": 250,
-            "priceModifier": -50
+            "priceModifier": -50,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-cremagamberi-gnocchi",
@@ -495,7 +571,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-3-6",
             "price": 260,
-            "priceModifier": -40
+            "priceModifier": -40,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           }
         ],
         "allowed_extras_group": "None",
@@ -511,7 +589,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -524,7 +604,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -537,7 +619,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -550,7 +634,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -563,10 +649,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "ပုဇွန်ချဉ်ရည်နှင့် ရာဗီယိုလီ",
+        "descriptionMm": "လတ်ဆတ်သော ကြက်ဥဖြည့်ရာဗီယိုလီ၊ ပုဇွန်အမြီး၊ ပုဇွန်ခွံချဉ်ရည်၊ ချက်ပြုတ်ရာတွင်သုံးသော ခရင်မ်၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့် အနံ့အရသာကောင်းသော သံလွင်ဆီ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်ကောင်းဖြူ",
+        "name_mm": "ပုဇွန်ချဉ်ရည်နှင့် ရာဗီယိုလီ",
+        "description_mm": "လတ်ဆတ်သော ကြက်ဥဖြည့်ရာဗီယိုလီ၊ ပုဇွန်အမြီး၊ ပုဇွန်ခွံချဉ်ရည်၊ ချက်ပြုတ်ရာတွင်သုံးသော ခရင်မ်၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့် အနံ့အရသာကောင်းသော သံလွင်ဆီ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်ကောင်းဖြူ"
       },
       {
         "id": "ravioli-al-sugo-di-noci",
@@ -596,7 +688,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-4-1",
             "price": 260,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           },
           {
             "id": "var-noci-tagliatelle",
@@ -608,7 +702,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-4-2",
             "price": 200,
-            "priceModifier": -60
+            "priceModifier": -60,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-noci-gnocchi",
@@ -620,7 +716,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-4-3",
             "price": 220,
-            "priceModifier": -40
+            "priceModifier": -40,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-noci-spaghetti",
@@ -632,7 +730,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-4-4",
             "price": 180,
-            "priceModifier": -80
+            "priceModifier": -80,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-noci-penne",
@@ -644,7 +744,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-4-5",
             "price": 180,
-            "priceModifier": -80
+            "priceModifier": -80,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-noci-linguine",
@@ -656,7 +758,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-4-6",
             "price": 180,
-            "priceModifier": -80
+            "priceModifier": -80,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           }
         ],
         "allowed_extras_group": "None",
@@ -672,7 +776,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -685,7 +791,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -698,7 +806,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -711,7 +821,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -724,10 +836,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "ဝါးလုံးသီးဆော့စ်နှင့် ရာဗီယိုလီ",
+        "descriptionMm": "လတ်ဆတ်သော ကြက်ဥဖြည့်ရာဗီယိုလီ၊ ဝါးလုံးသီးအစေ့၊ နို့၊ ပေါင်မုန့်အဟောင်း၊ ပါမာဂျာနို ရက်ဂျာနို DOP ဒိန်ခဲ၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့် အနံ့အရသာကောင်းသော သံလွင်ဆီ၊ ဂျာမွန်နံ့သာမှုန့်၊ ဆား",
+        "name_mm": "ဝါးလုံးသီးဆော့စ်နှင့် ရာဗီယိုလီ",
+        "description_mm": "လတ်ဆတ်သော ကြက်ဥဖြည့်ရာဗီယိုလီ၊ ဝါးလုံးသီးအစေ့၊ နို့၊ ပေါင်မုန့်အဟောင်း၊ ပါမာဂျာနို ရက်ဂျာနို DOP ဒိန်ခဲ၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့် အနံ့အရသာကောင်းသော သံလွင်ဆီ၊ ဂျာမွန်နံ့သာမှုန့်၊ ဆား"
       },
       {
         "id": "tagliatelle-al-nero-di-seppia-e-calamari",
@@ -757,7 +875,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-5-1",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-neroseppia-spaghetti",
@@ -769,7 +889,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-5-2",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-neroseppia-penne",
@@ -781,7 +903,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-5-3",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-neroseppia-linguine",
@@ -793,7 +917,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-5-4",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-neroseppia-gnocchi",
@@ -805,7 +931,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-5-5",
             "price": 260,
-            "priceModifier": 10
+            "priceModifier": 10,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-neroseppia-ravioli",
@@ -817,7 +945,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-5-6",
             "price": 300,
-            "priceModifier": 50
+            "priceModifier": 50,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           }
         ],
         "nameEn": "TAGLIATELLE\nWITH SQUID INK & SQUID",
@@ -834,7 +964,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -847,7 +979,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -860,7 +994,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -873,7 +1009,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -886,10 +1024,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "ကင်းမွန်မှင်နှင့် ကင်းမွန်နှင့် တာလီယာတယ်လီ",
+        "descriptionMm": "လတ်ဆတ်သော အိမ်လုပ်ကြက်ဥတာလီယာတယ်လီ၊ လတ်ဆတ်သော ကင်းမွန်၊ သဘာဝကင်းမွန်မှင်၊ ကြက်သွန်ဖြူ၊ ခြောက်သွေ့သော ဝိုင်ဖြူ၊ အထူးသဖြင့် အနံ့အရသာကောင်းသော သံလွင်ဆီ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်ကောင်းနက်",
+        "name_mm": "ကင်းမွန်မှင်နှင့် ကင်းမွန်နှင့် တာလီယာတယ်လီ",
+        "description_mm": "လတ်ဆတ်သော အိမ်လုပ်ကြက်ဥတာလီယာတယ်လီ၊ လတ်ဆတ်သော ကင်းမွန်၊ သဘာဝကင်းမွန်မှင်၊ ကြက်သွန်ဖြူ၊ ခြောက်သွေ့သော ဝိုင်ဖြူ၊ အထူးသဖြင့် အနံ့အရသာကောင်းသော သံလွင်ဆီ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်ကောင်းနက်"
       },
       {
         "id": "spaghetti-alla-polpa-di-granchio",
@@ -919,7 +1063,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-6-1",
             "price": 320,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-granchio-penne",
@@ -931,7 +1077,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-6-2",
             "price": 320,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-granchio-linguine",
@@ -943,7 +1091,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-6-3",
             "price": 320,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-granchio-tagliatelle",
@@ -955,7 +1105,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-6-4",
             "price": 320,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-granchio-gnocchi",
@@ -967,7 +1119,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-6-5",
             "price": 340,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-granchio-ravioli",
@@ -979,7 +1133,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-6-6",
             "price": 370,
-            "priceModifier": 50
+            "priceModifier": 50,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           }
         ],
         "nameEn": "SPAGHETTI\nWITH REAL CRAB MEAT",
@@ -996,7 +1152,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -1009,7 +1167,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -1022,7 +1182,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -1035,7 +1197,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -1048,10 +1212,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "ဂဏန်းအသားနှင့် စပါဂတီ",
+        "descriptionMm": "ဂျုံကြမ်းစပါဂတီ၊ ဂဏန်းအသား၊ ဂဏန်းလက်သည်း၊ လတ်ဆတ်သော ခရမ်းချဉ်သီးငယ်၊ ကြက်သွန်ဖြူ၊ ဝိုင်ဖြူ၊ အထူးသဖြင့် အနံ့အရသာကောင်းသော သံလွင်ဆီ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်သီးမှုန့်",
+        "name_mm": "ဂဏန်းအသားနှင့် စပါဂတီ",
+        "description_mm": "ဂျုံကြမ်းစပါဂတီ၊ ဂဏန်းအသား၊ ဂဏန်းလက်သည်း၊ လတ်ဆတ်သော ခရမ်းချဉ်သီးငယ်၊ ကြက်သွန်ဖြူ၊ ဝိုင်ဖြူ၊ အထူးသဖြင့် အနံ့အရသာကောင်းသော သံလွင်ဆီ၊ လတ်ဆတ်သော ပါစလီ၊ ဆား၊ ငရုတ်သီးမှုန့်"
       },
       {
         "id": "pizza-con-polpa-di-granchio",
@@ -1083,7 +1253,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -1096,7 +1268,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -1109,7 +1283,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -1122,7 +1298,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -1135,7 +1313,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -1148,7 +1328,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -1161,7 +1343,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -1174,7 +1358,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -1187,7 +1373,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -1200,7 +1388,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -1213,7 +1403,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -1226,7 +1418,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -1239,7 +1433,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -1252,7 +1448,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -1265,7 +1463,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -1278,7 +1478,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -1291,7 +1493,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -1304,7 +1508,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -1317,7 +1523,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -1330,7 +1538,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -1343,7 +1553,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -1356,7 +1568,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -1369,7 +1583,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -1382,7 +1598,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -1395,7 +1613,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -1408,7 +1628,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -1421,10 +1643,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "ဂဏန်းသားပီဇာ",
+        "descriptionMm": "အမျိုးအစား ၀ ဂျုံမှုန့်၊ ရှေးဦးတဆေးညှော်၊ ရေ၊ အီတလီခရမ်းချဉ်သီးဆော့စ်၊ ဖီယော်ဒီလတ်တေမိုဇာရဲလာ၊ လတ်ဆတ်သောဂဏန်းသား၊ စိမ်းသောကြက်သွန်မြိတ်၊ အထူးသဖြင့်သံလွင်ဆီ၊ ဆား",
+        "name_mm": "ဂဏန်းသားပီဇာ",
+        "description_mm": "အမျိုးအစား ၀ ဂျုံမှုန့်၊ ရှေးဦးတဆေးညှော်၊ ရေ၊ အီတလီခရမ်းချဉ်သီးဆော့စ်၊ ဖီယော်ဒီလတ်တေမိုဇာရဲလာ၊ လတ်ဆတ်သောဂဏန်းသား၊ စိမ်းသောကြက်သွန်မြိတ်၊ အထူးသဖြင့်သံလွင်ဆီ၊ ဆား"
       },
       {
         "id": "pizza-rustica-con-salsiccia-e-stilacci",
@@ -1456,7 +1684,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -1469,7 +1699,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -1482,7 +1714,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -1495,7 +1729,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -1508,7 +1744,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -1521,7 +1759,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -1534,7 +1774,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -1547,7 +1789,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -1560,7 +1804,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -1573,7 +1819,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -1586,7 +1834,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -1599,7 +1849,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -1612,7 +1864,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -1625,7 +1879,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -1638,7 +1894,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -1651,7 +1909,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -1664,7 +1924,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -1677,7 +1939,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -1690,7 +1954,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -1703,7 +1969,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -1716,7 +1984,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -1729,7 +1999,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -1742,7 +2014,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -1755,7 +2029,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -1768,7 +2044,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -1781,7 +2059,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -1794,10 +2074,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "အီတလီဝက်အူချောင်းနှင့် စတီလာချီဟင်းသီးဟင်းရွက်ပါသော ကျေးလက်ပီဇာ",
+        "descriptionMm": "အမျိုးအစား ၀ ဂျုံမှုန့်၊ ရှေးဦးတဆေးညှော်၊ ရေ၊ ဖီယော်ဒီလတ်တေမိုဇာရဲလာ၊ လတ်ဆတ်သောအီတလီဝက်အူချောင်း၊ ကြော်ထားသောစတီလာချီဟင်းသီးဟင်းရွက်၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီ၊ ဆား၊ အနက်ရောင်ငရုတ်ကောင်းမှုန့်",
+        "name_mm": "အီတလီဝက်အူချောင်းနှင့် စတီလာချီဟင်းသီးဟင်းရွက်ပါသော ကျေးလက်ပီဇာ",
+        "description_mm": "အမျိုးအစား ၀ ဂျုံမှုန့်၊ ရှေးဦးတဆေးညှော်၊ ရေ၊ ဖီယော်ဒီလတ်တေမိုဇာရဲလာ၊ လတ်ဆတ်သောအီတလီဝက်အူချောင်း၊ ကြော်ထားသောစတီလာချီဟင်းသီးဟင်းရွက်၊ ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီ၊ ဆား၊ အနက်ရောင်ငရုတ်ကောင်းမှုန့်"
       },
       {
         "id": "cotoletta-alla-milanese-con-patatine-fritte",
@@ -1829,7 +2115,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -1842,7 +2130,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -1855,7 +2145,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -1868,7 +2160,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -1881,7 +2175,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -1894,9 +2190,15 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
-        ]
+        ],
+        "nameMm": "မီလန်နစ်စတိုင် ကြက်သားကြော် အာလူးကြော်နှင့်တွဲ",
+        "descriptionMm": "နူးညံ့သော ဝက်သားလုံချပ်ကို ကြက်ဥနှင့် ပေါင်မုန့်မှုန့်ဖြင့် ကပ်ပြီး ကြွပ်ရွအောင် ကြော်ထားသည်။ ရွှေရောင်အာလူးကြော်များ၊ ဆီကြော်ရည်၊ သံပရာသီးလှီးထားခြင်းနှင့် ဆားတို့ဖြင့် တွဲဖက်ထားသည်။",
+        "name_mm": "မီလန်နစ်စတိုင် ကြက်သားကြော် အာလူးကြော်နှင့်တွဲ",
+        "description_mm": "နူးညံ့သော ဝက်သားလုံချပ်ကို ကြက်ဥနှင့် ပေါင်မုန့်မှုန့်ဖြင့် ကပ်ပြီး ကြွပ်ရွအောင် ကြော်ထားသည်။ ရွှေရောင်အာလူးကြော်များ၊ ဆီကြော်ရည်၊ သံပရာသီးလှီးထားခြင်းနှင့် ဆားတို့ဖြင့် တွဲဖက်ထားသည်။"
       },
       {
         "id": "cotechino-artigianale-con-pure-di-patate",
@@ -1915,7 +2217,11 @@ export const menuData: MenuCategory[] = [
         "price": 250,
         "image": "https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/delivery_food/03-Daily-Specials/cotechino-artigianale-con-pure-di-patate.webp",
         "image_file": "03-Daily-Specials/cotechino-artigianale-con-pure-di-patate.webp",
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "အနုပညာသုံး ကိုတီချီနို ဝက်အူချောင်း အာလူးထောင်းနှင့်တွဲ",
+        "descriptionMm": "အစဉ်အလာအရ ဟင်းခတ်ထားသော အီတလီလက်ရာ ဝက်သားကိုတီချီနို၊ ချောမွေ့သော အာလူးထောင်း၊ နွားနို့အပြည့်၊ ထောပတ်၊ ဂျာမန်မုန့်ညက်၊ ဆားနှင့် ငရုတ်ကောင်းတို့ဖြင့် ပြုလုပ်ထားသည်။",
+        "name_mm": "အနုပညာသုံး ကိုတီချီနို ဝက်အူချောင်း အာလူးထောင်းနှင့်တွဲ",
+        "description_mm": "အစဉ်အလာအရ ဟင်းခတ်ထားသော အီတလီလက်ရာ ဝက်သားကိုတီချီနို၊ ချောမွေ့သော အာလူးထောင်း၊ နွားနို့အပြည့်၊ ထောပတ်၊ ဂျာမန်မုန့်ညက်၊ ဆားနှင့် ငရုတ်ကောင်းတို့ဖြင့် ပြုလုပ်ထားသည်။"
       },
       {
         "id": "torta-pasqualina-agli-spinaci-e-uova",
@@ -1948,7 +2254,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -1961,7 +2269,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -1974,7 +2284,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -1987,7 +2299,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -2000,7 +2314,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -2013,10 +2329,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
-        "category": "daily-specials"
+        "category": "daily-specials",
+        "nameMm": "ပါစကာလီနာ တာတာ (ဟင်းနုနွယ်နှင့် ကြက်ဥ)",
+        "descriptionMm": "အလွှာလိုက် ပါဖ်စတီး၊ လတ်ဆတ်သော ဟင်းနုနွယ်ရွက်၊ နွားနို့ရီကိုတာချိစ်၊ ပြုတ်ထားသော ကြက်ဥအပြည့်၊ အသက်ရင့်ချိစ်ကြိတ်၊ ဂျာမိုနီ၊ အထူးသဖြင့် သံလွင်ဆီ၊ ဆား၊ ငရုတ်ကောင်းနက်",
+        "name_mm": "ပါစကာလီနာ တာတာ (ဟင်းနုနွယ်နှင့် ကြက်ဥ)",
+        "description_mm": "အလွှာလိုက် ပါဖ်စတီး၊ လတ်ဆတ်သော ဟင်းနုနွယ်ရွက်၊ နွားနို့ရီကိုတာချိစ်၊ ပြုတ်ထားသော ကြက်ဥအပြည့်၊ အသက်ရင့်ချိစ်ကြိတ်၊ ဂျာမိုနီ၊ အထူးသဖြင့် သံလွင်ဆီ၊ ဆား၊ ငရုတ်ကောင်းနက်"
       },
       {
         "id": "focaccia-pizza-sandwich-con-milanese",
@@ -2048,7 +2370,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -2061,7 +2385,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -2074,7 +2400,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -2087,7 +2415,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -2100,7 +2430,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -2113,7 +2445,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -2126,10 +2460,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "nameMm": "ဖိုကာချာ\nမီလာနီစ်နှင့်",
+        "descriptionMm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ ကြွပ်ရွသော မီလာနီစ်ကြက်သားကြော်၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်",
+        "name_mm": "ဖိုကာချာ\nမီလာနီစ်နှင့်",
+        "description_mm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ ကြွပ်ရွသော မီလာနီစ်ကြက်သားကြော်၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်"
       },
       {
         "id": "focaccia-pizza-sandwich-con-finocchiona",
@@ -2162,7 +2502,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -2175,7 +2517,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -2188,7 +2532,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -2201,7 +2547,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -2214,7 +2562,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -2227,7 +2577,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -2240,12 +2592,18 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "category": "daily-specials",
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ ฟินอคคิโอนาซาลามี่สไตล์ทัสคานี มะเขือเทศสด และผักกาดหอม",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "ဖိုကာချာ\nဖီနိုချိုနာနှင့်",
+        "descriptionMm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ တပ်စကန်ဖီနိုချိုနာဆလာမီ၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်",
+        "name_mm": "ဖိုကာချာ\nဖီနိုချိုနာနှင့်",
+        "description_mm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ တပ်စကန်ဖီနိုချိုနာဆလာမီ၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်"
       },
       {
         "id": "focaccia-pizza-sandwich-con-pancetta-arrotolata",
@@ -2278,7 +2636,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -2291,7 +2651,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -2304,7 +2666,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -2317,7 +2681,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -2330,7 +2696,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -2343,7 +2711,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -2356,12 +2726,18 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "category": "daily-specials",
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ ปานเชตตาหมูสามชั้นม้วนสไตล์อิตาเลียน มะเขือเทศสด และผักกาดหอม",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "ဖိုကာချာ\nပန်ချက်တာ အာရိုတိုလာတာနှင့်",
+        "descriptionMm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ ဒေသထွက်လိပ်ထားပန်ချက်တာ၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်",
+        "name_mm": "ဖိုကာချာ\nပန်ချက်တာ အာရိုတိုလာတာနှင့်",
+        "description_mm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ ဒေသထွက်လိပ်ထားပန်ချက်တာ၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်"
       },
       {
         "id": "focaccia-pizza-sandwich-con-porchetta",
@@ -2394,7 +2770,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -2407,7 +2785,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -2420,7 +2800,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -2433,7 +2815,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -2446,7 +2830,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -2459,7 +2845,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -2472,12 +2860,18 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "category": "daily-specials",
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ พอร์เคตตาหมูอบสมุนไพรสไตล์โรมัน มะเขือเทศสด และผักกาดหอม",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "ဖိုကာချာ\nပေါ်ခက်တာနှင့်",
+        "descriptionMm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ ဟင်းခတ်အမွှေးအကြိုင်ဖြင့် ကင်ထားသော အီတလီဝက်သားပေါ်ခက်တာ၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်",
+        "name_mm": "ဖိုကာချာ\nပေါ်ခက်တာနှင့်",
+        "description_mm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ ဟင်းခတ်အမွှေးအကြိုင်ဖြင့် ကင်ထားသော အီတလီဝက်သားပေါ်ခက်တာ၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်"
       },
       {
         "id": "focaccia-pizza-sandwich-con-prosciutto-cotto",
@@ -2510,7 +2904,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -2523,7 +2919,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -2536,7 +2934,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -2549,7 +2949,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -2562,7 +2964,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -2575,7 +2979,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -2588,12 +2994,18 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "category": "daily-specials",
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ แฮมสุกอิตาเลียนคุณภาพพรีเมียม มะเขือเทศสด และผักกาดหอม",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "ဖိုကာချာ\nပြိုစူတို ကိုတိုနှင့်",
+        "descriptionMm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ အရည်အသွေးမြင့် အီတလီဝက်သားပြိုစူတိုကိုတို၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်",
+        "name_mm": "ဖိုကာချာ\nပြိုစူတို ကိုတိုနှင့်",
+        "description_mm": "အိုလီဗာဆီအထူးစစ်စစ်ဖြင့် ပီဇာမုန့်စိမ်းဖိုကာချာ၊ အရည်အသွေးမြင့် အီတလီဝက်သားပြိုစူတိုကိုတို၊ ခရမ်းချဉ်သီးလှီးထားလတ်ဆတ်၊ ဆလတ်ရွက်ကြည်လင်"
       },
       {
         "id": "focaccia-pizza-sandwich-con-salame",
@@ -2626,7 +3038,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -2639,7 +3053,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -2652,7 +3068,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -2665,7 +3083,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -2678,7 +3098,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -2691,7 +3113,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -2704,14 +3128,24 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "category": "daily-specials",
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ ซาลามี่อิตาเลียนแบบดั้งเดิม มะเขือเทศสด และผักกาดหอม",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "ဖိုကာချာ\nဆလာမီအသားညှပ်",
+        "descriptionMm": "အိုလီဗာဆီအထူးဖြင့်ပြုလုပ်ထားသော ပီဇာမုန့်စိမ်းဖိုကာချာ၊ ရိုးရာအီတလီဆလာမီအသား၊ လတ်ဆတ်သောခရမ်းချဉ်သီးလှီးထားနှင့် ကြွပ်ရွသောဆလတ်ရွက်",
+        "name_mm": "ဖိုကာချာ\nဆလာမီအသားညှပ်",
+        "description_mm": "အိုလီဗာဆီအထူးဖြင့်ပြုလုပ်ထားသော ပီဇာမုန့်စိမ်းဖိုကာချာ၊ ရိုးရာအီတလီဆလာမီအသား၊ လတ်ဆတ်သောခရမ်းချဉ်သီးလှီးထားနှင့် ကြွပ်ရွသောဆလတ်ရွက်"
       }
-    ]
+    ],
+    "nameMm": "နေ့စဉ်အထူးများ",
+    "descriptionMm": "ကျွန်ုပ်တို့၏ စားဖိုမှူးက လတ်ဆတ်သော ရာသီအလိုက် ပါဝင်ပစ္စည်းများဖြင့် ပြင်ဆင်ထားသော သီးသန့်နေ့စဉ်ဖန်တီးမှုများနှင့် အထူးဟင်းလျာများ။",
+    "name_mm": "နေ့စဉ်အထူးများ",
+    "description_mm": "ကျွန်ုပ်တို့၏ စားဖိုမှူးက လတ်ဆတ်သော ရာသီအလိုက် ပါဝင်ပစ္စည်းများဖြင့် ပြင်ဆင်ထားသော သီးသန့်နေ့စဉ်ဖန်တီးမှုများနှင့် အထူးဟင်းလျာများ။"
   },
   {
     "id": "traditional-italian-pizza",
@@ -2742,7 +3176,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10136",
@@ -2756,7 +3192,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -2771,7 +3209,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -2784,7 +3224,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -2797,7 +3239,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -2810,7 +3254,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -2823,7 +3269,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -2836,7 +3284,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -2849,7 +3299,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -2862,7 +3314,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -2875,7 +3329,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -2888,7 +3344,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -2901,7 +3359,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -2914,7 +3374,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -2927,7 +3389,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -2940,7 +3404,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -2953,7 +3419,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -2966,7 +3434,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -2979,7 +3449,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -2992,7 +3464,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -3005,7 +3479,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -3018,7 +3494,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -3031,7 +3509,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -3044,7 +3524,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -3057,7 +3539,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -3070,7 +3554,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -3083,7 +3569,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -3096,7 +3584,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -3109,7 +3599,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -3121,7 +3613,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA MARINARA VEGAN",
         "nameDe": "PIZZA MARINARA VEGAN",
         "descriptionDe": "Tomatensauce, Knoblauch, Olivenöl",
-        "description_th": "ซอสมะเขือเทศ, กระเทียม, น้ำมันมะกอก"
+        "description_th": "ซอสมะเขือเทศ, กระเทียม, น้ำมันมะกอก",
+        "nameMm": "ပီဇာ မာရီနာရာ သက်သတ်လွတ်",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ ကြက်သွန်ဖြူ၊ အိုလီဗာဆီအထူးအရည်",
+        "name_mm": "ပီဇာ မာရီနာရာ သက်သတ်လွတ်",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ ကြက်သွန်ဖြူ၊ အိုလီဗာဆီအထူးအရည်"
       },
       {
         "id": "pizza-margherita",
@@ -3146,7 +3642,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10119",
@@ -3160,7 +3658,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -3175,7 +3675,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -3188,7 +3690,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -3201,7 +3705,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -3214,7 +3720,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -3227,7 +3735,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -3240,7 +3750,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -3253,7 +3765,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -3266,7 +3780,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -3279,7 +3795,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -3292,7 +3810,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -3305,7 +3825,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -3318,7 +3840,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -3331,7 +3855,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -3344,7 +3870,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -3357,7 +3885,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -3370,7 +3900,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -3383,7 +3915,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -3396,7 +3930,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -3409,7 +3945,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -3422,7 +3960,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -3435,7 +3975,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -3448,7 +3990,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -3461,7 +4005,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -3474,7 +4020,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -3487,7 +4035,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -3500,7 +4050,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -3513,7 +4065,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -3525,7 +4079,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA MARGHERITA",
         "nameDe": "PIZZA MARGHERITA",
         "descriptionDe": "Tomatensauce, Olivenöl, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, ชีสมอซซาเรลล่า",
+        "nameMm": "ပီဇာ မာဂါရီတာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ပီဇာ မာဂါရီတာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-sweet-bell-pepper-vegan",
@@ -3550,7 +4108,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10234",
@@ -3564,7 +4124,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -3579,7 +4141,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -3592,7 +4156,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -3605,7 +4171,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -3618,7 +4186,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -3631,7 +4201,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -3644,7 +4216,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -3657,7 +4231,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -3670,7 +4246,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -3683,7 +4261,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -3696,7 +4276,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -3709,7 +4291,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -3722,7 +4306,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -3735,7 +4321,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -3748,7 +4336,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -3761,7 +4351,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -3774,7 +4366,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -3787,7 +4381,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -3800,7 +4396,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -3813,7 +4411,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -3826,7 +4426,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -3839,7 +4441,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -3852,7 +4456,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -3865,7 +4471,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -3878,7 +4486,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -3891,7 +4501,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -3904,7 +4516,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -3917,7 +4531,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -3929,7 +4545,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA PAPRIKA VEGAN",
         "nameDe": "PIZZA PAPRIKA VEGAN",
         "descriptionDe": "Tomatensauce, Olivenöl, milde Paprika",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, พริกหวาน"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, พริกหวาน",
+        "nameMm": "ပီဇာ ငရုတ်သီးချိုနီ သက်သတ်လွတ်",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ ငရုတ်သီးချိုနီ",
+        "name_mm": "ပီဇာ ငရုတ်သီးချိုနီ သက်သတ်လွတ်",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ ငရုတ်သီးချိုနီ"
       },
       {
         "id": "calzone",
@@ -3954,7 +4574,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10041",
@@ -3968,7 +4590,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -3983,7 +4607,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -3996,7 +4622,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -4009,7 +4637,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -4022,7 +4652,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -4035,7 +4667,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -4048,7 +4682,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -4061,7 +4697,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -4074,7 +4712,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -4087,7 +4727,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -4100,7 +4742,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -4113,7 +4757,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -4126,7 +4772,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -4139,7 +4787,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -4152,7 +4802,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -4165,7 +4817,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -4178,7 +4832,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -4191,7 +4847,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -4204,7 +4862,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -4217,7 +4877,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -4230,7 +4892,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -4243,7 +4907,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -4256,7 +4922,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -4269,7 +4937,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -4282,7 +4952,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -4295,7 +4967,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -4308,7 +4982,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -4321,7 +4997,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -4333,7 +5011,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "CALZONE",
         "nameDe": "CALZONE",
         "descriptionDe": "Tomatensauce, Olivenöl, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, ชีสมอสซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, ชีสมอสซาเรลล่า",
+        "nameMm": "ကယ်လ်ဇုန်း",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ကယ်လ်ဇုန်း",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-bismark",
@@ -4358,7 +5040,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10104",
@@ -4372,7 +5056,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -4387,7 +5073,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -4400,7 +5088,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -4413,7 +5103,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -4426,7 +5118,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -4439,7 +5133,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -4452,7 +5148,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -4465,7 +5163,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -4478,7 +5178,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -4491,7 +5193,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -4504,7 +5208,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -4517,7 +5223,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -4530,7 +5238,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -4543,7 +5253,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -4556,7 +5268,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -4569,7 +5283,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -4582,7 +5298,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -4595,7 +5313,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -4608,7 +5328,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -4621,7 +5343,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -4634,7 +5358,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -4647,7 +5373,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -4660,7 +5388,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -4673,7 +5403,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -4686,7 +5418,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -4699,7 +5433,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -4712,7 +5448,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -4725,7 +5463,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -4737,7 +5477,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA BISMARCK",
         "nameDe": "PIZZA BISMARCK",
         "descriptionDe": "Tomatensauce, Olivenöl, Ei, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, ไข่, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, ไข่, ชีสมอซซาเรลล่า",
+        "nameMm": "ပီဇာ ဘစ်စမာ့ခ်",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ ကြက်ဥ၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ပီဇာ ဘစ်စမာ့ခ်",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ ကြက်ဥ၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-ham-and-cheese",
@@ -4762,7 +5506,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10110",
@@ -4776,7 +5522,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -4791,7 +5539,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -4804,7 +5554,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -4817,7 +5569,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -4830,7 +5584,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -4843,7 +5599,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -4856,7 +5614,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -4869,7 +5629,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -4882,7 +5644,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -4895,7 +5659,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -4908,7 +5674,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -4921,7 +5689,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -4934,7 +5704,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -4947,7 +5719,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -4960,7 +5734,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -4973,7 +5749,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -4986,7 +5764,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -4999,7 +5779,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -5012,7 +5794,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -5025,7 +5809,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -5038,7 +5824,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -5051,7 +5839,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -5064,7 +5854,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -5077,7 +5869,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -5090,7 +5884,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -5103,7 +5899,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -5116,7 +5914,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -5129,7 +5929,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -5141,7 +5943,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SCHINKEN & KÄSE",
         "nameDe": "PIZZA SCHINKEN & KÄSE",
         "descriptionDe": "Tomatensauce, Olivenöl, Schinken, Ei, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, ชีสมอซซาเรลล่า",
+        "nameMm": "ပီဇာ ဝက်ပေါင်ခြောက်နှင့် ချိစ်",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ ဝက်ပေါင်ခြောက်ချက်ပြီး၊ ကြက်ဥ၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ပီဇာ ဝက်ပေါင်ခြောက်နှင့် ချိစ်",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလီဗာဆီအထူးအရည်၊ ဝက်ပေါင်ခြောက်ချက်ပြီး၊ ကြက်ဥ၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-mushrooms-and-tofu-vegan",
@@ -5166,7 +5972,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10137",
@@ -5180,7 +5988,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -5195,7 +6005,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -5208,7 +6020,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -5221,7 +6035,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -5234,7 +6050,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -5247,7 +6065,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -5260,7 +6080,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -5273,7 +6095,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -5286,7 +6110,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -5299,7 +6125,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -5312,7 +6140,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -5325,7 +6155,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -5338,7 +6170,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -5351,7 +6185,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -5364,7 +6200,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -5377,7 +6215,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -5390,7 +6230,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -5403,7 +6245,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -5416,7 +6260,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -5429,7 +6275,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -5442,7 +6290,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -5455,7 +6305,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -5468,7 +6320,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -5481,7 +6335,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -5494,7 +6350,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -5507,7 +6365,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -5520,7 +6380,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -5533,7 +6395,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -5545,7 +6409,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA PILZE & TOFU VEGAN",
         "nameDe": "PIZZA PILZE & TOFU VEGAN",
         "descriptionDe": "Tomatensauce, Pilze, Tofu",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, เห็ด, เต้าหู้"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, เห็ด, เต้าหู้",
+        "nameMm": "ပီဇာ မှိုနှင့် တို့ဟူး သက်သတ်လွတ်",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ မှို၊ တို့ဟူး",
+        "name_mm": "ပီဇာ မှိုနှင့် တို့ဟူး သက်သတ်လွတ်",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ မှို၊ တို့ဟူး"
       },
       {
         "id": "pizza-nutella",
@@ -5570,7 +6438,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10139",
@@ -5584,7 +6454,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -5599,7 +6471,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Nutella",
             "nameIt": "Doppia Nutella",
             "name_de": "Doppelte Nutella",
-            "nameDe": "Doppelte Nutella"
+            "nameDe": "Doppelte Nutella",
+            "nameMm": "နူတဲလာနှစ်ဆ",
+            "name_mm": "နူတဲလာနှစ်ဆ"
           }
         ],
         "allowed_extras_group": "Dessert Extras",
@@ -5611,7 +6485,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA NUTELLA",
         "nameDe": "PIZZA NUTELLA",
         "descriptionDe": "Nutella",
-        "description_th": "นูเทลล่า"
+        "description_th": "นูเทลล่า",
+        "nameMm": "နူတဲလာ ပီဇာ",
+        "descriptionMm": "နူတဲလာ",
+        "name_mm": "နူတဲလာ ပီဇာ",
+        "description_mm": "နူတဲလာ"
       },
       {
         "id": "pizza-vegetables",
@@ -5636,7 +6514,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10243",
@@ -5650,7 +6530,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -5665,7 +6547,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -5678,7 +6562,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -5691,7 +6577,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -5704,7 +6592,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -5717,7 +6607,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -5730,7 +6622,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -5743,7 +6637,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -5756,7 +6652,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -5769,7 +6667,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -5782,7 +6682,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -5795,7 +6697,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -5808,7 +6712,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -5821,7 +6727,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -5834,7 +6742,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -5847,7 +6757,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -5860,7 +6772,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -5873,7 +6787,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -5886,7 +6802,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -5899,7 +6817,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -5912,7 +6832,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -5925,7 +6847,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -5938,7 +6862,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -5951,7 +6877,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -5964,7 +6892,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -5977,7 +6907,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -5990,7 +6922,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -6003,7 +6937,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -6015,7 +6951,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA GEMÜSE",
         "nameDe": "PIZZA GEMÜSE",
         "descriptionDe": "Tomatensauce, Olivenöl, Gemüse, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, ผัก, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, ผัก, ชีสมอซซาเรลล่า",
+        "nameMm": "သစ်သီးဝလံ ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဟင်းသီးဟင်းရွက်စုံ၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "သစ်သီးဝလံ ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဟင်းသီးဟင်းရွက်စုံ၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-artichokes",
@@ -6040,7 +6980,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10090",
@@ -6054,7 +6996,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -6069,7 +7013,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -6082,7 +7028,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -6095,7 +7043,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -6108,7 +7058,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -6121,7 +7073,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -6134,7 +7088,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -6147,7 +7103,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -6160,7 +7118,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -6173,7 +7133,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -6186,7 +7148,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -6199,7 +7163,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -6212,7 +7178,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -6225,7 +7193,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -6238,7 +7208,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -6251,7 +7223,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -6264,7 +7238,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -6277,7 +7253,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -6290,7 +7268,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -6303,7 +7283,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -6316,7 +7298,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -6329,7 +7313,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -6342,7 +7328,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -6355,7 +7343,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -6368,7 +7358,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -6381,7 +7373,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -6394,7 +7388,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -6407,7 +7403,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -6419,7 +7417,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA ARTISCHOCKEN",
         "nameDe": "PIZZA ARTISCHOCKEN",
         "descriptionDe": "Tomatensauce, Olivenöl, Artischocken, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, อาร์ติโชค, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, อาร์ติโชค, ชีสมอซซาเรลล่า",
+        "nameMm": "အာတီချုတ် ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ အာတီချုတ်၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "အာတီချုတ် ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ အာတီချုတ်၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-bacon",
@@ -6444,7 +7446,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10091",
@@ -6458,7 +7462,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -6473,7 +7479,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -6486,7 +7494,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -6499,7 +7509,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -6512,7 +7524,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -6525,7 +7539,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -6538,7 +7554,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -6551,7 +7569,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -6564,7 +7584,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -6577,7 +7599,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -6590,7 +7614,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -6603,7 +7629,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -6616,7 +7644,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -6629,7 +7659,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -6642,7 +7674,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -6655,7 +7689,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -6668,7 +7704,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -6681,7 +7719,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -6694,7 +7734,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -6707,7 +7749,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -6720,7 +7764,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -6733,7 +7779,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -6746,7 +7794,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -6759,7 +7809,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -6772,7 +7824,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -6785,7 +7839,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -6798,7 +7854,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -6811,7 +7869,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -6823,7 +7883,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SPECK",
         "nameDe": "PIZZA SPECK",
         "descriptionDe": "Tomatensauce, Olivenöl, Speck (Bacon), Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, เบคอน, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, เบคอน, ชีสมอซซาเรลล่า",
+        "nameMm": "ဘေကွန် ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဘေကွန်၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဘေကွန် ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဘေကွန်၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-pineapple",
@@ -6848,7 +7912,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10240",
@@ -6862,7 +7928,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -6877,7 +7945,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -6890,7 +7960,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -6903,7 +7975,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -6916,7 +7990,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -6929,7 +8005,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -6942,7 +8020,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -6955,7 +8035,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -6968,7 +8050,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -6981,7 +8065,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -6994,7 +8080,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -7007,7 +8095,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -7020,7 +8110,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -7033,7 +8125,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -7046,7 +8140,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -7059,7 +8155,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -7072,7 +8170,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -7085,7 +8185,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -7098,7 +8200,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -7111,7 +8215,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -7124,7 +8230,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -7137,7 +8245,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -7150,7 +8260,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -7163,7 +8275,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -7176,7 +8290,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -7189,7 +8305,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -7202,7 +8320,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -7215,7 +8335,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -7227,7 +8349,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA ANANAS",
         "nameDe": "PIZZA ANANAS",
         "descriptionDe": "Tomatensauce, Olivenöl, Ananas, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, สับปะรด, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, สับปะรด, ชีสมอซซาเรลล่า",
+        "nameMm": "နာနတ်သီး ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ နာနတ်သီး၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "နာနတ်သီး ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ နာနတ်သီး၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-sweet-bell-pepper-cheese",
@@ -7252,7 +8378,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10244",
@@ -7266,7 +8394,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -7281,7 +8411,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -7294,7 +8426,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -7307,7 +8441,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -7320,7 +8456,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -7333,7 +8471,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -7346,7 +8486,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -7359,7 +8501,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -7372,7 +8516,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -7385,7 +8531,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -7398,7 +8546,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -7411,7 +8561,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -7424,7 +8576,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -7437,7 +8591,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -7450,7 +8606,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -7463,7 +8621,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -7476,7 +8636,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -7489,7 +8651,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -7502,7 +8666,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -7515,7 +8681,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -7528,7 +8696,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -7541,7 +8711,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -7554,7 +8726,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -7567,7 +8741,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -7580,7 +8756,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -7593,7 +8771,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -7606,7 +8786,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -7619,7 +8801,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -7631,7 +8815,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA PAPRIKA & KÄSE",
         "nameDe": "PIZZA PAPRIKA & KÄSE",
         "descriptionDe": "Tomatensauce, Olivenöl, milde Paprika, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, พริกหวาน, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, พริกหวาน, ชีสมอซซาเรลล่า",
+        "nameMm": "ငရုတ်သီးချို နှင့် ချိစ် ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ငရုတ်သီးချို၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ငရုတ်သီးချို နှင့် ချိစ် ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ငရုတ်သီးချို၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-wurstel",
@@ -7656,7 +8844,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10245",
@@ -7670,7 +8860,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -7685,7 +8877,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -7698,7 +8892,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -7711,7 +8907,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -7724,7 +8922,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -7737,7 +8937,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -7750,7 +8952,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -7763,7 +8967,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -7776,7 +8982,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -7789,7 +8997,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -7802,7 +9012,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -7815,7 +9027,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -7828,7 +9042,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -7841,7 +9057,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -7854,7 +9072,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -7867,7 +9087,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -7880,7 +9102,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -7893,7 +9117,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -7906,7 +9132,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -7919,7 +9147,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -7932,7 +9162,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -7945,7 +9177,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -7958,7 +9192,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -7971,7 +9207,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -7984,7 +9222,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -7997,7 +9237,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -8010,7 +9252,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -8023,7 +9267,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -8035,7 +9281,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA WÜRSTEL",
         "nameDe": "PIZZA WÜRSTEL",
         "descriptionDe": "Tomatensauce, Würstchen, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, ไส้กรอกเยอรมัน, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, ไส้กรอกเยอรมัน, ชีสมอซซาเรลล่า",
+        "nameMm": "ဝါစတယ် ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ ဝါစတယ်၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဝါစတယ် ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ ဝါစတယ်၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "calzone-ham-and-cheese",
@@ -8060,7 +9310,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10066",
@@ -8074,7 +9326,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -8089,7 +9343,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -8102,7 +9358,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -8115,7 +9373,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -8128,7 +9388,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -8141,7 +9403,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -8154,7 +9418,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -8167,7 +9433,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -8180,7 +9448,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -8193,7 +9463,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -8206,7 +9478,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -8219,7 +9493,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -8232,7 +9508,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -8245,7 +9523,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -8258,7 +9538,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -8271,7 +9553,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -8284,7 +9568,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -8297,7 +9583,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -8310,7 +9598,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -8323,7 +9613,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -8336,7 +9628,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -8349,7 +9643,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -8362,7 +9658,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -8375,7 +9673,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -8388,7 +9688,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -8401,7 +9703,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -8414,7 +9718,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -8427,7 +9733,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -8439,7 +9747,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "CALZONE SCHINKEN & KÄSE",
         "nameDe": "CALZONE SCHINKEN & KÄSE",
         "descriptionDe": "Tomatensauce, Schinken, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, แฮม, ชีสมอสซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, แฮม, ชีสมอสซาเรลล่า",
+        "nameMm": "ကယ်လ်ဇုန်း ဝက်ပေါင်ခြောက် နှင့် ချိစ်",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ ဝက်ပေါင်ခြောက်၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ကယ်လ်ဇုန်း ဝက်ပေါင်ခြောက် နှင့် ချိစ်",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ ဝက်ပေါင်ခြောက်၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-salame",
@@ -8464,7 +9776,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10247",
@@ -8478,7 +9792,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -8493,7 +9809,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -8506,7 +9824,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -8519,7 +9839,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -8532,7 +9854,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -8545,7 +9869,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -8558,7 +9884,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -8571,7 +9899,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -8584,7 +9914,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -8597,7 +9929,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -8610,7 +9944,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -8623,7 +9959,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -8636,7 +9974,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -8649,7 +9989,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -8662,7 +10004,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -8675,7 +10019,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -8688,7 +10034,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -8701,7 +10049,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -8714,7 +10064,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -8727,7 +10079,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -8740,7 +10094,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -8753,7 +10109,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -8766,7 +10124,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -8779,7 +10139,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -8792,7 +10154,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -8805,7 +10169,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -8818,7 +10184,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -8831,7 +10199,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -8843,7 +10213,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SALAMI",
         "nameDe": "PIZZA SALAMI",
         "descriptionDe": "Tomatensauce, Olivenöl, Salami, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, สลามี, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, สลามี, ชีสมอซซาเรลล่า",
+        "nameMm": "ဆာလာမေပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဆာလာမေအသား၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဆာလာမေပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဆာလာမေအသား၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-salame-calabrese",
@@ -8868,7 +10242,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10248",
@@ -8882,7 +10258,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -8897,7 +10275,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -8910,7 +10290,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -8923,7 +10305,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -8936,7 +10320,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -8949,7 +10335,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -8962,7 +10350,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -8975,7 +10365,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -8988,7 +10380,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -9001,7 +10395,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -9014,7 +10410,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -9027,7 +10425,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -9040,7 +10440,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -9053,7 +10455,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -9066,7 +10470,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -9079,7 +10485,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -9092,7 +10500,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -9105,7 +10515,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -9118,7 +10530,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -9131,7 +10545,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -9144,7 +10560,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -9157,7 +10575,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -9170,7 +10590,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -9183,7 +10605,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -9196,7 +10620,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -9209,7 +10635,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -9222,7 +10650,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -9235,7 +10665,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -9247,7 +10679,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SALAMI CALABRESE",
         "nameDe": "PIZZA SALAMI CALABRESE",
         "descriptionDe": "Tomatensauce, Olivenöl, scharfe Salami, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, สลามีเผ็ด, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, สลามีเผ็ด, ชีสมอซซาเรลล่า",
+        "nameMm": "ကယ်လာဘရီးစ်ဆာလာမေပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ အစပ်ဆာလာမေအသား၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ကယ်လာဘရီးစ်ဆာလာမေပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ အစပ်ဆာလာမေအသား၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-ham-and-artichokes",
@@ -9272,7 +10708,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10109",
@@ -9286,7 +10724,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -9301,7 +10741,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -9314,7 +10756,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -9327,7 +10771,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -9340,7 +10786,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -9353,7 +10801,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -9366,7 +10816,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -9379,7 +10831,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -9392,7 +10846,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -9405,7 +10861,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -9418,7 +10876,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -9431,7 +10891,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -9444,7 +10906,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -9457,7 +10921,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -9470,7 +10936,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -9483,7 +10951,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -9496,7 +10966,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -9509,7 +10981,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -9522,7 +10996,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -9535,7 +11011,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -9548,7 +11026,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -9561,7 +11041,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -9574,7 +11056,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -9587,7 +11071,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -9600,7 +11086,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -9613,7 +11101,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -9626,7 +11116,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -9639,7 +11131,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -9651,7 +11145,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SCHINKEN & ARTISCHOCKEN",
         "nameDe": "PIZZA SCHINKEN & ARTISCHOCKEN",
         "descriptionDe": "Tomatensauce, Olivenöl, Schinken, Artischocken, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, อาร์ติโชค, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, อาร์ติโชค, ชีสมอซซาเรลล่า",
+        "nameMm": "ဟမ်နှင့်အာတီချုတ်ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဟမ်အသား၊ အာတီချုတ်အသီး၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဟမ်နှင့်အာတီချုတ်ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဟမ်အသား၊ အာတီချုတ်အသီး၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-bacon-bismark",
@@ -9676,7 +11174,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10101",
@@ -9690,7 +11190,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -9705,7 +11207,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -9718,7 +11222,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -9731,7 +11237,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -9744,7 +11252,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -9757,7 +11267,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -9770,7 +11282,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -9783,7 +11297,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -9796,7 +11312,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -9809,7 +11327,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -9822,7 +11342,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -9835,7 +11357,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -9848,7 +11372,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -9861,7 +11387,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -9874,7 +11402,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -9887,7 +11417,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -9900,7 +11432,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -9913,7 +11447,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -9926,7 +11462,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -9939,7 +11477,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -9952,7 +11492,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -9965,7 +11507,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -9978,7 +11522,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -9991,7 +11537,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -10004,7 +11552,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -10017,7 +11567,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -10030,7 +11582,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -10043,7 +11597,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -10055,7 +11611,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SPECK & EI",
         "nameDe": "PIZZA SPECK & EI",
         "descriptionDe": "Tomatensauce, Olivenöl, Speck (Bacon), Ei, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, เบคอน, ไข่, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, เบคอน, ไข่, ชีสมอซซาเรลล่า",
+        "nameMm": "ဘေကွန်နှင့်ကြက်ဥပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဘေကွန်အသား၊ ကြက်ဥ၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဘေကွန်နှင့်ကြက်ဥပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဘေကွန်အသား၊ ကြက်ဥ၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-ham-and-mushrooms",
@@ -10080,7 +11640,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10112",
@@ -10094,7 +11656,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -10109,7 +11673,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -10122,7 +11688,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -10135,7 +11703,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -10148,7 +11718,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -10161,7 +11733,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -10174,7 +11748,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -10187,7 +11763,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -10200,7 +11778,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -10213,7 +11793,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -10226,7 +11808,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -10239,7 +11823,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -10252,7 +11838,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -10265,7 +11853,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -10278,7 +11868,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -10291,7 +11883,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -10304,7 +11898,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -10317,7 +11913,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -10330,7 +11928,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -10343,7 +11943,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -10356,7 +11958,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -10369,7 +11973,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -10382,7 +11988,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -10395,7 +12003,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -10408,7 +12018,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -10421,7 +12033,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -10434,7 +12048,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -10447,7 +12063,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -10459,7 +12077,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SCHINKEN & PILZE",
         "nameDe": "PIZZA SCHINKEN & PILZE",
         "descriptionDe": "Tomatensauce, Olivenöl, Schinken, Pilze, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, เห็ด, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, เห็ด, ชีสมอซซาเรลล่า",
+        "nameMm": "ဟမ်နှင့်မှိုပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဟမ်အသား၊ မှို၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဟမ်နှင့်မှိုပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဟမ်အသား၊ မှို၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-ham-and-sweet-bell-pepper",
@@ -10484,7 +12106,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10115",
@@ -10498,7 +12122,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -10513,7 +12139,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -10526,7 +12154,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -10539,7 +12169,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -10552,7 +12184,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -10565,7 +12199,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -10578,7 +12214,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -10591,7 +12229,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -10604,7 +12244,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -10617,7 +12259,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -10630,7 +12274,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -10643,7 +12289,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -10656,7 +12304,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -10669,7 +12319,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -10682,7 +12334,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -10695,7 +12349,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -10708,7 +12364,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -10721,7 +12379,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -10734,7 +12394,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -10747,7 +12409,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -10760,7 +12424,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -10773,7 +12439,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -10786,7 +12454,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -10799,7 +12469,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -10812,7 +12484,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -10825,7 +12499,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -10838,7 +12514,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -10851,7 +12529,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -10863,7 +12543,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SCHINKEN & PAPRIKA",
         "nameDe": "PIZZA SCHINKEN & PAPRIKA",
         "descriptionDe": "Tomatensauce, Olivenöl, Schinken, milde Paprika, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, พริกหวาน, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, พริกหวาน, ชีสมอซซาเรลล่า",
+        "nameMm": "ဟမ်နှင့်ချိုမြိန်ငရုတ်သီးပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဟမ်အသား၊ ချိုမြိန်ငရုတ်သီး၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဟမ်နှင့်ချိုမြိန်ငရုတ်သီးပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဟမ်အသား၊ ချိုမြိန်ငရုတ်သီး၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-pesto",
@@ -10888,7 +12572,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10140",
@@ -10902,7 +12588,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -10917,7 +12605,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -10930,7 +12620,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -10943,7 +12635,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -10956,7 +12650,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -10969,7 +12665,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -10982,7 +12680,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -10995,7 +12695,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -11008,7 +12710,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -11021,7 +12725,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -11034,7 +12740,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -11047,7 +12755,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -11060,7 +12770,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -11073,7 +12785,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -11086,7 +12800,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -11099,7 +12815,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -11112,7 +12830,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -11125,7 +12845,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -11138,7 +12860,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -11151,7 +12875,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -11164,7 +12890,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -11177,7 +12905,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -11190,7 +12920,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -11203,7 +12935,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -11216,7 +12950,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -11229,7 +12965,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -11242,7 +12980,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -11255,7 +12995,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -11267,7 +13009,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA PESTO",
         "nameDe": "PIZZA PESTO",
         "descriptionDe": "Basilikumpesto, Olivenöl, Mozzarella",
-        "description_th": "ซอสเพสโต้, น้ำมันมะกอก, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสเพสโต้, น้ำมันมะกอก, ชีสมอซซาเรลล่า",
+        "nameMm": "ပက်စတိုပီဇာ",
+        "descriptionMm": "ဘာစီလီပက်စတိုဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ပက်စတိုပီဇာ",
+        "description_mm": "ဘာစီလီပက်စတိုဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-tuna",
@@ -11292,7 +13038,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10254",
@@ -11306,7 +13054,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -11321,7 +13071,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -11334,7 +13086,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -11347,7 +13101,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -11360,7 +13116,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -11373,7 +13131,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -11386,7 +13146,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -11399,7 +13161,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -11412,7 +13176,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -11425,7 +13191,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -11438,7 +13206,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -11451,7 +13221,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -11464,7 +13236,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -11477,7 +13251,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -11490,7 +13266,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -11503,7 +13281,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -11516,7 +13296,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -11529,7 +13311,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -11542,7 +13326,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -11555,7 +13341,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -11568,7 +13356,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -11581,7 +13371,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -11594,7 +13386,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -11607,7 +13401,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -11620,7 +13416,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -11633,7 +13431,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -11646,7 +13446,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -11659,7 +13461,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -11671,7 +13475,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA THUNFISCH",
         "nameDe": "PIZZA THUNFISCH",
         "descriptionDe": "Tomatensauce, Olivenöl, Knoblauch, Zwiebeln, Thunfisch, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, กระเทียม, หัวหอม, ปลาทูน่า, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, กระเทียม, หัวหอม, ปลาทูน่า, ชีสมอซซาเรลล่า",
+        "nameMm": "ထူနာငါးပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ကြက်သွန်ဖြူ၊ ကြက်သွန်နီ၊ ထူနာငါး၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ထူနာငါးပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ကြက်သွန်ဖြူ၊ ကြက်သွန်နီ၊ ထူနာငါး၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-hawaiian",
@@ -11696,7 +13504,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10117",
@@ -11710,7 +13520,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -11725,7 +13537,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -11738,7 +13552,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -11751,7 +13567,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -11764,7 +13582,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -11777,7 +13597,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -11790,7 +13612,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -11803,7 +13627,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -11816,7 +13642,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -11829,7 +13657,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -11842,7 +13672,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -11855,7 +13687,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -11868,7 +13702,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -11881,7 +13717,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -11894,7 +13732,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -11907,7 +13747,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -11920,7 +13762,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -11933,7 +13777,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -11946,7 +13792,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -11959,7 +13807,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -11972,7 +13822,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -11985,7 +13837,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -11998,7 +13852,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -12011,7 +13867,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -12024,7 +13882,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -12037,7 +13897,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -12050,7 +13912,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -12063,7 +13927,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -12075,7 +13941,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA HAWAI",
         "nameDe": "PIZZA HAWAI",
         "descriptionDe": "Tomatensauce, Olivenöl, Schinken, Ananas, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, สับปะรด, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, แฮม, สับปะรด, ชีสมอซซาเรลล่า",
+        "nameMm": "ဟာဝိုင်ယီ ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဝက်သားဟမ်၊ နာနတ်သီး၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဟာဝိုင်ယီ ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဝက်သားဟမ်၊ နာနတ်သီး၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-salame-and-gorgonzola",
@@ -12100,7 +13970,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10256",
@@ -12114,7 +13986,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -12129,7 +14003,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -12142,7 +14018,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -12155,7 +14033,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -12168,7 +14048,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -12181,7 +14063,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -12194,7 +14078,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -12207,7 +14093,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -12220,7 +14108,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -12233,7 +14123,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -12246,7 +14138,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -12259,7 +14153,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -12272,7 +14168,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -12285,7 +14183,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -12298,7 +14198,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -12311,7 +14213,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -12324,7 +14228,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -12337,7 +14243,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -12350,7 +14258,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -12363,7 +14273,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -12376,7 +14288,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -12389,7 +14303,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -12402,7 +14318,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -12415,7 +14333,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -12428,7 +14348,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -12441,7 +14363,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -12454,7 +14378,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -12467,7 +14393,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -12479,7 +14407,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SALAMI & GORGONZOLA",
         "nameDe": "PIZZA SALAMI & GORGONZOLA",
         "descriptionDe": "Tomatensauce, Olivenöl, Salami, Gorgonzola, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, สลามี, กอร์กอนโซล่า, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, สลามี, กอร์กอนโซล่า, ชีสมอซซาเรลล่า",
+        "nameMm": "ဆလာမီနှင့် ဂေါ်ဂွန်ဇိုလာ ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဆလာမီ၊ ဂေါ်ဂွန်ဇိုလာချိစ်၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဆလာမီနှင့် ဂေါ်ဂွန်ဇိုလာ ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ဆလာမီ၊ ဂေါ်ဂွန်ဇိုလာချိစ်၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-4-formaggi",
@@ -12504,7 +14436,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10067",
@@ -12518,7 +14452,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -12533,7 +14469,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -12546,7 +14484,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -12559,7 +14499,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -12572,7 +14514,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -12585,7 +14529,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -12598,7 +14544,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -12611,7 +14559,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -12624,7 +14574,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -12637,7 +14589,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -12650,7 +14604,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -12663,7 +14619,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -12676,7 +14634,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -12689,7 +14649,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -12702,7 +14664,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -12715,7 +14679,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -12728,7 +14694,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -12741,7 +14709,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -12754,7 +14724,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -12767,7 +14739,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -12780,7 +14754,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -12793,7 +14769,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -12806,7 +14784,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -12819,7 +14799,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -12832,7 +14814,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -12845,7 +14829,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -12858,7 +14844,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -12871,7 +14859,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -12883,7 +14873,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA VIER KÄSE",
         "nameDe": "PIZZA VIER KÄSE",
         "descriptionDe": "Mozzarella, Cheddar, Gorgonzola, Parmesan",
-        "description_th": "ชีสมอสซาเรลล่า,เชดดาร์, ชีสกอร์กอนโซล่า, พาร์เมซาน"
+        "description_th": "ชีสมอสซาเรลล่า,เชดดาร์, ชีสกอร์กอนโซล่า, พาร์เมซาน",
+        "nameMm": "ချိစ်လေးမျိုး ပီဇာ",
+        "descriptionMm": "မိုဇာရဲလာချိစ်၊ ချက်ဒါချိစ်၊ ဂေါ်ဂွန်ဇိုလာချိစ်၊ ပါမာချိစ်",
+        "name_mm": "ချိစ်လေးမျိုး ပီဇာ",
+        "description_mm": "မိုဇာရဲလာချိစ်၊ ချက်ဒါချိစ်၊ ဂေါ်ဂွန်ဇိုလာချိစ်၊ ပါမာချိစ်"
       },
       {
         "id": "pizza-4-stagioni",
@@ -12908,7 +14902,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10089",
@@ -12922,7 +14918,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -12937,7 +14935,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -12950,7 +14950,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -12963,7 +14965,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -12976,7 +14980,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -12989,7 +14995,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -13002,7 +15010,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -13015,7 +15025,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -13028,7 +15040,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -13041,7 +15055,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -13054,7 +15070,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -13067,7 +15085,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -13080,7 +15100,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -13093,7 +15115,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -13106,7 +15130,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -13119,7 +15145,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -13132,7 +15160,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -13145,7 +15175,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -13158,7 +15190,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -13171,7 +15205,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -13184,7 +15220,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -13197,7 +15235,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -13210,7 +15250,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -13223,7 +15265,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -13236,7 +15280,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -13249,7 +15295,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -13262,7 +15310,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -13275,7 +15325,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -13287,7 +15339,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA VIER JAHRESZEITEN",
         "nameDe": "PIZZA VIER JAHRESZEITEN",
         "descriptionDe": "Tomatensauce, Schinken, Pilze, Artischocken, Oliven, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, แฮม, เห็ด, อาร์ติโชค, มะกอก, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, แฮม, เห็ด, อาร์ติโชค, มะกอก, ชีสมอซซาเรลล่า",
+        "nameMm": "ရာသီလေးမျိုး ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ ဝက်သားဟမ်၊ မှိုများ၊ အာတီချုတ်များ၊ သံလွင်သီးများ၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ရာသီလေးမျိုး ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ ဝက်သားဟမ်၊ မှိုများ၊ အာတီချုတ်များ၊ သံလွင်သီးများ၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-capricciosa",
@@ -13312,7 +15368,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10106",
@@ -13326,7 +15384,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -13341,7 +15401,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -13354,7 +15416,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -13367,7 +15431,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -13380,7 +15446,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -13393,7 +15461,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -13406,7 +15476,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -13419,7 +15491,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -13432,7 +15506,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -13445,7 +15521,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -13458,7 +15536,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -13471,7 +15551,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -13484,7 +15566,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -13497,7 +15581,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -13510,7 +15596,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -13523,7 +15611,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -13536,7 +15626,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -13549,7 +15641,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -13562,7 +15656,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -13575,7 +15671,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -13588,7 +15686,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -13601,7 +15701,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -13614,7 +15716,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -13627,7 +15731,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -13640,7 +15746,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -13653,7 +15761,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -13666,7 +15776,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -13679,7 +15791,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -13691,7 +15805,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA CAPRICCIOSA",
         "nameDe": "PIZZA CAPRICCIOSA",
         "descriptionDe": "Tomatensauce, Schinken, Pilze, Artischocken, Oliven, Mozzarella",
-        "description_th": "ซอสมะเขือเทศ, แฮม, เห็ด, อาร์ติโชค, มะกอก, ชีสมอซซาเรลล่า"
+        "description_th": "ซอสมะเขือเทศ, แฮม, เห็ด, อาร์ติโชค, มะกอก, ชีสมอซซาเรลล่า",
+        "nameMm": "ကပရီချိုဆာ ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ ဝက်သားဟမ်၊ မှိုများ၊ အာတီချုတ်များ၊ သံလွင်သီးများ၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ကပရီချိုဆာ ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ ဝက်သားဟမ်၊ မှိုများ၊ အာတီချုတ်များ၊ သံလွင်သီးများ၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-flower-power",
@@ -13716,7 +15834,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10108",
@@ -13730,7 +15850,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -13745,7 +15867,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -13758,7 +15882,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -13771,7 +15897,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -13784,7 +15912,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -13797,7 +15927,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -13810,7 +15942,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -13823,7 +15957,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -13836,7 +15972,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -13849,7 +15987,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -13862,7 +16002,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -13875,7 +16017,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -13888,7 +16032,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -13901,7 +16047,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -13914,7 +16062,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -13927,7 +16077,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -13940,7 +16092,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -13953,7 +16107,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -13966,7 +16122,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -13979,7 +16137,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -13992,7 +16152,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -14005,7 +16167,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -14018,7 +16182,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -14031,7 +16197,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -14044,7 +16212,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -14057,7 +16227,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -14070,7 +16242,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -14083,7 +16257,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -14095,7 +16271,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA FLOWER POWER",
         "nameDe": "PIZZA FLOWER POWER",
         "descriptionDe": "Italienische Salsiccia-Wurst, Artischocken, Gorgonzola, Mozzarella",
-        "description_th": "ไส้กรอกอิตาลี, อาร์ติโชค, ชีสกอร์กอนโซล่า, ชีสมอสซาเรลล่า"
+        "description_th": "ไส้กรอกอิตาลี, อาร์ติโชค, ชีสกอร์กอนโซล่า, ชีสมอสซาเรลล่า",
+        "nameMm": "ဖလာဝါပါဝါ ပီဇာ",
+        "descriptionMm": "အီတလီဆော့စေ့ဂျ်၊ အာတီချုတ်များ၊ ဂေါ်ဂွန်ဇိုလာချိစ်၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ဖလာဝါပါဝါ ပီဇာ",
+        "description_mm": "အီတလီဆော့စေ့ဂျ်၊ အာတီချုတ်များ၊ ဂေါ်ဂွန်ဇိုလာချိစ်၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-puttanesca",
@@ -14120,7 +16300,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10261",
@@ -14134,7 +16316,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -14149,7 +16333,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -14162,7 +16348,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -14175,7 +16363,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -14188,7 +16378,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -14201,7 +16393,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -14214,7 +16408,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -14227,7 +16423,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -14240,7 +16438,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -14253,7 +16453,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -14266,7 +16468,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -14279,7 +16483,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -14292,7 +16498,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -14305,7 +16513,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -14318,7 +16528,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -14331,7 +16543,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -14344,7 +16558,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -14357,7 +16573,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -14370,7 +16588,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -14383,7 +16603,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -14396,7 +16618,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -14409,7 +16633,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -14422,7 +16648,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -14435,7 +16663,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -14448,7 +16678,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -14461,7 +16693,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -14474,7 +16708,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -14487,7 +16723,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -14499,7 +16737,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA PUTTANESCA",
         "nameDe": "PIZZA PUTTANESCA",
         "descriptionDe": "Tomatensauce, gesalzene Sardellen, Kapern, Oliven, Mozzarella",
-        "description_th": "มะเขือเทศ, ปลาแอนโชวี่เค็ม,เคเปอร์, มะกอก, ชีสมอสซาเรลล่า"
+        "description_th": "มะเขือเทศ, ปลาแอนโชวี่เค็ม,เคเปอร์, มะกอก, ชีสมอสซาเรลล่า",
+        "nameMm": "ပူတန်နက်စကာ ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ ငံပြာရည်ငါးသေးများ၊ ကပ္ပါရီများ၊ သံလွင်သီးများ၊ မိုဇာရဲလာချိစ်",
+        "name_mm": "ပူတန်နက်စကာ ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ ငံပြာရည်ငါးသေးများ၊ ကပ္ပါရီများ၊ သံလွင်သီးများ၊ မိုဇာရဲလာချိစ်"
       },
       {
         "id": "pizza-seafood",
@@ -14524,7 +16766,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10262",
@@ -14538,7 +16782,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -14553,7 +16799,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -14566,7 +16814,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -14579,7 +16829,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -14592,7 +16844,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -14605,7 +16859,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -14618,7 +16874,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -14631,7 +16889,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -14644,7 +16904,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -14657,7 +16919,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -14670,7 +16934,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -14683,7 +16949,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -14696,7 +16964,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -14709,7 +16979,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -14722,7 +16994,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -14735,7 +17009,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -14748,7 +17024,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -14761,7 +17039,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -14774,7 +17054,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -14787,7 +17069,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -14800,7 +17084,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -14813,7 +17099,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -14826,7 +17114,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -14839,7 +17129,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -14852,7 +17144,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -14865,7 +17159,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -14878,7 +17174,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -14891,7 +17189,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -14903,7 +17203,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA MEERESFRÜCHTE",
         "nameDe": "PIZZA MEERESFRÜCHTE",
         "descriptionDe": "Tomatensauce, Olivenöl, Knoblauch, Meeresfrüchte",
-        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, กระเทียม, ซีฟู้ด"
+        "description_th": "ซอสมะเขือเทศ, น้ำมันมะกอก, กระเทียม, ซีฟู้ด",
+        "nameMm": "ပင်လယ်စာ ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ကြက်သွန်ဖြူ၊ ပင်လယ်စာများ",
+        "name_mm": "ပင်လယ်စာ ပီဇာ",
+        "description_mm": "ခရမ်းချဉ်သီးဆော့စ်၊ အိုလစ်ဗ်ဆီ၊ ကြက်သွန်ဖြူ၊ ပင်လယ်စာများ"
       },
       {
         "id": "pizza-stella",
@@ -14928,7 +17232,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "12\"",
             "nameIt": "12\"",
             "name_de": "12\"",
-            "nameDe": "12\""
+            "nameDe": "12\"",
+            "nameMm": "၁၂ လက်မ",
+            "name_mm": "၁၂ လက်မ"
           },
           {
             "id": "10263",
@@ -14942,7 +17248,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "8\"",
             "nameIt": "8\"",
             "name_de": "8\"",
-            "nameDe": "8\""
+            "nameDe": "8\"",
+            "nameMm": "၈ လက်မ",
+            "name_mm": "၈ လက်မ"
           }
         ],
         "extras": [
@@ -14957,7 +17265,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -14970,7 +17280,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -14983,7 +17295,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -14996,7 +17310,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -15009,7 +17325,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -15022,7 +17340,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -15035,7 +17355,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -15048,7 +17370,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -15061,7 +17385,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -15074,7 +17400,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -15087,7 +17415,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -15100,7 +17430,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -15113,7 +17445,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -15126,7 +17460,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -15139,7 +17475,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -15152,7 +17490,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -15165,7 +17505,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -15178,7 +17520,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -15191,7 +17535,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -15204,7 +17550,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -15217,7 +17565,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -15230,7 +17580,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -15243,7 +17595,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -15256,7 +17610,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -15269,7 +17625,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -15282,7 +17640,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -15295,7 +17655,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
         ],
         "allowed_extras_group": "Pizza Extras",
@@ -15307,7 +17669,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA STELLA",
         "nameDe": "PIZZA STELLA",
         "descriptionDe": "Würstchen, Speck (Bacon), Gorgonzola, Ei, Mozzarella",
-        "description_th": "ฮ็อตด็อก, เบคอน, ชีสกอร์กอนโซล่า, ไข่, ชีสมอสซาเรลล่า"
+        "description_th": "ฮ็อตด็อก, เบคอน, ชีสกอร์กอนโซล่า, ไข่, ชีสมอสซาเรลล่า",
+        "nameMm": "ပီဇာ စတဲလာ",
+        "descriptionMm": "ဝါဆယ်လ်၊ ဘေကွန်၊ ဂေါ်ဂွန်ဇိုလာ၊ ကြက်ဥ၊ မိုဇာရဲလာ",
+        "name_mm": "ပီဇာ စတဲလာ",
+        "description_mm": "ဝါဆယ်လ်၊ ဘေကွန်၊ ဂေါ်ဂွန်ဇိုလာ၊ ကြက်ဥ၊ မိုဇာရဲလာ"
       },
       {
         "id": "pizza-con-polpa-di-granchio",
@@ -15339,7 +17705,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -15352,7 +17720,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -15365,7 +17735,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -15378,7 +17750,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -15391,7 +17765,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -15404,7 +17780,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -15417,7 +17795,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -15430,7 +17810,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -15443,7 +17825,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -15456,7 +17840,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -15469,7 +17855,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -15482,7 +17870,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -15495,7 +17885,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -15508,7 +17900,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -15521,7 +17915,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -15534,7 +17930,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -15547,7 +17945,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -15560,7 +17960,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -15573,7 +17975,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -15586,7 +17990,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -15599,7 +18005,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -15612,7 +18020,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -15625,7 +18035,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -15638,7 +18050,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -15651,7 +18065,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -15664,7 +18080,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -15677,9 +18095,13 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
-        ]
+        ],
+        "nameMm": "ဂဏန်းသား ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ မိုဇာရဲလားချိစ်၊ ပင်လယ်ကဏန်းသားလတ်ဆတ်နှင့် ကြက်သွန်မြိတ်။"
       },
       {
         "id": "pizza-rustica-con-salsiccia-e-stilacci",
@@ -15711,7 +18133,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Uovo Extra",
             "nameIt": "Uovo Extra",
             "name_de": "Extra Ei",
-            "nameDe": "Extra Ei"
+            "nameDe": "Extra Ei",
+            "nameMm": "ကြက်ဥအပိုတစ်လုံး",
+            "name_mm": "ကြက်ဥအပိုတစ်လုံး"
           },
           {
             "id": "10285",
@@ -15724,7 +18148,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Acciughe Extra",
             "nameIt": "Acciughe Extra",
             "name_de": "Extra Sardellen",
-            "nameDe": "Extra Sardellen"
+            "nameDe": "Extra Sardellen",
+            "nameMm": "ငါးသေးအပို",
+            "name_mm": "ငါးသေးအပို"
           },
           {
             "id": "10096",
@@ -15737,7 +18163,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Carciofi Extra",
             "nameIt": "Carciofi Extra",
             "name_de": "Extra Artischocken",
-            "nameDe": "Extra Artischocken"
+            "nameDe": "Extra Artischocken",
+            "nameMm": "အာတီချုပ်အပို",
+            "name_mm": "အာတီချုပ်အပို"
           },
           {
             "id": "10111",
@@ -15750,7 +18178,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pancetta Extra",
             "nameIt": "Pancetta Extra",
             "name_de": "Extra Speck",
-            "nameDe": "Extra Speck"
+            "nameDe": "Extra Speck",
+            "nameMm": "ဘေကွန်အပို",
+            "name_mm": "ဘေကွန်အပို"
           },
           {
             "id": "10138",
@@ -15763,7 +18193,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Olive Nere Extra",
             "nameIt": "Olive Nere Extra",
             "name_de": "Extra schwarze Oliven",
-            "nameDe": "Extra schwarze Oliven"
+            "nameDe": "Extra schwarze Oliven",
+            "nameMm": "သံလွင်သီးအနက်အပို",
+            "name_mm": "သံလွင်သီးအနက်အပို"
           },
           {
             "id": "10121",
@@ -15776,7 +18208,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Capperi Extra",
             "nameIt": "Capperi Extra",
             "name_de": "Extra Kapern",
-            "nameDe": "Extra Kapern"
+            "nameDe": "Extra Kapern",
+            "nameMm": "ကပ္ပရီအပို",
+            "name_mm": "ကပ္ပရီအပို"
           },
           {
             "id": "10129",
@@ -15789,7 +18223,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto di Pollo Extra",
             "nameIt": "Prosciutto di Pollo Extra",
             "name_de": "Extra Hähnchenschinken",
-            "nameDe": "Extra Hähnchenschinken"
+            "nameDe": "Extra Hähnchenschinken",
+            "nameMm": "ကြက်ဟမ်အပို",
+            "name_mm": "ကြက်ဟမ်အပို"
           },
           {
             "id": "10141",
@@ -15802,7 +18238,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame di Pollo Extra",
             "nameIt": "Salame di Pollo Extra",
             "name_de": "Extra Hähnchensalami",
-            "nameDe": "Extra Hähnchensalami"
+            "nameDe": "Extra Hähnchensalami",
+            "nameMm": "ကြက်ဆလာမီအပို",
+            "name_mm": "ကြက်ဆလာမီအပို"
           },
           {
             "id": "10102",
@@ -15815,7 +18253,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Doppia Mozzarella",
             "nameIt": "Doppia Mozzarella",
             "name_de": "Doppelt Mozzarella",
-            "nameDe": "Doppelt Mozzarella"
+            "nameDe": "Doppelt Mozzarella",
+            "nameMm": "မိုဇာရဲလ်ချီးအပို",
+            "name_mm": "မိုဇာရဲလ်ချီးအပို"
           },
           {
             "id": "10191",
@@ -15828,7 +18268,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pomodoro Fresco Extra",
             "nameIt": "Pomodoro Fresco Extra",
             "name_de": "Extra frische Tomaten",
-            "nameDe": "Extra frische Tomaten"
+            "nameDe": "Extra frische Tomaten",
+            "nameMm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို",
+            "name_mm": "ခရမ်းချဉ်သီးလတ်ဆတ်အပို"
           },
           {
             "id": "10118",
@@ -15841,7 +18283,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Gorgonzola Extra",
             "nameIt": "Gorgonzola Extra",
             "name_de": "Extra Gorgonzola",
-            "nameDe": "Extra Gorgonzola"
+            "nameDe": "Extra Gorgonzola",
+            "nameMm": "ဂေါ်ဂွန်ဇိုလာအပို",
+            "name_mm": "ဂေါ်ဂွန်ဇိုလာအပို"
           },
           {
             "id": "10113",
@@ -15854,7 +18298,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Prosciutto Cotto Extra",
             "nameIt": "Prosciutto Cotto Extra",
             "name_de": "Extra Schinken",
-            "nameDe": "Extra Schinken"
+            "nameDe": "Extra Schinken",
+            "nameMm": "ဟမ်အပို",
+            "name_mm": "ဟမ်အပို"
           },
           {
             "id": "10236",
@@ -15867,7 +18313,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဟော့ဒေါ့အပို",
+            "name_mm": "ဟော့ဒေါ့အပို"
           },
           {
             "id": "10094",
@@ -15880,7 +18328,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Funghi Extra",
             "nameIt": "Funghi Extra",
             "name_de": "Extra Pilze",
-            "nameDe": "Extra Pilze"
+            "nameDe": "Extra Pilze",
+            "nameMm": "မှိုအပို",
+            "name_mm": "မှိုအပို"
           },
           {
             "id": "10068",
@@ -15893,7 +18343,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Aglio/Cipolla Extra",
             "nameIt": "Aglio/Cipolla Extra",
             "name_de": "Extra Zwiebeln/Knoblauch",
-            "nameDe": "Extra Zwiebeln/Knoblauch"
+            "nameDe": "Extra Zwiebeln/Knoblauch",
+            "nameMm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို",
+            "name_mm": "ကြက်သွန်နီ/ကြက်သွန်ဖြူအပို"
           },
           {
             "id": "10171",
@@ -15906,7 +18358,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Parmigiano Extra",
             "nameIt": "Parmigiano Extra",
             "name_de": "Extra Parmesan",
-            "nameDe": "Extra Parmesan"
+            "nameDe": "Extra Parmesan",
+            "nameMm": "ပါမာဆန်ချီး",
+            "name_mm": "ပါမာဆန်ချီး"
           },
           {
             "id": "10062",
@@ -15919,7 +18373,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salsa al Pesto Extra",
             "nameIt": "Salsa al Pesto Extra",
             "name_de": "Extra Pestosauce",
-            "nameDe": "Extra Pestosauce"
+            "nameDe": "Extra Pestosauce",
+            "nameMm": "ပက်စတိုဆော့အပို",
+            "name_mm": "ပက်စတိုဆော့အပို"
           },
           {
             "id": "10095",
@@ -15932,7 +18388,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Ananas Extra",
             "nameIt": "Ananas Extra",
             "name_de": "Extra Ananas",
-            "nameDe": "Extra Ananas"
+            "nameDe": "Extra Ananas",
+            "nameMm": "နာနတ်သီးအပို",
+            "name_mm": "နာနတ်သီးအပို"
           },
           {
             "id": "10088",
@@ -15945,7 +18403,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Piccante Extra",
             "nameIt": "Salame Piccante Extra",
             "name_de": "Extra scharfe Salami",
-            "nameDe": "Extra scharfe Salami"
+            "nameDe": "Extra scharfe Salami",
+            "nameMm": "ဆလာမီကလာဘရီအပို",
+            "name_mm": "ဆလာမီကလာဘရီအပို"
           },
           {
             "id": "10087",
@@ -15958,7 +18418,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Salame Extra",
             "nameIt": "Salame Extra",
             "name_de": "Extra Salami",
-            "nameDe": "Extra Salami"
+            "nameDe": "Extra Salami",
+            "nameMm": "ဆလာမီအပို",
+            "name_mm": "ဆလာမီအပို"
           },
           {
             "id": "10086",
@@ -15971,7 +18433,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Würstel Extra",
             "nameIt": "Würstel Extra",
             "name_de": "Extra Würstchen",
-            "nameDe": "Extra Würstchen"
+            "nameDe": "Extra Würstchen",
+            "nameMm": "ဝက်အူစေ့အပို",
+            "name_mm": "ဝက်အူစေ့အပို"
           },
           {
             "id": "10107",
@@ -15984,7 +18448,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Peperoni Dolci Extra",
             "nameIt": "Peperoni Dolci Extra",
             "name_de": "Extra milde Paprika",
-            "nameDe": "Extra milde Paprika"
+            "nameDe": "Extra milde Paprika",
+            "nameMm": "ချိုသောငရုတ်သီးအပို",
+            "name_mm": "ချိုသောငရုတ်သီးအပို"
           },
           {
             "id": "10172",
@@ -15997,7 +18463,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tofu Extra",
             "nameIt": "Tofu Extra",
             "name_de": "Extra Tofu",
-            "nameDe": "Extra Tofu"
+            "nameDe": "Extra Tofu",
+            "nameMm": "တို့ဟူးအပို",
+            "name_mm": "တို့ဟူးအပို"
           },
           {
             "id": "10120",
@@ -16010,7 +18478,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Tonno Extra",
             "nameIt": "Tonno Extra",
             "name_de": "Extra Thunfisch",
-            "nameDe": "Extra Thunfisch"
+            "nameDe": "Extra Thunfisch",
+            "nameMm": "ငါးကြီးအပို",
+            "name_mm": "ငါးကြီးအပို"
           },
           {
             "id": "10100",
@@ -16023,7 +18493,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Verdure Extra",
             "nameIt": "Verdure Extra",
             "name_de": "Extra Gemüse",
-            "nameDe": "Extra Gemüse"
+            "nameDe": "Extra Gemüse",
+            "nameMm": "အသီးအရွက်အပို",
+            "name_mm": "အသီးအရွက်အပို"
           },
           {
             "id": "ext-ketchup",
@@ -16036,7 +18508,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Ketchup",
             "nameDe": "Extra Ketchup",
-            "name_it": "Ketchup Extra"
+            "name_it": "Ketchup Extra",
+            "nameMm": "ချဉ်ရည်အပို",
+            "name_mm": "ချဉ်ရည်အပို"
           },
           {
             "id": "ext-chilisauce",
@@ -16049,9 +18523,13 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Chilisauce",
             "nameDe": "Extra Chilisauce",
-            "name_it": "Salsa Piccante Extra"
+            "name_it": "Salsa Piccante Extra",
+            "nameMm": "ငရုတ်သီးရည်အပို",
+            "name_mm": "ငရုတ်သီးရည်အပို"
           }
-        ]
+        ],
+        "nameMm": "RUSTIC PIZZA WITH ITALIAN SAUSAGE & STILACCI GREENS",
+        "descriptionMm": "Italian sourdough crust, fiordilatte mozzarella, fresh seasoned Italian pork sausage, sautéed stilacci greens, garlic, extra virgin olive oil, salt, black pepper"
       }
     ],
     "name_it": "Pizza Italiana Tradizionale",
@@ -16063,7 +18541,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "La pizza è il cuore del nostro locale. Utilizziamo solo ingredienti italiani selezionati di prima qualità: dalla farina al pomodoro, dai formaggi ai salumi, senza scendere a compromessi. La nostra pizza tradizionale ad alta idratazione è realizzata con un impasto al 90% d'acqua, fatto maturare lentamente per almeno 36 ore. Il risultato è una pizza croccante, leggera, altamente digeribile e ricca di sapore.",
     "descriptionIt": "La pizza è il cuore del nostro locale. Utilizziamo solo ingredienti italiani selezionati di prima qualità: dalla farina al pomodoro, dai formaggi ai salumi, senza scendere a compromessi. La nostra pizza tradizionale ad alta idratazione è realizzata con un impasto al 90% d'acqua, fatto maturare lentamente per almeno 36 ore. Il risultato è una pizza croccante, leggera, altamente digeribile e ricca di sapore.",
     "description_de": "Die Pizza ist das Herzstück unseres Restaurants. Wir verwenden ausschließlich ausgewählte italienische Zutaten bester Qualität: vom Mehl bis zu den Tomaten, vom Käse bis zum Aufschnitt, ohne Kompromisse. Unsere traditionelle italienische Pizza mit hohem Feuchtigkeitsgehalt wird aus einem Teig mit 90 % Wasseranteil hergestellt, der mindestens 36 Stunden lang langsam reift. Das Ergebnis ist eine knusprige, leichte, besonders bekömmliche und geschmacksintensive Pizza.",
-    "descriptionDe": "Die Pizza ist das Herzstück unseres Restaurants. Wir verwenden ausschließlich ausgewählte italienische Zutaten bester Qualität: vom Mehl bis zu den Tomaten, vom Käse bis zum Aufschnitt, ohne Kompromisse. Unsere traditionelle italienische Pizza mit hohem Feuchtigkeitsgehalt wird aus einem Teig mit 90 % Wasseranteil hergestellt, der mindestens 36 Stunden lang langsam reift. Das Ergebnis ist eine knusprige, leichte, besonders bekömmliche und geschmacksintensive Pizza."
+    "descriptionDe": "Die Pizza ist das Herzstück unseres Restaurants. Wir verwenden ausschließlich ausgewählte italienische Zutaten bester Qualität: vom Mehl bis zu den Tomaten, vom Käse bis zum Aufschnitt, ohne Kompromisse. Unsere traditionelle italienische Pizza mit hohem Feuchtigkeitsgehalt wird aus einem Teig mit 90 % Wasseranteil hergestellt, der mindestens 36 Stunden lang langsam reift. Das Ergebnis ist eine knusprige, leichte, besonders bekömmliche und geschmacksintensive Pizza.",
+    "nameMm": "ရိုးရာအီတလီပီဇာ",
+    "descriptionMm": "ပီဇာသည် ကျွန်ုပ်တို့၏ စားသောက်ဆိုင်၏ နှလုံးသားဖြစ်သည်။ ဂျုံမှုန့်မှ ခရမ်းချဉ်သီးအထိ၊ ဒိန်ခဲများမှ အသားခြောက်များအထိ ရွေးချယ်ထားသော အီတလီပါဝင်ပစ္စည်းများကိုသာ အရည်အသွေးညံ့ခြင်းမရှိဘဲ အသုံးပြုပါသည်။ ကျွန်ုပ်တို့၏ ရိုးရာရေဓာတ်မြင့်မားသော အီတလီပီဇာကို ရေ ၉၀% ပါဝင်သော မုန့်စိမ်းဖြင့် ပြုလုပ်ထားပြီး အနည်းဆုံး ၃၆ နာရီ နှေးကွေးစွာ ရင့်သန်စေပါသည်။ ရလဒ်မှာ ကြွပ်ရွပြီး ပေါ့ပါး၊ အစာကြေလွယ်ကာ အရသာပြည့်ဝသော ပီဇာဖြစ်သည်။",
+    "name_mm": "ရိုးရာအီတလီပီဇာ",
+    "description_mm": "ပီဇာသည် ကျွန်ုပ်တို့၏ စားသောက်ဆိုင်၏ နှလုံးသားဖြစ်သည်။ ဂျုံမှုန့်မှ ခရမ်းချဉ်သီးအထိ၊ ဒိန်ခဲများမှ အသားခြောက်များအထိ ရွေးချယ်ထားသော အီတလီပါဝင်ပစ္စည်းများကိုသာ အရည်အသွေးညံ့ခြင်းမရှိဘဲ အသုံးပြုပါသည်။ ကျွန်ုပ်တို့၏ ရိုးရာရေဓာတ်မြင့်မားသော အီတလီပီဇာကို ရေ ၉၀% ပါဝင်သော မုန့်စိမ်းဖြင့် ပြုလုပ်ထားပြီး အနည်းဆုံး ၃၆ နာရီ နှေးကွေးစွာ ရင့်သန်စေပါသည်။ ရလဒ်မှာ ကြွပ်ရွပြီး ပေါ့ပါး၊ အစာကြေလွယ်ကာ အရသာပြည့်ဝသော ပီဇာဖြစ်သည်။"
   },
   {
     "id": "pasta",
@@ -16094,7 +18576,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "ext-bacon",
@@ -16107,7 +18591,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Speck",
             "nameDe": "Extra Speck",
-            "name_it": "Pancetta Extra"
+            "name_it": "Pancetta Extra",
+            "nameMm": "ဘေကွန်",
+            "name_mm": "ဘေကွန်"
           },
           {
             "id": "spicy-no",
@@ -16120,7 +18606,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16133,7 +18621,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16146,7 +18636,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -16159,7 +18651,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -16171,7 +18665,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Spaghetti mit Knoblauch, Öl & Chili",
         "nameDe": "Spaghetti mit Knoblauch, Öl & Chili",
         "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
-        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ"
+        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
+        "nameMm": "စပါဂတီ ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "descriptionMm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။",
+        "name_mm": "စပါဂတီ ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "description_mm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။"
       },
       {
         "id": "penne-aglio-e-olio",
@@ -16196,7 +18694,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "ext-bacon",
@@ -16209,7 +18709,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Speck",
             "nameDe": "Extra Speck",
-            "name_it": "Pancetta Extra"
+            "name_it": "Pancetta Extra",
+            "nameMm": "ဘေကွန်",
+            "name_mm": "ဘေကွန်"
           },
           {
             "id": "spicy-no",
@@ -16222,7 +18724,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16235,7 +18739,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16248,7 +18754,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -16261,7 +18769,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -16273,7 +18783,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Penne mit Knoblauch, Öl & Chili",
         "nameDe": "Penne mit Knoblauch, Öl & Chili",
         "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
-        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ"
+        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
+        "nameMm": "ပင်နေး ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "descriptionMm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။",
+        "name_mm": "ပင်နေး ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "description_mm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။"
       },
       {
         "id": "tagliatelle-aglio-e-olio",
@@ -16298,7 +18812,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "ext-bacon",
@@ -16311,7 +18827,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Speck",
             "nameDe": "Extra Speck",
-            "name_it": "Pancetta Extra"
+            "name_it": "Pancetta Extra",
+            "nameMm": "ဘေကွန်",
+            "name_mm": "ဘေကွန်"
           },
           {
             "id": "spicy-no",
@@ -16324,7 +18842,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16337,7 +18857,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16350,7 +18872,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -16363,7 +18887,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -16375,7 +18901,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Tagliatelle mit Knoblauch, Öl & Chili",
         "nameDe": "Tagliatelle mit Knoblauch, Öl & Chili",
         "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
-        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ"
+        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
+        "nameMm": "တာလီယာတယ်လီ ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "descriptionMm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။",
+        "name_mm": "တာလီယာတယ်လီ ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "description_mm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။"
       },
       {
         "id": "gnocchi-aglio-e-olio",
@@ -16400,7 +18930,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "ext-bacon",
@@ -16413,7 +18945,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Speck",
             "nameDe": "Extra Speck",
-            "name_it": "Pancetta Extra"
+            "name_it": "Pancetta Extra",
+            "nameMm": "ဘေကွန်",
+            "name_mm": "ဘေကွန်"
           },
           {
             "id": "spicy-no",
@@ -16426,7 +18960,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16439,7 +18975,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16452,7 +18990,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -16465,7 +19005,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -16477,7 +19019,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Gnocchi mit Knoblauch, Öl & Chili",
         "nameDe": "Gnocchi mit Knoblauch, Öl & Chili",
         "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
-        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ"
+        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
+        "nameMm": "နော့ကီ ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "descriptionMm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။",
+        "name_mm": "နော့ကီ ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "description_mm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။"
       },
       {
         "id": "ravioli-aglio-e-olio",
@@ -16502,7 +19048,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "ext-bacon",
@@ -16515,7 +19063,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Extra Speck",
             "nameDe": "Extra Speck",
-            "name_it": "Pancetta Extra"
+            "name_it": "Pancetta Extra",
+            "nameMm": "ဘေကွန်",
+            "name_mm": "ဘေကွန်"
           },
           {
             "id": "spicy-no",
@@ -16528,7 +19078,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16541,7 +19093,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16554,7 +19108,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -16567,7 +19123,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -16579,7 +19137,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Ravioli mit Knoblauch, Öl & Chili",
         "nameDe": "Ravioli mit Knoblauch, Öl & Chili",
         "descriptionDe": "Ein einfacher und geschmacksintensiver italienischer Klassiker aus Knoblauch, Olivenöl und Chili: Ein intensiver, aromatischer Geschmack, der bei jedem Bissen begeistert.",
-        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ"
+        "description_th": "เมนูอิตาเลียนสุดคลาสสิกที่เรียบง่ายแต่รสชาติเข้มข้น ทำจากกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติหอมมันและโดดเด่นในทุกคำ",
+        "nameMm": "ရာဗီယိုလီ ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "descriptionMm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။",
+        "name_mm": "ရာဗီယိုလီ ကြက်သွန်ဖြူ၊ ဆီနှင့် ငရုတ်သီးမှုန့်",
+        "description_mm": "ရိုးရှင်းသော်လည်း အရသာပြည့်ဝသော အီတလီဟင်းလျာတစ်မျိုးဖြစ်ပြီး ကြက်သွန်ဖြူ၊ အထူးသဖြင့်သံလွင်ဆီနှင့် ငရုတ်သီးမှုန့်တို့ဖြင့် ပြုလုပ်ထားကာ ပြင်းထန်သော အရသာနှင့် မွှေးရနံ့ဖြင့် ကိုက်တိုင်းသော အရသာကို နှစ်သက်စေပါသည်။"
       },
       {
         "id": "spaghetti-al-pomodoro",
@@ -16604,7 +19166,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -16617,7 +19181,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16630,7 +19196,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16643,7 +19211,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -16656,7 +19226,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -16668,7 +19240,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Spaghetti mit Tomatensoße",
         "nameDe": "Spaghetti mit Tomatensoße",
         "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
-        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน"
+        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
+        "nameMm": "စပါဂတီ အယ်လ် ပိုမိုဒိုရို",
+        "descriptionMm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။",
+        "name_mm": "စပါဂတီ အယ်လ် ပိုမိုဒိုရို",
+        "description_mm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။"
       },
       {
         "id": "penne-al-pomodoro",
@@ -16693,7 +19269,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -16706,7 +19284,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16719,7 +19299,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16732,7 +19314,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -16745,7 +19329,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -16757,7 +19343,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Penne mit Tomatensoße",
         "nameDe": "Penne mit Tomatensoße",
         "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
-        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน"
+        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
+        "nameMm": "ပဲန်နေ အယ်လ် ပိုမိုဒိုရို",
+        "descriptionMm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။",
+        "name_mm": "ပဲန်နေ အယ်လ် ပိုမိုဒိုရို",
+        "description_mm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။"
       },
       {
         "id": "tagliatelle-al-pomodoro",
@@ -16782,7 +19372,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -16795,7 +19387,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16808,7 +19402,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16821,7 +19417,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -16834,7 +19432,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -16846,7 +19446,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Tagliatelle mit Tomatensoße",
         "nameDe": "Tagliatelle mit Tomatensoße",
         "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
-        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน"
+        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
+        "nameMm": "တာလီယာတယ်လေ အယ်လ် ပိုမိုဒိုရို",
+        "descriptionMm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။",
+        "name_mm": "တာလီယာတယ်လေ အယ်လ် ပိုမိုဒိုရို",
+        "description_mm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။"
       },
       {
         "id": "gnocchi-al-pomodoro",
@@ -16871,7 +19475,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -16884,7 +19490,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16897,7 +19505,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16910,7 +19520,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -16923,7 +19535,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -16935,7 +19549,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Gnocchi mit Tomatensoße",
         "nameDe": "Gnocchi mit Tomatensoße",
         "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
-        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน"
+        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
+        "nameMm": "နော့ကီ အယ်လ် ပိုမိုဒိုရို",
+        "descriptionMm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။",
+        "name_mm": "နော့ကီ အယ်လ် ပိုမိုဒိုရို",
+        "description_mm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။"
       },
       {
         "id": "ravioli-al-pomodoro",
@@ -16960,7 +19578,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -16973,7 +19593,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -16986,7 +19608,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -16999,7 +19623,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17012,7 +19638,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17024,7 +19652,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Ravioli mit Tomatensoße",
         "nameDe": "Ravioli mit Tomatensoße",
         "descriptionDe": "Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Das Herz der italienischen Küche.",
-        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน"
+        "description_th": "ซอสมะเขือเทศแบบอิตาเลียน ทำจากมะเขือเทศสุก น้ำมันมะกอก กระเทียมหรือหัวหอม เกลือ และใบโหระพา เป็นหัวใจของอาหารอิตาเลียน",
+        "nameMm": "ရာဗီယိုလီ အယ်လ် ပိုမိုဒိုရို",
+        "descriptionMm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။",
+        "name_mm": "ရာဗီယိုလီ အယ်လ် ပိုမိုဒိုရို",
+        "description_mm": "အီတလီခရမ်းချဉ်သီးဆော့စ်ကို အရည်ရွှမ်းသော ခရမ်းချဉ်သီးများ၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူ သို့မဟုတ် ကြက်သွန်နီ၊ ဆားနှင့် လတ်ဆတ်သော ဘာစီလီဖြင့် ပြုလုပ်ထားသည်။ အီတလီအစားအစာ၏ စစ်မှန်သော နှလုံးသားဖြစ်သည်။"
       },
       {
         "id": "spaghetti-al-pesto",
@@ -17049,7 +19681,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17061,7 +19695,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Spaghetti mit Pesto Genovese",
         "nameDe": "Spaghetti mit Pesto Genovese",
         "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
-        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว"
+        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
+        "nameMm": "စပါဂတီ အယ်လ် ပက်စတို ဂျီနိုဗေးစ်",
+        "descriptionMm": "လတ်ဆတ်သော ဘာစီလီဆော့စ်ကို သီဟိုဠ်စေ့၊ ပါမာချိစ်၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားပြီး ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်ဖော်ဆောင်သည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာရှိသည်။",
+        "name_mm": "စပါဂတီ အယ်လ် ပက်စတို ဂျီနိုဗေးစ်",
+        "description_mm": "လတ်ဆတ်သော ဘာစီလီဆော့စ်ကို သီဟိုဠ်စေ့၊ ပါမာချိစ်၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားပြီး ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်ဖော်ဆောင်သည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာရှိသည်။"
       },
       {
         "id": "penne-al-pesto",
@@ -17086,7 +19724,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17098,7 +19738,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Penne mit Pesto Genovese",
         "nameDe": "Penne mit Pesto Genovese",
         "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
-        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว"
+        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
+        "nameMm": "ပဲန်နေ အယ်လ် ပက်စတို ဂျီနိုဗေးစ်",
+        "descriptionMm": "လတ်ဆတ်သော ဘာစီလီဆော့စ်ကို သီဟိုဠ်စေ့၊ ပါမာချိစ်၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားပြီး ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်ဖော်ဆောင်သည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာရှိသည်။",
+        "name_mm": "ပဲန်နေ အယ်လ် ပက်စတို ဂျီနိုဗေးစ်",
+        "description_mm": "လတ်ဆတ်သော ဘာစီလီဆော့စ်ကို သီဟိုဠ်စေ့၊ ပါမာချိစ်၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားပြီး ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်ဖော်ဆောင်သည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာရှိသည်။"
       },
       {
         "id": "tagliatelle-al-pesto",
@@ -17123,7 +19767,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17135,7 +19781,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Tagliatelle mit Pesto Genovese",
         "nameDe": "Tagliatelle mit Pesto Genovese",
         "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
-        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว"
+        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
+        "nameMm": "တာလီယာတယ်လေ အယ်လ် ပက်စတို ဂျီနိုဗေးစ်",
+        "descriptionMm": "လတ်ဆတ်သော ဘာစီလီဆော့စ်ကို သီဟိုဠ်စေ့၊ ပါမာချိစ်၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားပြီး ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်ဖော်ဆောင်သည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာရှိသည်။",
+        "name_mm": "တာလီယာတယ်လေ အယ်လ် ပက်စတို ဂျီနိုဗေးစ်",
+        "description_mm": "လတ်ဆတ်သော ဘာစီလီဆော့စ်ကို သီဟိုဠ်စေ့၊ ပါမာချိစ်၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားပြီး ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်ဖော်ဆောင်သည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာရှိသည်။"
       },
       {
         "id": "gnocchi-al-pesto",
@@ -17160,7 +19810,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17172,7 +19824,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Gnocchi mit Pesto Genovese",
         "nameDe": "Gnocchi mit Pesto Genovese",
         "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
-        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว"
+        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
+        "nameMm": "ဂျီနိုကီ ပက်စတို ဂျီနိုဗေးစ်",
+        "descriptionMm": "ဘာစီလီ ရွက်နုများ၊ သီဟိုဠ်စေ့၊ ပါမာချိစ် ဒိန်ခဲ၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော လတ်ဆတ်သည့် ဆော့စ်။ ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်အမှတ်ရစေသည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာ။",
+        "name_mm": "ဂျီနိုကီ ပက်စတို ဂျီနိုဗေးစ်",
+        "description_mm": "ဘာစီလီ ရွက်နုများ၊ သီဟိုဠ်စေ့၊ ပါမာချိစ် ဒိန်ခဲ၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော လတ်ဆတ်သည့် ဆော့စ်။ ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်အမှတ်ရစေသည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာ။"
       },
       {
         "id": "ravioli-al-pesto",
@@ -17197,7 +19853,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17209,7 +19867,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Ravioli mit Pesto Genovese",
         "nameDe": "Ravioli mit Pesto Genovese",
         "descriptionDe": "Frische Basilikumsauce mit Cashewnüssen, Parmesan, Knoblauch und Olivenöl: Ein reichhaltiger, aromatischer Geschmack, der den Duft von Genua heraufbeschwört.",
-        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว"
+        "description_th": "ซอสสดจากใบโหระพา เม็ดมะม่วงหิมพานต์ ชีสพาร์มีซาน กระเทียม และน้ำมันมะกอก รสชาติเข้มข้นและมีกลิ่นหอมเฉพาะตัวของเมืองเจนัว",
+        "nameMm": "ရာဗီယိုလီ ပက်စတို ဂျီနိုဗေးစ်",
+        "descriptionMm": "ဘာစီလီ ရွက်နုများ၊ သီဟိုဠ်စေ့၊ ပါမာချိစ် ဒိန်ခဲ၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော လတ်ဆတ်သည့် ဆော့စ်။ ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်အမှတ်ရစေသည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာ။",
+        "name_mm": "ရာဗီယိုလီ ပက်စတို ဂျီနိုဗေးစ်",
+        "description_mm": "ဘာစီလီ ရွက်နုများ၊ သီဟိုဠ်စေ့၊ ပါမာချိစ် ဒိန်ခဲ၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော လတ်ဆတ်သည့် ဆော့စ်။ ဂျီနိုအာမြို့၏ ရနံ့ကို ပြန်လည်အမှတ်ရစေသည့် ကြွယ်ဝပြီး မွှေးပျံ့သော အရသာ။"
       },
       {
         "id": "spaghetti-amatriciana",
@@ -17234,7 +19896,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -17247,7 +19911,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -17260,7 +19926,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -17273,7 +19941,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17286,7 +19956,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17298,7 +19970,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Spaghetti Amatriciana",
         "nameDe": "Spaghetti Amatriciana",
         "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
-        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี"
+        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
+        "nameMm": "စပါဂတီ အမာထရီချာနာ",
+        "descriptionMm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။",
+        "name_mm": "စပါဂတီ အမာထရီချာနာ",
+        "description_mm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။"
       },
       {
         "id": "penne-amatriciana",
@@ -17323,7 +19999,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -17336,7 +20014,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -17349,7 +20029,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -17362,7 +20044,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17375,7 +20059,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17387,7 +20073,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Penne Amatriciana",
         "nameDe": "Penne Amatriciana",
         "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
-        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี"
+        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
+        "nameMm": "ပဲန်နေ အမာထရီချာနာ",
+        "descriptionMm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။",
+        "name_mm": "ပဲန်နေ အမာထရီချာနာ",
+        "description_mm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။"
       },
       {
         "id": "tagliatelle-amatriciana",
@@ -17412,7 +20102,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -17425,7 +20117,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -17438,7 +20132,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -17451,7 +20147,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17464,7 +20162,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17476,7 +20176,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Tagliatelle Amatriciana",
         "nameDe": "Tagliatelle Amatriciana",
         "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
-        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี"
+        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
+        "nameMm": "တာလီယာတယ်လေ အမာထရီချာနာ",
+        "descriptionMm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။",
+        "name_mm": "တာလီယာတယ်လေ အမာထရီချာနာ",
+        "description_mm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။"
       },
       {
         "id": "gnocchi-amatriciana",
@@ -17501,7 +20205,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -17514,7 +20220,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -17527,7 +20235,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -17540,7 +20250,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17553,7 +20265,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17565,7 +20279,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Gnocchi Amatriciana",
         "nameDe": "Gnocchi Amatriciana",
         "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
-        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี"
+        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
+        "nameMm": "ဂျီနိုကီ အမာထရီချာနာ",
+        "descriptionMm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။",
+        "name_mm": "ဂျီနိုကီ အမာထရီချာနာ",
+        "description_mm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။"
       },
       {
         "id": "ravioli-amatriciana",
@@ -17590,7 +20308,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -17603,7 +20323,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -17616,7 +20338,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -17629,7 +20353,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17642,7 +20368,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17654,7 +20382,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Ravioli Amatriciana",
         "nameDe": "Ravioli Amatriciana",
         "descriptionDe": "Sauce nach römischer Art mit Tomaten, Guanciale (Speck) und Pecorino, langsam gekocht für einen harmonisch ausgewogenen, würzig-pikanten Geschmack. Ein Klassiker der italienischen Tradition.",
-        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี"
+        "description_th": "ซอสสไตล์โรมัน ทำจากมะเขือเทศ แก้มหมูรมควัน และชีสเปโคริโน เคี่ยวช้าเพื่อรสชาติที่สมดุลระหว่างหวานและเค็ม เป็นเมนูคลาสสิกของอิตาลี",
+        "nameMm": "ရာဗီယိုလီ အမာထရီချာနာ",
+        "descriptionMm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။",
+        "name_mm": "ရာဗီယိုလီ အမာထရီချာနာ",
+        "description_mm": "ရောမမြို့ရိုးရာ ဆော့စ်ကို ခရမ်းချဉ်သီး၊ ဂွမ်ချာလေး (ဝက်ပါးစည်းသားခြောက်) နှင့် ပီကိုရီနို ရိုမာနို ဒိန်ခဲတို့ဖြင့် ပြုလုပ်ပြီး မီးအေးအေးဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသဖြင့် အရသာမျှတသော ဂန္ထဝင်အီတလီ ဟင်းတစ်မျိုး။"
       },
       {
         "id": "spaghetti-alla-bolognese",
@@ -17679,7 +20411,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -17692,7 +20426,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -17705,7 +20441,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -17718,7 +20456,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17731,7 +20471,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17743,7 +20485,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Spaghetti mit Bolognese-Ragù",
         "nameDe": "Spaghetti mit Bolognese-Ragù",
         "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
-        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม"
+        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
+        "nameMm": "စပါဂတီ ဘိုလော့ညေးစ်",
+        "descriptionMm": "အသားစိမ်း၊ ခရမ်းချဉ်သီး၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ဘိုလော့ညာမြို့၏ ရိုးရာကို ကိုယ်စားပြုသည့် ပြည့်ဝပြီး နှစ်သက်ဖွယ် အရသာ။",
+        "name_mm": "စပါဂတီ ဘိုလော့ညေးစ်",
+        "description_mm": "အသားစိမ်း၊ ခရမ်းချဉ်သီး၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ဘိုလော့ညာမြို့၏ ရိုးရာကို ကိုယ်စားပြုသည့် ပြည့်ဝပြီး နှစ်သက်ဖွယ် အရသာ။"
       },
       {
         "id": "penne-alla-bolognese",
@@ -17768,7 +20514,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -17781,7 +20529,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -17794,7 +20544,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -17807,7 +20559,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17820,7 +20574,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17832,7 +20588,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Penne mit Bolognese-Ragù",
         "nameDe": "Penne mit Bolognese-Ragù",
         "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
-        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม"
+        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
+        "nameMm": "ပဲန်နေး ဘိုလော့ညေးစ်",
+        "descriptionMm": "အသားစင်းများ၊ ခရမ်းချဉ်သီးများ၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ပြည့်ဝပြီး နှစ်သက်ဖွယ်ရာ အရသာရှိပြီး ဘိုလော့ညာ၏ ရိုးရာအစားအသောက် သင်္ကေတတစ်ခုဖြစ်သည်။",
+        "name_mm": "ပဲန်နေး ဘိုလော့ညေးစ်",
+        "description_mm": "အသားစင်းများ၊ ခရမ်းချဉ်သီးများ၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ပြည့်ဝပြီး နှစ်သက်ဖွယ်ရာ အရသာရှိပြီး ဘိုလော့ညာ၏ ရိုးရာအစားအသောက် သင်္ကေတတစ်ခုဖြစ်သည်။"
       },
       {
         "id": "tagliatelle-alla-bolognese",
@@ -17857,7 +20617,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -17870,7 +20632,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -17883,7 +20647,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -17896,7 +20662,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17909,7 +20677,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -17921,7 +20691,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Tagliatelle mit Bolognese-Ragù",
         "nameDe": "Tagliatelle mit Bolognese-Ragù",
         "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
-        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม"
+        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
+        "nameMm": "တာလျာတဲလ်လေ ဘိုလော့ညေးစ်",
+        "descriptionMm": "အသားစင်းများ၊ ခရမ်းချဉ်သီးများ၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ပြည့်ဝပြီး နှစ်သက်ဖွယ်ရာ အရသာရှိပြီး ဘိုလော့ညာ၏ ရိုးရာအစားအသောက် သင်္ကေတတစ်ခုဖြစ်သည်။",
+        "name_mm": "တာလျာတဲလ်လေ ဘိုလော့ညေးစ်",
+        "description_mm": "အသားစင်းများ၊ ခရမ်းချဉ်သီးများ၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ပြည့်ဝပြီး နှစ်သက်ဖွယ်ရာ အရသာရှိပြီး ဘိုလော့ညာ၏ ရိုးရာအစားအသောက် သင်္ကေတတစ်ခုဖြစ်သည်။"
       },
       {
         "id": "gnocchi-alla-bolognese",
@@ -17946,7 +20720,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -17959,7 +20735,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -17972,7 +20750,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -17985,7 +20765,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -17998,7 +20780,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18010,7 +20794,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Gnocchi mit Bolognese-Ragù",
         "nameDe": "Gnocchi mit Bolognese-Ragù",
         "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
-        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม"
+        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
+        "nameMm": "နော့ကီ ဘိုလော့ညေးစ်",
+        "descriptionMm": "အသားစင်းများ၊ ခရမ်းချဉ်သီးများ၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ပြည့်ဝပြီး နှစ်သက်ဖွယ်ရာ အရသာရှိပြီး ဘိုလော့ညာ၏ ရိုးရာအစားအသောက် သင်္ကေတတစ်ခုဖြစ်သည်။",
+        "name_mm": "နော့ကီ ဘိုလော့ညေးစ်",
+        "description_mm": "အသားစင်းများ၊ ခရမ်းချဉ်သီးများ၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ပြည့်ဝပြီး နှစ်သက်ဖွယ်ရာ အရသာရှိပြီး ဘိုလော့ညာ၏ ရိုးရာအစားအသောက် သင်္ကေတတစ်ခုဖြစ်သည်။"
       },
       {
         "id": "ravioli-alla-bolognese",
@@ -18035,7 +20823,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -18048,7 +20838,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -18061,7 +20853,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -18074,7 +20868,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -18087,7 +20883,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18099,7 +20897,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Ravioli mit Bolognese-Ragù",
         "nameDe": "Ravioli mit Bolognese-Ragù",
         "descriptionDe": "Eine herzhafte, langsam gekochte Sauce aus Hackfleisch, Tomaten, Gemüse und Rotwein: Ein vollmundiger, einhüllender und unwisterstehlicher Geschmack, das Symbol der bologneser Küche.",
-        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม"
+        "description_th": "ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม",
+        "nameMm": "ရာဗီယိုလီ ဘိုလော့ညေးစ်",
+        "descriptionMm": "အသားစင်းများ၊ ခရမ်းချဉ်သီးများ၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ပြည့်ဝပြီး နှစ်သက်ဖွယ်ရာ အရသာရှိပြီး ဘိုလော့ညာ၏ ရိုးရာအစားအသောက် သင်္ကေတတစ်ခုဖြစ်သည်။",
+        "name_mm": "ရာဗီယိုလီ ဘိုလော့ညေးစ်",
+        "description_mm": "အသားစင်းများ၊ ခရမ်းချဉ်သီးများ၊ လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ဝိုင်နီတို့ဖြင့် နှေးကွေးစွာ ချက်ပြုတ်ထားသော ကြွယ်ဝသည့် ရာဂူဆော့စ်။ ပြည့်ဝပြီး နှစ်သက်ဖွယ်ရာ အရသာရှိပြီး ဘိုလော့ညာ၏ ရိုးရာအစားအသောက် သင်္ကေတတစ်ခုဖြစ်သည်။"
       },
       {
         "id": "spaghetti-alla-carbonara",
@@ -18124,7 +20926,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18136,7 +20940,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Spaghetti Carbonara",
         "nameDe": "Spaghetti Carbonara",
         "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
-        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ"
+        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
+        "nameMm": "စပါဂတီ ကာဘိုနာရာ",
+        "descriptionMm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး ဂွမ်ချာလေး (ဝက်ပါးစပ် အသားခြောက်)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ခရင်မ်ဆန်ပြီး စစ်မှန်ကာ ကြွယ်ဝသော ရိုးရာအရသာရှိသည်။",
+        "name_mm": "စပါဂတီ ကာဘိုနာရာ",
+        "description_mm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး ဂွမ်ချာလေး (ဝက်ပါးစပ် အသားခြောက်)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ခရင်မ်ဆန်ပြီး စစ်မှန်ကာ ကြွယ်ဝသော ရိုးရာအရသာရှိသည်။"
       },
       {
         "id": "penne-alla-carbonara",
@@ -18161,7 +20969,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18173,7 +20983,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Penne Carbonara",
         "nameDe": "Penne Carbonara",
         "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
-        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ"
+        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
+        "nameMm": "ပဲန်နေး ကာဘိုနာရာ",
+        "descriptionMm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး ဂွမ်ချာလေး (ဝက်ပါးစပ် အသားခြောက်)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ခရင်မ်ဆန်ပြီး စစ်မှန်ကာ ကြွယ်ဝသော ရိုးရာအရသာရှိသည်။",
+        "name_mm": "ပဲန်နေး ကာဘိုနာရာ",
+        "description_mm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး ဂွမ်ချာလေး (ဝက်ပါးစပ် အသားခြောက်)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ခရင်မ်ဆန်ပြီး စစ်မှန်ကာ ကြွယ်ဝသော ရိုးရာအရသာရှိသည်။"
       },
       {
         "id": "tagliatelle-alla-carbonara",
@@ -18198,7 +21012,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18210,7 +21026,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Tagliatelle Carbonara",
         "nameDe": "Tagliatelle Carbonara",
         "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
-        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ"
+        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
+        "nameMm": "တာလျာတဲလ်လေ ကာဘိုနာရာ",
+        "descriptionMm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး ဂွမ်ချာလေး (ဝက်ပါးစပ် အသားခြောက်)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ခရင်မ်ဆန်ပြီး စစ်မှန်ကာ ကြွယ်ဝသော ရိုးရာအရသာရှိသည်။",
+        "name_mm": "တာလျာတဲလ်လေ ကာဘိုနာရာ",
+        "description_mm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး ဂွမ်ချာလေး (ဝက်ပါးစပ် အသားခြောက်)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ခရင်မ်ဆန်ပြီး စစ်မှန်ကာ ကြွယ်ဝသော ရိုးရာအရသာရှိသည်။"
       },
       {
         "id": "gnocchi-alla-carbonara",
@@ -18235,7 +21055,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18247,7 +21069,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Gnocchi Carbonara",
         "nameDe": "Gnocchi Carbonara",
         "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
-        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ"
+        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
+        "nameMm": "နော့ကီ ကာဘိုနာရာ",
+        "descriptionMm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး ဂွမ်ချာလေး (ဝက်ပါးစပ် အသားခြောက်)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ခရင်မ်ဆန်ပြီး စစ်မှန်ကာ ကြွယ်ဝသော ရိုးရာအရသာရှိသည်။",
+        "name_mm": "နော့ကီ ကာဘိုနာရာ",
+        "description_mm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး ဂွမ်ချာလေး (ဝက်ပါးစပ် အသားခြောက်)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ခရင်မ်ဆန်ပြီး စစ်မှန်ကာ ကြွယ်ဝသော ရိုးရာအရသာရှိသည်။"
       },
       {
         "id": "ravioli-alla-carbonara",
@@ -18272,7 +21098,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18284,7 +21112,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Ravioli Carbonara",
         "nameDe": "Ravioli Carbonara",
         "descriptionDe": "Eines der beliebtesten Gerichte Italiens, zubereitet mit Guanciale (Speck), Eiern, Pecorino-Käse und schwarzem Pfeffer: Cremig, authentisch und mit einem reichhaltigen, traditionellen Geschmack.",
-        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ"
+        "description_th": "ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ",
+        "nameMm": "ရာဗီယိုလီ ကာဗိုနာရာ",
+        "descriptionMm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး၊ ဝက်သားပါးပါးလှီး (ဂွမ်ချာလေ)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ချောမွေ့ပြီး စစ်မှန်သော အရသာရှိကာ ကြွယ်ဝပြီး ရိုးရာအရသာနှင့် ပြည့်စုံသည်။",
+        "name_mm": "ရာဗီယိုလီ ကာဗိုနာရာ",
+        "description_mm": "ကမ္ဘာပေါ်တွင် အချစ်ရဆုံး အီတလီအစားအစာများထဲမှ တစ်ခုဖြစ်ပြီး၊ ဝက်သားပါးပါးလှီး (ဂွမ်ချာလေ)၊ ကြက်ဥ၊ ပီကိုရီနို ရိုမာနို ဒိန်ခဲနှင့် ငရုတ်ကောင်းအနက်တို့ဖြင့် ပြုလုပ်ထားသည်။ ချောမွေ့ပြီး စစ်မှန်သော အရသာရှိကာ ကြွယ်ဝပြီး ရိုးရာအရသာနှင့် ပြည့်စုံသည်။"
       },
       {
         "id": "spaghetti-4-formaggi",
@@ -18309,7 +21141,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18321,7 +21155,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Spaghetti mit vier Käsesorten",
         "nameDe": "Spaghetti mit vier Käsesorten",
         "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
-        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม"
+        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
+        "nameMm": "စပါဂတီ ဒိန်ခဲလေးမျိုး",
+        "descriptionMm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။",
+        "name_mm": "စပါဂတီ ဒိန်ခဲလေးမျိုး",
+        "description_mm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။"
       },
       {
         "id": "penne-4-formaggi",
@@ -18346,7 +21184,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18358,7 +21198,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Penne mit vier Käsesorten",
         "nameDe": "Penne mit vier Käsesorten",
         "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
-        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม"
+        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
+        "nameMm": "ပဲန်နေ ဒိန်ခဲလေးမျိုး",
+        "descriptionMm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။",
+        "name_mm": "ပဲန်နေ ဒိန်ခဲလေးမျိုး",
+        "description_mm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။"
       },
       {
         "id": "tagliatelle-4-formaggi",
@@ -18383,7 +21227,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18395,7 +21241,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Tagliatelle mit vier Käsesorten",
         "nameDe": "Tagliatelle mit vier Käsesorten",
         "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
-        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม"
+        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
+        "nameMm": "တာလီယာတယ်လေ ဒိန်ခဲလေးမျိုး",
+        "descriptionMm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။",
+        "name_mm": "တာလီယာတယ်လေ ဒိန်ခဲလေးမျိုး",
+        "description_mm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။"
       },
       {
         "id": "gnocchi-4-formaggi",
@@ -18420,7 +21270,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18432,7 +21284,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Gnocchi mit vier Käsesorten",
         "nameDe": "Gnocchi mit vier Käsesorten",
         "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
-        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม"
+        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
+        "nameMm": "နော့ကီ ဒိန်ခဲလေးမျိုး",
+        "descriptionMm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။",
+        "name_mm": "နော့ကီ ဒိန်ခဲလေးမျိုး",
+        "description_mm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။"
       },
       {
         "id": "ravioli-4-formaggi",
@@ -18457,7 +21313,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18469,7 +21327,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Ravioli mit vier Käsesorten",
         "nameDe": "Ravioli mit vier Käsesorten",
         "descriptionDe": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichhaltigen, kräftigen und vollmundigen Geschmack zu entfalten.",
-        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม"
+        "description_th": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม",
+        "nameMm": "ရာဗီယိုလီ ဒိန်ခဲလေးမျိုး",
+        "descriptionMm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။",
+        "name_mm": "ရာဗီယိုလီ ဒိန်ခဲလေးမျိုး",
+        "description_mm": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီဒိန်ခဲ လေးမျိုး၏ ချောမွေ့သော ရောစပ်မှုကို ပြီးပြည့်စုံစွာ အရည်ပျော်စေပြီး၊ ကိုက်တိုင်း ကြွယ်ဝပြီး ပြင်းထန်ကာ နှစ်သက်ဖွယ်ကောင်းသော အရသာကို ပေးစွမ်းသည်။"
       },
       {
         "id": "spaghetti-flower-power",
@@ -18494,7 +21356,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18506,7 +21370,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Spaghetti Flower Power",
         "nameDe": "Spaghetti Flower Power",
         "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
-        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม"
+        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
+        "nameMm": "စပါဂတီ ဖလာဝါပါဝါ",
+        "descriptionMm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဝက်အူချောင်းနှင့် အာတီချုတ်တို့ဖြင့် အိမ်တွင်ပြုလုပ်ထားသော ပါစတာဆော့စ်။ ချောမွေ့ပြီး ကြွယ်ဝကာ ထူးခြားသောအရသာရှိသည်။ ပြင်းထန်သောအရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။",
+        "name_mm": "စပါဂတီ ဖလာဝါပါဝါ",
+        "description_mm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဝက်အူချောင်းနှင့် အာတီချုတ်တို့ဖြင့် အိမ်တွင်ပြုလုပ်ထားသော ပါစတာဆော့စ်။ ချောမွေ့ပြီး ကြွယ်ဝကာ ထူးခြားသောအရသာရှိသည်။ ပြင်းထန်သောအရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။"
       },
       {
         "id": "penne-flower-power",
@@ -18531,7 +21399,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18543,7 +21413,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Penne Flower Power",
         "nameDe": "Penne Flower Power",
         "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
-        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม"
+        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
+        "nameMm": "ပဲန်နေ ဖလာဝါပါဝါ",
+        "descriptionMm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဝက်အူချောင်းနှင့် အာတီချုတ်တို့ဖြင့် အိမ်တွင်ပြုလုပ်ထားသော ပါစတာဆော့စ်။ ချောမွေ့ပြီး ကြွယ်ဝကာ ထူးခြားသောအရသာရှိသည်။ ပြင်းထန်သောအရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။",
+        "name_mm": "ပဲန်နေ ဖလာဝါပါဝါ",
+        "description_mm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဝက်အူချောင်းနှင့် အာတီချုတ်တို့ဖြင့် အိမ်တွင်ပြုလုပ်ထားသော ပါစတာဆော့စ်။ ချောမွေ့ပြီး ကြွယ်ဝကာ ထူးခြားသောအရသာရှိသည်။ ပြင်းထန်သောအရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။"
       },
       {
         "id": "tagliatelle-flower-power",
@@ -18568,7 +21442,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18580,7 +21456,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Tagliatelle Flower Power",
         "nameDe": "Tagliatelle Flower Power",
         "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
-        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม"
+        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
+        "nameMm": "တာလီယာတယ်လီ ဖလာဝါပါဝါ",
+        "descriptionMm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဆော့စေ့ဂျ်နှင့် အာတီချုတ်တို့ဖြင့် အိမ်လုပ်ပါစတာဆော့စ်။ ချိုမြိန်ပြီး ကြွယ်ဝကာ ထူးခြားသော အရသာရှိသည်။ ပြင်းထန်သော အရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။",
+        "name_mm": "တာလီယာတယ်လီ ဖလာဝါပါဝါ",
+        "description_mm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဆော့စေ့ဂျ်နှင့် အာတီချုတ်တို့ဖြင့် အိမ်လုပ်ပါစတာဆော့စ်။ ချိုမြိန်ပြီး ကြွယ်ဝကာ ထူးခြားသော အရသာရှိသည်။ ပြင်းထန်သော အရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။"
       },
       {
         "id": "gnocchi-flower-power",
@@ -18605,7 +21485,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18617,7 +21499,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Gnocchi Flower Power",
         "nameDe": "Gnocchi Flower Power",
         "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
-        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม"
+        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
+        "nameMm": "နော့ကီ ဖလာဝါပါဝါ",
+        "descriptionMm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဆော့စေ့ဂျ်နှင့် အာတီချုတ်တို့ဖြင့် အိမ်လုပ်ပါစတာဆော့စ်။ ချိုမြိန်ပြီး ကြွယ်ဝကာ ထူးခြားသော အရသာရှိသည်။ ပြင်းထန်သော အရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။",
+        "name_mm": "နော့ကီ ဖလာဝါပါဝါ",
+        "description_mm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဆော့စေ့ဂျ်နှင့် အာတီချုတ်တို့ဖြင့် အိမ်လုပ်ပါစတာဆော့စ်။ ချိုမြိန်ပြီး ကြွယ်ဝကာ ထူးခြားသော အရသာရှိသည်။ ပြင်းထန်သော အရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။"
       },
       {
         "id": "ravioli-flower-power",
@@ -18642,7 +21528,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18654,7 +21542,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Ravioli Flower Power",
         "nameDe": "Ravioli Flower Power",
         "descriptionDe": "Hausgemachte Nudelsauce mit Gorgonzola, italienischer Salsiccia-Wurst und Artischocken: Cremig, reichhaltig und voll von einzigartigem Geschmack – perfekt für Liebhaber kräftiger Aromen.",
-        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม"
+        "description_th": "พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม",
+        "nameMm": "ရာဗီယိုလီ ဖလာဝါပါဝါ",
+        "descriptionMm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဆော့စေ့ဂျ်နှင့် အာတီချုတ်တို့ဖြင့် အိမ်လုပ်ပါစတာဆော့စ်။ ချိုမြိန်ပြီး ကြွယ်ဝကာ ထူးခြားသော အရသာရှိသည်။ ပြင်းထန်သော အရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။",
+        "name_mm": "ရာဗီယိုလီ ဖလာဝါပါဝါ",
+        "description_mm": "ဂေါ်ဂွန်ဇိုလာ၊ အီတလီဆော့စေ့ဂျ်နှင့် အာတီချုတ်တို့ဖြင့် အိမ်လုပ်ပါစတာဆော့စ်။ ချိုမြိန်ပြီး ကြွယ်ဝကာ ထူးခြားသော အရသာရှိသည်။ ပြင်းထန်သော အရသာကို နှစ်သက်သူများအတွက် သင့်တော်သည်။"
       },
       {
         "id": "baked-bolognese-lasagna",
@@ -18679,7 +21571,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -18692,7 +21586,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -18705,7 +21601,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -18718,7 +21616,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -18731,7 +21631,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18743,7 +21645,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Überbackene Lasagne Bolognese",
         "nameDe": "Überbackene Lasagne Bolognese",
         "descriptionDe": "Unsere hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (Mindestbestellmenge 2 Portionen) oder beim Personal nachfragen. Die Backzeit beträgt ca. 30 Minuten.",
-        "description_th": "ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที"
+        "description_th": "ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที",
+        "nameMm": "ဘိုလော့ညေးစ် လာဇန်ညာ ဖုတ်",
+        "descriptionMm": "အိမ်လုပ် လာဇန်ညာသည် အီတလီအစားအစာ၏ ဂန္တဝင်တစ်ခုဖြစ်ပြီး ဘီရှာမဲလ်၊ ရာဂူးနှင့် ပါမာဇန်ချိစ်တို့ဖြင့် ပြုလုပ်ထားသည်။ တစ်ရက်ကြိုတင်၍ မှာယူပါ (အနည်းဆုံး ၂ ပိုင်း) သို့မဟုတ် ဝန်ထမ်းများကို မေးမြန်းပါ။ ချက်ပြုတ်ချိန် ခန့်မှန်းခြေ ၃၀ မိနစ်။",
+        "name_mm": "ဘိုလော့ညေးစ် လာဇန်ညာ ဖုတ်",
+        "description_mm": "အိမ်လုပ် လာဇန်ညာသည် အီတလီအစားအစာ၏ ဂန္တဝင်တစ်ခုဖြစ်ပြီး ဘီရှာမဲလ်၊ ရာဂူးနှင့် ပါမာဇန်ချိစ်တို့ဖြင့် ပြုလုပ်ထားသည်။ တစ်ရက်ကြိုတင်၍ မှာယူပါ (အနည်းဆုံး ၂ ပိုင်း) သို့မဟုတ် ဝန်ထမ်းများကို မေးမြန်းပါ။ ချက်ပြုတ်ချိန် ခန့်မှန်းခြေ ၃၀ မိနစ်။"
       },
       {
         "id": "baked-pesto-lasagna",
@@ -18768,7 +21674,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18780,7 +21688,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Überbackene Lasagne mit Pesto",
         "nameDe": "Überbackene Lasagne mit Pesto",
         "descriptionDe": "Unsere hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (Mindestbestellmenge 2 Portionen) oder beim Personal nachfragen. Die Backzeit beträgt ca. 30 Minuten.",
-        "description_th": "ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที"
+        "description_th": "ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที",
+        "nameMm": "ပက်စတို လာဇန်ညာ ဖုတ်",
+        "descriptionMm": "အိမ်လုပ် လာဇန်ညာသည် အီတလီအစားအစာ၏ ဂန္တဝင်တစ်ခုဖြစ်ပြီး ဘီရှာမဲလ်၊ ရာဂူးနှင့် ပါမာဇန်ချိစ်တို့ဖြင့် ပြုလုပ်ထားသည်။ တစ်ရက်ကြိုတင်၍ မှာယူပါ (အနည်းဆုံး ၂ ပိုင်း) သို့မဟုတ် ဝန်ထမ်းများကို မေးမြန်းပါ။ ချက်ပြုတ်ချိန် ခန့်မှန်းခြေ ၃၀ မိနစ်။",
+        "name_mm": "ပက်စတို လာဇန်ညာ ဖုတ်",
+        "description_mm": "အိမ်လုပ် လာဇန်ညာသည် အီတလီအစားအစာ၏ ဂန္တဝင်တစ်ခုဖြစ်ပြီး ဘီရှာမဲလ်၊ ရာဂူးနှင့် ပါမာဇန်ချိစ်တို့ဖြင့် ပြုလုပ်ထားသည်။ တစ်ရက်ကြိုတင်၍ မှာယူပါ (အနည်းဆုံး ၂ ပိုင်း) သို့မဟုတ် ဝန်ထမ်းများကို မေးမြန်းပါ။ ချက်ပြုတ်ချိန် ခန့်မှန်းခြေ ၃၀ မိနစ်။"
       },
       {
         "id": "baked-seafood-lasagna",
@@ -18805,7 +21717,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18817,7 +21731,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "Überbackene Lasagne mit Meeresfrüchten",
         "nameDe": "Überbackene Lasagne mit Meeresfrüchten",
         "descriptionDe": "Unsere hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (Mindestbestellmenge 2 Portionen) oder beim Personal nachfragen. Die Backzeit beträgt ca. 30 Minuten.",
-        "description_th": "ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที"
+        "description_th": "ลาซานญ่าโฮมเมดเป็นเมนูคลาสสิกของอาหารอิตาเลียน ทำจากเบชาเมล ซอสต่างๆ และพาร์เมซาน สั่งล่วงหน้าอย่างน้อย 1 วัน ขั้นต่ำ 2 ที่ หรือสอบถามพนักงาน เวลาอบประมาณ 30 นาที",
+        "nameMm": "ပင်လယ်စာ လာဇန်ညာ ဖုတ်",
+        "descriptionMm": "အိမ်လုပ် လာဇန်ညာသည် အီတလီအစားအစာ၏ ဂန္တဝင်တစ်ခုဖြစ်ပြီး ဘီရှာမဲလ်၊ ရာဂူးနှင့် ပါမာဇန်ချိစ်တို့ဖြင့် ပြုလုပ်ထားသည်။ တစ်ရက်ကြိုတင်၍ မှာယူပါ (အနည်းဆုံး ၂ ပိုင်း) သို့မဟုတ် ဝန်ထမ်းများကို မေးမြန်းပါ။ ချက်ပြုတ်ချိန် ခန့်မှန်းခြေ ၃၀ မိနစ်။",
+        "name_mm": "ပင်လယ်စာ လာဇန်ညာ ဖုတ်",
+        "description_mm": "အိမ်လုပ် လာဇန်ညာသည် အီတလီအစားအစာ၏ ဂန္တဝင်တစ်ခုဖြစ်ပြီး ဘီရှာမဲလ်၊ ရာဂူးနှင့် ပါမာဇန်ချိစ်တို့ဖြင့် ပြုလုပ်ထားသည်။ တစ်ရက်ကြိုတင်၍ မှာယူပါ (အနည်းဆုံး ၂ ပိုင်း) သို့မဟုတ် ဝန်ထမ်းများကို မေးမြန်းပါ။ ချက်ပြုတ်ချိန် ခန့်မှန်းခြေ ၃၀ မိနစ်။"
       },
       {
         "id": "spaghetti-allo-scoglio",
@@ -18847,7 +21765,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-1-1",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-scoglio-penne",
@@ -18859,7 +21779,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-1-2",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-scoglio-linguine",
@@ -18871,7 +21793,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-1-3",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-scoglio-tagliatelle",
@@ -18883,7 +21807,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-1-4",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-scoglio-gnocchi",
@@ -18895,7 +21821,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-1-5",
             "price": 310,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-scoglio-ravioli",
@@ -18907,7 +21835,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-1-6",
             "price": 350,
-            "priceModifier": 60
+            "priceModifier": 60,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           }
         ],
         "allowed_extras_group": "None",
@@ -18923,7 +21853,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -18936,7 +21868,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -18949,7 +21883,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -18962,7 +21898,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -18975,9 +21913,13 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
-        ]
+        ],
+        "nameMm": "ပင်လယ်စာ စပါဂက်တီ",
+        "descriptionMm": "ပုစွန်၊ ပြည်ကြီးငါး၊ ယောက်သွားနှင့် ပင်လယ်စာဆော့စ်။"
       },
       {
         "id": "penne-al-salmone",
@@ -19007,7 +21949,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-2-1",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-salmone-spaghetti",
@@ -19019,7 +21963,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-2-2",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-salmone-linguine",
@@ -19031,7 +21977,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-2-3",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-salmone-tagliatelle",
@@ -19043,7 +21991,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-2-4",
             "price": 290,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-salmone-gnocchi",
@@ -19055,7 +22005,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-2-5",
             "price": 310,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-salmone-ravioli",
@@ -19067,7 +22019,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-2-6",
             "price": 350,
-            "priceModifier": 60
+            "priceModifier": 60,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           }
         ],
         "allowed_extras_group": "None",
@@ -19083,7 +22037,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -19096,7 +22052,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -19109,7 +22067,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -19122,7 +22082,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -19135,9 +22097,13 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
-        ]
+        ],
+        "nameMm": "ဆယ်လ်မွန်ငါး ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ မိုဇာရဲလားချိစ်နှင့် ဆယ်လ်မွန်ငါး။"
       },
       {
         "id": "ravioli-alla-crema-di-gamberi",
@@ -19167,7 +22133,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-3-1",
             "price": 300,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           },
           {
             "id": "var-cremagamberi-tagliatelle",
@@ -19179,7 +22147,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-3-2",
             "price": 250,
-            "priceModifier": -50
+            "priceModifier": -50,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-cremagamberi-spaghetti",
@@ -19191,7 +22161,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-3-3",
             "price": 250,
-            "priceModifier": -50
+            "priceModifier": -50,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-cremagamberi-penne",
@@ -19203,7 +22175,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-3-4",
             "price": 250,
-            "priceModifier": -50
+            "priceModifier": -50,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-cremagamberi-linguine",
@@ -19215,7 +22189,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-3-5",
             "price": 250,
-            "priceModifier": -50
+            "priceModifier": -50,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-cremagamberi-gnocchi",
@@ -19227,7 +22203,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-3-6",
             "price": 260,
-            "priceModifier": -40
+            "priceModifier": -40,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           }
         ],
         "allowed_extras_group": "None",
@@ -19243,7 +22221,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -19256,7 +22236,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -19269,7 +22251,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -19282,7 +22266,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -19295,9 +22281,13 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
-        ]
+        ],
+        "nameMm": "ရာဗီအိုလီ အစာသွပ် ခေါက်ဆွဲ",
+        "descriptionMm": "ရီကော့တာချိစ်နှင့် ဟင်းနုနွယ် အစာသွပ် အိမ်လုပ် ခေါက်ဆွဲ။"
       },
       {
         "id": "ravioli-al-sugo-di-noci",
@@ -19327,7 +22317,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-4-1",
             "price": 260,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           },
           {
             "id": "var-noci-tagliatelle",
@@ -19339,7 +22331,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-4-2",
             "price": 200,
-            "priceModifier": -60
+            "priceModifier": -60,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-noci-gnocchi",
@@ -19351,7 +22345,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-4-3",
             "price": 220,
-            "priceModifier": -40
+            "priceModifier": -40,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-noci-spaghetti",
@@ -19363,7 +22359,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-4-4",
             "price": 180,
-            "priceModifier": -80
+            "priceModifier": -80,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-noci-penne",
@@ -19375,7 +22373,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-4-5",
             "price": 180,
-            "priceModifier": -80
+            "priceModifier": -80,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-noci-linguine",
@@ -19387,7 +22387,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-4-6",
             "price": 180,
-            "priceModifier": -80
+            "priceModifier": -80,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           }
         ],
         "allowed_extras_group": "None",
@@ -19403,7 +22405,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -19416,7 +22420,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -19429,7 +22435,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -19442,7 +22450,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -19455,9 +22465,13 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
-        ]
+        ],
+        "nameMm": "ရာဗီအိုလီ အစာသွပ် ခေါက်ဆွဲ",
+        "descriptionMm": "ရီကော့တာချိစ်နှင့် ဟင်းနုနွယ် အစာသွပ် အိမ်လုပ် ခေါက်ဆွဲ။"
       },
       {
         "id": "tagliatelle-al-nero-di-seppia-e-calamari",
@@ -19487,7 +22501,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-5-1",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-neroseppia-spaghetti",
@@ -19499,7 +22515,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-5-2",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-neroseppia-penne",
@@ -19511,7 +22529,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-5-3",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-neroseppia-linguine",
@@ -19523,7 +22543,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-5-4",
             "price": 250,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-neroseppia-gnocchi",
@@ -19535,7 +22557,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-5-5",
             "price": 260,
-            "priceModifier": 10
+            "priceModifier": 10,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-neroseppia-ravioli",
@@ -19547,7 +22571,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-5-6",
             "price": 300,
-            "priceModifier": 50
+            "priceModifier": 50,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           }
         ],
         "nameEn": "TAGLIATELLE\nWITH SQUID INK & SQUID",
@@ -19564,7 +22590,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -19577,7 +22605,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -19590,7 +22620,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -19603,7 +22635,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -19616,9 +22650,13 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
-        ]
+        ],
+        "nameMm": "TAGLIATELLE\nWITH SQUID INK & SQUID",
+        "descriptionMm": "Fresh homemade egg tagliatelle, fresh tender squid, natural cuttlefish squid ink, garlic, dry white wine, extra virgin olive oil, fresh parsley, salt, black pepper"
       },
       {
         "id": "spaghetti-alla-polpa-di-granchio",
@@ -19648,7 +22686,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Spaghetti",
             "sku": "VAR-6-1",
             "price": 320,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "စပါဂတီ",
+            "name_mm": "စပါဂတီ"
           },
           {
             "id": "var-granchio-penne",
@@ -19660,7 +22700,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Penne",
             "sku": "VAR-6-2",
             "price": 320,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "ပဲနီ",
+            "name_mm": "ပဲနီ"
           },
           {
             "id": "var-granchio-linguine",
@@ -19672,7 +22714,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Linguine",
             "sku": "VAR-6-3",
             "price": 320,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "လင်ဂွီနီ",
+            "name_mm": "လင်ဂွီနီ"
           },
           {
             "id": "var-granchio-tagliatelle",
@@ -19684,7 +22728,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Hausgemachte Tagliatelle",
             "sku": "VAR-6-4",
             "price": 320,
-            "priceModifier": 0
+            "priceModifier": 0,
+            "nameMm": "အိမ်လုပ်တာလီယာတဲလ်",
+            "name_mm": "အိမ်လုပ်တာလီယာတဲလ်"
           },
           {
             "id": "var-granchio-gnocchi",
@@ -19696,7 +22742,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Handgemachte Gnocchi",
             "sku": "VAR-6-5",
             "price": 340,
-            "priceModifier": 20
+            "priceModifier": 20,
+            "nameMm": "လက်လုပ်နော့ကီ",
+            "name_mm": "လက်လုပ်နော့ကီ"
           },
           {
             "id": "var-granchio-ravioli",
@@ -19708,7 +22756,9 @@ export const menuData: MenuCategory[] = [
             "name_de": "Gefüllte Ravioli",
             "sku": "VAR-6-6",
             "price": 370,
-            "priceModifier": 50
+            "priceModifier": 50,
+            "nameMm": "အဆာပါရာဗီယိုလီ",
+            "name_mm": "အဆာပါရာဗီယိုလီ"
           }
         ],
         "nameEn": "SPAGHETTI\nWITH REAL CRAB MEAT",
@@ -19725,7 +22775,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelt Parmesan",
             "nameDe": "Doppelt Parmesan",
-            "name_it": "Doppio Parmigiano"
+            "name_it": "Doppio Parmigiano",
+            "nameMm": "ပါမာဆန်နှစ်ဆ",
+            "name_mm": "ပါမာဆန်နှစ်ဆ"
           },
           {
             "id": "spicy-no",
@@ -19738,7 +22790,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Nicht scharf",
             "nameDe": "Nicht scharf",
-            "name_it": "Non Piccante"
+            "name_it": "Non Piccante",
+            "nameMm": "အစပ်မပါ",
+            "name_mm": "အစပ်မပါ"
           },
           {
             "id": "spicy-light",
@@ -19751,7 +22805,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mild scharf",
             "nameDe": "Mild scharf",
-            "name_it": "Poco Piccante"
+            "name_it": "Poco Piccante",
+            "nameMm": "အစပ်အနည်းငယ်",
+            "name_mm": "အစပ်အနည်းငယ်"
           },
           {
             "id": "spicy-medium",
@@ -19764,7 +22820,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mittelscharf",
             "nameDe": "Mittelscharf",
-            "name_it": "Medio Piccante"
+            "name_it": "Medio Piccante",
+            "nameMm": "အစပ်အလယ်အလတ်",
+            "name_mm": "အစပ်အလယ်အလတ်"
           },
           {
             "id": "spicy-very",
@@ -19777,11 +22835,18 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Sehr scharf",
             "nameDe": "Sehr scharf",
-            "name_it": "Molto Piccante"
+            "name_it": "Molto Piccante",
+            "nameMm": "အစပ်အလွန်အကျွံ",
+            "name_mm": "အစပ်အလွန်အကျွံ"
           }
-        ]
+        ],
+        "nameMm": "ဂဏန်းသား ပီဇာ",
+        "descriptionMm": "ခရမ်းချဉ်သီးဆော့စ်၊ မိုဇာရဲလားချိစ်၊ ပင်လယ်ကဏန်းသားလတ်ဆတ်နှင့် ကြက်သွန်မြိတ်။"
       }
-    ]
+    ],
+    "nameMm": "ပါစတာ",
+    "descriptionMm": "ရိုးရာ အီတလီ ခေါက်ဆွဲ လက်ရာမွန်များ။",
+    "name_mm": "ပါစတာ"
   },
   {
     "id": "italian-salads",
@@ -19812,7 +22877,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pollo Extra",
             "nameIt": "Pollo Extra",
             "name_de": "Extra Hähnchen",
-            "nameDe": "Extra Hähnchen"
+            "nameDe": "Extra Hähnchen",
+            "nameMm": "ကြက်သားအပို",
+            "name_mm": "ကြက်သားအပို"
           }
         ],
         "allowed_extras_group": "Salad Extras",
@@ -19824,7 +22891,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "EI & GEMÜSESALAT",
         "nameDe": "EI & GEMÜSESALAT",
         "descriptionDe": "Gekochte Eier, gemischtes Gemüse, hausgemachte Dressings",
-        "description_th": "ไข่ต้มสุก 2 ฟอง, กะหล่ำปลี, แตงกวา, มะเขือเทศ, หัวหอม, มายองเนส, น้ำสลัดโยเกิร์ต"
+        "description_th": "ไข่ต้มสุก 2 ฟอง, กะหล่ำปลี, แตงกวา, มะเขือเทศ, หัวหอม, มายองเนส, น้ำสลัดโยเกิร์ต",
+        "nameMm": "ကြက်ဥနှင့် ဟင်းသီးဟင်းရွက်သုပ်",
+        "descriptionMm": "ကြက်ဥပြုတ် ၂ လုံး၊ ဂေါ်ဖီထုပ်၊ သခွားသီး၊ ခရမ်းချဉ်သီး၊ ကြက်သွန်နီ၊ မေယိုနိစ်၊ ဒိန်ချဉ်ဆော့စ်",
+        "name_mm": "ကြက်ဥနှင့် ဟင်းသီးဟင်းရွက်သုပ်",
+        "description_mm": "ကြက်ဥပြုတ် ၂ လုံး၊ ဂေါ်ဖီထုပ်၊ သခွားသီး၊ ခရမ်းချဉ်သီး၊ ကြက်သွန်နီ၊ မေယိုနိစ်၊ ဒိန်ချဉ်ဆော့စ်"
       },
       {
         "id": "potato-salad",
@@ -19849,7 +22920,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pollo Extra",
             "nameIt": "Pollo Extra",
             "name_de": "Extra Hähnchen",
-            "nameDe": "Extra Hähnchen"
+            "nameDe": "Extra Hähnchen",
+            "nameMm": "ကြက်သားအပို",
+            "name_mm": "ကြက်သားအပို"
           }
         ],
         "allowed_extras_group": "Salad Extras",
@@ -19861,7 +22934,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "KARTOFFELSALAT",
         "nameDe": "KARTOFFELSALAT",
         "descriptionDe": "Kartoffeln, gemischtes Gemüse, hausgemachte Dressings",
-        "description_th": "ทูน่า, มันฝรั่งต้ม, ไข่ต้ม 1 ฟอง, กะหล่ำปลี, มะเขือเทศ, หัวหอม, น้ำสลัดโยเกิร์ต"
+        "description_th": "ทูน่า, มันฝรั่งต้ม, ไข่ต้ม 1 ฟอง, กะหล่ำปลี, มะเขือเทศ, หัวหอม, น้ำสลัดโยเกิร์ต",
+        "nameMm": "အာလူးသုပ်",
+        "descriptionMm": "ငါးတူနာ၊ အာလူးပြုတ်၊ ကြက်ဥပြုတ် ၁ လုံး၊ ဂေါ်ဖီထုပ်၊ ခရမ်းချဉ်သီး၊ ကြက်သွန်နီ၊ ဒိန်ချဉ်ဆော့စ်",
+        "name_mm": "အာလူးသုပ်",
+        "description_mm": "ငါးတူနာ၊ အာလူးပြုတ်၊ ကြက်ဥပြုတ် ၁ လုံး၊ ဂေါ်ဖီထုပ်၊ ခရမ်းချဉ်သီး၊ ကြက်သွန်နီ၊ ဒိန်ချဉ်ဆော့စ်"
       },
       {
         "id": "chicken-salad",
@@ -19886,7 +22963,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pollo Extra",
             "nameIt": "Pollo Extra",
             "name_de": "Extra Hähnchen",
-            "nameDe": "Extra Hähnchen"
+            "nameDe": "Extra Hähnchen",
+            "nameMm": "ကြက်သားအပို",
+            "name_mm": "ကြက်သားအပို"
           }
         ],
         "allowed_extras_group": "Salad Extras",
@@ -19897,7 +22976,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "CHICKEN SALAD",
         "nameDe": "CHICKEN SALAD",
         "descriptionDe": "Boiled Chicken, Tomato, Cabbage, Carrots, Cucumber, Mustard, Yogurt Dressing",
-        "description_th": "ไก่ต้ม, มะเขือเทศ, กะหล่ำปลี, แครอท, แตงกวา, มัสตาร์ด, เสิร์ฟพร้อมน้ำสลัดโยเกิร์ต"
+        "description_th": "ไก่ต้ม, มะเขือเทศ, กะหล่ำปลี, แครอท, แตงกวา, มัสตาร์ด, เสิร์ฟพร้อมน้ำสลัดโยเกิร์ต",
+        "nameMm": "ကြက်သားသုပ်",
+        "descriptionMm": "ကြက်သားပြုတ်၊ ခရမ်းချဉ်သီး၊ ဂေါ်ဖီထုပ်၊ မုန်လာဥနီ၊ သခွားသီး၊ မုန်ညှင်းဆော့စ်၊ ဒိန်ချဉ်ဆော့စ်",
+        "name_mm": "ကြက်သားသုပ်",
+        "description_mm": "ကြက်သားပြုတ်၊ ခရမ်းချဉ်သီး၊ ဂေါ်ဖီထုပ်၊ မုန်လာဥနီ၊ သခွားသီး၊ မုန်ညှင်းဆော့စ်၊ ဒိန်ချဉ်ဆော့စ်"
       },
       {
         "id": "tuna-and-egg-salad",
@@ -19922,7 +23005,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Pollo Extra",
             "nameIt": "Pollo Extra",
             "name_de": "Extra Hähnchen",
-            "nameDe": "Extra Hähnchen"
+            "nameDe": "Extra Hähnchen",
+            "nameMm": "ကြက်သားအပို",
+            "name_mm": "ကြက်သားအပို"
           }
         ],
         "allowed_extras_group": "Salad Extras",
@@ -19933,7 +23018,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "TUNA AND EGG SALAD",
         "nameDe": "TUNA AND EGG SALAD",
         "descriptionDe": "Tuna, 2 Boiled Eggs, Cabbage, Tomato, Cucumber, Onion, Yogurt Dressing",
-        "description_th": "ทูน่า, ไข่ต้ม 2 ฟอง, กะหล่ำปลี, มะเขือเทศ, แตงกวา, หัวหอม, โยเกิร์ต, น้ำสลัด"
+        "description_th": "ทูน่า, ไข่ต้ม 2 ฟอง, กะหล่ำปลี, มะเขือเทศ, แตงกวา, หัวหอม, โยเกิร์ต, น้ำสลัด",
+        "nameMm": "တူနာနှင့် ကြက်ဥသုပ်",
+        "descriptionMm": "တူနာ၊ ကြက်ဥပြုတ် ၂ လုံး၊ ဂေါ်ဖီထုပ်၊ ခရမ်းချဉ်သီး၊ သခွားသီး၊ ကြက်သွန်နီ၊ ဒိန်ချဉ်ဆော့စ်",
+        "name_mm": "တူနာနှင့် ကြက်ဥသုပ်",
+        "description_mm": "တူနာ၊ ကြက်ဥပြုတ် ၂ လုံး၊ ဂေါ်ဖီထုပ်၊ ခရမ်းချဉ်သီး၊ သခွားသီး၊ ကြက်သွန်နီ၊ ဒိန်ချဉ်ဆော့စ်"
       }
     ],
     "name_it": "Insalate Italiane",
@@ -19945,7 +23034,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "Insalate in stile italiano con verdure fresche e ingredienti sani e di alta qualità. Servite con gustose salse fatte in casa e olio extravergine d'oliva: fresche, deliziose e salutari.",
     "descriptionIt": "Insalate in stile italiano con verdure fresche e ingredienti sani e di alta qualità. Servite con gustose salse fatte in casa e olio extravergine d'oliva: fresche, deliziose e salutari.",
     "description_de": "Salate nach italienischer Art mit frischem Gemüse und gesunden, hochwertigen Zutaten. Serviert mit schmackhaften hausgemachten Dressings und nativem Olivenöl extra: Frisch, köstlich und gesund.",
-    "descriptionDe": "Salate nach italienischer Art mit frischem Gemüse und gesunden, hochwertigen Zutaten. Serviert mit schmackhaften hausgemachten Dressings und nativem Olivenöl extra: Frisch, köstlich und gesund."
+    "descriptionDe": "Salate nach italienischer Art mit frischem Gemüse und gesunden, hochwertigen Zutaten. Serviert mit schmackhaften hausgemachten Dressings und nativem Olivenöl extra: Frisch, köstlich und gesund.",
+    "nameMm": "အီတလီဆလတ်များ",
+    "descriptionMm": "လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ကျန်းမာရေးနှင့်ညီညွတ်သော အရည်အသွေးမြင့် ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အီတလီစတိုင် ဆလတ်များ။ အရသာရှိသော အိမ်လုပ်ဆော့စ်များနှင့် အထူးသံလွင်ဆီဖြင့် ကျွေးပါသည်။ လတ်ဆတ်ပြီး အရသာရှိကာ ကျန်းမာရေးနှင့်ညီညွတ်သည်။",
+    "name_mm": "အီတလီဆလတ်များ",
+    "description_mm": "လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် ကျန်းမာရေးနှင့်ညီညွတ်သော အရည်အသွေးမြင့် ပါဝင်ပစ္စည်းများဖြင့် ပြုလုပ်ထားသော အီတလီစတိုင် ဆလတ်များ။ အရသာရှိသော အိမ်လုပ်ဆော့စ်များနှင့် အထူးသံလွင်ဆီဖြင့် ကျွေးပါသည်။ လတ်ဆတ်ပြီး အရသာရှိကာ ကျန်းမာရေးနှင့်ညီညွတ်သည်။"
   },
   {
     "id": "pizza-sandwich",
@@ -19977,7 +23070,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -19990,7 +23085,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -20003,7 +23100,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -20016,7 +23115,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -20029,7 +23130,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -20042,7 +23145,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -20055,7 +23160,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -20066,7 +23173,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SANDWICH\nMIT PARMASCHINKEN",
         "nameDe": "PIZZA SANDWICH\nMIT PARMASCHINKEN",
         "descriptionDe": "Parmaschinken, Mozzarella, Blattsalat, frische Tomaten, Saucen",
-        "description_th": "แฮมอบสไตล์พาร์ม่า, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก"
+        "description_th": "แฮมอบสไตล์พาร์ม่า, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก",
+        "nameMm": "ပီဇာ ဆန်းဒဝှစ်\nပါမာ ဟမ်",
+        "descriptionMm": "ပါမာ ဟမ်၊ မိုဇာရဲလာ ချိစ်၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးလတ်ဆတ်၊ ဆော့စ်များ",
+        "name_mm": "ပီဇာ ဆန်းဒဝှစ်\nပါမာ ဟမ်",
+        "description_mm": "ပါမာ ဟမ်၊ မိုဇာရဲလာ ချိစ်၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးလတ်ဆတ်၊ ဆော့စ်များ"
       },
       {
         "id": "pizza-sandwich-salame",
@@ -20092,7 +23203,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -20105,7 +23218,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -20118,7 +23233,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -20131,7 +23248,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -20144,7 +23263,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -20157,7 +23278,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -20170,7 +23293,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -20181,7 +23306,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SANDWICH\nMIT SALAMI",
         "nameDe": "PIZZA SANDWICH\nMIT SALAMI",
         "descriptionDe": "Salami, Mozzarella, Blattsalat, frische Tomaten, Saucen",
-        "description_th": "ซาลามี่, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก"
+        "description_th": "ซาลามี่, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก",
+        "nameMm": "ပီဇာ ဆန်းဒဝှစ်\nဆလာမီ",
+        "descriptionMm": "ဆလာမီ၊ မိုဇာရဲလာ ချိစ်၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးလတ်ဆတ်၊ ဆော့စ်များ",
+        "name_mm": "ပီဇာ ဆန်းဒဝှစ်\nဆလာမီ",
+        "description_mm": "ဆလာမီ၊ မိုဇာရဲလာ ချိစ်၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးလတ်ဆတ်၊ ဆော့စ်များ"
       },
       {
         "id": "pizza-sandwich-spicy-salame",
@@ -20207,7 +23336,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -20220,7 +23351,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -20233,7 +23366,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -20246,7 +23381,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -20259,7 +23396,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -20272,7 +23411,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -20285,7 +23426,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -20296,7 +23439,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PIZZA SANDWICH\nMIT SCHARFER SALAMI",
         "nameDe": "PIZZA SANDWICH\nMIT SCHARFER SALAMI",
         "descriptionDe": "Scharfe Salami, Mozzarella, Blattsalat, frische Tomaten, Saucen",
-        "description_th": "ซาลามี่เผ็ด, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก"
+        "description_th": "ซาลามี่เผ็ด, มอซซาเรลล่าชีส, ผักกาดหอม, มะเขือเทศสด, ซอสตามที่เลือก",
+        "nameMm": "ပီဇာ ဆန်းဒဝှစ်\nအစပ်ဆလာမီ",
+        "descriptionMm": "အစပ်ဆလာမီ၊ မိုဇာရဲလာ ချိစ်၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးလတ်ဆတ်၊ ဆော့စ်များ",
+        "name_mm": "ပီဇာ ဆန်းဒဝှစ်\nအစပ်ဆလာမီ",
+        "description_mm": "အစပ်ဆလာမီ၊ မိုဇာရဲလာ ချိစ်၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးလတ်ဆတ်၊ ဆော့စ်များ"
       },
       {
         "id": "focaccia-pizza-sandwich-con-milanese",
@@ -20328,7 +23475,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -20341,7 +23490,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -20354,7 +23505,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -20367,7 +23520,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -20380,7 +23535,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -20393,7 +23550,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -20406,10 +23565,14 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
-        "allowed_extras_group": "None"
+        "allowed_extras_group": "None",
+        "nameMm": "FOCACCIA\nWITH MILANESE (ဆန်းဒဝစ်)",
+        "descriptionMm": "မီးဖုတ် ဖိုကာချာ မုန့်သားဖြင့် ပြုလုပ်ထားသော ဆန်းဒဝစ်။"
       },
       {
         "id": "focaccia-pizza-sandwich-con-finocchiona",
@@ -20442,7 +23605,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -20455,7 +23620,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -20468,7 +23635,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -20481,7 +23650,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -20494,7 +23665,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -20507,7 +23680,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -20520,12 +23695,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ ฟินอคคิโอนาซาลามี่สไตล์ทัสคานี มะเขือเทศสด และผักกาดหอม",
         "category": "pizza-sandwich",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "FOCACCIA\nWITH FINOCCHIONA (ဆန်းဒဝစ်)",
+        "descriptionMm": "မီးဖုတ် ဖိုကာချာ မုန့်သားဖြင့် ပြုလုပ်ထားသော ဆန်းဒဝစ်။"
       },
       {
         "id": "focaccia-pizza-sandwich-con-pancetta-arrotolata",
@@ -20558,7 +23737,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -20571,7 +23752,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -20584,7 +23767,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -20597,7 +23782,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -20610,7 +23797,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -20623,7 +23812,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -20636,12 +23827,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ ปานเชตตาหมูสามชั้นม้วนสไตล์อิตาเลียน มะเขือเทศสด และผักกาดหอม",
         "category": "pizza-sandwich",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "FOCACCIA\nWITH ROLLED PANCETTA (ဆန်းဒဝစ်)",
+        "descriptionMm": "မီးဖုတ် ဖိုကာချာ မုန့်သားဖြင့် ပြုလုပ်ထားသော ဆန်းဒဝစ်။"
       },
       {
         "id": "focaccia-pizza-sandwich-con-porchetta",
@@ -20674,7 +23869,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -20687,7 +23884,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -20700,7 +23899,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -20713,7 +23914,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -20726,7 +23929,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -20739,7 +23944,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -20752,12 +23959,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ พอร์เคตตาหมูอบสมุนไพรสไตล์โรมัน มะเขือเทศสด และผักกาดหอม",
         "category": "pizza-sandwich",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "FOCACCIA\nWITH PORCHETTA (ဆန်းဒဝစ်)",
+        "descriptionMm": "မီးဖုတ် ဖိုကာချာ မုန့်သားဖြင့် ပြုလုပ်ထားသော ဆန်းဒဝစ်။"
       },
       {
         "id": "focaccia-pizza-sandwich-con-prosciutto-cotto",
@@ -20790,7 +24001,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -20803,7 +24016,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -20816,7 +24031,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -20829,7 +24046,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -20842,7 +24061,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -20855,7 +24076,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -20868,12 +24091,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ แฮมสุกอิตาเลียนคุณภาพพรีเมียม มะเขือเทศสด และผักกาดหอม",
         "category": "pizza-sandwich",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "FOCACCIA\nWITH COOKED HAM (ဆန်းဒဝစ်)",
+        "descriptionMm": "မီးဖုတ် ဖိုကာချာ မုန့်သားဖြင့် ပြုလုပ်ထားသော ဆန်းဒဝစ်။"
       },
       {
         "id": "focaccia-pizza-sandwich-con-salame",
@@ -20906,7 +24133,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -20919,7 +24148,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -20932,7 +24163,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -20945,7 +24178,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -20958,7 +24193,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -20971,7 +24208,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -20984,12 +24223,16 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "description_th": "ฟอคคาเซียแป้งพิซซ่าอบสดใหม่ น้ำมันมะกอกบริสุทธิ์ ซาลามี่อิตาเลียนแบบดั้งเดิม มะเขือเทศสด และผักกาดหอม",
         "category": "pizza-sandwich",
-        "is_available": true
+        "is_available": true,
+        "nameMm": "FOCACCIA\nWITH SALAMI (ဆန်းဒဝစ်)",
+        "descriptionMm": "မီးဖုတ် ဖိုကာချာ မုန့်သားဖြင့် ပြုလုပ်ထားသော ဆန်းဒဝစ်။"
       }
     ],
     "name_it": "Focaccia Pizza Sandwich",
@@ -21001,7 +24244,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "La focaccia è un delizioso pane tradizionale italiano originario di Genova. Farciscila con i tuoi ingredienti preferiti e crea il tuo panino personalizzato.",
     "descriptionIt": "La focaccia è un delizioso pane tradizionale italiano originario di Genova. Farciscila con i tuoi ingredienti preferiti e crea il tuo panino personalizzato.",
     "description_de": "Die Focaccia ist ein köstliches traditionelles italienisches Brot aus Genua. Belegen Sie sie mit Ihren Lieblingszutaten und kreieren Sie Ihr ganz persönliches Sandwich.",
-    "descriptionDe": "Die Focaccia ist ein köstliches traditionelles italienisches Brot aus Genua. Belegen Sie sie mit Ihren Lieblingszutaten und kreieren Sie Ihr ganz persönliches Sandwich."
+    "descriptionDe": "Die Focaccia ist ein köstliches traditionelles italienisches Brot aus Genua. Belegen Sie sie mit Ihren Lieblingszutaten und kreieren Sie Ihr ganz persönliches Sandwich.",
+    "nameMm": "ဖိုကာချာပီဇာဆန်းဒဝစ်",
+    "descriptionMm": "ဖိုကာချာသည် ဂျီနိုအာမှ ဆင်းသက်လာသော အရသာရှိသည့် ရိုးရာအီတလီမုန့်ဖြစ်သည်။ သင်နှစ်သက်ရာ ပါဝင်ပစ္စည်းများဖြင့် ဖြည့်ပြီး သင့်ကိုယ်ပိုင် ဆန်းဒဝစ်ကို ဖန်တီးပါ။",
+    "name_mm": "ဖိုကာချာပီဇာဆန်းဒဝစ်",
+    "description_mm": "ဖိုကာချာသည် ဂျီနိုအာမှ ဆင်းသက်လာသော အရသာရှိသည့် ရိုးရာအီတလီမုန့်ဖြစ်သည်။ သင်နှစ်သက်ရာ ပါဝင်ပစ္စည်းများဖြင့် ဖြည့်ပြီး သင့်ကိုယ်ပိုင် ဆန်းဒဝစ်ကို ဖန်တီးပါ။"
   },
   {
     "id": "pizza-burgers",
@@ -21033,7 +24280,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -21046,7 +24295,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -21059,7 +24310,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -21072,7 +24325,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -21085,7 +24340,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -21098,7 +24355,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -21111,7 +24370,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -21122,7 +24383,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "HÄHNCHEN PIZZA BURGER MIT POMMES FRITES",
         "descriptionIt": "Burger di pizza ripieno di pollo saporito, formaggio, lattuga, pomodoro, servito con patatine fritte",
         "descriptionDe": "Pizza-Burger mit zartem Hähnchen, geschmolzenem Käse, Salat, Tomaten, serviert mit knusprigen Pommes",
-        "description_th": "พิซซ่าเบอร์เกอร์ไก่เนื้อนุ่ม ชีสเยิ้ม ผักสลัดและมะเขือเทศ เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ"
+        "description_th": "พิซซ่าเบอร์เกอร์ไก่เนื้อนุ่ม ชีสเยิ้ม ผักสลัดและมะเขือเทศ เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ",
+        "nameMm": "ကြက်သားပီဇာဘာဂါနှင့် အာလူးကြော်",
+        "descriptionMm": "နူးညံ့သောကြက်သား၊ အရည်ပျော်ဒိန်ခဲ၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးတို့ဖြင့် ပြည့်နှက်ထားသော ပီဇာဘာဂါ၊ ကြွပ်ရွသောအာလူးကြော်နှင့်တွဲဖက်",
+        "name_mm": "ကြက်သားပီဇာဘာဂါနှင့် အာလူးကြော်",
+        "description_mm": "နူးညံ့သောကြက်သား၊ အရည်ပျော်ဒိန်ခဲ၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးတို့ဖြင့် ပြည့်နှက်ထားသော ပီဇာဘာဂါ၊ ကြွပ်ရွသောအာလူးကြော်နှင့်တွဲဖက်"
       },
       {
         "id": "pork-pizza-burger-with-french-fries",
@@ -21148,7 +24413,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -21161,7 +24428,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -21174,7 +24443,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -21187,7 +24458,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -21200,7 +24473,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -21213,7 +24488,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -21226,7 +24503,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -21237,7 +24516,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "SCHWEINE PIZZA BURGER MIT POMMES FRITES",
         "descriptionIt": "Burger di pizza ripieno di maiale gustoso, formaggio, lattuga, pomodoro, servito con patatine fritte",
         "descriptionDe": "Pizza-Burger mit saftigem Schweinefleisch, geschmolzenem Käse, Salat, Tomaten, serviert mit knusprigen Pommes",
-        "description_th": "พิซซ่าเบอร์เกอร์หมูปรุงรสเข้มข้น ชีสเยิ้ม ผักสด เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ"
+        "description_th": "พิซซ่าเบอร์เกอร์หมูปรุงรสเข้มข้น ชีสเยิ้ม ผักสด เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ",
+        "nameMm": "ဝက်သားပီဇာဘာဂါနှင့် အာလူးကြော်",
+        "descriptionMm": "အရသာရှိသောဝက်သား၊ အရည်ပျော်ဒိန်ခဲ၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးတို့ဖြင့် ပြည့်နှက်ထားသော ပီဇာဘာဂါ၊ ကြွပ်ရွသောအာလူးကြော်နှင့်တွဲဖက်",
+        "name_mm": "ဝက်သားပီဇာဘာဂါနှင့် အာလူးကြော်",
+        "description_mm": "အရသာရှိသောဝက်သား၊ အရည်ပျော်ဒိန်ခဲ၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးတို့ဖြင့် ပြည့်နှက်ထားသော ပီဇာဘာဂါ၊ ကြွပ်ရွသောအာလူးကြော်နှင့်တွဲဖက်"
       },
       {
         "id": "beef-pizza-burger-with-french-fries",
@@ -21263,7 +24546,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -21276,7 +24561,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -21289,7 +24576,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -21302,7 +24591,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -21315,7 +24606,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -21328,7 +24621,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -21341,7 +24636,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -21352,7 +24649,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "RINDER PIZZA BURGER MIT POMMES FRITES",
         "descriptionIt": "Burger di pizza ripieno di carne di manzo scelta, formaggio, lattuga, pomodoro, servito con patatine fritte",
         "descriptionDe": "Pizza-Burger mit bestem Rindfleisch, geschmolzenem Käse, Salat, Tomaten, serviert mit knusprigen Pommes",
-        "description_th": "พิซซ่าเบอร์เกอร์เนื้อวัวคัดพิเศษ ชีสเยิ้ม ผักสด เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ"
+        "description_th": "พิซซ่าเบอร์เกอร์เนื้อวัวคัดพิเศษ ชีสเยิ้ม ผักสด เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ",
+        "nameMm": "အမဲသားပီဇာဘာဂါနှင့် အာလူးကြော်",
+        "descriptionMm": "ရွေးချယ်ထားသောအမဲသား၊ အရည်ပျော်ဒိန်ခဲ၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးတို့ဖြင့် ပြည့်နှက်ထားသော ပီဇာဘာဂါ၊ ကြွပ်ရွသောအာလူးကြော်နှင့်တွဲဖက်",
+        "name_mm": "အမဲသားပီဇာဘာဂါနှင့် အာလူးကြော်",
+        "description_mm": "ရွေးချယ်ထားသောအမဲသား၊ အရည်ပျော်ဒိန်ခဲ၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးတို့ဖြင့် ပြည့်နှက်ထားသော ပီဇာဘာဂါ၊ ကြွပ်ရွသောအာလူးကြော်နှင့်တွဲဖက်"
       },
       {
         "id": "fish-pizza-burger-with-french-fries",
@@ -21378,7 +24679,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mozzarella",
             "nameDe": "Mozzarella",
-            "name_it": "Mozzarella"
+            "name_it": "Mozzarella",
+            "nameMm": "မိုဇာရဲလာ",
+            "name_mm": "မိုဇာရဲလာ"
           },
           {
             "id": "sauce-none",
@@ -21391,7 +24694,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -21404,7 +24709,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -21417,7 +24724,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -21430,7 +24739,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -21443,7 +24754,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -21456,7 +24769,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -21467,7 +24782,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "FISCH PIZZA BURGER MIT POMMES FRITES",
         "descriptionIt": "Burger di pizza ripieno di filetto di pesce dorato, formaggio, lattuga, pomodoro, servito con patatine fritte",
         "descriptionDe": "Pizza-Burger mit knusprigem Fischfilet, geschmolzenem Käse, Salat, Tomaten, serviert mit knusprigen Pommes",
-        "description_th": "พิซซ่าเบอร์เกอร์ปลาชุบแป้งทอดกรอบ ชีส ผักสด เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ"
+        "description_th": "พิซซ่าเบอร์เกอร์ปลาชุบแป้งทอดกรอบ ชีส ผักสด เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ",
+        "nameMm": "ငါးသားပီဇာဘာဂါနှင့် အာလူးကြော်",
+        "descriptionMm": "ကြွပ်ရွသောငါးအသားဖဲ့၊ အရည်ပျော်ဒိန်ခဲ၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးတို့ဖြင့် ပြည့်နှက်ထားသော ပီဇာဘာဂါ၊ ကြွပ်ရွသောအာလူးကြော်နှင့်တွဲဖက်",
+        "name_mm": "ငါးသားပီဇာဘာဂါနှင့် အာလူးကြော်",
+        "description_mm": "ကြွပ်ရွသောငါးအသားဖဲ့၊ အရည်ပျော်ဒိန်ခဲ၊ ဆလတ်ရွက်၊ ခရမ်းချဉ်သီးတို့ဖြင့် ပြည့်နှက်ထားသော ပီဇာဘာဂါ၊ ကြွပ်ရွသောအာလူးကြော်နှင့်တွဲဖက်"
       }
     ],
     "name_it": "Pizza Burger",
@@ -21479,7 +24798,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "Preparati con pane per hamburger appena sfornato e hamburger fatti in casa in stile italiano, serviti con patatine fritte, ketchup e maionese: freschi, gustosi e soddisfacenti.",
     "descriptionIt": "Preparati con pane per hamburger appena sfornato e hamburger fatti in casa in stile italiano, serviti con patatine fritte, ketchup e maionese: freschi, gustosi e soddisfacenti.",
     "description_de": "Zubereitet mit frisch gebackenen Burger-Brötchen und hausgemachten Hamburger-Patties nach italienischer Art, serviert mit Pommes frites, Ketchup und Mayonnaise: Frisch, lecker und sättigend.",
-    "descriptionDe": "Zubereitet mit frisch gebackenen Burger-Brötchen und hausgemachten Hamburger-Patties nach italienischer Art, serviert mit Pommes frites, Ketchup und Mayonnaise: Frisch, lecker und sättigend."
+    "descriptionDe": "Zubereitet mit frisch gebackenen Burger-Brötchen und hausgemachten Hamburger-Patties nach italienischer Art, serviert mit Pommes frites, Ketchup und Mayonnaise: Frisch, lecker und sättigend.",
+    "nameMm": "ပီဇာဘာဂါများ",
+    "descriptionMm": "လတ်ဆတ်စွာ ဖုတ်ထားသော ဘာဂါမုန့်နှင့် အိမ်လုပ် အီတလီစတိုင် ဟမ်ဘာဂါများဖြင့် ပြင်ဆင်ထားပြီး အာလူးကြော်၊ ကက်ချပ်နှင့် မေယိုနိုက်ဖြင့် ကျွေးပါသည်။ လတ်ဆတ်၊ အရသာရှိပြီး ကျေနပ်ဖွယ်ကောင်းသည်။",
+    "name_mm": "ပီဇာဘာဂါများ",
+    "description_mm": "လတ်ဆတ်စွာ ဖုတ်ထားသော ဘာဂါမုန့်နှင့် အိမ်လုပ် အီတလီစတိုင် ဟမ်ဘာဂါများဖြင့် ပြင်ဆင်ထားပြီး အာလူးကြော်၊ ကက်ချပ်နှင့် မေယိုနိုက်ဖြင့် ကျွေးပါသည်။ လတ်ဆတ်၊ အရသာရှိပြီး ကျေနပ်ဖွယ်ကောင်းသည်။"
   },
   {
     "id": "french-fries",
@@ -21511,7 +24834,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -21524,7 +24849,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -21537,7 +24864,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -21550,7 +24879,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -21563,7 +24894,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -21576,7 +24909,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -21587,7 +24922,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "POMMES FRITES",
         "descriptionIt": "Patatine fritte dorate e croccanti, cotte alla perfezione",
         "descriptionDe": "Goldgelbe, knusprige Pommes frites, perfekt zubereitet",
-        "description_th": "เฟรนช์ฟรายส์สีเหลืองทอง กรอบนอกนุ่มใน ทอดสดใหม่"
+        "description_th": "เฟรนช์ฟรายส์สีเหลืองทอง กรอบนอกนุ่มใน ทอดสดใหม่",
+        "nameMm": "အာလူးကြော်",
+        "descriptionMm": "အရောင်ဝါဝင်းပြီး ကြွပ်ရွသော အာလူးကြော်၊ ပြီးပြည့်စုံအောင်ကြော်ထားသည်",
+        "name_mm": "အာလူးကြော်",
+        "description_mm": "အရောင်ဝါဝင်းပြီး ကြွပ်ရွသော အာလူးကြော်၊ ပြီးပြည့်စုံအောင်ကြော်ထားသည်"
       },
       {
         "id": "sausages-and-french-fries",
@@ -21613,7 +24952,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -21626,7 +24967,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -21639,7 +24982,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -21652,7 +24997,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -21665,7 +25012,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -21678,7 +25027,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -21689,7 +25040,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "POMMES FRITES & WÜRSTCHEN",
         "descriptionIt": "Patatine fritte dorate servite con saporiti würstel croccanti",
         "descriptionDe": "Knusprige Pommes frites serviert mit herzhaften Würstchen",
-        "description_th": "เฟรนช์ฟรายส์กรอบ เสิร์ฟพร้อมไส้กรอกย่างหอมกรุ่น"
+        "description_th": "เฟรนช์ฟรายส์กรอบ เสิร์ฟพร้อมไส้กรอกย่างหอมกรุ่น",
+        "nameMm": "အာလူးကြော်နှင့် ဝက်အူချောင်း",
+        "descriptionMm": "အရောင်ဝါဝင်းသောအာလူးကြော်နှင့် အရသာရှိကြွပ်ရွသော ဝက်အူချောင်းများ",
+        "name_mm": "အာလူးကြော်နှင့် ဝက်အူချောင်း",
+        "description_mm": "အရောင်ဝါဝင်းသောအာလူးကြော်နှင့် အရသာရှိကြွပ်ရွသော ဝက်အူချောင်းများ"
       },
       {
         "id": "onion-rings-and-french-fries",
@@ -21715,7 +25070,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -21728,7 +25085,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -21741,7 +25100,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -21754,7 +25115,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -21767,7 +25130,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -21780,7 +25145,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -21791,7 +25158,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "POMMES FRITES & ZWIEBELRINGE",
         "descriptionIt": "Patatine fritte croccanti servite con anelli di cipolla dorati e fragranti",
         "descriptionDe": "Knusprige Pommes frites serviert mit goldbraunen Zwiebelringen",
-        "description_th": "เฟรนช์ฟรายส์กรอบ เสิร์ฟพร้อมหอมทอดชุบแป้งกรอบสีทอง"
+        "description_th": "เฟรนช์ฟรายส์กรอบ เสิร์ฟพร้อมหอมทอดชุบแป้งกรอบสีทอง",
+        "nameMm": "အာလူးကြော်နှင့် ကြက်သွန်လက်စွပ်",
+        "descriptionMm": "ကြွပ်ရွသောအာလူးကြော်နှင့် အရောင်ဝါဝင်းမွှေးကြိုင်သော ကြက်သွန်လက်စွပ်ကြော်များ",
+        "name_mm": "အာလူးကြော်နှင့် ကြက်သွန်လက်စွပ်",
+        "description_mm": "ကြွပ်ရွသောအာလူးကြော်နှင့် အရောင်ဝါဝင်းမွှေးကြိုင်သော ကြက်သွန်လက်စွပ်ကြော်များ"
       },
       {
         "id": "chicken-nuggets-and-french-fries",
@@ -21817,7 +25188,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -21830,7 +25203,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -21843,7 +25218,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -21856,7 +25233,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -21869,7 +25248,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -21882,7 +25263,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -21893,7 +25276,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "POMMES FRITES & CHICKEN NUGGETS",
         "descriptionIt": "Patatine fritte dorate servite con crocchette di pollo tenere e croccanti",
         "descriptionDe": "Goldene Pommes frites serviert mit zarten und knusprigen Hähnchen-Nuggets",
-        "description_th": "เฟรนช์ฟรายส์กรอบ เสิร์ฟพร้อมนักเก็ตไก่เนื้อนุ่มชุบแป้งทอดกรอบ"
+        "description_th": "เฟรนช์ฟรายส์กรอบ เสิร์ฟพร้อมนักเก็ตไก่เนื้อนุ่มชุบแป้งทอดกรอบ",
+        "nameMm": "အာလူးကြော်နှင့် ကြက်သားနုဂတ်",
+        "descriptionMm": "ရွှေရောင်အာလူးကြော်များနှင့်အတူ နူးညံ့ပြီး ကြွပ်ရွသော ကြက်သားနုဂတ်များ",
+        "name_mm": "အာလူးကြော်နှင့် ကြက်သားနုဂတ်",
+        "description_mm": "ရွှေရောင်အာလူးကြော်များနှင့်အတူ နူးညံ့ပြီး ကြွပ်ရွသော ကြက်သားနုဂတ်များ"
       },
       {
         "id": "fish-nuggets-and-french-fries",
@@ -21919,7 +25306,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -21932,7 +25321,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -21945,7 +25336,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -21958,7 +25351,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -21971,7 +25366,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -21984,7 +25381,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
         ],
         "allowed_extras_group": "None",
@@ -21995,7 +25394,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "POMMES FRITES & FISCH NUGGETS",
         "descriptionIt": "Patatine fritte dorate servite con crocchette di pesce croccanti",
         "descriptionDe": "Goldene Pommes frites serviert mit knusprigen Fisch-Nuggets",
-        "description_th": "เฟรนช์ฟรายส์กรอบ เสิร์ฟพร้อมนักเก็ตปลาทอดกรอบนอกนุ่มใน"
+        "description_th": "เฟรนช์ฟรายส์กรอบ เสิร์ฟพร้อมนักเก็ตปลาทอดกรอบนอกนุ่มใน",
+        "nameMm": "အာလူးကြော်နှင့် ငါးနုဂတ်",
+        "descriptionMm": "ရွှေရောင်အာလူးကြော်များနှင့်အတူ ကြွပ်ရွပြီး နူးညံ့သော ငါးနုဂတ်များ",
+        "name_mm": "အာလူးကြော်နှင့် ငါးနုဂတ်",
+        "description_mm": "ရွှေရောင်အာလူးကြော်များနှင့်အတူ ကြွပ်ရွပြီး နူးညံ့သော ငါးနုဂတ်များ"
       },
       {
         "id": "torta-pasqualina-agli-spinaci-e-uova",
@@ -22028,7 +25431,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ohne Saucen",
             "nameDe": "Ohne Saucen",
-            "name_it": "Senza Salse"
+            "name_it": "Senza Salse",
+            "nameMm": "အရည်မထည့်",
+            "name_mm": "အရည်မထည့်"
           },
           {
             "id": "sauce-ketchup",
@@ -22041,7 +25446,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Ketchup",
             "nameDe": "Ketchup",
-            "name_it": "Ketchup"
+            "name_it": "Ketchup",
+            "nameMm": "ချဉ်ရည်",
+            "name_mm": "ချဉ်ရည်"
           },
           {
             "id": "sauce-mayo",
@@ -22054,7 +25461,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Mayonnaise",
             "nameDe": "Mayonnaise",
-            "name_it": "Maionese"
+            "name_it": "Maionese",
+            "nameMm": "မေယိုနေ့စ်",
+            "name_mm": "မေယိုနေ့စ်"
           },
           {
             "id": "sauce-chili",
@@ -22067,7 +25476,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Chilisauce",
             "nameDe": "Chilisauce",
-            "name_it": "Salsa Piccante"
+            "name_it": "Salsa Piccante",
+            "nameMm": "ငရုတ်သီးရည်",
+            "name_mm": "ငရုတ်သီးရည်"
           },
           {
             "id": "sauce-mustard",
@@ -22080,7 +25491,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Senf",
             "nameDe": "Senf",
-            "name_it": "Senape"
+            "name_it": "Senape",
+            "nameMm": "မုန်ညှင်းရည်",
+            "name_mm": "မုန်ညှင်းရည်"
           },
           {
             "id": "sauce-yogurt",
@@ -22093,9 +25506,13 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Joghurt",
             "nameDe": "Joghurt",
-            "name_it": "Yogurt"
+            "name_it": "Yogurt",
+            "nameMm": "ယိုဂတ်",
+            "name_mm": "ယိုဂတ်"
           }
-        ]
+        ],
+        "nameMm": "TORTA PASQUALINA\nWITH SPINACH, RICOTTA & EGGS",
+        "descriptionMm": "Flaky puff pastry, fresh spinach, creamy cow's milk ricotta, whole hard-boiled eggs, aged grated cheese, nutmeg, extra virgin olive oil, salt, black pepper"
       }
     ],
     "name_it": "Patatine Fritte",
@@ -22107,7 +25524,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "Le patatine fritte sono preparate al momento su ordinazione, croccanti e deliziose, e vengono servite con ketchup e maionese. Scegli la tua versione preferita e gustale.",
     "descriptionIt": "Le patatine fritte sono preparate al momento su ordinazione, croccanti e deliziose, e vengono servite con ketchup e maionese. Scegli la tua versione preferita e gustale.",
     "description_de": "Unsere Pommes frites werden frisch auf Bestellung zubereitet, sind knusprig und lecker und werden mit Ketchup und Mayonnaise serviert. Wählen Sie Ihre Lieblingsvariante und genießen Sie.",
-    "descriptionDe": "Unsere Pommes frites werden frisch auf Bestellung zubereitet, sind knusprig und lecker und werden mit Ketchup und Mayonnaise serviert. Wählen Sie Ihre Lieblingsvariante und genießen Sie."
+    "descriptionDe": "Unsere Pommes frites werden frisch auf Bestellung zubereitet, sind knusprig und lecker und werden mit Ketchup und Mayonnaise serviert. Wählen Sie Ihre Lieblingsvariante und genießen Sie.",
+    "nameMm": "အာလူးကြော်",
+    "descriptionMm": "အာလူးကြော်များကို မှာယူသည့်အခါတွင် လတ်ဆတ်စွာ ပြင်ဆင်ပြီး ကြွပ်ရွအရသာရှိစေကာ ကက်ချပ်နှင့် မေယိုနိုက်ဖြင့် ကျွေးပါသည်။ သင်နှစ်သက်ရာ အမျိုးအစားကို ရွေးချယ်ပြီး သုံးဆောင်ပါ။",
+    "name_mm": "အာလူးကြော်",
+    "description_mm": "အာလူးကြော်များကို မှာယူသည့်အခါတွင် လတ်ဆတ်စွာ ပြင်ဆင်ပြီး ကြွပ်ရွအရသာရှိစေကာ ကက်ချပ်နှင့် မေယိုနိုက်ဖြင့် ကျွေးပါသည်။ သင်နှစ်သက်ရာ အမျိုးအစားကို ရွေးချယ်ပြီး သုံးဆောင်ပါ။"
   },
   {
     "id": "desserts",
@@ -22136,7 +25557,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "AFFOGATO AL CAFFÈ",
         "descriptionIt": "Gelato alla vaniglia artigianale affogato in un caffè espresso caldo",
         "descriptionDe": "Handgemachtes Vanilleeis, übergossen mit einem heißen Espresso",
-        "description_th": "ไอศกรีมวานิลลาเนื้อเนียน ราดด้วยช็อตเอสเปรสโซเข้มข้นร้อนๆ สไตล์อิตาเลียน"
+        "description_th": "ไอศกรีมวานิลลาเนื้อเนียน ราดด้วยช็อตเอสเปรสโซเข้มข้นร้อนๆ สไตล์อิตาเลียน",
+        "nameMm": "အဖိုဂါတို ကော်ဖီ",
+        "descriptionMm": "လက်လုပ်ဗာနီလာ အိုင်စကရင်မ်ကို ပူသော အက်စ်ပရက်ဆိုကော်ဖီတွင် နှစ်ထားသည်",
+        "name_mm": "အဖိုဂါတို ကော်ဖီ",
+        "description_mm": "လက်လုပ်ဗာနီလာ အိုင်စကရင်မ်ကို ပူသော အက်စ်ပရက်ဆိုကော်ဖီတွင် နှစ်ထားသည်"
       },
       {
         "id": "cake-of-the-day",
@@ -22159,7 +25584,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "KUCHEN DES TAGES",
         "descriptionIt": "Deliziosa fetta di torta artigianale fresca preparata in giornata",
         "descriptionDe": "Köstliches Stück hausgemachter, täglich frisch gebackener Kuchen",
-        "description_th": "เค้กโฮมเมดสไตล์อิตาเลียน อบสดใหม่ทุกวันตามฤดูกาล"
+        "description_th": "เค้กโฮมเมดสไตล์อิตาเลียน อบสดใหม่ทุกวันตามฤดูกาล",
+        "nameMm": "ယနေ့့ ကိတ်မုန့်",
+        "descriptionMm": "နေ့စဉ်လတ်ဆတ်စွာ ပြုလုပ်ထားသော လက်လုပ်ကိတ်မုန့် အချပ်",
+        "name_mm": "ယနေ့့ ကိတ်မုန့်",
+        "description_mm": "နေ့စဉ်လတ်ဆတ်စွာ ပြုလုပ်ထားသော လက်လုပ်ကိတ်မုန့် အချပ်"
       },
       {
         "id": "tiramisu",
@@ -22182,7 +25611,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "TIRAMISU",
         "descriptionIt": "Il classico dessert italiano con savoiardi, mascarpone fresco, caffè e cacao",
         "descriptionDe": "Traditionelles italienisches Dessert mit Löffelbiskuits, frischer Mascarponecreme, Espresso und Kakao",
-        "description_th": "ทีรามิสุสูตรต้นตำรับอิตาลี เลดี้ฟิงเกอร์ชุ่มกาแฟเอสเปรสโซ ครีมมาสคาโปนและผงโกโก้"
+        "description_th": "ทีรามิสุสูตรต้นตำรับอิตาลี เลดี้ฟิงเกอร์ชุ่มกาแฟเอสเปรสโซ ครีมมาสคาโปนและผงโกโก้",
+        "nameMm": "တီရာမီဆူး",
+        "descriptionMm": "ဆာဗိုယာဒီဘီစကွတ်၊ လတ်ဆတ်သော မာစကာပိုနီခရင်မ်၊ အက်စ်ပရက်ဆိုကော်ဖီနှင့် ကိုကိုးမှုန့်တို့ဖြင့် ပြုလုပ်ထားသော ရိုးရာအီတလီ အချိုပွဲ",
+        "name_mm": "တီရာမီဆူး",
+        "description_mm": "ဆာဗိုယာဒီဘီစကွတ်၊ လတ်ဆတ်သော မာစကာပိုနီခရင်မ်၊ အက်စ်ပရက်ဆိုကော်ဖီနှင့် ကိုကိုးမှုန့်တို့ဖြင့် ပြုလုပ်ထားသော ရိုးရာအီတလီ အချိုပွဲ"
       },
       {
         "id": "crepes",
@@ -22207,7 +25640,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Banana",
             "nameIt": "Banana",
             "name_de": "Banane",
-            "nameDe": "Banane"
+            "nameDe": "Banane",
+            "nameMm": "ငှက်ပျောသီး",
+            "name_mm": "ငှက်ပျောသီး"
           },
           {
             "id": "10290",
@@ -22221,7 +25656,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Normal",
             "nameIt": "Normal",
             "name_de": "Normal",
-            "nameDe": "Normal"
+            "nameDe": "Normal",
+            "nameMm": "ပုံမှန်",
+            "name_mm": "ပုံမှန်"
           }
         ],
         "extras": [],
@@ -22234,7 +25671,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "CRÊPES",
         "descriptionIt": "Sottili crêpes dolci artigianali servite calde con la tua farcitura preferita",
         "descriptionDe": "Zarte, handgemachte süße Crêpes, warm serviert mit Ihrem Lieblingsbelag",
-        "description_th": "เครปฝรั่งเศสทำสดใหม่ แป้งบางนุ่ม เสิร์ฟร้อนพร้อมท็อปปิ้งที่คุณเลือก"
+        "description_th": "เครปฝรั่งเศสทำสดใหม่ แป้งบางนุ่ม เสิร์ฟร้อนพร้อมท็อปปิ้งที่คุณเลือก",
+        "nameMm": "ကရိတ်ပ်",
+        "descriptionMm": "ပါးလွှာနူးညံ့သော လက်လုပ် အချိုကရိတ်ပ်များကို သင်နှစ်သက်ရာ ဖြည့်စွက်စာဖြင့် ပူပူနွေးနွေး ကျွေးပါသည်",
+        "name_mm": "ကရိတ်ပ်",
+        "description_mm": "ပါးလွှာနူးညံ့သော လက်လုပ် အချိုကရိတ်ပ်များကို သင်နှစ်သက်ရာ ဖြည့်စွက်စာဖြင့် ပူပူနွေးနွေး ကျွေးပါသည်"
       },
       {
         "id": "pancake",
@@ -22259,7 +25700,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Banana",
             "nameIt": "Banana",
             "name_de": "Banane",
-            "nameDe": "Banane"
+            "nameDe": "Banane",
+            "nameMm": "ငှက်ပျောသီး",
+            "name_mm": "ငှက်ပျောသီး"
           },
           {
             "id": "10292",
@@ -22273,7 +25716,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Normal",
             "nameIt": "Normal",
             "name_de": "Normal",
-            "nameDe": "Normal"
+            "nameDe": "Normal",
+            "nameMm": "ပုံမှန်",
+            "name_mm": "ပုံမှန်"
           }
         ],
         "extras": [],
@@ -22286,7 +25731,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "PFANNKUCHEN",
         "descriptionIt": "Soffici pancake caldi preparati al momento, serviti con miele, sciroppo o Nutella",
         "descriptionDe": "Luftig-fluffige, frisch gebackene Pancakes, serviert mit Honig, Sirup oder Nutella",
-        "description_th": "แพนเค้กหนานุ่มทำสดใหม่ เสิร์ฟร้อนพร้อมน้ำผึ้ง ไซรัป หรือนูเทลล่า"
+        "description_th": "แพนเค้กหนานุ่มทำสดใหม่ เสิร์ฟร้อนพร้อมน้ำผึ้ง ไซรัป หรือนูเทลล่า",
+        "nameMm": "ပန်ကိတ်",
+        "descriptionMm": "ပျော့ဖွယ်ပူနွေးသော လက်လုပ်ပန်ကိတ်များကို ပျားရည်၊ ဆီရပ်စ် သို့မဟုတ် နူတဲလာနှင့်အတူ ကျွေးပါသည်",
+        "name_mm": "ပန်ကိတ်",
+        "description_mm": "ပျော့ဖွယ်ပူနွေးသော လက်လုပ်ပန်ကိတ်များကို ပျားရည်၊ ဆီရပ်စ် သို့မဟုတ် နူတဲလာနှင့်အတူ ကျွေးပါသည်"
       }
     ],
     "name_it": "Dolci",
@@ -22298,7 +25747,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "Il dessert è il momento in cui il pasto si trasforma in puro piacere. I nostri dolci sono fatti a mano, preparati con ingredienti freschi e genuini e tutta la passione della cucina casalinga.",
     "descriptionIt": "Il dessert è il momento in cui il pasto si trasforma in puro piacere. I nostri dolci sono fatti a mano, preparati con ingredienti freschi e genuini e tutta la passione della cucina casalinga.",
     "description_de": "Das Dessert ist der Moment, in dem ein Essen zum ultimativen Genuss wird. Unsere Süßspeisen sind handgemacht, zubereitet aus frischen, natürlichen Zutaten und mit einer großen Portion Leidenschaft.",
-    "descriptionDe": "Das Dessert ist der Moment, in dem ein Essen zum ultimativen Genuss wird. Unsere Süßspeisen sind handgemacht, zubereitet aus frischen, natürlichen Zutaten und mit einer großen Portion Leidenschaft."
+    "descriptionDe": "Das Dessert ist der Moment, in dem ein Essen zum ultimativen Genuss wird. Unsere Süßspeisen sind handgemacht, zubereitet aus frischen, natürlichen Zutaten und mit einer großen Portion Leidenschaft.",
+    "nameMm": "အချိုပွဲများ",
+    "descriptionMm": "အချိုပွဲသည် အစားအစာတစ်ခုကို အပျော်ဆုံးအဖြစ် ပြောင်းလဲပေးသော အခိုက်အတန့်ဖြစ်သည်။ ကျွန်ုပ်တို့၏ အချိုပွဲများကို လက်ဖြင့်ပြုလုပ်ထားပြီး လတ်ဆတ်သော၊ စစ်မှန်သော ပါဝင်ပစ္စည်းများနှင့် အိမ်ချက်ပြုတ်မှု၏ စိတ်အားထက်သန်မှုဖြင့် ပြင်ဆင်ထားသည်။",
+    "name_mm": "အချိုပွဲများ",
+    "description_mm": "အချိုပွဲသည် အစားအစာတစ်ခုကို အပျော်ဆုံးအဖြစ် ပြောင်းလဲပေးသော အခိုက်အတန့်ဖြစ်သည်။ ကျွန်ုပ်တို့၏ အချိုပွဲများကို လက်ဖြင့်ပြုလုပ်ထားပြီး လတ်ဆတ်သော၊ စစ်မှန်သော ပါဝင်ပစ္စည်းများနှင့် အိမ်ချက်ပြုတ်မှု၏ စိတ်အားထက်သန်မှုဖြင့် ပြင်ဆင်ထားသည်။"
   },
   {
     "id": "breakfast-and-snacks",
@@ -22326,7 +25779,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "ITALIAN BREAKFAST",
         "nameDe": "ITALIAN BREAKFAST",
         "descriptionDe": "Cake of the Day, Cappuccino, Fruit Juice",
-        "description_th": "เค้กประจำวัน, คาปูชิโน่, น้ำผลไม้"
+        "description_th": "เค้กประจำวัน, คาปูชิโน่, น้ำผลไม้",
+        "nameMm": "အီတလီ မနက်စာ",
+        "descriptionMm": "ယနေ့၏ ကိတ်မုန့်၊ ကာပူချီနို၊ သစ်သီးဖျော်ရည်",
+        "name_mm": "အီတလီ မနက်စာ",
+        "description_mm": "ယနေ့၏ ကိတ်မုန့်၊ ကာပူချီနို၊ သစ်သီးဖျော်ရည်"
       },
       {
         "id": "american-breakfast",
@@ -22348,7 +25805,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "AMERICAN BREAKFAST",
         "nameDe": "AMERICAN BREAKFAST",
         "descriptionDe": "2 Fried Eggs, Bacon, Butter, Jam, Coffee, Fruit Juice, 2 Toasted Slices",
-        "description_th": "ไข่ดาว 2 ฟอง, เบคอน, เนย, แยม, กาแฟ, น้ำผลไม้, ขนมปัง 2 แผ่น"
+        "description_th": "ไข่ดาว 2 ฟอง, เบคอน, เนย, แยม, กาแฟ, น้ำผลไม้, ขนมปัง 2 แผ่น",
+        "nameMm": "အမေရိကန် မနက်စာ",
+        "descriptionMm": "ကြက်ဥကြော် ၂ လုံး၊ ဘေကွန်၊ ထောပတ်၊ ယိုအချိုရည်၊ ကော်ဖီ၊ သစ်သီးဖျော်ရည်၊ ပေါင်မုန့်ကြော် ၂ ချပ်",
+        "name_mm": "အမေရိကန် မနက်စာ",
+        "description_mm": "ကြက်ဥကြော် ၂ လုံး၊ ဘေကွန်၊ ထောပတ်၊ ယိုအချိုရည်၊ ကော်ဖီ၊ သစ်သီးဖျော်ရည်၊ ပေါင်မုန့်ကြော် ၂ ချပ်"
       },
       {
         "id": "eggs-and-bacon",
@@ -22370,7 +25831,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "EGGS & BACON",
         "nameDe": "EGGS & BACON",
         "descriptionDe": "2 Fried Eggs, Bacon, 1 Toasted Slice",
-        "description_th": "ไข่ดาว 2 ฟอง, เบคอน, ขนมปัง 1 แผ่น"
+        "description_th": "ไข่ดาว 2 ฟอง, เบคอน, ขนมปัง 1 แผ่น",
+        "nameMm": "ကြက်ဥနှင့် ဘေကွန်",
+        "descriptionMm": "ကြက်ဥကြော် ၂ လုံး၊ ဘေကွန်၊ ပေါင်မုန့်ကြော် ၁ ချပ်",
+        "name_mm": "ကြက်ဥနှင့် ဘေကွန်",
+        "description_mm": "ကြက်ဥကြော် ၂ လုံး၊ ဘေကွန်၊ ပေါင်မုန့်ကြော် ၁ ချပ်"
       },
       {
         "id": "butter-and-jam",
@@ -22392,7 +25857,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "BUTTER & JAM",
         "nameDe": "BUTTER & JAM",
         "descriptionDe": "2 Toasted Slices, Jam and Butter",
-        "description_th": "ขนมปัง 2 แผ่น, แยม และ เนย"
+        "description_th": "ขนมปัง 2 แผ่น, แยม และ เนย",
+        "nameMm": "ထောပတ်နှင့် ယို",
+        "descriptionMm": "ပေါင်မုန့်ကြော် ၂ ချပ်၊ ယိုနှင့် ထောပတ်",
+        "name_mm": "ထောပတ်နှင့် ယို",
+        "description_mm": "ပေါင်မုန့်ကြော် ၂ ချပ်၊ ယိုနှင့် ထောပတ်"
       },
       {
         "id": "nutella-bread",
@@ -22414,7 +25883,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "NUTELLA BREAD",
         "nameDe": "NUTELLA BREAD",
         "descriptionDe": "2 Toasted Slices Spread With Nutella",
-        "description_th": "ขนมปัง 2 แผ่น ทานูเทลล่า"
+        "description_th": "ขนมปัง 2 แผ่น ทานูเทลล่า",
+        "nameMm": "နူတဲလာ ပေါင်မုန့်",
+        "descriptionMm": "နူတဲလာ လိမ်းထားသော ပေါင်မုန့်ကြော် ၂ ချပ်",
+        "name_mm": "နူတဲလာ ပေါင်မုန့်",
+        "description_mm": "နူတဲလာ လိမ်းထားသော ပေါင်မုန့်ကြော် ၂ ချပ်"
       },
       {
         "id": "italian-toast",
@@ -22436,7 +25909,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "ITALIAN TOAST",
         "nameDe": "ITALIAN TOAST",
         "descriptionDe": "2 Toasted Slices Filled With Ham And Cheese",
-        "description_th": "ขนมปัง 2 แผ่น สอดไส้แฮมและชีส"
+        "description_th": "ขนมปัง 2 แผ่น สอดไส้แฮมและชีส",
+        "nameMm": "အီတလီ တို့စ်",
+        "descriptionMm": "ဟမ်နှင့် ချိစ် ထည့်ထားသော ပေါင်မုန့်ကြော် ၂ ချပ်",
+        "name_mm": "အီတလီ တို့စ်",
+        "description_mm": "ဟမ်နှင့် ချိစ် ထည့်ထားသော ပေါင်မုန့်ကြော် ၂ ချပ်"
       },
       {
         "id": "french-toast",
@@ -22458,7 +25935,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "FRENCH TOAST",
         "nameDe": "FRENCH TOAST",
         "descriptionDe": "2 Fried Toasts With Milk and Egg, Honey",
-        "description_th": "ขนมปัง 2 แผ่น ชุบในนมและไข่ ทอด ราดน้ำผึ้ง"
+        "description_th": "ขนมปัง 2 แผ่น ชุบในนมและไข่ ทอด ราดน้ำผึ้ง",
+        "nameMm": "ပြင်သစ် တို့စ်",
+        "descriptionMm": "နို့နှင့် ကြက်ဥဖြင့် ကြော်ထားသော တို့စ် ၂ ချပ်၊ ပျားရည်",
+        "name_mm": "ပြင်သစ် တို့စ်",
+        "description_mm": "နို့နှင့် ကြက်ဥဖြင့် ကြော်ထားသော တို့စ် ၂ ချပ်၊ ပျားရည်"
       },
       {
         "id": "french-rolls",
@@ -22480,7 +25961,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "FRENCH ROLLS",
         "nameDe": "FRENCH ROLLS",
         "descriptionDe": "3 Fried Toasts with Milk And Egg, Filled with Ham & Cheese",
-        "description_th": "ขนมปัง 3 แผ่นชุบในนมและไข่ทอดและสอดไส้แฮมและชีส"
+        "description_th": "ขนมปัง 3 แผ่นชุบในนมและไข่ทอดและสอดไส้แฮมและชีส",
+        "nameMm": "ပြင်သစ် လိပ်မုန့်",
+        "descriptionMm": "နို့နှင့် ကြက်ဥဖြင့် ကြော်ထားသော တို့စ် ၃ ချပ်၊ ဟမ်နှင့် ချိစ် ထည့်ထားသည်",
+        "name_mm": "ပြင်သစ် လိပ်မုန့်",
+        "description_mm": "နို့နှင့် ကြက်ဥဖြင့် ကြော်ထားသော တို့စ် ၃ ချပ်၊ ဟမ်နှင့် ချိစ် ထည့်ထားသည်"
       },
       {
         "id": "pastries",
@@ -22505,7 +25990,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Nutella Extra",
             "nameIt": "Nutella Extra",
             "name_de": "Extra Nutella",
-            "nameDe": "Extra Nutella"
+            "nameDe": "Extra Nutella",
+            "nameMm": "နူတဲလာအပို",
+            "name_mm": "နူတဲလာအပို"
           }
         ],
         "allowed_extras_group": "Croissant Modifiers",
@@ -22516,7 +26003,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "PASTRIES",
         "nameDe": "PASTRIES",
         "descriptionDe": "Fresh Pastries of the Day, Ask the Staff (+30฿ Nutella)",
-        "description_th": "ขนมอบสดประจำวัน สอบถามพนักงาน (+30฿ นูเทลล่า)"
+        "description_th": "ขนมอบสดประจำวัน สอบถามพนักงาน (+30฿ นูเทลล่า)",
+        "nameMm": "ပါစတီဆေးရီးယား",
+        "descriptionMm": "နေ့စဉ်လတ်ဆတ်သော ပါစတီများ၊ ဝန်ထမ်းများကို မေးမြန်းပါ (+၃၀฿ နူတဲလာ)",
+        "name_mm": "ပါစတီဆေးရီးယား",
+        "description_mm": "နေ့စဉ်လတ်ဆတ်သော ပါစတီများ၊ ဝန်ထမ်းများကို မေးမြန်းပါ (+၃၀฿ နူတဲလာ)"
       },
       {
         "id": "fruit-salad",
@@ -22541,7 +26032,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Normal",
             "nameIt": "Normal",
             "name_de": "Normal",
-            "nameDe": "Normal"
+            "nameDe": "Normal",
+            "nameMm": "ပုံမှန်",
+            "name_mm": "ပုံမှန်"
           },
           {
             "id": "10231",
@@ -22555,7 +26048,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Yogurt",
             "nameIt": "Yogurt",
             "name_de": "Joghurt",
-            "nameDe": "Joghurt"
+            "nameDe": "Joghurt",
+            "nameMm": "ဒိန်ချဉ်",
+            "name_mm": "ဒိန်ချဉ်"
           }
         ],
         "extras": [],
@@ -22567,7 +26062,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "FRUIT SALAD",
         "nameDe": "FRUIT SALAD",
         "descriptionDe": "Seasonal Fresh Fruit Salad (+30฿ Yogurt)",
-        "description_th": "มาซิโดเนียผลไม้สดตามฤดูกาล (+30฿ โยเกิร์ต)"
+        "description_th": "มาซิโดเนียผลไม้สดตามฤดูกาล (+30฿ โยเกิร์ต)",
+        "nameMm": "သစ်သီးသုပ်ပွဲ",
+        "descriptionMm": "ရာသီအလိုက် လတ်ဆတ်သော သစ်သီးများဖြင့် သုပ်ထားသော သုပ်ပွဲ (+၃၀฿ ဒိန်ချဉ်)",
+        "name_mm": "သစ်သီးသုပ်ပွဲ",
+        "description_mm": "ရာသီအလိုက် လတ်ဆတ်သော သစ်သီးများဖြင့် သုပ်ထားသော သုပ်ပွဲ (+၃၀฿ ဒိန်ချဉ်)"
       }
     ],
     "name_it": "Colazione e Snack",
@@ -22579,7 +26078,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "La colazione è il pasto più importante della giornata, il momento che detta il ritmo a tutto ciò che segue. Iniziare la giornata con ingredienti freschi, genuini e di alta qualità, preparati al momento con cura, fa davvero la differenza, offrendo un sapore autentico, energia duratura e un piacevole inizio.",
     "descriptionIt": "La colazione è il pasto più importante della giornata, il momento che detta il ritmo a tutto ciò che segue. Iniziare la giornata con ingredienti freschi, genuini e di alta qualità, preparati al momento con cura, fa davvero la differenza, offrendo un sapore autentico, energia duratura e un piacevole inizio.",
     "description_de": "Das Frühstück ist die wichtigste Mahlzeit des Tages – der Moment, der den Rhythmus für alles Kommende vorgeibt. Starten Sie Ihren Tag mit frischen, natürlichen und hochwertigen Zutaten, die sorgfältig auf Bestellung zubereitet werden. Das macht den Unterschied und bietet echten Geschmack, lang anhaltende Energie und einen rundum gelungenen Start in den Tag.",
-    "descriptionDe": "Das Frühstück ist die wichtigste Mahlzeit des Tages – der Moment, der den Rhythmus für alles Kommende vorgeibt. Starten Sie Ihren Tag mit frischen, natürlichen und hochwertigen Zutaten, die sorgfältig auf Bestellung zubereitet werden. Das macht den Unterschied und bietet echten Geschmack, lang anhaltende Energie und einen rundum gelungenen Start in den Tag."
+    "descriptionDe": "Das Frühstück ist die wichtigste Mahlzeit des Tages – der Moment, der den Rhythmus für alles Kommende vorgeibt. Starten Sie Ihren Tag mit frischen, natürlichen und hochwertigen Zutaten, die sorgfältig auf Bestellung zubereitet werden. Das macht den Unterschied und bietet echten Geschmack, lang anhaltende Energie und einen rundum gelungenen Start in den Tag.",
+    "nameMm": "မနက်စာနှင့် အဆာပြေများ",
+    "descriptionMm": "မနက်စာသည် တစ်နေ့တာ၏ အရေးအကြီးဆုံး အစားအစာဖြစ်ပြီး နောက်ဆက်တွဲအရာအားလုံးအတွက် စည်းချက်ကို သတ်မှတ်ပေးသော အခိုက်အတန့်ဖြစ်သည်။ လတ်ဆတ်သော၊ စစ်မှန်သော၊ အရည်အသွေးမြင့် ပါဝင်ပစ္စည်းများဖြင့် ဂရုတစိုက် မှာယူသည့်အခါ ပြင်ဆင်ထားသော မနက်စာဖြင့် တစ်နေ့တာကို စတင်ခြင်းသည် အမှန်တကယ် ကွာခြားမှုကို ဖြစ်စေပြီး စစ်မှန်သောအရသာ၊ ကြာရှည်ခံသော စွမ်းအင်နှင့် နှစ်သက်ဖွယ် အစပြုမှုကို ပေးသည်။",
+    "name_mm": "မနက်စာနှင့် အဆာပြေများ",
+    "description_mm": "မနက်စာသည် တစ်နေ့တာ၏ အရေးအကြီးဆုံး အစားအစာဖြစ်ပြီး နောက်ဆက်တွဲအရာအားလုံးအတွက် စည်းချက်ကို သတ်မှတ်ပေးသော အခိုက်အတန့်ဖြစ်သည်။ လတ်ဆတ်သော၊ စစ်မှန်သော၊ အရည်အသွေးမြင့် ပါဝင်ပစ္စည်းများဖြင့် ဂရုတစိုက် မှာယူသည့်အခါ ပြင်ဆင်ထားသော မနက်စာဖြင့် တစ်နေ့တာကို စတင်ခြင်းသည် အမှန်တကယ် ကွာခြားမှုကို ဖြစ်စေပြီး စစ်မှန်သောအရသာ၊ ကြာရှည်ခံသော စွမ်းအင်နှင့် နှစ်သက်ဖွယ် အစပြုမှုကို ပေးသည်။"
   },
   {
     "id": "coffee-shop",
@@ -22609,7 +26112,9 @@ export const menuData: MenuCategory[] = [
             "description_it": "",
             "description_de": "",
             "name_de": "Hot",
-            "nameDe": "Hot"
+            "nameDe": "Hot",
+            "nameMm": "ပူသော",
+            "name_mm": "ပူသော"
           },
           {
             "id": "espresso-iced",
@@ -22622,7 +26127,9 @@ export const menuData: MenuCategory[] = [
             "description_it": "",
             "description_de": "",
             "name_de": "Iced",
-            "nameDe": "Iced"
+            "nameDe": "Iced",
+            "nameMm": "အအေး",
+            "name_mm": "အအေး"
           }
         ],
         "extras": [
@@ -22637,7 +26144,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelter Kaffee",
             "nameDe": "Doppelter Kaffee",
-            "name_it": "Caffè Doppio"
+            "name_it": "Caffè Doppio",
+            "nameMm": "ကော်ဖီနှစ်ဆ",
+            "name_mm": "ကော်ဖီနှစ်ဆ"
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers",
@@ -22649,7 +26158,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "CAFFÈ ESPRESSO",
         "descriptionIt": "Il classico espresso italiano dal sapore ricco, corpo pieno e aroma intenso",
         "descriptionDe": "Klassischer italienischer Espresso mit vollem Körper, feiner Crema und intensivem Aroma",
-        "description_th": "กาแฟเอสเปรสโซสไตล์อิตาเลียนแท้ รสชาติเข้มข้น หอมกรุ่น ครีม่าเนียนละเอียด"
+        "description_th": "กาแฟเอสเปรสโซสไตล์อิตาเลียนแท้ รสชาติเข้มข้น หอมกรุ่น ครีม่าเนียนละเอียด",
+        "nameMm": "ကာဖေး အက်စ်ပရက်ဆို",
+        "descriptionMm": "အီတလီရိုးရာ အက်စ်ပရက်ဆို၊ ကြွယ်ဝသော ကိုယ်ထည်၊ ချောမွေ့သော ကရင်မာနှင့် ပြင်းထန်သော ရနံ့ရှိသည်",
+        "name_mm": "ကာဖေး အက်စ်ပရက်ဆို",
+        "description_mm": "အီတလီရိုးရာ အက်စ်ပရက်ဆို၊ ကြွယ်ဝသော ကိုယ်ထည်၊ ချောမွေ့သော ကရင်မာနှင့် ပြင်းထန်သော ရနံ့ရှိသည်"
       },
       {
         "id": "americano",
@@ -22674,7 +26187,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Hot",
             "nameIt": "Hot",
             "name_de": "Hot",
-            "nameDe": "Hot"
+            "nameDe": "Hot",
+            "nameMm": "ပူသော",
+            "name_mm": "ပူသော"
           },
           {
             "id": "10222",
@@ -22688,7 +26203,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Iced",
             "nameIt": "Iced",
             "name_de": "Iced",
-            "nameDe": "Iced"
+            "nameDe": "Iced",
+            "nameMm": "အအေး",
+            "name_mm": "အအေး"
           }
         ],
         "extras": [
@@ -22703,7 +26220,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelter Kaffee",
             "nameDe": "Doppelter Kaffee",
-            "name_it": "Caffè Doppio"
+            "name_it": "Caffè Doppio",
+            "nameMm": "ကော်ဖီနှစ်ဆ",
+            "name_mm": "ကော်ဖီနှစ်ဆ"
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers",
@@ -22715,7 +26234,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "CAFFÈ AMERICANO",
         "descriptionIt": "Espresso italiano allungato con acqua calda per un gusto morbido e prolungato",
         "descriptionDe": "Italienischer Espresso mit heißem Wasser verlängert für einen milden, ausgewogenen Geschmack",
-        "description_th": "กาแฟอเมริกาโน ผสมผสานเอสเปรสโซเข้มข้นกับน้ำร้อน รสชาตินุ่มละมุนกลมกล่อม"
+        "description_th": "กาแฟอเมริกาโน ผสมผสานเอสเปรสโซเข้มข้นกับน้ำร้อน รสชาตินุ่มละมุนกลมกล่อม",
+        "nameMm": "ကာဖေး အမေရီကာနို",
+        "descriptionMm": "အီတလီ အက်စ်ပရက်ဆိုကို ပူသောရေဖြင့် ရောစပ်ထားပြီး နူးညံ့ပြီး မျှတသော အရသာရှည်ကြာသည်",
+        "name_mm": "ကာဖေး အမေရီကာနို",
+        "description_mm": "အီတလီ အက်စ်ပရက်ဆိုကို ပူသောရေဖြင့် ရောစပ်ထားပြီး နူးညံ့ပြီး မျှတသော အရသာရှည်ကြာသည်"
       },
       {
         "id": "cappuccino",
@@ -22740,7 +26263,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Hot",
             "nameIt": "Hot",
             "name_de": "Hot",
-            "nameDe": "Hot"
+            "nameDe": "Hot",
+            "nameMm": "ပူသော",
+            "name_mm": "ပူသော"
           },
           {
             "id": "10221",
@@ -22754,7 +26279,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Iced",
             "nameIt": "Iced",
             "name_de": "Iced",
-            "nameDe": "Iced"
+            "nameDe": "Iced",
+            "nameMm": "အအေး",
+            "name_mm": "အအေး"
           }
         ],
         "extras": [
@@ -22769,7 +26296,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelter Kaffee",
             "nameDe": "Doppelter Kaffee",
-            "name_it": "Caffè Doppio"
+            "name_it": "Caffè Doppio",
+            "nameMm": "ကော်ဖီနှစ်ဆ",
+            "name_mm": "ကော်ဖီနှစ်ဆ"
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers",
@@ -22781,7 +26310,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "CAPPUCCINO",
         "descriptionIt": "Espresso italiano con latte caldo e una densa, soffice schiuma di latte montata",
         "descriptionDe": "Authentischer italienischer Espresso mit heißer Milch und cremigem Milchschaum",
-        "description_th": "คาปูชิโนสไตล์อิตาเลียน เอสเปรสโซเข้มข้นผสมนมร้อน ท็อปด้วยฟองนมนุ่มละมุน"
+        "description_th": "คาปูชิโนสไตล์อิตาเลียน เอสเปรสโซเข้มข้นผสมนมร้อน ท็อปด้วยฟองนมนุ่มละมุน",
+        "nameMm": "ကာပူချီနို",
+        "descriptionMm": "အီတလီ အက်စ်ပရက်ဆိုနှင့် ပူသောနို့၊ ထူထပ်ပြီး နူးညံ့သော နို့အမြှုပ်လွှာပါဝင်သည်",
+        "name_mm": "ကာပူချီနို",
+        "description_mm": "အီတလီ အက်စ်ပရက်ဆိုနှင့် ပူသောနို့၊ ထူထပ်ပြီး နူးညံ့သော နို့အမြှုပ်လွှာပါဝင်သည်"
       },
       {
         "id": "latte-macchiato",
@@ -22806,7 +26339,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Hot",
             "nameIt": "Hot",
             "name_de": "Hot",
-            "nameDe": "Hot"
+            "nameDe": "Hot",
+            "nameMm": "ပူသော",
+            "name_mm": "ပူသော"
           },
           {
             "id": "10164",
@@ -22820,7 +26355,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Iced",
             "nameIt": "Iced",
             "name_de": "Iced",
-            "nameDe": "Iced"
+            "nameDe": "Iced",
+            "nameMm": "အအေး",
+            "name_mm": "အအေး"
           }
         ],
         "extras": [
@@ -22835,7 +26372,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelter Kaffee",
             "nameDe": "Doppelter Kaffee",
-            "name_it": "Caffè Doppio"
+            "name_it": "Caffè Doppio",
+            "nameMm": "ကော်ဖီနှစ်ဆ",
+            "name_mm": "ကော်ဖီနှစ်ဆ"
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers",
@@ -22847,7 +26386,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "LATTE MACCHIATO",
         "descriptionIt": "Latte caldo vellutato macchiato con un ricco espresso e morbida schiuma",
         "descriptionDe": "Samtige heiße Milch, verfeinert mit einem kräftigen Espresso und feinem Schaum",
-        "description_th": "ลาเต้มัคคิอาโต้ นมสดร้อนเนื้อเนียนเลเยอร์ด้วยช็อตเอสเปรสโซและฟองนม"
+        "description_th": "ลาเต้มัคคิอาโต้ นมสดร้อนเนื้อเนียนเลเยอร์ด้วยช็อตเอสเปรสโซและฟองนม",
+        "nameMm": "လတ်တေ မာချီယာတို",
+        "descriptionMm": "ချောမွေ့သော ပူသောနို့ကို ကြွယ်ဝသော အက်စ်ပရက်ဆိုနှင့် နူးညံ့သော အမြှုပ်လွှာများဖြင့် အမှတ်အသားပြုထားသည်",
+        "name_mm": "လတ်တေ မာချီယာတို",
+        "description_mm": "ချောမွေ့သော ပူသောနို့ကို ကြွယ်ဝသော အက်စ်ပရက်ဆိုနှင့် နူးညံ့သော အမြှုပ်လွှာများဖြင့် အမှတ်အသားပြုထားသည်"
       },
       {
         "id": "mini-affogato-al-caffé",
@@ -22872,7 +26415,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelter Kaffee",
             "nameDe": "Doppelter Kaffee",
-            "name_it": "Caffè Doppio"
+            "name_it": "Caffè Doppio",
+            "nameMm": "ကော်ဖီနှစ်ဆ",
+            "name_mm": "ကော်ဖီနှစ်ဆ"
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers",
@@ -22884,7 +26429,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "MINI AFFOGATO AL CAFFÈ",
         "descriptionIt": "Una versione mignon del classico gelato alla vaniglia affogato nell'espresso caldo",
         "descriptionDe": "Eine feine Mini-Portion Vanilleeis, übergossen mit heißem Espresso",
-        "description_th": "มินิอัฟโฟกาโต้ ไอศกรีมวานิลลาไซส์มินิ ราดช็อตเอสเปรสโซร้อนเข้มข้น"
+        "description_th": "มินิอัฟโฟกาโต้ ไอศกรีมวานิลลาไซส์มินิ ราดช็อตเอสเปรสโซร้อนเข้มข้น",
+        "nameMm": "မီနီ အာဖိုဂါတို အယ်လ် ကာဖေး",
+        "descriptionMm": "ပူသော အက်စ်ပရက်ဆိုထဲတွင် နစ်မြုပ်ထားသော ခရင်မ်ဆန်သော ဗာနီလာ အိုင်စကရင်မ်၏ သေးငယ်သော အပိုင်းအစ",
+        "name_mm": "မီနီ အာဖိုဂါတို အယ်လ် ကာဖေး",
+        "description_mm": "ပူသော အက်စ်ပရက်ဆိုထဲတွင် နစ်မြုပ်ထားသော ခရင်မ်ဆန်သော ဗာနီလာ အိုင်စကရင်မ်၏ သေးငယ်သော အပိုင်းအစ"
       },
       {
         "id": "marocchino",
@@ -22909,7 +26458,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Hot",
             "nameIt": "Hot",
             "name_de": "Hot",
-            "nameDe": "Hot"
+            "nameDe": "Hot",
+            "nameMm": "ပူသော",
+            "name_mm": "ပူသော"
           },
           {
             "id": "10216",
@@ -22923,7 +26474,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Iced",
             "nameIt": "Iced",
             "name_de": "Iced",
-            "nameDe": "Iced"
+            "nameDe": "Iced",
+            "nameMm": "အအေး",
+            "name_mm": "အအေး"
           }
         ],
         "extras": [
@@ -22938,7 +26491,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_de": "Doppelter Kaffee",
             "nameDe": "Doppelter Kaffee",
-            "name_it": "Caffè Doppio"
+            "name_it": "Caffè Doppio",
+            "nameMm": "ကော်ဖီနှစ်ဆ",
+            "name_mm": "ကော်ဖီနှစ်ဆ"
           }
         ],
         "allowed_extras_group": "Coffee Shop Modifiers",
@@ -22950,7 +26505,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "MAROCCHINO",
         "descriptionIt": "Golosissimo espresso con cacao amaro in polvere e morbida schiuma di latte",
         "descriptionDe": "Köstlicher Espresso mit edlem Kakaopulver und feinem Milchschaum geschichtet",
-        "description_th": "มาโรคิโน่ กาแฟเอสเปรสโซผสมผงโกโก้เข้มข้นและฟองนมนุ่มหอมละมุน"
+        "description_th": "มาโรคิโน่ กาแฟเอสเปรสโซผสมผงโกโก้เข้มข้นและฟองนมนุ่มหอมละมุน",
+        "nameMm": "မာရိုချီနို",
+        "descriptionMm": "ကြွယ်ဝသော ကိုကိုးမှုန့်နှင့် နူးညံ့သော နို့အမြှုပ်ဖြင့် အလွှာလိုက်ထားသော အရသာပြည့်ဝသော အက်စ်ပရက်ဆို",
+        "name_mm": "မာရိုချီနို",
+        "description_mm": "ကြွယ်ဝသော ကိုကိုးမှုန့်နှင့် နူးညံ့သော နို့အမြှုပ်ဖြင့် အလွှာလိုက်ထားသော အရသာပြည့်ဝသော အက်စ်ပရက်ဆို"
       },
       {
         "id": "hot-chocolate",
@@ -22973,7 +26532,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "HEISSE SCHOKOLADE",
         "descriptionIt": "Densa, calda e vellutata cioccolata all'italiana servita fumante in tazza",
         "descriptionDe": "Dicke, reichhaltige und samtige heiße Schokolade nach italienischer Art",
-        "description_th": "ช็อกโกแลตร้อนสไตล์อิตาเลียน รสชาติเข้มข้น เนื้อเนียนละมุน หอมหวานอบอุ่น"
+        "description_th": "ช็อกโกแลตร้อนสไตล์อิตาเลียน รสชาติเข้มข้น เนื้อเนียนละมุน หอมหวานอบอุ่น",
+        "nameMm": "ချောကလက်ပူ",
+        "descriptionMm": "ထူထဲ၊ ပူနွေးပြီး နူးညံ့သော အီတလီစတိုင် ချောကလက်ပူကို ခွက်ထဲတွင် အငွေ့ပျံနေစွာ ကျွေးပါသည်",
+        "name_mm": "ချောကလက်ပူ",
+        "description_mm": "ထူထဲ၊ ပူနွေးပြီး နူးညံ့သော အီတလီစတိုင် ချောကလက်ပူကို ခွက်ထဲတွင် အငွေ့ပျံနေစွာ ကျွေးပါသည်"
       },
       {
         "id": "milk-and-honey",
@@ -22998,7 +26561,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Hot",
             "nameIt": "Hot",
             "name_de": "Hot",
-            "nameDe": "Hot"
+            "nameDe": "Hot",
+            "nameMm": "ပူသော",
+            "name_mm": "ပူသော"
           },
           {
             "id": "10273",
@@ -23012,7 +26577,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Iced",
             "nameIt": "Iced",
             "name_de": "Iced",
-            "nameDe": "Iced"
+            "nameDe": "Iced",
+            "nameMm": "အအေး",
+            "name_mm": "အအေး"
           }
         ],
         "extras": [],
@@ -23025,7 +26592,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "MILCH UND HONIG",
         "descriptionIt": "Latte intero fresco caldo servito con gocce di miele biologico naturale",
         "descriptionDe": "Frische warme Milch, natürlich gesüßt mit feinem Bio-Honig",
-        "description_th": "นมสดร้อนผสมน้ำผึ้งแท้จากธรรมชาติ หอมหวาน ละมุน ช่วยผ่อนคลาย"
+        "description_th": "นมสดร้อนผสมน้ำผึ้งแท้จากธรรมชาติ หอมหวาน ละมุน ช่วยผ่อนคลาย",
+        "nameMm": "နို့နှင့်ပျားရည်",
+        "descriptionMm": "လတ်ဆတ်သော နို့ပူကို သဘာဝ အော်ဂဲနစ်ပျားရည် အနည်းငယ်ဖြင့် ချိုမြိန်စွာ ကျွေးပါသည်",
+        "name_mm": "နို့နှင့်ပျားရည်",
+        "description_mm": "လတ်ဆတ်သော နို့ပူကို သဘာဝ အော်ဂဲနစ်ပျားရည် အနည်းငယ်ဖြင့် ချိုမြိန်စွာ ကျွေးပါသည်"
       },
       {
         "id": "red-thai-tea",
@@ -23050,7 +26621,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Hot",
             "nameIt": "Hot",
             "name_de": "Hot",
-            "nameDe": "Hot"
+            "nameDe": "Hot",
+            "nameMm": "ပူသော",
+            "name_mm": "ပူသော"
           },
           {
             "id": "10217",
@@ -23064,7 +26637,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Iced",
             "nameIt": "Iced",
             "name_de": "Iced",
-            "nameDe": "Iced"
+            "nameDe": "Iced",
+            "nameMm": "အအေး",
+            "name_mm": "အအေး"
           }
         ],
         "extras": [],
@@ -23077,7 +26652,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "ROTER THAI-TEE",
         "descriptionIt": "Tè tradizionale tailandese dalle caratteristiche note speziate e profumo ambrato",
         "descriptionDe": "Traditioneller thailändischer Rot-Tee mit feinen exotischen Gewürznoten",
-        "description_th": "ชาไทยแท้รสชาติต้นตำรับ สีส้มอำพัน กลิ่นหอมกรุ่นเป็นเอกลักษณ์ ชงสดใหม่"
+        "description_th": "ชาไทยแท้รสชาติต้นตำรับ สีส้มอำพัน กลิ่นหอมกรุ่นเป็นเอกลักษณ์ ชงสดใหม่",
+        "nameMm": "ထိုင်းရေနွေးကြမ်းနီ",
+        "descriptionMm": "ထိုင်းရိုးရာ ရေနွေးကြမ်းနီသည် ထူးခြားသော ဟင်းခတ်အမွှေးအကြိုင်များနှင့် ပြည့်စုံပြီး ရွှေရောင်အဆင်းရှိ မွှေးပျံ့သော အနံ့ရှိသည်",
+        "name_mm": "ထိုင်းရေနွေးကြမ်းနီ",
+        "description_mm": "ထိုင်းရိုးရာ ရေနွေးကြမ်းနီသည် ထူးခြားသော ဟင်းခတ်အမွှေးအကြိုင်များနှင့် ပြည့်စုံပြီး ရွှေရောင်အဆင်းရှိ မွှေးပျံ့သော အနံ့ရှိသည်"
       },
       {
         "id": "green-thai-tea",
@@ -23102,7 +26681,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Hot",
             "nameIt": "Hot",
             "name_de": "Hot",
-            "nameDe": "Hot"
+            "nameDe": "Hot",
+            "nameMm": "ပူသော",
+            "name_mm": "ပူသော"
           },
           {
             "id": "10218",
@@ -23116,7 +26697,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Iced",
             "nameIt": "Iced",
             "name_de": "Iced",
-            "nameDe": "Iced"
+            "nameDe": "Iced",
+            "nameMm": "အအေး",
+            "name_mm": "အအေး"
           }
         ],
         "extras": [],
@@ -23129,7 +26712,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "GRÜNER THAI-TEE",
         "descriptionIt": "Pregiato tè verde tailandese rinfrescante con delicate note floreali e aromatiche",
         "descriptionDe": "Hochwertiger, erfrischender thailändischer Grüntee mit feinen floralen Noten",
-        "description_th": "ชาเขียวไทยคุณภาพเยี่ยม กลิ่นหอมมะลิและสมุนไพร ชงสด ดื่มสดชื่น"
+        "description_th": "ชาเขียวไทยคุณภาพเยี่ยม กลิ่นหอมมะลิและสมุนไพร ชงสด ดื่มสดชื่น",
+        "nameMm": "ထိုင်းရေနွေးကြမ်းစိမ်း",
+        "descriptionMm": "အရည်အသွေးမြင့် ထိုင်းရေနွေးကြမ်းစိမ်းသည် လန်းဆန်းစေပြီး ပန်းပွင့်အနံ့နှင့် ဟင်းခတ်အမွှေးအကြိုင်အနံ့ နူးညံ့စွာ ပါဝင်သည်",
+        "name_mm": "ထိုင်းရေနွေးကြမ်းစိမ်း",
+        "description_mm": "အရည်အသွေးမြင့် ထိုင်းရေနွေးကြမ်းစိမ်းသည် လန်းဆန်းစေပြီး ပန်းပွင့်အနံ့နှင့် ဟင်းခတ်အမွှေးအကြိုင်အနံ့ နူးညံ့စွာ ပါဝင်သည်"
       }
     ],
     "name_it": "Caffetteria",
@@ -23141,7 +26728,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "Il caffè è il cuore della cultura italiana. Non è solo una bevanda, ma un rituale quotidiano di pausa e piacere, da gustare lentamente e con un sorriso, ogni giorno. Dall'espresso alle versioni più golose, ogni tazza offre un'esperienza autentica e semplice, fatta di sapore e piccoli dettagli curati con passione.",
     "descriptionIt": "Il caffè è il cuore della cultura italiana. Non è solo una bevanda, ma un rituale quotidiano di pausa e piacere, da gustare lentamente e con un sorriso, ogni giorno. Dall'espresso alle versioni più golose, ogni tazza offre un'esperienza autentica e semplice, fatta di sapore e piccoli dettagli curati con passione.",
     "description_de": "Kaffee ist das Herzstück der italienischen Kultur. Er ist nicht nur ein Getraenk, sondern ein tägliches Ritual der Pause und des Genusses, das man jeden Tag in aller Ruhe und mit einem Lächeln zelebrieren sollte. Vom klassischen Espresso bis hin zu feinen Kaffeespezialitäten bietet jede Tasse ein authentisches, einfaches Erlebnis, geprägt von vollem Aroma und liebevollen Details.",
-    "descriptionDe": "Kaffee ist das Herzstück der italienischen Kultur. Er ist nicht nur ein Getraenk, sondern ein tägliches Ritual der Pause und des Genusses, das man jeden Tag in aller Ruhe und mit einem Lächeln zelebrieren sollte. Vom klassischen Espresso bis hin zu feinen Kaffeespezialitäten bietet jede Tasse ein authentisches, einfaches Erlebnis, geprägt von vollem Aroma und liebevollen Details."
+    "descriptionDe": "Kaffee ist das Herzstück der italienischen Kultur. Er ist nicht nur ein Getraenk, sondern ein tägliches Ritual der Pause und des Genusses, das man jeden Tag in aller Ruhe und mit einem Lächeln zelebrieren sollte. Vom klassischen Espresso bis hin zu feinen Kaffeespezialitäten bietet jede Tasse ein authentisches, einfaches Erlebnis, geprägt von vollem Aroma und liebevollen Details.",
+    "nameMm": "ကော်ဖီဆိုင်",
+    "descriptionMm": "ကော်ဖီသည် အီတလီယဉ်ကျေးမှု၏ နှလုံးသားဖြစ်သည်။ ၎င်းသည် သောက်စရာတစ်ခုသာမက နေ့စဉ်အနားယူပြီး ပျော်ရွင်စွာ နှေးကွေးစွာ သုံးဆောင်ရသော ထုံးတမ်းတစ်ခုဖြစ်သည်။ အက်စ်ပရက်ဆိုမှ ပို၍ အရသာရှိသော အမျိုးအစားများအထိ ခွက်တိုင်းသည် အရသာနှင့် စိတ်အားထက်သန်မှုဖြင့် ဂရုတစိုက် ပြုလုပ်ထားသော အသေးစိတ်လေးများဖြင့် စစ်မှန်သော၊ ရိုးရှင်းသော အတွေ့အကြုံကို ပေးသည်။",
+    "name_mm": "ကော်ဖီဆိုင်",
+    "description_mm": "ကော်ဖီသည် အီတလီယဉ်ကျေးမှု၏ နှလုံးသားဖြစ်သည်။ ၎င်းသည် သောက်စရာတစ်ခုသာမက နေ့စဉ်အနားယူပြီး ပျော်ရွင်စွာ နှေးကွေးစွာ သုံးဆောင်ရသော ထုံးတမ်းတစ်ခုဖြစ်သည်။ အက်စ်ပရက်ဆိုမှ ပို၍ အရသာရှိသော အမျိုးအစားများအထိ ခွက်တိုင်းသည် အရသာနှင့် စိတ်အားထက်သန်မှုဖြင့် ဂရုတစိုက် ပြုလုပ်ထားသော အသေးစိတ်လေးများဖြင့် စစ်မှန်သော၊ ရိုးရှင်းသော အတွေ့အကြုံကို ပေးသည်။"
   },
   {
     "id": "fruit-drinks",
@@ -23172,7 +26763,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Senza Zucchero",
             "name_de": "Ohne Zucker",
-            "nameDe": "Ohne Zucker"
+            "nameDe": "Ohne Zucker",
+            "nameMm": "သကြားမထည့်",
+            "name_mm": "သကြားမထည့်"
           },
           {
             "id": "sugar-low",
@@ -23185,7 +26778,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Poco Zucchero",
             "name_de": "Wenig Zucker",
-            "nameDe": "Wenig Zucker"
+            "nameDe": "Wenig Zucker",
+            "nameMm": "သကြားနည်းနည်း",
+            "name_mm": "သကြားနည်းနည်း"
           },
           {
             "id": "sugar-regular",
@@ -23198,7 +26793,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Zucchero Classico",
             "name_de": "Normaler Zucker",
-            "nameDe": "Normaler Zucker"
+            "nameDe": "Normaler Zucker",
+            "nameMm": "သကြားပုံမှန်",
+            "name_mm": "သကြားပုံမှန်"
           },
           {
             "id": "fruit-lime",
@@ -23211,7 +26808,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Lime",
             "name_de": "Limette",
-            "nameDe": "Limette"
+            "nameDe": "Limette",
+            "nameMm": "သံပရာ",
+            "name_mm": "သံပရာ"
           },
           {
             "id": "fruit-papaya",
@@ -23224,7 +26823,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Papaya",
             "name_de": "Papaya",
-            "nameDe": "Papaya"
+            "nameDe": "Papaya",
+            "nameMm": "သင်္ဘောသီး",
+            "name_mm": "သင်္ဘောသီး"
           },
           {
             "id": "fruit-watermelon",
@@ -23237,7 +26838,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Anguria",
             "name_de": "Wassermelone",
-            "nameDe": "Wassermelone"
+            "nameDe": "Wassermelone",
+            "nameMm": "ဖရဲသီး",
+            "name_mm": "ဖရဲသီး"
           },
           {
             "id": "fruit-pineapple",
@@ -23250,7 +26853,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Ananas",
             "name_de": "Ananas",
-            "nameDe": "Ananas"
+            "nameDe": "Ananas",
+            "nameMm": "နာနတ်သီး",
+            "name_mm": "နာနတ်သီး"
           },
           {
             "id": "fruit-banana",
@@ -23263,7 +26868,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Banana",
             "name_de": "Banane",
-            "nameDe": "Banane"
+            "nameDe": "Banane",
+            "nameMm": "ငှက်ပျောသီး",
+            "name_mm": "ငှက်ပျောသီး"
           }
         ],
         "allowed_extras_group": "None",
@@ -23275,7 +26882,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "FRUCHT-SHAKES (Frucht nach Wahl)",
         "descriptionIt": "Frullato 100% naturale preparato al momento con frutta fresca a tua scelta e ghiaccio",
         "descriptionDe": "100% natürlicher Fruchtshake, frisch zubereitet mit Früchten Ihrer Wahl und Eis (ohne Milch)",
-        "description_th": "น้ำผลไม้ปั่นสด 100% (ผลไม้ตามเลือก + น้ำแข็ง) สดชื่น ปราศจากนม ดีต่อสุขภาพ"
+        "description_th": "น้ำผลไม้ปั่นสด 100% (ผลไม้ตามเลือก + น้ำแข็ง) สดชื่น ปราศจากนม ดีต่อสุขภาพ",
+        "nameMm": "သစ်သီးဖျော်ရည် (သစ်သီးရွေးချယ်နိုင်)",
+        "descriptionMm": "၁၀၀% သဘာဝ သစ်သီးဖျော်ရည်ကို သင်ရွေးချယ်သော လတ်ဆတ်သည့် သစ်သီးနှင့် ရေခဲဖြင့် ချက်ချင်း ဖျော်စပ်ပေးပါသည် (နို့မပါ)",
+        "name_mm": "သစ်သီးဖျော်ရည် (သစ်သီးရွေးချယ်နိုင်)",
+        "description_mm": "၁၀၀% သဘာဝ သစ်သီးဖျော်ရည်ကို သင်ရွေးချယ်သော လတ်ဆတ်သည့် သစ်သီးနှင့် ရေခဲဖြင့် ချက်ချင်း ဖျော်စပ်ပေးပါသည် (နို့မပါ)"
       },
       {
         "id": "smoothies-(choice-of-fruit)",
@@ -23300,7 +26911,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Senza Zucchero",
             "name_de": "Ohne Zucker",
-            "nameDe": "Ohne Zucker"
+            "nameDe": "Ohne Zucker",
+            "nameMm": "သကြားမထည့်",
+            "name_mm": "သကြားမထည့်"
           },
           {
             "id": "sugar-low",
@@ -23313,7 +26926,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Poco Zucchero",
             "name_de": "Wenig Zucker",
-            "nameDe": "Wenig Zucker"
+            "nameDe": "Wenig Zucker",
+            "nameMm": "သကြားနည်းနည်း",
+            "name_mm": "သကြားနည်းနည်း"
           },
           {
             "id": "sugar-regular",
@@ -23326,7 +26941,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Zucchero Classico",
             "name_de": "Normaler Zucker",
-            "nameDe": "Normaler Zucker"
+            "nameDe": "Normaler Zucker",
+            "nameMm": "သကြားပုံမှန်",
+            "name_mm": "သကြားပုံမှန်"
           },
           {
             "id": "fruit-lime",
@@ -23339,7 +26956,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Lime",
             "name_de": "Limette",
-            "nameDe": "Limette"
+            "nameDe": "Limette",
+            "nameMm": "သံပရာ",
+            "name_mm": "သံပရာ"
           },
           {
             "id": "fruit-papaya",
@@ -23352,7 +26971,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Papaya",
             "name_de": "Papaya",
-            "nameDe": "Papaya"
+            "nameDe": "Papaya",
+            "nameMm": "သင်္ဘောသီး",
+            "name_mm": "သင်္ဘောသီး"
           },
           {
             "id": "fruit-watermelon",
@@ -23365,7 +26986,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Anguria",
             "name_de": "Wassermelone",
-            "nameDe": "Wassermelone"
+            "nameDe": "Wassermelone",
+            "nameMm": "ဖရဲသီး",
+            "name_mm": "ဖရဲသီး"
           },
           {
             "id": "fruit-pineapple",
@@ -23378,7 +27001,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Ananas",
             "name_de": "Ananas",
-            "nameDe": "Ananas"
+            "nameDe": "Ananas",
+            "nameMm": "နာနတ်သီး",
+            "name_mm": "နာနတ်သီး"
           },
           {
             "id": "fruit-banana",
@@ -23391,7 +27016,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Banana",
             "name_de": "Banane",
-            "nameDe": "Banane"
+            "nameDe": "Banane",
+            "nameMm": "ငှက်ပျောသီး",
+            "name_mm": "ငှက်ပျောသီး"
           }
         ],
         "allowed_extras_group": "None",
@@ -23403,7 +27030,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "SMOOTHIES (Frucht nach Wahl)",
         "descriptionIt": "Smoothie cremoso con frutta fresca a tua scelta, latte e ghiaccio",
         "descriptionDe": "Cremiger Smoothie aus frischen Früchten Ihrer Wahl, frischer Milch und Eis",
-        "description_th": "สมูทตี้เนื้อเนียนนุ่ม ปั่นสดใหม่ด้วยผลไม้ตามเลือก นมสด และน้ำแข็ง"
+        "description_th": "สมูทตี้เนื้อเนียนนุ่ม ปั่นสดใหม่ด้วยผลไม้ตามเลือก นมสด และน้ำแข็ง",
+        "nameMm": "သစ်သီးစမုသ် (သစ်သီးရွေးချယ်နိုင်)",
+        "descriptionMm": "သင်ရွေးချယ်သော လတ်ဆတ်သည့် သစ်သီး၊ လတ်ဆတ်သောနို့နှင့် ရေခဲဖြင့် ဖျော်စပ်ထားသော ခရင်မ်ကဲ့သို့ နူးညံ့သော စမုသ်",
+        "name_mm": "သစ်သီးစမုသ် (သစ်သီးရွေးချယ်နိုင်)",
+        "description_mm": "သင်ရွေးချယ်သော လတ်ဆတ်သည့် သစ်သီး၊ လတ်ဆတ်သောနို့နှင့် ရေခဲဖြင့် ဖျော်စပ်ထားသော ခရင်မ်ကဲ့သို့ နူးညံ့သော စမုသ်"
       },
       {
         "id": "lassis-(choice-of-fruit)",
@@ -23428,7 +27059,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Senza Zucchero",
             "name_de": "Ohne Zucker",
-            "nameDe": "Ohne Zucker"
+            "nameDe": "Ohne Zucker",
+            "nameMm": "သကြားမထည့်",
+            "name_mm": "သကြားမထည့်"
           },
           {
             "id": "sugar-low",
@@ -23441,7 +27074,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Poco Zucchero",
             "name_de": "Wenig Zucker",
-            "nameDe": "Wenig Zucker"
+            "nameDe": "Wenig Zucker",
+            "nameMm": "သကြားနည်းနည်း",
+            "name_mm": "သကြားနည်းနည်း"
           },
           {
             "id": "sugar-regular",
@@ -23454,7 +27089,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Zucchero Classico",
             "name_de": "Normaler Zucker",
-            "nameDe": "Normaler Zucker"
+            "nameDe": "Normaler Zucker",
+            "nameMm": "သကြားပုံမှန်",
+            "name_mm": "သကြားပုံမှန်"
           },
           {
             "id": "fruit-lime",
@@ -23467,7 +27104,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Lime",
             "name_de": "Limette",
-            "nameDe": "Limette"
+            "nameDe": "Limette",
+            "nameMm": "သံပရာ",
+            "name_mm": "သံပရာ"
           },
           {
             "id": "fruit-papaya",
@@ -23480,7 +27119,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Papaya",
             "name_de": "Papaya",
-            "nameDe": "Papaya"
+            "nameDe": "Papaya",
+            "nameMm": "သင်္ဘောသီး",
+            "name_mm": "သင်္ဘောသီး"
           },
           {
             "id": "fruit-watermelon",
@@ -23493,7 +27134,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Anguria",
             "name_de": "Wassermelone",
-            "nameDe": "Wassermelone"
+            "nameDe": "Wassermelone",
+            "nameMm": "ဖရဲသီး",
+            "name_mm": "ဖရဲသီး"
           },
           {
             "id": "fruit-pineapple",
@@ -23506,7 +27149,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Ananas",
             "name_de": "Ananas",
-            "nameDe": "Ananas"
+            "nameDe": "Ananas",
+            "nameMm": "နာနတ်သီး",
+            "name_mm": "နာနတ်သီး"
           },
           {
             "id": "fruit-banana",
@@ -23519,7 +27164,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Banana",
             "name_de": "Banane",
-            "nameDe": "Banane"
+            "nameDe": "Banane",
+            "nameMm": "ငှက်ပျောသီး",
+            "name_mm": "ငှက်ပျောသီး"
           }
         ],
         "allowed_extras_group": "None",
@@ -23531,7 +27178,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "LASSI (Frucht nach Wahl)",
         "descriptionIt": "Tradizionale bevanda rinfrescante a base di yogurt cremoso e frutta fresca a tua scelta",
         "descriptionDe": "Traditionelles Erfrischungsgetränk auf Basis von cremigem Joghurt und frischen Früchten",
-        "description_th": "ลัสซี่โยเกิร์ตสไตล์ดั้งเดิม ปั่นผสมผลไม้สดตามเลือก หอมหวานอมเปรี้ยว สดชื่น"
+        "description_th": "ลัสซี่โยเกิร์ตสไตล์ดั้งเดิม ปั่นผสมผลไม้สดตามเลือก หอมหวานอมเปรี้ยว สดชื่น",
+        "nameMm": "သစ်သီးလာစီ (သစ်သီးရွေးချယ်နိုင်)",
+        "descriptionMm": "ခရင်မ်ကဲ့သို့ နူးညံ့သော ဒိန်ချဉ်နှင့် သင်ရွေးချယ်သော လတ်ဆတ်သည့် သစ်သီးဖြင့် ပြုလုပ်ထားသော ရိုးရာ အေးမြစေသည့် အဖျော်ယမကာ",
+        "name_mm": "သစ်သီးလာစီ (သစ်သီးရွေးချယ်နိုင်)",
+        "description_mm": "ခရင်မ်ကဲ့သို့ နူးညံ့သော ဒိန်ချဉ်နှင့် သင်ရွေးချယ်သော လတ်ဆတ်သည့် သစ်သီးဖြင့် ပြုလုပ်ထားသော ရိုးရာ အေးမြစေသည့် အဖျော်ယမကာ"
       },
       {
         "id": "frappés-(choice-of-fruit)",
@@ -23556,7 +27207,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Senza Zucchero",
             "name_de": "Ohne Zucker",
-            "nameDe": "Ohne Zucker"
+            "nameDe": "Ohne Zucker",
+            "nameMm": "သကြားမထည့်",
+            "name_mm": "သကြားမထည့်"
           },
           {
             "id": "sugar-low",
@@ -23569,7 +27222,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Poco Zucchero",
             "name_de": "Wenig Zucker",
-            "nameDe": "Wenig Zucker"
+            "nameDe": "Wenig Zucker",
+            "nameMm": "သကြားနည်းနည်း",
+            "name_mm": "သကြားနည်းနည်း"
           },
           {
             "id": "sugar-regular",
@@ -23582,7 +27237,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Zucchero Classico",
             "name_de": "Normaler Zucker",
-            "nameDe": "Normaler Zucker"
+            "nameDe": "Normaler Zucker",
+            "nameMm": "သကြားပုံမှန်",
+            "name_mm": "သကြားပုံမှန်"
           },
           {
             "id": "fruit-lime",
@@ -23595,7 +27252,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Lime",
             "name_de": "Limette",
-            "nameDe": "Limette"
+            "nameDe": "Limette",
+            "nameMm": "သံပရာ",
+            "name_mm": "သံပရာ"
           },
           {
             "id": "fruit-papaya",
@@ -23608,7 +27267,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Papaya",
             "name_de": "Papaya",
-            "nameDe": "Papaya"
+            "nameDe": "Papaya",
+            "nameMm": "သင်္ဘောသီး",
+            "name_mm": "သင်္ဘောသီး"
           },
           {
             "id": "fruit-watermelon",
@@ -23621,7 +27282,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Anguria",
             "name_de": "Wassermelone",
-            "nameDe": "Wassermelone"
+            "nameDe": "Wassermelone",
+            "nameMm": "ဖရဲသီး",
+            "name_mm": "ဖရဲသီး"
           },
           {
             "id": "fruit-pineapple",
@@ -23634,7 +27297,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Ananas",
             "name_de": "Ananas",
-            "nameDe": "Ananas"
+            "nameDe": "Ananas",
+            "nameMm": "နာနတ်သီး",
+            "name_mm": "နာနတ်သီး"
           },
           {
             "id": "fruit-banana",
@@ -23647,7 +27312,9 @@ export const menuData: MenuCategory[] = [
             "description_de": "",
             "name_it": "Banana",
             "name_de": "Banane",
-            "nameDe": "Banane"
+            "nameDe": "Banane",
+            "nameMm": "ငှက်ပျောသီး",
+            "name_mm": "ငှက်ပျောသီး"
           }
         ],
         "nameIt": "FRAPPÈ DI FRUTTA (a scelta)",
@@ -23658,7 +27325,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "FRAPPÉS (Frucht nach Wahl)",
         "descriptionIt": "Frappè goloso e cremoso preparato con gelato, latte e frutta fresca a tua scelta",
         "descriptionDe": "Cremiger Frappé zubereitet mit feinem Eis, Milch und frischen Früchten Ihrer Wahl",
-        "description_th": "ฟรับเป้เนื้อครีมเนียนนุ่ม ปั่นด้วยไอศกรีม นมสด และผลไม้สดที่คุณเลือก"
+        "description_th": "ฟรับเป้เนื้อครีมเนียนนุ่ม ปั่นด้วยไอศกรีม นมสด และผลไม้สดที่คุณเลือก",
+        "nameMm": "သစ်သီးဖရပ်ပေ (သစ်သီးရွေးချယ်နိုင်)",
+        "descriptionMm": "အရသာပြည့်ဝပြီး ခရင်မ်ကဲ့သို့ နူးညံ့သော ဖရပ်ပေကို ရေခဲမုန့်၊ နို့နှင့် သင်ရွေးချယ်သော လတ်ဆတ်သည့် သစ်သီးတို့ဖြင့် ရောစပ်ထားသည်",
+        "name_mm": "သစ်သီးဖရပ်ပေ (သစ်သီးရွေးချယ်နိုင်)",
+        "description_mm": "အရသာပြည့်ဝပြီး ခရင်မ်ကဲ့သို့ နူးညံ့သော ဖရပ်ပေကို ရေခဲမုန့်၊ နို့နှင့် သင်ရွေးချယ်သော လတ်ဆတ်သည့် သစ်သီးတို့ဖြင့် ရောစပ်ထားသည်"
       }
     ],
     "name_it": "Bevande alla Frutta",
@@ -23670,7 +27341,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "Tutte le nostre bevande alla frutta sono preparate fresche al momento con frutta fresca e ingredienti di alta qualità accuratamente selezionati, per offrire un sapore pieno e rinfrescante.",
     "descriptionIt": "Tutte le nostre bevande alla frutta sono preparate fresche al momento con frutta fresca e ingredienti di alta qualità accuratamente selezionati, per offrire un sapore pieno e rinfrescante.",
     "description_de": "Alle unsere Fruchtgetränke werden frisch auf Bestellung aus frischen Früchten und sorgfältig ausgewählten, hochwertigen Zutaten zubereitet und bieten einen vollen, erfrischenden Geschmack.",
-    "descriptionDe": "Alle unsere Fruchtgetränke werden frisch auf Bestellung aus frischen Früchten und sorgfältig ausgewählten, hochwertigen Zutaten zubereitet und bieten einen vollen, erfrischenden Geschmack."
+    "descriptionDe": "Alle unsere Fruchtgetränke werden frisch auf Bestellung aus frischen Früchten und sorgfältig ausgewählten, hochwertigen Zutaten zubereitet und bieten einen vollen, erfrischenden Geschmack.",
+    "nameMm": "သစ်သီးဖျော်ရည်များ",
+    "descriptionMm": "ကျွန်ုပ်တို့၏ သစ်သီးဖျော်ရည်အားလုံးကို လတ်ဆတ်သော သစ်သီးများနှင့် ဂရုတစိုက် ရွေးချယ်ထားသော အရည်အသွေးမြင့် ပါဝင်ပစ္စည်းများဖြင့် မှာယူသည့်အခါ လတ်ဆတ်စွာ ပြုလုပ်ထားပြီး ပြည့်ဝပြီး လန်းဆန်းသော အရသာကို ပေးသည်။",
+    "name_mm": "သစ်သီးဖျော်ရည်များ",
+    "description_mm": "ကျွန်ုပ်တို့၏ သစ်သီးဖျော်ရည်အားလုံးကို လတ်ဆတ်သော သစ်သီးများနှင့် ဂရုတစိုက် ရွေးချယ်ထားသော အရည်အသွေးမြင့် ပါဝင်ပစ္စည်းများဖြင့် မှာယူသည့်အခါ လတ်ဆတ်စွာ ပြုလုပ်ထားပြီး ပြည့်ဝပြီး လန်းဆန်းသော အရသာကို ပေးသည်။"
   },
   {
     "id": "soft-drinks",
@@ -23699,7 +27374,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "SODA WASSER",
         "descriptionIt": "Acqua minerale gassata effervescente e dissetante, servita ghiacciata",
         "descriptionDe": "Spritziges, erfrischendes kohlensäurehaltiges Sodawasser, eiskalt serviert",
-        "description_th": "น้ำโซดาเย็นซ่า สดชื่น ดับกระหาย เสิร์ฟเย็นพร้อมดื่ม"
+        "description_th": "น้ำโซดาเย็นซ่า สดชื่น ดับกระหาย เสิร์ฟเย็นพร้อมดื่ม",
+        "nameMm": "ဆိုဒါရေ",
+        "descriptionMm": "အေးခဲနေသော ဆိုဒါရေသန့်သည် တစ်ခုနှင့်တစ်ခု ပွက်ပွက်ဆူနေသော ပူဖောင်းများဖြင့် သောက်ရန်အလွန်ကောင်းမွန်ပါသည်။",
+        "name_mm": "ဆိုဒါရေ",
+        "description_mm": "အေးခဲနေသော ဆိုဒါရေသန့်သည် တစ်ခုနှင့်တစ်ခု ပွက်ပွက်ဆူနေသော ပူဖောင်းများဖြင့် သောက်ရန်အလွန်ကောင်းမွန်ပါသည်။"
       },
       {
         "id": "soft-drink-cans",
@@ -23724,7 +27403,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Coca-Cola",
             "nameIt": "Coca-Cola",
             "name_de": "Coca-Cola",
-            "nameDe": "Coca-Cola"
+            "nameDe": "Coca-Cola",
+            "nameMm": "ကိုကာကိုလာ",
+            "name_mm": "ကိုကာကိုလာ"
           },
           {
             "id": "10082",
@@ -23738,7 +27419,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Coca-Cola Zero",
             "nameIt": "Coca-Cola Zero",
             "name_de": "Coca-Cola Zero",
-            "nameDe": "Coca-Cola Zero"
+            "nameDe": "Coca-Cola Zero",
+            "nameMm": "ကိုကာကိုလာ ဇီးရို",
+            "name_mm": "ကိုကာကိုလာ ဇီးရို"
           },
           {
             "id": "10072",
@@ -23752,7 +27435,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Fanta Aranciata",
             "nameIt": "Fanta Aranciata",
             "name_de": "Fanta Orange",
-            "nameDe": "Fanta Orange"
+            "nameDe": "Fanta Orange",
+            "nameMm": "ဖန်တာ လိမ္မော်",
+            "name_mm": "ဖန်တာ လိမ္မော်"
           },
           {
             "id": "10073",
@@ -23766,7 +27451,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Sprite",
             "nameIt": "Sprite",
             "name_de": "Sprite",
-            "nameDe": "Sprite"
+            "nameDe": "Sprite",
+            "nameMm": "စပရိုက်",
+            "name_mm": "စပရိုက်"
           }
         ],
         "extras": [],
@@ -23779,7 +27466,11 @@ export const menuData: MenuCategory[] = [
         "name_de": "ERFRISCHUNGSGETRÄNKE",
         "nameDe": "ERFRISCHUNGSGETRÄNKE",
         "descriptionDe": "Kohlensäurehaltige Erfrischungsgetränke in der Dose",
-        "description_th": "แฟนต้า, สไปรท์, โคคา-โคล่า"
+        "description_th": "แฟนต้า, สไปรท์, โคคา-โคล่า",
+        "nameMm": "အအေးဗူးများ",
+        "descriptionMm": "ဖန်တာ၊ စပရိုက် သို့မဟုတ် ကိုကာကိုလာ အအေးဗူးများ။",
+        "name_mm": "အအေးဗူးများ",
+        "description_mm": "ဖန်တာ၊ စပရိုက် သို့မဟုတ် ကိုကာကိုလာ အအေးဗူးများ။"
       },
       {
         "id": "drinking-water",
@@ -23804,7 +27495,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Grande",
             "nameIt": "Grande",
             "name_de": "Groß",
-            "nameDe": "Groß"
+            "nameDe": "Groß",
+            "nameMm": "အကြီး",
+            "name_mm": "အကြီး"
           },
           {
             "id": "10069",
@@ -23818,7 +27511,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Piccola",
             "nameIt": "Piccola",
             "name_de": "Klein",
-            "nameDe": "Klein"
+            "nameDe": "Klein",
+            "nameMm": "အသေး",
+            "name_mm": "အသေး"
           }
         ],
         "extras": [],
@@ -23831,7 +27526,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "TISCHWASSER",
         "descriptionIt": "Acqua minerale naturale pura e leggera in bottiglia",
         "descriptionDe": "Reines, stilles natürliches Mineralwasser in der Flasche",
-        "description_th": "น้ำดื่มบริสุทธิ์ สะอาด ปลอดภัย ดับกระหายชื่นใจ"
+        "description_th": "น้ำดื่มบริสุทธิ์ สะอาด ปลอดภัย ดับกระหายชื่นใจ",
+        "nameMm": "သောက်ရေသန့်",
+        "descriptionMm": "သန့်ရှင်းပြီး ပေါ့ပါးသော သဘာဝ သောက်ရေသန့်ဗူး။",
+        "name_mm": "သောက်ရေသန့်",
+        "description_mm": "သန့်ရှင်းပြီး ပေါ့ပါးသော သဘာဝ သောက်ရေသန့်ဗူး။"
       }
     ],
     "name_it": "Bibite & Acqua",
@@ -23843,7 +27542,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "Bibite analcoliche dissetanti, acqua minerale naturale e soda servite ghiacciate.",
     "descriptionIt": "Bibite analcoliche dissetanti, acqua minerale naturale e soda servite ghiacciate.",
     "description_de": "Erfrischende alkoholfreie Getränke, Mineralwasser und gekühltes Sodawasser.",
-    "descriptionDe": "Erfrischende alkoholfreie Getränke, Mineralwasser und gekühltes Sodawasser."
+    "descriptionDe": "Erfrischende alkoholfreie Getränke, Mineralwasser und gekühltes Sodawasser.",
+    "nameMm": "အအေးနှင့် ရေ",
+    "descriptionMm": "အရက်မပါသော အအေးများ၊ သဘာဝ သတ္တုဓာတ်ရေ၊ နှင့် ရေခဲအေးဆိုဒါများကို မည်သည့်အချိန်မဆို လန်းဆန်းစေရန် ကျွေးပါသည်။",
+    "name_mm": "အအေးနှင့် ရေ",
+    "description_mm": "အရက်မပါသော အအေးများ၊ သဘာဝ သတ္တုဓာတ်ရေ၊ နှင့် ရေခဲအေးဆိုဒါများကို မည်သည့်အချိန်မဆို လန်းဆန်းစေရန် ကျွေးပါသည်။"
   },
   {
     "id": "beers",
@@ -23874,7 +27577,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Grande",
             "nameIt": "Grande",
             "name_de": "Groß",
-            "nameDe": "Groß"
+            "nameDe": "Groß",
+            "nameMm": "အကြီး",
+            "name_mm": "အကြီး"
           },
           {
             "id": "10074",
@@ -23888,7 +27593,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Piccola",
             "nameIt": "Piccola",
             "name_de": "Klein",
-            "nameDe": "Klein"
+            "nameDe": "Klein",
+            "nameMm": "အသေး",
+            "name_mm": "အသေး"
           }
         ],
         "extras": [],
@@ -23901,7 +27608,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "CHANG BEER",
         "descriptionIt": "Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché il vetro preservano ed esaltano il sapore per un'esperienza di degustazione completa.",
         "descriptionDe": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis.",
-        "description_th": "เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้"
+        "description_th": "เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้",
+        "nameMm": "ချန်ဘီယာ",
+        "descriptionMm": "ထိုင်းဘီယာအမှတ်တံဆိပ်အကောင်းဆုံးများကို အကြီးနှင့်အသေးဗူးများဖြင့် ရောင်းချပါသည်။ ဖန်ဗူးများသည် အရသာကို မြှင့်တင်ပေးပြီး ဘီယာ၏ ပြည့်ဝသော အတွေ့အကြုံကို ပေးစွမ်းပါသည်။",
+        "name_mm": "ချန်ဘီယာ",
+        "description_mm": "ထိုင်းဘီယာအမှတ်တံဆိပ်အကောင်းဆုံးများကို အကြီးနှင့်အသေးဗူးများဖြင့် ရောင်းချပါသည်။ ဖန်ဗူးများသည် အရသာကို မြှင့်တင်ပေးပြီး ဘီယာ၏ ပြည့်ဝသော အတွေ့အကြုံကို ပေးစွမ်းပါသည်။"
       },
       {
         "id": "leo-beer",
@@ -23926,7 +27637,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Grande",
             "nameIt": "Grande",
             "name_de": "Groß",
-            "nameDe": "Groß"
+            "nameDe": "Groß",
+            "nameMm": "အကြီး",
+            "name_mm": "အကြီး"
           },
           {
             "id": "10075",
@@ -23940,7 +27653,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Piccola",
             "nameIt": "Piccola",
             "name_de": "Klein",
-            "nameDe": "Klein"
+            "nameDe": "Klein",
+            "nameMm": "အသေး",
+            "name_mm": "အသေး"
           }
         ],
         "extras": [],
@@ -23953,7 +27668,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "LEO BEER",
         "descriptionIt": "Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché il vetro preservano ed esaltano il sapore per un'esperienza di degustazione completa.",
         "descriptionDe": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis.",
-        "description_th": "เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้"
+        "description_th": "เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้",
+        "nameMm": "လီယိုဘီယာ",
+        "descriptionMm": "ထိုင်းဘီယာအမှတ်တံဆိပ်အကောင်းဆုံးများကို အကြီးနှင့်အသေးဗူးများဖြင့် ရောင်းချပါသည်။ ဖန်ဗူးများသည် အရသာကို မြှင့်တင်ပေးပြီး ဘီယာ၏ ပြည့်ဝသော အတွေ့အကြုံကို ပေးစွမ်းပါသည်။",
+        "name_mm": "လီယိုဘီယာ",
+        "description_mm": "ထိုင်းဘီယာအမှတ်တံဆိပ်အကောင်းဆုံးများကို အကြီးနှင့်အသေးဗူးများဖြင့် ရောင်းချပါသည်။ ဖန်ဗူးများသည် အရသာကို မြှင့်တင်ပေးပြီး ဘီယာ၏ ပြည့်ဝသော အတွေ့အကြုံကို ပေးစွမ်းပါသည်။"
       },
       {
         "id": "singha-beer",
@@ -23978,7 +27697,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Grande",
             "nameIt": "Grande",
             "name_de": "Groß",
-            "nameDe": "Groß"
+            "nameDe": "Groß",
+            "nameMm": "အကြီး",
+            "name_mm": "အကြီး"
           },
           {
             "id": "10076",
@@ -23992,7 +27713,9 @@ export const menuData: MenuCategory[] = [
             "name_it": "Piccola",
             "nameIt": "Piccola",
             "name_de": "Klein",
-            "nameDe": "Klein"
+            "nameDe": "Klein",
+            "nameMm": "အသေး",
+            "name_mm": "အသေး"
           }
         ],
         "extras": [],
@@ -24005,7 +27728,11 @@ export const menuData: MenuCategory[] = [
         "nameDe": "SINGHA BEER",
         "descriptionIt": "Le migliori marche di birra tailandese servite in bottiglie grandi e piccole, poiché il vetro preservano ed esaltano il sapore per un'esperienza di degustazione completa.",
         "descriptionDe": "Die besten thailändischen Biermarken, serviert in großen und kleinen Flaschen – denn Glasflaschen bewahren den Geschmack und sorgen für das vollendete Biererlebnis.",
-        "description_th": "เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้"
+        "description_th": "เบียร์ไทยคุณภาพดีที่สุด เสิร์ฟทั้งขวดใหญ่และขวดเล็ก เพราะขวดแก้วช่วยให้รสชาติเด่นชัด เต็มอรรถรสของเบียร์แท้",
+        "nameMm": "စင်ဟာဘီယာ",
+        "descriptionMm": "ထိုင်းဘီယာအမှတ်တံဆိပ်အကောင်းဆုံးများကို အကြီးနှင့်အသေးဗူးများဖြင့် ရောင်းချပါသည်။ ဖန်ဗူးများသည် အရသာကို မြှင့်တင်ပေးပြီး ဘီယာ၏ ပြည့်ဝသော အတွေ့အကြုံကို ပေးစွမ်းပါသည်။",
+        "name_mm": "စင်ဟာဘီယာ",
+        "description_mm": "ထိုင်းဘီယာအမှတ်တံဆိပ်အကောင်းဆုံးများကို အကြီးနှင့်အသေးဗူးများဖြင့် ရောင်းချပါသည်။ ဖန်ဗူးများသည် အရသာကို မြှင့်တင်ပေးပြီး ဘီယာ၏ ပြည့်ဝသော အတွေ့အကြုံကို ပေးစွမ်းပါသည်။"
       }
     ],
     "name_it": "Birre",
@@ -24017,7 +27744,11 @@ export const menuData: MenuCategory[] = [
     "description_it": "Le migliori birre tailandesi e internazionali servite ghiacciate in bottiglia per accompagnare al meglio il tuo pasto.",
     "descriptionIt": "Le migliori birre tailandesi e internazionali servite ghiacciate in bottiglia per accompagnare al meglio il tuo pasto.",
     "description_de": "Erlesene thailändische und internationale Flaschenbiere, eiskalt serviert.",
-    "descriptionDe": "Erlesene thailändische und internationale Flaschenbiere, eiskalt serviert."
+    "descriptionDe": "Erlesene thailändische und internationale Flaschenbiere, eiskalt serviert.",
+    "nameMm": "ဘီယာများ",
+    "descriptionMm": "သင့်အစားအစာနှင့် အတူ အကောင်းဆုံး သုံးဆောင်နိုင်ရန် ရေခဲအေးသော ပုလင်းဖြင့် ကျွေးသော အကောင်းဆုံး ထိုင်းနှင့် နိုင်ငံတကာ ဘီယာများ။",
+    "name_mm": "ဘီယာများ",
+    "description_mm": "သင့်အစားအစာနှင့် အတူ အကောင်းဆုံး သုံးဆောင်နိုင်ရန် ရေခဲအေးသော ပုလင်းဖြင့် ကျွေးသော အကောင်းဆုံး ထိုင်းနှင့် နိုင်ငံတကာ ဘီယာများ။"
   },
   {
     "id": "wines",
@@ -24034,6 +27765,10 @@ export const menuData: MenuCategory[] = [
     "description_it": "Selezione accurata di vini italiani ed internazionali, scelti per esaltare i sapori di ogni piatto del nostro menù.",
     "descriptionIt": "Selezione accurata di vini italiani ed internazionali, scelti per esaltare i sapori di ogni piatto del nostro menù.",
     "description_de": "Sorgfältig zusammengestellte Auswahl an italienischen und internationalen Weinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben.",
-    "descriptionDe": "Sorgfältig zusammengestellte Auswahl an italienischen und internationalen Weinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben."
+    "descriptionDe": "Sorgfältig zusammengestellte Auswahl an italienischen und internationalen Weinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben.",
+    "nameMm": "ဝိုင်များ",
+    "descriptionMm": "ကျွန်ုပ်တို့၏ မီနူးရှိ ဟင်းလျာတိုင်း၏ အရသာကို မြှင့်တင်ရန် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်များ၏ ဂရုတစိုက် ရွေးချယ်ထားသော စုစည်းမှု။",
+    "name_mm": "ဝိုင်များ",
+    "description_mm": "ကျွန်ုပ်တို့၏ မီနူးရှိ ဟင်းလျာတိုင်း၏ အရသာကို မြှင့်တင်ရန် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်များ၏ ဂရုတစိုက် ရွေးချယ်ထားသော စုစည်းမှု။"
   }
 ];

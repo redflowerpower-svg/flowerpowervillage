@@ -10,6 +10,7 @@ export interface TableReservationEmailPayload {
   reservation_time: string;
   seating_area: string;
   notes?: string;
+  is_wine_privilege?: boolean;
   lang?: "IT" | "EN" | "TH" | "DE";
 }
 
@@ -17,6 +18,8 @@ const copy = {
   IT: {
     subject: (id: string) => `🍽️ Conferma Ricezione Prenotazione Tavolo #${id} - Flower Power Pizza Ranong`,
     statusBadge: "RICHIESTA PRESA IN CARICO",
+    winePrivilegeTitle: "🍷 PRIVILEGIO CANTINA ATTIVATO (-10%)",
+    winePrivilegeDesc: "Mostra questa conferma al cameriere per ottenere il 10% di sconto su qualsiasi bottiglia di vino italiano o internazionale al tavolo!",
     title: "Grazie per la tua prenotazione!",
     subtitle: "Abbiamo preso in carico la tua richiesta per Flower Power Pizza Ranong.",
     desc: "Il nostro staff ha registrato i dettagli del tuo tavolo. Ti aspettiamo con la nostra autentica pizza italiana e pasta fresca artigianale!",
@@ -38,6 +41,8 @@ const copy = {
   EN: {
     subject: (id: string) => `🍽️ Table Booking Request Confirmation #${id} - Flower Power Pizza Ranong`,
     statusBadge: "BOOKING RECEIVED",
+    winePrivilegeTitle: "🍷 WINE CELLAR PRIVILEGE ACTIVATED (10% OFF)",
+    winePrivilegeDesc: "Present this confirmation to your waiter to claim 10% off any Italian or international wine bottle at your table!",
     title: "Thank you for your reservation!",
     subtitle: "We have received your table booking request at Flower Power Pizza Ranong.",
     desc: "Our team has noted all your details. We look forward to welcoming you with authentic Italian pizza and homemade pasta!",
@@ -59,6 +64,8 @@ const copy = {
   TH: {
     subject: (id: string) => `🍽️ ยืนยันการรับคำขอจองโต๊ะ #${id} - ฟลาวเวอร์ พาวเวอร์ พิซซ่า ระนอง`,
     statusBadge: "ได้รับข้อมูลการจองแล้ว",
+    winePrivilegeTitle: "🍷 สิทธิพิเศษส่วนลดไวน์ 10% (เปิดใช้งานแล้ว)",
+    winePrivilegeDesc: "แสดงอีเมลยืนยันนี้แก่พนักงานที่ร้านเพื่อรับส่วนลด 10% สำหรับไวน์ทุกขวดที่โต๊ะอาหาร!",
     title: "ขอบคุณสำหรับการจองโต๊ะ!",
     subtitle: "เราได้รับคำขอจองโต๊ะของคุณที่ ฟลาวเวอร์ พาวเวอร์ พิซซ่า ระนอง เรียบร้อยแล้ว",
     desc: "พนักงานของร้านได้บันทึกข้อมูลการจองของท่านเรียบร้อยแล้ว แล้วพบกับพิซซ่าอิตาเลียนแท้และพาสต้าเส้นสดสูตรดั้งเดิม!",
@@ -80,6 +87,8 @@ const copy = {
   DE: {
     subject: (id: string) => `🍽️ Tischreservierung Eingangsbestätigung #${id} - Flower Power Pizza Ranong`,
     statusBadge: "RESERVIERUNG ERHALTEN",
+    winePrivilegeTitle: "🍷 WEINKELLER-VORTEIL AKTIVIERT (-10%)",
+    winePrivilegeDesc: "Zeigen Sie diese Bestätigung dem Serviceteam vor, um 10% Rabatt auf alle Weinflaschen am Tisch zu erhalten!",
     title: "Vielen Dank für Ihre Reservierung!",
     subtitle: "Wir haben Ihre Reservierungsanfrage bei Flower Power Pizza Ranong erhalten.",
     desc: "Unser Team hat alle Details erfasst. Wir freuen uns darauf, Sie mit authentischer italienischer Pizza und hausgemachter Pasta zu begrüßen!",
@@ -161,6 +170,22 @@ export async function sendTableReservationEmail(
                     <p style="color: #57534e; margin: 12px 0 0; font-size: 13px; line-height: 1.5; background-color: #fafaf9; padding: 12px; border-radius: 12px; border: 1px solid #f5f5f4;">${t.desc}</p>
                   </td>
                 </tr>
+
+                ${data.is_wine_privilege || (data.notes && data.notes.toLowerCase().includes('10%')) ? `
+                <!-- 🍷 Wine Cellar Privilege Coupon Banner -->
+                <tr>
+                  <td style="padding: 0 24px 16px;">
+                    <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 2px solid #f59e0b; border-radius: 16px; padding: 14px 18px; text-align: center; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);">
+                      <div style="display: inline-block; background-color: #78350f; color: #fef3c7; font-size: 10px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; margin-bottom: 6px;">
+                        COUPON TAVOLO CONFERMATO
+                      </div>
+                      <h3 style="color: #78350f; margin: 0 0 4px; font-size: 15px; font-weight: 900;">${t.winePrivilegeTitle}</h3>
+                      <p style="color: #92400e; margin: 0; font-size: 12px; line-height: 1.4; font-weight: 500;">
+                        ${t.winePrivilegeDesc}
+                      </p>
+                    </div>
+                  </td>
+                </tr>` : ""}
 
                 <!-- Details Summary Card -->
                 <tr>

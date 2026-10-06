@@ -8,6 +8,8 @@ export interface CartItem {
   nameTh: string;
   nameIt?: string;
   nameDe?: string;
+  nameMm?: string;
+  name_mm?: string;
   quantity: number;
   basePrice: number;
   selectedVariant?: Variant | null;
@@ -59,6 +61,8 @@ export const useCartStore = create<CartState>((set, get) => ({
       nameTh: item.nameTh || item.name || '',
       nameIt: item.nameIt,
       nameDe: item.nameDe,
+      nameMm: item.nameMm || item.name_mm,
+      name_mm: item.nameMm || item.name_mm,
       image: item.image || '',
       basePrice: isNaN(basePrice) ? 0 : basePrice,
       quantity: isNaN(quantity) || quantity <= 0 ? 1 : quantity,

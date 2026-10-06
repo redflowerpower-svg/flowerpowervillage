@@ -105,10 +105,12 @@ export interface DishFormData {
   nameEn: string;
   nameTh: string;
   nameDe: string;
+  nameMm?: string;
   descriptionIt: string;
   descriptionEn: string;
   descriptionTh: string;
   descriptionDe: string;
+  descriptionMm?: string;
   price: number;
   image: string;
   dietaryOverride?: DietaryType | 'auto';
@@ -125,10 +127,12 @@ const DEFAULT_DISH_FORM: DishFormData = {
   nameEn: '',
   nameTh: '',
   nameDe: '',
+  nameMm: '',
   descriptionIt: '',
   descriptionEn: '',
   descriptionTh: '',
   descriptionDe: '',
+  descriptionMm: '',
   price: 250,
   image: '',
   dietaryOverride: 'auto',
@@ -300,11 +304,11 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
   const handleDeepSeekTranslate = async () => {
     const currentName = activeLangTab === 'IT' ? formData.nameIt :
                         activeLangTab === 'EN' ? formData.nameEn :
-                        activeLangTab === 'TH' ? formData.nameTh : formData.nameDe;
+                        activeLangTab === 'TH' ? formData.nameTh : activeLangTab === 'DE' ? formData.nameDe : (formData.nameMm || '');
     
     const currentDesc = activeLangTab === 'IT' ? formData.descriptionIt :
                         activeLangTab === 'EN' ? formData.descriptionEn :
-                        activeLangTab === 'TH' ? formData.descriptionTh : formData.descriptionDe;
+                        activeLangTab === 'TH' ? formData.descriptionTh : activeLangTab === 'DE' ? formData.descriptionDe : (formData.descriptionMm || '');
 
     if (!currentName.trim()) {
       showNotification('Inserisci il nome del piatto prima di tradurre', 'error');
@@ -327,13 +331,15 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
         nameEn: res.nameEn,
         nameTh: res.nameTh,
         nameDe: res.nameDe,
+        nameMm: res.nameMm,
         descriptionIt: res.descriptionIt,
         descriptionEn: res.descriptionEn,
         descriptionTh: res.descriptionTh,
-        descriptionDe: res.descriptionDe
+        descriptionDe: res.descriptionDe,
+        descriptionMm: res.descriptionMm
       }));
 
-      showNotification('Traduzioni generate con successo in 4 lingue tramite DeepSeek AI!');
+      showNotification('Traduzioni generate con successo in 5 lingue (incluso Birmano 🇲🇲) tramite DeepSeek AI!');
     } catch (err: any) {
       console.error('Translation error:', err);
       showNotification('Errore durante la traduzione DeepSeek', 'error');
@@ -778,7 +784,7 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
 
             {/* Language Tabs */}
             <div className="flex items-center gap-1 bg-stone-950 p-1 rounded-xl border border-stone-800">
-              {(['IT', 'EN', 'TH', 'DE'] as DishLang[]).map((lang) => (
+              {(['IT', 'EN', 'TH', 'DE', 'MM'] as DishLang[]).map((lang) => (
                 <button
                   key={lang}
                   type="button"
@@ -789,7 +795,7 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
                       : 'text-stone-400 hover:text-white'
                   }`}
                 >
-                  {lang === 'IT' ? 'Italiano' : lang === 'EN' ? 'English' : lang === 'TH' ? 'ไทย' : 'Deutsch'}
+                  {lang === 'IT' ? 'Italiano 🇮🇹' : lang === 'EN' ? 'English 🇬🇧' : lang === 'TH' ? 'ไทย 🇹🇭' : lang === 'DE' ? 'Deutsch 🇩🇪' : 'မြန်မာ 🇲🇲'}
                 </button>
               ))}
             </div>
@@ -805,7 +811,7 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
                   value={
                     activeLangTab === 'IT' ? formData.nameIt :
                     activeLangTab === 'EN' ? formData.nameEn :
-                    activeLangTab === 'TH' ? formData.nameTh : formData.nameDe
+                    activeLangTab === 'IT' ? formData.nameIt : activeLangTab === 'EN' ? formData.nameEn : activeLangTab === 'TH' ? formData.nameTh : activeLangTab === 'DE' ? formData.nameDe : (formData.nameMm || '')
                   }
                   onChange={(e) => {
                     const val = e.target.value;
@@ -815,6 +821,7 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
                       nameEn: activeLangTab === 'EN' ? val : prev.nameEn,
                       nameTh: activeLangTab === 'TH' ? val : prev.nameTh,
                       nameDe: activeLangTab === 'DE' ? val : prev.nameDe,
+                      nameMm: activeLangTab === 'MM' ? val : prev.nameMm,
                     }));
                   }}
                   placeholder="Es. PIZZA MARGHERITA, TAGLIATA DI MANZO..."
@@ -831,7 +838,7 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
                   value={
                     activeLangTab === 'IT' ? formData.descriptionIt :
                     activeLangTab === 'EN' ? formData.descriptionEn :
-                    activeLangTab === 'TH' ? formData.descriptionTh : formData.descriptionDe
+                    activeLangTab === 'IT' ? formData.descriptionIt : activeLangTab === 'EN' ? formData.descriptionEn : activeLangTab === 'TH' ? formData.descriptionTh : activeLangTab === 'DE' ? formData.descriptionDe : (formData.descriptionMm || '')
                   }
                   onChange={(e) => {
                     const val = e.target.value;
@@ -841,6 +848,7 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
                       descriptionEn: activeLangTab === 'EN' ? val : prev.descriptionEn,
                       descriptionTh: activeLangTab === 'TH' ? val : prev.descriptionTh,
                       descriptionDe: activeLangTab === 'DE' ? val : prev.descriptionDe,
+                      descriptionMm: activeLangTab === 'MM' ? val : prev.descriptionMm,
                     }));
                   }}
                   placeholder="Lista ingredienti separati da virgola (es. Salsa di pomodoro, mozzarella fiordilatte, basilico fresco...)"

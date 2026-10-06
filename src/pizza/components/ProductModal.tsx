@@ -33,11 +33,17 @@ const labels = {
     addText: 'เพิ่มลงตะกร้า',
     freeText: 'ฟรี',
   },
-  DE: {
+    DE: {
     sizeTitle: 'Größe',
     extraTitle: 'Zusätzliche Zutaten',
     addText: 'Hinzufügen',
     freeText: 'Gratis',
+  },
+  MM: {
+    sizeTitle: 'အရွယ်အစား',
+    extraTitle: 'အပိုထည့်စရာများ',
+    addText: 'ထည့်မည်',
+    freeText: 'အခမဲ့',
   },
 };
 
@@ -261,7 +267,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
     return i.description || i.descriptionIt || i.description_it || '';
   };
 
-  const t = labels[lang];
+  const t = labels[lang] || labels["IT"];
 
   return (
     <>

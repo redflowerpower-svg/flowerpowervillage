@@ -9,6 +9,7 @@ export interface TableReservationData {
   seating_area: 'indoor' | 'outdoor' | 'hut' | 'any';
   occasion?: string;
   notes?: string;
+  is_wine_privilege?: boolean;
   status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   lang?: 'IT' | 'EN' | 'TH' | 'DE';
   created_at?: string;
@@ -25,7 +26,8 @@ export const AREA_LABELS: Record<string, string> = {
 export function serializeTableReservationToAddress(data: TableReservationData): string {
   const code = data.id || '';
   const statusFlag = data.status === 'cancelled' ? ' [CANCELLED:true]' : '';
-  return `[TABLE_RESERVATION] [DATE:${data.reservation_date}] [TIME:${data.reservation_time}] [GUESTS:${data.guests}] [AREA:${data.seating_area}] [OCCASION:${data.occasion || ''}] [NOTE:${data.notes || ''}] [EMAIL:${data.email || ''}] [LANG:${data.lang || 'IT'}] [TB_CODE:${code}]${statusFlag}`;
+  const wineFlag = data.is_wine_privilege ? ' [WINE_PRIVILEGE:true]' : '';
+  return `[TABLE_RESERVATION] [DATE:${data.reservation_date}] [TIME:${data.reservation_time}] [GUESTS:${data.guests}] [AREA:${data.seating_area}] [OCCASION:${data.occasion || ''}] [NOTE:${data.notes || ''}] [EMAIL:${data.email || ''}] [LANG:${data.lang || 'IT'}] [TB_CODE:${code}]${wineFlag}${statusFlag}`;
 }
 
 export function parseTableReservationFromOrder(order: any): TableReservationData {
@@ -39,6 +41,11 @@ export function parseTableReservationFromOrder(order: any): TableReservationData
   const noteMatch = addr.match(/\[NOTE:\s*([^\]]+)\]/i);
   const langMatch = addr.match(/\[LANG:\s*([^\]]+)\]/i);
   const isCancelledFlag = addr.includes('[CANCELLED:true]') || addr.includes('[CANCELLED]');
+  const isWinePrivilege = addr.includes('[WINE_PRIVILEGE:true]') || 
+                          addr.toLowerCase().includes('sconto 10%') || 
+                          addr.toLowerCase().includes('wine privilege') || 
+                          addr.toLowerCase().includes('ส่วนลดไวน์') ||
+                          addr.toLowerCase().includes('weinkeller-rabatt');
 
   const rawArea = areaMatch ? areaMatch[1].trim().toLowerCase() : 'any';
   const seatingArea = (['indoor', 'outdoor', 'hut', 'any'].includes(rawArea) ? rawArea : 'any') as TableReservationData['seating_area'];
@@ -64,6 +71,7 @@ export function parseTableReservationFromOrder(order: any): TableReservationData
     seating_area: seatingArea,
     occasion: occasionMatch ? occasionMatch[1].trim() : '',
     notes: noteMatch ? noteMatch[1].trim() : '',
+    is_wine_privilege: isWinePrivilege,
     status,
     lang: (langMatch ? langMatch[1].trim().toUpperCase() : 'IT') as any,
     created_at: order.created_at || new Date().toISOString(),

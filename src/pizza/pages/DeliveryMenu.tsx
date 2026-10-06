@@ -99,6 +99,25 @@ const translations = {
     bookTableSubtitle: 'Innenbereich, Außenbereich oder Gartenhütte',
     bookTableBtn: 'RESERVIEREN',
   },
+  MM: {
+    title: 'Flower Power Pizza',
+    subtitle: 'Ranong, ထိုင်းနိုင်ငံ',
+    tagline1: 'ပီဇာနှင့် အီတလီအစားအစာ',
+    tagline2: 'အီတလီစားဖိုမှူး • တင်သွင်းကုန်ကြမ်းစစ်စစ်',
+    info1: 'နေ့စဉ်ဖွင့်သည်',
+    info2: '11:00 – 21:30',
+    info3: 'ပို့ဆောင်မှုနှင့် ဆိုင်မှလာယူရန် (Takeaway)',
+    cartItems: 'ခြင်းထဲရှိ ပစ္စည်းများ',
+    cartItem: 'ခြင်းထဲရှိ ပစ္စည်း',
+    promoTitle: 'ပရိုမိုးရှင်းများနှင့် ပို့ဆောင်မှု အချက်အလက်',
+    deliveryLimit: 'ပို့ဆောင်မှုကို ရနောင်းမြို့တွင်း ဧရိယာအတွက်သာ သီးသန့် ဝန်ဆောင်မှုပေးပါသည်။',
+    promoFreeDelivery: '၃၀၀ ဘတ် အထက် အခမဲ့ ပို့ဆောင်ပေးပါသည်',
+    promoFirstOrder: 'ပထမဆုံး အော်ဒါအတွက် ၁၀% လျှော့စျေး',
+    bookTableBadge: 'ဆိုင်တွင် သုံးဆောင်ရန်',
+    bookTableTitle: 'စားပွဲ သို့မဟုတ် တဲ ကြိုတင်ဘွတ်ကင်လုပ်ရန်',
+    bookTableSubtitle: 'အတွင်းခန်း၊ အပြင်ဘက် သို့မဟုတ် သဘာဝတဲ',
+    bookTableBtn: 'ယခုဘွတ်ကင်လုပ်မည်',
+  },
 };
 
 const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
@@ -107,90 +126,70 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     EN: { name: 'Daily Specials', desc: 'Exclusive daily creations and seasonal specialties freshly prepared by our Italian chef with premium ingredients' },
     TH: { name: 'เมนูพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
     DE: { name: 'Tagesempfehlungen', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs aus frischen Zutaten' },
+    MM: { name: 'နေ့စဉ် အထူးဟင်းလျာများ', desc: 'အီတလီစားဖိုမှူးမှ လတ်ဆတ်သော ရာသီပေါ် ကုန်ကြမ်းများဖြင့် နေ့စဉ် သီးသန့် ဖန်တီးထားသော အထူးဟင်းလျာများ' },
   },
   'traditional-italian-pizza': {
     IT: { name: 'Pizze Classiche', desc: 'Impasto a fermentazione naturale' },
     EN: { name: 'Classic Pizzas', desc: 'Slow-fermented Italian dough' },
     TH: { name: 'พิซซ่าคลาสสิค', desc: 'แป้งหมักธรรมชาติสูตรดั้งเดิม' },
     DE: { name: 'Klassische Pizzas', desc: 'Natursauerteig-Pizzaboden' },
+    MM: { name: 'ရိုးရာ အီတလီ ပီဇာ', desc: 'သဘာဝနည်းဖြင့် နှပ်ထားသော မုန့်သား' },
   },
   'pasta': {
     IT: { name: 'Pasta', desc: 'Primi piatti della tradizione' },
     EN: { name: 'Pasta Dishes', desc: 'Traditional Italian pasta' },
     TH: { name: 'พาสต้า', desc: 'เมนูพาสต้าอิตาเลียนดั้งเดิม' },
     DE: { name: 'Pasta', desc: 'Traditionelle italienische Pasta' },
-  },
-  'italian-salads': {
-    IT: { name: 'Insalate Italiane', desc: 'Verdure fresche e ingredienti sani' },
-    EN: { name: 'Italian Salads', desc: 'Fresh salads with olive oil' },
-    TH: { name: 'สลัดอิตาเลียน', desc: 'ผักสดและน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิน' },
-    DE: { name: 'Italienische Salate', desc: 'Frische Salate mit Olivenöl' },
-  },
-  'pizza-sandwich': {
-    IT: { name: 'Focaccia Pizza Sandwich', desc: 'Focaccia ligure appena sfornata e farcita' },
-    EN: { name: 'Focaccia Pizza Sandwiches', desc: 'Freshly baked stuffed focaccia sandwiches' },
-    TH: { name: 'ฟอคคาเซีย & พิตซ่าแซนด์วิช', desc: 'อบใหม่ร้อนๆ ไส้แน่น' },
-    DE: { name: 'Focaccia Pizza Sandwich', desc: 'Frisch gebackenes Focaccia-Sandwich' },
-  },
-  'pizza-burgers': {
-    IT: { name: 'Pizza Burger', desc: 'Hamburger in stile italiano' },
-    EN: { name: 'Pizza Burgers', desc: 'Italian-style burgers' },
-    TH: { name: 'พิซซ่าเบอร์เกอร์', desc: 'เบอร์เกอร์โฮมเมดสไตล์อิตาเลียน' },
-    DE: { name: 'Pizza Burger', desc: 'Burger nach italienischer Art' },
-  },
-  'french-fries': {
-    IT: { name: 'Patatine Fritte', desc: 'Dorate e croccanti' },
-    EN: { name: 'French Fries', desc: 'Crispy and golden' },
-    TH: { name: 'มันฝรั่งทอด', desc: 'เฟรนช์ฟรายส์ทอดสดใหม่' },
-    DE: { name: 'Pommes Frites', desc: 'Knusprig und goldbraun' },
-  },
-  'desserts': {
-    IT: { name: 'Dolci', desc: 'Tiramisù e dessert artigianali' },
-    EN: { name: 'Desserts', desc: 'Tiramisù and homemade desserts' },
-    TH: { name: 'ของหวาน', desc: 'ทิรามิสุและขนมหวานโฮมเมด' },
-    DE: { name: 'Desserts', desc: 'Tiramisù und hausgemachte Desserts' },
+    MM: { name: 'ခေါက်ဆွဲ', desc: 'ရိုးရာ အီတလီ ခေါက်ဆွဲ ဟင်းလျာများ' },
   },
   'breakfast-and-snacks': {
     IT: { name: 'Colazione & Snack', desc: 'Per iniziare la giornata' },
     EN: { name: 'Breakfast & Snacks', desc: 'To start your day' },
     TH: { name: 'อาหารเช้าและของว่าง', desc: 'เริ่มต้นวันใหม่ด้วยพลังงาน' },
     DE: { name: 'Frühstück & Snacks', desc: 'Für einen guten Start in den Tag' },
+    MM: { name: 'နံနက်စာနှင့် သရေစာ', desc: 'နေ့သစ်ကို စတင်ရန်' },
   },
   'coffee-shop': {
     IT: { name: 'Caffetteria', desc: 'Caffè espresso italiano' },
     EN: { name: 'Coffee Shop', desc: 'Italian espresso coffee' },
     TH: { name: 'ร้านกาแฟ', desc: 'เอสเพรสโซ่อิตาเลียนแท้' },
     DE: { name: 'Kaffeeshop', desc: 'Italienischer Espresso' },
+    MM: { name: 'ကော်ဖီဆိုင်', desc: 'စစ်မှန်သော အီတလီ အက်စ်ပရက်ဆို ကော်ဖီ' },
   },
   'fruit-drinks': {
     IT: { name: 'Bevande alla Frutta', desc: 'Frullati e shake freschi' },
     EN: { name: 'Fruit Drinks', desc: 'Fresh fruit shakes' },
     TH: { name: 'เครื่องดื่มผลไม้', desc: 'ผลไม้สดปั่นสดใหม่' },
     DE: { name: 'Fruchtgetränke', desc: 'Frische Frucht-Shakes' },
+    MM: { name: 'သစ်သီးဖျော်ရည်များ', desc: 'လတ်ဆတ်သော သစ်သီးဖျော်ရည်များ' },
   },
   'soft-drinks': {
     IT: { name: 'Bibite & Acqua', desc: 'Bibite analcoliche in lattina, acqua minerale naturale e bevande rinfrescanti servite fredde.' },
     EN: { name: 'Soft Drinks & Water', desc: 'Canned soft drinks, natural mineral water, and chilled refreshing beverages.' },
     TH: { name: 'น้ำอัดลมและน้ำดื่ม', desc: 'น้ำอัดลมกระป๋อง น้ำดื่มธรรมชาติ และเครื่องดื่มเพิ่มความสดชื่นเสิร์ฟเย็น' },
     DE: { name: 'Erfrischungsgetränke & Wasser', desc: 'Erfrischungsgetränke in der Dose, natürliches Mineralwasser und gekühlte Getränke.' },
+    MM: { name: 'အအေးနှင့် သောက်ရေသန့်', desc: 'ဗူးသွပ်အအေးများ၊ သဘာဝတွင်းထွက်ရေနှင့် အေးမြလန်းဆန်းစေသော သောက်စရာများ။' },
   },
   'beers': {
     IT: { name: 'Birre', desc: 'Le migliori marche di birra in bottiglia grande e piccola, servite ghiacciate.' },
     EN: { name: 'Beers', desc: 'The best Thai and international bottled beers served ice cold.' },
     TH: { name: 'เบียร์', desc: 'เบียร์ขวดเย็นเจี๊ยบคุณภาพดี มีให้เลือกทั้งขวดใหญ่และขวดเล็ก' },
     DE: { name: 'Biere', desc: 'Beste thailändische und internationale Flaschenbiere eiskalt serviert.' },
+    MM: { name: 'ဘီယာများ', desc: 'အကောင်းဆုံး ထိုင်းနှင့် နိုင်ငံတကာ ဘီယာပုလင်း အေးအေးများ။' },
   },
   'beers-and-wines': {
     IT: { name: 'Birre & Vini', desc: 'Birre fresche e selezione di vini italiani' },
     EN: { name: 'Beers & Wines', desc: 'Chilled beers and Italian wine selection' },
     TH: { name: 'เบียร์และไวน์', desc: 'เบียร์เย็นๆ และไวน์อิตาเลียนคัดสรร' },
     DE: { name: 'Biere & Weine', desc: 'Gekühlte Biere und ausgewählte italienische Weine' },
+    MM: { name: 'ဘီယာနှင့် ဝိုင်များ', desc: 'အေးမြသော ဘီယာများနှင့် ရွေးချယ်ထားသော အီတလီ ဝိုင်များ' },
   },
   'wines': {
     IT: { name: 'Vini', desc: 'Selezione accurata di vini italiani ed internazionali, scelti per esaltare i sapori di ogni piatto del nostro menù.' },
     EN: { name: 'Wines', desc: 'Carefully curated selection of fine Italian and international wines, chosen to enhance the flavors of every dish on our menu.' },
     TH: { name: 'ไวน์', desc: 'คัดสรรไวน์อิตาเลียนและไวน์นานาชาติชั้นเลิศอย่างพิถีพิถัน เพื่อเสริมรสชาติของทุกเมนูให้โดดเด่นและสมดุลยิ่งขึ้น' },
     DE: { name: 'Weine', desc: 'Sorgfältig zusammengestellte Auswahl an italienischen und internationalen Weinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben.' },
+    MM: { name: 'ဝိုင်များ', desc: 'ကျွန်ုပ်တို့၏ ဟင်းလျာ အရသာတိုင်းကို ပိုမိုပြည့်စုံစေရန် ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်ကောင်းများ။' },
   },
 };
 
@@ -201,13 +200,15 @@ const DAILY_SPECIALS_SECTIONS = [
       IT: 'Primi Piatti, Frutti di Mare & Paste Ripiene',
       EN: 'First Courses, Seafood & Stuffed Pasta',
       TH: 'พาสต้าและราวิโอลีโฮมเมด',
-      DE: 'Pastagerichte & Gefüllte Nudeln'
+      DE: 'Pastagerichte & Gefüllte Nudeln',
+      MM: 'ပင်လယ်စာ ပတ်စ်တာနှင့် အစာသွပ် ရာဗီအိုလီ',
     },
     desc: {
       IT: 'Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali con formati a scelta.',
       EN: 'Seafood Spaghetti, Fresh Crab Meat, Salmon Penne, Squid Ink Tagliatelle, and artisanal Ravioli with your choice of pasta format.',
       TH: 'สปาเก็ตตี้ซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมด เลือกเส้นและรูปแบบได้ตามใจชอบ',
-      DE: 'Meeresfrüchte-Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte Ravioli mit wählbaren Formaten.'
+      DE: 'Meeresfrüchte-Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte Ravioli mit wählbaren Formaten.',
+      MM: 'လတ်ဆတ်သော ပင်လယ်စာ စပါဂက်တီ၊ ဂဏန်းသား၊ ဆယ်လ်မွန်၊ ပြည်ကြီးငါးမှင်ခေါက်ဆွဲနှင့် လက်လုပ် ရာဗီအိုလီများ။',
     }
   },
   {
@@ -216,13 +217,15 @@ const DAILY_SPECIALS_SECTIONS = [
       IT: 'Pizze Gourmet Speciali',
       EN: 'Gourmet Special Pizzas',
       TH: 'พิซซ่ากูร์เมต์สูตรพิเศษ',
-      DE: 'Gourmet-Spezialpizzen'
+      DE: 'Gourmet-Spezialpizzen',
+      MM: 'အထူး ဂူးမေး ပီဇာများ',
     },
     desc: {
       IT: 'Pizze artigianali a lievitazione naturale con polpa di granchio fresca o salsiccia nostrana e stilacci.',
       EN: 'Artisanal sourdough pizzas topped with fresh blue crab meat or Italian sausage and sautéed stilacci greens.',
       TH: 'พิซซ่าแป้งหมักยีสต์ธรรมชาติ หน้าเนื้อปูม้าสด และไส้กรอกหมูอิตาเลียนกับผักสตีลัชชี',
-      DE: 'Handgemachte Sauerteigpizzen belegt mit frischem Krabbenfleisch oder italienischer Salsiccia und Stilacci-Gemüse.'
+      DE: 'Handgemachte Sauerteigpizzen belegt mit frischem Krabbenfleisch oder italienischer Salsiccia und Stilacci-Gemüse.',
+      MM: 'လတ်ဆတ်သော ဂဏန်းသား သို့မဟုတ် အီတလီ ဝက်အူချောင်းဖြင့် ဖုတ်ထားသော လက်လုပ် ပီဇာများ။',
     }
   },
   {
@@ -231,13 +234,15 @@ const DAILY_SPECIALS_SECTIONS = [
       IT: 'Secondi Piatti Tradizionali',
       EN: 'Traditional Main Courses',
       TH: 'อาหารจานหลักแบบดั้งเดิม',
-      DE: 'Traditionelle Hauptgerichte'
+      DE: 'Traditionelle Hauptgerichte',
+      MM: 'ရိုးရာ အဓိက အစားအစာများ',
     },
     desc: {
       IT: 'Grandi classici e torte salate della tradizione italiana preparati al momento: Cotoletta alla Milanese, Cotechino artigianale con Purè e autentica Torta Pasqualina ligure.',
       EN: 'Italian culinary classics & savory pies made fresh: Crispy Milanese Cutlet with fries, Artisanal Cotechino with mashed potatoes, and Ligurian Torta Pasqualina.',
       TH: 'เมนูคลาสสิกและพายอบสไตล์อิตาเลียน: มิลานีสคัตเล็ตหมูทอดกรอบ ไส้กรอกโคเตคิโนโบราณพร้อมมันบด และพายตอร์ตา ปาสควาลินา',
-      DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.'
+      DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.',
+      MM: 'လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ထားသော အီတလီ ရိုးရာ ဂန္တဝင် အစားအစာများနှင့် အရသာရှိ ပီဇာမုန့်များ။',
     }
   },
   {
@@ -246,13 +251,15 @@ const DAILY_SPECIALS_SECTIONS = [
       IT: 'Focacce Artigianali',
       EN: 'Artisanal Focaccias',
       TH: 'ฟอคคาเซียอบสดสไตล์อิตาเลียน',
-      DE: 'Hausgemachte Focaccia'
+      DE: 'Hausgemachte Focaccia',
+      MM: 'လက်လုပ် ဖိုကာချာ မုန့်များ',
     },
     desc: {
       IT: 'Focacce fragranti da impasto pizza cotte al forno e farcite con i migliori salumi italiani selezionati: Finocchiona, Pancetta arrotolata, Porchetta, Prosciutto Cotto e Salame.',
       EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Finocchiona, Rolled Pancetta, Porchetta, Cooked Ham, and Salami.',
       TH: 'ฟอคคาเซียอบสดใหม่กรอบนอกนุ่มใน สอดไส้โคลด์คัทอิตาเลียนชั้นเลิศ: ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
-      DE: 'Ofenfrische Focaccia gefüllt mit feinsten italienischen Wurstspezialitäten: Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.'
+      DE: 'Ofenfrische Focaccia gefüllt mit feinsten italienischen Wurstspezialitäten: Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
+      MM: 'အီတလီ အသားလွှာ အကောင်းစားများ ညှပ်ထားသော မီးဖိုဖုတ် ဖိုကာချာ မုန့်များ။',
     }
   }
 ];
@@ -264,13 +271,15 @@ const FOCACCIA_SANDWICH_SECTIONS = [
       IT: 'Focacce Artigianali',
       EN: 'Artisanal Focaccias',
       TH: 'ฟอคคาเซียอบสดสไตล์อิตาเลียน',
-      DE: 'Hausgemachte Focaccia'
+      DE: 'Hausgemachte Focaccia',
+      MM: 'လက်လုပ် ဖိုကာချာ မုန့်များ',
     },
     desc: {
       IT: 'Focacce fragranti da impasto pizza cotte al forno e farcite con i migliori salumi italiani selezionati: Finocchiona toscana, Pancetta arrotolata, Porchetta romana, Prosciutto Cotto e Salame.',
       EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Tuscan Finocchiona, Rolled Pancetta, Roasted Porchetta, Cooked Ham, and Salami.',
       TH: 'ฟอคคาเซียแป้งพิซซ่าอบสดใหม่สไตล์โฮมเมด สอดไส้โคลด์คัทอิตาเลียนพรีเมียม: ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
-      DE: 'Ofenfrische Pizza-Focaccia gefüllt mit feinsten italienischen Spezialitäten: Toskanische Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.'
+      DE: 'Ofenfrische Pizza-Focaccia gefüllt mit feinsten italienischen Spezialitäten: Toskanische Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
+      MM: 'အီတလီ အသားလွှာ အကောင်းစားများ ညှပ်ထားသော မီးဖိုဖုတ် ဖိုကာချာ မုန့်များ။',
     }
   },
   {
@@ -279,13 +288,15 @@ const FOCACCIA_SANDWICH_SECTIONS = [
       IT: 'Pizza Sandwiches',
       EN: 'Pizza Sandwiches',
       TH: 'พิตซ่าแซนด์วิช',
-      DE: 'Pizza Sandwiches'
+      DE: 'Pizza Sandwiches',
+      MM: 'ပီဇာ ဆန်းဒဝစ်များ',
     },
     desc: {
       IT: 'Gustosi panini racchiusi nel nostro impasto pizza dorato e croccante con formaggio filante, pomodoro fresco e verdure croccanti.',
       EN: 'Flavorful sandwiches wrapped in our golden, crispy pizza crust with melted cheese, fresh tomatoes, and crisp lettuce.',
       TH: 'แซนด์วิชแป้งพิซซ่ากรอบนอกนุ่มใน สอดไส้ชีสเยิ้มๆ มะเขือเทศสด และผักสลัดกรอบอร่อย',
-      DE: 'Köstliche Sandwiches in knusprigem Pizzateig mit geschmolzenem Käse, frischen Tomaten und knackigem Salat.'
+      DE: 'Köstliche Sandwiches in knusprigem Pizzateig mit geschmolzenem Käse, frischen Tomaten und knackigem Salat.',
+      MM: 'ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ ပီဇာမုန့်သား၊ အရည်ပျော်နေသော ချိစ်နှင့် လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များ ပါဝင်သော ဆန်းဒဝစ်။',
     }
   }
 ];
@@ -297,14 +308,16 @@ const PASTA_SAUCES = [
       IT: 'Specialità & Paste Ripiene', 
       EN: "Chef's Specials & Stuffed Pasta", 
       TH: 'พาสต้าและราวิโอลีสูตรพิเศษ', 
-      DE: 'Spezialitäten & Gefüllte Pasta' 
+      DE: 'Spezialitäten & Gefüllte Pasta',
+      MM: 'အထူးလက်ရာနှင့် အစာသွပ် ခေါက်ဆွဲ',
     }, 
     desc: {
       IT: 'Creazioni di mare e di terra della nostra cuoca: Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali ripieni.',
       EN: 'Seafood and artisan specialties: Seafood Spaghetti, Blue Crab Meat, Salmon Penne, Squid Ink Tagliatelle, and handmade stuffed Ravioli.',
       TH: 'พาสต้าซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมดสอดไส้สูตรดั้งเดิม',
-      DE: 'Meeresfrüchte- und Spezialitätenkreationen: Frutti di Mare Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte gefüllte Ravioli.'
-    },
+      DE: 'Meeresfrüchte- und Spezialitätenkreationen: Frutti di Mare Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte gefüllte Ravioli.',
+      MM: 'ပင်လယ်စာ စပါဂက်တီ၊ ဂဏန်းသား၊ ဆယ်လ်မွန်နှင့် လက်လုပ် ရာဗီအိုလီ အထူးဟင်းလျာများ။',
+    }, 
     pattern: 'special' 
   },
   { 
@@ -313,14 +326,16 @@ const PASTA_SAUCES = [
       IT: 'Aglio, Olio e Peperoncino', 
       EN: 'Garlic, Oil & Chili', 
       TH: 'อากลิโอ โอลิโอ พริกแห้ง', 
-      DE: 'Knoblauch, Öl & Chili' 
+      DE: 'Knoblauch, Öl & Chili',
+      MM: 'ကြက်သွန်ဖြူ၊ သံလွင်ဆီနှင့် ငရုတ်သီး',
     }, 
     desc: {
       IT: 'Un classico italiano semplice e saporito preparato con aglio, olio extravergine d\'oliva e peperoncino, con un gusto intenso e aromatico che delizia ogni singolo morso.',
       EN: 'A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite',
       TH: 'พาสต้าผัดกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติเข้มข้นจัดจ้านสไตล์อิตาเลียน',
-      DE: 'Ein einfacher und geschmackvoller italienischer Klassiker aus Knoblauch, Olivenöl und Chili, mit einem intensiven, aromatischen Geschmack, der jeden Bissen begeistert.'
-    },
+      DE: 'Ein einfacher und geschmackvoller italienischer Klassiker aus Knoblauch, Olivenöl und Chili, mit einem intensiven, aromatischen Geschmack, der jeden Bissen begeistert.',
+      MM: 'ကြက်သွန်ဖြူ၊ သံလွင်ဆီနှင့် ငရုတ်သီးတို့ဖြင့် မွှေးပျံ့စွာ ကြော်ထားသော ဂန္တဝင် အီတလီ ခေါက်ဆွဲ။',
+    }, 
     pattern: 'Garlic, Oil' 
   },
   { 
@@ -329,14 +344,16 @@ const PASTA_SAUCES = [
       IT: 'Salsa di Pomodoro', 
       EN: 'Tomato Sauce', 
       TH: 'ซอสมะเขือเทศ', 
-      DE: 'Tomatensauce' 
+      DE: 'Tomatensauce',
+      MM: 'ခရမ်းချဉ်သီးဆော့စ်',
     }, 
     desc: {
       IT: 'Salsa di pomodoro all\'italiana preparata con pomodori maturi, olio d\'oliva, aglio o cipolla, sale e basilico. È il cuore pulsante della cucina italiana.',
       EN: 'Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It\'s the heart of Italian cuisine',
       TH: 'ซอสมะเขือเทศอิตาเลียนรสเข้มข้น เคี่ยวกับกระเทียม หอมใหญ่ และใบโหระพาอิตาเลียน',
-      DE: 'Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Sie ist das Herz der italienischen Küche.'
-    },
+      DE: 'Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Sie ist das Herz der italienischen Küche.',
+      MM: 'မှည့်ဝင်းသော ခရမ်းချဉ်သီး၊ သံလွင်ဆီနှင့် ပင်စိမ်းရွက်တို့ဖြင့် ချက်ထားသော ရိုးရာ အီတလီဆော့စ်။',
+    }, 
     pattern: 'Tomato Sauce' 
   },
   { 
@@ -345,14 +362,16 @@ const PASTA_SAUCES = [
       IT: 'Pesto Genovese', 
       EN: 'Pesto Genovese', 
       TH: 'ซอสเพสโต้', 
-      DE: 'Pesto Genovese' 
+      DE: 'Pesto Genovese',
+      MM: 'ပက်စတို ဆော့စ်',
     }, 
     desc: {
       IT: 'Salsa fresca al basilico con anacardi, parmigiano, aglio e olio d\'oliva, con un sapore ricco e aromatico che evoca i profumi di Genova.',
       EN: 'Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa',
       TH: 'ซอสใบโหระพาอิตาเลียนปั่นสดใหม่ ใส่เม็ดมะม่วงหิมพานต์ พาเมซานชีส กระเทียม และน้ำมันมะกอก',
-      DE: 'Frische Basilikumsauce mit Cashewnüssen, Parmesankäse, Knoblauch und Olivenöl, mit einem reichen, aromatischen Geschmack, der an Genua erinnert.'
-    },
+      DE: 'Frische Basilikumsauce mit Cashewnüssen, Parmesankäse, Knoblauch und Olivenöl, mit einem reichen, aromatischen Geschmack, der an Genua erinnert.',
+      MM: 'လတ်ဆတ်သော ပင်စိမ်းရွက်၊ သီဟိုဠ်စေ့၊ ပါမီဂျန်ချိစ်နှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော မွှေးပျံ့သည့် ပက်စတိုဆော့စ်။',
+    }, 
     pattern: 'Pesto Genovese' 
   },
   { 
@@ -361,14 +380,16 @@ const PASTA_SAUCES = [
       IT: 'Salsa Amatriciana', 
       EN: 'Amatriciana', 
       TH: 'ซอสอามาริเชียนา', 
-      DE: 'Amatriciana' 
+      DE: 'Amatriciana',
+      MM: 'အာမာထရီချာနာ ဆော့စ်',
     }, 
     desc: {
       IT: 'Salsa in stile romano con pomodoro, guanciale e pecorino, cotta lentamente per ottenere un sapore dolce e sapido bilanciato, un classico della tradizione italiana.',
       EN: 'Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition',
       TH: 'ซอสมะเขือเทศเข้มข้นปรุงรสด้วยเบคอน หอมใหญ่ และใบโหระพา รสชาติกลมกล่อม',
-      DE: 'Römische Sauce mit Tomaten, gereifter Schweinebacke und Pecorino, langsam gekocht für einen ausgewogenen süß-salzigen Geschmack, ein Klassiker der italienischen Tradition.'
-    },
+      DE: 'Römische Sauce mit Tomaten, gereifter Schweinebacke und Pecorino, langsam gekocht für einen ausgewogenen süß-salzigen Geschmack, ein Klassiker der italienischen Tradition.',
+      MM: 'ခရမ်းချဉ်သီး၊ ဝက်သားခြောက်နှင့် ချိစ်တို့ဖြင့် ဖြည်းညင်းစွာ ချက်ထားသော ရောမစတိုင် အရသာရှိ ဆော့စ်။',
+    }, 
     pattern: 'Amatriciana' 
   },
   { 
@@ -377,14 +398,16 @@ const PASTA_SAUCES = [
       IT: 'Salsa Ragù Bolognese', 
       EN: 'Bolognese Ragù', 
       TH: 'ซอสเนื้อโบโลเนส', 
-      DE: 'Bolognese-Ragù' 
+      DE: 'Bolognese-Ragù',
+      MM: 'ဘိုလိုနိစ် အမဲသားဆော့စ်',
     }, 
     desc: {
       IT: 'Un ricco ragù cotto lentamente con carne macinata, pomodori, verdure e vino rosso. Un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.',
       EN: 'A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna\'s tradition',
       TH: 'ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม',
-      DE: 'Eine reichhaltige, langsam gekochte Sauce mit Hackfleisch, Tomaten, Gemüse und Rotwein. Voller, einhüllender und unwiderstehlicher Geschmack, ein Symbol der Tradition von Bologna.'
-    },
+      DE: 'Eine reichhaltige, langsam gekochte Sauce mit Hackfleisch, Tomaten, Gemüse und Rotwein. Voller, einhüllender und unwiderstehlicher Geschmack, ein Symbol der Tradition von Bologna.',
+      MM: 'အမဲသားနုပ်နုပ်စင်း၊ ခရမ်းချဉ်သီးနှင့် အသီးအရွက်များဖြင့် အချိန်ယူချက်ထားသော ဘိုလိုနာ ရိုးရာ အသားဆော့စ်။',
+    }, 
     pattern: 'Bolognese Ragu' 
   },
   { 
@@ -393,14 +416,16 @@ const PASTA_SAUCES = [
       IT: 'Carbonara', 
       EN: 'Carbonara', 
       TH: 'ซอสคาร์โบนาร่า', 
-      DE: 'Carbonara' 
+      DE: 'Carbonara',
+      MM: 'ကာဘိုနာရာ ဆော့စ်',
     }, 
     desc: {
       IT: 'Uno dei piatti più amati d\'Italia, preparato con guanciale, uova fresche, pecorino romano e pepe nero. Cremoso e autentico, dal sapore ricco e tradizionale.',
       EN: 'One of Italy\'s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor',
       TH: 'ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ',
-      DE: 'Eines der beliebtesten Gerichte Italiens, zubereitet mit gereifter Schweinebacke, Eiern, Pecorino-Käse und schwarzem Pfeffer. Cremig und authentisch, mit einem reichen, traditionellen Geschmack.'
-    },
+      DE: 'Eines der beliebtesten Gerichte Italiens, zubereitet mit gereifter Schweinebacke, Eiern, Pecorino-Käse und schwarzem Pfeffer. Cremig und authentisch, mit einem reichen, traditionellen Geschmack.',
+      MM: 'ကြက်ဥ၊ ပါမီဂျန်ချိစ်၊ ငရုတ်ကောင်းမည်းနှင့် ဘေကွန်တို့ဖြင့် ပြုလုပ်ထားသော အီတလီ၏ လူကြိုက်အများဆုံး ကာဘိုနာရာ။',
+    }, 
     pattern: 'Carbonara' 
   },
   { 
@@ -409,14 +434,16 @@ const PASTA_SAUCES = [
       IT: 'Quattro Formaggi', 
       EN: 'Four Cheeses', 
       TH: 'ซอสโฟร์ชีส', 
-      DE: 'Vier Käse' 
+      DE: 'Vier Käse',
+      MM: 'ချိစ်လေးမျိုး ဆော့စ်',
     }, 
     desc: {
       IT: 'Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi perfettamente insieme per creare un sapore ricco, deciso e avvolgente ad ogni morso.',
       EN: 'A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite',
       TH: 'ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม',
-      DE: 'Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichen und kräftigen Geschmack zu kreieren.'
-    },
+      DE: 'Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichen und kräftigen Geschmack zu kreieren.',
+      MM: 'အီတလီ ချိစ် ၄ မျိုးကို ရောစပ် အရည်ဖျော်ထားသော ခရင်မ်ဆန်ဆန် ချိစ်ဆော့စ်။',
+    }, 
     pattern: 'Four Cheeses' 
   },
   { 
@@ -425,14 +452,16 @@ const PASTA_SAUCES = [
       IT: 'Flower Power', 
       EN: 'Flower Power', 
       TH: 'พาสต้าฟลาวเวอร์เพาเวอร์', 
-      DE: 'Flower Power' 
+      DE: 'Flower Power',
+      MM: 'Flower Power အထူးလက်ရာ',
     }, 
     desc: {
       IT: 'Salsa per pasta artigianale preparata in casa con gorgonzola, salsiccia italiana e carciofi. Cremosa, ricca e dal sapore unico, perfetta per gli amanti dei gusti decisi.',
       EN: 'House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes',
       TH: 'พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม',
-      DE: 'Hausgemachte Nudelsauce mit Gorgonzola, italienischer Wurst und Artischocken. Cremig, reichhaltig und voller einzigartigem Geschmack, perfekt für Liebhaber kräftiger Aromen.'
-    },
+      DE: 'Hausgemachte Nudelsauce mit Gorgonzola, italienischer Wurst und Artischocken. Cremig, reichhaltig und voller einzigartigem Geschmack, perfekt für Liebhaber kräftiger Aromen.',
+      MM: 'ဂေါ်ဂွန်ဇိုလာချိစ်၊ အီတလီ ဝက်အူချောင်းနှင့် အာတီချုပ်တို့ဖြင့် စီမံထားသော ဆိုင်၏ ကိုယ်ပိုင် အထူးဆော့စ်။',
+    }, 
     pattern: 'Flower Power' 
   },
   { 
@@ -441,14 +470,16 @@ const PASTA_SAUCES = [
       IT: 'Lasagne', 
       EN: 'Baked Lasagna', 
       TH: 'ลาซานญ่า', 
-      DE: 'Lasagne' 
+      DE: 'Lasagne',
+      MM: 'လာဆန်းညာ',
     }, 
     desc: {
       IT: 'Le lasagne fatte in casa sono un classico della cucina italiana, preparate con besciamella, ragù e parmigiano. Si prega di ordinare con un giorno di anticipo (minimo due porzioni) o chiedere allo staff. Tempo di cottura circa 30 minuti.',
       EN: 'Homemade Lasagne Are A Classic Of Italian Cuisine, Made With Béchamel, Sauces, And Parmesan. Pre-Order One Day In Advance, Minimum Two Portions, Or Ask The Staff. Cooking Time About 30 Minutes.',
       TH: 'ลาซานญ่าอบร้อนๆ สลับชั้นด้วยพาสต้า ซอสเนื้อรสเข้มข้น และชีสเยิ้มๆ',
-      DE: 'Hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (mindestens zwei Portionen) oder das Personal fragen. Garzeit ca. 30 Minuten.'
-    },
+      DE: 'Hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (mindestens zwei Portionen) oder das Personal fragen. Garzeit ca. 30 Minuten.',
+      MM: 'အသားဆော့စ်၊ ခရင်မ်နှင့် ပါမီဂျန်ချိစ်တို့ အထပ်ထပ်စီပြီး ဖုတ်ထားသော အိမ်လုပ် အီတလီ လာဆန်းညာ။',
+    }, 
     pattern: 'Lasagne' 
   }
 ];
@@ -458,6 +489,7 @@ const PASTA_FILTER_LABELS = {
   EN: { all: 'All Pasta' },
   TH: { all: 'พาสต้าทั้งหมด' },
   DE: { all: 'Alle Nudelgerichte' },
+  MM: { all: 'ခေါက်ဆွဲ အားလုံး' },
 };
 
 // ─── Wine Filtering Definitions & Subsections ──────────────────────────────
@@ -502,56 +534,70 @@ const WINE_FILTER_LABELS = {
     resetFilters: 'Alle Weine anzeigen',
     winesCount: 'Weine',
     wineCount: 'Wein',
+  },
+  MM: {
+    allTypes: 'ဝိုင် အားလုံး',
+    allCountries: 'မူရင်းနိုင်ငံ အားလုံး',
+    filterByCountry: 'မူရင်းနိုင်ငံ',
+    italianFirstBadge: 'အီတလီ အထူးရွေးချယ်မှု',
+    noWinesFound: 'ရွေးချယ်ထားသော စစ်ထုတ်မှုနှင့် ကိုက်ညီသော ဝိုင် မရှိပါ။',
+    resetFilters: 'ဝိုင် အားလုံး ပြသရန်',
+    winesCount: 'မျိုး',
+    wineCount: 'မျိုး',
   }
 };
 
 const WINE_TYPE_SECTIONS = [
   {
     id: 'red',
-    name: { IT: 'Vini Rossi', EN: 'Red Wines', TH: 'ไวน์แดง', DE: 'Rotweine' },
+    name: { IT: 'Vini Rossi', EN: 'Red Wines', TH: 'ไวน์แดง', DE: 'Rotweine', MM: 'ဝိုင်နီ' },
     desc: {
       IT: 'Selezione di vini rossi strutturati, avvolgenti e armoniosi, ideali per accompagnare piatti saporiti, carni e formaggi.',
       EN: 'Curated selection of structured, full-bodied red wines, tailored for savory dishes, meats, and cheeses.',
       TH: 'คัดสรรไวน์แดงรสชาตินุ่มละมุนและเข้มข้น เหมาะสำหรับทานคู่กับอาหารจานหลักและเนื้อสัตว์',
-      DE: 'Kuratierte Auswahl an strukturierten, vollmundigen Rotweinen, ideal zu herzhaften Gerichten, Fleisch und Käse.'
+      DE: 'Kuratierte Auswahl an strukturierten, vollmundigen Rotweinen, ideal zu herzhaften Gerichten, Fleisch und Käse.',
+      MM: 'အသားဟင်းလျာများနှင့် တွဲဖက်ရန် အထူးသင့်လျော်သော အရသာပြည့်ဝ ဝိုင်နီများ။',
     },
-    badge: { IT: 'Corposi & Strutturati', EN: 'Full-Bodied', TH: 'เข้มข้น', DE: 'Vollmundig' },
+    badge: { IT: 'Corposi & Strutturati', EN: 'Full-Bodied', TH: 'เข้มข้น', DE: 'Vollmundig', MM: 'အရသာပြည့်ဝ' },
     color: '#8b0000'
   },
   {
     id: 'white',
-    name: { IT: 'Vini Bianchi', EN: 'White Wines', TH: 'ไวน์ขาว', DE: 'Weißweine' },
+    name: { IT: 'Vini Bianchi', EN: 'White Wines', TH: 'ไวน์ขาว', DE: 'Weißweine', MM: 'ဝိုင်ဖြူ' },
     desc: {
       IT: 'Vini bianchi freschi, minerali ed eleganti, ideali per aperitivi, antipasti, primi piatti e pesce.',
       EN: 'Fresh, mineral, and fragrant white wines, crafted to pair with appetizers, pastas, and seafood dishes.',
       TH: 'ไวน์ขาวสดชื่น กลิ่นหอมผลไม้และดอกไม้ เหมาะสำหรับดื่มเรียกน้ำย่อยและอาหารทะเล',
-      DE: 'Frische, mineralische und elegante Weißweine, ideal zu Vorspeisen, Pasta und Fischgerichten.'
+      DE: 'Frische, mineralische und elegante Weißweine, ideal zu Vorspeisen, Pasta und Fischgerichten.',
+      MM: 'ပင်လယ်စာနှင့် အဆာပြေစာများနှင့် တွဲဖက်ရန် လတ်ဆတ်မွှေးပျံ့သော ဝိုင်ဖြူများ။',
     },
-    badge: { IT: 'Freschi & Minerali', EN: 'Crisp & Mineral', TH: 'สดชื่น', DE: 'Frisch & Mineralisch' },
+    badge: { IT: 'Freschi & Minerali', EN: 'Crisp & Mineral', TH: 'สดชื่น', DE: 'Frisch & Mineralisch', MM: 'လတ်ဆတ်မွှေးပျံ့' },
     color: '#b45309'
   },
   {
     id: 'rose',
-    name: { IT: 'Vini Rosati', EN: 'Rosé Wines', TH: 'ไวน์โรเซ่', DE: 'Roséweine' },
+    name: { IT: 'Vini Rosati', EN: 'Rosé Wines', TH: 'ไวน์โรเซ่', DE: 'Roséweine', MM: 'ရိုဇေး ဝိုင်' },
     desc: {
       IT: 'Sfumature floreali e fruttate con un profilo fresco e versatile, perfetto per aperitivi e pietanze leggere.',
       EN: 'Delicate floral and fruity notes with a crisp, balanced profile, perfect for warm evenings and light dining.',
       TH: 'ไวน์โรเซ่สีสวย กลิ่นหอมสดชื่น ดื่มง่าย สดชื่นในทุกช่วงเวลา',
-      DE: 'Florale und fruchtige Noten mit herrlicher Frische, ideal für warme Abende und leichte Küche.'
+      DE: 'Florale und fruchtige Noten mit herrlicher Frische, ideal für warme Abende und leichte Küche.',
+      MM: 'ပန်းရနံ့နှင့် သစ်သီးရနံ့ သင်းပျံ့သော လန်းဆန်းစေသည့် ရိုဇေးဝိုင်။',
     },
-    badge: { IT: 'Floreali & Freschi', EN: 'Floral & Refreshing', TH: 'หอมละมุน', DE: 'Floral & Frisch' },
+    badge: { IT: 'Floreali & Freschi', EN: 'Floral & Refreshing', TH: 'หอมละมุน', DE: 'Floral & Frisch', MM: 'ပန်းရနံ့သင်း' },
     color: '#db2777'
   },
   {
     id: 'sparkling',
-    name: { IT: 'Spumanti', EN: 'Sparkling Wines', TH: 'สปาร์กลิงไวน์', DE: 'Schaumweine' },
+    name: { IT: 'Spumanti', EN: 'Sparkling Wines', TH: 'สปาร์กลิงไวน์', DE: 'Schaumweine', MM: 'စပါကလင် ဝိုင်' },
     desc: {
       IT: 'Spumanti e prosecchi dal perlage fine e persistente, pensati per brindisi raffinati e momenti speciali.',
       EN: 'Sparkling wines and prosecco with fine, delicate perlage, crafted for celebrations and elegant toasts.',
       TH: 'สปาร์กลิงไวน์และโพรเซกโกชั้นเลิศ ฟองละเอียดนุ่มลิ้น เพื่อทุกช่วงเวลาพิเศษ',
-      DE: 'Edle Schaumweine und Prosecco mit feiner Perlage für besondere Anlässe und stilvolle Momente.'
+      DE: 'Edle Schaumweine und Prosecco mit feiner Perlage für besondere Anlässe und stilvolle Momente.',
+      MM: 'အထူးအခမ်းအနားများနှင့် အောင်ပွဲများအတွက် အကောင်းစား စပါကလင်နှင့် ပရိုဆက်ကို ဝိုင်များ။',
     },
-    badge: { IT: 'Perlage & Prestigio', EN: 'Fine Perlage', TH: 'ฟองละเอียด', DE: 'Feine Perlage' },
+    badge: { IT: 'Perlage & Prestigio', EN: 'Fine Perlage', TH: 'ฟองละเอียด', DE: 'Feine Perlage', MM: 'အထူးအမြှုပ်' },
     color: '#ca8a04'
   }
 ];
@@ -704,6 +750,12 @@ const DROPDOWN_LABELS = {
     drinkFilter: 'Getränkekategorie',
     wineTypeFilter: 'Weinsorte',
     wineCountryFilter: 'Herkunft / Land',
+  },
+  MM: {
+    pastaFilter: 'ခေါက်ဆွဲဆော့စ် / အမျိုးအစား',
+    drinkFilter: 'သောက်စရာ အမျိုးအစား',
+    wineTypeFilter: 'ဝိုင် အမျိုးအစား',
+    wineCountryFilter: 'မူရင်းနိုင်ငံ',
   },
 };
 
@@ -1584,6 +1636,7 @@ export default function DeliveryMenu() {
                 {lang === 'TH' ? 'จองโต๊ะ' :
                  lang === 'IT' ? 'Prenota Tavolo' :
                  lang === 'DE' ? 'Tisch Buchen' :
+                 lang === 'MM' ? 'စားပွဲ ကြိုတင်ဘွတ်ကင်' :
                  'Book a Table'}
               </h4>
             </div>
@@ -1593,13 +1646,14 @@ export default function DeliveryMenu() {
                 {lang === 'TH' ? 'โต๊ะในร่ม กลางแจ้ง หรือซุ้มไม้ไผ่ในสวน' :
                  lang === 'IT' ? "Tavoli al chiuso, all'aperto o in capanna" :
                  lang === 'DE' ? 'Innen-, Außenbereich oder Bambushütte' :
+                 lang === 'MM' ? 'အတွင်းခန်း၊ အပြင်ဘက် သို့မဟုတ် သဘာဝ ဝါးတဲ' :
                  'Indoor, outdoor tables or bamboo garden hut'}
               </p>
             </div>
 
             <div className="pt-0.5">
               <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-stone-950 font-black bg-emerald-400 group-hover:bg-emerald-300 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs transition-all">
-                <span>{lang === 'TH' ? 'จองเลย' : lang === 'IT' ? 'Prenota' : lang === 'DE' ? 'Reservieren' : 'Book Now'}</span>
+                <span>{lang === 'TH' ? 'จองเลย' : lang === 'IT' ? 'Prenota' : lang === 'DE' ? 'Reservieren' : lang === 'MM' ? 'ယခု ဘွတ်ကင်လုပ်မည်' : 'Book Now'}</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </span>
             </div>
@@ -1616,6 +1670,7 @@ export default function DeliveryMenu() {
                   {lang === 'TH' ? 'ลด 10%' :
                    lang === 'IT' ? '10% Sconto' :
                    lang === 'DE' ? '10% Rabatt' :
+                   lang === 'MM' ? '၁၀% လျှော့စျေး' :
                    '10% OFF'}
                 </h4>
               </div>
@@ -1625,6 +1680,7 @@ export default function DeliveryMenu() {
                   {lang === 'TH' ? 'สั่งครั้งแรก? รับส่วนลดอัตโนมัติในตะกร้าทันที' :
                    lang === 'IT' ? 'Il tuo 1° ordine? Sconto applicato nel carrello!' :
                    lang === 'DE' ? '1. Bestellung? Rabatt direkt im Warenkorb!' :
+                   lang === 'MM' ? 'ပထမဆုံး အော်ဒါလား? ခြင်းတောင်းထဲတွင် အလိုအလျောက် လျှော့ပေးပါသည်!' :
                    '1st order? Discount applied automatically in cart!'}
                 </p>
               </div>
@@ -1632,7 +1688,7 @@ export default function DeliveryMenu() {
               <div className="pt-0.5">
                 <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-emerald-900 font-bold bg-emerald-100/95 border border-emerald-300/90 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs">
                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-                  <span>{lang === 'TH' ? 'ในตะกร้า' : lang === 'IT' ? 'Nel Carrello' : lang === 'DE' ? 'Im Warenkorb' : 'In Cart'}</span>
+                  <span>{lang === 'TH' ? 'ในตะกร้า' : lang === 'IT' ? 'Nel Carrello' : lang === 'DE' ? 'Im Warenkorb' : lang === 'MM' ? 'ခြင်းတောင်းထဲတွင်' : 'In Cart'}</span>
                 </span>
               </div>
             </div>
@@ -1654,6 +1710,7 @@ export default function DeliveryMenu() {
                 {lang === 'TH' ? <><span>เดลิเวอรี่ &amp;</span><br className="sm:hidden"/><span> รับที่ร้าน</span></> :
                  lang === 'IT' ? <><span>Delivery &amp;</span><br className="sm:hidden"/><span> Asporto</span></> :
                  lang === 'DE' ? <><span>Lieferung &amp;</span><br className="sm:hidden"/><span> Abholung</span></> :
+                 lang === 'MM' ? <><span>ပို့ဆောင်မှု &amp;</span><br className="sm:hidden"/><span> ဆိုင်မှလာယူရန်</span></> :
                  <><span>Delivery &amp;</span><br className="sm:hidden"/><span> Takeaway</span></>}
               </h4>
             </div>
@@ -1663,13 +1720,14 @@ export default function DeliveryMenu() {
                 {lang === 'TH' ? 'ส่งไว (>300฿ ฟรี) และรับเองที่ร้านฟรีเสมอ' :
                  lang === 'IT' ? 'A Ranong (>300฿ gratis), asporto sempre gratis!' :
                  lang === 'DE' ? 'In Ranong (>300฿ gratis), Abholung immer gratis!' :
+                 lang === 'MM' ? 'ရနောင်းမြို့တွင်း (>300฿ အခမဲ့)၊ ဆိုင်မှလာယူပါက အမြဲအခမဲ့!' :
                  'Ranong (>300฿ free), takeaway always free!'}
               </p>
             </div>
 
             <div className="pt-0.5">
               <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-white font-black bg-white/20 group-hover:bg-white group-hover:text-[#8B1E1E] border border-white/25 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs transition-all">
-                <span>{lang === 'TH' ? 'ดูเมนู' : lang === 'IT' ? 'Al Menu' : lang === 'DE' ? 'Zur Karte' : 'To Menu'}</span>
+                <span>{lang === 'TH' ? 'ดูเมนู' : lang === 'IT' ? 'Al Menu' : lang === 'DE' ? 'Zur Karte' : lang === 'MM' ? 'မီနူးသို့' : 'To Menu'}</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </span>
             </div>
@@ -1690,7 +1748,7 @@ export default function DeliveryMenu() {
               </h2>
               {categoryDetails[activeCategory.id]?.[lang]?.desc && (
                 <p className="text-stone-500 text-xs mt-0.5 font-light italic">
-                  {categoryDetails[activeCategory.id][lang].desc}
+                  {categoryDetails[activeCategory.id]?.[lang]?.desc || categoryDetails[activeCategory.id]?.["IT"]?.desc || ""}
                 </p>
               )}
             </div>
@@ -1715,6 +1773,7 @@ export default function DeliveryMenu() {
                       {lang === 'TH' ? 'ทั้งหมด' :
                        lang === 'IT' ? 'Tutti' :
                        lang === 'DE' ? 'Alle' :
+                       lang === 'MM' ? 'အားလုံး' :
                        'All'}
                     </span>
                   </button>
@@ -1735,6 +1794,7 @@ export default function DeliveryMenu() {
                       {lang === 'TH' ? 'มังสวิรัติ' :
                        lang === 'IT' ? 'Veggie' :
                        lang === 'DE' ? 'Veggie' :
+                       lang === 'MM' ? 'သတ်သတ်လွတ်' :
                        'Veggie'}
                     </span>
                   </button>
@@ -1755,6 +1815,7 @@ export default function DeliveryMenu() {
                       {lang === 'TH' ? 'วีแกน' :
                        lang === 'IT' ? 'Vegan' :
                        lang === 'DE' ? 'Vegan' :
+                       lang === 'MM' ? 'ဗီဂျန်' :
                        'Vegan'}
                     </span>
                   </button>

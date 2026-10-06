@@ -3,7 +3,7 @@
  * Scalable N-Language Architecture: Add any new language to SUPPORTED_LANGUAGES
  */
 
-export const SUPPORTED_LANGUAGES = ['IT', 'EN', 'TH', 'DE'] as const;
+export const SUPPORTED_LANGUAGES = ['IT', 'EN', 'TH', 'DE', 'MM'] as const;
 
 export type Language = typeof SUPPORTED_LANGUAGES[number];
 
@@ -40,6 +40,13 @@ export const LANGUAGE_METAS: Record<Language, LanguageMeta> = {
     label: 'Deutsch',
     nativeName: 'Deutsch',
     flag: '🇩🇪',
+  },
+  MM: {
+    code: 'MM',
+    label: 'မြန်မာ',
+    nativeName: 'မြန်မာစာ',
+    flag: '🇲🇲',
+    fontFamily: 'Noto Sans Myanmar, Padauk, system-ui, sans-serif',
   },
 };
 

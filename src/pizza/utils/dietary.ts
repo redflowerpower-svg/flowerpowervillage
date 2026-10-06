@@ -36,7 +36,8 @@ export function getDietaryType(item?: MenuItem | null, categoryId: string = ''):
     'carbonara', 'tuna', 'tonno', 'anchov', 'acciughe', 'alice', 'alici', 
     'fish', 'pesce', 'seafood', 'shrimp', 'gamber', 'calamari', 'frutti di mare',
     'หมู', 'ไก่', 'เนื้อ', 'เบคอน', 'แฮม', 'ไส้กรอก', 'ทูน่า', 'ปลา', 'กุ้ง', 'ซีฟู้ด',
-    'schinken', 'rind', 'huhn', 'hähnchen', 'thunfisch'
+    'schinken', 'rind', 'huhn', 'hähnchen', 'thunfisch',
+    'ဝက်သား', 'အမဲသား', 'ကြက်သား', 'ငါး', 'ပုစွန်', 'ဘေကွန်', 'ဆာလာမီ', 'ဝက်အူချောင်း'
   ];
 
   // Specific check: Baked Pesto Lasagna has NO meat, whereas Bolognese & Seafood have meat/fish

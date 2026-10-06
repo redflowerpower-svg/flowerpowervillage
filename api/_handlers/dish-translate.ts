@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 
 interface DishTranslateRequestBody {
-  sourceLang: 'IT' | 'EN' | 'TH' | 'DE';
+  sourceLang: 'IT' | 'EN' | 'TH' | 'DE' | 'MM';
   name: string;
   description: string;
   category: string;
@@ -28,7 +28,7 @@ export async function handleDishTranslate(req: VercelRequest, res: VercelRespons
     }: DishTranslateRequestBody = req.body || {};
 
     const prompt = `You are an Italian executive chef and master food translator for a premier authentic Italian restaurant and pizzeria in Thailand.
-Translate and refine the following dish name and culinary description/ingredients from the source language (${sourceLang}) into all 4 languages: IT (Italian), EN (English), TH (Thai), and DE (German).
+Translate and refine the following dish name and culinary description/ingredients from the source language (${sourceLang}) into all 5 languages: IT (Italian), EN (English), TH (Thai), DE (German), and MM (Burmese - မြန်မာစာ).
 
 SOURCE INPUTS (Source Language: ${sourceLang}, Category: ${category}, Daily Special: ${isDailySpecial}):
 - Dish Name: "${name}"
@@ -40,11 +40,13 @@ RULES:
    - For EN: Use clear, appetizing international English food titles. Keep uppercase.
    - For TH: Use natural Thai culinary dish titles without artificial spaces.
    - For DE: Use authentic German culinary dish titles. Keep uppercase.
+   - For MM: Use natural, elegant Burmese culinary titles (e.g. "မာဂရီတာ ပီဇာ", "ကာဘိုနာရာ စပါဂက်တီ").
 2. Description formatting:
    - For TH: Write natural, appetizing Thai restaurant descriptions with authentic ingredient terms (e.g. มอสซาเรลล่าสด, น้ำมันมะกอกบริสุทธิ์, ซอสมะเขือเทศเข้มข้น).
    - For IT: Elegant Italian gastronomic description highlighting fresh ingredients.
    - For EN: Professional culinary description with appetizing vocabulary.
    - For DE: Precise, appetizing German description.
+   - For MM: Fluent, inviting Burmese culinary descriptions highlighting fresh ingredients and authentic Italian taste.
 3. Output MUST be ONLY valid JSON matching this exact schema:
 
 {
@@ -52,13 +54,15 @@ RULES:
     "IT": "...",
     "EN": "...",
     "TH": "...",
-    "DE": "..."
+    "DE": "...",
+    "MM": "..."
   },
   "description": {
     "IT": "...",
     "EN": "...",
     "TH": "...",
-    "DE": "..."
+    "DE": "...",
+    "MM": "..."
   }
 }`;
 

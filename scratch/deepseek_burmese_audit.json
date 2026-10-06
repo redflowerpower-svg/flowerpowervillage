@@ -1,0 +1,315 @@
+{
+  "totalCalls": 38,
+  "totalPromptTokens": 32738,
+  "totalCompletionTokens": 51001,
+  "totalTokens": 83739,
+  "startedAt": "2026-10-04T13:29:47.805Z",
+  "logs": [
+    {
+      "callIndex": 1,
+      "label": "i18n chunk [1 - 20 of 165]",
+      "durationMs": 3069,
+      "tokens": 1431,
+      "promptTokens": 622,
+      "completionTokens": 809
+    },
+    {
+      "callIndex": 2,
+      "label": "i18n chunk [21 - 40 of 165]",
+      "durationMs": 4069,
+      "tokens": 1778,
+      "promptTokens": 700,
+      "completionTokens": 1078
+    },
+    {
+      "callIndex": 3,
+      "label": "i18n chunk [41 - 60 of 165]",
+      "durationMs": 3646,
+      "tokens": 1586,
+      "promptTokens": 660,
+      "completionTokens": 926
+    },
+    {
+      "callIndex": 4,
+      "label": "i18n chunk [61 - 80 of 165]",
+      "durationMs": 2930,
+      "tokens": 1386,
+      "promptTokens": 599,
+      "completionTokens": 787
+    },
+    {
+      "callIndex": 5,
+      "label": "i18n chunk [81 - 100 of 165]",
+      "durationMs": 3055,
+      "tokens": 1426,
+      "promptTokens": 609,
+      "completionTokens": 817
+    },
+    {
+      "callIndex": 6,
+      "label": "i18n chunk [101 - 120 of 165]",
+      "durationMs": 3280,
+      "tokens": 1571,
+      "promptTokens": 708,
+      "completionTokens": 863
+    },
+    {
+      "callIndex": 7,
+      "label": "i18n chunk [121 - 140 of 165]",
+      "durationMs": 9067,
+      "tokens": 3779,
+      "promptTokens": 1348,
+      "completionTokens": 2431
+    },
+    {
+      "callIndex": 8,
+      "label": "i18n chunk [141 - 160 of 165]",
+      "durationMs": 5648,
+      "tokens": 2388,
+      "promptTokens": 829,
+      "completionTokens": 1559
+    },
+    {
+      "callIndex": 9,
+      "label": "i18n chunk [161 - 165 of 165]",
+      "durationMs": 1371,
+      "tokens": 548,
+      "promptTokens": 266,
+      "completionTokens": 282
+    },
+    {
+      "callIndex": 10,
+      "label": "Categories (14 items)",
+      "durationMs": 10369,
+      "tokens": 4817,
+      "promptTokens": 1714,
+      "completionTokens": 3103
+    },
+    {
+      "callIndex": 11,
+      "label": "Dishes batch [1 - 8 of 158]",
+      "durationMs": 7763,
+      "tokens": 3137,
+      "promptTokens": 1292,
+      "completionTokens": 1845
+    },
+    {
+      "callIndex": 12,
+      "label": "Dishes batch [9 - 16 of 158]",
+      "durationMs": 7723,
+      "tokens": 3072,
+      "promptTokens": 1126,
+      "completionTokens": 1946
+    },
+    {
+      "callIndex": 13,
+      "label": "Dishes batch [17 - 24 of 158]",
+      "durationMs": 3887,
+      "tokens": 1735,
+      "promptTokens": 737,
+      "completionTokens": 998
+    },
+    {
+      "callIndex": 14,
+      "label": "Dishes batch [25 - 32 of 158]",
+      "durationMs": 2790,
+      "tokens": 1471,
+      "promptTokens": 687,
+      "completionTokens": 784
+    },
+    {
+      "callIndex": 15,
+      "label": "Dishes batch [33 - 40 of 158]",
+      "durationMs": 3430,
+      "tokens": 1709,
+      "promptTokens": 792,
+      "completionTokens": 917
+    },
+    {
+      "callIndex": 16,
+      "label": "Dishes batch [41 - 48 of 158]",
+      "durationMs": 3492,
+      "tokens": 1723,
+      "promptTokens": 767,
+      "completionTokens": 956
+    },
+    {
+      "callIndex": 17,
+      "label": "Dishes batch [49 - 56 of 158]",
+      "durationMs": 6794,
+      "tokens": 3060,
+      "promptTokens": 1135,
+      "completionTokens": 1925
+    },
+    {
+      "callIndex": 18,
+      "label": "Dishes batch [57 - 64 of 158]",
+      "durationMs": 6046,
+      "tokens": 2942,
+      "promptTokens": 1091,
+      "completionTokens": 1851
+    },
+    {
+      "callIndex": 19,
+      "label": "Dishes batch [65 - 72 of 158]",
+      "durationMs": 6869,
+      "tokens": 3054,
+      "promptTokens": 1101,
+      "completionTokens": 1953
+    },
+    {
+      "callIndex": 20,
+      "label": "Dishes batch [73 - 80 of 158]",
+      "durationMs": 6526,
+      "tokens": 3233,
+      "promptTokens": 1197,
+      "completionTokens": 2036
+    },
+    {
+      "callIndex": 21,
+      "label": "Dishes batch [81 - 88 of 158]",
+      "durationMs": 5682,
+      "tokens": 2836,
+      "promptTokens": 1071,
+      "completionTokens": 1765
+    },
+    {
+      "callIndex": 22,
+      "label": "Dishes batch [89 - 96 of 158]",
+      "durationMs": 6621,
+      "tokens": 3111,
+      "promptTokens": 1257,
+      "completionTokens": 1854
+    },
+    {
+      "callIndex": 23,
+      "label": "Dishes batch [97 - 104 of 158]",
+      "durationMs": 5910,
+      "tokens": 2542,
+      "promptTokens": 1052,
+      "completionTokens": 1490
+    },
+    {
+      "callIndex": 24,
+      "label": "Dishes batch [105 - 112 of 158]",
+      "durationMs": 4944,
+      "tokens": 2289,
+      "promptTokens": 986,
+      "completionTokens": 1303
+    },
+    {
+      "callIndex": 25,
+      "label": "Dishes batch [113 - 120 of 158]",
+      "durationMs": 4860,
+      "tokens": 2174,
+      "promptTokens": 897,
+      "completionTokens": 1277
+    },
+    {
+      "callIndex": 26,
+      "label": "Dishes batch [121 - 128 of 158]",
+      "durationMs": 4758,
+      "tokens": 1863,
+      "promptTokens": 790,
+      "completionTokens": 1073
+    },
+    {
+      "callIndex": 27,
+      "label": "Dishes batch [129 - 136 of 158]",
+      "durationMs": 3096,
+      "tokens": 1436,
+      "promptTokens": 642,
+      "completionTokens": 794
+    },
+    {
+      "callIndex": 28,
+      "label": "Dishes batch [137 - 144 of 158]",
+      "durationMs": 3808,
+      "tokens": 1660,
+      "promptTokens": 675,
+      "completionTokens": 985
+    },
+    {
+      "callIndex": 29,
+      "label": "Dishes batch [145 - 152 of 158]",
+      "durationMs": 5054,
+      "tokens": 1986,
+      "promptTokens": 751,
+      "completionTokens": 1235
+    },
+    {
+      "callIndex": 30,
+      "label": "Dishes batch [153 - 158 of 158]",
+      "durationMs": 3338,
+      "tokens": 1452,
+      "promptTokens": 602,
+      "completionTokens": 850
+    },
+    {
+      "callIndex": 31,
+      "label": "Variants (19 items)",
+      "durationMs": 2320,
+      "tokens": 842,
+      "promptTokens": 344,
+      "completionTokens": 498
+    },
+    {
+      "callIndex": 32,
+      "label": "Extras batch [1 - 25 of 52]",
+      "durationMs": 2859,
+      "tokens": 1294,
+      "promptTokens": 498,
+      "completionTokens": 796
+    },
+    {
+      "callIndex": 33,
+      "label": "Extras batch [26 - 50 of 52]",
+      "durationMs": 2594,
+      "tokens": 1159,
+      "promptTokens": 449,
+      "completionTokens": 710
+    },
+    {
+      "callIndex": 34,
+      "label": "Extras batch [51 - 52 of 52]",
+      "durationMs": 687,
+      "tokens": 175,
+      "promptTokens": 106,
+      "completionTokens": 69
+    },
+    {
+      "callIndex": 35,
+      "label": "Wines batch [1 - 5 of 20]",
+      "durationMs": 7412,
+      "tokens": 3045,
+      "promptTokens": 1073,
+      "completionTokens": 1972
+    },
+    {
+      "callIndex": 36,
+      "label": "Wines batch [6 - 10 of 20]",
+      "durationMs": 7903,
+      "tokens": 3165,
+      "promptTokens": 1115,
+      "completionTokens": 2050
+    },
+    {
+      "callIndex": 37,
+      "label": "Wines batch [11 - 15 of 20]",
+      "durationMs": 7831,
+      "tokens": 3489,
+      "promptTokens": 1204,
+      "completionTokens": 2285
+    },
+    {
+      "callIndex": 38,
+      "label": "Wines batch [16 - 20 of 20]",
+      "durationMs": 7401,
+      "tokens": 3375,
+      "promptTokens": 1246,
+      "completionTokens": 2129
+    }
+  ],
+  "finishedAt": "2026-10-04T13:33:04.282Z",
+  "totalExecutionSeconds": 196
+}

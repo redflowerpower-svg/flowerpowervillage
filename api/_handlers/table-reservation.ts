@@ -188,6 +188,17 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
     const seatingLabel = AREA_LABELS[seatingArea] || seatingArea;
     const customerEmail = body.email?.trim() || '';
 
+    const isWinePrivilege = Boolean(
+      body.is_wine_privilege ||
+      (body.notes && (
+        body.notes.toLowerCase().includes('10%') ||
+        body.notes.toLowerCase().includes('vino') ||
+        body.notes.toLowerCase().includes('wine') ||
+        body.notes.toLowerCase().includes('ส่วนลดไวน์') ||
+        body.notes.toLowerCase().includes('weinkeller-rabatt')
+      ))
+    );
+
     const tempCode = `TB-${Date.now().toString().slice(-4)}${Math.random().toString(36).substring(2, 4).toUpperCase()}`;
 
     const reservationRecord: TableReservationData = {
@@ -201,6 +212,7 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
       seating_area: seatingArea,
       occasion: body.occasion?.trim() || '',
       notes: body.notes?.trim() || '',
+      is_wine_privilege: isWinePrivilege,
       status: 'pending',
       lang: body.lang || 'IT',
       created_at: new Date().toISOString()
@@ -213,8 +225,8 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
       phone: reservationRecord.contact,
       address: addressStr,
       items: [{
-        name: `Prenotazione Tavolo (${seatingLabel})`,
-        nameTh: `จองโต๊ะ (${seatingLabel})`,
+        name: `Prenotazione Tavolo (${seatingLabel})${isWinePrivilege ? ' [Sconto 10% Vino]' : ''}`,
+        nameTh: `จองโต๊ะ (${seatingLabel})${isWinePrivilege ? ' [ส่วนลดไวน์ 10%]' : ''}`,
         quantity: Number(reservationRecord.guests) || 2,
         selectedVariant: `${reservationRecord.guests} Ospiti / ${reservationRecord.reservation_date} ${reservationRecord.reservation_time}`
       }],
@@ -261,6 +273,7 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
           reservation_time: reservationRecord.reservation_time,
           seating_area: reservationRecord.seating_area,
           notes: reservationRecord.notes,
+          is_wine_privilege: reservationRecord.is_wine_privilege,
           lang: reservationRecord.lang
         });
       } catch (emailErr) {
@@ -274,6 +287,10 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
       if (botToken && chatId) {
         let text = `🍽️ <b>NUOVA PRENOTAZIONE TAVOLO / CAPANNA</b>\n`;
         text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+        if (isWinePrivilege) {
+          text += `🍷 <b>PRIVILEGIO CANTINA: -10% SULLA BOTTIGLIA DI VINO</b> 🏷️\n`;
+          text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+        }
         text += `📌 <b>ID Prenotazione</b>: <code>#${actualOrderId}</code>\n`;
         text += `👤 <b>Cliente</b>: <b>${escapeHtml(reservationRecord.customer_name)}</b>\n`;
         text += `📞 <b>Contatto (LINE / Tel)</b>: <code>${escapeHtml(reservationRecord.contact)}</code>\n`;

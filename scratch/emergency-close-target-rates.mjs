@@ -60,9 +60,8 @@ async function executeEmergencyClose() {
     return targetKeywords.some(kw => name.includes(kw));
   });
 
-  console.log(`✅ Identificate ${targetRates.length} tariffe target da chiudere categoricamente in Stop Sell.`);
-
-  const dateFrom = '2026-09-05';
+  const today = new Date().toISOString().slice(0, 10);
+  const dateFrom = today;
   const dateTo = '2027-10-31';
 
   console.log(`📅 Finestra di chiusura applicata: ${dateFrom} ➔ ${dateTo}`);

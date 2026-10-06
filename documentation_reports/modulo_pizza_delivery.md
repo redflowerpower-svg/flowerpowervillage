@@ -48,3 +48,25 @@ Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra We
 - **Notifiche Ordini & Kitchen Monitor (KDS)**: Sincronizzazione in tempo reale con Supabase `pizza_orders`, KDS cucina e Telegram Bot.
   - Gestione avanzata comande e prenotazioni tavoli con pulsanti dedicati di presa in carico, rifiuto/cancellazione immediata (`[CANCELLED:true]`) ed eliminazione definitiva (`deleteOrder` con bypass RLS tramite `service_role`).
 
+---
+
+## 🌐 4. Pipeline Multilingua Radicale a 9 Fasi (DeepSeek AI Batch CLI)
+
+Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flussi di checkout supportano 5 lingue native: **Italiano (`IT`)**, **Inglese (`EN`)**, **Tailandese (`TH`)**, **Tedesco (`DE`)** e **Birmano (`MM`)**.
+
+1. **Motore CLI Automatizzato (`scripts/deepseek-universal-translator.mjs`)**:
+   - Esegue la traduzione batch di tutti i piatti (`menuData.ts`), carta dei vini (`wineData.tsx`), dizionario globale (`i18n.ts`), badge dietetici (`dietary.ts`, `DietaryWatermark.tsx`) e componenti checkout.
+   - Utilizza l'API ufficiale DeepSeek (`deepseek-chat`) con temperatura controllata (0.2) e schema JSON strict.
+2. **Supporto Birmano (`MM`) & Font Noto Sans Myanmar**:
+   - Integrazione completa del font `Noto Sans Myanmar` (Google Fonts) in `index.html` e `languages.ts`.
+   - Localizzazione completa del flusso di Checkout (`CheckoutFlow.tsx`), messaggi di conferma, supporto Telegram/WhatsApp, stato di rifiuto ordini (`rejectedTitle`, `rejectedDesc`, `backToFormBtn`) e dettagli consegna dinamici.
+3. **Studio Admin Live DeepSeek (`DishCardStudio.tsx`, `WineCardStudio.tsx`)**:
+   - Pannello di traduzione in tempo reale con anteprima affiancata di tutte le lingue supportate.
+
+---
+
+## 🎧 5. Kitchen Tablet KDS & Audio WakeLock System
+
+- **Audio WakeLock (`src/admin/pizza/utils/kitchenAudioWakeLock.ts`)**: Mantiene attivo lo schermo del tablet da cucina e gestisce l'audio sintetizzato/campione per gli ordini in arrivo senza interruzioni del browser.
+- **Sincronizzazione Comande & Tavoli**: Polling e sottoscrizione realtime Supabase con filtri dedicati per cucina, pizzeria e bar.
+

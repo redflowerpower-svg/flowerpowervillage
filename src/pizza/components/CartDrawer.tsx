@@ -251,10 +251,14 @@ const labels = {
     addDrinkBtn: '+ Aggiungi',
     freeDeliveryRemaining: (amount: number) => `Mancano solo ${amount}฿ per la Consegna GRATIS!`,
     freeDeliveryAchieved: 'Consegna GRATIS sbloccata! 🎉',
-    wineDineInBadge: 'ESPERIENZA AL RISTORANTE',
-    wineDineInTitle: '🍷 Desideri scoprire i nostri Vini Italiani?',
-    wineDineInDesc: 'Vieni a trovarci nel giardino alle Terme di Raksawarin per una degustazione speciale con la nostra cantina.',
-    wineDineInBtn: 'Prenota un Tavolo o Capanna',
+    wineDineInBadge: 'Privilegio Cantina • Sconto 10%',
+    wineDineInTitle: 'Prenota al Ristorante: 10% di Sconto sulla Bottiglia di Vino',
+    wineDineInDesc: 'Riserva un tavolo o capanna nel nostro giardino a Ranong e ricevi subito il 10% di sconto su qualsiasi bottiglia di vino della nostra cantina.',
+    wineDineInBtn: 'Prenota Tavolo con Sconto 10% Vino',
+    wineDiscountBadge: '-10% SCONTO VINO',
+    deliveryIncluded: '✓ Consegna inclusa',
+    tableOrderBtn: 'Invia Ordine al Tavolo',
+    tableAddMoreBtn: '+ Aggiungi altri piatti / bevande',
   },
   EN: {
     title: 'Your Cart',
@@ -291,10 +295,14 @@ const labels = {
     addDrinkBtn: '+ Add',
     freeDeliveryRemaining: (amount: number) => `Only ${amount}฿ away from FREE Delivery!`,
     freeDeliveryAchieved: 'FREE Delivery unlocked! 🎉',
-    wineDineInBadge: 'DINE-IN EXPERIENCE',
-    wineDineInTitle: '🍷 Looking for an Italian Wine Tasting?',
-    wineDineInDesc: 'Visit our garden restaurant at Raksawarin Hot Springs for an exclusive dine-in wine experience.',
-    wineDineInBtn: 'Book a Table or Garden Hut',
+    wineDineInBadge: 'Wine Privilege • 10% OFF',
+    wineDineInTitle: 'Book at Restaurant: 10% Off Your Wine Bottle',
+    wineDineInDesc: 'Reserve a table or bamboo hut in our Ranong garden and get 10% off any Italian or international wine bottle from our cellar.',
+    wineDineInBtn: 'Book Table with 10% Wine Discount',
+    wineDiscountBadge: '-10% WINE DISCOUNT',
+    deliveryIncluded: '✓ Delivery included',
+    tableOrderBtn: 'Proceed Table Order',
+    tableAddMoreBtn: '+ Add more dishes / drinks',
   },
   TH: {
     title: 'ตะกร้าสินค้าของคุณ',
@@ -331,10 +339,14 @@ const labels = {
     addDrinkBtn: '+ เพิ่ม',
     freeDeliveryRemaining: (amount: number) => `อีกเพียง ${amount}฿ เพื่อรับสิทธิ์ส่งฟรี!`,
     freeDeliveryAchieved: 'รับสิทธิ์จัดส่งฟรีแล้ว! 🎉',
-    wineDineInBadge: 'ทานที่ร้านอาหาร',
-    wineDineInTitle: '🍷 สัมผัสประสบการณ์ดื่มไวน์อิตาเลียนชั้นเลิศ',
-    wineDineInDesc: 'แวะมาทานที่ร้านริมน้ำตกรักษะวาริน จองโต๊ะหรือซุ้มไม้ไผ่เพื่อความประทับใจ',
-    wineDineInBtn: 'จองโต๊ะหรือซุ้มกระท่อม',
+    wineDineInBadge: 'สิทธิพิเศษไวน์ • ลด 10%',
+    wineDineInTitle: 'จองโต๊ะทานที่ร้าน: รับส่วนลด 10% สำหรับไวน์ขวด',
+    wineDineInDesc: 'จองโต๊ะหรือซุ้มกระท่อมริมลำธารระนองผ่านเว็บไซต์ รับสิทธิ์ส่วนลดทันที 10% สำหรับไวน์ทุกขวดที่สั่งทานที่ร้าน',
+    wineDineInBtn: 'จองโต๊ะพร้อมรับส่วนลดไวน์ 10%',
+    wineDiscountBadge: '-10% ส่วนลดไวน์',
+    deliveryIncluded: '✓ รวมค่าจัดส่งแล้ว',
+    tableOrderBtn: 'สั่งที่โต๊ะเลย',
+    tableAddMoreBtn: '+ เลือกอาหารและเครื่องดื่มเพิ่ม',
   },
   DE: {
     title: 'Ihr Warenkorb',
@@ -371,10 +383,58 @@ const labels = {
     addDrinkBtn: '+ Hinzufügen',
     freeDeliveryRemaining: (amount: number) => `Noch ${amount}฿ bis zur GRATIS-Lieferung!`,
     freeDeliveryAchieved: 'GRATIS-Lieferung freigeschaltet! 🎉',
-    wineDineInBadge: 'RESTAURANT-ERLEBNIS',
-    wineDineInTitle: '🍷 Italienische Weine im Restaurant erleben?',
-    wineDineInDesc: 'Besuchen Sie unser Gartenrestaurant an den Raksawarin-Quellen für eine besondere Weinverkostung.',
-    wineDineInBtn: 'Tisch oder Bambushütte reservieren',
+    wineDineInBadge: 'Weinkeller-Vorteil • 10% Rabatt',
+    wineDineInTitle: 'Tisch reservieren: 10% Rabatt auf Ihre Weinflasche',
+    wineDineInDesc: 'Reservieren Sie einen Tisch oder eine Gartenhütte in Ranong und erhalten Sie 10% Rabatt auf alle Weinflaschen aus unserem Weinkeller.',
+    wineDineInBtn: 'Tisch reservieren & 10% Wein-Rabatt sichern',
+    wineDiscountBadge: '-10% WEIN-RABATT',
+    deliveryIncluded: '✓ Lieferung inklusive',
+    tableOrderBtn: 'Bestellung absenden',
+    tableAddMoreBtn: '+ Weitere Gerichte hinzufügen',
+  },
+  MM: {
+    title: 'သင်၏ ဈေးဝယ်ခြင်းတောင်း',
+    emptyTitle: 'ဈေးဝယ်ခြင်းတောင်းထဲတွင် အရာမရှိသေးပါ',
+    emptyDesc: 'ကျွန်ုပ်တို့၏ အီတလီစားဖိုမှူး လက်ရာစစ်စစ် ဟင်းလျာများကို ရွေးချယ်ပါ',
+    totalText: 'ကျသင့်ငွေ စုစုပေါင်း',
+    subtotalText: 'အစားအသောက် စုစုပေါင်း',
+    firstOrderDiscountText: 'ပထမဆုံး အော်ဒါ လျှော့စျေး (10%)',
+    deliveryText: 'ရနောင်းမြို့တွင်း ပို့ဆောင်ခ',
+    freeText: 'အခမဲ့',
+    freeDeliveryApplied: 'အခမဲ့ ပို့ဆောင်ပေးပါသည် (300฿ အထက်)',
+    welcomePrivilegeNote: 'ပထမဆုံး အော်ဒါအတွက် 10% အထူးလျှော့စျေး ရရှိပါသည်!',
+    checkoutBtn: 'ငွေပေးချေရန် ဆက်သွားမည်',
+    continueShoppingBtn: '← မီနူးသို့ ပြန်သွားပြီး အစားအသောက် ထပ်ရွေးမည်',
+    addMoreDishesBtn: '+ မီနူးမှ အရသာရှိသော အစားအစာများ ထပ်ရွေးမည်',
+    ordersPausedBtn: 'အော်ဒါလက်ခံခြင်း ခေတ္တရပ်နားထားပါသည်',
+    ordersClosedBtn: 'ဆိုင်လောလောဆယ် ပိတ်ထားပါသည်',
+    callPizzeria: 'ဆိုင်သို့ ဖုန်းခေါ်ဆိုရန် (ရနောင်း)',
+    footerInfo: 'အီတလီ အစားအစာစစ်စစ် • ရနောင်းမြို့တွင်း အမြန်ပို့ဆောင်ပေးပါသည်',
+    pairingRitualTitle: 'တွဲဖက်စားသုံးရန် အကြံပြုချက်',
+    pairingRitualSubtitle: 'ကျွန်ုပ်တို့ မီးဖိုချောင်မှ အကြံပြုထားသော အကောင်းဆုံး ၃ မျိုး',
+    slot1Badge: '၁။ အအေး / အချိုရည်',
+    slot2Badge: '၂။ ကော်ဖီ',
+    slot3Badge: '၃။ အချိုပွဲ',
+    openSlot1: 'အအေး / အချိုရည် အားလုံး',
+    openSlot2: 'ကော်ဖီနှင့် လက်ဖက်ရည် အားလုံး',
+    openSlot3: 'အချိုပွဲ အားလုံး',
+    slotAlt1Badge: '၁။ ပီဇာ',
+    slotAlt2Badge: '၂။ ပါစတာ',
+    slotAlt3Badge: '၃။ အဆာပြေ',
+    openSlotAlt1: 'ပီဇာ အားလုံး',
+    openSlotAlt2: 'ပါစတာ အားလုံး',
+    openSlotAlt3: 'အဆာပြေ အားလုံး',
+    addDrinkBtn: '+ ထည့်မည်',
+    freeDeliveryRemaining: (amount: number) => `အခမဲ့ ပို့ဆောင်ခ ရရှိရန် ${amount}฿ သာ လိုပါတော့သည်!`,
+    freeDeliveryAchieved: 'အခမဲ့ ပို့ဆောင်ခ ရရှိပါပြီ! 🎉',
+    wineDineInBadge: 'ဆိုင်တွင် သုံးဆောင်ရန် • 10% လျှော့စျေး',
+    wineDineInTitle: 'ဆိုင်တွင် စားပွဲကြိုတင်မှာယူပါ: ဝိုင်ပုလင်း 10% လျှော့စျေး',
+    wineDineInDesc: 'ရနောင်း ရေပူစမ်းအနီး ကျွန်ုပ်တို့၏ ဥယျာဉ်စားသောက်ဆိုင်တွင် စားပွဲ သို့မဟုတ် ဝါးတဲကြိုတင်မှာယူပြီး ဝိုင်ပုလင်းတိုင်းအတွက် 10% လျှော့စျေး ရယူလိုက်ပါ။',
+    wineDineInBtn: 'စားပွဲကြိုတင်မှာယူပြီး ဝိုင် 10% လျှော့စျေး ရယူမည်',
+    wineDiscountBadge: '-10% ဝိုင်လျှော့စျေး',
+    deliveryIncluded: '✓ ပို့ဆောင်ခ အခမဲ့ ပါဝင်ပြီး',
+    tableOrderBtn: 'စားပွဲသို့ အော်ဒါပို့မည်',
+    tableAddMoreBtn: '+ အစားအသောက်/အအေးများ ထပ်ရွေးမည်',
   },
 };
 
@@ -490,6 +550,21 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
   const subtotal = getTotal();
   const [isEligible, setIsEligible] = useState(true);
   const [showTableModal, setShowTableModal] = useState(false);
+  const [isWineReservation, setIsWineReservation] = useState(false);
+  const [reservationNotes, setReservationNotes] = useState('');
+
+  const handleOpenWineReservation = () => {
+    const note = lang === 'TH'
+      ? 'สิทธิพิเศษส่วนลดไวน์ 10% (จองผ่านเว็บไซต์)'
+      : lang === 'IT'
+      ? 'Privilegio Cantina: Sconto 10% sulla Bottiglia di Vino (Prenotato dal sito)'
+      : lang === 'DE'
+      ? '10% Weinkeller-Rabatt auf Flasche (Online reserviert)'
+      : '10% Wine Bottle Discount Privilege (Online Reservation)';
+    setReservationNotes(note);
+    setIsWineReservation(true);
+    setShowTableModal(true);
+  };
 
   const hasMainFoodInCart =
     items.length === 0 ||
@@ -584,10 +659,44 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
     };
   }, []);
 
-  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string; nameDe?: string }) => {
-    if (lang === 'TH' && o.nameTh) return o.nameTh;
-    if (lang === 'IT' && o.nameIt) return o.nameIt;
-    if (lang === 'DE' && o.nameDe) return o.nameDe;
+  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string; nameDe?: string; nameMm?: string; name_mm?: string; productId?: string; id?: string }) => {
+    const pid = (o.productId || o.id || '').trim().toLowerCase();
+    if (lang === 'MM') {
+      if (o.nameMm || o.name_mm) return o.nameMm || o.name_mm;
+      if (pid) {
+        for (const cat of menuData) {
+          const found = cat.items.find(m => m.id.toLowerCase() === pid);
+          if (found && (found.nameMm || found.name_mm)) return found.nameMm || found.name_mm;
+        }
+      }
+    }
+    if (lang === 'TH') {
+      if (o.nameTh) return o.nameTh;
+      if (pid) {
+        for (const cat of menuData) {
+          const found = cat.items.find(m => m.id.toLowerCase() === pid);
+          if (found && found.nameTh) return found.nameTh;
+        }
+      }
+    }
+    if (lang === 'IT') {
+      if (o.nameIt) return o.nameIt;
+      if (pid) {
+        for (const cat of menuData) {
+          const found = cat.items.find(m => m.id.toLowerCase() === pid);
+          if (found && (found.nameIt || found.name_it)) return found.nameIt || found.name_it;
+        }
+      }
+    }
+    if (lang === 'DE') {
+      if (o.nameDe) return o.nameDe;
+      if (pid) {
+        for (const cat of menuData) {
+          const found = cat.items.find(m => m.id.toLowerCase() === pid);
+          if (found && (found.nameDe || found.name_de)) return found.nameDe || found.name_de;
+        }
+      }
+    }
     return o.name;
   };
 
@@ -605,7 +714,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
         </>
       );
     }
-    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
+    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT ', ' နှင့် '];
     const upperName = name.toUpperCase();
     for (const kw of splitKeywords) {
       if (upperName.includes(kw)) {
@@ -1041,53 +1150,49 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                 </div>
               </div>
 
-              {/* 🍷 COMPACT ATMOSPHERIC ITALIAN VINEYARD & WINE EXPERIENCE CARD (Only for Home Delivery users, hidden in Dining Tablet mode) */}
+              {/* 🍷 PREMIUM ITALIAN WINE & RESTAURANT EXPERIENCE CARD (Only for Home Delivery users, hidden in Dining Tablet mode) */}
               {!isDiningMode && (
-                <div className="relative rounded-2xl overflow-hidden shadow-xs border border-amber-900/30 group">
-                  {/* Vineyard Sunset Background Image */}
-                  <div className="absolute inset-0 z-0">
-                    <img
-                      src="https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=1000&q=85"
-                      alt="Italian Tuscan Vineyard"
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
-                    />
-                    {/* Warm atmospheric golden-hour vignette */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-stone-950/92 via-stone-900/80 to-amber-950/55 backdrop-blur-[0.5px]" />
+                <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#FFFDF8] via-[#FFF9F2] to-[#FFF3E6] border-2 border-amber-300/90 shadow-xs p-3.5 sm:p-4 transition-all hover:border-amber-400">
+                  {/* Subtle decorative background watermark */}
+                  <div className="absolute -right-4 -bottom-6 opacity-[0.06] text-stone-900 pointer-events-none select-none">
+                    <Wine size={110} />
                   </div>
 
-                  {/* Content Overlay */}
-                  <div className="relative z-10 p-3 sm:p-3.5 flex items-center gap-3">
-                    {/* Wine Glass Icon */}
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/30 to-red-950/60 border border-amber-400/50 text-amber-300 flex items-center justify-center shrink-0 shadow-md backdrop-blur-sm">
-                      <Wine size={18} className="text-amber-200" />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1 mb-0.5">
-                        <span className="text-[8.5px] font-black uppercase tracking-widest text-amber-300/90 bg-amber-950/70 border border-amber-500/30 px-1.5 py-0.5 rounded-full shadow-2xs">
+                  <div className="relative z-10 space-y-2.5">
+                    {/* Header Row: Badge & Discount Pill */}
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#8B1E1E] to-[#601212] text-amber-200 flex items-center justify-center shrink-0 shadow-2xs">
+                          <Wine size={16} className="text-amber-300" />
+                        </div>
+                        <span className="text-[9.5px] font-black uppercase tracking-wider text-amber-900 bg-amber-100/90 border border-amber-300/80 px-2 py-0.5 rounded-full shadow-2xs">
                           🍇 {t.wineDineInBadge}
                         </span>
                       </div>
+                      <span className="bg-emerald-600 text-white text-[9.5px] font-black uppercase px-2 py-0.5 rounded-md shadow-2xs tracking-wider">
+                        {t.wineDiscountBadge}
+                      </span>
+                    </div>
 
-                      <p
-                        className="text-white font-bold text-xs sm:text-sm leading-tight drop-shadow-sm"
-                        style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', fontSize: '1.08rem' }}
-                      >
+                    {/* Title & Description with crystal clear contrast */}
+                    <div>
+                      <h4 className="text-stone-900 font-extrabold text-[13.5px] sm:text-[14.5px] leading-snug tracking-tight">
                         {t.wineDineInTitle}
-                      </p>
-
-                      <p className="text-[10px] text-amber-100/85 font-normal leading-tight drop-shadow-xs mt-0.5 line-clamp-1">
+                      </h4>
+                      <p className="text-stone-600 text-xs leading-relaxed font-normal mt-1 text-pretty">
                         {t.wineDineInDesc}
                       </p>
                     </div>
 
+                    {/* CTA Button with full readable label & discount indicator */}
                     <button
                       type="button"
-                      onClick={() => setShowTableModal(true)}
-                      className="shrink-0 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-black text-[10px] uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-sm active:scale-95 flex items-center gap-1"
+                      onClick={handleOpenWineReservation}
+                      className="w-full py-2.5 px-3.5 bg-gradient-to-r from-[#8B1E1E] via-[#7B1818] to-[#5C1111] hover:from-[#781818] hover:to-[#4D0D0D] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-xs hover:shadow transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.99]"
                     >
-                      <span>{t.wineDineInBtn.split(' ')[0]}</span>
-                      <ChevronRight size={11} className="text-stone-950 font-black" />
+                      <UtensilsCrossed size={14} className="text-amber-300 shrink-0" />
+                      <span>{t.wineDineInBtn}</span>
+                      <ChevronRight size={14} className="text-amber-300 shrink-0" />
                     </button>
                   </div>
                 </div>
@@ -1107,7 +1212,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                   <Sparkles size={13} className={isDiningMode ? 'text-amber-600' : 'text-emerald-600'} />
                   <span>
                     {isDiningMode 
-                      ? (lang === 'TH' ? '✨ สิทธิพิเศษสั่งที่โต๊ะ (-5%):' : lang === 'IT' ? '✨ Sconto Dining Privilege al Tavolo (-5%):' : lang === 'DE' ? '✨ Tisch-Rabatt (-5%):' : '✨ Table Dining Privilege (-5%):')
+                      ? (lang === 'TH' ? '✨ สิทธิพิเศษสั่งที่โต๊ะ (-5%):' : lang === 'IT' ? '✨ Sconto Dining Privilege al Tavolo (-5%):' : lang === 'DE' ? '✨ Tisch-Rabatt (-5%):' : lang === 'MM' ? '✨ စားပွဲမှာယူမှု အထူးလျှော့စျေး (-5%):' : '✨ Table Dining Privilege (-5%):')
                       : t.welcomePrivilegeNote
                     }
                   </span>
@@ -1124,8 +1229,8 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
               </div>
               {isDiningMode ? (
                 <div className="flex justify-between items-center text-emerald-700">
-                  <span>{lang === 'TH' ? 'บริการที่โต๊ะ' : lang === 'IT' ? 'Servizio al Tavolo' : lang === 'DE' ? 'Tischservice' : 'Table Service'}</span>
-                  <span className="font-bold">{lang === 'TH' ? 'ฟรี' : lang === 'IT' ? 'Gratuito' : lang === 'DE' ? 'Kostenlos' : 'Free'}</span>
+                  <span>{lang === 'TH' ? 'บริการที่โต๊ะ' : lang === 'IT' ? 'Servizio al Tavolo' : lang === 'DE' ? 'Tischservice' : lang === 'MM' ? 'စားပွဲ ဝန်ဆောင်မှု' : 'Table Service'}</span>
+                  <span className="font-bold">{lang === 'TH' ? 'ฟรี' : lang === 'IT' ? 'Gratuito' : lang === 'DE' ? 'Kostenlos' : lang === 'MM' ? 'အခမဲ့' : 'Free'}</span>
                 </div>
               ) : (
                 <div className="flex justify-between items-center">
@@ -1154,7 +1259,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                 ) : (
                   deliveryFee === 0 && (
                     <span className="text-[10.5px] text-emerald-700 font-black">
-                      ✓ Consegna inclusa
+                      {t.deliveryIncluded}
                     </span>
                   )
                 )}
@@ -1178,7 +1283,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                 >
                   <div className="flex items-center gap-2">
                     <UtensilsCrossed size={16} className="text-amber-300" />
-                    <span>{lang === 'TH' ? 'สั่งที่โต๊ะเลย' : lang === 'IT' ? 'Invia Ordine al Tavolo' : lang === 'DE' ? 'Bestellung absenden' : 'Proceed Table Order'}</span>
+                    <span>{t.tableOrderBtn}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="text-stone-300 line-through text-[11px] font-normal">{subtotal}฿</span>
@@ -1195,7 +1300,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                   className="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
                 >
                   <Plus size={14} className="text-stone-600" />
-                  <span>{lang === 'TH' ? '+ เลือกอาหารและเครื่องดื่มเพิ่ม' : lang === 'IT' ? '+ Aggiungi altri piatti / bevande' : lang === 'DE' ? '+ Weitere Gerichte hinzufügen' : '+ Add more dishes / drinks'}</span>
+                  <span>{t.tableAddMoreBtn}</span>
                 </button>
               </div>
             ) : serviceCalc.canOrder ? (
@@ -1220,6 +1325,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                         {lang === 'EN' && <>Only <span className="text-amber-300 font-black">{300 - subtotal}฿</span> to FREE Delivery!</>}
                         {lang === 'TH' && <>อีกเพียง <span className="text-amber-300 font-black">{300 - subtotal}฿</span> ส่งฟรี!</>}
                         {lang === 'DE' && <>Noch <span className="text-amber-300 font-black">{300 - subtotal}฿</span> bis GRATIS-Lieferung!</>}
+                        {lang === 'MM' && <>အခမဲ့ပို့ဆောင်ရန် <span className="text-amber-300 font-black">{300 - subtotal}฿</span> သာ လိုပါတော့သည်!</>}
                       </span>
                     ) : (
                       <span className="text-amber-200 font-black">
@@ -1227,6 +1333,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                         {lang === 'EN' && '🎉 FREE Delivery unlocked!'}
                         {lang === 'TH' && '🎉 ได้รับสิทธิ์จัดส่งฟรีแล้ว!'}
                         {lang === 'DE' && '🎉 GRATIS-Lieferung freigeschaltet!'}
+                        {lang === 'MM' && '🎉 အခမဲ့ ပို့ဆောင်ခွင့် ရရှိပါပြီ!'}
                       </span>
                     )}
                   </div>
@@ -1273,8 +1380,14 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
       {!isDiningMode && (
         <TableReservationModal
           isOpen={showTableModal}
-          onClose={() => setShowTableModal(false)}
+          onClose={() => {
+            setShowTableModal(false);
+            setIsWineReservation(false);
+            setReservationNotes('');
+          }}
           lang={lang}
+          initialNotes={reservationNotes}
+          isWinePrivilege={isWineReservation}
         />
       )}
     </>

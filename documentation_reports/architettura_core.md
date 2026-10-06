@@ -164,6 +164,13 @@ Di seguito sono documentate le principali criticità architetturali emerse duran
 *   **Standardizzazione Schema.org JSON-LD (`PizzaStructuredData.tsx`):** Dati strutturati `Restaurant`, `Menu` e `GeoCoordinates` per motori di ricerca e assistenti vocali.
 *   **AI Crawler Discovery Files (`public/llms.txt`, `public/llms-full.txt`):** Documentazione sintetica ed esaustiva per agenti LLM (Perplexity, ChatGPT Search, Claude, Gemini) con catalogo menu e contatti ufficiali.
 
+### O. Regola Radicale Tariffe OFF = Stop Sell Istantaneo su tutte le OTA (Octorate Engine)
+*   **Problema Overbooking su Tariffe Derivate AC:** Le tariffe derivate AC di Booking.com e OTA presentavano periodi aperti a monte pur risultando disattivate a livello visuale in dashboard.
+*   **Soluzione:** Implementata la regola ferrea e intrinseca nell'infrastruttura:
+    1. Ogni volta che un piano tariffario (es. `AC7d`, `AC14d`, `AC bnb-7d`, `AC bnb-14d`, `AirBnB AC`) risulta impostato su `OFF` nella dashboard, il sistema invia istantaneamente un push API a Octorate per applicare `stopSells: true, closed: true` su tutti i prodotti associati per l'intera stagione (`2026-10-06` -> `2027-10-31`).
+    2. Modificato `useRestrictionsStore.ts` per inizializzare di default `stopSell: true` sui periodi standard di tutte le tariffe AC disattivate e attivare il push automatico in background all'azione di toggle.
+
+
 
 
 

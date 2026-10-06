@@ -275,7 +275,7 @@ export const WineCardStudio: React.FC = () => {
   const [detectFeedback, setDetectFeedback] = useState<string | null>(null);
   const [isAiRemoving, setIsAiRemoving] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
-  const [previewLang, setPreviewLang] = useState<'IT' | 'EN' | 'TH' | 'DE'>('IT');
+  const [previewLang, setPreviewLang] = useState<'IT' | 'EN' | 'TH' | 'DE' | 'MM'>('IT');
   const [descLangTab, setDescLangTab] = useState<'IT' | 'EN' | 'TH' | 'DE'>('IT');
   const [draggedWineId, setDraggedWineId] = useState<string | null>(null);
   const [dragOverWineId, setDragOverWineId] = useState<string | null>(null);
@@ -342,7 +342,7 @@ export const WineCardStudio: React.FC = () => {
     }
   };
 
-  const getWineStudioDesc = (w: WineCardData | null, targetLang: 'IT' | 'EN' | 'TH' | 'DE' = previewLang) => {
+  const getWineStudioDesc = (w: WineCardData | null, targetLang: 'IT' | 'EN' | 'TH' | 'DE' | 'MM' = previewLang) => {
     if (!w) return '';
     if (targetLang === 'TH' && (w as any).descriptionTh) return (w as any).descriptionTh;
     if (targetLang === 'IT' && (w as any).descriptionIt) return (w as any).descriptionIt;
@@ -1031,16 +1031,19 @@ export const WineCardStudio: React.FC = () => {
         titleEn: trans.titleEn,
         titleTh: trans.titleTh,
         titleDe: trans.titleDe,
+        titleMm: (trans as any).titleMm,
         categorySubtitle: trans.categorySubtitle,
         subtitleIt: trans.subtitleIt,
         subtitleEn: trans.subtitleEn,
         subtitleTh: trans.subtitleTh,
         subtitleDe: trans.subtitleDe,
+        subtitleMm: (trans as any).subtitleMm,
         description: trans.descriptionEn || prev.description,
         descriptionIt: trans.descriptionIt,
         descriptionEn: trans.descriptionEn,
         descriptionTh: trans.descriptionTh,
         descriptionDe: trans.descriptionDe,
+        descriptionMm: (trans as any).descriptionMm,
       }));
 
     } catch (err) {

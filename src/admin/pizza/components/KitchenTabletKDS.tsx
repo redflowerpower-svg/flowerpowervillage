@@ -36,6 +36,7 @@ import {
   testKitchenAlarm,
   startDispatchReminderAlarm,
   stopDispatchReminderAlarm,
+  stopAllKitchenAlarms,
   playGentleReminderChime,
   requestScreenWakeLock, 
   releaseScreenWakeLock 
@@ -247,6 +248,134 @@ const EXTRA_TRANSLATIONS: Record<string, { th: string; en: string }> = {
 };
 
 // Build quick lookup map for Thai and English names from menuData
+
+const EXTRA_BURMESE_LOOKUP: Record<string, string> = {
+  'mozzarella': 'မော့ဇာရဲလား ချိစ်',
+  'doppia mozzarella': 'မော့ဇာရဲလား ချိစ် ၂ ဆ',
+  'extra mozzarella': 'မော့ဇာရဲလား ချိစ် အပို',
+  'bufala': 'ကျွဲနို့ မော့ဇာရဲလား ချိစ်',
+  'mozzarella di bufala': 'ကျွဲနို့ မော့ဇာရဲလား ချိစ်',
+  'burrata': 'ဘူရာတာ ချိစ်စို',
+  'burratina': 'ဘူရာတီနာ ချိစ်စို အသေး',
+  'gorgonzola': 'ဂေါ်ဂွန်ဇိုလာ ဘလူးချိစ်',
+  'parmigiano': 'ပါမီဇန် ချိစ်',
+  'parmigiano reggiano': 'ပါမီဂျာနို ရယ်ဂျာနို ချိစ်',
+  'grana': 'ဂရာနာ ပါဒါနို ချိစ်',
+  'grana padano': 'ဂရာနာ ပါဒါနို ချိစ်',
+  'pecorino': 'သိုးနို့ ပီကိုရီနို ချိစ်',
+  'pecorino romano': 'ပီကိုရီနို ရိုမာနို ချိစ်',
+  'ricotta': 'ရီကော့တာ ချိစ်',
+  'mascarpone': 'မတ်စ်ကာပိုနီ ချိစ်',
+  'scamorza': 'အမွှေးနံ့သာ စကာမော်ဇာ ချိစ်',
+  'formaggio': 'ချိစ်',
+  '4 formaggi': 'ချိစ် ၄ မျိုး',
+  'prosciutto': 'ဝက်ပေါင်ခြောက် / ဟမ်',
+  'prosciutto cotto': 'အီတလီ ဝက်ပေါင်ခြောက်ပြုတ်',
+  'cotto': 'ဟမ်',
+  'prosciutto crudo': 'ပါမာ ဝက်ပေါင်ခြောက်စိမ်း',
+  'crudo': 'ပါမာ ဟမ်',
+  'prosciutto di parma': 'ပါမာ ဝက်ပေါင်ခြောက်စစ်စစ်',
+  'salame': 'ဆာလာမီ အမဲ/ဝက်အူချောင်း',
+  'salame piccante': 'ငရုတ်ကောင်း ဆာလာမီ အစပ် (ပက်ပါရိုနီ)',
+  'salame dolce': 'ဆာလာမီ အရသာညင်သာ',
+  'salsiccia': 'အီတလီ ဝက်အူချောင်းစိမ်း',
+  'salsiccia fresca': 'အီတလီ ဝက်အူချောင်းလတ်လတ်ဆတ်ဆတ်',
+  'bacon': 'ဘေကွန်ကြွပ်',
+  'pancetta': 'ဝက်သုံးထပ်သား အီတလီစတိုင်',
+  'guanciale': 'ဝက်ပါးသားခြောက်',
+  'speck': 'အမွှေးနံ့သာ ဝက်ပေါင်ခြောက်',
+  'wurstel': 'ဗီယင်နာ ဝက်အူချောင်း',
+  'pollo': 'ကြက်သား',
+  'petto di pollo': 'ကြက်ရင်အုံသား',
+  'manzo': 'အမဲသား',
+  'macinato': 'အမဲ/ဝက် အသားကြိတ်',
+  'tonno': 'တူနာငါး',
+  'acciughe': 'ငါးနီတူဆားနယ်',
+  'alici': 'ငါးနီတူဆားနယ်',
+  'gamberi': 'ပုစွန်လတ်လတ်ဆတ်ဆတ်',
+  'gamberetti': 'ပုစွန်ဆိတ်',
+  'salmone': 'ဆယ်လမွန်ငါး',
+  'salmone affumicato': 'ဆယ်လမွန်ငါး အခိုးအငွေ့ကျက်',
+  'calamari': 'ပြည်ကြီးငါး',
+  'cozze': 'ယောက်သွားခွံနက်',
+  'vongole': 'ယောက်သွားခွံဖြူ',
+  'frutti di mare': 'ပင်လယ်စာ အစုံ',
+  'seafood': 'ပင်လယ်စာ အစုံ',
+  'funghi': 'မှိုလတ်လတ်ဆတ်ဆတ်',
+  'funghi freschi': 'မှိုလတ်လတ်ဆတ်ဆတ်',
+  'funghi porcini': 'ပေါ်ချီနီ မှိုမွှေး',
+  'tartufo': 'ထရက်ဖယ်လ် မှိုမည်း',
+  'pomodoro': 'ခရမ်းချဉ်သီး',
+  'pomodorini': 'ချယ်ရီ ခရမ်းချဉ်သီး',
+  'pomodori secchi': 'ခရမ်းချဉ်သီးခြောက်',
+  'salsa pomodoro': 'ခရမ်းချဉ်သီးဆော့စ်',
+  'olive': 'သံလွင်သီး',
+  'olive nere': 'သံလွင်သီး အမည်း',
+  'olive verdi': 'သံလွင်သီး အစိမ်း',
+  'capperi': 'ကေပါ အစေ့ချဉ်',
+  'carciofi': 'အာတီချုတ် ပန်းဖူး',
+  'cipolla': 'ကြက်သွန်နီကြီး',
+  'cipolla rossa': 'ကြက်သွန်နီနီ',
+  'peperoni': 'ငရုတ်ပွကင်',
+  'peperoncino': 'ငရုတ်သီးစိမ်းစပ်',
+  'peperoncino fresco': 'ငရုတ်သီးစိမ်းလတ်လတ်ဆတ်ဆတ်',
+  'olio piccante': 'ငရုတ်သီးစပ်ဆီ',
+  'melanzane': 'ခရမ်းသီးကင်',
+  'zucchine': 'ကျောက်ဖရုံသီးကင်',
+  'rucola': 'ရော့ကက် ရွက်စိမ်း',
+  'spinaci': 'ဟင်းနုနွယ်ရွက်',
+  'basilico': 'ပင်စိမ်းလတ်လတ်ဆတ်ဆတ်',
+  'origano': 'အော်ရီဂါနို အမွှေးရွက်',
+  'aglio': 'ကြက်သွန်ဖြူ',
+  'prezzemolo': 'တရုတ်နံနံ / ပါစလေ',
+  'rosmarino': 'ရို့စ်မေရီ အမွှေးရွက်',
+  'ananas': 'နာနတ်သီး',
+  'mais': 'ပြောင်းဖူးချို',
+  'patate': 'အာလူး',
+  'patatine': 'အာလူးချောင်းကြော်',
+  'patatine fritte': 'အာလူးချောင်းကြော်',
+  'french fries': 'အာလူးချောင်းကြော်',
+  'uovo': 'ကြက်ဥ',
+  'uovo sodo': 'ကြက်ဥပြုတ်',
+  "uovo all'occhio": 'ကြက်ဥကြော် မကျက်တကျက်',
+  'pesto': 'ပင်စိမ်းဆော့စ်စိမ်း',
+  'panna': 'နို့ခရင်မ်စစ်စစ်',
+  'maionese': 'မရိုနိစ်',
+  'ketchup': 'ခရမ်းချဉ်သီးဆော့စ်ချို',
+  'bbq sauce': 'ဘီဘီကျူးဆော့စ်',
+  'olio evo': 'သံလွင်ဆီစစ်စစ်',
+};
+
+const menuMmLookup: Record<string, string> = {
+  'pizza margherita': 'မာဂရီတာ ပီဇာ (ချိစ် & ခရမ်းချဉ်သီး)',
+  'pizza marinara (vegan)': 'မာရီနာရာ ပီဇာ (သက်သတ်လွတ် - ကြက်သွန်ဖြူ & ခရမ်းချဉ်သီး)',
+  'pizza salame piccante (pepperoni)': 'ဆာလာမီ အစပ် ပီဇာ (ပက်ပါရိုနီ)',
+  'pizza prosciutto e funghi': 'ဝက်ပေါင်ခြောက်နှင့် မှို ပီဇာ',
+  'pizza 4 formaggi': 'ချိစ် ၄ မျိုး ပီဇာ',
+  'pizza capricciosa': 'ကာပရီချိုဆာ ပီဇာ (မှို၊ ဟမ်၊ အာတီချုတ်၊ သံလွင်သီး)',
+  'pizza hawaiian': 'ဟာဝိုင်ယန် ပီဇာ (ဟမ်နှင့် နာနတ်သီး)',
+  'pizza tonno e cipolla': 'တူနာငါးနှင့် ကြက်သွန်နီ ပီဇာ',
+  'pizza carbonara': 'ကာဘိုနာရာ ပီဇာ (ဘေကွန် & ကြက်ဥ)',
+  'spaghetti alla carbonara': 'စပါဂက်တီ ကာဘိုနာရာ (ဘေကွန်၊ ကြက်ဥ၊ ချိစ်)',
+  'spaghetti alla bolognese': 'စပါဂက်တီ ဘိုလိုနိစ် (အမဲ/ဝက် အသားကြိတ်ဆော့စ်)',
+  'spaghetti al pomodoro': 'စပါဂက်တီ ခရမ်းချဉ်သီးဆော့စ်',
+  "spaghetti all'amatriciana": 'စပါဂက်တီ အာမာထရီချာနာ (ဝက်သုံးထပ်သားဆော့စ်စပ်)',
+  'spaghetti aglio, olio e peperoncino': 'စပါဂက်တီ ကြက်သွန်ဖြူဆီသတ် ငရုတ်သီးစပ်',
+  'tagliatelle al ragù bolognese': 'တာလီယာတယ်လေ ခေါက်ဆွဲပြား အသားကြိတ်ဆော့စ်',
+  'tagliatelle ai funghi porcini': 'တာလီယာတယ်လေ မှိုမွှေးဆော့စ်',
+  "penne all'arrabbiata": 'ပန်နီ အာရာဘီယာတာ (ခရမ်းချဉ်သီးဆော့စ် အစပ်)',
+  'penne ai 4 formaggi': 'ပန်နီ ချိစ် ၄ မျိုးဆော့စ်',
+  'lasagna alla bolognese': 'လာဇန်းညား အသားကြိတ်ဆော့စ်ဖုတ်',
+  'gnocchi al pomodoro e mozzarella (sorrentina)': 'ညော့ကီ အာလူးမုန့်လုံး ခရမ်းချဉ်သီး & ချိစ်',
+  'gnocchi ai 4 formaggi': 'ညော့ကီ ချိစ် ၄ မျိုးဆော့စ်',
+  'french fries': 'အာလူးချောင်းကြော်',
+  'tiramisù classico': 'တီရာမီဆူ ကိတ် အီတလီစစ်စစ်',
+  'caffè espresso': 'အက်စ်ပရက်ဆို ကော်ဖီခါး',
+  'cappuccino': 'ကပူချီနို ကော်ဖီ',
+  'americano': 'အမေရိကာနို ကော်ဖီ',
+  'latte macchiato': 'လတ်တေး ကော်ဖီ',
+};
+
 const menuThaiLookup: Record<string, string> = {};
 const menuEnLookup: Record<string, string> = {};
 const extraLookup: Record<string, { th: string; en: string }> = {};
@@ -302,9 +431,25 @@ menuData.forEach(cat => {
   });
 });
 
-export const getDishDisplayName = (item: CartItemSaved, lang: 'en' | 'th'): string => {
+export const getDishDisplayName = (item: CartItemSaved, lang: 'en' | 'th' | 'mm'): string => {
   if (!item) return '';
   const clean = String(item.name || '').trim().toLowerCase();
+
+  if (lang === 'mm') {
+    if ((item as any).nameMm && typeof (item as any).nameMm === 'string' && (item as any).nameMm.trim()) {
+      return (item as any).nameMm.trim();
+    }
+    if (menuMmLookup[clean]) {
+      return menuMmLookup[clean];
+    }
+    if (EXTRA_BURMESE_LOOKUP[clean]) {
+      return EXTRA_BURMESE_LOOKUP[clean];
+    }
+    if (menuThaiLookup[clean]) {
+      return menuThaiLookup[clean];
+    }
+    return String(item.name || '').toUpperCase();
+  }
 
   if (lang === 'th') {
     if (item.nameTh && typeof item.nameTh === 'string' && item.nameTh.trim()) {
@@ -332,7 +477,7 @@ export const getDishDisplayName = (item: CartItemSaved, lang: 'en' | 'th'): stri
   return String(item.name || '').toUpperCase();
 };
 
-export const getVariantDisplayName = (v: any, lang: 'en' | 'th'): string => {
+export const getVariantDisplayName = (v: any, lang: 'en' | 'th' | 'mm'): string => {
   if (!v) return '';
   if (typeof v === 'object') {
     if (lang === 'th' && v.nameTh && typeof v.nameTh === 'string' && v.nameTh.trim()) {
@@ -364,7 +509,7 @@ export const getVariantDisplayName = (v: any, lang: 'en' | 'th'): string => {
   return str;
 };
 
-export const getExtraDisplayName = (ex: any, lang: 'en' | 'th'): string => {
+export const getExtraDisplayName = (ex: any, lang: 'en' | 'th' | 'mm'): string => {
   if (!ex) return '';
   if (typeof ex === 'object') {
     if (lang === 'th' && ex.nameTh && typeof ex.nameTh === 'string' && ex.nameTh.trim()) {
@@ -487,11 +632,11 @@ export function KitchenTabletKDS() {
   const [prepTimeCustom, setPrepTimeCustom] = useState<Record<string, number>>({});
 
   // 1. Language Toggle (🇬🇧 EN / 🇹🇭 TH)
-  const [kdsLang, setKdsLang] = useState<'en' | 'th'>(() => {
+  const [kdsLang, setKdsLang] = useState<'en' | 'th' | 'mm'>(() => {
     return (localStorage.getItem('kitchen_kds_lang') as 'en' | 'th') || 'th';
   });
 
-  const changeLanguage = (lang: 'en' | 'th') => {
+  const changeLanguage = (lang: 'en' | 'th' | 'mm') => {
     setKdsLang(lang);
     localStorage.setItem('kitchen_kds_lang', lang);
   };
@@ -762,10 +907,24 @@ export function KitchenTabletKDS() {
   });
 
   // Map of order IDs to snooze timestamp for 15-minute dispatch/closure reminder
-  const [reminderSnoozedUntil, setReminderSnoozedUntil] = useState<Record<string, number>>({});
+  const [reminderSnoozedUntil, setReminderSnoozedUntil] = useState<Record<string, number>>(() => {
+    try {
+      const saved = localStorage.getItem('kitchen_reminder_snoozed_until');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
 
   // Set of order IDs acknowledged/handled by staff for new incoming buzzer
-  const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => new Set());
+  const [acknowledgedOrderIds, setAcknowledgedOrderIds] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem('kitchen_acknowledged_orders');
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch (e) {
+      return new Set();
+    }
+  });
 
   // Set of dining table order IDs minimized in bottom dock tray
   const [minimizedTableOrderIds, setMinimizedTableOrderIds] = useState<Set<string>>(() => {
@@ -853,10 +1012,11 @@ export function KitchenTabletKDS() {
     return orders.filter(o => !isTableReservationOrder(o) && (o.status === 'new' || (o.status as any) === 'received') && !acknowledgedOrderIds.has(String(o.id)));
   }, [orders, acknowledgedOrderIds]);
 
-  // Phase 2 orders cooking for 15+ minutes that need rider dispatch reminder (checks if 10-min snooze is active)
+  // Orders cooking for 15+ minutes (both delivery orders and dining table orders) that need dispatch / closure reminder
   const overdueDispatchOrders = useMemo(() => {
     const now = Date.now();
-    return readyOrders.filter(o => {
+    return orders.filter(o => {
+      if (isTableReservationOrder(o)) return false;
       if (o.status !== 'preparing') return false;
       const mins = getElapsedPrepMinutes(o);
       if (mins < 15) return false;
@@ -866,7 +1026,7 @@ export function KitchenTabletKDS() {
       }
       return true;
     });
-  }, [readyOrders, acceptedTimestamps, reminderSnoozedUntil, currentTime]);
+  }, [orders, acceptedTimestamps, reminderSnoozedUntil, currentTime]);
 
   // 7. Sound Alarm Management (Urgent Alarm for New Orders + Chime for 15-min Dispatch Reminder + Test modes)
   useEffect(() => {
@@ -925,32 +1085,55 @@ export function KitchenTabletKDS() {
   const handleSilenceAlarm = () => {
     setTestingNewOrderAlarm(false);
     setTestingReminderAlarm(false);
-    stopContinuousAlarm();
-    stopDispatchReminderAlarm();
+    stopAllKitchenAlarms();
     setAcknowledgedOrderIds(prev => {
       const next = new Set(prev);
-      unacknowledgedNewOrders.forEach(o => next.add(String(o.id)));
-      unacknowledgedTableReservations.forEach(r => next.add(String(r.id)));
+      orders.forEach(o => next.add(String(o.id)));
+      tableReservations.forEach(r => next.add(String(r.id)));
+      try { localStorage.setItem('kitchen_acknowledged_orders', JSON.stringify(Array.from(next))); } catch (e) {}
       return next;
     });
     const tenMinLater = Date.now() + 10 * 60 * 1000;
     setReminderSnoozedUntil(prev => {
       const next = { ...prev };
-      overdueDispatchOrders.forEach(o => {
+      orders.forEach(o => {
         next[String(o.id)] = tenMinLater;
       });
+      try { localStorage.setItem('kitchen_reminder_snoozed_until', JSON.stringify(next)); } catch (e) {}
       return next;
     });
   };
 
-  const handleSnoozeReminder = (orderId: string, minutes: number = 10) => {
+  const handleSnoozeReminder = (orderId: string | number, minutes: number = 10) => {
     initKitchenAudio();
-    stopDispatchReminderAlarm();
+    stopAllKitchenAlarms();
+    setTestingReminderAlarm(false);
+    setTestingNewOrderAlarm(false);
+    const idStr = String(orderId);
     const snoozeUntil = Date.now() + minutes * 60 * 1000;
-    setReminderSnoozedUntil(prev => ({
-      ...prev,
-      [String(orderId)]: snoozeUntil
-    }));
+    
+    // Acknowledge active orders so continuous buzzer doesn't re-trigger
+    setAcknowledgedOrderIds(prev => {
+      const next = new Set(prev);
+      next.add(idStr);
+      orders.forEach(o => next.add(String(o.id)));
+      tableReservations.forEach(r => next.add(String(r.id)));
+      try { localStorage.setItem('kitchen_acknowledged_orders', JSON.stringify(Array.from(next))); } catch (e) {}
+      return next;
+    });
+
+    // Snooze this specific order and all currently overdue orders for 10 minutes
+    setReminderSnoozedUntil(prev => {
+      const next = {
+        ...prev,
+        [idStr]: snoozeUntil
+      };
+      overdueDispatchOrders.forEach(o => {
+        next[String(o.id)] = snoozeUntil;
+      });
+      try { localStorage.setItem('kitchen_reminder_snoozed_until', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
   };
 
   // Actions
@@ -1108,53 +1291,53 @@ export function KitchenTabletKDS() {
 
   // Dictionary for UI strings based on kdsLang
   const t = {
-    kitchenTitle: kdsLang === 'th' ? 'ครัวพิซซ่า' : 'KITCHEN MONITOR',
-    brandSubtitle: kdsLang === 'th' ? 'ฟลาวเวอร์ พาวเวอร์ พิซซ่า ระนอง' : 'FLOWER POWER PIZZA RANONG',
-    col1Title: kdsLang === 'th' ? 'ออเดอร์ใหม่ (รอรับ & เริ่มทำ)' : 'NEW ORDERS (TO ACCEPT)',
-    col2Title: kdsLang === 'th' ? 'กำลังเตรียม & กำลังส่ง' : 'PREPARING & DELIVERING',
-    noKitchenOrders: kdsLang === 'th' ? 'ไม่มีออเดอร์ใหม่' : 'NO NEW ORDERS',
-    noKitchenSub: kdsLang === 'th' ? 'แท็บเล็ตจะส่งเสียงเตือนเมื่อมีออเดอร์ใหม่เข้ามา' : 'Tablet will ring when a new order arrives.',
-    noReadyOrders: kdsLang === 'th' ? 'ไม่มีออเดอร์กำลังทำหรือส่ง' : 'NO ORDERS IN PREPARATION',
-    noReadySub: kdsLang === 'th' ? 'ออเดอร์ที่รับแล้วจะแสดงที่นี่เพื่อจัดเตรียมและส่ง' : 'Accepted orders will appear here for preparation & delivery.',
-    acceptBtn: kdsLang === 'th' ? 'รับออเดอร์' : 'ACCEPT ORDER',
-    muteBtn: kdsLang === 'th' ? 'ปิดเสียง' : 'MUTE',
-    muteAlarmBar: kdsLang === 'th' ? 'ปิดเสียงเตือน' : 'MUTE ALARM',
-    dispatchRiderBtn: kdsLang === 'th' ? '🛵 ไรเดอร์ออกไปส่งแล้ว' : '🛵 DISPATCH RIDER (OUT)',
-    bakedBtn: kdsLang === 'th' ? 'อบเสร็จแล้ว ➔ ส่งให้ไรเดอร์' : 'BAKED ➔ READY FOR RIDER',
-    directArchiveBtn: kdsLang === 'th' ? '✓ ปิดงานทันที' : '✓ ARCHIVE DIRECTLY',
-    deliveredBtn: kdsLang === 'th' ? '✓ ส่งเรียบร้อยแล้ว / บันทึกประวัติ' : '✓ DELIVERED & ARCHIVED',
-    cancelBtn: kdsLang === 'th' ? '✕ ยกเลิก' : '✕ CANCEL',
-    minAgo: kdsLang === 'th' ? 'นาทีที่แล้ว' : 'm ago',
-    cookingFor: kdsLang === 'th' ? 'กำลังอบ' : 'COOKING',
-    min: kdsLang === 'th' ? 'นาที' : 'min',
-    newBadge: kdsLang === 'th' ? 'ออเดอร์ใหม่' : 'NEW ORDER',
-    callBtn: kdsLang === 'th' ? 'โทร' : 'CALL',
-    notifyCustBtn: kdsLang === 'th' ? 'แจ้งลูกค้า' : 'NOTIFY CUSTOMER',
-    sendRiderBtn: kdsLang === 'th' ? 'ส่งไรเดอร์' : 'RIDER MAP',
-    mapBtn: kdsLang === 'th' ? 'แผนที่' : 'MAP',
-    screenOn: kdsLang === 'th' ? 'เปิดจอค้าง' : 'SCREEN ON',
-    testSound: kdsLang === 'th' ? 'ทดสอบ 🔔' : 'TEST 🔔',
-    serviceOpen: kdsLang === 'th' ? 'เปิดรับออเดอร์' : 'ONLINE: OPEN',
-    servicePaused: kdsLang === 'th' ? 'พักรับออเดอร์' : 'ONLINE: PAUSED',
-    serviceClosed: kdsLang === 'th' ? 'ปิดตามเวลา' : 'ONLINE: CLOSED',
-    hoursTitle: kdsLang === 'th' ? 'เวลาเปิด - ปิดร้าน' : 'OPENING & CLOSING HOURS',
-    openTimeLabel: kdsLang === 'th' ? 'เวลาเปิด:' : 'Open Time:',
-    closeTimeLabel: kdsLang === 'th' ? 'เวลาปิด:' : 'Close Time:',
-    saveHoursBtn: kdsLang === 'th' ? 'บันทึกเวลาเปิด-ปิด' : 'SAVE HOURS',
-    hoursSaved: kdsLang === 'th' ? 'บันทึกเรียบร้อย!' : 'HOURS SAVED!',
-    customPauseLabel: kdsLang === 'th' ? 'กำหนดเวลาหยุดพักเอง (นาที):' : 'Custom Pause Duration (min):',
-    applyCustomPause: kdsLang === 'th' ? 'ตั้งเวลาพัก' : 'SET PAUSE',
-    openNowEarly: kdsLang === 'th' ? 'เปิดรับออเดอร์ทันที (เริ่มบริการ)' : 'START SERVICE NOW (OPEN EARLY)',
-    sizeLabel: kdsLang === 'th' ? 'ขนาด' : 'Size',
-    extraLabel: kdsLang === 'th' ? 'พิเศษ' : 'Extra',
-    dispatchReminderBadge: kdsLang === 'th' ? '⏰ เกิน 15 นาที: ปิดงานหรือส่งไรเดอร์หรือยัง?' : '⏰ 15+ MIN: RICORDA DI CHIUDERE ORDINE',
-    snoozeReminderBtn: kdsLang === 'th' ? 'เลื่อน 10 นาที' : 'Posticipa 10 minuti',
-    snoozedBadge: kdsLang === 'th' ? 'เลื่อนเตือนอยู่' : 'Posticipato',
-    testAlarmBtn: kdsLang === 'th' ? 'ทดสอบเสียง 1' : 'TEST 1 🔔',
-    testChimeBtn: kdsLang === 'th' ? 'ทดสอบเสียง 2' : 'TEST 2 ⏰',
-    stopTestBtn: kdsLang === 'th' ? 'หยุดเสียง' : 'STOP',
-    rejectResBtn: kdsLang === 'th' ? '✕ ปฏิเสธ' : '✕ REJECT',
-    deleteBtn: kdsLang === 'th' ? '🗑️ ลบถาวร' : '🗑️ DELETE',
+    kitchenTitle: kdsLang === 'mm' ? 'မီးဖိုချောင် မော်နီတာ' : kdsLang === 'th' ? 'ครัวพิซซ่า' : 'KITCHEN MONITOR',
+    brandSubtitle: kdsLang === 'mm' ? 'ဖလာဝါ ပါဝါ ပီဇာ ရနောင်း' : kdsLang === 'th' ? 'ฟลาวเวอร์ พาวเวอร์ พิซซ่า ระนอง' : 'FLOWER POWER PIZZA RANONG',
+    col1Title: kdsLang === 'mm' ? 'အော်ဒါအသစ်များ (စတင်ချက်ပြုတ်ရန်)' : kdsLang === 'th' ? 'ออเดอร์ใหม่ (รอรับ & เริ่มทำ)' : 'NEW ORDERS (TO ACCEPT)',
+    col2Title: kdsLang === 'mm' ? 'ပြင်ဆင်နေဆဲနှင့် ပို့ဆောင်နေဆဲ' : kdsLang === 'th' ? 'กำลังเตรียม & กำลังส่ง' : 'PREPARING & DELIVERING',
+    noKitchenOrders: kdsLang === 'mm' ? 'အော်ဒါအသစ် မရှိပါ' : kdsLang === 'th' ? 'ไม่มีออเดอร์ใหม่' : 'NO NEW ORDERS',
+    noKitchenSub: kdsLang === 'mm' ? 'အော်ဒါအသစ်ဝင်လာပါက အချက်ပေးသံ မြည်ပါမည်' : kdsLang === 'th' ? 'แท็บเล็ตจะส่งเสียงเตือนเมื่อมีออเดอร์ใหม่เข้ามา' : 'Tablet will ring when a new order arrives.',
+    noReadyOrders: kdsLang === 'mm' ? 'ပြင်ဆင်ဆဲ အော်ဒါမရှိပါ' : kdsLang === 'th' ? 'ไม่มีออเดอร์กำลังทำหรือส่ง' : 'NO ORDERS IN PREPARATION',
+    noReadySub: kdsLang === 'mm' ? 'လက်ခံထားသော အော်ဒါများကို ဤနေရာတွင် ပြသပါမည်' : kdsLang === 'th' ? 'ออเดอร์ที่รับแล้วจะแสดงที่นี่เพื่อจัดเตรียมและส่ง' : 'Accepted orders will appear here for preparation & delivery.',
+    acceptBtn: kdsLang === 'mm' ? 'အော်ဒါ လက်ခံမည်' : kdsLang === 'th' ? 'รับออเดอร์' : 'ACCEPT ORDER',
+    muteBtn: kdsLang === 'mm' ? 'အသံပိတ်' : kdsLang === 'th' ? 'ปิดเสียง' : 'MUTE',
+    muteAlarmBar: kdsLang === 'mm' ? 'အချက်ပေးသံ ပိတ်မည်' : kdsLang === 'th' ? 'ปิดเสียงเตือน' : 'MUTE ALARM',
+    dispatchRiderBtn: kdsLang === 'mm' ? '🛵 ပို့ဆောင်သူ ထွက်ခွာပါပြီ' : kdsLang === 'th' ? '🛵 ไรเดอร์ออกไปส่งแล้ว' : '🛵 DISPATCH RIDER (OUT)',
+    bakedBtn: kdsLang === 'mm' ? 'ဖုတ်ပြီးပြီ ➔ ပို့ဆောင်သူထံ လွှဲပေးရန်' : kdsLang === 'th' ? 'อบเสร็จแล้ว ➔ ส่งให้ไรเดอร์' : 'BAKED ➔ READY FOR RIDER',
+    directArchiveBtn: kdsLang === 'mm' ? '✓ ပြီးစီးကြောင်း မှတ်တမ်းတင်မည်' : kdsLang === 'th' ? '✓ ปิดงานทันที' : '✓ ARCHIVE DIRECTLY',
+    deliveredBtn: kdsLang === 'mm' ? '✓ ပို့ဆောင်ပြီးပါပြီ' : kdsLang === 'th' ? '✓ ส่งเรียบร้อยแล้ว / บันทึกประวัติ' : '✓ DELIVERED & ARCHIVED',
+    cancelBtn: kdsLang === 'mm' ? '✕ ပယ်ဖျက်မည်' : kdsLang === 'th' ? '✕ ยกเลิก' : '✕ CANCEL',
+    minAgo: kdsLang === 'mm' ? 'မိနစ်အကြာက' : kdsLang === 'th' ? 'นาทีที่แล้ว' : 'm ago',
+    cookingFor: kdsLang === 'mm' ? 'ဖုတ်နေဆဲ' : kdsLang === 'th' ? 'กำลังอบ' : 'COOKING',
+    min: kdsLang === 'mm' ? 'မိနစ်' : kdsLang === 'th' ? 'นาที' : 'min',
+    newBadge: kdsLang === 'mm' ? 'အော်ဒါအသစ်' : kdsLang === 'th' ? 'ออเดอร์ใหม่' : 'NEW ORDER',
+    callBtn: kdsLang === 'mm' ? 'ဖုန်းခေါ်' : kdsLang === 'th' ? 'โทร' : 'CALL',
+    notifyCustBtn: kdsLang === 'mm' ? 'ဖောက်သည်ထံ အကြောင်းကြားရန်' : kdsLang === 'th' ? 'แจ้งลูกค้า' : 'NOTIFY CUSTOMER',
+    sendRiderBtn: kdsLang === 'mm' ? 'မြေပုံ' : kdsLang === 'th' ? 'ส่งไรเดอร์' : 'RIDER MAP',
+    mapBtn: kdsLang === 'mm' ? 'မြေပုံ' : kdsLang === 'th' ? 'แผนที่' : 'MAP',
+    screenOn: kdsLang === 'mm' ? 'စခရင် ဖွင့်ထားမည်' : kdsLang === 'th' ? 'เปิดจอค้าง' : 'SCREEN ON',
+    testSound: kdsLang === 'mm' ? 'အသံစမ်းသပ် 🔔' : kdsLang === 'th' ? 'ทดสอบ 🔔' : 'TEST 🔔',
+    serviceOpen: kdsLang === 'mm' ? 'ဖွင့်ထားသည်' : kdsLang === 'th' ? 'เปิดรับออเดอร์' : 'ONLINE: OPEN',
+    servicePaused: kdsLang === 'mm' ? 'ခေတ္တပိတ်ထားသည်' : kdsLang === 'th' ? 'พักรับออเดอร์' : 'ONLINE: PAUSED',
+    serviceClosed: kdsLang === 'mm' ? 'ပိတ်ထားသည်' : kdsLang === 'th' ? 'ปิดตามเวลา' : 'ONLINE: CLOSED',
+    hoursTitle: kdsLang === 'mm' ? 'ဆိုင်ဖွင့်ချိန် - ပိတ်ချိန်' : kdsLang === 'th' ? 'เวลาเปิด - ปิดร้าน' : 'OPENING & CLOSING HOURS',
+    openTimeLabel: kdsLang === 'mm' ? 'ဖွင့်ချိန်:' : kdsLang === 'th' ? 'เวลาเปิด:' : 'Open Time:',
+    closeTimeLabel: kdsLang === 'mm' ? 'ပိတ်ချိန်:' : kdsLang === 'th' ? 'เวลาปิด:' : 'Close Time:',
+    saveHoursBtn: kdsLang === 'mm' ? 'အချိန် သိမ်းဆည်းမည်' : kdsLang === 'th' ? 'บันทึกเวลาเปิด-ปิด' : 'SAVE HOURS',
+    hoursSaved: kdsLang === 'mm' ? 'သိမ်းဆည်းပြီးပါပြီ!' : kdsLang === 'th' ? 'บันทึกเรียบร้อย!' : 'HOURS SAVED!',
+    customPauseLabel: kdsLang === 'mm' ? 'ခေတ္တရပ်နားချိန် (မိနစ်):' : kdsLang === 'th' ? 'กำหนดเวลาหยุดพักเอง (นาที):' : 'Custom Pause Duration (min):',
+    applyCustomPause: kdsLang === 'mm' ? 'ရပ်နားမည်' : kdsLang === 'th' ? 'ตั้งเวลาพัก' : 'SET PAUSE',
+    openNowEarly: kdsLang === 'mm' ? 'ယခုချက်ချင်း ဖွင့်မည်' : kdsLang === 'th' ? 'เปิดรับออเดอร์ทันที (เริ่มบริการ)' : 'START SERVICE NOW (OPEN EARLY)',
+    sizeLabel: kdsLang === 'mm' ? 'အရွယ်အစား' : kdsLang === 'th' ? 'ขนาด' : 'Size',
+    extraLabel: kdsLang === 'mm' ? 'အပိုထည့်ရန်' : kdsLang === 'th' ? 'พิเศษ' : 'Extra',
+    dispatchReminderBadge: kdsLang === 'mm' ? '⏰ ၁၅ မိနစ်ကျော်ပြီ: အော်ဒါပိတ်ရန် မမေ့ပါနှင့်' : kdsLang === 'th' ? '⏰ เกิน 15 นาที: เตือนให้ปิดออเดอร์' : '⏰ 15+ MIN: REMEMBER TO CLOSE ORDER',
+    snoozeReminderBtn: kdsLang === 'mm' ? '၁၀ မိနစ် ရွှေ့မည်' : kdsLang === 'th' ? 'เลื่อน 10 นาที' : 'SNOOZE 10 MIN',
+    snoozedBadge: kdsLang === 'mm' ? 'ရွှေ့ဆိုင်းထားဆဲ' : kdsLang === 'th' ? 'เลื่อนเตือนอยู่' : 'SNOOZED',
+    testAlarmBtn: kdsLang === 'mm' ? 'အသံစမ်းသပ် ၁' : kdsLang === 'th' ? 'ทดสอบเสียง 1' : 'TEST 1 🔔',
+    testChimeBtn: kdsLang === 'mm' ? 'အသံစမ်းသပ် ၂' : kdsLang === 'th' ? 'ทดสอบเสียง 2' : 'TEST 2 ⏰',
+    stopTestBtn: kdsLang === 'mm' ? 'အသံရပ်မည်' : kdsLang === 'th' ? 'หยุดเสียง' : 'STOP',
+    rejectResBtn: kdsLang === 'mm' ? '✕ ငြင်းပယ်မည်' : kdsLang === 'th' ? '✕ ปฏิเสธ' : '✕ REJECT',
+    deleteBtn: kdsLang === 'mm' ? '🗑️ အပြီးဖျက်မည်' : kdsLang === 'th' ? '🗑️ ลบถาวร' : '🗑️ DELETE',
   };
 
   return (
@@ -1315,6 +1498,19 @@ export function KitchenTabletKDS() {
             >
               <span className="text-sm">🇹🇭</span>
               <span>TH</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => changeLanguage('mm')}
+              className={`px-2 py-1 rounded-lg text-xs font-black flex items-center gap-1 transition-all cursor-pointer ${
+                kdsLang === 'mm' 
+                  ? 'bg-emerald-600 text-white shadow-sm' 
+                  : 'text-stone-400 hover:text-white'
+              }`}
+              title="မြန်မာဘာသာသို့ ပြောင်းမည်"
+            >
+              <span className="text-sm">🇲🇲</span>
+              <span>MM</span>
             </button>
           </div>
 
@@ -2106,6 +2302,10 @@ export function KitchenTabletKDS() {
                 : 0;
               const isMinimized = minimizedTableOrderIds.has(String(order.id));
               const isPreparing = order.status === 'preparing';
+              const elapsedPrep = getElapsedPrepMinutes(order);
+              const isOverdue = order.status === 'preparing' && elapsedPrep >= 15;
+              const snoozedUntil = reminderSnoozedUntil[String(order.id)] || 0;
+              const isRinging = isOverdue && Date.now() >= snoozedUntil;
 
               return (
                 <button
@@ -2113,34 +2313,43 @@ export function KitchenTabletKDS() {
                   type="button"
                   onClick={() => setSelectedTrayOrder(order)}
                   className={`px-3 py-1.5 rounded-xl border flex items-center gap-2.5 shrink-0 transition-all cursor-pointer active:scale-95 ${
-                    isMinimized
-                      ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-md shadow-amber-950/40 animate-pulse hover:bg-amber-500/30'
-                      : isPreparing 
-                        ? 'bg-blue-950/50 border-blue-500/70 text-blue-200 shadow-sm hover:bg-blue-900/50' 
-                        : 'bg-[#0d1017] border-stone-800 text-stone-300 hover:border-stone-600'
+                    isRinging
+                      ? 'bg-amber-500 text-stone-950 border-amber-300 shadow-xl shadow-amber-500/60 animate-bounce ring-4 ring-amber-400 font-black'
+                      : isMinimized
+                        ? 'bg-amber-500/20 border-amber-400 text-amber-200 shadow-md shadow-amber-950/40 animate-pulse hover:bg-amber-500/30'
+                        : isPreparing 
+                          ? 'bg-blue-950/50 border-blue-500/70 text-blue-200 shadow-sm hover:bg-blue-900/50' 
+                          : 'bg-[#0d1017] border-stone-800 text-stone-300 hover:border-stone-600'
                   }`}
                   title={kdsLang === 'th' ? 'แตะเพื่อเปิดดูรายการและกดส่ง' : 'Tap to view order details and dispatch'}
                 >
-                  <UtensilsCrossed className={`w-3.5 h-3.5 ${isMinimized ? 'text-amber-400' : 'text-stone-400'}`} />
-                  <span className="font-black text-xs sm:text-sm text-white uppercase tracking-tight">{tableDisplay}</span>
-                  <span className="text-[11px] font-mono text-amber-300 font-bold">
+                  <UtensilsCrossed className={`w-3.5 h-3.5 ${isRinging ? 'text-stone-950 stroke-[3]' : isMinimized ? 'text-amber-400' : 'text-stone-400'}`} />
+                  <span className={`font-black text-xs sm:text-sm uppercase tracking-tight ${isRinging ? 'text-stone-950' : 'text-white'}`}>{tableDisplay}</span>
+                  {isRinging && (
+                    <span className="w-2 h-2 rounded-full bg-red-600 inline-block shrink-0 animate-ping" />
+                  )}
+                  <span className={`text-[11px] font-mono font-bold ${isRinging ? 'text-stone-950' : 'text-amber-300'}`}>
                     {order.total} ฿
                   </span>
-                  <span className="text-[11px] font-mono text-stone-400">
+                  <span className={`text-[11px] font-mono ${isRinging ? 'text-stone-800' : 'text-stone-400'}`}>
                     ({itemsCount} {kdsLang === 'th' ? 'จาน' : 'items'})
                   </span>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
-                    isMinimized
-                      ? 'bg-amber-400 text-stone-950 font-black'
-                      : isPreparing 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
+                    isRinging
+                      ? 'bg-stone-950 text-amber-300 font-black animate-pulse'
+                      : isMinimized
+                        ? 'bg-amber-400 text-stone-950 font-black'
+                        : isPreparing 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
                   }`}>
-                    {isMinimized 
-                      ? (kdsLang === 'th' ? 'รอส่ง' : 'IN KITCHEN') 
-                      : isPreparing 
-                        ? (kdsLang === 'th' ? 'กำลังเสิร์ฟ' : 'IN DINING ROOM') 
-                        : (kdsLang === 'th' ? 'เปิดบิล' : 'OPEN BILL')}
+                    {isRinging
+                      ? (kdsLang === 'th' ? '⏰ เตือน 15 น.!' : '⏰ 15+ MIN ALARM!')
+                      : isMinimized 
+                        ? (kdsLang === 'th' ? 'รอส่ง' : 'IN KITCHEN') 
+                        : isPreparing 
+                          ? (kdsLang === 'th' ? 'กำลังเสิร์ฟ' : 'IN DINING ROOM') 
+                          : (kdsLang === 'th' ? 'เปิดบิล' : 'OPEN BILL')}
                   </span>
                 </button>
               );
@@ -2193,6 +2402,43 @@ export function KitchenTabletKDS() {
                 </button>
               </div>
             </div>
+
+            {/* 15+ Minutes Dispatch / Close Order Alert Banner inside Tray Modal */}
+            {(() => {
+              const trayElapsedPrep = getElapsedPrepMinutes(selectedTrayOrder);
+              const isTrayOverdue = selectedTrayOrder.status === 'preparing' && trayElapsedPrep >= 15;
+              const traySnoozedUntil = reminderSnoozedUntil[String(selectedTrayOrder.id)] || 0;
+              const isTraySnoozed = isTrayOverdue && Date.now() < traySnoozedUntil;
+              const traySnoozeRemaining = isTraySnoozed ? Math.max(1, Math.ceil((traySnoozedUntil - Date.now()) / 60000)) : 0;
+
+              if (!isTrayOverdue) return null;
+
+              return (
+                <div className={`border-2 px-3.5 py-2.5 rounded-2xl flex items-center justify-between text-xs font-black transition-all shrink-0 ${
+                  isTraySnoozed
+                    ? 'bg-stone-900/90 border-stone-700 text-stone-300'
+                    : 'bg-amber-500/25 border-amber-400 text-amber-200 shadow-md shadow-amber-500/20 animate-pulse'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <Clock className={`w-4 h-4 shrink-0 stroke-[2.5] ${isTraySnoozed ? 'text-stone-400' : 'text-amber-400'}`} />
+                    <span>
+                      {isTraySnoozed 
+                        ? `⏳ ${t.snoozedBadge} (${traySnoozeRemaining} ${t.min})` 
+                        : `${t.dispatchReminderBadge} (${trayElapsedPrep} ${t.min})`}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleSnoozeReminder(selectedTrayOrder.id, 10)}
+                    className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-95 text-stone-950 text-xs font-black uppercase transition-all shadow-md cursor-pointer flex items-center gap-1.5 shrink-0"
+                    title="Posticipa la suoneria promemoria di 10 minuti"
+                  >
+                    <Clock className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
+                    <span>{t.snoozeReminderBtn}</span>
+                  </button>
+                </div>
+              );
+            })()}
 
             {/* Dishes / Ordered Items List */}
             <div className="overflow-y-auto flex-1 space-y-2 pr-1">
