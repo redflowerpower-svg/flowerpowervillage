@@ -43,6 +43,7 @@ import {
 import { handlePizzaFirstOrderCheck } from "./_handlers/pizza-first-order.js";
 import { handleTableReservation } from "./_handlers/table-reservation.js";
 import { handlePizzaMenuSync } from "./_handlers/pizza-menu-sync.js";
+import { handlePizzaOrderSubmit } from "./_handlers/pizza-order-submit.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -175,6 +176,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     case 'telegram-notify':
       return handleTelegramNotify(req, res);
+
+    case 'pizza-order-submit':
+    case 'submit-pizza-order':
+    case 'pizza-submit':
+      return handlePizzaOrderSubmit(req, res);
 
     case 'pizza-order-status':
     case 'telegram-update-status':

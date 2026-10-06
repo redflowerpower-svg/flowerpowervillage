@@ -300,11 +300,12 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName.trim() || !customerPhone.trim()) return;
-
     setLoading(true);
 
     try {
+      const finalCustomerName = customerName.trim() || activeTable || 'Cliente Tavolo';
+      const finalCustomerPhone = customerPhone.trim() || '+66 Dining';
+
       const paymentLabel = paymentMethod === 'promptpay' ? 'promptpay_kshop_at_table' : paymentMethod === 'card' ? 'card_pos_at_table' : 'cash_at_table';
 
       const formattedAddress = `[DINE-IN: ${activeTable}]` + 
@@ -329,7 +330,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         total: calcItemTotal(i)
       }));
 
-      // 1. Check if an active order exists for this table (with 2s timeout guard) to label additions
+      // 1. Check if an active order exists for this table to label additions
       let isTableIntegration = false;
       try {
         const queryPromise = supabase
@@ -342,7 +343,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
           .order('created_at', { ascending: false });
 
         const timeoutPromise = new Promise<{ data: any[] | null }>((resolve) => 
-          setTimeout(() => resolve({ data: null }), 1500)
+          setTimeout(() => resolve({ data: null }), 1200)
         );
 
         const { data: openOrders } = await Promise.race([queryPromise, timeoutPromise]);
@@ -362,10 +363,10 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         ? `${formattedAddress} [INTEGRAZIONE_COMANDA]` 
         : formattedAddress;
 
-      // 2. ALWAYS perform a clean INSERT into pizza_orders (guaranteed RLS permissions and separate kitchen tickets)
+      // 2. ALWAYS perform a clean INSERT into pizza_orders
       const orderPayload = {
-        customer_name: customerName.trim(),
-        phone: customerPhone.trim(),
+        customer_name: finalCustomerName,
+        phone: finalCustomerPhone,
         address: finalAddress,
         items: formattedItems,
         total: finalTotal,
@@ -378,26 +379,49 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
       let savedOrder: any = null;
 
+      // 3. Primary: Serverless Backend API (service_role bypasses RLS and guaranteed write)
       try {
-        const insertPromise = supabase
-          .from('pizza_orders')
-          .insert([orderPayload])
-          .select();
+        const apiPromise = fetch('/api/pizza-order-submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: orderPayload })
+        }).then(r => r.json());
 
-        const timeoutPromise = new Promise<{ data: any[] | null; error: any }>((resolve) =>
-          setTimeout(() => resolve({ data: null, error: 'timeout' }), 2500)
+        const timeoutPromise = new Promise<any>((resolve) =>
+          setTimeout(() => resolve(null), 2500)
         );
 
-        const { data: inserted, error } = await Promise.race([insertPromise, timeoutPromise]);
+        const apiRes = await Promise.race([apiPromise, timeoutPromise]);
+        if (apiRes && apiRes.success && apiRes.order) {
+          savedOrder = apiRes.order;
+        }
+      } catch (apiErr) {
+        console.warn('[DiningCheckout] API submit fallback to client Supabase:', apiErr);
+      }
 
-        if (!error && inserted && inserted[0]) {
-          savedOrder = inserted[0];
-        } else {
+      // 4. Secondary fallback: Direct Supabase client insert
+      if (!savedOrder) {
+        try {
+          const insertPromise = supabase
+            .from('pizza_orders')
+            .insert([orderPayload])
+            .select();
+
+          const timeoutPromise = new Promise<{ data: any[] | null; error: any }>((resolve) =>
+            setTimeout(() => resolve({ data: null, error: 'timeout' }), 2500)
+          );
+
+          const { data: inserted, error } = await Promise.race([insertPromise, timeoutPromise]);
+
+          if (!error && inserted && inserted[0]) {
+            savedOrder = inserted[0];
+          } else {
+            savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
+          }
+        } catch (err) {
+          console.warn('[DiningCheckout] Fallback insert:', err);
           savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
         }
-      } catch (err) {
-        console.warn('[DiningCheckout] Fallback insert:', err);
-        savedOrder = { id: `dine-${Date.now().toString().slice(-6)}`, ...orderPayload };
       }
 
       if (savedOrder) {
@@ -406,22 +430,21 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
         // Save customer contact in local storage
         try {
-          localStorage.setItem('fp_last_dining_customer_name', customerName);
-          localStorage.setItem('fp_last_dining_customer_phone', customerPhone);
+          if (customerName) localStorage.setItem('fp_last_dining_customer_name', customerName);
+          if (customerPhone) localStorage.setItem('fp_last_dining_customer_phone', customerPhone);
           if (customerEmail) localStorage.setItem('fp_last_dining_customer_email', customerEmail);
         } catch {}
 
         // Broadcast immediately to Kitchen Display System (KDS) & Local Listeners
-        const broadcastMsgType = existingActiveOrder ? 'ORDER_UPDATED' : 'NEW_ORDER';
         try {
           const ch = new BroadcastChannel('pizza_orders_channel');
-          ch.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId, isTableReload: Boolean(existingActiveOrder), hasNewItems: true });
+          ch.postMessage({ type: 'NEW_ORDER', order: savedOrder, orderId: ordId, isTableReload: isTableIntegration, hasNewItems: true });
           ch.close();
         } catch {}
 
         try {
           const chFP = new BroadcastChannel('flower_power_orders_channel');
-          chFP.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId, isTableReload: Boolean(existingActiveOrder), hasNewItems: true });
+          chFP.postMessage({ type: 'NEW_ORDER', order: savedOrder, orderId: ordId, isTableReload: isTableIntegration, hasNewItems: true });
           chFP.close();
         } catch {}
 
