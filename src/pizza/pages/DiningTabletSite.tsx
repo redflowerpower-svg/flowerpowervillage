@@ -819,7 +819,10 @@ export default function DiningTabletSite() {
       const { data, error } = await supabase
         .from('pizza_orders')
         .select('*')
-        .not('status', 'in', '("completed","cancelled","rejected","settled")')
+        .neq('status', 'completed')
+        .neq('status', 'cancelled')
+        .neq('status', 'rejected')
+        .neq('status', 'settled')
         .order('created_at', { ascending: false });
 
       if (error) {

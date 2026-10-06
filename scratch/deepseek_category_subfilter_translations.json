@@ -1,0 +1,57 @@
+{
+  "IT": {
+    "saladsAndMainsTitle": "Insalate Italiane\n& Secondi Piatti",
+    "focacciaAndSandwichTitle": "Focaccia\n& Pizza Sandwich",
+    "saladsDesc": "Fresche e ricche insalate all'italiana con ingredienti di prima scelta, oltre a sfiziosi e autentici secondi piatti della tradizione cucinati con passione.",
+    "focacciaDesc": "Fraganti focacce all'olio extravergine d'oliva cotte al forno e farcite al momento con i migliori salumi italiani, e golosi pizza sandwich ripieni e dorati.",
+    "filterAll": "Tutti i Piatti",
+    "filterSalads": "Insalate Italiane",
+    "filterMains": "Secondi Piatti",
+    "filterFocaccia": "Focacce",
+    "filterSandwich": "Pizza Sandwich"
+  },
+  "EN": {
+    "saladsAndMainsTitle": "Italian Salads\n& Main Courses",
+    "focacciaAndSandwichTitle": "Focaccia\n& Pizza Sandwich",
+    "saladsDesc": "Fresh and rich Italian-style salads with top-quality ingredients, plus delicious and authentic traditional main courses cooked with passion.",
+    "focacciaDesc": "Fragrant focaccia with extra virgin olive oil baked in the oven and filled to order with the best Italian cured meats, and tempting golden stuffed pizza sandwiches.",
+    "filterAll": "All Dishes",
+    "filterSalads": "Italian Salads",
+    "filterMains": "Main Courses",
+    "filterFocaccia": "Focaccia",
+    "filterSandwich": "Pizza Sandwich"
+  },
+  "TH": {
+    "saladsAndMainsTitle": "สลัดอิตาเลียน\n& จานหลัก",
+    "focacciaAndSandwichTitle": "โฟกัชชา\n& พิซซ่าแซนด์วิช",
+    "saladsDesc": "สลัดอิตาเลียนสดใหม่และอุดมสมบูรณ์ด้วยวัตถุดิบคุณภาพเยี่ยม พร้อมจานหลักรสเลิศแบบดั้งเดิมที่ปรุงด้วยความใส่ใจ",
+    "focacciaDesc": "โฟกัชชาหอมกรุ่นทำจากน้ำมันมะกอกเอ็กซ์ตร้าเวอร์จินอบในเตา และยัดไส้สดใหม่ด้วยเนื้อสัตว์อิตาเลียนชั้นเยี่ยม พร้อมพิซซ่าแซนด์วิชไส้แน่นสีทอง",
+    "filterAll": "ทุกจาน",
+    "filterSalads": "สลัดอิตาเลียน",
+    "filterMains": "จานหลัก",
+    "filterFocaccia": "โฟกัชชา",
+    "filterSandwich": "พิซซ่าแซนด์วิช"
+  },
+  "DE": {
+    "saladsAndMainsTitle": "Italienische Salate\n& Hauptgerichte",
+    "focacciaAndSandwichTitle": "Focaccia\n& Pizza-Sandwich",
+    "saladsDesc": "Frische und reichhaltige Salate nach italienischer Art mit erstklassigen Zutaten, dazu köstliche und authentische Hauptgerichte der Tradition, mit Leidenschaft zubereitet.",
+    "focacciaDesc": "Duftende Focacce mit nativem Olivenöl extra, im Ofen gebacken und frisch belegt mit den besten italienischen Wurstwaren, und verführerische, goldbraune gefüllte Pizza-Sandwiches.",
+    "filterAll": "Alle Gerichte",
+    "filterSalads": "Italienische Salate",
+    "filterMains": "Hauptgerichte",
+    "filterFocaccia": "Focacce",
+    "filterSandwich": "Pizza-Sandwich"
+  },
+  "MM": {
+    "saladsAndMainsTitle": "အီတလီဆလတ်များ\nနှင့် အဓိကဟင်းလျာများ",
+    "focacciaAndSandwichTitle": "ဖိုကာချာ\nနှင့် ပီဇာဆန်းဒဝစ်",
+    "saladsDesc": "ရွေးချယ်ထားသော ပါဝင်ပစ္စည်းများဖြင့် လတ်ဆတ်ပြီး ကြွယ်ဝသော အီတလီဆလတ်များ၊ ထို့အပြင် ချစ်ခြင်းမေတ္တာဖြင့် ချက်ပြုတ်ထားသော ရိုးရာအရသာ စစ်မှန်သော အဓိကဟင်းလျာများ။",
+    "focacciaDesc": "အိုလီဗာဆီအပိုဖြင့် ဖုတ်ထားသော မွှေးကြိုင်သော ဖိုကာချာများနှင့် အကောင်းဆုံး အီတလီအသားခြောက်များဖြင့် ချက်ချင်းဖြည့်ထားသော၊ ထို့အပြင် အရသာရှိပြီး ရွှေရောင်သန်းသော ပီဇာဆန်းဒဝစ်များ။",
+    "filterAll": "ဟင်းလျာအားလုံး",
+    "filterSalads": "အီတလီဆလတ်များ",
+    "filterMains": "အဓိကဟင်းလျာများ",
+    "filterFocaccia": "ဖိုကာချာများ",
+    "filterSandwich": "ပီဇာဆန်းဒဝစ်"
+  }
+}

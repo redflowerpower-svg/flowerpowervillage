@@ -368,6 +368,8 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
           items: formattedItems,
           total: finalTotal,
           payment_method: paymentLabel,
+          status: 'new',
+          created_at: new Date().toISOString()
         };
 
         try {
@@ -445,13 +447,13 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         const broadcastMsgType = existingActiveOrder ? 'ORDER_UPDATED' : 'NEW_ORDER';
         try {
           const ch = new BroadcastChannel('pizza_orders_channel');
-          ch.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId });
+          ch.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId, isTableReload: Boolean(existingActiveOrder), hasNewItems: true });
           ch.close();
         } catch {}
 
         try {
           const chFP = new BroadcastChannel('flower_power_orders_channel');
-          chFP.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId });
+          chFP.postMessage({ type: broadcastMsgType, order: savedOrder, orderId: ordId, isTableReload: Boolean(existingActiveOrder), hasNewItems: true });
           chFP.close();
         } catch {}
 

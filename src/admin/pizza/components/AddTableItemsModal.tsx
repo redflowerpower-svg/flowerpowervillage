@@ -216,7 +216,8 @@ export const AddTableItemsModal: React.FC<AddTableItemsModalProps> = ({
         .update({
           items: mergedItems,
           total: newGrandTotal,
-          address: updatedAddress
+          address: updatedAddress,
+          status: 'new'
         })
         .eq('id', order.id);
 
@@ -225,12 +226,12 @@ export const AddTableItemsModal: React.FC<AddTableItemsModalProps> = ({
       // Broadcast update across tabs
       try {
         const bc1 = new BroadcastChannel('flower_power_orders_channel');
-        bc1.postMessage({ type: 'ORDER_UPDATED', orderId: order.id });
+        bc1.postMessage({ type: 'ORDER_UPDATED', orderId: order.id, isTableReload: true, hasNewItems: true });
         bc1.close();
       } catch (_) {}
       try {
         const bc2 = new BroadcastChannel('pizza_orders_channel');
-        bc2.postMessage({ type: 'ORDER_UPDATED', orderId: order.id });
+        bc2.postMessage({ type: 'ORDER_UPDATED', orderId: order.id, isTableReload: true, hasNewItems: true });
         bc2.close();
       } catch (_) {}
 

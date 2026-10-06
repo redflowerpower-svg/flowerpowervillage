@@ -849,53 +849,6 @@ export function KitchenTabletKDS() {
     return () => clearInterval(interval);
   }, []);
 
-  // 4. Fetch orders, subscribe to Supabase Realtime, and Screen Wake Lock with auto-sync on wakeup
-  useEffect(() => {
-    // Initial fetch
-    fetchOrders();
-    const unsubscribe = subscribeToRealtime();
-
-    const acquireLock = async () => {
-      const ok = await requestScreenWakeLock();
-      setWakeLockActive(ok);
-    };
-    acquireLock();
-
-    // Heartbeat safety polling every 15 seconds while tablet screen is open/visible
-    const pollInterval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        fetchOrders();
-      }
-    }, 15000);
-
-    // Instant re-fetch when tablet screen turns on, unlocks, or tab regains focus
-    const handleWakeupAndFocus = () => {
-      if (document.visibilityState === 'visible') {
-        acquireLock();
-        fetchOrders();
-      }
-    };
-
-    const handleOnline = () => {
-      fetchOrders();
-    };
-
-    document.addEventListener('visibilitychange', handleWakeupAndFocus);
-    window.addEventListener('focus', handleWakeupAndFocus);
-    window.addEventListener('online', handleOnline);
-
-    return () => {
-      unsubscribe();
-      clearInterval(pollInterval);
-      document.removeEventListener('visibilitychange', handleWakeupAndFocus);
-      window.removeEventListener('focus', handleWakeupAndFocus);
-      window.removeEventListener('online', handleOnline);
-      stopContinuousAlarm();
-      stopDispatchReminderAlarm();
-      releaseScreenWakeLock();
-    };
-  }, []);
-
   // Timestamps when orders were accepted into preparation (persisted to localStorage)
   const [acceptedTimestamps, setAcceptedTimestamps] = useState<Record<string, number>>(() => {
     try {
@@ -947,6 +900,95 @@ export function KitchenTabletKDS() {
       return next;
     });
   };
+
+  // 4. Fetch orders, subscribe to Supabase Realtime, BroadcastChannels, and Screen Wake Lock
+  useEffect(() => {
+    // Initial fetch
+    fetchOrders();
+    const unsubscribe = subscribeToRealtime();
+
+    const acquireLock = async () => {
+      const ok = await requestScreenWakeLock();
+      setWakeLockActive(ok);
+    };
+    acquireLock();
+
+    // Broadcast channel handlers for instant 0ms sync between dining tablet and kitchen monitor
+    let bcOrders1: BroadcastChannel | null = null;
+    let bcOrders2: BroadcastChannel | null = null;
+
+    const handleIncomingBroadcast = (data: any) => {
+      if (!data) return;
+      const targetId = data.orderId || data.order?.id;
+      if (targetId) {
+        const idStr = String(targetId);
+        // If it's a new order or table reload with new items, re-arm the buzzer and unminimize
+        if (data.type === 'NEW_ORDER' || data.isTableReload || data.hasNewItems || data.order?.status === 'new') {
+          setAcknowledgedOrderIds(prev => {
+            if (!prev.has(idStr)) return prev;
+            const next = new Set(prev);
+            next.delete(idStr);
+            try { localStorage.setItem('kitchen_acknowledged_orders', JSON.stringify(Array.from(next))); } catch (e) {}
+            return next;
+          });
+          setMinimizedTableOrderIds(prev => {
+            if (!prev.has(idStr)) return prev;
+            const next = new Set(prev);
+            next.delete(idStr);
+            try { localStorage.setItem('kitchen_minimized_table_orders', JSON.stringify(Array.from(next))); } catch (e) {}
+            return next;
+          });
+        }
+      }
+      fetchOrders();
+    };
+
+    try {
+      bcOrders1 = new BroadcastChannel('pizza_orders_channel');
+      bcOrders1.onmessage = (ev) => handleIncomingBroadcast(ev.data);
+    } catch {}
+
+    try {
+      bcOrders2 = new BroadcastChannel('flower_power_orders_channel');
+      bcOrders2.onmessage = (ev) => handleIncomingBroadcast(ev.data);
+    } catch {}
+
+    // Heartbeat safety polling every 10 seconds while tablet screen is open/visible
+    const pollInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchOrders();
+      }
+    }, 10000);
+
+    // Instant re-fetch when tablet screen turns on, unlocks, or tab regains focus
+    const handleWakeupAndFocus = () => {
+      if (document.visibilityState === 'visible') {
+        acquireLock();
+        fetchOrders();
+      }
+    };
+
+    const handleOnline = () => {
+      fetchOrders();
+    };
+
+    document.addEventListener('visibilitychange', handleWakeupAndFocus);
+    window.addEventListener('focus', handleWakeupAndFocus);
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      unsubscribe();
+      if (bcOrders1) bcOrders1.close();
+      if (bcOrders2) bcOrders2.close();
+      clearInterval(pollInterval);
+      document.removeEventListener('visibilitychange', handleWakeupAndFocus);
+      window.removeEventListener('focus', handleWakeupAndFocus);
+      window.removeEventListener('online', handleOnline);
+      stopContinuousAlarm();
+      stopDispatchReminderAlarm();
+      releaseScreenWakeLock();
+    };
+  }, []);
 
   // Active Dining Tables in Hall (Read-only overview for kitchen display)
   const activeDiningOrders = useMemo(() => {
