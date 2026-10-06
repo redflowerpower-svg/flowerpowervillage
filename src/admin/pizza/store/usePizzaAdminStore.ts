@@ -7,6 +7,10 @@ import {
   loadPizzaPromoCodes,
   savePizzaPromoCodes
 } from '../../../pizza/services/pizzaPromoService';
+import {
+  fetchCloudMenuOverrides,
+  saveCloudMenuOverride
+} from '../../../pizza/data/pizzaMenuCloudService';
 
 export type { PizzaPromoCode };
 
@@ -304,13 +308,7 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
   fetchMenuItems: async () => {
     set({ menuLoading: true, menuError: null });
     try {
-      const storedOverrides = (() => {
-        try {
-          return JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
-        } catch {
-          return {};
-        }
-      })();
+      const cloudOverrides = await fetchCloudMenuOverrides();
 
       const { data, error } = await supabase
         .from('pizza_menu_items')
@@ -328,7 +326,12 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
           name: typeof item.name === 'string' ? item.name : (item.name?.name || item.name?.nameIt || item.name?.sku || 'Prodotto'),
           nameTh: typeof item.nameTh === 'string' ? item.nameTh : (item.nameTh?.nameTh || ''),
           description: typeof item.description === 'string' ? item.description : (item.description?.it || item.description?.description_it || ''),
-          is_daily_special: item.is_daily_special !== undefined && item.is_daily_special !== null ? item.is_daily_special : storedOverrides[item.id]
+          is_available: cloudOverrides.availability[item.id] !== undefined
+            ? cloudOverrides.availability[item.id]
+            : (item.is_available !== undefined && item.is_available !== null ? item.is_available : true),
+          is_daily_special: cloudOverrides.dailySpecials[item.id] !== undefined
+            ? cloudOverrides.dailySpecials[item.id]
+            : (item.is_daily_special !== undefined && item.is_daily_special !== null ? item.is_daily_special : false)
         }));
         set({ menuItems: sanitizedData, menuLoading: false });
       } else {
@@ -345,9 +348,13 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
           cat.items.forEach((item: any) => {
             if (seenIds.has(item.id)) return;
             seenIds.add(item.id);
-            const isSpecial = storedOverrides[item.id] !== undefined
-              ? !!storedOverrides[item.id]
+            const isSpecial = cloudOverrides.dailySpecials[item.id] !== undefined
+              ? !!cloudOverrides.dailySpecials[item.id]
               : dailySpecialItemIds.has(item.id);
+
+            const isAvail = cloudOverrides.availability[item.id] !== undefined
+              ? !!cloudOverrides.availability[item.id]
+              : true;
 
             defaultItems.push({
               id: item.id,
@@ -357,8 +364,8 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
               nameDe: item.nameDe,
               category: cat.id,
               nativeCategory: cat.id,
-              price: item.price,
-              is_available: true,
+              price: cloudOverrides.prices[item.id] !== undefined ? cloudOverrides.prices[item.id] : item.price,
+              is_available: isAvail,
               is_daily_special: isSpecial,
               image: item.image,
               description: typeof item.description === 'string' ? item.description : (item.description_it || item.description?.it || ''),
@@ -373,8 +380,12 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
           dailyCat.items.forEach((item: any) => {
             if (seenIds.has(item.id)) return;
             seenIds.add(item.id);
-            const isSpecial = storedOverrides[item.id] !== undefined
-              ? !!storedOverrides[item.id]
+            const isSpecial = cloudOverrides.dailySpecials[item.id] !== undefined
+              ? !!cloudOverrides.dailySpecials[item.id]
+              : true;
+
+            const isAvail = cloudOverrides.availability[item.id] !== undefined
+              ? !!cloudOverrides.availability[item.id]
               : true;
 
             defaultItems.push({
@@ -385,8 +396,8 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
               nameDe: item.nameDe,
               category: 'daily-specials',
               nativeCategory: 'daily-specials',
-              price: item.price,
-              is_available: true,
+              price: cloudOverrides.prices[item.id] !== undefined ? cloudOverrides.prices[item.id] : item.price,
+              is_available: isAvail,
               is_daily_special: isSpecial,
               image: item.image,
               description: typeof item.description === 'string' ? item.description : (item.description_it || item.description?.it || ''),
@@ -412,28 +423,11 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       )
     }));
 
-    try {
-      const item = get().menuItems.find((i) => i.id === id);
-      if (!item) return;
-
-      const { error } = await supabase
-        .from('pizza_menu_items')
-        .upsert({
-          id: item.id,
-          name: item.name,
-          category: item.category,
-          price: item.price,
-          is_available: nextStatus,
-          image: item.image,
-          description: item.description
-        });
-
-      if (error) {
-        console.warn('[usePizzaAdminStore] Upsert availability notice:', error.message);
-      }
-    } catch (e) {
-      console.error('[usePizzaAdminStore] toggleItemAvailability error:', e);
-    }
+    const item = get().menuItems.find((i) => i.id === id);
+    await saveCloudMenuOverride({
+      availability: { [id]: nextStatus },
+      updatedItem: item ? { ...item, is_available: nextStatus } : undefined
+    });
   },
 
   toggleDailySpecial: async (id: string, currentStatus?: boolean) => {
@@ -444,14 +438,11 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       )
     }));
 
-    try {
-      const stored = JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
-      stored[id] = nextStatus;
-      localStorage.setItem('fp_pizza_daily_specials_overrides', JSON.stringify(stored));
-      if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-        new BroadcastChannel('fp_pizza_menu_sync').postMessage({ type: 'DAILY_SPECIAL_TOGGLE', id, isDailySpecial: nextStatus });
-      }
-    } catch {}
+    const item = get().menuItems.find((i) => i.id === id);
+    await saveCloudMenuOverride({
+      dailySpecials: { [id]: nextStatus },
+      updatedItem: item ? { ...item, is_daily_special: nextStatus } : undefined
+    });
 
     try {
       const item = get().menuItems.find((i) => i.id === id);

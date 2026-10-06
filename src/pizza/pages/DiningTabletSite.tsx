@@ -31,6 +31,7 @@ import MenuGrid from '../components/MenuGrid';
 import { useCartStore, calcItemTotal } from '../store/cartStore';
 import { INITIAL_WINE_COLLECTION, WINE_COUNTRY_OPTIONS, resolveWineCategoryType, sortWinesByCountryOrder, getCountryRank, WineCardData } from '../data/wineData';
 import { fetchCloudWineCollection } from '../data/wineCloudService';
+import { fetchCloudMenuOverrides } from '../data/pizzaMenuCloudService';
 import { useLanguageStore } from '../store/languageStore';
 import { SUPPORTED_LANGUAGES, LANGUAGE_METAS, Language } from '../config/languages';
 import { getDietaryType, type DietaryType } from '../utils/dietary';
@@ -1115,7 +1116,20 @@ export default function DiningTabletSite() {
     };
   }, [isCartTabExpanded]);
 
-  // Sync daily specials overrides from admin dashboard
+  // Prodotti non disponibili (Sold Out) sincronizzati da Supabase Cloud, BroadcastChannel e LocalStorage
+  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('fp_pizza_availability_overrides') || '{}');
+      const unavail = Object.entries(stored)
+        .filter(([_, isAvail]) => isAvail === false)
+        .map(([id]) => id);
+      return new Set<string>(unavail);
+    } catch {
+      return new Set<string>();
+    }
+  });
+
+  // Sync daily specials and availability overrides from admin dashboard
   const [dailySpecialsOverrides, setDailySpecialsOverrides] = useState<Record<string, boolean>>(() => {
     try {
       return JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
@@ -1128,8 +1142,16 @@ export default function DiningTabletSite() {
     if (typeof window === 'undefined') return;
     const syncFromStorage = () => {
       try {
-        const overrides = JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
-        setDailySpecialsOverrides(overrides);
+        const specialOverrides = JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
+        setDailySpecialsOverrides(specialOverrides);
+      } catch {}
+
+      try {
+        const availOverrides = JSON.parse(localStorage.getItem('fp_pizza_availability_overrides') || '{}');
+        const unavail = Object.entries(availOverrides)
+          .filter(([_, isAvail]) => isAvail === false)
+          .map(([id]) => id);
+        setUnavailableIds(new Set<string>(unavail));
       } catch {}
     };
     window.addEventListener('storage', syncFromStorage);
@@ -1138,24 +1160,24 @@ export default function DiningTabletSite() {
     if ('BroadcastChannel' in window) {
       bc = new BroadcastChannel('fp_pizza_menu_sync');
       bc.onmessage = (ev) => {
-        if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE') {
+        if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE' || ev.data?.type === 'AVAILABILITY_TOGGLE' || ev.data?.type === 'MENU_SYNC_UPDATE') {
           syncFromStorage();
         }
       };
     }
 
-    supabase.from('pizza_menu_items').select('id, is_daily_special').then(({ data }) => {
-      if (data && Array.isArray(data)) {
-        setDailySpecialsOverrides(prev => {
-          const next = { ...prev };
-          data.forEach((item: any) => {
-            if (item.is_daily_special !== undefined && item.is_daily_special !== null) {
-              next[item.id] = item.is_daily_special;
-            }
-          });
-          try { localStorage.setItem('fp_pizza_daily_specials_overrides', JSON.stringify(next)); } catch {}
-          return next;
-        });
+    // Carica immediatamente overrides ufficiali dal Cloud Supabase
+    fetchCloudMenuOverrides().then((overrides) => {
+      if (overrides) {
+        if (overrides.dailySpecials) {
+          setDailySpecialsOverrides(overrides.dailySpecials);
+        }
+        if (overrides.availability) {
+          const unavail = Object.entries(overrides.availability)
+            .filter(([_, isAvail]) => isAvail === false)
+            .map(([id]) => id);
+          setUnavailableIds(new Set<string>(unavail));
+        }
       }
     });
 
@@ -1179,7 +1201,7 @@ export default function DiningTabletSite() {
     if (activeCategoryId === 'wines') {
       return filterWineItems(selectedWineType);
     }
-    const raw = activeCategory.items;
+    const raw = activeCategory.items.filter((i: any) => !unavailableIds.has(i.id));
     if (dietaryFilter === 'all') return raw;
     if (dietaryFilter === 'veggie') {
       return raw.filter(i => {
@@ -1191,7 +1213,7 @@ export default function DiningTabletSite() {
       return raw.filter(i => getDietaryType(i, activeCategoryId) === 'vegan');
     }
     return raw;
-  }, [activeCategoryId, activeCategory, dietaryFilter, selectedWineType, selectedWineCountry, allDynamicWines]);
+  }, [activeCategoryId, activeCategory, dietaryFilter, selectedWineType, selectedWineCountry, allDynamicWines, unavailableIds]);
 
   const isSpecialPasta = (item: any) => {
     const id = item.id || '';
