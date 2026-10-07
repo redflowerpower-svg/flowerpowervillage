@@ -190,7 +190,16 @@ export async function handleOmiseCharge(req: VercelRequest, res: VercelResponse)
         }
       });
 
-      const qrCodeUrl = charge.source?.scannable_code?.image?.download_uri || source.scannable_code?.image?.download_uri;
+      const scannable = charge.source?.scannable_code || source.scannable_code;
+      const rawQrUrl = scannable?.image?.download_uri;
+      const qrPayload = scannable?.payload;
+
+      // High-resolution PNG QR Code (600x600) with white margin from PromptPay EMVCo payload
+      const qrPngUrl = qrPayload
+        ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&format=png&margin=24&data=${encodeURIComponent(qrPayload)}`
+        : rawQrUrl;
+
+      const qrCodeUrl = qrPngUrl || rawQrUrl;
 
       // Update order in Supabase if orderId is an existing numeric database ID
       if (supabase) {
@@ -218,6 +227,8 @@ export async function handleOmiseCharge(req: VercelRequest, res: VercelResponse)
         channel: "promptpay",
         chargeId: charge.id,
         qrCodeUrl,
+        rawQrUrl,
+        qrPayload,
         expiresAt: charge.expires_at || charge.source?.expires_at,
         status: charge.status, // 'pending'
         amount: parsedAmount

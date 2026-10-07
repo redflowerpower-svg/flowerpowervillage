@@ -1326,50 +1326,73 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     const qrSource = omiseQrUrl || QR_URL;
     if (!qrSource) return;
 
+    const fileName = `PromptPay_FlowerPower_${finalTotal}THB.png`;
+
     try {
-      const fileName = `PromptPay_FlowerPower_${finalTotal}THB.png`;
-      // Convert SVG/URL to genuine PNG blob
-      const pngBlob = await convertQrToPngBlob(qrSource);
-      const file = new File([pngBlob], fileName, { type: 'image/png' });
-
-      setIsQrSaved(true);
-      setTimeout(() => setIsQrSaved(false), 3000);
-
-      // 1. Mobile Web Share API (native share sheet on iOS / Android allows "Save Image" to Photos)
-      if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: `PromptPay QR - ${finalTotal} ฿`,
-            text: `Flower Power Pizza Ranong - PromptPay QR: ${finalTotal} ฿`
-          });
-          return;
-        } catch (shareErr: any) {
-          if (shareErr.name === 'AbortError') return;
+      // 1. Try to fetch as Blob
+      let blob: Blob | null = null;
+      try {
+        const res = await fetch(qrSource);
+        if (res.ok) {
+          const raw = await res.blob();
+          if (raw.type.includes('png') || raw.type.includes('jpeg')) {
+            blob = raw;
+          } else {
+            blob = await convertQrToPngBlob(qrSource);
+          }
         }
+      } catch (e) {
+        console.warn('Fetch QR blob failed, fallback to canvas conversion:', e);
+        blob = await convertQrToPngBlob(qrSource);
       }
 
-      // 2. Direct browser download trigger with genuine PNG blob
-      const blobUrl = URL.createObjectURL(pngBlob);
+      if (blob && blob.size > 0) {
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        setIsQrSaved(true);
+        setTimeout(() => setIsQrSaved(false), 3000);
+
+        // Native Mobile Share (Save Image to Photos on iOS / Android)
+        if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: `PromptPay QR - ${finalTotal} ฿`,
+              text: `Flower Power Pizza Ranong - PromptPay QR: ${finalTotal} ฿`
+            });
+            return;
+          } catch (shareErr: any) {
+            if (shareErr.name === 'AbortError') return;
+          }
+        }
+
+        // Direct Browser Download
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+        return;
+      }
+    } catch (err) {
+      console.warn('Advanced save failed, falling back to direct anchor:', err);
+    }
+
+    // Direct Anchor Fallback
+    try {
       const a = document.createElement('a');
-      a.href = blobUrl;
+      a.href = qrSource;
+      a.target = '_blank';
       a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
-    } catch (err) {
-      console.warn('PNG download failed, using direct anchor fallback:', err);
-      const a = document.createElement('a');
-      a.href = qrSource;
-      a.target = '_blank';
-      a.download = `PromptPay_FlowerPower_${finalTotal}THB.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
       setIsQrSaved(true);
       setTimeout(() => setIsQrSaved(false), 3000);
-    }
+    } catch {}
   };
 
   // Manual PromptPay generation trigger on user button click or submit
