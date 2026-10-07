@@ -1581,13 +1581,10 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         <div className="flex items-center gap-2">
           {isGuestMobile ? (
             /* Guest Smartphone Header Pill */
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-stone-900/95 border border-amber-400/70 text-white font-extrabold text-xs sm:text-sm shadow-md">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-stone-900/95 border border-amber-400/70 text-white font-extrabold text-xs sm:text-sm shadow-md whitespace-nowrap">
               <Smartphone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="font-black truncate">
+              <span className="font-black">
                 {currentTable ? formatTableStationName(currentTable, lang) : 'Tavolo'}
-              </span>
-              <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
-                -5% AL TAVOLO
               </span>
             </div>
           ) : (
@@ -1596,18 +1593,15 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
               <button
                 type="button"
                 onClick={() => { setIsTableSelected(false); setCustomTableInput(''); }}
-                className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 border border-amber-400/60 hover:border-amber-300 text-amber-300 font-extrabold text-xs sm:text-sm shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-stone-900/95 border border-amber-400/70 hover:border-amber-300 text-amber-300 font-black text-xs sm:text-sm shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                 title={lang === 'TH' ? 'แตะเพื่อเปลี่ยนโต๊ะ' : lang === 'EN' ? 'Tap to change table' : lang === 'DE' ? 'Tippen zum Tischwechsel' : lang === 'MM' ? 'စားပွဲပြောင်းရန် နှိပ်ပါ' : 'Tocca per cambiare tavolo'}
               >
                 <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="truncate max-w-[130px] sm:max-w-none font-black">
+                <span className="font-black">
                   {currentTable ? formatTableStationName(currentTable, lang) : (lang === 'TH' ? 'เลือกโต๊ะอาหาร' : lang === 'EN' ? 'Select Table' : lang === 'DE' ? 'Tisch wählen' : lang === 'MM' ? 'စားပွဲရွေးပါ' : 'Seleziona Tavolo')}
                 </span>
-                <span className="text-[10px] text-amber-200/90 uppercase font-semibold hidden sm:inline">
+                <span className="text-[10px] text-stone-400 uppercase font-semibold">
                   ▼ {lang === 'TH' ? 'เปลี่ยน' : lang === 'EN' ? 'Change' : lang === 'DE' ? 'Ändern' : lang === 'MM' ? 'ပြောင်းရန်' : 'Cambia'}
-                </span>
-                <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
-                  {lang === 'TH' ? '-5% สั่งที่โต๊ะ' : lang === 'EN' ? '-5% AT TABLE' : lang === 'DE' ? '-5% AM TISCH' : lang === 'MM' ? '-5% စားပွဲလျှော့စျေး' : '-5% AL TAVOLO'}
                 </span>
               </button>
 
@@ -1616,7 +1610,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                 <button
                   type="button"
                   onClick={() => setIsQrModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold text-xs shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+                  className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-black text-xs shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
                   title={lang === 'TH' ? 'แสดง QR Code สำหรับสั่งผ่านมือถือ' : lang === 'EN' ? 'Show Smartphone QR Code' : lang === 'DE' ? 'Smartphone-QR anzeigen' : lang === 'MM' ? 'စမတ်ဖုန်း QR ပြပါ' : 'Mostra QR Code Smartphone'}
                 >
                   <Smartphone className="w-3.5 h-3.5 text-amber-300 animate-pulse shrink-0" />
@@ -1653,51 +1647,46 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
 
       {/* MANDATORY TABLE SELECTION OVERLAY (When session not yet picked or changed) */}
       {!isTableSelected && (
-        <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
-          <div className="bg-stone-900 border-2 border-amber-400/50 rounded-3xl w-full max-w-2xl p-5 sm:p-7 text-white space-y-5 shadow-2xl max-h-[95vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5 animate-fadeIn">
+          <div className="bg-stone-900 border-2 border-amber-400/50 rounded-2xl sm:rounded-3xl w-full max-w-2xl p-3.5 sm:p-6 text-white space-y-3 sm:space-y-4 shadow-2xl max-h-[96vh] overflow-y-auto">
             
-            {/* Top Language Bar with Dropdown */}
-            <div className="flex items-center justify-between gap-2.5 pb-3 border-b border-stone-800">
-              <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-amber-400" />
-                <span className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">Lingua / Language / ภาษา</span>
+            {/* Top Bar: Icon + Title/Subtitle + Language Selector in ONE cohesive row */}
+            <div className="flex items-center justify-between gap-3 pb-2.5 sm:pb-3 border-b border-stone-800">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 bg-gradient-to-br from-[#8B1E1E] to-[#5a1111] border border-amber-400/50 rounded-xl flex items-center justify-center shadow-md shrink-0">
+                  <UtensilsCrossed className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
+                </div>
+                <div className="min-w-0">
+                  <h2 className="text-sm sm:text-lg font-black text-white tracking-tight truncate leading-tight">
+                    {I18N_TABLE_PICKER[lang]?.title || I18N_TABLE_PICKER.IT.title}
+                  </h2>
+                  <p className="text-[10px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider truncate">
+                    {I18N_TABLE_PICKER[lang]?.subtitle || I18N_TABLE_PICKER.IT.subtitle}
+                  </p>
+                </div>
               </div>
 
-              <LanguageDropdown 
-                currentLang={lang} 
-                onSelect={setLanguage} 
-                variant="dining-dark" 
-                align="right" 
-              />
-            </div>
-
-            {/* Modal Header */}
-            <div className="text-center space-y-2">
-              <div className="w-14 h-14 bg-gradient-to-br from-[#8B1E1E] to-[#5a1111] border-2 border-amber-400/50 rounded-2xl mx-auto flex items-center justify-center shadow-lg">
-                <UtensilsCrossed className="w-7 h-7 text-amber-300" />
+              <div className="shrink-0">
+                <LanguageDropdown 
+                  currentLang={lang} 
+                  onSelect={setLanguage} 
+                  variant="dining-dark" 
+                  align="right" 
+                />
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                {I18N_TABLE_PICKER[lang]?.title || I18N_TABLE_PICKER.IT.title}
-              </h2>
-              <p className="text-xs sm:text-sm font-bold text-amber-300 uppercase tracking-widest">
-                {I18N_TABLE_PICKER[lang]?.subtitle || I18N_TABLE_PICKER.IT.subtitle}
-              </p>
-              <p className="text-stone-400 text-xs max-w-md mx-auto leading-relaxed">
-                {I18N_TABLE_PICKER[lang]?.desc || I18N_TABLE_PICKER.IT.desc}
-              </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-2.5 sm:space-y-3.5">
               <div>
-                <div className="flex items-center justify-between text-xs font-bold text-stone-300 uppercase tracking-wider mb-2.5">
+                <div className="flex items-center justify-between text-[11px] sm:text-xs font-bold text-stone-300 uppercase tracking-wider mb-1.5 sm:mb-2">
                   <span>{I18N_TABLE_PICKER[lang]?.tablesHeading || I18N_TABLE_PICKER.IT.tablesHeading}</span>
-                  <span className="text-[11px] text-stone-400 font-normal flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.freeLabel || I18N_TABLE_PICKER.IT.freeLabel}</span>
-                    <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.activeLabel || I18N_TABLE_PICKER.IT.activeLabel}</span>
+                  <span className="text-[10px] sm:text-[11px] text-stone-400 font-normal flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.freeLabel || I18N_TABLE_PICKER.IT.freeLabel}</span>
+                    <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.activeLabel || I18N_TABLE_PICKER.IT.activeLabel}</span>
                   </span>
                 </div>
                 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
                   {DINING_TABLES.map(t => {
                     const displayName = formatTableStationName(t, lang);
                     const isSelected = currentTable === t;
@@ -1711,17 +1700,17 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         key={t}
                         type="button"
                         onClick={() => handleSelectTable(t)}
-                        className={`p-4 rounded-2xl text-left transition-all cursor-pointer border flex flex-col justify-between gap-2.5 relative overflow-hidden ${
+                        className={`p-2 sm:p-2.5 rounded-xl text-left transition-all cursor-pointer border flex flex-col justify-between gap-1 relative overflow-hidden ${
                           isSelected
-                            ? 'bg-gradient-to-br from-amber-950/90 to-stone-900 border-amber-400 text-white shadow-xl scale-[1.02] ring-1 ring-amber-400/50'
+                            ? 'bg-gradient-to-br from-amber-950/90 to-stone-900 border-amber-400 text-white shadow-lg ring-1 ring-amber-400/50'
                             : isOccupied
-                              ? 'bg-amber-950/30 border-amber-500/60 text-stone-200 hover:border-amber-400 hover:bg-amber-950/50 hover:scale-[1.02]'
-                              : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850 hover:scale-[1.02]'
+                              ? 'bg-amber-950/30 border-amber-500/60 text-stone-200 hover:border-amber-400 hover:bg-amber-950/50'
+                              : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-black uppercase tracking-tight text-white">{displayName}</span>
-                          <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-xs sm:text-sm font-black uppercase tracking-tight text-white truncate">{displayName}</span>
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${
                             isOccupied
                               ? 'bg-amber-400 animate-pulse'
                               : isSelected
@@ -1729,7 +1718,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                                 : 'bg-emerald-500'
                           }`} />
                         </div>
-                        <div className={`text-[11px] font-bold uppercase tracking-wider truncate ${
+                        <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
                           isOccupied ? 'text-amber-400 font-extrabold' : 'text-emerald-400/90'
                         }`}>
                           {isOccupied 
@@ -1742,8 +1731,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                 </div>
               </div>
 
-              <div className="space-y-1.5 pt-3 border-t border-stone-800">
-                <label className="text-xs font-bold text-stone-300 uppercase tracking-wider block">
+              <div className="space-y-1 pt-2 sm:pt-2.5 border-t border-stone-800">
+                <label className="text-[10px] sm:text-xs font-bold text-stone-300 uppercase tracking-wider block">
                   {I18N_TABLE_PICKER[lang]?.customLabel || I18N_TABLE_PICKER.IT.customLabel}
                 </label>
                 <div className="flex gap-2">
@@ -1757,7 +1746,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                       }
                     }}
                     placeholder={I18N_TABLE_PICKER[lang]?.customPlaceholder || I18N_TABLE_PICKER.IT.customPlaceholder}
-                    className="flex-1 bg-stone-950 border border-stone-700 text-white rounded-xl px-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:border-amber-400"
+                    className="flex-1 bg-stone-950 border border-stone-700 text-white rounded-xl px-3 py-1.5 sm:py-2 text-xs focus:outline-none focus:border-amber-400"
                   />
                   <button
                     type="button"
@@ -1766,7 +1755,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         handleSelectTable(customTableInput.trim());
                       }
                     }}
-                    className="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs uppercase tracking-wider cursor-pointer transition-all active:scale-95"
+                    className="px-4 py-1.5 sm:py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs uppercase tracking-wider cursor-pointer transition-all active:scale-95 shrink-0"
                   >
                     {I18N_TABLE_PICKER[lang]?.enterBtn || I18N_TABLE_PICKER.IT.enterBtn}
                   </button>
@@ -1780,7 +1769,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           {/* MAIN CONTAINER */}
           <main className="pt-16 max-w-6xl mx-auto px-2 sm:px-4">
             
-            {/* EXCLUSIVE DINING PRIVILEGE HERO BANNER (Compact, Sleek & Well Distributed) */}
+            {/* EXCLUSIVE DINING PRIVILEGE HERO BANNER (Clean, Focused & Elegant) */}
             <header className="relative text-stone-100 py-3 sm:py-3.5 px-4 sm:px-6 md:px-7 rounded-2xl sm:rounded-3xl shadow-lg my-2.5 z-30 border border-amber-400/40 overflow-hidden" style={{ backgroundColor: '#3b3530' }}>
               {/* Inner Background Slideshow with rounded corners & clipping */}
               <div className="absolute inset-0 rounded-2xl sm:rounded-3xl overflow-hidden pointer-events-none">
@@ -1813,43 +1802,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                   </div>
                 </div>
 
-                {/* Right Side: Promotion Info & Table Pills */}
+                {/* Right Side: Promotional Title & Incentive Only */}
                 <div className="flex-1 min-w-0 space-y-1 sm:space-y-1.5 text-left">
-                  {/* Top Bar: Privilege Badge + Pills */}
-                  <div className="flex flex-wrap items-center justify-start gap-1.5 sm:gap-2">
-                    <div className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 font-black text-[9px] sm:text-[10px] md:text-[10.5px] uppercase tracking-wider shadow-sm">
-                      <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-stone-950 stroke-none" />
-                      <span>{lang === 'IT' ? 'PROMOZIONE AL TAVOLO' : lang === 'TH' ? 'สิทธิพิเศษสั่งที่โต๊ะอาหาร' : lang === 'DE' ? 'TISCH-RABATT' : lang === 'MM' ? 'စားပွဲအထူးကမ်းလှမ်းချက်' : 'TABLE PROMO'}</span>
-                    </div>
-
-                    <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-lg bg-black/40 border border-white/20 text-white text-[9px] sm:text-[10px] md:text-[10.5px] font-bold backdrop-blur-sm">
-                      <UtensilsCrossed className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
-                      <span>
-                        {lang === 'TH' ? 'ที่นั่ง: ' : lang === 'EN' ? 'Station: ' : lang === 'DE' ? 'Station: ' : lang === 'MM' ? 'စခန်း - ' : 'Postazione: '}
-                        {formatTableStationName(currentTable, lang)}
-                      </span>
-                    </span>
-
-                    <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-0.5 rounded-lg bg-emerald-500/30 border border-emerald-400/60 text-emerald-300 text-[9px] sm:text-[10px] md:text-[10.5px] font-black backdrop-blur-sm">
-                      <Percent className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-400" />
-                      <span>
-                        {lang === 'TH' ? '-5% ส่วนลดที่โต๊ะ' : lang === 'EN' ? '-5% Table Discount' : lang === 'DE' ? '-5% Tisch-Rabatt' : lang === 'MM' ? '-၅% စားပွဲလျှော့စျေး' : '-5% Sconto Diretto'}
-                      </span>
-                    </span>
-
-                    {!isGuestMobile && currentTable && (
-                      <button
-                        type="button"
-                        onClick={() => setIsQrModalOpen(true)}
-                        className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white text-[9px] sm:text-[10px] md:text-[11px] font-black uppercase tracking-wider shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
-                      >
-                        <Smartphone className="w-3 h-3 text-amber-300 animate-pulse" />
-                        <span>{lang === 'IT' ? 'QR Smartphone' : lang === 'TH' ? 'QR มือถือ' : lang === 'DE' ? 'Smartphone-QR' : lang === 'MM' ? 'စမတ်ဖုန်း QR' : 'Smartphone QR'}</span>
-                        <QrCode className="w-3 h-3 text-white" />
-                      </button>
-                    )}
-                  </div>
-
                   {/* Hero Title */}
                   <h1 className="font-sans text-xs sm:text-base md:text-lg font-black tracking-tight text-white leading-snug">
                     {lang === 'TH' ? (

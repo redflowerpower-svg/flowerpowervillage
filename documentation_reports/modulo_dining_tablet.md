@@ -38,5 +38,11 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
    - Alla chiusura del tavolo (`ORDER PAID`), tutti i record del tavolo vengono archiviati su Supabase e viene emesso l'evento `TABLE_SETTLED` per liberare il tavolo su tutti i tablet in sala.
 9. **Lead Gen & Cross-Selling**:
    - Al checkout rilascia un **Coupon Sconto del 10%** inviato via messaggio per futuri ordini delivery da casa su `flowerpowerpizza.com`.
-10. **Traduzioni Certificate DeepSeek AI**:
+10. **Intestazione & Modale Selezione Tavolo Single-Screen (Mobile Portrait)**:
+    - Intestazione del popup di benvenuto unificata su riga singola orizzontale (Icona Brand + Titolo + Sottotitolo a sinistra, Selettore Lingua a destra).
+    - Griglia tavoli a 4 colonne (4 righe totali) con altezza ottimizzata per rientrare integralmente in 1 sola schermata senza generare barre di scorrimento su smartphone verticali.
+11. **Separazione Architetturale Navbar Superiore & Banner Hero (Zero Duplicazioni)**:
+    - **Navbar Superiore**: raccoglie tutti i controlli di sessione (pulsante tavolo con nome esteso e freccia cambio tavolo, senza etichette -5% ridondanti, pulsante QR Code Smartphone, tasto Salda Conto e cambio lingua).
+    - **Banner Hero**: dedicato esclusivamente all'identità di brand (Logo Flower Power Pizza, Ranong Thailandia) e al messaggio promozionale (*Sconto Immediato del 5% su Tutto il Menu dal Tablet!* e Coupon 10% per i successivi ordini delivery da casa), con rimozione totale di badge o pillole duplicate.
+12. **Traduzioni Certificate DeepSeek AI**:
     - Tutte le etichette, bottoni e dialoghi sono localizzati tramite API live DeepSeek in 5 lingue: 🇮🇹 IT, 🇬🇧 EN, 🇹🇭 TH, 🇩🇪 DE, 🇲🇲 MM.
