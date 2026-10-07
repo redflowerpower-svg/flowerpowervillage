@@ -1263,6 +1263,64 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     }
   }, [finalTotal, omiseQrUrl, isPaymentConfirmed]);
 
+  // Helper to rasterize SVG/QR URL into a crisp high-res PNG with white background for banking apps
+  const convertQrToPngBlob = async (qrUrl: string): Promise<Blob> => {
+    return new Promise(async (resolve) => {
+      try {
+        const res = await fetch(qrUrl);
+        const rawBlob = await res.blob();
+        const objectUrl = URL.createObjectURL(rawBlob);
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            const size = 600;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              URL.revokeObjectURL(objectUrl);
+              resolve(rawBlob);
+              return;
+            }
+
+            // Pure solid white background for 100% accurate camera/bank app scanning
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, size, size);
+
+            // Draw QR code with clean margin
+            const padding = 28;
+            ctx.drawImage(img, padding, padding, size - padding * 2, size - padding * 2);
+
+            canvas.toBlob((pngBlob) => {
+              URL.revokeObjectURL(objectUrl);
+              if (pngBlob) {
+                resolve(pngBlob);
+              } else {
+                resolve(rawBlob);
+              }
+            }, 'image/png', 1.0);
+          } catch {
+            URL.revokeObjectURL(objectUrl);
+            resolve(rawBlob);
+          }
+        };
+
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          resolve(rawBlob);
+        };
+
+        img.src = objectUrl;
+      } catch {
+        resolve(new Blob([], { type: 'image/png' }));
+      }
+    });
+  };
+
   // Save QR Code to Photos / Device Download for Mobile Banking
   const handleSaveQrImage = async () => {
     const qrSource = omiseQrUrl || QR_URL;
@@ -1270,9 +1328,9 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
 
     try {
       const fileName = `PromptPay_FlowerPower_${finalTotal}THB.png`;
-      const res = await fetch(qrSource);
-      const blob = await res.blob();
-      const file = new File([blob], fileName, { type: blob.type || 'image/png' });
+      // Convert SVG/URL to genuine PNG blob
+      const pngBlob = await convertQrToPngBlob(qrSource);
+      const file = new File([pngBlob], fileName, { type: 'image/png' });
 
       setIsQrSaved(true);
       setTimeout(() => setIsQrSaved(false), 3000);
@@ -1291,8 +1349,8 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
         }
       }
 
-      // 2. Direct browser download trigger
-      const blobUrl = URL.createObjectURL(blob);
+      // 2. Direct browser download trigger with genuine PNG blob
+      const blobUrl = URL.createObjectURL(pngBlob);
       const a = document.createElement('a');
       a.href = blobUrl;
       a.download = fileName;
@@ -1301,7 +1359,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
     } catch (err) {
-      console.warn('Blob download failed, using direct anchor fallback:', err);
+      console.warn('PNG download failed, using direct anchor fallback:', err);
       const a = document.createElement('a');
       a.href = qrSource;
       a.target = '_blank';

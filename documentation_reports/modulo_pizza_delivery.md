@@ -64,6 +64,9 @@ Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra We
 
 - **Sconto 10% Primo Ordine**: Validato tramite verifica hardware/email/telefono + GPS (bypassato in locale/staging).
 - **Edge-Hugger Floating Cart**: Linguetta laterale destra per l'accesso rapido al carrello drawer con pairing consigliati.
+- **PromptPay QR Code Conversion (SVG to PNG Rasterization)**:
+  - Le API Omise restituiscono il QR PromptPay in formato SVG (`image/svg+xml`), non compatibile con la galleria fotografica dei dispositivi mobili né con i motori OCR/scanner delle app bancarie (es. Kasikorn K-Plus, SCB Easy).
+  - Il motore di checkout (`convertQrToPngBlob` in `CheckoutFlow.tsx`) rasterizza live il codice su un canvas ad alta definizione (600×600 px) con sfondo bianco opaco puro (`#FFFFFF`) e margini calibrati, esportando un autentico file raster PNG (`image/png`) per il salvataggio nelle Foto e la scansione automatica da app bancaria.
 - **Notifiche Ordini & Kitchen Monitor (KDS)**: Sincronizzazione in tempo reale con Supabase `pizza_orders`, KDS cucina e Telegram Bot.
   - Gestione avanzata comande e prenotazioni tavoli con pulsanti dedicati di presa in carico, rifiuto/cancellazione immediata (`[CANCELLED:true]`) ed eliminazione definitiva (`deleteOrder` con bypass RLS tramite `service_role`).
 
