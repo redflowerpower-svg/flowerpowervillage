@@ -30,18 +30,20 @@ class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div style={{ padding: 32, background: '#1c1917', color: '#fff', minHeight: '100vh', fontFamily: 'sans-serif' }}>
-          <h2 style={{ color: '#ef4444' }}>Qualcosa è andato storto nel caricamento della pagina</h2>
-          <pre style={{ background: '#292524', padding: 16, borderRadius: 8, overflowX: 'auto' }}>
-            {this.state.error?.message}
+          <h2 style={{ color: '#ef4444', fontSize: '18px', marginBottom: '12px' }}>Qualcosa è andato storto nel caricamento della pagina</h2>
+          <pre style={{ background: '#292524', padding: 16, borderRadius: 8, overflowX: 'auto', fontSize: '13px', lineHeight: '1.4' }}>
+            <strong>{this.state.error?.name}: {this.state.error?.message}</strong>
+            {'\n\n'}
+            {this.state.error?.stack}
           </pre>
           <button
             onClick={() => {
               this.setState({ hasError: false, error: null });
-              window.location.href = '/';
+              window.location.href = '/dining';
             }}
             style={{ marginTop: 16, padding: '8px 16px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
           >
-            Ricarica Home
+            Riprova Caricamento
           </button>
         </div>
       );

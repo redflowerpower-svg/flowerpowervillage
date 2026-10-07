@@ -1080,6 +1080,77 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
   const [selectedWineType, setSelectedWineType] = useState<'all' | 'red' | 'white' | 'rose' | 'sparkling'>('all');
   const [selectedWineCountry, setSelectedWineCountry] = useState<string>('all');
 
+  // Prodotti non disponibili (Sold Out) sincronizzati da Supabase Cloud, BroadcastChannel e LocalStorage
+  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('fp_pizza_availability_overrides') || '{}');
+      const unavail = Object.entries(stored)
+        .filter(([_, isAvail]) => isAvail === false)
+        .map(([id]) => id);
+      return new Set<string>(unavail);
+    } catch {
+      return new Set<string>();
+    }
+  });
+
+  // Sync daily specials and availability overrides from admin dashboard
+  const [dailySpecialsOverrides, setDailySpecialsOverrides] = useState<Record<string, boolean>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const syncFromStorage = () => {
+      try {
+        const specialOverrides = JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
+        setDailySpecialsOverrides(specialOverrides);
+      } catch {}
+
+      try {
+        const availOverrides = JSON.parse(localStorage.getItem('fp_pizza_availability_overrides') || '{}');
+        const unavail = Object.entries(availOverrides)
+          .filter(([_, isAvail]) => isAvail === false)
+          .map(([id]) => id);
+        setUnavailableIds(new Set<string>(unavail));
+      } catch {}
+    };
+    window.addEventListener('storage', syncFromStorage);
+
+    let bc: BroadcastChannel | null = null;
+    if ('BroadcastChannel' in window) {
+      bc = new BroadcastChannel('fp_pizza_menu_sync');
+      bc.onmessage = (ev) => {
+        if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE' || ev.data?.type === 'AVAILABILITY_TOGGLE' || ev.data?.type === 'MENU_SYNC_UPDATE') {
+          syncFromStorage();
+        }
+      };
+    }
+
+    // Carica immediatamente overrides ufficiali dal Cloud Supabase
+    fetchCloudMenuOverrides().then((overrides) => {
+      if (overrides) {
+        if (overrides.dailySpecials) {
+          setDailySpecialsOverrides(overrides.dailySpecials);
+        }
+        if (overrides.availability) {
+          const unavail = Object.entries(overrides.availability)
+            .filter(([_, isAvail]) => isAvail === false)
+            .map(([id]) => id);
+          setUnavailableIds(new Set<string>(unavail));
+        }
+      }
+    });
+
+    return () => {
+      window.removeEventListener('storage', syncFromStorage);
+      if (bc) bc.close();
+    };
+  }, []);
+
   // Reset to first category and scroll top on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -1297,76 +1368,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     };
   }, [isCartTabExpanded]);
 
-  // Prodotti non disponibili (Sold Out) sincronizzati da Supabase Cloud, BroadcastChannel e LocalStorage
-  const [unavailableIds, setUnavailableIds] = useState<Set<string>>(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('fp_pizza_availability_overrides') || '{}');
-      const unavail = Object.entries(stored)
-        .filter(([_, isAvail]) => isAvail === false)
-        .map(([id]) => id);
-      return new Set<string>(unavail);
-    } catch {
-      return new Set<string>();
-    }
-  });
 
-  // Sync daily specials and availability overrides from admin dashboard
-  const [dailySpecialsOverrides, setDailySpecialsOverrides] = useState<Record<string, boolean>>(() => {
-    try {
-      return JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
-    } catch {
-      return {};
-    }
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const syncFromStorage = () => {
-      try {
-        const specialOverrides = JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
-        setDailySpecialsOverrides(specialOverrides);
-      } catch {}
-
-      try {
-        const availOverrides = JSON.parse(localStorage.getItem('fp_pizza_availability_overrides') || '{}');
-        const unavail = Object.entries(availOverrides)
-          .filter(([_, isAvail]) => isAvail === false)
-          .map(([id]) => id);
-        setUnavailableIds(new Set<string>(unavail));
-      } catch {}
-    };
-    window.addEventListener('storage', syncFromStorage);
-
-    let bc: BroadcastChannel | null = null;
-    if ('BroadcastChannel' in window) {
-      bc = new BroadcastChannel('fp_pizza_menu_sync');
-      bc.onmessage = (ev) => {
-        if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE' || ev.data?.type === 'AVAILABILITY_TOGGLE' || ev.data?.type === 'MENU_SYNC_UPDATE') {
-          syncFromStorage();
-        }
-      };
-    }
-
-    // Carica immediatamente overrides ufficiali dal Cloud Supabase
-    fetchCloudMenuOverrides().then((overrides) => {
-      if (overrides) {
-        if (overrides.dailySpecials) {
-          setDailySpecialsOverrides(overrides.dailySpecials);
-        }
-        if (overrides.availability) {
-          const unavail = Object.entries(overrides.availability)
-            .filter(([_, isAvail]) => isAvail === false)
-            .map(([id]) => id);
-          setUnavailableIds(new Set<string>(unavail));
-        }
-      }
-    });
-
-    return () => {
-      window.removeEventListener('storage', syncFromStorage);
-      if (bc) bc.close();
-    };
-  }, []);
 
   const rawSubtotal = getTotal();
   const discountAmount = Math.round(rawSubtotal * 0.05);
