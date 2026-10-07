@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import QRCode from 'qrcode';
 import { useCartStore } from '../store/cartStore';
 import { useLocationStore, RESTAURANT_LAT, RESTAURANT_LNG } from '../store/locationStore';
 import { calculateDistance } from '../utils/distance';
@@ -535,7 +536,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
   }, [fetchSettings]);
 
   const activeProviderRaw = paymentSettings?.active_promptpay_provider;
-  const promptPayProvider: 'kbank' | 'omise' = activeProviderRaw === 'omise' ? 'omise' : 'kbank';
+  const promptPayProvider: 'kbank' | 'omise' = activeProviderRaw === 'kbank' ? 'kbank' : 'omise';
 
   const subtotal = getTotal();
   const [isEligible, setIsEligible] = useState(true);
@@ -590,12 +591,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
 
   // Omise Payment states
   const [omiseQrUrl, setOmiseQrUrl] = useState<string | null>(null);
+  const [omiseQrPayload, setOmiseQrPayload] = useState<string | null>(null);
   const [omiseChargeId, setOmiseChargeId] = useState<string | null>(null);
   const [isGeneratingQr, setIsGeneratingQr] = useState(false);
   const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isQrZoomed, setIsQrZoomed] = useState(false);
   const [isQrSaved, setIsQrSaved] = useState(false);
+  const [cachedPngDataUrl, setCachedPngDataUrl] = useState<string | null>(null);
   const [policyModalOpen, setPolicyModalOpen] = useState(false);
   const [policyTab, setPolicyTab] = useState<PolicyTab>('delivery');
   const [cardData, setCardData] = useState<CardFormData>({
@@ -1218,6 +1221,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     try {
       setIsGeneratingQr(true);
       setPaymentError(null);
+      setCachedPngDataUrl(null);
       const tempRef = 'FP-' + Date.now();
       const chargeRes = await createPromptPayCharge({
         orderId: tempRef,
@@ -1225,8 +1229,22 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
         customerName: name || 'Cliente',
         phone: phone || ''
       });
-      setOmiseQrUrl(chargeRes.qrCodeUrl);
+      let finalPngUrl = chargeRes.qrCodeUrl;
+      if (chargeRes.qrPayload) {
+        try {
+          finalPngUrl = await QRCode.toDataURL(chargeRes.qrPayload, {
+            width: 600,
+            margin: 2,
+            color: { dark: '#000000', light: '#ffffff' }
+          });
+        } catch (e) {
+          console.warn('[QR] Client generation fallback:', e);
+        }
+      }
+      setOmiseQrUrl(finalPngUrl);
+      setOmiseQrPayload(chargeRes.qrPayload || null);
       setOmiseChargeId(chargeRes.chargeId);
+      setCachedPngDataUrl(finalPngUrl);
     } catch (err: any) {
       console.error('[Omise PromptPay] Generate QR error:', err);
       setPaymentError(err.message || 'Error generating PromptPay QR');
@@ -1258,141 +1276,81 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
       lastTotalRef.current = finalTotal;
       if (omiseQrUrl && !isPaymentConfirmed) {
         setOmiseQrUrl(null);
+        setOmiseQrPayload(null);
         setOmiseChargeId(null);
+        setCachedPngDataUrl(null);
       }
     }
   }, [finalTotal, omiseQrUrl, isPaymentConfirmed]);
 
-  // Helper to rasterize SVG/QR URL into a crisp high-res PNG with white background for banking apps
-  const convertQrToPngBlob = async (qrUrl: string): Promise<Blob> => {
-    return new Promise(async (resolve) => {
-      try {
-        const res = await fetch(qrUrl);
-        const rawBlob = await res.blob();
-        const objectUrl = URL.createObjectURL(rawBlob);
-
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-
-        img.onload = () => {
-          try {
-            const canvas = document.createElement('canvas');
-            const size = 600;
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) {
-              URL.revokeObjectURL(objectUrl);
-              resolve(rawBlob);
-              return;
-            }
-
-            // Pure solid white background for 100% accurate camera/bank app scanning
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fillRect(0, 0, size, size);
-
-            // Draw QR code with clean margin
-            const padding = 28;
-            ctx.drawImage(img, padding, padding, size - padding * 2, size - padding * 2);
-
-            canvas.toBlob((pngBlob) => {
-              URL.revokeObjectURL(objectUrl);
-              if (pngBlob) {
-                resolve(pngBlob);
-              } else {
-                resolve(rawBlob);
-              }
-            }, 'image/png', 1.0);
-          } catch {
-            URL.revokeObjectURL(objectUrl);
-            resolve(rawBlob);
-          }
-        };
-
-        img.onerror = () => {
-          URL.revokeObjectURL(objectUrl);
-          resolve(rawBlob);
-        };
-
-        img.src = objectUrl;
-      } catch {
-        resolve(new Blob([], { type: 'image/png' }));
+  // Pre-compute same-origin PNG download URL for 100% guaranteed PNG file download
+  const qrDownloadBlobUrl = useMemo(() => {
+    if (promptPayProvider === 'omise') {
+      if (omiseQrPayload) {
+        return `/api/omise-charge?action=download-png&payload=${encodeURIComponent(omiseQrPayload)}&amount=${finalTotal}`;
       }
-    });
-  };
-
-  // Save QR Code to Photos / Device Download for Mobile Banking
-  const handleSaveQrImage = async () => {
-    const qrSource = omiseQrUrl || QR_URL;
-    if (!qrSource) return;
-
-    const fileName = `PromptPay_FlowerPower_${finalTotal}THB.png`;
-
-    try {
-      // 1. Try to fetch as Blob
-      let blob: Blob | null = null;
-      try {
-        const res = await fetch(qrSource);
-        if (res.ok) {
-          const raw = await res.blob();
-          if (raw.type.includes('png') || raw.type.includes('jpeg')) {
-            blob = raw;
-          } else {
-            blob = await convertQrToPngBlob(qrSource);
+      if (omiseQrUrl) {
+        if (omiseQrUrl.startsWith('data:image/')) {
+          try {
+            const parts = omiseQrUrl.split(';base64,');
+            const contentType = parts[0].split(':')[1] || 'image/png';
+            const byteCharacters = window.atob(parts[1]);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: contentType });
+            return URL.createObjectURL(blob);
+          } catch {
+            return `/api/omise-charge?action=download-png&url=${encodeURIComponent(omiseQrUrl)}&amount=${finalTotal}`;
           }
         }
-      } catch (e) {
-        console.warn('Fetch QR blob failed, fallback to canvas conversion:', e);
-        blob = await convertQrToPngBlob(qrSource);
+        return `/api/omise-charge?action=download-png&url=${encodeURIComponent(omiseQrUrl)}&amount=${finalTotal}`;
       }
+      return '';
+    }
+    return QR_URL;
+  }, [promptPayProvider, omiseQrUrl, omiseQrPayload, finalTotal]);
 
-      if (blob && blob.size > 0) {
-        const file = new File([blob], fileName, { type: 'image/png' });
+  // Save QR Code directly to Photos / Downloads — 100% genuine PNG binary file
+  const handleSaveQrImage = () => {
+    const fileName = `PromptPay_FlowerPower_${finalTotal}THB.png`;
 
-        setIsQrSaved(true);
-        setTimeout(() => setIsQrSaved(false), 3000);
+    setIsQrSaved(true);
+    setTimeout(() => setIsQrSaved(false), 3000);
 
-        // Native Mobile Share (Save Image to Photos on iOS / Android)
-        if (typeof navigator !== 'undefined' && navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
+    const target = qrDownloadBlobUrl || omiseQrUrl || cachedPngDataUrl || QR_URL;
+    if (!target) return;
+
+    // Direct native anchor download
+    const link = document.createElement('a');
+    link.href = target;
+    link.download = fileName;
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      if (document.body.contains(link)) document.body.removeChild(link);
+    }, 1000);
+
+    // Mobile Web Share
+    const isMobilePhone = typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobilePhone && navigator.canShare && target.startsWith('blob:')) {
+      fetch(target)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], fileName, { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
+            navigator.share({
               files: [file],
               title: `PromptPay QR - ${finalTotal} ฿`,
               text: `Flower Power Pizza Ranong - PromptPay QR: ${finalTotal} ฿`
-            });
-            return;
-          } catch (shareErr: any) {
-            if (shareErr.name === 'AbortError') return;
+            }).catch(() => {});
           }
-        }
-
-        // Direct Browser Download
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
-        return;
-      }
-    } catch (err) {
-      console.warn('Advanced save failed, falling back to direct anchor:', err);
+        })
+        .catch(() => {});
     }
-
-    // Direct Anchor Fallback
-    try {
-      const a = document.createElement('a');
-      a.href = qrSource;
-      a.target = '_blank';
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setIsQrSaved(true);
-      setTimeout(() => setIsQrSaved(false), 3000);
-    } catch {}
   };
 
   // Manual PromptPay generation trigger on user button click or submit
@@ -2158,9 +2116,13 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
 
                     {/* Save & Zoom buttons */}
                     <div className="flex items-center gap-1.5 w-full max-w-[190px] justify-center pt-0.5">
-                      <button
-                        type="button"
-                        onClick={handleSaveQrImage}
+                      <a
+                        href={qrDownloadBlobUrl || QR_URL}
+                        download={`PromptPay_FlowerPower_${finalTotal}THB.png`}
+                        onClick={() => {
+                          setIsQrSaved(true);
+                          setTimeout(() => setIsQrSaved(false), 3000);
+                        }}
                         className={`flex-1 py-1 px-2 rounded-lg text-[9px] font-bold tracking-tight transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs ${
                           isQrSaved ? 'bg-emerald-600 text-white' : 'bg-[#8B1E1E] hover:bg-[#721818] text-white'
                         }`}
@@ -2170,7 +2132,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                         ) : (
                           <><Download size={10} /><span>{lang === 'IT' ? 'Salva QR' : lang === 'TH' ? 'บันทึกรูป QR' : lang === 'DE' ? 'QR Speichern' : 'Save QR'}</span></>
                         )}
-                      </button>
+                      </a>
                       <button
                         type="button"
                         onClick={() => setIsQrZoomed(true)}
@@ -2302,10 +2264,17 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
 
                           {/* Save & Zoom */}
                           <div className="flex items-center gap-1.5 pt-1 w-full max-w-[210px] justify-center">
-                            <button type="button" onClick={handleSaveQrImage}
-                              className={`flex-1 py-1.5 px-2 rounded-lg text-[9.5px] font-bold tracking-tight transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs ${isQrSaved ? 'bg-emerald-600 text-white' : 'bg-sky-500 hover:bg-sky-600 text-white'}`}>
+                            <a 
+                              href={qrDownloadBlobUrl || omiseQrUrl || '#'}
+                              download={`PromptPay_FlowerPower_${finalTotal}THB.png`}
+                              onClick={() => {
+                                setIsQrSaved(true);
+                                setTimeout(() => setIsQrSaved(false), 3000);
+                              }}
+                              className={`flex-1 py-1.5 px-2 rounded-lg text-[9.5px] font-bold tracking-tight transition-all flex items-center justify-center gap-1 cursor-pointer shadow-xs ${isQrSaved ? 'bg-emerald-600 text-white' : 'bg-sky-500 hover:bg-sky-600 text-white'}`}
+                            >
                               {isQrSaved ? <><Check size={11} className="stroke-[3]" /><span>Saved!</span></> : <><Download size={11} /><span>{lang === 'IT' ? 'Salva QR' : lang === 'TH' ? 'บันทึกรูป QR' : lang === 'DE' ? 'QR Speichern' : 'Save QR'}</span></>}
-                            </button>
+                            </a>
                             <button type="button" onClick={() => setIsQrZoomed(true)}
                               className="py-1.5 px-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-[9.5px] font-bold flex items-center justify-center gap-1 transition-colors cursor-pointer border border-stone-200">
                               <ZoomIn size={11} className="text-sky-500" /><span>Zoom</span>
@@ -2808,10 +2777,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
               </div>
             )}
 
-            {/* Save to Phone Button */}
-            <button
-              type="button"
-              onClick={handleSaveQrImage}
+            {/* Save to Phone / PC Direct Link Button */}
+            <a
+              href={qrDownloadBlobUrl || omiseQrUrl || QR_URL}
+              download={`PromptPay_FlowerPower_${finalTotal}THB.png`}
+              onClick={() => {
+                setIsQrSaved(true);
+                setTimeout(() => setIsQrSaved(false), 3000);
+              }}
               className={`mt-3 w-full max-w-[270px] sm:max-w-[310px] py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer ${
                 isQrSaved
                   ? 'bg-emerald-600 text-white'
@@ -2821,15 +2794,15 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
               {isQrSaved ? (
                 <>
                   <Check size={14} className="stroke-[3]" />
-                  <span>{lang === 'IT' ? 'Immagine salvata nel telefono!' : lang === 'TH' ? 'บันทึกรูป QR ลงเครื่องแล้ว!' : 'QR Image Saved!'}</span>
+                  <span>{lang === 'IT' ? 'Immagine salvata nel computer/telefono!' : lang === 'TH' ? 'บันทึกรูป QR ลงเครื่องแล้ว!' : 'QR Image Saved!'}</span>
                 </>
               ) : (
                 <>
                   <Download size={14} />
-                  <span>{lang === 'IT' ? '📥 Salva QR nel Telefono (Rullino Foto)' : lang === 'TH' ? '📥 บันทึกรูป QR Code ลงเครื่อง' : lang === 'DE' ? '📥 QR-Code auf Handy speichern' : '📥 Save QR to Phone / Photos'}</span>
+                  <span>{lang === 'IT' ? '📥 Salva QR (Scarica PNG)' : lang === 'TH' ? '📥 บันทึกรูป QR Code ลงเครื่อง' : lang === 'DE' ? '📥 QR-Code speichern' : '📥 Save QR Code (Download PNG)'}</span>
                 </>
               )}
-            </button>
+            </a>
 
             {/* Instruction */}
             <p className="mt-3 text-[11px] text-stone-600 leading-relaxed max-w-xs">

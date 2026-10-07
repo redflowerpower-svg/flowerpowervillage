@@ -64,9 +64,10 @@ Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra We
 
 - **Sconto 10% Primo Ordine**: Validato tramite verifica hardware/email/telefono + GPS (bypassato in locale/staging).
 - **Edge-Hugger Floating Cart**: Linguetta laterale destra per l'accesso rapido al carrello drawer con pairing consigliati.
-- **PromptPay QR Code Conversion (SVG to PNG Rasterization)**:
-  - Le API Omise restituiscono il QR PromptPay in formato SVG (`image/svg+xml`), non compatibile con la galleria fotografica dei dispositivi mobili né con i motori OCR/scanner delle app bancarie (es. Kasikorn K-Plus, SCB Easy).
-  - Il motore di checkout (`convertQrToPngBlob` in `CheckoutFlow.tsx`) rasterizza live il codice su un canvas ad alta definizione (600×600 px) con sfondo bianco opaco puro (`#FFFFFF`) e margini calibrati, esportando un autentico file raster PNG (`image/png`) per il salvataggio nelle Foto e la scansione automatica da app bancaria.
+- **PromptPay QR Code Conversion & Native PNG Download (Omise Gateway)**:
+  - Le API Omise restituiscono originariamente il QR PromptPay in formato SVG (`image/svg+xml`) su URL cross-origin (`api.omise.co`), che su browser moderni (Chrome/Edge/Safari) causava il download forzato in SVG ignorando l'attributo HTML5 `download` del client.
+  - L'architettura è stata potenziata con un endpoint backend dedicato sullo stesso dominio (`/api/omise-charge?action=download-png`) che rasterizza e restituisce direttamente un buffer binario PNG nativo (`image/png`) con intestazioni HTTP `Content-Disposition: attachment; filename="PromptPay_FlowerPower_<amount>THB.png"`.
+  - Il client (`CheckoutFlow.tsx`) genera inoltre in modo sincrono e immediato un DataURL PNG ad alta definizione (600×600 px) con sfondo bianco opaco puro (`#FFFFFF`) e margini di sicurezza (quiet zone), garantendo scansione immediata da app bancarie (K-Plus, SCB Easy, Bangkok Bank) e salvataggio garantito al 100% come immagine PNG.
 - **Notifiche Ordini & Kitchen Monitor (KDS)**: Sincronizzazione in tempo reale con Supabase `pizza_orders`, KDS cucina e Telegram Bot.
   - Gestione avanzata comande e prenotazioni tavoli con pulsanti dedicati di presa in carico, rifiuto/cancellazione immediata (`[CANCELLED:true]`) ed eliminazione definitiva (`deleteOrder` con bypass RLS tramite `service_role`).
 
@@ -87,8 +88,18 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
 
 ---
 
-## 🎧 5. Kitchen Tablet KDS & Audio WakeLock System
+## 🎧 5. Kitchen Tablet KDS & Toolbar Dark-Slate Redesign
 
+- **Intestazione Frontale Pulita & Raccolta**: Titolo essenziale **`KITCHEN MONITOR`** a fianco del logo ufficiale (rimossa la dicitura superflua su 3 righe per ottimizzare lo spazio utile della lavagna ordini).
+- **Nuova Toolbar Standardizzata (`h-9 rounded-xl` Dark Slate Glassmorphism)**:
+  1. 🟢 **ONLINE: OPEN**: Stato servizio con orari di apertura, chiusura e timer pause personalizzate.
+  2. 🍴 **Menu (Disponibilità & 86 Sold-Out)**: Stile neutro coerente `#181d29`, senza numeri o sfondi rossi invasivi.
+  3. 🗂️ **Archive (Storico Ordini Evasi)**: Stile scuro neutro `#181d29` pulito, senza contatore numerico.
+  4. 🌐 **Selettore Lingua**: Dropdown coordinato con bandiera e codice ISO in stile kitchen-dark.
+  5. ☀️ **Screen Wake Lock**: Pulsante iconico dedicato con icone `Sun` / `SunMedium` e led verde pulsante quando attivo.
+  6. 🔔 **Suoneria & Allarme Acustico**: Tasto mute/unmute buzzer (`Volume2` / `VolumeX`).
+  7. ⛶ **Fullscreen Kiosk**: Attivazione modalità schermo intero su tablet e monitor cucina.
+  8. 🚪 **Blocco Tablet / Logout**: Chiusura sessione protetta da PIN.
 - **Audio WakeLock (`src/admin/pizza/utils/kitchenAudioWakeLock.ts`)**: 
   - Mantiene attivo lo schermo del tablet da cucina (Screen Wake Lock API).
   - Suoneria ad alto volume persistente per nuovi ordini in arrivo.

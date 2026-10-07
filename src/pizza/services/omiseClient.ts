@@ -167,6 +167,7 @@ export async function createPromptPayCharge(params: {
 }): Promise<{
   chargeId: string;
   qrCodeUrl: string;
+  qrPayload?: string;
   expiresAt?: string;
   amount: number;
 }> {
@@ -190,6 +191,7 @@ export async function createPromptPayCharge(params: {
   return {
     chargeId: data.chargeId,
     qrCodeUrl: data.qrCodeUrl,
+    qrPayload: data.qrPayload,
     expiresAt: data.expiresAt,
     amount: data.amount
   };

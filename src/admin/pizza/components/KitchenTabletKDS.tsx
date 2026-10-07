@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   Flame, 
   Bike, 
-  CheckCircle, 
+  CheckCircle,
+  CheckCircle2, 
   Volume2, 
   VolumeX, 
   BellOff, 
@@ -25,7 +26,9 @@ import {
   Calendar,
   Users,
   Trash2,
-  LogOut
+  LogOut,
+  Sun,
+  SunMedium
 } from 'lucide-react';
 import { KitchenAdminAuth } from './KitchenAdminAuth';
 import { KitchenDishAvailabilityModal } from './KitchenDishAvailabilityModal';
@@ -1573,8 +1576,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
 
   // Dictionary for UI strings based on kdsLang
   const t = {
-    kitchenTitle: kdsLang === 'mm' ? 'မီးဖိုချောင် မော်နီတာ' : kdsLang === 'th' ? 'ครัวพิซซ่า' : 'KITCHEN MONITOR',
-    brandSubtitle: kdsLang === 'mm' ? 'ဖလာဝါ ပါဝါ ပီဇာ ရနောင်း' : kdsLang === 'th' ? 'ฟลาวเวอร์ พาวเวอร์ พิซซ่า ระนอง' : 'FLOWER POWER PIZZA RANONG',
+    kitchenTitle: 'KITCHEN MONITOR',
     col1Title: kdsLang === 'mm' ? 'အော်ဒါအသစ်များ (စတင်ချက်ပြုတ်ရန်)' : kdsLang === 'th' ? 'ออเดอร์ใหม่ (รอรับ & เริ่มทำ)' : 'NEW ORDERS (TO ACCEPT)',
     col2Title: kdsLang === 'mm' ? 'ပြင်ဆင်နေဆဲနှင့် ပို့ဆောင်နေဆဲ' : kdsLang === 'th' ? 'กำลังเตรียม & กำลังส่ง' : 'PREPARING & DELIVERING',
     noKitchenOrders: kdsLang === 'mm' ? 'အော်ဒါအသစ် မရှိပါ' : kdsLang === 'th' ? 'ไม่มีออเดอร์ใหม่' : 'NO NEW ORDERS',
@@ -1630,46 +1632,38 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
       className="min-h-screen bg-[#0b0e14] text-white flex flex-col font-sans select-none antialiased"
       onClick={() => initKitchenAudio()}
     >
-      {/* ─── TOP KITCHEN STATUS BAR (NO BACK ARROW, OFFICIAL LOGO) ──────────────── */}
-      <header className="bg-[#131722] border-b-2 border-stone-800 px-3 sm:px-5 py-2.5 flex items-center justify-between gap-2 shrink-0">
+      {/* ─── TOP KITCHEN STATUS BAR (CLEAN, COMPACT, UNIFIED AESTHETIC) ──────────── */}
+      <header className="bg-[#131722] border-b border-stone-800/90 px-3 sm:px-4 py-2 flex items-center justify-between gap-3 shrink-0">
         
-        {/* Left: Official Brand Logo + Title + Clock */}
+        {/* Left: Official Brand Logo + Compact Title + Clock */}
         <div className="flex items-center gap-3">
           <img 
             src="/flower-power-pizza-emblem.png" 
             alt="Flower Power Pizza" 
-            className="w-11 h-11 sm:w-12 sm:h-12 object-contain shrink-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+            className="w-10 h-10 object-contain shrink-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"
           />
 
-          <div>
-            <h1 className="text-base sm:text-lg font-black tracking-tight text-white uppercase leading-none">
-              {t.kitchenTitle}
-            </h1>
-            <span className="text-[11px] font-bold text-amber-400">
-              {t.brandSubtitle}
-            </span>
-          </div>
+          <h1 className="text-base sm:text-lg font-black tracking-wider text-white uppercase leading-none whitespace-nowrap">
+            {t.kitchenTitle}
+          </h1>
 
-          <div className="hidden md:flex flex-col items-center justify-center px-3 py-1 rounded-xl bg-[#080a0f] border border-stone-800 font-mono tracking-wider leading-tight">
-            <div className="flex items-center gap-1.5 text-base lg:text-lg font-black text-amber-400">
-              <Clock className="w-4 h-4 text-amber-500 animate-pulse" />
-              <span>{currentTime}</span>
-            </div>
-            <span className="text-[10px] font-bold text-stone-500 tracking-normal flex items-center gap-1">
-              <span>🇹🇭 Ranong</span>
-              <span className="text-amber-500/80 font-mono">UTC+7</span>
+          <div className="hidden lg:flex items-center gap-2 h-9 px-3 rounded-xl bg-[#0e121a] border border-stone-800/90 font-mono tracking-wider shadow-inner">
+            <Clock className="w-3.5 h-3.5 text-amber-400 animate-pulse shrink-0" />
+            <span className="text-xs sm:text-sm font-black text-amber-400 font-mono">{currentTime}</span>
+            <span className="text-[9.5px] font-bold text-stone-400 tracking-tight bg-stone-900 px-1.5 py-0.5 rounded-md border border-stone-800">
+              🇹🇭 Ranong
             </span>
           </div>
         </div>
 
         {/* Center: Mobile 2-Phase Switcher (only shown on small screens) */}
-        <div className="flex md:hidden items-center gap-1">
+        <div className="flex md:hidden items-center gap-1.5">
           <button
             onClick={() => setSelectedMobileTab('kitchen')}
-            className={`px-3 py-1.5 rounded-xl font-black text-xs uppercase flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`h-9 px-3 rounded-xl font-black text-xs uppercase flex items-center gap-1.5 transition-all cursor-pointer ${
               selectedMobileTab === 'kitchen'
                 ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
-                : 'bg-stone-800 text-stone-400'
+                : 'bg-[#181d29] text-stone-400 border border-stone-800'
             }`}
           >
             <span>{t.col1Title.split('(')[0]}</span>
@@ -1680,10 +1674,10 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
 
           <button
             onClick={() => setSelectedMobileTab('ready')}
-            className={`px-3 py-1.5 rounded-xl font-black text-xs uppercase flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`h-9 px-3 rounded-xl font-black text-xs uppercase flex items-center gap-1.5 transition-all cursor-pointer ${
               selectedMobileTab === 'ready'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                : 'bg-stone-800 text-stone-400'
+                : 'bg-[#181d29] text-stone-400 border border-stone-800'
             }`}
           >
             <span>{t.col2Title.split('(')[0]}</span>
@@ -1693,15 +1687,15 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
           </button>
         </div>
 
-        {/* Right: Controls & Language Toggle */}
-        <div className="flex items-center gap-2">
+        {/* Right: Controls & Language Toggle (Unified Dark Slate Theme) */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
           
           {/* Quick Mute Alarm button when alarm is buzzing */}
           {unacknowledgedNewOrders.length > 0 && !soundMuted && (
             <button
               type="button"
               onClick={handleSilenceAlarm}
-              className="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-bounce shadow-lg shadow-red-600/50 cursor-pointer border border-white/40"
+              className="h-9 px-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-bounce shadow-lg shadow-red-600/50 cursor-pointer border border-white/40 active:scale-95 transition-all"
               title={t.muteAlarmBar}
             >
               <BellOff className="w-4 h-4 stroke-[3]" />
@@ -1714,7 +1708,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
             <button
               type="button"
               onClick={handleSilenceAlarm}
-              className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-pulse shadow-lg shadow-amber-500/40 cursor-pointer border border-amber-300 active:scale-95 transition-all"
+              className="h-9 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-pulse shadow-lg shadow-amber-500/40 cursor-pointer border border-amber-300 active:scale-95 transition-all"
               title="Posticipa la suoneria promemoria di 10 minuti"
             >
               <Clock className="w-4 h-4 stroke-[2.5]" />
@@ -1722,41 +1716,65 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
             </button>
           )}
 
-          {/* Service Status / Pause Management Button */}
+          {/* 1. Service Status / Pause Management Button */}
           <button
             onClick={handleOpenPauseModal}
-            className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase flex items-center gap-1.5 border transition-all cursor-pointer ${
+            className={`h-9 px-3 rounded-xl text-xs font-black uppercase flex items-center gap-2 border shadow-xs transition-all cursor-pointer active:scale-95 ${
               serviceCalc.state === 'OPEN'
-                ? 'bg-emerald-950/80 border-emerald-600 text-emerald-300 hover:bg-emerald-900'
+                ? 'bg-emerald-950/60 hover:bg-emerald-900/70 border-emerald-500/50 text-emerald-300'
                 : serviceCalc.state === 'PAUSED'
-                  ? 'bg-amber-950/90 border-amber-500 text-amber-300 animate-pulse hover:bg-amber-900 shadow-md shadow-amber-600/30'
-                  : 'bg-stone-800 border-stone-700 text-stone-300 hover:border-stone-500 hover:text-white'
+                  ? 'bg-amber-950/80 hover:bg-amber-900 border-amber-500/70 text-amber-300 animate-pulse shadow-amber-600/30'
+                  : 'bg-[#181d29] hover:bg-[#202738] border-stone-700/70 text-stone-300 hover:text-white'
             }`}
             title="Manage delivery service, pause & opening hours"
           >
             {serviceCalc.state === 'OPEN' ? (
               <>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.9)] shrink-0" />
                 <span className="hidden sm:inline">{t.serviceOpen}</span>
               </>
             ) : serviceCalc.state === 'PAUSED' ? (
               <>
-                <PauseCircle className="w-4 h-4 text-amber-400" />
+                <PauseCircle className="w-4 h-4 text-amber-400 shrink-0" />
                 <span>
                   {kdsLang === 'th' ? `พัก: ${serviceCalc.remainingMinutes} น.` : `PAUSED: ${serviceCalc.remainingMinutes}m`}
                 </span>
               </>
             ) : (
               <>
-                <Moon className="w-4 h-4 text-blue-300" />
+                <Moon className="w-4 h-4 text-blue-300 shrink-0" />
                 <span>
-                  {kdsLang === 'th' ? `ปิด (เปิด ${serviceStatus.openingHours?.openTime || '11:00'})` : `CLOSED (OPENS ${serviceStatus.openingHours?.openTime || '11:00'})`}
+                  {kdsLang === 'th' ? `ปิด (${serviceStatus.openingHours?.openTime || '11:00'})` : `CLOSED (${serviceStatus.openingHours?.openTime || '11:00'})`}
                 </span>
               </>
             )}
           </button>
 
-          {/* Language Switcher Dropdown */}
+          {/* 2. Dish & Menu Availability (Sold Out Toggle) Button - Neutral Style, No Counter */}
+          <button
+            type="button"
+            onClick={() => setShowDishAvailabilityModal(true)}
+            className="h-9 px-3 rounded-xl bg-[#181d29] hover:bg-[#202738] border border-stone-700/70 hover:border-stone-500 text-stone-200 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+            title={kdsLang === 'th' ? 'จัดการความพร้อมของเมนูอาหาร (Sold Out)' : 'Manage dish & menu availability'}
+          >
+            <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="hidden sm:inline">
+              {kdsLang === 'th' ? 'เมนู' : kdsLang === 'mm' ? 'မီနူး' : kdsLang === 'it' ? 'Menu' : 'Menu'}
+            </span>
+          </button>
+
+          {/* 3. Completed Orders Archive Today Button - Neutral Style, No Counter */}
+          <button
+            type="button"
+            onClick={() => setShowCompletedModal(true)}
+            className="h-9 px-3 rounded-xl bg-[#181d29] hover:bg-[#202738] border border-stone-700/70 hover:border-stone-500 text-stone-200 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
+            title={kdsLang === 'th' ? 'ดูประวัติออเดอร์ที่ส่งแล้ววันนี้' : 'View today completed orders archive'}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span className="hidden sm:inline">{kdsLang === 'th' ? 'ประวัติ' : 'Archive'}</span>
+          </button>
+
+          {/* 4. Language Switcher Dropdown */}
           <LanguageDropdown
             currentLang={kdsLang}
             onSelect={(l) => changeLanguage(l.toLowerCase() as any)}
@@ -1764,59 +1782,27 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
             align="right"
           />
 
-          {/* Dish & Menu Availability (Sold Out Toggle) Button */}
+          {/* 5. Screen Wake Lock Toggle Button */}
           <button
-            type="button"
-            onClick={() => setShowDishAvailabilityModal(true)}
-            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
-              soldOutCount > 0 
-                ? 'bg-red-950/90 hover:bg-red-900 border-red-500/70 text-white shadow-red-950/60' 
-                : 'bg-stone-800 hover:bg-stone-700 border-stone-700 text-stone-300 hover:text-white'
+            onClick={() => requestScreenWakeLock().then(ok => setWakeLockActive(ok))}
+            className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95 ${
+              wakeLockActive 
+                ? 'bg-emerald-950/60 hover:bg-emerald-900 border-emerald-500/60 text-emerald-300' 
+                : 'bg-[#181d29] hover:bg-[#202738] border-stone-700/70 hover:border-stone-500 text-stone-400 hover:text-white'
             }`}
-            title={kdsLang === 'th' ? 'จัดการความพร้อมของเมนูอาหาร (Sold Out)' : 'Manage dish & menu availability'}
+            title={wakeLockActive ? 'Screen Stay-Awake: ACTIVE (Tap to toggle)' : 'Screen Stay-Awake: OFF (Tap to keep awake)'}
           >
-            <UtensilsCrossed className="w-4 h-4 text-amber-400 shrink-0" />
-            <span className="hidden sm:inline">
-              {kdsLang === 'th' ? 'เมนูอาหาร' : kdsLang === 'mm' ? 'မီနူး' : kdsLang === 'it' ? 'Disponibilità' : 'Menu'}
-            </span>
-            {soldOutCount > 0 ? (
-              <span className="px-1.5 py-0.2 rounded-full bg-red-600 text-white text-[10px] font-black border border-red-400 animate-pulse">
-                {soldOutCount} 86
-              </span>
+            {wakeLockActive ? (
+              <div className="relative flex items-center justify-center">
+                <Sun className="w-4 h-4 text-amber-300" />
+                <span className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              </div>
             ) : (
-              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+              <SunMedium className="w-4 h-4 text-stone-400" />
             )}
           </button>
 
-          {/* Completed Orders Archive Today Button */}
-          <button
-            type="button"
-            onClick={() => setShowCompletedModal(true)}
-            className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 hover:text-white text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
-            title={kdsLang === 'th' ? 'ดูประวัติออเดอร์ที่ส่งแล้ววันนี้' : 'View today completed orders archive'}
-          >
-            <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span className="hidden sm:inline">{kdsLang === 'th' ? 'ประวัติ' : 'Archive'}</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-emerald-950 text-emerald-300 text-[11px] font-black border border-emerald-600/60">
-              {completedTodayOrders.length + completedTableReservations.length}
-            </span>
-          </button>
-
-          {/* Screen Wake Lock Status Badge */}
-          <button
-            onClick={() => requestScreenWakeLock().then(ok => setWakeLockActive(ok))}
-            className={`p-2 rounded-xl text-xs font-bold flex items-center gap-1 border transition-colors cursor-pointer ${
-              wakeLockActive 
-                ? 'bg-emerald-950/70 border-emerald-600 text-emerald-300' 
-                : 'bg-stone-800 border-stone-700 text-stone-400 hover:text-white'
-            }`}
-            title={wakeLockActive ? 'Screen stay-awake ON' : 'Tap to keep screen awake'}
-          >
-            <span className={`w-2.5 h-2.5 rounded-full ${wakeLockActive ? 'bg-emerald-400 animate-ping' : 'bg-stone-500'}`} />
-            <span className="hidden lg:inline">{t.screenOn}</span>
-          </button>
-
-          {/* Sound Alarm Toggle */}
+          {/* 6. Sound Alarm Toggle Button */}
           <button
             onClick={() => {
               if (soundMuted) {
@@ -1828,26 +1814,26 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                 stopDispatchReminderAlarm();
               }
             }}
-            className={`p-2 rounded-xl border font-bold text-xs flex items-center gap-1 transition-all cursor-pointer ${
+            className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95 ${
               soundMuted 
-                ? 'bg-red-950 border-red-700 text-red-300' 
-                : 'bg-stone-800 border-stone-700 text-emerald-400 hover:bg-stone-700'
+                ? 'bg-red-950/80 hover:bg-red-900 border-red-600/70 text-red-300' 
+                : 'bg-[#181d29] hover:bg-[#202738] border-stone-700/70 hover:border-emerald-500/50 text-emerald-400'
             }`}
-            title={soundMuted ? 'Unmute buzzer' : 'Mute buzzer'}
+            title={soundMuted ? 'Buzzer Muted (Tap to unmute)' : 'Buzzer Active (Tap to mute)'}
           >
-            {soundMuted ? <VolumeX className="w-5 h-5 text-red-400" /> : <Volume2 className="w-5 h-5 text-emerald-400" />}
+            {soundMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
           </button>
 
-          {/* Fullscreen Button */}
+          {/* 7. Fullscreen Button */}
           <button
             onClick={toggleFullscreen}
-            className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 cursor-pointer"
+            className="w-9 h-9 rounded-xl bg-[#181d29] hover:bg-[#202738] text-stone-300 hover:text-white border border-stone-700/70 hover:border-stone-500 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
             title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen kiosk'}
           >
-            {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+            {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
           </button>
 
-          {/* Master Admin Logout / Lock Button */}
+          {/* 8. Master Admin Logout / Lock Button */}
           {onLogout && (
             <button
               onClick={() => {
@@ -1855,10 +1841,10 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                   onLogout();
                 }
               }}
-              className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-red-400 border border-stone-700 hover:border-red-600 transition-colors cursor-pointer"
+              className="w-9 h-9 rounded-xl bg-[#181d29] hover:bg-red-950/60 text-stone-400 hover:text-red-300 border border-stone-700/70 hover:border-red-600/60 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
               title="Blocca / Disconnetti Tablet Cucina"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="w-4 h-4" />
             </button>
           )}
         </div>

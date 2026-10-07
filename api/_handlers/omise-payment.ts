@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import QRCode from "qrcode";
 import { 
   getOmiseCredentials, 
   createOmiseSource, 
@@ -129,6 +130,62 @@ async function notifyKitchenTelegram(orderId: string | number) {
  */
 export async function handleOmiseCharge(req: VercelRequest, res: VercelResponse) {
   if (req.method === "GET") {
+    // Action: Direct binary PNG download
+    if (req.query.action === "download-png" || req.query.action === "qr-png") {
+      const payload = (req.query.payload as string) || "";
+      const rawUrl = (req.query.url as string) || "";
+      const amount = (req.query.amount as string) || "";
+      const fileName = `PromptPay_FlowerPower_${amount ? amount + "THB" : "QR"}.png`;
+
+      // 1. If payload is present: generate pure PNG binary buffer directly with QRCode library
+      if (payload) {
+        try {
+          const pngBuffer = await QRCode.toBuffer(payload, {
+            type: "png",
+            width: 600,
+            margin: 2,
+            color: { dark: "#000000", light: "#ffffff" }
+          });
+          res.setHeader("Content-Type", "image/png");
+          res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+          res.setHeader("Access-Control-Allow-Origin", "*");
+          return res.status(200).send(pngBuffer);
+        } catch (e) {
+          console.warn("[Omise] QRCode toBuffer error:", e);
+        }
+      }
+
+      // 2. If rawUrl is provided (even if it is an Omise SVG URL), convert SVG to genuine PNG via sharp
+      if (rawUrl) {
+        try {
+          if (rawUrl.startsWith("data:image/png;base64,")) {
+            const b64 = rawUrl.replace(/^data:image\/png;base64,/, "");
+            const buf = Buffer.from(b64, "base64");
+            res.setHeader("Content-Type", "image/png");
+            res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+            return res.status(200).send(buf);
+          }
+
+          const qrRes = await fetch(rawUrl);
+          if (qrRes.ok) {
+            const arrayBuffer = await qrRes.arrayBuffer();
+            const svgBuffer = Buffer.from(arrayBuffer);
+            const sharpModule = await import("sharp");
+            const sharp = sharpModule.default || sharpModule;
+            const pngBuffer = await sharp(svgBuffer).png().toBuffer();
+            res.setHeader("Content-Type", "image/png");
+            res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+            res.setHeader("Access-Control-Allow-Origin", "*");
+            return res.status(200).send(pngBuffer);
+          }
+        } catch (fetchErr) {
+          console.warn("[Omise] SVG rasterize error:", fetchErr);
+        }
+      }
+
+      return res.status(400).send("Missing or invalid QR data");
+    }
+
     try {
       const creds = await getOmiseCredentials();
       return res.status(200).json({
@@ -194,12 +251,19 @@ export async function handleOmiseCharge(req: VercelRequest, res: VercelResponse)
       const rawQrUrl = scannable?.image?.download_uri;
       const qrPayload = scannable?.payload;
 
-      // High-resolution PNG QR Code (600x600) with white margin from PromptPay EMVCo payload
-      const qrPngUrl = qrPayload
-        ? `https://api.qrserver.com/v1/create-qr-code/?size=600x600&format=png&margin=24&data=${encodeURIComponent(qrPayload)}`
-        : rawQrUrl;
-
-      const qrCodeUrl = qrPngUrl || rawQrUrl;
+      // Generate crystal-clear base64 PNG Data URL (600x600, white margin) locally with zero external network dependency
+      let qrCodeUrl = rawQrUrl;
+      if (qrPayload) {
+        try {
+          qrCodeUrl = await QRCode.toDataURL(qrPayload, {
+            width: 600,
+            margin: 2,
+            color: { dark: "#000000", light: "#ffffff" }
+          });
+        } catch (qrErr) {
+          console.warn("[Omise] Local QRCode generation error:", qrErr);
+        }
+      }
 
       // Update order in Supabase if orderId is an existing numeric database ID
       if (supabase) {

@@ -48,7 +48,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
   const getButtonStyles = () => {
     switch (variant) {
       case 'kitchen-dark':
-        return 'bg-stone-900/95 hover:bg-stone-850 border border-red-500/40 text-stone-100 hover:border-red-400 shadow-lg';
+        return 'bg-[#181d29]/90 hover:bg-[#202738] border border-stone-700/70 hover:border-stone-500 text-stone-200 shadow-xs h-9';
       case 'glass':
         return 'bg-stone-950/80 hover:bg-stone-900 border border-white/20 text-white backdrop-blur-md shadow-md';
       case 'compact':
@@ -62,7 +62,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
   const getDropdownStyles = () => {
     switch (variant) {
       case 'kitchen-dark':
-        return 'bg-stone-900 border-red-500/50 shadow-red-950/70';
+        return 'bg-[#131722] border border-stone-700 shadow-2xl shadow-black/90';
       case 'dining-dark':
       default:
         return 'bg-stone-900 border-amber-400/50 shadow-black/80';
@@ -72,7 +72,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
   const getActiveItemStyles = () => {
     switch (variant) {
       case 'kitchen-dark':
-        return 'bg-red-600 text-white font-black shadow-sm';
+        return 'bg-amber-500 text-stone-950 font-black shadow-sm';
       case 'dining-dark':
       default:
         return 'bg-amber-400 text-stone-950 font-black shadow-sm';

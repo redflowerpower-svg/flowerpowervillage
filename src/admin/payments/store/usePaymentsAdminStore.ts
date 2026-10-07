@@ -15,7 +15,7 @@ import {
 const DEFAULT_SETTINGS: PaymentSettings = {
   id: 'singleton',
   active_primary_gateway: 'ksher',
-  active_promptpay_provider: 'kbank',
+  active_promptpay_provider: 'omise',
   paypal_enabled: true,
   stripe_config: {
     target: 'TEST',
