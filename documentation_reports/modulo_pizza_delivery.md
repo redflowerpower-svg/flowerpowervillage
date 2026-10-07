@@ -55,6 +55,8 @@ Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra We
 6. **Interazione Schede Piatti & Immagini Cristalline (Zero Velo Scuro & Zero Lenti)**:
    - Floating ed elevazione card con ombra morbida al passaggio del mouse (`hover:shadow-2xl hover:-translate-y-1`).
    - Micro-zoom fluido e progressivo della foto (`scale-105 transition-transform duration-500 ease-out`) senza alcun velo scuro, opacità o sfocatura (`backdrop-blur`), e senza icone lente invasive, garantendo nitidezza fotografica al 100% e ripristino istantaneo al tocco/rilascio.
+7. **Hero Banner & Clipping Raggi di Curvatura**:
+   - Isolamento dello slideshow di sfondo e dell'overlay nero opaco dentro contenitori dedicati con `overflow-hidden rounded-2xl`, garantendo il rispetto rigoroso degli angoli arrotondati della base senza spigoli o sbordature.
 
 ---
 
