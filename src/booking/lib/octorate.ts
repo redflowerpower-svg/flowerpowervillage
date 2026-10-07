@@ -719,14 +719,10 @@ export async function fetchOctorateMonthlyGrid(
       ? payload.grid
       : (payload && payload.data && Array.isArray(payload.data) ? payload.data : []);
 
-    // Save raw rate plans items (all rate plans) and reservations into Zustand store for tree visual controller
+    // Save raw rate plans items (all rate plans) and reservations via decoupled callback if available
     try {
-      const { useResortAdminStore } = await import('../../admin/resort/store/useResortAdminStore');
-      if (items.length > 0) {
-        useResortAdminStore.getState().setRawOctorateGridItems(items);
-      }
-      if (payload && payload.reservations && Array.isArray(payload.reservations) && payload.reservations.length > 0) {
-        useResortAdminStore.getState().setBookings(payload.reservations);
+      if (typeof window !== 'undefined' && typeof (window as any).__fp_set_octorate_grid === 'function') {
+        (window as any).__fp_set_octorate_grid(items, payload?.reservations);
       }
     } catch (stErr) {
       console.warn('[Octorate Grid API] Store update warning:', stErr);

@@ -1493,3 +1493,15 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     }
   }
 }));
+
+if (typeof window !== 'undefined') {
+  (window as any).__fp_set_octorate_grid = (items: any[], reservations: any[]) => {
+    if (items && items.length > 0) {
+      useResortAdminStore.getState().setRawOctorateGridItems(items);
+    }
+    if (reservations && Array.isArray(reservations) && reservations.length > 0) {
+      useResortAdminStore.getState().setBookings(reservations);
+    }
+  };
+}
+
