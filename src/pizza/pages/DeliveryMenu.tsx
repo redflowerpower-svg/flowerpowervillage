@@ -1547,7 +1547,7 @@ export default function DeliveryMenu() {
       <div className="max-w-6xl mx-auto px-4 mt-24 md:mt-28">
         
         {/* Italian Chef Header Card */}
-        <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 rounded-2xl shadow-lg mb-6 z-30" style={{ backgroundColor: '#3b3530' }}>
+        <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 rounded-2xl shadow-lg mb-6 z-30 overflow-hidden" style={{ backgroundColor: '#3b3530' }}>
           {/* Inner Background with rounded corners & clipping */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
             <div className="absolute inset-0 opacity-40">
@@ -1555,10 +1555,6 @@ export default function DeliveryMenu() {
             </div>
             <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
           </div>
-          <div className="absolute inset-0 opacity-40 overflow-hidden pointer-events-none">
-            <PizzaSlideshow />
-          </div>
-          <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
 
           {/* MOBILE HERO BANNER (Prominent Large Logo, Brand Title, Tagline & Hours Info) */}
           <div className="block lg:hidden relative z-10 py-3 px-2.5 sm:px-4">

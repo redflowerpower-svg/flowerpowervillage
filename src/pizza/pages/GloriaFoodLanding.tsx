@@ -582,10 +582,12 @@ export const GloriaFoodLanding: React.FC<GloriaFoodLandingProps> = ({ onSwitchTo
         {/* HERO BANNER CARD IDENTICO AL 100% AL NOSTRO SITO UFFICIALE (DeliveryMenu) */}
         {/* ========================================================================= */}
         <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 overflow-hidden rounded-2xl shadow-lg mb-8" style={{ backgroundColor: '#3b3530' }}>
-          <div className="absolute inset-0 opacity-40 overflow-hidden pointer-events-none">
-            <PizzaSlideshow />
+          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+            <div className="absolute inset-0 opacity-40">
+              <PizzaSlideshow />
+            </div>
+            <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
           </div>
-          <div className="absolute inset-0 bg-stone-950/40 backdrop-blur-[0.5px]" />
 
           {/* Symmetrical Language Dropdown Selector */}
           <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
