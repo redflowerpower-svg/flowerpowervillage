@@ -29,7 +29,7 @@ export function getDietaryType(item?: MenuItem | null, categoryId: string = ''):
   // 2. MEAT & FISH CHECK (Definite ONNIVORO / Regular)
   // Check for presence of meat, poultry, pork, cured meats, fish, tuna, seafood
   const meatKeywords = [
-    'ham', 'prosciutto', 'salsiccia', 'sausage', 'salame', 'salami', 
+    'capocollo', 'coppa', 'ham', 'prosciutto', 'salsiccia', 'sausage', 'salame', 'salami', 
     'pepperoni', 'wurstel', 'würstel', 'frankfurter', 'bacon', 'pancetta', 'speck', 
     'mortadella', 'spianata', 'pork', 'maiale', 'chicken', 'pollo', 'beef', 
     'manzo', 'meat', 'carne', 'ragu', 'ragù', 'bolognese', 'amatriciana',

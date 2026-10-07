@@ -111,7 +111,7 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
 
         // Update Telegram message in staff channel if message_id exists
         if (updatedOrder && updatedOrder.telegram_message_id) {
-          const { botToken, chatId } = await getTelegramCredentials();
+          const { botToken, chatId } = await getTelegramCredentials('pizza');
           if (botToken && chatId) {
             const resData = parseTableReservationFromOrder(updatedOrder);
             const seatingLabel = AREA_LABELS[resData.seating_area] || resData.seating_area;
@@ -283,7 +283,7 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
 
     // Send Telegram Notification to Staff with Interactive Approval Buttons
     try {
-      const { botToken, chatId } = await getTelegramCredentials();
+      const { botToken, chatId } = await getTelegramCredentials('pizza');
       if (botToken && chatId) {
         let text = `🍽️ <b>NUOVA PRENOTAZIONE TAVOLO / CAPANNA</b>\n`;
         text += `━━━━━━━━━━━━━━━━━━━━━━\n`;

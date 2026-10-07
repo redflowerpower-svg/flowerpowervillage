@@ -7,27 +7,36 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
 ## 🎯 1. Caratteristiche & Regole Operative
 
 1. **Parità 100% di Catalogo con il Sito Ufficiale**:
-   - Tutte le 14 categorie e tutti i piatti a catalogo (49 piatti di pasta, 34 pizze classiche, 6 focacce, 3 sandwich, 3 secondi, ecc.) sono visibili e sincronizzati.
+   - Tutte le 14 categorie e tutti i piatti a catalogo (49 piatti di pasta, 35 pizze, 7 focacce, 3 sandwich, 3 burger, snack, dolci, bevande, birre e vini) sono visibili e sincronizzati.
+   - Schede piatti arricchite con le nuove aggiunte (*Focaccia con Capocollo 190฿*, *Pizza Capocollo e Anacardi 350฿*).
    - Allineamento completo dei pattern di riconoscimento condimenti per tutte le salse di pasta (*Aglio Olio, Pomodoro, Pesto, Amatriciana, Bolognese, Carbonara, 4 Formaggi, Flower Power/Panna Funghi, Specialità di Mare, Lasagne*).
 2. **Sconto Fisso al Tavolo (-5%)**:
-   - Ogni articolo mostra il prezzo normale barrato e il prezzo scontato del 5% in evidenza con badge verde.
+   - Ogni articolo mostra il prezzo normale barrato e il prezzo scontato del 5% in evidenza con badge verde `-5% SCONTO TAVOLO`.
    - Nessun vincolo di primo ordine o minimo di spesa: applicato istantaneamente a tutto il carrello.
-3. **Vini & Birre 100% Sbloccati**:
+3. **Vini & Birre 100% Sbloccati & Gestione Disponibilità**:
    - Tutte le schede dei vini italiani ed esteri (sincronizzati da Supabase Cloud) e delle birre sono aperte e ordinabili al tavolo con filtri enoteca dedicati.
-4. **Esperienza Fluida Roving Tablet (Dispositivo Singolo Itinerante & Griglia Tavoli)**:
+   - Sincronizzazione in tempo reale dello stato Esaurito / Disponibile per piatti e vini direttamente da Kitchen KDS e Dashboard Admin.
+4. **Navigazione Categorie Ottimizzata (High Contrast & Zero Troncamenti)**:
+   - Slider a schede mini-quadrate su mobile con sfondo caldo materico ad alto contrasto (`bg-[#ede5d8] border-[#cfbea6]`), testo in 2 righe pulite senza mai puntini di sospensione `...`.
+   - Ridenominazione della categoria in **`Piatti del Giorno`** (`Piatti del` / `Giorno`) con traduzioni native DeepSeek.
+   - Mantenuto l'intro auto-scroll teaser su mobile con timing calibrato (600ms start, 5200ms slow scroll, 450ms pause, 950ms return).
+5. **Sicurezza Accesso & Network Gate (`DiningAdminAuth` & `networkAuthService`)**:
+   - Protezione accesso al tablet tramite PIN/credenziali staff/admin con supporto nodo WiFi/IP autorizzato.
+   - Gestione sessioni dining con supporto QR Code tavolo per ordinazione da smartphone cliente (`DiningQrModal.tsx`, `diningQrI18n.ts`).
+6. **Esperienza Fluida Roving Tablet (Dispositivo Singolo Itinerante & Griglia Tavoli)**:
    - Accesso diretto al menu con selezione del tavolo. Quando un tavolo è occupato (`🟢 1 Ordine Attivo`), riaprendo il tavolo dal tablet il carrello reidrata automaticamente i piatti già ordinati e consente di inviare integrazioni comanda sullo stesso conto.
    - Chiusura automatica a 0ms del modale di checkout all'accettazione da parte della cucina (`ORDER_ACCEPTED` via BroadcastChannel) e ritorno alla Griglia Selezione Tavolo.
    - Linguetta flottante laterale destra (Edge-Hugger) identica al sito ufficiale, eliminando barre inferiori per non ostacolare la visuale dei piatti.
    - Modale prenotazione tavolo disattivata nel carrello (il cliente è già seduto al ristorante).
-5. **Flusso Pagamento Unificato alla Cassa (Pay at Counter / Conto alla Cassa)**:
+7. **Flusso Pagamento Unificato alla Cassa (Pay at Counter / Conto alla Cassa)**:
    - Eliminata la selezione forzata del metodo di pagamento al momento dell'invio dei piatti.
    - Singolo pulsante di azione: **`📨 INVIA ORDINE ALLA CASSA (-5%)`** con indicazione chiara che il conto verrà comodamente saldato alla cassa al termine della consumazione.
    - Payload ordine salvato con `payment_method: 'cassa'`.
-6. **Sincronizzazione Atomica Kitchen Monitor (KDS)**:
+8. **Sincronizzazione Atomica Kitchen Monitor (KDS)**:
    - All'accettazione della comanda da parte della cucina, l'allarme sonoro si arresta immediatamente a 0ms (`audioCtx.suspend()`).
    - Tutti gli ordini del tavolo vengono raggruppati a icona nel dock inferiore.
    - Alla chiusura del tavolo (`ORDER PAID`), tutti i record del tavolo vengono archiviati su Supabase e viene emesso l'evento `TABLE_SETTLED` per liberare il tavolo su tutti i tablet in sala.
-7. **Lead Gen & Cross-Selling**:
+9. **Lead Gen & Cross-Selling**:
    - Al checkout rilascia un **Coupon Sconto del 10%** inviato via messaggio per futuri ordini delivery da casa su `flowerpowerpizza.com`.
-8. **Traduzioni Certificate DeepSeek AI**:
-   - Tutte le etichette, bottoni e dialoghi sono localizzati tramite API live DeepSeek in 5 lingue: 🇮🇹 IT, 🇬🇧 EN, 🇹🇭 TH, 🇩🇪 DE, 🇲🇲 MM.
+10. **Traduzioni Certificate DeepSeek AI**:
+    - Tutte le etichette, bottoni e dialoghi sono localizzati tramite API live DeepSeek in 5 lingue: 🇮🇹 IT, 🇬🇧 EN, 🇹🇭 TH, 🇩🇪 DE, 🇲🇲 MM.

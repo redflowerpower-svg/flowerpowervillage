@@ -24,11 +24,16 @@ import {
   UtensilsCrossed,
   Calendar,
   Users,
-  Trash2
+  Trash2,
+  LogOut
 } from 'lucide-react';
+import { KitchenAdminAuth } from './KitchenAdminAuth';
+import { KitchenDishAvailabilityModal } from './KitchenDishAvailabilityModal';
 import { usePizzaAdminStore, PizzaOrder } from '../store/usePizzaAdminStore';
 import { supabase } from '../../../lib/supabase';
 import { extractTableFromAddress, formatTableStationName, getCanonicalTableKey } from '../../../pizza/utils/tableUtils';
+import { revokeDiningTableSession } from '../../../pizza/services/diningSessionService';
+import { LanguageDropdown } from '../../../pizza/components/LanguageDropdown';
 import { 
   initKitchenAudio, 
   startContinuousAlarm, 
@@ -51,6 +56,7 @@ import {
   DEFAULT_PIZZERIA_STATUS,
   ServiceCalculationResult
 } from '../../../pizza/services/pizzaServiceStatus';
+import { sendNetworkHeartbeat } from '../../../pizza/services/networkAuthService';
 
 export interface TableReservationKDS {
   id: string;
@@ -622,14 +628,32 @@ const parseCoordsFromAddress = (addressStr: string) => {
   return { address: cleanAddress, addressTh, notes, email, lat, lng };
 };
 
-export function KitchenTabletKDS() {
-  const { orders, fetchOrders, updateOrderStatus, deleteOrder, subscribeToRealtime } = usePizzaAdminStore();
+function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> }) {
+  const { 
+    orders, 
+    fetchOrders, 
+    updateOrderStatus, 
+    deleteOrder, 
+    subscribeToRealtime,
+    menuItems,
+    fetchMenuItems
+  } = usePizzaAdminStore();
   const [currentTime, setCurrentTime] = useState<string>('');
   const [wakeLockActive, setWakeLockActive] = useState(false);
   const [soundMuted, setSoundMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedMobileTab, setSelectedMobileTab] = useState<'kitchen' | 'ready'>('kitchen');
   const [prepTimeCustom, setPrepTimeCustom] = useState<Record<string, number>>({});
+  const [showDishAvailabilityModal, setShowDishAvailabilityModal] = useState(false);
+
+  // Fetch menu catalog on mount for availability badge & quick access
+  useEffect(() => {
+    fetchMenuItems();
+  }, [fetchMenuItems]);
+
+  const soldOutCount = useMemo(() => {
+    return menuItems.filter(i => i.is_available === false).length;
+  }, [menuItems]);
 
   // 1. Language Toggle (🇬🇧 EN / 🇹🇭 TH)
   const [kdsLang, setKdsLang] = useState<'en' | 'th' | 'mm'>(() => {
@@ -982,11 +1006,18 @@ export function KitchenTabletKDS() {
     window.addEventListener('focus', handleWakeupAndFocus);
     window.addEventListener('online', handleOnline);
 
+    // Network beacon heartbeat: keeps the restaurant's public WAN IP up to date for dining tablet whitelist
+    sendNetworkHeartbeat('ranong_pizzeria', 'Router Ranong (2.4G/5G/Extender)');
+    const beaconInterval = setInterval(() => {
+      sendNetworkHeartbeat('ranong_pizzeria', 'Router Ranong (2.4G/5G/Extender)');
+    }, 5 * 60 * 1000);
+
     return () => {
       unsubscribe();
       if (bcOrders1) bcOrders1.close();
       if (bcOrders2) bcOrders2.close();
       clearInterval(pollInterval);
+      clearInterval(beaconInterval);
       document.removeEventListener('visibilitychange', handleWakeupAndFocus);
       window.removeEventListener('focus', handleWakeupAndFocus);
       window.removeEventListener('online', handleOnline);
@@ -1417,6 +1448,9 @@ export function KitchenTabletKDS() {
       const tableOrders = orders.filter(o => getCanonicalTableKey(extractTableFromAddress(o.address) || o.table_number || String(o.id)) === targetTableKey && o.status !== 'completed' && o.status !== 'cancelled');
       await Promise.all(tableOrders.map(o => updateOrderStatus(o.id, 'completed')));
       try {
+        revokeDiningTableSession(targetTableKey);
+      } catch (_) {}
+      try {
         const bc = new BroadcastChannel('pizza_table_channel');
         bc.postMessage({ type: 'TABLE_SETTLED', tableKey: targetTableKey, orderId });
         bc.close();
@@ -1432,6 +1466,12 @@ export function KitchenTabletKDS() {
 
     const target = orders.find(o => String(o.id) === String(orderId));
     const targetTableKey = target ? getCanonicalTableKey(extractTableFromAddress(target.address) || target.table_number || String(target.id)) : '';
+
+    if (targetTableKey) {
+      try {
+        revokeDiningTableSession(targetTableKey);
+      } catch (_) {}
+    }
 
     // 1. Instant 0ms Optimistic UI updates (dismiss alert, close modal, remove from dock & local store)
     setReminderSnoozedUntil(prev => {
@@ -1716,48 +1756,37 @@ export function KitchenTabletKDS() {
             )}
           </button>
 
-          {/* Language Switcher Toggle (🇬🇧 EN / 🇹🇭 TH) */}
-          <div className="flex items-center rounded-xl bg-[#090b0f] p-0.5 border border-stone-700">
-            <button
-              type="button"
-              onClick={() => changeLanguage('en')}
-              className={`px-2 py-1 rounded-lg text-xs font-black flex items-center gap-1 transition-all cursor-pointer ${
-                kdsLang === 'en' 
-                  ? 'bg-blue-600 text-white shadow-sm' 
-                  : 'text-stone-400 hover:text-white'
-              }`}
-              title="Switch to English"
-            >
-              <span className="text-sm">🇬🇧</span>
-              <span>EN</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => changeLanguage('th')}
-              className={`px-2 py-1 rounded-lg text-xs font-black flex items-center gap-1 transition-all cursor-pointer ${
-                kdsLang === 'th' 
-                  ? 'bg-amber-500 text-stone-950 shadow-sm' 
-                  : 'text-stone-400 hover:text-white'
-              }`}
-              title="เปลี่ยนเป็นภาษาไทย"
-            >
-              <span className="text-sm">🇹🇭</span>
-              <span>TH</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => changeLanguage('mm')}
-              className={`px-2 py-1 rounded-lg text-xs font-black flex items-center gap-1 transition-all cursor-pointer ${
-                kdsLang === 'mm' 
-                  ? 'bg-emerald-600 text-white shadow-sm' 
-                  : 'text-stone-400 hover:text-white'
-              }`}
-              title="မြန်မာဘာသာသို့ ပြောင်းမည်"
-            >
-              <span className="text-sm">🇲🇲</span>
-              <span>MM</span>
-            </button>
-          </div>
+          {/* Language Switcher Dropdown */}
+          <LanguageDropdown
+            currentLang={kdsLang}
+            onSelect={(l) => changeLanguage(l.toLowerCase() as any)}
+            variant="kitchen-dark"
+            align="right"
+          />
+
+          {/* Dish & Menu Availability (Sold Out Toggle) Button */}
+          <button
+            type="button"
+            onClick={() => setShowDishAvailabilityModal(true)}
+            className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-sm ${
+              soldOutCount > 0 
+                ? 'bg-red-950/90 hover:bg-red-900 border-red-500/70 text-white shadow-red-950/60' 
+                : 'bg-stone-800 hover:bg-stone-700 border-stone-700 text-stone-300 hover:text-white'
+            }`}
+            title={kdsLang === 'th' ? 'จัดการความพร้อมของเมนูอาหาร (Sold Out)' : 'Manage dish & menu availability'}
+          >
+            <UtensilsCrossed className="w-4 h-4 text-amber-400 shrink-0" />
+            <span className="hidden sm:inline">
+              {kdsLang === 'th' ? 'เมนูอาหาร' : kdsLang === 'mm' ? 'မီနူး' : kdsLang === 'it' ? 'Disponibilità' : 'Menu'}
+            </span>
+            {soldOutCount > 0 ? (
+              <span className="px-1.5 py-0.2 rounded-full bg-red-600 text-white text-[10px] font-black border border-red-400 animate-pulse">
+                {soldOutCount} 86
+              </span>
+            ) : (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+            )}
+          </button>
 
           {/* Completed Orders Archive Today Button */}
           <button
@@ -1817,6 +1846,21 @@ export function KitchenTabletKDS() {
           >
             {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
           </button>
+
+          {/* Master Admin Logout / Lock Button */}
+          {onLogout && (
+            <button
+              onClick={() => {
+                if (window.confirm(kdsLang === 'th' ? 'คุณต้องการล็อกแท็บเล็ตครัวนี้หรือไม่?' : 'Vuoi bloccare / disconnettere questo tablet cucina?')) {
+                  onLogout();
+                }
+              }}
+              className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-red-400 border border-stone-700 hover:border-red-600 transition-colors cursor-pointer"
+              title="Blocca / Disconnetti Tablet Cucina"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </header>
 
@@ -3172,6 +3216,23 @@ export function KitchenTabletKDS() {
         </div>
       )}
 
+      {/* ─── KITCHEN DISH & MENU AVAILABILITY MODAL ────────────────── */}
+      <KitchenDishAvailabilityModal
+        isOpen={showDishAvailabilityModal}
+        onClose={() => setShowDishAvailabilityModal(false)}
+        lang={kdsLang}
+      />
+
     </div>
+  );
+}
+
+export function KitchenTabletKDS() {
+  return (
+    <KitchenAdminAuth>
+      {(_session, handleLogout) => (
+        <KitchenTabletKDSContent onLogout={handleLogout} />
+      )}
+    </KitchenAdminAuth>
   );
 }

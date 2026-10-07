@@ -6,38 +6,55 @@ Il modulo **Delivery Food & Pizzeria** gestisce l'intero flusso di ordinazione o
 
 ## 🏗️ 1. Struttura Categorie & Schede Prodotto
 
-Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra Website ufficiale e Dining Tablet:
+Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra Website ufficiale, Dining Tablet e Kitchen KDS:
 
-1. **Specialità del Giorno (`daily-specials`)**: Vetrina dinamica con 4 sottosezioni (Primi Piatti di Mare & Paste Ripiene, Pizze Gourmet Speciali, Secondi Piatti Tradizionali con Torta Pasqualina ligure, Focacce Artigianali).
+1. **Piatti del Giorno (`daily-specials`)**: Vetrina dinamica con 4 sottosezioni:
+   - **Primi Piatti**: Rinominate da specialità mare/pasta ripiena a titolo compatto ed elegante *Primi Piatti* (*Spaghetti allo Scoglio, Ravioli di Carne, Gnocchi di Patate al Salmone e Zucchine*).
+   - **Pizze Gourmet**: Include *Pizza Capocollo e Anacardi* (350฿, fior di latte, pomodoro fresco a cubetti, anacardi tostati, parmigiano, capocollo, olio EVO, sale, pepe) e *Pizza Carpaccio di Manzo*.
+   - **Secondi Piatti**: Torta Pasqualina ligure e secondi della tradizione.
+   - **Focaccia Artigianale**: Vetrina focacce farcite espresse.
 2. **Pizze Classiche (`traditional-italian-pizza`)**: 34 pizze tradizionali a lenta lievitazione (48h) con impasto 100% italiano e 27 ingredienti extra selezionabili.
 3. **Primi Piatti & Pasta (`pasta`)**: 49 piatti raggruppati per condimento (Aglio Olio, Pomodoro, Pesto, Amatriciana, Bolognese, Carbonara, 4 Formaggi, Panna e Funghi/Flower Power, Specialità di mare/ripiene, Lasagne al forno).
    - *Regola Pancetta Extra*: l'opzione `Pancetta Extra` (+50฿) è limitata esclusivamente alle varianti di **Aglio, Olio e Peperoncino**.
-4. **Insalate Italiane (`italian-salads`)**: 4 insalate fresche mediterranee.
+4. **Insalate Italiane (`italian-salads`)**: Insalate fresche mediterranee e contorni.
 5. **Focaccia & Pizza Sandwiches (`pizza-sandwich`)**: 
-   - 6 Focacce Artigianali (*Milanese 210฿, Finocchiona 190฿, Pancetta Arrotolata 190฿, Porchetta 210฿, Prosciutto Cotto 190฿, Salame 190฿*) con foto WebP senza formaggio nella ricetta base.
-   - 3 Pizza Sandwiches tradizionali (*Parma Ham 190฿, Salame 190฿, Spicy Salame 190฿*).
+   - **7 Focacce Artigianali Standardizzate**: Stesso canone di farcitura (*Focaccia tradizionale genovese, [salume], pomodoro fresco a fette, lattuga gentile, olio extravergine d'oliva*):
+     - *Focaccia con Capocollo* (190฿)
+     - *Focaccia con Finocchiona* (190฿)
+     - *Focaccia con Salame Milanese* (210฿)
+     - *Focaccia con Pancetta Arrotolata* (190฿)
+     - *Focaccia con Porchetta Romana* (210฿)
+     - *Focaccia con Prosciutto Cotto* (190฿)
+     - *Focaccia con Salame Nostrano* (190฿)
+   - **3 Pizza Sandwiches tradizionali** (*Parma Ham 190฿, Salame 190฿, Spicy Salame 190฿*).
 6. **Pizza Burgers (`pizza-burgers`)**: 4 burger cotti in crosta pizza con patatine.
 7. **Fritti & Sfizi (`french-fries`)**: 6 snack e contorni fritti.
-8. **Dolci & Dessert (`desserts`)**: 5 dolci tradizionali italiani.
+8. **Dolci & Dessert (`desserts`)**: 5 dolci tradizionali italiani (Tiramisù artigianale, Cheesecake, torte del giorno).
 9. **Colazione & Toast (`breakfast-and-snacks`)**: 10 opzioni colazione e toast.
-10. **Caffetteria & Tè (`coffee-shop`)**: 10 bevande calde e caffè espresso.
+10. **Caffetteria & Tè (`coffee-shop`)**: 10 bevande calde e caffè espresso italiano.
 11. **Frullati & Smoothie (`fruit-drinks`)**: 4 smoothie tropicali freschi.
-12. **Bibite & Acqua (`soft-drinks`)**: 3 bibite analcoliche e acqua.
+12. **Bibite & Acqua (`soft-drinks`)**: 3 bibite analcoliche e acqua minerale.
 13. **Birre Fresche (`beers`)**: 3 birre fredde in bottiglia.
-14. **Carta dei Vini Pregiati (`wines`)**: 27+ etichette italiane ed estere sincronizzate da Supabase Cloud.
+14. **Carta dei Vini Pregiati (`wines`)**: Catalogo vini completi sincronizzati da Supabase Cloud, gestibili con toggle disponibilità anche da Dashboard Admin *Menu e Prezzi*.
 
 ---
 
-## 🎨 2. Regole di Design & Tipografia Ferree
+## 🎨 2. Regole di Design, Tipografia & Schede Categorie
 
-1. **Product Name Line Breaking (Doppia Riga)**:
+1. **Navigazione Categorie Ottimizzata**:
+   - Schede mini-quadrate su mobile con sfondo caldo ad alto contrasto (`bg-[#ede5d8] border-2 border-[#cfbea6] text-[#2c1a11]`), zero troncamenti e nessuna presenza di puntini `...`.
+   - Intro teaser auto-scroll calibrato su mobile per presentare l'intero assortimento all'apertura.
+2. **Product Name Line Breaking (Doppia Riga)**:
    - I titoli di tutti i piatti contenenti connettori logici vengono spezzati automaticamente su due righe prima di: `\nCON `, `\nWITH `, `\nพร้อม`, `\nMIT `, `\n& `.
-2. **Ereditarietà Automatica Personalizzazioni (Extras)**:
+3. **Ereditarietà Automatica Personalizzazioni (Extras)**:
    - Le schede mostrate nelle Specialità del Giorno ereditano in modo identico tutte le personalizzazioni e gli extra della loro categoria madre.
-3. **Menu a Tendina Selezioni**:
+4. **Menu a Tendina Selezioni**:
    - I selettori di varianti e opzioni utilizzano menu a tendina con formato pulito `Scelta - Prezzo` (senza parentesi, senza simboli `+`, `-`, `>`, `<`).
-4. **Dashboard Controllo Specialità del Giorno**:
-   - Toggle rapido a stella per includere/escludere i piatti dalla vetrina del giorno mantenendoli sempre attivi nella loro categoria nativa, con sincronizzazione istantanea via `BroadcastChannel` e `LocalStorage`.
+5. **Dashboard Controllo Menu & Prezzi**:
+   - Gestione centralizzata dei prezzi e switch disponibilità per tutti i piatti, pizze, paste e carta dei vini, con sincronizzazione istantanea via `BroadcastChannel` e `LocalStorage`.
+6. **Interazione Schede Piatti & Immagini Cristalline (Zero Velo Scuro & Zero Lenti)**:
+   - Floating ed elevazione card con ombra morbida al passaggio del mouse (`hover:shadow-2xl hover:-translate-y-1`).
+   - Micro-zoom fluido e progressivo della foto (`scale-105 transition-transform duration-500 ease-out`) senza alcun velo scuro, opacità o sfocatura (`backdrop-blur`), e senza icone lente invasive, garantendo nitidezza fotografica al 100% e ripristino istantaneo al tocco/rilascio.
 
 ---
 
@@ -54,12 +71,12 @@ Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra We
 
 Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flussi di checkout supportano 5 lingue native: **Italiano (`IT`)**, **Inglese (`EN`)**, **Tailandese (`TH`)**, **Tedesco (`DE`)** e **Birmano (`MM`)**.
 
-1. **Motore CLI Automatizzato (`scripts/deepseek-universal-translator.mjs`)**:
-   - Esegue la traduzione batch di tutti i piatti (`menuData.ts`), carta dei vini (`wineData.tsx`), dizionario globale (`i18n.ts`), badge dietetici (`dietary.ts`, `DietaryWatermark.tsx`) e componenti checkout.
-   - Utilizza l'API ufficiale DeepSeek (`deepseek-chat`) con temperatura controllata (0.2) e schema JSON strict.
+1. **Motore CLI Automatizzato (`scripts/deepseek-universal-translator.mjs` & `scratch/deepseek-translate.mjs`)**:
+   - Esegue la traduzione batch e on-demand di tutti i piatti (`menuData.ts`), carta dei vini (`wineData.tsx`), dizionario globale (`i18n.ts`), badge dietetici (`dietary.ts`, `DietaryWatermark.tsx`) e componenti checkout.
+   - Utilizza l'API ufficiale DeepSeek (`deepseek-chat`) con temperatura controllata e schema JSON strict.
 2. **Supporto Birmano (`MM`) & Font Noto Sans Myanmar**:
    - Integrazione completa del font `Noto Sans Myanmar` (Google Fonts) in `index.html` e `languages.ts`.
-   - Localizzazione completa del flusso di Checkout (`CheckoutFlow.tsx`), messaggi di conferma, supporto Telegram/WhatsApp, stato di rifiuto ordini (`rejectedTitle`, `rejectedDesc`, `backToFormBtn`) e dettagli consegna dinamici.
+   - Localizzazione completa del flusso di Checkout (`CheckoutFlow.tsx`), messaggi di conferma, supporto Telegram/WhatsApp e dettagli consegna dinamici.
 3. **Studio Admin Live DeepSeek (`DishCardStudio.tsx`, `WineCardStudio.tsx`)**:
    - Pannello di traduzione in tempo reale con anteprima affiancata di tutte le lingue supportate.
 
@@ -76,4 +93,3 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
   - Minimizzazione a icona nel dock inferiore per ordini al tavolo accettati.
   - Chiusura atomica con `ORDER PAID`: archivia tutti i record pregressi del tavolo ed emette broadcast `TABLE_SETTLED` per liberare il tavolo su tutti i tablet in sala.
   - Timer promemoria consegna 15 minuti limitato esclusivamente agli ordini a domicilio/takeaway.
-

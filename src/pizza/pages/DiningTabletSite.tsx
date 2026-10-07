@@ -25,7 +25,9 @@ import {
   Gift,
   Plus,
   Minus,
-  X
+  X,
+  QrCode,
+  Smartphone
 } from 'lucide-react';
 import { menuData, type MenuItem } from '../data/menuData';
 import CategoryTabs from '../components/CategoryTabs';
@@ -39,9 +41,18 @@ import { SUPPORTED_LANGUAGES, LANGUAGE_METAS, Language } from '../config/languag
 import { getDietaryType, type DietaryType } from '../utils/dietary';
 import { DiningCheckoutModal } from '../components/DiningCheckoutModal';
 import { TableSettlementModal } from '../components/TableSettlementModal';
+import { DiningQrModal } from '../components/DiningQrModal';
+import { LanguageDropdown } from '../components/LanguageDropdown';
+import { I18N_DINING_QR } from '../data/diningQrI18n';
+import { 
+  generateDiningTableSession, 
+  validateDiningTableSession, 
+  revokeDiningTableSession 
+} from '../services/diningSessionService';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { supabase } from '../../lib/supabase';
+import { DiningAdminAuth } from '../components/DiningAdminAuth';
 import { DINING_TABLES, formatTableStationName, getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
 
 const I18N_TABLE_PICKER: Record<Language, {
@@ -134,11 +145,11 @@ const LOCATION_BY_LANG: Record<Language, string> = {
 
 const categoryDetails: Record<string, Record<Language, { name: string; desc: string }>> = {
   'daily-specials': {
-    IT: { name: 'Specialità del Giorno', desc: 'Creazioni esclusive e piatti speciali preparati dal nostro chef con ingredienti freschi' },
+    IT: { name: 'Piatti del Giorno', desc: 'Creazioni esclusive e piatti speciali preparati dal nostro chef con ingredienti freschi' },
     EN: { name: 'Daily Specials', desc: 'Exclusive daily creations and seasonal specialties freshly prepared by our Italian chef' },
-    TH: { name: 'เมนูพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
-    DE: { name: 'Tagesempfehlungen', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs' },
-    MM: { name: 'နေ့စဉ် အထူးဟင်းလျာများ', desc: 'အီတလီစားဖိုမှူးမှ လတ်ဆတ်သော ရာသီပေါ် ကုန်ကြမ်းများဖြင့် နေ့စဉ် သီးသန့် ဖန်တီးထားသော အထူးဟင်းလျာများ' },
+    TH: { name: 'จานพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
+    DE: { name: 'Tagesgerichte', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs' },
+    MM: { name: 'နေ့စဉ် ဟင်းပွဲများ', desc: 'အီတလီစားဖိုမှူးမှ လတ်ဆတ်သော ရာသီပေါ် ကုန်ကြမ်းများဖြင့် နေ့စဉ် သီးသန့် ဖန်တီးထားသော အထူးဟင်းလျာများ' },
   },
   'traditional-italian-pizza': {
     IT: { name: 'Pizze Classiche', desc: 'Impasto a lenta lievitazione naturale 48h con farine 100% italiane' },
@@ -155,11 +166,11 @@ const categoryDetails: Record<string, Record<Language, { name: string; desc: str
     MM: { name: 'ခေါက်ဆွဲ ဟင်းလျာများ', desc: 'အိမ်လုပ်ဆော့စ်နှင့် ရိုးရာနည်းဖြင့် ပြုလုပ်ထားသော လက်လုပ် အီတလီ ခေါက်ဆွဲ' },
   },
   'italian-salads': {
-    IT: { name: 'Insalate Italiane', desc: 'Insalate fresche con verdure croccanti e condimenti mediterranei' },
-    EN: { name: 'Italian Salads', desc: 'Fresh crisp salads with premium Mediterranean dressing and extra virgin olive oil' },
-    TH: { name: 'สลัดสไตล์อิตาเลียน', desc: 'สลัดผักสดกรอบคลุกเคล้ากับน้ำสลัดเมดิเตอร์เรเนียนและน้ำมันมะกอกบริสุทธิ์' },
-    DE: { name: 'Italienische Salate', desc: 'Frische knackige Salate mit mediterranem Dressing und feinstem Olivenöl' },
-    MM: { name: 'အီတလီ စာလတ်', desc: 'လတ်ဆတ်သော ဟင်းသီးဟင်းရွက်များနှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော အီတလီစတိုင် စာလတ်များ' },
+    IT: { name: 'Insalate & Secondi', desc: 'Insalate fresche con verdure croccanti, contorni sfiziosi e secondi piatti della tradizione' },
+    EN: { name: 'Salads & Mains', desc: 'Fresh crisp salads with premium dressing and traditional Italian savory main courses' },
+    TH: { name: 'สลัด & จานหลัก', desc: 'สลัดผักสดกรอบคลุกเคล้ากับน้ำสลัดเมดิเตอร์เรเนียน และอาหารจานหลักสไตล์อิตาเลียน' },
+    DE: { name: 'Salate & Hauptgerichte', desc: 'Frische knackige Salate mit mediterranem Dressing und traditionelle Hauptgerichte' },
+    MM: { name: 'ဆလတ် & အဓိကဟင်း', desc: 'လတ်ဆတ်သော ဟင်းသီးဟင်းရွက် စာလတ်များနှင့် ရိုးရာ အရသာရှိသော အဓိကဟင်းလျာများ' },
   },
   'pizza-sandwich': {
     IT: { name: 'Panuozzi & Pizza Sandwich', desc: 'Panuozzo napoletano cotto al forno a legna e farcito con salumi e mozzarella' },
@@ -225,11 +236,11 @@ const categoryDetails: Record<string, Record<Language, { name: string; desc: str
     MM: { name: 'ဘီယာများ', desc: 'အကောင်းဆုံး ထိုင်းနှင့် နိုင်ငံတကာ ဘီယာပုလင်း အေးအေးများ' },
   },
   'wines': {
-    IT: { name: 'Carta dei Vini Pregiati', desc: 'Selezione esclusiva di vini italiani e internazionali, perfetti per esaltare ogni piatto' },
-    EN: { name: 'Fine Wine Collection', desc: 'Curated selection of fine Italian and international wines to enhance your dining experience' },
-    TH: { name: 'ไวน์ชั้นเลิศ', desc: 'คัดสรรไวน์อิตาเลียนและนานาชาติชั้นยอด เพื่อยกระดับมื้ออาหารสุดพิเศษของคุณ' },
-    DE: { name: 'Erlesene Weinkarte', desc: 'Kuratierte Auswahl an feinen italienischen und internationalen Weinen für ein perfektes Geschmackserlebnis' },
-    MM: { name: 'ဝိုင်များ', desc: 'ကျွန်ုပ်တို့၏ ဟင်းလျာ အရသာတိုင်းကို ပိုမိုပြည့်စုံစေရန် ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်ကောင်းများ' },
+    IT: { name: 'Carta dei Vini', desc: 'Selezione esclusiva di vini italiani e internazionali, perfetti per esaltare ogni piatto' },
+    EN: { name: 'Wine List', desc: 'Curated selection of fine Italian and international wines to enhance your dining experience' },
+    TH: { name: 'รายการไวน์', desc: 'คัดสรรไวน์อิตาเลียนและนานาชาติชั้นยอด เพื่อยกระดับมื้ออาหารสุดพิเศษของคุณ' },
+    DE: { name: 'Weinkarte', desc: 'Kuratierte Auswahl an feinen italienischen und internationalen Weinen für ein perfektes Geschmackserlebnis' },
+    MM: { name: 'ဝိုင်စာရင်း', desc: 'ကျွန်ုပ်တို့၏ ဟင်းလျာ အရသာတိုင်းကို ပိုမိုပြည့်စုံစေရန် ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်ကောင်းများ' },
   },
 };
 
@@ -237,11 +248,11 @@ const DAILY_SPECIALS_SECTIONS = [
   {
     id: 'pasta',
     name: {
-      IT: 'Primi Piatti, Frutti di Mare & Paste Ripiene',
-      EN: 'First Courses, Seafood & Stuffed Pasta',
-      TH: 'พาสต้าและราวิโอลีโฮมเมด',
-      DE: 'Pastagerichte & Gefüllte Nudeln',
-      MM: 'ခေါက်ဆွဲ၊ ပင်လယ်စာနှင့် အစာသွပ်ခေါက်ဆွဲများ'
+      IT: 'Primi Piatti',
+      EN: 'First Courses',
+      TH: 'อาหารจานแรก (พาสต้า)',
+      DE: 'Erste Gänge (Pasta)',
+      MM: 'ပထမဟင်းလျာများ (ပတ်စ်တာ)'
     },
     desc: {
       IT: 'Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali con formati a scelta.',
@@ -261,10 +272,10 @@ const DAILY_SPECIALS_SECTIONS = [
       MM: 'အထူး ဂေါ်မေး ပီဇာများ'
     },
     desc: {
-      IT: 'Pizze artigianali a lievitazione naturale con polpa di granchio fresca o salsiccia nostrana e stilacci.',
-      EN: 'Artisanal sourdough pizzas topped with fresh blue crab meat or Italian sausage and sautéed stilacci greens.',
+      IT: 'Pizze artigianali a lievitazione naturale con polpa di granchio fresca o salsiccia nostrana, spinaci e gorgonzola.',
+      EN: 'Artisanal naturally leavened pizzas with fresh crab meat or local sausage, spinach, and gorgonzola.',
       TH: 'พิซซ่าแป้งหมักยีสต์ธรรมชาติ หน้าเนื้อปูม้าสด และไส้กรอกหมูอิตาเลียนกับผักสตีลัชชี',
-      DE: 'Handgemachte Sauerteigpizzen belegt mit frischem Krabbenfleisch oder italienischer Salsiccia und Stilacci-Gemüse.',
+      DE: 'Handwerkliche Pizzen mit natürlicher Hefe und frischem Krabbenfleisch oder einheimischer Wurst, Spinat und Gorgonzola.',
       MM: 'ဂဏန်းသား သို့မဟုတ် အီတလီဝက်အူချောင်းနှင့် ဟင်းသီးဟင်းရွက်များ တင်ထားသော အထူးပီဇာ'
     }
   },
@@ -796,7 +807,7 @@ function CustomFilterDropdown({
   );
 }
 
-export default function DiningTabletSite() {
+function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> }) {
   const { language: lang, setLanguage } = useLanguageStore();
   const { clearCart, setItems } = useCartStore();
   
@@ -804,13 +815,69 @@ export default function DiningTabletSite() {
   const [currentTable, setCurrentTable] = useState<string>('');
   const [isTableSelected, setIsTableSelected] = useState<boolean>(false);
   const [customTableInput, setCustomTableInput] = useState<string>('');
+  const [isQrModalOpen, setIsQrModalOpen] = useState<boolean>(false);
+  const [isGuestMobile, setIsGuestMobile] = useState<boolean>(false);
+  const [isGuestSettled, setIsGuestSettled] = useState<boolean>(false);
+  const [_guestSessionToken, setGuestSessionToken] = useState<string>('');
 
-  // Ensure fresh table selection on reload
+  // Check guest URL params on mount
   useEffect(() => {
     try {
-      localStorage.removeItem('fp_dining_active_table');
+      const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+      const gTable = searchParams?.get('table');
+      const gToken = searchParams?.get('token');
+
+      if (gTable && gToken) {
+        setIsGuestMobile(true);
+        setGuestSessionToken(gToken);
+        validateDiningTableSession(gTable, gToken).then(res => {
+          if (res.valid) {
+            setCurrentTable(gTable);
+            setIsTableSelected(true);
+          } else if (res.status === 'settled' || res.status === 'expired') {
+            setCurrentTable(gTable);
+            setIsGuestSettled(true);
+          }
+        });
+      }
     } catch {}
   }, []);
+
+  // Listen to dining session revocation channel
+  useEffect(() => {
+    let bcSess: BroadcastChannel | null = null;
+    try {
+      bcSess = new BroadcastChannel('fp_dining_sessions');
+      bcSess.onmessage = (ev) => {
+        if (ev.data?.type === 'SESSION_REVOKED') {
+          const revTable = ev.data?.tableKey;
+          if (revTable && currentTable && getCanonicalTableKey(currentTable) === getCanonicalTableKey(revTable)) {
+            if (isGuestMobile) {
+              setIsGuestSettled(true);
+              clearCart();
+            }
+          }
+        }
+      };
+    } catch {}
+    return () => {
+      if (bcSess) bcSess.close();
+    };
+  }, [currentTable, isGuestMobile, clearCart]);
+
+  const currentSession = useMemo(() => {
+    if (!currentTable) return null;
+    return generateDiningTableSession(currentTable);
+  }, [currentTable]);
+
+  // Ensure fresh table selection on reload if not guest mobile
+  useEffect(() => {
+    try {
+      if (!isGuestMobile) {
+        localStorage.removeItem('fp_dining_active_table');
+      }
+    } catch {}
+  }, [isGuestMobile]);
 
   // Active Orders per Table for Table Selection Status
   const [activeTableOrderMap, setActiveTableOrderMap] = useState<Record<string, any[]>>({});
@@ -1075,7 +1142,7 @@ export default function DiningTabletSite() {
       }
 
       return rawWines
-        .filter((w: any) => w.isAvailable !== false && !deletedSet.has(w.id))
+        .filter((w: any) => w.isAvailable !== false && !unavailableIds.has(w.id) && !deletedSet.has(w.id))
         .map((w: any) => {
           const rawPrice = typeof w.price === 'string' ? parseFloat(w.price.replace(/[^0-9.]/g, '')) || 1190 : (w.price || 1190);
           const titleForLang = (
@@ -1140,7 +1207,7 @@ export default function DiningTabletSite() {
 
   const allDynamicWines = useMemo(() => {
     return getDynamicWineItems();
-  }, [lang, activeCategoryId, cloudWines]);
+  }, [lang, activeCategoryId, cloudWines, unavailableIds]);
 
   const availableWineCountries = useMemo(() => {
     const flags = new Set<string>();
@@ -1452,6 +1519,41 @@ export default function DiningTabletSite() {
     return group.items.length > 0;
   }) : [];
 
+  if (isGuestSettled) {
+    const tQr = I18N_DINING_QR[lang] || I18N_DINING_QR.IT;
+    return (
+      <div className="min-h-screen bg-[#111] text-stone-100 flex flex-col items-center justify-center p-4 text-center antialiased select-none" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+        <div className="max-w-md w-full bg-stone-900 border-2 border-emerald-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+          <div className="w-16 h-16 rounded-3xl bg-emerald-950 border border-emerald-500/60 flex items-center justify-center mx-auto shadow-lg shadow-emerald-950/80">
+            <Check className="w-8 h-8 text-emerald-400" />
+          </div>
+
+          <div className="space-y-2">
+            <span className="px-3 py-1 rounded-full bg-emerald-900/60 text-emerald-300 text-xs font-black uppercase tracking-wider border border-emerald-500/40">
+              {currentTable ? formatTableStationName(currentTable, lang) : 'Tavolo'}
+            </span>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight pt-1">
+              {tQr.settledNotice}
+            </h1>
+            <p className="text-xs sm:text-sm text-stone-300 leading-relaxed max-w-xs mx-auto">
+              {tQr.settledDesc}
+            </p>
+          </div>
+
+          <div className="pt-3 border-t border-stone-800">
+            <a
+              href="/"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg transition-all"
+            >
+              <span>{tQr.backHomeBtn}</span>
+              <ArrowRight className="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#e7e5e4] text-stone-900 pb-28 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
       
@@ -1468,64 +1570,83 @@ export default function DiningTabletSite() {
               Flower Power Dining
             </span>
             <span className="text-[10px] text-amber-400/90 font-bold uppercase tracking-wider block mt-0.5">
-              Dining Tablet • Ranong
+              {isGuestMobile ? (lang === 'TH' ? 'สั่งผ่านสมาร์ทโฟน' : 'Smartphone Dining') : 'Dining Tablet • Ranong'}
             </span>
           </div>
         </div>
 
-        {/* Center: 1-Tap Table Switcher with -5% Discount & Quick Settlement Button */}
+        {/* Center: Table & QR Actions */}
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => { setIsTableSelected(false); setCustomTableInput(''); }}
-            className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 border border-amber-400/60 hover:border-amber-300 text-amber-300 font-extrabold text-xs sm:text-sm shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
-            title={lang === 'TH' ? 'แตะเพื่อเปลี่ยนโต๊ะ' : lang === 'EN' ? 'Tap to change table' : lang === 'DE' ? 'Tippen zum Tischwechsel' : lang === 'MM' ? 'စားပွဲပြောင်းရန် နှိပ်ပါ' : 'Tocca per cambiare tavolo'}
-          >
-            <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span className="truncate max-w-[130px] sm:max-w-none font-black">
-              {currentTable ? formatTableStationName(currentTable, lang) : (lang === 'TH' ? 'เลือกโต๊ะอาหาร' : lang === 'EN' ? 'Select Table' : lang === 'DE' ? 'Tisch wählen' : lang === 'MM' ? 'စားပွဲရွေးပါ' : 'Seleziona Tavolo')}
-            </span>
-            <span className="text-[10px] text-amber-200/90 uppercase font-semibold hidden sm:inline">
-              ▼ {lang === 'TH' ? 'เปลี่ยน' : lang === 'EN' ? 'Change' : lang === 'DE' ? 'Ändern' : lang === 'MM' ? 'ပြောင်းရန်' : 'Cambia'}
-            </span>
-            <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
-              {lang === 'TH' ? '-5% สั่งที่โต๊ะ' : lang === 'EN' ? '-5% AT TABLE' : lang === 'DE' ? '-5% AM TISCH' : lang === 'MM' ? '-5% စားပွဲလျှော့စျေး' : '-5% AL TAVOLO'}
-            </span>
-          </button>
-
-          {currentTable && (activeTableOrderMap[getCanonicalTableKey(currentTable)] || []).length > 0 && (
-            <button
-              type="button"
-              onClick={() => setIsSettlementModalOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-900/90 border border-emerald-500/70 hover:bg-emerald-800 text-emerald-200 font-extrabold text-xs shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
-            >
-              <span>💳</span>
-              <span>{lang === 'TH' ? 'เช็คบิล' : lang === 'EN' ? 'Settle Bill' : lang === 'DE' ? 'Zahlen' : lang === 'MM' ? 'ဘေလ်ရှင်းမည်' : 'Salda Conto'}</span>
-              <span className="font-mono bg-emerald-950 px-1.5 py-0.5 rounded text-[11px] text-emerald-300">
-                ฿{Math.round((activeTableOrderMap[getCanonicalTableKey(currentTable)] || []).reduce((s, o) => s + (Number(o.total) || 0), 0))}
+          {isGuestMobile ? (
+            /* Guest Smartphone Header Pill */
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-stone-900/95 border border-amber-400/70 text-white font-extrabold text-xs sm:text-sm shadow-md">
+              <Smartphone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="font-black truncate">
+                {currentTable ? formatTableStationName(currentTable, lang) : 'Tavolo'}
               </span>
-            </button>
+              <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
+                -5% AL TAVOLO
+              </span>
+            </div>
+          ) : (
+            /* Staff / Tablet Controls */
+            <>
+              <button
+                type="button"
+                onClick={() => { setIsTableSelected(false); setCustomTableInput(''); }}
+                className="flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 via-amber-400/15 to-amber-500/20 border border-amber-400/60 hover:border-amber-300 text-amber-300 font-extrabold text-xs sm:text-sm shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+                title={lang === 'TH' ? 'แตะเพื่อเปลี่ยนโต๊ะ' : lang === 'EN' ? 'Tap to change table' : lang === 'DE' ? 'Tippen zum Tischwechsel' : lang === 'MM' ? 'စားပွဲပြောင်းရန် နှိပ်ပါ' : 'Tocca per cambiare tavolo'}
+              >
+                <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <span className="truncate max-w-[130px] sm:max-w-none font-black">
+                  {currentTable ? formatTableStationName(currentTable, lang) : (lang === 'TH' ? 'เลือกโต๊ะอาหาร' : lang === 'EN' ? 'Select Table' : lang === 'DE' ? 'Tisch wählen' : lang === 'MM' ? 'စားပွဲရွေးပါ' : 'Seleziona Tavolo')}
+                </span>
+                <span className="text-[10px] text-amber-200/90 uppercase font-semibold hidden sm:inline">
+                  ▼ {lang === 'TH' ? 'เปลี่ยน' : lang === 'EN' ? 'Change' : lang === 'DE' ? 'Ändern' : lang === 'MM' ? 'ပြောင်းရန်' : 'Cambia'}
+                </span>
+                <span className="text-[9px] text-emerald-300 font-black ml-0.5 bg-emerald-950/90 px-2 py-0.5 rounded border border-emerald-600/40">
+                  {lang === 'TH' ? '-5% สั่งที่โต๊ะ' : lang === 'EN' ? '-5% AT TABLE' : lang === 'DE' ? '-5% AM TISCH' : lang === 'MM' ? '-5% စားပွဲလျှော့စျေး' : '-5% AL TAVOLO'}
+                </span>
+              </button>
+
+              {/* Dynamic QR Code Generator for Guests */}
+              {currentTable && (
+                <button
+                  type="button"
+                  onClick={() => setIsQrModalOpen(true)}
+                  className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-extrabold text-xs shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+                  title={lang === 'TH' ? 'แสดง QR Code สำหรับสั่งผ่านมือถือ' : lang === 'EN' ? 'Show Smartphone QR Code' : lang === 'DE' ? 'Smartphone-QR anzeigen' : lang === 'MM' ? 'စမတ်ဖုန်း QR ပြပါ' : 'Mostra QR Code Smartphone'}
+                >
+                  <Smartphone className="w-3.5 h-3.5 text-amber-300 animate-pulse shrink-0" />
+                  <span className="hidden sm:inline">{lang === 'IT' ? 'QR Smartphone' : lang === 'TH' ? 'QR มือถือ' : lang === 'DE' ? 'Smartphone-QR' : lang === 'MM' ? 'စမတ်ဖုန်း QR' : 'Smartphone QR'}</span>
+                  <QrCode className="w-3.5 h-3.5 text-white shrink-0" />
+                </button>
+              )}
+
+              {currentTable && (activeTableOrderMap[getCanonicalTableKey(currentTable)] || []).length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setIsSettlementModalOpen(true)}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-900/90 border border-emerald-500/70 hover:bg-emerald-800 text-emerald-200 font-extrabold text-xs shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+                >
+                  <span>💳</span>
+                  <span>{lang === 'TH' ? 'เช็คบิล' : lang === 'EN' ? 'Settle Bill' : lang === 'DE' ? 'Zahlen' : lang === 'MM' ? 'ဘေလ်ရှင်းမည်' : 'Salda Conto'}</span>
+                  <span className="font-mono bg-emerald-950 px-1.5 py-0.5 rounded text-[11px] text-emerald-300">
+                    ฿{Math.round((activeTableOrderMap[getCanonicalTableKey(currentTable)] || []).reduce((s, o) => s + (Number(o.total) || 0), 0))}
+                  </span>
+                </button>
+              )}
+            </>
           )}
         </div>
 
-        {/* Right: Language Selector (All 5 Languages) */}
-        <div className="flex items-center gap-1 p-1 bg-stone-900/90 rounded-xl border border-stone-800">
-          {SUPPORTED_LANGUAGES.map(l => (
-            <button
-              key={l}
-              type="button"
-              onClick={() => setLanguage(l)}
-              className={`py-1 px-2 rounded-lg text-xs font-black flex items-center gap-1 transition-all cursor-pointer ${
-                lang === l
-                  ? 'bg-amber-400 text-stone-950 shadow scale-[1.03]'
-                  : 'text-stone-400 hover:text-white'
-              }`}
-            >
-              <span>{LANGUAGE_METAS[l].flag}</span>
-              <span className="uppercase text-[10.5px] font-mono">{l}</span>
-            </button>
-          ))}
-        </div>
+        {/* Right: Language Dropdown Selector */}
+        <LanguageDropdown 
+          currentLang={lang} 
+          onSelect={setLanguage} 
+          variant="dining-dark" 
+          align="right" 
+        />
       </nav>
 
       {/* MANDATORY TABLE SELECTION OVERLAY (When session not yet picked or changed) */}
@@ -1533,30 +1654,19 @@ export default function DiningTabletSite() {
         <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-fadeIn">
           <div className="bg-stone-900 border-2 border-amber-400/50 rounded-3xl w-full max-w-2xl p-5 sm:p-7 text-white space-y-5 shadow-2xl max-h-[95vh] overflow-y-auto">
             
-            {/* Top Language Bar (All 5 Languages) */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-2.5 pb-3 border-b border-stone-800">
+            {/* Top Language Bar with Dropdown */}
+            <div className="flex items-center justify-between gap-2.5 pb-3 border-b border-stone-800">
               <div className="flex items-center gap-2">
                 <Globe className="w-4 h-4 text-amber-400" />
-                <span className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">Lingua / Language / ภาษา / ဘာသာစကား</span>
+                <span className="text-[11px] font-bold text-stone-300 uppercase tracking-wider">Lingua / Language / ภาษา</span>
               </div>
 
-              <div className="flex items-center gap-1 sm:gap-1.5 p-1 bg-stone-950 rounded-xl border border-stone-800">
-                {SUPPORTED_LANGUAGES.map(l => (
-                  <button
-                    key={l}
-                    type="button"
-                    onClick={() => setLanguage(l)}
-                    className={`py-1.5 px-2.5 sm:px-3 rounded-lg text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer ${
-                      lang === l
-                        ? 'bg-amber-400 text-stone-950 shadow-md scale-[1.03]'
-                        : 'text-stone-400 hover:text-white hover:bg-stone-850'
-                    }`}
-                  >
-                    <span className="text-sm sm:text-base">{LANGUAGE_METAS[l].flag}</span>
-                    <span className="uppercase text-xs font-bold">{LANGUAGE_METAS[l].label}</span>
-                  </button>
-                ))}
-              </div>
+              <LanguageDropdown 
+                currentLang={lang} 
+                onSelect={setLanguage} 
+                variant="dining-dark" 
+                align="right" 
+              />
             </div>
 
             {/* Modal Header */}
@@ -1724,6 +1834,18 @@ export default function DiningTabletSite() {
                         {lang === 'TH' ? '-5% ส่วนลดที่โต๊ะ' : lang === 'EN' ? '-5% Table Discount' : lang === 'DE' ? '-5% Tisch-Rabatt' : lang === 'MM' ? '-၅% စားပွဲလျှော့စျေး' : '-5% Sconto Diretto'}
                       </span>
                     </span>
+
+                    {!isGuestMobile && currentTable && (
+                      <button
+                        type="button"
+                        onClick={() => setIsQrModalOpen(true)}
+                        className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white text-[9px] sm:text-[10px] md:text-[11px] font-black uppercase tracking-wider shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <Smartphone className="w-3 h-3 text-amber-300 animate-pulse" />
+                        <span>{lang === 'IT' ? 'QR Smartphone' : lang === 'TH' ? 'QR มือถือ' : lang === 'DE' ? 'Smartphone-QR' : lang === 'MM' ? 'စမတ်ဖုန်း QR' : 'Smartphone QR'}</span>
+                        <QrCode className="w-3 h-3 text-white" />
+                      </button>
+                    )}
                   </div>
 
                   {/* Hero Title */}
@@ -2277,6 +2399,25 @@ export default function DiningTabletSite() {
           fetchActiveDineInOrders();
         }}
       />
+
+      {/* DYNAMIC QR CODE MODAL FOR TABLE GUESTS */}
+      <DiningQrModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        tableKey={currentTable}
+        sessionToken={currentSession?.token || ''}
+        lang={lang}
+      />
     </div>
+  );
+}
+
+export default function DiningTabletSite() {
+  return (
+    <DiningAdminAuth>
+      {(_session, handleLogout) => (
+        <DiningTabletSiteContent onLogout={handleLogout} />
+      )}
+    </DiningAdminAuth>
   );
 }

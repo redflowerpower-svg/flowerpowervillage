@@ -11,6 +11,8 @@ import {
   fetchCloudMenuOverrides,
   saveCloudMenuOverride
 } from '../../../pizza/data/pizzaMenuCloudService';
+import { fetchCloudWineCollection } from '../../../pizza/data/wineCloudService';
+import type { WineCardData } from '../../../pizza/data/wineData';
 
 export type { PizzaPromoCode };
 
@@ -29,6 +31,10 @@ export interface PizzaMenuItem {
   description?: string;
   variants?: any[];
   extras?: any[];
+  flag?: string;
+  alcohol?: string;
+  categoryType?: string;
+  categorySubtitle?: string;
 }
 
 interface PizzaAdminState {
@@ -364,6 +370,47 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
             ? cloudOverrides.dailySpecials[item.id]
             : (item.is_daily_special !== undefined && item.is_daily_special !== null ? item.is_daily_special : false)
         }));
+
+        try {
+          const wineCollection = await fetchCloudWineCollection();
+          if (Array.isArray(wineCollection)) {
+            const existingIds = new Set(sanitizedData.map((i: any) => i.id));
+            wineCollection.forEach((wine: WineCardData) => {
+              if (existingIds.has(wine.id)) return;
+              existingIds.add(wine.id);
+
+              const isAvail = cloudOverrides.availability[wine.id] !== undefined
+                ? !!cloudOverrides.availability[wine.id]
+                : wine.isAvailable !== false;
+
+              const rawPrice = typeof wine.price === 'string'
+                ? parseFloat((wine.price as string).replace(/[^0-9.]/g, '')) || 1190
+                : (wine.price || 1190);
+
+              sanitizedData.push({
+                id: wine.id,
+                name: wine.title || wine.titleIt || wine.titleEn || 'Vino',
+                nameTh: wine.titleTh || wine.title,
+                nameIt: wine.titleIt || wine.title,
+                nameDe: wine.titleDe || wine.title,
+                category: 'wines',
+                nativeCategory: 'wines',
+                price: cloudOverrides.prices[wine.id] !== undefined ? cloudOverrides.prices[wine.id] : rawPrice,
+                is_available: isAvail,
+                is_daily_special: false,
+                image: wine.bottleImage,
+                description: wine.descriptionIt || wine.description || wine.categorySubtitle || '',
+                flag: wine.flag,
+                alcohol: wine.alcohol,
+                categoryType: wine.categoryType,
+                categorySubtitle: wine.categorySubtitle
+              });
+            });
+          }
+        } catch (wineErr) {
+          console.warn('[usePizzaAdminStore] Could not load wines for supabase data:', wineErr);
+        }
+
         set({ menuItems: sanitizedData, menuLoading: false });
       } else {
         // Build initial items catalog from menuData
@@ -436,6 +483,46 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
               extras: item.extras
             });
           });
+        }
+
+        // Third pass: add all wines from wine collection
+        try {
+          const wineCollection = await fetchCloudWineCollection();
+          if (Array.isArray(wineCollection)) {
+            wineCollection.forEach((wine: WineCardData) => {
+              if (seenIds.has(wine.id)) return;
+              seenIds.add(wine.id);
+
+              const isAvail = cloudOverrides.availability[wine.id] !== undefined
+                ? !!cloudOverrides.availability[wine.id]
+                : wine.isAvailable !== false;
+
+              const rawPrice = typeof wine.price === 'string'
+                ? parseFloat((wine.price as string).replace(/[^0-9.]/g, '')) || 1190
+                : (wine.price || 1190);
+
+              defaultItems.push({
+                id: wine.id,
+                name: wine.title || wine.titleIt || wine.titleEn || 'Vino',
+                nameTh: wine.titleTh || wine.title,
+                nameIt: wine.titleIt || wine.title,
+                nameDe: wine.titleDe || wine.title,
+                category: 'wines',
+                nativeCategory: 'wines',
+                price: cloudOverrides.prices[wine.id] !== undefined ? cloudOverrides.prices[wine.id] : rawPrice,
+                is_available: isAvail,
+                is_daily_special: false,
+                image: wine.bottleImage,
+                description: wine.descriptionIt || wine.description || wine.categorySubtitle || '',
+                flag: wine.flag,
+                alcohol: wine.alcohol,
+                categoryType: wine.categoryType,
+                categorySubtitle: wine.categorySubtitle
+              });
+            });
+          }
+        } catch (wineErr) {
+          console.warn('[usePizzaAdminStore] Could not load wines:', wineErr);
         }
 
         set({ menuItems: defaultItems, menuLoading: false });

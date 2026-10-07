@@ -94,6 +94,10 @@ export const DISH_CATEGORIES: DishCategoryOption[] = [
   {
     id: 'beers',
     name: { IT: 'Birre in Bottiglia', EN: 'Bottled Beers', TH: 'เบียร์ขวด', DE: 'Flaschenbiere' }
+  },
+  {
+    id: 'wines',
+    name: { IT: 'Enoteca & Vini', EN: 'Wines & Cellar', TH: 'ไวน์และเครื่องดื่มแอลกอฮอล์', DE: 'Weine & Vinothek' }
   }
 ];
 

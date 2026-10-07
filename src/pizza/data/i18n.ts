@@ -202,11 +202,11 @@ export const i18n = {
   categories: {
     'daily-specials': {
       name: {
-        IT: 'Specialità del Giorno',
+        IT: 'Piatti del Giorno',
         EN: 'Daily Specials',
-        TH: 'เมนูพิเศษประจำวัน',
-        DE: 'Tagesempfehlungen',
-        MM: 'နေ့စဉ် အထူးဟင်းလျာများ',
+        TH: 'จานพิเศษประจำวัน',
+        DE: 'Tagesgerichte',
+        MM: 'နေ့စဉ် ဟင်းပွဲများ',
       },
       desc: {
         IT: 'Creazioni esclusive e piatti speciali del giorno preparati dal nostro chef con ingredienti freschi di stagione',

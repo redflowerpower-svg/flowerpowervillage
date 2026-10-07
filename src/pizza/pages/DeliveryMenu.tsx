@@ -123,11 +123,11 @@ const translations = {
 
 const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
   'daily-specials': {
-    IT: { name: 'Specialità del Giorno', desc: 'Creazioni esclusive e piatti speciali del giorno preparati dal nostro chef con ingredienti freschi di stagione' },
+    IT: { name: 'Piatti del Giorno', desc: 'Creazioni esclusive e piatti speciali del giorno preparati dal nostro chef con ingredienti freschi di stagione' },
     EN: { name: 'Daily Specials', desc: 'Exclusive daily creations and seasonal specialties freshly prepared by our Italian chef with premium ingredients' },
-    TH: { name: 'เมนูพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
-    DE: { name: 'Tagesempfehlungen', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs aus frischen Zutaten' },
-    MM: { name: 'နေ့စဉ် အထူးဟင်းလျာများ', desc: 'အီတလီစားဖိုမှူးမှ လတ်ဆတ်သော ရာသီပေါ် ကုန်ကြမ်းများဖြင့် နေ့စဉ် သီးသန့် ဖန်တီးထားသော အထူးဟင်းလျာများ' },
+    TH: { name: 'จานพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
+    DE: { name: 'Tagesgerichte', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs aus frischen Zutaten' },
+    MM: { name: 'နေ့စဉ် ဟင်းပွဲများ', desc: 'အီတလီစားဖိုမှူးမှ လတ်ဆတ်သော ရာသီပေါ် ကုန်ကြမ်းများဖြင့် နေ့စဉ် သီးသန့် ဖန်တီးထားသော အထူးဟင်းလျာများ' },
   },
   'traditional-italian-pizza': {
     IT: { name: 'Pizze Classiche', desc: 'Impasto a fermentazione naturale' },
@@ -137,11 +137,11 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     MM: { name: 'ရိုးရာ အီတလီ ပီဇာ', desc: 'သဘာဝနည်းဖြင့် နှပ်ထားသော မုန့်သား' },
   },
   'pasta': {
-    IT: { name: 'Pasta', desc: 'Primi piatti della tradizione' },
-    EN: { name: 'Pasta Dishes', desc: 'Traditional Italian pasta' },
-    TH: { name: 'พาสต้า', desc: 'เมนูพาสต้าอิตาเลียนดั้งเดิม' },
-    DE: { name: 'Pasta', desc: 'Traditionelle italienische Pasta' },
-    MM: { name: 'ခေါက်ဆွဲ', desc: 'ရိုးရာ အီတလီ ခေါက်ဆွဲ ဟင်းလျာများ' },
+    IT: { name: 'Pasta & Primi', desc: 'Primi piatti della tradizione e pasta fresca' },
+    EN: { name: 'Pasta & First Courses', desc: 'Traditional Italian pasta & fresh first courses' },
+    TH: { name: 'พาสต้า & อาหารจานแรก', desc: 'เมนูพาสต้าอิตาเลียนดั้งเดิมและอาหารจานเส้น' },
+    DE: { name: 'Pasta & Primi', desc: 'Traditionelle italienische Pasta & Nudelgerichte' },
+    MM: { name: 'ခေါက်ဆွဲ & ပတ်စ်တာ', desc: 'ရိုးရာ အီတလီ ခေါက်ဆွဲ ဟင်းလျာများ' },
   },
   'breakfast-and-snacks': {
     IT: { name: 'Colazione & Snack', desc: 'Per iniziare la giornata' },
@@ -186,11 +186,11 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     MM: { name: 'ဘီယာနှင့် ဝိုင်များ', desc: 'အေးမြသော ဘီယာများနှင့် ရွေးချယ်ထားသော အီတလီ ဝိုင်များ' },
   },
   'wines': {
-    IT: { name: 'Vini', desc: 'Selezione accurata di vini italiani ed internazionali, scelti per esaltare i sapori di ogni piatto del nostro menù.' },
-    EN: { name: 'Wines', desc: 'Carefully curated selection of fine Italian and international wines, chosen to enhance the flavors of every dish on our menu.' },
-    TH: { name: 'ไวน์', desc: 'คัดสรรไวน์อิตาเลียนและไวน์นานาชาติชั้นเลิศอย่างพิถีพิถัน เพื่อเสริมรสชาติของทุกเมนูให้โดดเด่นและสมดุลยิ่งขึ้น' },
-    DE: { name: 'Weine', desc: 'Sorgfältig zusammengestellte Auswahl an italienischen und internationalen Weinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben.' },
-    MM: { name: 'ဝိုင်များ', desc: 'ကျွန်ုပ်တို့၏ ဟင်းလျာ အရသာတိုင်းကို ပိုမိုပြည့်စုံစေရန် ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်ကောင်းများ။' },
+    IT: { name: 'Carta dei Vini', desc: 'Selezione accurata di vini italiani ed internazionali, scelti per esaltare i sapori di ogni piatto del nostro menù.' },
+    EN: { name: 'Wine List', desc: 'Carefully curated selection of fine Italian and international wines, chosen to enhance the flavors of every dish on our menu.' },
+    TH: { name: 'รายการไวน์', desc: 'คัดสรรไวน์อิตาเลียนและไวน์นานาชาติชั้นเลิศอย่างพิถีพิถัน เพื่อเสริมรสชาติของทุกเมนูให้โดดเด่นและสมดุลยิ่งขึ้น' },
+    DE: { name: 'Weinkarte', desc: 'Sorgfältig zusammengestellte Auswahl an italienischen und internationalen Weinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben.' },
+    MM: { name: 'ဝိုင်စာရင်း', desc: 'ကျွန်ုပ်တို့၏ ဟင်းလျာ အရသာတိုင်းကို ပိုမိုပြည့်စုံစေရန် ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်ကောင်းများ။' },
   },
 };
 
@@ -198,11 +198,11 @@ const DAILY_SPECIALS_SECTIONS = [
   {
     id: 'pasta',
     name: {
-      IT: 'Primi Piatti, Frutti di Mare & Paste Ripiene',
-      EN: 'First Courses, Seafood & Stuffed Pasta',
-      TH: 'พาสต้าและราวิโอลีโฮมเมด',
-      DE: 'Pastagerichte & Gefüllte Nudeln',
-      MM: 'ပင်လယ်စာ ပတ်စ်တာနှင့် အစာသွပ် ရာဗီအိုလီ',
+      IT: 'Primi Piatti',
+      EN: 'First Courses',
+      TH: 'อาหารจานแรก (พาสต้า)',
+      DE: 'Erste Gänge (Pasta)',
+      MM: 'ပထမဟင်းလျာများ (ပတ်စ်တာ)',
     },
     desc: {
       IT: 'Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali con formati a scelta.',
@@ -222,10 +222,10 @@ const DAILY_SPECIALS_SECTIONS = [
       MM: 'အထူး ဂူးမေး ပီဇာများ',
     },
     desc: {
-      IT: 'Pizze artigianali a lievitazione naturale con polpa di granchio fresca o salsiccia nostrana e stilacci.',
-      EN: 'Artisanal sourdough pizzas topped with fresh blue crab meat or Italian sausage and sautéed stilacci greens.',
+      IT: 'Pizze artigianali a lievitazione naturale con polpa di granchio fresca o salsiccia nostrana, spinaci e gorgonzola.',
+      EN: 'Artisanal naturally leavened pizzas with fresh crab meat or local sausage, spinach, and gorgonzola.',
       TH: 'พิซซ่าแป้งหมักยีสต์ธรรมชาติ หน้าเนื้อปูม้าสด และไส้กรอกหมูอิตาเลียนกับผักสตีลัชชี',
-      DE: 'Handgemachte Sauerteigpizzen belegt mit frischem Krabbenfleisch oder italienischer Salsiccia und Stilacci-Gemüse.',
+      DE: 'Handwerkliche Pizzen mit natürlicher Hefe und frischem Krabbenfleisch oder einheimischer Wurst, Spinat und Gorgonzola.',
       MM: 'လတ်ဆတ်သော ဂဏန်းသား သို့မဟုတ် အီတလီ ဝက်အူချောင်းဖြင့် ဖုတ်ထားသော လက်လုပ် ပီဇာများ။',
     }
   },
@@ -1326,7 +1326,7 @@ export default function DeliveryMenu() {
 
   const allDynamicWines = useMemo(() => {
     return getDynamicWineItems();
-  }, [lang, activeCategoryId]);
+  }, [lang, activeCategoryId, unavailableIds, priceOverrides]);
 
   const availableWineCountries = useMemo(() => {
     const flags = new Set<string>();

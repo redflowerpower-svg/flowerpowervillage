@@ -681,13 +681,16 @@ export function PizzaDashboard() {
                 { id: 'traditional-italian-pizza', label: 'Pizze' },
                 { id: 'pasta', label: 'Pasta & Lasagne' },
                 { id: 'italian-salads', label: 'Insalate' },
+                { id: 'pizza-sandwich', label: 'Focaccia & Sandwich' },
+                { id: 'pizza-burgers', label: 'Pizza Burger' },
                 { id: 'snacks-and-fries', label: 'Snack & Fritti' },
                 { id: 'breakfast-and-snacks', label: 'Colazioni & Toast' },
                 { id: 'desserts', label: 'Dolci & Dessert' },
                 { id: 'coffee-shop', label: 'Caffetteria & Tè' },
                 { id: 'fruit-drinks', label: 'Fruit Drinks' },
                 { id: 'soft-drinks', label: 'Bibite & Acqua' },
-                { id: 'beers', label: 'Birre in Bottiglia' }
+                { id: 'beers', label: 'Birre in Bottiglia' },
+                { id: 'wines', label: 'Enoteca & Vini' }
               ].map((cat) => (
                 <button
                   key={cat.id}

@@ -8,6 +8,7 @@ import {
   DEFAULT_PIZZERIA_STATUS,
   ServiceCalculationResult 
 } from '../../../pizza/services/pizzaServiceStatus';
+import { DiningNetworkSettingsCard } from './DiningNetworkSettingsCard';
 import { 
   Pizza, 
   Globe, 
@@ -393,6 +394,9 @@ export const PizzeriaSettingsSection: React.FC = () => {
 
         </form>
       </div>
+
+      {/* Restaurant Wi-Fi Whitelist & Dining Tablet Network Protection */}
+      <DiningNetworkSettingsCard />
 
       {/* Pizza Service & Hours Schedule Modal */}
       <PizzaServiceScheduleModal

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Minus, ZoomIn, X, Search, Check, ChevronDown, ShoppingCart } from 'lucide-react';
+import { Plus, Minus, X, Search, Check, ChevronDown, ShoppingCart } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { menuData } from '../data/menuData';
 import { useCartStore } from '../store/cartStore';
@@ -604,13 +604,8 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                         alt={getTranslatedName(item)}
                         loading="lazy"
                         decoding="async"
-                        className="max-h-[310px] sm:max-h-[340px] max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
+                        className="max-h-[310px] sm:max-h-[340px] max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
-                    </div>
-                    <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
-                      <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
-                        <ZoomIn size={15} className="text-white" />
-                      </div>
                     </div>
                   </div>
 
@@ -765,13 +760,8 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                         alt={getTranslatedName(item)}
                         loading="lazy"
                         decoding="async"
-                        className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500"
+                        className="max-h-full max-w-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
-                    </div>
-                    <div className="absolute inset-0 bg-stone-950/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[0.5px]">
-                      <div className="p-2 bg-stone-900/90 rounded-full border border-stone-700 shadow-md">
-                        <ZoomIn size={15} className="text-white" />
-                      </div>
                     </div>
                   </div>
 
@@ -933,7 +923,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                   alt={getTranslatedName(item)}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-full object-cover select-none pointer-events-none group-hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover select-none pointer-events-none group-hover:scale-105 transition-transform duration-500 ease-out"
                 />
 
                 {/* Dietary Watermark */}
@@ -942,13 +932,6 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                     <DietaryWatermark type={getDietaryType(item)} />
                   </div>
                 )}
-
-                {/* Zoom Overlay */}
-                <div className="absolute inset-0 bg-stone-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white backdrop-blur-[1px]">
-                  <div className="p-3 bg-stone-900/90 rounded-full border border-stone-700 shadow-lg scale-90 group-hover:scale-100 transition-transform duration-300">
-                    <ZoomIn size={20} className="text-white" />
-                  </div>
-                </div>
               </div>
 
               {/* CONTENT AREA */}

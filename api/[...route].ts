@@ -44,6 +44,7 @@ import { handlePizzaFirstOrderCheck } from "./_handlers/pizza-first-order.js";
 import { handleTableReservation } from "./_handlers/table-reservation.js";
 import { handlePizzaMenuSync } from "./_handlers/pizza-menu-sync.js";
 import { handlePizzaOrderSubmit } from "./_handlers/pizza-order-submit.js";
+import { handleNetworkAuth } from "./_handlers/network-auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -110,6 +111,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('wine-collection') || cleanPath.includes('wine_collection')) {
     return handleWineCollection(req, res);
+  }
+
+  if (cleanPath.includes('network-auth') || cleanPath.includes('network_auth') || cleanPath.includes('wifi-auth')) {
+    return handleNetworkAuth(req, res);
   }
 
   if (cleanPath.includes('pizza-service-status') || cleanPath.includes('pizza_service_status')) {

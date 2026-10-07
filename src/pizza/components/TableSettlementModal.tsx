@@ -20,6 +20,7 @@ import {
 import { supabase } from '../../lib/supabase';
 import { Language } from '../config/languages';
 import { formatTableStationName } from '../utils/tableUtils';
+import { revokeDiningTableSession } from '../services/diningSessionService';
 
 const QR_KSHOP_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/receipts/qr_promptpay.jpg`;
 
@@ -179,6 +180,11 @@ export const TableSettlementModal: React.FC<TableSettlementModalProps> = ({
             .eq('id', id);
         } catch (e) {}
       }
+
+      // Revoke and close dynamic table QR session
+      try {
+        revokeDiningTableSession(tableKey);
+      } catch (_) {}
 
       // Broadcast completed orders
       try {

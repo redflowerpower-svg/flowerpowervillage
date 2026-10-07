@@ -32,7 +32,7 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
     return res.status(400).json({ error: "Missing orderId parameter" });
   }
 
-  const { botToken, chatId } = await getTelegramCredentials();
+  const { botToken, chatId } = await getTelegramCredentials('pizza');
 
   if (!botToken || !chatId) {
     console.warn("[Telegram Notification] Bot token or Chat ID is missing. Skipping notification.");
@@ -78,6 +78,7 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
     const meta = extractOrderMetadata(order.address);
     const cleanAddress = meta.cleanAddress;
     const customerEmail = meta.customerEmail;
+    const deliveryNotes = meta.deliveryNotes;
     const discountAmount = meta.discountAmount;
     const promoCode = meta.promoCode;
     const isHotelGuest = meta.isHotelGuest;
@@ -242,7 +243,7 @@ export async function handleTelegramUpdateStatus(req: VercelRequest, res: Vercel
     }
 
     // 2. Sync to Telegram staff channel if configured
-    const creds = await getTelegramCredentials();
+    const creds = await getTelegramCredentials('pizza');
     if (!creds) {
       console.warn("[Telegram Update] No Telegram credentials configured, DB updated successfully.");
       return res.status(200).json({ success: true, order, telegram: "no_credentials" });
@@ -388,7 +389,7 @@ export async function handleTelegramWebhook(req: VercelRequest, res: VercelRespo
     return res.status(200).json({ status: "skipped" });
   }
 
-  const { botToken, chatId: configuredChatId } = await getTelegramCredentials();
+  const { botToken, chatId: configuredChatId } = await getTelegramCredentials('pizza');
 
   if (!botToken) {
     console.error("[Telegram Webhook] TELEGRAM_BOT_TOKEN is missing.");
