@@ -672,7 +672,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
               <button
                 type="submit"
-                disabled={loading || !customerName || !customerPhone}
+                disabled={loading || items.length === 0}
                 className="w-full py-4 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-stone-950 font-black rounded-2xl shadow-xl transition-all cursor-pointer disabled:opacity-50 text-sm uppercase tracking-wider flex items-center justify-center gap-2 active:scale-[0.99] border border-amber-300"
               >
                 {loading ? (
