@@ -1380,7 +1380,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
   }, [allDynamicWines, selectedWineCountry, lang]);
 
   // Cart & Checkout
-  const { getCount, getTotal, openCart, items } = useCartStore();
+  const { getCount, getTotal, openCart } = useCartStore();
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
   // Floating Cart Lateral Tab state (Compact by default, expands on desktop hover or mobile tap)
