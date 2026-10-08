@@ -69,12 +69,17 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
 18. **Studio & Generatore 16 QR Code Fisici Permanenti (`DiningTableQrStudio.tsx`)**:
     - Generazione dei 16 QR Code unici e permanenti (uno per ciascun tavolo da T1 a T16) con URL dedicata `/dining?table=T<N>&token=permanent_table_qr`.
     - Modalità di visualizzazione singola per tavolo con selettore rapido e modalità di stampa cumulativa in blocco (*Stampa 16 QR Code Sala*) formattata per etichette/segnatavolo con logo Flower Power, badge `-5% Sconto al Tavolo`, QR Code SVG/PNG ad alta risoluzione e istruzioni multilingua (*Inquadra per ordinare dal tuo smartphone*).
-19. **Rilevamento Presenza Ospiti in Tempo Reale & Occupazione Immediata sul Dining Tablet (`diningTablePresenceService.ts`)**:
-    - Nel preciso istante in cui un commensale inquadra il QR Code del tavolo dal proprio smartphone, il servizio di presenza Realtime (`dining_hall_presence_channel` via Supabase Presence & BroadcastChannel) notifica a 0ms il Dining Tablet roving in sala.
-    - Sulla griglia del tablet, il tavolo si illumina immediatamente di rosso con effetto ping (`border-red-500/80 bg-red-950/70 ring-1 ring-red-500/50`) e badge **`📱 N Ospiti Live`** / **`In Ordinazione Live`**, disabilitando lo stato libero e segnalando allo staff che i clienti stanno componendo la propria ordinazione.
-    - Più commensali allo stesso tavolo che scansionano il medesimo QR Code entrano automaticamente nello stesso **Carrello Condiviso Live** a latenza zero.
+19. **Rilevamento Presenza Ospiti Istantaneo a 0ms & Tavolo Giallo Occupato (`diningTablePresenceService.ts`)**:
+    - Nel preciso istante in cui un commensale inquadra il QR Code del tavolo dal proprio smartphone, il servizio di presenza invia un broadcast istantaneo prioritario (`GUEST_PRESENCE_PING`) a 0ms con heartbeat ciclico ogni 8 secondi.
+    - Sulla griglia del tablet, il tavolo commuta istantaneamente in **Giallo/Ambra Occupato** (`bg-gradient-to-br from-amber-950/80 to-stone-900 border-amber-400 text-white ring-1 ring-amber-400/70`) con luce pulsante ambra e indicatore **`📱 N Ospiti Live / In Ordinazione`**, disabilitando lo stato verde libero.
     - Lo staff con il Dining Tablet roving può in qualunque momento toccare il tavolo occupato per entrare in visualizzazione/collaborazione in tempo reale con il carrello dei clienti.
-20. **Ottimizzazione Scheda Piatto Mobile-First per Ospiti Smartphone (`MenuGrid.tsx`)**:
+20. **Ottimizzazione Scheda Piatto Mobile-First & Pulsante "Ordina" Compatto (`MenuGrid.tsx`)**:
     - La modale di personalizzazione del piatto si apre come un bottom sheet mobile a tutto schermo (`h-[92dvh] sm:h-auto sm:max-h-[88vh] rounded-t-[2rem] sm:rounded-[2rem]`), eliminando spazi sprecati e garantendo massimo comfort visivo.
-    - Il footer con quantità, totale finito scontato -5% e pulsante di aggiunta all'ordine è protetto da overflow con larghezze dinamiche e supporto `safe-area-inset-bottom`.
+    - Pulsante di conferma compatto e universale certificato via DeepSeek API (IT: `Ordina`, EN: `Order`, TH: `สั่งเลย`, DE: `Bestellen`, MM: `မှာယူပါ`), garantendo zero troncature di testo su qualsiasi smartphone.
+    - Il footer sticky con selettore quantità compatto, totale finito scontato -5% e pulsante ad ampiezza elastica è protetto da overflow con supporto `safe-area-inset-bottom`.
+21. **Pre-compilazione Dati Cliente su Comande Aperte & Pulizia Form (`DiningCheckoutModal.tsx`)**:
+    - Se il tavolo ha già un ordine attivo in corso non saldato, alla riapertura del carrello i campi **Nome** ed **Email** vengono pre-compilati automaticamente con i dati inseriti nel primo invio.
+    - Per i nuovi ordini o tavoli liberi, i campi partono al 100% puliti e vuoti (`""`).
+    - Eliminati tutti i messaggi ridondanti sotto l'email (`emailHelper`), lasciando un form naturale, fluido e discreto.
+
 

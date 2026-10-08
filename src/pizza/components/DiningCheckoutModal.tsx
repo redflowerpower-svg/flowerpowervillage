@@ -35,6 +35,8 @@ interface DiningCheckoutModalProps {
   initialTable?: string;
   lang?: Language;
   existingOrderId?: string | null;
+  existingCustomerName?: string;
+  existingCustomerEmail?: string;
 }
 
 import { DINING_TABLES, formatTableStationName, getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
@@ -47,12 +49,11 @@ const I18N_CHECKOUT = {
     customTableBtn: 'Inserimento libero',
     listTableBtn: 'Scegli da lista',
     customPlaceholder: 'es. Tavolo 7 / Terrazza / Bancone',
-    clientSection: '2. Ricevi lo Sconto a Casa (Facoltativo)',
-    nameLabel: 'Nome o Riferimento (Opzionale)',
-    namePlaceholder: 'es. Marco (o lascia vuoto)',
-    emailLabel: 'Email per Coupon Sconto 10% Delivery (Opzionale)',
-    emailPlaceholder: 'tuaemail@esempio.com (opzionale)',
-    emailHelper: "💡 L'email non è obbligatoria per ordinare: serve solo se desideri ricevere il Coupon Sconto 10% per i tuoi prossimi ordini da casa.",
+    clientSection: '2. Dati Cliente (Coupon Sconto 10% Delivery)',
+    nameLabel: 'Nome / Riferimento',
+    namePlaceholder: 'es. Marco',
+    emailLabel: 'Email (Coupon Sconto 10% Delivery)',
+    emailPlaceholder: 'tuaemail@esempio.com',
     notesLabel: 'Note Speciali per la Cucina / Camerieri (Opzionale)',
     notesPlaceholder: 'es. Portare le pizze insieme, bicchieri extra...',
     payAtCounterTitle: 'Conto alla Cassa',
@@ -77,12 +78,11 @@ const I18N_CHECKOUT = {
     customTableBtn: 'Free text input',
     listTableBtn: 'Select from list',
     customPlaceholder: 'e.g. Table 7 / Terrace / Counter',
-    clientSection: '2. Get Home Delivery Discount Voucher (Optional)',
-    nameLabel: 'Name / Nickname (Optional)',
-    namePlaceholder: 'e.g. John (or leave empty)',
-    emailLabel: 'Email for 10% Home Delivery Coupon (Optional)',
-    emailPlaceholder: 'youremail@example.com (optional)',
-    emailHelper: '💡 Email is not mandatory to order: it is only needed if you wish to receive the 10% home delivery discount voucher.',
+    clientSection: '2. Guest Details (10% Delivery Voucher)',
+    nameLabel: 'Name / Nickname',
+    namePlaceholder: 'e.g. John',
+    emailLabel: 'Email (10% Delivery Voucher)',
+    emailPlaceholder: 'youremail@example.com',
     notesLabel: 'Special Kitchen / Server Notes (Optional)',
     notesPlaceholder: 'e.g. Serve pizzas together, extra glasses...',
     payAtCounterTitle: 'Pay at Counter',
@@ -107,12 +107,11 @@ const I18N_CHECKOUT = {
     customTableBtn: 'พิมพ์ระบุเอง',
     listTableBtn: 'เลือกจากรายการ',
     customPlaceholder: 'เช่น โต๊ะ 7 / ซุ้มไม้ไผ่ / ริมระเบียง',
-    clientSection: '2. รับคูปองส่วนลดสั่งทานที่บ้าน (ไม่บังคับ)',
-    nameLabel: 'ชื่อผู้สั่ง (ไม่บังคับ)',
-    namePlaceholder: 'เช่น สมชาย (หรือเว้นว่างไว้)',
-    emailLabel: 'อีเมลรับคูปองส่วนลด 10% สั่งเดลิเวอรี่ (ไม่บังคับ)',
-    emailPlaceholder: 'yourname@example.com (เว้นว่างได้เลย)',
-    emailHelper: '💡 ไม่จำเป็นต้องกรอกอีเมลเพื่อสั่งอาหาร: ใช้เฉพาะกรณีต้องการรับคูปองส่วนลด 10% สั่งทานที่บ้านเท่านั้น',
+    clientSection: '2. ข้อมูลลูกค้า (รับคูปองส่วนลด 10% เดลิเวอรี่)',
+    nameLabel: 'ชื่อผู้สั่ง',
+    namePlaceholder: 'เช่น สมชาย',
+    emailLabel: 'อีเมล (รับคูปองส่วนลด 10% เดลิเวอรี่)',
+    emailPlaceholder: 'yourname@example.com',
     notesLabel: 'หมายเหตุถึงเชฟและพนักงาน (ถ้ามี)',
     notesPlaceholder: 'เช่น เสิร์ฟพร้อมกัน, แก้วน้ำเพิ่ม...',
     payAtCounterTitle: 'ชำระที่แคชเชียร์',
@@ -137,12 +136,11 @@ const I18N_CHECKOUT = {
     customTableBtn: 'Freie Eingabe',
     listTableBtn: 'Aus Liste wählen',
     customPlaceholder: 'z.B. Tisch 7 / Terrasse / Bar',
-    clientSection: '2. Liefer-Rabattgutschein für zu Hause (Optional)',
-    nameLabel: 'Name / Notiz (Optional)',
-    namePlaceholder: 'z.B. Thomas (oder leer lassen)',
-    emailLabel: 'E-Mail für 10% Liefer-Rabattgutschein (Freiwillig)',
-    emailPlaceholder: 'ihre.email@beispiel.de (optional)',
-    emailHelper: '💡 E-Mail ist nicht erforderlich: Sie wird nur benötigt, wenn Sie den 10% Liefergutschein für zu Hause erhalten möchten.',
+    clientSection: '2. Gästeinformation (10% Liefergutschein)',
+    nameLabel: 'Name / Notiz',
+    namePlaceholder: 'z.B. Thomas',
+    emailLabel: 'E-Mail (10% Liefer-Rabattgutschein)',
+    emailPlaceholder: 'ihre.email@beispiel.de',
     notesLabel: 'Sonderwünsche an Küche / Service (Optional)',
     notesPlaceholder: 'z.B. Pizzen zusammen servieren, extra Gläser...',
     payAtCounterTitle: 'Rechnung an der Kasse',
@@ -167,12 +165,11 @@ const I18N_CHECKOUT = {
     customTableBtn: 'နေရာအမည်ရိုက်ထည့်ရန်',
     listTableBtn: 'စာရင်းမှ ရွေးချယ်ရန်',
     customPlaceholder: 'ဥပမာ - စားပွဲ ၇ / လသာဆောင် / ကောင်တာ',
-    clientSection: '၂။ အိမ်အရောက်ပို့ လျှော့စျေးကူပွန် ရယူရန် (စိတ်ကြိုက်)',
-    nameLabel: 'အမည် (စိတ်ကြိုက်)',
-    namePlaceholder: 'ဥပမာ - မောင်မောင် (မဖြည့်လည်းရပါသည်)',
-    emailLabel: 'အိမ်အရောက်ပို့ ၁၀% လျှော့စျေးကူပွန် ရယူရန် အီးမေးလ် (စိတ်ကြိုက်)',
-    emailPlaceholder: 'youremail@example.com (မထည့်လည်း ရပါသည်)',
-    emailHelper: '💡 အော်ဒါမှာရန် အီးမေးလ် မဖြစ်မနေ ထည့်ရန်မလိုပါ- အိမ်အရောက်ပို့ ၁၀% လျှော့စျေးကူပွန် ရယူလိုမှသာ ထည့်ပါ။',
+    clientSection: '၂။ ဧည့်သည် အချက်အလက် (၁၀% လျှော့စျေးကူပွန်)',
+    nameLabel: 'အမည်',
+    namePlaceholder: 'ဥပမာ - မောင်မောင်',
+    emailLabel: 'အီးမေးလ် (၁၀% လျှော့စျေးကူပွန်)',
+    emailPlaceholder: 'youremail@example.com',
     notesLabel: 'မီးဖိုချောင်နှင့် စားပွဲထိုးအတွက် အထူးမှာကြားချက် (စိတ်ကြိုက်)',
     notesPlaceholder: 'ဥပမာ - ပီဇာများကို တစ်ပြိုင်နက် ချပေးပါ၊ ဖန်ခွက်အပို...',
     payAtCounterTitle: 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်',
@@ -198,7 +195,9 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
   onSuccess,
   initialTable = 'Tavolo 1 (Interno)',
   lang = 'IT',
-  existingOrderId = null
+  existingOrderId = null,
+  existingCustomerName = '',
+  existingCustomerEmail = ''
 }) => {
   const t = I18N_CHECKOUT[lang] || I18N_CHECKOUT.IT;
   const { items, clearCart, getTotal } = useCartStore();
@@ -216,14 +215,19 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
   const [customerEmail, setCustomerEmail] = useState('');
   const [specialNotes, setSpecialNotes] = useState('');
 
-  // Always reset fields to 100% clean and empty when opening modal for any table
+  // Pre-populate customer name & email if re-opening an active order; start 100% empty for new orders
   useEffect(() => {
     if (isOpen) {
-      setCustomerName('');
-      setCustomerEmail('');
+      if (existingCustomerName || existingCustomerEmail) {
+        setCustomerName(existingCustomerName || '');
+        setCustomerEmail(existingCustomerEmail || '');
+      } else {
+        setCustomerName('');
+        setCustomerEmail('');
+      }
       setSpecialNotes('');
     }
-  }, [isOpen, initialTable]);
+  }, [isOpen, initialTable, existingCustomerName, existingCustomerEmail]);
   const [paymentMethod, setPaymentMethod] = useState<'promptpay' | 'card' | 'cash'>('promptpay');
   const [isQrZoomOpen, setIsQrZoomOpen] = useState(false);
   
@@ -608,12 +612,6 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                     />
                   </div>
                 </div>
-
-                {t.emailHelper && (
-                  <p className="text-[10px] sm:text-[11px] text-stone-400 leading-snug bg-stone-900/60 p-2 rounded-xl border border-stone-800/80">
-                    {t.emailHelper}
-                  </p>
-                )}
               </div>
 
               {/* 3. Special Kitchen Notes */}

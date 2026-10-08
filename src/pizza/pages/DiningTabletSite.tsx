@@ -1880,8 +1880,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                   <span>{I18N_TABLE_PICKER[lang]?.tablesHeading || I18N_TABLE_PICKER.IT.tablesHeading}</span>
                   <span className="text-[10px] sm:text-[11px] text-stone-400 font-normal flex items-center gap-2">
                     <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.freeLabel || I18N_TABLE_PICKER.IT.freeLabel}</span>
-                    <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500 inline-block animate-ping"></span> {I18N_TABLE_PICKER[lang]?.guestLabel || I18N_TABLE_PICKER.IT.guestLabel}</span>
-                    <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.activeLabel || I18N_TABLE_PICKER.IT.activeLabel}</span>
+                    <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-400 inline-block animate-pulse"></span> {I18N_TABLE_PICKER[lang]?.guestLabel || I18N_TABLE_PICKER.IT.guestLabel}</span>
+                    <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 inline-block"></span> {I18N_TABLE_PICKER[lang]?.activeLabel || I18N_TABLE_PICKER.IT.activeLabel}</span>
                   </span>
                 </div>
                 
@@ -1908,9 +1908,9 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                           isSelected
                             ? 'bg-gradient-to-br from-amber-950/90 to-stone-900 border-amber-400 text-white shadow-lg ring-1 ring-amber-400/50'
                             : isGuestOccupied
-                              ? 'bg-gradient-to-br from-red-950/70 to-stone-900 border-red-500/80 text-white shadow-lg ring-1 ring-red-500/50 hover:bg-red-900/60'
+                              ? 'bg-gradient-to-br from-amber-950/80 to-stone-900 border-amber-400 text-white shadow-lg ring-1 ring-amber-400/70 hover:bg-amber-900/60'
                               : isOccupied
-                                ? 'bg-amber-950/30 border-amber-500/60 text-stone-200 hover:border-amber-400 hover:bg-amber-950/50'
+                                ? 'bg-amber-950/50 border-amber-500/70 text-stone-200 hover:border-amber-400 hover:bg-amber-950/70'
                                 : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850'
                         }`}
                       >
@@ -1919,8 +1919,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                           <span className="relative flex h-2 w-2">
                             {isGuestOccupied ? (
                               <>
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
                               </>
                             ) : (
                               <span className={`w-2 h-2 rounded-full shrink-0 ${
@@ -1935,7 +1935,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         </div>
                         <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
                           isGuestOccupied 
-                            ? 'text-red-400 font-black animate-pulse'
+                            ? 'text-amber-300 font-black animate-pulse'
                             : isOccupied 
                               ? 'text-amber-400 font-extrabold' 
                               : 'text-emerald-400/90'
@@ -2562,6 +2562,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         initialTable={currentTable}
         lang={lang}
         existingOrderId={currentTable ? (activeTableOrderMap[getCanonicalTableKey(currentTable)]?.[0]?.id || null) : null}
+        existingCustomerName={currentTable ? (activeTableOrderMap[getCanonicalTableKey(currentTable)]?.[0]?.customer_name || '') : ''}
+        existingCustomerEmail={currentTable ? (activeTableOrderMap[getCanonicalTableKey(currentTable)]?.[0]?.customer_email || '') : ''}
       />
 
       {/* TABLE SETTLEMENT & BILL CLOSING MODAL */}
