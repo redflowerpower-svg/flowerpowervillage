@@ -206,18 +206,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -393,18 +393,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -580,18 +580,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -767,18 +767,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -956,18 +956,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -1144,18 +1144,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -1470,18 +1470,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -1901,18 +1901,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -3556,18 +3556,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -4020,18 +4020,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -4486,18 +4486,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -4952,18 +4952,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -5418,18 +5418,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -5884,18 +5884,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -6350,18 +6350,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -6816,18 +6816,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -7358,18 +7358,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -7824,18 +7824,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -8290,18 +8290,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -8756,18 +8756,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -9222,18 +9222,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -9688,18 +9688,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -10154,18 +10154,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -10620,18 +10620,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -11086,18 +11086,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -11552,18 +11552,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -12018,18 +12018,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -12484,18 +12484,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -12950,18 +12950,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -13416,18 +13416,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -13882,18 +13882,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -14348,18 +14348,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -14814,18 +14814,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -15280,18 +15280,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -15746,18 +15746,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -16212,18 +16212,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -16678,18 +16678,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -17144,18 +17144,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -17610,18 +17610,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -18076,18 +18076,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -18516,18 +18516,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -18944,18 +18944,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -19410,18 +19410,18 @@ export const menuData: MenuCategory[] = [
           },
           {
             "id": "10171",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
             "sku": "10171",
             "price": 20,
             "description_it": "",
             "description_de": "",
-            "name_it": "Formaggio Parmigiano",
-            "nameIt": "Formaggio Parmigiano",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_it": "Parmigiano",
+            "nameIt": "Parmigiano",
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "10062",
@@ -19626,18 +19626,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "ext-bacon",
@@ -19744,18 +19744,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "ext-bacon",
@@ -19862,18 +19862,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "ext-bacon",
@@ -19980,18 +19980,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "ext-bacon",
@@ -20098,18 +20098,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "ext-bacon",
@@ -20216,18 +20216,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -20319,18 +20319,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -20422,18 +20422,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -20525,18 +20525,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -20628,18 +20628,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -20731,18 +20731,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -20774,18 +20774,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -20817,18 +20817,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -20860,18 +20860,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -20903,18 +20903,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -20946,18 +20946,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21049,18 +21049,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21152,18 +21152,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21255,18 +21255,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21358,18 +21358,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21461,18 +21461,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21564,18 +21564,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21667,18 +21667,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21770,18 +21770,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21873,18 +21873,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -21976,18 +21976,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22019,18 +22019,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22062,18 +22062,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22105,18 +22105,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22148,18 +22148,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22191,18 +22191,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22234,18 +22234,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22277,18 +22277,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22320,18 +22320,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22363,18 +22363,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22406,18 +22406,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22449,18 +22449,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22492,18 +22492,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22535,18 +22535,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22578,18 +22578,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22621,18 +22621,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -22724,18 +22724,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22767,18 +22767,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           }
         ],
         "allowed_extras_group": "None",
@@ -22903,18 +22903,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -23087,18 +23087,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -23271,18 +23271,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -23455,18 +23455,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -23642,18 +23642,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",
@@ -23827,18 +23827,18 @@ export const menuData: MenuCategory[] = [
         "extras": [
           {
             "id": "ext-double-parmesan",
-            "name": "Parmesan Cheese",
-            "nameTh": "ชีสพาร์เมซาน",
-            "nameIt": "Formaggio Parmigiano",
+            "name": "Parmesan",
+            "nameTh": "พาร์มิจาโน",
+            "nameIt": "Parmigiano",
             "sku": "ext-double-parmesan",
             "price": 30,
             "description_it": "",
             "description_de": "",
-            "name_de": "Parmesankäse",
-            "nameDe": "Parmesankäse",
-            "name_it": "Formaggio Parmigiano",
-            "nameMm": "ပါမေဆန် ဒိန်ခဲ",
-            "name_mm": "ပါမေဆန် ဒိန်ခဲ"
+            "name_de": "Parmesan",
+            "nameDe": "Parmesan",
+            "name_it": "Parmigiano",
+            "nameMm": "ပါမာဂျာနို",
+            "name_mm": "ပါမာဂျာနို"
           },
           {
             "id": "spicy-no",

@@ -1046,11 +1046,11 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       {/* DEDICATED CUSTOMIZATION MODAL (Zero layout shift, 100% structured touch interface) */}
       {customizingItem && (
         <div
-          className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fadeIn"
+          className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 animate-fadeIn"
           onClick={handleCloseCustomize}
         >
           <div
-            className="relative w-full max-w-2xl max-h-[92vh] sm:max-h-[88vh] bg-white rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn"
+            className="relative w-full max-w-2xl h-[92dvh] sm:h-auto sm:max-h-[88vh] bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             {/* MODAL HEADER WITH IMAGE */}
@@ -1060,7 +1060,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                 alt={getTranslatedName(customizingItem)}
                 className="w-full h-full object-cover select-none"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-stone-950/85 via-stone-950/35 to-transparent" />
 
               {/* Dietary watermark */}
               {getDietaryType(customizingItem) && (
@@ -1595,72 +1595,73 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
             </div>
 
             {/* STICKY FOOTER */}
-            <div className="p-4 sm:px-6 bg-white/95 backdrop-blur-md border-t border-stone-200 flex items-center justify-between gap-3 shrink-0 shadow-lg">
+            <div className="p-3 sm:p-4 sm:px-6 pb-[max(0.85rem,env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-md border-t border-stone-200 flex items-center justify-between gap-2 sm:gap-3 shrink-0 shadow-lg">
               {/* Quantity Controls */}
-              <div className="flex items-center gap-1.5 bg-stone-100 p-1.5 rounded-full border border-stone-200">
+              <div className="flex items-center gap-1 sm:gap-1.5 bg-stone-100 p-1 sm:p-1.5 rounded-full border border-stone-200 flex-shrink-0">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(isLasagna(customizingItem) ? 2 : 1, quantity - 1))}
-                  className="w-8 h-8 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-700 hover:border-[#8B1E1E] hover:text-[#8B1E1E] active:scale-95 transition-all cursor-pointer"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-700 hover:border-[#8B1E1E] hover:text-[#8B1E1E] active:scale-95 transition-all cursor-pointer"
+                  aria-label="Diminuisci quantità"
                 >
                   <Minus size={12} />
                 </button>
-                <span className="text-stone-900 font-black text-sm w-6 text-center">{quantity}</span>
+                <span className="text-stone-900 font-black text-xs sm:text-sm w-5 sm:w-6 text-center">{quantity}</span>
                 <button
                   type="button"
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-8 h-8 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-700 hover:border-[#8B1E1E] hover:text-[#8B1E1E] active:scale-95 transition-all cursor-pointer"
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-stone-300 bg-white flex items-center justify-center text-stone-700 hover:border-[#8B1E1E] hover:text-[#8B1E1E] active:scale-95 transition-all cursor-pointer"
+                  aria-label="Aumenta quantità"
                 >
                   <Plus size={12} />
                 </button>
               </div>
 
-              {/* Price & CTA */}
-              <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <span className="text-[9px] uppercase tracking-wider text-stone-400 font-bold">
-                      {t.totalFinito}
+              {/* Price Breakdown */}
+              <div className="text-right flex-shrink-0">
+                <div className="flex items-center justify-end gap-1">
+                  <span className="text-[8.5px] sm:text-[9px] uppercase tracking-wider text-stone-400 font-bold whitespace-nowrap">
+                    {t.totalFinito}
+                  </span>
+                  {isDiningMode && (
+                    <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded">
+                      -5%
                     </span>
-                    {isDiningMode && (
-                      <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded">
-                        -5%
-                      </span>
-                    )}
-                  </div>
-                  {isDiningMode ? (
-                    <div className="flex items-baseline justify-end gap-1 leading-none mt-0.5">
-                      <span className="text-xl sm:text-2xl font-black text-[#8B1E1E]" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {Math.round(modalTotalPrice * 0.95)}฿
-                      </span>
-                      <span className="text-xs text-stone-400 line-through font-semibold">
-                        {modalTotalPrice}฿
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-baseline justify-end leading-none mt-0.5">
-                      <span className="text-xl sm:text-2xl font-black text-[#8B1E1E]" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {modalTotalPrice}฿
-                      </span>
-                    </div>
                   )}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleAdd(customizingItem)}
-                  disabled={isAddBlocked}
-                  className={`px-5 sm:px-7 py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg flex items-center gap-2 transition-all cursor-pointer active:scale-95 ${
-                    isAddBlocked
-                      ? 'bg-stone-300 text-stone-500 cursor-not-allowed shadow-none'
-                      : 'bg-gradient-to-r from-[#8B1E1E] to-[#6e1414] hover:from-[#7a1a1a] hover:to-[#5c1010] text-white'
-                  }`}
-                  style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
-                >
-                  <ShoppingCart size={16} />
-                  <span>{t.confirmText}</span>
-                </button>
+                {isDiningMode ? (
+                  <div className="flex items-baseline justify-end gap-1 leading-none mt-0.5">
+                    <span className="text-lg sm:text-2xl font-black text-[#8B1E1E] tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                      {Math.round(modalTotalPrice * 0.95)}฿
+                    </span>
+                    <span className="text-[10px] sm:text-xs text-stone-400 line-through font-semibold">
+                      {modalTotalPrice}฿
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline justify-end leading-none mt-0.5">
+                    <span className="text-lg sm:text-2xl font-black text-[#8B1E1E] tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                      {modalTotalPrice}฿
+                    </span>
+                  </div>
+                )}
               </div>
+
+              {/* CTA Button */}
+              <button
+                type="button"
+                onClick={() => handleAdd(customizingItem)}
+                disabled={isAddBlocked}
+                className={`flex-1 sm:flex-initial min-w-0 px-3 sm:px-6 py-2.5 sm:py-3 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg flex items-center justify-center gap-1.5 sm:gap-2 transition-all cursor-pointer active:scale-95 whitespace-nowrap ${
+                  isAddBlocked
+                    ? 'bg-stone-300 text-stone-500 cursor-not-allowed shadow-none'
+                    : 'bg-gradient-to-r from-[#8B1E1E] to-[#6e1414] hover:from-[#7a1a1a] hover:to-[#5c1010] text-white'
+                }`}
+                style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+              >
+                <ShoppingCart size={15} className="flex-shrink-0" />
+                <span className="truncate">{t.confirmText}</span>
+              </button>
             </div>
           </div>
         </div>

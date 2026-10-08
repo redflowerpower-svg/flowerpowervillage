@@ -74,3 +74,7 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
     - Sulla griglia del tablet, il tavolo si illumina immediatamente di rosso con effetto ping (`border-red-500/80 bg-red-950/70 ring-1 ring-red-500/50`) e badge **`📱 N Ospiti Live`** / **`In Ordinazione Live`**, disabilitando lo stato libero e segnalando allo staff che i clienti stanno componendo la propria ordinazione.
     - Più commensali allo stesso tavolo che scansionano il medesimo QR Code entrano automaticamente nello stesso **Carrello Condiviso Live** a latenza zero.
     - Lo staff con il Dining Tablet roving può in qualunque momento toccare il tavolo occupato per entrare in visualizzazione/collaborazione in tempo reale con il carrello dei clienti.
+20. **Ottimizzazione Scheda Piatto Mobile-First per Ospiti Smartphone (`MenuGrid.tsx`)**:
+    - La modale di personalizzazione del piatto si apre come un bottom sheet mobile a tutto schermo (`h-[92dvh] sm:h-auto sm:max-h-[88vh] rounded-t-[2rem] sm:rounded-[2rem]`), eliminando spazi sprecati e garantendo massimo comfort visivo.
+    - Il footer con quantità, totale finito scontato -5% e pulsante di aggiunta all'ordine è protetto da overflow con larghezze dinamiche e supporto `safe-area-inset-bottom`.
+

@@ -123,3 +123,22 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
 3. **Dizionario UI Tipizzato KDS (`kdsI18n.ts`)**:
    - Copertura 100% dell'infrastruttura grafica del monitor (colonne, pulsanti allarme/snooze, badge `PromptPay`, `Card 3DS`, `Conto alla Cassa`, `Contanti`, modali di archivio, gestione orari e prenotazioni tavolo) con zero stringhe hardcoded.
 
+---
+
+## 🍕 7. Ottimizzazione Modale Dettaglio Piatto & Nomenclatura Parmigiano Multilingua DeepSeek
+
+1. **Scheda Dettaglio Piatto Mobile-First (`MenuGrid.tsx`)**:
+   - **Adattamento Viewport Mobile (`h-[92dvh] sm:h-auto sm:max-h-[88vh]`)**: La scheda di personalizzazione si apre su smartphone come un raffinato foglio a tutto schermo (`rounded-t-[2rem] sm:rounded-[2rem]`), eliminando margini vuoti e sfruttando l'altezza utile del dispositivo.
+   - **Footer Sticky Antisfondamento**: Barra inferiore con selettore quantità compatto, totale finito con sconto -5% visibile e pulsante *"AGGIUNGI ALL'ORDINE"* ad ampiezza dinamica (`flex-1 min-w-0`), protetto da overflow e troncature di testo su qualsiasi risoluzione smartphone.
+   - **Padding di Sicurezza Safe-Area**: Gestione nativa `pb-[max(0.85rem,env(safe-area-inset-bottom))]` per la barra di navigazione e le gesture dei dispositivi mobili iOS e Android.
+
+2. **Standardizzazione Extra "Parmigiano" (`menuData.ts`)**:
+   - Aggiornamento di tutti gli ingredienti extra nel catalogo sostituendo la formula estesa con la dicitura pulita ed elegante **"Parmigiano"**.
+   - Traduzioni certificate tramite API DeepSeek su tutte le 5 lingue supportate:
+     - 🇮🇹 IT: `Parmigiano`
+     - 🇬🇧 EN: `Parmesan`
+     - 🇹🇭 TH: `พาร์มิจาโน`
+     - 🇩🇪 DE: `Parmesan`
+     - 🇲🇲 MM: `ပါမာဂျာနို`
+
+
