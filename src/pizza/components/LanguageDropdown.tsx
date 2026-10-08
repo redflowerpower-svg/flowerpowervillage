@@ -55,7 +55,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
         return 'bg-stone-900/90 hover:bg-stone-800 border border-stone-700 text-stone-200 py-1 px-2.5 text-xs';
       case 'dining-dark':
       default:
-        return 'bg-stone-900/95 hover:bg-stone-850 border border-amber-400/50 text-white hover:border-amber-300 shadow-lg';
+        return 'bg-stone-900/90 hover:bg-stone-850 border border-stone-700/80 hover:border-amber-400/80 text-white shadow-md h-9';
     }
   };
 
@@ -65,7 +65,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
         return 'bg-[#131722] border border-stone-700 shadow-2xl shadow-black/90';
       case 'dining-dark':
       default:
-        return 'bg-stone-900 border-amber-400/50 shadow-black/80';
+        return 'bg-stone-900 border-stone-700 shadow-black/80';
     }
   };
 
@@ -86,7 +86,7 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none active:scale-95 ${getButtonStyles()}`}
+        className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 rounded-xl text-xs font-bold transition-all cursor-pointer select-none active:scale-95 whitespace-nowrap ${getButtonStyles()}`}
       >
         <Globe className="w-3.5 h-3.5 text-amber-400 shrink-0" />
         <span className="text-sm shrink-0 leading-none">{currentMeta.flag}</span>

@@ -1621,91 +1621,82 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     <div className="min-h-screen bg-[#e7e5e4] text-stone-900 pb-28 antialiased" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
       
       {/* TOP FIXED BAR FOR DINING TABLET */}
-      <nav className="fixed top-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-md border-b border-amber-400/30 text-white px-3 sm:px-6 py-2.5 flex items-center justify-between shadow-xl">
+      <nav className="fixed top-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-md border-b border-amber-400/20 text-white px-2.5 sm:px-5 py-2 flex items-center justify-between gap-2 shadow-xl h-14 sm:h-16">
         
-        {/* Left: Brand Logo & Title */}
-        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+        {/* Left: Clean Brand Logo Only (No text) */}
+        <div className="flex items-center shrink-0">
           <img
             src="/flower-power-pizza-logo-160.png"
             alt="Flower Power Pizza"
-            className="w-8 h-8 sm:w-9 sm:h-9 object-contain drop-shadow-md rounded-full shrink-0"
+            className="w-9 h-9 sm:w-11 sm:h-11 object-contain drop-shadow-md rounded-full transition-transform hover:scale-105"
           />
-          <div className="min-w-0">
-            <span className="font-black text-xs sm:text-sm md:text-base tracking-tight text-white block leading-none truncate">
-              Flower Power Tablet
-            </span>
-            <span className="text-[9px] sm:text-[10px] text-amber-400/90 font-bold uppercase tracking-wider block mt-0.5 truncate">
-              {isGuestMobile ? (lang === 'TH' ? 'สั่งผ่านสมาร์ทโฟน' : 'Smartphone Dining') : 'Ranong • Thailand'}
-            </span>
-          </div>
         </div>
 
-        {/* Center: Table & QR Actions */}
-        <div className="flex items-center gap-2">
+        {/* Right Actions: Unified Luxury Concept Pills (Tavolo, QR, Lingua, Salda) */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {isGuestMobile ? (
             /* Guest Smartphone Header Pill */
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-stone-900/95 border border-amber-400/70 text-white font-extrabold text-xs sm:text-sm shadow-md whitespace-nowrap">
+            <div className="h-9 px-3 sm:px-3.5 rounded-xl bg-stone-900/90 border border-stone-700/80 text-white font-extrabold text-xs sm:text-sm shadow-md flex items-center gap-1.5 whitespace-nowrap">
               <Smartphone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="font-black">
+              <span className="font-black text-amber-300">
                 {currentTable ? formatTableStationName(currentTable, lang) : 'Tavolo'}
               </span>
             </div>
           ) : (
             /* Staff / Tablet Controls */
             <>
+              {/* 1. Tavolo Pill */}
               <button
                 type="button"
                 onClick={() => { setIsTableSelected(false); setCustomTableInput(''); }}
-                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-stone-900/95 border border-amber-400/70 hover:border-amber-300 text-amber-300 font-black text-xs sm:text-sm shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                className="h-9 px-2.5 sm:px-3.5 rounded-xl bg-stone-900/90 hover:bg-stone-850 border border-stone-700/80 hover:border-amber-400/80 text-white font-bold text-xs sm:text-sm shadow-md cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 whitespace-nowrap"
                 title={lang === 'TH' ? 'แตะเพื่อเปลี่ยนโต๊ะ' : lang === 'EN' ? 'Tap to change table' : lang === 'DE' ? 'Tippen zum Tischwechsel' : lang === 'MM' ? 'စားပွဲပြောင်းရန် နှိပ်ပါ' : 'Tocca per cambiare tavolo'}
               >
                 <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="font-black">
-                  {currentTable ? formatTableStationName(currentTable, lang) : (lang === 'TH' ? 'เลือกโต๊ะอาหาร' : lang === 'EN' ? 'Select Table' : lang === 'DE' ? 'Tisch wählen' : lang === 'MM' ? 'စားပွဲရွေးပါ' : 'Seleziona Tavolo')}
+                <span className="font-black text-amber-300">
+                  {currentTable ? formatTableStationName(currentTable, lang) : (lang === 'TH' ? 'เลือกโต๊ะ' : lang === 'EN' ? 'Table' : lang === 'DE' ? 'Tisch' : lang === 'MM' ? 'စားပွဲ' : 'Tavolo')}
                 </span>
-                <span className="text-[10px] text-stone-400 uppercase font-semibold">
-                  ▼ {lang === 'TH' ? 'เปลี่ยน' : lang === 'EN' ? 'Change' : lang === 'DE' ? 'Ändern' : lang === 'MM' ? 'ပြောင်းရန်' : 'Cambia'}
-                </span>
+                <ChevronDown className="w-3.5 h-3.5 text-stone-400 shrink-0" />
               </button>
 
-              {/* Dynamic QR Code Generator for Guests */}
+              {/* 2. QR Code Pill (Unified Same Concept & Measure) */}
               {currentTable && (
                 <button
                   type="button"
                   onClick={() => setIsQrModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-black text-xs shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                  className="h-9 px-2.5 sm:px-3.5 rounded-xl bg-stone-900/90 hover:bg-stone-850 border border-stone-700/80 hover:border-amber-400/80 text-white font-bold text-xs sm:text-sm shadow-md cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 whitespace-nowrap"
                   title={lang === 'TH' ? 'แสดง QR Code สำหรับสั่งผ่านมือถือ' : lang === 'EN' ? 'Show Smartphone QR Code' : lang === 'DE' ? 'Smartphone-QR anzeigen' : lang === 'MM' ? 'စမတ်ဖုန်း QR ပြပါ' : 'Mostra QR Code Smartphone'}
                 >
-                  <Smartphone className="w-3.5 h-3.5 text-amber-300 animate-pulse shrink-0" />
-                  <span className="hidden sm:inline">{lang === 'IT' ? 'QR Smartphone' : lang === 'TH' ? 'QR มือถือ' : lang === 'DE' ? 'Smartphone-QR' : lang === 'MM' ? 'စမတ်ဖုန်း QR' : 'Smartphone QR'}</span>
-                  <QrCode className="w-3.5 h-3.5 text-white shrink-0" />
+                  <QrCode className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span className="font-extrabold text-stone-100 text-xs sm:text-sm">QR</span>
                 </button>
               )}
 
+              {/* 3. Salda Conto Pill (Se aperto) */}
               {currentTable && (activeTableOrderMap[getCanonicalTableKey(currentTable)] || []).length > 0 && (
                 <button
                   type="button"
                   onClick={() => setIsSettlementModalOpen(true)}
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-900/90 border border-emerald-500/70 hover:bg-emerald-800 text-emerald-200 font-extrabold text-xs shadow-md cursor-pointer transition-all hover:scale-105 active:scale-95"
+                  className="h-9 hidden md:flex items-center gap-1.5 px-3 rounded-xl bg-emerald-950/90 border border-emerald-500/70 hover:bg-emerald-900 text-emerald-200 font-extrabold text-xs shadow-md cursor-pointer transition-all active:scale-95 whitespace-nowrap"
                 >
                   <span>💳</span>
-                  <span>{lang === 'TH' ? 'เช็คบิล' : lang === 'EN' ? 'Settle Bill' : lang === 'DE' ? 'Zahlen' : lang === 'MM' ? 'ဘေလ်ရှင်းမည်' : 'Salda Conto'}</span>
-                  <span className="font-mono bg-emerald-950 px-1.5 py-0.5 rounded text-[11px] text-emerald-300">
+                  <span>{lang === 'TH' ? 'เช็คบิล' : lang === 'EN' ? 'Bill' : lang === 'DE' ? 'Zahlen' : lang === 'MM' ? 'ဘေလ်' : 'Salda'}</span>
+                  <span className="font-mono bg-emerald-900 px-1.5 py-0.5 rounded text-[11px] text-emerald-300">
                     ฿{Math.round((activeTableOrderMap[getCanonicalTableKey(currentTable)] || []).reduce((s, o) => s + (Number(o.total) || 0), 0))}
                   </span>
                 </button>
               )}
             </>
           )}
-        </div>
 
-        {/* Right: Language Dropdown Selector */}
-        <LanguageDropdown 
-          currentLang={lang} 
-          onSelect={setLanguage} 
-          variant="dining-dark" 
-          align="right" 
-        />
+          {/* 4. Language Dropdown Selector (Same Concept & h-9) */}
+          <LanguageDropdown 
+            currentLang={lang} 
+            onSelect={setLanguage} 
+            variant="dining-dark" 
+            align="right" 
+          />
+        </div>
       </nav>
 
       {/* MANDATORY TABLE SELECTION OVERLAY (When session not yet picked or changed) */}
