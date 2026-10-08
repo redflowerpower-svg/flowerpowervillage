@@ -891,11 +891,12 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         setIsGuestMobile(true);
         setGuestSessionToken(gToken);
         validateDiningTableSession(gTable, gToken).then(res => {
+          const canonical = getCanonicalTableKey(gTable);
           if (res.valid) {
-            setCurrentTable(gTable);
+            setCurrentTable(canonical);
             setIsTableSelected(true);
           } else if (res.status === 'settled' || res.status === 'expired') {
-            setCurrentTable(gTable);
+            setCurrentTable(canonical);
             setIsGuestSettled(true);
           }
         });
@@ -1116,7 +1117,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       clearCart();
     }
 
-    setCurrentTable(trimmed);
+    setCurrentTable(canonical);
     setIsTableSelected(true);
   };
 

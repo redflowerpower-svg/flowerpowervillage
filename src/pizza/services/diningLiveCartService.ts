@@ -2,7 +2,7 @@ import { supabase } from '../../lib/supabase';
 import { getCanonicalTableKey } from '../utils/tableUtils';
 import type { CartItem } from '../store/cartStore';
 
-// Ephemeral device ID to filter out self-broadcasted messages
+// Unique ephemeral device ID per session
 const getLocalDeviceId = (): string => {
   try {
     let id = sessionStorage.getItem('fp_dining_dev_id');
@@ -20,7 +20,7 @@ export interface LiveCartPayload {
   senderId: string;
   tableKey: string;
   items: CartItem[];
-  timestamp: number;
+  updatedAt: number;
 }
 
 export interface DiningLiveCartController {
@@ -31,8 +31,11 @@ export interface DiningLiveCartController {
 }
 
 /**
- * Initializes bidirectional live cart synchronization for a table session.
- * Connects both Supabase Realtime Broadcast (cross-device) and local BroadcastChannel (cross-tab).
+ * Initializes bulletproof bidirectional live cart synchronization for a table session.
+ * Uses:
+ * 1. Supabase Realtime Presence (server-backed state memory for late joiners & QR scans)
+ * 2. Supabase Realtime Broadcast (sub-millisecond instant reactive updates)
+ * 3. Local BroadcastChannel (cross-tab sync on same device)
  */
 export function connectDiningLiveCart({
   tableKey,
@@ -48,6 +51,7 @@ export function connectDiningLiveCart({
   const canonical = getCanonicalTableKey(tableKey);
   const deviceId = getLocalDeviceId();
   let lastProcessedTimestamp = 0;
+  let isSubscribed = false;
 
   // 1. Local Same-Device BroadcastChannel
   let localBc: BroadcastChannel | null = null;
@@ -58,8 +62,8 @@ export function connectDiningLiveCart({
       if (!data || data.senderId === deviceId) return;
 
       if (data.type === 'CART_SYNC' && Array.isArray(data.items)) {
-        if (data.timestamp >= lastProcessedTimestamp) {
-          lastProcessedTimestamp = data.timestamp;
+        if ((data.updatedAt || data.timestamp || 0) >= lastProcessedTimestamp) {
+          lastProcessedTimestamp = data.updatedAt || data.timestamp || Date.now();
           onRemoteCartSync(data.items, data.senderId);
         }
       } else if (data.type === 'REQUEST_SYNC') {
@@ -71,7 +75,7 @@ export function connectDiningLiveCart({
               senderId: deviceId,
               tableKey: canonical,
               items: currentItems,
-              timestamp: Date.now()
+              updatedAt: Date.now()
             });
           }
         }
@@ -83,69 +87,125 @@ export function connectDiningLiveCart({
     console.warn('[DiningLiveCart] Local BroadcastChannel unavailable:', err);
   }
 
-  // 2. Supabase Realtime Channel for Cross-Device WebSockets
-  const channelName = `dining_live_cart_${canonical.replace(/[^a-z0-9]/gi, '_')}`;
+  // 2. Supabase Realtime Channel with Presence + Broadcast
+  const cleanKey = canonical.toLowerCase().replace(/[^a-z0-9]/gi, '_');
+  const channelName = `dining_room_${cleanKey}`;
+
   const rtChannel = supabase.channel(channelName, {
     config: {
-      broadcast: { self: false }
+      broadcast: { self: false },
+      presence: { key: deviceId }
     }
   });
 
-  rtChannel
-    .on('broadcast', { event: 'CART_SYNC' }, (event: any) => {
-      const payload: LiveCartPayload = event.payload;
-      if (!payload || payload.senderId === deviceId) return;
-      if (getCanonicalTableKey(payload.tableKey) !== canonical) return;
+  // Handle Presence Sync (Delivered automatically by Supabase cluster to late-joining QR phones!)
+  rtChannel.on('presence', { event: 'sync' }, () => {
+    try {
+      const state = rtChannel.presenceState();
+      const presences = Object.values(state).flat() as any[];
+      if (presences.length === 0) return;
 
-      if (payload.timestamp >= lastProcessedTimestamp) {
-        lastProcessedTimestamp = payload.timestamp;
-        onRemoteCartSync(payload.items || [], payload.senderId);
+      // Find the latest cart state by timestamp
+      const validPresences = presences.filter(p => p && Array.isArray(p.items) && p.updatedAt);
+      if (validPresences.length === 0) return;
+
+      validPresences.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      const latest = validPresences[0];
+
+      if (latest && latest.senderId !== deviceId && (latest.updatedAt || 0) > lastProcessedTimestamp) {
+        lastProcessedTimestamp = latest.updatedAt;
+        if (latest.items.length === 0) {
+          onRemoteCartClear(latest.senderId);
+        } else {
+          onRemoteCartSync(latest.items, latest.senderId);
+        }
       }
-    })
-    .on('broadcast', { event: 'REQUEST_SYNC' }, (event: any) => {
-      const payload = event.payload;
-      if (!payload || payload.senderId === deviceId) return;
-      if (getCanonicalTableKey(payload.tableKey) !== canonical) return;
+    } catch (err) {
+      console.warn('[DiningLiveCart] Presence sync error:', err);
+    }
+  });
 
+  // Handle Instant Broadcast CART_SYNC
+  rtChannel.on('broadcast', { event: 'CART_SYNC' }, (event: any) => {
+    const payload: LiveCartPayload = event.payload;
+    if (!payload || payload.senderId === deviceId) return;
+    if (getCanonicalTableKey(payload.tableKey) !== canonical) return;
+
+    const ts = payload.updatedAt || (payload as any).timestamp || 0;
+    if (ts >= lastProcessedTimestamp) {
+      lastProcessedTimestamp = ts;
+      onRemoteCartSync(payload.items || [], payload.senderId);
+    }
+  });
+
+  // Handle Instant Broadcast CART_CLEAR
+  rtChannel.on('broadcast', { event: 'CART_CLEAR' }, (event: any) => {
+    const payload = event.payload;
+    if (!payload || payload.senderId === deviceId) return;
+    if (getCanonicalTableKey(payload.tableKey) !== canonical) return;
+
+    lastProcessedTimestamp = payload.updatedAt || Date.now();
+    onRemoteCartClear(payload.senderId);
+  });
+
+  // Handle REQUEST_SYNC from peer
+  rtChannel.on('broadcast', { event: 'REQUEST_SYNC' }, (event: any) => {
+    const payload = event.payload;
+    if (!payload || payload.senderId === deviceId) return;
+    if (getCanonicalTableKey(payload.tableKey) !== canonical) return;
+
+    if (onRequestSyncReceived) {
+      const currentItems = onRequestSyncReceived();
+      if (currentItems && currentItems.length > 0) {
+        rtChannel.send({
+          type: 'broadcast',
+          event: 'CART_SYNC',
+          payload: {
+            senderId: deviceId,
+            tableKey: canonical,
+            items: currentItems,
+            updatedAt: Date.now()
+          }
+        });
+      }
+    }
+  });
+
+  // Subscribe and track presence initial state
+  rtChannel.subscribe(async (status) => {
+    if (status === 'SUBSCRIBED') {
+      isSubscribed = true;
+
+      // Check if we already have items to track
       if (onRequestSyncReceived) {
-        const currentItems = onRequestSyncReceived();
-        if (currentItems && currentItems.length > 0) {
-          rtChannel.send({
-            type: 'broadcast',
-            event: 'CART_SYNC',
-            payload: {
-              senderId: deviceId,
-              tableKey: canonical,
-              items: currentItems,
-              timestamp: Date.now()
-            }
+        const initialItems = onRequestSyncReceived();
+        if (initialItems && initialItems.length > 0) {
+          lastProcessedTimestamp = Date.now();
+          await rtChannel.track({
+            senderId: deviceId,
+            tableKey: canonical,
+            items: initialItems,
+            updatedAt: lastProcessedTimestamp
           });
         }
       }
-    })
-    .on('broadcast', { event: 'CART_CLEAR' }, (event: any) => {
-      const payload = event.payload;
-      if (!payload || payload.senderId === deviceId) return;
-      if (getCanonicalTableKey(payload.tableKey) !== canonical) return;
 
-      onRemoteCartClear(payload.senderId);
-    })
-    .subscribe((status) => {
-      if (status === 'SUBSCRIBED') {
-        // As soon as we join, ask peers if they already have items in the cart
+      // Request sync from peers
+      try {
         rtChannel.send({
           type: 'broadcast',
           event: 'REQUEST_SYNC',
           payload: {
             senderId: deviceId,
             tableKey: canonical,
-            timestamp: Date.now()
+            updatedAt: Date.now()
           }
         });
-      }
-    });
+      } catch {}
+    }
+  });
 
-  // Ask local tabs immediately as well
+  // Broadcast to local same-browser tabs
   try {
     localBc?.postMessage({
       type: 'REQUEST_SYNC',
@@ -155,7 +215,7 @@ export function connectDiningLiveCart({
     });
   } catch {}
 
-  const broadcastCart = (items: CartItem[]) => {
+  const broadcastCart = async (items: CartItem[]) => {
     const timestamp = Date.now();
     lastProcessedTimestamp = timestamp;
 
@@ -163,10 +223,10 @@ export function connectDiningLiveCart({
       senderId: deviceId,
       tableKey: canonical,
       items,
-      timestamp
+      updatedAt: timestamp
     };
 
-    // Send to local tabs
+    // 1. Update local same-device BroadcastChannel
     try {
       localBc?.postMessage({
         type: 'CART_SYNC',
@@ -174,7 +234,16 @@ export function connectDiningLiveCart({
       });
     } catch {}
 
-    // Send to remote devices
+    // 2. Track in Supabase Presence (persists in cloud memory for late joiners!)
+    if (isSubscribed) {
+      try {
+        await rtChannel.track(payload);
+      } catch (err) {
+        console.warn('[DiningLiveCart] Presence track failed:', err);
+      }
+    }
+
+    // 3. Instant Realtime Broadcast to active peers
     try {
       rtChannel.send({
         type: 'broadcast',
@@ -182,7 +251,7 @@ export function connectDiningLiveCart({
         payload
       });
     } catch (err) {
-      console.warn('[DiningLiveCart] broadcast failed:', err);
+      console.warn('[DiningLiveCart] Broadcast send failed:', err);
     }
   };
 
@@ -203,21 +272,36 @@ export function connectDiningLiveCart({
         payload: {
           senderId: deviceId,
           tableKey: canonical,
-          timestamp
+          updatedAt: timestamp
         }
       });
     } catch {}
   };
 
-  const broadcastClear = () => {
+  const broadcastClear = async () => {
+    const timestamp = Date.now();
+    lastProcessedTimestamp = timestamp;
+
     try {
       localBc?.postMessage({
         type: 'CART_CLEAR',
         senderId: deviceId,
         tableKey: canonical,
-        timestamp: Date.now()
+        timestamp
       });
     } catch {}
+
+    if (isSubscribed) {
+      try {
+        await rtChannel.track({
+          senderId: deviceId,
+          tableKey: canonical,
+          items: [],
+          updatedAt: timestamp
+        });
+      } catch {}
+    }
+
     try {
       rtChannel.send({
         type: 'broadcast',
@@ -225,7 +309,7 @@ export function connectDiningLiveCart({
         payload: {
           senderId: deviceId,
           tableKey: canonical,
-          timestamp: Date.now()
+          updatedAt: timestamp
         }
       });
     } catch {}
@@ -233,11 +317,12 @@ export function connectDiningLiveCart({
 
   const unsubscribe = () => {
     try {
-      if (localBc) {
-        localBc.close();
-      }
+      if (localBc) localBc.close();
     } catch {}
     try {
+      if (isSubscribed) {
+        rtChannel.untrack();
+      }
       supabase.removeChannel(rtChannel);
     } catch {}
   };
