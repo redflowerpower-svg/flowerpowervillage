@@ -818,7 +818,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                         </button>
                       </div>
                     ) : isDiningMode ? (
-                      <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="mt-4 pt-3 border-t border-stone-100 flex flex-col min-[480px]:flex-row min-[480px]:items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-1">
                             <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
@@ -841,7 +841,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                         <button
                           type="button"
                           onClick={() => handleAddWine(item)}
-                          className="px-4 py-2 text-white text-xs font-bold rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center gap-1.5"
+                          className="w-full min-[480px]:w-auto px-3.5 sm:px-4 py-2 text-white text-xs font-bold rounded-xl sm:rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all cursor-pointer shrink-0 bg-[#8B1E1E] hover:bg-[#721818] flex items-center justify-center gap-1.5"
                           style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                         >
                           <Plus size={13} className="stroke-[3]" />
@@ -912,7 +912,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
             >
               {/* IMAGE CONTAINER WITH ZOOM ICON */}
               <div 
-                className="relative h-48 sm:h-52 bg-stone-100 overflow-hidden flex-shrink-0 rounded-t-[2rem]"
+                className="relative h-36 sm:h-44 md:h-52 bg-stone-100 overflow-hidden flex-shrink-0 rounded-t-[2rem]"
                 onClick={(e) => {
                   e.stopPropagation();
                   setZoomedItem(item);
@@ -935,10 +935,10 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
               </div>
 
               {/* CONTENT AREA */}
-              <div className="p-5 sm:p-6 flex-grow flex flex-col justify-between">
+              <div className="p-3.5 sm:p-4 md:p-5 lg:p-6 flex-grow flex flex-col justify-between">
                 <div>
                   <h3
-                    className="font-sans text-lg font-bold text-stone-900 leading-tight tracking-tight"
+                    className="font-sans text-sm sm:text-base md:text-lg font-bold text-stone-900 leading-snug tracking-tight"
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                   >
                     {formatProductName(getTranslatedName(item))}
@@ -948,13 +948,13 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                   {isLasagna(item) && (
                     <div className="mt-2 mb-1 flex flex-col gap-1">
                       <span
-                        className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-800 text-[10px] font-bold px-2.5 py-1.5 rounded-xl leading-tight"
+                        className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-800 text-[9px] sm:text-[10px] font-bold px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl leading-tight"
                         style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                       >
                         {t.lasagnaBadge}
                       </span>
                       <span
-                        className="text-stone-400 text-[10px] italic leading-tight"
+                        className="text-stone-400 text-[9px] sm:text-[10px] italic leading-tight"
                         style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                       >
                         {t.lasagnaWhyLabel}
@@ -963,7 +963,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                   )}
 
                   <p
-                    className="text-stone-500 text-xs font-light leading-relaxed mb-4 flex-grow mt-1.5 line-clamp-3"
+                    className="text-stone-500 text-[11px] sm:text-xs font-light leading-relaxed mb-3 sm:mb-4 flex-grow mt-1 line-clamp-2 sm:line-clamp-3"
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                   >
                     {getTranslatedDesc(item)}
@@ -971,22 +971,22 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                 </div>
 
                 {/* PRICING & ACTION BAR */}
-                <div className="mt-auto pt-3 border-t border-stone-100">
+                <div className="mt-auto pt-2.5 sm:pt-3 border-t border-stone-100">
                   {hasOptions ? (
-                    <div className="pb-2 flex items-center gap-2 text-[9px] text-stone-400 font-bold uppercase tracking-wider">
+                    <div className="pb-1.5 sm:pb-2 flex items-center gap-1.5 text-[8px] sm:text-[9px] text-stone-400 font-bold uppercase tracking-wider truncate">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#8B1E1E]/60 flex-shrink-0" />
-                      <span>
+                      <span className="truncate">
                         {item.variants?.length ? `${t.sizeOptions} · ` : ''}
                         {item.extras?.length ? `${item.extras.length} ${t.extraIngredients}` : ''}
                       </span>
                     </div>
                   ) : null}
 
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <div className="flex items-center gap-1.5">
+                  <div className="flex flex-col min-[480px]:flex-row min-[480px]:items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span
-                          className="block text-[10px] uppercase tracking-wider text-stone-400 font-bold"
+                          className="block text-[9px] sm:text-[10px] uppercase tracking-wider text-stone-400 font-bold"
                           style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                         >
                           {hasOptions ? t.startingAt : (lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo')}
@@ -1000,22 +1000,22 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                       {isDiningMode ? (
                         <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
                           <span 
-                            className="text-xl font-extrabold text-stone-900"
+                            className="text-lg sm:text-xl font-black text-stone-900"
                             style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
                           >
                             {Math.round(item.price * 0.95)}
                           </span>
-                          <span className="text-sm font-black text-stone-900 select-none">
+                          <span className="text-xs sm:text-sm font-black text-stone-900 select-none">
                             ฿
                           </span>
-                          <span className="text-xs text-stone-400 line-through font-semibold ml-0.5">
+                          <span className="text-[11px] sm:text-xs text-stone-400 line-through font-semibold ml-0.5">
                             {item.price}฿
                           </span>
                         </div>
                       ) : (
                         renderFormattedPrice(item.price, {
-                          numClass: "text-xl font-extrabold text-stone-900",
-                          symbolClass: "text-sm font-black text-stone-900 select-none"
+                          numClass: "text-lg sm:text-xl font-extrabold text-stone-900",
+                          symbolClass: "text-xs sm:text-sm font-black text-stone-900 select-none"
                         })
                       )}
                     </div>
@@ -1023,7 +1023,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                     <button
                       type="button"
                       onClick={handleCardAction}
-                      className="text-xs font-semibold px-4 sm:px-5 py-2.5 rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer bg-[#8B1E1E] text-white hover:bg-[#721818] flex items-center gap-1.5"
+                      className="w-full min-[480px]:w-auto text-xs font-bold px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all duration-300 cursor-pointer bg-[#8B1E1E] text-white hover:bg-[#721818] flex items-center justify-center gap-1.5 shrink-0 whitespace-nowrap"
                       style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                     >
                       {hasOptions ? (

@@ -1624,16 +1624,18 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       <nav className="fixed top-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-md border-b border-amber-400/30 text-white px-3 sm:px-6 py-2.5 flex items-center justify-between shadow-xl">
         
         {/* Left: Brand Logo & Title */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#8B1E1E] to-[#5a1111] border border-amber-400/40 flex items-center justify-center shadow-md">
-            <UtensilsCrossed className="w-4 h-4 text-amber-300" />
-          </div>
-          <div>
-            <span className="font-black text-sm sm:text-base tracking-tight text-white block leading-none">
-              Flower Power Dining
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <img
+            src="/flower-power-pizza-logo-160.png"
+            alt="Flower Power Pizza"
+            className="w-8 h-8 sm:w-9 sm:h-9 object-contain drop-shadow-md rounded-full shrink-0"
+          />
+          <div className="min-w-0">
+            <span className="font-black text-xs sm:text-sm md:text-base tracking-tight text-white block leading-none truncate">
+              Flower Power Tablet
             </span>
-            <span className="text-[10px] text-amber-400/90 font-bold uppercase tracking-wider block mt-0.5">
-              {isGuestMobile ? (lang === 'TH' ? 'สั่งผ่านสมาร์ทโฟน' : 'Smartphone Dining') : 'Dining Tablet • Ranong'}
+            <span className="text-[9px] sm:text-[10px] text-amber-400/90 font-bold uppercase tracking-wider block mt-0.5 truncate">
+              {isGuestMobile ? (lang === 'TH' ? 'สั่งผ่านสมาร์ทโฟน' : 'Smartphone Dining') : 'Ranong • Thailand'}
             </span>
           </div>
         </div>
