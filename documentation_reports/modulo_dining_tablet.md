@@ -66,3 +66,11 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
     - **Mapping Birmano Certificato**: normalizza i codici ISO browser birmani `my`, `my-MM`, `my-ZG` (Zawgyi), `bur` ➔ **`MM`** aprendo istantaneamente il menu in Birmano.
     - **Rilevamento Standard**: riconosce `th`/`th-TH` ➔ `TH`, `de`/`de-DE` ➔ `DE`, `it`/`it-IT` ➔ `IT`, `en`/`en-US` ➔ `EN`.
     - **Fallback Turistico Internazionale**: qualsiasi dispositivo con lingua non supportata (es. francese, spagnolo, russo, svedese, cinese) ricade di default in modo garantito su **Inglese (`EN`)**.
+18. **Studio & Generatore 16 QR Code Fisici Permanenti (`DiningTableQrStudio.tsx`)**:
+    - Generazione dei 16 QR Code unici e permanenti (uno per ciascun tavolo da T1 a T16) con URL dedicata `/dining?table=T<N>&token=permanent_table_qr`.
+    - Modalità di visualizzazione singola per tavolo con selettore rapido e modalità di stampa cumulativa in blocco (*Stampa 16 QR Code Sala*) formattata per etichette/segnatavolo con logo Flower Power, badge `-5% Sconto al Tavolo`, QR Code SVG/PNG ad alta risoluzione e istruzioni multilingua (*Inquadra per ordinare dal tuo smartphone*).
+19. **Rilevamento Presenza Ospiti in Tempo Reale & Occupazione Immediata sul Dining Tablet (`diningTablePresenceService.ts`)**:
+    - Nel preciso istante in cui un commensale inquadra il QR Code del tavolo dal proprio smartphone, il servizio di presenza Realtime (`dining_hall_presence_channel` via Supabase Presence & BroadcastChannel) notifica a 0ms il Dining Tablet roving in sala.
+    - Sulla griglia del tablet, il tavolo si illumina immediatamente di rosso con effetto ping (`border-red-500/80 bg-red-950/70 ring-1 ring-red-500/50`) e badge **`📱 N Ospiti Live`** / **`In Ordinazione Live`**, disabilitando lo stato libero e segnalando allo staff che i clienti stanno componendo la propria ordinazione.
+    - Più commensali allo stesso tavolo che scansionano il medesimo QR Code entrano automaticamente nello stesso **Carrello Condiviso Live** a latenza zero.
+    - Lo staff con il Dining Tablet roving può in qualunque momento toccare il tavolo occupato per entrare in visualizzazione/collaborazione in tempo reale con il carrello dei clienti.

@@ -102,36 +102,15 @@ export async function validateDiningTableSession(tableKey: string, token: string
     return { valid: true, status: 'active', session: localSession };
   }
 
-  // 3. Fallback: Check if token has valid format matching table
-  if (token.startsWith(`tb_${canonical.replace(/[^a-z0-9]/gi, '')}_`)) {
-    // Check if table has settled orders recently
-    try {
-      const { data } = await supabase
-        .from('pizza_orders')
-        .select('id, status, created_at')
-        .ilike('address', `%${tableKey}%`)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (data && data.length > 0) {
-        const latest = data[0];
-        if (latest.status === 'completed' || latest.status === 'settled') {
-          // If the latest order is completed within last 30 minutes, table is settled
-          const orderAge = Date.now() - new Date(latest.created_at).getTime();
-          if (orderAge < 60 * 60 * 1000) {
-            return { valid: false, status: 'settled' };
-          }
-        }
-      }
-    } catch {}
-
+  // 3. Fallback: Check if token has valid format matching table or is a permanent physical QR
+  if (token === 'permanent_table_qr' || token.startsWith('tb_') || token.startsWith(`tb_${canonical.replace(/[^a-z0-9]/gi, '')}_`)) {
     // Allow session as valid guest session
     return { 
       valid: true, 
       status: 'active', 
       session: {
         tableKey: canonical,
-        token,
+        token: token || 'permanent_table_qr',
         createdAt: Date.now(),
         status: 'active'
       }

@@ -47,13 +47,12 @@ const I18N_CHECKOUT = {
     customTableBtn: 'Inserimento libero',
     listTableBtn: 'Scegli da lista',
     customPlaceholder: 'es. Tavolo 7 / Terrazza / Bancone',
-    clientSection: '2. Dati Cliente (Per Sconto & Coupon)',
-    nameLabel: 'Nome e Cognome *',
-    namePlaceholder: 'es. Marco Rossi',
-    phoneLabel: 'Telefono / WhatsApp *',
-    phonePlaceholder: 'es. 0812345678 / +39...',
-    emailLabel: 'Email (per coupon 10% da usare per ordini a domicilio)',
-    emailPlaceholder: 'tuaemail@esempio.com',
+    clientSection: '2. Ricevi lo Sconto a Casa (Facoltativo)',
+    nameLabel: 'Nome o Riferimento (Opzionale)',
+    namePlaceholder: 'es. Marco (o lascia vuoto)',
+    emailLabel: 'Email per Coupon Sconto 10% Delivery (Opzionale)',
+    emailPlaceholder: 'tuaemail@esempio.com (opzionale)',
+    emailHelper: "💡 L'email non è obbligatoria per ordinare: serve solo se desideri ricevere il Coupon Sconto 10% per i tuoi prossimi ordini da casa.",
     notesLabel: 'Note Speciali per la Cucina / Camerieri (Opzionale)',
     notesPlaceholder: 'es. Portare le pizze insieme, bicchieri extra...',
     payAtCounterTitle: 'Conto alla Cassa',
@@ -67,7 +66,7 @@ const I18N_CHECKOUT = {
     successTitle: 'Comanda Inviata alla Cassa!',
     successSubtitle: 'I tuoi piatti e le tue pizze vengono preparati al momento.',
     giftTitle: 'Regalo Speciale Delivery per Te!',
-    giftDesc: 'Grazie per aver ordinato al tavolo! Riceverai via WhatsApp/Email il tuo Coupon Sconto del 10% per il tuo prossimo ordine a domicilio su flowerpowerpizza.com.',
+    giftDesc: 'Grazie per aver ordinato al tavolo! Se hai inserito la tua email, riceverai il tuo Coupon Sconto del 10% per il tuo prossimo ordine a domicilio su flowerpowerpizza.com.',
     summaryPill: 'Totale Conto al Tavolo (-5% applicato):',
     finishBtn: 'Torna al Menu / Nuovo Ordine'
   },
@@ -78,13 +77,12 @@ const I18N_CHECKOUT = {
     customTableBtn: 'Free text input',
     listTableBtn: 'Select from list',
     customPlaceholder: 'e.g. Table 7 / Terrace / Counter',
-    clientSection: '2. Guest Details (For Discount & Gift Voucher)',
-    nameLabel: 'Full Name *',
-    namePlaceholder: 'e.g. John Smith',
-    phoneLabel: 'Phone / WhatsApp *',
-    phonePlaceholder: 'e.g. 0812345678 / +1...',
-    emailLabel: 'Email (to receive 10% delivery discount coupon)',
-    emailPlaceholder: 'youremail@example.com',
+    clientSection: '2. Get Home Delivery Discount Voucher (Optional)',
+    nameLabel: 'Name / Nickname (Optional)',
+    namePlaceholder: 'e.g. John (or leave empty)',
+    emailLabel: 'Email for 10% Home Delivery Coupon (Optional)',
+    emailPlaceholder: 'youremail@example.com (optional)',
+    emailHelper: '💡 Email is not mandatory to order: it is only needed if you wish to receive the 10% home delivery discount voucher.',
     notesLabel: 'Special Kitchen / Server Notes (Optional)',
     notesPlaceholder: 'e.g. Serve pizzas together, extra glasses...',
     payAtCounterTitle: 'Pay at Counter',
@@ -98,7 +96,7 @@ const I18N_CHECKOUT = {
     successTitle: 'Order Sent to Counter!',
     successSubtitle: 'Your dishes and authentic pizzas are now being freshly prepared.',
     giftTitle: 'Special Delivery Gift for You!',
-    giftDesc: 'Thank you for ordering at our table! You will receive a 10% discount voucher for your next home delivery on flowerpowerpizza.com.',
+    giftDesc: 'Thank you for ordering at our table! If you provided your email, you will receive a 10% discount voucher for your next home delivery on flowerpowerpizza.com.',
     summaryPill: 'Table Bill Total (-5% applied):',
     finishBtn: 'Back to Menu / New Order'
   },
@@ -109,13 +107,12 @@ const I18N_CHECKOUT = {
     customTableBtn: 'พิมพ์ระบุเอง',
     listTableBtn: 'เลือกจากรายการ',
     customPlaceholder: 'เช่น โต๊ะ 7 / ซุ้มไม้ไผ่ / ริมระเบียง',
-    clientSection: '2. ข้อมูลลูกค้า (สำหรับรับสิทธิ์และคูปอง)',
-    nameLabel: 'ชื่อ - นามสกุล *',
-    namePlaceholder: 'เช่น สมชาย ใจดี',
-    phoneLabel: 'เบอร์โทรศัพท์ / WhatsApp *',
-    phonePlaceholder: 'เช่น 0812345678',
-    emailLabel: 'อีเมล (เพื่อรับคูปองส่วนลด 10% สั่งเดลิเวอรี่กลับบ้าน)',
-    emailPlaceholder: 'yourname@example.com',
+    clientSection: '2. รับคูปองส่วนลดสั่งทานที่บ้าน (ไม่บังคับ)',
+    nameLabel: 'ชื่อผู้สั่ง (ไม่บังคับ)',
+    namePlaceholder: 'เช่น สมชาย (หรือเว้นว่างไว้)',
+    emailLabel: 'อีเมลรับคูปองส่วนลด 10% สั่งเดลิเวอรี่ (ไม่บังคับ)',
+    emailPlaceholder: 'yourname@example.com (เว้นว่างได้เลย)',
+    emailHelper: '💡 ไม่จำเป็นต้องกรอกอีเมลเพื่อสั่งอาหาร: ใช้เฉพาะกรณีต้องการรับคูปองส่วนลด 10% สั่งทานที่บ้านเท่านั้น',
     notesLabel: 'หมายเหตุถึงเชฟและพนักงาน (ถ้ามี)',
     notesPlaceholder: 'เช่น เสิร์ฟพร้อมกัน, แก้วน้ำเพิ่ม...',
     payAtCounterTitle: 'ชำระที่แคชเชียร์',
@@ -129,7 +126,7 @@ const I18N_CHECKOUT = {
     successTitle: 'ส่งออเดอร์ไปที่แคชเชียร์เรียบร้อยแล้ว!',
     successSubtitle: 'เชฟกำลังปรุงอาหารและอบพิซซ่าสดใหม่ให้คุณ',
     giftTitle: 'ของขวัญพิเศษสำหรับคุณ!',
-    giftDesc: 'ขอบคุณที่สั่งอาหารที่โต๊ะ! คุณจะได้รับคูปองส่วนลด 10% สำหรับสั่งเดลิเวอรี่ส่งถึงบ้านผ่าน flowerpowerpizza.com',
+    giftDesc: 'ขอบคุณที่สั่งอาหารที่โต๊ะ! หากคุณระบุอีเมล คุณจะได้รับคูปองส่วนลด 10% สำหรับสั่งเดลิเวอรี่ส่งถึงบ้านผ่าน flowerpowerpizza.com',
     summaryPill: 'ยอดรวมบิลที่โต๊ะ (ลด 5% แล้ว):',
     finishBtn: 'กลับสู่เมนู / สั่งเพิ่ม'
   },
@@ -140,13 +137,12 @@ const I18N_CHECKOUT = {
     customTableBtn: 'Freie Eingabe',
     listTableBtn: 'Aus Liste wählen',
     customPlaceholder: 'z.B. Tisch 7 / Terrasse / Bar',
-    clientSection: '2. Kundendaten (für Rabatt & Gutschein)',
-    nameLabel: 'Vor- und Nachname *',
-    namePlaceholder: 'z.B. Thomas Müller',
-    phoneLabel: 'Telefon / WhatsApp *',
-    phonePlaceholder: 'z.B. 0812345678 / +49...',
-    emailLabel: 'E-Mail (für 10% Rabattgutschein für Lieferungen)',
-    emailPlaceholder: 'ihre.email@beispiel.de',
+    clientSection: '2. Liefer-Rabattgutschein für zu Hause (Optional)',
+    nameLabel: 'Name / Notiz (Optional)',
+    namePlaceholder: 'z.B. Thomas (oder leer lassen)',
+    emailLabel: 'E-Mail für 10% Liefer-Rabattgutschein (Freiwillig)',
+    emailPlaceholder: 'ihre.email@beispiel.de (optional)',
+    emailHelper: '💡 E-Mail ist nicht erforderlich: Sie wird nur benötigt, wenn Sie den 10% Liefergutschein für zu Hause erhalten möchten.',
     notesLabel: 'Sonderwünsche an Küche / Service (Optional)',
     notesPlaceholder: 'z.B. Pizzen zusammen servieren, extra Gläser...',
     payAtCounterTitle: 'Rechnung an der Kasse',
@@ -160,7 +156,7 @@ const I18N_CHECKOUT = {
     successTitle: 'Bestellung an die Kasse gesendet!',
     successSubtitle: 'Ihre Gerichte und frischen Pizzen werden jetzt frisch zubereitet.',
     giftTitle: 'Liefer-Gutschein für Sie!',
-    giftDesc: 'Vielen Dank für Ihre Tischbestellung! Sie erhalten per WhatsApp/E-Mail einen 10% Rabattgutschein für flowerpowerpizza.com.',
+    giftDesc: 'Vielen Dank für Ihre Tischbestellung! Wenn Sie Ihre E-Mail angegeben haben, erhalten Sie einen 10% Rabattgutschein für flowerpowerpizza.com.',
     summaryPill: 'Endbetrag am Tisch (-5% angewendet):',
     finishBtn: 'Zurück zur Speisekarte'
   },
@@ -171,13 +167,12 @@ const I18N_CHECKOUT = {
     customTableBtn: 'နေရာအမည်ရိုက်ထည့်ရန်',
     listTableBtn: 'စာရင်းမှ ရွေးချယ်ရန်',
     customPlaceholder: 'ဥပမာ - စားပွဲ ၇ / လသာဆောင် / ကောင်တာ',
-    clientSection: '၂။ ဧည့်သည်အချက်အလက် (လျှော့စျေးနှင့် ကူပွန်အတွက်)',
-    nameLabel: 'အမည်အပြည့်အစုံ *',
-    namePlaceholder: 'ဥပမာ - ဦးမောင်မောင်',
-    phoneLabel: 'ဖုန်းနံပါတ် / WhatsApp *',
-    phonePlaceholder: 'ဥပမာ - 0812345678 / +95...',
-    emailLabel: 'အီးမေးလ် (အိမ်အရောက်ပို့ ၁၀% လျှော့စျေးကူပွန် ရယူရန်)',
-    emailPlaceholder: 'youremail@example.com',
+    clientSection: '၂။ အိမ်အရောက်ပို့ လျှော့စျေးကူပွန် ရယူရန် (စိတ်ကြိုက်)',
+    nameLabel: 'အမည် (စိတ်ကြိုက်)',
+    namePlaceholder: 'ဥပမာ - မောင်မောင် (မဖြည့်လည်းရပါသည်)',
+    emailLabel: 'အိမ်အရောက်ပို့ ၁၀% လျှော့စျေးကူပွန် ရယူရန် အီးမေးလ် (စိတ်ကြိုက်)',
+    emailPlaceholder: 'youremail@example.com (မထည့်လည်း ရပါသည်)',
+    emailHelper: '💡 အော်ဒါမှာရန် အီးမေးလ် မဖြစ်မနေ ထည့်ရန်မလိုပါ- အိမ်အရောက်ပို့ ၁၀% လျှော့စျေးကူပွန် ရယူလိုမှသာ ထည့်ပါ။',
     notesLabel: 'မီးဖိုချောင်နှင့် စားပွဲထိုးအတွက် အထူးမှာကြားချက် (စိတ်ကြိုက်)',
     notesPlaceholder: 'ဥပမာ - ပီဇာများကို တစ်ပြိုင်နက် ချပေးပါ၊ ဖန်ခွက်အပို...',
     payAtCounterTitle: 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်',
@@ -191,7 +186,7 @@ const I18N_CHECKOUT = {
     successTitle: 'ငွေရှင်းကောင်တာသို့ အော်ဒါ အောင်မြင်စွာ ပို့ပြီးပါပြီ။',
     successSubtitle: 'စားဖိုမှူးမှ သင်၏ ဟင်းလျာနှင့် ပီဇာများကို လတ်ဆတ်စွာ ပြင်ဆင်ပေးနေပါသည်။',
     giftTitle: 'သင့်အတွက် အထူးလက်ဆောင် ကူပွန်!',
-    giftDesc: 'စားပွဲ၌ မှာယူအားပေးမှုအတွက် ကျေးဇူးတင်ပါသည်! flowerpowerpizza.com တွင် အိမ်အရောက်ပို့အတွက် ၁၀% လျှော့စျေးကူပွန် ရရှိပါမည်။',
+    giftDesc: 'စားပွဲ၌ မှာယူအားပေးမှုအတွက် ကျေးဇူးတင်ပါသည်! အီးမေးလ် ထည့်သွင်းထားပါက flowerpowerpizza.com တွင် အိမ်အရောက်ပို့အတွက် ၁၀% လျှော့စျေးကူပွန် ရရှိပါမည်။',
     summaryPill: 'စားပွဲကျသင့်ငွေ (၅% လျှော့စျေးပြီး):',
     finishBtn: 'မီနူးသို့ ပြန်သွားမည် / ထပ်မံမှာယူမည်'
   }
@@ -217,29 +212,18 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
     }
   }, [initialTable]);
 
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [specialNotes, setSpecialNotes] = useState('');
+
+  // Always reset fields to 100% clean and empty when opening modal for any table
   useEffect(() => {
     if (isOpen) {
-      try {
-        const savedName = localStorage.getItem('fp_last_dining_customer_name');
-        const savedPhone = localStorage.getItem('fp_last_dining_customer_phone');
-        const savedEmail = localStorage.getItem('fp_last_dining_customer_email');
-        if (savedName) setCustomerName(savedName);
-        if (savedPhone) setCustomerPhone(savedPhone);
-        if (savedEmail) setCustomerEmail(savedEmail);
-      } catch {}
+      setCustomerName('');
+      setCustomerEmail('');
+      setSpecialNotes('');
     }
   }, [isOpen, initialTable]);
-  
-  const [customerName, setCustomerName] = useState(() => {
-    try { return localStorage.getItem('fp_last_dining_customer_name') || ''; } catch { return ''; }
-  });
-  const [customerPhone, setCustomerPhone] = useState(() => {
-    try { return localStorage.getItem('fp_last_dining_customer_phone') || ''; } catch { return ''; }
-  });
-  const [customerEmail, setCustomerEmail] = useState(() => {
-    try { return localStorage.getItem('fp_last_dining_customer_email') || ''; } catch { return ''; }
-  });
-  const [specialNotes, setSpecialNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'promptpay' | 'card' | 'cash'>('promptpay');
   const [isQrZoomOpen, setIsQrZoomOpen] = useState(false);
   
@@ -301,7 +285,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
     try {
       const finalCustomerName = customerName.trim() || activeTable || 'Cliente Tavolo';
-      const finalCustomerPhone = customerPhone.trim() || '+66 Dining';
+      const finalCustomerPhone = '-';
 
       const paymentLabel = paymentMethod === 'promptpay' ? 'promptpay_kshop_at_table' : paymentMethod === 'card' ? 'card_pos_at_table' : 'cash_at_table';
 
@@ -431,7 +415,6 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         // Save customer contact in local storage
         try {
           if (customerName) localStorage.setItem('fp_last_dining_customer_name', customerName);
-          if (customerPhone) localStorage.setItem('fp_last_dining_customer_phone', customerPhone);
           if (customerEmail) localStorage.setItem('fp_last_dining_customer_email', customerEmail);
         } catch {}
 
@@ -583,10 +566,10 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                 )}
               </div>
 
-              {/* 2. Customer Contact (Lead Gen) */}
-              <div className="p-3.5 bg-stone-950/70 border border-stone-800 rounded-2xl space-y-3">
+              {/* 2. Customer Contact (Lead Gen - Optional Discount Coupon) */}
+              <div className="p-3.5 bg-stone-950/70 border border-stone-800 rounded-2xl space-y-2.5">
                 <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
-                  <User className="w-3.5 h-3.5" />
+                  <Gift className="w-3.5 h-3.5 text-amber-400" />
                   <span>{t.clientSection}</span>
                 </div>
 
@@ -595,7 +578,9 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                     <label className="text-[10.5px] text-stone-400 font-bold block">{t.nameLabel}</label>
                     <input
                       type="text"
-                      required
+                      name="name"
+                      id="dining-customer-name"
+                      autoComplete="name"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       placeholder={t.namePlaceholder}
@@ -604,30 +589,31 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-[10.5px] text-stone-400 font-bold block">{t.phoneLabel}</label>
+                    <label className="text-[10.5px] text-stone-400 font-bold block">
+                      {t.emailLabel}
+                    </label>
                     <input
-                      type="tel"
-                      required
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      placeholder={t.phonePlaceholder}
+                      type="email"
+                      name="email"
+                      id="dining-customer-email"
+                      autoComplete="email"
+                      inputMode="email"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      value={customerEmail}
+                      onChange={(e) => setCustomerEmail(e.target.value)}
+                      placeholder={t.emailPlaceholder}
                       className="w-full bg-stone-900 border border-stone-700 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-400"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10.5px] text-stone-400 font-bold block">
-                    {t.emailLabel}
-                  </label>
-                  <input
-                    type="email"
-                    value={customerEmail}
-                    onChange={(e) => setCustomerEmail(e.target.value)}
-                    placeholder={t.emailPlaceholder}
-                    className="w-full bg-stone-900 border border-stone-700 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-400"
-                  />
-                </div>
+                {t.emailHelper && (
+                  <p className="text-[10px] sm:text-[11px] text-stone-400 leading-snug bg-stone-900/60 p-2 rounded-xl border border-stone-800/80">
+                    {t.emailHelper}
+                  </p>
+                )}
               </div>
 
               {/* 3. Special Kitchen Notes */}

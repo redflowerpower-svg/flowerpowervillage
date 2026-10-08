@@ -27,7 +27,8 @@ import {
   Minus,
   X,
   QrCode,
-  Smartphone
+  Smartphone,
+  Printer
 } from 'lucide-react';
 import { menuData, type MenuItem } from '../data/menuData';
 import CategoryTabs from '../components/CategoryTabs';
@@ -42,6 +43,7 @@ import { getDietaryType, type DietaryType } from '../utils/dietary';
 import { DiningCheckoutModal } from '../components/DiningCheckoutModal';
 import { TableSettlementModal } from '../components/TableSettlementModal';
 import { DiningQrModal } from '../components/DiningQrModal';
+import { DiningTableQrStudio } from '../../admin/pizza/components/DiningTableQrStudio';
 import { LanguageDropdown } from '../components/LanguageDropdown';
 import { I18N_DINING_QR } from '../data/diningQrI18n';
 import { 
@@ -50,6 +52,11 @@ import {
   revokeDiningTableSession 
 } from '../services/diningSessionService';
 import { connectDiningLiveCart, type DiningLiveCartController } from '../services/diningLiveCartService';
+import { 
+  subscribeToHallTablePresence, 
+  reportTableGuestPresence, 
+  type HallPresenceMap 
+} from '../services/diningTablePresenceService';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { supabase } from '../../lib/supabase';
@@ -63,12 +70,15 @@ const I18N_TABLE_PICKER: Record<Language, {
   tablesHeading: string;
   freeLabel: string;
   activeLabel: string;
+  guestLabel: string;
   freeCard: string;
   activeCardPrefix: string;
+  guestCardPrefix: string;
   customLabel: string;
   customPlaceholder: string;
   enterBtn: string;
   logoutBtn: string;
+  qrStudioBtn: string;
 }> = {
   IT: {
     title: 'Flower Power Pizza Dining',
@@ -76,13 +86,16 @@ const I18N_TABLE_PICKER: Record<Language, {
     desc: 'Tocca la tua postazione per accedere al menu completo con lo sconto del 5% al tavolo applicato a tutte le portate.',
     tablesHeading: 'Tavoli della Sala & Clienti',
     freeLabel: 'Libero',
-    activeLabel: 'Ordine in corso',
+    activeLabel: 'Comanda Cucina',
+    guestLabel: 'Smartphone Live',
     freeCard: 'Nuovo Ordine',
     activeCardPrefix: 'Conto Aperto:',
+    guestCardPrefix: 'In Ordinazione Live',
     customLabel: 'Oppure Inserimento Postazione Libera',
     customPlaceholder: 'es. Terrazza 3 / Giardino / Bancone',
     enterBtn: 'Entra nel Menu',
-    logoutBtn: 'Logout'
+    logoutBtn: 'Logout',
+    qrStudioBtn: 'QR Tavoli 1-16'
   },
   EN: {
     title: 'Flower Power Pizza Dining',
@@ -90,13 +103,16 @@ const I18N_TABLE_PICKER: Record<Language, {
     desc: 'Touch your table or station to access the full menu with 5% table discount applied to all dishes.',
     tablesHeading: 'Dining Tables & Guest Stations',
     freeLabel: 'Available',
-    activeLabel: 'Active Order',
+    activeLabel: 'Kitchen Order',
+    guestLabel: 'Smartphone Live',
     freeCard: 'New Order',
     activeCardPrefix: 'Open Tab:',
+    guestCardPrefix: 'Guest Ordering Live',
     customLabel: 'Or Enter Custom Table / Station',
     customPlaceholder: 'e.g. Terrace 3 / Garden / Counter',
     enterBtn: 'Access Menu',
-    logoutBtn: 'Logout'
+    logoutBtn: 'Logout',
+    qrStudioBtn: 'Table QRs 1-16'
   },
   TH: {
     title: 'Flower Power Pizza Dining',
@@ -104,13 +120,16 @@ const I18N_TABLE_PICKER: Record<Language, {
     desc: 'แตะที่โต๊ะของคุณเพื่อเปิดดูเมนูอาหารพร้อมรับส่วนลด 5% ทุกรายการทันที',
     tablesHeading: 'โต๊ะอาหารและที่นั่งลูกค้า',
     freeLabel: 'ว่าง / เริ่มใหม่',
-    activeLabel: 'มีออเดอร์ค้างอยู่',
+    activeLabel: 'มีออเดอร์ในครัว',
+    guestLabel: 'ลูกค้ากำลังสั่งผ่านมือถือ',
     freeCard: 'ออเดอร์ใหม่',
     activeCardPrefix: 'ยอดค้างชำระ:',
+    guestCardPrefix: 'กำลังสั่งอาหารไลฟ์',
     customLabel: 'หรือระบุชื่อโต๊ะ / ที่นั่งเอง',
     customPlaceholder: 'เช่น ริมระเบียง 3 / โซนสวน / เคาน์เตอร์',
     enterBtn: 'เข้าสู่เมนู',
-    logoutBtn: 'ออกจากระบบ'
+    logoutBtn: 'ออกจากระบบ',
+    qrStudioBtn: 'QR โต๊ะ 1-16'
   },
   DE: {
     title: 'Flower Power Pizza Dining',
@@ -118,13 +137,16 @@ const I18N_TABLE_PICKER: Record<Language, {
     desc: 'Tippen Sie auf Ihren Tisch, um das Menü mit 5% Tisch-Rabatt auf alle Gerichte zu öffnen.',
     tablesHeading: 'Tische & Gäste-Stationen',
     freeLabel: 'Frei',
-    activeLabel: 'Aktive Bestellung',
+    activeLabel: 'Küche aktiv',
+    guestLabel: 'Smartphone Live',
     freeCard: 'Neue Bestellung',
     activeCardPrefix: 'Offener Tisch:',
+    guestCardPrefix: 'Gast bestellt live',
     customLabel: 'Oder Freie Tischnummer Eingeben',
     customPlaceholder: 'z.B. Terrasse 3 / Garten / Bar',
     enterBtn: 'Speisekarte öffnen',
-    logoutBtn: 'Abmelden'
+    logoutBtn: 'Abmelden',
+    qrStudioBtn: 'Tisch-QRs 1-16'
   },
   MM: {
     title: 'Flower Power Pizza Dining',
@@ -132,13 +154,16 @@ const I18N_TABLE_PICKER: Record<Language, {
     desc: 'ဟင်းလျာအားလုံးအတွက် ၅% စားပွဲလျှော့စျေးဖြင့် မီနူးအပြည့်အစုံကို ကြည့်ရှုရန် သင့်နေရာကို နှိပ်ပါ။',
     tablesHeading: 'စားသောက်ခန်းမ စားပွဲများနှင့် ဧည့်သည်နေရာများ',
     freeLabel: 'အားလပ်သည်',
-    activeLabel: 'မှာယူမှု ပြုလုပ်ဆဲ',
+    activeLabel: 'မီးဖိုချောင်မှာယူမှု',
+    guestLabel: 'စမတ်ဖုန်း အော်ဒါ',
     freeCard: 'အော်ဒါအသစ်',
     activeCardPrefix: 'ကျသင့်ငွေစာရင်း:',
+    guestCardPrefix: 'ဧည့်သည် အော်ဒါမှာနေသည်',
     customLabel: 'သို့မဟုတ် အခြားစားပွဲ / နေရာအမည် ထည့်သွင်းပါ',
     customPlaceholder: 'ဥပမာ - လသာဆောင် ၃ / ပန်းခြံ / ကောင်တာ',
     enterBtn: 'မီနူးသို့ ဝင်မည်',
-    logoutBtn: 'ထွက်မည်'
+    logoutBtn: 'ထွက်မည်',
+    qrStudioBtn: 'စားပွဲ QR ၁-၁၆'
   }
 };
 
@@ -832,14 +857,52 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
   const itemsRef = useRef(items);
   itemsRef.current = items;
 
-  // Table Session State: Must select table before accessing menu
-  const [currentTable, setCurrentTable] = useState<string>('');
-  const [isTableSelected, setIsTableSelected] = useState<boolean>(false);
+  // Check guest URL params synchronously on initial render
+  const initialGuestInfo = useMemo(() => {
+    if (typeof window === 'undefined') return { isGuest: false, table: '', token: '' };
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      const gTable = searchParams.get('table');
+      const gToken = searchParams.get('token');
+      if (gTable && gToken) {
+        return {
+          isGuest: true,
+          table: getCanonicalTableKey(gTable),
+          token: gToken
+        };
+      }
+    } catch {}
+    return { isGuest: false, table: '', token: '' };
+  }, []);
+
+  // Table Session State: Must select table before accessing menu (Guests start already locked on their table)
+  const [currentTable, setCurrentTable] = useState<string>(initialGuestInfo.table);
+  const [isTableSelected, setIsTableSelected] = useState<boolean>(initialGuestInfo.isGuest);
   const [customTableInput, setCustomTableInput] = useState<string>('');
   const [isQrModalOpen, setIsQrModalOpen] = useState<boolean>(false);
-  const [isGuestMobile, setIsGuestMobile] = useState<boolean>(false);
+  const [isQrStudioOpen, setIsQrStudioOpen] = useState<boolean>(false);
+  const [isGuestMobile, setIsGuestMobile] = useState<boolean>(initialGuestInfo.isGuest);
   const [isGuestSettled, setIsGuestSettled] = useState<boolean>(false);
-  const [_guestSessionToken, setGuestSessionToken] = useState<string>('');
+  const [_guestSessionToken, setGuestSessionToken] = useState<string>(initialGuestInfo.token);
+
+  // Hall Presence State: Realtime tracking of guest smartphones per table
+  const [hallPresence, setHallPresence] = useState<HallPresenceMap>({});
+
+  // Tablet Monitoring: Subscribe to real-time hall presence across all 16 tables
+  useEffect(() => {
+    const unsub = subscribeToHallTablePresence((presenceMap) => {
+      setHallPresence(presenceMap);
+    });
+    return unsub;
+  }, []);
+
+  // Guest Mobile: Report active presence while on table session
+  useEffect(() => {
+    if (isGuestMobile && currentTable) {
+      const stopPresence = reportTableGuestPresence(currentTable, true, lang);
+      return stopPresence;
+    }
+  }, [isGuestMobile, currentTable, lang]);
 
   // Connect bidirectional Realtime Live Cart when table is selected
   useEffect(() => {
@@ -888,29 +951,20 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     liveCartControllerRef.current?.broadcastCart(items);
   }, [items, currentTable, isTableSelected]);
 
-  // Check guest URL params on mount
+  // Check guest URL session validation on mount
   useEffect(() => {
-    try {
-      const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-      const gTable = searchParams?.get('table');
-      const gToken = searchParams?.get('token');
-
-      if (gTable && gToken) {
-        setIsGuestMobile(true);
-        setGuestSessionToken(gToken);
-        validateDiningTableSession(gTable, gToken).then(res => {
-          const canonical = getCanonicalTableKey(gTable);
-          if (res.valid) {
-            setCurrentTable(canonical);
-            setIsTableSelected(true);
-          } else if (res.status === 'settled' || res.status === 'expired') {
-            setCurrentTable(canonical);
-            setIsGuestSettled(true);
-          }
-        });
-      }
-    } catch {}
-  }, []);
+    if (initialGuestInfo.isGuest && initialGuestInfo.table && initialGuestInfo.token) {
+      validateDiningTableSession(initialGuestInfo.table, initialGuestInfo.token).then(res => {
+        if (res.valid) {
+          setCurrentTable(initialGuestInfo.table);
+          setIsTableSelected(true);
+        } else if (res.status === 'settled' || res.status === 'expired') {
+          setCurrentTable(initialGuestInfo.table);
+          setIsGuestSettled(true);
+        }
+      });
+    }
+  }, [initialGuestInfo]);
 
   // Listen to dining session revocation channel
   useEffect(() => {
@@ -991,15 +1045,21 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         fetchActiveDineInOrders();
         if (payload?.new?.status === 'preparing') {
           setIsCheckoutModalOpen(false);
-          setIsTableSelected(false);
-          setCurrentTable('');
+          if (!isGuestMobile) {
+            setIsTableSelected(false);
+            setCurrentTable('');
+          }
         }
         if (payload?.new?.status === 'completed' || payload?.new?.status === 'settled') {
           const rawTable = extractTableFromAddress(payload?.new?.address) || payload?.new?.table_number || '';
           if (rawTable && currentTable && getCanonicalTableKey(rawTable) === getCanonicalTableKey(currentTable)) {
             clearCart();
-            setIsTableSelected(false);
-            setCurrentTable('');
+            if (isGuestMobile) {
+              setIsGuestSettled(true);
+            } else {
+              setIsTableSelected(false);
+              setCurrentTable('');
+            }
           }
         }
       })
@@ -1014,8 +1074,10 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       if (!evData) return;
       if (evData.type === 'ORDER_ACCEPTED' || evData.status === 'preparing') {
         setIsCheckoutModalOpen(false);
-        setIsTableSelected(false);
-        setCurrentTable('');
+        if (!isGuestMobile) {
+          setIsTableSelected(false);
+          setCurrentTable('');
+        }
       }
     };
 
@@ -1035,8 +1097,12 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           const settledKey = ev.data?.tableKey ? getCanonicalTableKey(ev.data.tableKey) : '';
           if (settledKey && currentTable && getCanonicalTableKey(currentTable) === settledKey) {
             clearCart();
-            setIsTableSelected(false);
-            setCurrentTable('');
+            if (isGuestMobile) {
+              setIsGuestSettled(true);
+            } else {
+              setIsTableSelected(false);
+              setCurrentTable('');
+            }
           }
         }
       };
@@ -1105,20 +1171,6 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         });
       });
 
-      // 2. Pre-fill customer contact in storage for checkout form
-      if (latestOrder.customer_name) {
-        try { localStorage.setItem('fp_last_dining_customer_name', latestOrder.customer_name); } catch {}
-      }
-      if (latestOrder.phone) {
-        try { localStorage.setItem('fp_last_dining_customer_phone', latestOrder.phone); } catch {}
-      }
-      if (latestOrder.address) {
-        const emailMatch = String(latestOrder.address).match(/\[EMAIL:\s*([^\]]+)\]/i);
-        if (emailMatch && emailMatch[1]) {
-          try { localStorage.setItem('fp_last_dining_customer_email', emailMatch[1].trim()); } catch {}
-        }
-      }
-      
       setItems(existingItems);
     } else {
       // Free table with no active orders
@@ -1135,9 +1187,11 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
   const handleCancelAndResetTable = () => {
     liveCartControllerRef.current?.broadcastClear();
     clearCart();
-    setCurrentTable('');
-    setIsTableSelected(false);
-    setCustomTableInput('');
+    if (!isGuestMobile) {
+      setCurrentTable('');
+      setIsTableSelected(false);
+      setCustomTableInput('');
+    }
   };
 
   const handleResetClick = () => {
@@ -1766,8 +1820,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         </div>
       </nav>
 
-      {/* MANDATORY TABLE SELECTION OVERLAY (When session not yet picked or changed) */}
-      {!isTableSelected && (
+      {/* MANDATORY TABLE SELECTION OVERLAY (Only on Master Tablet when session not yet picked) */}
+      {!isGuestMobile && !isTableSelected && (
         <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5 animate-fadeIn">
           <div className="bg-stone-900 border-2 border-amber-400/50 rounded-2xl sm:rounded-3xl w-full max-w-2xl p-3.5 sm:p-6 text-white space-y-3 sm:space-y-4 shadow-2xl max-h-[96vh] overflow-y-auto">
             
@@ -1788,6 +1842,16 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
               </div>
 
               <div className="shrink-0 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsQrStudioOpen(true)}
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-400/15 hover:bg-amber-400/25 border border-amber-400/50 text-amber-300 hover:text-amber-200 text-[11px] sm:text-xs font-black transition-all cursor-pointer shadow-md active:scale-95 whitespace-nowrap"
+                  title={I18N_TABLE_PICKER[lang]?.qrStudioBtn || 'QR Tavoli 1-16'}
+                >
+                  <QrCode className="w-3.5 h-3.5 text-amber-300" />
+                  <span className="hidden sm:inline">{I18N_TABLE_PICKER[lang]?.qrStudioBtn || 'QR Tavoli 1-16'}</span>
+                </button>
+
                 <LanguageDropdown 
                   currentLang={lang} 
                   onSelect={setLanguage} 
@@ -1815,6 +1879,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                   <span>{I18N_TABLE_PICKER[lang]?.tablesHeading || I18N_TABLE_PICKER.IT.tablesHeading}</span>
                   <span className="text-[10px] sm:text-[11px] text-stone-400 font-normal flex items-center gap-2">
                     <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.freeLabel || I18N_TABLE_PICKER.IT.freeLabel}</span>
+                    <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-500 inline-block animate-ping"></span> {I18N_TABLE_PICKER[lang]?.guestLabel || I18N_TABLE_PICKER.IT.guestLabel}</span>
                     <span className="inline-flex items-center gap-1"><span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-400 inline-block"></span> {I18N_TABLE_PICKER[lang]?.activeLabel || I18N_TABLE_PICKER.IT.activeLabel}</span>
                   </span>
                 </div>
@@ -1827,6 +1892,11 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                     const orders = activeTableOrderMap[canonical] || [];
                     const isOccupied = orders.length > 0;
                     const openTotal = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+                    
+                    // Check active guest presence on this table
+                    const guestPresence = hallPresence[canonical];
+                    const isGuestOccupied = !!(guestPresence && guestPresence.guestCount > 0);
+                    const guestCount = guestPresence?.guestCount || 0;
 
                     return (
                       <button
@@ -1836,27 +1906,44 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         className={`p-2 sm:p-2.5 rounded-xl text-left transition-all cursor-pointer border flex flex-col justify-between gap-1 relative overflow-hidden ${
                           isSelected
                             ? 'bg-gradient-to-br from-amber-950/90 to-stone-900 border-amber-400 text-white shadow-lg ring-1 ring-amber-400/50'
-                            : isOccupied
-                              ? 'bg-amber-950/30 border-amber-500/60 text-stone-200 hover:border-amber-400 hover:bg-amber-950/50'
-                              : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850'
+                            : isGuestOccupied
+                              ? 'bg-gradient-to-br from-red-950/70 to-stone-900 border-red-500/80 text-white shadow-lg ring-1 ring-red-500/50 hover:bg-red-900/60'
+                              : isOccupied
+                                ? 'bg-amber-950/30 border-amber-500/60 text-stone-200 hover:border-amber-400 hover:bg-amber-950/50'
+                                : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1">
                           <span className="text-xs sm:text-sm font-black uppercase tracking-tight text-white truncate">{displayName}</span>
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${
-                            isOccupied
-                              ? 'bg-amber-400 animate-pulse'
-                              : isSelected
-                                ? 'bg-amber-400'
-                                : 'bg-emerald-500'
-                          }`} />
+                          <span className="relative flex h-2 w-2">
+                            {isGuestOccupied ? (
+                              <>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                              </>
+                            ) : (
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${
+                                isOccupied
+                                  ? 'bg-amber-400 animate-pulse'
+                                  : isSelected
+                                    ? 'bg-amber-400'
+                                    : 'bg-emerald-500'
+                              }`} />
+                            )}
+                          </span>
                         </div>
                         <div className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider truncate ${
-                          isOccupied ? 'text-amber-400 font-extrabold' : 'text-emerald-400/90'
+                          isGuestOccupied 
+                            ? 'text-red-400 font-black animate-pulse'
+                            : isOccupied 
+                              ? 'text-amber-400 font-extrabold' 
+                              : 'text-emerald-400/90'
                         }`}>
-                          {isOccupied 
-                            ? `${I18N_TABLE_PICKER[lang]?.activeCardPrefix || I18N_TABLE_PICKER.IT.activeCardPrefix} ฿${Math.round(openTotal)}`
-                            : (I18N_TABLE_PICKER[lang]?.freeCard || I18N_TABLE_PICKER.IT.freeCard)}
+                          {isGuestOccupied
+                            ? `📱 ${guestCount} ${lang === 'TH' ? 'ลูกค้าเชื่อมต่อ' : lang === 'EN' ? (guestCount > 1 ? 'Guests Live' : 'Guest Live') : lang === 'DE' ? 'Gast live' : lang === 'MM' ? 'အော်ဒါမှာနေသည်' : (guestCount > 1 ? 'Ospiti Live' : 'Ospite Live')}`
+                            : isOccupied 
+                              ? `${I18N_TABLE_PICKER[lang]?.activeCardPrefix || I18N_TABLE_PICKER.IT.activeCardPrefix} ฿${Math.round(openTotal)}`
+                              : (I18N_TABLE_PICKER[lang]?.freeCard || I18N_TABLE_PICKER.IT.freeCard)}
                         </div>
                       </button>
                     );
@@ -2463,8 +2550,10 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         onClose={() => setIsCheckoutModalOpen(false)}
         onSuccess={() => {
           setIsCheckoutModalOpen(false);
-          setIsTableSelected(false);
-          setCurrentTable('');
+          if (!isGuestMobile) {
+            setIsTableSelected(false);
+            setCurrentTable('');
+          }
           liveCartControllerRef.current?.broadcastClear();
           clearCart();
           fetchActiveDineInOrders();
@@ -2483,8 +2572,12 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         lang={lang}
         onSettled={() => {
           setIsSettlementModalOpen(false);
-          setIsTableSelected(false);
-          setCurrentTable('');
+          if (isGuestMobile) {
+            setIsGuestSettled(true);
+          } else {
+            setIsTableSelected(false);
+            setCurrentTable('');
+          }
           liveCartControllerRef.current?.broadcastClear();
           clearCart();
           fetchActiveDineInOrders();
@@ -2498,6 +2591,12 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         tableKey={currentTable}
         sessionToken={currentSession?.token || ''}
         lang={lang}
+      />
+
+      {/* LUXURY 16 TABLE QR STUDIO & BULK PRINT GENERATOR */}
+      <DiningTableQrStudio
+        isOpen={isQrStudioOpen}
+        onClose={() => setIsQrStudioOpen(false)}
       />
     </div>
   );
