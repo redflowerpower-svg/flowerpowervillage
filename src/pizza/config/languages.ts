@@ -50,4 +50,4 @@ export const LANGUAGE_METAS: Record<Language, LanguageMeta> = {
   },
 };
 
-export const DEFAULT_LANGUAGE: Language = 'IT';
+export const DEFAULT_LANGUAGE: Language = 'EN';

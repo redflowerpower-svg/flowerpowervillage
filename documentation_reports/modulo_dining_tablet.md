@@ -61,6 +61,8 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
 16. **Top Navbar Elegante & Armonizzata (Luxury Pill Concept)**:
     - Eliminati testi prolissi nella navbar lasciando esclusivamente il logo ufficiale rotondo Flower Power Pizza.
     - Tutti i pulsanti della navbar (Tavolo, QR Code, Lingua, Salda Conto e Reset X) condividono la stessa altezza `h-9`, bordi arrotondati `rounded-xl`, texture scura `bg-stone-900/90` e accenti dorati `amber-400`.
-
-
-
+17. **Rilevamento Automatico della Lingua su Smartphone QR (`normalizeLocaleToSupported`)**:
+    - Quando i commensali inquadrano il QR Code del tavolo dal proprio smartphone, la web app legge `navigator.languages` e `navigator.language` del telefono.
+    - **Mapping Birmano Certificato**: normalizza i codici ISO browser birmani `my`, `my-MM`, `my-ZG` (Zawgyi), `bur` ➔ **`MM`** aprendo istantaneamente il menu in Birmano.
+    - **Rilevamento Standard**: riconosce `th`/`th-TH` ➔ `TH`, `de`/`de-DE` ➔ `DE`, `it`/`it-IT` ➔ `IT`, `en`/`en-US` ➔ `EN`.
+    - **Fallback Turistico Internazionale**: qualsiasi dispositivo con lingua non supportata (es. francese, spagnolo, russo, svedese, cinese) ricade di default in modo garantito su **Inglese (`EN`)**.
