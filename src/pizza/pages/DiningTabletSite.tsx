@@ -863,11 +863,12 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     try {
       const searchParams = new URLSearchParams(window.location.search);
       const gTable = searchParams.get('table');
-      const gToken = searchParams.get('token');
-      if (gTable && gToken) {
+      const gToken = searchParams.get('token') || 'permanent_table_qr';
+      if (gTable) {
+        const canonical = getCanonicalTableKey(gTable);
         return {
           isGuest: true,
-          table: getCanonicalTableKey(gTable),
+          table: canonical,
           token: gToken
         };
       }

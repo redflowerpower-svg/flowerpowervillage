@@ -171,10 +171,9 @@ export function DiningAdminAuth({ children }: DiningAdminAuthProps) {
         // Check if incoming request is a guest scanning a table QR code
         const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
         const guestTable = searchParams?.get('table');
-        const guestToken = searchParams?.get('token');
 
-        if (guestTable && guestToken) {
-          // Guest with QR session token -> automatically allow entry for table ordering
+        if (guestTable) {
+          // Guest with table parameter -> automatically allow entry for table ordering
           setIsUnlocked(true);
           setLoading(false);
           return;

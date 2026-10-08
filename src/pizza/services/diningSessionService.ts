@@ -68,13 +68,32 @@ export async function validateDiningTableSession(tableKey: string, token: string
   status: 'active' | 'settled' | 'expired' | 'invalid';
   session?: DiningTableSession;
 }> {
-  if (!tableKey || !token) {
+  if (!tableKey) {
     return { valid: false, status: 'invalid' };
   }
 
   const canonical = getCanonicalTableKey(tableKey);
 
-  // 1. Check if explicitly marked as settled/revoked
+  // 1. Permanent physical table QR code (placed on the 16 tables) is ALWAYS valid and active
+  if (!token || token === 'permanent_table_qr' || token.startsWith('tb_') || token.startsWith(`tb_${canonical.replace(/[^a-z0-9]/gi, '')}_`)) {
+    // Clear any stale local settled flags so the new guest can order freely
+    try {
+      localStorage.removeItem(`${SETTLED_PREFIX}${canonical}`);
+    } catch {}
+
+    return { 
+      valid: true, 
+      status: 'active', 
+      session: {
+        tableKey: canonical,
+        token: token || 'permanent_table_qr',
+        createdAt: Date.now(),
+        status: 'active'
+      }
+    };
+  }
+
+  // 2. Check if explicitly marked as settled/revoked for temporary dynamic sessions
   try {
     const isSettled = localStorage.getItem(`${SETTLED_PREFIX}${canonical}`) === 'true';
     if (isSettled) {
@@ -82,7 +101,7 @@ export async function validateDiningTableSession(tableKey: string, token: string
     }
   } catch {}
 
-  // 2. Check local stored session
+  // 3. Check local stored session
   let localSession: DiningTableSession | null = null;
   try {
     const raw = localStorage.getItem(`${STORAGE_PREFIX}${canonical}`);
@@ -100,21 +119,6 @@ export async function validateDiningTableSession(tableKey: string, token: string
       return { valid: false, status: 'expired', session: localSession };
     }
     return { valid: true, status: 'active', session: localSession };
-  }
-
-  // 3. Fallback: Check if token has valid format matching table or is a permanent physical QR
-  if (token === 'permanent_table_qr' || token.startsWith('tb_') || token.startsWith(`tb_${canonical.replace(/[^a-z0-9]/gi, '')}_`)) {
-    // Allow session as valid guest session
-    return { 
-      valid: true, 
-      status: 'active', 
-      session: {
-        tableKey: canonical,
-        token: token || 'permanent_table_qr',
-        createdAt: Date.now(),
-        status: 'active'
-      }
-    };
   }
 
   return { valid: false, status: 'invalid' };

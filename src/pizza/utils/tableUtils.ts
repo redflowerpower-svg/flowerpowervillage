@@ -22,10 +22,19 @@ export const DINING_TABLES = [
 export const getCanonicalTableKey = (tableName: string): string => {
   if (!tableName) return '';
   const trimmed = tableName.trim();
-  const tableMatch = trimmed.match(/^(?:Tavolo|Table|Tisch|โต๊ะ|စားပွဲ)\s*(\d+)$/i);
+
+  // Match Tavolo / Table / Tisch / โต๊ะ / စားပွဲ / T / T- / T_
+  const tableMatch = trimmed.match(/^(?:Tavolo|Table|Tisch|โต๊ะ|စားပွဲ|T)\s*[-_]?\s*(\d+)$/i);
   if (tableMatch) return `Tavolo ${tableMatch[1]}`;
-  const clientMatch = trimmed.match(/^(?:Cliente|Guest|Customer|Gast|Kunde|ลูกค้า|ဧည့်သည်)\s*(\d+)$/i);
+
+  // Match Cliente / Guest / Customer / Gast / Kunde / ลูกค้า / ဧည့်သည် / C / C- / C_
+  const clientMatch = trimmed.match(/^(?:Cliente|Guest|Customer|Gast|Kunde|ลูกค้า|ဧည့်သည်|C)\s*[-_]?\s*(\d+)$/i);
   if (clientMatch) return `Cliente ${clientMatch[1]}`;
+
+  // Match pure number (e.g. "1" -> "Tavolo 1")
+  const numMatch = trimmed.match(/^(\d+)$/);
+  if (numMatch) return `Tavolo ${numMatch[1]}`;
+
   return trimmed;
 };
 
