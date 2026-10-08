@@ -142,6 +142,14 @@ const I18N_TABLE_PICKER: Record<Language, {
   }
 };
 
+const I18N_RESET_CONFIRM: Record<Language, { prompt: string; short: string; full: string }> = {
+  IT: { prompt: "Sei sicuro di voler annullare l'ordine?", short: "Confermi?", full: "Sicuro? Tocca per cancellare tutto" },
+  EN: { prompt: "Are you sure you want to cancel the order?", short: "Confirm?", full: "Sure? Tap to cancel and reset" },
+  TH: { prompt: "คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อ?", short: "ยืนยัน?", full: "แน่ใจไหม? แตะอีกครั้งเพื่อยกเลิก" },
+  DE: { prompt: "Sind Sie sicher, dass Sie die Bestellung stornieren möchten?", short: "Bestätigen?", full: "Sicher? Tippen zum Abbrechen" },
+  MM: { prompt: "သင်သည် အမှာစာကို ပယ်ဖျက်လိုသည်မှာ သေချာပါသလား။", short: "သေချာပြီလား?", full: "အတည်ပြုရန် ထပ်မံနှိပ်ပါ" }
+};
+
 const LOCATION_BY_LANG: Record<Language, string> = {
   IT: 'RANONG, THAILANDIA',
   EN: 'RANONG, THAILAND',
@@ -1121,6 +1129,37 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     setIsTableSelected(true);
   };
 
+  const [isResetConfirming, setIsResetConfirming] = useState<boolean>(false);
+  const resetConfirmTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleCancelAndResetTable = () => {
+    liveCartControllerRef.current?.broadcastClear();
+    clearCart();
+    setCurrentTable('');
+    setIsTableSelected(false);
+    setCustomTableInput('');
+  };
+
+  const handleResetClick = () => {
+    if (!isResetConfirming) {
+      setIsResetConfirming(true);
+      if (resetConfirmTimerRef.current) clearTimeout(resetConfirmTimerRef.current);
+      resetConfirmTimerRef.current = setTimeout(() => {
+        setIsResetConfirming(false);
+      }, 5000);
+    } else {
+      if (resetConfirmTimerRef.current) clearTimeout(resetConfirmTimerRef.current);
+      setIsResetConfirming(false);
+      handleCancelAndResetTable();
+    }
+  };
+
+  // Reset confirmation state when table changes or selection closes
+  useEffect(() => {
+    setIsResetConfirming(false);
+    if (resetConfirmTimerRef.current) clearTimeout(resetConfirmTimerRef.current);
+  }, [currentTable, isTableSelected]);
+
   // Cloud Wine Collection Sync
   const [cloudWines, setCloudWines] = useState<WineCardData[]>([]);
   useEffect(() => {
@@ -1696,6 +1735,34 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
             variant="dining-dark" 
             align="right" 
           />
+
+          {/* 5. Cancel & Reset Order Button (2-Step Confirmation with Localized Prompt) */}
+          <button
+            type="button"
+            onClick={handleResetClick}
+            className={
+              isResetConfirming
+                ? "h-9 px-2.5 sm:px-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 border border-red-300 text-white font-extrabold text-xs shadow-lg shadow-red-950/80 cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 shrink-0 animate-pulse"
+                : "h-9 w-9 px-0 rounded-xl bg-stone-900/90 hover:bg-red-950/90 border border-stone-700/80 hover:border-red-500/80 text-stone-300 hover:text-red-300 shadow-md cursor-pointer transition-all active:scale-95 flex items-center justify-center shrink-0"
+            }
+            title={
+              isResetConfirming
+                ? (I18N_RESET_CONFIRM[lang]?.full || I18N_RESET_CONFIRM.IT.full)
+                : (lang === 'TH' ? 'ยกเลิกและล้างตะกร้า' : lang === 'EN' ? 'Cancel & Reset Table' : lang === 'DE' ? 'Abbrechen & Tisch zurücksetzen' : lang === 'MM' ? 'ပယ်ဖျက်ပြီး ပြန်စမည်' : 'Annulla & Resetta Tavolo')
+            }
+          >
+            {isResetConfirming ? (
+              <>
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-200 shrink-0" />
+                <span className="text-[11px] sm:text-xs font-black uppercase tracking-tight whitespace-nowrap">
+                  {I18N_RESET_CONFIRM[lang]?.short || I18N_RESET_CONFIRM.IT.short}
+                </span>
+                <X className="w-3.5 h-3.5 text-white/90 shrink-0" />
+              </>
+            ) : (
+              <X className="w-4 h-4 text-stone-300 hover:text-red-300 shrink-0" />
+            )}
+          </button>
         </div>
       </nav>
 

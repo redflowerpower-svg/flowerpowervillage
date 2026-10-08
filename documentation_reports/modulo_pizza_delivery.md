@@ -109,3 +109,17 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
   - Minimizzazione a icona nel dock inferiore per ordini al tavolo accettati.
   - Chiusura atomica con `ORDER PAID`: archivia tutti i record pregressi del tavolo ed emette broadcast `TABLE_SETTLED` per liberare il tavolo su tutti i tablet in sala.
   - Timer promemoria consegna 15 minuti limitato esclusivamente agli ordini a domicilio/takeaway.
+
+---
+
+## 🍳 6. Motore di Traduzione Universale KDS (`kdsCatalogService`, `kdsExtraDictionary`, `kdsI18n`)
+
+1. **Dizionario Universale Ingredienti ed Extra (`kdsExtraDictionary.ts`)**:
+   - Mappatura completa e certificata di oltre **180 ingredienti, formati, impasti, varianti vino e badge dietetici** in tutte le 5 lingue (`TH`, `EN`, `MM`, `IT`, `DE`).
+   - Normalizzazione runtime tramite `resolveExtraDisplayName` e `resolveVariantDisplayName`.
+2. **Master Catalog & Sottotitoli Dinamici (`kdsCatalogService.ts`)**:
+   - Indicizzazione biunivoca dei ~150 piatti del catalogo e della carta vini.
+   - Fornitura di sottotitoli intelligenti di riferimento incrociato (`resolveDishSubtitle`), visualizzando ad esempio l'inglese sotto il tailandese, o il tailandese sotto il birmano.
+3. **Dizionario UI Tipizzato KDS (`kdsI18n.ts`)**:
+   - Copertura 100% dell'infrastruttura grafica del monitor (colonne, pulsanti allarme/snooze, badge `PromptPay`, `Card 3DS`, `Conto alla Cassa`, `Contanti`, modali di archivio, gestione orari e prenotazioni tavolo) con zero stringhe hardcoded.
+

@@ -60,6 +60,9 @@ import {
   ServiceCalculationResult
 } from '../../../pizza/services/pizzaServiceStatus';
 import { sendNetworkHeartbeat } from '../../../pizza/services/networkAuthService';
+import { resolveDishDisplayName, resolveDishSubtitle } from '../utils/kdsCatalogService';
+import { resolveExtraDisplayName, resolveVariantDisplayName, KdsLanguage } from '../utils/kdsExtraDictionary';
+import { KDS_I18N } from '../utils/kdsI18n';
 
 export interface TableReservationKDS {
   id: string;
@@ -117,438 +120,23 @@ type CartItemSaved = {
   selectedExtras?: any[];
 };
 
-// Comprehensive Bilingual Extra / Topping / Variant Translation Dictionary
-const EXTRA_TRANSLATIONS: Record<string, { th: string; en: string }> = {
-  // Cheeses & Dairy
-  'mozzarella': { th: 'มอสซาเรลล่าชีส', en: 'Mozzarella Cheese' },
-  'doppia mozzarella': { th: 'เพิ่มมอสซาเรลล่าชีส 2 เท่า', en: 'Double Mozzarella' },
-  'extra mozzarella': { th: 'เพิ่มมอสซาเรลล่าชีส', en: 'Extra Mozzarella' },
-  'bufala': { th: 'มอสซาเรลล่าชีสนมควาย', en: 'Buffalo Mozzarella' },
-  'mozzarella di bufala': { th: 'มอสซาเรลล่าชีสนมควาย', en: 'Buffalo Mozzarella' },
-  'burrata': { th: 'บูร์ราต้าชีสสด', en: 'Fresh Burrata' },
-  'burratina': { th: 'บูร์ราติน่าชีสสด', en: 'Mini Burrata' },
-  'gorgonzola': { th: 'กอร์กอนโซล่าบลูชีส', en: 'Gorgonzola Blue Cheese' },
-  'parmigiano': { th: 'พาร์เมซานชีส', en: 'Parmesan Cheese' },
-  'parmigiano reggiano': { th: 'พาร์มิจาโนเรจจาโนชีส', en: 'Parmigiano Reggiano' },
-  'grana': { th: 'กรานาปาดาโนชีส', en: 'Grana Padano' },
-  'grana padano': { th: 'กรานาปาดาโนชีส', en: 'Grana Padano' },
-  'pecorino': { th: 'เปโคริโน่ชีสนมแกะ', en: 'Pecorino Cheese' },
-  'pecorino romano': { th: 'เปโคริโน่โรมาโนชีส', en: 'Pecorino Romano' },
-  'ricotta': { th: 'ริคอตต้าชีส', en: 'Ricotta Cheese' },
-  'mascarpone': { th: 'มาสคาโปเนชีส', en: 'Mascarpone' },
-  'scamorza': { th: 'สคามอร์ซารมควัน', en: 'Smoked Scamorza' },
-  'scamorza affumicata': { th: 'สคามอร์ซารมควัน', en: 'Smoked Scamorza' },
-  'fontina': { th: 'ฟอนติน่าชีส', en: 'Fontina Cheese' },
-  'formaggio': { th: 'ชีส', en: 'Cheese' },
-  '4 formaggi': { th: 'ชีส 4 ชนิด', en: '4 Cheeses' },
-  
-  // Meats & Cold Cuts
-  'prosciutto': { th: 'แฮม', en: 'Ham' },
-  'prosciutto cotto': { th: 'แฮมสุกอิตาเลียน', en: 'Cooked Ham' },
-  'cotto': { th: 'แฮมสุก', en: 'Cooked Ham' },
-  'prosciutto crudo': { th: 'พาร์มาแฮมดิบ', en: 'Parma Ham (Crudo)' },
-  'crudo': { th: 'พาร์มาแฮม', en: 'Parma Ham' },
-  'prosciutto di parma': { th: 'พาร์มาแฮมแท้', en: 'Parma Ham' },
-  'salame': { th: 'ซาลามี่', en: 'Salami' },
-  'salame piccante': { th: 'เปปเปอโรนี่รสเผ็ด', en: 'Spicy Salami (Pepperoni)' },
-  'salame dolce': { th: 'ซาลามี่รสกลมกล่อม', en: 'Mild Salami' },
-  'salame milano': { th: 'มิลาโนซาลามี่', en: 'Milano Salami' },
-  'salsiccia': { th: 'ไส้กรอกหมูสดอิตาเลียน', en: 'Italian Pork Sausage' },
-  'salsiccia fresca': { th: 'ไส้กรอกหมูสดอิตาเลียน', en: 'Italian Fresh Sausage' },
-  'bacon': { th: 'เบคอนกรอบ', en: 'Crispy Bacon' },
-  'pancetta': { th: 'แพนเช็ตต้าหมูสามชั้นอิตาเลียน', en: 'Italian Pancetta' },
-  'guanciale': { th: 'กวนชาเล่แก้มหมูอิตาเลียน', en: 'Guanciale (Pork Jowl)' },
-  'speck': { th: 'สเปคแฮมรมควัน', en: 'Smoked Speck Ham' },
-  'bresaola': { th: 'เบรซาโอล่าเนื้อวัวแห้งอิตาเลียน', en: 'Bresaola (Cured Beef)' },
-  'wurstel': { th: 'ไส้กรอกเวียนนา', en: 'Vienna Sausage (Wurstel)' },
-  'pollo': { th: 'เนื้อไก่', en: 'Chicken' },
-  'petto di pollo': { th: 'อกไก่', en: 'Chicken Breast' },
-  'manzo': { th: 'เนื้อวัว', en: 'Beef' },
-  'macinato': { th: 'เนื้อบด', en: 'Minced Meat' },
-  'carne trita': { th: 'เนื้อบด', en: 'Minced Meat' },
-  'nduja': { th: 'อันดูยาพริกซาลามี่เผ็ดคาลาเบรีย', en: "'Nduja Spicy Sausage" },
-  'mortadella': { th: 'มอร์ทาเดลล่าแฮมอิตาเลียน', en: 'Italian Mortadella' },
-
-  // Seafood
-  'tonno': { th: 'ปลาทูน่า', en: 'Tuna' },
-  'tonno sott\'olio': { th: 'ปลาทูน่าในน้ำมันมะกอก', en: 'Tuna in Olive Oil' },
-  'acciughe': { th: 'ปลาแอนโชวี่เค็ม', en: 'Anchovies' },
-  'alici': { th: 'ปลาแอนโชวี่', en: 'Anchovies' },
-  'gamberi': { th: 'กุ้งสด', en: 'Fresh Prawns' },
-  'gamberetti': { th: 'กุ้งตัวเล็ก', en: 'Shrimps' },
-  'salmone': { th: 'แซลมอน', en: 'Salmon' },
-  'salmone affumicato': { th: 'แซลมอนรมควัน', en: 'Smoked Salmon' },
-  'calamari': { th: 'ปลาหมึก', en: 'Squid / Calamari' },
-  'cozze': { th: 'หอยแมลงภู่', en: 'Mussels' },
-  'vongole': { th: 'หอยตลับ', en: 'Clams' },
-  'frutti di mare': { th: 'อาหารทะเลรวม', en: 'Seafood Mix' },
-  'seafood': { th: 'ซีฟู้ดรวม', en: 'Seafood' },
-
-  // Vegetables & Herbs
-  'funghi': { th: 'เห็ดแชมปิญองสด', en: 'Fresh Mushrooms' },
-  'funghi freschi': { th: 'เห็ดสด', en: 'Fresh Mushrooms' },
-  'funghi porcini': { th: 'เห็ดพอร์ชินี่', en: 'Porcini Mushrooms' },
-  'porcini': { th: 'เห็ดพอร์ชินี่', en: 'Porcini Mushrooms' },
-  'tartufo': { th: 'เห็ดทรัฟเฟิลดำ', en: 'Black Truffle' },
-  'olio al tartufo': { th: 'น้ำมันเห็ดทรัฟเฟิล', en: 'Truffle Oil' },
-  'pomodoro': { th: 'มะเขือเทศ', en: 'Tomato' },
-  'pomodorini': { th: 'มะเขือเทศราชินีสด', en: 'Cherry Tomatoes' },
-  'pomodori secchi': { th: 'มะเขือเทศอบแห้ง', en: 'Sun-Dried Tomatoes' },
-  'salsa pomodoro': { th: 'ซอสมะเขือเทศเข้มข้น', en: 'Tomato Sauce' },
-  'olive': { th: 'มะกอก', en: 'Olives' },
-  'olive nere': { th: 'มะกอกดำ', en: 'Black Olives' },
-  'olive verdi': { th: 'มะกอกเขียว', en: 'Green Olives' },
-  'capperi': { th: 'เคเปอร์', en: 'Capers' },
-  'carciofi': { th: 'อาร์ติโชก', en: 'Artichokes' },
-  'cipolla': { th: 'หอมใหญ่', en: 'Onion' },
-  'cipolla rossa': { th: 'หอมแดง', en: 'Red Onion' },
-  'peperoni': { th: 'พริกหวานย่าง', en: 'Bell Peppers' },
-  'peperoncino': { th: 'พริกเผ็ดสด', en: 'Chili Peppers' },
-  'peperoncino fresco': { th: 'พริกสดเผ็ด', en: 'Fresh Chili' },
-  'olio piccante': { th: 'น้ำมันพริกเผ็ด', en: 'Spicy Chili Oil' },
-  'melanzane': { th: 'มะเขือม่วงย่าง', en: 'Grilled Eggplants' },
-  'zucchine': { th: 'ซูกินีย่าง', en: 'Grilled Zucchini' },
-  'rucola': { th: 'ผักร็อคเก็ตสด', en: 'Fresh Rocket Salad' },
-  'spinaci': { th: 'ผักโขม', en: 'Spinach' },
-  'basilico': { th: 'ใบโหระพาอิตาเลียน', en: 'Fresh Basil' },
-  'origano': { th: 'ออริกาโน่', en: 'Oregano' },
-  'aglio': { th: 'กระเทียมสด', en: 'Garlic' },
-  'prezzemolo': { th: 'พาร์สลีย์', en: 'Parsley' },
-  'rosmarino': { th: 'โรสแมรี่', en: 'Rosemary' },
-  'ananas': { th: 'สับปะรด', en: 'Pineapple' },
-  'mais': { th: 'ข้าวโพดหวาน', en: 'Sweet Corn' },
-  'patate': { th: 'มันฝรั่ง', en: 'Potatoes' },
-  'patatine': { th: 'เฟรนช์ฟรายส์', en: 'French Fries' },
-  'patatine fritte': { th: 'เฟรนช์ฟรายส์กรอบ', en: 'French Fries' },
-  'french fries': { th: 'เฟรนช์ฟรายส์กรอบ', en: 'French Fries' },
-
-  // Eggs & Sauces
-  'uovo': { th: 'ไข่ไก่สด', en: 'Egg' },
-  'uovo sodo': { th: 'ไข่ต้ม', en: 'Boiled Egg' },
-  'uovo all\'occhio': { th: 'ไข่ดาว', en: 'Fried Egg' },
-  'pesto': { th: 'ซอสเพสโต้ใบโหระพา', en: 'Basil Pesto Sauce' },
-  'pesto genovese': { th: 'ซอสเพสโต้เจโนเวเซ่', en: 'Genoese Pesto' },
-  'panna': { th: 'ครีมสด', en: 'Fresh Cream' },
-  'maionese': { th: 'มายองเนส', en: 'Mayonnaise' },
-  'ketchup': { th: 'ซอสมะเขือเทศ', en: 'Ketchup' },
-  'salsa bbq': { th: 'ซอสบาร์บีคิว', en: 'BBQ Sauce' },
-  'bbq sauce': { th: 'ซอสบาร์บีคิว', en: 'BBQ Sauce' },
-  'salsa tartara': { th: 'ซอสทาร์ทาร์', en: 'Tartar Sauce' },
-  'senape': { th: 'มัสตาร์ด', en: 'Mustard' },
-  'tabasco': { th: 'ทาบาสโก้', en: 'Tabasco' },
-  'olio evo': { th: 'น้ำมันมะกอกเอ็กซ์ตร้าเวอร์จิ้น', en: 'Extra Virgin Olive Oil' },
-  'aceto balsamico': { th: 'น้ำส้มสายชูบัลซามิก', en: 'Balsamic Glaze' },
-  'crema di tartufo': { th: 'ครีมเห็ดทรัฟเฟิล', en: 'Truffle Cream' },
-
-  // Variants & Formats
-  'normale': { th: 'ขนาดปกติ (33 ซม.)', en: 'Normal Size (33cm)' },
-  'baby': { th: 'ขนาดเล็กสำหรับเด็ก (24 ซม.)', en: 'Baby Size (24cm)' },
-  'maxi': { th: 'ขนาดใหญ่พิเศษ (45 ซม.)', en: 'Maxi Size (45cm)' },
-  'famiglia': { th: 'ขนาดครอบครัว', en: 'Family Size' },
-  'calzone': { th: 'แบบพับ (คาลโซเน่)', en: 'Calzone Folded' },
-  'doppio impasto': { th: 'แป้งหนานุ่ม 2 เท่า', en: 'Double Thick Dough' },
-  'senza glutine': { th: 'แป้งปลอดกลูเตน', en: 'Gluten Free Dough' },
-  'gluten free': { th: 'แป้งปลอดกลูเตน', en: 'Gluten Free' },
-  'integrale': { th: 'แป้งโฮลวีท', en: 'Whole Wheat Dough' },
-  'ben cotta': { th: 'อบกรอบพิเศษ', en: 'Well Done / Crispy' },
-  'poco cotta': { th: 'อบนุ่มพอดี', en: 'Lightly Baked' },
-  'tagliata a fette': { th: 'ตัดแบ่งชิ้นพร้อมทาน', en: 'Sliced' },
-  'non tagliata': { th: 'ไม่ตัดเป็นชิ้น', en: 'Not Sliced' },
+// Universal KDS Helper Wrappers
+export const getDishDisplayName = (item: CartItemSaved | any, lang: KdsLanguage | 'en' | 'th' | 'mm' | 'it' | 'de'): string => {
+  return resolveDishDisplayName(item, (lang as KdsLanguage) || 'en');
 };
 
-// Build quick lookup map for Thai and English names from menuData
-
-const EXTRA_BURMESE_LOOKUP: Record<string, string> = {
-  'mozzarella': 'မော့ဇာရဲလား ချိစ်',
-  'doppia mozzarella': 'မော့ဇာရဲလား ချိစ် ၂ ဆ',
-  'extra mozzarella': 'မော့ဇာရဲလား ချိစ် အပို',
-  'bufala': 'ကျွဲနို့ မော့ဇာရဲလား ချိစ်',
-  'mozzarella di bufala': 'ကျွဲနို့ မော့ဇာရဲလား ချိစ်',
-  'burrata': 'ဘူရာတာ ချိစ်စို',
-  'burratina': 'ဘူရာတီနာ ချိစ်စို အသေး',
-  'gorgonzola': 'ဂေါ်ဂွန်ဇိုလာ ဘလူးချိစ်',
-  'parmigiano': 'ပါမီဇန် ချိစ်',
-  'parmigiano reggiano': 'ပါမီဂျာနို ရယ်ဂျာနို ချိစ်',
-  'grana': 'ဂရာနာ ပါဒါနို ချိစ်',
-  'grana padano': 'ဂရာနာ ပါဒါနို ချိစ်',
-  'pecorino': 'သိုးနို့ ပီကိုရီနို ချိစ်',
-  'pecorino romano': 'ပီကိုရီနို ရိုမာနို ချိစ်',
-  'ricotta': 'ရီကော့တာ ချိစ်',
-  'mascarpone': 'မတ်စ်ကာပိုနီ ချိစ်',
-  'scamorza': 'အမွှေးနံ့သာ စကာမော်ဇာ ချိစ်',
-  'formaggio': 'ချိစ်',
-  '4 formaggi': 'ချိစ် ၄ မျိုး',
-  'prosciutto': 'ဝက်ပေါင်ခြောက် / ဟမ်',
-  'prosciutto cotto': 'အီတလီ ဝက်ပေါင်ခြောက်ပြုတ်',
-  'cotto': 'ဟမ်',
-  'prosciutto crudo': 'ပါမာ ဝက်ပေါင်ခြောက်စိမ်း',
-  'crudo': 'ပါမာ ဟမ်',
-  'prosciutto di parma': 'ပါမာ ဝက်ပေါင်ခြောက်စစ်စစ်',
-  'salame': 'ဆာလာမီ အမဲ/ဝက်အူချောင်း',
-  'salame piccante': 'ငရုတ်ကောင်း ဆာလာမီ အစပ် (ပက်ပါရိုနီ)',
-  'salame dolce': 'ဆာလာမီ အရသာညင်သာ',
-  'salsiccia': 'အီတလီ ဝက်အူချောင်းစိမ်း',
-  'salsiccia fresca': 'အီတလီ ဝက်အူချောင်းလတ်လတ်ဆတ်ဆတ်',
-  'bacon': 'ဘေကွန်ကြွပ်',
-  'pancetta': 'ဝက်သုံးထပ်သား အီတလီစတိုင်',
-  'guanciale': 'ဝက်ပါးသားခြောက်',
-  'speck': 'အမွှေးနံ့သာ ဝက်ပေါင်ခြောက်',
-  'wurstel': 'ဗီယင်နာ ဝက်အူချောင်း',
-  'pollo': 'ကြက်သား',
-  'petto di pollo': 'ကြက်ရင်အုံသား',
-  'manzo': 'အမဲသား',
-  'macinato': 'အမဲ/ဝက် အသားကြိတ်',
-  'tonno': 'တူနာငါး',
-  'acciughe': 'ငါးနီတူဆားနယ်',
-  'alici': 'ငါးနီတူဆားနယ်',
-  'gamberi': 'ပုစွန်လတ်လတ်ဆတ်ဆတ်',
-  'gamberetti': 'ပုစွန်ဆိတ်',
-  'salmone': 'ဆယ်လမွန်ငါး',
-  'salmone affumicato': 'ဆယ်လမွန်ငါး အခိုးအငွေ့ကျက်',
-  'calamari': 'ပြည်ကြီးငါး',
-  'cozze': 'ယောက်သွားခွံနက်',
-  'vongole': 'ယောက်သွားခွံဖြူ',
-  'frutti di mare': 'ပင်လယ်စာ အစုံ',
-  'seafood': 'ပင်လယ်စာ အစုံ',
-  'funghi': 'မှိုလတ်လတ်ဆတ်ဆတ်',
-  'funghi freschi': 'မှိုလတ်လတ်ဆတ်ဆတ်',
-  'funghi porcini': 'ပေါ်ချီနီ မှိုမွှေး',
-  'tartufo': 'ထရက်ဖယ်လ် မှိုမည်း',
-  'pomodoro': 'ခရမ်းချဉ်သီး',
-  'pomodorini': 'ချယ်ရီ ခရမ်းချဉ်သီး',
-  'pomodori secchi': 'ခရမ်းချဉ်သီးခြောက်',
-  'salsa pomodoro': 'ခရမ်းချဉ်သီးဆော့စ်',
-  'olive': 'သံလွင်သီး',
-  'olive nere': 'သံလွင်သီး အမည်း',
-  'olive verdi': 'သံလွင်သီး အစိမ်း',
-  'capperi': 'ကေပါ အစေ့ချဉ်',
-  'carciofi': 'အာတီချုတ် ပန်းဖူး',
-  'cipolla': 'ကြက်သွန်နီကြီး',
-  'cipolla rossa': 'ကြက်သွန်နီနီ',
-  'peperoni': 'ငရုတ်ပွကင်',
-  'peperoncino': 'ငရုတ်သီးစိမ်းစပ်',
-  'peperoncino fresco': 'ငရုတ်သီးစိမ်းလတ်လတ်ဆတ်ဆတ်',
-  'olio piccante': 'ငရုတ်သီးစပ်ဆီ',
-  'melanzane': 'ခရမ်းသီးကင်',
-  'zucchine': 'ကျောက်ဖရုံသီးကင်',
-  'rucola': 'ရော့ကက် ရွက်စိမ်း',
-  'spinaci': 'ဟင်းနုနွယ်ရွက်',
-  'basilico': 'ပင်စိမ်းလတ်လတ်ဆတ်ဆတ်',
-  'origano': 'အော်ရီဂါနို အမွှေးရွက်',
-  'aglio': 'ကြက်သွန်ဖြူ',
-  'prezzemolo': 'တရုတ်နံနံ / ပါစလေ',
-  'rosmarino': 'ရို့စ်မေရီ အမွှေးရွက်',
-  'ananas': 'နာနတ်သီး',
-  'mais': 'ပြောင်းဖူးချို',
-  'patate': 'အာလူး',
-  'patatine': 'အာလူးချောင်းကြော်',
-  'patatine fritte': 'အာလူးချောင်းကြော်',
-  'french fries': 'အာလူးချောင်းကြော်',
-  'uovo': 'ကြက်ဥ',
-  'uovo sodo': 'ကြက်ဥပြုတ်',
-  "uovo all'occhio": 'ကြက်ဥကြော် မကျက်တကျက်',
-  'pesto': 'ပင်စိမ်းဆော့စ်စိမ်း',
-  'panna': 'နို့ခရင်မ်စစ်စစ်',
-  'maionese': 'မရိုနိစ်',
-  'ketchup': 'ခရမ်းချဉ်သီးဆော့စ်ချို',
-  'bbq sauce': 'ဘီဘီကျူးဆော့စ်',
-  'olio evo': 'သံလွင်ဆီစစ်စစ်',
+export const getDishSubtitle = (item: CartItemSaved | any, lang: KdsLanguage | 'en' | 'th' | 'mm' | 'it' | 'de'): string | null => {
+  return resolveDishSubtitle(item, (lang as KdsLanguage) || 'en');
 };
 
-const menuMmLookup: Record<string, string> = {
-  'pizza margherita': 'မာဂရီတာ ပီဇာ (ချိစ် & ခရမ်းချဉ်သီး)',
-  'pizza marinara (vegan)': 'မာရီနာရာ ပီဇာ (သက်သတ်လွတ် - ကြက်သွန်ဖြူ & ခရမ်းချဉ်သီး)',
-  'pizza salame piccante (pepperoni)': 'ဆာလာမီ အစပ် ပီဇာ (ပက်ပါရိုနီ)',
-  'pizza prosciutto e funghi': 'ဝက်ပေါင်ခြောက်နှင့် မှို ပီဇာ',
-  'pizza 4 formaggi': 'ချိစ် ၄ မျိုး ပီဇာ',
-  'pizza capricciosa': 'ကာပရီချိုဆာ ပီဇာ (မှို၊ ဟမ်၊ အာတီချုတ်၊ သံလွင်သီး)',
-  'pizza hawaiian': 'ဟာဝိုင်ယန် ပီဇာ (ဟမ်နှင့် နာနတ်သီး)',
-  'pizza tonno e cipolla': 'တူနာငါးနှင့် ကြက်သွန်နီ ပီဇာ',
-  'pizza carbonara': 'ကာဘိုနာရာ ပီဇာ (ဘေကွန် & ကြက်ဥ)',
-  'spaghetti alla carbonara': 'စပါဂက်တီ ကာဘိုနာရာ (ဘေကွန်၊ ကြက်ဥ၊ ချိစ်)',
-  'spaghetti alla bolognese': 'စပါဂက်တီ ဘိုလိုနိစ် (အမဲ/ဝက် အသားကြိတ်ဆော့စ်)',
-  'spaghetti al pomodoro': 'စပါဂက်တီ ခရမ်းချဉ်သီးဆော့စ်',
-  "spaghetti all'amatriciana": 'စပါဂက်တီ အာမာထရီချာနာ (ဝက်သုံးထပ်သားဆော့စ်စပ်)',
-  'spaghetti aglio, olio e peperoncino': 'စပါဂက်တီ ကြက်သွန်ဖြူဆီသတ် ငရုတ်သီးစပ်',
-  'tagliatelle al ragù bolognese': 'တာလီယာတယ်လေ ခေါက်ဆွဲပြား အသားကြိတ်ဆော့စ်',
-  'tagliatelle ai funghi porcini': 'တာလီယာတယ်လေ မှိုမွှေးဆော့စ်',
-  "penne all'arrabbiata": 'ပန်နီ အာရာဘီယာတာ (ခရမ်းချဉ်သီးဆော့စ် အစပ်)',
-  'penne ai 4 formaggi': 'ပန်နီ ချိစ် ၄ မျိုးဆော့စ်',
-  'lasagna alla bolognese': 'လာဇန်းညား အသားကြိတ်ဆော့စ်ဖုတ်',
-  'gnocchi al pomodoro e mozzarella (sorrentina)': 'ညော့ကီ အာလူးမုန့်လုံး ခရမ်းချဉ်သီး & ချိစ်',
-  'gnocchi ai 4 formaggi': 'ညော့ကီ ချိစ် ၄ မျိုးဆော့စ်',
-  'french fries': 'အာလူးချောင်းကြော်',
-  'tiramisù classico': 'တီရာမီဆူ ကိတ် အီတလီစစ်စစ်',
-  'caffè espresso': 'အက်စ်ပရက်ဆို ကော်ဖီခါး',
-  'cappuccino': 'ကပူချီနို ကော်ဖီ',
-  'americano': 'အမေရိကာနို ကော်ဖီ',
-  'latte macchiato': 'လတ်တေး ကော်ဖီ',
+export const getVariantDisplayName = (v: any, lang: KdsLanguage | 'en' | 'th' | 'mm' | 'it' | 'de'): string => {
+  return resolveVariantDisplayName(v, (lang as KdsLanguage) || 'en');
 };
 
-const menuThaiLookup: Record<string, string> = {};
-const menuEnLookup: Record<string, string> = {};
-const extraLookup: Record<string, { th: string; en: string }> = {};
-
-menuData.forEach(cat => {
-  cat.items.forEach((it: any) => {
-    const enName = it.name ? it.name.trim() : '';
-    const thName = it.nameTh ? it.nameTh.trim() : '';
-    const itName = it.nameIt || it.name_it || '';
-
-    if (enName) {
-      menuThaiLookup[enName.toLowerCase()] = thName || enName;
-      menuEnLookup[enName.toLowerCase()] = enName;
-    }
-    if (itName) {
-      menuThaiLookup[itName.trim().toLowerCase()] = thName || enName;
-      menuEnLookup[itName.trim().toLowerCase()] = enName;
-    }
-    if (thName) {
-      menuThaiLookup[thName.toLowerCase()] = thName;
-      menuEnLookup[thName.toLowerCase()] = enName || thName;
-    }
-
-    if (it.extras && Array.isArray(it.extras)) {
-      it.extras.forEach((ex: any) => {
-        const th = ex.nameTh || '';
-        const en = ex.name || '';
-        const itN = ex.nameIt || ex.name_it || '';
-        const deN = ex.nameDe || ex.name_de || '';
-
-        const entry = { th: th || en, en: en || th };
-        if (en) extraLookup[en.trim().toLowerCase()] = entry;
-        if (itN) extraLookup[itN.trim().toLowerCase()] = entry;
-        if (th) extraLookup[th.trim().toLowerCase()] = entry;
-        if (deN) extraLookup[deN.trim().toLowerCase()] = entry;
-      });
-    }
-
-    if (it.variants && Array.isArray(it.variants)) {
-      it.variants.forEach((v: any) => {
-        const th = v.nameTh || '';
-        const en = v.name || '';
-        const itN = v.nameIt || v.name_it || '';
-        const deN = v.nameDe || v.name_de || '';
-
-        const entry = { th: th || en, en: en || th };
-        if (en) extraLookup[en.trim().toLowerCase()] = entry;
-        if (itN) extraLookup[itN.trim().toLowerCase()] = entry;
-        if (th) extraLookup[th.trim().toLowerCase()] = entry;
-        if (deN) extraLookup[deN.trim().toLowerCase()] = entry;
-      });
-    }
-  });
-});
-
-export const getDishDisplayName = (item: CartItemSaved, lang: 'en' | 'th' | 'mm'): string => {
-  if (!item) return '';
-  const clean = String(item.name || '').trim().toLowerCase();
-
-  if (lang === 'mm') {
-    if ((item as any).nameMm && typeof (item as any).nameMm === 'string' && (item as any).nameMm.trim()) {
-      return (item as any).nameMm.trim();
-    }
-    if (menuMmLookup[clean]) {
-      return menuMmLookup[clean];
-    }
-    if (EXTRA_BURMESE_LOOKUP[clean]) {
-      return EXTRA_BURMESE_LOOKUP[clean];
-    }
-    if (menuThaiLookup[clean]) {
-      return menuThaiLookup[clean];
-    }
-    return String(item.name || '').toUpperCase();
-  }
-
-  if (lang === 'th') {
-    if (item.nameTh && typeof item.nameTh === 'string' && item.nameTh.trim()) {
-      return item.nameTh.trim();
-    }
-    if (menuThaiLookup[clean]) {
-      return menuThaiLookup[clean];
-    }
-    if (EXTRA_TRANSLATIONS[clean]) {
-      return EXTRA_TRANSLATIONS[clean].th;
-    }
-    if (menuEnLookup[clean]) {
-      return menuEnLookup[clean];
-    }
-    return String(item.name || '').toUpperCase();
-  }
-
-  // English mode
-  if (menuEnLookup[clean]) {
-    return menuEnLookup[clean].toUpperCase();
-  }
-  if (EXTRA_TRANSLATIONS[clean]) {
-    return EXTRA_TRANSLATIONS[clean].en.toUpperCase();
-  }
-  return String(item.name || '').toUpperCase();
+export const getExtraDisplayName = (ex: any, lang: KdsLanguage | 'en' | 'th' | 'mm' | 'it' | 'de'): string => {
+  return resolveExtraDisplayName(ex, (lang as KdsLanguage) || 'en');
 };
 
-export const getVariantDisplayName = (v: any, lang: 'en' | 'th' | 'mm'): string => {
-  if (!v) return '';
-  if (typeof v === 'object') {
-    if (lang === 'th' && v.nameTh && typeof v.nameTh === 'string' && v.nameTh.trim()) {
-      return v.nameTh.trim();
-    }
-    if (lang === 'en' && v.name && typeof v.name === 'string' && v.name.trim()) {
-      const lower = v.name.trim().toLowerCase();
-      if (EXTRA_TRANSLATIONS[lower]) return EXTRA_TRANSLATIONS[lower].en;
-      return v.name.trim();
-    }
-    const cand = (v.name || v.nameIt || '').trim().toLowerCase();
-    if (EXTRA_TRANSLATIONS[cand]) {
-      return lang === 'th' ? EXTRA_TRANSLATIONS[cand].th : EXTRA_TRANSLATIONS[cand].en;
-    }
-    if (extraLookup[cand]) {
-      return lang === 'th' ? extraLookup[cand].th : extraLookup[cand].en;
-    }
-    return String(v.name || v.nameIt || (lang === 'th' ? 'ปกติ' : 'Standard'));
-  }
-
-  const str = String(v).trim();
-  const lower = str.toLowerCase();
-  if (EXTRA_TRANSLATIONS[lower]) {
-    return lang === 'th' ? EXTRA_TRANSLATIONS[lower].th : EXTRA_TRANSLATIONS[lower].en;
-  }
-  if (extraLookup[lower]) {
-    return lang === 'th' ? extraLookup[lower].th : extraLookup[lower].en;
-  }
-  return str;
-};
-
-export const getExtraDisplayName = (ex: any, lang: 'en' | 'th' | 'mm'): string => {
-  if (!ex) return '';
-  if (typeof ex === 'object') {
-    if (lang === 'th' && ex.nameTh && typeof ex.nameTh === 'string' && ex.nameTh.trim()) {
-      return ex.nameTh.trim();
-    }
-    if (lang === 'en' && ex.name && typeof ex.name === 'string' && ex.name.trim()) {
-      const lower = ex.name.trim().toLowerCase();
-      if (EXTRA_TRANSLATIONS[lower]) return EXTRA_TRANSLATIONS[lower].en;
-      return ex.name.trim();
-    }
-    const candidate = (ex.name || ex.nameIt || '').trim().toLowerCase();
-    if (EXTRA_TRANSLATIONS[candidate]) {
-      return lang === 'th' ? EXTRA_TRANSLATIONS[candidate].th : EXTRA_TRANSLATIONS[candidate].en;
-    }
-    if (extraLookup[candidate]) {
-      return lang === 'th' ? extraLookup[candidate].th : extraLookup[candidate].en;
-    }
-    return ex.name || (lang === 'th' ? 'พิเศษ' : 'Extra');
-  }
-
-  const str = String(ex).trim();
-  const lower = str.toLowerCase();
-  if (EXTRA_TRANSLATIONS[lower]) {
-    return lang === 'th' ? EXTRA_TRANSLATIONS[lower].th : EXTRA_TRANSLATIONS[lower].en;
-  }
-  if (extraLookup[lower]) {
-    return lang === 'th' ? extraLookup[lower].th : extraLookup[lower].en;
-  }
-  return str;
-};
 
 const translateAddressToThai = (addr: string): string => {
   if (!addr) return '';
@@ -714,14 +302,16 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
     return menuItems.filter(i => i.is_available === false).length;
   }, [menuItems]);
 
-  // 1. Language Toggle (🇬🇧 EN / 🇹🇭 TH)
-  const [kdsLang, setKdsLang] = useState<'en' | 'th' | 'mm'>(() => {
-    return (localStorage.getItem('kitchen_kds_lang') as 'en' | 'th') || 'th';
+  // 1. Language Toggle (Supports TH, EN, MM, IT, DE)
+  const [kdsLang, setKdsLang] = useState<KdsLanguage>(() => {
+    const saved = localStorage.getItem('kitchen_kds_lang') as KdsLanguage;
+    return saved || 'th';
   });
 
-  const changeLanguage = (lang: 'en' | 'th' | 'mm') => {
-    setKdsLang(lang);
-    localStorage.setItem('kitchen_kds_lang', lang);
+  const changeLanguage = (lang: any) => {
+    const normalized = (String(lang).toLowerCase() as KdsLanguage);
+    setKdsLang(normalized);
+    localStorage.setItem('kitchen_kds_lang', normalized);
   };
 
   // 2. Service Status & Pause Modal
@@ -1630,58 +1220,8 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
     return Math.floor(diffMs / 60000);
   };
 
-  // Dictionary for UI strings based on kdsLang
-  const t = {
-    kitchenTitle: 'KITCHEN MONITOR',
-    col1Title: kdsLang === 'mm' ? 'အော်ဒါအသစ်များ (စတင်ချက်ပြုတ်ရန်)' : kdsLang === 'th' ? 'ออเดอร์ใหม่ (รอรับ & เริ่มทำ)' : 'NEW ORDERS (TO ACCEPT)',
-    col2Title: kdsLang === 'mm' ? 'ပြင်ဆင်နေဆဲနှင့် ပို့ဆောင်နေဆဲ' : kdsLang === 'th' ? 'กำลังเตรียม & กำลังส่ง' : 'PREPARING & DELIVERING',
-    noKitchenOrders: kdsLang === 'mm' ? 'အော်ဒါအသစ် မရှိပါ' : kdsLang === 'th' ? 'ไม่มีออเดอร์ใหม่' : 'NO NEW ORDERS',
-    noKitchenSub: kdsLang === 'mm' ? 'အော်ဒါအသစ်ဝင်လာပါက အချက်ပေးသံ မြည်ပါမည်' : kdsLang === 'th' ? 'แท็บเล็ตจะส่งเสียงเตือนเมื่อมีออเดอร์ใหม่เข้ามา' : 'Tablet will ring when a new order arrives.',
-    noReadyOrders: kdsLang === 'mm' ? 'ပြင်ဆင်ဆဲ အော်ဒါမရှိပါ' : kdsLang === 'th' ? 'ไม่มีออเดอร์กำลังทำหรือส่ง' : 'NO ORDERS IN PREPARATION',
-    noReadySub: kdsLang === 'mm' ? 'လက်ခံထားသော အော်ဒါများကို ဤနေရာတွင် ပြသပါမည်' : kdsLang === 'th' ? 'ออเดอร์ที่รับแล้วจะแสดงที่นี่เพื่อจัดเตรียมและส่ง' : 'Accepted orders will appear here for preparation & delivery.',
-    acceptBtn: kdsLang === 'mm' ? 'အော်ဒါ လက်ခံမည်' : kdsLang === 'th' ? 'รับออเดอร์' : 'ACCEPT ORDER',
-    muteBtn: kdsLang === 'mm' ? 'အသံပိတ်' : kdsLang === 'th' ? 'ปิดเสียง' : 'MUTE',
-    muteAlarmBar: kdsLang === 'mm' ? 'အချက်ပေးသံ ပိတ်မည်' : kdsLang === 'th' ? 'ปิดเสียงเตือน' : 'MUTE ALARM',
-    dispatchRiderBtn: kdsLang === 'mm' ? '🛵 ပို့ဆောင်သူ ထွက်ခွာပါပြီ' : kdsLang === 'th' ? '🛵 ไรเดอร์ออกไปส่งแล้ว' : '🛵 DISPATCH RIDER (OUT)',
-    bakedBtn: kdsLang === 'mm' ? 'ဖုတ်ပြီးပြီ ➔ ပို့ဆောင်သူထံ လွှဲပေးရန်' : kdsLang === 'th' ? 'อบเสร็จแล้ว ➔ ส่งให้ไรเดอร์' : 'BAKED ➔ READY FOR RIDER',
-    directArchiveBtn: kdsLang === 'mm' ? '✓ ပြီးစီးကြောင်း မှတ်တမ်းတင်မည်' : kdsLang === 'th' ? '✓ ปิดงานทันที' : '✓ ARCHIVE DIRECTLY',
-    deliveredBtn: kdsLang === 'mm' ? '✓ ပို့ဆောင်ပြီးပါပြီ' : kdsLang === 'th' ? '✓ ส่งเรียบร้อยแล้ว / บันทึกประวัติ' : '✓ DELIVERED & ARCHIVED',
-    cancelBtn: kdsLang === 'mm' ? '✕ ပယ်ဖျက်မည်' : kdsLang === 'th' ? '✕ ยกเลิก' : '✕ CANCEL',
-    minAgo: kdsLang === 'mm' ? 'မိနစ်အကြာက' : kdsLang === 'th' ? 'นาทีที่แล้ว' : 'm ago',
-    cookingFor: kdsLang === 'mm' ? 'ဖုတ်နေဆဲ' : kdsLang === 'th' ? 'กำลังอบ' : 'COOKING',
-    min: kdsLang === 'mm' ? 'မိနစ်' : kdsLang === 'th' ? 'นาที' : 'min',
-    newBadge: kdsLang === 'mm' ? 'အော်ဒါအသစ်' : kdsLang === 'th' ? 'ออเดอร์ใหม่' : 'NEW ORDER',
-    callBtn: kdsLang === 'mm' ? 'ဖုန်းခေါ်' : kdsLang === 'th' ? 'โทร' : 'CALL',
-    notifyCustBtn: kdsLang === 'mm' ? 'ဖောက်သည်ထံ အကြောင်းကြားရန်' : kdsLang === 'th' ? 'แจ้งลูกค้า' : 'NOTIFY CUSTOMER',
-    sendRiderBtn: kdsLang === 'mm' ? 'မြေပုံ' : kdsLang === 'th' ? 'ส่งไรเดอร์' : 'RIDER MAP',
-    mapBtn: kdsLang === 'mm' ? 'မြေပုံ' : kdsLang === 'th' ? 'แผนที่' : 'MAP',
-    screenOn: kdsLang === 'mm' ? 'စခရင် ဖွင့်ထားမည်' : kdsLang === 'th' ? 'เปิดจอค้าง' : 'SCREEN ON',
-    testSound: kdsLang === 'mm' ? 'အသံစမ်းသပ် 🔔' : kdsLang === 'th' ? 'ทดสอบ 🔔' : 'TEST 🔔',
-    serviceOpen: kdsLang === 'mm' ? 'ဖွင့်ထားသည်' : kdsLang === 'th' ? 'เปิดรับออเดอร์' : 'ONLINE: OPEN',
-    servicePaused: kdsLang === 'mm' ? 'ခေတ္တပိတ်ထားသည်' : kdsLang === 'th' ? 'พักรับออเดอร์' : 'ONLINE: PAUSED',
-    serviceClosed: kdsLang === 'mm' ? 'ပိတ်ထားသည်' : kdsLang === 'th' ? 'ปิดตามเวลา' : 'ONLINE: CLOSED',
-    hoursTitle: kdsLang === 'mm' ? 'ဆိုင်ဖွင့်ချိန် - ပိတ်ချိန်' : kdsLang === 'th' ? 'เวลาเปิด - ปิดร้าน' : 'OPENING & CLOSING HOURS',
-    openTimeLabel: kdsLang === 'mm' ? 'ဖွင့်ချိန်:' : kdsLang === 'th' ? 'เวลาเปิด:' : 'Open Time:',
-    closeTimeLabel: kdsLang === 'mm' ? 'ပိတ်ချိန်:' : kdsLang === 'th' ? 'เวลาปิด:' : 'Close Time:',
-    saveHoursBtn: kdsLang === 'mm' ? 'အချိန် သိမ်းဆည်းမည်' : kdsLang === 'th' ? 'บันทึกเวลาเปิด-ปิด' : 'SAVE HOURS',
-    hoursSaved: kdsLang === 'mm' ? 'သိမ်းဆည်းပြီးပါပြီ!' : kdsLang === 'th' ? 'บันทึกเรียบร้อย!' : 'HOURS SAVED!',
-    customPauseLabel: kdsLang === 'mm' ? 'ခေတ္တရပ်နားချိန် (မိနစ်):' : kdsLang === 'th' ? 'กำหนดเวลาหยุดพักเอง (นาที):' : 'Custom Pause Duration (min):',
-    applyCustomPause: kdsLang === 'mm' ? 'ရပ်နားမည်' : kdsLang === 'th' ? 'ตั้งเวลาพัก' : 'SET PAUSE',
-    openNowEarly: kdsLang === 'mm' ? 'ယခုချက်ချင်း ဖွင့်မည်' : kdsLang === 'th' ? 'เปิดรับออเดอร์ทันที (เริ่มบริการ)' : 'START SERVICE NOW (OPEN EARLY)',
-    sizeLabel: kdsLang === 'mm' ? 'အရွယ်အစား' : kdsLang === 'th' ? 'ขนาด' : 'Size',
-    extraLabel: kdsLang === 'mm' ? 'အပိုထည့်ရန်' : kdsLang === 'th' ? 'พิเศษ' : 'Extra',
-    dispatchReminderBadge: kdsLang === 'mm' ? '⏰ ၁၅ မိနစ်ကျော်ပြီ: အော်ဒါပိတ်ရန် မမေ့ပါနှင့်' : kdsLang === 'th' ? '⏰ เกิน 15 นาที: เตือนให้ปิดออเดอร์' : '⏰ 15+ MIN: REMEMBER TO CLOSE ORDER',
-    snoozeReminderBtn: kdsLang === 'mm' ? '၁၀ မိနစ် ရွှေ့မည်' : kdsLang === 'th' ? 'เลื่อน 10 นาที' : 'SNOOZE 10 MIN',
-    snoozedBadge: kdsLang === 'mm' ? 'ရွှေ့ဆိုင်းထားဆဲ' : kdsLang === 'th' ? 'เลื่อนเตือนอยู่' : 'SNOOZED',
-    testAlarmBtn: kdsLang === 'mm' ? 'အသံစမ်းသပ် ၁' : kdsLang === 'th' ? 'ทดสอบเสียง 1' : 'TEST 1 🔔',
-    testChimeBtn: kdsLang === 'mm' ? 'အသံစမ်းသပ် ၂' : kdsLang === 'th' ? 'ทดสอบเสียง 2' : 'TEST 2 ⏰',
-    stopTestBtn: kdsLang === 'mm' ? 'အသံရပ်မည်' : kdsLang === 'th' ? 'หยุดเสียง' : 'STOP',
-    rejectResBtn: kdsLang === 'mm' ? '✕ ငြင်းပယ်မည်' : kdsLang === 'th' ? '✕ ปฏิเสธ' : '✕ REJECT',
-    deleteBtn: kdsLang === 'mm' ? '🗑️ အပြီးဖျက်မည်' : kdsLang === 'th' ? '🗑️ ลบถาวร' : '🗑️ DELETE',
-    orderPaidBtn: kdsLang === 'mm' ? '💳 အော်ဒါ ငွေရှင်းပြီးပါပြီ / ပိတ်ပါ' : kdsLang === 'th' ? '💳 ชำระเงินแล้ว / ปิดโต๊ะ' : '💳 ORDER PAID (CLOSE & ARCHIVE)',
-    readyForSettlementBtn: kdsLang === 'mm' ? '✓ ငွေရှင်းရန် အသင့်ဖြစ်နေသည် (ညာဘက်သို့ ရွှေ့ပါ)' : kdsLang === 'th' ? '✓ พร้อมสำหรับการชำระ (ย้ายไปขวา)' : '✓ READY FOR SETTLEMENT (MOVE TO RIGHT)',
-    openTableNotice: kdsLang === 'mm' ? 'စားပွဲခုံ ဖွင့်ထားသည်- ထပ်တိုးရန် အသင့်ရှိသည်' : kdsLang === 'th' ? 'โต๊ะเปิดในห้องอาหาร: พร้อมรับรายการเพิ่ม' : 'Open table in dining room: ready for extra orders',
-  };
+  // Localized UI Dictionary for Kitchen Monitor (Supports TH, EN, MM, IT, DE)
+  const t = KDS_I18N[kdsLang] || KDS_I18N.th;
 
   return (
     <div 
@@ -1765,10 +1305,10 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
               type="button"
               onClick={handleSilenceAlarm}
               className="h-9 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 animate-pulse shadow-lg shadow-amber-500/40 cursor-pointer border border-amber-300 active:scale-95 transition-all"
-              title="Posticipa la suoneria promemoria di 10 minuti"
+              title={t.snooze10MinTooltip}
             >
               <Clock className="w-4 h-4 stroke-[2.5]" />
-              <span>{kdsLang === 'th' ? `เลื่อน 10 น. (${overdueDispatchOrders.length})` : `POSTICIPA 10 MIN (${overdueDispatchOrders.length})`}</span>
+              <span>{t.snoozeReminderBtn} ({overdueDispatchOrders.length})</span>
             </button>
           )}
 
@@ -1793,14 +1333,14 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
               <>
                 <PauseCircle className="w-4 h-4 text-amber-400 shrink-0" />
                 <span>
-                  {kdsLang === 'th' ? `พัก: ${serviceCalc.remainingMinutes} น.` : `PAUSED: ${serviceCalc.remainingMinutes}m`}
+                  {t.servicePaused}: {serviceCalc.remainingMinutes}{t.min}
                 </span>
               </>
             ) : (
               <>
                 <Moon className="w-4 h-4 text-blue-300 shrink-0" />
                 <span>
-                  {kdsLang === 'th' ? `ปิด (${serviceStatus.openingHours?.openTime || '11:00'})` : `CLOSED (${serviceStatus.openingHours?.openTime || '11:00'})`}
+                  {t.serviceClosed} ({serviceStatus.openingHours?.openTime || '11:00'})
                 </span>
               </>
             )}
@@ -1815,7 +1355,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
           >
             <UtensilsCrossed className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span className="hidden sm:inline">
-              {kdsLang === 'th' ? 'เมนู' : kdsLang === 'mm' ? 'မီနူး' : kdsLang === 'it' ? 'Menu' : 'Menu'}
+              {kdsLang === 'th' ? 'เมนู' : kdsLang === 'mm' ? 'မီနူး' : kdsLang === 'de' ? 'Speisekarte' : 'Menu'}
             </span>
           </button>
 
@@ -1827,7 +1367,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
             title={kdsLang === 'th' ? 'ดูประวัติออเดอร์ที่ส่งแล้ววันนี้' : 'View today completed orders archive'}
           >
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span className="hidden sm:inline">{kdsLang === 'th' ? 'ประวัติ' : 'Archive'}</span>
+            <span className="hidden sm:inline">{kdsLang === 'th' ? 'ประวัติ' : kdsLang === 'mm' ? 'မှတ်တမ်း' : kdsLang === 'it' ? 'Archivio' : kdsLang === 'de' ? 'Archiv' : 'Archive'}</span>
           </button>
 
           {/* 4. Language Switcher Dropdown */}
@@ -1934,7 +1474,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                     ? 'bg-red-600 text-white border border-red-400 animate-pulse shadow-red-600/50'
                     : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 hover:text-white active:scale-95'
                 }`}
-                title={testingNewOrderAlarm ? 'Stop test' : 'Test suoneria nuovi ordini (continua fino al prossimo click)'}
+                title={testingNewOrderAlarm ? 'Stop test' : t.testSound1Tooltip}
               >
                 {testingNewOrderAlarm ? (
                   <>
@@ -1992,11 +1532,11 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                                 #{res.id}
                               </span>
                               <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-400 text-stone-950 shadow-xs">
-                                {kdsLang === 'th' ? 'จองโต๊ะใหม่' : 'NEW RESERVATION'}
+                                {t.newReservationBadge}
                               </span>
                             </div>
                             <span className="text-[11px] font-bold text-emerald-200">
-                              {kdsLang === 'th' ? 'ทานที่ร้าน' : 'Dine-In Table'}
+                              {t.dineInTableBadge}
                             </span>
                           </div>
                         </div>
@@ -2016,21 +1556,21 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                         <div className="flex items-center justify-between font-black text-white text-sm">
                           <span>👤 {res.customer_name}</span>
                           <span className="text-amber-300 font-bold bg-stone-900/90 px-2.5 py-0.5 rounded-lg border border-amber-500/30">
-                            👥 {res.guests} {kdsLang === 'th' ? 'ท่าน' : 'Guests'}
+                            👥 {res.guests} {t.guestsLabel}
                           </span>
                         </div>
 
                         <div className="flex items-center justify-between gap-2 pt-1">
                           <div className="flex items-center gap-1.5">
-                            <span className="text-stone-300 text-[11px] font-medium">{kdsLang === 'th' ? 'โซนที่นั่ง:' : 'Seating Area:'}</span>
+                            <span className="text-stone-300 text-[11px] font-medium">{t.seatingAreaLabel}</span>
                             <span className="font-bold text-white px-2 py-0.5 rounded-md bg-emerald-950 border border-emerald-500/60 text-xs">
                               {res.seating_area === 'hut' 
-                                ? (kdsLang === 'th' ? '🛖 กระท่อมไม้ไผ่' : '🛖 Bamboo Hut') 
+                                ? t.bambooHutLabel
                                 : res.seating_area === 'indoor' 
-                                  ? (kdsLang === 'th' ? '🏠 ห้องแอร์' : '🏠 Indoor Room') 
+                                  ? t.indoorAcLabel
                                   : res.seating_area === 'outdoor' 
-                                    ? (kdsLang === 'th' ? '🌿 โซนสวน' : '🌿 Outdoor Garden') 
-                                    : (kdsLang === 'th' ? '🎲 ไม่ระบุ' : '🎲 Any Area')}
+                                    ? t.gardenAreaLabel
+                                    : t.anyAreaLabel}
                             </span>
                           </div>
                           <span className="text-stone-300 font-mono text-[11px]">
@@ -2060,14 +1600,14 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           className="flex-1 py-3 px-3 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-900/50 cursor-pointer transition-all active:scale-95"
                         >
                           <CheckCircle className="w-5 h-5 stroke-[2.5] shrink-0" />
-                          <span>{kdsLang === 'th' ? '✓ รับ & บันทึกประวัติ' : '✓ CONFIRM & ARCHIVE'}</span>
+                          <span>{t.confirmArchiveResBtn}</span>
                         </button>
 
                         <button
                           type="button"
                           onClick={() => handleRejectTableReservation(res.id)}
                           className="py-3 px-3.5 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 hover:text-white border border-red-700/80 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-md shrink-0"
-                          title={kdsLang === 'th' ? 'ปฏิเสธการจองโต๊ะ' : 'Reject Table Reservation'}
+                          title={t.rejectResTooltip}
                         >
                           <XCircle className="w-4 h-4 text-red-400 shrink-0" />
                           <span>{t.rejectResBtn}</span>
@@ -2077,7 +1617,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           type="button"
                           onClick={() => handleForceDeleteOrder(res.id)}
                           className="p-3 rounded-xl bg-stone-900 hover:bg-red-950 text-stone-500 hover:text-red-400 border border-stone-800 hover:border-red-800 flex items-center justify-center transition-all cursor-pointer shadow shrink-0"
-                          title={kdsLang === 'th' ? 'ลบข้อมูลการจองนี้ออกถาวร' : 'Delete reservation permanently'}
+                          title={t.deleteResTooltip}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -2147,15 +1687,15 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                         )}
                         {order.payment_method?.includes('omise') ? (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-600 uppercase tracking-wider mt-0.5">
-                            ✅ {order.payment_method?.includes('card') ? '💳 CARD 3DS (PAID)' : '📱 PROMPTPAY (PAID)'}
+                            ✅ {order.payment_method?.includes('card') ? t.cardPaidBadge : t.promptPayPaidBadge}
                           </span>
                         ) : isDiningTableOrder(order) ? (
                           <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-400 text-stone-950 uppercase tracking-wider mt-0.5 font-bold shadow-sm">
-                            🏪 {kdsLang === 'th' ? 'ชำระที่แคชเชียร์' : kdsLang === 'mm' ? 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်' : 'CONTO ALLA CASSA'}
+                            {t.payAtCashierBadge}
                           </span>
                         ) : (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
-                            💵 {kdsLang === 'th' ? 'เงินสด (เก็บปลายทาง)' : 'CASH (COLLECT)'}
+                            {t.cashCollectBadge}
                           </span>
                         )}
                       </div>
@@ -2164,7 +1704,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                     {/* Customer & Address (Clean text + Maps button, no phone dialer / no WhatsApp) */}
                     <div className="text-xs space-y-1 text-stone-300">
                       <div className="font-black text-white text-sm flex items-center justify-between">
-                        <span>👤 {order.customer_name}</span>
+                        <span>👤 {order.customer_name || t.guestFallback}</span>
                         <span className="px-2.5 py-1 bg-stone-800 text-amber-300 rounded-lg text-xs font-mono font-bold">
                           📞 {order.phone}
                         </span>
@@ -2197,7 +1737,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                     <div className="bg-[#0b0e14] p-3 rounded-xl border border-stone-800 space-y-3">
                       {items.map((item, idx) => {
                         const displayName = getDishDisplayName(item, kdsLang);
-                        const subName = kdsLang === 'th' ? getDishDisplayName(item, 'en') : getDishDisplayName(item, 'th');
+                        const subName = resolveDishSubtitle(item, kdsLang);
                         const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
                         const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
 
@@ -2211,7 +1751,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                                 <span className="font-black text-base lg:text-lg text-white leading-tight block">
                                   {displayName}
                                 </span>
-                                {subName && subName !== displayName && (
+                                {subName && (
                                   <span className="text-xs font-semibold text-stone-400 block mt-0.5">
                                     {subName}
                                   </span>
@@ -2292,7 +1832,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           type="button"
                           onClick={() => handleOrderCancelled(order.id)}
                           className="px-3 py-1.5 rounded-lg bg-stone-800/80 hover:bg-red-950 text-stone-400 hover:text-red-400 text-xs font-bold border border-stone-700 cursor-pointer transition-colors"
-                          title={kdsLang === 'th' ? 'ยกเลิกออเดอร์นี้' : 'Annulla / Rifiuta comanda'}
+                          title={t.cancelOrderTooltip}
                         >
                           {t.cancelBtn}
                         </button>
@@ -2301,7 +1841,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           type="button"
                           onClick={() => handleForceDeleteOrder(order.id)}
                           className="p-1.5 rounded-lg bg-stone-900 hover:bg-red-950 text-stone-500 hover:text-red-400 border border-stone-800 hover:border-red-800 cursor-pointer transition-colors"
-                          title={kdsLang === 'th' ? 'ลบออเดอร์นี้ออกถาวร' : 'Elimina definitivamente dal sistema'}
+                          title={t.deleteOrderTooltip}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -2340,7 +1880,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                     ? 'bg-amber-500 text-stone-950 border border-amber-300 animate-pulse shadow-amber-500/50 font-black'
                     : 'bg-stone-800 hover:bg-stone-700 text-stone-300 border border-stone-700 hover:text-white active:scale-95'
                 }`}
-                title={testingReminderAlarm ? 'Stop test' : 'Test suoneria promemoria rider 15 min (continua fino al prossimo click)'}
+                title={testingReminderAlarm ? 'Stop test' : t.testSound2Tooltip}
               >
                 {testingReminderAlarm ? (
                   <>
@@ -2407,7 +1947,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                         {isDelivering ? (
                           <span className="text-xs font-black px-2.5 py-1 rounded-md bg-blue-600 text-white uppercase tracking-wider flex items-center gap-1.5 animate-pulse">
                             <Bike className="w-3.5 h-3.5" />
-                            <span>{kdsLang === 'th' ? 'ไรเดอร์กำลังไปส่ง' : 'DELIVERING'}</span>
+                            <span>{t.deliveringBadge}</span>
                           </span>
                         ) : (
                           <span className="text-xs font-black px-2.5 py-1 rounded-md bg-amber-500 text-stone-950 uppercase tracking-wider flex items-center gap-1 font-black">
@@ -2434,15 +1974,15 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                         )}
                         {order.payment_method?.includes('omise') ? (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-600 uppercase tracking-wider mt-0.5">
-                            ✅ {order.payment_method?.includes('card') ? '💳 CARD 3DS (PAID)' : '📱 PROMPTPAY (PAID)'}
+                            ✅ {order.payment_method?.includes('card') ? t.cardPaidBadge : t.promptPayPaidBadge}
                           </span>
                         ) : isDiningTableOrder(order) ? (
                           <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-400 text-stone-950 uppercase tracking-wider mt-0.5 font-bold shadow-sm">
-                            🏪 {kdsLang === 'th' ? 'ชำระที่แคชเชียร์' : kdsLang === 'mm' ? 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်' : 'CONTO ALLA CASSA'}
+                            {t.payAtCashierBadge}
                           </span>
                         ) : (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-600 uppercase tracking-wider mt-0.5">
-                            💵 {kdsLang === 'th' ? 'เงินสด (เก็บปลายทาง)' : 'CASH (COLLECT)'}
+                            {t.cashCollectBadge}
                           </span>
                         )}
                       </div>
@@ -2467,7 +2007,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           type="button"
                           onClick={() => handleSnoozeReminder(order.id, 10)}
                           className="px-2.5 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-stone-950 text-xs font-black uppercase transition-all shadow cursor-pointer flex items-center gap-1 active:scale-95 shrink-0"
-                          title="Posticipa la suoneria promemoria di 10 minuti"
+                          title={t.snooze10MinTooltip}
                         >
                           <Clock className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
                           <span>{t.snoozeReminderBtn}</span>
@@ -2478,7 +2018,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                     {/* Customer & Address + Open Maps Button (NO TEL/NO WHATSAPP) */}
                     <div className="text-xs space-y-1.5 text-stone-300">
                       <div className="font-black text-white text-sm flex items-center justify-between">
-                        <span>👤 {order.customer_name}</span>
+                        <span>👤 {order.customer_name || t.guestFallback}</span>
                         <span className="px-2.5 py-1 bg-stone-800 text-amber-300 rounded-lg text-xs font-mono font-bold">
                           📞 {order.phone}
                         </span>
@@ -2511,7 +2051,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                     <div className="bg-[#0b0e14] p-3 rounded-xl border border-stone-800 space-y-3">
                       {items.map((item, idx) => {
                         const displayName = getDishDisplayName(item, kdsLang);
-                        const subName = kdsLang === 'th' ? getDishDisplayName(item, 'en') : getDishDisplayName(item, 'th');
+                        const subName = resolveDishSubtitle(item, kdsLang);
                         const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
                         const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
 
@@ -2525,7 +2065,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                                 <span className="font-black text-base lg:text-lg text-white leading-tight block">
                                   {displayName}
                                 </span>
-                                {subName && subName !== displayName && (
+                                {subName && (
                                   <span className="text-xs font-semibold text-stone-400 block mt-0.5">
                                     {subName}
                                   </span>
@@ -2653,7 +2193,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
         <div className="bg-[#131722] border-t-2 border-stone-800 px-3 sm:px-5 py-2.5 shrink-0 flex items-center gap-3 overflow-x-auto select-none shadow-2xl z-30">
           <div className="flex items-center gap-1.5 text-amber-400 font-black text-xs uppercase tracking-wider shrink-0 pr-3 border-r border-stone-800">
             <UtensilsCrossed className="w-4 h-4" />
-            <span>{kdsLang === 'th' ? 'ออเดอร์ในครัว & โต๊ะ:' : 'KITCHEN ORDERS & TABLES:'}</span>
+            <span>{t.kitchenOrdersDockLabel}</span>
             <span className="px-1.5 py-0.2 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-mono font-bold">
               {activeDiningOrders.length}
             </span>
@@ -2687,7 +2227,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           ? 'bg-blue-950/50 border-blue-500/70 text-blue-200 shadow-sm hover:bg-blue-900/50' 
                           : 'bg-[#0d1017] border-stone-800 text-stone-300 hover:border-stone-600'
                   }`}
-                  title={kdsLang === 'th' ? 'แตะเพื่อเปิดดูรายการและกดส่ง' : 'Tap to view order details and dispatch'}
+                  title={t.tapToViewOrderTooltip}
                 >
                   <UtensilsCrossed className={`w-3.5 h-3.5 ${isRinging ? 'text-stone-950 stroke-[3]' : isMinimized ? 'text-amber-400' : 'text-stone-400'}`} />
                   <span className={`font-black text-xs sm:text-sm uppercase tracking-tight ${isRinging ? 'text-stone-950' : 'text-white'}`}>{tableDisplay}</span>
@@ -2698,7 +2238,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                     {order.total} ฿
                   </span>
                   <span className={`text-[11px] font-mono ${isRinging ? 'text-stone-800' : 'text-stone-400'}`}>
-                    ({itemsCount} {kdsLang === 'th' ? 'จาน' : 'items'})
+                    ({itemsCount} {t.itemsCountLabel})
                   </span>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
                     isRinging
@@ -2710,12 +2250,12 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           : 'bg-emerald-950 text-emerald-300 border border-emerald-700/60'
                   }`}>
                     {isRinging
-                      ? (kdsLang === 'th' ? '⏰ เตือน 15 น.!' : '⏰ 15+ MIN ALARM!')
+                      ? (kdsLang === 'th' ? '⏰ เตือน 15 น.!' : kdsLang === 'mm' ? '⏰ ၁၅ မိနစ် သတိပေးချက်!' : '⏰ 15+ MIN ALARM!')
                       : isMinimized 
-                        ? (kdsLang === 'th' ? 'รอส่ง' : 'IN KITCHEN') 
+                        ? t.inKitchenBadge 
                         : isPreparing 
-                          ? (kdsLang === 'th' ? 'กำลังเสิร์ฟ' : 'IN DINING ROOM') 
-                          : (kdsLang === 'th' ? 'เปิดบิล' : 'OPEN BILL')}
+                          ? t.inDiningRoomBadge 
+                          : t.openBillBadge}
                   </span>
                 </button>
               );
@@ -2745,7 +2285,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                     </span>
                   </div>
                   <span className="text-[11px] font-bold text-amber-400 block mt-0.5">
-                    {selectedTrayOrder.customer_name || (kdsLang === 'th' ? 'ลูกค้า' : 'Guest')} {selectedTrayOrder.phone ? `(${selectedTrayOrder.phone})` : ''}
+                    {selectedTrayOrder.customer_name || t.guestFallback} {selectedTrayOrder.phone ? `(${selectedTrayOrder.phone})` : ''}
                   </span>
                 </div>
               </div>
@@ -2771,7 +2311,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                         </span>
                       )}
                       <span className="text-[10px] font-black uppercase text-amber-400 mt-0.5">
-                        {kdsLang === 'th' ? 'ชำระที่แคชเชียร์' : kdsLang === 'mm' ? 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်' : 'CONTO ALLA CASSA'}
+                        {t.payAtCashierBadge}
                       </span>
                     </div>
                   );
@@ -2814,7 +2354,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                     type="button"
                     onClick={() => handleSnoozeReminder(selectedTrayOrder.id, 10)}
                     className="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-95 text-stone-950 text-xs font-black uppercase transition-all shadow-md cursor-pointer flex items-center gap-1.5 shrink-0"
-                    title="Posticipa la suoneria promemoria di 10 minuti"
+                    title={t.snooze10MinTooltip}
                   >
                     <Clock className="w-3.5 h-3.5 text-stone-950 stroke-[2.5]" />
                     <span>{t.snoozeReminderBtn}</span>
@@ -2828,7 +2368,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
               <div className="bg-[#0b0e14] p-3 rounded-2xl border border-stone-800 space-y-3">
                 {((Array.isArray(selectedTrayOrder.items) ? selectedTrayOrder.items : []) as CartItemSaved[]).map((item, idx) => {
                   const displayName = getDishDisplayName(item, kdsLang);
-                  const subName = kdsLang === 'th' ? getDishDisplayName(item, 'en') : getDishDisplayName(item, 'th');
+                  const subName = resolveDishSubtitle(item, kdsLang);
                   const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
                   const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
 
@@ -2842,7 +2382,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           <span className="font-black text-base text-white leading-tight block">
                             {displayName}
                           </span>
-                          {subName && subName !== displayName && (
+                          {subName && (
                             <span className="text-xs font-semibold text-stone-400 block mt-0.5">
                               {subName}
                             </span>
@@ -2912,7 +2452,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                 onClick={() => setSelectedTrayOrder(null)}
                 className="px-4 py-3.5 rounded-2xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-black text-xs uppercase cursor-pointer transition-colors shrink-0"
               >
-                {kdsLang === 'th' ? 'ปิด' : 'CLOSE'}
+                {kdsLang === 'th' ? 'ปิด' : kdsLang === 'mm' ? 'ပိတ်မည်' : kdsLang === 'it' ? 'CHIUDI' : kdsLang === 'de' ? 'SCHLIESSEN' : 'CLOSE'}
               </button>
             </div>
 
@@ -3171,23 +2711,23 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                             📅 {res.reservation_date} · 🕒 {res.reservation_time}
                           </span>
                           <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-500 text-stone-950">
-                            ✓ {kdsLang === 'th' ? 'บันทึกแล้ว' : 'CONFIRMED'}
+                            ✓ {kdsLang === 'th' ? 'บันทึกแล้ว' : kdsLang === 'mm' ? 'အတည်ပြုပြီး' : kdsLang === 'it' ? 'CONFERMATO' : 'CONFIRMED'}
                           </span>
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between gap-2 text-stone-300 text-[11px]">
                         <div className="flex items-center gap-2">
-                          <span>👥 {res.guests} {kdsLang === 'th' ? 'ท่าน' : 'Guests'}</span>
+                          <span>👥 {res.guests} {t.guestsLabel}</span>
                           <span>•</span>
                           <span className="text-emerald-300 font-semibold">
                             {res.seating_area === 'hut' 
-                              ? (kdsLang === 'th' ? '🛖 กระท่อมไม้ไผ่' : '🛖 Bamboo Hut') 
+                              ? t.bambooHutLabel
                               : res.seating_area === 'indoor' 
-                                ? (kdsLang === 'th' ? '🏠 ห้องแอร์' : '🏠 Indoor Room') 
+                                ? t.indoorAcLabel
                                 : res.seating_area === 'outdoor' 
-                                  ? (kdsLang === 'th' ? '🌿 โซนสวน' : '🌿 Outdoor Garden') 
-                                  : (kdsLang === 'th' ? '🎲 ไม่ระบุ' : '🎲 Any Area')}
+                                  ? t.gardenAreaLabel
+                                  : t.anyAreaLabel}
                           </span>
                         </div>
                         {res.notes && <span className="italic text-stone-400">"{res.notes}"</span>}
@@ -3213,7 +2753,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                             #{order.id}
                           </span>
                           <span className="font-black text-white text-sm">
-                            {order.customer_name || (kdsLang === 'th' ? 'ลูกค้า' : 'Guest')}
+                            {order.customer_name || t.guestFallback}
                           </span>
                           {order.phone && (
                             <span className="text-stone-400 text-[11px] font-mono">
@@ -3296,7 +2836,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                           title={kdsLang === 'th' ? 'นำออเดอร์กลับมาในครัว' : 'Return order to kitchen'}
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
-                          <span>{kdsLang === 'th' ? 'นำกลับมาทำใหม่' : 'Return to kitchen'}</span>
+                          <span>{kdsLang === 'th' ? 'นำกลับมาทำใหม่' : kdsLang === 'mm' ? 'မီးဖိုချောင်သို့ ပြန်ပို့ရန်' : kdsLang === 'it' ? 'Riporta in cucina' : 'Return to kitchen'}</span>
                         </button>
                       </div>
                     </div>
@@ -3313,7 +2853,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                 onClick={() => setShowCompletedModal(false)}
                 className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-white font-black text-xs uppercase cursor-pointer transition-colors"
               >
-                {kdsLang === 'th' ? 'ปิดหน้าต่าง' : 'Close'}
+                {kdsLang === 'th' ? 'ปิดหน้าต่าง' : kdsLang === 'mm' ? 'ပိတ်မည်' : kdsLang === 'it' ? 'Chiudi' : kdsLang === 'de' ? 'Schließen' : 'Close'}
               </button>
             </div>
 
