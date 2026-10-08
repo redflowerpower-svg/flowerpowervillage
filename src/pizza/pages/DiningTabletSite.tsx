@@ -49,6 +49,7 @@ import {
   validateDiningTableSession, 
   revokeDiningTableSession 
 } from '../services/diningSessionService';
+import { connectDiningLiveCart, type DiningLiveCartController } from '../services/diningLiveCartService';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { supabase } from '../../lib/supabase';
@@ -815,8 +816,14 @@ function CustomFilterDropdown({
 
 function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> }) {
   const { language: lang, setLanguage } = useLanguageStore();
-  const { clearCart, setItems } = useCartStore();
+  const { clearCart, setItems, items } = useCartStore();
   
+  // Realtime Live Shared Cart Controller for this table
+  const liveCartControllerRef = useRef<DiningLiveCartController | null>(null);
+  const isApplyingRemoteSyncRef = useRef<boolean>(false);
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
+
   // Table Session State: Must select table before accessing menu
   const [currentTable, setCurrentTable] = useState<string>('');
   const [isTableSelected, setIsTableSelected] = useState<boolean>(false);
@@ -825,6 +832,53 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
   const [isGuestMobile, setIsGuestMobile] = useState<boolean>(false);
   const [isGuestSettled, setIsGuestSettled] = useState<boolean>(false);
   const [_guestSessionToken, setGuestSessionToken] = useState<string>('');
+
+  // Connect bidirectional Realtime Live Cart when table is selected
+  useEffect(() => {
+    if (!currentTable || !isTableSelected) {
+      if (liveCartControllerRef.current) {
+        liveCartControllerRef.current.unsubscribe();
+        liveCartControllerRef.current = null;
+      }
+      return;
+    }
+
+    const controller = connectDiningLiveCart({
+      tableKey: currentTable,
+      onRemoteCartSync: (remoteItems) => {
+        isApplyingRemoteSyncRef.current = true;
+        setItems(remoteItems);
+        setTimeout(() => {
+          isApplyingRemoteSyncRef.current = false;
+        }, 120);
+      },
+      onRequestSyncReceived: () => {
+        return itemsRef.current;
+      },
+      onRemoteCartClear: () => {
+        isApplyingRemoteSyncRef.current = true;
+        clearCart();
+        setTimeout(() => {
+          isApplyingRemoteSyncRef.current = false;
+        }, 120);
+      }
+    });
+
+    liveCartControllerRef.current = controller;
+
+    return () => {
+      controller.unsubscribe();
+      liveCartControllerRef.current = null;
+    };
+  }, [currentTable, isTableSelected, setItems, clearCart]);
+
+  // Broadcast cart changes on any local modifications (add, remove, qty, extras)
+  useEffect(() => {
+    if (!currentTable || !isTableSelected) return;
+    if (isApplyingRemoteSyncRef.current) return;
+
+    liveCartControllerRef.current?.broadcastCart(items);
+  }, [items, currentTable, isTableSelected]);
 
   // Check guest URL params on mount
   useEffect(() => {
@@ -2350,6 +2404,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           setIsCheckoutModalOpen(false);
           setIsTableSelected(false);
           setCurrentTable('');
+          liveCartControllerRef.current?.broadcastClear();
           clearCart();
           fetchActiveDineInOrders();
         }}
@@ -2369,6 +2424,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           setIsSettlementModalOpen(false);
           setIsTableSelected(false);
           setCurrentTable('');
+          liveCartControllerRef.current?.broadcastClear();
           clearCart();
           fetchActiveDineInOrders();
         }}

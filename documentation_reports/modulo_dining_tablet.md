@@ -49,4 +49,10 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
 13. **Pulsante Logout / Disconnessione Tablet nel Pop-up Tavoli**:
     - Nel popup iniziale di selezione tavolo (`MANDATORY TABLE SELECTION OVERLAY`), la barra superiore include ora un pulsante dedicato di Logout posizionato accanto al selettore della lingua.
     - Consente al personale di disconnettere istantaneamente il tablet rimuovendo le credenziali e il token locale (`fp_dining_tablet_unlocked`), riportando la web app alla schermata di accesso PIN/Admin.
+14. **Carrello Condiviso Live in Tempo Reale (Live Shared Cart `diningLiveCartService`)**:
+    - Quando un tavolo è attivo, tutti i dispositivi collegati (tablet della sala e smartphone dei clienti via QR code) si iscrivono al canale Realtime Broadcast (`dining_live_cart_<canonical>`) e al BroadcastChannel locale.
+    - Ogni aggiunta, rimozione, modifica quantità o selezione extra nel carrello viene propagata istantaneamente a 0ms su tutti gli schermi dei commensali allo stesso tavolo.
+    - I nuovi ospiti che scansionano il QR Code richiedono ed ottengono istantaneamente lo stato corrente del carrello dai peer connessi.
+    - All'invio della comanda o al saldo del conto, il carrello condiviso viene svuotato atomicamente su tutti i dispositivi.
+
 
