@@ -274,8 +274,6 @@ export async function handleOmiseCharge(req: VercelRequest, res: VercelResponse)
               .from("pizza_orders")
               .update({
                 payment_method: "omise_promptpay",
-                payment_status: "pending",
-                omise_charge_id: charge.id,
                 receipt_url: qrCodeUrl || undefined
               })
               .eq("id", numericId);
@@ -488,7 +486,6 @@ export async function handleOmiseCheckStatus(req: VercelRequest, res: VercelResp
               .update({
                 receipt_url: charge.id,
                 payment_method: payMethod,
-                payment_status: "paid",
                 status: "new"
               })
               .eq("id", numericId);
@@ -570,21 +567,21 @@ export async function handleOmiseWebhook(req: VercelRequest, res: VercelResponse
 
           if (supabase) {
             const numericId = Number(orderId);
-            let query = supabase.from("pizza_orders").select("id, status, payment_status");
+            let query = supabase.from("pizza_orders").select("id, status, receipt_url");
             if (!isNaN(numericId) && numericId > 0) {
-              query = query.or(`omise_charge_id.eq.${verifiedCharge.id},id.eq.${numericId}`);
+              query = query.or(`receipt_url.eq.${verifiedCharge.id},id.eq.${numericId}`);
             } else {
-              query = query.eq("omise_charge_id", verifiedCharge.id);
+              query = query.eq("receipt_url", verifiedCharge.id);
             }
             const { data: existingOrder } = await query.maybeSingle();
 
             if (existingOrder) {
-              if (existingOrder.status !== "new" || existingOrder.payment_status !== "paid") {
+              if (existingOrder.status !== "new") {
                 await supabase
                   .from("pizza_orders")
                   .update({
-                    payment_status: "paid",
-                    omise_charge_id: verifiedCharge.id,
+                    receipt_url: verifiedCharge.id,
+                    payment_method: verifiedCharge.source?.type === "promptpay" ? "omise_promptpay" : "omise_card",
                     status: "new"
                   })
                   .eq("id", existingOrder.id);

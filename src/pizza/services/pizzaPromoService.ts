@@ -94,10 +94,28 @@ export function savePizzaPromoCodes(codes: PizzaPromoCode[]): void {
 export function validatePizzaPromoCode(
   rawCode: string,
   subtotal: number,
-  codesList?: PizzaPromoCode[]
+  codesList?: PizzaPromoCode[],
+  lang: string = 'IT'
 ): PromoValidationResult {
+  const isIt = lang === 'IT';
+  const isTh = lang === 'TH';
+  const isDe = lang === 'DE';
+  const isMm = lang === 'MM';
+
   if (!rawCode || !rawCode.trim()) {
-    return { valid: false, discountAmount: 0, error: 'Codice non inserito' };
+    return { 
+      valid: false, 
+      discountAmount: 0, 
+      error: isTh 
+        ? '📱 ติดตามช่องทางโซเชียลของเราเพื่อรับโค้ดโปรโมชั่นและข้อเสนอสุดพิเศษ!' 
+        : isDe 
+        ? '📱 Folge unseren Social-Media-Kanälen, um Promo-Codes und exklusive Angebote zu erhalten!' 
+        : isMm 
+        ? '📱 သင့်အတွက် သီးသန့် ပရိုမိုးရှင်း ကုဒ်များနှင့် အထူးကမ်းလှမ်းချက်များကို ရရှိရန် ကျွန်ုပ်တို့၏ ဆိုရှယ်မီဒီယာ ချန်နယ်များကို လိုက်ကြည့်ပါ။' 
+        : isIt 
+        ? '📱 Segui i nostri social media per ricevere codici promozionali ed offerte esclusive!' 
+        : '📱 Follow our social media channels to receive promo codes and exclusive offers!' 
+    };
   }
 
   const cleanCode = rawCode.trim().toUpperCase();
@@ -105,25 +123,45 @@ export function validatePizzaPromoCode(
   const promo = list.find((p) => p.code.trim().toUpperCase() === cleanCode);
 
   if (!promo) {
-    return { valid: false, discountAmount: 0, error: 'Codice coupon non valido o inesistente' };
+    return { 
+      valid: false, 
+      discountAmount: 0, 
+      error: isTh ? `รหัสโปรโมชั่น "${cleanCode}" ไม่ถูกต้อง` : isDe ? `Ungültiger Gutscheincode "${cleanCode}"` : isMm ? `ကုဒ် "${cleanCode}" မမှန်ကန်ပါ` : isIt ? `Codice "${cleanCode}" non valido o inesistente` : `Invalid promo code "${cleanCode}"` 
+    };
   }
 
   if (!promo.active) {
-    return { valid: false, discountAmount: 0, error: 'Questo codice promozionale è attualmente disattivato' };
+    return { 
+      valid: false, 
+      discountAmount: 0, 
+      error: isTh ? `รหัส "${cleanCode}" ยังไม่เปิดใช้งาน` : isDe ? `Der Code "${cleanCode}" ist inaktiv` : isMm ? `ကုဒ် "${cleanCode}" ပိတ်ထားပါသည်` : isIt ? `Il codice "${cleanCode}" è attualmente disattivato` : `Promo code "${cleanCode}" is inactive` 
+    };
   }
 
   // Date Check (Today in local date YYYY-MM-DD)
   const today = new Date().toISOString().split('T')[0];
   if (promo.validFrom && today < promo.validFrom) {
-    return { valid: false, discountAmount: 0, error: `Questo coupon sarà valido a partire dal ${promo.validFrom}` };
+    return { 
+      valid: false, 
+      discountAmount: 0, 
+      error: isTh ? `คูปองนี้ใช้ได้ตั้งแต่วันที่ ${promo.validFrom}` : isDe ? `Gültig ab ${promo.validFrom}` : isMm ? `${promo.validFrom} မှ စတင်အသုံးပြုနိုင်ပါသည်` : isIt ? `Questo coupon sarà valido dal ${promo.validFrom}` : `Valid starting from ${promo.validFrom}` 
+    };
   }
   if (promo.validTo && today > promo.validTo) {
-    return { valid: false, discountAmount: 0, error: 'Questo coupon è scaduto' };
+    return { 
+      valid: false, 
+      discountAmount: 0, 
+      error: isTh ? 'คูปองนี้หมดอายุแล้ว' : isDe ? 'Dieser Gutschein ist abgelaufen' : isMm ? 'ကုဒ် သက်တမ်းကုန်သွားပါပြီ' : isIt ? 'Questo coupon è scaduto' : 'This coupon has expired' 
+    };
   }
 
   // Usage Limit Check
   if (promo.slotsTotal > 0 && promo.slotsUsed >= promo.slotsTotal) {
-    return { valid: false, discountAmount: 0, error: 'Questo coupon ha raggiunto il limite massimo di utilizzi' };
+    return { 
+      valid: false, 
+      discountAmount: 0, 
+      error: isTh ? 'คูปองนี้มีผู้ใช้ครบตามสิทธิ์แล้ว' : isDe ? 'Gutscheinlimit erreicht' : isMm ? 'အသုံးပြုမှု ကန့်သတ်ချက် ပြည့်သွားပါပြီ' : isIt ? 'Questo coupon ha esaurito gli utilizzi disponibili' : 'Promo code has reached its usage limit' 
+    };
   }
 
   // Min Order Check (on food & drinks subtotal, before delivery)
@@ -131,7 +169,15 @@ export function validatePizzaPromoCode(
     return {
       valid: false,
       discountAmount: 0,
-      error: `Spesa minima richiesta per questo coupon: ${promo.minOrder} ฿ (subtotale attuale: ${subtotal} ฿)`
+      error: isTh 
+        ? `ยอดสั่งซื้อขั้นต่ำสำหรับคูปองนี้: ${promo.minOrder} ฿ (ยอดปัจจุบัน: ${subtotal} ฿)` 
+        : isDe 
+        ? `Mindestbestellwert: ${promo.minOrder} ฿ (aktuell: ${subtotal} ฿)` 
+        : isMm
+        ? `အနည်းဆုံး အော်ဒါပမာဏ: ${promo.minOrder} ฿ (လက်ရှိ: ${subtotal} ฿)`
+        : isIt
+        ? `Spesa minima per questo coupon: ${promo.minOrder} ฿ (subtotale attuale: ${subtotal} ฿)`
+        : `Minimum order for this coupon: ${promo.minOrder} ฿ (current: ${subtotal} ฿)`
     };
   }
 
@@ -151,7 +197,7 @@ export function validatePizzaPromoCode(
 }
 
 /**
- * Persists applied promo code in sessionStorage
+ * Persists applied promo code in sessionStorage and emits local window event
  */
 export function setAppliedPizzaPromo(promo: PizzaPromoCode | null): void {
   if (typeof window === 'undefined') return;
@@ -161,6 +207,7 @@ export function setAppliedPizzaPromo(promo: PizzaPromoCode | null): void {
     } else {
       sessionStorage.removeItem(STORAGE_KEY_APPLIED_PROMO);
     }
+    window.dispatchEvent(new CustomEvent('pizza_promo_updated', { detail: promo }));
   } catch (e) {
     console.error('[PizzaPromoService] Failed to set applied promo:', e);
   }
@@ -181,6 +228,7 @@ export function clearAppliedPizzaPromo(): void {
   if (typeof window === 'undefined') return;
   try {
     sessionStorage.removeItem(STORAGE_KEY_APPLIED_PROMO);
+    window.dispatchEvent(new CustomEvent('pizza_promo_updated', { detail: null }));
   } catch (e) {
     console.error('[PizzaPromoService] Failed to clear applied promo:', e);
   }

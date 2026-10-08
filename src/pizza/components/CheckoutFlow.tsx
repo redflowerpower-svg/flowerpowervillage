@@ -47,6 +47,7 @@ import {
 
 import { useLanguageStore } from '../store/languageStore';
 import { Language } from '../config/languages';
+import { isPlausibleName, isPlausiblePhone, isPlausibleEmail } from '../utils/validation';
 
 type SubmitPhase = 'idle' | 'sending' | 'timeout' | 'rejected';
 
@@ -72,7 +73,9 @@ const translations = {
     phonePlaceholder: 'Telefono',
     emailPlaceholder: 'Email per ricevuta e tracking',
     notesPlaceholder: 'Note per la consegna (es. citofono, piano, allergie...)',
-    invalidEmailHint: 'Inserisci un indirizzo email valido',
+    invalidNameHint: 'Inserisci un nome reale e valido',
+    invalidPhoneHint: 'Inserisci un numero di telefono valido (es. 081-234-5678 o +39...)',
+    invalidEmailHint: 'Inserisci un indirizzo email valido e plausibile',
     addressPlaceholder: 'Indirizzo di Consegna',
     verifyLoc: 'Verifica Posizione',
     verifyingLoc: 'Verifica in corso...',
@@ -141,7 +144,9 @@ const translations = {
     phonePlaceholder: 'Phone',
     emailPlaceholder: 'Email for receipt & tracking',
     notesPlaceholder: 'Delivery notes (e.g. buzzer, floor, allergies...)',
-    invalidEmailHint: 'Please enter a valid email address',
+    invalidNameHint: 'Please enter a real and valid name',
+    invalidPhoneHint: 'Please enter a valid phone number (e.g. 081-234-5678 or +...)',
+    invalidEmailHint: 'Please enter a valid and plausible email address',
     addressPlaceholder: 'Delivery Address',
     verifyLoc: 'Verify Location',
     verifyingLoc: 'Verifying...',
@@ -210,7 +215,9 @@ const translations = {
     phonePlaceholder: 'เบอร์โทรศัพท์',
     emailPlaceholder: 'อีเมลสำหรับรับใบเสร็จและการติดตาม',
     notesPlaceholder: 'หมายเหตุการจัดส่ง (เช่น กริ่งประตู, ชั้น, แพ้อาหาร...)',
-    invalidEmailHint: 'กรุณากรอกอีเมลให้ถูกต้อง',
+    invalidNameHint: 'กรุณาระบุชื่อจริงที่ถูกต้อง',
+    invalidPhoneHint: 'กรุณาระบุเบอร์โทรศัพท์ที่ถูกต้อง (เช่น 081-234-5678 หรือ +...)',
+    invalidEmailHint: 'กรุณากรอกอีเมลที่ถูกต้อง',
     addressPlaceholder: 'ที่อยู่จัดส่ง',
     verifyLoc: 'ตรวจสอบตำแหน่ง',
     verifyingLoc: 'กำลังตรวจสอบ...',
@@ -279,6 +286,8 @@ const translations = {
     phonePlaceholder: 'Telefon',
     emailPlaceholder: 'E-Mail für Beleg & Tracking',
     notesPlaceholder: 'Lieferhinweise (z.B. Klingel, Etage, Allergien...)',
+    invalidNameHint: 'Bitte geben Sie einen echten und gültigen Namen ein',
+    invalidPhoneHint: 'Bitte geben Sie eine gültige Telefonnummer ein (z.B. 081-234-5678 oder +...)',
     invalidEmailHint: 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
     addressPlaceholder: 'Lieferadresse',
     verifyLoc: 'Standort verifizieren',
@@ -348,6 +357,8 @@ const translations = {
     phonePlaceholder: 'ဖုန်းနံပါတ်',
     emailPlaceholder: 'ပြေစာနှင့် ခြေရာခံရန် အီးမေးလ်',
     notesPlaceholder: 'ပို့ဆောင်မှု မှတ်ချက် (ဥပမာ- အခန်း၊ အလွှာ၊ ဓာတ်မတည့်မှုများ...)',
+    invalidNameHint: 'ကျေးဇူးပြု၍ မှန်ကန်သော အမည်ထည့်ပါ',
+    invalidPhoneHint: 'ကျေးဇူးပြု၍ မှန်ကန်သော ဖုန်းနံပါတ်ထည့်ပါ (ဥပမာ- 081-234-5678)',
     invalidEmailHint: 'ကျေးဇူးပြု၍ မှန်ကန်သော အီးမေးလ် ထည့်ပါ',
     addressPlaceholder: 'ပို့ဆောင်ရမည့် လိပ်စာ',
     verifyLoc: 'တည်နေရာ စစ်ဆေးရန်',
@@ -847,9 +858,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     try { localStorage.setItem('fp_pizza_customer_email', val); } catch (_) {}
   };
 
-  const isValidEmail = (val: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
-  };
+  const isFormValid = isPlausibleName(name) && isPlausiblePhone(phone) && isPlausibleEmail(email);
 
   // Asynchronously verify first order discount eligibility whenever phone, email or location change
   useEffect(() => {
@@ -1078,9 +1087,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
       total: finalTotal,
       status: 'new',
       payment_method: 'omise_promptpay',
-      payment_status: 'paid',
-      omise_charge_id: confirmedChargeId,
-      receipt_url: confirmedQrUrl || omiseQrUrl || undefined,
+      receipt_url: confirmedQrUrl || omiseQrUrl || confirmedChargeId || null,
       latitude: markerPos ? markerPos.lat : null,
       longitude: markerPos ? markerPos.lng : null,
       has_whatsapp: whatsAppActive,
@@ -1088,17 +1095,35 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     };
 
     let savedOrder: any = null;
-    const { data: insertedRows, error } = await supabase
-      .from('pizza_orders')
-      .insert([orderData])
-      .select();
+    const existingId = currentOrderIdRef.current || orderId;
+    const isExistingNumeric = existingId && !existingId.startsWith('ord-') && !existingId.startsWith('FP-');
 
-    if (error) {
-      console.error('[Omise] Database insert error after payment:', error);
-      const simulatedId = 'ord-sim-' + Math.random().toString(36).substring(2, 9);
-      savedOrder = { id: simulatedId, ...orderData, created_at: new Date().toISOString() };
-    } else if (insertedRows && insertedRows[0]) {
-      savedOrder = insertedRows[0];
+    if (isExistingNumeric) {
+      const { data: updatedRows, error: updateErr } = await supabase
+        .from('pizza_orders')
+        .update(orderData)
+        .eq('id', Number(existingId))
+        .select();
+
+      if (!updateErr && updatedRows && updatedRows[0]) {
+        savedOrder = updatedRows[0];
+      }
+    }
+
+    if (!savedOrder) {
+      const { data: insertedRows, error } = await supabase
+        .from('pizza_orders')
+        .insert([orderData])
+        .select();
+
+      if (error) {
+        console.error('[Omise] Database insert error after payment:', error);
+        // Fallback simulation in dev only
+        const simulatedId = 'ord-sim-' + Math.random().toString(36).substring(2, 9);
+        savedOrder = { id: simulatedId, ...orderData, created_at: new Date().toISOString() };
+      } else if (insertedRows && insertedRows[0]) {
+        savedOrder = insertedRows[0];
+      }
     }
 
     if (savedOrder) {
@@ -1106,28 +1131,33 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
       currentOrderIdRef.current = orderIdStr;
       setOrderId(orderIdStr);
 
+      // 1. Notify both Pizza Admin stores (local & dining)
+      try {
+        const { usePizzaAdminStore } = await import('../../admin/pizza/store/usePizzaAdminStore');
+        usePizzaAdminStore.getState().addOrder(savedOrder);
+      } catch (e) {
+        console.warn('usePizzaAdminStore not loaded yet:', e);
+      }
       try {
         const { useAdminOrderStore } = await import('../../admin/store/adminOrderStore');
         useAdminOrderStore.getState().addOrder(savedOrder);
       } catch (e) {
-        console.warn('Admin store not loaded yet:', e);
+        console.warn('useAdminOrderStore not loaded yet:', e);
       }
 
+      // 2. Broadcast on all local inter-tab channels for 0ms kitchen monitor wake-up
       try {
         const ch1 = new BroadcastChannel('flower_power_orders_channel');
-        ch1.postMessage({ type: 'NEW_ORDER', order: savedOrder });
+        ch1.postMessage({ type: 'NEW_ORDER', order: savedOrder, orderId: savedOrder.id });
         ch1.close();
-      } catch (e) {
-        console.warn('BroadcastChannel error:', e);
-      }
+      } catch (e) {}
       try {
         const ch2 = new BroadcastChannel('pizza_orders_channel');
-        ch2.postMessage({ type: 'NEW_ORDER', order: savedOrder });
+        ch2.postMessage({ type: 'NEW_ORDER', order: savedOrder, orderId: savedOrder.id });
         ch2.close();
-      } catch (e) {
-        console.warn('BroadcastChannel error:', e);
-      }
+      } catch (e) {}
 
+      // 3. Trigger Telegram bot notification for kitchen staff
       try {
         fetch('/api/telegram-notify', {
           method: 'POST',
@@ -1431,6 +1461,12 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
   };
 
   const doSubmit = useCallback(async () => {
+    if (!isPlausibleName(name) || !isPlausiblePhone(phone) || !isPlausibleEmail(email)) {
+      setPaymentError(t.invalidNameHint);
+      setStep(1);
+      return;
+    }
+
     if (paymentMethod === 'card') {
       await handlePayCard();
       return;
@@ -1717,26 +1753,50 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
               {!isMapExpanded && (
                 <div className="space-y-2 animate-fadeIn">
                   <div className="grid grid-cols-2 gap-2">
-                    <input
-                      id="pizza-customer-name"
-                      name="name"
-                      type="text"
-                      autoComplete="name"
-                      className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
-                      placeholder={t.namePlaceholder}
-                      value={name}
-                      onChange={e => handleNameChange(e.target.value)}
-                    />
-                    <input
-                      id="pizza-customer-phone"
-                      name="tel"
-                      type="tel"
-                      autoComplete="tel"
-                      className="w-full bg-stone-50/80 border border-stone-300 p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E] transition-all text-xs"
-                      placeholder={t.phonePlaceholder}
-                      value={phone}
-                      onChange={e => handlePhoneChange(e.target.value)}
-                    />
+                    <div>
+                      <input
+                        id="pizza-customer-name"
+                        name="name"
+                        type="text"
+                        autoComplete="name"
+                        className={`w-full bg-stone-50/80 border p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none transition-all text-xs ${
+                          name.trim() && !isPlausibleName(name)
+                            ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400'
+                            : 'border-stone-300 focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E]'
+                        }`}
+                        placeholder={t.namePlaceholder}
+                        value={name}
+                        onChange={e => handleNameChange(e.target.value)}
+                        required
+                      />
+                      {name.trim() && !isPlausibleName(name) && (
+                        <span className="text-[9.5px] text-red-650 font-semibold mt-0.5 block pl-1 leading-tight">
+                          {t.invalidNameHint}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        id="pizza-customer-phone"
+                        name="tel"
+                        type="tel"
+                        autoComplete="tel"
+                        className={`w-full bg-stone-50/80 border p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none transition-all text-xs ${
+                          phone.trim() && !isPlausiblePhone(phone)
+                            ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400'
+                            : 'border-stone-300 focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E]'
+                        }`}
+                        placeholder={t.phonePlaceholder}
+                        value={phone}
+                        onChange={e => handlePhoneChange(e.target.value)}
+                        required
+                      />
+                      {phone.trim() && !isPlausiblePhone(phone) && (
+                        <span className="text-[9.5px] text-red-650 font-semibold mt-0.5 block pl-1 leading-tight">
+                          {t.invalidPhoneHint}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="relative">
                     <input
@@ -1745,7 +1805,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                       type="email"
                       autoComplete="email"
                       className={`w-full bg-stone-50/80 border p-2.5 rounded-xl text-stone-800 placeholder-stone-400 focus:outline-none transition-all text-xs ${
-                        email && !isValidEmail(email)
+                        email.trim() && !isPlausibleEmail(email)
                           ? 'border-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-400'
                           : 'border-stone-300 focus:border-[#8B1E1E] focus:ring-1 focus:ring-inset focus:ring-[#8B1E1E]'
                       }`}
@@ -1754,8 +1814,8 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                       onChange={e => handleEmailChange(e.target.value)}
                       required
                     />
-                    {email && !isValidEmail(email) && (
-                      <span className="text-[10px] text-red-600 font-medium mt-0.5 block pl-1">
+                    {email.trim() && !isPlausibleEmail(email) && (
+                      <span className="text-[9.5px] text-red-650 font-semibold mt-0.5 block pl-1 leading-tight">
                         {t.invalidEmailHint}
                       </span>
                     )}
@@ -2025,8 +2085,8 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                 }}
                 disabled={
                   orderType === 'delivery'
-                    ? (distanceKm === null || outOfRange || !name.trim() || !phone.trim() || !email.trim() || !isValidEmail(email) || !address)
-                    : (!name.trim() || !phone.trim() || !email.trim() || !isValidEmail(email))
+                    ? (distanceKm === null || outOfRange || !isFormValid || !address)
+                    : (!isFormValid)
                 }
                 className="w-full bg-[#8B1E1E] hover:bg-[#721818] text-white py-2 px-3 rounded-full font-bold transition-all disabled:bg-stone-100 disabled:text-stone-400 disabled:shadow-none shadow-sm hover:shadow-md cursor-pointer duration-200 transform active:scale-95 text-[9px] tracking-wider uppercase flex-shrink-0"
                 style={{ fontFamily: 'Inter, sans-serif' }}

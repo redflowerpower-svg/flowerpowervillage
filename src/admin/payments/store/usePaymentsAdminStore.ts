@@ -145,7 +145,7 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
           set({ settings: { ...DEFAULT_SETTINGS, ...parsed, active_promptpay_provider: normalizedProvider }, loading: false });
           return;
         }
-        catch {}
+        catch { }
       }
 
       set({ settings: DEFAULT_SETTINGS, loading: false });
@@ -171,7 +171,7 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
     const newSettings = { ...current, active_promptpay_provider: normalized };
     try {
       localStorage.setItem('fp_payment_settings', JSON.stringify(newSettings));
-    } catch {}
+    } catch { }
     set({
       settings: newSettings,
       saveSuccess: false
@@ -252,7 +252,7 @@ export const usePaymentsAdminStore = create<PaymentsAdminState>((set, get) => ({
       // 1. Always update local cache immediately
       try {
         localStorage.setItem('fp_payment_settings', JSON.stringify({ ...payload }));
-      } catch {}
+      } catch { }
 
       // 2. Save via Backend API (which has service_role to upload to site-images storage & upsert DB)
       try {

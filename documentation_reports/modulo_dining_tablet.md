@@ -46,3 +46,7 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
     - **Banner Hero**: dedicato esclusivamente all'identità di brand (Logo Flower Power Pizza, Ranong Thailandia) e al messaggio promozionale (*Sconto Immediato del 5% su Tutto il Menu dal Tablet!* e Coupon 10% per i successivi ordini delivery da casa), con rimozione totale di badge o pillole duplicate.
 12. **Traduzioni Certificate DeepSeek AI**:
     - Tutte le etichette, bottoni e dialoghi sono localizzati tramite API live DeepSeek in 5 lingue: 🇮🇹 IT, 🇬🇧 EN, 🇹🇭 TH, 🇩🇪 DE, 🇲🇲 MM.
+13. **Pulsante Logout / Disconnessione Tablet nel Pop-up Tavoli**:
+    - Nel popup iniziale di selezione tavolo (`MANDATORY TABLE SELECTION OVERLAY`), la barra superiore include ora un pulsante dedicato di Logout posizionato accanto al selettore della lingua.
+    - Consente al personale di disconnettere istantaneamente il tablet rimuovendo le credenziali e il token locale (`fp_dining_tablet_unlocked`), riportando la web app alla schermata di accesso PIN/Admin.
+

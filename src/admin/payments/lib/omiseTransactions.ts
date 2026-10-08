@@ -8,7 +8,7 @@ export interface OmiseRecordedTransaction {
   amount: number; // in THB
   channel: 'card' | 'promptpay';
   date: string;
-  status: 'PAID' | 'REFUNDED';
+  status: 'PAID' | 'REFUNDED' | 'PENDING' | 'EXPIRED';
   refundedAmount?: number;
 }
 

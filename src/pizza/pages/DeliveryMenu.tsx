@@ -16,6 +16,14 @@ import { usePizzeriaStatus, PizzeriaServiceStatus, DEFAULT_PIZZERIA_STATUS } fro
 import PizzaPoliciesModal, { PolicyTab } from '../components/PizzaPoliciesModal';
 import { TableReservationModal } from '../components/TableReservationModal';
 import { checkFirstOrderEligibility, getOrCreateDeviceId } from '../services/firstOrderService';
+import { PizzaPromoBanner } from '../components/PizzaPromoBanner';
+import {
+  PizzaPromoCode,
+  validatePizzaPromoCode,
+  getAppliedPizzaPromo,
+  setAppliedPizzaPromo,
+  clearAppliedPizzaPromo
+} from '../services/pizzaPromoService';
 import { useLanguageStore } from '../store/languageStore';
 import { i18n } from '../data/i18n';
 import { SUPPORTED_LANGUAGES, LANGUAGE_METAS } from '../config/languages';
@@ -1048,6 +1056,34 @@ export default function DeliveryMenu() {
 
   const { language: lang, setLanguage: setLang } = useLanguageStore();
   const [isLangOpen, setIsLangOpen] = useState(false);
+
+  // Promo Code State & Real-time Global Event Sync
+  const [appliedPromo, setAppliedPromo] = useState<PizzaPromoCode | null>(() => getAppliedPizzaPromo());
+
+  // Parse & auto-apply promo code from ?promo= or ?coupon= URL parameters (Village parity)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlCode = params.get('promo') || params.get('coupon');
+      if (urlCode) {
+        const res = validatePizzaPromoCode(urlCode, 0, undefined, lang);
+        if (res.valid && res.promo) {
+          setAppliedPizzaPromo(res.promo);
+          setAppliedPromo(res.promo);
+        }
+      }
+    }
+  }, [lang]);
+
+  useEffect(() => {
+    const handlePromoUpdated = (e: CustomEvent) => {
+      setAppliedPromo(e.detail);
+    };
+    window.addEventListener('pizza_promo_updated', handlePromoUpdated as EventListener);
+    return () => {
+      window.removeEventListener('pizza_promo_updated', handlePromoUpdated as EventListener);
+    };
+  }, []);
 
   // Auto-open checkout if returning from Omise 3D Secure
   useEffect(() => {
@@ -2561,6 +2597,13 @@ export default function DeliveryMenu() {
         }}
         initialNotes={reservationInitialNotes}
         isWinePrivilege={isWineReservation}
+        lang={lang}
+      />
+
+      {/* Floating Bottom Promo Banner (Village Parity: Yellow & Red pulsing banner) */}
+      <PizzaPromoBanner
+        appliedPromo={appliedPromo}
+        onRemove={() => clearAppliedPizzaPromo()}
         lang={lang}
       />
 

@@ -1,4 +1,4 @@
-import { X, Trash2, Plus, Minus, ShoppingBag, Phone, Sparkles, ArrowLeft, Wine, GlassWater, Coffee, CupSoda, ChevronRight, ChevronDown, ExternalLink, UtensilsCrossed } from 'lucide-react';
+import { X, Trash2, Plus, Minus, ShoppingBag, Phone, Sparkles, ArrowLeft, Wine, GlassWater, Coffee, CupSoda, ChevronRight, ChevronDown, ExternalLink, UtensilsCrossed, Tag, Percent, CheckCircle2 } from 'lucide-react';
 import { useCartStore, calcItemTotal, CartItem } from '../store/cartStore';
 import { fetchPizzeriaStatus, calculateServiceState, DEFAULT_PIZZERIA_STATUS } from '../services/pizzaServiceStatus';
 import { checkFirstOrderEligibility, getOrCreateDeviceId } from '../services/firstOrderService';
@@ -6,6 +6,8 @@ import {
   PizzaPromoCode,
   validatePizzaPromoCode,
   getAppliedPizzaPromo,
+  setAppliedPizzaPromo,
+  clearAppliedPizzaPromo,
 } from '../services/pizzaPromoService';
 import { withCacheBust } from '../utils/cacheBust';
 import { useState, useEffect } from 'react';
@@ -575,6 +577,64 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
 
   // Promo Code State
   const [appliedPromo, setAppliedPromo] = useState<PizzaPromoCode | null>(() => getAppliedPizzaPromo());
+  const [promoInput, setPromoInput] = useState('');
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoSuccess, setPromoSuccess] = useState<string | null>(null);
+
+  // Synchronize promo state with global events
+  useEffect(() => {
+    const handlePromoUpdated = (e: CustomEvent) => {
+      setAppliedPromo(e.detail);
+      if (!e.detail) {
+        setPromoInput('');
+        setPromoSuccess(null);
+      }
+    };
+    window.addEventListener('pizza_promo_updated', handlePromoUpdated as EventListener);
+    return () => {
+      window.removeEventListener('pizza_promo_updated', handlePromoUpdated as EventListener);
+    };
+  }, []);
+
+  const handleApplyPromo = (codeToApply?: string) => {
+    const targetCode = (codeToApply !== undefined ? codeToApply : promoInput).trim().toUpperCase();
+    if (!targetCode) {
+      setPromoError(
+        lang === 'IT' ? '📱 Segui i nostri social media per ricevere codici promozionali ed offerte esclusive!' :
+        lang === 'TH' ? '📱 ติดตามช่องทางโซเชียลของเราเพื่อรับโค้ดโปรโมชั่นและข้อเสนอสุดพิเศษ!' :
+        lang === 'DE' ? '📱 Folge unseren Social-Media-Kanälen, um Promo-Codes und exklusive Angebote zu erhalten!' :
+        lang === 'MM' ? '📱 သင့်အတွက် သီးသန့် ပရိုမိုးရှင်း ကုဒ်များနှင့် အထူးကမ်းလှမ်းချက်များကို ရရှိရန် ကျွန်ုပ်တို့၏ ဆိုရှယ်မီဒီယာ ချန်နယ်များကို လိုက်ကြည့်ပါ။' :
+        '📱 Follow our social media channels to receive promo codes and exclusive offers!'
+      );
+      setPromoSuccess(null);
+      return;
+    }
+    const res = validatePizzaPromoCode(targetCode, subtotal, undefined, lang);
+    if (!res.valid || !res.promo) {
+      setPromoError(res.error || (lang === 'IT' ? 'Codice non valido' : 'Invalid promo code'));
+      setPromoSuccess(null);
+      return;
+    }
+    setAppliedPizzaPromo(res.promo);
+    setAppliedPromo(res.promo);
+    setPromoError(null);
+    const discountText = res.promo.discountType === 'percentage' ? `-${res.promo.discountValue}%` : `-฿${res.promo.discountValue}`;
+    setPromoSuccess(
+      lang === 'IT' ? `Coupon ${res.promo.code} (${discountText}) applicato!` :
+      lang === 'TH' ? `ใช้รหัส ${res.promo.code} (${discountText}) สำเร็จ!` :
+      lang === 'DE' ? `Gutschein ${res.promo.code} (${discountText}) angewendet!` :
+      lang === 'MM' ? `ကုဒ် ${res.promo.code} (${discountText}) အသုံးပြုပြီး!` :
+      `Coupon ${res.promo.code} (${discountText}) applied!`
+    );
+  };
+
+  const handleRemovePromo = () => {
+    clearAppliedPizzaPromo();
+    setAppliedPromo(null);
+    setPromoInput('');
+    setPromoError(null);
+    setPromoSuccess(null);
+  };
 
   // Check first order eligibility (only for online delivery)
   useEffect(() => {
@@ -610,28 +670,34 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
     });
   };
 
-  // NON-STACKING DISCOUNT ENGINE
+  const t = labels[lang];
+
+  // NON-STACKING DISCOUNT ENGINE: Promo Coupon takes priority over 10% welcome discount
   let discountAmount = 0;
   let isDiscountActive = false;
+  let activeDiscountLabel = '';
 
   if (isDiningMode) {
     discountAmount = Math.round(subtotal * 0.05);
     isDiscountActive = true;
+    activeDiscountLabel = lang === 'TH' ? '✨ สิทธิพิเศษสั่งที่โต๊ะ (-5%)' : lang === 'IT' ? '✨ Sconto Dining Privilege al Tavolo (-5%)' : lang === 'DE' ? '✨ Tisch-Rabatt (-5%)' : lang === 'MM' ? '✨ စားပွဲမှာယူမှု အထူးလျှော့စျေး (-5%)' : '✨ Table Dining Privilege (-5%)';
   } else if (appliedPromo) {
-    const res = validatePizzaPromoCode(appliedPromo.code, subtotal);
+    const res = validatePizzaPromoCode(appliedPromo.code, subtotal, undefined, lang);
     if (res.valid) {
       discountAmount = res.discountAmount;
       isDiscountActive = true;
+      const discountText = appliedPromo.discountType === 'percentage' ? `-${appliedPromo.discountValue}%` : `-${appliedPromo.discountValue}฿`;
+      activeDiscountLabel = `🎟️ Coupon ${appliedPromo.code} (${discountText})`;
     }
   } else if (isEligible) {
     discountAmount = Math.round(subtotal * 0.1);
     isDiscountActive = true;
+    activeDiscountLabel = t.welcomePrivilegeNote;
   }
 
   const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
   const deliveryFee = isDiningMode ? 0 : (subtotal >= 300 ? 0 : 30);
   const finalTotal = isDiningMode ? subtotalAfterDiscount : (subtotalAfterDiscount + deliveryFee);
-  const t = labels[lang];
 
   const [serviceCalc, setServiceCalc] = useState(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
 
@@ -1204,18 +1270,90 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
         {/* ULTRA-PUNCHY CHECKOUT FOOTER (IMMEDIATE VISUAL TOTAL) */}
         {items.length > 0 && (
           <div className="border-t-2 border-stone-200 px-4 sm:px-5 py-4 space-y-3 bg-white shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
-            
+            {/* 🎟️ PROMO CODE / COUPON INPUT BOX (DELIVERY WEBSITE ONLY) */}
+            {!isDiningMode && (
+              <div className="bg-stone-50 border border-stone-200 rounded-xl p-2.5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-black uppercase tracking-wider text-stone-700 flex items-center gap-1.5">
+                    <Tag size={12} className="text-[#8B1E1E]" />
+                    <span>{lang === 'IT' ? 'Codice Promozionale / Coupon' : lang === 'TH' ? 'รหัสโปรโมชั่น / คูปอง' : lang === 'DE' ? 'Gutscheincode / Coupon' : lang === 'MM' ? 'ပရိုမိုးရှင်းကုဒ် / ကူပွန်' : 'Promo Code / Coupon'}</span>
+                  </span>
+                  {appliedPromo && (
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <CheckCircle2 size={10} />
+                      {lang === 'IT' ? 'Attivo' : lang === 'TH' ? 'ใช้งานอยู่' : lang === 'DE' ? 'Aktiv' : lang === 'MM' ? 'အသုံးပြုနေသည်' : 'Active'}
+                    </span>
+                  )}
+                </div>
+
+                {appliedPromo ? (
+                  <div className="flex items-center justify-between bg-yellow-100/90 border border-yellow-300 rounded-lg px-2.5 py-1.5 shadow-2xs">
+                    <div className="flex items-center gap-2 overflow-hidden">
+                      <span className="bg-red-600 text-white font-black text-[10.5px] px-2 py-0.5 rounded-full shrink-0">
+                        {appliedPromo.discountType === 'percentage' ? `-${appliedPromo.discountValue}%` : `-฿${appliedPromo.discountValue}`}
+                      </span>
+                      <span className="font-mono font-black text-xs text-stone-900 truncate">
+                        {appliedPromo.code}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemovePromo}
+                      className="text-stone-500 hover:text-red-700 text-xs font-black p-1 hover:bg-yellow-200 rounded transition-colors flex items-center gap-1 cursor-pointer"
+                      title={lang === 'IT' ? 'Rimuovi codice' : 'Remove code'}
+                    >
+                      <X size={13} />
+                      <span className="text-[10px]">{lang === 'IT' ? 'Rimuovi' : lang === 'TH' ? 'ลบ' : lang === 'DE' ? 'Entfernen' : lang === 'MM' ? 'ဖျက်ရန်' : 'Remove'}</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <div className="flex gap-1.5">
+                      <input
+                        type="text"
+                        value={promoInput}
+                        onChange={(e) => {
+                          setPromoInput(e.target.value.toUpperCase());
+                          if (promoError) setPromoError(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleApplyPromo();
+                          }
+                        }}
+                        placeholder={lang === 'IT' ? 'Inserisci codice coupon...' : lang === 'TH' ? 'กรอกรหัสคูปอง...' : lang === 'DE' ? 'Gutscheincode eingeben...' : lang === 'MM' ? 'ကူပွန်ကုဒ် ရိုက်ထည့်ပါ...' : 'Enter promo code...'}
+                        className="flex-1 bg-white border border-stone-300 rounded-lg px-2.5 py-1.5 text-xs uppercase font-mono font-bold text-stone-900 focus:outline-none focus:ring-1 focus:ring-[#8B1E1E] focus:border-[#8B1E1E]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPromo()}
+                        className="px-3 py-1.5 bg-[#8B1E1E] hover:bg-[#721818] text-white rounded-lg text-xs font-black uppercase tracking-wider transition-all active:scale-95 shadow-2xs cursor-pointer"
+                      >
+                        {lang === 'IT' ? 'Applica' : lang === 'TH' ? 'ใช้โค้ด' : lang === 'DE' ? 'Einlösen' : lang === 'MM' ? 'အသုံးပြုမည်' : 'Apply'}
+                      </button>
+                    </div>
+                    {promoError && (
+                      <p className="text-[11px] font-bold text-red-600 animate-fadeIn leading-snug">
+                        {promoError.startsWith('📱') ? promoError : `⚠️ ${promoError}`}
+                      </p>
+                    )}
+                    {promoSuccess && (
+                      <p className="text-[11px] font-bold text-emerald-700 animate-fadeIn">
+                        ✓ {promoSuccess}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Sconto Pill Banner */}
             {isDiscountActive && (
               <div className={`${isDiningMode ? 'bg-amber-50 border-amber-300 text-amber-950' : 'bg-emerald-50 border-emerald-300 text-emerald-900'} border rounded-xl px-3 py-1.5 flex items-center justify-between text-xs font-bold shadow-2xs`}>
                 <span className="flex items-center gap-1.5">
                   <Sparkles size={13} className={isDiningMode ? 'text-amber-600' : 'text-emerald-600'} />
-                  <span>
-                    {isDiningMode 
-                      ? (lang === 'TH' ? '✨ สิทธิพิเศษสั่งที่โต๊ะ (-5%):' : lang === 'IT' ? '✨ Sconto Dining Privilege al Tavolo (-5%):' : lang === 'DE' ? '✨ Tisch-Rabatt (-5%):' : lang === 'MM' ? '✨ စားပွဲမှာယူမှု အထူးလျှော့စျေး (-5%):' : '✨ Table Dining Privilege (-5%):')
-                      : t.welcomePrivilegeNote
-                    }
-                  </span>
+                  <span>{activeDiscountLabel}</span>
                 </span>
                 <span className={`${isDiningMode ? 'text-amber-700' : 'text-emerald-700'} font-black`}>-{discountAmount}฿</span>
               </div>

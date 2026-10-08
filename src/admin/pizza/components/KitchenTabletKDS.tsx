@@ -581,6 +581,56 @@ const formatProductName = (name: any) => {
   return str.toUpperCase();
 };
 
+export const getOrderDiscountInfo = (order: any, kdsLang: string = 'en') => {
+  if (!order) return { discountAmount: 0, originalTotal: 0, promoCode: null, badgeText: null };
+  const addr = String(order.address || '');
+  
+  let discountAmount = 0;
+  const discMatch = addr.match(/\[DISCOUNT:\s*([0-9.]+)\]/i);
+  if (discMatch) {
+    discountAmount = parseFloat(discMatch[1]) || 0;
+  }
+  
+  let promoCode: string | null = null;
+  const promoMatch = addr.match(/\[PROMO:\s*([^\]]+)\]/i);
+  if (promoMatch) {
+    promoCode = promoMatch[1].trim().toUpperCase();
+  }
+
+  const finalTotal = Number(order.total) || 0;
+  const originalTotal = discountAmount > 0 ? (finalTotal + discountAmount) : finalTotal;
+
+  let badgeText: string | null = null;
+  if (promoCode) {
+    if (kdsLang === 'th') {
+      badgeText = `🎟️ โค้ด: ${promoCode} (-${discountAmount}฿)`;
+    } else if (kdsLang === 'mm') {
+      badgeText = `🎟️ ပရိုမိုးရှင်းကုဒ်: ${promoCode} (-${discountAmount}฿)`;
+    } else if (kdsLang === 'it') {
+      badgeText = `🎟️ Coupon: ${promoCode} (-${discountAmount}฿)`;
+    } else {
+      badgeText = `🎟️ Promo: ${promoCode} (-${discountAmount}฿)`;
+    }
+  } else if (discountAmount > 0) {
+    if (kdsLang === 'th') {
+      badgeText = `✨ ส่วนลดสั่งครั้งแรก 10% (-${discountAmount}฿)`;
+    } else if (kdsLang === 'mm') {
+      badgeText = `✨ ပထမဆုံးအော်ဒါ လျှော့စျေး ၁၀% (-${discountAmount}฿)`;
+    } else if (kdsLang === 'it') {
+      badgeText = `✨ Sconto 1° Ordine 10% (-${discountAmount}฿)`;
+    } else {
+      badgeText = `✨ 10% 1st Order (-${discountAmount}฿)`;
+    }
+  }
+
+  return {
+    discountAmount,
+    originalTotal,
+    promoCode,
+    badgeText
+  };
+};
+
 const parseCoordsFromAddress = (addressStr: string) => {
   if (!addressStr || typeof addressStr !== 'string') {
     return { address: addressStr || 'N/A', addressTh: addressStr || 'N/A', lat: RESTAURANT_LAT, lng: RESTAURANT_LNG };
@@ -621,7 +671,13 @@ const parseCoordsFromAddress = (addressStr: string) => {
     .replace(/\s*\[(COORD|Lat)[^\]]*\]/gi, '')
     .replace(/\s*\[EMAIL:[^\]]+\]/gi, '')
     .replace(/\s*\[NOTE:[^\]]+\]/gi, '')
+    .replace(/\s*\[DID:[^\]]+\]/gi, '')
+    .replace(/\s*\[DISCOUNT:[^\]]+\]/gi, '')
+    .replace(/\s*\[PROMO:[^\]]+\]/gi, '')
+    .replace(/\s*\[HOTEL:[^\]]+\]/gi, '')
+    .replace(/\s*\[ORDER_TYPE:[^\]]+\]/gi, '')
     .replace(/\s*\[LANG:[^\]]+\]/gi, '')
+    .replace(/\s*\[INTEGRAZIONE_COMANDA\]/gi, '')
     .trim();
 
   if (!addressTh) {
@@ -2050,6 +2106,8 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
                 const tableStationDisplay = formatTableStationName(extractTableFromAddress(order.address) || order.table_number || 'Tavolo', kdsLang === 'th' ? 'TH' : 'EN');
 
+                const discountInfo = getOrderDiscountInfo(order, kdsLang);
+
                 return (
                   <div 
                     key={order.id}
@@ -2072,9 +2130,21 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                         </span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="font-black text-xl text-emerald-400 font-mono">
-                          {order.total} ฿
-                        </span>
+                        <div className="flex items-baseline gap-1.5">
+                          {discountInfo.discountAmount > 0 && (
+                            <del className="text-stone-400 line-through text-xs font-semibold font-mono">
+                              {discountInfo.originalTotal} ฿
+                            </del>
+                          )}
+                          <span className="font-black text-xl text-emerald-400 font-mono">
+                            {order.total} ฿
+                          </span>
+                        </div>
+                        {discountInfo.badgeText && (
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-500/40 uppercase tracking-wider mt-0.5">
+                            {discountInfo.badgeText}
+                          </span>
+                        )}
                         {order.payment_method?.includes('omise') ? (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-600 uppercase tracking-wider mt-0.5">
                             ✅ {order.payment_method?.includes('card') ? '💳 CARD 3DS (PAID)' : '📱 PROMPTPAY (PAID)'}
@@ -2307,6 +2377,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                 const { address, addressTh, notes, lat, lng } = parseCoordsFromAddress(order.address);
                 const orderNumber = order.id ? String(order.id).slice(-4).toUpperCase() : '----';
                 const isDelivering = order.status === 'delivering';
+                const discountInfo = getOrderDiscountInfo(order, kdsLang);
 
                 return (
                   <div 
@@ -2346,9 +2417,21 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                         )}
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="font-black text-xl text-emerald-400 font-mono">
-                          {order.total} ฿
-                        </span>
+                        <div className="flex items-baseline gap-1.5">
+                          {discountInfo.discountAmount > 0 && (
+                            <del className="text-stone-400 line-through text-xs font-semibold font-mono">
+                              {discountInfo.originalTotal} ฿
+                            </del>
+                          )}
+                          <span className="font-black text-xl text-emerald-400 font-mono">
+                            {order.total} ฿
+                          </span>
+                        </div>
+                        {discountInfo.badgeText && (
+                          <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-500/40 uppercase tracking-wider mt-0.5">
+                            {discountInfo.badgeText}
+                          </span>
+                        )}
                         {order.payment_method?.includes('omise') ? (
                           <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-600 uppercase tracking-wider mt-0.5">
                             ✅ {order.payment_method?.includes('card') ? '💳 CARD 3DS (PAID)' : '📱 PROMPTPAY (PAID)'}
@@ -2668,14 +2751,31 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="text-right">
-                  <span className="font-black text-xl text-emerald-400 font-mono block leading-none">
-                    {selectedTrayOrder.total} ฿
-                  </span>
-                  <span className="text-[10px] font-black uppercase text-amber-400">
-                    {kdsLang === 'th' ? 'ชำระที่แคชเชียร์' : kdsLang === 'mm' ? 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်' : 'CONTO ALLA CASSA'}
-                  </span>
-                </div>
+                {(() => {
+                  const trayDiscountInfo = getOrderDiscountInfo(selectedTrayOrder, kdsLang);
+                  return (
+                    <div className="text-right flex flex-col items-end">
+                      <div className="flex items-baseline gap-1.5 justify-end">
+                        {trayDiscountInfo.discountAmount > 0 && (
+                          <del className="text-stone-400 line-through text-xs font-semibold font-mono">
+                            {trayDiscountInfo.originalTotal} ฿
+                          </del>
+                        )}
+                        <span className="font-black text-xl text-emerald-400 font-mono block leading-none">
+                          {selectedTrayOrder.total} ฿
+                        </span>
+                      </div>
+                      {trayDiscountInfo.badgeText && (
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-500/40 uppercase tracking-wider mt-0.5">
+                          {trayDiscountInfo.badgeText}
+                        </span>
+                      )}
+                      <span className="text-[10px] font-black uppercase text-amber-400 mt-0.5">
+                        {kdsLang === 'th' ? 'ชำระที่แคชเชียร์' : kdsLang === 'mm' ? 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်' : 'CONTO ALLA CASSA'}
+                      </span>
+                    </div>
+                  );
+                })()}
                 <button
                   type="button"
                   onClick={() => setSelectedTrayOrder(null)}
@@ -3121,14 +3221,33 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-amber-400 text-xs font-bold">
-                            🕒 {timeFormatted}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-950 text-emerald-300 border border-emerald-700/60">
-                            {order.total} ฿
-                          </span>
-                        </div>
+                        {(() => {
+                          const discountInfo = getOrderDiscountInfo(order, kdsLang);
+                          return (
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono text-amber-400 text-xs font-bold">
+                                🕒 {timeFormatted}
+                              </span>
+                              <div className="flex flex-col items-end">
+                                <div className="flex items-baseline gap-1">
+                                  {discountInfo.discountAmount > 0 && (
+                                    <del className="text-stone-400 line-through text-[10px] font-mono">
+                                      {discountInfo.originalTotal} ฿
+                                    </del>
+                                  )}
+                                  <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-950 text-emerald-300 border border-emerald-700/60 font-mono">
+                                    {order.total} ฿
+                                  </span>
+                                </div>
+                                {discountInfo.badgeText && (
+                                  <span className="text-[9px] font-black text-amber-400 uppercase tracking-wider">
+                                    {discountInfo.badgeText}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Items */}

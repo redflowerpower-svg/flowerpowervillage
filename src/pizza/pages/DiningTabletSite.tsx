@@ -67,6 +67,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   customLabel: string;
   customPlaceholder: string;
   enterBtn: string;
+  logoutBtn: string;
 }> = {
   IT: {
     title: 'Flower Power Pizza Dining',
@@ -79,7 +80,8 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeCardPrefix: 'Conto Aperto:',
     customLabel: 'Oppure Inserimento Postazione Libera',
     customPlaceholder: 'es. Terrazza 3 / Giardino / Bancone',
-    enterBtn: 'Entra nel Menu'
+    enterBtn: 'Entra nel Menu',
+    logoutBtn: 'Logout'
   },
   EN: {
     title: 'Flower Power Pizza Dining',
@@ -92,7 +94,8 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeCardPrefix: 'Open Tab:',
     customLabel: 'Or Enter Custom Table / Station',
     customPlaceholder: 'e.g. Terrace 3 / Garden / Counter',
-    enterBtn: 'Access Menu'
+    enterBtn: 'Access Menu',
+    logoutBtn: 'Logout'
   },
   TH: {
     title: 'Flower Power Pizza Dining',
@@ -105,7 +108,8 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeCardPrefix: 'ยอดค้างชำระ:',
     customLabel: 'หรือระบุชื่อโต๊ะ / ที่นั่งเอง',
     customPlaceholder: 'เช่น ริมระเบียง 3 / โซนสวน / เคาน์เตอร์',
-    enterBtn: 'เข้าสู่เมนู'
+    enterBtn: 'เข้าสู่เมนู',
+    logoutBtn: 'ออกจากระบบ'
   },
   DE: {
     title: 'Flower Power Pizza Dining',
@@ -118,7 +122,8 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeCardPrefix: 'Offener Tisch:',
     customLabel: 'Oder Freie Tischnummer Eingeben',
     customPlaceholder: 'z.B. Terrasse 3 / Garten / Bar',
-    enterBtn: 'Speisekarte öffnen'
+    enterBtn: 'Speisekarte öffnen',
+    logoutBtn: 'Abmelden'
   },
   MM: {
     title: 'Flower Power Pizza Dining',
@@ -131,7 +136,8 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeCardPrefix: 'ကျသင့်ငွေစာရင်း:',
     customLabel: 'သို့မဟုတ် အခြားစားပွဲ / နေရာအမည် ထည့်သွင်းပါ',
     customPlaceholder: 'ဥပမာ - လသာဆောင် ၃ / ပန်းခြံ / ကောင်တာ',
-    enterBtn: 'မီနူးသို့ ဝင်မည်'
+    enterBtn: 'မီနူးသို့ ဝင်မည်',
+    logoutBtn: 'ထွက်မည်'
   }
 };
 
@@ -1666,13 +1672,25 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                 </div>
               </div>
 
-              <div className="shrink-0">
+              <div className="shrink-0 flex items-center gap-2">
                 <LanguageDropdown 
                   currentLang={lang} 
                   onSelect={setLanguage} 
                   variant="dining-dark" 
                   align="right" 
                 />
+
+                {onLogout && (
+                  <button
+                    type="button"
+                    onClick={onLogout}
+                    className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-950/80 border border-red-500/60 hover:bg-red-900 text-red-300 hover:text-white text-[11px] sm:text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95 whitespace-nowrap"
+                    title={I18N_TABLE_PICKER[lang]?.logoutBtn || 'Logout'}
+                  >
+                    <LogOut className="w-3.5 h-3.5 text-red-400" />
+                    <span className="hidden sm:inline">{I18N_TABLE_PICKER[lang]?.logoutBtn || 'Logout'}</span>
+                  </button>
+                )}
               </div>
             </div>
 

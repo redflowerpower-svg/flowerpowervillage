@@ -557,6 +557,24 @@ export async function handlePaymentsAdmin(req: VercelRequest, res: VercelRespons
       });
     }
 
+    // 7b. OMISE LIST CHARGES (DIRECT LIVE OMISE API)
+    if (action === "omise-list-charges" || req.query.action === "omise-list-charges") {
+      try {
+        const creds = await getOmiseCredentials();
+        const authHeader = "Basic " + Buffer.from(creds.secretKey + ":").toString("base64");
+        const chargesRes = await fetch("https://api.omise.co/charges?limit=25", {
+          headers: { Authorization: authHeader }
+        });
+        const chargesData = await chargesRes.json();
+        return res.status(200).json({
+          success: true,
+          charges: chargesData.data || []
+        });
+      } catch (err: any) {
+        return res.status(500).json({ success: false, error: err.message });
+      }
+    }
+
     // 8. OMISE QUERY CHARGE / ORDER
     if (action === "omise-query" || req.query.action === "omise-query") {
       const chargeId = (req.body?.charge_id || req.query.charge_id || req.body?.order_no || req.query.order_no || "").toString().trim();

@@ -25,53 +25,91 @@ export const OmiseTab: React.FC = () => {
 
   useEffect(() => {
     async function loadPizzaOmiseOrders() {
-      if (!supabase) return;
+      const combinedMap = new Map<string, OmiseRecordedTransaction>();
+
+      // 1. Fetch live charges directly from Omise API (guarantees EVERY real charge shows up)
       try {
-        const { data, error } = await supabase
-          .from('pizza_orders')
-          .select('*')
-          .in('payment_method', ['omise_card', 'omise_promptpay', 'card', 'promptpay'])
-          .order('created_at', { ascending: false })
-          .limit(20);
-
-        if (!error && data && data.length > 0) {
-          // Only include orders that were actually charged via Omise (have chrg_ id) or have completed status
-          const validOrders = data.filter((o: any) => {
-            const isCard = (o.payment_method || '').includes('card');
-            if (isCard) {
-              return Boolean(o.receipt_url && o.receipt_url.includes('chrg_'));
-            }
-            return o.status === 'completed' || Boolean(o.receipt_url && o.receipt_url.includes('chrg_'));
-          });
-
-          const fromDb: OmiseRecordedTransaction[] = validOrders.map((o: any) => ({
-            orderNo: String(o.id),
-            chargeId: (o.receipt_url && o.receipt_url.includes('chrg_')) ? o.receipt_url : String(o.id),
-            customerName: o.customer_name || 'Cliente Pizzeria',
-            purchaseType: 'Pizza Delivery Ranong',
-            itemDescription: Array.isArray(o.items) ? o.items.map((i: any) => i.name).slice(0, 2).join(', ') : 'Ordine Pizza',
-            amount: Number(o.total || 0),
-            channel: (o.payment_method || '').includes('promptpay') ? 'promptpay' : 'card',
-            date: o.created_at,
-            status: o.status === 'rejected' ? 'REFUNDED' : 'PAID'
-          }));
-
-          const local = getOmiseTransactions();
-          const combinedMap = new Map<string, OmiseRecordedTransaction>();
-          local.forEach(t => combinedMap.set(t.orderNo, t));
-          fromDb.forEach(t => combinedMap.set(t.orderNo, t));
-          
-          // Sort strictly by date descending (most recent first at the top)
-          const sorted = Array.from(combinedMap.values()).sort((a, b) => {
-            const timeA = a.date ? new Date(a.date).getTime() : 0;
-            const timeB = b.date ? new Date(b.date).getTime() : 0;
-            return timeB - timeA;
-          });
-          setRecordedTransactions(sorted);
+        const res = await fetch('/api/payments-admin?action=omise-list-charges');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.charges)) {
+            json.charges.forEach((c: any) => {
+              const metaOrderId = c.metadata?.order_id || c.id;
+              const isPromptPay = c.source?.type === 'promptpay';
+              const isPaid = c.paid || c.status === 'successful';
+              const isRefunded = c.refunded_amount > 0 || c.status === 'refunded';
+              const isExpired = c.status === 'expired';
+              const status: OmiseRecordedTransaction['status'] = isRefunded ? 'REFUNDED' : isPaid ? 'PAID' : isExpired ? 'EXPIRED' : 'PENDING';
+              
+              combinedMap.set(c.id, {
+                orderNo: String(metaOrderId),
+                chargeId: c.id,
+                customerName: c.metadata?.customer_name || 'Cliente Omise',
+                customerEmail: c.metadata?.email,
+                purchaseType: 'Pizza Delivery Ranong',
+                itemDescription: c.description || (isPromptPay ? 'PromptPay QR' : 'Carta di Credito'),
+                amount: Number((c.amount || 0) / 100),
+                channel: isPromptPay ? 'promptpay' : 'card',
+                date: c.created_at,
+                status
+              });
+            });
+          }
         }
-      } catch (err) {
-        console.warn('Error loading pizza omise orders:', err);
+      } catch (e) {
+        console.warn('Omise live charges fetch notice:', e);
       }
+
+      // 2. Also load from Supabase pizza_orders
+      if (supabase) {
+        try {
+          const { data, error } = await supabase
+            .from('pizza_orders')
+            .select('*')
+            .in('payment_method', ['omise_card', 'omise_promptpay', 'card', 'promptpay'])
+            .order('created_at', { ascending: false })
+            .limit(25);
+
+          if (!error && data && data.length > 0) {
+            data.forEach((o: any) => {
+              const chargeId = (o.receipt_url && o.receipt_url.includes('chrg_')) ? o.receipt_url : String(o.id);
+              const isPromptPay = (o.payment_method || '').includes('promptpay');
+              const key = chargeId.startsWith('chrg_') ? chargeId : String(o.id);
+              if (!combinedMap.has(key)) {
+                combinedMap.set(key, {
+                  orderNo: String(o.id),
+                  chargeId,
+                  customerName: o.customer_name || 'Cliente Pizzeria',
+                  purchaseType: 'Pizza Delivery Ranong',
+                  itemDescription: Array.isArray(o.items) ? o.items.map((i: any) => i.name).slice(0, 2).join(', ') : 'Ordine Pizza',
+                  amount: Number(o.total || 0),
+                  channel: isPromptPay ? 'promptpay' : 'card',
+                  date: o.created_at,
+                  status: o.status === 'rejected' ? 'REFUNDED' : 'PAID'
+                });
+              }
+            });
+          }
+        } catch (err) {
+          console.warn('Error loading pizza omise orders from DB:', err);
+        }
+      }
+
+      // 3. Fallback to local storage
+      const local = getOmiseTransactions();
+      local.forEach(t => {
+        if (!combinedMap.has(t.chargeId) && !combinedMap.has(t.orderNo)) {
+          combinedMap.set(t.chargeId || t.orderNo, t);
+        }
+      });
+
+      // Sort strictly by date descending
+      const sorted = Array.from(combinedMap.values()).sort((a, b) => {
+        const timeA = a.date ? new Date(a.date).getTime() : 0;
+        const timeB = b.date ? new Date(b.date).getTime() : 0;
+        return timeB - timeA;
+      });
+      setRecordedTransactions(sorted);
     }
     loadPizzaOmiseOrders();
   }, []);
