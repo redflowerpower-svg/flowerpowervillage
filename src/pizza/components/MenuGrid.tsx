@@ -1946,15 +1946,15 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       {/* DEDICATED CUSTOMIZATION MODAL (Zero layout shift, 100% structured touch interface) */}
       {customizingItem && (
         <div
-          className="fixed inset-0 z-[70] bg-stone-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 animate-fadeIn"
+          className="fixed inset-0 z-[70] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-3 pb-16 sm:p-4 md:p-6 animate-fadeIn"
           onClick={handleCloseCustomize}
         >
           <div
-            className="relative w-full max-w-2xl max-h-[90dvh] h-[90dvh] sm:h-auto sm:max-h-[88vh] bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn min-h-0"
+            className="relative w-full max-w-2xl max-h-[80dvh] sm:max-h-[85vh] bg-white rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn min-h-0"
             onClick={(e) => e.stopPropagation()}
           >
             {/* MODAL HEADER WITH IMAGE */}
-            <div className="relative h-44 sm:h-52 bg-stone-100 flex-shrink-0 overflow-hidden">
+            <div className="relative h-38 sm:h-52 bg-stone-100 flex-shrink-0 overflow-hidden">
               <img
                 src={withCacheBust(customizingItem.image)}
                 alt={getTranslatedName(customizingItem)}
