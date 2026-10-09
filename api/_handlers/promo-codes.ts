@@ -18,8 +18,15 @@ export async function handlePromoCodes(req: VercelRequest, res: VercelResponse) 
   }
 
   const supabase = getSupabaseAdmin();
-  const action = req.query.action || req.body?.action || "";
-  const type = req.query.type || req.body?.type || (String(action).includes("pizza") ? "pizza" : "resort");
+  let body = req.body;
+  if (typeof body === "string") {
+    try {
+      body = JSON.parse(body);
+    } catch (_) {}
+  }
+
+  const action = req.query.action || body?.action || "";
+  const type = req.query.type || body?.type || (String(action).includes("pizza") ? "pizza" : "resort");
 
   const isPizza = type === "pizza" || String(action).includes("pizza");
   const fileName = isPizza ? "pizza_promo_codes.json" : "resort_promo_codes.json";
@@ -47,7 +54,7 @@ export async function handlePromoCodes(req: VercelRequest, res: VercelResponse) 
   // POST: Save promo codes to Supabase Storage CDN with service_role key
   if (req.method === "POST") {
     try {
-      const promoCodes = req.body?.promoCodes || req.body?.codes || req.body;
+      const promoCodes = body?.promoCodes || body?.codes || (Array.isArray(body) ? body : null);
       if (!Array.isArray(promoCodes)) {
         return res.status(400).json({ success: false, error: "Invalid payload: promoCodes array required" });
       }
