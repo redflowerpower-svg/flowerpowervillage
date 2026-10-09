@@ -2522,9 +2522,10 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
         setOrderId(orderIdStr);
 
         // If a promo code was used, increment usage counter & clear session promo
-        if (activePromoCode) {
+        const promoToIncrement = activePromoCode || appliedPromo?.code || getAppliedPizzaPromo()?.code;
+        if (promoToIncrement) {
           try {
-            incrementPizzaPromoUsage(activePromoCode);
+            incrementPizzaPromoUsage(promoToIncrement).catch(e => console.warn('Failed incrementing cloud promo usage:', e));
             clearAppliedPizzaPromo();
           } catch (e) {
             console.warn('Failed incrementing promo usage:', e);

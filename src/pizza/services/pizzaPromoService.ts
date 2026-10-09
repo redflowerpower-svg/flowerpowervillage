@@ -305,10 +305,10 @@ export function clearAppliedPizzaPromo(): void {
 /**
  * Increments usage count for a promo code upon order placement
  */
-export function incrementPizzaPromoUsage(codeOrId: string): void {
+export async function incrementPizzaPromoUsage(codeOrId: string): Promise<void> {
   if (!codeOrId) return;
   const clean = codeOrId.trim().toUpperCase();
-  const list = loadPizzaPromoCodes();
+  const list = await fetchCloudPizzaPromoCodes().catch(() => loadPizzaPromoCodes());
   const updated = list.map((p) => {
     if (p.id === codeOrId || p.code.trim().toUpperCase() === clean) {
       const nextUsed = (p.slotsUsed || 0) + 1;
@@ -321,6 +321,7 @@ export function incrementPizzaPromoUsage(codeOrId: string): void {
     return p;
   });
   savePizzaPromoCodes(updated);
+  await saveCloudPizzaPromoCodes(updated);
 }
 
 /**
