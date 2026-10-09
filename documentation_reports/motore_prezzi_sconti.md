@@ -348,3 +348,20 @@ $$\text{Finestra Totale} = \text{Stadio 1 (gg)} + \text{Stadio 2 (gg)} + \text{S
 ### D. Regola Ferrea di Non-Cumulabilità & Soppressione Visiva
 - Se nel carrello o al checkout è presente un codice coupon/voucher promozionale attivo (`appliedPromo`), **tutti i banner, card e messaggi relativi al 10% di benvenuto primo ordine vengono totalmente nascosti** in tutto il sito (`DeliveryMenu.tsx`, `CartDrawer.tsx`, `CheckoutFlow.tsx`).
 - Questo garantisce assoluta chiarezza, evitando che il cliente veda due sconti simultanei o messaggi contrastanti.
+
+---
+
+## 15. Motore Sincronizzazione Cloud Supabase Coupon & Promo Links (`?promo=CODE`) — 09/10/2026
+
+### A. Architettura Storage Cloud (Supabase CDN Bucket `site-images`)
+- **File Villaggio**: `site-images/resort_promo_codes.json`
+- **File Pizzeria**: `site-images/pizza_promo_codes.json`
+- **Endpoint Backend con Chiave `service_role`**: `api/_handlers/promo-codes.ts` (registrato nel router unificato `api/[...route].ts`), con supporto per azioni `get-resort-promos`, `save-resort-promos`, `get-pizza-promos`, `save-pizza-promos`.
+
+### B. Validazione Universale Multi-Dispositivo & Link Condivisibili
+- **Risoluzione Problema `localStorage` Locale**: In precedenza i codici promozionali erano salvati solo nel browser locale dell'admin. Con il nuovo motore cloud, qualunque link generato (es. `https://flowerpowervillage.com/village?promo=TICKET-XXXX` o `https://flowerpowerpizza.com/?promo=PIZZA-XXXX`) esegue una query diretta ad alta velocità sul Cloud CDN Supabase con cache-busting `_ts`.
+- **Auto-Applicazione nei Motori di Prenotazione e Delivery**:
+  - `booking-engine.tsx` & `RoomGrid.tsx`: scaricano e sincronizzano i coupon all'avvio e all'apertura di un link `?promo=CODE` o `?coupon=CODE`, calcolando immediatamente lo sconto (percentuale o importo fisso ฿) su tutte le sistemazioni.
+  - `DeliveryMenu.tsx`, `CartDrawer.tsx` & `CheckoutFlow.tsx`: scaricano e applicano i coupon delivery rispettando date di validità, spesa minima e limiti di utilizzo.
+- **Aggiornamento Istantaneo dalla Dashboard Admin**: Qualsiasi creazione, modifica, attivazione, disattivazione o cancellazione di ticket in `PromoCodesSection.tsx` e `PizzaPromoCodesSection.tsx` propaga le modifiche su Supabase Cloud Storage in tempo reale.
+

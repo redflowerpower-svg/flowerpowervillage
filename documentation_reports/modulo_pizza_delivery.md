@@ -57,6 +57,14 @@ Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra We
    - Micro-zoom fluido e progressivo della foto (`scale-105 transition-transform duration-500 ease-out`) senza alcun velo scuro, opacità o sfocatura (`backdrop-blur`), e senza icone lente invasive, garantendo nitidezza fotografica al 100% e ripristino istantaneo al tocco/rilascio.
 7. **Hero Banner & Clipping Raggi di Curvatura**:
    - Isolamento dello slideshow di sfondo e dell'overlay nero opaco dentro contenitori dedicati con `overflow-hidden rounded-2xl`, garantendo il rispetto rigoroso degli angoli arrotondati della base senza spigoli o sbordature.
+8. **Layout a Doppia Colonna su Smartphone in Verticale (`grid-cols-2`)**:
+   - In `MenuGrid.tsx`, la griglia dei prodotti adotta `grid-cols-2` anche sui display mobile verticali, garantendo la visualizzazione compatta e moderna di due prodotti per riga identica alla versione Dining Tablet.
+9. **Standardizzazione Tipografica Nomi Piatti in Maiuscolo**:
+   - Tutti i piatti del catalogo, inclusa `PIZZA MARGHERITA`, adottano rigorosamente il formato in tutte maiuscole in tutte le 9 lingue supportate.
+10. **Separazione Extra Cibo a Pagamento vs Salse Gratuite di Accompagnamento**:
+    - Distinzione chiara tra ingredienti extra a pagamento (`+`) e salse di accompagnamento gratuite (con contrassegno `🥣` nelle comande e nel Kitchen KDS Monitor).
+11. **Sincronizzazione Cloud Supabase Coupon Pizzeria (`pizza_promo_codes.json`)**:
+    - Tutti i codici coupon generati dalla dashboard admin o inviati ai clienti sono memorizzati sul bucket Cloud Supabase `site-images`, abilitando la validazione live e i link promozionali (`?promo=CODE`) su qualunque dispositivo.
 
 ---
 

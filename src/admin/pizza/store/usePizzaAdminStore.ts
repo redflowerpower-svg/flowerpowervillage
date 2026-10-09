@@ -5,7 +5,9 @@ import { menuData } from '../../../pizza/data/menuData';
 import {
   PizzaPromoCode,
   loadPizzaPromoCodes,
-  savePizzaPromoCodes
+  savePizzaPromoCodes,
+  fetchCloudPizzaPromoCodes,
+  saveCloudPizzaPromoCodes
 } from '../../../pizza/services/pizzaPromoService';
 import {
   fetchCloudMenuOverrides,
@@ -69,6 +71,8 @@ interface PizzaAdminState {
 
   // Promo Codes / Coupon Actions
   promoCodes: PizzaPromoCode[];
+  setPromoCodes: (codes: PizzaPromoCode[]) => void;
+  fetchCloudPromoCodes: () => Promise<void>;
   addPromoCode: (promo: Omit<PizzaPromoCode, 'id' | 'slotsUsed' | 'createdAt'>) => void;
   togglePromoCodeActive: (id: string) => void;
   deletePromoCode: (id: string) => void;
@@ -663,6 +667,22 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
 
   setFilterMenuCategory: (filterMenuCategory) => set({ filterMenuCategory }),
 
+  setPromoCodes: (promoCodes) => {
+    savePizzaPromoCodes(promoCodes);
+    set({ promoCodes });
+  },
+
+  fetchCloudPromoCodes: async () => {
+    try {
+      const cloudCodes = await fetchCloudPizzaPromoCodes();
+      if (Array.isArray(cloudCodes) && cloudCodes.length > 0) {
+        set({ promoCodes: cloudCodes });
+      }
+    } catch (e) {
+      console.warn('[usePizzaAdminStore] fetchCloudPromoCodes failed:', e);
+    }
+  },
+
   addPromoCode: (promoData) => {
     const newPromo: PizzaPromoCode = {
       ...promoData,
@@ -673,6 +693,9 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
     const updated = [newPromo, ...get().promoCodes];
     savePizzaPromoCodes(updated);
     set({ promoCodes: updated });
+    saveCloudPizzaPromoCodes(updated).catch(err => {
+      console.warn('[usePizzaAdminStore] Cloud save promo error:', err);
+    });
   },
 
   togglePromoCodeActive: (id) => {
@@ -681,12 +704,18 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
     );
     savePizzaPromoCodes(updated);
     set({ promoCodes: updated });
+    saveCloudPizzaPromoCodes(updated).catch(err => {
+      console.warn('[usePizzaAdminStore] Cloud save promo error:', err);
+    });
   },
 
   deletePromoCode: (id) => {
     const updated = get().promoCodes.filter((p) => p.id !== id);
     savePizzaPromoCodes(updated);
     set({ promoCodes: updated });
+    saveCloudPizzaPromoCodes(updated).catch(err => {
+      console.warn('[usePizzaAdminStore] Cloud save promo error:', err);
+    });
   },
 
   incrementPromoCodeUsage: (codeOrId) => {
@@ -704,11 +733,21 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
     });
     savePizzaPromoCodes(updated);
     set({ promoCodes: updated });
+    saveCloudPizzaPromoCodes(updated).catch(err => {
+      console.warn('[usePizzaAdminStore] Cloud save promo error:', err);
+    });
   },
 
   refreshPromoCodes: () => {
     const refreshed = loadPizzaPromoCodes();
     set({ promoCodes: refreshed });
+    fetchCloudPizzaPromoCodes().then((cloudCodes) => {
+      if (Array.isArray(cloudCodes) && cloudCodes.length > 0) {
+        set({ promoCodes: cloudCodes });
+      }
+    }).catch((e) => {
+      console.warn('[usePizzaAdminStore] refreshPromoCodes cloud fetch error:', e);
+    });
   },
 
   subscribeToRealtime: () => {

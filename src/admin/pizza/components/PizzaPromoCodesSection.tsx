@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePizzaAdminStore, PizzaPromoCode } from '../store/usePizzaAdminStore';
 import {
   Ticket,
@@ -44,6 +44,10 @@ export const PizzaPromoCodesSection: React.FC<PizzaPromoCodesSectionProps> = ({
   } = usePizzaAdminStore();
 
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  useEffect(() => {
+    refreshPromoCodes();
+  }, []);
 
   const handleRefresh = () => {
     setIsRefreshing(true);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useResortAdminStore, PromoCode } from '../store/useResortAdminStore';
 import { 
   Ticket, 
@@ -35,6 +35,10 @@ export const PromoCodesSection: React.FC<PromoCodesSectionProps> = ({
 
   const { promoCodes, addPromoCode, togglePromoCodeActive, deletePromoCode, refreshPromoCodes } = useResortAdminStore();
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  useEffect(() => {
+    refreshPromoCodes();
+  }, []);
 
   const handleRefresh = () => {
     setIsRefreshing(true);

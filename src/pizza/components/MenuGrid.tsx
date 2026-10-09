@@ -1472,10 +1472,10 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
 
   return (
     <>
-      <div className={`grid gap-3.5 sm:gap-4 md:gap-5 lg:gap-6 ${
+      <div className={`grid gap-2.5 sm:gap-4 md:gap-5 lg:gap-6 ${
         isDiningMode
           ? 'grid-cols-2 landscape:grid-cols-3'
-          : 'grid-cols-1 min-[500px]:grid-cols-2 md:grid-cols-2 portrait:md:grid-cols-2 landscape:md:grid-cols-3 landscape:lg:grid-cols-3 lg:portrait:grid-cols-2 xl:grid-cols-3'
+          : 'grid-cols-2 md:grid-cols-2 portrait:md:grid-cols-2 landscape:md:grid-cols-3 landscape:lg:grid-cols-3 lg:portrait:grid-cols-2 xl:grid-cols-3'
       }`}>
         {items.map((item) => {
           const isBeer = (item as any).category === 'beers' || item.id === 'chang-beer' || item.id === 'leo-beer' || item.id === 'singha-beer' || item.id.includes('beer');

@@ -4,6 +4,7 @@ import { updateLastMinuteRatesStrategy, resetLastMinuteRatesStrategy, disableLas
 import { calculateCascadeDiscountUpdates, calculateDynamicMinStay, calculateStandardProtectionUpdates, StandardProtectionUpdate, toThailandDateStr, getSeasonalEndDateStr, DiscountExecutionMode, ALL_ACCOMMODATIONS_MAP, FALLBACK_BASELINE_PRICES } from '../lib/octorateAdmin';
 import { isValidActiveBooking } from '../lib/bookingFilters';
 import { useRestrictionsStore } from './useRestrictionsStore';
+import { fetchCloudResortPromoCodes, saveCloudResortPromoCodes } from '../services/resortPromoCloudService';
 
 const ALL_ACCOMMODATIONS_MAP_LOCAL = ALL_ACCOMMODATIONS_MAP;
 
@@ -210,6 +211,8 @@ interface ResortAdminState {
 
   // V19 Promo Codes & Discount Tickets State & Actions
   promoCodes: PromoCode[];
+  setPromoCodes: (codes: PromoCode[]) => void;
+  fetchCloudPromoCodes: () => Promise<void>;
   addPromoCode: (promo: Omit<PromoCode, 'id' | 'slotsUsed' | 'createdAt'>) => void;
   togglePromoCodeActive: (id: string) => void;
   deletePromoCode: (id: string) => void;
@@ -1236,6 +1239,22 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     }
   },
 
+  setPromoCodes: (promoCodes) => {
+    savePromoCodesToStorage(promoCodes);
+    set({ promoCodes });
+  },
+
+  fetchCloudPromoCodes: async () => {
+    try {
+      const cloudCodes = await fetchCloudResortPromoCodes();
+      if (Array.isArray(cloudCodes) && cloudCodes.length > 0) {
+        set({ promoCodes: cloudCodes });
+      }
+    } catch (e) {
+      console.warn('[useResortAdminStore] fetchCloudPromoCodes failed:', e);
+    }
+  },
+
   addPromoCode: (promoData) => {
     const newPromo: PromoCode = {
       ...promoData,
@@ -1247,6 +1266,10 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     const updated = [newPromo, ...get().promoCodes];
     savePromoCodesToStorage(updated);
     set({ promoCodes: updated });
+    // Asynchronously save to Cloud Supabase CDN
+    saveCloudResortPromoCodes(updated).catch(err => {
+      console.warn('[useResortAdminStore] Cloud save promo error:', err);
+    });
   },
 
   togglePromoCodeActive: (id) => {
@@ -1255,12 +1278,20 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     );
     savePromoCodesToStorage(updated);
     set({ promoCodes: updated });
+    // Asynchronously save to Cloud Supabase CDN
+    saveCloudResortPromoCodes(updated).catch(err => {
+      console.warn('[useResortAdminStore] Cloud save promo error:', err);
+    });
   },
 
   deletePromoCode: (id) => {
     const updated = get().promoCodes.filter((p) => p.id !== id);
     savePromoCodesToStorage(updated);
     set({ promoCodes: updated });
+    // Asynchronously save to Cloud Supabase CDN
+    saveCloudResortPromoCodes(updated).catch(err => {
+      console.warn('[useResortAdminStore] Cloud save promo error:', err);
+    });
   },
 
   incrementPromoCodeUsage: (codeOrId) => {
@@ -1278,11 +1309,24 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     });
     savePromoCodesToStorage(updated);
     set({ promoCodes: updated });
+    // Asynchronously save to Cloud Supabase CDN
+    saveCloudResortPromoCodes(updated).catch(err => {
+      console.warn('[useResortAdminStore] Cloud save promo error:', err);
+    });
   },
 
   refreshPromoCodes: () => {
+    // 1. Instant load from local storage
     const refreshed = loadPromoCodesFromStorage();
     set({ promoCodes: refreshed });
+    // 2. Fetch latest from Cloud Supabase
+    fetchCloudResortPromoCodes().then((cloudCodes) => {
+      if (Array.isArray(cloudCodes) && cloudCodes.length > 0) {
+        set({ promoCodes: cloudCodes });
+      }
+    }).catch((e) => {
+      console.warn('[useResortAdminStore] refreshPromoCodes cloud fetch error:', e);
+    });
   },
 
   cachedImportTime: loadCachedImportTime(),

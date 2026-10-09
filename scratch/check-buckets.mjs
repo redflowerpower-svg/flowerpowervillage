@@ -17,15 +17,12 @@ for (const fn of ['.env.local', '.env']) {
 
 const supabase = createClient(url, key);
 
-async function inspect() {
-  const tables = ['pizzeria_settings', 'payment_settings', 'accommodations', 'pizza_menu_items', 'pizza_orders'];
-  for (const t of tables) {
-    const { data, error } = await supabase.from(t).select('*').limit(2);
-    console.log(`Table: ${t}`, error ? `ERROR: ${error.message}` : `OK (${data?.length} rows)`);
-    if (data && data.length > 0) {
-      console.log('Sample row keys:', Object.keys(data[0]));
-    }
-  }
+async function check() {
+  const { data: buckets, error: bErr } = await supabase.storage.listBuckets();
+  console.log('Buckets:', buckets?.map(b => b.name) || bErr);
+
+  const { data: files, error: fErr } = await supabase.storage.from('site-images').list();
+  console.log('Files in site-images:', files?.map(f => f.name) || fErr);
 }
 
-inspect().catch(console.error);
+check().catch(console.error);

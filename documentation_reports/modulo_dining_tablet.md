@@ -54,9 +54,9 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
     - Ogni aggiunta, rimozione, modifica quantità o selezione extra nel carrello viene propagata istantaneamente a 0ms su tutti gli schermi dei commensali allo stesso tavolo.
     - I nuovi ospiti che scansionano il QR Code richiedono ed ottengono istantaneamente lo stato corrente del carrello dai peer connessi.
     - All'invio della comanda o al saldo del conto, il carrello condiviso viene svuotato atomicamente su tutti i dispositivi.
-15. **Pulsante Annulla / Resetta Ordine (`X`) con Doppia Conferma di Sicurezza (2-Step Confirmation)**:
+15. **Pulsante Annulla / Resetta Ordine (`X`) con Doppia Conferma di Sicurezza (2-Step Confirmation) & Banner Smartphone**:
     - Inserito nella barra superiore a destra un tasto luxury compatto con icona `X` (`h-9 w-9`), armonizzato nello stile con i pill button della navbar.
-    - **1° Click**: Il pulsante entra in stato di allerta pulsante (`bg-red-600 border-red-300 animate-pulse`), espandendosi per richiedere conferma nella lingua selezionata (*"Confermi?" / "Confirm?" / "ยืนยัน?" / "Bestätigen?" / "သေချာပြီလား?"*). Se non ricliccato entro 5 secondi, ritorna automaticamente allo stato neutro iniziale.
+    - **1° Click**: Il pulsante entra in stato di allerta pulsante (`bg-red-600 border-red-300 animate-pulse`). Sui display desktop/tablet si espande con testo conciso (*"Confermi?" / "Confirm?"*); su smartphone verticali mostra una barra superiore a tutta larghezza (full-width banner) con dicitura corta certificata (*"Sicuro di annullare?" / "Sure to cancel?" / "แน่ใจที่จะยกเลิก?" / "Sicher abbrechen?" / "သေချာပါသလား?"*) cliccabile su tutta la superficie per massima comodità tattile. Se non ricliccato entro 5 secondi, ritorna automaticamente allo stato neutro iniziale.
     - **2° Click**: Esegue `handleCancelAndResetTable()` che invia il broadcast di reset live (`broadcastClear`), azzera il carrello condiviso su tutti i dispositivi e riporta il tablet al pop-up iniziale di selezione tavolo.
 16. **Top Navbar Elegante & Armonizzata (Luxury Pill Concept)**:
     - Eliminati testi prolissi nella navbar lasciando esclusivamente il logo ufficiale rotondo Flower Power Pizza.

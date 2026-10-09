@@ -236,32 +236,32 @@ const I18N_TABLE_PICKER: Record<Language, {
 };
 
 const I18N_RESET_CONFIRM: Record<Language, { prompt: string; short: string; full: string; tapBanner: string }> = {
-  IT: { prompt: "Sei sicuro di voler annullare l'ordine?", short: "Confermi?", full: "Sicuro? Tocca per cancellare tutto", tapBanner: "Tocca ovunque su questa barra per chiudere il tavolo" },
-  EN: { prompt: "Are you sure you want to cancel the order?", short: "Confirm?", full: "Sure? Tap to cancel and reset", tapBanner: "Tap anywhere on this bar to close table" },
-  TH: { prompt: "คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อ?", short: "ยืนยัน?", full: "แน่ใจไหม? แตะอีกครั้งเพื่อยกเลิก", tapBanner: "แตะที่แถบนี้เพื่อยืนยันการปิดโต๊ะ" },
-  DE: { prompt: "Sind Sie sicher, dass Sie die Bestellung stornieren möchten?", short: "Bestätigen?", full: "Sicher? Tippen zum Abbrechen", tapBanner: "Tippen Sie auf dieses Banner, um den Tisch zu schließen" },
-  MM: { prompt: "သင်သည် အမှာစာကို ပယ်ဖျက်လိုသည်မှာ သေချာပါသလား။", short: "သေချာပြီလား?", full: "အတည်ပြုရန် ထပ်မံနှိပ်ပါ", tapBanner: "စားပွဲပိတ်ရန် ဤဘားပေါ်တွင် နေရာမရွေးနှိပ်ပါ"
+  IT: { prompt: "Sicuro di annullare?", short: "Confermi?", full: "Sicuro? Tocca per cancellare tutto", tapBanner: "Tocca ovunque su questa barra per chiudere il tavolo" },
+  EN: { prompt: "Sure to cancel?", short: "Confirm?", full: "Sure? Tap to cancel and reset", tapBanner: "Tap anywhere on this bar to close table" },
+  TH: { prompt: "ยืนยันยกเลิก?", short: "ยืนยัน?", full: "แน่ใจไหม? แตะอีกครั้งเพื่อยกเลิก", tapBanner: "แตะที่แถบนี้เพื่อยืนยันการปิดโต๊ะ" },
+  DE: { prompt: "Wirklich abbrechen?", short: "Bestätigen?", full: "Sicher? Tippen zum Abbrechen", tapBanner: "Tippen Sie auf dieses Banner, um den Tisch zu schließen" },
+  MM: { prompt: "ပယ်ဖျက်မှာသေချာလား?", short: "သေချာပြီလား?", full: "အတည်ပြုရန် ထပ်မံနှိပ်ပါ", tapBanner: "စားပွဲပိတ်ရန် ဤဘားပေါ်တွင် နေရာမရွေးနှိပ်ပါ"
   },
   ES: {
-    prompt: '¿Está seguro de que desea cancelar el pedido?',
+    prompt: '¿Seguro cancelar?',
     short: '¿Confirmar?',
     full: '¿Seguro? Toque para cancelar y reiniciar',
     tapBanner: 'Toque en cualquier parte de esta barra para cerrar la mesa'
   },
   FR: {
-    prompt: 'Voulez-vous vraiment annuler la commande ?',
+    prompt: "Sûr d'annuler ?",
     short: 'Confirmer ?',
     full: 'Sûr ? Touchez pour annuler et réinitialiser',
     tapBanner: "Touchez cette barre n'importe où pour fermer la table"
   },
   RU: {
-    prompt: 'Вы уверены, что хотите отменить заказ?',
+    prompt: 'Точно отменить?',
     short: 'Подтвердить?',
     full: 'Уверены? Нажмите, чтобы отменить и сбросить',
     tapBanner: 'Нажмите на этот баннер в любом месте, чтобы закрыть столик'
   },
   ZH: {
-    prompt: '您确定要取消订单吗？',
+    prompt: '确定取消？',
     short: '确认？',
     full: '确定？点击取消并重置',
     tapBanner: '点击此横幅任意位置即可关闭餐桌'
@@ -2194,7 +2194,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
               <AlertTriangle className="w-4 h-4 text-amber-200" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm font-black tracking-tight text-white leading-snug truncate">
+              <p className="text-xs sm:text-sm font-black tracking-tight text-white leading-snug whitespace-normal">
                 {I18N_RESET_CONFIRM[lang]?.prompt || I18N_RESET_CONFIRM.IT.prompt}
               </p>
               <p className="text-[10.5px] sm:text-xs text-amber-200 font-bold tracking-wide flex items-center gap-1">

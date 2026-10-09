@@ -86,10 +86,14 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
   onExtendStay,
   oauthConnected,
 }) => {
-  const { promoCodes } = useResortAdminStore();
+  const { promoCodes, fetchCloudPromoCodes } = useResortAdminStore();
   const [rooms, setRooms] = useState<EnrichedAccommodation[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchCloudPromoCodes();
+  }, [fetchCloudPromoCodes]);
   
   const [octorateRooms, setOctorateRooms] = useState<any[]>([]);
   const [showDevMapping, setShowDevMapping] = useState<boolean>(false);

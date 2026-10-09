@@ -164,7 +164,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     }
   };
 
-  // Validate Promo Code using Zustand store (V22)
+  // Validate Promo Code using Zustand store + Cloud Supabase fallback (V22)
   const handleValidatePromo = async (codeToValidate: string) => {
     const cleanCode = codeToValidate.trim().toUpperCase();
     if (!cleanCode) {
@@ -174,8 +174,19 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     }
     try {
       const { useResortAdminStore } = await import("../../admin/resort/store/useResortAdminStore");
-      const promoCodes = useResortAdminStore.getState().promoCodes;
-      const found = promoCodes.find(p => p.code.trim().toUpperCase() === cleanCode);
+      let promoCodes = useResortAdminStore.getState().promoCodes;
+      let found = promoCodes.find(p => p.code.trim().toUpperCase() === cleanCode);
+
+      // If not found in local memory, perform immediate live cloud lookup
+      if (!found) {
+        const { fetchCloudResortPromoCodes } = await import("../../admin/resort/services/resortPromoCloudService");
+        const cloudCodes = await fetchCloudResortPromoCodes();
+        if (Array.isArray(cloudCodes) && cloudCodes.length > 0) {
+          useResortAdminStore.getState().setPromoCodes(cloudCodes);
+          promoCodes = cloudCodes;
+          found = cloudCodes.find(p => p.code.trim().toUpperCase() === cleanCode);
+        }
+      }
 
       if (!found) {
         setPromoError(lang === 'IT' ? `Codice "${cleanCode}" non valido.` : `Invalid promo code "${cleanCode}".`);
@@ -230,11 +241,23 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
     }
   }
 
-  // Parse & Auto-Validate ?promo=CODICE parameter from URL or sessionStorage (V22)
+  // Parse & Auto-Validate ?promo=CODICE parameter from URL or sessionStorage (V22) + Cloud Sync
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // 1. Trigger background cloud fetch of active resort promo codes
+      import("../../admin/resort/services/resortPromoCloudService").then(({ fetchCloudResortPromoCodes }) => {
+        fetchCloudResortPromoCodes().then((cloudCodes) => {
+          if (Array.isArray(cloudCodes) && cloudCodes.length > 0) {
+            import("../../admin/resort/store/useResortAdminStore").then(({ useResortAdminStore }) => {
+              useResortAdminStore.getState().setPromoCodes(cloudCodes);
+            });
+          }
+        }).catch(() => {});
+      }).catch(() => {});
+
+      // 2. Check for incoming URL or storage promo parameter
       const params = new URLSearchParams(window.location.search);
-      const urlCode = params.get('promo');
+      const urlCode = params.get('promo') || params.get('coupon');
       let savedCode: string | null = null;
       try {
         savedCode = sessionStorage.getItem('fpv_applied_promo_code');
