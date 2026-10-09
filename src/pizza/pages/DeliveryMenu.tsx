@@ -654,7 +654,8 @@ import {
   validatePizzaPromoCode,
   getAppliedPizzaPromo,
   setAppliedPizzaPromo,
-  clearAppliedPizzaPromo
+  clearAppliedPizzaPromo,
+  fetchCloudPizzaPromoCodes
 } from '../services/pizzaPromoService';
 import { useLanguageStore } from '../store/languageStore';
 import { i18n } from '../data/i18n';
@@ -2139,19 +2140,40 @@ export default function DeliveryMenu() {
   // Promo Code State & Real-time Global Event Sync
   const [appliedPromo, setAppliedPromo] = useState<PizzaPromoCode | null>(() => getAppliedPizzaPromo());
 
-  // Parse & auto-apply promo code from ?promo= or ?coupon= URL parameters (Village parity)
+  // Parse & auto-apply promo code from ?promo= or ?coupon= URL parameters (Village parity) + Cloud Sync
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window === 'undefined') return;
+
+    let isMounted = true;
+    const initPromo = async () => {
       const params = new URLSearchParams(window.location.search);
       const urlCode = params.get('promo') || params.get('coupon');
-      if (urlCode) {
-        const res = validatePizzaPromoCode(urlCode, 0, undefined, lang);
-        if (res.valid && res.promo) {
-          setAppliedPizzaPromo(res.promo);
-          setAppliedPromo(res.promo);
+
+      try {
+        const cloudCodes = await fetchCloudPizzaPromoCodes();
+        if (isMounted && urlCode) {
+          const res = validatePizzaPromoCode(urlCode, 0, cloudCodes, lang);
+          if (res.valid && res.promo) {
+            setAppliedPizzaPromo(res.promo);
+            setAppliedPromo(res.promo);
+          }
+        }
+      } catch (err) {
+        if (isMounted && urlCode) {
+          const res = validatePizzaPromoCode(urlCode, 0, undefined, lang);
+          if (res.valid && res.promo) {
+            setAppliedPizzaPromo(res.promo);
+            setAppliedPromo(res.promo);
+          }
         }
       }
-    }
+    };
+
+    initPromo();
+
+    return () => {
+      isMounted = false;
+    };
   }, [lang]);
 
   useEffect(() => {

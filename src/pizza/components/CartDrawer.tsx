@@ -640,6 +640,7 @@ import {
   getAppliedPizzaPromo,
   setAppliedPizzaPromo,
   clearAppliedPizzaPromo,
+  fetchCloudPizzaPromoCodes,
 } from '../services/pizzaPromoService';
 import { withCacheBust } from '../utils/cacheBust';
 import { useState, useEffect } from 'react';
@@ -1405,7 +1406,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
     };
   }, []);
 
-  const handleApplyPromo = (codeToApply?: string) => {
+  const handleApplyPromo = async (codeToApply?: string) => {
     const targetCode = (codeToApply !== undefined ? codeToApply : promoInput).trim().toUpperCase();
     if (!targetCode) {
       setPromoError(
@@ -1418,7 +1419,14 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
       setPromoSuccess(null);
       return;
     }
-    const res = validatePizzaPromoCode(targetCode, subtotal, undefined, lang);
+    let res = validatePizzaPromoCode(targetCode, subtotal, undefined, lang);
+    if (!res.valid || !res.promo) {
+      try {
+        const cloudCodes = await fetchCloudPizzaPromoCodes();
+        res = validatePizzaPromoCode(targetCode, subtotal, cloudCodes, lang);
+      } catch (_) {}
+    }
+
     if (!res.valid || !res.promo) {
       setPromoError(res.error || (lang === 'IT' ? 'Codice non valido' : 'Invalid promo code'));
       setPromoSuccess(null);
