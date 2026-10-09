@@ -9,7 +9,7 @@ export interface FoodItem {
 
 const FOOD_CATEGORIES: Record<string, FoodItem[]> = {
   pizzeClassiche: [
-    { name: 'Pizza Margherita', filename: '01-Pizza/02-pizza-margherita.webp', origin: '50% 50%' },
+    { name: 'PIZZA MARGHERITA', filename: '01-Pizza/02-pizza-margherita.webp', origin: '50% 50%' },
     { name: 'Pizza Bismarck', filename: '01-Pizza/05-pizza-bismark.webp', origin: '50% 50%' },
     { name: 'Pizza Capricciosa', filename: '01-Pizza/28-pizza-capricciosa.webp', origin: '50% 50%' }
   ],

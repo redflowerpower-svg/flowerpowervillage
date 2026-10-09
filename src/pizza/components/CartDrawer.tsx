@@ -61,7 +61,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Cake of the Day",
       "affogato": "Affogato al Caffè",
       "crepes": "Nutella Crepes",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Vegan)",
       "carbonara": "Spaghetti Carbonara",
       "bolognese": "Spaghetti Bolognese",
@@ -131,7 +131,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Torta del Giorno",
       "affogato": "Affogato al Caffè",
       "crepes": "Crepes alla Nutella",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Vegana)",
       "carbonara": "Spaghetti alla Carbonara",
       "bolognese": "Spaghetti alla Bolognese",
@@ -341,7 +341,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Kuchen des Tages",
       "affogato": "Affogato al Caffè",
       "crepes": "Nutella-Crêpes",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Vegan)",
       "carbonara": "Spaghetti Carbonara",
       "bolognese": "Spaghetti Bolognese",
@@ -411,7 +411,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Pastel del Día",
       "affogato": "Affogato al Caffè",
       "crepes": "Crepes de Nutella",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Vegana)",
       "carbonara": "Espagueti Carbonara",
       "bolognese": "Espagueti Boloñesa",
@@ -481,7 +481,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Gâteau du Jour",
       "affogato": "Affogato al Caffè",
       "crepes": "Crêpes à la Nutella",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Végétalienne)",
       "carbonara": "Spaghetti Carbonara",
       "bolognese": "Spaghetti Bolognaise",
@@ -551,7 +551,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Торт дня",
       "affogato": "Аффогато аль каффе",
       "crepes": "Крепы с Nutella",
-      "pizza-margherita": "Пицца Маргарита",
+      "pizza-margherita": "ПИЦЦА МАРГАРИТА",
       "pizza-marinara": "Пицца Маринара (веганская)",
       "carbonara": "Спагетти карбонара",
       "bolognese": "Спагетти болоньезе",
@@ -1889,7 +1889,7 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
                                   <div className="mt-0.5 space-y-0.5">
                                     {item.selectedExtras.map((e) => (
                                       <p key={e.id} className="text-stone-500 text-[10.5px] font-normal flex items-center justify-between gap-1">
-                                        <span className="truncate">+ {getTranslatedName(e)}</span>
+                                        <span className="truncate">{e.id?.startsWith('sauce-') ? '🥣 ' : '+ '}{getTranslatedName(e)}</span>
                                         {e.price > 0 && (
                                           <span className="font-semibold text-stone-600 whitespace-nowrap shrink-0">
                                             (+{e.price}฿)

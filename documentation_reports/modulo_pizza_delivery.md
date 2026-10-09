@@ -158,20 +158,25 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
 6. **Regola di Soppressione Non-Stacking Sconti**:
    - Quando è attivo qualsiasi coupon sconto (`appliedPromo`), tutti i banner e i richiami al *10% First Order Welcome Discount* vengono nascosti in tutto il sito (`DeliveryMenu.tsx`, `CartDrawer.tsx`, `CheckoutFlow.tsx`) per non generare confusione.
 
----
+## 🍕 10. Separazione Ingredienti Extra / Salse Gratuite & Standardizzazione Margherita ALL-CAPS
 
-## 📱 9. Layout Personalizzazioni Full-Width & Descrizioni Piatti Integrali (Website & Tablet)
+1. **Separazione Netta tra Ingredienti Extra a Pagamento e Salse Gratuite (`ProductModal.tsx`, `MenuGrid.tsx`, `CartDrawer.tsx`, `menuData.ts`)**:
+   - **Salse di Accompagnamento Gratuite**:
+     - Identificate univocamente con il prefisso `sauce-` (`sauce-ketchup`, `sauce-chili`, `sauce-mayo`, `sauce-bbq`) con prezzo 0฿.
+     - Raggruppate in una sezione autonoma con titolo dedicato *"Salse di Accompagnamento (Gratis) / Accompaniment Sauces (Free)"*, permettendo la selezione fino a 2 salse gratuite a scelta con badge chiaro.
+   - **Ingredienti Extra (Aggiuntivi a Pagamento)**:
+     - Isolati nella sezione *"Ingredienti Extra (Aggiuntivi) / Extra Ingredients"*, all'interno del box scorrevole compatto su 2 colonne (`max-h-52 overflow-y-auto`) con prezzi dedicati (+20฿, +30฿, +50฿, +60฿).
+   - **Kitchen Display System (KDS & `kdsExtraDictionary.ts`)**:
+     - Le comande trasmettono distintamente le salse (`details.sauces` con badge arancione `🥣 [Nome Salsa]`) e gli ingredienti extra (`details.regularExtras` con badge giallo `+ [Nome Ingrediente]`).
+   - **Carrello (`CartDrawer.tsx`)**:
+     - Visualizzazione distinta nel riepilogo con icona `🥣 ` e tag `Gratis` per le salse e `+ ` con sovrapprezzo per i condimenti a pagamento.
 
-1. **Griglia Responsive Mobile-First per Extra e Personalizzazioni (MenuGrid.tsx, ProductModal.tsx)**:
-   - **Mobile (< 640px)**: Ogni ingrediente extra, opzione di personalizzazione (frutta per frullati, salse, dolci) e personalizzazione si estende su **1 colonna intera (grid-cols-1)**, eliminando il micro-box scrollabile max-h-48 e la scrollbar interna forzata.
-   - **Desktop & Tablet (sm:)**: Espansione fluida a **2 colonne (sm:grid-cols-2)** per ottimizzare lo spazio orizzontale.
-   - **Livelli di Piccantezza (🌶️)**: 2 colonne su smartphone e 4 colonne su schermi ampi (grid-cols-2 sm:grid-cols-4).
+2. **Standardizzazione Nome "PIZZA MARGHERITA" (Tutto Maiuscolo / ALL-CAPS)**:
+   - Uniformato il nome in tutte le viste del sito, carrello, pairing, checkout e slideshow in lettere tutte maiuscole identico a tutte le altre pizze:
+     - 🇮🇹 IT / 🇬🇧 EN / 🇩🇪 DE / 🇪🇸 ES / 🇫🇷 FR: `PIZZA MARGHERITA`
+     - 🇷🇺 RU: `ПИЦЦА МАРГАРИТА`
+     - 🇹🇭 TH: `พิซซ่ามาร์การิต้า`
+     - 🇲🇲 MM: `ပီဇာ မာဂါရီတာ`
+     - 🇨🇳 ZH: `玛格丽特披萨`
 
-2. **Risoluzione Troncatura Nomi Ingredienti & A Capo Naturale**:
-   - Eliminato l'uso di truncate dalle etichette degli ingredienti: sostituito con leading-snug break-words flex-1 min-w-0 pr-2, permettendo a qualsiasi nome lungo di andare a capo in modo armonioso.
-   - Prezzo dell'extra (+30฿ / Gratis) sempre saldamente ancorato a destra (ml-auto flex-shrink-0).
-
-3. **Visualizzazione 100% Integrale di Ingredienti & Descrizioni nel Catalogo Principale**:
-   - Rimossi i vincoli restrittivi line-clamp-2 sm:line-clamp-3 e line-clamp-3 dalle schede cibi, pizze, paste, insalate, birre e vini.
-   - Ogni scheda mostra per intero l'elenco degli ingredienti e le note descrittive in tutte le 9 lingue, mantenendo il layout verticale flessibile con il blocco d'ordine ancorato in fondo alla scheda (mt-auto).
 

@@ -207,20 +207,20 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
           ZH: '选择水果'
         },
         sauce: {
-          IT: 'Seleziona Salse (max 2)',
-          EN: 'Select Sauces (max 2)',
-          TH: 'เลือกซอส (สูงสุด 2 ชนิด)',
-          MM: 'ဆော့စ်ရွေးရန် (အများဆုံး ၂ မျိုး)',
-          DE: 'Saucen wählen (max 2)',
-          ES: 'Seleccionar Salsas (máx 2)',
-          FR: 'Sélectionner les Sauces (max 2)',
-          RU: 'Выберите соусы (макс. 2)',
-          ZH: '选择酱料（最多2种）'
+          IT: 'Salse di Accompagnamento (Gratis)',
+          EN: 'Accompaniment Sauces (Free)',
+          TH: 'ซอสเครื่องเคียง (ฟรี)',
+          MM: 'အပိုဆော့စ်များ (အခမဲ့)',
+          DE: 'Beilagensaucen (Kostenlos)',
+          ES: 'Salsas de Acompañamiento (Gratis)',
+          FR: 'Sauces d’Accompagnement (Gratuit)',
+          RU: 'Соусы к блюду (Бесплатно)',
+          ZH: '佐餐酱料（免费）'
         },
         regular: {
-          IT: 'Ingredienti Extra',
+          IT: 'Ingredienti Extra (Aggiuntivi)',
           EN: 'Extra Ingredients',
-          TH: 'เครื่องปรุงเพิ่มเติม',
+          TH: 'ส่วนผสมเพิ่มเติม',
           MM: 'အပိုပါဝင်ပစ္စည်းများ',
           DE: 'Zusätzliche Zutaten',
           ES: 'Ingredientes Extra',

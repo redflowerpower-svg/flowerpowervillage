@@ -235,32 +235,36 @@ const I18N_TABLE_PICKER: Record<Language, {
   }
 };
 
-const I18N_RESET_CONFIRM: Record<Language, { prompt: string; short: string; full: string }> = {
-  IT: { prompt: "Sei sicuro di voler annullare l'ordine?", short: "Confermi?", full: "Sicuro? Tocca per cancellare tutto" },
-  EN: { prompt: "Are you sure you want to cancel the order?", short: "Confirm?", full: "Sure? Tap to cancel and reset" },
-  TH: { prompt: "คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อ?", short: "ยืนยัน?", full: "แน่ใจไหม? แตะอีกครั้งเพื่อยกเลิก" },
-  DE: { prompt: "Sind Sie sicher, dass Sie die Bestellung stornieren möchten?", short: "Bestätigen?", full: "Sicher? Tippen zum Abbrechen" },
-  MM: { prompt: "သင်သည် အမှာစာကို ပယ်ဖျက်လိုသည်မှာ သေချာပါသလား။", short: "သေချာပြီလား?", full: "အတည်ပြုရန် ထပ်မံနှိပ်ပါ"
+const I18N_RESET_CONFIRM: Record<Language, { prompt: string; short: string; full: string; tapBanner: string }> = {
+  IT: { prompt: "Sei sicuro di voler annullare l'ordine?", short: "Confermi?", full: "Sicuro? Tocca per cancellare tutto", tapBanner: "Tocca ovunque su questa barra per chiudere il tavolo" },
+  EN: { prompt: "Are you sure you want to cancel the order?", short: "Confirm?", full: "Sure? Tap to cancel and reset", tapBanner: "Tap anywhere on this bar to close table" },
+  TH: { prompt: "คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อ?", short: "ยืนยัน?", full: "แน่ใจไหม? แตะอีกครั้งเพื่อยกเลิก", tapBanner: "แตะที่แถบนี้เพื่อยืนยันการปิดโต๊ะ" },
+  DE: { prompt: "Sind Sie sicher, dass Sie die Bestellung stornieren möchten?", short: "Bestätigen?", full: "Sicher? Tippen zum Abbrechen", tapBanner: "Tippen Sie auf dieses Banner, um den Tisch zu schließen" },
+  MM: { prompt: "သင်သည် အမှာစာကို ပယ်ဖျက်လိုသည်မှာ သေချာပါသလား။", short: "သေချာပြီလား?", full: "အတည်ပြုရန် ထပ်မံနှိပ်ပါ", tapBanner: "စားပွဲပိတ်ရန် ဤဘားပေါ်တွင် နေရာမရွေးနှိပ်ပါ"
   },
   ES: {
     prompt: '¿Está seguro de que desea cancelar el pedido?',
     short: '¿Confirmar?',
     full: '¿Seguro? Toque para cancelar y reiniciar',
+    tapBanner: 'Toque en cualquier parte de esta barra para cerrar la mesa'
   },
   FR: {
     prompt: 'Voulez-vous vraiment annuler la commande ?',
     short: 'Confirmer ?',
     full: 'Sûr ? Touchez pour annuler et réinitialiser',
+    tapBanner: "Touchez cette barre n'importe où pour fermer la table"
   },
   RU: {
     prompt: 'Вы уверены, что хотите отменить заказ?',
     short: 'Подтвердить?',
     full: 'Уверены? Нажмите, чтобы отменить и сбросить',
+    tapBanner: 'Нажмите на этот баннер в любом месте, чтобы закрыть столик'
   },
   ZH: {
     prompt: '您确定要取消订单吗？',
     short: '确认？',
     full: '确定？点击取消并重置',
+    tapBanner: '点击此横幅任意位置即可关闭餐桌'
   }
 };
 
@@ -2178,6 +2182,37 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           </button>
         </div>
       </nav>
+
+      {/* FULL-WIDTH EASY-TO-TAP CONFIRMATION BANNER (Smartphone & Tablet friendly) */}
+      {isResetConfirming && (
+        <div 
+          onClick={handleResetClick}
+          className="fixed top-14 sm:top-16 left-0 right-0 z-50 bg-gradient-to-r from-red-700 via-red-600 to-red-700 text-white px-3 sm:px-5 py-2.5 shadow-2xl border-b-2 border-amber-400 flex items-center justify-between gap-2.5 sm:gap-4 cursor-pointer animate-fadeIn active:opacity-90 transition-all select-none"
+        >
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 animate-pulse">
+              <AlertTriangle className="w-4 h-4 text-amber-200" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm font-black tracking-tight text-white leading-snug truncate">
+                {I18N_RESET_CONFIRM[lang]?.prompt || I18N_RESET_CONFIRM.IT.prompt}
+              </p>
+              <p className="text-[10.5px] sm:text-xs text-amber-200 font-bold tracking-wide flex items-center gap-1">
+                <span>👉</span>
+                <span>{I18N_RESET_CONFIRM[lang]?.tapBanner || I18N_RESET_CONFIRM.IT.tapBanner}</span>
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleResetClick}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 text-red-700 font-black text-xs uppercase shadow-md tracking-wider border border-red-200 cursor-pointer active:scale-95"
+          >
+            <span>{I18N_RESET_CONFIRM[lang]?.short || I18N_RESET_CONFIRM.IT.short}</span>
+            <X className="w-4 h-4 text-red-700 stroke-[3]" />
+          </button>
+        </div>
+      )}
 
       {/* MANDATORY TABLE SELECTION OVERLAY (Only on Master Tablet when session not yet picked) */}
       {!isGuestMobile && !isTableSelected && (

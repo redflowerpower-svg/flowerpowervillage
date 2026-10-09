@@ -61,7 +61,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Cake of the Day",
       "affogato": "Affogato al Caffè",
       "crepes": "Nutella Crepes",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Vegan)",
       "carbonara": "Spaghetti Carbonara",
       "bolognese": "Spaghetti Bolognese",
@@ -131,7 +131,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Torta del Giorno",
       "affogato": "Affogato al Caffè",
       "crepes": "Crepes alla Nutella",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Vegana)",
       "carbonara": "Spaghetti alla Carbonara",
       "bolognese": "Spaghetti alla Bolognese",
@@ -341,7 +341,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Kuchen des Tages",
       "affogato": "Affogato al Caffè",
       "crepes": "Nutella-Crêpes",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Vegan)",
       "carbonara": "Spaghetti Carbonara",
       "bolognese": "Spaghetti Bolognese",
@@ -411,7 +411,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Pastel del Día",
       "affogato": "Affogato al Caffè",
       "crepes": "Crepes de Nutella",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Vegana)",
       "carbonara": "Espagueti Carbonara",
       "bolognese": "Espagueti Boloñesa",
@@ -481,7 +481,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Gâteau du Jour",
       "affogato": "Affogato al Caffè",
       "crepes": "Crêpes à la Nutella",
-      "pizza-margherita": "Pizza Margherita",
+      "pizza-margherita": "PIZZA MARGHERITA",
       "pizza-marinara": "Pizza Marinara (Végétalienne)",
       "carbonara": "Spaghetti Carbonara",
       "bolognese": "Spaghetti Bolognaise",
@@ -551,7 +551,7 @@ const targetedTranslations: Record<string, any> = {
       "cake-of-the-day": "Торт дня",
       "affogato": "Аффогато аль каффе",
       "crepes": "Крепы с Nutella",
-      "pizza-margherita": "Пицца Маргарита",
+      "pizza-margherita": "ПИЦЦА МАРГАРИТА",
       "pizza-marinara": "Пицца Маринара (веганская)",
       "carbonara": "Спагетти карбонара",
       "bolognese": "Спагетти болоньезе",
@@ -1146,7 +1146,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
     }
 
     if (sauceItems.length > 0) {
-      const title = lang === 'TH' ? 'เลือกซอส (สูงสุด 2 ชนิด)' : lang === 'IT' ? 'Seleziona Salse (max 2)' : lang === 'DE' ? 'Saucen wählen (max 2)' : lang === 'ES' ? 'Selecciona salsas (máx 2)' : lang === 'FR' ? 'Sélectionnez sauces (max 2)' : lang === 'RU' ? 'Выберите соусы (макс 2)' : lang === 'ZH' ? '选择酱料（最多2种）' : lang === 'MM' ? 'ဆော့စ် ရွေးပါ (အများဆုံး ၂ မျိုး)' : 'Select Sauces (max 2)';
+      const title = lang === 'TH' ? 'ซอสเครื่องเคียง (ฟรี)' : lang === 'IT' ? 'Salse di Accompagnamento (Gratis)' : lang === 'DE' ? 'Beilagensaucen (Kostenlos)' : lang === 'ES' ? 'Salsas de Acompañamiento (Gratis)' : lang === 'FR' ? 'Sauces d’Accompagnement (Gratuit)' : lang === 'RU' ? 'Соусы к блюду (Бесплатно)' : lang === 'ZH' ? '佐餐酱料（免费）' : lang === 'MM' ? 'အပိုဆော့စ်များ (အခမဲ့)' : 'Accompaniment Sauces (Free)';
       groups.push({
         title,
         maxSelection: 2,
@@ -1157,7 +1157,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
     }
 
     if (regularItems.length > 0) {
-      const title = lang === 'TH' ? 'เครื่องปรุงเพิ่มเติม' : lang === 'IT' ? 'Ingredienti Extra' : lang === 'DE' ? 'Zusatzzutaten' : lang === 'ES' ? 'Ingredientes extra' : lang === 'FR' ? 'Ingrédients supplémentaires' : lang === 'RU' ? 'Дополнительные ингредиенты' : lang === 'ZH' ? '额外配料' : lang === 'MM' ? 'အပိုထည့်စရာများ' : 'Extra Ingredients';
+      const title = lang === 'TH' ? 'ส่วนผสมเพิ่มเติม' : lang === 'IT' ? 'Ingredienti Extra (Aggiuntivi)' : lang === 'DE' ? 'Zusätzliche Zutaten' : lang === 'ES' ? 'Ingredientes Extra' : lang === 'FR' ? 'Ingrédients Supplémentaires' : lang === 'RU' ? 'Дополнительные ингредиенты' : lang === 'ZH' ? '额外配料' : lang === 'MM' ? 'အပိုပါဝင်ပစ္စည်းများ' : 'Extra Ingredients';
       groups.push({
         title,
         items: regularItems,

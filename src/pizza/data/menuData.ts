@@ -2346,11 +2346,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -2366,7 +2366,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -2922,11 +2922,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -2942,7 +2942,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -5147,11 +5147,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -5167,7 +5167,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -5780,11 +5780,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -5800,7 +5800,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -6411,11 +6411,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -6431,7 +6431,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -7042,11 +7042,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -7062,7 +7062,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -7673,11 +7673,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -7693,7 +7693,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -8304,11 +8304,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -8324,7 +8324,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -8935,11 +8935,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -8955,7 +8955,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -9566,11 +9566,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -9586,7 +9586,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -10308,11 +10308,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -10328,7 +10328,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -10939,11 +10939,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -10959,7 +10959,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -11570,11 +11570,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -11590,7 +11590,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -12201,11 +12201,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -12221,7 +12221,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -12832,11 +12832,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -12852,7 +12852,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -13463,11 +13463,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -13483,7 +13483,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -14094,11 +14094,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -14114,7 +14114,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -14725,11 +14725,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -14745,7 +14745,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -15356,11 +15356,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -15376,7 +15376,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -15987,11 +15987,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -16007,7 +16007,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -16618,11 +16618,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -16638,7 +16638,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -17249,11 +17249,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -17269,7 +17269,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -17880,11 +17880,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -17900,7 +17900,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -18511,11 +18511,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -18531,7 +18531,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -19142,11 +19142,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -19162,7 +19162,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -19773,11 +19773,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -19793,7 +19793,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -20404,11 +20404,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -20424,7 +20424,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -21035,11 +21035,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -21055,7 +21055,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -21666,11 +21666,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -21686,7 +21686,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -22297,11 +22297,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -22317,7 +22317,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -22928,11 +22928,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -22948,7 +22948,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -23559,11 +23559,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -23579,7 +23579,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -24190,11 +24190,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -24210,7 +24210,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -24821,11 +24821,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -24841,7 +24841,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -25406,11 +25406,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -25426,7 +25426,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -25977,11 +25977,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -25997,7 +25997,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
@@ -26606,11 +26606,11 @@ export const menuData: MenuCategory[] = [
             "nameZh": "蔬菜"
           },
           {
-            "id": "ext-ketchup",
+            "id": "sauce-ketchup",
             "name": "Ketchup",
             "nameTh": "ซอสมะเขือเทศ",
             "nameIt": "Ketchup",
-            "sku": "ext-ketchup",
+            "sku": "sauce-ketchup",
             "price": 0,
             "description_it": "",
             "description_de": "",
@@ -26626,7 +26626,7 @@ export const menuData: MenuCategory[] = [
             "nameZh": "番茄酱"
           },
           {
-            "id": "ext-chilisauce",
+            "id": "sauce-chili",
             "name": "Chili Sauce",
             "nameTh": "ซอสพริก",
             "nameIt": "Salsa Piccante",
