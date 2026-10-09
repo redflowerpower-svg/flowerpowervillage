@@ -408,7 +408,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
 
       {/* Sliding Drawer Panel */}
       <div
-        className="fixed top-0 right-0 bottom-0 h-full z-50 w-full max-w-[460px] bg-stone-50 border-l border-stone-300 flex flex-col shadow-2xl animate-slideLeft overflow-hidden"
+        className="fixed top-0 right-0 bottom-0 h-full z-50 w-full max-w-[460px] bg-stone-50 border-l border-stone-300 flex flex-col shadow-2xl animate-slideLeft overflow-hidden min-h-0"
       >
         {/* Header Section with Image Background */}
         <div className="relative h-48 sm:h-56 flex-shrink-0 overflow-hidden">
@@ -438,7 +438,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
         </div>
 
         {/* Customizations scroll area */}
-        <div className="overflow-y-auto flex-1 p-5 space-y-6">
+        <div className="overflow-y-auto flex-1 min-h-0 overscroll-contain p-5 space-y-6">
           
           {/* Description */}
           <div className="space-y-1">
@@ -570,7 +570,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
                           </span>
                         )}
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 min-[540px]:grid-cols-2 gap-2">
                         {group.items.map((extra) => {
                           const checked = !!selectedExtras.find((e) => e.id === extra.id);
                           return (
@@ -630,7 +630,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
                       <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Inter, sans-serif' }}>
                         {group.title}
                       </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 min-[540px]:grid-cols-2 gap-2">
                         {group.items.map((extra) => {
                           const checked = !!selectedExtras.find((e) => e.id === extra.id);
                           return (

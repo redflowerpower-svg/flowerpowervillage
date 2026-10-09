@@ -1950,7 +1950,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
           onClick={handleCloseCustomize}
         >
           <div
-            className="relative w-full max-w-2xl h-[92dvh] sm:h-auto sm:max-h-[88vh] bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn"
+            className="relative w-full max-w-2xl max-h-[92dvh] h-[92dvh] sm:max-h-[88vh] sm:h-auto bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn min-h-0"
             onClick={(e) => e.stopPropagation()}
           >
             {/* MODAL HEADER WITH IMAGE */}
@@ -1991,7 +1991,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
             </div>
 
             {/* SCROLLABLE BODY */}
-            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-grow scrollbar-thin scrollbar-thumb-stone-300">
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-grow min-h-0 overscroll-contain scrollbar-thin scrollbar-thumb-stone-300">
               {/* Description */}
               {getTranslatedDesc(customizingItem) && (
                 <p
@@ -2262,7 +2262,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                   </div>
 
                   {/* Scrollable Grid of 2nd Half Choices */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-amber-300 scrollbar-track-transparent">
+                  <div className="grid grid-cols-1 min-[540px]:grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-amber-300 scrollbar-track-transparent">
                     {allEligiblePizzas
                       .filter((pizza) => {
                         if (!secondHalfSearch.trim()) return true;
@@ -2365,7 +2365,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                               </span>
                             )}
                           </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 min-[540px]:grid-cols-2 gap-2">
                             {group.items.map((extra) => {
                               const checked = !!selectedExtras.find((e) => e.id === extra.id);
                               return (
@@ -2420,7 +2420,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                           <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                             {group.title}
                           </p>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div className="grid grid-cols-1 min-[540px]:grid-cols-2 gap-2">
                             {group.items.map((extra) => {
                               const checked = !!selectedExtras.find((e) => e.id === extra.id);
                               return (
