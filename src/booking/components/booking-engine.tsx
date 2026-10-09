@@ -243,17 +243,21 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
 
   // Parse & Auto-Validate ?promo=CODICE parameter from URL or sessionStorage (V22) + Cloud Sync
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // 1. Trigger background cloud fetch of active resort promo codes
-      import("../../admin/resort/services/resortPromoCloudService").then(({ fetchCloudResortPromoCodes }) => {
-        fetchCloudResortPromoCodes().then((cloudCodes) => {
-          if (Array.isArray(cloudCodes) && cloudCodes.length > 0) {
-            import("../../admin/resort/store/useResortAdminStore").then(({ useResortAdminStore }) => {
-              useResortAdminStore.getState().setPromoCodes(cloudCodes);
-            });
-          }
-        }).catch(() => {});
-      }).catch(() => {});
+    if (typeof window === 'undefined') return;
+
+    let isMounted = true;
+    const initPromo = async () => {
+      // 1. Await cloud fetch of active resort promo codes
+      try {
+        const { fetchCloudResortPromoCodes } = await import("../../admin/resort/services/resortPromoCloudService");
+        const cloudCodes = await fetchCloudResortPromoCodes();
+        if (isMounted && Array.isArray(cloudCodes) && cloudCodes.length > 0) {
+          const { useResortAdminStore } = await import("../../admin/resort/store/useResortAdminStore");
+          useResortAdminStore.getState().setPromoCodes(cloudCodes);
+        }
+      } catch (e) {
+        console.warn("[Promo Init Error]", e);
+      }
 
       // 2. Check for incoming URL or storage promo parameter
       const params = new URLSearchParams(window.location.search);
@@ -266,11 +270,17 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
       }
       const codeToApply = urlCode ? urlCode.trim().toUpperCase() : (savedCode ? savedCode.trim().toUpperCase() : null);
 
-      if (codeToApply) {
+      if (isMounted && codeToApply) {
         setPromoInput(codeToApply);
-        handleValidatePromo(codeToApply);
+        await handleValidatePromo(codeToApply);
       }
-    }
+    };
+
+    initPromo();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Auto-scroll to checkout form position when a room is selected
