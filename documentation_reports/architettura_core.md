@@ -37,6 +37,18 @@ Il dominio `flowerpowervillage.com` è in fase di migrazione (Auth-Code/EPP tran
 *   **Record CNAME (`www`)**: `cname.vercel-dns.com`.
 *   **Ponte Transitorio Flazio**: Script di reindirizzamento JavaScript inserito nell'`<head>` di Flazio per dirottare in tempo reale i visitatori della vecchia pagina `/flowerpowerpizzaranong` su `https://www.flowerpowerpizza.com`.
 
+## 1.2 Architettura a 3 Stadi e Prontuario Comandi Operativi
+
+Il sistema adotta un'architettura di sviluppo a 3 stadi per garantire zero impatto sui clienti di produzione durante lo sviluppo:
+1. **Stadio 1: Locale (`http://localhost:3000`)**: Sviluppo a caldo su Vite/Vercel dev.
+2. **Stadio 2: Staging Privato (`https://staging.flowerpowerpizza.com`)**: Branch `staging` isolato per collaudi mobile/desktop.
+3. **Stadio 3: Produzione Ufficiale (`https://www.flowerpowerpizza.com` e `https://www.flowerpowervillage.com`)**: Branch `main` per i clienti pubblici.
+
+### Prontuario Comandi Ufficiali:
+* `MARKDOWN-STAGING-PIZZA` / `MARKDOWN-STAGING-VILLAGE` / `MARKDOWN-STAGING`: Deploy su Staging privato.
+* `MARKDOWN-WEBSITE-PIZZA` / `MARKDOWN-WEBSITE-VILLAGE` / `MARKDOWN-WEBSITE`: Deploy su Produzione ufficiale.
+* `MARKDOWN-PROJECT`: **Master Workflow** che aggiorna la documentazione `.md`, cifra il Vault, genera il report per Gemini Notebook e rilascia contemporaneamente su Staging e Produzione.
+
 ## 2. Flussi Logici
 
 Il flusso di lavoro si articola principalmente attorno alla creazione e alla verifica delle sessioni di prenotazione.

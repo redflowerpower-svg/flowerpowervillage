@@ -166,7 +166,7 @@ La modalità **Dining Tablet** è il modulo dedicato all'ordinazione autonoma di
 
 ### 1. `VAULT-SYNC` (Workflow Sincronizzazione Nuova Postazione)
 Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** sulla postazione:
-1. **Aggiornamento Automatico Git**: Esegue preliminarmente `git pull` da origin per scaricare l'ultimo codice e il file cifrato aggiornato `.md.enc`.
+1. **Aggiornamento Automatico Git**: Esegue preliminare `git pull` da origin per scaricare l'ultimo codice e il file cifrato aggiornato `.md.enc`.
 2. **Decifratura Vault**: Esegui `node scratch/vault-sync.mjs decrypt` (usando `MASTER_VAULT_KEY`).
 3. **Allineamento Ambiente**: Rigenera e allinea automaticamente i file `.env` e `.env.local` locali.
 4. **Verifica Connessioni**: Esegui `node scratch/test-credentials-verification.mjs`.
@@ -175,9 +175,9 @@ Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** sulla postazione:
 
 ---
 
-### 2. `FAST-PUSH` / `STAGING-PUSH` (Deploy Rapido su Ambiente di Test Segreto - Stadio 2)
-Quando l'utente pronuncia la parola d'ordine **`FAST-PUSH`** o **`STAGING-PUSH`**:
-Esegue un deploy rapido e sicuro **ESCLUSIVAMENTE sul branch `staging` di Vercel (zero impatto sui clienti di produzione)**:
+### 2. `MARKDOWN-STAGING` / `MARKDOWN-STAGING-PIZZA` / `MARKDOWN-STAGING-VILLAGE` (Deploy Staging)
+Quando l'utente pronuncia **`MARKDOWN-STAGING`** (o le varianti di reparto **`MARKDOWN-STAGING-PIZZA`** / **`MARKDOWN-STAGING-VILLAGE`**):
+Esegue il deploy rapido e sicuro **ESCLUSIVAMENTE sul branch `staging` di Vercel (zero impatto sui clienti di produzione)**:
 1. **Audit Sicurezza & Cifratura Silenziosa**:
    - Convalida zero secret leak (`node scratch/security-audit.mjs`).
    - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
@@ -186,40 +186,45 @@ Esegue un deploy rapido e sicuro **ESCLUSIVAMENTE sul branch `staging` di Vercel
 3. **Push Diretto su Staging**:
    - Assicura di essere sul branch `staging` (`git checkout staging`).
    - `git add .`
-   - `git commit -m "<messaggio_sintetico>"`
+   - `git commit -m "<messaggio_sintetico_con_tag_reparto>"`
    - `git push origin staging`
-4. **Notifica**: Conferma in 1 riga che il deploy è stato inviato all'ambiente di **Staging Privato** per il collaudo su cellulare.
+4. **Notifica**: Conferma in 1 riga che il deploy è stato inviato all'ambiente di **Staging Privato** (`staging.flowerpowerpizza.com`).
 
 ---
 
-### 3. `MARKDOWN-PROJECT` (Pre-PUSH Workflow Documentale)
+### 3. `MARKDOWN-WEBSITE` / `MARKDOWN-WEBSITE-PIZZA` / `MARKDOWN-WEBSITE-VILLAGE` (Deploy Produzione)
+Quando l'utente pronuncia **`MARKDOWN-WEBSITE`** (o le varianti di reparto **`MARKDOWN-WEBSITE-PIZZA`** / **`MARKDOWN-WEBSITE-VILLAGE`**):
+Esegue il rilascio definitivo direttamente sul branch di produzione `main` (`www.flowerpowerpizza.com` & `www.flowerpowervillage.com`):
+1. **Audit Sicurezza & Typecheck**:
+   - Convalida zero secret leak (`node scratch/security-audit.mjs`).
+   - Convalida zero errori TypeScript (`npx tsc --noEmit`).
+2. **Merge & Push su Produzione (`main`)**:
+   - Commit delle modifiche su `staging`.
+   - `git checkout main`
+   - `git merge staging -m "Release: <descrizione_rilascio_con_tag_reparto>"`
+   - `git push origin main` (Pubblica all'istante sui domini ufficiali).
+   - Ritorno automatico su `staging` (`git checkout staging`) per mantenere l'ambiente di lavoro pulito.
+3. **Notifica**: Conferma dell'avvenuto rilascio pubblico in produzione.
+
+---
+
+### 4. `MARKDOWN-PROJECT` (Master Workflow Completo: Documentazione + Gemini Report + Staging + Produzione)
 Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`**:
-1. **Analisi Modifiche**: Ispeziona i file modificati nella sessione corrente (`git status`).
-2. **Aggiornamento FISICO Documentazione Tecnica & Allineamento Istruzioni**:
-   - Sovrascrittura fisica dei file interessati in `/documentation_reports/`.
-   - Copie di sicurezza: `cp .agents/AGENTS.md documentation_reports/AGENTS.md` e `cp .agentinstructions documentation_reports/agentinstructions.txt`.
-3. **Cifratura Cassaforte**: Esegui `node scratch/vault-sync.mjs encrypt`.
-4. **Commit & Push su Staging**: `git add .`, commit e push su `origin staging`.
-5. **Notifica Gemini Notebook**: Elenco dei file aggiornati per il taccuino.
-
----
-
-### 4. `MARKDOWN-WEBSITE` / `MARKDOWN-ALL` (Release Ufficiale su Produzione - Stadio 3)
-Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WEBSITE`** oppure **`MARKDOWN-ALL`**:
-Esegue il rilascio definitivo dal branch `staging` al branch di produzione `main` per i domini ufficiali (`www.flowerpowerpizza.com` & `www.flowerpowervillage.com`):
-1. **Esecuzione Documentale & Vault**:
+Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi i reparti:
+1. **Fase 1 - Versioning & Documentazione Tecnica**:
    - Aggiornamento fisico dei file in `/documentation_reports/` e copie di sicurezza.
    - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
    - Controllo zero secret leak (`node scratch/security-audit.mjs`).
    - Typecheck (`npx tsc --noEmit`).
-2. **Merge & Push su Produzione (`main`)**:
-   - Commit delle modifiche su `staging`.
+2. **Fase 2 - Deploy Simultaneo (Staging + Produzione)**:
+   - Commit delle modifiche sul branch `staging`.
+   - `git push origin staging` (Aggiorna all'istante `staging.flowerpowerpizza.com`).
    - `git checkout main`
    - `git merge staging -m "Release: <descrizione_rilascio>"`
-   - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com`)
-   - Ritorno automatico su `staging` (`git checkout staging`) per mantenere l'ambiente di lavoro pulito.
-3. **Report Handoff a 5 Punti & Notifica Notebook**:
-   - Emissione del report per Gemini Notebook e conferma dell'avvenuto rilascio pubblico.
+   - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
+   - Ritorno automatico su `staging` (`git checkout staging`).
+3. **Fase 3 - Report Handoff a 5 Punti per Gemini Notebook**:
+   - Emissione del report compatto per il taccuino Gemini e conferma dell'allineamento globale.
 
 
 # Protocollo di Compressione e Frazionamento dei Report (Gemini-Friendly)
