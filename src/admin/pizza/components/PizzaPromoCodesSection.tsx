@@ -77,6 +77,7 @@ export const PizzaPromoCodesSection: React.FC<PizzaPromoCodesSectionProps> = ({
   const [isFormOpen, setIsFormOpen] = useState<boolean>(true);
   const [isListOpen, setIsListOpen] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [savedFeedback, setSavedFeedback] = useState<string | null>(null);
 
   // Generatore Ticket Random 🎲
   const generateRandomTicket = () => {
@@ -112,6 +113,8 @@ export const PizzaPromoCodesSection: React.FC<PizzaPromoCodesSectionProps> = ({
       active: true
     });
 
+    setSavedFeedback(`✅ Coupon "${code.trim().toUpperCase()}" creato e sincronizzato sul Cloud!`);
+    setTimeout(() => setSavedFeedback(null), 4000);
     // Reset Form
     setCode('');
     setMinOrder(0);

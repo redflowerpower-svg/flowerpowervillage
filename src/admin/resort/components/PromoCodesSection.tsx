@@ -66,6 +66,7 @@ export const PromoCodesSection: React.FC<PromoCodesSectionProps> = ({
   const [isFormOpen, setIsFormOpen] = useState<boolean>(true);
   const [isListOpen, setIsListOpen] = useState<boolean>(true);
   const [expandedCodeId, setExpandedCodeId] = useState<string | null>(null);
+  const [savedFeedback, setSavedFeedback] = useState<string | null>(null);
 
   // Generatore Ticket Random 🎲
   const generateRandomTicket = () => {
@@ -100,6 +101,8 @@ export const PromoCodesSection: React.FC<PromoCodesSectionProps> = ({
       active: true
     });
 
+    setSavedFeedback(`✅ Ticket "${code.trim().toUpperCase()}" creato e sincronizzato sul Cloud!`);
+    setTimeout(() => setSavedFeedback(null), 4000);
     // Reset Form
     setCode('');
     setDiscountValue(10);
