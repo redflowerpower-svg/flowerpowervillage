@@ -1950,7 +1950,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
           onClick={handleCloseCustomize}
         >
           <div
-            className="relative w-full max-w-2xl max-h-[92dvh] h-[92dvh] sm:max-h-[88vh] sm:h-auto bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn min-h-0"
+            className="relative w-full max-w-2xl max-h-[90dvh] h-[90dvh] sm:h-auto sm:max-h-[88vh] bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl border border-stone-200 flex flex-col overflow-hidden animate-scaleIn min-h-0"
             onClick={(e) => e.stopPropagation()}
           >
             {/* MODAL HEADER WITH IMAGE */}
@@ -2420,7 +2420,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                           <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
                             {group.title}
                           </p>
-                          <div className="grid grid-cols-1 min-[540px]:grid-cols-2 gap-2">
+                          <div className="grid grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
                             {group.items.map((extra) => {
                               const checked = !!selectedExtras.find((e) => e.id === extra.id);
                               return (
@@ -2428,13 +2428,13 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                                   key={extra.id}
                                   type="button"
                                   onClick={() => toggleExtra(extra)}
-                                  className={`flex items-center justify-between px-3 py-2.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                                  className={`flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
                                     checked
                                       ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold shadow-xs'
                                       : 'border-stone-200 bg-white hover:border-stone-300'
                                   }`}
                                 >
-                                  <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
+                                  <div className="flex items-center gap-2 min-w-0 flex-1 pr-1">
                                     <div
                                       className={`w-3.5 h-3.5 flex items-center justify-center rounded transition-all flex-shrink-0 ${
                                         checked
@@ -2449,7 +2449,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                                         </svg>
                                       )}
                                     </div>
-                                    <span className="text-stone-850 text-xs sm:text-sm font-semibold leading-snug break-words flex-1 min-w-0">{getTranslatedName(extra)}</span>
+                                    <span className="text-stone-850 text-xs font-semibold leading-snug break-words flex-1 min-w-0">{getTranslatedName(extra)}</span>
                                   </div>
                                   {extra.price > 0 ? (
                                     <span className="text-[#8B1E1E] text-xs font-extrabold inline-flex items-baseline gap-0.5 ml-auto flex-shrink-0">

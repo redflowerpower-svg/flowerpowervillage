@@ -630,22 +630,22 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
                       <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Inter, sans-serif' }}>
                         {group.title}
                       </p>
-                      <div className="grid grid-cols-1 min-[540px]:grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2 max-h-52 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-stone-300 scrollbar-track-transparent">
                         {group.items.map((extra) => {
                           const checked = !!selectedExtras.find((e) => e.id === extra.id);
                           return (
                             <button
                               key={extra.id}
                               onClick={() => toggleExtra(extra)}
-                              className={`w-full flex items-center justify-between px-3.5 py-2.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                              className={`w-full flex items-center justify-between px-3 py-2 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
                                 checked
                                   ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold shadow-xs'
                                   : 'border-stone-200 bg-white hover:border-stone-300'
                               }`}
                             >
-                              <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
+                              <div className="flex items-center gap-2 min-w-0 flex-1 pr-1">
                                 <div
-                                  className={`w-4 h-4 flex items-center justify-center rounded transition-all flex-shrink-0 ${
+                                  className={`w-3.5 h-3.5 flex items-center justify-center rounded transition-all flex-shrink-0 ${
                                     checked
                                       ? 'border-[#8B1E1E] bg-[#8B1E1E]'
                                       : 'border-stone-300 bg-stone-100'
@@ -658,10 +658,10 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
                                     </svg>
                                   )}
                                 </div>
-                                <span className="text-stone-850 text-xs sm:text-sm font-semibold leading-snug break-words flex-1 min-w-0">{getTranslatedName(extra)}</span>
+                                <span className="text-stone-850 text-xs font-semibold leading-snug break-words flex-1 min-w-0">{getTranslatedName(extra)}</span>
                               </div>
                               {extra.price > 0 ? (
-                                <span className="text-[#8B1E1E] text-xs sm:text-sm font-extrabold inline-flex items-baseline gap-0.5 ml-auto flex-shrink-0">
+                                <span className="text-[#8B1E1E] text-xs font-extrabold inline-flex items-baseline gap-0.5 ml-auto flex-shrink-0">
                                   <span>+{extra.price}</span>
                                   <span className="text-[10px] font-black select-none text-[#8B1E1E]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
                                 </span>
