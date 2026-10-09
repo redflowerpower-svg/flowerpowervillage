@@ -227,6 +227,21 @@ Esegue in un'unica sequenza automatica e ininterrotta l'allineamento globale e t
    - Emissione del report riassuntivo a 5 punti.
 
 
+
+### 5. `FAST-PUSH` / `QUICK-DEPLOY` (Lean Live Deploy)
+Quando l'utente pronuncia la parola d'ordine **`FAST-PUSH`** o **`QUICK-DEPLOY`**:
+Esegue un deploy rapido ed essenziale su Vercel/GitHub durante lo sviluppo iterativo senza riscrittura dei report documentali:
+1. **Audit di Sicurezza & Cifratura Vault Silenziosa**:
+   - Convalida zero secret leak (`node scratch/security-audit.mjs`).
+   - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
+2. **Typecheck Istantaneo**:
+   - Verifica compilazione (`npx tsc --noEmit`).
+3. **Commit & Push Diretto**:
+   - `git add .`
+   - `git commit -m "<messaggio_sintetico>"`
+   - `git push origin main`
+4. **Conferma Rapida**: Notifica di deploy inviata a Vercel in 1 riga senza blocchi o notifiche Notebook.
+
 # Protocollo di Compressione e Frazionamento dei Report (Gemini-Friendly)
 Per evitare che i report generati per l'utente superino i limiti di input di Gemini Notebook (impedendo l'invio del messaggio), l'agente DEVE seguire rigorosamente queste regole di formattazione:
 
