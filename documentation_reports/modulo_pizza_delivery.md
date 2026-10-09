@@ -158,5 +158,20 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
 6. **Regola di Soppressione Non-Stacking Sconti**:
    - Quando è attivo qualsiasi coupon sconto (`appliedPromo`), tutti i banner e i richiami al *10% First Order Welcome Discount* vengono nascosti in tutto il sito (`DeliveryMenu.tsx`, `CartDrawer.tsx`, `CheckoutFlow.tsx`) per non generare confusione.
 
+---
 
+## 📱 9. Layout Personalizzazioni Full-Width & Descrizioni Piatti Integrali (Website & Tablet)
+
+1. **Griglia Responsive Mobile-First per Extra e Personalizzazioni (MenuGrid.tsx, ProductModal.tsx)**:
+   - **Mobile (< 640px)**: Ogni ingrediente extra, opzione di personalizzazione (frutta per frullati, salse, dolci) e personalizzazione si estende su **1 colonna intera (grid-cols-1)**, eliminando il micro-box scrollabile max-h-48 e la scrollbar interna forzata.
+   - **Desktop & Tablet (sm:)**: Espansione fluida a **2 colonne (sm:grid-cols-2)** per ottimizzare lo spazio orizzontale.
+   - **Livelli di Piccantezza (🌶️)**: 2 colonne su smartphone e 4 colonne su schermi ampi (grid-cols-2 sm:grid-cols-4).
+
+2. **Risoluzione Troncatura Nomi Ingredienti & A Capo Naturale**:
+   - Eliminato l'uso di truncate dalle etichette degli ingredienti: sostituito con leading-snug break-words flex-1 min-w-0 pr-2, permettendo a qualsiasi nome lungo di andare a capo in modo armonioso.
+   - Prezzo dell'extra (+30฿ / Gratis) sempre saldamente ancorato a destra (ml-auto flex-shrink-0).
+
+3. **Visualizzazione 100% Integrale di Ingredienti & Descrizioni nel Catalogo Principale**:
+   - Rimossi i vincoli restrittivi line-clamp-2 sm:line-clamp-3 e line-clamp-3 dalle schede cibi, pizze, paste, insalate, birre e vini.
+   - Ogni scheda mostra per intero l'elenco degli ingredienti e le note descrittive in tutte le 9 lingue, mantenendo il layout verticale flessibile con il blocco d'ordine ancorato in fondo alla scheda (mt-auto).
 

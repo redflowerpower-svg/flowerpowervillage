@@ -525,22 +525,22 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
                     {lang === 'TH' ? 'เลือกได้ 1 อย่าง' : lang === 'IT' ? 'scegli 1 opzione' : 'select 1 option'}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {item.extras.filter(e => e.id.startsWith('spicy-')).map((extra) => {
                     const checked = !!selectedExtras.find((e) => e.id === extra.id);
                     return (
                       <button
                         key={extra.id}
                         onClick={() => toggleExtra(extra)}
-                        className={`flex items-center justify-between px-4 py-3 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                        className={`flex items-center justify-between px-3 py-2.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
                           checked
-                            ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white shadow-sm'
+                            ? 'border-[#8B1E1E] bg-[#8B1E1E] text-white shadow-sm font-bold'
                             : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
                         }`}
                       >
-                        <span className="text-xs font-semibold">{getTranslatedName(extra)}</span>
+                        <span className="text-xs font-semibold leading-snug break-words flex-1 min-w-0 pr-1">{getTranslatedName(extra)}</span>
                         {checked && (
-                          <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 ml-2" />
+                          <div className="w-1.5 h-1.5 bg-white rounded-full flex-shrink-0 ml-1.5" />
                         )}
                       </button>
                     );
@@ -630,20 +630,20 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
                       <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold" style={{ fontFamily: 'Inter, sans-serif' }}>
                         {group.title}
                       </p>
-                      <div className="space-y-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {group.items.map((extra) => {
                           const checked = !!selectedExtras.find((e) => e.id === extra.id);
                           return (
                             <button
                               key={extra.id}
                               onClick={() => toggleExtra(extra)}
-                              className={`w-full flex items-center justify-between px-4 py-3.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
+                              className={`w-full flex items-center justify-between px-3.5 py-2.5 text-left rounded-xl border transition-all duration-150 cursor-pointer ${
                                 checked
-                                  ? 'border-[#8B1E1E] bg-[#8B1E1E]/5'
+                                  ? 'border-[#8B1E1E] bg-[#8B1E1E]/5 font-bold shadow-xs'
                                   : 'border-stone-200 bg-white hover:border-stone-300'
                               }`}
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
                                 <div
                                   className={`w-4 h-4 flex items-center justify-center rounded transition-all flex-shrink-0 ${
                                     checked
@@ -658,15 +658,15 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
                                     </svg>
                                   )}
                                 </div>
-                                <span className="text-stone-850 text-xs sm:text-sm font-semibold">{getTranslatedName(extra)}</span>
+                                <span className="text-stone-850 text-xs sm:text-sm font-semibold leading-snug break-words flex-1 min-w-0">{getTranslatedName(extra)}</span>
                               </div>
                               {extra.price > 0 ? (
-                                <span className="text-[#8B1E1E] text-xs sm:text-sm font-extrabold inline-flex items-baseline gap-0.5">
+                                <span className="text-[#8B1E1E] text-xs sm:text-sm font-extrabold inline-flex items-baseline gap-0.5 ml-auto flex-shrink-0">
                                   <span>+{extra.price}</span>
                                   <span className="text-[10px] font-black select-none text-[#8B1E1E]" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
                                 </span>
                               ) : (
-                                <span className="text-stone-400 text-xs">{t.freeText}</span>
+                                <span className="text-stone-400 text-xs ml-auto flex-shrink-0">{t.freeText}</span>
                               )}
                             </button>
                           );

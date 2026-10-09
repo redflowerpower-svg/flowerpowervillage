@@ -86,3 +86,14 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
     - Banner promozionale localizzato in 9 lingue certificate DeepSeek AI che spiega l'opportunità di ricevere il coupon sconto 10% per i successivi ordini da asporto o consegna a domicilio sul sito web.
     - Generazione automatica del codice promo monouso `DINE10-XXXXX` con validità di 10 giorni, memorizzato nei metadati dell'ordine (`[DINING_VOUCHER: ...]`).
     - Spedizione in background tramite Nodemailer / Gmail SMTP (`flowerpowerpizzaranong.th@gmail.com`) del template email dark luxury con pulsante ad applicazione istantanea con 1 click (`https://flowerpowerpizza.com/?promo=DINE10-XXXXX`).
+
+---
+
+## 📱 8. Esperienza Mobile & Tablet Ottimizzata per Extra e Descrizioni
+
+1. **Allineamento Full-Width Schede Personalizzazioni**:
+   - Stessa interfaccia responsive 1-colonna su mobile / 2-colonne su tablet per la scelta degli ingredienti extra, livelli di piccantezza e varianti.
+   - Rimozione totale di troncature su nomi lunghi e rimozione del micro-box a scorrimento limitato per un'esperienza touch impeccabile.
+2. **Descrizioni Complete dei Piatti Senza Line-Clamp**:
+   - Tutte le descrizioni e gli ingredienti dei cibi, paste, pizze e vini sono visibili al 100% senza puntini di sospensione.
+
