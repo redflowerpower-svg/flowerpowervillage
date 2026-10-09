@@ -1,0 +1,56 @@
+import fs from 'fs';
+import path from 'path';
+
+const wineDataPath = path.resolve('src/pizza/data/wineData.tsx');
+let content = fs.readFileSync(wineDataPath, 'utf8');
+
+const newInterface = `export interface WineCardData {
+  id: string;
+  title: string;
+  titleIt?: string;
+  titleEn?: string;
+  titleTh?: string;
+  titleMm?: string;
+  titleDe?: string;
+  titleEs?: string;
+  titleFr?: string;
+  titleRu?: string;
+  titleZh?: string;
+  categorySubtitle: string;
+  subtitleIt?: string;
+  subtitleEn?: string;
+  subtitleTh?: string;
+  subtitleMm?: string;
+  subtitleDe?: string;
+  subtitleEs?: string;
+  subtitleFr?: string;
+  subtitleRu?: string;
+  subtitleZh?: string;
+  categoryType: 'red' | 'white' | 'rose' | 'sparkling';
+  flag: string;
+  description: string;
+  descriptionIt?: string;
+  descriptionEn?: string;
+  descriptionTh?: string;
+  descriptionMm?: string;
+  descriptionDe?: string;
+  descriptionEs?: string;
+  descriptionFr?: string;
+  descriptionRu?: string;
+  descriptionZh?: string;
+  alcohol: string;
+  price: string;
+  bannerColor: string;
+  bottleImage: string;
+  showLogoBadge: boolean;
+  bottleScale: number;
+  bottleScaleX?: number;
+  bottleOffsetX?: number;
+  bottleOffsetY: number;
+  isAvailable: boolean;
+  updatedAt?: string;
+}`;
+
+content = content.replace(/export interface WineCardData \{[\s\S]*?\n\}/, newInterface);
+fs.writeFileSync(wineDataPath, content, 'utf8');
+console.log('Successfully updated WineCardData interface in wineData.tsx');

@@ -1,3 +1,635 @@
+const targetedTranslations: Record<string, any> = {
+  "EN": {
+    "wineBannerBadge": "🍷 DINE-IN WINE PRIVILEGE • 10% OFF",
+    "wineBannerTitle": "Fine Wine Selection • Book online to receive an exclusive 10% table discount",
+    "wineBannerDesc": "In compliance with Thai law, online delivery of alcohol is not permitted. We invite you to enjoy our cellar selection at our restaurant in Ranong: reserve a table from our website to get a 10% discount on all wine bottles at your table!",
+    "wineBannerButton": "Book Table (-10% Wine)",
+    "checkoutFirstOrderDiscount": "10% 1st Order Welcome Discount",
+    "takeawayBoxExplanation": "Your pizzas will be baked fresh and packed in thermal boxes ready for your arrival at our restaurant counter.",
+    "kshopTitle": "How to pay with K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Save the QR code or scan it directly with your Banking App.",
+    "kshopStep2": "Manually enter the exact order total: {amount} ฿",
+    "kshopStep3": "Confirm the transfer and complete the payment.",
+    "kshopStep4": "Upload your payment receipt screenshot (slip) below.",
+    "omiseGenerating": "Generating Omise QR...",
+    "omiseNoUploadNeeded": "✅ No upload needed — payment confirmed automatically.",
+    "omiseFailedToLoad": "Failed to load Omise QR. Please retry.",
+    "retryQrBtn": "Retry QR",
+    "saveQrBtn": "Save QR",
+    "extras": {
+      "spicy-no": "Not Spicy",
+      "spicy-light": "Mildly Spicy",
+      "spicy-medium": "Medium Spicy",
+      "spicy-very": "Very Spicy",
+      "sugar-no": "No Sugar (0%)",
+      "sugar-less": "Less Sugar (50%)",
+      "sugar-regular": "Regular Sweet (100%)",
+      "sauce-none": "No Sauces",
+      "sauce-ketchup": "Ketchup",
+      "sauce-mayo": "Mayonnaise",
+      "sauce-chili": "Chili Sauce",
+      "fruit-watermelon": "Watermelon",
+      "fruit-pineapple": "Pineapple",
+      "fruit-banana": "Banana",
+      "fruit-papaya": "Papaya",
+      "fruit-lime": "Fresh Lime",
+      "extra-mozzarella": "Extra Mozzarella",
+      "extra-mushrooms": "Fresh Mushrooms",
+      "extra-ham": "Cooked Ham",
+      "extra-bacon": "Crispy Bacon",
+      "extra-salami": "Spicy Salami",
+      "extra-olives": "Black Olives",
+      "extra-anchovies": "Mediterranean Anchovies",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Gorgonzola Cheese",
+      "extra-truffle": "Truffle Oil",
+      "extra-egg": "Egg",
+      "extra-onion": "Red Onion",
+      "extra-fries": "French Fries (Topping)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Can)",
+      "coke-zero-can": "Coke Zero (Can)",
+      "sprite-can": "Sprite (Can)",
+      "soda-water-bottle": "Soda Water (Bottle)",
+      "mineral-water-bottle": "Mineral Water (Bottle)",
+      "espresso": "Italian Espresso",
+      "cappuccino": "Creamy Cappuccino",
+      "americano": "Caffè Americano",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Artisan Tiramisù",
+      "cake-of-the-day": "Cake of the Day",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Nutella Crepes",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Vegan)",
+      "carbonara": "Spaghetti Carbonara",
+      "bolognese": "Spaghetti Bolognese",
+      "french-fries": "French Fries",
+      "pizza-sandwich-parma": "Focaccia Parma Ham"
+    }
+  },
+  "IT": {
+    "wineBannerBadge": "🍷 PRIVILEGIO VINO IN LOCO • 10% DI SCONTO",
+    "wineBannerTitle": "Selezione di Vini Pregiati • Prenota online per ricevere uno sconto esclusivo del 10% al tavolo",
+    "wineBannerDesc": "In conformità con la legge thailandese, la consegna online di alcolici non è consentita. Ti invitiamo a gustare la nostra selezione di cantina presso il nostro ristorante a Ranong: prenota un tavolo dal nostro sito web per ottenere uno sconto del 10% su tutte le bottiglie di vino al tuo tavolo!",
+    "wineBannerButton": "Prenota Tavolo (-10% Vino)",
+    "checkoutFirstOrderDiscount": "10% di sconto di benvenuto sul primo ordine",
+    "takeawayBoxExplanation": "Le tue pizze saranno cotte fresche e confezionate in scatole termiche pronte per il tuo arrivo al bancone del nostro ristorante.",
+    "kshopTitle": "Come pagare con K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Salva il codice QR o scansionarlo direttamente con la tua App Bancaria.",
+    "kshopStep2": "Inserisci manualmente l'importo esatto dell'ordine: {amount} ฿",
+    "kshopStep3": "Conferma il trasferimento e completa il pagamento.",
+    "kshopStep4": "Carica lo screenshot della ricevuta di pagamento (slip) qui sotto.",
+    "omiseGenerating": "Generazione del QR Omise in corso...",
+    "omiseNoUploadNeeded": "✅ Nessun caricamento necessario — pagamento confermato automaticamente.",
+    "omiseFailedToLoad": "Impossibile caricare il QR Omise. Riprova.",
+    "retryQrBtn": "Riprova QR",
+    "saveQrBtn": "Salva QR",
+    "extras": {
+      "spicy-no": "Non Piccante",
+      "spicy-light": "Leggermente Piccante",
+      "spicy-medium": "Mediamente Piccante",
+      "spicy-very": "Molto Piccante",
+      "sugar-no": "Senza Zucchero (0%)",
+      "sugar-less": "Meno Zucchero (50%)",
+      "sugar-regular": "Dolce Normale (100%)",
+      "sauce-none": "Nessuna Salsa",
+      "sauce-ketchup": "Ketchup",
+      "sauce-mayo": "Maionese",
+      "sauce-chili": "Salsa di Peperoncino",
+      "fruit-watermelon": "Anguria",
+      "fruit-pineapple": "Ananas",
+      "fruit-banana": "Banana",
+      "fruit-papaya": "Papaya",
+      "fruit-lime": "Lime Fresco",
+      "extra-mozzarella": "Mozzarella Extra",
+      "extra-mushrooms": "Funghi Freschi",
+      "extra-ham": "Prosciutto Cotto",
+      "extra-bacon": "Bacon Croccante",
+      "extra-salami": "Salame Piccante",
+      "extra-olives": "Olive Nere",
+      "extra-anchovies": "Acciughe del Mediterraneo",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Gorgonzola",
+      "extra-truffle": "Olio al Tartufo",
+      "extra-egg": "Uovo",
+      "extra-onion": "Cipolla Rossa",
+      "extra-fries": "Patatine Fritte (Topping)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Lattina)",
+      "coke-zero-can": "Coca-Cola Zero (Lattina)",
+      "sprite-can": "Sprite (Lattina)",
+      "soda-water-bottle": "Acqua Frizzante (Bottiglia)",
+      "mineral-water-bottle": "Acqua Minerale (Bottiglia)",
+      "espresso": "Espresso Italiano",
+      "cappuccino": "Cappuccino Cremoso",
+      "americano": "Caffè Americano",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Tiramisù Artigianale",
+      "cake-of-the-day": "Torta del Giorno",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Crepes alla Nutella",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Vegana)",
+      "carbonara": "Spaghetti alla Carbonara",
+      "bolognese": "Spaghetti alla Bolognese",
+      "french-fries": "Patatine Fritte",
+      "pizza-sandwich-parma": "Focaccia con Prosciutto di Parma"
+    }
+  },
+  "TH": {
+    "wineBannerBadge": "🍷 สิทธิพิเศษไวน์สำหรับรับประทานที่ร้าน • ลด 10%",
+    "wineBannerTitle": "การคัดสรรไวน์ชั้นเลิศ • จองออนไลน์รับส่วนลดพิเศษ 10% สำหรับโต๊ะ",
+    "wineBannerDesc": "ตามกฎหมายไทย ไม่อนุญาตให้จัดส่งเครื่องดื่มแอลกอฮอล์ออนไลน์ เราขอเชิญคุณมาลิ้มลองไวน์จากห้องเก็บของเราที่ร้านอาหารของเราในระนอง: จองโต๊ะจากเว็บไซต์ของเราเพื่อรับส่วนลด 10% สำหรับไวน์ทุกขวดที่โต๊ะของคุณ!",
+    "wineBannerButton": "จองโต๊ะ (ไวน์ลด 10%)",
+    "checkoutFirstOrderDiscount": "ส่วนลดต้อนรับ 10% สำหรับคำสั่งซื้อแรก",
+    "takeawayBoxExplanation": "พิซซ่าของคุณจะถูกอบสดใหม่และบรรจุในกล่องเก็บความร้อนพร้อมสำหรับการมาถึงของคุณที่เคาน์เตอร์ร้านอาหารของเรา",
+    "kshopTitle": "วิธีชำระเงินด้วย K-Shop (ธนาคารกสิกรไทย):",
+    "kshopStep1": "บันทึก QR code หรือสแกนโดยตรงด้วยแอปธนาคารของคุณ",
+    "kshopStep2": "ป้อนยอดรวมคำสั่งซื้อที่แน่นอนด้วยตนเอง: {amount} ฿",
+    "kshopStep3": "ยืนยันการโอนและชำระเงินให้เสร็จสิ้น",
+    "kshopStep4": "อัปโหลดภาพหน้าจอใบเสร็จการชำระเงิน (สลิป) ด้านล่าง",
+    "omiseGenerating": "กำลังสร้าง Omise QR...",
+    "omiseNoUploadNeeded": "✅ ไม่ต้องอัปโหลด — การชำระเงินได้รับการยืนยันโดยอัตโนมัติ",
+    "omiseFailedToLoad": "ไม่สามารถโหลด Omise QR ได้ กรุณาลองใหม่",
+    "retryQrBtn": "ลอง QR อีกครั้ง",
+    "saveQrBtn": "บันทึก QR",
+    "extras": {
+      "spicy-no": "ไม่เผ็ด",
+      "spicy-light": "เผ็ดน้อย",
+      "spicy-medium": "เผ็ดปานกลาง",
+      "spicy-very": "เผ็ดมาก",
+      "sugar-no": "ไม่ใส่น้ำตาล (0%)",
+      "sugar-less": "น้ำตาลน้อย (50%)",
+      "sugar-regular": "หวานปกติ (100%)",
+      "sauce-none": "ไม่ใส่ซอส",
+      "sauce-ketchup": "ซอสมะเขือเทศ",
+      "sauce-mayo": "มายองเนส",
+      "sauce-chili": "ซอสพริก",
+      "fruit-watermelon": "แตงโม",
+      "fruit-pineapple": "สับปะรด",
+      "fruit-banana": "กล้วย",
+      "fruit-papaya": "มะละกอ",
+      "fruit-lime": "มะนาวสด",
+      "extra-mozzarella": "มอสซาเรลลาเพิ่ม",
+      "extra-mushrooms": "เห็ดสด",
+      "extra-ham": "แฮมสุก",
+      "extra-bacon": "เบคอนกรอบ",
+      "extra-salami": "ซาลามี่เผ็ด",
+      "extra-olives": "มะกอกดำ",
+      "extra-anchovies": "แอนโชวี่เมดิเตอร์เรเนียน",
+      "extra-parmigiano": "พาร์มิจาโน เรจจาโน",
+      "extra-gorgonzola": "กอร์กอนโซลา",
+      "extra-truffle": "น้ำมันทรัฟเฟิล",
+      "extra-egg": "ไข่",
+      "extra-onion": "หอมแดง",
+      "extra-fries": "เฟรนช์ฟรายส์ (ท็อปปิ้ง)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "โคคา-โคลา (กระป๋อง)",
+      "coke-zero-can": "โค้กซีโร่ (กระป๋อง)",
+      "sprite-can": "สไปรท์ (กระป๋อง)",
+      "soda-water-bottle": "โซดา (ขวด)",
+      "mineral-water-bottle": "น้ำแร่ (ขวด)",
+      "espresso": "เอสเปรสโซ่ อิตาเลียน",
+      "cappuccino": "คาปูชิโน่ครีมมี่",
+      "americano": "คาเฟ่ อเมริกาโน่",
+      "latte-macchiato": "ลาเต้ มัคคิอาโต้",
+      "tiramisu": "ทิรามิสุโฮมเมด",
+      "cake-of-the-day": "เค้กประจำวัน",
+      "affogato": "อัฟโฟกาโต้อัลคาเฟ่",
+      "crepes": "เครปนูเทลล่า",
+      "pizza-margherita": "พิซซ่ามาร์เกอริต้า",
+      "pizza-marinara": "พิซซ่ามารินาร่า (วีแกน)",
+      "carbonara": "สปาเก็ตตี้คาร์โบนาร่า",
+      "bolognese": "สปาเก็ตตี้โบโลเนส",
+      "french-fries": "เฟรนช์ฟรายส์",
+      "pizza-sandwich-parma": "โฟคัชชา พาร์ม่าแฮม"
+    }
+  },
+  "MM": {
+    "wineBannerBadge": "🍷 စားသောက်ဆိုင်တွင်သောက်သုံးရန် ဝိုင်အထူးအခွင့်အရေး • ၁၀% လျှော့စျေး",
+    "wineBannerTitle": "အရည်အသွေးမြင့် ဝိုင်ရွေးချယ်မှု • အွန်လိုင်းမှ ကြိုတင်စာရင်းသွင်းပါ၊ သီးသန့်စားပွဲ ၁၀% လျှော့စျေး ရယူပါ",
+    "wineBannerDesc": "ထိုင်းဥပဒေနှင့်အညီ၊ အရက်ကို အွန်လိုင်းမှ ပို့ဆောင်ခွင့်မပြုပါ။ ကျွန်ုပ်တို့၏ ရနောင်မြို့ရှိ စားသောက်ဆိုင်တွင် ကျွန်ုပ်တို့၏ ဝိုင်ခန်းရွေးချယ်မှုကို ခံစားရန် ဖိတ်ခေါ်အပ်ပါသည်။ ကျွန်ုပ်တို့၏ ဝဘ်ဆိုက်မှ စားပွဲကြိုတင်စာရင်းသွင်းပါ၊ သင့်စားပွဲရှိ ဝိုင်ပုလင်းအားလုံးအတွက် ၁၀% လျှော့စျေး ရယူပါ။",
+    "wineBannerButton": "စားပွဲကြိုတင်စာရင်းသွင်းပါ (ဝိုင် ၁၀% လျှော့)",
+    "checkoutFirstOrderDiscount": "ပထမဆုံးမှာယူမှုအတွက် ၁၀% ကြိုဆိုလျှော့စျေး",
+    "takeawayBoxExplanation": "သင့်ပီဇာများကို လတ်ဆတ်စွာ ဖုတ်ပြီး ကျွန်ုပ်တို့၏ စားသောက်ဆိုင် ကောင်တာသို့ သင်ရောက်ရှိချိန်တွင် အဆင်သင့်ဖြစ်စေရန် အပူထိန်းသေတ္တာများဖြင့် ထုပ်ပိုးပါမည်။",
+    "kshopTitle": "K-Shop (ကဆီကွန်ဘဏ်) ဖြင့် ငွေပေးချေနည်း:",
+    "kshopStep1": "QR ကုဒ်ကို သိမ်းဆည်းပါ သို့မဟုတ် သင့်ဘဏ်အက်ပ်ဖြင့် တိုက်ရိုက်စကင်ဖတ်ပါ။",
+    "kshopStep2": "မှာယူမှုစုစုပေါင်း အတိအကျကို ကိုယ်တိုင်ထည့်ပါ: {amount} ฿",
+    "kshopStep3": "ငွေလွှဲမှုကို အတည်ပြုပြီး ငွေပေးချေမှု ပြီးမြောက်ပါ။",
+    "kshopStep4": "သင့်ငွေပေးချေမှု ပြေစာဓာတ်ပုံ (slip) ကို အောက်တွင် အပ်လုဒ်တင်ပါ။",
+    "omiseGenerating": "Omise QR ဖန်တီးနေသည်...",
+    "omiseNoUploadNeeded": "✅ အပ်လုဒ်တင်ရန် မလိုအပ်ပါ — ငွေပေးချေမှုကို အလိုအလျောက် အတည်ပြုပြီးပါပြီ။",
+    "omiseFailedToLoad": "Omise QR ကို ဖွင့်၍မရပါ။ ထပ်မံကြိုးစားပါ။",
+    "retryQrBtn": "QR ထပ်မံကြိုးစားပါ",
+    "saveQrBtn": "QR သိမ်းဆည်းပါ",
+    "extras": {
+      "spicy-no": "အစပ်မပါ",
+      "spicy-light": "အစပ်နည်းနည်း",
+      "spicy-medium": "အစပ်အလယ်အလတ်",
+      "spicy-very": "အစပ်အလွန်များ",
+      "sugar-no": "သကြားမပါ (0%)",
+      "sugar-less": "သကြားနည်း (50%)",
+      "sugar-regular": "ပုံမှန်ချိုသည် (100%)",
+      "sauce-none": "ဆော့စ်မပါ",
+      "sauce-ketchup": "ခရမ်းချဉ်သီးဆော့စ်",
+      "sauce-mayo": "မေယိုနိစ်",
+      "sauce-chili": "ငရုတ်သီးဆော့စ်",
+      "fruit-watermelon": "ဖရဲသီး",
+      "fruit-pineapple": "နာနတ်သီး",
+      "fruit-banana": "ငှက်ပျောသီး",
+      "fruit-papaya": "သင်္ဘောသီး",
+      "fruit-lime": "သံပရာသီးလတ်ဆတ်",
+      "extra-mozzarella": "မိုဇာရဲလာ အပို",
+      "extra-mushrooms": "မှိုလတ်ဆတ်",
+      "extra-ham": "ချက်ပြီးဟမ်",
+      "extra-bacon": "ကြွပ်သောဘေကွန်",
+      "extra-salami": "အစပ်ဆာလာမီ",
+      "extra-olives": "အနက်ရောင်သံလွင်",
+      "extra-anchovies": "မြေထဲပင်လယ်ငါးသေးငယ်",
+      "extra-parmigiano": "ပါမိဂျာနိုရက်ဂျာနို",
+      "extra-gorgonzola": "ဂေါ်ဂွန်ဇိုလာချိစ်",
+      "extra-truffle": "ထရပ်ဖယ်ဆီ",
+      "extra-egg": "ကြက်ဥ",
+      "extra-onion": "ကြက်သွန်နီ",
+      "extra-fries": "အာလူးကြော် (အပေါ်တင်ရန်)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "ကိုကာကိုလာ (ဗူး)",
+      "coke-zero-can": "ကိုက်ဇီးရို (ဗူး)",
+      "sprite-can": "စပရိုက် (ဗူး)",
+      "soda-water-bottle": "ဆိုဒါရေ (ပုလင်း)",
+      "mineral-water-bottle": "ဓာတ်သတ္တုရေ (ပုလင်း)",
+      "espresso": "အီတလီအက်စ်ပရက်ဆို",
+      "cappuccino": "ခရင်မ်ကပူချီနို",
+      "americano": "ကာဖီအမေရီကာနို",
+      "latte-macchiato": "လတ်တေမက်ချာတို",
+      "tiramisu": "အိမ်လုပ်တီရာမီဆု",
+      "cake-of-the-day": "ယနေ့အထူးကိတ်",
+      "affogato": "အာဖိုဂါတိုကာဖီ",
+      "crepes": "နူတဲလာခရိ(ပ်)",
+      "pizza-margherita": "ပီဇာမာဂါရီတာ",
+      "pizza-marinara": "ပီဇာမာရီနာရာ (သက်သတ်လွတ်)",
+      "carbonara": "စပါဂတ္တီကာဘိုနာရာ",
+      "bolognese": "စပါဂတ္တီဘိုလိုနေ့စ်",
+      "french-fries": "အာလူးကြော်",
+      "pizza-sandwich-parma": "ဖိုကာချာပါမာဟမ်"
+    }
+  },
+  "DE": {
+    "wineBannerBadge": "🍷 WEINPRIVILEG VOR ORT • 10% RABATT",
+    "wineBannerTitle": "Erlesene Weinauswahl • Online buchen und exklusiven 10% Tischrabatt erhalten",
+    "wineBannerDesc": "Gemäß thailändischem Recht ist die Online-Lieferung von Alkohol nicht gestattet. Wir laden Sie ein, unsere Kellerauswahl in unserem Restaurant in Ranong zu genießen: Reservieren Sie einen Tisch über unsere Website und erhalten Sie 10% Rabatt auf alle Weinflaschen an Ihrem Tisch!",
+    "wineBannerButton": "Tisch buchen (-10% Wein)",
+    "checkoutFirstOrderDiscount": "10% Willkommensrabatt auf die 1. Bestellung",
+    "takeawayBoxExplanation": "Ihre Pizzen werden frisch gebacken und in Thermoboxen verpackt, bereit für Ihre Ankunft an unserer Restaurant-Theke.",
+    "kshopTitle": "So zahlen Sie mit K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Speichern Sie den QR-Code oder scannen Sie ihn direkt mit Ihrer Banking-App.",
+    "kshopStep2": "Geben Sie den genauen Bestellbetrag manuell ein: {amount} ฿",
+    "kshopStep3": "Bestätigen Sie die Überweisung und schließen Sie die Zahlung ab.",
+    "kshopStep4": "Laden Sie Ihren Zahlungsbeleg-Screenshot (Slip) unten hoch.",
+    "omiseGenerating": "Omise QR wird generiert...",
+    "omiseNoUploadNeeded": "✅ Kein Upload erforderlich — Zahlung automatisch bestätigt.",
+    "omiseFailedToLoad": "Omise QR konnte nicht geladen werden. Bitte erneut versuchen.",
+    "retryQrBtn": "QR erneut versuchen",
+    "saveQrBtn": "QR speichern",
+    "extras": {
+      "spicy-no": "Nicht scharf",
+      "spicy-light": "Leicht scharf",
+      "spicy-medium": "Mittelscharf",
+      "spicy-very": "Sehr scharf",
+      "sugar-no": "Ohne Zucker (0%)",
+      "sugar-less": "Weniger Zucker (50%)",
+      "sugar-regular": "Normal süß (100%)",
+      "sauce-none": "Keine Soßen",
+      "sauce-ketchup": "Ketchup",
+      "sauce-mayo": "Mayonnaise",
+      "sauce-chili": "Chilisauce",
+      "fruit-watermelon": "Wassermelone",
+      "fruit-pineapple": "Ananas",
+      "fruit-banana": "Banane",
+      "fruit-papaya": "Papaya",
+      "fruit-lime": "Frische Limette",
+      "extra-mozzarella": "Extra Mozzarella",
+      "extra-mushrooms": "Frische Pilze",
+      "extra-ham": "Gekochter Schinken",
+      "extra-bacon": "Knuspriger Speck",
+      "extra-salami": "Scharfe Salami",
+      "extra-olives": "Schwarze Oliven",
+      "extra-anchovies": "Mediterrane Sardellen",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Gorgonzola",
+      "extra-truffle": "Trüffelöl",
+      "extra-egg": "Ei",
+      "extra-onion": "Rote Zwiebel",
+      "extra-fries": "Pommes frites (Topping)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Dose)",
+      "coke-zero-can": "Coke Zero (Dose)",
+      "sprite-can": "Sprite (Dose)",
+      "soda-water-bottle": "Sodawasser (Flasche)",
+      "mineral-water-bottle": "Mineralwasser (Flasche)",
+      "espresso": "Italienischer Espresso",
+      "cappuccino": "Cremiger Cappuccino",
+      "americano": "Caffè Americano",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Handwerkliches Tiramisù",
+      "cake-of-the-day": "Kuchen des Tages",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Nutella-Crêpes",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Vegan)",
+      "carbonara": "Spaghetti Carbonara",
+      "bolognese": "Spaghetti Bolognese",
+      "french-fries": "Pommes frites",
+      "pizza-sandwich-parma": "Focaccia mit Parmaschinken"
+    }
+  },
+  "ES": {
+    "wineBannerBadge": "🍷 PRIVILEGIO DE VINO EN LOCAL • 10% DE DESCUENTO",
+    "wineBannerTitle": "Selección de Vinos Finos • Reserve en línea para recibir un descuento exclusivo del 10% en mesa",
+    "wineBannerDesc": "De acuerdo con la ley tailandesa, no se permite la entrega de alcohol en línea. Le invitamos a disfrutar de nuestra selección de bodega en nuestro restaurante en Ranong: ¡reserve una mesa desde nuestro sitio web para obtener un 10% de descuento en todas las botellas de vino en su mesa!",
+    "wineBannerButton": "Reservar Mesa (-10% Vino)",
+    "checkoutFirstOrderDiscount": "10% de Descuento de Bienvenida en el 1er Pedido",
+    "takeawayBoxExplanation": "Sus pizzas se hornearán frescas y se empaquetarán en cajas térmicas listas para su llegada al mostrador de nuestro restaurante.",
+    "kshopTitle": "Cómo pagar con K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Guarde el código QR o escanéelo directamente con su aplicación bancaria.",
+    "kshopStep2": "Ingrese manualmente el total exacto del pedido: {amount} ฿",
+    "kshopStep3": "Confirme la transferencia y complete el pago.",
+    "kshopStep4": "Suba la captura de pantalla de su recibo de pago (comprobante) a continuación.",
+    "omiseGenerating": "Generando QR de Omise...",
+    "omiseNoUploadNeeded": "✅ No se necesita subir nada — pago confirmado automáticamente.",
+    "omiseFailedToLoad": "No se pudo cargar el QR de Omise. Por favor, reintente.",
+    "retryQrBtn": "Reintentar QR",
+    "saveQrBtn": "Guardar QR",
+    "extras": {
+      "spicy-no": "No Picante",
+      "spicy-light": "Ligeramente Picante",
+      "spicy-medium": "Medio Picante",
+      "spicy-very": "Muy Picante",
+      "sugar-no": "Sin Azúcar (0%)",
+      "sugar-less": "Menos Azúcar (50%)",
+      "sugar-regular": "Dulzor Regular (100%)",
+      "sauce-none": "Sin Salsas",
+      "sauce-ketchup": "Kétchup",
+      "sauce-mayo": "Mayonesa",
+      "sauce-chili": "Salsa de Chile",
+      "fruit-watermelon": "Sandía",
+      "fruit-pineapple": "Piña",
+      "fruit-banana": "Plátano",
+      "fruit-papaya": "Papaya",
+      "fruit-lime": "Lima Fresca",
+      "extra-mozzarella": "Mozzarella Extra",
+      "extra-mushrooms": "Champiñones Frescos",
+      "extra-ham": "Jamón Cocido",
+      "extra-bacon": "Bacon Crujiente",
+      "extra-salami": "Salami Picante",
+      "extra-olives": "Aceitunas Negras",
+      "extra-anchovies": "Anchoas del Mediterráneo",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Queso Gorgonzola",
+      "extra-truffle": "Aceite de Trufa",
+      "extra-egg": "Huevo",
+      "extra-onion": "Cebolla Roja",
+      "extra-fries": "Patatas Fritas (Topping)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Lata)",
+      "coke-zero-can": "Coca-Cola Zero (Lata)",
+      "sprite-can": "Sprite (Lata)",
+      "soda-water-bottle": "Agua con Gas (Botella)",
+      "mineral-water-bottle": "Agua Mineral (Botella)",
+      "espresso": "Espresso Italiano",
+      "cappuccino": "Cappuccino Cremoso",
+      "americano": "Café Americano",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Tiramisú Artesanal",
+      "cake-of-the-day": "Pastel del Día",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Crepes de Nutella",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Vegana)",
+      "carbonara": "Espagueti Carbonara",
+      "bolognese": "Espagueti Boloñesa",
+      "french-fries": "Patatas Fritas",
+      "pizza-sandwich-parma": "Focaccia con Jamón de Parma"
+    }
+  },
+  "FR": {
+    "wineBannerBadge": "🍷 PRIVILÈGE VIN SUR PLACE • 10% DE RÉDUCTION",
+    "wineBannerTitle": "Sélection de Vins Fins • Réservez en ligne pour recevoir une réduction exclusive de 10% à table",
+    "wineBannerDesc": "Conformément à la loi thaïlandaise, la livraison d'alcool en ligne n'est pas autorisée. Nous vous invitons à profiter de notre sélection de cave dans notre restaurant à Ranong : réservez une table depuis notre site web pour obtenir 10% de réduction sur toutes les bouteilles de vin à votre table !",
+    "wineBannerButton": "Réserver une Table (-10% Vin)",
+    "checkoutFirstOrderDiscount": "10% de Réduction de Bienvenue sur la 1ère Commande",
+    "takeawayBoxExplanation": "Vos pizzas seront cuites fraîches et emballées dans des boîtes isothermes prêtes pour votre arrivée au comptoir de notre restaurant.",
+    "kshopTitle": "Comment payer avec K-Shop (Kasikorn Bank) :",
+    "kshopStep1": "Enregistrez le code QR ou scannez-le directement avec votre application bancaire.",
+    "kshopStep2": "Entrez manuellement le total exact de la commande : {amount} ฿",
+    "kshopStep3": "Confirmez le virement et finalisez le paiement.",
+    "kshopStep4": "Téléchargez la capture d'écran de votre reçu de paiement (justificatif) ci-dessous.",
+    "omiseGenerating": "Génération du QR Omise...",
+    "omiseNoUploadNeeded": "✅ Aucun téléchargement nécessaire — paiement confirmé automatiquement.",
+    "omiseFailedToLoad": "Échec du chargement du QR Omise. Veuillez réessayer.",
+    "retryQrBtn": "Réessayer le QR",
+    "saveQrBtn": "Enregistrer le QR",
+    "extras": {
+      "spicy-no": "Non Épicé",
+      "spicy-light": "Légèrement Épicé",
+      "spicy-medium": "Moyennement Épicé",
+      "spicy-very": "Très Épicé",
+      "sugar-no": "Sans Sucre (0%)",
+      "sugar-less": "Moins de Sucre (50%)",
+      "sugar-regular": "Sucré Normal (100%)",
+      "sauce-none": "Pas de Sauces",
+      "sauce-ketchup": "Ketchup",
+      "sauce-mayo": "Mayonnaise",
+      "sauce-chili": "Sauce Chili",
+      "fruit-watermelon": "Pastèque",
+      "fruit-pineapple": "Ananas",
+      "fruit-banana": "Banane",
+      "fruit-papaya": "Papaye",
+      "fruit-lime": "Citron Vert Frais",
+      "extra-mozzarella": "Mozzarella Supplémentaire",
+      "extra-mushrooms": "Champignons Frais",
+      "extra-ham": "Jambon Cuit",
+      "extra-bacon": "Bacon Croustillant",
+      "extra-salami": "Salami Épicé",
+      "extra-olives": "Olives Noires",
+      "extra-anchovies": "Anchois de Méditerranée",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Fromage Gorgonzola",
+      "extra-truffle": "Huile de Truffe",
+      "extra-egg": "Œuf",
+      "extra-onion": "Oignon Rouge",
+      "extra-fries": "Frites (Garniture)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Canette)",
+      "coke-zero-can": "Coca-Cola Zéro (Canette)",
+      "sprite-can": "Sprite (Canette)",
+      "soda-water-bottle": "Eau Gazeuse (Bouteille)",
+      "mineral-water-bottle": "Eau Minérale (Bouteille)",
+      "espresso": "Espresso Italien",
+      "cappuccino": "Cappuccino Crémeux",
+      "americano": "Café Américain",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Tiramisù Artisanal",
+      "cake-of-the-day": "Gâteau du Jour",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Crêpes à la Nutella",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Végétalienne)",
+      "carbonara": "Spaghetti Carbonara",
+      "bolognese": "Spaghetti Bolognaise",
+      "french-fries": "Frites",
+      "pizza-sandwich-parma": "Focaccia au Jambon de Parme"
+    }
+  },
+  "RU": {
+    "wineBannerBadge": "🍷 ПРИВИЛЕГИЯ НА ВИНО В ЗАЛЕ • СКИДКА 10%",
+    "wineBannerTitle": "Избранные вина • Забронируйте онлайн и получите эксклюзивную скидку 10% на столик",
+    "wineBannerDesc": "В соответствии с тайским законодательством онлайн-доставка алкоголя запрещена. Приглашаем вас насладиться нашей коллекцией вин в нашем ресторане в Ранонге: забронируйте столик на нашем сайте и получите скидку 10% на все бутылки вина за вашим столиком!",
+    "wineBannerButton": "Забронировать столик (-10% на вино)",
+    "checkoutFirstOrderDiscount": "10% приветственная скидка на первый заказ",
+    "takeawayBoxExplanation": "Ваши пиццы будут испечены свежими и упакованы в термобоксы, готовые к вашему приходу на стойке нашего ресторана.",
+    "kshopTitle": "Как оплатить через K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Сохраните QR-код или отсканируйте его напрямую через ваше банковское приложение.",
+    "kshopStep2": "Вручную введите точную сумму заказа: {amount} ฿",
+    "kshopStep3": "Подтвердите перевод и завершите оплату.",
+    "kshopStep4": "Загрузите скриншот квитанции об оплате (слип) ниже.",
+    "omiseGenerating": "Генерация QR-кода Omise...",
+    "omiseNoUploadNeeded": "✅ Загрузка не требуется — оплата подтверждается автоматически.",
+    "omiseFailedToLoad": "Не удалось загрузить QR-код Omise. Пожалуйста, повторите попытку.",
+    "retryQrBtn": "Повторить QR",
+    "saveQrBtn": "Сохранить QR",
+    "extras": {
+      "spicy-no": "Не остро",
+      "spicy-light": "Слегка остро",
+      "spicy-medium": "Средней остроты",
+      "spicy-very": "Очень остро",
+      "sugar-no": "Без сахара (0%)",
+      "sugar-less": "Меньше сахара (50%)",
+      "sugar-regular": "Обычная сладость (100%)",
+      "sauce-none": "Без соусов",
+      "sauce-ketchup": "Кетчуп",
+      "sauce-mayo": "Майонез",
+      "sauce-chili": "Соус чили",
+      "fruit-watermelon": "Арбуз",
+      "fruit-pineapple": "Ананас",
+      "fruit-banana": "Банан",
+      "fruit-papaya": "Папайя",
+      "fruit-lime": "Свежий лайм",
+      "extra-mozzarella": "Дополнительная моцарелла",
+      "extra-mushrooms": "Свежие грибы",
+      "extra-ham": "Варёная ветчина",
+      "extra-bacon": "Хрустящий бекон",
+      "extra-salami": "Острая салями",
+      "extra-olives": "Чёрные оливки",
+      "extra-anchovies": "Средиземноморские анчоусы",
+      "extra-parmigiano": "Пармиджано Реджано",
+      "extra-gorgonzola": "Сыр горгонзола",
+      "extra-truffle": "Трюфельное масло",
+      "extra-egg": "Яйцо",
+      "extra-onion": "Красный лук",
+      "extra-fries": "Картофель фри (топпинг)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Кока-Кола (банка)",
+      "coke-zero-can": "Кока-Кола Зеро (банка)",
+      "sprite-can": "Спрайт (банка)",
+      "soda-water-bottle": "Газированная вода (бутылка)",
+      "mineral-water-bottle": "Минеральная вода (бутылка)",
+      "espresso": "Итальянский эспрессо",
+      "cappuccino": "Сливочный капучино",
+      "americano": "Кофе американо",
+      "latte-macchiato": "Латте макиато",
+      "tiramisu": "Тирамису ручной работы",
+      "cake-of-the-day": "Торт дня",
+      "affogato": "Аффогато аль каффе",
+      "crepes": "Крепы с Nutella",
+      "pizza-margherita": "Пицца Маргарита",
+      "pizza-marinara": "Пицца Маринара (веганская)",
+      "carbonara": "Спагетти карбонара",
+      "bolognese": "Спагетти болоньезе",
+      "french-fries": "Картофель фри",
+      "pizza-sandwich-parma": "Фокачча с пармской ветчиной"
+    }
+  },
+  "ZH": {
+    "wineBannerBadge": "🍷 堂食葡萄酒特权 • 9折优惠",
+    "wineBannerTitle": "精选葡萄酒 • 在线预订即可享受专属 10% 餐桌折扣",
+    "wineBannerDesc": "根据泰国法律，不允许在线配送酒精饮料。我们邀请您在我们位于拉廊的餐厅享用我们的酒窖精选：从我们的网站预订餐桌，即可在餐桌上享受所有葡萄酒瓶 10% 的折扣！",
+    "wineBannerButton": "预订餐桌（葡萄酒 9 折）",
+    "checkoutFirstOrderDiscount": "首单欢迎 10% 折扣",
+    "takeawayBoxExplanation": "您的披萨将新鲜烘焙，并装入保温箱，准备好在您到达我们餐厅柜台时取用。",
+    "kshopTitle": "如何使用 K-Shop（开泰银行）支付：",
+    "kshopStep1": "保存二维码或直接使用您的银行应用程序扫描。",
+    "kshopStep2": "手动输入确切的订单总额：{amount} ฿",
+    "kshopStep3": "确认转账并完成支付。",
+    "kshopStep4": "在下方上传您的付款收据截图（回执）。",
+    "omiseGenerating": "正在生成 Omise 二维码...",
+    "omiseNoUploadNeeded": "✅ 无需上传 — 支付自动确认。",
+    "omiseFailedToLoad": "加载 Omise 二维码失败。请重试。",
+    "retryQrBtn": "重试二维码",
+    "saveQrBtn": "保存二维码",
+    "extras": {
+      "spicy-no": "不辣",
+      "spicy-light": "微辣",
+      "spicy-medium": "中辣",
+      "spicy-very": "非常辣",
+      "sugar-no": "无糖（0%）",
+      "sugar-less": "少糖（50%）",
+      "sugar-regular": "正常甜度（100%）",
+      "sauce-none": "无酱料",
+      "sauce-ketchup": "番茄酱",
+      "sauce-mayo": "蛋黄酱",
+      "sauce-chili": "辣椒酱",
+      "fruit-watermelon": "西瓜",
+      "fruit-pineapple": "菠萝",
+      "fruit-banana": "香蕉",
+      "fruit-papaya": "木瓜",
+      "fruit-lime": "新鲜青柠",
+      "extra-mozzarella": "额外马苏里拉奶酪",
+      "extra-mushrooms": "新鲜蘑菇",
+      "extra-ham": "熟火腿",
+      "extra-bacon": "脆培根",
+      "extra-salami": "辣味萨拉米",
+      "extra-olives": "黑橄榄",
+      "extra-anchovies": "地中海凤尾鱼",
+      "extra-parmigiano": "帕马森干酪",
+      "extra-gorgonzola": "戈贡佐拉奶酪",
+      "extra-truffle": "松露油",
+      "extra-egg": "鸡蛋",
+      "extra-onion": "红洋葱",
+      "extra-fries": "炸薯条（配料）"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "可口可乐（罐装）",
+      "coke-zero-can": "零度可乐（罐装）",
+      "sprite-can": "雪碧（罐装）",
+      "soda-water-bottle": "苏打水（瓶装）",
+      "mineral-water-bottle": "矿泉水（瓶装）",
+      "espresso": "意式浓缩咖啡",
+      "cappuccino": "奶油卡布奇诺",
+      "americano": "美式咖啡",
+      "latte-macchiato": "拿铁玛奇朵",
+      "tiramisu": "手工提拉米苏",
+      "cake-of-the-day": "今日蛋糕",
+      "affogato": "阿芙佳朵",
+      "crepes": "Nutella 可丽饼",
+      "pizza-margherita": "玛格丽特披萨",
+      "pizza-marinara": "玛丽娜拉披萨（纯素）",
+      "carbonara": "培根蛋面",
+      "bolognese": "博洛尼亚肉酱面",
+      "french-fries": "炸薯条",
+      "pizza-sandwich-parma": "帕尔马火腿佛卡夏"
+    }
+  }
+};
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import QRCode from 'qrcode';
 import { useCartStore } from '../store/cartStore';
@@ -127,9 +759,10 @@ const translations = {
     trackerTakeawayReady: 'IL TUO ORDINE È PRONTO!',
     trackerTakeawayReadyDesc: 'Le tue pizze sono state appena sfornate calde! Ti aspettiamo al banco della nostra pizzeria a Ranong Hot Springs per il ritiro.',
     supportNotice: "Non esitare a contattarci per qualunque informazione o modifica all'ordine",
-    rejectedTitle: 'Siamo spiacenti!',
-    rejectedDesc: "La cucina è al completo o temporaneamente impossibilitata a prendere in carico l'ordine. Ti invitiamo a contattarci direttamente per qualsiasi esigenza.",
-    backToFormBtn: 'Torna al modulo',
+    deliveryBeyond6kmNotice: (dist: number) => `La consegna a domicilio è attiva fino a 6 km (la tua posizione è a ${dist.toFixed(1)} km). Puoi ordinare con Ritiro al Locale (Takeaway) e venire a ritirare la tua pizza calda da noi a Ranong Hot Springs!`,
+    switchToTakeawayBtn: 'Passa a Ritiro al Locale (Takeaway)',
+    outOfRangeTakeawayNotice: "L'ordinazione online è attiva per i clienti a Ranong (fino a 6 km a domicilio, fino a 25 km per asporto). La tua posizione attuale è a oltre 25 km. Puoi comunque consultare liberamente il nostro menu!",
+    outOfRangeTitle: 'Sei Fuori Zona di Ordinazione',
     trackerDeliveryDetails: (dist: number, mins: number) => `Distanza dalla pizzeria: ${dist.toFixed(1)} km — Tempo stimato di viaggio: ~${mins} minuti`,
   },
   EN: {
@@ -151,6 +784,10 @@ const translations = {
     verifyLoc: 'Verify Location',
     verifyingLoc: 'Verifying...',
     outOfRange: (dist: number, max: number) => `We are sorry, your location is ${dist.toFixed(1)} km away. We deliver up to ${max} km max.`,
+    deliveryBeyond6kmNotice: (dist: number) => `Home delivery is available up to 6 km (your location is ${dist.toFixed(1)} km away). You can order with Takeaway and come pick up your hot pizza from us at Ranong Hot Springs!`,
+    switchToTakeawayBtn: 'Switch to Takeaway',
+    outOfRangeTakeawayNotice: 'Online ordering is available for customers in Ranong (up to 6 km for delivery, up to 25 km for takeaway). Your current location is over 25 km away. You can still browse our menu freely!',
+    outOfRangeTitle: 'You Are Outside the Ordering Area',
     simLoc: 'Simulate location (Test)',
     continueBtn: 'Continue',
     step2Title: 'Payment Method',
@@ -222,6 +859,10 @@ const translations = {
     verifyLoc: 'ตรวจสอบตำแหน่ง',
     verifyingLoc: 'กำลังตรวจสอบ...',
     outOfRange: (dist: number, max: number) => `ขออภัย ตำแหน่งของคุณอยู่ห่างออกไป ${dist.toFixed(1)} กม. เราจัดส่งได้ไม่เกิน ${max} กม.`,
+    deliveryBeyond6kmNotice: (dist: number) => `บริการจัดส่งถึงบ้านมีให้บริการในรัศมีไม่เกิน 6 กม. (ตำแหน่งของคุณอยู่ที่ ${dist.toFixed(1)} กม.) คุณสามารถสั่งซื้อแบบรับที่ร้าน (Takeaway) และมารับพิซซ่าร้อน ๆ จากเราได้ที่ Ranong Hot Springs!`,
+    switchToTakeawayBtn: 'เปลี่ยนเป็นรับที่ร้าน (Takeaway)',
+    outOfRangeTakeawayNotice: 'การสั่งซื้อออนไลน์มีให้บริการสำหรับลูกค้าในระนอง (จัดส่งถึงบ้านไม่เกิน 6 กม. รับที่ร้านไม่เกิน 25 กม.) ตำแหน่งปัจจุบันของคุณอยู่ไกลกว่า 25 กม. แต่คุณยังสามารถดูเมนูของเราได้ตามอัธยาศัย!',
+    outOfRangeTitle: 'คุณอยู่นอกพื้นที่สั่งซื้อ',
     simLoc: 'จำลองตำแหน่ง (ทดสอบ)',
     continueBtn: 'ดำเนินการต่อ',
     step2Title: 'วิธีการชำระเงิน',
@@ -293,6 +934,10 @@ const translations = {
     verifyLoc: 'Standort verifizieren',
     verifyingLoc: 'Überprüfung...',
     outOfRange: (dist: number, max: number) => `Es tut uns leid, Ihr Standort ist ${dist.toFixed(1)} km entfernt. Wir liefern bis maximal ${max} km.`,
+    deliveryBeyond6kmNotice: (dist: number) => `Die Lieferung nach Hause ist bis 6 km aktiv (deine Position ist ${dist.toFixed(1)} km entfernt). Du kannst mit Selbstabholung (Takeaway) bestellen und deine heiße Pizza bei uns in Ranong Hot Springs abholen!`,
+    switchToTakeawayBtn: 'Wechsle zur Selbstabholung (Takeaway)',
+    outOfRangeTakeawayNotice: 'Die Online-Bestellung ist für Kunden in Ranong aktiv (bis 6 km Lieferung nach Hause, bis 25 km Selbstabholung). Deine aktuelle Position ist über 25 km entfernt. Du kannst trotzdem gerne unser Menü ansehen!',
+    outOfRangeTitle: 'Du bist außerhalb des Bestellbereichs',
     simLoc: 'Standort simulieren (Test)',
     continueBtn: 'Weiter',
     step2Title: 'Zahlungsmethode',
@@ -364,6 +1009,10 @@ const translations = {
     verifyLoc: 'တည်နေရာ စစ်ဆေးရန်',
     verifyingLoc: 'စစ်ဆေးနေပါသည်...',
     outOfRange: (dist: number, max: number) => `တောင်းပန်ပါသည်၊ သင့်တည်နေရာသည် ${dist.toFixed(1)} km အကွာတွင် ရှိနေပါသည်။ ကျွန်ုပ်တို့သည် အများဆုံး ${max} km အထိသာ ပို့ဆောင်ပေးပါသည်။`,
+    deliveryBeyond6kmNotice: (dist: number) => `အိမ်အရောက်ပို့ဆောင်မှုကို ၆ ကီလိုမီတာအထိ ဆောင်ရွက်ပေးပါသည် (သင့်တည်နေရာသည် ${dist.toFixed(1)} ကီလိုမီတာ အကွာအဝေးတွင် ရှိပါသည်)။ သင်သည် ဆိုင်မှပြန်ယူခြင်း (Takeaway) ဖြင့် မှာယူနိုင်ပြီး Ranong Hot Springs ရှိ ကျွန်ုပ်တို့ထံမှ သင့်ပီဇာပူပူကို လာရောက်ယူဆောင်နိုင်ပါသည်။`,
+    switchToTakeawayBtn: 'ဆိုင်မှပြန်ယူခြင်း (Takeaway) သို့ ပြောင်းရန်',
+    outOfRangeTakeawayNotice: 'အွန်လိုင်းမှာယူခြင်းကို Ranong ရှိ ဖောက်သည်များအတွက် ဆောင်ရွက်ပေးပါသည် (အိမ်အရောက်ပို့ဆောင်မှု ၆ ကီလိုမီတာအထိ၊ ဆိုင်မှပြန်ယူခြင်းအတွက် ၂၅ ကီလိုမီတာအထိ)။ သင့်လက်ရှိတည်နေရာသည် ၂၅ ကီလိုမီတာအထက် ကျော်လွန်နေပါသည်။ သို့သော် ကျွန်ုပ်တို့၏ မီနူးကို လွတ်လပ်စွာ ကြည့်ရှုနိုင်ပါသည်။',
+    outOfRangeTitle: 'သင်သည် မှာယူနိုင်သောဇုန်ပြင်ပတွင် ရှိနေပါသည်',
     simLoc: 'တည်နေရာ စမ်းသပ်မှု (Test)',
     continueBtn: 'ဆက်လက်လုပ်ဆောင်ရန်',
     step2Title: 'ငွေပေးချေမှု နည်းလမ်း',
@@ -415,6 +1064,306 @@ const translations = {
     rejectedDesc: 'မီးဖိုချောင်တွင် အော်ဒါများပြည့်နေပါသည် သို့မဟုတ် ယာယီလက်မခံနိုင်သေးပါ။ လိုအပ်ပါက ကျွန်ုပ်တို့ထံ တိုက်ရိုက် ဆက်သွယ်ပေးပါရန် မေတ္တာရပ်ခံအပ်ပါသည်။',
     backToFormBtn: 'ဖောင်သို့ ပြန်သွားမည်',
     trackerDeliveryDetails: (dist: number, mins: number) => `ဆိုင်မှ အကွာအဝေး: ${dist.toFixed(1)} km — ခန့်မှန်း ခရီးသွားချိန်: ~${mins} မိနစ်`,
+  },
+  ES: {
+    step1Title: "Tu información y servicio",
+    fulfillmentDelivery: "Entrega a domicilio",
+    fulfillmentTakeaway: "Recogida en el restaurante (para llevar)",
+    pickupLocationTitle: "Recogida en el restaurante",
+    pickupLocationAddress: "Flower Power Pizza – Ranong Hot Springs, Bang Rin",
+    pickupLocationHours: "⏰ Horario de recogida: 11:00 – 21:30 (Abierto)",
+    pickupNotesPlaceholder: "Notas para la recogida (ej. hora de llegada, peticiones...)",
+    namePlaceholder: "Nombre",
+    phonePlaceholder: "Teléfono",
+    emailPlaceholder: "Correo electrónico para recibo y seguimiento",
+    notesPlaceholder: "Notas de entrega (ej. timbre, piso, alergias...)",
+    invalidNameHint: "Por favor, introduce un nombre real y válido",
+    invalidPhoneHint: "Por favor, introduce un número de teléfono válido (ej. 081-234-5678 o +34...)",
+    invalidEmailHint: "Por favor, introduce una dirección de correo electrónico válida",
+    addressPlaceholder: "Dirección de entrega",
+    verifyLoc: "Verificar ubicación",
+    verifyingLoc: "Verificando...",
+    outOfRange: (dist, max) => `Lo sentimos, tu ubicación está a ${dist.toFixed(1)} km. Realizamos entregas hasta un máximo de ${max} km.`,
+    deliveryBeyond6kmNotice: (dist) => `La entrega a domicilio está disponible hasta 6 km (tu ubicación está a ${dist.toFixed(1)} km). Puedes pedir para llevar y recoger tu pizza caliente en Ranong Hot Springs.`,
+    switchToTakeawayBtn: "Cambiar a para llevar (Takeaway)",
+    outOfRangeTakeawayNotice: "El pedido en línea está disponible para clientes en Ranong (hasta 6 km para entrega, hasta 25 km para recogida). Tu ubicación actual está a más de 25 km. ¡Aún puedes explorar nuestro menú libremente!",
+    outOfRangeTitle: "Estás fuera del área de pedidos",
+    simLoc: "Simular ubicación (Test)",
+    continueBtn: "Continuar",
+    step2Title: "Método de pago",
+    optPromptPay: "PromptPay QR (Kasikorn Bank)",
+    optCard: "Tarjeta (Visa/MC)",
+    optCash: "Efectivo contra entrega",
+    optCashTakeaway: "Efectivo al recoger en mostrador",
+    cardHolderLabel: "Nombre del titular de la tarjeta",
+    cardNumberLabel: "Número de tarjeta (16 dígitos)",
+    cardExpLabel: "Caducidad (MM/AA)",
+    cardCvvLabel: "CVV",
+    cardSecurityNotice: "Transacción 3D Secure con cifrado Omise Vault (SSL 256 bits)",
+    generateQrBtn: "GENERAR QR PROMPTPAY",
+    payCardBtn: "CONFIRMAR Y PAGAR CON TARJETA",
+    scanningPrompt: "Escanea el código QR con tu app bancaria tailandesa (SCB, KBank, Bangkok Bank, Krungthai)",
+    awaitingPayment: "Esperando confirmación del banco...",
+    paymentConfirmedTitle: "¡PAGO RECIBIDO!",
+    manualSlipFallback: "O sube una captura del recibo manualmente",
+    uploadBtn: "Subir captura del recibo",
+    submitBtn: "CONFIRMAR Y ENVIAR PEDIDO",
+    uploadPromptBtn: "SUBE EL RECIBO PARA CONTINUAR",
+    kbankStep4: "Sube la captura del recibo de pago",
+    backBtn: "Volver",
+    successTitle: "¡La cocina está en marcha!",
+    successDesc: "¡Gracias! Tu pedido ha sido registrado y se está preparando.",
+    closeBtn: "Cerrar",
+    waitText: "Por favor espera...",
+    confirmMapLoc: "ENTREGAR AQUÍ (CONFIRMAR UBICACIÓN)",
+    mapInstructions: "Toca el mapa o mueve el marcador a tu punto de entrega",
+    tapHint: "Toca el mapa para colocar el marcador",
+    expandMap: "Expandir",
+    collapseMap: "Minimizar",
+    locConfirmed: (dist) => `¡Ubicación confirmada! (~${dist.toFixed(1)} km)`,
+    detectLocBtn: "Encontrar mi ubicación",
+    sendingTitle: "Enviando tu pedido...",
+    sendingHint: "Esperando confirmación de la cocina",
+    timeoutTitle: "La cocina está muy ocupada o la tablet del personal está desconectada.",
+    timeoutHint: "Es posible que tu pedido haya llegado igualmente. Pulsa Reintentar o contáctanos directamente.",
+    retryBtn: "Reintentar enviar pedido",
+    emergencyTitle: "¿Prefieres contactarnos directamente?",
+    trackerPreparing: "¡Quédate en esta página! Estamos preparando tus pizzas. Esta pantalla se actualizará automáticamente en cuanto el repartidor salga.",
+    trackerTakeawayPreparing: "¡Quédate en esta página! Estamos preparando tu pedido para llevar. Esta pantalla se actualizará en cuanto tus pizzas estén calientes y listas para recoger.",
+    trackerEstimate: (mins) => `Tiempo estimado de entrega: ~${mins} minutos`,
+    trackerDelivering: "¡El repartidor está en camino! Tu pizza está llegando.",
+    trackerTakeawayReady: "¡TU PEDIDO ESTÁ LISTO!",
+    trackerTakeawayReadyDesc: "¡Tus pizzas acaban de salir del horno! Puedes recogerlas en el mostrador de nuestra pizzería en Ranong Hot Springs.",
+    supportNotice: "No dudes en contactarnos para cualquier consulta o cambio en tu pedido",
+    rejectedTitle: "¡Lo sentimos!",
+    rejectedDesc: "La cocina está llena o temporalmente no puede aceptar pedidos. Por favor, contáctanos directamente.",
+    backToFormBtn: "Volver al formulario",
+    trackerDeliveryDetails: (dist, mins) => `Distancia: ${dist.toFixed(1)} km — Tiempo estimado: ~${mins} min`,
+  },
+  FR: {
+    step1Title: "Vos informations et service",
+    fulfillmentDelivery: "Livraison à domicile",
+    fulfillmentTakeaway: "Retrait au restaurant (à emporter)",
+    pickupLocationTitle: "Retrait au restaurant",
+    pickupLocationAddress: "Flower Power Pizza – Ranong Hot Springs, Bang Rin",
+    pickupLocationHours: "⏰ Heures de retrait : 11h00 – 21h30 (Ouvert)",
+    pickupNotesPlaceholder: "Notes de retrait (ex. heure d'arrivée, demandes...)",
+    namePlaceholder: "Nom",
+    phonePlaceholder: "Téléphone",
+    emailPlaceholder: "Email pour reçu et suivi",
+    notesPlaceholder: "Notes de livraison (ex. sonnette, étage, allergies...)",
+    invalidNameHint: "Veuillez entrer un nom réel et valide",
+    invalidPhoneHint: "Veuillez entrer un numéro de téléphone valide",
+    invalidEmailHint: "Veuillez entrer une adresse email valide",
+    addressPlaceholder: "Adresse de livraison",
+    verifyLoc: "Vérifier la localisation",
+    verifyingLoc: "Vérification...",
+    outOfRange: (dist, max) => `Nous sommes désolés, votre localisation est à ${dist.toFixed(1)} km. Nous livrons jusqu'à ${max} km maximum.`,
+    deliveryBeyond6kmNotice: (dist) => `La livraison à domicile est disponible jusqu'à 6 km (votre position est à ${dist.toFixed(1)} km). Vous pouvez commander à emporter et venir récupérer votre pizza chaude chez nous à Ranong Hot Springs !`,
+    switchToTakeawayBtn: "Passer à emporter (Takeaway)",
+    outOfRangeTakeawayNotice: "La commande en ligne est disponible pour les clients à Ranong (jusqu'à 6 km pour la livraison, jusqu'à 25 km pour le retrait). Votre position actuelle est à plus de 25 km. Vous pouvez toujours parcourir notre menu librement !",
+    outOfRangeTitle: "Vous êtes en dehors de la zone de commande",
+    simLoc: "Simuler position (Test)",
+    continueBtn: "Continuer",
+    step2Title: "Mode de paiement",
+    optPromptPay: "PromptPay QR (Kasikorn Bank)",
+    optCard: "Carte (Visa/MC)",
+    optCash: "Paiement à la livraison",
+    optCashTakeaway: "Paiement en espèces au comptoir lors du retrait",
+    cardHolderLabel: "Nom du titulaire de la carte",
+    cardNumberLabel: "Numéro de carte (16 chiffres)",
+    cardExpLabel: "Expiration (MM/AA)",
+    cardCvvLabel: "CVV",
+    cardSecurityNotice: "Transaction 3D Secure avec chiffrement Omise Vault (SSL 256 bits)",
+    generateQrBtn: "GÉNÉRER LE QR PROMPTPAY",
+    payCardBtn: "CONFIRMER ET PAYER PAR CARTE",
+    scanningPrompt: "Scannez le QR code avec votre appli bancaire thaïlandaise (SCB, KBank, Bangkok Bank, Krungthai)",
+    awaitingPayment: "En attente de la confirmation bancaire...",
+    paymentConfirmedTitle: "PAIEMENT REÇU !",
+    manualSlipFallback: "Ou téléchargez manuellement une capture du reçu",
+    uploadBtn: "Télécharger la capture du reçu",
+    submitBtn: "CONFIRMER ET ENVOYER LA COMMANDE",
+    uploadPromptBtn: "TÉLÉCHARGEZ LE REÇU POUR CONTINUER",
+    kbankStep4: "Téléchargez la capture du reçu de paiement",
+    backBtn: "Retour",
+    successTitle: "La cuisine est en marche !",
+    successDesc: "Merci ! Votre commande a été enregistrée et est en préparation.",
+    closeBtn: "Fermer",
+    waitText: "Veuillez patienter...",
+    confirmMapLoc: "LIVRER ICI (CONFIRMER L'EMPLACEMENT)",
+    mapInstructions: "Touchez la carte ou déplacez le repère sur votre point de livraison",
+    tapHint: "Touchez la carte pour placer le repère",
+    expandMap: "Agrandir",
+    collapseMap: "Réduire",
+    locConfirmed: (dist) => `Position confirmée ! (~${dist.toFixed(1)} km)`,
+    detectLocBtn: "Trouver ma position",
+    sendingTitle: "Envoi de votre commande...",
+    sendingHint: "En attente de la confirmation de la cuisine",
+    timeoutTitle: "La cuisine est très occupée ou la tablette du personnel est hors ligne.",
+    timeoutHint: "Votre commande est peut-être bien arrivée. Appuyez sur Réessayer ou contactez-nous directement.",
+    retryBtn: "Réessayer l'envoi de la commande",
+    emergencyTitle: "Vous préférez nous contacter directement ?",
+    trackerPreparing: "Restez sur cette page ! Nous préparons vos pizzas. Cet écran se mettra à jour automatiquement dès que le livreur partira.",
+    trackerTakeawayPreparing: "Restez sur cette page ! Nous préparons votre commande à emporter. Cet écran se mettra à jour dès que vos pizzas seront chaudes et prêtes à être récupérées !",
+    trackerEstimate: (mins) => `Temps de livraison estimé : ~${mins} minutes`,
+    trackerDelivering: "Le livreur est en route ! Votre pizza arrive.",
+    trackerTakeawayReady: "VOTRE COMMANDE EST PRÊTE !",
+    trackerTakeawayReadyDesc: "Vos pizzas viennent d'être fraîchement cuites ! Vous pouvez les récupérer au comptoir de notre pizzeria à Ranong Hot Springs.",
+    supportNotice: "N'hésitez pas à nous contacter pour toute question ou modification de votre commande",
+    rejectedTitle: "Nous sommes désolés !",
+    rejectedDesc: "La cuisine est actuellement complète ou temporairement dans l'impossibilité d'accepter des commandes. Veuillez nous contacter directement.",
+    backToFormBtn: "Retour au formulaire",
+    trackerDeliveryDetails: (dist, mins) => `Distance : ${dist.toFixed(1)} km — Temps de trajet estimé : ~${mins} min`,
+  },
+  RU: {
+    step1Title: "Ваша информация и обслуживание",
+    fulfillmentDelivery: "Доставка на дом",
+    fulfillmentTakeaway: "Самовывоз из ресторана",
+    pickupLocationTitle: "Самовывоз из ресторана",
+    pickupLocationAddress: "Flower Power Pizza – Ranong Hot Springs, Bang Rin",
+    pickupLocationHours: "⏰ Часы самовывоза: 11:00 – 21:30 (Открыто)",
+    pickupNotesPlaceholder: "Примечания к самовывозу (например, время прибытия, пожелания...)",
+    namePlaceholder: "Имя",
+    phonePlaceholder: "Телефон",
+    emailPlaceholder: "Email для чека и отслеживания",
+    notesPlaceholder: "Примечания к доставке (например, звонок, этаж, аллергии...)",
+    invalidNameHint: "Пожалуйста, введите настоящее и действительное имя",
+    invalidPhoneHint: "Пожалуйста, введите действительный номер телефона",
+    invalidEmailHint: "Пожалуйста, введите действительный адрес электронной почты",
+    addressPlaceholder: "Адрес доставки",
+    verifyLoc: "Проверить местоположение",
+    verifyingLoc: "Проверка...",
+    outOfRange: (dist, max) => `Извините, ваше местоположение на расстоянии ${dist.toFixed(1)} км. Мы доставляем максимум до ${max} км.`,
+    deliveryBeyond6kmNotice: (dist) => `Доставка на дом доступна до 6 км (ваше местоположение: ${dist.toFixed(1)} км). Вы можете заказать самовывоз и забрать горячую пиццу в Ranong Hot Springs!`,
+    switchToTakeawayBtn: "Переключиться на самовывоз",
+    outOfRangeTakeawayNotice: "Онлайн-заказ доступен для клиентов в Ранонге (до 6 км для доставки, до 25 км для самовывоза). Ваше текущее местоположение находится более чем в 25 км. Вы всё ещё можете свободно просматривать наше меню!",
+    outOfRangeTitle: "Вы вне зоны заказа",
+    simLoc: "Симуляция позиции (Тест)",
+    continueBtn: "Продолжить",
+    step2Title: "Способ оплаты",
+    optPromptPay: "PromptPay QR (Kasikorn Bank)",
+    optCard: "Карта (Visa/MC)",
+    optCash: "Наличные при доставке",
+    optCashTakeaway: "Наличные при самовывозе на кассе",
+    cardHolderLabel: "Имя владельца карты",
+    cardNumberLabel: "Номер карты (16 цифр)",
+    cardExpLabel: "Срок действия (ММ/ГГ)",
+    cardCvvLabel: "CVV",
+    cardSecurityNotice: "Транзакция 3D Secure с шифрованием Omise Vault (SSL 256 бит)",
+    generateQrBtn: "СГЕНЕРИРОВАТЬ PROMPTPAY QR",
+    payCardBtn: "ПОДТВЕРДИТЬ И ОПЛАТИТЬ КАРТОЙ",
+    scanningPrompt: "Отсканируйте QR-код в вашем тайском банковском приложении (SCB, KBank, Bangkok Bank, Krungthai)",
+    awaitingPayment: "Ожидание подтверждения банка...",
+    paymentConfirmedTitle: "ПЛАТЁЖ ПОЛУЧЕН!",
+    manualSlipFallback: "Или загрузите скриншот чека вручную",
+    uploadBtn: "Загрузить скриншот чека",
+    submitBtn: "ПОДТВЕРДИТЬ И ОТПРАВИТЬ ЗАКАЗ",
+    uploadPromptBtn: "ЗАГРУЗИТЕ ЧЕК, ЧТОБЫ ПРОДОЛЖИТЬ",
+    kbankStep4: "Загрузите скриншот чека об оплате",
+    backBtn: "Назад",
+    successTitle: "Кухня работает!",
+    successDesc: "Спасибо! Ваш заказ принят и готовится.",
+    closeBtn: "Закрыть",
+    waitText: "Пожалуйста, подождите...",
+    confirmMapLoc: "ДОСТАВИТЬ СЮДА (ПОДТВЕРДИТЬ МЕСТОПОЛОЖЕНИЕ)",
+    mapInstructions: "Нажмите на карту или переместите метку в точку доставки",
+    tapHint: "Нажмите на карту, чтобы поставить метку",
+    expandMap: "Развернуть",
+    collapseMap: "Свернуть",
+    locConfirmed: (dist) => `Местоположение подтверждено! (~${dist.toFixed(1)} км)`,
+    detectLocBtn: "Найти моё местоположение",
+    sendingTitle: "Отправка вашего заказа...",
+    sendingHint: "Ожидание подтверждения кухни",
+    timeoutTitle: "Кухня очень занята или планшет персонала не в сети.",
+    timeoutHint: "Возможно, ваш заказ всё же дошёл. Нажмите «Повторить» или свяжитесь с нами напрямую.",
+    retryBtn: "Повторить отправку заказа",
+    emergencyTitle: "Хотите связаться с нами напрямую?",
+    trackerPreparing: "Останьтесь на этой странице! Мы готовим ваши пиццы. Экран обновится автоматически, как только курьер выедет.",
+    trackerTakeawayPreparing: "Останьтесь на этой странице! Мы готовим ваш заказ на вынос. Экран обновится, как только ваши пиццы будут горячими и готовыми к выдаче!",
+    trackerEstimate: (mins) => `Примерное время доставки: ~${mins} мин.`,
+    trackerDelivering: "Курьер в пути! Ваша пицца едет.",
+    trackerTakeawayReady: "ВАШ ЗАКАЗ ГОТОВ!",
+    trackerTakeawayReadyDesc: "Ваши пиццы только что испекли! Вы можете забрать их на стойке нашей пиццерии в Ranong Hot Springs.",
+    supportNotice: "Свяжитесь с нами по любым вопросам или для изменения заказа",
+    rejectedTitle: "Мы сожалеем!",
+    rejectedDesc: "Кухня сейчас перегружена или временно не может принимать заказы. Пожалуйста, свяжитесь с нами напрямую.",
+    backToFormBtn: "Вернуться к форме",
+    trackerDeliveryDetails: (dist, mins) => `Расстояние: ${dist.toFixed(1)} км — Время в пути: ~${mins} мин.`,
+  },
+  ZH: {
+    step1Title: "您的信息与服务",
+    fulfillmentDelivery: "外卖配送",
+    fulfillmentTakeaway: "餐厅自取（外带）",
+    pickupLocationTitle: "餐厅自取",
+    pickupLocationAddress: "Flower Power Pizza – Ranong Hot Springs, Bang Rin",
+    pickupLocationHours: "⏰ 取餐时间：11:00 – 21:30（营业中）",
+    pickupNotesPlaceholder: "取餐备注（例如到达时间、要求...）",
+    namePlaceholder: "姓名",
+    phonePlaceholder: "电话",
+    emailPlaceholder: "用于收据和跟踪的电子邮件",
+    notesPlaceholder: "配送备注（例如门铃、楼层、过敏...）",
+    invalidNameHint: "请输入真实有效的姓名",
+    invalidPhoneHint: "请输入有效的电话号码",
+    invalidEmailHint: "请输入有效的电子邮件地址",
+    addressPlaceholder: "配送地址",
+    verifyLoc: "验证位置",
+    verifyingLoc: "验证中...",
+    outOfRange: (dist, max) => `很抱歉，您的位置在 ${dist.toFixed(1)} 公里外。我们最远配送 ${max} 公里。`,
+    deliveryBeyond6kmNotice: (dist) => `外卖配送最远6公里（您当前位置为 ${dist.toFixed(1)} 公里）。您可以选择外带，来 Ranong Hot Springs 取您热腾腾的披萨！`,
+    switchToTakeawayBtn: "切换到外带 (Takeaway)",
+    outOfRangeTakeawayNotice: "在线订购适用于拉廊府的顾客（配送最远6公里，外带最远25公里）。您当前位置超过25公里。您仍然可以自由浏览我们的菜单！",
+    outOfRangeTitle: "您不在订购区域内",
+    simLoc: "模拟位置（测试）",
+    continueBtn: "继续",
+    step2Title: "支付方式",
+    optPromptPay: "PromptPay QR（开泰银行）",
+    optCard: "信用卡（Visa/MC）",
+    optCash: "货到付款",
+    optCashTakeaway: "柜台取餐时付现金",
+    cardHolderLabel: "持卡人姓名",
+    cardNumberLabel: "卡号（16位）",
+    cardExpLabel: "有效期（MM/YY）",
+    cardCvvLabel: "CVV",
+    cardSecurityNotice: "使用 Omise Vault 加密（SSL 256 位）的 3D Secure 交易",
+    generateQrBtn: "生成 PROMPTPAY QR",
+    payCardBtn: "确认并用卡支付",
+    scanningPrompt: "用您的泰国银行应用扫描二维码（SCB、KBank、Bangkok Bank、Krungthai）",
+    awaitingPayment: "等待银行确认...",
+    paymentConfirmedTitle: "已收到付款！",
+    manualSlipFallback: "或手动上传收据截图",
+    uploadBtn: "上传收据截图",
+    submitBtn: "确认并发送订单",
+    uploadPromptBtn: "上传收据以继续",
+    kbankStep4: "上传付款收据截图",
+    backBtn: "返回",
+    successTitle: "厨房正在忙碌！",
+    successDesc: "谢谢！您的订单已记录，正在准备中。",
+    closeBtn: "关闭",
+    waitText: "请稍候...",
+    confirmMapLoc: "送到这里（确认位置）",
+    mapInstructions: "点击地图或移动图钉到您的送餐地点",
+    tapHint: "点击地图放置图钉",
+    expandMap: "展开",
+    collapseMap: "最小化",
+    locConfirmed: (dist) => `位置已确认！(~${dist.toFixed(1)} km)`,
+    detectLocBtn: "定位我的位置",
+    sendingTitle: "正在发送您的订单...",
+    sendingHint: "等待厨房确认",
+    timeoutTitle: "厨房非常忙，或员工平板离线。",
+    timeoutHint: "您的订单可能仍已送达。请按重试或直接联系我们。",
+    retryBtn: "重试发送订单",
+    emergencyTitle: "想直接联系我们？",
+    trackerPreparing: "请留在本页面！我们正在制作您的披萨。骑手一出发，此页面会自动更新。",
+    trackerTakeawayPreparing: "请留在本页面！我们正在准备您的自取订单。您的披萨热腾腾、可自取时，此页面会立即更新！",
+    trackerEstimate: (mins) => `预计送达时间：~${mins} 分钟`,
+    trackerDelivering: "骑手正在路上！您的披萨马上送到。",
+    trackerTakeawayReady: "您的订单已准备好！",
+    trackerTakeawayReadyDesc: "您的披萨刚刚新鲜出炉！您可以到我们位于 Ranong Hot Springs 的披萨店柜台取餐。",
+    supportNotice: "如有任何疑问或需要更改订单，欢迎随时联系我们",
+    rejectedTitle: "很抱歉！",
+    rejectedDesc: "厨房目前已满或暂时无法接单。请直接联系我们。",
+    backToFormBtn: "返回表单",
+    trackerDeliveryDetails: (dist, mins) => `距离：${dist.toFixed(1)} km — 预计行程：~${mins} 分钟`,
   },
 };
 
@@ -521,7 +1470,9 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     setSimulatedLocation,
     distanceKm,
     maxRadiusKm,
+    maxTakeawayRadiusKm,
     isDeliverable,
+    isTakeawayAllowed,
     error: locationError,
   } = useLocationStore();
 
@@ -885,7 +1836,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
       : (address || 'Nessun indirizzo');
     const thAddr = thaiAddress || (lang === 'TH' ? address : '');
     if (orderType === 'delivery' && thAddr) final += ` [ADDR_TH: ${thAddr}]`;
-    if (orderType === 'delivery' && markerPos) final += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
+    if (markerPos) final += ` [COORD: ${markerPos.lat},${markerPos.lng}]`;
     if (email.trim()) final += ` [EMAIL: ${email.trim()}]`;
     if (notes.trim()) final += ` [NOTE: ${notes.trim()}]`;
     if (deviceId) final += ` [DID: ${deviceId}]`;
@@ -897,8 +1848,12 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     return final;
   }, [orderType, address, thaiAddress, lang, markerPos, email, notes, deviceId, activePromoCode, discountAmount, isHotelGuest]);
 
-  const outOfRange = distanceKm !== null && !isDeliverable;
-  const t = translations[lang] || translations.EN || translations.IT;
+  const isDeliveryBeyond6km = distanceKm !== null && distanceKm > maxRadiusKm && distanceKm <= maxTakeawayRadiusKm;
+  const isBeyond25km = distanceKm !== null && distanceKm > maxTakeawayRadiusKm;
+  const outOfRange = orderType === 'delivery'
+    ? (distanceKm !== null && !isDeliverable)
+    : (distanceKm !== null && !isTakeawayAllowed);
+  const t = targetedTranslations[lang] || translations.EN || translations.IT;
 
   // Geocoding helper with strict language rules and clean text processing
   const fetchReverseGeocoding = async (lat: number, lng: number) => {
@@ -2042,7 +2997,45 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                 <p className="text-amber-600 text-[9px] text-center font-bold">{locationError}</p>
               )}
 
-              {orderType === 'delivery' && outOfRange && (
+              {/* Delivery beyond 6 km but within 25 km: Switch to Takeaway Callout */}
+              {orderType === 'delivery' && isDeliveryBeyond6km && (
+                <div className="bg-amber-50 p-2.5 rounded-xl border border-amber-300 text-center space-y-1.5 animate-fadeIn shadow-2xs">
+                  <p className="text-amber-950 text-[9.5px] leading-relaxed font-bold">
+                    {t.deliveryBeyond6kmNotice(distanceKm!)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setOrderType('takeaway')}
+                    className="w-full py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[9.5px] font-black uppercase tracking-wider shadow-xs transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <span>🛍️</span>
+                    <span>{t.switchToTakeawayBtn}</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Completely out of range (> 25 km): Blocking notice for both Delivery and Takeaway */}
+              {isBeyond25km && (
+                <div className="bg-red-50 p-2.5 rounded-xl border border-red-300 text-center space-y-1 animate-fadeIn shadow-2xs">
+                  <p className="text-red-950 text-[10px] font-black uppercase tracking-wide flex items-center justify-center gap-1">
+                    <span>🚫</span>
+                    <span>{t.outOfRangeTitle}</span>
+                  </p>
+                  <p className="text-[#8B1E1E] text-[9.5px] leading-relaxed font-semibold">
+                    {t.outOfRangeTakeawayNotice}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={setSimulatedLocation}
+                    className="text-[8.5px] text-red-800 font-extrabold underline mt-1 block mx-auto cursor-pointer"
+                  >
+                    {t.simLoc}
+                  </button>
+                </div>
+              )}
+
+              {/* Standard out of range fallback if not already handled by 6-25km or >25km */}
+              {orderType === 'delivery' && outOfRange && !isDeliveryBeyond6km && !isBeyond25km && (
                 <div className="bg-red-50/50 p-1.5 rounded-xl border border-red-200/60 text-center">
                   <p className="text-[#8B1E1E] text-[9px] leading-relaxed font-bold">
                     {t.outOfRange(distanceKm!, maxRadiusKm)}
@@ -2057,7 +3050,24 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
               )}
 
               {/* Welcome First Order / Promo Box */}
-              {isEligible && discountAmount > 0 && (
+              {appliedPromo && discountAmount > 0 ? (
+                <div className="bg-gradient-to-r from-amber-500/15 via-yellow-400/20 to-amber-500/15 border border-amber-400/60 rounded-xl p-2.5 flex items-center justify-between shadow-2xs animate-fadeIn">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">🎟️</span>
+                    <div>
+                      <span className="text-[10px] font-black text-amber-950 uppercase tracking-wide block">
+                        {lang === 'TH' ? `คูปองส่วนลด ${appliedPromo.code}` :
+                         lang === 'IT' ? `Coupon ${appliedPromo.code} Applicato` :
+                         lang === 'DE' ? `Gutscheincode ${appliedPromo.code} Aktiv` :
+                         `Coupon ${appliedPromo.code} Applied`}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10.5px] font-black text-amber-900 bg-amber-200/90 px-2 py-0.5 rounded-lg border border-amber-400">
+                    -{discountAmount}฿
+                  </span>
+                </div>
+              ) : (!appliedPromo && isEligible && discountAmount > 0) ? (
                 <div className="bg-gradient-to-r from-emerald-50 via-amber-50 to-emerald-50 border border-emerald-400/50 rounded-xl p-2 flex items-center justify-between shadow-2xs animate-fadeIn">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs">🎉</span>
@@ -2072,7 +3082,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                     -{discountAmount}฿
                   </span>
                 </div>
-              )}
+              ) : null}
 
               <button
                 onClick={() => {
@@ -2086,7 +3096,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                 disabled={
                   orderType === 'delivery'
                     ? (distanceKm === null || outOfRange || !isFormValid || !address)
-                    : (!isFormValid)
+                    : (!isFormValid || isBeyond25km)
                 }
                 className="w-full bg-[#8B1E1E] hover:bg-[#721818] text-white py-2 px-3 rounded-full font-bold transition-all disabled:bg-stone-100 disabled:text-stone-400 disabled:shadow-none shadow-sm hover:shadow-md cursor-pointer duration-200 transform active:scale-95 text-[9px] tracking-wider uppercase flex-shrink-0"
                 style={{ fontFamily: 'Inter, sans-serif' }}
@@ -2190,7 +3200,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                         {isQrSaved ? (
                           <><Check size={10} className="stroke-[3]" /><span>{lang === 'TH' ? 'บันทึกแล้ว!' : 'Saved!'}</span></>
                         ) : (
-                          <><Download size={10} /><span>{lang === 'IT' ? 'Salva QR' : lang === 'TH' ? 'บันทึกรูป QR' : lang === 'DE' ? 'QR Speichern' : 'Save QR'}</span></>
+                          <><Download size={10} /><span>{targetedTranslations[lang]?.saveQrBtn || targetedTranslations['EN'].saveQrBtn}</span></>
                         )}
                       </a>
                       <button
@@ -2373,7 +3383,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                             className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                           >
                             <QrCode size={13} />
-                            <span>{lang === 'IT' ? 'Riprova QR Omise' : lang === 'TH' ? 'ลองใหม่' : lang === 'DE' ? 'Erneut versuchen' : 'Retry QR'}</span>
+                            <span>{targetedTranslations[lang]?.retryQrBtn || targetedTranslations['EN'].retryQrBtn}</span>
                           </button>
                         </div>
                       )}
@@ -2490,7 +3500,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                       {lang === 'TH' ? 'ยอดชำระเงินทั้งหมด' : 'Totale da addebitare'}
                     </p>
                     <div className="flex items-baseline justify-center gap-2">
-                      {isEligible && discountAmount > 0 && (
+                      {discountAmount > 0 && (
                         <span className="text-stone-400 line-through text-xs font-medium">
                           {subtotal + deliveryFee}฿
                         </span>
@@ -2500,12 +3510,17 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                         <span className="font-black select-none text-[#8B1E1E] text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
                       </p>
                     </div>
-                    {isEligible && discountAmount > 0 && (
+                    {discountAmount > 0 && (
                       <p className="text-[9px] font-black text-emerald-700">
-                        🎉 {lang === 'TH' ? `ประหยัด ${discountAmount}฿ (ส่วนลดสั่งครั้งแรก 10%)` :
-                             lang === 'IT' ? `Risparmi ${discountAmount}฿ (Sconto 1° Ordine 10%)` :
-                             lang === 'DE' ? `Sie sparen ${discountAmount}฿ (10% Erstbesteller-Rabatt)` :
-                             `You save ${discountAmount}฿ (10% 1st Order Discount)`}
+                        🎉 {appliedPromo 
+                             ? (lang === 'TH' ? `ใช้ส่วนลดโปรโมชั่น ${appliedPromo.code}: ประหยัด ${discountAmount}฿` :
+                                lang === 'IT' ? `Risparmi ${discountAmount}฿ (Coupon ${appliedPromo.code})` :
+                                lang === 'DE' ? `Sie sparen ${discountAmount}฿ (Code ${appliedPromo.code})` :
+                                `You save ${discountAmount}฿ (Coupon ${appliedPromo.code})`)
+                             : (lang === 'TH' ? `ประหยัด ${discountAmount}฿ (ส่วนลดสั่งครั้งแรก 10%)` :
+                                lang === 'IT' ? `Risparmi ${discountAmount}฿ (Sconto 1° Ordine 10%)` :
+                                lang === 'DE' ? `Sie sparen ${discountAmount}฿ (10% Erstbesteller-Rabatt)` :
+                                `You save ${discountAmount}฿ (10% 1st Order Discount)`)}
                       </p>
                     )}
                   </div>
@@ -2535,7 +3550,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                         : (lang === 'TH' ? 'ยอดชำระเงินปลายทาง' : 'Importo da pagare alla consegna')}
                     </p>
                     <div className="flex items-baseline justify-center gap-2">
-                      {isEligible && discountAmount > 0 && (
+                      {discountAmount > 0 && (
                         <span className="text-stone-400 line-through text-xs font-medium">
                           {subtotal + deliveryFee}฿
                         </span>
@@ -2545,12 +3560,17 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                         <span className="font-black select-none text-stone-850 text-sm" style={{ fontFamily: 'Prompt, Kanit, IBM Plex Sans Thai, system-ui, sans-serif' }}>฿</span>
                       </p>
                     </div>
-                    {isEligible && discountAmount > 0 && (
+                    {discountAmount > 0 && (
                       <p className="text-[9px] font-black text-emerald-700">
-                        🎉 {lang === 'TH' ? `ประหยัด ${discountAmount}฿ (ส่วนลด 10%)` :
-                             lang === 'IT' ? `Risparmi ${discountAmount}฿ (Sconto 1° Ordine 10%)` :
-                             lang === 'DE' ? `Sie sparen ${discountAmount}฿ (10% Rabatt)` :
-                             `You save ${discountAmount}฿ (10% Discount)`}
+                        🎉 {appliedPromo 
+                             ? (lang === 'TH' ? `ใช้ส่วนลดโปรโมชั่น ${appliedPromo.code}: ประหยัด ${discountAmount}฿` :
+                                lang === 'IT' ? `Risparmi ${discountAmount}฿ (Coupon ${appliedPromo.code})` :
+                                lang === 'DE' ? `Sie sparen ${discountAmount}฿ (Code ${appliedPromo.code})` :
+                                `You save ${discountAmount}฿ (Coupon ${appliedPromo.code})`)
+                             : (lang === 'TH' ? `ประหยัด ${discountAmount}฿ (ส่วนลดสั่งครั้งแรก 10%)` :
+                                lang === 'IT' ? `Risparmi ${discountAmount}฿ (Sconto 1° Ordine 10%)` :
+                                lang === 'DE' ? `Sie sparen ${discountAmount}฿ (10% Erstbesteller-Rabatt)` :
+                                `You save ${discountAmount}฿ (10% 1st Order Discount)`)}
                       </p>
                     )}
                     {orderType === 'takeaway' ? (

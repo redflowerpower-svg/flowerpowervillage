@@ -1,0 +1,266 @@
+{
+  "ES": {
+    "SALAD_SUBFILTER_LABELS": {
+      "all": "Todos los platos",
+      "salads": "Ensaladas italianas",
+      "mains": "Platos principales"
+    },
+    "SANDWICH_SUBFILTER_LABELS": {
+      "all": "Todos los platos",
+      "focacce": "Focaccia",
+      "sandwiches": "Sándwich de pizza"
+    },
+    "ITALIAN_SALADS_SECTIONS": {
+      "salads": {
+        "name": "Ensaladas italianas",
+        "desc": "Ensaladas frescas con huevos, pollo, patatas o atún, preparadas con verduras crujientes seleccionadas y aderezos artesanales."
+      },
+      "main-courses": {
+        "name": "Platos principales tradicionales",
+        "desc": "Clásicos culinarios italianos y tartas saladas recién hechas: Milanesa crujiente con patatas fritas, Cotechino artesanal con puré de patatas y Torta Pasqualina ligur."
+      }
+    },
+    "FOCACCIA_SANDWICH_SECTIONS": {
+      "focacce": {
+        "name": "Focaccia",
+        "desc": "Fragantes focaccias de masa de pizza horneadas, rellenas de embutidos italianos premium: milanesa, Finocchiona toscana, Pancetta enrollada, Porchetta asada, jamón cocido y salami."
+      },
+      "pizza-sandwiches": {
+        "name": "Sándwich de pizza",
+        "desc": "Sabrosos sándwiches envueltos en nuestra masa de pizza dorada y crujiente, con queso fundido, tomates frescos y embutidos italianos premium."
+      }
+    },
+    "PASTA_SAUCES": {
+      "special-pasta": {
+        "name": "Especialidades del chef y pasta rellena",
+        "desc": "Especialidades de marisco y artesanales: espaguetis con marisco, carne de cangrejo azul, penne con salmón, tagliatelle con tinta de calamar y raviolis rellenos hechos a mano."
+      },
+      "aglio-olio": {
+        "name": "Ajo, aceite y guindilla",
+        "desc": "Un clásico italiano sencillo y sabroso hecho con ajo, aceite de oliva y guindilla, con un sabor intenso y aromático que deleita cada bocado."
+      },
+      "pomodoro": {
+        "name": "Salsa de tomate",
+        "desc": "Salsa de tomate italiana hecha con tomates maduros, aceite de oliva, ajo o cebolla, sal y albahaca. Es el corazón de la cocina italiana."
+      },
+      "pesto": {
+        "name": "Pesto genovés",
+        "desc": "Salsa fresca de albahaca con anacardos, queso parmesano, ajo y aceite de oliva, con un sabor rico y aromático que evoca el aroma de Génova."
+      },
+      "amatriciana": {
+        "name": "Amatriciana",
+        "desc": "Salsa al estilo romano con tomate, carrillada de cerdo curada y pecorino, cocinada a fuego lento para un sabor equilibrado entre dulce y salado, un clásico de la tradición italiana."
+      },
+      "carbonara": {
+        "name": "Carbonara",
+        "desc": "Auténtica receta romana con yema de huevo, guanciale y queso pecorino."
+      },
+      "bolognese": {
+        "name": "Ragú boloñés",
+        "desc": "Salsa tradicional de carne picada cocinada a fuego lento."
+      },
+      "gorgonzola": {
+        "name": "Gorgonzola cremoso",
+        "desc": "Rica salsa de queso azul italiano."
+      }
+    }
+  },
+  "FR": {
+    "SALAD_SUBFILTER_LABELS": {
+      "all": "Tous les plats",
+      "salads": "Salades italiennes",
+      "mains": "Plats principaux"
+    },
+    "SANDWICH_SUBFILTER_LABELS": {
+      "all": "Tous les plats",
+      "focacce": "Focaccia",
+      "sandwiches": "Sandwich à la pizza"
+    },
+    "ITALIAN_SALADS_SECTIONS": {
+      "salads": {
+        "name": "Salades italiennes",
+        "desc": "Salades fraîches avec œufs, poulet, pommes de terre ou thon, préparées avec des légumes croquants sélectionnés et des vinaigrettes artisanales."
+      },
+      "main-courses": {
+        "name": "Plats principaux traditionnels",
+        "desc": "Classiques de la cuisine italienne et tourtes salées préparées fraîches : escalope milanaise croustillante avec frites, cotechino artisanal avec purée de pommes de terre, et torta pasqualina ligure."
+      }
+    },
+    "FOCACCIA_SANDWICH_SECTIONS": {
+      "focacce": {
+        "name": "Focaccia",
+        "desc": "Focaccias parfumées à base de pâte à pizza cuite au four, garnies de charcuteries italiennes de qualité supérieure : escalope milanaise, finocchiona toscane, pancetta roulée, porchetta rôtie, jambon cuit et salami."
+      },
+      "pizza-sandwiches": {
+        "name": "Sandwich à la pizza",
+        "desc": "Sandwichs savoureux enveloppés dans notre croûte de pizza dorée et croustillante, avec fromage fondu, tomates fraîches et charcuteries italiennes de qualité supérieure."
+      }
+    },
+    "PASTA_SAUCES": {
+      "special-pasta": {
+        "name": "Spécialités du chef et pâtes farcies",
+        "desc": "Spécialités de la mer et artisanales : spaghetti aux fruits de mer, chair de crabe bleu, penne au saumon, tagliatelles à l'encre de seiche et raviolis farcis faits à la main."
+      },
+      "aglio-olio": {
+        "name": "Ail, huile et piment",
+        "desc": "Un classique italien simple et savoureux à base d'ail, d'huile d'olive et de piment, au goût intense et aromatique qui ravit chaque bouchée."
+      },
+      "pomodoro": {
+        "name": "Sauce tomate",
+        "desc": "Sauce tomate italienne préparée avec des tomates mûres, de l'huile d'olive, de l'ail ou de l'oignon, du sel et du basilic. C'est le cœur de la cuisine italienne."
+      },
+      "pesto": {
+        "name": "Pesto génois",
+        "desc": "Sauce fraîche au basilic avec noix de cajou, parmesan, ail et huile d'olive, à la saveur riche et aromatique qui évoque le parfum de Gênes."
+      },
+      "amatriciana": {
+        "name": "Amatriciana",
+        "desc": "Sauce à la romaine avec tomate, joue de porc et pecorino, mijotée lentement pour une saveur équilibrée entre doux et salé, un classique de la tradition italienne."
+      },
+      "carbonara": {
+        "name": "Carbonara",
+        "desc": "Recette romaine authentique avec jaune d'œuf, guanciale et fromage pecorino."
+      },
+      "bolognese": {
+        "name": "Ragù bolognaise",
+        "desc": "Sauce traditionnelle à la viande hachée mijotée lentement."
+      },
+      "gorgonzola": {
+        "name": "Gorgonzola crémeux",
+        "desc": "Sauce riche au fromage bleu italien."
+      }
+    }
+  },
+  "RU": {
+    "SALAD_SUBFILTER_LABELS": {
+      "all": "Все блюда",
+      "salads": "Итальянские салаты",
+      "mains": "Основные блюда"
+    },
+    "SANDWICH_SUBFILTER_LABELS": {
+      "all": "Все блюда",
+      "focacce": "Фокачча",
+      "sandwiches": "Пицца-сэндвич"
+    },
+    "ITALIAN_SALADS_SECTIONS": {
+      "salads": {
+        "name": "Итальянские салаты",
+        "desc": "Свежие салаты с яйцами, курицей, картофелем или тунцом, приготовленные из отборных хрустящих овощей и авторских заправок."
+      },
+      "main-courses": {
+        "name": "Традиционные основные блюда",
+        "desc": "Итальянская кулинарная классика и пикантные пироги, приготовленные свежими: хрустящая миланская котлета с картофелем фри, ремесленный котекино с картофельным пюре и лигурийская пасхальная торта."
+      }
+    },
+    "FOCACCIA_SANDWICH_SECTIONS": {
+      "focacce": {
+        "name": "Фокачча",
+        "desc": "Ароматные фокаччи из теста для пиццы, запеченные в печи, с начинкой из премиальных итальянских мясных деликатесов: миланская котлета, тосканская финоккьона, рулетики из панчетты, жареная порчетта, вареная ветчина и салями."
+      },
+      "pizza-sandwiches": {
+        "name": "Пицца-сэндвич",
+        "desc": "Ароматные сэндвичи, завернутые в нашу золотистую хрустящую корочку для пиццы с расплавленным сыром, свежими помидорами и премиальными итальянскими мясными деликатесами."
+      }
+    },
+    "PASTA_SAUCES": {
+      "special-pasta": {
+        "name": "Особые блюда от шефа и паста с начинкой",
+        "desc": "Морские и авторские specialties: спагетти с морепродуктами, мясо синего краба, пенне с лососем, тальятелле с чернилами кальмара и ручная равioli с начинкой."
+      },
+      "aglio-olio": {
+        "name": "Чеснок, масло и чили",
+        "desc": "Простая и ароматная итальянская классика, приготовленная с чесноком, оливковым маслом и чили, с интенсивным, ароматным вкусом, который радует каждый кусочек."
+      },
+      "pomodoro": {
+        "name": "Томатный соус",
+        "desc": "Итальянский томатный соус, приготовленный из спелых помидоров, оливкового масла, чеснока или лука, соли и базилика. Это сердце итальянской кухни."
+      },
+      "pesto": {
+        "name": "Песто генуэзское",
+        "desc": "Свежий соус из базилика с кешью, сыром пармезан, чесноком и оливковым маслом, с богатым, ароматным вкусом, напоминающим аромат Генуи."
+      },
+      "amatriciana": {
+        "name": "Аматричана",
+        "desc": "Соус в римском стиле с томатами, свиной щековиной и пекорино, медленно приготовленный для сбалансированного сладкого и соленого вкуса, классика итальянской традиции."
+      },
+      "carbonara": {
+        "name": "Карбонара",
+        "desc": "Аутентичный римский рецепт с яичным желтком, гуанчале и сыром пекорино."
+      },
+      "bolognese": {
+        "name": "Болоньезе рагу",
+        "desc": "Традиционный соус из мясного фарша, приготовленный на медленном огне."
+      },
+      "gorgonzola": {
+        "name": "Сливочная горгонзола",
+        "desc": "Насыщенный итальянский соус из голубого сыра."
+      }
+    }
+  },
+  "ZH": {
+    "SALAD_SUBFILTER_LABELS": {
+      "all": "所有菜品",
+      "salads": "意式沙拉",
+      "mains": "主菜"
+    },
+    "SANDWICH_SUBFILTER_LABELS": {
+      "all": "所有菜品",
+      "focacce": "佛卡夏",
+      "sandwiches": "披萨三明治"
+    },
+    "ITALIAN_SALADS_SECTIONS": {
+      "salads": {
+        "name": "意式沙拉",
+        "desc": "新鲜沙拉，配以鸡蛋、鸡肉、土豆或金枪鱼，搭配精选脆爽蔬菜和手工酱汁。"
+      },
+      "main-courses": {
+        "name": "传统主菜",
+        "desc": "意式经典美食和咸味派新鲜制作：酥脆米兰炸肉排配薯条，手工科特基诺香肠配土豆泥，以及利古里亚复活节派。"
+      }
+    },
+    "FOCACCIA_SANDWICH_SECTIONS": {
+      "focacce": {
+        "name": "佛卡夏",
+        "desc": "香气扑鼻的烤箱烘焙披萨面团佛卡夏，夹入优质意大利冷切肉：米兰炸肉排、托斯卡纳芬诺基奥纳香肠、卷状培根、烤猪肉卷、熟火腿和萨拉米。"
+      },
+      "pizza-sandwiches": {
+        "name": "披萨三明治",
+        "desc": "风味十足的三明治，包裹在我们金黄酥脆的披萨饼皮中，配以融化的奶酪、新鲜番茄和优质意大利冷切肉。"
+      }
+    },
+    "PASTA_SAUCES": {
+      "special-pasta": {
+        "name": "厨师特选和馅料意面",
+        "desc": "海鲜和手工特色菜：海鲜意大利面、蓝蟹肉、三文鱼笔管面、墨鱼汁宽面和手工馅料意大利饺。"
+      },
+      "aglio-olio": {
+        "name": "蒜香、橄榄油和辣椒",
+        "desc": "简单而美味的意大利经典，由大蒜、橄榄油和辣椒制成，味道浓郁芳香，每一口都令人愉悦"
+      },
+      "pomodoro": {
+        "name": "番茄酱",
+        "desc": "用成熟番茄、橄榄油、大蒜或洋葱、盐和罗勒制成的意大利番茄酱。它是意大利美食的核心"
+      },
+      "pesto": {
+        "name": "热那亚青酱",
+        "desc": "新鲜罗勒酱配腰果、帕尔马干酪、大蒜和橄榄油，风味浓郁芳香，让人想起热那亚的气息"
+      },
+      "amatriciana": {
+        "name": "阿马特里切纳",
+        "desc": "罗马风味酱汁，配以番茄、腌猪颊肉和佩科里诺奶酪，慢炖出均衡的甜咸风味，是意大利传统的经典"
+      },
+      "carbonara": {
+        "name": "卡邦尼",
+        "desc": "正宗的罗马食谱，配以蛋黄、猪颊肉和佩科里诺奶酪"
+      },
+      "bolognese": {
+        "name": "博洛尼亚肉酱",
+        "desc": "慢炖的传统肉末酱"
+      },
+      "gorgonzola": {
+        "name": "奶油戈贡佐拉",
+        "desc": "浓郁的意大利蓝纹奶酪酱"
+      }
+    }
+  }
+}

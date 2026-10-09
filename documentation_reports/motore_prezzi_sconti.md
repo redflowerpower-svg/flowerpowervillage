@@ -327,4 +327,24 @@ $$\text{Finestra Totale} = \text{Stadio 1 (gg)} + \text{Stadio 2 (gg)} + \text{S
 ### C. Regola Fiscale Commercialista (Zero Dicitura "Deposito/Acconto")
 - Nel registro e nei file CSV per il commercialista (`AccountingReportsTab.tsx`), tutte le transazioni registrate sono descritte come **prestazioni di servizi saldate al 100% (Saldo: ฿0.00)** senza utilizzare parole come "deposito" o "acconto", ricalcolando la durata equivalente del soggiorno in base al totale pagato.
 
+---
 
+## 14. Motore Sconti & Promozioni Pizzeria Ranong (`/pizza` & `/dining`)
+
+### A. Sconto Fisso Dining Tablet al Tavolo (-5%)
+- Applicato in tempo reale su ogni singolo piatto e bevanda per le ordinazioni effettuate tramite il tablet del ristorante.
+- Visualizzazione chiara con prezzo di listino barrato e badge `-5% SCONTO TAVOLO`.
+
+### B. Sconto 10% Primo Ordine Delivery (Website)
+- Riservato ai nuovi clienti sul sito `flowerpowerpizza.com`.
+- In produzione è protetto dal controllo anti-abuso a 3 fattori (Telefono, Email, Device ID + GPS Haversine 50m).
+- In ambiente Locale (`localhost`) e Staging/Virtuale, il controllo è bypassato (`eligible: true`) per consentire lo sviluppo continuo.
+
+### C. Voucher Dining 10% Delivery (`DINE10-XXXXX`)
+- Generato al termine di un ordine al tavolo per i clienti che inseriscono la propria email.
+- Valido per 10 giorni dal momento della generazione per ordini da asporto o consegna a domicilio sul sito web.
+- Link diretto con auto-applicazione immediata del coupon via query string: `https://flowerpowerpizza.com/?promo=DINE10-XXXXX`.
+
+### D. Regola Ferrea di Non-Cumulabilità & Soppressione Visiva
+- Se nel carrello o al checkout è presente un codice coupon/voucher promozionale attivo (`appliedPromo`), **tutti i banner, card e messaggi relativi al 10% di benvenuto primo ordine vengono totalmente nascosti** in tutto il sito (`DeliveryMenu.tsx`, `CartDrawer.tsx`, `CheckoutFlow.tsx`).
+- Questo garantisce assoluta chiarezza, evitando che il cliente veda due sconti simultanei o messaggi contrastanti.

@@ -96,7 +96,7 @@ export default function BookingEngine({ lang: propLang, setLang: propSetLang }: 
   const setLang = propSetLang || setLocalLang;
 
   const t = (key: keyof typeof translations['IT'], variables?: Record<string, string | number>) => {
-    let text = translations[lang][key] || translations['IT'][key] || '';
+    let text = (translations[lang] || translations['IT'])[key] || translations['IT'][key] || '';
     if (variables) {
       Object.entries(variables).forEach(([k, v]) => {
         text = text.replace(`{${k}}`, String(v));

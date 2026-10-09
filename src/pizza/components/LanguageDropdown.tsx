@@ -97,14 +97,14 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
       {isOpen && (
         <div 
           role="listbox"
-          className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} top-full mt-2 w-48 rounded-2xl border-2 p-1.5 shadow-2xl backdrop-blur-xl z-[999999] animate-fadeIn ${getDropdownStyles()}`}
+          className={`absolute ${align === 'right' ? 'right-0' : 'left-0'} top-full mt-2 w-[280px] sm:w-[300px] rounded-2xl border-2 border-amber-400/80 p-2.5 shadow-[0_20px_50px_rgba(0,0,0,0.95)] backdrop-blur-xl z-[999999] animate-fadeIn ${getDropdownStyles()}`}
         >
-          <div className="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-stone-400 border-b border-stone-800 mb-1 flex items-center justify-between">
+          <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-amber-400 border-b border-stone-800 mb-2 flex items-center justify-between">
             <span>Lingua / Language</span>
-            <Globe className="w-3 h-3 text-amber-400" />
+            <Globe className="w-3.5 h-3.5 text-amber-400" />
           </div>
 
-          <div className="space-y-0.5">
+          <div className="grid grid-cols-3 gap-1.5">
             {SUPPORTED_LANGUAGES.map((code) => {
               const meta = LANGUAGE_METAS[code];
               const isSelected = activeLang === code;
@@ -117,25 +117,19 @@ export const LanguageDropdown: React.FC<LanguageDropdownProps> = ({
                     onSelect(code);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-all cursor-pointer text-left ${
+                  className={`flex flex-col items-center justify-center p-2 rounded-xl text-center cursor-pointer transition-all duration-150 select-none ${
                     isSelected
-                      ? getActiveItemStyles()
-                      : 'text-stone-300 hover:text-white hover:bg-stone-800/80'
+                      ? 'bg-amber-400 text-stone-950 font-black shadow-md border border-amber-300 ring-2 ring-amber-400/50 scale-[1.02]'
+                      : 'bg-stone-900/90 text-stone-200 hover:bg-stone-800 hover:text-white border border-stone-800 hover:border-amber-400/50'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-base leading-none shrink-0">{meta.flag}</span>
-                    <div className="flex flex-col min-w-0 leading-tight">
-                      <span className="font-bold truncate text-xs">{meta.label}</span>
-                      <span className={`text-[10px] truncate ${isSelected ? (variant === 'kitchen-dark' ? 'text-red-100' : 'text-stone-800 font-semibold') : 'text-stone-400'}`}>
-                        {meta.nativeName}
-                      </span>
-                    </div>
-                  </div>
-
-                  {isSelected && (
-                    <Check className={`w-4 h-4 shrink-0 ${variant === 'kitchen-dark' ? 'text-white' : 'text-stone-950 stroke-[3]'}`} />
-                  )}
+                  <span className="text-xl leading-none mb-1">{meta.flag}</span>
+                  <span className="text-xs font-black tracking-wide uppercase leading-tight">
+                    {code}
+                  </span>
+                  <span className={`text-[9px] truncate max-w-full leading-tight mt-0.5 ${isSelected ? 'text-stone-900 font-bold' : 'text-stone-400'}`}>
+                    {meta.nativeName}
+                  </span>
                 </button>
               );
             })}

@@ -275,8 +275,8 @@ export const WineCardStudio: React.FC = () => {
   const [detectFeedback, setDetectFeedback] = useState<string | null>(null);
   const [isAiRemoving, setIsAiRemoving] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
-  const [previewLang, setPreviewLang] = useState<'IT' | 'EN' | 'TH' | 'DE' | 'MM'>('IT');
-  const [descLangTab, setDescLangTab] = useState<'IT' | 'EN' | 'TH' | 'DE'>('IT');
+  const [previewLang, setPreviewLang] = useState<WineLang>('IT');
+  const [descLangTab, setDescLangTab] = useState<WineLang>('IT');
   const [draggedWineId, setDraggedWineId] = useState<string | null>(null);
   const [dragOverWineId, setDragOverWineId] = useState<string | null>(null);
 
@@ -342,13 +342,9 @@ export const WineCardStudio: React.FC = () => {
     }
   };
 
-  const getWineStudioDesc = (w: WineCardData | null, targetLang: 'IT' | 'EN' | 'TH' | 'DE' | 'MM' = previewLang) => {
+  const getWineStudioDesc = (w: WineCardData | null, targetLang: WineLang = previewLang) => {
     if (!w) return '';
-    if (targetLang === 'TH' && (w as any).descriptionTh) return (w as any).descriptionTh;
-    if (targetLang === 'IT' && (w as any).descriptionIt) return (w as any).descriptionIt;
-    if (targetLang === 'DE' && (w as any).descriptionDe) return (w as any).descriptionDe;
-    if (targetLang === 'EN' && (w as any).descriptionEn) return (w as any).descriptionEn;
-    return w.description || '';
+    return getWineTranslatedDesc(w, targetLang);
   };
 
   const handleFieldChange = (field: keyof WineCardData, value: any) => {
@@ -915,20 +911,35 @@ export const WineCardStudio: React.FC = () => {
     setFormData({
       ...wine,
       title: wine.title || '',
-      titleIt: (wine as any).titleIt || wine.title || '',
-      titleEn: (wine as any).titleEn || wine.title || '',
-      titleTh: (wine as any).titleTh || wine.title || '',
-      titleDe: (wine as any).titleDe || wine.title || '',
+      titleIt: wine.titleIt || wine.title || '',
+      titleEn: wine.titleEn || wine.title || '',
+      titleTh: wine.titleTh || wine.title || '',
+      titleMm: wine.titleMm || wine.title || '',
+      titleDe: wine.titleDe || wine.title || '',
+      titleEs: wine.titleEs || wine.title || '',
+      titleFr: wine.titleFr || wine.title || '',
+      titleRu: wine.titleRu || wine.title || '',
+      titleZh: wine.titleZh || wine.title || '',
       categorySubtitle: wine.categorySubtitle || '',
-      subtitleIt: (wine as any).subtitleIt || wine.categorySubtitle || '',
-      subtitleEn: (wine as any).subtitleEn || wine.categorySubtitle || '',
-      subtitleTh: (wine as any).subtitleTh || wine.categorySubtitle || '',
-      subtitleDe: (wine as any).subtitleDe || wine.categorySubtitle || '',
+      subtitleIt: wine.subtitleIt || wine.categorySubtitle || '',
+      subtitleEn: wine.subtitleEn || wine.categorySubtitle || '',
+      subtitleTh: wine.subtitleTh || wine.categorySubtitle || '',
+      subtitleMm: wine.subtitleMm || wine.categorySubtitle || '',
+      subtitleDe: wine.subtitleDe || wine.categorySubtitle || '',
+      subtitleEs: wine.subtitleEs || wine.categorySubtitle || '',
+      subtitleFr: wine.subtitleFr || wine.categorySubtitle || '',
+      subtitleRu: wine.subtitleRu || wine.categorySubtitle || '',
+      subtitleZh: wine.subtitleZh || wine.categorySubtitle || '',
       description: wine.description || '',
-      descriptionIt: (wine as any).descriptionIt || wine.description || '',
-      descriptionEn: (wine as any).descriptionEn || wine.description || '',
-      descriptionTh: (wine as any).descriptionTh || wine.description || '',
-      descriptionDe: (wine as any).descriptionDe || wine.description || '',
+      descriptionIt: wine.descriptionIt || wine.description || '',
+      descriptionEn: wine.descriptionEn || wine.description || '',
+      descriptionTh: wine.descriptionTh || wine.description || '',
+      descriptionMm: wine.descriptionMm || wine.description || '',
+      descriptionDe: wine.descriptionDe || wine.description || '',
+      descriptionEs: wine.descriptionEs || wine.description || '',
+      descriptionFr: wine.descriptionFr || wine.description || '',
+      descriptionRu: wine.descriptionRu || wine.description || '',
+      descriptionZh: wine.descriptionZh || wine.description || '',
       bottleScaleX: wine.bottleScaleX || 100,
       bottleOffsetX: wine.bottleOffsetX || 0
     });
@@ -946,9 +957,14 @@ export const WineCardStudio: React.FC = () => {
       // 1. Determine current source inputs based on descLangTab (Mother Language)
       const currentTitle = (
         descLangTab === 'IT' ? (formData.titleIt || formData.title || '') :
+        descLangTab === 'EN' ? (formData.titleEn || formData.title || '') :
         descLangTab === 'TH' ? (formData.titleTh || formData.title || '') :
+        descLangTab === 'MM' ? (formData.titleMm || formData.title || '') :
         descLangTab === 'DE' ? (formData.titleDe || formData.title || '') :
-        (formData.titleEn || formData.title || '')
+        descLangTab === 'ES' ? (formData.titleEs || formData.title || '') :
+        descLangTab === 'FR' ? (formData.titleFr || formData.title || '') :
+        descLangTab === 'RU' ? (formData.titleRu || formData.title || '') :
+        (formData.titleZh || formData.title || '')
       );
       const titleParts = currentTitle.split('\n');
       const vigna = titleParts[0] || '';
@@ -957,9 +973,14 @@ export const WineCardStudio: React.FC = () => {
 
       const currentSub = (
         descLangTab === 'IT' ? (formData.subtitleIt || formData.categorySubtitle || '') :
+        descLangTab === 'EN' ? (formData.subtitleEn || formData.categorySubtitle || '') :
         descLangTab === 'TH' ? (formData.subtitleTh || formData.categorySubtitle || '') :
+        descLangTab === 'MM' ? (formData.subtitleMm || formData.categorySubtitle || '') :
         descLangTab === 'DE' ? (formData.subtitleDe || formData.categorySubtitle || '') :
-        (formData.subtitleEn || formData.categorySubtitle || '')
+        descLangTab === 'ES' ? (formData.subtitleEs || formData.categorySubtitle || '') :
+        descLangTab === 'FR' ? (formData.subtitleFr || formData.categorySubtitle || '') :
+        descLangTab === 'RU' ? (formData.subtitleRu || formData.categorySubtitle || '') :
+        (formData.subtitleZh || formData.categorySubtitle || '')
       );
       const subParts = currentSub.split('\n');
       const wineType = subParts[0] || '';
@@ -967,9 +988,14 @@ export const WineCardStudio: React.FC = () => {
 
       const desc = (
         descLangTab === 'IT' ? (formData.descriptionIt || formData.description || '') :
+        descLangTab === 'EN' ? (formData.descriptionEn || formData.description || '') :
         descLangTab === 'TH' ? (formData.descriptionTh || '') :
+        descLangTab === 'MM' ? (formData.descriptionMm || '') :
         descLangTab === 'DE' ? (formData.descriptionDe || '') :
-        (formData.descriptionEn || formData.description || '')
+        descLangTab === 'ES' ? (formData.descriptionEs || '') :
+        descLangTab === 'FR' ? (formData.descriptionFr || '') :
+        descLangTab === 'RU' ? (formData.descriptionRu || '') :
+        (formData.descriptionZh || '')
       );
 
       // 2. Try DeepSeek AI backend API
@@ -997,17 +1023,32 @@ export const WineCardStudio: React.FC = () => {
             titleIt: ai.title?.IT || prev.titleIt || prev.title,
             titleEn: ai.title?.EN || prev.titleEn || prev.title,
             titleTh: ai.title?.TH || prev.titleTh || prev.title,
+            titleMm: ai.title?.MM || prev.titleMm || prev.title,
             titleDe: ai.title?.DE || prev.titleDe || prev.title,
+            titleEs: ai.title?.ES || prev.titleEs || prev.title,
+            titleFr: ai.title?.FR || prev.titleFr || prev.title,
+            titleRu: ai.title?.RU || prev.titleRu || prev.title,
+            titleZh: ai.title?.ZH || prev.titleZh || prev.title,
             categorySubtitle: ai.categorySubtitle?.EN || ai.categorySubtitle?.[descLangTab] || prev.categorySubtitle,
             subtitleIt: ai.categorySubtitle?.IT || prev.subtitleIt || prev.categorySubtitle,
             subtitleEn: ai.categorySubtitle?.EN || prev.subtitleEn || prev.categorySubtitle,
             subtitleTh: ai.categorySubtitle?.TH || prev.subtitleTh || prev.categorySubtitle,
+            subtitleMm: ai.categorySubtitle?.MM || prev.subtitleMm || prev.categorySubtitle,
             subtitleDe: ai.categorySubtitle?.DE || prev.subtitleDe || prev.categorySubtitle,
+            subtitleEs: ai.categorySubtitle?.ES || prev.subtitleEs || prev.categorySubtitle,
+            subtitleFr: ai.categorySubtitle?.FR || prev.subtitleFr || prev.categorySubtitle,
+            subtitleRu: ai.categorySubtitle?.RU || prev.subtitleRu || prev.categorySubtitle,
+            subtitleZh: ai.categorySubtitle?.ZH || prev.subtitleZh || prev.categorySubtitle,
             description: ai.description?.EN || prev.description,
             descriptionIt: ai.description?.IT || prev.descriptionIt || prev.description,
             descriptionEn: ai.description?.EN || prev.descriptionEn || prev.description,
             descriptionTh: ai.description?.TH || prev.descriptionTh,
+            descriptionMm: ai.description?.MM || prev.descriptionMm,
             descriptionDe: ai.description?.DE || prev.descriptionDe,
+            descriptionEs: ai.description?.ES || prev.descriptionEs,
+            descriptionFr: ai.description?.FR || prev.descriptionFr,
+            descriptionRu: ai.description?.RU || prev.descriptionRu,
+            descriptionZh: ai.description?.ZH || prev.descriptionZh,
           }));
           return;
         }
@@ -1031,19 +1072,31 @@ export const WineCardStudio: React.FC = () => {
         titleEn: trans.titleEn,
         titleTh: trans.titleTh,
         titleDe: trans.titleDe,
-        titleMm: (trans as any).titleMm,
+        titleMm: trans.titleMm,
+        titleEs: trans.titleEs,
+        titleFr: trans.titleFr,
+        titleRu: trans.titleRu,
+        titleZh: trans.titleZh,
         categorySubtitle: trans.categorySubtitle,
         subtitleIt: trans.subtitleIt,
         subtitleEn: trans.subtitleEn,
         subtitleTh: trans.subtitleTh,
         subtitleDe: trans.subtitleDe,
-        subtitleMm: (trans as any).subtitleMm,
+        subtitleMm: trans.subtitleMm,
+        subtitleEs: trans.subtitleEs,
+        subtitleFr: trans.subtitleFr,
+        subtitleRu: trans.subtitleRu,
+        subtitleZh: trans.subtitleZh,
         description: trans.descriptionEn || prev.description,
         descriptionIt: trans.descriptionIt,
         descriptionEn: trans.descriptionEn,
         descriptionTh: trans.descriptionTh,
         descriptionDe: trans.descriptionDe,
-        descriptionMm: (trans as any).descriptionMm,
+        descriptionMm: trans.descriptionMm,
+        descriptionEs: trans.descriptionEs,
+        descriptionFr: trans.descriptionFr,
+        descriptionRu: trans.descriptionRu,
+        descriptionZh: trans.descriptionZh,
       }));
 
     } catch (err) {
@@ -1505,18 +1558,28 @@ export const WineCardStudio: React.FC = () => {
                 {/* Language preview switcher */}
                 <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200">
                   <span className="text-[9px] font-black text-stone-400 px-1 uppercase">Lingua:</span>
-                  {(['IT', 'EN', 'TH', 'DE'] as const).map(l => (
+                  {([
+                    { id: 'IT', label: '🇮🇹 IT' },
+                    { id: 'EN', label: '🇬🇧 EN' },
+                    { id: 'TH', label: '🇹🇭 TH' },
+                    { id: 'MM', label: '🇲🇲 MM' },
+                    { id: 'DE', label: '🇩🇪 DE' },
+                    { id: 'ES', label: '🇪🇸 ES' },
+                    { id: 'FR', label: '🇫🇷 FR' },
+                    { id: 'RU', label: '🇷🇺 RU' },
+                    { id: 'ZH', label: '🇨🇳 ZH' }
+                  ] as const).map(l => (
                     <button
-                      key={l}
+                      key={l.id}
                       type="button"
-                      onClick={() => setPreviewLang(l)}
+                      onClick={() => setPreviewLang(l.id as WineLang)}
                       className={`px-2 py-1 text-[10px] font-bold rounded-lg transition-all cursor-pointer ${
-                        previewLang === l
+                        previewLang === l.id
                           ? 'bg-stone-900 text-white shadow-xs'
                           : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                       }`}
                     >
-                      {l === 'IT' ? '🇮🇹 IT' : l === 'EN' ? '🇬🇧 EN' : l === 'TH' ? '🇹🇭 TH' : '🇩🇪 DE'}
+                      {l.label}
                     </button>
                   ))}
                 </div>
@@ -2807,23 +2870,28 @@ export const WineCardStudio: React.FC = () => {
 
             {/* BARRA LINGUE & TASTO AUTO-TRADUZIONE AI */}
             <div className="bg-amber-50/80 border border-amber-300/80 rounded-2xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-2xs">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-[10px] font-black uppercase text-amber-900">Lingua Modifica:</span>
-                <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-amber-200 shadow-2xs">
+                <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-amber-200 shadow-2xs flex-wrap">
                   {[
                     { id: 'IT', label: '🇮🇹 IT' },
                     { id: 'EN', label: '🇬🇧 EN' },
                     { id: 'TH', label: '🇹🇭 TH' },
-                    { id: 'DE', label: '🇩🇪 DE' }
+                    { id: 'MM', label: '🇲🇲 MM' },
+                    { id: 'DE', label: '🇩🇪 DE' },
+                    { id: 'ES', label: '🇪🇸 ES' },
+                    { id: 'FR', label: '🇫🇷 FR' },
+                    { id: 'RU', label: '🇷🇺 RU' },
+                    { id: 'ZH', label: '🇨🇳 ZH' }
                   ].map(tab => (
                     <button
                       key={tab.id}
                       type="button"
                       onClick={() => {
-                        setDescLangTab(tab.id as any);
-                        setPreviewLang(tab.id as any);
+                        setDescLangTab(tab.id as WineLang);
+                        setPreviewLang(tab.id as WineLang);
                       }}
-                      className={`px-2.5 py-1 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
+                      className={`px-2 py-1 text-[10px] font-black rounded-lg transition-all cursor-pointer ${
                         descLangTab === tab.id
                           ? 'bg-stone-900 text-white shadow-xs'
                           : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
@@ -2839,15 +2907,15 @@ export const WineCardStudio: React.FC = () => {
                 type="button"
                 disabled={isTranslating}
                 onClick={handleAutoTranslateCurrentWine}
-                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-500 hover:to-red-500 disabled:opacity-60 text-white text-[11px] font-black uppercase tracking-wider transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
-                title="Traduce automaticamente con DeepSeek AI nelle altre 3 lingue"
+                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-red-600 hover:from-amber-500 hover:to-red-500 disabled:opacity-60 text-white text-[11px] font-black uppercase tracking-wider transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
+                title="Traduce automaticamente con DeepSeek AI in tutte le altre 8 lingue"
               >
                 {isTranslating ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
                   <Sparkles className="w-3.5 h-3.5" />
                 )}
-                <span>{isTranslating ? 'Traduzione DeepSeek AI...' : 'Auto-Traduci Tutte le 4 Lingue'}</span>
+                <span>{isTranslating ? 'Traduzione DeepSeek AI...' : 'Auto-Traduci 9 Lingue con AI'}</span>
               </button>
             </div>
 
@@ -2863,12 +2931,8 @@ export const WineCardStudio: React.FC = () => {
               </div>
 
               {(() => {
-                const currentFullTitle = (
-                  descLangTab === 'IT' ? (formData.titleIt || formData.title || '') :
-                  descLangTab === 'TH' ? (formData.titleTh || formData.title || '') :
-                  descLangTab === 'DE' ? (formData.titleDe || formData.title || '') :
-                  (formData.titleEn || formData.title || '')
-                );
+                const titleField = `title${descLangTab.charAt(0) + descLangTab.slice(1).toLowerCase()}` as keyof WineCardData;
+                const currentFullTitle = (formData[titleField] as string) || (descLangTab === 'IT' ? formData.title : '') || '';
                 const titleParts = currentFullTitle.split('\n');
                 const pVigna = titleParts[0] || '';
                 const pDettagli = titleParts[1] || '';
@@ -2880,11 +2944,10 @@ export const WineCardStudio: React.FC = () => {
                     arr.pop();
                   }
                   const formatted = formatLiveTitleInput(arr.join('\n'));
-                  if (descLangTab === 'IT') handleFieldChange('titleIt', formatted);
-                  else if (descLangTab === 'TH') handleFieldChange('titleTh', formatted);
-                  else if (descLangTab === 'DE') handleFieldChange('titleDe', formatted);
-                  else handleFieldChange('titleEn', formatted);
-                  handleFieldChange('title', formatted);
+                  handleFieldChange(titleField, formatted);
+                  if (descLangTab === 'IT' || !formData.title) {
+                    handleFieldChange('title', formatted);
+                  }
                 };
 
                 return (
@@ -2971,11 +3034,11 @@ export const WineCardStudio: React.FC = () => {
                         return isC ? '' : originLine.trim();
                       };
 
-                      const updateSub = (sub: string, l: 'IT' | 'EN' | 'TH' | 'DE') => {
+                      const updateSub = (sub: string, l: WineLang) => {
                         const [t = '', ...r] = (sub || '').split('\n');
                         const existingOrigin = r.join('\n');
                         const area = extractArea(existingOrigin);
-                        const countryName = cObj.names[l];
+                        const countryName = cObj.names[l] || cObj.names.IT || 'ITALIA';
                         const newOrigin = area ? `${countryName} - ${area}` : countryName;
                         return t ? `${t}\n${newOrigin}` : newOrigin;
                       };
@@ -2983,13 +3046,23 @@ export const WineCardStudio: React.FC = () => {
                       const sIt = updateSub(formData.subtitleIt || formData.categorySubtitle || '', 'IT');
                       const sEn = updateSub(formData.subtitleEn || formData.categorySubtitle || '', 'EN');
                       const sTh = updateSub(formData.subtitleTh || formData.categorySubtitle || '', 'TH');
+                      const sMm = updateSub(formData.subtitleMm || formData.categorySubtitle || '', 'MM');
                       const sDe = updateSub(formData.subtitleDe || formData.categorySubtitle || '', 'DE');
+                      const sEs = updateSub(formData.subtitleEs || formData.categorySubtitle || '', 'ES');
+                      const sFr = updateSub(formData.subtitleFr || formData.categorySubtitle || '', 'FR');
+                      const sRu = updateSub(formData.subtitleRu || formData.categorySubtitle || '', 'RU');
+                      const sZh = updateSub(formData.subtitleZh || formData.categorySubtitle || '', 'ZH');
 
                       handleFieldChange('subtitleIt', sIt);
                       handleFieldChange('subtitleEn', sEn);
                       handleFieldChange('subtitleTh', sTh);
+                      handleFieldChange('subtitleMm', sMm);
                       handleFieldChange('subtitleDe', sDe);
-                      handleFieldChange('categorySubtitle', descLangTab === 'IT' ? sIt : descLangTab === 'TH' ? sTh : descLangTab === 'DE' ? sDe : sEn);
+                      handleFieldChange('subtitleEs', sEs);
+                      handleFieldChange('subtitleFr', sFr);
+                      handleFieldChange('subtitleRu', sRu);
+                      handleFieldChange('subtitleZh', sZh);
+                      handleFieldChange('categorySubtitle', descLangTab === 'IT' ? sIt : descLangTab === 'TH' ? sTh : descLangTab === 'MM' ? sMm : descLangTab === 'DE' ? sDe : descLangTab === 'ES' ? sEs : descLangTab === 'FR' ? sFr : descLangTab === 'RU' ? sRu : descLangTab === 'ZH' ? sZh : sEn);
                     }}
                     className="w-full px-3 py-2 rounded-xl bg-stone-50 border border-stone-300 text-xs font-bold text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
                     style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
@@ -3012,13 +3085,9 @@ export const WineCardStudio: React.FC = () => {
                     Tipo di Vino ({descLangTab}):
                   </label>
                   {(() => {
-                    const currentFullSub = (
-                      descLangTab === 'IT' ? (formData.subtitleIt || formData.categorySubtitle || '') :
-                      descLangTab === 'TH' ? (formData.subtitleTh || formData.categorySubtitle || '') :
-                      descLangTab === 'DE' ? (formData.subtitleDe || formData.categorySubtitle || '') :
-                      (formData.subtitleEn || formData.categorySubtitle || '')
-                    );
-                    const [currentType = '', ...rest] = currentFullSub.split('\n');
+                    const subField = `subtitle${descLangTab.charAt(0) + descLangTab.slice(1).toLowerCase()}` as keyof WineCardData;
+                    const currentFullSub = (formData[subField] as string) || (descLangTab === 'IT' ? formData.categorySubtitle : '') || '';
+                    const [currentType = ''] = currentFullSub.split('\n');
 
                     // Match existing type using categoryType or resolveWineCategoryType
                     const currentResolvedType = formData.categoryType || resolveWineCategoryType(formData);
@@ -3035,30 +3104,40 @@ export const WineCardStudio: React.FC = () => {
                           const typeObj = WINE_TYPE_OPTIONS.find(t => t.id === selectedTypeId) || WINE_TYPE_OPTIONS[0];
                           handleFieldChange('categoryType', selectedTypeId);
 
-                          const updateSubWithType = (sub: string, l: 'IT' | 'EN' | 'TH' | 'DE') => {
+                          const updateSubWithType = (sub: string, l: WineLang) => {
                             const [_, ...r] = (sub || '').split('\n');
                             const orig = r.join('\n');
-                            const newTypeName = typeObj.names[l];
+                            const newTypeName = typeObj.names[l] || typeObj.names.IT || 'VINO';
                             return orig ? `${newTypeName}\n${orig}` : newTypeName;
                           };
 
                           const sIt = updateSubWithType(formData.subtitleIt || formData.categorySubtitle || '', 'IT');
                           const sEn = updateSubWithType(formData.subtitleEn || formData.categorySubtitle || '', 'EN');
                           const sTh = updateSubWithType(formData.subtitleTh || formData.categorySubtitle || '', 'TH');
+                          const sMm = updateSubWithType(formData.subtitleMm || formData.categorySubtitle || '', 'MM');
                           const sDe = updateSubWithType(formData.subtitleDe || formData.categorySubtitle || '', 'DE');
+                          const sEs = updateSubWithType(formData.subtitleEs || formData.categorySubtitle || '', 'ES');
+                          const sFr = updateSubWithType(formData.subtitleFr || formData.categorySubtitle || '', 'FR');
+                          const sRu = updateSubWithType(formData.subtitleRu || formData.categorySubtitle || '', 'RU');
+                          const sZh = updateSubWithType(formData.subtitleZh || formData.categorySubtitle || '', 'ZH');
 
                           handleFieldChange('subtitleIt', sIt);
                           handleFieldChange('subtitleEn', sEn);
                           handleFieldChange('subtitleTh', sTh);
+                          handleFieldChange('subtitleMm', sMm);
                           handleFieldChange('subtitleDe', sDe);
-                          handleFieldChange('categorySubtitle', descLangTab === 'IT' ? sIt : descLangTab === 'TH' ? sTh : descLangTab === 'DE' ? sDe : sEn);
+                          handleFieldChange('subtitleEs', sEs);
+                          handleFieldChange('subtitleFr', sFr);
+                          handleFieldChange('subtitleRu', sRu);
+                          handleFieldChange('subtitleZh', sZh);
+                          handleFieldChange('categorySubtitle', descLangTab === 'IT' ? sIt : descLangTab === 'TH' ? sTh : descLangTab === 'MM' ? sMm : descLangTab === 'DE' ? sDe : descLangTab === 'ES' ? sEs : descLangTab === 'FR' ? sFr : descLangTab === 'RU' ? sRu : descLangTab === 'ZH' ? sZh : sEn);
                         }}
                         className="w-full px-3.5 py-2.5 rounded-2xl bg-stone-50 border border-stone-300 text-xs font-black text-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer uppercase"
                         style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
                       >
                         {WINE_TYPE_OPTIONS.map((t) => (
                           <option key={t.id} value={t.id}>
-                            {t.names[descLangTab]}
+                            {t.names[descLangTab] || t.label}
                           </option>
                         ))}
                       </select>
@@ -3072,12 +3151,8 @@ export const WineCardStudio: React.FC = () => {
                     Area ({descLangTab}):
                   </label>
                   {(() => {
-                    const currentFullSub = (
-                      descLangTab === 'IT' ? (formData.subtitleIt || formData.categorySubtitle || '') :
-                      descLangTab === 'TH' ? (formData.subtitleTh || formData.categorySubtitle || '') :
-                      descLangTab === 'DE' ? (formData.subtitleDe || formData.categorySubtitle || '') :
-                      (formData.subtitleEn || formData.categorySubtitle || '')
-                    );
+                    const subField = `subtitle${descLangTab.charAt(0) + descLangTab.slice(1).toLowerCase()}` as keyof WineCardData;
+                    const currentFullSub = (formData[subField] as string) || (descLangTab === 'IT' ? formData.categorySubtitle : '') || '';
                     const [currentType = '', ...rest] = currentFullSub.split('\n');
                     const originLine = rest.join('\n');
                     const cObj = WINE_COUNTRY_OPTIONS.find(c => c.flag === formData.flag || c.code === formData.flag) || WINE_COUNTRY_OPTIONS[0];
@@ -3099,13 +3174,10 @@ export const WineCardStudio: React.FC = () => {
                         value={areaValue}
                         onChange={(e) => {
                           const newArea = e.target.value.toUpperCase();
-                          const countryName = cObj.names[descLangTab] || 'ITALIA';
+                          const countryName = cObj.names[descLangTab] || cObj.names.IT || 'ITALIA';
                           const newOriginLine = newArea ? `${countryName} - ${newArea}` : countryName;
                           const combined = currentType ? `${currentType}\n${newOriginLine}` : newOriginLine;
-                          if (descLangTab === 'IT') handleFieldChange('subtitleIt', combined);
-                          else if (descLangTab === 'TH') handleFieldChange('subtitleTh', combined);
-                          else if (descLangTab === 'DE') handleFieldChange('subtitleDe', combined);
-                          else handleFieldChange('subtitleEn', combined);
+                          handleFieldChange(subField, combined);
                           handleFieldChange('categorySubtitle', combined);
                         }}
                         placeholder="es. PUGLIA / SICILIA / VALLE CENTRALE"
@@ -3124,55 +3196,30 @@ export const WineCardStudio: React.FC = () => {
                 Note di Degustazione ({descLangTab}):
               </label>
 
-              {descLangTab === 'IT' && (
-                <textarea
-                  rows={4}
-                  value={formData.descriptionIt || formData.description || ''}
-                  onChange={(e) => {
-                    handleFieldChange('descriptionIt', e.target.value);
-                    handleFieldChange('description', e.target.value);
-                  }}
-                  placeholder="Descrizione in Italiano..."
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-stone-50 border border-stone-300 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed resize-none"
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-                />
-              )}
+              {(() => {
+                const descField = `description${descLangTab.charAt(0) + descLangTab.slice(1).toLowerCase()}` as keyof WineCardData;
+                const currentDesc = (formData[descField] as string) || (descLangTab === 'IT' ? formData.description : '') || '';
+                const fontStyle = descLangTab === 'TH' ? { fontFamily: 'IBM Plex Sans Thai, Outfit, system-ui, sans-serif' } :
+                                  descLangTab === 'MM' ? { fontFamily: 'Noto Sans Myanmar, Outfit, system-ui, sans-serif' } :
+                                  descLangTab === 'ZH' ? { fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, system-ui, sans-serif' } :
+                                  { fontFamily: 'Outfit, system-ui, sans-serif' };
 
-              {descLangTab === 'EN' && (
-                <textarea
-                  rows={4}
-                  value={formData.descriptionEn || formData.description || ''}
-                  onChange={(e) => {
-                    handleFieldChange('descriptionEn', e.target.value);
-                    if (!formData.description) handleFieldChange('description', e.target.value);
-                  }}
-                  placeholder="Description in English..."
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-stone-50 border border-stone-300 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed resize-none"
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-                />
-              )}
-
-              {descLangTab === 'TH' && (
-                <textarea
-                  rows={4}
-                  value={formData.descriptionTh || ''}
-                  onChange={(e) => handleFieldChange('descriptionTh', e.target.value)}
-                  placeholder="คำอธิบายภาษาไทย (ทันสมัยและเข้าใจง่าย)..."
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-stone-50 border border-stone-300 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed resize-none"
-                  style={{ fontFamily: 'IBM Plex Sans Thai, Outfit, system-ui, sans-serif' }}
-                />
-              )}
-
-              {descLangTab === 'DE' && (
-                <textarea
-                  rows={4}
-                  value={formData.descriptionDe || ''}
-                  onChange={(e) => handleFieldChange('descriptionDe', e.target.value)}
-                  placeholder="Beschreibung auf Deutsch..."
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-stone-50 border border-stone-300 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed resize-none"
-                  style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-                />
-              )}
+                return (
+                  <textarea
+                    rows={4}
+                    value={currentDesc}
+                    onChange={(e) => {
+                      handleFieldChange(descField, e.target.value);
+                      if (descLangTab === 'IT' || !formData.description) {
+                        handleFieldChange('description', e.target.value);
+                      }
+                    }}
+                    placeholder={`Note di degustazione e descrizione (${descLangTab})...`}
+                    className="w-full px-3.5 py-2.5 rounded-2xl bg-stone-50 border border-stone-300 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 leading-relaxed resize-none"
+                    style={fontStyle}
+                  />
+                );
+              })()}
             </div>
 
             {/* Gradazione Alcolica & Prezzo (Con Simboli % e ฿ Fissi) */}

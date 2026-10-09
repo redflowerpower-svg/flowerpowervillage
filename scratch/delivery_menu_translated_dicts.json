@@ -1,0 +1,308 @@
+{
+  "header": {
+    "ES": {
+      "title": "Flower Power Pizza",
+      "subtitle": "Ranong, Tailandia",
+      "tagline1": "PIZZA Y COCINA ITALIANA",
+      "tagline2": "Chef italiano • Ingredientes importados",
+      "info1": "Abierto todos los días",
+      "info2": "11:00 – 21:30",
+      "info3": "Entrega y para llevar",
+      "cartItems": "artículos en el carrito",
+      "cartItem": "artículo en el carrito",
+      "promoTitle": "Promociones e información de entrega",
+      "deliveryLimit": "Las entregas se realizan exclusivamente dentro de la ciudad de Ranong.",
+      "promoFreeDelivery": "Entrega GRATIS para pedidos superiores a 300฿",
+      "promoFirstOrder": "10% de descuento en tu primer pedido",
+      "bookTableBadge": "COMER EN EL LUGAR",
+      "bookTableTitle": "Reserva una mesa o cabaña",
+      "bookTableSubtitle": "Mesas interiores, exteriores o cabaña",
+      "bookTableBtn": "RESERVAR AHORA"
+    },
+    "FR": {
+      "title": "Flower Power Pizza",
+      "subtitle": "Ranong, Thaïlande",
+      "tagline1": "PIZZA & CUISINE ITALIENNE",
+      "tagline2": "Chef italien • Ingrédients importés",
+      "info1": "Ouvert tous les jours",
+      "info2": "11h00 – 21h30",
+      "info3": "Livraison & à emporter",
+      "cartItems": "articles dans le panier",
+      "cartItem": "article dans le panier",
+      "promoTitle": "Promotions & Infos livraison",
+      "deliveryLimit": "Les livraisons sont effectuées exclusivement dans la ville de Ranong.",
+      "promoFreeDelivery": "Livraison GRATUITE pour toute commande supérieure à 300฿",
+      "promoFirstOrder": "10% de réduction sur votre première commande",
+      "bookTableBadge": "SUR PLACE",
+      "bookTableTitle": "Réservez une table ou une hutte",
+      "bookTableSubtitle": "Tables intérieures, extérieures ou hutte",
+      "bookTableBtn": "RÉSERVER"
+    },
+    "RU": {
+      "title": "Flower Power Pizza",
+      "subtitle": "Ранонг, Таиланд",
+      "tagline1": "ПИЦЦА И ИТАЛЬЯНСКАЯ КУХНЯ",
+      "tagline2": "Итальянский шеф-повар • Импортные ингредиенты",
+      "info1": "Открыто ежедневно",
+      "info2": "11:00 – 21:30",
+      "info3": "Доставка и на вынос",
+      "cartItems": "товаров в корзине",
+      "cartItem": "товар в корзине",
+      "promoTitle": "Акции и информация о доставке",
+      "deliveryLimit": "Доставка осуществляется исключительно в пределах города Ранонг.",
+      "promoFreeDelivery": "БЕСПЛАТНАЯ доставка при заказе от 300฿",
+      "promoFirstOrder": "Скидка 10% на первый заказ",
+      "bookTableBadge": "В ЗАЛЕ",
+      "bookTableTitle": "Забронировать столик или домик",
+      "bookTableSubtitle": "Столики в помещении, на улице или домик",
+      "bookTableBtn": "ЗАБРОНИРОВАТЬ"
+    },
+    "ZH": {
+      "title": "花之力量披萨",
+      "subtitle": "泰国拉廊",
+      "tagline1": "披萨与意大利美食",
+      "tagline2": "意大利主厨 • 进口食材",
+      "info1": "每日营业",
+      "info2": "11:00 – 21:30",
+      "info3": "配送与外卖",
+      "cartItems": "购物车商品",
+      "cartItem": "购物车商品",
+      "promoTitle": "促销与配送信息",
+      "deliveryLimit": "仅在拉廊市区内提供配送服务。",
+      "promoFreeDelivery": "订单满300泰铢免费配送",
+      "promoFirstOrder": "首次下单享9折优惠",
+      "bookTableBadge": "堂食",
+      "bookTableTitle": "预订餐桌或小屋",
+      "bookTableSubtitle": "室内、室外餐桌或小屋",
+      "bookTableBtn": "立即预订"
+    }
+  },
+  "categories": {
+    "ES": {
+      "daily-specials": {
+        "name": "Especiales del día",
+        "desc": "Creaciones exclusivas diarias y especialidades de temporada preparadas al momento por nuestro chef italiano con ingredientes premium"
+      },
+      "traditional-italian-pizza": {
+        "name": "Pizzas clásicas",
+        "desc": "Masa italiana de fermentación lenta"
+      },
+      "pasta": {
+        "name": "Pastas y primeros platos",
+        "desc": "Pastas italianas tradicionales y primeros platos frescos"
+      },
+      "breakfast-and-snacks": {
+        "name": "Desayunos y aperitivos",
+        "desc": "Para empezar tu día"
+      },
+      "coffee-shop": {
+        "name": "Cafetería",
+        "desc": "Café expreso italiano"
+      },
+      "fruit-drinks": {
+        "name": "Bebidas de frutas",
+        "desc": "Batidos de frutas frescas"
+      },
+      "soft-drinks": {
+        "name": "Refrescos y agua",
+        "desc": "Refrescos en lata, agua mineral natural y bebidas refrescantes frías."
+      },
+      "beers": {
+        "name": "Cervezas",
+        "desc": "Las mejores cervezas tailandesas e internacionales en botella, servidas bien frías."
+      },
+      "beers-and-wines": {
+        "name": "Cervezas y vinos",
+        "desc": "Cervezas frías y selección de vinos italianos"
+      },
+      "wines": {
+        "name": "Carta de vinos",
+        "desc": "Cuidada selección de finos vinos italianos e internacionales, elegidos para realzar los sabores de cada plato de nuestro menú."
+      }
+    },
+    "FR": {
+      "daily-specials": {
+        "name": "Spécialités du jour",
+        "desc": "Créations quotidiennes exclusives et spécialités de saison fraîchement préparées par notre chef italien avec des ingrédients de qualité supérieure"
+      },
+      "traditional-italian-pizza": {
+        "name": "Pizzas classiques",
+        "desc": "Pâte italienne à fermentation lente"
+      },
+      "pasta": {
+        "name": "Pâtes & Primi Piatti",
+        "desc": "Pâtes italiennes traditionnelles & primi piatti frais"
+      },
+      "breakfast-and-snacks": {
+        "name": "Petit-déjeuner & En-cas",
+        "desc": "Pour bien commencer la journée"
+      },
+      "coffee-shop": {
+        "name": "Café",
+        "desc": "Café espresso italien"
+      },
+      "fruit-drinks": {
+        "name": "Jus de fruits",
+        "desc": "Milkshakes aux fruits frais"
+      },
+      "soft-drinks": {
+        "name": "Boissons sans alcool & Eau",
+        "desc": "Boissons sans alcool en canette, eau minérale naturelle et boissons rafraîchissantes fraîches."
+      },
+      "beers": {
+        "name": "Bières",
+        "desc": "Les meilleures bières en bouteille thaïlandaises et internationales servies glacées."
+      },
+      "beers-and-wines": {
+        "name": "Bières & Vins",
+        "desc": "Bières fraîches et sélection de vins italiens"
+      },
+      "wines": {
+        "name": "Carte des vins",
+        "desc": "Sélection soignée de vins italiens et internationaux de qualité, choisis pour rehausser les saveurs de chaque plat de notre menu."
+      }
+    },
+    "RU": {
+      "daily-specials": {
+        "name": "Ежедневные специальные предложения",
+        "desc": "Эксклюзивные ежедневные блюда и сезонные specialties, свежеприготовленные нашим итальянским шеф-поваром из премиальных ингредиентов"
+      },
+      "traditional-italian-pizza": {
+        "name": "Классические пиццы",
+        "desc": "Итальянское тесто медленного брожения"
+      },
+      "pasta": {
+        "name": "Паста и первые блюда",
+        "desc": "Традиционная итальянская паста и свежие первые блюда"
+      },
+      "breakfast-and-snacks": {
+        "name": "Завтраки и закуски",
+        "desc": "Чтобы начать день"
+      },
+      "coffee-shop": {
+        "name": "Кофейня",
+        "desc": "Итальянский эспрессо"
+      },
+      "fruit-drinks": {
+        "name": "Фруктовые напитки",
+        "desc": "Свежие фруктовые коктейли"
+      },
+      "soft-drinks": {
+        "name": "Безалкогольные напитки и вода",
+        "desc": "Безалкогольные напитки в банках, натуральная минеральная вода и охлаждённые освежающие напитки."
+      },
+      "beers": {
+        "name": "Пиво",
+        "desc": "Лучшее тайское и международное пиво в бутылках, подаётся ледяным."
+      },
+      "beers-and-wines": {
+        "name": "Пиво и вина",
+        "desc": "Охлаждённое пиво и выбор итальянских вин"
+      },
+      "wines": {
+        "name": "Винная карта",
+        "desc": "Тщательно подобранная коллекция изысканных итальянских и международных вин, выбранных, чтобы подчеркнуть вкус каждого блюда нашего меню."
+      }
+    },
+    "ZH": {
+      "daily-specials": {
+        "name": "每日特供",
+        "desc": "意大利主厨每日精选优质食材新鲜制作的独家创意菜和时令特色菜"
+      },
+      "traditional-italian-pizza": {
+        "name": "经典披萨",
+        "desc": "慢发酵意大利面团"
+      },
+      "pasta": {
+        "name": "意面与前菜",
+        "desc": "传统意大利面与新鲜前菜"
+      },
+      "breakfast-and-snacks": {
+        "name": "早餐与小吃",
+        "desc": "开启美好一天"
+      },
+      "coffee-shop": {
+        "name": "咖啡厅",
+        "desc": "意式浓缩咖啡"
+      },
+      "fruit-drinks": {
+        "name": "果汁饮品",
+        "desc": "新鲜水果奶昔"
+      },
+      "soft-drinks": {
+        "name": "软饮与水",
+        "desc": "罐装软饮、天然矿泉水及冰镇清爽饮品。"
+      },
+      "beers": {
+        "name": "啤酒",
+        "desc": "精选泰国及国际瓶装啤酒，冰爽供应。"
+      },
+      "beers-and-wines": {
+        "name": "啤酒与葡萄酒",
+        "desc": "冰镇啤酒与意大利葡萄酒精选"
+      },
+      "wines": {
+        "name": "葡萄酒单",
+        "desc": "精心挑选的意大利及国际优质葡萄酒，旨在提升菜单上每道菜的风味。"
+      }
+    }
+  },
+  "dailySpecials": {
+    "ES": {
+      "pasta": {
+        "name": "Primeros platos",
+        "desc": "Espaguetis con marisco, carne de cangrejo fresco, penne con salmón, tagliatelle con tinta de calamar y raviolis artesanales con el formato de pasta que elijas."
+      },
+      "traditional-italian-pizza": {
+        "name": "Pizzas gourmet especiales",
+        "desc": "Pizzas artesanales con fermentación natural, con carne de cangrejo fresco o salchicha local, espinacas y gorgonzola."
+      },
+      "daily-specials": {
+        "name": "Platos principales tradicionales",
+        "desc": "Grandes clásicos y sabrosas tartas italianas preparadas al momento: milanesa, cotechino artesanal con puré de patatas y auténtica torta pasqualina ligur."
+      }
+    },
+    "FR": {
+      "pasta": {
+        "name": "Primi Piatti",
+        "desc": "Spaghetti aux fruits de mer, chair de crabe fraîche, penne au saumon, tagliatelles à l'encre de seiche et raviolis artisanaux avec le format de pâtes de votre choix."
+      },
+      "traditional-italian-pizza": {
+        "name": "Pizzas gourmet spéciales",
+        "desc": "Pizzas artisanales à levain naturel avec chair de crabe fraîche ou saucisse locale, épinards et gorgonzola."
+      },
+      "daily-specials": {
+        "name": "Plats principaux traditionnels",
+        "desc": "Grands classiques et tourtes italiennes savoureuses préparées fraîches : escalope milanaise, cotechino artisanal avec purée de pommes de terre et authentique torta pasqualina ligure."
+      }
+    },
+    "RU": {
+      "pasta": {
+        "name": "Первые блюда",
+        "desc": "Спагетти с морепродуктами, свежее крабовое мясо, пенне с лососем, тальятелле с чернилами кальмара и артизанальные равиоли с выбором формата пасты."
+      },
+      "traditional-italian-pizza": {
+        "name": "Гурманские специальные пиццы",
+        "desc": "Артизанальные пиццы на естественной закваске со свежим крабовым мясом или местной колбасой, шпинатом и горгонзолой."
+      },
+      "daily-specials": {
+        "name": "Традиционные основные блюда",
+        "desc": "Великие классические блюда и пикантные итальянские пироги, приготовленные свежими: миланский шницель, артизанальный котекино с картофельным пюре и аутентичная лигурийская торта пасквалина."
+      }
+    },
+    "ZH": {
+      "pasta": {
+        "name": "前菜",
+        "desc": "海鲜意面、新鲜蟹肉、三文鱼笔管面、墨鱼汁宽面，以及手工意大利饺，可选您喜欢的意面形状。"
+      },
+      "traditional-italian-pizza": {
+        "name": "美食特色披萨",
+        "desc": "手工天然发酵披萨，搭配新鲜蟹肉或本地香肠、菠菜和戈贡佐拉奶酪。"
+      },
+      "daily-specials": {
+        "name": "传统主菜",
+        "desc": "经典美味与咸香意大利馅饼，新鲜制作：米兰式炸肉排、手工科泰基诺香肠配土豆泥，以及正宗利古里亚复活节馅饼。"
+      }
+    }
+  }
+}

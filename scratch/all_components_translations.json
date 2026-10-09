@@ -1,0 +1,754 @@
+{
+  "categories": {
+    "ES": {
+      "daily-specials": {
+        "name": "Especiales\ndel día",
+        "desc": "Creaciones diarias exclusivas y especialidades de temporada preparadas al momento por nuestro chef italiano con ingredientes premium."
+      },
+      "traditional-italian-pizza": {
+        "name": "Pizza\nitaliana",
+        "desc": "La pizza es el corazón de nuestro restaurante. Utilizamos solo ingredientes italianos seleccionados, desde la harina hasta el tomate, desde los quesos hasta los embutidos, sin comprometer la calidad. Nuestra pizza italiana tradicional de alta hidratación está hecha con una masa al 90% de agua, madurada lentamente durante al menos 36 horas. El resultado es una pizza crujiente, ligera, altamente digestiva y llena de sabor."
+      },
+      "pasta": {
+        "name": "Pasta y\nprimeros",
+        "desc": "Pasta italiana tradicional y primeros platos caseros."
+      },
+      "italian-salads": {
+        "name": "Ensaladas\ny guarniciones",
+        "desc": "Frescas y abundantes ensaladas italianas, deliciosas guarniciones y tradicionales platos principales salados."
+      },
+      "pizza-sandwich": {
+        "name": "Focaccia y\nbocadillos",
+        "desc": "Fragante focaccia con aceite de oliva virgen extra horneada en el horno y rellena al momento con los mejores embutidos italianos, y tentadores bocadillos de pizza dorados y rellenos."
+      },
+      "pizza-burgers": {
+        "name": "Hamburguesa\nde pizza",
+        "desc": "Hecha con panecillos de hamburguesa recién horneados y hamburguesas caseras al estilo italiano, servida con patatas fritas, ketchup y mayonesa: fresca, sabrosa y satisfactoria."
+      },
+      "french-fries": {
+        "name": "Patatas\nfritas",
+        "desc": "Patatas fritas doradas y crujientes servidas bien calientes con ketchup y mayonesa."
+      },
+      "desserts": {
+        "name": "Postres y\ndulces",
+        "desc": "Tiramisú artesanal casero, tartas de queso, pasteles del día y deliciosos postres italianos."
+      },
+      "breakfast-and-snacks": {
+        "name": "Aperitivos y\ndesayuno",
+        "desc": "Desayunos abundantes, tostadas calientes, huevos recién hechos y frescos tazones de fruta tropical."
+      },
+      "coffee-shop": {
+        "name": "Café y\nté",
+        "desc": "Auténtico espresso italiano, cremoso capuchino, cafés helados y finas selecciones de té."
+      },
+      "fruit-drinks": {
+        "name": "Batidos de fruta\ny bebidas",
+        "desc": "Fruta tropical fresca mezclada al momento, batidos energizantes y refrescantes batidos."
+      },
+      "soft-drinks": {
+        "name": "Refrescos\ny agua",
+        "desc": "Refrescos en lata fríos, agua mineral natural y soda con gas."
+      },
+      "beers": {
+        "name": "Cervezas\nen botella",
+        "desc": "Las mejores cervezas tailandesas e internacionales en botella servidas bien frías."
+      },
+      "wines": {
+        "name": "Carta de\nvinos",
+        "desc": "Selección exclusiva de vinos italianos e internacionales, perfectamente maridados con nuestro menú."
+      }
+    },
+    "FR": {
+      "daily-specials": {
+        "name": "Suggestions\ndu jour",
+        "desc": "Créations quotidiennes exclusives et spécialités de saison fraîchement préparées par notre chef italien avec des ingrédients premium."
+      },
+      "traditional-italian-pizza": {
+        "name": "Pizza\nitalienne",
+        "desc": "La pizza est le cœur de notre restaurant. Nous utilisons uniquement des ingrédients italiens sélectionnés, de la farine à la tomate, des fromages aux charcuteries, sans compromis sur la qualité. Notre pizza italienne traditionnelle à haute hydratation est faite avec une pâte à 90% d'eau, lentement maturée pendant au moins 36 heures. Le résultat est une pizza croustillante, légère, très digeste et pleine de saveur."
+      },
+      "pasta": {
+        "name": "Pâtes et\nprimi",
+        "desc": "Pâtes italiennes traditionnelles et entrées maison."
+      },
+      "italian-salads": {
+        "name": "Salades et\naccompagnements",
+        "desc": "Salades italiennes fraîches et riches, délicieux accompagnements et plats principaux salés traditionnels."
+      },
+      "pizza-sandwich": {
+        "name": "Focaccia et\nsandwichs",
+        "desc": "Focaccia parfumée à l'huile d'olive extra vierge cuite au four et garnie à la commande avec les meilleures charcuteries italiennes, et tentants sandwichs de pizza dorés et farcis."
+      },
+      "pizza-burgers": {
+        "name": "Burger\npizza",
+        "desc": "Faits avec des pains à burger fraîchement cuits et des galettes maison à l'italienne, servis avec frites, ketchup et mayonnaise : frais, savoureux et satisfaisants."
+      },
+      "french-fries": {
+        "name": "Frites\nfrançaises",
+        "desc": "Frites dorées et croustillantes servies bien chaudes avec ketchup et mayonnaise."
+      },
+      "desserts": {
+        "name": "Desserts et\nsucreries",
+        "desc": "Tiramisu artisanal maison, cheesecakes, gâteaux du jour et délicieux desserts italiens."
+      },
+      "breakfast-and-snacks": {
+        "name": "En-cas et\npetit-déjeuner",
+        "desc": "Petits-déjeuners copieux, toasts chauds, œufs fraîchement préparés et bols de fruits tropicaux frais."
+      },
+      "coffee-shop": {
+        "name": "Café et\nthé",
+        "desc": "Authentique espresso italien, cappuccino crémeux, cafés glacés et sélections de thés fins."
+      },
+      "fruit-drinks": {
+        "name": "Milkshakes aux fruits\net boissons",
+        "desc": "Fruits tropicaux frais mixés sur place, smoothies énergisants et shakes rafraîchissants."
+      },
+      "soft-drinks": {
+        "name": "Boissons gazeuses\net eau",
+        "desc": "Boissons gazeuses en canette fraîches, eau minérale naturelle et soda pétillant."
+      },
+      "beers": {
+        "name": "Bières\nen bouteille",
+        "desc": "Meilleures bières thaïlandaises et internationales en bouteille servies glacées."
+      },
+      "wines": {
+        "name": "Carte des\nvins",
+        "desc": "Sélection exclusive de vins italiens et internationaux, parfaitement assortis à notre menu."
+      }
+    },
+    "RU": {
+      "daily-specials": {
+        "name": "Ежедневные\nспециальные предложения",
+        "desc": "Эксклюзивные ежедневные блюда и сезонные специальности, свежеприготовленные нашим итальянским шеф-поваром из премиальных ингредиентов."
+      },
+      "traditional-italian-pizza": {
+        "name": "Итальянская\nпицца",
+        "desc": "Пицца — сердце нашего ресторана. Мы используем только отборные итальянские ингредиенты, от муки до томатов, от сыров до мясных деликатесов, без компромиссов в качестве. Наша традиционная итальянская пицца с высокой гидратацией готовится из теста с 90% воды, медленно созревающего не менее 36 часов. Результат — хрустящая, легкая, легкоусвояемая пицца, полная вкуса."
+      },
+      "pasta": {
+        "name": "Паста и\nпервые блюда",
+        "desc": "Традиционная итальянская паста и домашние первые блюда."
+      },
+      "italian-salads": {
+        "name": "Салаты и\nгарниры",
+        "desc": "Свежие и богатые итальянские салаты, вкусные гарниры и традиционные сытные основные блюда."
+      },
+      "pizza-sandwich": {
+        "name": "Фокачча и\nсэндвичи",
+        "desc": "Ароматная фокачча с оливковым маслом extra virgin, запеченная в печи и наполненная по заказу лучшими итальянскими мясными деликатесами, и соблазнительные золотистые сэндвичи-пиццы с начинкой."
+      },
+      "pizza-burgers": {
+        "name": "Пицца-\nбургер",
+        "desc": "Приготовлен из свежеиспеченных булочек для бургеров и домашних котлет в итальянском стиле, подается с картофелем фри, кетчупом и майонезом: свежий, вкусный и сытный."
+      },
+      "french-fries": {
+        "name": "Картофель\nфри",
+        "desc": "Золотистый, хрустящий картофель фри, подается горячим с кетчупом и майонезом."
+      },
+      "desserts": {
+        "name": "Десерты и\nсладости",
+        "desc": "Домашний артизанальный тирамису, чизкейки, торты дня и вкусные итальянские десерты."
+      },
+      "breakfast-and-snacks": {
+        "name": "Закуски и\nзавтрак",
+        "desc": "Сытные завтраки, теплые тосты, свежеприготовленные яйца и свежие чаши с тропическими фруктами."
+      },
+      "coffee-shop": {
+        "name": "Кофе и\nчай",
+        "desc": "Настоящий итальянский эспрессо, сливочный капучино, холодные кофейные напитки и изысканные сорта чая."
+      },
+      "fruit-drinks": {
+        "name": "Фруктовые коктейли\nи напитки",
+        "desc": "Свежие тропические фрукты, смешанные на месте, энергетические смузи и освежающие коктейли."
+      },
+      "soft-drinks": {
+        "name": "Безалкогольные напитки\nи вода",
+        "desc": "Охлажденные безалкогольные напитки в банках, природная минеральная вода и газированная содовая."
+      },
+      "beers": {
+        "name": "Пиво\nв бутылках",
+        "desc": "Лучшие тайские и международные бутылочные сорта пива, подаются ледяными."
+      },
+      "wines": {
+        "name": "Винная\nкарта",
+        "desc": "Эксклюзивная подборка итальянских и международных вин, идеально сочетающихся с нашим меню."
+      }
+    },
+    "ZH": {
+      "daily-specials": {
+        "name": "每日\n特价",
+        "desc": "由我们的意大利厨师使用优质食材新鲜制作的独家每日创意菜和时令特色菜。"
+      },
+      "traditional-italian-pizza": {
+        "name": "意大利\n披萨",
+        "desc": "披萨是我们餐厅的核心。我们只使用精选的意大利食材，从面粉到番茄，从奶酪到冷切肉，绝不妥协品质。我们的传统高含水量意大利披萨采用90%水分的面团，经过至少36小时的缓慢熟成。结果是酥脆、轻盈、易消化、风味十足的披萨。"
+      },
+      "pasta": {
+        "name": "意面与\n前菜",
+        "desc": "传统意大利面和自制前菜。"
+      },
+      "italian-salads": {
+        "name": "沙拉与\n配菜",
+        "desc": "新鲜丰富的意大利沙拉、美味的配菜和传统咸味主菜。"
+      },
+      "pizza-sandwich": {
+        "name": "佛卡夏与\n三明治",
+        "desc": "用特级初榨橄榄油烤制的香浓佛卡夏，按订单填入最好的意大利腌肉，以及诱人的金色夹心披萨三明治。"
+      },
+      "pizza-burgers": {
+        "name": "披萨\n汉堡",
+        "desc": "用新鲜烘焙的汉堡面包和自制意式肉饼制成，配薯条、番茄酱和蛋黄酱：新鲜、美味、令人满足。"
+      },
+      "french-fries": {
+        "name": "炸\n薯条",
+        "desc": "金黄酥脆的炸薯条，热腾腾地配上番茄酱和蛋黄酱。"
+      },
+      "desserts": {
+        "name": "甜点与\n甜品",
+        "desc": "自制手工提拉米苏、芝士蛋糕、当日蛋糕和美味的意大利甜点。"
+      },
+      "breakfast-and-snacks": {
+        "name": "小吃与\n早餐",
+        "desc": "丰盛的早餐、热吐司、新鲜制作的鸡蛋和新鲜热带水果碗。"
+      },
+      "coffee-shop": {
+        "name": "咖啡与\n茶",
+        "desc": "正宗的意大利浓缩咖啡、奶油卡布奇诺、冰咖啡和精选优质茶。"
+      },
+      "fruit-drinks": {
+        "name": "水果奶昔\n与饮品",
+        "desc": "现场混合的新鲜热带水果、能量冰沙和清爽奶昔。"
+      },
+      "soft-drinks": {
+        "name": "软饮料\n与水",
+        "desc": "冰镇罐装软饮料、天然矿泉水和气泡苏打水。"
+      },
+      "beers": {
+        "name": "瓶装\n啤酒",
+        "desc": "顶级泰国和国际瓶装啤酒，冰镇供应。"
+      },
+      "wines": {
+        "name": "葡萄酒\n单",
+        "desc": "独家精选的意大利和国际葡萄酒，与我们的菜单完美搭配。"
+      }
+    }
+  },
+  "checkout": {
+    "ES": {
+      "confirmMapLoc": "ENTREGAR AQUÍ (CONFIRMAR UBICACIÓN)",
+      "mapInstructions": "Toca el mapa o mueve el marcador a tu punto de entrega",
+      "tapHint": "Toca el mapa para colocar el marcador",
+      "expandMap": "Expandir",
+      "collapseMap": "Minimizar",
+      "locConfirmed": "¡Ubicación confirmada!",
+      "detectLocBtn": "Encontrar mi ubicación",
+      "simLoc": "Simular ubicación (Prueba)",
+      "scanningPrompt": "Escanea el código QR con tu app bancaria tailandesa (SCB, KBank, Bangkok Bank, Krungthai)",
+      "awaitingPayment": "Esperando confirmación del banco...",
+      "paymentConfirmedTitle": "¡PAGO RECIBIDO!",
+      "manualSlipFallback": "O sube una captura del recibo manualmente",
+      "uploadBtn": "Subir captura del recibo",
+      "uploadPromptBtn": "SUBE EL RECIBO PARA CONTINUAR",
+      "kbankStep4": "Sube la captura del recibo de pago",
+      "sendingTitle": "Enviando tu pedido...",
+      "sendingHint": "Esperando confirmación de la cocina",
+      "timeoutTitle": "La cocina está muy ocupada o la tablet del personal está desconectada.",
+      "timeoutHint": "Es posible que tu pedido haya llegado igualmente. Pulsa Reintentar o contáctanos directamente.",
+      "retryBtn": "Reintentar enviar pedido",
+      "emergencyTitle": "¿Prefieres contactarnos directamente?",
+      "trackerPreparing": "¡Quédate en esta página! Estamos preparando tus pizzas. Esta pantalla se actualizará automáticamente en cuanto el repartidor salga.",
+      "trackerTakeawayPreparing": "¡Quédate en esta página! Estamos preparando tu pedido para llevar. Esta pantalla se actualizará en cuanto tus pizzas estén calientes y listas para recoger.",
+      "trackerDelivering": "¡El repartidor está en camino! Tu pizza está llegando.",
+      "trackerTakeawayReady": "¡TU PEDIDO ESTÁ LISTO!",
+      "trackerTakeawayReadyDesc": "¡Tus pizzas acaban de salir del horno! Puedes recogerlas en el mostrador de nuestra pizzería en Ranong Hot Springs.",
+      "supportNotice": "No dudes en contactarnos para cualquier consulta o cambio en tu pedido",
+      "rejectedTitle": "¡Lo sentimos!",
+      "rejectedDesc": "La cocina está llena o temporalmente no puede aceptar pedidos. Por favor, contáctanos directamente.",
+      "backToFormBtn": "Volver al formulario",
+      "waitText": "Por favor espera...",
+      "cardSecurityNotice": "Transacción 3D Secure con cifrado Omise Vault (SSL 256 bits)"
+    },
+    "FR": {
+      "confirmMapLoc": "LIVRER ICI (CONFIRMER L'EMPLACEMENT)",
+      "mapInstructions": "Touchez la carte ou déplacez le repère sur votre point de livraison",
+      "tapHint": "Touchez la carte pour placer le repère",
+      "expandMap": "Agrandir",
+      "collapseMap": "Réduire",
+      "locConfirmed": "Emplacement confirmé !",
+      "detectLocBtn": "Trouver ma position",
+      "simLoc": "Simuler la position (Test)",
+      "scanningPrompt": "Scannez le QR code avec votre appli bancaire thaïlandaise (SCB, KBank, Bangkok Bank, Krungthai)",
+      "awaitingPayment": "En attente de la confirmation bancaire...",
+      "paymentConfirmedTitle": "PAIEMENT REÇU !",
+      "manualSlipFallback": "Ou téléchargez manuellement une capture du reçu",
+      "uploadBtn": "Télécharger la capture du reçu",
+      "uploadPromptBtn": "TÉLÉCHARGEZ LE REÇU POUR CONTINUER",
+      "kbankStep4": "Téléchargez la capture du reçu de paiement",
+      "sendingTitle": "Envoi de votre commande...",
+      "sendingHint": "En attente de la confirmation de la cuisine",
+      "timeoutTitle": "La cuisine est très occupée ou la tablette du personnel est hors ligne.",
+      "timeoutHint": "Votre commande est peut-être bien arrivée. Appuyez sur Réessayer ou contactez-nous directement.",
+      "retryBtn": "Réessayer l'envoi de la commande",
+      "emergencyTitle": "Vous préférez nous contacter directement ?",
+      "trackerPreparing": "Restez sur cette page ! Nous préparons vos pizzas. Cet écran se mettra à jour automatiquement dès que le livreur partira.",
+      "trackerTakeawayPreparing": "Restez sur cette page ! Nous préparons votre commande à emporter. Cet écran se mettra à jour dès que vos pizzas seront chaudes et prêtes à être récupérées !",
+      "trackerDelivering": "Le livreur est en route ! Votre pizza arrive.",
+      "trackerTakeawayReady": "VOTRE COMMANDE EST PRÊTE !",
+      "trackerTakeawayReadyDesc": "Vos pizzas viennent d'être fraîchement cuites ! Vous pouvez les récupérer au comptoir de notre pizzeria à Ranong Hot Springs.",
+      "supportNotice": "N'hésitez pas à nous contacter pour toute question ou modification de votre commande",
+      "rejectedTitle": "Nous sommes désolés !",
+      "rejectedDesc": "La cuisine est actuellement complète ou temporairement dans l'impossibilité d'accepter des commandes. Veuillez nous contacter directement.",
+      "backToFormBtn": "Retour au formulaire",
+      "waitText": "Veuillez patienter...",
+      "cardSecurityNotice": "Transaction 3D Secure avec chiffrement Omise Vault (SSL 256 bits)"
+    },
+    "RU": {
+      "confirmMapLoc": "ДОСТАВИТЬ СЮДА (ПОДТВЕРДИТЬ МЕСТОПОЛОЖЕНИЕ)",
+      "mapInstructions": "Нажмите на карту или переместите метку в точку доставки",
+      "tapHint": "Нажмите на карту, чтобы поставить метку",
+      "expandMap": "Развернуть",
+      "collapseMap": "Свернуть",
+      "locConfirmed": "Местоположение подтверждено!",
+      "detectLocBtn": "Найти моё местоположение",
+      "simLoc": "Симулировать местоположение (Тест)",
+      "scanningPrompt": "Отсканируйте QR-код в вашем тайском банковском приложении (SCB, KBank, Bangkok Bank, Krungthai)",
+      "awaitingPayment": "Ожидание подтверждения банка...",
+      "paymentConfirmedTitle": "ПЛАТЁЖ ПОЛУЧЕН!",
+      "manualSlipFallback": "Или загрузите скриншот чека вручную",
+      "uploadBtn": "Загрузить скриншот чека",
+      "uploadPromptBtn": "ЗАГРУЗИТЕ ЧЕК, ЧТОБЫ ПРОДОЛЖИТЬ",
+      "kbankStep4": "Загрузите скриншот чека об оплате",
+      "sendingTitle": "Отправка вашего заказа...",
+      "sendingHint": "Ожидание подтверждения кухни",
+      "timeoutTitle": "Кухня очень занята или планшет персонала не в сети.",
+      "timeoutHint": "Возможно, ваш заказ всё же дошёл. Нажмите «Повторить» или свяжитесь с нами напрямую.",
+      "retryBtn": "Повторить отправку заказа",
+      "emergencyTitle": "Хотите связаться с нами напрямую?",
+      "trackerPreparing": "Останьтесь на этой странице! Мы готовим ваши пиццы. Экран обновится автоматически, как только курьер выедет.",
+      "trackerTakeawayPreparing": "Останьтесь на этой странице! Мы готовим ваш заказ на вынос. Экран обновится, как только ваши пиццы будут горячими и готовыми к выдаче!",
+      "trackerDelivering": "Курьер в пути! Ваша пицца едет.",
+      "trackerTakeawayReady": "ВАШ ЗАКАЗ ГОТОВ!",
+      "trackerTakeawayReadyDesc": "Ваши пиццы только что испекли! Вы можете забрать их на стойке нашей пиццерии в Ranong Hot Springs.",
+      "supportNotice": "Свяжитесь с нами по любым вопросам или для изменения заказа",
+      "rejectedTitle": "Мы сожалеем!",
+      "rejectedDesc": "Кухня сейчас перегружена или временно не может принимать заказы. Пожалуйста, свяжитесь с нами напрямую.",
+      "backToFormBtn": "Вернуться к форме",
+      "waitText": "Пожалуйста, подождите...",
+      "cardSecurityNotice": "Транзакция 3D Secure с шифрованием Omise Vault (SSL 256 бит)"
+    },
+    "ZH": {
+      "confirmMapLoc": "送到这里（确认位置）",
+      "mapInstructions": "点击地图或移动图钉到您的送餐地点",
+      "tapHint": "点击地图放置图钉",
+      "expandMap": "展开",
+      "collapseMap": "最小化",
+      "locConfirmed": "位置已确认！",
+      "detectLocBtn": "定位我的位置",
+      "simLoc": "模拟位置（测试）",
+      "scanningPrompt": "用您的泰国银行应用扫描二维码（SCB、KBank、Bangkok Bank、Krungthai）",
+      "awaitingPayment": "等待银行确认...",
+      "paymentConfirmedTitle": "已收到付款！",
+      "manualSlipFallback": "或手动上传收据截图",
+      "uploadBtn": "上传收据截图",
+      "uploadPromptBtn": "上传收据以继续",
+      "kbankStep4": "上传付款收据截图",
+      "sendingTitle": "正在发送您的订单...",
+      "sendingHint": "等待厨房确认",
+      "timeoutTitle": "厨房非常忙，或员工平板离线。",
+      "timeoutHint": "您的订单可能仍已送达。请按重试或直接联系我们。",
+      "retryBtn": "重试发送订单",
+      "emergencyTitle": "想直接联系我们？",
+      "trackerPreparing": "请留在本页面！我们正在制作您的披萨。骑手一出发，此页面会自动更新。",
+      "trackerTakeawayPreparing": "请留在本页面！我们正在准备您的自取订单。您的披萨热腾腾、可自取时，此页面会立即更新！",
+      "trackerDelivering": "骑手正在路上！您的披萨马上送到。",
+      "trackerTakeawayReady": "您的订单已准备好！",
+      "trackerTakeawayReadyDesc": "您的披萨刚刚新鲜出炉！您可以到我们位于 Ranong Hot Springs 的披萨店柜台取餐。",
+      "supportNotice": "如有任何疑问或需要更改订单，欢迎随时联系我们",
+      "rejectedTitle": "很抱歉！",
+      "rejectedDesc": "厨房目前已满或暂时无法接单。请直接联系我们。",
+      "backToFormBtn": "返回表单",
+      "waitText": "请稍候...",
+      "cardSecurityNotice": "使用 Omise Vault 加密（SSL 256 位）的 3D Secure 交易"
+    }
+  },
+  "cart": {
+    "ES": {
+      "title": "Tu Carrito",
+      "emptyTitle": "Tu carrito está vacío",
+      "emptyDesc": "Selecciona platos auténticos elaborados por nuestro Chef Italiano",
+      "totalText": "TOTAL A PAGAR",
+      "subtotalText": "Subtotal de platos",
+      "firstOrderDiscountText": "Descuento 1er Pedido (10%)",
+      "deliveryText": "Entrega en Ranong",
+      "freeText": "GRATIS",
+      "freeDeliveryApplied": "Entrega GRATIS aplicada (Pedido > 300฿)",
+      "welcomePrivilegeNote": "¡10% de Descuento de Bienvenida aplicado a tu comida!",
+      "checkoutBtn": "PROCEDER AL PAGO",
+      "continueShoppingBtn": "← Volver al Menú y elegir más platos",
+      "addMoreDishesBtn": "+ Seguir eligiendo de nuestro Menú",
+      "ordersPausedBtn": "Pedidos Temporalmente Pausados",
+      "ordersClosedBtn": "Pizzería Actualmente Cerrada",
+      "callPizzeria": "Llamar a Cocina (Ranong)",
+      "footerInfo": "Cocina Italiana Artesanal • Entrega Rápida en Ranong",
+      "pairingRitualTitle": "Completa tu Comida",
+      "pairingRitualSubtitle": "3 maridajes recomendados de nuestra cocina",
+      "slot1Badge": "1. Bebida",
+      "slot2Badge": "2. Café",
+      "slot3Badge": "3. Postre",
+      "openSlot1": "Todas las Bebidas",
+      "openSlot2": "Todo el Café y Té",
+      "openSlot3": "Todos los Postres",
+      "slotAlt1Badge": "1. Pizza",
+      "slotAlt2Badge": "2. Pasta",
+      "slotAlt3Badge": "3. Guarnición",
+      "openSlotAlt1": "Todas las Pizzas",
+      "openSlotAlt2": "Todas las Pastas",
+      "openSlotAlt3": "Todas las Guarniciones",
+      "addDrinkBtn": "+ Añadir",
+      "freeDeliveryRemainingTpl": "¡Solo {amount}฿ para Entrega GRATIS!",
+      "freeDeliveryAchieved": "¡Entrega GRATIS desbloqueada! 🎉",
+      "wineDineInBadge": "Privilegio de Vino • 10% DE DESCUENTO",
+      "wineDineInTitle": "Reserva en el Restaurante: 10% de Descuento en tu Botella de Vino",
+      "wineDineInDesc": "Reserva una mesa o cabaña de bambú en nuestro jardín de Ranong y obtén un 10% de descuento en cualquier botella de vino italiano o internacional de nuestra bodega.",
+      "wineDineInBtn": "Reservar Mesa con 10% de Descuento en Vino",
+      "wineDiscountBadge": "-10% DESCUENTO EN VINO",
+      "deliveryIncluded": "✓ Entrega incluida",
+      "tableOrderBtn": "Proceder Pedido en Mesa",
+      "tableAddMoreBtn": "+ Añadir más platos / bebidas",
+      "tableService": "Servicio de Mesa",
+      "tableServiceFree": "Gratis",
+      "canLabel": "Lata:",
+      "sizeLabel": "Tamaño:",
+      "formatLabel": "Formato:"
+    },
+    "FR": {
+      "title": "Votre Panier",
+      "emptyTitle": "Votre panier est vide",
+      "emptyDesc": "Sélectionnez des plats authentiques préparés par notre Chef Italien",
+      "totalText": "TOTAL À PAYER",
+      "subtotalText": "Sous-total des plats",
+      "firstOrderDiscountText": "Remise 1ère Commande (10%)",
+      "deliveryText": "Livraison à Ranong",
+      "freeText": "GRATUIT",
+      "freeDeliveryApplied": "Livraison GRATUITE appliquée (Commande > 300฿)",
+      "welcomePrivilegeNote": "10% de Remise de Bienvenue appliquée à votre repas !",
+      "checkoutBtn": "PASSER À LA CAISSE",
+      "continueShoppingBtn": "← Retour au Menu et choisir d'autres plats",
+      "addMoreDishesBtn": "+ Continuer à choisir dans notre Menu",
+      "ordersPausedBtn": "Commandes Temporairement Suspendues",
+      "ordersClosedBtn": "Pizzeria Actuellement Fermée",
+      "callPizzeria": "Appeler la Cuisine (Ranong)",
+      "footerInfo": "Cuisine Italienne Artisanale • Livraison Rapide à Ranong",
+      "pairingRitualTitle": "Complétez votre Repas",
+      "pairingRitualSubtitle": "3 accords recommandés par notre cuisine",
+      "slot1Badge": "1. Boisson",
+      "slot2Badge": "2. Café",
+      "slot3Badge": "3. Dessert",
+      "openSlot1": "Toutes les Boissons",
+      "openSlot2": "Tous les Cafés et Thés",
+      "openSlot3": "Tous les Desserts",
+      "slotAlt1Badge": "1. Pizza",
+      "slotAlt2Badge": "2. Pâtes",
+      "slotAlt3Badge": "3. Accompagnement",
+      "openSlotAlt1": "Toutes les Pizzas",
+      "openSlotAlt2": "Toutes les Pâtes",
+      "openSlotAlt3": "Tous les Accompagnements",
+      "addDrinkBtn": "+ Ajouter",
+      "freeDeliveryRemainingTpl": "Plus que {amount}฿ pour la Livraison GRATUITE !",
+      "freeDeliveryAchieved": "Livraison GRATUITE débloquée ! 🎉",
+      "wineDineInBadge": "Privilège Vin • 10% DE RÉDUCTION",
+      "wineDineInTitle": "Réservez au Restaurant : 10% de Réduction sur votre Bouteille de Vin",
+      "wineDineInDesc": "Réservez une table ou une hutte en bambou dans notre jardin de Ranong et obtenez 10% de réduction sur toute bouteille de vin italien ou international de notre cave.",
+      "wineDineInBtn": "Réserver une Table avec 10% de Réduction sur le Vin",
+      "wineDiscountBadge": "-10% DE RÉDUCTION SUR LE VIN",
+      "deliveryIncluded": "✓ Livraison incluse",
+      "tableOrderBtn": "Passer la Commande à Table",
+      "tableAddMoreBtn": "+ Ajouter plus de plats / boissons",
+      "tableService": "Service à Table",
+      "tableServiceFree": "Gratuit",
+      "canLabel": "Canette :",
+      "sizeLabel": "Taille :",
+      "formatLabel": "Format :"
+    },
+    "RU": {
+      "title": "Ваша Корзина",
+      "emptyTitle": "Ваша корзина пуста",
+      "emptyDesc": "Выберите аутентичные блюда, приготовленные нашим итальянским шеф-поваром",
+      "totalText": "ИТОГО К ОПЛАТЕ",
+      "subtotalText": "Подытог блюд",
+      "firstOrderDiscountText": "Скидка на 1-й Заказ (10%)",
+      "deliveryText": "Доставка в Ранонг",
+      "freeText": "БЕСПЛАТНО",
+      "freeDeliveryApplied": "БЕСПЛАТНАЯ Доставка применена (Заказ > 300฿)",
+      "welcomePrivilegeNote": "10% Приветственная Скидка применена к вашему заказу!",
+      "checkoutBtn": "ПЕРЕЙТИ К ОФОРМЛЕНИЮ",
+      "continueShoppingBtn": "← Вернуться в Меню и выбрать ещё блюда",
+      "addMoreDishesBtn": "+ Продолжить выбор из нашего Меню",
+      "ordersPausedBtn": "Заказы Временно Приостановлены",
+      "ordersClosedBtn": "Пиццерия Сейчас Закрыта",
+      "callPizzeria": "Позвонить на Кухню (Ранонг)",
+      "footerInfo": "Итальянская Кухня Ручной Работы • Быстрая Доставка в Ранонге",
+      "pairingRitualTitle": "Дополните ваш Приём Пищи",
+      "pairingRitualSubtitle": "3 рекомендованных сочетания от нашей кухни",
+      "slot1Badge": "1. Напиток",
+      "slot2Badge": "2. Кофе",
+      "slot3Badge": "3. Десерт",
+      "openSlot1": "Все Напитки",
+      "openSlot2": "Все Кофе и Чай",
+      "openSlot3": "Все Десерты",
+      "slotAlt1Badge": "1. Пицца",
+      "slotAlt2Badge": "2. Паста",
+      "slotAlt3Badge": "3. Гарнир",
+      "openSlotAlt1": "Все Пиццы",
+      "openSlotAlt2": "Все Пасты",
+      "openSlotAlt3": "Все Гарниры",
+      "addDrinkBtn": "+ Добавить",
+      "freeDeliveryRemainingTpl": "Всего {amount}฿ до БЕСПЛАТНОЙ Доставки!",
+      "freeDeliveryAchieved": "БЕСПЛАТНАЯ Доставка разблокирована! 🎉",
+      "wineDineInBadge": "Винная Привилегия • Скидка 10%",
+      "wineDineInTitle": "Забронируйте в Ресторане: Скидка 10% на Бутылку Вина",
+      "wineDineInDesc": "Зарезервируйте столик или бамбуковую хижину в нашем саду в Ранонге и получите скидку 10% на любую бутылку итальянского или международного вина из нашего погреба.",
+      "wineDineInBtn": "Забронировать Столик со Скидкой 10% на Вино",
+      "wineDiscountBadge": "-10% СКИДКА НА ВИНО",
+      "deliveryIncluded": "✓ Доставка включена",
+      "tableOrderBtn": "Оформить Заказ за Столиком",
+      "tableAddMoreBtn": "+ Добавить ещё блюда / напитки",
+      "tableService": "Обслуживание за Столиком",
+      "tableServiceFree": "Бесплатно",
+      "canLabel": "Банка:",
+      "sizeLabel": "Размер:",
+      "formatLabel": "Формат:"
+    },
+    "ZH": {
+      "title": "您的购物车",
+      "emptyTitle": "您的购物车是空的",
+      "emptyDesc": "选择由我们的意大利厨师手工制作的正宗菜肴",
+      "totalText": "应付总额",
+      "subtotalText": "菜品小计",
+      "firstOrderDiscountText": "首单折扣 (10%)",
+      "deliveryText": "拉廊配送",
+      "freeText": "免费",
+      "freeDeliveryApplied": "已应用免费配送（订单 > 300฿）",
+      "welcomePrivilegeNote": "您的餐点已享受10%欢迎折扣！",
+      "checkoutBtn": "去结算",
+      "continueShoppingBtn": "← 返回菜单并选择更多菜肴",
+      "addMoreDishesBtn": "+ 继续从我们的菜单中选择",
+      "ordersPausedBtn": "订单暂时暂停",
+      "ordersClosedBtn": "披萨店目前关闭",
+      "callPizzeria": "致电厨房（拉廊）",
+      "footerInfo": "手工意大利美食 • 拉廊快速配送",
+      "pairingRitualTitle": "完善您的餐点",
+      "pairingRitualSubtitle": "我们厨房推荐的3种搭配",
+      "slot1Badge": "1. 软饮料",
+      "slot2Badge": "2. 咖啡",
+      "slot3Badge": "3. 甜点",
+      "openSlot1": "所有饮料",
+      "openSlot2": "所有咖啡和茶",
+      "openSlot3": "所有甜点",
+      "slotAlt1Badge": "1. 披萨",
+      "slotAlt2Badge": "2. 意面",
+      "slotAlt3Badge": "3. 配菜",
+      "openSlotAlt1": "所有披萨",
+      "openSlotAlt2": "所有意面",
+      "openSlotAlt3": "所有配菜",
+      "addDrinkBtn": "+ 添加",
+      "freeDeliveryRemainingTpl": "仅差 {amount}฿ 即可享受免费配送！",
+      "freeDeliveryAchieved": "已解锁免费配送！🎉",
+      "wineDineInBadge": "葡萄酒特权 • 10% 折扣",
+      "wineDineInTitle": "在餐厅预订：葡萄酒瓶享受10%折扣",
+      "wineDineInDesc": "在我们的拉廊花园预订餐桌或竹屋，即可享受酒窖中任何意大利或国际葡萄酒瓶10%的折扣。",
+      "wineDineInBtn": "预订餐桌并享受10%葡萄酒折扣",
+      "wineDiscountBadge": "-10% 葡萄酒折扣",
+      "deliveryIncluded": "✓ 包含配送",
+      "tableOrderBtn": "进行餐桌点单",
+      "tableAddMoreBtn": "+ 添加更多菜肴/饮料",
+      "tableService": "餐桌服务",
+      "tableServiceFree": "免费",
+      "canLabel": "罐装：",
+      "sizeLabel": "尺寸：",
+      "formatLabel": "规格："
+    }
+  },
+  "menuGrid": {
+    "ES": {
+      "sizeOptions": "Opciones de tamaño",
+      "extraIngredients": "ingredientes extra",
+      "startingAt": "Desde",
+      "price": "Precio",
+      "totalFinito": "Precio total",
+      "confirmText": "Pedir",
+      "closeText": "Cerrar",
+      "customizeText": "Personalizar",
+      "chooseText": "Añadir",
+      "freeText": "Gratis",
+      "lasagnaBadge": "🍝 Mín. 2 personas · Pedir con 1 día de antelación",
+      "lasagnaDateLabel": "Selecciona fecha de recogida / entrega",
+      "lasagnaDatePlaceholder": "Elige una fecha...",
+      "lasagnaDateRequired": "⚠️ Por favor, selecciona una fecha para continuar",
+      "lasagnaWhyLabel": "La preparación requiere tiempo para garantizar la mejor calidad.",
+      "splitVariantName": "12\" Mitad y Mitad 🌓",
+      "splitChooseSecondHalf": "Elige la 2ª mitad",
+      "splitSearchPlaceholder": "Buscar pizza para la 2ª mitad...",
+      "splitFirstHalfLabel": "1ª Mitad (Base)",
+      "splitSecondHalfLabel": "2ª Mitad",
+      "splitSecondHalfRequired": "⚠️ Por favor, selecciona la 2ª mitad para continuar",
+      "splitAverageNotice": "Precio 50/50: media exacta de ambos sabores de 12\"",
+      "splitSelectedBadge": "Sabor seleccionado",
+      "chickenOptionTitle": "Opción 100% Pollo (apto para halal)",
+      "chickenOptionDesc": "Sustituye el cerdo y los embutidos por pollo",
+      "chickenOptionSelected": "Pollo seleccionado",
+      "chickenOptionSelect": "+ Elegir Pollo",
+      "spicinessHeader": "Nivel de picante",
+      "spicinessSelect1": "selecciona 1 opción",
+      "sugarHeader": "Nivel de azúcar",
+      "sugarSelect1": "selecciona 1 opción",
+      "fruitHeader": "Elige fruta",
+      "fruitSelect1": "selecciona 1 opción",
+      "saucesHeader": "Selecciona salsas (máx. 2)",
+      "extrasHeader": "Ingredientes extra",
+      "choosePastaFormat": "Elige el formato de pasta",
+      "chooseCan": "Elige tu lata",
+      "chooseSize": "Elige tamaño",
+      "dineInOnly": "Solo para comer en el local • No disponible para entrega",
+      "tableDiscountBadge": "-5% MESA",
+      "filterAll": "Todo",
+      "filterVeggie": "Vegetariano",
+      "filterVegan": "Vegano"
+    },
+    "FR": {
+      "sizeOptions": "Options de taille",
+      "extraIngredients": "ingrédients supplémentaires",
+      "startingAt": "À partir de",
+      "price": "Prix",
+      "totalFinito": "Prix total",
+      "confirmText": "Commander",
+      "closeText": "Fermer",
+      "customizeText": "Personnaliser",
+      "chooseText": "Ajouter",
+      "freeText": "Gratuit",
+      "lasagnaBadge": "🍝 Min. 2 personnes · Précommande 1 jour à l'avance",
+      "lasagnaDateLabel": "Sélectionnez la date de retrait / livraison",
+      "lasagnaDatePlaceholder": "Choisissez une date...",
+      "lasagnaDateRequired": "⚠️ Veuillez sélectionner une date pour continuer",
+      "lasagnaWhyLabel": "La préparation prend du temps pour garantir la meilleure qualité.",
+      "splitVariantName": "12\" Moitié-Moitié 🌓",
+      "splitChooseSecondHalf": "Choisissez la 2ème moitié",
+      "splitSearchPlaceholder": "Rechercher une pizza pour la 2ème moitié...",
+      "splitFirstHalfLabel": "1ère Moitié (Base)",
+      "splitSecondHalfLabel": "2ème Moitié",
+      "splitSecondHalfRequired": "⚠️ Veuillez sélectionner la 2ème moitié pour continuer",
+      "splitAverageNotice": "Prix 50/50 : moyenne exacte des deux saveurs 12\"",
+      "splitSelectedBadge": "Saveur sélectionnée",
+      "chickenOptionTitle": "Option 100% Poulet (compatible halal)",
+      "chickenOptionDesc": "Remplace le porc et la charcuterie par du poulet",
+      "chickenOptionSelected": "Poulet sélectionné",
+      "chickenOptionSelect": "+ Choisir Poulet",
+      "spicinessHeader": "Niveau de piquant",
+      "spicinessSelect1": "sélectionnez 1 option",
+      "sugarHeader": "Niveau de sucre",
+      "sugarSelect1": "sélectionnez 1 option",
+      "fruitHeader": "Choisissez un fruit",
+      "fruitSelect1": "sélectionnez 1 option",
+      "saucesHeader": "Sélectionnez les sauces (max 2)",
+      "extrasHeader": "Ingrédients supplémentaires",
+      "choosePastaFormat": "Choisissez le format de pâtes",
+      "chooseCan": "Choisissez votre canette",
+      "chooseSize": "Choisissez la taille",
+      "dineInOnly": "Sur place uniquement • Non disponible pour la livraison",
+      "tableDiscountBadge": "-5% TABLE",
+      "filterAll": "Tout",
+      "filterVeggie": "Végétarien",
+      "filterVegan": "Végétalien"
+    },
+    "RU": {
+      "sizeOptions": "Варианты размера",
+      "extraIngredients": "дополнительные ингредиенты",
+      "startingAt": "Начиная с",
+      "price": "Цена",
+      "totalFinito": "Итоговая цена",
+      "confirmText": "Заказать",
+      "closeText": "Закрыть",
+      "customizeText": "Настроить",
+      "chooseText": "Добавить",
+      "freeText": "Бесплатно",
+      "lasagnaBadge": "🍝 Мин. 2 человека · Предзаказ за 1 день",
+      "lasagnaDateLabel": "Выберите дату самовывоза / доставки",
+      "lasagnaDatePlaceholder": "Выберите дату...",
+      "lasagnaDateRequired": "⚠️ Пожалуйста, выберите дату, чтобы продолжить",
+      "lasagnaWhyLabel": "Приготовление требует времени для гарантии наилучшего качества.",
+      "splitVariantName": "12\" Половинка и половинка 🌓",
+      "splitChooseSecondHalf": "Выберите 2-ю половину",
+      "splitSearchPlaceholder": "Поиск пиццы для 2-й половины...",
+      "splitFirstHalfLabel": "1-я половина (основа)",
+      "splitSecondHalfLabel": "2-я половина",
+      "splitSecondHalfRequired": "⚠️ Пожалуйста, выберите 2-ю половину, чтобы продолжить",
+      "splitAverageNotice": "Цена 50/50: точное среднее двух вкусов 12\"",
+      "splitSelectedBadge": "Выбранный вкус",
+      "chickenOptionTitle": "Опция 100% курица (халяль-френдли)",
+      "chickenOptionDesc": "Заменяет свинину и колбасные изделия на курицу",
+      "chickenOptionSelected": "Курица выбрана",
+      "chickenOptionSelect": "+ Выбрать курицу",
+      "spicinessHeader": "Уровень остроты",
+      "spicinessSelect1": "выберите 1 вариант",
+      "sugarHeader": "Уровень сахара",
+      "sugarSelect1": "выберите 1 вариант",
+      "fruitHeader": "Выберите фрукт",
+      "fruitSelect1": "выберите 1 вариант",
+      "saucesHeader": "Выберите соусы (макс. 2)",
+      "extrasHeader": "Дополнительные ингредиенты",
+      "choosePastaFormat": "Выберите формат пасты",
+      "chooseCan": "Выберите банку",
+      "chooseSize": "Выберите размер",
+      "dineInOnly": "Только в зале • Недоступно для доставки",
+      "tableDiscountBadge": "-5% СТОЛИК",
+      "filterAll": "Все",
+      "filterVeggie": "Вегетарианское",
+      "filterVegan": "Веганское"
+    },
+    "ZH": {
+      "sizeOptions": "尺寸选项",
+      "extraIngredients": "额外配料",
+      "startingAt": "起价",
+      "price": "价格",
+      "totalFinito": "总价",
+      "confirmText": "下单",
+      "closeText": "关闭",
+      "customizeText": "自定义",
+      "chooseText": "添加",
+      "freeText": "免费",
+      "lasagnaBadge": "🍝 最少2人 · 提前1天预订",
+      "lasagnaDateLabel": "选择自取/配送日期",
+      "lasagnaDatePlaceholder": "选择日期...",
+      "lasagnaDateRequired": "⚠️ 请选择日期以继续",
+      "lasagnaWhyLabel": "准备需要时间，以确保最佳品质。",
+      "splitVariantName": "12英寸 双拼 🌓",
+      "splitChooseSecondHalf": "选择第二半",
+      "splitSearchPlaceholder": "搜索第二半的披萨...",
+      "splitFirstHalfLabel": "第一半（基础）",
+      "splitSecondHalfLabel": "第二半",
+      "splitSecondHalfRequired": "⚠️ 请选择第二半以继续",
+      "splitAverageNotice": "50/50价格：两种12英寸口味的精确平均值",
+      "splitSelectedBadge": "已选口味",
+      "chickenOptionTitle": "100%鸡肉选项（清真友好）",
+      "chickenOptionDesc": "用鸡肉替代猪肉和冷切肉",
+      "chickenOptionSelected": "已选鸡肉",
+      "chickenOptionSelect": "+ 选择鸡肉",
+      "spicinessHeader": "辣度",
+      "spicinessSelect1": "选择1个选项",
+      "sugarHeader": "糖度",
+      "sugarSelect1": "选择1个选项",
+      "fruitHeader": "选择水果",
+      "fruitSelect1": "选择1个选项",
+      "saucesHeader": "选择酱料（最多2种）",
+      "extrasHeader": "额外配料",
+      "choosePastaFormat": "选择意面类型",
+      "chooseCan": "选择罐装饮料",
+      "chooseSize": "选择尺寸",
+      "dineInOnly": "仅限堂食 • 不提供配送",
+      "tableDiscountBadge": "-5% 堂食",
+      "filterAll": "全部",
+      "filterVeggie": "素食",
+      "filterVegan": "纯素"
+    }
+  }
+}

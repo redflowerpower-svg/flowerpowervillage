@@ -70,17 +70,22 @@ console.log(`🎯 Target Language: ${langConfig.name} (${langConfig.native}) [${
 console.log('=================================================================');
 
 // 1. Read DeepSeek API Key
-let apiKey = '';
-const envFile = fs.readFileSync('.env.local', 'utf8');
-envFile.split('\n').forEach(line => {
-  const parts = line.split('=');
-  if (parts.length >= 2 && parts[0].trim() === 'DEEPSEEK_API_KEY') {
-    apiKey = parts.slice(1).join('=').trim();
+let apiKey = process.env.DEEPSEEK_API_KEY || '';
+if (!apiKey) {
+  const envPath = fs.existsSync('.env.local') ? '.env.local' : '.env';
+  if (fs.existsSync(envPath)) {
+    const envFile = fs.readFileSync(envPath, 'utf8');
+    envFile.split('\n').forEach(line => {
+      const parts = line.split('=');
+      if (parts.length >= 2 && parts[0].trim() === 'DEEPSEEK_API_KEY') {
+        apiKey = parts.slice(1).join('=').trim();
+      }
+    });
   }
-});
+}
 
 if (!apiKey) {
-  console.error('❌ DEEPSEEK_API_KEY not found in .env.local!');
+  console.error('❌ DEEPSEEK_API_KEY not found in .env or .env.local!');
   process.exit(1);
 }
 
@@ -398,6 +403,28 @@ async function processMenuData() {
   const finalOutput = `${header}export const menuData: MenuCategory[] = ${JSON.stringify(menuCategories, null, 2)};\n`;
   fs.writeFileSync(filePath, finalOutput, 'utf8');
   console.log(`✅ menuData.ts successfully updated for [${langConfig.code}].`);
+
+  // Rebuild & Update EXTRAS_TRANSLATION_MAP
+  const extrasMapPath = 'src/pizza/data/extrasTranslationMap.ts';
+  const extrasDict = {};
+  allDishes.forEach(d => {
+    (d.extras || []).forEach(e => {
+      if (e.id) {
+        if (!extrasDict[e.id]) extrasDict[e.id] = {};
+        extrasDict[e.id].name = e.name;
+        if (e.nameIt || e.name_it) extrasDict[e.id].nameIt = e.nameIt || e.name_it;
+        if (e.nameTh) extrasDict[e.id].nameTh = e.nameTh;
+        if (e.nameMm || e.name_mm) extrasDict[e.id].nameMm = e.nameMm || e.name_mm;
+        if (e.nameDe || e.name_de) extrasDict[e.id].nameDe = e.nameDe || e.name_de;
+        if (e.nameEs || e.name_es) extrasDict[e.id].nameEs = e.nameEs || e.name_es;
+        if (e.nameFr) extrasDict[e.id].nameFr = e.nameFr;
+        if (e.nameRu) extrasDict[e.id].nameRu = e.nameRu;
+        if (e.nameZh) extrasDict[e.id].nameZh = e.nameZh;
+      }
+    });
+  });
+  fs.writeFileSync(extrasMapPath, `export const EXTRAS_TRANSLATION_MAP: Record<string, Record<string, string>> = ${JSON.stringify(extrasDict, null, 2)};\n`, 'utf8');
+  console.log(`✅ extrasTranslationMap.ts successfully rebuilt for [${langConfig.code}].`);
 }
 
 // -------------------------------------------------------------
@@ -773,6 +800,144 @@ async function processTableReservation() {
 // -------------------------------------------------------------
 // MAIN RUNNER
 // -------------------------------------------------------------
+
+// -------------------------------------------------------------
+// STEP 7: Translate DeliveryMenu.tsx (Header, Hero Cards, Category Tabs)
+// -------------------------------------------------------------
+async function processDeliveryMenuCards() {
+  console.log(`\n🍕 STEP 7: Translating DeliveryMenu.tsx into ${langConfig.name}`);
+  const filePath = 'src/pizza/pages/DeliveryMenu.tsx';
+  let fileContent = fs.readFileSync(filePath, 'utf8');
+  const code = langConfig.code;
+
+  const payload = {
+    bookTableTitle: 'Book a Table',
+    bookTableDesc: 'Indoor, outdoor tables or bamboo garden hut',
+    bookTableBtn: 'Book Now',
+    discountTitle: '10% OFF',
+    discountDesc: '1st order? Discount applied automatically in cart!',
+    discountBadge: 'In Cart',
+    deliveryTitle: 'Delivery & Takeaway',
+    deliveryDesc: 'Ranong (>300฿ free), takeaway always free!',
+    deliveryBtn: 'To Menu',
+    tagline1: 'PIZZA & ITALIAN CUISINE',
+    tagline2: 'Italian Chef • Imported Ingredients',
+    info1: 'Open Daily',
+    info2: '11:00 – 21:30',
+    info3: 'Delivery & Takeaway'
+  };
+
+  const result = await callDeepSeekWithRetry(
+    `Translate these delivery menu promotion cards and hero details into prestigious ${langConfig.name} (${langConfig.native}). Return JSON object.`,
+    payload,
+    `DeliveryMenu Top Cards & Hero [${code}]`
+  );
+
+  if (result) {
+    const block = `  ${code}: {
+    title: 'Flower Power Pizza',
+    subtitle: 'Ranong, Thailand',
+    tagline1: '${(result.tagline1 || '').replace(/'/g, "\\'")}',
+    tagline2: '${(result.tagline2 || '').replace(/'/g, "\\'")}',
+    info1: '${(result.info1 || '').replace(/'/g, "\\'")}',
+    info2: '${(result.info2 || '11:00 – 21:30').replace(/'/g, "\\'")}',
+    info3: '${(result.info3 || '').replace(/'/g, "\\'")}',
+    cartItems: 'items in cart',
+    cartItem: 'item in cart',
+    promoTitle: 'Promotions & Delivery Info',
+    deliveryLimit: 'Deliveries are made exclusively within the city of Ranong.',
+    promoFreeDelivery: 'FREE delivery for orders over 300฿',
+    promoFirstOrder: '10% discount on your first order',
+    bookTableBadge: 'DINE-IN',
+    bookTableTitle: '${(result.bookTableTitle || '').replace(/'/g, "\\'")}',
+    bookTableSubtitle: '${(result.bookTableDesc || '').replace(/'/g, "\\'")}',
+    bookTableBtn: '${(result.bookTableBtn || '').replace(/'/g, "\\'")}',
+  },`;
+
+    if (!fileContent.includes(`  ${code}: {`)) {
+      fileContent = fileContent.replace(/const translations: Record<string, any> = \{([^;]+)\};/s, (match, p1) => {
+        return `const translations: Record<string, any> = {${p1}\n${block}\n};`;
+      });
+      fs.writeFileSync(filePath, fileContent, 'utf8');
+      console.log(`✅ DeliveryMenu.tsx updated with [${code}] translations.`);
+    }
+
+    const dropdownBlock = `  ${code}: {
+    pastaFilter: '${(result.pastaFilter || 'Sauce / Pasta Type').replace(/'/g, "\\'")}',
+    drinkFilter: '${(result.drinkFilter || 'Beverage Category').replace(/'/g, "\\'")}',
+    wineTypeFilter: '${(result.wineTypeFilter || 'Wine Type').replace(/'/g, "\\'")}',
+    wineCountryFilter: '${(result.wineCountryFilter || 'Origin / Country').replace(/'/g, "\\'")}',
+  },`;
+
+    if (!fileContent.includes(`  ${code}: {`)) {
+      fileContent = fileContent.replace(/const DROPDOWN_LABELS: Record<string, [^>]+> = \{([^;]+)\};/s, (match, p1) => {
+        return `const DROPDOWN_LABELS: Record<string, { pastaFilter: string; drinkFilter: string; wineTypeFilter: string; wineCountryFilter: string }> = {${p1}\n${dropdownBlock}\n};`;
+      });
+      fs.writeFileSync(filePath, fileContent, 'utf8');
+      console.log(`✅ DROPDOWN_LABELS updated with [${code}] translations.`);
+    }
+  }
+}
+
+
+// -------------------------------------------------------------
+// STEP 8: Translate & Update extrasTranslationMap.ts & CartDrawer Pairings
+// -------------------------------------------------------------
+async function processExtrasAndPairings() {
+  console.log(`\n🧀 STEP 8: Translating Extras & Pairing Dishes into ${langConfig.name}`);
+  const extrasMapPath = 'src/pizza/data/extrasTranslationMap.ts';
+  if (!fs.existsSync(extrasMapPath)) return;
+
+  let extrasContent = fs.readFileSync(extrasMapPath, 'utf8');
+  const code = langConfig.code;
+  const fieldKey = 'name' + langConfig.fieldKey;
+
+  const sampleExtras = [
+    { id: '10171', name: 'Parmigiano Reggiano DOP' },
+    { id: '10168', name: 'Mozzarella Fior di Latte' },
+    { id: '10176', name: 'Gorgonzola DOP' },
+    { id: '10172', name: 'Burrata Pugliese' },
+    { id: '10178', name: 'Olio al Tartufo Bianco' },
+    { id: '10174', name: 'Prosciutto Cotto' },
+    { id: '10175', name: 'Salame Piccante' },
+    { id: '10185', name: 'Patatine Fritte Extra' },
+    { id: 'sauce-none', name: 'No sauce' },
+    { id: 'sauce-ketchup', name: 'Ketchup' },
+    { id: 'sauce-mayo', name: 'Mayonnaise' },
+    { id: 'sauce-chili', name: 'Chili sauce' },
+    { id: 'spicy-no', name: 'Not spicy' },
+    { id: 'spicy-light', name: 'Mildly spicy' },
+    { id: 'spicy-medium', name: 'Medium spicy' },
+    { id: 'spicy-very', name: 'Very spicy' },
+    { id: 'sugar-no', name: 'No sugar (0%)' },
+    { id: 'sugar-less', name: 'Less sugar (50%)' },
+    { id: 'sugar-regular', name: 'Regular sweetness (100%)' },
+  ];
+
+  const result = await callDeepSeekWithRetry(
+    `Translate culinary extras, spiciness levels, sugar levels, and sauce options into prestigious ${langConfig.name} (${langConfig.native}). Output JSON: { "items": [ { "id": "...", "name": "..." } ] }`,
+    { items: sampleExtras },
+    `Extras & Customizations [${code}]`
+  );
+
+  if (result && Array.isArray(result.items)) {
+    result.items.forEach(resItem => {
+      const regex = new RegExp(`('${resItem.id}':\\s*\\{[^}]+)\\}(\\s*,?)`, 'g');
+      if (!extrasContent.includes(`${fieldKey}:`)) {
+        extrasContent = extrasContent.replace(regex, (m, p1, p2) => {
+          if (!p1.includes(fieldKey)) {
+            return `${p1}, ${fieldKey}: '${(resItem.name || '').replace(/'/g, "\\'")}' }${p2}`;
+          }
+          return m;
+        });
+      }
+    });
+
+    fs.writeFileSync(extrasMapPath, extrasContent, 'utf8');
+    console.log(`✅ extrasTranslationMap.ts updated with [${code}].`);
+  }
+}
+
 async function run() {
   const startTime = Date.now();
   await processLanguagesConfig();
@@ -781,6 +946,8 @@ async function run() {
   await processWineData();
   await processCheckoutFlow();
   await processTableReservation();
+  await processDeliveryMenuCards();
+  await processExtrasAndPairings();
 
   stats.finishedAt = new Date().toISOString();
   stats.totalExecutionSeconds = Math.round((Date.now() - startTime) / 1000);

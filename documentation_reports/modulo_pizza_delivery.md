@@ -73,18 +73,18 @@ Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra We
 
 ---
 
-## 🌐 4. Pipeline Multilingua Radicale a 9 Fasi (DeepSeek AI Batch CLI)
+## 🌐 4. Pipeline Multilingua Radicale a 9 Lingue (DeepSeek AI Batch CLI)
 
-Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flussi di checkout supportano 5 lingue native: **Italiano (`IT`)**, **Inglese (`EN`)**, **Tailandese (`TH`)**, **Tedesco (`DE`)** e **Birmano (`MM`)**.
+Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flussi di checkout supportano **9 lingue native**: **Italiano (`IT`)**, **Inglese (`EN`)**, **Tailandese (`TH`)**, **Birmano (`MM`)**, **Tedesco (`DE`)**, **Spagnolo (`ES`)**, **Francese (`FR`)**, **Russo (`RU`)** e **Cinese (`ZH`)**.
 
 1. **Motore CLI Automatizzato (`scripts/deepseek-universal-translator.mjs` & `scratch/deepseek-translate.mjs`)**:
    - Esegue la traduzione batch e on-demand di tutti i piatti (`menuData.ts`), carta dei vini (`wineData.tsx`), dizionario globale (`i18n.ts`), badge dietetici (`dietary.ts`, `DietaryWatermark.tsx`) e componenti checkout.
    - Utilizza l'API ufficiale DeepSeek (`deepseek-chat`) con temperatura controllata e schema JSON strict.
-2. **Supporto Birmano (`MM`) & Font Noto Sans Myanmar**:
+2. **Supporto Lingue Asiatiche & Font Speciali**:
    - Integrazione completa del font `Noto Sans Myanmar` (Google Fonts) in `index.html` e `languages.ts`.
    - Localizzazione completa del flusso di Checkout (`CheckoutFlow.tsx`), messaggi di conferma, supporto Telegram/WhatsApp e dettagli consegna dinamici.
 3. **Studio Admin Live DeepSeek (`DishCardStudio.tsx`, `WineCardStudio.tsx`)**:
-   - Pannello di traduzione in tempo reale con anteprima affiancata di tutte le lingue supportate.
+   - Pannello di traduzione in tempo reale con anteprima affiancata di tutte le 9 lingue supportate.
 
 ---
 
@@ -115,13 +115,13 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
 ## 🍳 6. Motore di Traduzione Universale KDS (`kdsCatalogService`, `kdsExtraDictionary`, `kdsI18n`)
 
 1. **Dizionario Universale Ingredienti ed Extra (`kdsExtraDictionary.ts`)**:
-   - Mappatura completa e certificata di oltre **180 ingredienti, formati, impasti, varianti vino e badge dietetici** in tutte le 5 lingue (`TH`, `EN`, `MM`, `IT`, `DE`).
+   - Mappatura completa e certificata di oltre **180 ingredienti, formati, impasti, varianti vino e badge dietetici** in tutte le lingue supportate.
    - Normalizzazione runtime tramite `resolveExtraDisplayName` e `resolveVariantDisplayName`.
 2. **Master Catalog & Sottotitoli Dinamici (`kdsCatalogService.ts`)**:
    - Indicizzazione biunivoca dei ~150 piatti del catalogo e della carta vini.
    - Fornitura di sottotitoli intelligenti di riferimento incrociato (`resolveDishSubtitle`), visualizzando ad esempio l'inglese sotto il tailandese, o il tailandese sotto il birmano.
 3. **Dizionario UI Tipizzato KDS (`kdsI18n.ts`)**:
-   - Copertura 100% dell'infrastruttura grafica del monitor (colonne, pulsanti allarme/snooze, badge `PromptPay`, `Card 3DS`, `Conto alla Cassa`, `Contanti`, modali di archivio, gestione orari e prenotazioni tavolo) con zero stringhe hardcoded.
+   - Copertura 100% dell'infrastruttura grafica del monitor con zero stringhe hardcoded.
 
 ---
 
@@ -134,11 +134,29 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
 
 2. **Standardizzazione Extra "Parmigiano" (`menuData.ts`)**:
    - Aggiornamento di tutti gli ingredienti extra nel catalogo sostituendo la formula estesa con la dicitura pulita ed elegante **"Parmigiano"**.
-   - Traduzioni certificate tramite API DeepSeek su tutte le 5 lingue supportate:
-     - 🇮🇹 IT: `Parmigiano`
-     - 🇬🇧 EN: `Parmesan`
-     - 🇹🇭 TH: `พาร์มิจาโน`
-     - 🇩🇪 DE: `Parmesan`
-     - 🇲🇲 MM: `ပါမာဂျာနို`
+   - Traduzioni certificate tramite API DeepSeek su tutte le lingue supportate (IT: `Parmigiano`, EN: `Parmesan`, TH: `พาร์มิจาโน`, DE: `Parmesan`, MM: `ပါမာဂျာနို`, ES: `Parmesano`, FR: `Parmesan`, RU: `Пармезан`, ZH: `帕玛森芝士`).
+
+---
+
+## 📧 8. Marketing Suite & Mailing List CRM Studio (`PizzaNewsletterSection.tsx`, `campaign-translate.ts`)
+
+1. **Composer Multilingua in 9 Lingue Simultanee**:
+   - Traduzione batch istantanea 9-in-1 con DeepSeek AI Chat API (`/api/campaign-translate`), memorizzando ciascuna versione linguistica senza sovrascritture incrociate.
+2. **Gestione Modelli con Icona Cestino & Ripristino**:
+   - Possibilità di cancellare preset personalizzati con popup di conferma (`Trash2`) e di ripristinare in qualsiasi momento i template standard ufficiali DeepSeek.
+3. **Schedulatore Unificato a 5 Modalità**:
+   - `⚡ Subito`: Broadcast manuale a tutti o al segmento selezionato.
+   - `🍽️ Post-Dining Table`: Trigger automatico collegato agli ordini effettuati con il Dining Tablet al tavolo.
+   - `🛵 Post-Online Web`: Trigger automatico collegato agli ordini delivery/takeaway effettuati sul sito web.
+   - `📅 Data Programmata`: Invio automatico a data e ora futura prefissata.
+   - `🔄 Ricorrente`: Invio ciclico periodico (Settimanale / Quindicinale / Mensile).
+4. **Selettore di Ritardo Post-Ordine (Ore / Giorni / Istantaneo)**:
+   - Pills rapide: *⚡ Subito*, *⏱️ 1 Ora*, *⏱️ 3 Ore*, *📅 1 Giorno*, *📅 5 Giorni*, *📅 10 Giorni*.
+   - Intervallo personalizzato con input numerico e selettore ore/giorni.
+5. **Sincronizzazione Live `● LIVE` sui Modelli**:
+   - I template attivi come trigger mostrano il badge `● LIVE` e, se selezionati, allineano automaticamente la modalità e il ritardo esatto in esecuzione sul server.
+6. **Regola di Soppressione Non-Stacking Sconti**:
+   - Quando è attivo qualsiasi coupon sconto (`appliedPromo`), tutti i banner e i richiami al *10% First Order Welcome Discount* vengono nascosti in tutto il sito (`DeliveryMenu.tsx`, `CartDrawer.tsx`, `CheckoutFlow.tsx`) per non generare confusione.
+
 
 

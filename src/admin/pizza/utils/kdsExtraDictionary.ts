@@ -73,18 +73,39 @@ export const KDS_EXTRA_DICTIONARY: Record<string, ExtraTranslationEntry> = {
     de: 'Gorgonzola Blauschimmelkäse'
   },
   'parmigiano': {
-    it: 'Parmigiano Reggiano',
-    en: 'Parmigiano Reggiano',
-    th: 'พาร์เมซานชีสแท้',
-    mm: 'ပါမီဇန် ချိစ်',
-    de: 'Parmigiano Reggiano'
+    it: 'Parmigiano',
+    en: 'Parmesan',
+    th: 'พาร์มิจาโน',
+    mm: 'ပါမာဂျာနို',
+    de: 'Parmesan'
+  },
+  'parmesan': {
+    it: 'Parmigiano',
+    en: 'Parmesan',
+    th: 'พาร์มิจาโน',
+    mm: 'ပါမာဂျာနို',
+    de: 'Parmesan'
+  },
+  'ext-double-parmesan': {
+    it: 'Parmigiano',
+    en: 'Parmesan',
+    th: 'พาร์มิจาโน',
+    mm: 'ပါမာဂျာနို',
+    de: 'Parmesan'
+  },
+  '10171': {
+    it: 'Parmigiano',
+    en: 'Parmesan',
+    th: 'พาร์มิจาโน',
+    mm: 'ပါမာဂျာနို',
+    de: 'Parmesan'
   },
   'parmigiano reggiano': {
-    it: 'Parmigiano Reggiano',
-    en: 'Parmigiano Reggiano',
-    th: 'พาร์มิจาโนเรจจาโนชีส',
-    mm: 'ပါမီဂျာနို ရယ်ဂျာနို ချိစ်',
-    de: 'Parmigiano Reggiano'
+    it: 'Parmigiano',
+    en: 'Parmesan',
+    th: 'พาร์มิจาโน',
+    mm: 'ပါမာဂျာနို',
+    de: 'Parmesan'
   },
   'grana': {
     it: 'Grana Padano',
@@ -972,6 +993,347 @@ export const KDS_EXTRA_DICTIONARY: Record<string, ExtraTranslationEntry> = {
     th: 'เจ / วีแกน 100%',
     mm: 'သက်သတ်လွတ် ၁၀၀%',
     de: '100% Vegan'
+  },
+
+  // Spiciness Levels
+  'spicy-no': {
+    it: 'Non Piccante (0%)',
+    en: 'Not Spicy (0%)',
+    th: 'ไม่เผ็ด (0%)',
+    mm: 'မစပ်ပါ (၀%)',
+    de: 'Nicht Scharf (0%)'
+  },
+  'non piccante': {
+    it: 'Non Piccante (0%)',
+    en: 'Not Spicy (0%)',
+    th: 'ไม่เผ็ด (0%)',
+    mm: 'မစပ်ပါ (၀%)',
+    de: 'Nicht Scharf (0%)'
+  },
+  'not spicy': {
+    it: 'Non Piccante (0%)',
+    en: 'Not Spicy (0%)',
+    th: 'ไม่เผ็ด (0%)',
+    mm: 'မစပ်ပါ (၀%)',
+    de: 'Nicht Scharf (0%)'
+  },
+  'spicy-light': {
+    it: 'Poco Piccante 🌶️',
+    en: 'Mild Spicy 🌶️',
+    th: 'เผ็ดน้อย 🌶️',
+    mm: 'အစပ်နည်းနည်း 🌶️',
+    de: 'Leicht Scharf 🌶️'
+  },
+  'poco piccante': {
+    it: 'Poco Piccante 🌶️',
+    en: 'Mild Spicy 🌶️',
+    th: 'เผ็ดน้อย 🌶️',
+    mm: 'အစပ်နည်းနည်း 🌶️',
+    de: 'Leicht Scharf 🌶️'
+  },
+  'mild spicy': {
+    it: 'Poco Piccante 🌶️',
+    en: 'Mild Spicy 🌶️',
+    th: 'เผ็ดน้อย 🌶️',
+    mm: 'အစပ်နည်းနည်း 🌶️',
+    de: 'Leicht Scharf 🌶️'
+  },
+  'spicy-medium': {
+    it: 'Medio Piccante 🌶️🌶️',
+    en: 'Medium Spicy 🌶️🌶️',
+    th: 'เผ็ดปานกลาง 🌶️🌶️',
+    mm: 'အစပ်အလယ်အလတ် 🌶️🌶️',
+    de: 'Mittelscharf 🌶️🌶️'
+  },
+  'medio piccante': {
+    it: 'Medio Piccante 🌶️🌶️',
+    en: 'Medium Spicy 🌶️🌶️',
+    th: 'เผ็ดปานกลาง 🌶️🌶️',
+    mm: 'အစပ်အလယ်အလတ် 🌶️🌶️',
+    de: 'Mittelscharf 🌶️🌶️'
+  },
+  'medium spicy': {
+    it: 'Medio Piccante 🌶️🌶️',
+    en: 'Medium Spicy 🌶️🌶️',
+    th: 'เผ็ดปานกลาง 🌶️🌶️',
+    mm: 'အစပ်အလယ်အလတ် 🌶️🌶️',
+    de: 'Mittelscharf 🌶️🌶️'
+  },
+  'spicy-very': {
+    it: 'Molto Piccante 🔥🌶️',
+    en: 'Very Spicy 🔥🌶️',
+    th: 'เผ็ดมาก 🔥🌶️',
+    mm: 'အစပ်အလွန်များ 🔥🌶️',
+    de: 'Sehr Scharf 🔥🌶️'
+  },
+  'molto piccante': {
+    it: 'Molto Piccante 🔥🌶️',
+    en: 'Very Spicy 🔥🌶️',
+    th: 'เผ็ดมาก 🔥🌶️',
+    mm: 'အစပ်အလွန်များ 🔥🌶️',
+    de: 'Sehr Scharf 🔥🌶️'
+  },
+  'very spicy': {
+    it: 'Molto Piccante 🔥🌶️',
+    en: 'Very Spicy 🔥🌶️',
+    th: 'เผ็ดมาก 🔥🌶️',
+    mm: 'အစပ်အလွန်များ 🔥🌶️',
+    de: 'Sehr Scharf 🔥🌶️'
+  },
+
+  // Sugar / Sweetness Levels
+  'sugar-no': {
+    it: 'Senza Zucchero (0%)',
+    en: 'No Sugar (0%)',
+    th: 'ไม่ใส่น้ำตาล (0%)',
+    mm: 'သကြားမပါ (၀%)',
+    de: 'Ohne Zucker (0%)'
+  },
+  'senza zucchero': {
+    it: 'Senza Zucchero (0%)',
+    en: 'No Sugar (0%)',
+    th: 'ไม่ใส่น้ำตาล (0%)',
+    mm: 'သကြားမပါ (၀%)',
+    de: 'Ohne Zucker (0%)'
+  },
+  'no sugar': {
+    it: 'Senza Zucchero (0%)',
+    en: 'No Sugar (0%)',
+    th: 'ไม่ใส่น้ำตาล (0%)',
+    mm: 'သကြားမပါ (၀%)',
+    de: 'Ohne Zucker (0%)'
+  },
+  'sugar-less': {
+    it: 'Poco Dolce (50%)',
+    en: 'Less Sugar (50%)',
+    th: 'หวานน้อย (50%)',
+    mm: 'သကြားနည်း (၅၀%)',
+    de: 'Weniger Zucker (50%)'
+  },
+  'poco dolce': {
+    it: 'Poco Dolce (50%)',
+    en: 'Less Sugar (50%)',
+    th: 'หวานน้อย (50%)',
+    mm: 'သကြားနည်း (၅၀%)',
+    de: 'Weniger Zucker (50%)'
+  },
+  'less sugar': {
+    it: 'Poco Dolce (50%)',
+    en: 'Less Sugar (50%)',
+    th: 'หวานน้อย (50%)',
+    mm: 'သကြားနည်း (၅၀%)',
+    de: 'Weniger Zucker (50%)'
+  },
+  'sugar-regular': {
+    it: 'Dolce Normale (100%)',
+    en: 'Normal Sweet (100%)',
+    th: 'หวานปกติ (100%)',
+    mm: 'ပုံမှန်ချိုသည် (၁၀၀%)',
+    de: 'Normale Süße (100%)'
+  },
+  'dolce normale': {
+    it: 'Dolce Normale (100%)',
+    en: 'Normal Sweet (100%)',
+    th: 'หวานปกติ (100%)',
+    mm: 'ပုံမှန်ချိုသည် (၁၀၀%)',
+    de: 'Normale Süße (100%)'
+  },
+  'normal sweet': {
+    it: 'Dolce Normale (100%)',
+    en: 'Normal Sweet (100%)',
+    th: 'หวานปกติ (100%)',
+    mm: 'ပုံမှန်ချိုသည် (၁၀၀%)',
+    de: 'Normale Süße (100%)'
+  },
+
+  // Sauces & Condiments
+  'sauce-none': {
+    it: 'Senza Salsa',
+    en: 'No Sauce',
+    th: 'ไม่ใส่ซอส',
+    mm: 'ဆော့စ်မပါ',
+    de: 'Ohne Sauce'
+  },
+  'sauce-ketchup': {
+    it: 'Ketchup',
+    en: 'Ketchup',
+    th: 'ซอสมะเขือเทศ',
+    mm: 'ခရမ်းချဉ်သီးဆော့စ်',
+    de: 'Ketchup'
+  },
+  'sauce-mayo': {
+    it: 'Maionese',
+    en: 'Mayonnaise',
+    th: 'มายองเนส',
+    mm: 'မေယိုနိစ်',
+    de: 'Mayonnaise'
+  },
+  'sauce-chili': {
+    it: 'Salsa Piccante',
+    en: 'Chili Sauce',
+    th: 'ซอสพริก',
+    mm: 'ငရုတ်သီးဆော့စ်',
+    de: 'Chilisauce'
+  },
+  'sauce-bbq': {
+    it: 'Salsa Barbecue',
+    en: 'BBQ Sauce',
+    th: 'ซอสบาร์บีคิว',
+    mm: 'ဘီဘီကျူးဆော့စ်',
+    de: 'BBQ-Sauce'
+  },
+
+  // Fruits for Smoothies & Shakes
+  'fruit-watermelon': {
+    it: 'Anguria Fresca',
+    en: 'Fresh Watermelon',
+    th: 'แตงโมสด',
+    mm: 'လတ်ဆတ်သော ဖရဲသီး',
+    de: 'Frische Wassermelone'
+  },
+  'fruit-pineapple': {
+    it: 'Ananas Fresco',
+    en: 'Fresh Pineapple',
+    th: 'สับปะรดสด',
+    mm: 'လတ်ဆတ်သော နာနတ်သီး',
+    de: 'Frische Ananas'
+  },
+  'fruit-banana': {
+    it: 'Banana Fresca',
+    en: 'Fresh Banana',
+    th: 'กล้วยหอมสด',
+    mm: 'လတ်ဆတ်သော ငှက်ပျောသီး',
+    de: 'Frische Banane'
+  },
+  'fruit-papaya': {
+    it: 'Papaya Fresca',
+    en: 'Fresh Papaya',
+    th: 'มะละกอสุกสด',
+    mm: 'လတ်ဆတ်သော သင်္ဘောသီး',
+    de: 'Frische Papaya'
+  },
+  'fruit-lime': {
+    it: 'Lime / Limone Fresco',
+    en: 'Fresh Lime',
+    th: 'มะนาวสด',
+    mm: 'လတ်ဆတ်သော သံပရာသီး',
+    de: 'Frische Limette'
+  },
+  'fruit-coconut': {
+    it: 'Cocco Fresco',
+    en: 'Fresh Coconut',
+    th: 'มะพร้าวสด',
+    mm: 'လတ်ဆတ်သော အုန်းသီး',
+    de: 'Frische Kokosnuss'
+  },
+  'fruit-mango': {
+    it: 'Mango Fresco',
+    en: 'Fresh Mango',
+    th: 'มะม่วงสุกสด',
+    mm: 'လတ်ဆတ်သော သရက်သီး',
+    de: 'Frische Mango'
+  },
+
+  // Pasta Formats
+  'format-spaghetti': {
+    it: 'Spaghetti',
+    en: 'Spaghetti',
+    th: 'เส้นสปาเก็ตตี้',
+    mm: 'စပါဂက်တီ ခေါက်ဆွဲ',
+    de: 'Spaghetti'
+  },
+  'format-penne': {
+    it: 'Penne Rigate',
+    en: 'Penne Pasta',
+    th: 'เส้นเพนเน่',
+    mm: 'ပန်နီ ခေါက်ဆွဲ',
+    de: 'Penne Rigate'
+  },
+  'format-tagliatelle': {
+    it: 'Tagliatelle all\'Uovo',
+    en: 'Egg Tagliatelle',
+    th: 'เส้นตัลยาเตลเล่ไข่',
+    mm: 'တာလီယာတယ်လီ ကြက်ဥခေါက်ဆွဲ',
+    de: 'Ei-Tagliatelle'
+  },
+  'format-fettuccine': {
+    it: 'Fettuccine',
+    en: 'Fettuccine',
+    th: 'เส้นเฟตตูชินี',
+    mm: 'ဖက်တူချီနီ ခေါက်ဆွဲ',
+    de: 'Fettuccine'
+  },
+  'format-gnocchi': {
+    it: 'Gnocchi di Patate',
+    en: 'Potato Gnocchi',
+    th: 'ย็อกกี้มันฝรั่ง',
+    mm: 'အာလူး ညော့ကီ',
+    de: 'Kartoffel-Gnocchi'
+  },
+  'format-ravioli': {
+    it: 'Ravioli Artigianali',
+    en: 'Artisan Ravioli',
+    th: 'ราวิโอลี่โฮมเมด',
+    mm: 'ရာဗီအိုလီ အီတလီအစာသွပ်',
+    de: 'Hausgemachte Ravioli'
+  },
+
+  // Sizes & Split Formats
+  '8"': {
+    it: '8" (Mini)',
+    en: '8" (Mini)',
+    th: '8 นิ้ว (มินิ)',
+    mm: '၈ လက်မ (အသေး)',
+    de: '8" (Mini)'
+  },
+  '8': {
+    it: '8" (Mini)',
+    en: '8" (Mini)',
+    th: '8 นิ้ว (มินิ)',
+    mm: '၈ လက်မ (အသေး)',
+    de: '8" (Mini)'
+  },
+  'variant-8': {
+    it: '8" (Mini)',
+    en: '8" (Mini)',
+    th: '8 นิ้ว (มินิ)',
+    mm: '၈ လက်မ (အသေး)',
+    de: '8" (Mini)'
+  },
+  '12"': {
+    it: '12" (Standard)',
+    en: '12" (Standard)',
+    th: '12 นิ้ว (ขนาดมาตรฐาน)',
+    mm: '၁၂ လက်မ (စံအရွယ်အစား)',
+    de: '12" (Standard)'
+  },
+  '12': {
+    it: '12" (Standard)',
+    en: '12" (Standard)',
+    th: '12 นิ้ว (ขนาดมาตรฐาน)',
+    mm: '၁၂ လက်မ (စံအရွယ်အစား)',
+    de: '12" (Standard)'
+  },
+  'variant-12': {
+    it: '12" (Standard)',
+    en: '12" (Standard)',
+    th: '12 นิ้ว (ขนาดมาตรฐาน)',
+    mm: '၁၂ လက်မ (စံအရွယ်အစား)',
+    de: '12" (Standard)'
+  },
+  'variant-half-half': {
+    it: '12" Metà & Metà',
+    en: '12" Half & Half',
+    th: '12" ฮาล์ฟ & ฮาล์ฟ',
+    mm: '၁၂" နှစ်မျိုးစပ်',
+    de: '12" Halb & Halb'
+  },
+  'half-half': {
+    it: '12" Metà & Metà',
+    en: '12" Half & Half',
+    th: '12" ฮาล์ฟ & ฮาล์ฟ',
+    mm: '၁၂" နှစ်မျိုးစပ်',
+    de: '12" Halb & Halb'
   }
 };
 
@@ -987,8 +1349,8 @@ export function resolveExtraDisplayName(extra: any, targetLang: KdsLanguage): st
     if (langKey === 'th' && extra.nameTh && typeof extra.nameTh === 'string' && extra.nameTh.trim()) {
       return extra.nameTh.trim();
     }
-    if (langKey === 'en' && extra.nameEn && typeof extra.nameEn === 'string' && extra.nameEn.trim()) {
-      return extra.nameEn.trim();
+    if (langKey === 'en' && (extra.nameEn || extra.name) && typeof (extra.nameEn || extra.name) === 'string' && (extra.nameEn || extra.name).trim()) {
+      return (extra.nameEn || extra.name).trim();
     }
     if (langKey === 'it' && (extra.nameIt || extra.name_it) && typeof (extra.nameIt || extra.name_it) === 'string') {
       return (extra.nameIt || extra.name_it).trim();
@@ -1000,10 +1362,16 @@ export function resolveExtraDisplayName(extra: any, targetLang: KdsLanguage): st
       return (extra.nameMm || extra.name_mm).trim();
     }
 
-    const candidate = String(extra.name || extra.nameIt || extra.name_it || extra.id || '').trim().toLowerCase();
-    if (KDS_EXTRA_DICTIONARY[candidate]) {
-      return KDS_EXTRA_DICTIONARY[candidate][langKey] || KDS_EXTRA_DICTIONARY[candidate].en;
+    const candId = String(extra.id || '').trim().toLowerCase();
+    if (candId && KDS_EXTRA_DICTIONARY[candId]) {
+      return KDS_EXTRA_DICTIONARY[candId][langKey] || KDS_EXTRA_DICTIONARY[candId].en;
     }
+
+    const candName = String(extra.name || extra.nameIt || extra.name_it || '').trim().toLowerCase();
+    if (candName && KDS_EXTRA_DICTIONARY[candName]) {
+      return KDS_EXTRA_DICTIONARY[candName][langKey] || KDS_EXTRA_DICTIONARY[candName].en;
+    }
+
     return String(extra.name || extra.nameIt || (langKey === 'th' ? 'พิเศษ' : langKey === 'it' ? 'Extra' : 'Extra'));
   }
 
@@ -1025,8 +1393,8 @@ export function resolveVariantDisplayName(variant: any, targetLang: KdsLanguage)
     if (langKey === 'th' && variant.nameTh && typeof variant.nameTh === 'string' && variant.nameTh.trim()) {
       return variant.nameTh.trim();
     }
-    if (langKey === 'en' && variant.nameEn && typeof variant.nameEn === 'string' && variant.nameEn.trim()) {
-      return variant.nameEn.trim();
+    if (langKey === 'en' && (variant.nameEn || variant.name) && typeof (variant.nameEn || variant.name) === 'string' && (variant.nameEn || variant.name).trim()) {
+      return (variant.nameEn || variant.name).trim();
     }
     if (langKey === 'it' && (variant.nameIt || variant.name_it) && typeof (variant.nameIt || variant.name_it) === 'string') {
       return (variant.nameIt || variant.name_it).trim();
@@ -1038,8 +1406,13 @@ export function resolveVariantDisplayName(variant: any, targetLang: KdsLanguage)
       return (variant.nameMm || variant.name_mm).trim();
     }
 
-    const cand = String(variant.name || variant.nameIt || variant.id || '').trim().toLowerCase();
-    if (KDS_EXTRA_DICTIONARY[cand]) {
+    const candId = String(variant.id || '').trim().toLowerCase();
+    if (candId && KDS_EXTRA_DICTIONARY[candId]) {
+      return KDS_EXTRA_DICTIONARY[candId][langKey] || KDS_EXTRA_DICTIONARY[candId].en;
+    }
+
+    const cand = String(variant.name || variant.nameIt || '').trim().toLowerCase();
+    if (cand && KDS_EXTRA_DICTIONARY[cand]) {
       return KDS_EXTRA_DICTIONARY[cand][langKey] || KDS_EXTRA_DICTIONARY[cand].en;
     }
     return String(variant.name || variant.nameIt || (langKey === 'th' ? 'ปกติ' : 'Standard'));
@@ -1051,3 +1424,114 @@ export function resolveVariantDisplayName(variant: any, targetLang: KdsLanguage)
   }
   return String(variant).trim();
 }
+
+/**
+ * Universal Item Characteristics Resolver for Kitchen Display System (KDS)
+ * Extracts all features (size, spiciness, sugar, fruit, sauces, halal, dates, toppings)
+ * fully localized in the active kitchen monitor language.
+ */
+export interface KdsItemDetails {
+  variantLabel: string | null;
+  isHalfHalf: boolean;
+  halfHalfTitle: string | null;
+  spicyBadge: string | null;
+  sugarBadge: string | null;
+  fruitBadge: string | null;
+  sauces: string[];
+  regularExtras: string[];
+  isHalal: boolean;
+  halalBadge: string | null;
+  lasagnaDate: string | null;
+}
+
+export function parseKdsItemDetails(item: any, targetLang: KdsLanguage): KdsItemDetails {
+  const langKey = targetLang === 'mm' ? 'mm' : targetLang === 'th' ? 'th' : targetLang === 'it' ? 'it' : targetLang === 'de' ? 'de' : 'en';
+  
+  // 1. Variant extraction
+  const rawVariant = item.selectedVariant || item.variant || null;
+  let variantLabel = rawVariant ? resolveVariantDisplayName(rawVariant, targetLang) : null;
+
+  // 2. Half & Half detection
+  const isHalfHalf = Boolean(
+    (rawVariant && typeof rawVariant === 'object' && rawVariant.id === 'variant-half-half') ||
+    (typeof rawVariant === 'string' && (rawVariant.includes('half') || rawVariant.includes('metà') || rawVariant.includes('ฮาล์ฟ'))) ||
+    String(item.name || '').toLowerCase().includes('half & half') ||
+    String(item.nameIt || '').toLowerCase().includes('metà & metà') ||
+    String(item.nameTh || '').includes('ฮาล์ฟ')
+  );
+
+  let halfHalfTitle: string | null = null;
+  if (isHalfHalf) {
+    if (langKey === 'th') {
+      halfHalfTitle = item.nameTh || item.name;
+    } else if (langKey === 'mm') {
+      halfHalfTitle = item.nameMm || item.name_mm || item.nameTh || item.name;
+    } else if (langKey === 'it') {
+      halfHalfTitle = item.nameIt || item.name_it || item.name;
+    } else if (langKey === 'de') {
+      halfHalfTitle = item.nameDe || item.name_de || item.name;
+    } else {
+      halfHalfTitle = item.name || item.nameIt;
+    }
+  }
+
+  // 3. Halal Chicken
+  const isHalal = Boolean(
+    item.isHalalChicken ||
+    String(item.name || '').includes('100% Chicken') ||
+    String(item.nameTh || '').includes('เนื้อไก่ 100%') ||
+    String(item.nameIt || '').includes('100% Pollo') ||
+    String(item.productId || '').includes('-chicken')
+  );
+  const halalBadge = isHalal 
+    ? (langKey === 'th' ? '🍗 เนื้อไก่ 100% (ฮาลาล)' : langKey === 'mm' ? '🍗 ကြက်သား ၁၀၀% (ဟလာလ်)' : langKey === 'it' ? '🍗 100% Pollo (Halal)' : langKey === 'de' ? '🍗 100% Hähnchen (Halal)' : '🍗 100% Chicken (Halal)')
+    : null;
+
+  // 4. Lasagna Pre-order Date
+  const lasagnaDate = item.lasagnaDate ? String(item.lasagnaDate) : null;
+
+  // 5. Extras separation (Spicy, Sugar, Fruit, Sauce, Regular)
+  const rawExtras: any[] = Array.isArray(item.selectedExtras) 
+    ? item.selectedExtras 
+    : Array.isArray(item.extras) 
+      ? item.extras 
+      : [];
+
+  let spicyBadge: string | null = null;
+  let sugarBadge: string | null = null;
+  let fruitBadge: string | null = null;
+  const sauces: string[] = [];
+  const regularExtras: string[] = [];
+
+  rawExtras.forEach(ex => {
+    const exId = typeof ex === 'object' ? String(ex.id || '').toLowerCase() : String(ex).toLowerCase();
+    const exName = resolveExtraDisplayName(ex, targetLang);
+
+    if (exId.startsWith('spicy-') || exId.includes('piccante') || exId.includes('spicy')) {
+      if (!spicyBadge) spicyBadge = exName;
+    } else if (exId.startsWith('sugar-') || exId.includes('sugar') || exId.includes('zucchero')) {
+      if (!sugarBadge) sugarBadge = exName;
+    } else if (exId.startsWith('fruit-')) {
+      if (!fruitBadge) fruitBadge = exName;
+    } else if (exId.startsWith('sauce-') || exId.includes('ketchup') || exId.includes('mayo') || exId.includes('chili')) {
+      sauces.push(exName);
+    } else {
+      if (exName) regularExtras.push(exName);
+    }
+  });
+
+  return {
+    variantLabel,
+    isHalfHalf,
+    halfHalfTitle,
+    spicyBadge,
+    sugarBadge,
+    fruitBadge,
+    sauces,
+    regularExtras,
+    isHalal,
+    halalBadge,
+    lasagnaDate
+  };
+}
+

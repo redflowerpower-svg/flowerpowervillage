@@ -181,8 +181,7 @@ Di seguito sono documentate le principali criticità architetturali emerse duran
     1. Ogni volta che un piano tariffario (es. `AC7d`, `AC14d`, `AC bnb-7d`, `AC bnb-14d`, `AirBnB AC`) risulta impostato su `OFF` nella dashboard, il sistema invia istantaneamente un push API a Octorate per applicare `stopSells: true, closed: true` su tutti i prodotti associati per l'intera stagione (`2026-10-06` -> `2027-10-31`).
     2. Modificato `useRestrictionsStore.ts` per inizializzare di default `stopSell: true` sui periodi standard di tutte le tariffe AC disattivate e attivare il push automatico in background all'azione di toggle.
 
-
-
-
-
+### P. DeepSeek AI Translation Engine & Automazione Email Marketing (`api/_handlers/campaign-translate.ts`, `api/_helpers/dining-voucher-email.ts`)
+*   **DeepSeek AI Batch 9-in-1 Engine:** L'endpoint `/api/campaign-translate` instrada verso le API Chat di DeepSeek (`deepseek-chat`) con prompt per la generazione simultanea e sicura dei contenuti tradotti in 9 lingue certificate.
+*   **Automazione Voucher Dining Tablet:** Al checkout del tavolo, se fornita l'email, viene generato il voucher `DINE10-XXXXX` (10 giorni di validità) e inviata in background l'email con link 1-click via Nodemailer / Gmail SMTP.
 

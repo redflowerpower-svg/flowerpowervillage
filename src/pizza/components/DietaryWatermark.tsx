@@ -29,12 +29,12 @@ export const DietaryWatermark: React.FC<DietaryWatermarkProps> = ({
   const isVegan = type === 'vegan';
 
   const labelText = isVegan
-    ? (lang === 'MM' ? 'သက်သတ်လွတ်' : lang === 'IT' ? 'VEGANO' : lang === 'TH' ? 'เจ/วีแกน' : 'VEGAN')
-    : (lang === 'MM' ? 'သက်သတ်လွတ်' : lang === 'IT' ? 'VEGETARIANO' : lang === 'TH' ? 'มังสวิรัติ' : 'VEGGIE');
+    ? (lang === 'MM' ? 'သက်သတ်လွတ်' : lang === 'IT' ? 'VEGANO' : lang === 'TH' ? 'เจ/วีแกน' : lang === 'ES' ? 'VEGANO' : lang === 'FR' ? 'VÉGAN' : lang === 'RU' ? 'ВЕГАН' : lang === 'ZH' ? '纯素' : 'VEGAN')
+    : (lang === 'MM' ? 'သက်သတ်လွတ်' : lang === 'IT' ? 'VEGETARIANO' : lang === 'TH' ? 'มังสวิรัติ' : lang === 'ES' ? 'VEGETARIANO' : lang === 'FR' ? 'VÉGÉTARIEN' : lang === 'RU' ? 'ВЕГЕТАРИАНСКОЕ' : lang === 'ZH' ? '素食' : 'VEGGIE');
 
   const titleText = isVegan
-    ? (lang === 'MM' ? '၁၀၀% သက်သတ်လွတ် စစ်စစ်' : lang === 'IT' ? '100% Vegano (Base vegetale)' : lang === 'TH' ? 'วีแกน 100%' : '100% Vegan (Plant-based)')
-    : (lang === 'MM' ? 'သက်သတ်လွတ် (အသား/ငါး မပါ)' : lang === 'IT' ? 'Vegetariano (Senza carne né pesce)' : lang === 'TH' ? 'มังสวิรัติ' : 'Vegetarian (No meat or fish)');
+    ? (lang === 'MM' ? '၁၀၀% သက်သတ်လွတ် စစ်စစ်' : lang === 'IT' ? '100% Vegano (Base vegetale)' : lang === 'TH' ? 'วีแกน 100%' : lang === 'ES' ? '100% Vegano (Base vegetal)' : lang === 'FR' ? '100% Végétalien' : lang === 'RU' ? '100% Веганское' : lang === 'ZH' ? '100% 纯素' : '100% Vegan (Plant-based)')
+    : (lang === 'MM' ? 'သက်သတ်လွတ် (အသား/ငါး မပါ)' : lang === 'IT' ? 'Vegetariano (Senza carne né pesce)' : lang === 'TH' ? 'มังสวิรัติ' : lang === 'ES' ? 'Vegetariano (Sin carne ni pescado)' : lang === 'FR' ? 'Végétarien (Sans viande ni poisson)' : lang === 'RU' ? 'Вегетарианское' : lang === 'ZH' ? '素食（无肉无鱼）' : 'Vegetarian (No meat or fish)');
 
   return (
     <div

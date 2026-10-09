@@ -7,6 +7,7 @@ import { useLanguageStore } from '../store/languageStore';
 import { Language } from '../config/languages';
 import { DietaryWatermark } from './DietaryWatermark';
 import { getDietaryType } from '../utils/dietary';
+import { EXTRAS_TRANSLATION_MAP } from '../data/extrasTranslationMap';
 
 interface Props {
   item: MenuItem;
@@ -15,36 +16,60 @@ interface Props {
 }
 
 const labels = {
-  IT: {
-    sizeTitle: 'Taglia',
-    extraTitle: 'Ingredienti Extra',
-    addText: 'Aggiungi',
-    freeText: 'Gratis',
+  "IT": {
+    "sizeTitle": "Taglia",
+    "extraTitle": "Ingredienti Extra",
+    "addText": "Aggiungi",
+    "freeText": "Gratis"
   },
-  EN: {
-    sizeTitle: 'Size',
-    extraTitle: 'Extra Ingredients',
-    addText: 'Add',
-    freeText: 'Free',
+  "EN": {
+    "sizeTitle": "Size",
+    "extraTitle": "Extra Ingredients",
+    "addText": "Add",
+    "freeText": "Free"
   },
-  TH: {
-    sizeTitle: 'ขนาด',
-    extraTitle: 'เครื่องปรุงเพิ่มเติม',
-    addText: 'เพิ่มลงตะกร้า',
-    freeText: 'ฟรี',
+  "TH": {
+    "sizeTitle": "ขนาด",
+    "extraTitle": "เครื่องปรุงเพิ่มเติม",
+    "addText": "เพิ่มลงตะกร้า",
+    "freeText": "ฟรี"
   },
-    DE: {
-    sizeTitle: 'Größe',
-    extraTitle: 'Zusätzliche Zutaten',
-    addText: 'Hinzufügen',
-    freeText: 'Gratis',
+  "DE": {
+    "sizeTitle": "Größe",
+    "extraTitle": "Zusätzliche Zutaten",
+    "addText": "Hinzufügen",
+    "freeText": "Gratis"
   },
-  MM: {
-    sizeTitle: 'အရွယ်အစား',
-    extraTitle: 'အပိုထည့်စရာများ',
-    addText: 'ထည့်မည်',
-    freeText: 'အခမဲ့',
+  "MM": {
+    "sizeTitle": "အရွယ်အစား",
+    "extraTitle": "အပိုထည့်စရာများ",
+    "addText": "ထည့်မည်",
+    "freeText": "အခမဲ့"
   },
+  "ES": {
+    "sizeTitle": "Tamaño",
+    "extraTitle": "Ingredientes extra",
+    "addText": "Añadir",
+    "freeText": "Gratis"
+  },
+  "FR": {
+    "sizeTitle": "Taille",
+    "extraTitle": "Ingrédients supplémentaires",
+    "addText": "Ajouter",
+    "freeText": "Gratuit"
+  },
+  "RU": {
+    "sizeTitle": "Размер",
+    "extraTitle": "Дополнительные ингредиенты",
+    "addText": "Добавить",
+    "freeText": "Бесплатно"
+  },
+  "ZH": {
+    "sizeTitle": "尺寸",
+    "extraTitle": "额外配料",
+    "addText": "添加",
+    "freeText": "免费"
+  }
 };
 
 export default function ProductModal({ item, onClose, lang: propLang }: Props) {
@@ -146,9 +171,70 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
       !e.id.startsWith('sauce-')
     ) ?? [];
 
+    const getHeader = (key: 'spicy' | 'sugar' | 'fruit' | 'sauce' | 'regular') => {
+      const titles: Record<string, Record<string, string>> = {
+        spicy: {
+          IT: 'Livello di Piccantezza',
+          EN: 'Spiciness Level',
+          TH: 'ระดับความเผ็ด',
+          MM: 'အစပ်အဆင့်',
+          DE: 'Schärfegrad',
+          ES: 'Nivel de Picante',
+          FR: 'Niveau de Piquant',
+          RU: 'Уровень остроты',
+          ZH: '辣度等级'
+        },
+        sugar: {
+          IT: 'Livello di Zucchero',
+          EN: 'Sugar Level',
+          TH: 'ระดับความหวาน',
+          MM: 'သကြားအဆင့်',
+          DE: 'Zuckergehalt',
+          ES: 'Nivel de Azúcar',
+          FR: 'Niveau de Sucre',
+          RU: 'Уровень сахара',
+          ZH: '甜度等级'
+        },
+        fruit: {
+          IT: 'Scelta della Frutta',
+          EN: 'Choose Fruit',
+          TH: 'เลือกผลไม้',
+          MM: 'သစ်သီးရွေးချယ်ရန်',
+          DE: 'Frucht auswählen',
+          ES: 'Elegir Fruta',
+          FR: 'Choisir le Fruit',
+          RU: 'Выбор фруктов',
+          ZH: '选择水果'
+        },
+        sauce: {
+          IT: 'Seleziona Salse (max 2)',
+          EN: 'Select Sauces (max 2)',
+          TH: 'เลือกซอส (สูงสุด 2 ชนิด)',
+          MM: 'ဆော့စ်ရွေးရန် (အများဆုံး ၂ မျိုး)',
+          DE: 'Saucen wählen (max 2)',
+          ES: 'Seleccionar Salsas (máx 2)',
+          FR: 'Sélectionner les Sauces (max 2)',
+          RU: 'Выберите соусы (макс. 2)',
+          ZH: '选择酱料（最多2种）'
+        },
+        regular: {
+          IT: 'Ingredienti Extra',
+          EN: 'Extra Ingredients',
+          TH: 'เครื่องปรุงเพิ่มเติม',
+          MM: 'အပိုပါဝင်ပစ္စည်းများ',
+          DE: 'Zusätzliche Zutaten',
+          ES: 'Ingredientes Extra',
+          FR: 'Ingrédients Supplémentaires',
+          RU: 'Дополнительные ингредиенты',
+          ZH: '额外配料'
+        }
+      };
+      return titles[key][lang] || titles[key]['IT'];
+    };
+
     if (spicyItems.length > 0) {
       groups.push({
-        title: lang === 'TH' ? 'ระดับความเผ็ด' : lang === 'IT' ? 'Livello di Piccantezza' : 'Spiciness Level',
+        title: getHeader('spicy'),
         maxSelection: 1,
         items: spicyItems,
         type: 'option',
@@ -158,7 +244,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
 
     if (sugarItems.length > 0) {
       groups.push({
-        title: lang === 'TH' ? 'ระดับความหวาน' : lang === 'IT' ? 'Livello di Zucchero' : 'Sugar Level',
+        title: getHeader('sugar'),
         maxSelection: 1,
         items: sugarItems,
         type: 'option',
@@ -168,7 +254,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
 
     if (fruitItems.length > 0) {
       groups.push({
-        title: lang === 'TH' ? 'เลือกผลไม้' : lang === 'IT' ? 'Scelta della Frutta' : 'Choose Fruit',
+        title: getHeader('fruit'),
         maxSelection: 1,
         items: fruitItems,
         type: 'option',
@@ -178,7 +264,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
 
     if (sauceItems.length > 0) {
       groups.push({
-        title: lang === 'TH' ? 'เลือกซอส (สูงสุด 2 ชนิด)' : lang === 'IT' ? 'Seleziona Salse (max 2)' : 'Select Sauces (max 2)',
+        title: getHeader('sauce'),
         maxSelection: 2,
         items: sauceItems,
         type: 'option',
@@ -188,7 +274,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
 
     if (regularItems.length > 0) {
       groups.push({
-        title: lang === 'TH' ? 'เครื่องปรุงเพิ่มเติม' : lang === 'IT' ? 'Ingredienti Extra' : 'Extra Ingredients',
+        title: getHeader('regular'),
         items: regularItems,
         type: 'extra',
         idPrefix: 'regular'
@@ -209,6 +295,11 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
       nameTh: item.nameTh,
       nameIt: item.nameIt,
       nameDe: item.nameDe,
+      nameMm: item.nameMm,
+      nameEs: item.nameEs,
+      nameFr: item.nameFr,
+      nameRu: item.nameRu,
+      nameZh: item.nameZh,
       quantity,
       basePrice: finalItemBasePrice,
       selectedVariant,
@@ -219,10 +310,43 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
     openCart();
   };
 
-  const getTranslatedName = (o: { name: string; nameTh?: string; nameIt?: string; nameDe?: string }) => {
+  const getTranslatedName = (o: {
+    id?: string;
+    name: string;
+    nameTh?: string;
+    nameIt?: string;
+    name_it?: string;
+    nameDe?: string;
+    name_de?: string;
+    nameMm?: string;
+    name_mm?: string;
+    nameEs?: string;
+    name_es?: string;
+    nameFr?: string;
+    nameRu?: string;
+    nameZh?: string;
+  }) => {
+    if (o.id && EXTRAS_TRANSLATION_MAP[o.id]) {
+      const mapped = EXTRAS_TRANSLATION_MAP[o.id];
+      if (lang === 'TH' && mapped.nameTh) return mapped.nameTh;
+      if (lang === 'IT' && mapped.nameIt) return mapped.nameIt;
+      if (lang === 'DE' && mapped.nameDe) return mapped.nameDe;
+      if (lang === 'MM' && mapped.nameMm) return mapped.nameMm;
+      if (lang === 'ES' && mapped.nameEs) return mapped.nameEs;
+      if (lang === 'FR' && mapped.nameFr) return mapped.nameFr;
+      if (lang === 'RU' && mapped.nameRu) return mapped.nameRu;
+      if (lang === 'ZH' && mapped.nameZh) return mapped.nameZh;
+      if (lang === 'EN' && mapped.name) return mapped.name;
+    }
+
     if (lang === 'TH' && o.nameTh) return o.nameTh;
-    if (lang === 'IT' && o.nameIt) return o.nameIt;
-    if (lang === 'DE' && o.nameDe) return o.nameDe;
+    if (lang === 'IT' && (o.nameIt || o.name_it)) return o.nameIt || o.name_it || o.name;
+    if (lang === 'DE' && (o.nameDe || o.name_de)) return o.nameDe || o.name_de || o.name;
+    if (lang === 'MM' && (o.nameMm || o.name_mm)) return o.nameMm || o.name_mm || o.name;
+    if (lang === 'ES' && (o.nameEs || o.name_es)) return o.nameEs || o.name_es || o.name;
+    if (lang === 'FR' && o.nameFr) return o.nameFr;
+    if (lang === 'RU' && o.nameRu) return o.nameRu;
+    if (lang === 'ZH' && o.nameZh) return o.nameZh;
     return o.name;
   };
 
@@ -264,6 +388,11 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
     if (lang === 'TH' && (i.descriptionTh || i.description_th)) return i.descriptionTh || i.description_th;
     if (lang === 'IT' && (i.descriptionIt || i.description_it)) return i.descriptionIt || i.description_it;
     if (lang === 'DE' && (i.descriptionDe || i.description_de)) return i.descriptionDe || i.description_de;
+    if (lang === 'MM' && (i.descriptionMm || i.description_mm)) return i.descriptionMm || i.description_mm;
+    if (lang === 'ES' && (i.descriptionEs || i.description_es)) return i.descriptionEs || i.description_es;
+    if (lang === 'FR' && (i.descriptionFr || i.description_fr)) return i.descriptionFr || i.description_fr;
+    if (lang === 'RU' && (i.descriptionRu || i.description_ru)) return i.descriptionRu || i.description_ru;
+    if (lang === 'ZH' && (i.descriptionZh || i.description_zh)) return i.descriptionZh || i.description_zh;
     return i.description || i.descriptionIt || i.description_it || '';
   };
 
@@ -321,7 +450,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
             <div>
               <p className="text-[10px] uppercase tracking-widest text-stone-500 font-extrabold mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
                 {item.variants.some(v => v.id.startsWith('format-')) || item.id.includes('pasta') || item.id.includes('scoglio') || item.id.includes('salmone') || item.id.includes('ravioli') || item.id.includes('seppia') || item.id.includes('granchio')
-                  ? (lang === 'TH' ? 'เลือกรูปแบบเส้นพาสต้า' : lang === 'DE' ? 'Pasta-Format wählen' : lang === 'EN' ? 'Choose Pasta Format' : 'Scegli il Formato di Pasta')
+                  ? ({"IT":"Scegli il Formato di Pasta","EN":"Choose Pasta Format","TH":"เลือกรูปแบบเส้นพาสต้า","MM":"ခေါက်ဆွဲပုံစံရွေးပါ","DE":"Pasta-Format wählen","ES":"Elige el Formato de Pasta","FR":"Choisissez le Format de Pâtes","RU":"Выберите формат пасты","ZH":"选择意面形状"})[lang] || 'Choose Pasta Format'
                   : t.sizeTitle}
               </p>
               {item.variants.some(v => v.id.startsWith('format-')) || item.variants.length > 2 ? (
@@ -426,7 +555,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
             <div className="space-y-6 pt-4 border-t border-stone-200/60 first:border-t-0 first:pt-0">
               <div>
                 <h4 className="text-[11px] font-extrabold uppercase tracking-widest text-[#8B1E1E] mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
-                  {lang === 'TH' ? 'ตัวเลือกสินค้า' : lang === 'IT' ? 'Opzioni di Personalizzazione' : 'Customization Options'}
+                  {({"IT":"Opzioni di Personalizzazione","EN":"Customization Options","TH":"ตัวเลือกสินค้า","MM":"စိတ်ကြိုက်ရွေးချယ်စရာများ","DE":"Anpassungsoptionen","ES":"Opciones de Personalización","FR":"Options de Personnalisation","RU":"Параметры настройки","ZH":"定制选项"})[lang] || 'Customization Options'}
                 </h4>
                 <div className="space-y-5">
                   {getGroupedExtras().filter(g => g.type === 'option' && g.idPrefix !== 'spicy-').map((group, idx) => (
@@ -493,7 +622,7 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
             <div className="space-y-6 pt-4 border-t border-stone-200/60 mt-4">
               <div>
                 <h4 className="text-[11px] font-extrabold uppercase tracking-widest text-[#8B1E1E] mb-4" style={{ fontFamily: 'Inter, sans-serif' }}>
-                  {lang === 'TH' ? 'ส่วนผสมเพิ่มเติม' : lang === 'IT' ? 'Ingredienti Extra (Aggiuntivi)' : 'Extra Ingredients'}
+                  {({"IT":"Ingredienti Extra (Aggiuntivi)","EN":"Extra Ingredients","TH":"ส่วนผสมเพิ่มเติม","MM":"အပိုပါဝင်ပစ္စည်းများ","DE":"Zusätzliche Zutaten","ES":"Ingredientes Extra","FR":"Ingrédients Supplémentaires","RU":"Дополнительные ингредиенты","ZH":"额外配料"})[lang] || 'Extra Ingredients'}
                 </h4>
                 <div className="space-y-5">
                   {getGroupedExtras().filter(g => g.type === 'extra').map((group, idx) => (

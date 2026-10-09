@@ -6,22 +6,34 @@ export interface WineCardData {
   titleIt?: string;
   titleEn?: string;
   titleTh?: string;
-  titleDe?: string;
   titleMm?: string;
+  titleDe?: string;
+  titleEs?: string;
+  titleFr?: string;
+  titleRu?: string;
+  titleZh?: string;
   categorySubtitle: string;
   subtitleIt?: string;
   subtitleEn?: string;
   subtitleTh?: string;
-  subtitleDe?: string;
   subtitleMm?: string;
+  subtitleDe?: string;
+  subtitleEs?: string;
+  subtitleFr?: string;
+  subtitleRu?: string;
+  subtitleZh?: string;
   categoryType: 'red' | 'white' | 'rose' | 'sparkling';
   flag: string;
   description: string;
   descriptionIt?: string;
   descriptionEn?: string;
   descriptionTh?: string;
-  descriptionDe?: string;
   descriptionMm?: string;
+  descriptionDe?: string;
+  descriptionEs?: string;
+  descriptionFr?: string;
+  descriptionRu?: string;
+  descriptionZh?: string;
   alcohol: string;
   price: string;
   bannerColor: string;
@@ -36,26 +48,26 @@ export interface WineCardData {
 }
 
 export const WINE_COUNTRY_OPTIONS = [
-  { flag: '🇮🇹', code: 'IT', label: 'Italia', names: { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN', MM: 'အီတလီ' } },
-  { flag: '🇫🇷', code: 'FR', label: 'Francia', names: { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH', MM: 'ပြင်သစ်' } },
-  { flag: '🇦🇺', code: 'AU', label: 'Australia', names: { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN', MM: 'သြစတြေးလျ' } },
-  { flag: '🇨🇱', code: 'CL', label: 'Cile', names: { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE', MM: 'ချီလီ' } },
-  { flag: '🇪🇸', code: 'ES', label: 'Spagna', names: { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN', MM: 'စပိန်' } },
-  { flag: '🇿🇦', code: 'ZA', label: 'Sudafrica', names: { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA', MM: 'တောင်အာဖရိက' } },
-  { flag: '🇩🇪', code: 'DE', label: 'Germania', names: { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND', MM: 'ဂျာမနီ' } },
-  { flag: '🇦🇷', code: 'AR', label: 'Argentina', names: { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN', MM: 'အာဂျင်တီးနား' } },
-  { flag: '🇺🇸', code: 'US', label: 'Stati Uniti', names: { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA', MM: 'အမေရိကန်' } },
-  { flag: '🇳🇿', code: 'NZ', label: 'Nuova Zelanda', names: { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND', MM: 'နယူးဇီလန်' } },
-  { flag: '🇵🇹', code: 'PT', label: 'Portogallo', names: { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL', MM: 'ပေါ်တူဂီ' } },
-  { flag: '🇲🇽', code: 'MX', label: 'Messico', names: { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO', MM: 'မက္ကဆီကို' } },
-  { flag: '🇬🇷', code: 'GR', label: 'Grecia', names: { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND', MM: 'ဂရိ' } },
-  { flag: '🇦🇹', code: 'AT', label: 'Austria', names: { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH', MM: 'သြစတြီးယား' } },
-  { flag: '🇨🇭', code: 'CH', label: 'Svizzera', names: { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ', MM: 'ဆွစ်ဇာလန်' } },
-  { flag: '🇬🇧', code: 'GB', label: 'Regno Unito', names: { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH', MM: 'ယူကေ' } },
-  { flag: '🇭🇺', code: 'HU', label: 'Ungheria', names: { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN', MM: 'ဟန်ဂေရီ' } },
-  { flag: '🇬🇪', code: 'GE', label: 'Georgia', names: { IT: 'GEORGIA', EN: 'GEORGIA', TH: 'จอร์เจีย', DE: 'GEORGIEN', MM: 'ဂျော်ဂျီယာ' } },
-  { flag: '🇹🇷', code: 'TR', label: 'Turchia', names: { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI', MM: 'တူရကီ' } },
-  { flag: '🇱🇧', code: 'LB', label: 'Libano', names: { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON', MM: 'လက်ဘနွန်' } },
+  { flag: '🇮🇹', code: 'IT', label: 'Italia', names: { IT: 'ITALIA', EN: 'ITALY', TH: 'อิตาลี', DE: 'ITALIEN', MM: 'အီတလီ', ES: 'ITALIA', FR: 'ITALIE', RU: 'ИТАЛИЯ', ZH: '意大利' } },
+  { flag: '🇫🇷', code: 'FR', label: 'Francia', names: { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH', MM: 'ပြင်သစ်', ES: 'FRANCIA', FR: 'FRANCE', RU: 'ФРАНЦИЯ', ZH: '法国' } },
+  { flag: '🇦🇺', code: 'AU', label: 'Australia', names: { IT: 'AUSTRALIA', EN: 'AUSTRALIA', TH: 'ออสเตรเลีย', DE: 'AUSTRALIEN', MM: 'သြစတြေးလျ', ES: 'AUSTRALIA', FR: 'AUSTRALIE', RU: 'АВСТРАЛИЯ', ZH: '澳大利亚' } },
+  { flag: '🇨🇱', code: 'CL', label: 'Cile', names: { IT: 'CILE', EN: 'CHILE', TH: 'ชิลี', DE: 'CHILE', MM: 'ချီလီ', ES: 'CHILE', FR: 'CHILI', RU: 'ЧИЛИ', ZH: '智利' } },
+  { flag: '🇪🇸', code: 'ES', label: 'Spagna', names: { IT: 'SPAGNA', EN: 'SPAIN', TH: 'สเปน', DE: 'SPANIEN', MM: 'စပိန်', ES: 'ESPAÑA', FR: 'ESPAGNE', RU: 'ИСПАНИЯ', ZH: '西班牙' } },
+  { flag: '🇿🇦', code: 'ZA', label: 'Sudafrica', names: { IT: 'SUDAFRICA', EN: 'SOUTH AFRICA', TH: 'แอฟริกาใต้', DE: 'SÜDAFRIKA', MM: 'တောင်အာဖရိက', ES: 'SUDÁFRICA', FR: 'AFRIQUE DU SUD', RU: 'ЮЖНАЯ АФРИКА', ZH: '南非' } },
+  { flag: '🇩🇪', code: 'DE', label: 'Germania', names: { IT: 'GERMANIA', EN: 'GERMANY', TH: 'เยอรมนี', DE: 'DEUTSCHLAND', MM: 'ဂျာမနီ', ES: 'ALEMANIA', FR: 'ALLEMAGNE', RU: 'ГЕРМАНИЯ', ZH: '德国' } },
+  { flag: '🇦🇷', code: 'AR', label: 'Argentina', names: { IT: 'ARGENTINA', EN: 'ARGENTINA', TH: 'อาร์เจนตินา', DE: 'ARGENTINIEN', MM: 'အာဂျင်တီးနား', ES: 'ARGENTINA', FR: 'ARGENTINE', RU: 'АРГЕНТИНА', ZH: '阿根廷' } },
+  { flag: '🇺🇸', code: 'US', label: 'Stati Uniti', names: { IT: 'STATI UNITI', EN: 'UNITED STATES', TH: 'สหรัฐอเมริกา', DE: 'USA', MM: 'အမေရိကန်', ES: 'ESTADOS UNIDOS', FR: 'ÉTATS-UNIS', RU: 'США', ZH: '美国' } },
+  { flag: '🇳🇿', code: 'NZ', label: 'Nuova Zelanda', names: { IT: 'NUOVA ZELANDA', EN: 'NEW ZEALAND', TH: 'นิวซีแลนด์', DE: 'NEUSEELAND', MM: 'နယူးဇီလန်', ES: 'NUEVA ZELANDA', FR: 'NOUVELLE-ZÉLANDE', RU: 'НОВАЯ ЗЕЛАНДИЯ', ZH: '新西兰' } },
+  { flag: '🇵🇹', code: 'PT', label: 'Portogallo', names: { IT: 'PORTOGALLO', EN: 'PORTUGAL', TH: 'โปรตุเกส', DE: 'PORTUGAL', MM: 'ပေါ်တူဂီ', ES: 'PORTUGAL', FR: 'PORTUGAL', RU: 'ПОРТУГАЛИЯ', ZH: '葡萄牙' } },
+  { flag: '🇲🇽', code: 'MX', label: 'Messico', names: { IT: 'MESSICO', EN: 'MEXICO', TH: 'เม็กซิโก', DE: 'MEXIKO', MM: 'မက္ကဆီကို', ES: 'MÉXICO', FR: 'MEXIQUE', RU: 'МЕКСИКА', ZH: '墨西哥' } },
+  { flag: '🇬🇷', code: 'GR', label: 'Grecia', names: { IT: 'GRECIA', EN: 'GREECE', TH: 'กรีซ', DE: 'GRIECHENLAND', MM: 'ဂရိ', ES: 'GRECIA', FR: 'GRÈCE', RU: 'ГРЕЦИЯ', ZH: '希腊' } },
+  { flag: '🇦🇹', code: 'AT', label: 'Austria', names: { IT: 'AUSTRIA', EN: 'AUSTRIA', TH: 'ออสเตรีย', DE: 'ÖSTERREICH', MM: 'သြစတြီးယား', ES: 'AUSTRIA', FR: 'AUTRICHE', RU: 'АВСТРИЯ', ZH: '奥地利' } },
+  { flag: '🇨🇭', code: 'CH', label: 'Svizzera', names: { IT: 'SVIZZERA', EN: 'SWITZERLAND', TH: 'สวิตเซอร์แลนด์', DE: 'SCHWEIZ', MM: 'ဆွစ်ဇာလန်', ES: 'SUIZA', FR: 'SUISSE', RU: 'ШВЕЙЦАРИЯ', ZH: '瑞士' } },
+  { flag: '🇬🇧', code: 'GB', label: 'Regno Unito', names: { IT: 'REGNO UNITO', EN: 'UNITED KINGDOM', TH: 'สหราชอาณาจักร', DE: 'VEREINIGTES KÖNIGREICH', MM: 'ယူကေ', ES: 'REINO UNIDO', FR: 'ROYAUME-UNI', RU: 'ВЕЛИКОБРИТАНИЯ', ZH: '英国' } },
+  { flag: '🇭🇺', code: 'HU', label: 'Ungheria', names: { IT: 'UNGHERIA', EN: 'HUNGARY', TH: 'ฮังการี', DE: 'UNGARN', MM: 'ဟန်ဂေရီ', ES: 'HUNGRÍA', FR: 'HONGRIE', RU: 'ВЕНГРИЯ', ZH: '匈牙利' } },
+  { flag: '🇬🇪', code: 'GE', label: 'Georgia', names: { IT: 'GEORGIA', EN: 'GEORGIA', TH: 'จอร์เจีย', DE: 'GEORGIEN', MM: 'ဂျော်ဂျီယာ', ES: 'GEORGIA', FR: 'GÉORGIE', RU: 'ГРУЗИЯ', ZH: '格鲁吉亚' } },
+  { flag: '🇹🇷', code: 'TR', label: 'Turchia', names: { IT: 'TURCHIA', EN: 'TURKEY', TH: 'ตุรกี', DE: 'TÜRKEI', MM: 'တူရကီ', ES: 'TURQUÍA', FR: 'TURQUIE', RU: 'ТУРЦИЯ', ZH: '土耳其' } },
+  { flag: '🇱🇧', code: 'LB', label: 'Libano', names: { IT: 'LIBANO', EN: 'LEBANON', TH: 'เลบานอน', DE: 'LIBANON', MM: 'လက်ဘနွန်', ES: 'LÍBANO', FR: 'LIBAN', RU: 'ЛИВАН', ZH: '黎巴嫩' } },
 ];
 
 export const COUNTRY_SORT_ORDER: Record<string, number> = {
@@ -96,25 +108,25 @@ export const WINE_TYPE_OPTIONS = [
   { 
     id: 'red' as const, 
     label: 'Vino Rosso', 
-    names: { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN', MM: 'ဝိုင်နီ' },
+    names: { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN', MM: 'ဝိုင်နီ', ES: 'VINO TINTO', FR: 'VIN ROUGE', RU: 'КРАСНОЕ ВИНО', ZH: '红葡萄酒' },
     defaultColor: '#8b0000'
   },
   { 
     id: 'white' as const, 
     label: 'Vino Bianco', 
-    names: { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ' },
+    names: { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ', ES: 'VINO BLANCO', FR: 'VIN BLANC', RU: 'БЕЛОЕ ВИНО', ZH: '白葡萄酒' },
     defaultColor: '#d4af37'
   },
   { 
     id: 'rose' as const, 
     label: 'Vino Rosato', 
-    names: { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်' },
+    names: { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်', ES: 'VINO ROSADO', FR: 'VIN ROSÉ', RU: 'РОЗОВОЕ ВИНО', ZH: '桃红葡萄酒' },
     defaultColor: '#db2777'
   },
   { 
     id: 'sparkling' as const, 
     label: 'Spumante', 
-    names: { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်' },
+    names: { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်', ES: 'VINO ESPUMOSO', FR: 'VIN EFFERVESCENT', RU: 'ИГРИСТОЕ ВИНО', ZH: '起泡酒' },
     defaultColor: '#eab308'
   }
 ];
@@ -259,7 +271,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ဂရီနာ့ရှ်/ဆီရာ\nပြင်သစ်အနီ\nလက်ဆိုးစတစ်စ် ကျူဗေး",
     "subtitleMm": "အနီဝိုင်\nပြင်သစ်",
-    "descriptionMm": "ဤပြင်သစ်အနီဝိုင်သည် မှည့်သော အနီရောင်ဘယ်ရီသီးများ၏ ဆွဲဆောင်မှုရှိသော ရနံ့နှင့် သိမ်မွေ့သော မြေကြီးဆန်သော အနံ့များ ပေါင်းစပ်ထားသည်။ လျှာပေါ်တွင် ချောမွေ့ပြီး ဟန်ချက်ညီကာ နူးညံ့သော တန်နင်များဖြင့် သောက်ရလွယ်ကူသည်။ နေ့စဉ်စားသောက်သည့် အစားအစာများ၊ ကင်ထားသော အသားများ၊ ကြက်ငှက်သားနှင့် ရိုးရိုးဒိန်ခဲများနှင့် လိုက်ဖက်စွာ သောက်သုံးနိုင်သော စွယ်စုံရဝိုင်တစ်မျိုးဖြစ်သည်။"
+    "descriptionMm": "ဤပြင်သစ်အနီဝိုင်သည် မှည့်သော အနီရောင်ဘယ်ရီသီးများ၏ ဆွဲဆောင်မှုရှိသော ရနံ့နှင့် သိမ်မွေ့သော မြေကြီးဆန်သော အနံ့များ ပေါင်းစပ်ထားသည်။ လျှာပေါ်တွင် ချောမွေ့ပြီး ဟန်ချက်ညီကာ နူးညံ့သော တန်နင်များဖြင့် သောက်ရလွယ်ကူသည်။ နေ့စဉ်စားသောက်သည့် အစားအစာများ၊ ကင်ထားသော အသားများ၊ ကြက်ငှက်သားနှင့် ရိုးရိုးဒိန်ခဲများနှင့် လိုက်ဖက်စွာ သောက်သုံးနိုင်သော စွယ်စုံရဝိုင်တစ်မျိုးဖြစ်သည်။",
+    "titleEs": "GRENACHE/SYRAH\nROUGE DE FRANCE\nLes Solstices Cuvée",
+    "subtitleEs": "VINO TINTO\nFRANCIA",
+    "descriptionEs": "Este vino tinto francés ofrece un fascinante bouquet de frutos rojos maduros con sutiles notas terrosas. En boca es accesible, bien equilibrado y suave, con taninos gentiles. Es una elección versátil que se combina fácilmente con comidas cotidianas, carnes a la parrilla, aves y selecciones informales de quesos.",
+    "titleZh": "GRENACHE/SYRAH\n法国红葡萄酒\nLes Solstices Cuvée",
+    "subtitleZh": "红葡萄酒\n法国",
+    "descriptionZh": "这款法国红葡萄酒散发着成熟红色浆果的迷人香气，并带有微妙的泥土气息。口感平易近人，平衡柔顺，单宁柔和。它是一款多才多艺的选择，可轻松搭配日常餐食、烤肉、家禽和休闲奶酪。",
+    "titleRu": "ГРЕНАШ/СИРА\nКРАСНОЕ ФРАНЦИИ\nLes Solstices Cuvée",
+    "subtitleRu": "КРАСНОЕ ВИНО\nФРАНЦИЯ",
+    "descriptionRu": "Это французское красное вино демонстрирует очаровательный букет спелых красных ягод с тонкими землистыми нюансами. Во вкусе оно доступное, хорошо сбалансированное и мягкое, с нежными танинами. Это универсальный выбор, который легко сочетается с повседневными блюдами, мясом на гриле, птицей и неформальными сырными нарезками.",
+    "titleFr": "GRENACHE/SYRAH\nROUGE DE FRANCE\nLes Solstices Cuvée",
+    "subtitleFr": "VIN ROUGE\nFRANCE",
+    "descriptionFr": "Ce vin rouge français dévoile un bouquet charmant de baies rouges mûres, rehaussé de subtiles nuances terreuses. En bouche, il se montre accessible, bien équilibré et velouté, avec des tanins délicats. Un choix polyvalent qui accompagne avec aisance les repas quotidiens, les viandes grillées, la volaille et les plateaux de fromages décontractés."
   },
   {
     "id": "wine-1787560584231",
@@ -293,7 +317,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "နီဂရိုအာမာရို\nအိုင်ဂျီတီ\nပေါ့ဂျီယို အော်လ်တို",
     "subtitleMm": "အနီဝိုင်\nအီတလီ - ပူလီယာ",
-    "descriptionMm": "ဤပတ္တမြားရောင်အနီဝိုင်သည် အနီရောင်ဘယ်ရီသီးနှင့် အရိုးထဲမှ အသီးများ၏ ကြွယ်ဝသော ရနံ့နှင့် သိမ်မွေ့သော ဟင်းခတ်အနံ့များ ပေါင်းစပ်ထားသည်။ လျှာပေါ်တွင် အသားစိမ်းဆန်ပြီး အားကောင်းကာ ဟန်ချက်ညီသည်။ နူးညံ့သော တန်နင်များနှင့် ကြာရှည်ခံသော အဆုံးသတ်ရှိသည်။ အနီရောင်အသားများ၊ မီးဖုတ်ထားသော ဟင်းလျာများနှင့် အသက်ရင့်ဒိန်ခဲများအတွက် ပြည့်စုံသော တွဲဖက်မှုဖြစ်သည်။"
+    "descriptionMm": "ဤပတ္တမြားရောင်အနီဝိုင်သည် အနီရောင်ဘယ်ရီသီးနှင့် အရိုးထဲမှ အသီးများ၏ ကြွယ်ဝသော ရနံ့နှင့် သိမ်မွေ့သော ဟင်းခတ်အနံ့များ ပေါင်းစပ်ထားသည်။ လျှာပေါ်တွင် အသားစိမ်းဆန်ပြီး အားကောင်းကာ ဟန်ချက်ညီသည်။ နူးညံ့သော တန်နင်များနှင့် ကြာရှည်ခံသော အဆုံးသတ်ရှိသည်။ အနီရောင်အသားများ၊ မီးဖုတ်ထားသော ဟင်းလျာများနှင့် အသက်ရင့်ဒိန်ခဲများအတွက် ပြည့်စုံသော တွဲဖက်မှုဖြစ်သည်။",
+    "titleEs": "NEGROAMARO\nIGT\nPoggio Alto",
+    "subtitleEs": "VINO TINTO\nITALIA - PUGLIA",
+    "descriptionEs": "Este vino rojo rubí ofrece un generoso aroma de frutos rojos y de hueso con sutiles notas especiadas. En boca es carnoso, potente y equilibrado, con taninos suaves y un final persistente. Se revela como un maridaje perfecto para carnes rojas, platos asados y quesos curados.",
+    "titleZh": "NEGROAMARO\nIGT\nPoggio Alto",
+    "subtitleZh": "红葡萄酒\n意大利 - 普利亚",
+    "descriptionZh": "这款红宝石色葡萄酒散发着红色浆果和核果的浓郁香气，并带有微妙的香料气息。口感丰满、强劲而平衡，单宁柔和，余味持久。它是红肉、烤肉和陈年奶酪的完美搭配。",
+    "titleRu": "НЕГРОАМАРО\nIGT\nPoggio Alto",
+    "subtitleRu": "КРАСНОЕ ВИНО\nИТАЛИЯ - ПУГЛИЯ",
+    "descriptionRu": "Это рубиново-красное вино предлагает щедрый букет красных ягод и косточковых фруктов с тонкими пряными нотками. Во вкусе оно мясистое, мощное и сбалансированное, с мягкими танинами и стойким послевкусием. Это идеальное сочетание для красного мяса, жареных блюд и выдержанных сыров.",
+    "titleFr": "NEGROAMARO\nIGT\nPoggio Alto",
+    "subtitleFr": "VIN ROUGE\nITALIE - PUGLIA",
+    "descriptionFr": "Ce vin rouge rubis offre un généreux bouquet de fruits rouges et de fruits à noyau, avec de subtiles notes épicées. En bouche, il est charnu, puissant et équilibré, doté de tanins souples et d'une finale persistante. Il se révèle un accord parfait pour les viandes rouges, les plats rôtis et les fromages affinés."
   },
   {
     "id": "wine-1787560230368",
@@ -327,7 +363,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ပီနိုဂရီဂျီယို\nအိုင်ဂျီတီ\nပေါ့ဂျီယို အော်လ်တို",
     "subtitleMm": "အဖြူဝိုင်\nအီတလီ - စစ္စလီ",
-    "descriptionMm": "ဤလန်းဆန်းသော အဖြူဝိုင်သည် အဖြူရောင်ပန်းများ၊ ကြွပ်ရွသော စိမ်းစားပန်းသီးနှင့် အရည်ရွှမ်းသော သစ်တော်သီးတို့၏ နူးညံ့သော ရနံ့များကို ဖော်ပြသည်။ လျှာပေါ်တွင် ပေါ့ပါးပြီး သန့်ရှင်းကာ ဟန်ချက်ညီသည်။ ရှင်သန်ပြီး လန်းဆန်းသော အဆုံးသတ်ရှိသည်။ အစားအသောက်မစားမီ သောက်ရန်အတွက် အလွန်ကောင်းမွန်ပြီး ငါးဟင်းလျာများ၊ ပုဇွန်ထုတ်များနှင့် ပေါ့ပါးသော နွေရာသီသုပ်များနှင့် အလွန်လိုက်ဖက်သည်။"
+    "descriptionMm": "ဤလန်းဆန်းသော အဖြူဝိုင်သည် အဖြူရောင်ပန်းများ၊ ကြွပ်ရွသော စိမ်းစားပန်းသီးနှင့် အရည်ရွှမ်းသော သစ်တော်သီးတို့၏ နူးညံ့သော ရနံ့များကို ဖော်ပြသည်။ လျှာပေါ်တွင် ပေါ့ပါးပြီး သန့်ရှင်းကာ ဟန်ချက်ညီသည်။ ရှင်သန်ပြီး လန်းဆန်းသော အဆုံးသတ်ရှိသည်။ အစားအသောက်မစားမီ သောက်ရန်အတွက် အလွန်ကောင်းမွန်ပြီး ငါးဟင်းလျာများ၊ ပုဇွန်ထုတ်များနှင့် ပေါ့ပါးသော နွေရာသီသုပ်များနှင့် အလွန်လိုက်ဖက်သည်။",
+    "titleEs": "PINOT GRIGIO\nIGT\nPoggio Alto",
+    "subtitleEs": "VINO BLANCO\nITALIA - SICILIA",
+    "descriptionEs": "Este refrescante vino blanco revela delicados aromas de flores blancas, manzana verde crujiente y pera jugosa. En boca es ligero, limpio y bien equilibrado, con un final vivaz y burbujeante. Funciona excelentemente como aperitivo y marida de maravilla con platos de pescado, mariscos y ligeras ensaladas veraniegas.",
+    "titleZh": "PINOT GRIGIO\nIGT\nPoggio Alto",
+    "subtitleZh": "白葡萄酒\n意大利 - 西西里",
+    "descriptionZh": "这款清爽的白葡萄酒散发着白花、脆青苹果和多汁梨的精致香气。口感轻盈、干净且平衡，余味活泼清新。它非常适合作为开胃酒，与鱼类菜肴、贝类和清淡的夏季沙拉完美搭配。",
+    "titleRu": "ПИНО ГРИДЖИО\nIGT\nPoggio Alto",
+    "subtitleRu": "БЕЛОЕ ВИНО\nИТАЛИЯ - СИЦИЛИЯ",
+    "descriptionRu": "Это освежающее белое вино раскрывает деликатные ароматы белых цветов, хрустящего зеленого яблока и сочной груши. Во вкусе оно легкое, чистое и хорошо сбалансированное, с живым и бодрящим послевкусием. Прекрасно подходит в качестве аперитива и великолепно сочетается с рыбными блюдами, моллюсками и легкими летними салатами.",
+    "titleFr": "PINOT GRIGIO\nIGT\nPoggio Alto",
+    "subtitleFr": "VIN BLANC\nITALIE - SICILE",
+    "descriptionFr": "Ce vin blanc rafraîchissant révèle de délicats arômes de fleurs blanches, de pomme verte croquante et de poire juteuse. En bouche, il est léger, net et bien équilibré, avec une finale vive et pétillante. Il fait merveille en apéritif et s'accorde à la perfection avec les plats de poisson, les crustacés et les salades estivales légères."
   },
   {
     "id": "wine-1787558200348",
@@ -361,7 +409,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ရှာဒိုနေး\nကြွပ်ရွအဖြူ\nဟိုလာ",
     "subtitleMm": "အဖြူဝိုင်\nချီလီ",
-    "descriptionMm": "ဤလန်းဆန်းသော အဖြူဝိုင်သည် ကြွပ်ရွပြီး ခြောက်သွေ့သော ပရိုဖိုင်ကို ရှင်သန်သော အက်ဆစ်ဓာတ်နှင့် သိမ်မွေ့သော ဗာနီလာအနံ့ အနည်းငယ်ဖြင့် ပေးစွမ်းသည်။ သောက်ရလွယ်ကူပြီး ရိုးရှင်းသော ဤဝိုင်သည် ပင်လယ်စာများ၊ စပ်သောဟင်းလျာများ၊ ပေါ့ပါးသော အစားအသောက်များ သို့မဟုတ် နေ့စဉ်ရိုးရိုးစားသောက်မှုများနှင့် အလွန်လိုက်ဖက်သည်။"
+    "descriptionMm": "ဤလန်းဆန်းသော အဖြူဝိုင်သည် ကြွပ်ရွပြီး ခြောက်သွေ့သော ပရိုဖိုင်ကို ရှင်သန်သော အက်ဆစ်ဓာတ်နှင့် သိမ်မွေ့သော ဗာနီလာအနံ့ အနည်းငယ်ဖြင့် ပေးစွမ်းသည်။ သောက်ရလွယ်ကူပြီး ရိုးရှင်းသော ဤဝိုင်သည် ပင်လယ်စာများ၊ စပ်သောဟင်းလျာများ၊ ပေါ့ပါးသော အစားအသောက်များ သို့မဟုတ် နေ့စဉ်ရိုးရိုးစားသောက်မှုများနှင့် အလွန်လိုက်ဖက်သည်။",
+    "titleEs": "CHARDONNAY\nCRISP WHITE\nHolla",
+    "subtitleEs": "VINO BLANCO\nCHILE",
+    "descriptionEs": "Este refrescante vino blanco ofrece un perfil crujiente y seco con una acidez vibrante y un sutil toque de vainilla. Fácil de beber y sin pretensiones, marida maravillosamente con mariscos, platos picantes, aperitivos ligeros o comidas cotidianas informales.",
+    "titleZh": "CHARDONNAY\n清爽白葡萄酒\nHolla",
+    "subtitleZh": "白葡萄酒\n智利",
+    "descriptionZh": "这款清爽的白葡萄酒呈现出清脆干爽的风格，酸度活泼，并带有微妙的香草气息。它易于饮用且平易近人，与海鲜、辛辣菜肴、清淡开胃菜或休闲日常餐食完美搭配。",
+    "titleRu": "ШАРДОНЕ\nCRISP WHITE\nHolla",
+    "subtitleRu": "БЕЛОЕ ВИНО\nЧИЛИ",
+    "descriptionRu": "Это освежающее белое вино обладает хрустящим, сухим профилем с яркой кислотностью и тонким оттенком ванили. Легкое и непритязательное, оно прекрасно сочетается с морепродуктами, острыми блюдами, легкими закусками или повседневными трапезами.",
+    "titleFr": "CHARDONNAY\nCRISP WHITE\nHolla",
+    "subtitleFr": "VIN BLANC\nCHILI",
+    "descriptionFr": "Ce vin blanc rafraîchissant présente un profil vif et sec, avec une acidité vibrante et une subtile touche de vanille. Facile à boire et sans prétention, il s'accorde à merveille avec les fruits de mer, les plats épicés, les entrées légères ou les repas quotidiens décontractés."
   },
   {
     "id": "wine-1787557940817",
@@ -395,7 +455,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ကာဘာနေးဆောဗီညွန်\nနူးညံ့အနီ\nဟိုလာ",
     "subtitleMm": "အနီဝိုင်\nချီလီ",
-    "descriptionMm": "ဤသောက်ရလွယ်ကူသော အနီဝိုင်သည် ပေါ့ပါးပြီး လန်းဆန်းသော အက်ဆစ်ဓာတ်၊ လုံးဝခြောက်သွေ့သော ပရိုဖိုင်နှင့် အနည်းငယ်သော ချဉ်ဖန်ဖန်အရသာတို့ကို ပေးစွမ်းသည်။ ရိုးရှင်းပြီး လက်လှမ်းမီသော သဘောသဘာဝသည် နေ့စဉ်ရိုးရိုးစားသောက်မှုများ၊ ရိုးရှင်းသော အငန်အဆာများနှင့် ပေါ့ပါးသော လူမှုရေးတွေ့ဆုံပွဲများနှင့် အလွန်လိုက်ဖက်သည်။"
+    "descriptionMm": "ဤသောက်ရလွယ်ကူသော အနီဝိုင်သည် ပေါ့ပါးပြီး လန်းဆန်းသော အက်ဆစ်ဓာတ်၊ လုံးဝခြောက်သွေ့သော ပရိုဖိုင်နှင့် အနည်းငယ်သော ချဉ်ဖန်ဖန်အရသာတို့ကို ပေးစွမ်းသည်။ ရိုးရှင်းပြီး လက်လှမ်းမီသော သဘောသဘာဝသည် နေ့စဉ်ရိုးရိုးစားသောက်မှုများ၊ ရိုးရှင်းသော အငန်အဆာများနှင့် ပေါ့ပါးသော လူမှုရေးတွေ့ဆုံပွဲများနှင့် အလွန်လိုက်ဖက်သည်။",
+    "titleEs": "CABERNET SAUVIGNON\nVELVET RED\nHolla",
+    "subtitleEs": "VINO TINTO\nCHILE",
+    "descriptionEs": "Este vino tinto fácil de beber ofrece una acidez ligera y refrescante con un perfil completamente seco y una ligera astringencia. Su carácter sencillo y accesible marida maravillosamente con comidas cotidianas informales, aperitivos salados sencillos y reuniones sociales relajadas.",
+    "titleZh": "CABERNET SAUVIGNON\n天鹅绒红葡萄酒\nHolla",
+    "subtitleZh": "红葡萄酒\n智利",
+    "descriptionZh": "这款易饮的红葡萄酒酸度轻盈清爽，口感完全干爽，并带有微妙的涩感。其简单平易近人的特性，与休闲日常餐食、简单咸味小吃和轻松社交聚会完美搭配。",
+    "titleRu": "КАБЕРНЕ СОВИНЬОН\nVELVET RED\nHolla",
+    "subtitleRu": "КРАСНОЕ ВИНО\nЧИЛИ",
+    "descriptionRu": "Это легкое красное вино обладает освежающей кислотностью, полностью сухим профилем и легкой терпкостью. Его простой, доступный характер прекрасно сочетается с повседневными блюдами, простыми солеными закусками и непринужденными дружескими посиделками.",
+    "titleFr": "CABERNET SAUVIGNON\nVELVET RED\nHolla",
+    "subtitleFr": "VIN ROUGE\nCHILI",
+    "descriptionFr": "Ce vin rouge facile à boire offre une acidité légère et rafraîchissante, un profil entièrement sec et une subtile astringence. Son caractère simple et accessible s'accorde à merveille avec les repas quotidiens décontractés, les en-cas salés simples et les rencontres sociales détendues."
   },
   {
     "id": "wine-1787557385611",
@@ -429,7 +501,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ရှမ်ပိန်\nကိုစတဲလိုရေး\nဘလန့်ဒီဘလန့်",
     "subtitleMm": "တောက်ပသောဝိုင်\nအီတလီ",
-    "descriptionMm": "ရှာဒိုနေးစပျစ်သီးမှ ထုတ်လုပ်ထားသော သန့်ရှင်းပြီး ချိုမြိန်သော ဝိုင်ဖြူဖြစ်ပြီး တောက်ပသော အက်ဆစ်ဓာတ်၊ လန်းဆန်းမှုနှင့် နူးညံ့သော လိမ္မော်သီးအနံ့များ ပါဝင်ကာ ခြောက်သွေ့ပြီး လန်းဆန်းသော အဆုံးသတ်မှု ရှိသည်။ အထိမ်းအမှတ်ပွဲများနှင့် အထူးအခါသမယများအတွက် သင့်တော်သည်။"
+    "descriptionMm": "ရှာဒိုနေးစပျစ်သီးမှ ထုတ်လုပ်ထားသော သန့်ရှင်းပြီး ချိုမြိန်သော ဝိုင်ဖြူဖြစ်ပြီး တောက်ပသော အက်ဆစ်ဓာတ်၊ လန်းဆန်းမှုနှင့် နူးညံ့သော လိမ္မော်သီးအနံ့များ ပါဝင်ကာ ခြောက်သွေ့ပြီး လန်းဆန်းသော အဆုံးသတ်မှု ရှိသည်။ အထိမ်းအမှတ်ပွဲများနှင့် အထူးအခါသမယများအတွက် သင့်တော်သည်။",
+    "titleEs": "CHAMPAGNE\nCOSTELLORE\nBlanc De Blancs",
+    "subtitleEs": "VINO ESPUMOSO\nITALIA",
+    "descriptionEs": "Un refinado vino espumoso elaborado con uvas Chardonnay, que expresa una brillante acidez, una frescura vibrante y delicadas notas cítricas, con un final seco y refrescante. Ideal para celebraciones y ocasiones especiales.",
+    "titleZh": "CHAMPAGNE\nCOSTELLORE\nBlanc De Blancs",
+    "subtitleZh": "起泡酒\n意大利",
+    "descriptionZh": "这款精致的起泡酒由霞多丽葡萄酿制而成，展现出明亮的酸度、充满活力的清新感和细腻的柑橘香气，余味干爽清新。非常适合庆祝活动和特殊场合。",
+    "titleRu": "ШАМПАНЬ\nCOSTELLORE\nBlanc De Blancs",
+    "subtitleRu": "ИГРИСТОЕ ВИНО\nИТАЛИЯ",
+    "descriptionRu": "Изысканное игристое вино из винограда Шардоне, демонстрирующее яркую кислотность, вибрирующую свежесть и деликатные цитрусовые ноты с сухим и освежающим послевкусием. Идеально для торжеств и особых случаев.",
+    "titleFr": "CHAMPAGNE\nCOSTELLORE\nBlanc De Blancs",
+    "subtitleFr": "VIN MOUSSEUX\nITALIE - VÉNÉTIE",
+    "descriptionFr": "Un spumante raffiné élaboré à partir de raisins Chardonnay, exprimant une acidité éclatante, une fraîcheur vibrante et de délicates notes d'agrumes, avec une finale sèche et rafraîchissante. Idéal pour les célébrations et les occasions spéciales."
   },
   {
     "id": "wine-1787557031415",
@@ -463,7 +547,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ပရိုဆက်ကို ဆူပီရီယိုရေး\nဒီအိုစီဂျီ - အက်စထရာ ဒရိုင်\nတိုရက်ဆဲလာ",
     "subtitleMm": "တောက်ပသောဝိုင်\nအီတလီ - ဗီနီတို",
-    "descriptionMm": "ဤဗီနီတိုဒေသထွက် တောက်ပသောဝိုင်သည် ဖျော့တော့သော ကောက်ရိုးဝါရောင် အရောင်ရှိပြီး လန်းဆန်းသော အနံ့အသက်များဖြစ်သည့် စိမ်းသောပန်းသီး၊ သစ်တော်သီးနှင့် နွေဦးပန်းများ၏ နူးညံ့သော ရနံ့များ ပါဝင်သည်။ လျှာပေါ်တွင် ဟန်ချက်ညီပြီး ခရင်မ်ဆန်သော အရသာရှိကာ နှစ်သက်ဖွယ် သစ်သီးအရသာဖြင့် ဧည့်ခံအဖျော်ယမကာအဖြစ်လည်းကောင်း၊ စားပွဲတွင် အဖော်အဖြစ်လည်းကောင်း အလွန်ကောင်းမွန်သည်။"
+    "descriptionMm": "ဤဗီနီတိုဒေသထွက် တောက်ပသောဝိုင်သည် ဖျော့တော့သော ကောက်ရိုးဝါရောင် အရောင်ရှိပြီး လန်းဆန်းသော အနံ့အသက်များဖြစ်သည့် စိမ်းသောပန်းသီး၊ သစ်တော်သီးနှင့် နွေဦးပန်းများ၏ နူးညံ့သော ရနံ့များ ပါဝင်သည်။ လျှာပေါ်တွင် ဟန်ချက်ညီပြီး ခရင်မ်ဆန်သော အရသာရှိကာ နှစ်သက်ဖွယ် သစ်သီးအရသာဖြင့် ဧည့်ခံအဖျော်ယမကာအဖြစ်လည်းကောင်း၊ စားပွဲတွင် အဖော်အဖြစ်လည်းကောင်း အလွန်ကောင်းမွန်သည်။",
+    "titleEs": "PROSECCO SUPERIORE\nDOCG - EXTRA DRY\nTorresella",
+    "subtitleEs": "VINO ESPUMOSO\nITALIA - VENETO",
+    "descriptionEs": "Este vino espumoso véneto presenta un color amarillo pajizo pálido y un perfil fresco y fragante, con delicados aromas de manzana verde, pera y flores primaverales. En paladar es armonioso y cremoso, con una agradable frutosidad, lo que lo convierte en un excelente aperitivo y un óptimo compañero a la mesa.",
+    "titleZh": "PROSECCO SUPERIORE\nDOCG - EXTRA DRY\nTorresella",
+    "subtitleZh": "起泡酒\n意大利 - 威尼托",
+    "descriptionZh": "这款威尼托起泡酒呈现淡稻草黄色，风格清新芬芳，带有青苹果、梨和春季花朵的精致香气。口感和谐柔滑，果味愉悦，是极佳的餐前开胃酒和佐餐伴侣。",
+    "titleRu": "ПРОСЕККО СУПЕРИОРЕ\nDOCG - EXTRA DRY\nTorresella",
+    "subtitleRu": "ИГРИСТОЕ ВИНО\nИТАЛИЯ - ВЕНЕТО",
+    "descriptionRu": "Это венецианское игристое вино имеет бледно-соломенный цвет и свежий, ароматный профиль с деликатными оттенками зеленого яблока, груши и весенних цветов. Во вкусе гармоничное и кремовое, с приятной фруктовостью, что делает его превосходным аперитивом и отличным сопровождением к столу.",
+    "titleFr": "PROSECCO SUPERIORE\nDOCG - EXTRA DRY\nTorresella",
+    "subtitleFr": "VIN MOUSSEUX\nITALIE - VÉNÉTIE",
+    "descriptionFr": "Ce vin mousseux vénitien présente une couleur jaune paille pâle et un profil frais et parfumé, avec de délicats arômes de pomme verte, de poire et de fleurs printanières. En bouche, il est harmonieux et crémeux, offrant une agréable fruité, ce qui en fait un excellent apéritif et un merveilleux compagnon de table."
   },
   {
     "id": "wine-1787556458930",
@@ -497,7 +593,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ကာဗာနက်ရှီရက်ဇ်\nဘာ့ချ်ဂရို့ဗ်\nဘတ်ဒ်စ်ဘလော့ခ် ကူဗေး",
     "subtitleMm": "ဝိုင်နီ\nဩစတြေးလျ - တောင်ပိုင်း",
-    "descriptionMm": "ဤချဉ်းကပ်ရလွယ်သော ဩစတြေးလျဝိုင်နီသည် မှည့်သော သစ်တောသီးနက်များ၏ ဖိတ်ခေါ်နေသော ရနံ့များနှင့် ဟင်းခတ်အမွှေးအကြိုင်အနည်းငယ် ပါဝင်သည်။ လျှာပေါ်တွင် နူးညံ့ပြီး ဟန်ချက်ညီကာ သောက်ရလွယ်ကူပြီး နှစ်သက်ဖွယ် အဆုံးသတ်မှု ရှိသည်။ နေ့စဉ် သပ်ရပ်သော ညစာများ၊ မီးကင်အသားများ၊ အရသာရှိသော ပါစတာဟင်းလျာများနှင့် ပေါ့ပါးသော လူမှုရေးတွေ့ဆုံပွဲများနှင့် အလွန်ကိုက်ညီသည်။"
+    "descriptionMm": "ဤချဉ်းကပ်ရလွယ်သော ဩစတြေးလျဝိုင်နီသည် မှည့်သော သစ်တောသီးနက်များ၏ ဖိတ်ခေါ်နေသော ရနံ့များနှင့် ဟင်းခတ်အမွှေးအကြိုင်အနည်းငယ် ပါဝင်သည်။ လျှာပေါ်တွင် နူးညံ့ပြီး ဟန်ချက်ညီကာ သောက်ရလွယ်ကူပြီး နှစ်သက်ဖွယ် အဆုံးသတ်မှု ရှိသည်။ နေ့စဉ် သပ်ရပ်သော ညစာများ၊ မီးကင်အသားများ၊ အရသာရှိသော ပါစတာဟင်းလျာများနှင့် ပေါ့ပါးသော လူမှုရေးတွေ့ဆုံပွဲများနှင့် အလွန်ကိုက်ညီသည်။",
+    "titleEs": "CABERNET SHIRAZ\nBIRCHGROVE\nBird’s Block Cuvee",
+    "subtitleEs": "VINO TINTO\nAUSTRALIA - SUR",
+    "descriptionEs": "Este accesible vino tinto australiano revela invitantes aromas de frutos rojos oscuros maduros con un toque de especias. En paladar es suave, bien equilibrado y de fácil beber, con un final agradable. Marida perfectamente con cenas informales de todos los días, carnes a la parrilla, platos de pasta sabrosos y encuentros sociales relajados.",
+    "titleZh": "CABERNET SHIRAZ\nBIRCHGROVE\nBird’s Block Cuvee",
+    "subtitleZh": "红葡萄酒\n澳大利亚 - 南部",
+    "descriptionZh": "这款平易近人的澳大利亚红葡萄酒散发出成熟深色浆果的诱人香气，并带有一丝香料气息。口感柔顺、均衡易饮，余味愉悦。与日常休闲晚餐、烤肉、风味意面和轻松社交聚会完美搭配。",
+    "titleRu": "КАБЕРНЕ ШИРАЗ\nBIRCHGROVE\nBird’s Block Cuvee",
+    "subtitleRu": "КРАСНОЕ ВИНО\nАВСТРАЛИЯ - ЮГ",
+    "descriptionRu": "Это доступное австралийское красное вино раскрывает привлекательные ароматы спелых темных ягод с оттенком специй. Во вкусе мягкое, округлое и легкое, с приятным послевкусием. Прекрасно сочетается с повседневными ужинами, мясом на гриле, пикантными пастами и непринужденными встречами.",
+    "titleFr": "CABERNET SHIRAZ\nBIRCHGROVE\nBird’s Block Cuvee",
+    "subtitleFr": "VIN ROUGE\nAUSTRALIE - SUD",
+    "descriptionFr": "Ce vin rouge australien accessible révèle des arômes invitants de baies noires mûres avec une touche d'épices. En bouche, il est souple, bien équilibré et facile à boire, avec une finale agréable. Il s'accorde parfaitement avec les dîners décontractés de tous les jours, les viandes grillées, les plats de pâtes savoureux et les rencontres conviviales détendues."
   },
   {
     "id": "wine-1787556358661",
@@ -531,7 +639,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ရှာဒိုနေး\nဘာ့ချ်ဂရို့ဗ်\nဘတ်ဒ်စ်ဘလော့ခ် ကူဗေး",
     "subtitleMm": "ဝိုင်ဖြူ\nဩစတြေးလျ - အနောက်တောင်ပိုင်း",
-    "descriptionMm": "ဤလန်းဆန်းသော ဩစတြေးလျဝိုင်ဖြူသည် ကြွပ်ဆတ်သော စိမ်းသောပန်းသီး၊ လိမ္မော်ခွံနှင့် နူးညံ့သော အပူပိုင်းဒေသသစ်သီးများ၏ ရနံ့များ ပေးစွမ်းသည်။ လျှာပေါ်တွင် ပေါ့ပါး၊ သန့်ရှင်းပြီး တက်ကြွသော အရသာရှိကာ နူးညံ့ပြီး လန်းဆန်းသော အဆုံးသတ်မှု ရှိသည်။ ဧည့်ခံအဖျော်ယမကာအဖြစ် အကောင်းဆုံးဖြစ်ပြီး ပင်လယ်စာ၊ အသုပ်များနှင့် ကြက်ငှက်အသားများနှင့် အလွန်ကိုက်ညီသည်။"
+    "descriptionMm": "ဤလန်းဆန်းသော ဩစတြေးလျဝိုင်ဖြူသည် ကြွပ်ဆတ်သော စိမ်းသောပန်းသီး၊ လိမ္မော်ခွံနှင့် နူးညံ့သော အပူပိုင်းဒေသသစ်သီးများ၏ ရနံ့များ ပေးစွမ်းသည်။ လျှာပေါ်တွင် ပေါ့ပါး၊ သန့်ရှင်းပြီး တက်ကြွသော အရသာရှိကာ နူးညံ့ပြီး လန်းဆန်းသော အဆုံးသတ်မှု ရှိသည်။ ဧည့်ခံအဖျော်ယမကာအဖြစ် အကောင်းဆုံးဖြစ်ပြီး ပင်လယ်စာ၊ အသုပ်များနှင့် ကြက်ငှက်အသားများနှင့် အလွန်ကိုက်ညီသည်။",
+    "titleEs": "CHARDONNAY\nBIRCHGROVE\nBird’s Block Cuvee",
+    "subtitleEs": "VINO BLANCO\nAUSTRALIA - SUROESTE",
+    "descriptionEs": "Este refrescante vino blanco australiano ofrece deliciosos aromas de manzana verde crujiente, ralladura de cítricos y sutiles frutas tropicales. En paladar es ligero, limpio y vibrante, con un final suave y refrescante. Perfecto como aperitivo, marida maravillosamente con mariscos, ensaladas y aves.",
+    "titleZh": "CHARDONNAY\nBIRCHGROVE\nBird’s Block Cuvee",
+    "subtitleZh": "白葡萄酒\n澳大利亚 - 西南部",
+    "descriptionZh": "这款清爽的澳大利亚白葡萄酒带来脆爽青苹果、柑橘皮和微妙热带水果的愉悦香气。口感轻盈、干净且充满活力，余味柔和清新。非常适合作为开胃酒，与海鲜、沙拉和家禽搭配极佳。",
+    "titleRu": "ШАРДОНЕ\nBIRCHGROVE\nBird’s Block Cuvee",
+    "subtitleRu": "БЕЛОЕ ВИНО\nАВСТРАЛИЯ - ЮГО-ЗАПАД",
+    "descriptionRu": "Это освежающее австралийское белое вино предлагает восхитительные ароматы хрустящего зеленого яблока, цитрусовой цедры и тонких тропических фруктов. Во вкусе легкое, чистое и яркое, с мягким, освежающим послевкусием. Идеально как аперитив, прекрасно сочетается с морепродуктами, салатами и птицей.",
+    "titleFr": "CHARDONNAY\nBIRCHGROVE\nBird’s Block Cuvee",
+    "subtitleFr": "VIN BLANC\nAUSTRALIE - SUD-OUEST",
+    "descriptionFr": "Ce vin blanc australien rafraîchissant offre de délicieux arômes de pomme verte croquante, de zeste d'agrumes et de subtils fruits tropicaux. En bouche, il est léger, net et vibrant, avec une finale douce et rafraîchissante. Parfait en apéritif, il s'accorde merveilleusement avec les fruits de mer, les salades et la volaille."
   },
   {
     "id": "wine-1787556198475",
@@ -565,7 +685,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "တောက်ပသော ရိုဇေး\nဒီမီ-ဆက်\nဂရာဇီယိုဆာ ကာနိုရို",
     "subtitleMm": "ရိုဇေးဝိုင်\nအီတလီ",
-    "descriptionMm": "ဤဆွဲဆောင်မှုရှိသော အီတလီ တောက်ပသော ရိုဇေးဝိုင်သည် လတ်ဆတ်သော စတော်ဘယ်ရီ၊ ရက်စ်ဘယ်ရီနှင့် နူးညံ့သော ပန်းပွင့်ရနံ့များ ပေးစွမ်းသည်။ လျှာပေါ်တွင် ချိုမြိန်ပြီး ခရင်မ်ဆန်ကာ လန်းဆန်းသော အရသာရှိပြီး တက်ကြွသော အဆုံးသတ်မှု ရှိသည်။ ဧည့်ခံအဖျော်ယမကာအဖြစ် အံ့ဖွယ်ကောင်းပြီး ပေါ့ပါးသော အချိုပွဲများ၊ လတ်ဆတ်သော သစ်သီးများ သို့မဟုတ် အစားအစာများနှင့် အလွန်ကိုက်ညီသည်။"
+    "descriptionMm": "ဤဆွဲဆောင်မှုရှိသော အီတလီ တောက်ပသော ရိုဇေးဝိုင်သည် လတ်ဆတ်သော စတော်ဘယ်ရီ၊ ရက်စ်ဘယ်ရီနှင့် နူးညံ့သော ပန်းပွင့်ရနံ့များ ပေးစွမ်းသည်။ လျှာပေါ်တွင် ချိုမြိန်ပြီး ခရင်မ်ဆန်ကာ လန်းဆန်းသော အရသာရှိပြီး တက်ကြွသော အဆုံးသတ်မှု ရှိသည်။ ဧည့်ခံအဖျော်ယမကာအဖြစ် အံ့ဖွယ်ကောင်းပြီး ပေါ့ပါးသော အချိုပွဲများ၊ လတ်ဆတ်သော သစ်သီးများ သို့မဟုတ် အစားအစာများနှင့် အလွန်ကိုက်ညီသည်။",
+    "titleEs": "SPARKLING ROSÉ\nDEMI-SEC\nGraziosa Canoro",
+    "subtitleEs": "VINO ROSADO\nITALIA",
+    "descriptionEs": "Este encantador rosado espumoso italiano revela deliciosos aromas de fresas frescas, frambuesas y delicadas notas florales. En paladar es agradablemente semidulce, cremoso y refrescante con un final vivaz. Se revela como un maravilloso aperitivo y marida espléndidamente con postres ligeros, fruta fresca o entrantes.",
+    "titleZh": "SPARKLING ROSÉ\nDEMI-SEC\nGraziosa Canoro",
+    "subtitleZh": "桃红葡萄酒\n意大利",
+    "descriptionZh": "这款迷人的意大利起泡桃红葡萄酒散发出新鲜草莓、覆盆子和精致花香的愉悦香气。口感微甜、柔滑且清新，余味活泼。作为开胃酒极佳，与清淡甜点、新鲜水果或开胃菜搭配美妙。",
+    "titleRu": "ИГРИСТОЕ РОЗОВОЕ\nDEMI-SEC\nGraziosa Canoro",
+    "subtitleRu": "РОЗОВОЕ ВИНО\nИТАЛИЯ",
+    "descriptionRu": "Это очаровательное итальянское игристое розовое вино раскрывает восхитительные ароматы свежей клубники, малины и деликатные цветочные ноты. Во вкусе приятно полусладкое, кремовое и освежающее с живым послевкусием. Является чудесным аперитивом и прекрасно сочетается с легкими десертами, свежими фруктами или закусками.",
+    "titleFr": "SPARKLING ROSÉ\nDEMI-SEC\nGraziosa Canoro",
+    "subtitleFr": "VIN ROSÉ\nITALIE",
+    "descriptionFr": "Ce charmant rosé mousseux italien révèle de délicieux arômes de fraises fraîches, de framboises et de délicates notes florales. En bouche, il est agréablement demi-sec, crémeux et rafraîchissant avec une finale vive. Il constitue un merveilleux apéritif et s'accorde à merveille avec les desserts légers, les fruits frais ou les antipasti."
   },
   {
     "id": "wine-1787555985555",
@@ -599,7 +731,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ပရီမီတီဗို ပူလီယာ\nIGT ပီပါ\nနာတာလေ ဗာဂါ",
     "subtitleMm": "အနီရောင်ဝိုင်\nအီတလီ - ပူလီယာ",
-    "descriptionMm": "ဤအီတလီတောင်ပိုင်းမှ ကြွယ်ဝသော အနီရောင်ဝိုင်သည် မှည့်သော ချယ်ရီသီးနက်များ၊ ဘလက်ဘယ်ရီသီးများနှင့် နူးညံ့သော ဟင်းခတ်အမွှေးအကြိုင်များ၏ ဆွဲဆောင်မှုရှိသော အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် ကိုယ်ထည်ပြည့်ဝ၍ နွေးထွေးပြီး ကတ္တီပါကဲ့သို့ နူးညံ့ကာ ချောမွေ့သော တန်နင်များနှင့် ရက်ရောသော အဆုံးသတ်ရှိသည်။ အသားကင်များ၊ ကြွယ်ဝသော ပါစတာဟင်းလျာများနှင့် ရင့်ကျက်သော ဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။"
+    "descriptionMm": "ဤအီတလီတောင်ပိုင်းမှ ကြွယ်ဝသော အနီရောင်ဝိုင်သည် မှည့်သော ချယ်ရီသီးနက်များ၊ ဘလက်ဘယ်ရီသီးများနှင့် နူးညံ့သော ဟင်းခတ်အမွှေးအကြိုင်များ၏ ဆွဲဆောင်မှုရှိသော အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် ကိုယ်ထည်ပြည့်ဝ၍ နွေးထွေးပြီး ကတ္တီပါကဲ့သို့ နူးညံ့ကာ ချောမွေ့သော တန်နင်များနှင့် ရက်ရောသော အဆုံးသတ်ရှိသည်။ အသားကင်များ၊ ကြွယ်ဝသော ပါစတာဟင်းလျာများနှင့် ရင့်ကျက်သော ဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။",
+    "titleEs": "PRIMITIVO PUGLIA\nIGT PEPA\nNatale Verga",
+    "subtitleEs": "VINO TINTO\nITALIA - PUGLIA",
+    "descriptionEs": "Este rico vino tinto del sur de Italia ofrece atractivos aromas de cerezas oscuras maduras, moras y sutiles notas especiadas. En boca es corpulento, cálido y aterciopelado, con taninos suaves y un final generoso. Marida maravillosamente con carnes asadas, platos de pasta ricos y quesos curados.",
+    "titleZh": "普里米蒂沃\n普利亚 IGT PEPA\n娜塔莉·维尔加",
+    "subtitleZh": "红葡萄酒\n意大利 - 普利亚",
+    "descriptionZh": "这款浓郁的意大利南部红葡萄酒散发着成熟黑樱桃、黑莓的诱人香气，并伴有微妙的香料气息。口感饱满、温暖而丝滑，单宁柔顺，余味悠长。与烤肉、浓郁的意面菜肴及陈年奶酪完美搭配。",
+    "titleRu": "ПРИМИТИВО ПУЛЬЯ\nIGT ПЕПА\nNatale Verga",
+    "subtitleRu": "КРАСНОЕ ВИНО\nИТАЛИЯ - ПУЛЬЯ",
+    "descriptionRu": "Это насыщенное красное вино из Южной Италии пленяет соблазнительными ароматами спелой тёмной черешни, ежевики и тонкими пряными нотками. Во вкусе оно полнотелое, тёплое и бархатистое, с мягкими танинами и щедрым послевкусием. Прекрасно сочетается с жареным мясом, насыщенными пастами и выдержанными сырами.",
+    "titleFr": "PRIMITIVO PUGLIA\nIGT PEPA\nNatale Verga",
+    "subtitleFr": "VIN ROUGE\nITALIE - PUGLIA",
+    "descriptionFr": "Ce riche vin rouge du sud de l'Italie offre des arômes invitants de cerises noires mûres, de mûres et de subtiles notes épicées. En bouche, il est corsé, chaleureux et velouté, avec des tanins souples et une finale généreuse. Il s'accorde merveilleusement avec les viandes rôties, les plats de pâtes riches et les fromages affinés."
   },
   {
     "id": "wine-1787555839725",
@@ -633,7 +777,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "နီရိုဒါဗိုလာ\nDOC\nကာနိုရို",
     "subtitleMm": "အနီရောင်ဝိုင်\nအီတလီ - စစ္စလီ",
-    "descriptionMm": "ဤတက်ကြွသော စစ္စလီအနီရောင်ဝိုင်သည် မှည့်သော ချယ်ရီသီးနက်များ၊ ပန်းသီးများနှင့် မြေထဲပင်လယ်ဟင်းခတ်အမွှေးအကြိုင်များ၏ ကြွယ်ဝသော အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် အလယ်အလတ်ကိုယ်ထည်ရှိ၍ ချောမွေ့ပြီး သစ်သီးအရသာရှိကာ နူးညံ့သော တန်နင်များနှင့် နှစ်သက်ဖွယ် ဟန်ချက်ညီသော အဆုံးသတ်ရှိသည်။ အသားနီကင်များ၊ ခရမ်းချဉ်သီးဆော့စ်ကြွယ်ဝသော ပါစတာဟင်းလျာများနှင့် အလယ်အလတ်ရင့်သော ဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။"
+    "descriptionMm": "ဤတက်ကြွသော စစ္စလီအနီရောင်ဝိုင်သည် မှည့်သော ချယ်ရီသီးနက်များ၊ ပန်းသီးများနှင့် မြေထဲပင်လယ်ဟင်းခတ်အမွှေးအကြိုင်များ၏ ကြွယ်ဝသော အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် အလယ်အလတ်ကိုယ်ထည်ရှိ၍ ချောမွေ့ပြီး သစ်သီးအရသာရှိကာ နူးညံ့သော တန်နင်များနှင့် နှစ်သက်ဖွယ် ဟန်ချက်ညီသော အဆုံးသတ်ရှိသည်။ အသားနီကင်များ၊ ခရမ်းချဉ်သီးဆော့စ်ကြွယ်ဝသော ပါစတာဟင်းလျာများနှင့် အလယ်အလတ်ရင့်သော ဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။",
+    "titleEs": "NERO D'AVOLA\nDOC\nCanoro",
+    "subtitleEs": "VINO TINTO\nITALIA - SICILIA",
+    "descriptionEs": "Este vibrante vino tinto siciliano ofrece ricos aromas de cerezas negras maduras, ciruelas y un toque de especias mediterráneas. En boca es de cuerpo medio, suave y afrutado, con taninos suaves y un final agradable y equilibrado. Marida maravillosamente con carnes rojas asadas, platos de pasta con ricas salsas de tomate y quesos semicurados.",
+    "titleZh": "黑达沃拉\nDOC\n卡诺罗",
+    "subtitleZh": "红葡萄酒\n意大利 - 西西里",
+    "descriptionZh": "这款充满活力的西西里红葡萄酒散发着成熟黑樱桃、李子及一丝地中海香料的丰富香气。口感中等酒体，柔顺且果味突出，单宁柔和，余味愉悦而平衡。与烤红肉、浓郁番茄酱意面及半陈年奶酪完美搭配。",
+    "titleRu": "НЕРО Д'АВОЛА\nDOC\nCanoro",
+    "subtitleRu": "КРАСНОЕ ВИНО\nИТАЛИЯ - СИЦИЛИЯ",
+    "descriptionRu": "Это яркое сицилийское красное вино раскрывается богатыми ароматами спелой чёрной черешни, сливы и лёгким намёком на средиземноморские специи. Во вкусе оно среднетелое, мягкое и фруктовое, с бархатистыми танинами и приятным сбалансированным послевкусием. Идеально подходит к жареному красному мясу, пасте с насыщенными томатными соусами и полутвёрдым сырам.",
+    "titleFr": "NERO D'AVOLA\nDOC\nCanoro",
+    "subtitleFr": "VIN ROUGE\nITALIE - SICILE",
+    "descriptionFr": "Ce vin rouge sicilien vibrant offre de riches arômes de cerises noires mûres, de prunes et une touche d'épices méditerranéennes. En bouche, il est de corps moyen, souple et fruité, avec des tanins doux et une finale agréable et équilibrée. Il s'accorde merveilleusement avec les viandes rouges rôties, les plats de pâtes aux sauces tomate riches et les fromages semi-affinés."
   },
   {
     "id": "wine-1787497189793",
@@ -667,7 +823,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ပရီမီတီဗို\nIGT\nပီပါ နီရာ",
     "subtitleMm": "အနီရောင်ဝိုင်\nအီတလီ - ပူလီယာ",
-    "descriptionMm": "ဤအီတလီတောင်ပိုင်းမှ ကြွယ်ဝသော အနီရောင်ဝိုင်သည် မှည့်သော ဘလက်ဘယ်ရီသီးများ၊ ပန်းသီးနက်များနှင့် ချိုမြိန်သော ဟင်းခတ်အမွှေးအကြိုင်များ၏ ဆွဲဆောင်မှုရှိသော အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် ကိုယ်ထည်ပြည့်ဝ၍ နွေးထွေးပြီး ကတ္တီပါကဲ့သို့ နူးညံ့ကာ ချောမွေ့သော တန်နင်များနှင့် ချောမွေ့၍ ကြာရှည်သော အဆုံးသတ်ရှိသည်။ ခိုင်မာသော အသားနီများ၊ ကြွယ်ဝသော ပါစတာဟင်းလျာများနှင့် ရင့်ကျက်သော ဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။"
+    "descriptionMm": "ဤအီတလီတောင်ပိုင်းမှ ကြွယ်ဝသော အနီရောင်ဝိုင်သည် မှည့်သော ဘလက်ဘယ်ရီသီးများ၊ ပန်းသီးနက်များနှင့် ချိုမြိန်သော ဟင်းခတ်အမွှေးအကြိုင်များ၏ ဆွဲဆောင်မှုရှိသော အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် ကိုယ်ထည်ပြည့်ဝ၍ နွေးထွေးပြီး ကတ္တီပါကဲ့သို့ နူးညံ့ကာ ချောမွေ့သော တန်နင်များနှင့် ချောမွေ့၍ ကြာရှည်သော အဆုံးသတ်ရှိသည်။ ခိုင်မာသော အသားနီများ၊ ကြွယ်ဝသော ပါစတာဟင်းလျာများနှင့် ရင့်ကျက်သော ဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။",
+    "titleEs": "PRIMITIVO\nIGT\nPepa Nera",
+    "subtitleEs": "VINO TINTO\nITALIA - PUGLIA",
+    "descriptionEs": "Este rico vino tinto del sur de Italia ofrece atractivos aromas de moras maduras, ciruelas oscuras y especias dulces. En boca es corpulento, cálido y aterciopelado, con taninos suaves y redondos y un final sedoso y persistente. Marida maravillosamente con carnes rojas robustas, platos de pasta ricos y quesos curados.",
+    "titleZh": "普里米蒂沃\nIGT\n黑胡椒",
+    "subtitleZh": "红葡萄酒\n意大利 - 普利亚",
+    "descriptionZh": "这款浓郁的意大利南部红葡萄酒散发着成熟黑莓、深色李子及甜香料的诱人香气。口感饱满、温暖而丝滑，单宁柔顺圆润，余味顺滑持久。与浓郁的红肉、丰盛的意面菜肴及陈年奶酪完美搭配。",
+    "titleRu": "ПРИМИТИВО\nIGT\nPepa Nera",
+    "subtitleRu": "КРАСНОЕ ВИНО\nИТАЛИЯ - ПУЛЬЯ",
+    "descriptionRu": "Это щедрое красное вино из Южной Италии манит ароматами спелой ежевики, тёмной сливы и сладких специй. Во вкусе оно полнотелое, тёплое и бархатистое, с мягкими округлыми танинами и гладким продолжительным послевкусием. Великолепно сочетается с мощными красными мясными блюдами, насыщенной пастой и выдержанными сырами.",
+    "titleFr": "PRIMITIVO\nIGT\nPepa Nera",
+    "subtitleFr": "VIN ROUGE\nITALIE - PUGLIA",
+    "descriptionFr": "Ce riche vin rouge du sud de l'Italie offre des arômes séduisants de mûres mûres, de prunes noires et d'épices douces. En bouche, il est corsé, chaleureux et velouté, avec des tanins souples et arrondis et une finale lisse et persistante. Il s'accorde merveilleusement avec les viandes rouges robustes, les plats de pâtes riches et les fromages affinés."
   },
   {
     "id": "wine-primitivo-pepa",
@@ -701,7 +869,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ဘာဘီရာ\nDOC\nဆန်ဆီလဗက်စထရို",
     "subtitleMm": "အနီရောင်ဝိုင်\nအီတလီ - ပီမွန်တေ",
-    "descriptionMm": "ဤတက်ကြွသော အီတလီအနီရောင်ဝိုင်သည် လတ်ဆတ်သော ချယ်ရီသီးများ၊ ဘလက်ဘယ်ရီသီးများနှင့် နူးညံ့သော ဗိုင်အိုလက်ပန်း၏ အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် အလယ်အလတ်ကိုယ်ထည်ရှိ၍ တက်ကြွပြီး ဖွဲ့စည်းမှုကောင်းကာ တောက်ပသော အက်ဆစ်ဓာတ်နှင့် နူးညံ့သော တန်နင်များရှိပြီး သန့်ရှင်း၍ လန်းဆန်းသော အဆုံးသတ်သို့ ပို့ဆောင်သည်။ ဂန္ထဝင် အီတလီပါစတာဟင်းလျာများ၊ အသားကင်ငှက်များ၊ အသားအေးများနှင့် အလယ်အလတ်ရင့်သော ဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။"
+    "descriptionMm": "ဤတက်ကြွသော အီတလီအနီရောင်ဝိုင်သည် လတ်ဆတ်သော ချယ်ရီသီးများ၊ ဘလက်ဘယ်ရီသီးများနှင့် နူးညံ့သော ဗိုင်အိုလက်ပန်း၏ အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် အလယ်အလတ်ကိုယ်ထည်ရှိ၍ တက်ကြွပြီး ဖွဲ့စည်းမှုကောင်းကာ တောက်ပသော အက်ဆစ်ဓာတ်နှင့် နူးညံ့သော တန်နင်များရှိပြီး သန့်ရှင်း၍ လန်းဆန်းသော အဆုံးသတ်သို့ ပို့ဆောင်သည်။ ဂန္ထဝင် အီတလီပါစတာဟင်းလျာများ၊ အသားကင်ငှက်များ၊ အသားအေးများနှင့် အလယ်အလတ်ရင့်သော ဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။",
+    "titleEs": "BARBERA\nDOC\nSan Silvestro",
+    "subtitleEs": "VINO TINTO\nITALIA - PIEMONTE",
+    "descriptionEs": "Este vibrante vino tinto italiano ofrece atractivos aromas de cerezas frescas, moras y sutiles toques de violeta. En boca es de cuerpo medio, vivaz y bien estructurado, con acidez brillante y taninos suaves, que conducen a un final limpio y refrescante. Marida maravillosamente con platos clásicos de pasta italiana, aves asadas, embutidos y quesos de media curación.",
+    "titleZh": "巴贝拉\nDOC\n圣西尔维斯特罗",
+    "subtitleZh": "红葡萄酒\n意大利 - 皮埃蒙特",
+    "descriptionZh": "这款充满活力的意大利红葡萄酒散发着新鲜红樱桃、黑莓及淡淡紫罗兰的诱人香气。口感中等酒体，活泼且结构良好，酸度明亮，单宁柔顺，余味干净清爽。与经典意大利面食、烤禽肉、冷切肉及中等陈年奶酪完美搭配。",
+    "titleRu": "БАРБЕРА\nDOC\nSan Silvestro",
+    "subtitleRu": "КРАСНОЕ ВИНО\nИТАЛИЯ - ПЬЕМОНТ",
+    "descriptionRu": "Это живое итальянское красное вино дарит привлекательные ароматы свежей красной черешни, ежевики и тонких оттенков фиалки. Во вкусе оно среднетелое, энергичное и хорошо структурированное, с яркой кислотностью и мягкими танинами, ведущими к чистому освежающему финалу. Прекрасно подходит к классическим итальянским пастам, жареной птице, мясным нарезкам и сырам средней выдержки.",
+    "titleFr": "BARBERA\nDOC\nSan Silvestro",
+    "subtitleFr": "VIN ROUGE\nITALIE - PIÉMONT",
+    "descriptionFr": "Ce vin rouge italien vibrant offre des arômes invitants de cerises fraîches, de mûres et de subtiles notes de violette. En bouche, il est de corps moyen, vif et bien structuré, avec une acidité éclatante et des tanins souples, conduisant à une finale nette et rafraîchissante. Il s'accorde merveilleusement avec les plats de pâtes italiens classiques, la volaille rôtie, la charcuterie et les fromages d'âge moyen."
   },
   {
     "id": "wine-pinot-grigio",
@@ -735,7 +915,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ရှာဒိုနေး\nDOC\nဆန်ဆီလဗက်စထရို",
     "subtitleMm": "အဖြူရောင်ဝိုင်\nအီတလီ - ပီမွန်တေ",
-    "descriptionMm": "ဤကြော့ရှင်းသော အီတလီအဖြူရောင်ဝိုင်သည် စိမ်းသော ပန်းသီး၊ မှည့်သော သစ်တော်သီးနှင့် နူးညံ့သော အဖြူရောင်ပန်းများ၏ အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် လတ်ဆတ်၍ သန့်ရှင်းပြီး ဟန်ချက်ညီကာ ချောမွေ့၍ လန်းဆန်းသော အဆုံးသတ်ရှိသည်။ ထူးခြားသော အစားအသောက်မတိုင်မီ သောက်ရန် သင့်တော်ပြီး ငါးဟင်းလျာများ၊ ငှက်သားများနှင့် ပေါ့ပါးသော အစားအသောက်များနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။"
+    "descriptionMm": "ဤကြော့ရှင်းသော အီတလီအဖြူရောင်ဝိုင်သည် စိမ်းသော ပန်းသီး၊ မှည့်သော သစ်တော်သီးနှင့် နူးညံ့သော အဖြူရောင်ပန်းများ၏ အနံ့များကို ပေးစွမ်းသည်။ လျှာပေါ်တွင် လတ်ဆတ်၍ သန့်ရှင်းပြီး ဟန်ချက်ညီကာ ချောမွေ့၍ လန်းဆန်းသော အဆုံးသတ်ရှိသည်။ ထူးခြားသော အစားအသောက်မတိုင်မီ သောက်ရန် သင့်တော်ပြီး ငါးဟင်းလျာများ၊ ငှက်သားများနှင့် ပေါ့ပါးသော အစားအသောက်များနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်စားသုံးနိုင်သည်။",
+    "titleEs": "CHARDONNAY\nDOC\nSan Silavstro",
+    "subtitleEs": "VINO BLANCO\nITALIA - PIEMONTE",
+    "descriptionEs": "Este elegante vino blanco italiano presenta deliciosos aromas de manzana verde, pera madura y sutiles toques de flores blancas. En boca es fresco, limpio y bien equilibrado, con un final suave y refrescante. Se presta como excelente aperitivo y marida maravillosamente con platos de pescado, aves y entrantes ligeros.",
+    "titleZh": "霞多丽\nDOC\n圣西尔维斯特罗",
+    "subtitleZh": "白葡萄酒\n意大利 - 皮埃蒙特",
+    "descriptionZh": "这款优雅的意大利白葡萄酒呈现出青苹果、熟梨及淡淡白花的怡人香气。口感清新、干净且平衡，余味柔顺清爽。非常适合作为开胃酒，与鱼类菜肴、禽肉及清淡前菜完美搭配。",
+    "titleRu": "ШАРДОНЕ\nDOC\nSan Silavstro",
+    "subtitleRu": "БЕЛОЕ ВИНО\nИТАЛИЯ - ПЬЕМОНТ",
+    "descriptionRu": "Это элегантное итальянское белое вино пленяет восхитительными ароматами зелёного яблока, спелой груши и лёгкими нотками белых цветов. Во вкусе оно свежее, чистое и хорошо сбалансированное, с мягким освежающим послевкусием. Отлично подходит в качестве аперитива и прекрасно сочетается с рыбными блюдами, птицей и лёгкими закусками.",
+    "titleFr": "CHARDONNAY\nDOC\nSan Silavstro",
+    "subtitleFr": "VIN BLANC\nITALIE - PIÉMONT",
+    "descriptionFr": "Cet élégant vin blanc italien présente de délicieux arômes de pomme verte, de poire mûre et de subtiles notes de fleurs blanches. En bouche, il est frais, net et bien équilibré, avec une finale douce et rafraîchissante. Il constitue un excellent apéritif et s'accorde merveilleusement avec les plats de poisson, la volaille et les entrées légères."
   },
   {
     "id": "wine-poggio-alto-rosso",
@@ -769,7 +961,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "TRADITION BRUT\nDOMAINE CUVÉE\nCold River",
     "subtitleMm": "တောက်ပသောဝိုင်\nအီတလီ",
-    "descriptionMm": "ဤဩစတြေးလျတောက်ပသောဝိုင်သည် စိမ်းသောပန်းသီး၊ လိမ္မော်ခွံနှင့် နူးညံ့သောအဖြူရောင်မက်မွန်သီး၏ လတ်ဆတ်သောရနံ့များကို ဖော်ပြသည်။ လျှာပေါ်တွင် ပေါ့ပါး၊ ခြောက်သွေ့ပြီး ရှင်သန်မှုရှိကာ နူးညံ့သောအမြှုပ်များနှင့် သန့်ရှင်းလန်းဆန်းသော အဆုံးသတ်ရှိသည်။ အစားအသောက်မတိုင်မီ သောက်ရန်အတွက် ပြည့်စုံပြီး ပင်လယ်စာ၊ အဆာပြေစာနှင့် ပေါ့ပါးသော အစားအစာများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။"
+    "descriptionMm": "ဤဩစတြေးလျတောက်ပသောဝိုင်သည် စိမ်းသောပန်းသီး၊ လိမ္မော်ခွံနှင့် နူးညံ့သောအဖြူရောင်မက်မွန်သီး၏ လတ်ဆတ်သောရနံ့များကို ဖော်ပြသည်။ လျှာပေါ်တွင် ပေါ့ပါး၊ ခြောက်သွေ့ပြီး ရှင်သန်မှုရှိကာ နူးညံ့သောအမြှုပ်များနှင့် သန့်ရှင်းလန်းဆန်းသော အဆုံးသတ်ရှိသည်။ အစားအသောက်မတိုင်မီ သောက်ရန်အတွက် ပြည့်စုံပြီး ပင်လယ်စာ၊ အဆာပြေစာနှင့် ပေါ့ပါးသော အစားအစာများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။",
+    "titleEs": "TRADICIÓN BRUT\nDOMAINE CUVÉE\nCold River",
+    "subtitleEs": "VINO ESPUMOSO\nITALIA",
+    "descriptionEs": "Este vino espumoso australiano revela aromas frescos de manzana verde, cáscara de cítricos y delicado melocotón blanco. En boca es ligero, seco y vivaz, con una fina efervescencia y un final limpio y refrescante. Perfecto como aperitivo, marida maravillosamente con mariscos, aperitivos y entrantes ligeros.",
+    "titleZh": "TRADITION BRUT\nDOMAINE CUVÉE\nCold River",
+    "subtitleZh": "起泡酒\n澳大利亚",
+    "descriptionZh": "这款澳大利亚起泡酒散发着清新的青苹果、柑橘皮和细腻的白桃香气。口感轻盈、干爽而活泼，气泡细腻，余味干净清爽。作为开胃酒完美，与海鲜、开胃小菜和清淡前菜搭配极佳。",
+    "titleRu": "ТРАДИЦИОННЫЙ БРЮТ\nДОМЕН КЮВЕ\nКолд Ривер",
+    "subtitleRu": "ИГРИСТОЕ ВИНО\nАВСТРАЛИЯ",
+    "descriptionRu": "Это австралийское игристое вино раскрывает свежие ароматы зеленого яблока, цитрусовой цедры и нежного белого персика. Во вкусе оно легкое, сухое и живое, с тонким муссом и чистым, освежающим послевкусием. Идеально в качестве аперитива, прекрасно сочетается с морепродуктами, закусками и легкими стартерами.",
+    "titleFr": "TRADITION BRUT\nDOMAINE CUVÉE\nCold River",
+    "subtitleFr": "VIN MOUSSEUX\nAUSTRALIE",
+    "descriptionFr": "Ce vin mousseux australien révèle des arômes frais de pomme verte, de zeste d'agrumes et de délicate pêche blanche. En bouche, il est léger, sec et vif, avec une fine mousse et une finale nette et rafraîchissante. Parfait en apéritif, il s'accorde merveilleusement avec les fruits de mer, les amuse-bouches et les entrées légères."
   },
   {
     "id": "wine-prosecco-docg",
@@ -803,7 +1007,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "PROSECCO SUPERIORE\nDOC EXTRA DRY\nAmore Rubato",
     "subtitleMm": "တောက်ပသောဝိုင်\nအီတလီ - ဗီနီတို",
-    "descriptionMm": "ဤကြော့ရှင်းသောအီတလီတောက်ပသောဝိုင်သည် ကြွပ်ရွသောစိမ်းသောပန်းသီး၊ လတ်ဆတ်သောသစ်တော်သီးနှင့် နူးညံ့သောအဖြူရောင်ပန်းများ၏ ရနံ့များကို ပေးသည်။ လျှာပေါ်တွင် သဟဇာတဖြစ်ပြီး လန်းဆန်းကာ သောက်လို့ကောင်းသော အချိုဓာတ်အနည်းငယ်ရှိသည်။ နူးညံ့သောအမြှုပ်များနှင့် ချောမွေ့ပြီး သစ်သီးရနံ့ရှိသော အဆုံးသတ်ရှိသည်။ အစားအသောက်မတိုင်မီ သောက်ရန်အတွက် ထူးခြားကောင်းမွန်ပြီး ပေါ့ပါးသော အဆာပြေစာ၊ ပင်လယ်စာနှင့် လတ်ဆတ်သောသစ်သီးများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။"
+    "descriptionMm": "ဤကြော့ရှင်းသောအီတလီတောက်ပသောဝိုင်သည် ကြွပ်ရွသောစိမ်းသောပန်းသီး၊ လတ်ဆတ်သောသစ်တော်သီးနှင့် နူးညံ့သောအဖြူရောင်ပန်းများ၏ ရနံ့များကို ပေးသည်။ လျှာပေါ်တွင် သဟဇာတဖြစ်ပြီး လန်းဆန်းကာ သောက်လို့ကောင်းသော အချိုဓာတ်အနည်းငယ်ရှိသည်။ နူးညံ့သောအမြှုပ်များနှင့် ချောမွေ့ပြီး သစ်သီးရနံ့ရှိသော အဆုံးသတ်ရှိသည်။ အစားအသောက်မတိုင်မီ သောက်ရန်အတွက် ထူးခြားကောင်းမွန်ပြီး ပေါ့ပါးသော အဆာပြေစာ၊ ပင်လယ်စာနှင့် လတ်ဆတ်သောသစ်သီးများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။",
+    "titleEs": "PROSECCO SUPERIORE\nDOC EXTRA DRY\nAmore Rubato",
+    "subtitleEs": "VINO ESPUMOSO\nITALIA - VENETO",
+    "descriptionEs": "Este elegante vino espumoso italiano ofrece deliciosos aromas de manzana verde crujiente, pera fresca y delicadas flores blancas. En boca es armonioso, refrescante y agradablemente semidulce, con una fina burbuja y un final suave y afrutado. Se revela como un excepcional aperitivo y marida maravillosamente con entrantes ligeros, mariscos y fruta fresca.",
+    "titleZh": "PROSECCO SUPERIORE\nDOC EXTRA DRY\nAmore Rubato",
+    "subtitleZh": "起泡酒\n意大利 - 威尼托",
+    "descriptionZh": "这款优雅的意大利起泡酒带来脆爽青苹果、新鲜梨和精致白花的愉悦香气。口感和谐、清爽，略带甜味，气泡细腻，余味柔顺且富有果香。作为开胃酒表现出色，与清淡前菜、海鲜和新鲜水果搭配美妙。",
+    "titleRu": "ПРОСЕККО СУПЕРИОРЕ\nDOC ЭКСТРА ДРАЙ\nАморе Рубато",
+    "subtitleRu": "ИГРИСТОЕ ВИНО\nИТАЛИЯ - ВЕНЕТО",
+    "descriptionRu": "Это элегантное итальянское игристое вино предлагает восхитительные ароматы хрустящего зеленого яблока, свежей груши и нежных белых цветов. Во вкусе оно гармоничное, освежающее и приятно полусухое, с тонким перляжем и мягким, фруктовым послевкусием. Это исключительный аперитив, который прекрасно сочетается с легкими закусками, морепродуктами и свежими фруктами.",
+    "titleFr": "PROSECCO SUPERIORE\nDOC EXTRA DRY\nAmore Rubato",
+    "subtitleFr": "VIN MOUSSEUX\nITALIE - VÉNÉTIE",
+    "descriptionFr": "Cet élégant vin mousseux italien offre de délicieux arômes de pomme verte croquante, de poire fraîche et de délicates fleurs blanches. En bouche, il est harmonieux, rafraîchissant et agréablement demi-sec, avec une fine perlage et une finale douce et fruitée. Il constitue un apéritif exceptionnel et s'accorde merveilleusement avec les entrées légères, les fruits de mer et les fruits frais."
   },
   {
     "id": "wine-rose-france",
@@ -837,7 +1053,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "ROSE’\nDE FRANCE\nLes Pins d’Aubane",
     "subtitleMm": "ပန်းရောင်ဝိုင်\nပြင်သစ်",
-    "descriptionMm": "ဤလန်းဆန်းသောပြင်သစ်ပန်းရောင်ဝိုင်သည် လတ်ဆတ်သောအနီရောင်သစ်တောသီးများ၊ နူးညံ့သောလိမ္မော်ရနံ့များနှင့် သိမ်မွေ့သောပန်းရနံ့များ၏ ဆွဲဆောင်မှုရှိသောရနံ့များကို ပေးသည်။ လျှာပေါ်တွင် ပေါ့ပါး၊ လန်းဆန်းပြီး ကောင်းမွန်စွာဟန်ချက်ညီကာ သန့်ရှင်းရှင်သန်သော အဆုံးသတ်ရှိသည်။ အစားအသောက်မတိုင်မီ သောက်ရန်အတွက် အလွန်ကောင်းမွန်ပြီး ပေါ့ပါးသောသုပ်များ၊ ပင်လယ်စာ၊ ကင်ထားသောငါးနှင့် မြေထဲပင်လယ်အစားအစာများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။"
+    "descriptionMm": "ဤလန်းဆန်းသောပြင်သစ်ပန်းရောင်ဝိုင်သည် လတ်ဆတ်သောအနီရောင်သစ်တောသီးများ၊ နူးညံ့သောလိမ္မော်ရနံ့များနှင့် သိမ်မွေ့သောပန်းရနံ့များ၏ ဆွဲဆောင်မှုရှိသောရနံ့များကို ပေးသည်။ လျှာပေါ်တွင် ပေါ့ပါး၊ လန်းဆန်းပြီး ကောင်းမွန်စွာဟန်ချက်ညီကာ သန့်ရှင်းရှင်သန်သော အဆုံးသတ်ရှိသည်။ အစားအသောက်မတိုင်မီ သောက်ရန်အတွက် အလွန်ကောင်းမွန်ပြီး ပေါ့ပါးသောသုပ်များ၊ ပင်လယ်စာ၊ ကင်ထားသောငါးနှင့် မြေထဲပင်လယ်အစားအစာများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။",
+    "titleEs": "ROSE’\nDE FRANCE\nLes Pins d’Aubane",
+    "subtitleEs": "VINO ROSADO\nFRANCIA",
+    "descriptionEs": "Este refrescante vino rosado francés presenta deliciosos aromas de frutos rojos frescos, delicadas notas cítricas y sutiles matices florales. En boca es ligero, fresco y bien equilibrado, con un final limpio y vivaz. Es un excelente aperitivo y marida maravillosamente con ensaladas ligeras, mariscos, pescado a la parrilla y platos mediterráneos.",
+    "titleZh": "ROSE’\nDE FRANCE\nLes Pins d’Aubane",
+    "subtitleZh": "桃红葡萄酒\n法国",
+    "descriptionZh": "这款清爽的法国桃红葡萄酒呈现迷人的新鲜红色浆果、细腻柑橘和微妙花香。口感轻盈、爽脆且平衡，余味干净活泼。作为开胃酒极佳，与清淡沙拉、海鲜、烤鱼和地中海菜肴搭配美妙。",
+    "titleRu": "РОЗОВОЕ\nДЕ ФРАНС\nLes Pins d’Aubane",
+    "subtitleRu": "РОЗОВОЕ ВИНО\nФРАНЦИЯ",
+    "descriptionRu": "Это освежающее французское розовое вино обладает очаровательными ароматами свежих красных летних ягод, деликатными цитрусовыми нотками и тонкими цветочными нюансами. Во вкусе оно легкое, свежее и хорошо сбалансированное, с чистым, живым послевкусием. Это фантастический аперитив, который прекрасно сочетается с легкими салатами, морепродуктами, рыбой на гриле и средиземноморскими блюдами.",
+    "titleFr": "ROSÉ\nDE FRANCE\nLes Pins d'Aubane",
+    "subtitleFr": "VIN ROSÉ\nFRANCE",
+    "descriptionFr": "Ce vin rosé français rafraîchissant présente des arômes charmants de baies rouges fraîches, de délicates notes d'agrumes et de subtiles nuances florales. En bouche, il est léger, vif et bien équilibré, avec une finale nette et vive. Il constitue un apéritif fantastique et s'accorde merveilleusement avec les salades légères, les fruits de mer, le poisson grillé et les plats méditerranéens."
   },
   {
     "id": "wine-vina-toldos-rosso",
@@ -871,7 +1099,19 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "CABERNET SAUVIGNON\nESTATE BOTTLED\nViña Toldos",
     "subtitleMm": "အနီရောင်ဝိုင်\nချီလီ - ကိုလ်ချာဂွာ",
-    "descriptionMm": "ဤချီလီကာဘာနက်ဆိုဗီညွန်ဝိုင်သည် မှည့်သောဘလက်ဘယ်ရီသီး၊ ပန်းသီးနှင့် ယူကလစ်ပင် သို့မဟုတ် ငရုတ်ကောင်းအနံ့အနည်းငယ်တို့၏ ဆွဲဆောင်မှုရှိသောရနံ့များကို ပေးသည်။ လျှာပေါ်တွင် နူးညံ့ပြီး ကောင်းမွန်စွာဟန်ချက်ညီကာ နူးညံ့သော တန်နင်များနှင့် နှစ်သက်ဖွယ်ဖွဲ့စည်းထားသော အဆုံးသတ်ရှိသည်။ ကင်ထားသောအနီရောင်အသား၊ အမဲသား၊ သိုးသားနှင့် ရင့်သောဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။"
+    "descriptionMm": "ဤချီလီကာဘာနက်ဆိုဗီညွန်ဝိုင်သည် မှည့်သောဘလက်ဘယ်ရီသီး၊ ပန်းသီးနှင့် ယူကလစ်ပင် သို့မဟုတ် ငရုတ်ကောင်းအနံ့အနည်းငယ်တို့၏ ဆွဲဆောင်မှုရှိသောရနံ့များကို ပေးသည်။ လျှာပေါ်တွင် နူးညံ့ပြီး ကောင်းမွန်စွာဟန်ချက်ညီကာ နူးညံ့သော တန်နင်များနှင့် နှစ်သက်ဖွယ်ဖွဲ့စည်းထားသော အဆုံးသတ်ရှိသည်။ ကင်ထားသောအနီရောင်အသား၊ အမဲသား၊ သိုးသားနှင့် ရင့်သောဒိန်ခဲများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။",
+    "titleEs": "CABERNET SAUVIGNON\nESTATE BOTTLED\nViña Toldos",
+    "subtitleEs": "VINO TINTO\nCHILE - COLCHAGUA",
+    "descriptionEs": "Este Cabernet Sauvignon chileno ofrece aromas atractivos de moras maduras, ciruelas y un toque de eucalipto o pimienta. En boca es suave y bien equilibrado, con taninos delicados y armoniosos y un final agradable y estructurado. Marida maravillosamente con carnes rojas a la parrilla, ternera, cordero y quesos curados.",
+    "titleZh": "CABERNET SAUVIGNON\nESTATE BOTTLED\nViña Toldos",
+    "subtitleZh": "红葡萄酒\n智利 - 空加瓜",
+    "descriptionZh": "这款智利赤霞珠带来成熟黑莓、李子以及一丝桉树或胡椒的诱人香气。口感柔顺圆润，单宁柔和平衡，余味愉悦且结构良好。与烤红肉、牛肉、羊肉和成熟奶酪搭配美妙。",
+    "titleRu": "КАБЕРНЕ СОВИНЬОН\nВИНОГРАДНИК РАЗЛИВ\nViña Toldos",
+    "subtitleRu": "КРАСНОЕ ВИНО\nЧИЛИ - КОЛЬЧАГУА",
+    "descriptionRu": "Это чилийское Каберне Совиньон предлагает привлекательные ароматы спелой ежевики, сливы и оттенок эвкалипта или перца. Во вкусе оно мягкое и округлое, с мягкими, сбалансированными танинами и приятным, структурированным послевкусием. Прекрасно сочетается с красным мясом на гриле, говядиной, ягненком и выдержанными сырами.",
+    "titleFr": "CABERNET SAUVIGNON\nEMBOUTEILLÉ AU DOMAINE\nViña Toldos",
+    "subtitleFr": "VIN ROUGE\nCHILI - COLCHAGUA",
+    "descriptionFr": "Ce Cabernet Sauvignon chilien offre des arômes séduisants de mûres mûres, de prunes et une touche d'eucalyptus ou de poivre. En bouche, il est souple et bien rond, avec des tanins doux et équilibrés et une finale agréable et structurée. Il s'accorde merveilleusement avec les viandes rouges grillées, le bœuf, l'agneau et les fromages affinés."
   },
   {
     "id": "wine-1787555664725",
@@ -905,12 +1145,36 @@ export const INITIAL_WINE_COLLECTION: WineCardData[] = [
     "updatedAt": "2026-08-24",
     "titleMm": "SAUVIGNON BLANC\nESTATE BOTTLED\nViña Toldos",
     "subtitleMm": "အဖြူရောင်ဝိုင်\nချီလီ - လေယ်ဒါ",
-    "descriptionMm": "ဤချီလီဆိုဗီညွန်ဘလန်ဝိုင်သည် ကြွပ်ရွသောစိမ်းသောပန်းသီး၊ လိမ္မော်သီးရည်နှင့် လတ်ဆတ်သောဟင်းသီးဟင်းရွက်ရနံ့များ၏ ထင်ရှားသောလက္ခဏာများကို ပေးသည်။ လျှာပေါ်တွင် ပေါ့ပါး၊ လန်းဆန်းပြီး ရှင်သန်သောအက်ဆစ်ဓာတ်နှင့် သန့်ရှင်းသောသတ္တုဓာတ်ရနံ့ရှိသော အဆုံးသတ်ရှိသည်။ ပင်လယ်စာ၊ ကင်ထားသောငါး၊ လတ်ဆတ်သောသုပ်များနှင့် ပေါ့ပါးသောအဆာပြေစာများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။"
+    "descriptionMm": "ဤချီလီဆိုဗီညွန်ဘလန်ဝိုင်သည် ကြွပ်ရွသောစိမ်းသောပန်းသီး၊ လိမ္မော်သီးရည်နှင့် လတ်ဆတ်သောဟင်းသီးဟင်းရွက်ရနံ့များ၏ ထင်ရှားသောလက္ခဏာများကို ပေးသည်။ လျှာပေါ်တွင် ပေါ့ပါး၊ လန်းဆန်းပြီး ရှင်သန်သောအက်ဆစ်ဓာတ်နှင့် သန့်ရှင်းသောသတ္တုဓာတ်ရနံ့ရှိသော အဆုံးသတ်ရှိသည်။ ပင်လယ်စာ၊ ကင်ထားသောငါး၊ လတ်ဆတ်သောသုပ်များနှင့် ပေါ့ပါးသောအဆာပြေစာများနှင့် အလွန်ကောင်းမွန်စွာ တွဲဖက်နိုင်သည်။",
+    "titleEs": "SAUVIGNON BLANC\nESTATE BOTTLED\nViña Toldos",
+    "subtitleEs": "VINO BLANCO\nCHILE - LEYDA",
+    "descriptionEs": "Este Sauvignon Blanc chileno ofrece aromas vibrantes de manzana verde crujiente, lima cítrica y característicos matices de hierbas frescas. En boca es ligero, fresco y refrescante, con una acidez vivaz y un final limpio y mineral. Marida maravillosamente con mariscos, pescado a la parrilla, ensaladas frescas y entrantes ligeros.",
+    "titleZh": "SAUVIGNON BLANC\nESTATE BOTTLED\nViña Toldos",
+    "subtitleZh": "白葡萄酒\n智利 - 莱达",
+    "descriptionZh": "这款智利长相思带来脆爽青苹果、活泼青柠和典型的新鲜草本气息。口感轻盈、爽脆且清新，酸度活泼，余味干净且带有矿物感。与海鲜、烤鱼、新鲜沙拉和清淡前菜搭配美妙。",
+    "titleRu": "СОВИНЬОН БЛАН\nВИНОГРАДНИК РАЗЛИВ\nViña Toldos",
+    "subtitleRu": "БЕЛОЕ ВИНО\nЧИЛИ - ЛЕЙДА",
+    "descriptionRu": "Это чилийское Совиньон Блан предлагает яркие ароматы хрустящего зеленого яблока, цедры лайма и характерные оттенки свежих травянистых нот. Во вкусе оно легкое, свежее и освежающее, с живой кислотностью и чистым, минеральным послевкусием. Прекрасно сочетается с морепродуктами, рыбой на гриле, свежими салатами и легкими закусками.",
+    "titleFr": "SAUVIGNON BLANC\nEMBOUTEILLÉ AU DOMAINE\nViña Toldos",
+    "subtitleFr": "VIN BLANC\nCHILI - LEYDA",
+    "descriptionFr": "Ce Sauvignon Blanc chilien offre des arômes vibrants de pomme verte croquante, de citron vert zesté et de caractéristiques notes herbacées fraîches. En bouche, il est léger, vif et rafraîchissant, avec une acidité vive et une finale nette et minérale. Il s'accorde merveilleusement avec les fruits de mer, le poisson grillé, les salades fraîches et les entrées légères."
   }
 ];
 
-export const renderCountryFlag = (flagOrCountryCode: string, customClass?: string) => {
-  if (!flagOrCountryCode) return null;
+export const renderCountryFlag = (flagOrItem: any, customClass?: string) => {
+  if (!flagOrItem) return null;
+
+  let flagStr = '';
+  if (typeof flagOrItem === 'string') {
+    flagStr = flagOrItem;
+  } else if (typeof flagOrItem === 'object') {
+    flagStr = flagOrItem.flag || flagOrItem.country || flagOrItem.countryCode || '';
+  }
+
+  if (!flagStr || typeof flagStr !== 'string') return null;
+
+  const clean = flagStr.trim();
+  if (!clean) return null;
 
   const codeMap: Record<string, string> = {
     '🇮🇹': 'it', 'IT': 'it', 'italy': 'it', 'italia': 'it',
@@ -935,14 +1199,14 @@ export const renderCountryFlag = (flagOrCountryCode: string, customClass?: strin
     '🇱🇧': 'lb', 'LB': 'lb', 'lebanon': 'lb', 'libano': 'lb',
   };
 
-  const isoCode = codeMap[flagOrCountryCode.trim()] || codeMap[flagOrCountryCode.trim().toLowerCase()] || (flagOrCountryCode.length === 2 ? flagOrCountryCode.toLowerCase() : null);
+  const isoCode = codeMap[clean] || codeMap[clean.toLowerCase()] || (clean.length === 2 ? clean.toLowerCase() : null);
 
   if (isoCode) {
     return (
       <span className={customClass || "w-[32px] h-[22px] min-w-[32px] max-w-[32px] rounded-[3px] overflow-hidden border border-stone-300 shadow-xs shrink-0 inline-flex items-center justify-center bg-stone-100"}>
         <img
           src={`https://flagcdn.com/w80/${isoCode}.png`}
-          alt={flagOrCountryCode}
+          alt={clean}
           className="w-full h-full object-cover"
           loading="lazy"
         />
@@ -952,14 +1216,106 @@ export const renderCountryFlag = (flagOrCountryCode: string, customClass?: strin
 
   return (
     <span className={customClass || "w-[32px] h-[22px] min-w-[32px] max-w-[32px] rounded-[3px] overflow-hidden border border-stone-300 shadow-xs shrink-0 inline-flex items-center justify-center bg-stone-100 text-base select-none leading-none"}>
-      {flagOrCountryCode}
+      {clean}
     </span>
   );
 };
 
-export const formatSubtitle = (subtitle: string) => {
-  if (!subtitle) return "";
-  const clean = subtitle.includes('\n') ? subtitle : subtitle.replace(' - ', '\n').replace(' — ', '\n');
+export const MASTER_WINE_MAP = new Map<string, WineCardData>(
+  INITIAL_WINE_COLLECTION.map(w => [w.id, w])
+);
+
+const WINE_SUBTITLE_DICTIONARY: Record<string, Record<string, string>> = {
+  // Types
+  'RED WINE': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN', MM: 'ဝိုင်နီ', ES: 'VINO TINTO', FR: 'VIN ROUGE', RU: 'КРАСНОЕ ВИНО', ZH: '红葡萄酒' },
+  'VINO ROSSO': { IT: 'VINO ROSSO', EN: 'RED WINE', TH: 'ไวน์แดง', DE: 'ROTWEIN', MM: 'ဝိုင်နီ', ES: 'VINO TINTO', FR: 'VIN ROUGE', RU: 'КРАСНОЕ ВИНО', ZH: '红葡萄酒' },
+  'WHITE WINE': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ', ES: 'VINO BLANCO', FR: 'VIN BLANC', RU: 'БЕЛОЕ ВИНО', ZH: '白葡萄酒' },
+  'VINO BIANCO': { IT: 'VINO BIANCO', EN: 'WHITE WINE', TH: 'ไวน์ขาว', DE: 'WEISSWEIN', MM: 'ဝိုင်ဖြူ', ES: 'VINO BLANCO', FR: 'VIN BLANC', RU: 'БЕЛОЕ ВИНО', ZH: '白葡萄酒' },
+  'ROSÉ WINE': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်', ES: 'VINO ROSADO', FR: 'VIN ROSÉ', RU: 'РОЗОВОЕ ВИНО', ZH: '桃红葡萄酒' },
+  'ROSE WINE': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်', ES: 'VINO ROSADO', FR: 'VIN ROSÉ', RU: 'РОЗОВОЕ ВИНО', ZH: '桃红葡萄酒' },
+  'VINO ROSATO': { IT: 'VINO ROSATO', EN: 'ROSÉ WINE', TH: 'ไวน์โรเซ่', DE: 'ROSÉWEIN', MM: 'ရိုဇေး ဝိုင်', ES: 'VINO ROSADO', FR: 'VIN ROSÉ', RU: 'РОЗОВОЕ ВИНО', ZH: '桃红葡萄酒' },
+  'SPARKLING WINE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်', ES: 'VINO ESPUMOSO', FR: 'VIN EFFERVESCENT', RU: 'ИГРИСТОЕ ВИНО', ZH: '起泡酒' },
+  'SPUMANTE': { IT: 'SPUMANTE', EN: 'SPARKLING WINE', TH: 'สปาร์กลิงไวน์', DE: 'SCHAUMWEIN', MM: 'စပါကလင် ဝိုင်', ES: 'VINO ESPUMOSO', FR: 'VIN EFFERVESCENT', RU: 'ИГРИСТОЕ ВИНО', ZH: '起泡酒' },
+  'PROSECCO': { IT: 'PROSECCO SPUMANTE', EN: 'PROSECCO SPARKLING', TH: 'สปาร์กลิงไวน์ โพรเซกโก', DE: 'PROSECCO SCHAUMWEIN', MM: 'ပရိုဆက်ကို စပါကလင် ဝိုင်', ES: 'PROSECCO ESPUMOSO', FR: 'PROSECCO EFFERVESCENT', RU: 'ИГРИСТОЕ ПРОСЕККО', ZH: '普罗塞克起泡酒' },
+
+  // Provenances
+  'ITALY - PUGLIA': { IT: 'ITALIA - PUGLIA', EN: 'ITALY - PUGLIA', TH: 'อิตาลี - แคว้นปูลยา', DE: 'ITALIEN - APULIEN', MM: 'အီတလီ - ပူလီယာ', ES: 'ITALIA - PUGLIA', FR: 'ITALIE - PUGLIA', RU: 'ИТАЛИЯ - ПУГЛИЯ', ZH: '意大利 - 普利亚' },
+  'ITALIA - PUGLIA': { IT: 'ITALIA - PUGLIA', EN: 'ITALY - PUGLIA', TH: 'อิตาลี - แคว้นปูลยา', DE: 'ITALIEN - APULIEN', MM: 'အီတလီ - ပူလီယာ', ES: 'ITALIA - PUGLIA', FR: 'ITALIE - PUGLIA', RU: 'ИТАЛИЯ - ПУГЛИЯ', ZH: '意大利 - 普利亚' },
+  'ITALY - SICILY': { IT: 'ITALIA - SICILIA', EN: 'ITALY - SICILY', TH: 'อิตาลี - แคว้นซิซิลี', DE: 'ITALIEN - SIZILIEN', MM: 'အီတလီ - ဆီစီလီ', ES: 'ITALIA - SICILIA', FR: 'ITALIE - SICILE', RU: 'ИТАЛИЯ - СИЦИЛИЯ', ZH: '意大利 - 西西里' },
+  'ITALIA - SICILIA': { IT: 'ITALIA - SICILIA', EN: 'ITALY - SICILY', TH: 'อิตาลี - แคว้นซิซิลี', DE: 'ITALIEN - SIZILIEN', MM: 'အီတလီ - ဆီစီလီ', ES: 'ITALIA - SICILIA', FR: 'ITALIE - SICILE', RU: 'ИТАЛИЯ - СИЦИЛИЯ', ZH: '意大利 - 西西里' },
+  'ITALY - VENETO': { IT: 'ITALIA - VENETO', EN: 'ITALY - VENETO', TH: 'อิตาลี - แคว้นเวเนโต', DE: 'ITALIEN - VENETIEN', MM: 'အီတလီ - ဗီနီတို', ES: 'ITALIA - VÉNETO', FR: 'ITALIE - VÉNÉTIE', RU: 'ИТАЛИЯ - ВЕНЕТО', ZH: '意大利 - 威尼托' },
+  'ITALIA - VENETO': { IT: 'ITALIA - VENETO', EN: 'ITALY - VENETO', TH: 'อิตาลี - แคว้นเวเนโต', DE: 'ITALIEN - VENETIEN', MM: 'အီတလီ - ဗီနီတို', ES: 'ITALIA - VÉNETO', FR: 'ITALIE - VÉNÉTIE', RU: 'ИТАЛИЯ - ВЕНЕТО', ZH: '意大利 - 威尼托' },
+  'ITALY - TUSCANY': { IT: 'ITALIA - TOSCANA', EN: 'ITALY - TUSCANY', TH: 'อิตาลี - แคว้นทัสคานี', DE: 'ITALIEN - TOSKANA', MM: 'အီတလီ - တိုစကာနီ', ES: 'ITALIA - TOSCANA', FR: 'ITALIE - TOSCANE', RU: 'ИТАЛИЯ - ТОСКАНА', ZH: '意大利 - 托斯卡纳' },
+  'ITALIA - TOSCANA': { IT: 'ITALIA - TOSCANA', EN: 'ITALY - TUSCANY', TH: 'อิตาลี - แคว้นทัสคานี', DE: 'ITALIEN - TOSKANA', MM: 'အီတလီ - တိုစကာနီ', ES: 'ITALIA - TOSCANA', FR: 'ITALIE - TOSCANE', RU: 'ИТАЛИЯ - ТОСКАНА', ZH: '意大利 - 托斯卡纳' },
+  'ITALY - PIEDMONT': { IT: 'ITALIA - PIEMONTE', EN: 'ITALY - PIEDMONT', TH: 'อิตาลี - แคว้นปีเอมอนเต', DE: 'ITALIEN - PIEMONT', MM: 'အီတလီ - ပီးဒ်မောင့်', ES: 'ITALIA - PIAMONTE', FR: 'ITALIE - PIÉMONT', RU: 'ИТАЛИЯ - ПЬЕМОНТ', ZH: '意大利 - 皮埃蒙特' },
+  'ITALIA - PIEMONTE': { IT: 'ITALIA - PIEMONTE', EN: 'ITALY - PIEDMONT', TH: 'อิตาลี - แคว้นปีเอมอนเต', DE: 'ITALIEN - PIEMONT', MM: 'အီတလီ - ပီးဒ်မောင့်', ES: 'ITALIA - PIAMONTE', FR: 'ITALIE - PIÉMONT', RU: 'ИТАЛИЯ - ПЬЕМОНТ', ZH: '意大利 - 皮埃蒙特' },
+  'ITALY - ABRUZZO': { IT: 'ITALIA - ABRUZZO', EN: 'ITALY - ABRUZZO', TH: 'อิตาลี - แคว้นอาบรุซโซ', DE: 'ITALIEN - ABRUZZEN', MM: 'အီတလီ - အာဘရူဇို', ES: 'ITALIA - ABRUZZO', FR: 'ITALIE - ABBRUZZES', RU: 'ИТАЛИЯ - АБРУЦЦО', ZH: '意大利 - 阿布鲁佐' },
+  'ITALIA - ABRUZZO': { IT: 'ITALIA - ABRUZZO', EN: 'ITALY - ABRUZZO', TH: 'อิตาลี - แคว้นอาบรุซโซ', DE: 'ITALIEN - ABRUZZEN', MM: 'အီတလီ - အာဘရူဇို', ES: 'ITALIA - ABRUZZO', FR: 'ITALIE - ABBRUZZES', RU: 'ИТАЛИЯ - АБРУЦЦО', ZH: '意大利 - 阿布鲁佐' },
+  'ITALY - EMILIA-ROMAGNA': { IT: 'ITALIA - EMILIA-ROMAGNA', EN: 'ITALY - EMILIA-ROMAGNA', TH: 'อิตาลี - แคว้นเอมีเลีย-โรมัญญา', DE: 'ITALIEN - EMILIA-ROMAGNA', MM: 'အီတလီ - အမ်မီးလီယာ-ရိုမန်ညာ', ES: 'ITALIA - EMILIA-ROMAÑA', FR: 'ITALIE - ÉMILIE-ROMAGNE', RU: 'ИТАЛИЯ - ЭМИЛИЯ-РОМАНЬЯ', ZH: '意大利 - 艾米利亚-罗马涅' },
+  'ITALIA - EMILIA-ROMAGNA': { IT: 'ITALIA - EMILIA-ROMAGNA', EN: 'ITALY - EMILIA-ROMAGNA', TH: 'อิตาลี - แคว้นเอมีเลีย-โรมัญญา', DE: 'ITALIEN - EMILIA-ROMAGNA', MM: 'အီတလီ - အမ်မီးလီယာ-ရိုမန်ညာ', ES: 'ITALIA - EMILIA-ROMAÑA', FR: 'ITALIE - ÉMILIE-ROMAGNE', RU: 'ИТАЛИЯ - ЭМИЛИЯ-РОМАНЬЯ', ZH: '意大利 - 艾米利亚-罗马涅' },
+  'ITALY - TRENTINO': { IT: 'ITALIA - TRENTINO-ALTO ADIGE', EN: 'ITALY - TRENTINO-ALTO ADIGE', TH: 'อิตาลี - แคว้นเตรนตีโน-อัลโตอาดีเจ', DE: 'ITALIEN - TRENTINO-SÜDTIROL', MM: 'အီတလီ - ထရန်တီနို-အော်လ်တို အဒီဂျေး', ES: 'ITALIA - TRENTINO-ALTO ADIGIO', FR: 'ITALIE - TRENTIN-HAUT-ADIGE', RU: 'ИТАЛИЯ - ТРЕНТИНО-АЛЬТО-АДИДЖЕ', ZH: '意大利 - 特伦蒂诺-上阿迪杰' },
+  'FRANCE': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH', MM: 'ပြင်သစ်', ES: 'FRANCIA', FR: 'FRANCE', RU: 'ФРАНЦИЯ', ZH: '法国' },
+  'FRANCIA': { IT: 'FRANCIA', EN: 'FRANCE', TH: 'ฝรั่งเศส', DE: 'FRANKREICH', MM: 'ပြင်သစ်', ES: 'FRANCIA', FR: 'FRANCE', RU: 'ФРАНЦИЯ', ZH: '法国' },
+  'FRANCE - BORDEAUX': { IT: 'FRANCIA - BORDEAUX', EN: 'FRANCE - BORDEAUX', TH: 'ฝรั่งเศส - บอร์โด', DE: 'FRANKREICH - BORDEAUX', MM: 'ပြင်သစ် - ဘော်ဒိုး', ES: 'FRANCIA - BURDEOS', FR: 'FRANCE - BORDEAUX', RU: 'ФРАНЦИЯ - БОРДО', ZH: '法国 - 波尔多' },
+  'FRANCE - RHÔNE VALLEY': { IT: 'FRANCIA - VALLE DEL RODANO', EN: 'FRANCE - RHÔNE VALLEY', TH: 'ฝรั่งเศส - หุบเขาโรน', DE: 'FRANKREICH - RHÔNETAL', MM: 'ပြင်သစ် - ရုန်းတောင်ကြား', ES: 'FRANCIA - VALLE DEL RÓDANO', FR: 'FRANCE - VALLÉE DU RHÔNE', RU: 'ФРАНЦИЯ - ДОЛИНА РОНЫ', ZH: '法国 - 罗纳河谷' },
+  'FRANCE - RHONE VALLEY': { IT: 'FRANCIA - VALLE DEL RODANO', EN: 'FRANCE - RHÔNE VALLEY', TH: 'ฝรั่งเศส - หุบเขาโรน', DE: 'FRANKREICH - RHÔNETAL', MM: 'ပြင်သစ် - ရုန်းတောင်ကြား', ES: 'FRANCIA - VALLE DEL RÓDANO', FR: 'FRANCE - VALLÉE DU RHÔNE', RU: 'ФРАНЦИЯ - ДОЛИНА РОНЫ', ZH: '法国 - 罗纳河谷' },
+  'CHILE - CENTRAL VALLEY': { IT: 'CILE - CENTRAL VALLEY', EN: 'CHILE - CENTRAL VALLEY', TH: 'ชิลี - เซ็นทรัลแวลลีย์', DE: 'CHILE - CENTRAL VALLEY', MM: 'ချီလီ - အလယ်ပိုင်းတောင်ကြား', ES: 'CHILE - VALLE CENTRAL', FR: 'CHILI - VALLÉE CENTRALE', RU: 'ЧИЛИ - ЦЕНТРАЛЬНАЯ ДОЛИНА', ZH: '智利 - 中央山谷' },
+  'AUSTRALIA - SOUTH AUSTRALIA': { IT: 'AUSTRALIA - AUSTRALIA MERIDIONALE', EN: 'AUSTRALIA - SOUTH AUSTRALIA', TH: 'ออสเตรเลีย - เซาท์ออสเตรเลีย', DE: 'AUSTRALIEN - SÜDAUSTRALIEN', MM: 'သြစတြေးလျ - တောင်ပိုင်းသြစတြေးလျ', ES: 'AUSTRALIA - AUSTRALIA MERIDIONAL', FR: 'AUSTRALIE - AUSTRALIE-MÉRIDIONALE', RU: 'АВСТРАЛИЯ - ЮЖНАЯ АВСТРАЛИЯ', ZH: '澳大利亚 - 南澳大利亚' },
+};
+
+export const translateWineSubtitleText = (subStr: string, lang: string = 'IT'): string => {
+  if (!subStr || typeof subStr !== 'string') return '';
+  const lines = subStr.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length === 0) return subStr;
+
+  const translatedLines = lines.map(line => {
+    const upper = line.toUpperCase();
+    if (WINE_SUBTITLE_DICTIONARY[upper] && WINE_SUBTITLE_DICTIONARY[upper][lang]) {
+      return WINE_SUBTITLE_DICTIONARY[upper][lang];
+    }
+    // Check partial matches in dictionary
+    for (const [key, dict] of Object.entries(WINE_SUBTITLE_DICTIONARY)) {
+      if (upper === key && dict[lang]) {
+        return dict[lang];
+      }
+    }
+    return line;
+  });
+
+  return translatedLines.join('\n');
+};
+
+export const formatSubtitle = (subtitleOrItem: any, lang?: string) => {
+  if (!subtitleOrItem) return "";
+
+  const curLang = lang || 'IT';
+  let subStr = '';
+
+  if (typeof subtitleOrItem === 'string') {
+    subStr = translateWineSubtitleText(subtitleOrItem, curLang);
+  } else if (typeof subtitleOrItem === 'object') {
+    const itm = subtitleOrItem;
+    const master = itm.id ? MASTER_WINE_MAP.get(itm.id) : null;
+
+    if (curLang === 'ZH') subStr = itm.subtitleZh || itm.categorySubtitleZh || master?.subtitleZh || master?.categorySubtitleZh || '';
+    else if (curLang === 'RU') subStr = itm.subtitleRu || itm.categorySubtitleRu || master?.subtitleRu || master?.categorySubtitleRu || '';
+    else if (curLang === 'FR') subStr = itm.subtitleFr || itm.categorySubtitleFr || master?.subtitleFr || master?.categorySubtitleFr || '';
+    else if (curLang === 'ES') subStr = itm.subtitleEs || itm.categorySubtitleEs || master?.subtitleEs || master?.categorySubtitleEs || '';
+    else if (curLang === 'MM') subStr = itm.subtitleMm || itm.categorySubtitleMm || master?.subtitleMm || master?.categorySubtitleMm || '';
+    else if (curLang === 'TH') subStr = itm.subtitleTh || itm.categorySubtitleTh || master?.subtitleTh || master?.categorySubtitleTh || '';
+    else if (curLang === 'DE') subStr = itm.subtitleDe || itm.categorySubtitleDe || master?.subtitleDe || master?.categorySubtitleDe || '';
+    else if (curLang === 'IT') subStr = itm.subtitleIt || itm.categorySubtitleIt || master?.subtitleIt || master?.categorySubtitleIt || '';
+    else subStr = itm.subtitleEn || itm.categorySubtitleEn || master?.subtitleEn || itm.categorySubtitle || itm.subtitle || '';
+
+    if (!subStr) {
+      const fallback = itm.categorySubtitle || itm.subtitle || master?.categorySubtitle || '';
+      subStr = translateWineSubtitleText(fallback, curLang);
+    }
+  }
+
+  if (!subStr || typeof subStr !== 'string') return "";
+
+  const clean = subStr.includes('\n') ? subStr : subStr.replace(' - ', '\n').replace(' — ', '\n');
   const lines = clean.split('\n');
   return (
     <>
@@ -1029,31 +1385,52 @@ export const renderFormattedPrice = (
 
 export const getWineTranslatedTitle = (wine: WineCardData | any | null | undefined, lang: string = 'IT'): string => {
   if (!wine) return '';
-  if (lang === 'MM' && (wine.titleMm || wine.nameMm)) return wine.titleMm || wine.nameMm;
-  if (lang === 'TH' && (wine.titleTh || wine.nameTh)) return wine.titleTh || wine.nameTh;
-  if (lang === 'DE' && (wine.titleDe || wine.nameDe)) return wine.titleDe || wine.nameDe;
-  if (lang === 'EN' && (wine.titleEn || wine.nameEn)) return wine.titleEn || wine.nameEn;
-  if (lang === 'IT' && (wine.titleIt || wine.nameIt)) return wine.titleIt || wine.nameIt;
+  const master = wine.id ? MASTER_WINE_MAP.get(wine.id) : null;
+  if (lang === 'ZH') return wine.titleZh || wine.nameZh || master?.titleZh || wine.title || wine.name || '';
+  if (lang === 'RU') return wine.titleRu || wine.nameRu || master?.titleRu || wine.title || wine.name || '';
+  if (lang === 'FR') return wine.titleFr || wine.nameFr || master?.titleFr || wine.title || wine.name || '';
+  if (lang === 'ES') return wine.titleEs || wine.nameEs || master?.titleEs || wine.title || wine.name || '';
+  if (lang === 'MM') return wine.titleMm || wine.nameMm || master?.titleMm || wine.title || wine.name || '';
+  if (lang === 'TH') return wine.titleTh || wine.nameTh || master?.titleTh || wine.title || wine.name || '';
+  if (lang === 'DE') return wine.titleDe || wine.nameDe || master?.titleDe || wine.title || wine.name || '';
+  if (lang === 'EN') return wine.titleEn || wine.nameEn || master?.titleEn || wine.title || wine.name || '';
+  if (lang === 'IT') return wine.titleIt || wine.nameIt || master?.titleIt || wine.title || wine.name || '';
   return wine.title || wine.name || '';
 };
 
 export const getWineTranslatedSubtitle = (wine: WineCardData | any | null | undefined, lang: string = 'IT'): string => {
   if (!wine) return '';
-  if (lang === 'MM' && (wine.subtitleMm || wine.categorySubtitleMm)) return wine.subtitleMm || wine.categorySubtitleMm;
-  if (lang === 'TH' && (wine.subtitleTh || wine.categorySubtitleTh)) return wine.subtitleTh || wine.categorySubtitleTh;
-  if (lang === 'DE' && (wine.subtitleDe || wine.categorySubtitleDe)) return wine.subtitleDe || wine.categorySubtitleDe;
-  if (lang === 'EN' && (wine.subtitleEn || wine.categorySubtitleEn)) return wine.subtitleEn || wine.categorySubtitleEn;
-  if (lang === 'IT' && (wine.subtitleIt || wine.categorySubtitleIt)) return wine.subtitleIt || wine.categorySubtitleIt;
-  return wine.categorySubtitle || '';
+  const master = wine.id ? MASTER_WINE_MAP.get(wine.id) : null;
+  let res = '';
+  if (lang === 'ZH') res = wine.subtitleZh || wine.categorySubtitleZh || master?.subtitleZh || master?.categorySubtitleZh || '';
+  else if (lang === 'RU') res = wine.subtitleRu || wine.categorySubtitleRu || master?.subtitleRu || master?.categorySubtitleRu || '';
+  else if (lang === 'FR') res = wine.subtitleFr || wine.categorySubtitleFr || master?.subtitleFr || master?.categorySubtitleFr || '';
+  else if (lang === 'ES') res = wine.subtitleEs || wine.categorySubtitleEs || master?.subtitleEs || master?.categorySubtitleEs || '';
+  else if (lang === 'MM') res = wine.subtitleMm || wine.categorySubtitleMm || master?.subtitleMm || master?.categorySubtitleMm || '';
+  else if (lang === 'TH') res = wine.subtitleTh || wine.categorySubtitleTh || master?.subtitleTh || master?.categorySubtitleTh || '';
+  else if (lang === 'DE') res = wine.subtitleDe || wine.categorySubtitleDe || master?.subtitleDe || master?.categorySubtitleDe || '';
+  else if (lang === 'EN') res = wine.subtitleEn || wine.categorySubtitleEn || master?.subtitleEn || master?.categorySubtitleEn || '';
+  else if (lang === 'IT') res = wine.subtitleIt || wine.categorySubtitleIt || master?.subtitleIt || master?.categorySubtitleIt || '';
+  
+  if (!res) {
+    const rawSub = wine.categorySubtitle || wine.subtitle || master?.categorySubtitle || '';
+    res = translateWineSubtitleText(rawSub, lang);
+  }
+  return res || wine.categorySubtitle || '';
 };
 
 export const getWineTranslatedDesc = (wine: WineCardData | any | null | undefined, lang: string = 'IT'): string => {
   if (!wine) return '';
-  if (lang === 'MM' && (wine.descriptionMm || wine.description_mm)) return wine.descriptionMm || wine.description_mm;
-  if (lang === 'TH' && (wine.descriptionTh || wine.description_th)) return wine.descriptionTh || wine.description_th;
-  if (lang === 'DE' && (wine.descriptionDe || wine.description_de)) return wine.descriptionDe || wine.description_de;
-  if (lang === 'EN' && (wine.descriptionEn || wine.description)) return wine.descriptionEn || wine.description;
-  if (lang === 'IT' && (wine.descriptionIt || wine.description_it)) return wine.descriptionIt || wine.description_it;
+  const master = wine.id ? MASTER_WINE_MAP.get(wine.id) : null;
+  if (lang === 'ZH') return wine.descriptionZh || wine.description_zh || master?.descriptionZh || wine.description || '';
+  if (lang === 'RU') return wine.descriptionRu || wine.description_ru || master?.descriptionRu || wine.description || '';
+  if (lang === 'FR') return wine.descriptionFr || wine.description_fr || master?.descriptionFr || wine.description || '';
+  if (lang === 'ES') return wine.descriptionEs || wine.description_es || master?.descriptionEs || wine.description || '';
+  if (lang === 'MM') return wine.descriptionMm || wine.description_mm || master?.descriptionMm || wine.description || '';
+  if (lang === 'TH') return wine.descriptionTh || wine.description_th || master?.descriptionTh || wine.description || '';
+  if (lang === 'DE') return wine.descriptionDe || wine.description_de || master?.descriptionDe || wine.description || '';
+  if (lang === 'EN') return wine.descriptionEn || master?.descriptionEn || wine.description || '';
+  if (lang === 'IT') return wine.descriptionIt || wine.description_it || master?.descriptionIt || wine.description || '';
   return wine.description || '';
 };
 

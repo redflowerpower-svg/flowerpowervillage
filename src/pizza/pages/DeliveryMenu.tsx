@@ -1,3 +1,635 @@
+const targetedTranslations: Record<string, any> = {
+  "EN": {
+    "wineBannerBadge": "🍷 DINE-IN WINE PRIVILEGE • 10% OFF",
+    "wineBannerTitle": "Fine Wine Selection • Book online to receive an exclusive 10% table discount",
+    "wineBannerDesc": "In compliance with Thai law, online delivery of alcohol is not permitted. We invite you to enjoy our cellar selection at our restaurant in Ranong: reserve a table from our website to get a 10% discount on all wine bottles at your table!",
+    "wineBannerButton": "Book Table (-10% Wine)",
+    "checkoutFirstOrderDiscount": "10% 1st Order Welcome Discount",
+    "takeawayBoxExplanation": "Your pizzas will be baked fresh and packed in thermal boxes ready for your arrival at our restaurant counter.",
+    "kshopTitle": "How to pay with K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Save the QR code or scan it directly with your Banking App.",
+    "kshopStep2": "Manually enter the exact order total: {amount} ฿",
+    "kshopStep3": "Confirm the transfer and complete the payment.",
+    "kshopStep4": "Upload your payment receipt screenshot (slip) below.",
+    "omiseGenerating": "Generating Omise QR...",
+    "omiseNoUploadNeeded": "✅ No upload needed — payment confirmed automatically.",
+    "omiseFailedToLoad": "Failed to load Omise QR. Please retry.",
+    "retryQrBtn": "Retry QR",
+    "saveQrBtn": "Save QR",
+    "extras": {
+      "spicy-no": "Not Spicy",
+      "spicy-light": "Mildly Spicy",
+      "spicy-medium": "Medium Spicy",
+      "spicy-very": "Very Spicy",
+      "sugar-no": "No Sugar (0%)",
+      "sugar-less": "Less Sugar (50%)",
+      "sugar-regular": "Regular Sweet (100%)",
+      "sauce-none": "No Sauces",
+      "sauce-ketchup": "Ketchup",
+      "sauce-mayo": "Mayonnaise",
+      "sauce-chili": "Chili Sauce",
+      "fruit-watermelon": "Watermelon",
+      "fruit-pineapple": "Pineapple",
+      "fruit-banana": "Banana",
+      "fruit-papaya": "Papaya",
+      "fruit-lime": "Fresh Lime",
+      "extra-mozzarella": "Extra Mozzarella",
+      "extra-mushrooms": "Fresh Mushrooms",
+      "extra-ham": "Cooked Ham",
+      "extra-bacon": "Crispy Bacon",
+      "extra-salami": "Spicy Salami",
+      "extra-olives": "Black Olives",
+      "extra-anchovies": "Mediterranean Anchovies",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Gorgonzola Cheese",
+      "extra-truffle": "Truffle Oil",
+      "extra-egg": "Egg",
+      "extra-onion": "Red Onion",
+      "extra-fries": "French Fries (Topping)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Can)",
+      "coke-zero-can": "Coke Zero (Can)",
+      "sprite-can": "Sprite (Can)",
+      "soda-water-bottle": "Soda Water (Bottle)",
+      "mineral-water-bottle": "Mineral Water (Bottle)",
+      "espresso": "Italian Espresso",
+      "cappuccino": "Creamy Cappuccino",
+      "americano": "Caffè Americano",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Artisan Tiramisù",
+      "cake-of-the-day": "Cake of the Day",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Nutella Crepes",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Vegan)",
+      "carbonara": "Spaghetti Carbonara",
+      "bolognese": "Spaghetti Bolognese",
+      "french-fries": "French Fries",
+      "pizza-sandwich-parma": "Focaccia Parma Ham"
+    }
+  },
+  "IT": {
+    "wineBannerBadge": "🍷 PRIVILEGIO VINO IN LOCO • 10% DI SCONTO",
+    "wineBannerTitle": "Selezione di Vini Pregiati • Prenota online per ricevere uno sconto esclusivo del 10% al tavolo",
+    "wineBannerDesc": "In conformità con la legge thailandese, la consegna online di alcolici non è consentita. Ti invitiamo a gustare la nostra selezione di cantina presso il nostro ristorante a Ranong: prenota un tavolo dal nostro sito web per ottenere uno sconto del 10% su tutte le bottiglie di vino al tuo tavolo!",
+    "wineBannerButton": "Prenota Tavolo (-10% Vino)",
+    "checkoutFirstOrderDiscount": "10% di sconto di benvenuto sul primo ordine",
+    "takeawayBoxExplanation": "Le tue pizze saranno cotte fresche e confezionate in scatole termiche pronte per il tuo arrivo al bancone del nostro ristorante.",
+    "kshopTitle": "Come pagare con K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Salva il codice QR o scansionarlo direttamente con la tua App Bancaria.",
+    "kshopStep2": "Inserisci manualmente l'importo esatto dell'ordine: {amount} ฿",
+    "kshopStep3": "Conferma il trasferimento e completa il pagamento.",
+    "kshopStep4": "Carica lo screenshot della ricevuta di pagamento (slip) qui sotto.",
+    "omiseGenerating": "Generazione del QR Omise in corso...",
+    "omiseNoUploadNeeded": "✅ Nessun caricamento necessario — pagamento confermato automaticamente.",
+    "omiseFailedToLoad": "Impossibile caricare il QR Omise. Riprova.",
+    "retryQrBtn": "Riprova QR",
+    "saveQrBtn": "Salva QR",
+    "extras": {
+      "spicy-no": "Non Piccante",
+      "spicy-light": "Leggermente Piccante",
+      "spicy-medium": "Mediamente Piccante",
+      "spicy-very": "Molto Piccante",
+      "sugar-no": "Senza Zucchero (0%)",
+      "sugar-less": "Meno Zucchero (50%)",
+      "sugar-regular": "Dolce Normale (100%)",
+      "sauce-none": "Nessuna Salsa",
+      "sauce-ketchup": "Ketchup",
+      "sauce-mayo": "Maionese",
+      "sauce-chili": "Salsa di Peperoncino",
+      "fruit-watermelon": "Anguria",
+      "fruit-pineapple": "Ananas",
+      "fruit-banana": "Banana",
+      "fruit-papaya": "Papaya",
+      "fruit-lime": "Lime Fresco",
+      "extra-mozzarella": "Mozzarella Extra",
+      "extra-mushrooms": "Funghi Freschi",
+      "extra-ham": "Prosciutto Cotto",
+      "extra-bacon": "Bacon Croccante",
+      "extra-salami": "Salame Piccante",
+      "extra-olives": "Olive Nere",
+      "extra-anchovies": "Acciughe del Mediterraneo",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Gorgonzola",
+      "extra-truffle": "Olio al Tartufo",
+      "extra-egg": "Uovo",
+      "extra-onion": "Cipolla Rossa",
+      "extra-fries": "Patatine Fritte (Topping)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Lattina)",
+      "coke-zero-can": "Coca-Cola Zero (Lattina)",
+      "sprite-can": "Sprite (Lattina)",
+      "soda-water-bottle": "Acqua Frizzante (Bottiglia)",
+      "mineral-water-bottle": "Acqua Minerale (Bottiglia)",
+      "espresso": "Espresso Italiano",
+      "cappuccino": "Cappuccino Cremoso",
+      "americano": "Caffè Americano",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Tiramisù Artigianale",
+      "cake-of-the-day": "Torta del Giorno",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Crepes alla Nutella",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Vegana)",
+      "carbonara": "Spaghetti alla Carbonara",
+      "bolognese": "Spaghetti alla Bolognese",
+      "french-fries": "Patatine Fritte",
+      "pizza-sandwich-parma": "Focaccia con Prosciutto di Parma"
+    }
+  },
+  "TH": {
+    "wineBannerBadge": "🍷 สิทธิพิเศษไวน์สำหรับรับประทานที่ร้าน • ลด 10%",
+    "wineBannerTitle": "การคัดสรรไวน์ชั้นเลิศ • จองออนไลน์รับส่วนลดพิเศษ 10% สำหรับโต๊ะ",
+    "wineBannerDesc": "ตามกฎหมายไทย ไม่อนุญาตให้จัดส่งเครื่องดื่มแอลกอฮอล์ออนไลน์ เราขอเชิญคุณมาลิ้มลองไวน์จากห้องเก็บของเราที่ร้านอาหารของเราในระนอง: จองโต๊ะจากเว็บไซต์ของเราเพื่อรับส่วนลด 10% สำหรับไวน์ทุกขวดที่โต๊ะของคุณ!",
+    "wineBannerButton": "จองโต๊ะ (ไวน์ลด 10%)",
+    "checkoutFirstOrderDiscount": "ส่วนลดต้อนรับ 10% สำหรับคำสั่งซื้อแรก",
+    "takeawayBoxExplanation": "พิซซ่าของคุณจะถูกอบสดใหม่และบรรจุในกล่องเก็บความร้อนพร้อมสำหรับการมาถึงของคุณที่เคาน์เตอร์ร้านอาหารของเรา",
+    "kshopTitle": "วิธีชำระเงินด้วย K-Shop (ธนาคารกสิกรไทย):",
+    "kshopStep1": "บันทึก QR code หรือสแกนโดยตรงด้วยแอปธนาคารของคุณ",
+    "kshopStep2": "ป้อนยอดรวมคำสั่งซื้อที่แน่นอนด้วยตนเอง: {amount} ฿",
+    "kshopStep3": "ยืนยันการโอนและชำระเงินให้เสร็จสิ้น",
+    "kshopStep4": "อัปโหลดภาพหน้าจอใบเสร็จการชำระเงิน (สลิป) ด้านล่าง",
+    "omiseGenerating": "กำลังสร้าง Omise QR...",
+    "omiseNoUploadNeeded": "✅ ไม่ต้องอัปโหลด — การชำระเงินได้รับการยืนยันโดยอัตโนมัติ",
+    "omiseFailedToLoad": "ไม่สามารถโหลด Omise QR ได้ กรุณาลองใหม่",
+    "retryQrBtn": "ลอง QR อีกครั้ง",
+    "saveQrBtn": "บันทึก QR",
+    "extras": {
+      "spicy-no": "ไม่เผ็ด",
+      "spicy-light": "เผ็ดน้อย",
+      "spicy-medium": "เผ็ดปานกลาง",
+      "spicy-very": "เผ็ดมาก",
+      "sugar-no": "ไม่ใส่น้ำตาล (0%)",
+      "sugar-less": "น้ำตาลน้อย (50%)",
+      "sugar-regular": "หวานปกติ (100%)",
+      "sauce-none": "ไม่ใส่ซอส",
+      "sauce-ketchup": "ซอสมะเขือเทศ",
+      "sauce-mayo": "มายองเนส",
+      "sauce-chili": "ซอสพริก",
+      "fruit-watermelon": "แตงโม",
+      "fruit-pineapple": "สับปะรด",
+      "fruit-banana": "กล้วย",
+      "fruit-papaya": "มะละกอ",
+      "fruit-lime": "มะนาวสด",
+      "extra-mozzarella": "มอสซาเรลลาเพิ่ม",
+      "extra-mushrooms": "เห็ดสด",
+      "extra-ham": "แฮมสุก",
+      "extra-bacon": "เบคอนกรอบ",
+      "extra-salami": "ซาลามี่เผ็ด",
+      "extra-olives": "มะกอกดำ",
+      "extra-anchovies": "แอนโชวี่เมดิเตอร์เรเนียน",
+      "extra-parmigiano": "พาร์มิจาโน เรจจาโน",
+      "extra-gorgonzola": "กอร์กอนโซลา",
+      "extra-truffle": "น้ำมันทรัฟเฟิล",
+      "extra-egg": "ไข่",
+      "extra-onion": "หอมแดง",
+      "extra-fries": "เฟรนช์ฟรายส์ (ท็อปปิ้ง)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "โคคา-โคลา (กระป๋อง)",
+      "coke-zero-can": "โค้กซีโร่ (กระป๋อง)",
+      "sprite-can": "สไปรท์ (กระป๋อง)",
+      "soda-water-bottle": "โซดา (ขวด)",
+      "mineral-water-bottle": "น้ำแร่ (ขวด)",
+      "espresso": "เอสเปรสโซ่ อิตาเลียน",
+      "cappuccino": "คาปูชิโน่ครีมมี่",
+      "americano": "คาเฟ่ อเมริกาโน่",
+      "latte-macchiato": "ลาเต้ มัคคิอาโต้",
+      "tiramisu": "ทิรามิสุโฮมเมด",
+      "cake-of-the-day": "เค้กประจำวัน",
+      "affogato": "อัฟโฟกาโต้อัลคาเฟ่",
+      "crepes": "เครปนูเทลล่า",
+      "pizza-margherita": "พิซซ่ามาร์เกอริต้า",
+      "pizza-marinara": "พิซซ่ามารินาร่า (วีแกน)",
+      "carbonara": "สปาเก็ตตี้คาร์โบนาร่า",
+      "bolognese": "สปาเก็ตตี้โบโลเนส",
+      "french-fries": "เฟรนช์ฟรายส์",
+      "pizza-sandwich-parma": "โฟคัชชา พาร์ม่าแฮม"
+    }
+  },
+  "MM": {
+    "wineBannerBadge": "🍷 စားသောက်ဆိုင်တွင်သောက်သုံးရန် ဝိုင်အထူးအခွင့်အရေး • ၁၀% လျှော့စျေး",
+    "wineBannerTitle": "အရည်အသွေးမြင့် ဝိုင်ရွေးချယ်မှု • အွန်လိုင်းမှ ကြိုတင်စာရင်းသွင်းပါ၊ သီးသန့်စားပွဲ ၁၀% လျှော့စျေး ရယူပါ",
+    "wineBannerDesc": "ထိုင်းဥပဒေနှင့်အညီ၊ အရက်ကို အွန်လိုင်းမှ ပို့ဆောင်ခွင့်မပြုပါ။ ကျွန်ုပ်တို့၏ ရနောင်မြို့ရှိ စားသောက်ဆိုင်တွင် ကျွန်ုပ်တို့၏ ဝိုင်ခန်းရွေးချယ်မှုကို ခံစားရန် ဖိတ်ခေါ်အပ်ပါသည်။ ကျွန်ုပ်တို့၏ ဝဘ်ဆိုက်မှ စားပွဲကြိုတင်စာရင်းသွင်းပါ၊ သင့်စားပွဲရှိ ဝိုင်ပုလင်းအားလုံးအတွက် ၁၀% လျှော့စျေး ရယူပါ။",
+    "wineBannerButton": "စားပွဲကြိုတင်စာရင်းသွင်းပါ (ဝိုင် ၁၀% လျှော့)",
+    "checkoutFirstOrderDiscount": "ပထမဆုံးမှာယူမှုအတွက် ၁၀% ကြိုဆိုလျှော့စျေး",
+    "takeawayBoxExplanation": "သင့်ပီဇာများကို လတ်ဆတ်စွာ ဖုတ်ပြီး ကျွန်ုပ်တို့၏ စားသောက်ဆိုင် ကောင်တာသို့ သင်ရောက်ရှိချိန်တွင် အဆင်သင့်ဖြစ်စေရန် အပူထိန်းသေတ္တာများဖြင့် ထုပ်ပိုးပါမည်။",
+    "kshopTitle": "K-Shop (ကဆီကွန်ဘဏ်) ဖြင့် ငွေပေးချေနည်း:",
+    "kshopStep1": "QR ကုဒ်ကို သိမ်းဆည်းပါ သို့မဟုတ် သင့်ဘဏ်အက်ပ်ဖြင့် တိုက်ရိုက်စကင်ဖတ်ပါ။",
+    "kshopStep2": "မှာယူမှုစုစုပေါင်း အတိအကျကို ကိုယ်တိုင်ထည့်ပါ: {amount} ฿",
+    "kshopStep3": "ငွေလွှဲမှုကို အတည်ပြုပြီး ငွေပေးချေမှု ပြီးမြောက်ပါ။",
+    "kshopStep4": "သင့်ငွေပေးချေမှု ပြေစာဓာတ်ပုံ (slip) ကို အောက်တွင် အပ်လုဒ်တင်ပါ။",
+    "omiseGenerating": "Omise QR ဖန်တီးနေသည်...",
+    "omiseNoUploadNeeded": "✅ အပ်လုဒ်တင်ရန် မလိုအပ်ပါ — ငွေပေးချေမှုကို အလိုအလျောက် အတည်ပြုပြီးပါပြီ။",
+    "omiseFailedToLoad": "Omise QR ကို ဖွင့်၍မရပါ။ ထပ်မံကြိုးစားပါ။",
+    "retryQrBtn": "QR ထပ်မံကြိုးစားပါ",
+    "saveQrBtn": "QR သိမ်းဆည်းပါ",
+    "extras": {
+      "spicy-no": "အစပ်မပါ",
+      "spicy-light": "အစပ်နည်းနည်း",
+      "spicy-medium": "အစပ်အလယ်အလတ်",
+      "spicy-very": "အစပ်အလွန်များ",
+      "sugar-no": "သကြားမပါ (0%)",
+      "sugar-less": "သကြားနည်း (50%)",
+      "sugar-regular": "ပုံမှန်ချိုသည် (100%)",
+      "sauce-none": "ဆော့စ်မပါ",
+      "sauce-ketchup": "ခရမ်းချဉ်သီးဆော့စ်",
+      "sauce-mayo": "မေယိုနိစ်",
+      "sauce-chili": "ငရုတ်သီးဆော့စ်",
+      "fruit-watermelon": "ဖရဲသီး",
+      "fruit-pineapple": "နာနတ်သီး",
+      "fruit-banana": "ငှက်ပျောသီး",
+      "fruit-papaya": "သင်္ဘောသီး",
+      "fruit-lime": "သံပရာသီးလတ်ဆတ်",
+      "extra-mozzarella": "မိုဇာရဲလာ အပို",
+      "extra-mushrooms": "မှိုလတ်ဆတ်",
+      "extra-ham": "ချက်ပြီးဟမ်",
+      "extra-bacon": "ကြွပ်သောဘေကွန်",
+      "extra-salami": "အစပ်ဆာလာမီ",
+      "extra-olives": "အနက်ရောင်သံလွင်",
+      "extra-anchovies": "မြေထဲပင်လယ်ငါးသေးငယ်",
+      "extra-parmigiano": "ပါမိဂျာနိုရက်ဂျာနို",
+      "extra-gorgonzola": "ဂေါ်ဂွန်ဇိုလာချိစ်",
+      "extra-truffle": "ထရပ်ဖယ်ဆီ",
+      "extra-egg": "ကြက်ဥ",
+      "extra-onion": "ကြက်သွန်နီ",
+      "extra-fries": "အာလူးကြော် (အပေါ်တင်ရန်)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "ကိုကာကိုလာ (ဗူး)",
+      "coke-zero-can": "ကိုက်ဇီးရို (ဗူး)",
+      "sprite-can": "စပရိုက် (ဗူး)",
+      "soda-water-bottle": "ဆိုဒါရေ (ပုလင်း)",
+      "mineral-water-bottle": "ဓာတ်သတ္တုရေ (ပုလင်း)",
+      "espresso": "အီတလီအက်စ်ပရက်ဆို",
+      "cappuccino": "ခရင်မ်ကပူချီနို",
+      "americano": "ကာဖီအမေရီကာနို",
+      "latte-macchiato": "လတ်တေမက်ချာတို",
+      "tiramisu": "အိမ်လုပ်တီရာမီဆု",
+      "cake-of-the-day": "ယနေ့အထူးကိတ်",
+      "affogato": "အာဖိုဂါတိုကာဖီ",
+      "crepes": "နူတဲလာခရိ(ပ်)",
+      "pizza-margherita": "ပီဇာမာဂါရီတာ",
+      "pizza-marinara": "ပီဇာမာရီနာရာ (သက်သတ်လွတ်)",
+      "carbonara": "စပါဂတ္တီကာဘိုနာရာ",
+      "bolognese": "စပါဂတ္တီဘိုလိုနေ့စ်",
+      "french-fries": "အာလူးကြော်",
+      "pizza-sandwich-parma": "ဖိုကာချာပါမာဟမ်"
+    }
+  },
+  "DE": {
+    "wineBannerBadge": "🍷 WEINPRIVILEG VOR ORT • 10% RABATT",
+    "wineBannerTitle": "Erlesene Weinauswahl • Online buchen und exklusiven 10% Tischrabatt erhalten",
+    "wineBannerDesc": "Gemäß thailändischem Recht ist die Online-Lieferung von Alkohol nicht gestattet. Wir laden Sie ein, unsere Kellerauswahl in unserem Restaurant in Ranong zu genießen: Reservieren Sie einen Tisch über unsere Website und erhalten Sie 10% Rabatt auf alle Weinflaschen an Ihrem Tisch!",
+    "wineBannerButton": "Tisch buchen (-10% Wein)",
+    "checkoutFirstOrderDiscount": "10% Willkommensrabatt auf die 1. Bestellung",
+    "takeawayBoxExplanation": "Ihre Pizzen werden frisch gebacken und in Thermoboxen verpackt, bereit für Ihre Ankunft an unserer Restaurant-Theke.",
+    "kshopTitle": "So zahlen Sie mit K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Speichern Sie den QR-Code oder scannen Sie ihn direkt mit Ihrer Banking-App.",
+    "kshopStep2": "Geben Sie den genauen Bestellbetrag manuell ein: {amount} ฿",
+    "kshopStep3": "Bestätigen Sie die Überweisung und schließen Sie die Zahlung ab.",
+    "kshopStep4": "Laden Sie Ihren Zahlungsbeleg-Screenshot (Slip) unten hoch.",
+    "omiseGenerating": "Omise QR wird generiert...",
+    "omiseNoUploadNeeded": "✅ Kein Upload erforderlich — Zahlung automatisch bestätigt.",
+    "omiseFailedToLoad": "Omise QR konnte nicht geladen werden. Bitte erneut versuchen.",
+    "retryQrBtn": "QR erneut versuchen",
+    "saveQrBtn": "QR speichern",
+    "extras": {
+      "spicy-no": "Nicht scharf",
+      "spicy-light": "Leicht scharf",
+      "spicy-medium": "Mittelscharf",
+      "spicy-very": "Sehr scharf",
+      "sugar-no": "Ohne Zucker (0%)",
+      "sugar-less": "Weniger Zucker (50%)",
+      "sugar-regular": "Normal süß (100%)",
+      "sauce-none": "Keine Soßen",
+      "sauce-ketchup": "Ketchup",
+      "sauce-mayo": "Mayonnaise",
+      "sauce-chili": "Chilisauce",
+      "fruit-watermelon": "Wassermelone",
+      "fruit-pineapple": "Ananas",
+      "fruit-banana": "Banane",
+      "fruit-papaya": "Papaya",
+      "fruit-lime": "Frische Limette",
+      "extra-mozzarella": "Extra Mozzarella",
+      "extra-mushrooms": "Frische Pilze",
+      "extra-ham": "Gekochter Schinken",
+      "extra-bacon": "Knuspriger Speck",
+      "extra-salami": "Scharfe Salami",
+      "extra-olives": "Schwarze Oliven",
+      "extra-anchovies": "Mediterrane Sardellen",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Gorgonzola",
+      "extra-truffle": "Trüffelöl",
+      "extra-egg": "Ei",
+      "extra-onion": "Rote Zwiebel",
+      "extra-fries": "Pommes frites (Topping)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Dose)",
+      "coke-zero-can": "Coke Zero (Dose)",
+      "sprite-can": "Sprite (Dose)",
+      "soda-water-bottle": "Sodawasser (Flasche)",
+      "mineral-water-bottle": "Mineralwasser (Flasche)",
+      "espresso": "Italienischer Espresso",
+      "cappuccino": "Cremiger Cappuccino",
+      "americano": "Caffè Americano",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Handwerkliches Tiramisù",
+      "cake-of-the-day": "Kuchen des Tages",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Nutella-Crêpes",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Vegan)",
+      "carbonara": "Spaghetti Carbonara",
+      "bolognese": "Spaghetti Bolognese",
+      "french-fries": "Pommes frites",
+      "pizza-sandwich-parma": "Focaccia mit Parmaschinken"
+    }
+  },
+  "ES": {
+    "wineBannerBadge": "🍷 PRIVILEGIO DE VINO EN LOCAL • 10% DE DESCUENTO",
+    "wineBannerTitle": "Selección de Vinos Finos • Reserve en línea para recibir un descuento exclusivo del 10% en mesa",
+    "wineBannerDesc": "De acuerdo con la ley tailandesa, no se permite la entrega de alcohol en línea. Le invitamos a disfrutar de nuestra selección de bodega en nuestro restaurante en Ranong: ¡reserve una mesa desde nuestro sitio web para obtener un 10% de descuento en todas las botellas de vino en su mesa!",
+    "wineBannerButton": "Reservar Mesa (-10% Vino)",
+    "checkoutFirstOrderDiscount": "10% de Descuento de Bienvenida en el 1er Pedido",
+    "takeawayBoxExplanation": "Sus pizzas se hornearán frescas y se empaquetarán en cajas térmicas listas para su llegada al mostrador de nuestro restaurante.",
+    "kshopTitle": "Cómo pagar con K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Guarde el código QR o escanéelo directamente con su aplicación bancaria.",
+    "kshopStep2": "Ingrese manualmente el total exacto del pedido: {amount} ฿",
+    "kshopStep3": "Confirme la transferencia y complete el pago.",
+    "kshopStep4": "Suba la captura de pantalla de su recibo de pago (comprobante) a continuación.",
+    "omiseGenerating": "Generando QR de Omise...",
+    "omiseNoUploadNeeded": "✅ No se necesita subir nada — pago confirmado automáticamente.",
+    "omiseFailedToLoad": "No se pudo cargar el QR de Omise. Por favor, reintente.",
+    "retryQrBtn": "Reintentar QR",
+    "saveQrBtn": "Guardar QR",
+    "extras": {
+      "spicy-no": "No Picante",
+      "spicy-light": "Ligeramente Picante",
+      "spicy-medium": "Medio Picante",
+      "spicy-very": "Muy Picante",
+      "sugar-no": "Sin Azúcar (0%)",
+      "sugar-less": "Menos Azúcar (50%)",
+      "sugar-regular": "Dulzor Regular (100%)",
+      "sauce-none": "Sin Salsas",
+      "sauce-ketchup": "Kétchup",
+      "sauce-mayo": "Mayonesa",
+      "sauce-chili": "Salsa de Chile",
+      "fruit-watermelon": "Sandía",
+      "fruit-pineapple": "Piña",
+      "fruit-banana": "Plátano",
+      "fruit-papaya": "Papaya",
+      "fruit-lime": "Lima Fresca",
+      "extra-mozzarella": "Mozzarella Extra",
+      "extra-mushrooms": "Champiñones Frescos",
+      "extra-ham": "Jamón Cocido",
+      "extra-bacon": "Bacon Crujiente",
+      "extra-salami": "Salami Picante",
+      "extra-olives": "Aceitunas Negras",
+      "extra-anchovies": "Anchoas del Mediterráneo",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Queso Gorgonzola",
+      "extra-truffle": "Aceite de Trufa",
+      "extra-egg": "Huevo",
+      "extra-onion": "Cebolla Roja",
+      "extra-fries": "Patatas Fritas (Topping)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Lata)",
+      "coke-zero-can": "Coca-Cola Zero (Lata)",
+      "sprite-can": "Sprite (Lata)",
+      "soda-water-bottle": "Agua con Gas (Botella)",
+      "mineral-water-bottle": "Agua Mineral (Botella)",
+      "espresso": "Espresso Italiano",
+      "cappuccino": "Cappuccino Cremoso",
+      "americano": "Café Americano",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Tiramisú Artesanal",
+      "cake-of-the-day": "Pastel del Día",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Crepes de Nutella",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Vegana)",
+      "carbonara": "Espagueti Carbonara",
+      "bolognese": "Espagueti Boloñesa",
+      "french-fries": "Patatas Fritas",
+      "pizza-sandwich-parma": "Focaccia con Jamón de Parma"
+    }
+  },
+  "FR": {
+    "wineBannerBadge": "🍷 PRIVILÈGE VIN SUR PLACE • 10% DE RÉDUCTION",
+    "wineBannerTitle": "Sélection de Vins Fins • Réservez en ligne pour recevoir une réduction exclusive de 10% à table",
+    "wineBannerDesc": "Conformément à la loi thaïlandaise, la livraison d'alcool en ligne n'est pas autorisée. Nous vous invitons à profiter de notre sélection de cave dans notre restaurant à Ranong : réservez une table depuis notre site web pour obtenir 10% de réduction sur toutes les bouteilles de vin à votre table !",
+    "wineBannerButton": "Réserver une Table (-10% Vin)",
+    "checkoutFirstOrderDiscount": "10% de Réduction de Bienvenue sur la 1ère Commande",
+    "takeawayBoxExplanation": "Vos pizzas seront cuites fraîches et emballées dans des boîtes isothermes prêtes pour votre arrivée au comptoir de notre restaurant.",
+    "kshopTitle": "Comment payer avec K-Shop (Kasikorn Bank) :",
+    "kshopStep1": "Enregistrez le code QR ou scannez-le directement avec votre application bancaire.",
+    "kshopStep2": "Entrez manuellement le total exact de la commande : {amount} ฿",
+    "kshopStep3": "Confirmez le virement et finalisez le paiement.",
+    "kshopStep4": "Téléchargez la capture d'écran de votre reçu de paiement (justificatif) ci-dessous.",
+    "omiseGenerating": "Génération du QR Omise...",
+    "omiseNoUploadNeeded": "✅ Aucun téléchargement nécessaire — paiement confirmé automatiquement.",
+    "omiseFailedToLoad": "Échec du chargement du QR Omise. Veuillez réessayer.",
+    "retryQrBtn": "Réessayer le QR",
+    "saveQrBtn": "Enregistrer le QR",
+    "extras": {
+      "spicy-no": "Non Épicé",
+      "spicy-light": "Légèrement Épicé",
+      "spicy-medium": "Moyennement Épicé",
+      "spicy-very": "Très Épicé",
+      "sugar-no": "Sans Sucre (0%)",
+      "sugar-less": "Moins de Sucre (50%)",
+      "sugar-regular": "Sucré Normal (100%)",
+      "sauce-none": "Pas de Sauces",
+      "sauce-ketchup": "Ketchup",
+      "sauce-mayo": "Mayonnaise",
+      "sauce-chili": "Sauce Chili",
+      "fruit-watermelon": "Pastèque",
+      "fruit-pineapple": "Ananas",
+      "fruit-banana": "Banane",
+      "fruit-papaya": "Papaye",
+      "fruit-lime": "Citron Vert Frais",
+      "extra-mozzarella": "Mozzarella Supplémentaire",
+      "extra-mushrooms": "Champignons Frais",
+      "extra-ham": "Jambon Cuit",
+      "extra-bacon": "Bacon Croustillant",
+      "extra-salami": "Salami Épicé",
+      "extra-olives": "Olives Noires",
+      "extra-anchovies": "Anchois de Méditerranée",
+      "extra-parmigiano": "Parmigiano Reggiano",
+      "extra-gorgonzola": "Fromage Gorgonzola",
+      "extra-truffle": "Huile de Truffe",
+      "extra-egg": "Œuf",
+      "extra-onion": "Oignon Rouge",
+      "extra-fries": "Frites (Garniture)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Coca-Cola (Canette)",
+      "coke-zero-can": "Coca-Cola Zéro (Canette)",
+      "sprite-can": "Sprite (Canette)",
+      "soda-water-bottle": "Eau Gazeuse (Bouteille)",
+      "mineral-water-bottle": "Eau Minérale (Bouteille)",
+      "espresso": "Espresso Italien",
+      "cappuccino": "Cappuccino Crémeux",
+      "americano": "Café Américain",
+      "latte-macchiato": "Latte Macchiato",
+      "tiramisu": "Tiramisù Artisanal",
+      "cake-of-the-day": "Gâteau du Jour",
+      "affogato": "Affogato al Caffè",
+      "crepes": "Crêpes à la Nutella",
+      "pizza-margherita": "Pizza Margherita",
+      "pizza-marinara": "Pizza Marinara (Végétalienne)",
+      "carbonara": "Spaghetti Carbonara",
+      "bolognese": "Spaghetti Bolognaise",
+      "french-fries": "Frites",
+      "pizza-sandwich-parma": "Focaccia au Jambon de Parme"
+    }
+  },
+  "RU": {
+    "wineBannerBadge": "🍷 ПРИВИЛЕГИЯ НА ВИНО В ЗАЛЕ • СКИДКА 10%",
+    "wineBannerTitle": "Избранные вина • Забронируйте онлайн и получите эксклюзивную скидку 10% на столик",
+    "wineBannerDesc": "В соответствии с тайским законодательством онлайн-доставка алкоголя запрещена. Приглашаем вас насладиться нашей коллекцией вин в нашем ресторане в Ранонге: забронируйте столик на нашем сайте и получите скидку 10% на все бутылки вина за вашим столиком!",
+    "wineBannerButton": "Забронировать столик (-10% на вино)",
+    "checkoutFirstOrderDiscount": "10% приветственная скидка на первый заказ",
+    "takeawayBoxExplanation": "Ваши пиццы будут испечены свежими и упакованы в термобоксы, готовые к вашему приходу на стойке нашего ресторана.",
+    "kshopTitle": "Как оплатить через K-Shop (Kasikorn Bank):",
+    "kshopStep1": "Сохраните QR-код или отсканируйте его напрямую через ваше банковское приложение.",
+    "kshopStep2": "Вручную введите точную сумму заказа: {amount} ฿",
+    "kshopStep3": "Подтвердите перевод и завершите оплату.",
+    "kshopStep4": "Загрузите скриншот квитанции об оплате (слип) ниже.",
+    "omiseGenerating": "Генерация QR-кода Omise...",
+    "omiseNoUploadNeeded": "✅ Загрузка не требуется — оплата подтверждается автоматически.",
+    "omiseFailedToLoad": "Не удалось загрузить QR-код Omise. Пожалуйста, повторите попытку.",
+    "retryQrBtn": "Повторить QR",
+    "saveQrBtn": "Сохранить QR",
+    "extras": {
+      "spicy-no": "Не остро",
+      "spicy-light": "Слегка остро",
+      "spicy-medium": "Средней остроты",
+      "spicy-very": "Очень остро",
+      "sugar-no": "Без сахара (0%)",
+      "sugar-less": "Меньше сахара (50%)",
+      "sugar-regular": "Обычная сладость (100%)",
+      "sauce-none": "Без соусов",
+      "sauce-ketchup": "Кетчуп",
+      "sauce-mayo": "Майонез",
+      "sauce-chili": "Соус чили",
+      "fruit-watermelon": "Арбуз",
+      "fruit-pineapple": "Ананас",
+      "fruit-banana": "Банан",
+      "fruit-papaya": "Папайя",
+      "fruit-lime": "Свежий лайм",
+      "extra-mozzarella": "Дополнительная моцарелла",
+      "extra-mushrooms": "Свежие грибы",
+      "extra-ham": "Варёная ветчина",
+      "extra-bacon": "Хрустящий бекон",
+      "extra-salami": "Острая салями",
+      "extra-olives": "Чёрные оливки",
+      "extra-anchovies": "Средиземноморские анчоусы",
+      "extra-parmigiano": "Пармиджано Реджано",
+      "extra-gorgonzola": "Сыр горгонзола",
+      "extra-truffle": "Трюфельное масло",
+      "extra-egg": "Яйцо",
+      "extra-onion": "Красный лук",
+      "extra-fries": "Картофель фри (топпинг)"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "Кока-Кола (банка)",
+      "coke-zero-can": "Кока-Кола Зеро (банка)",
+      "sprite-can": "Спрайт (банка)",
+      "soda-water-bottle": "Газированная вода (бутылка)",
+      "mineral-water-bottle": "Минеральная вода (бутылка)",
+      "espresso": "Итальянский эспрессо",
+      "cappuccino": "Сливочный капучино",
+      "americano": "Кофе американо",
+      "latte-macchiato": "Латте макиато",
+      "tiramisu": "Тирамису ручной работы",
+      "cake-of-the-day": "Торт дня",
+      "affogato": "Аффогато аль каффе",
+      "crepes": "Крепы с Nutella",
+      "pizza-margherita": "Пицца Маргарита",
+      "pizza-marinara": "Пицца Маринара (веганская)",
+      "carbonara": "Спагетти карбонара",
+      "bolognese": "Спагетти болоньезе",
+      "french-fries": "Картофель фри",
+      "pizza-sandwich-parma": "Фокачча с пармской ветчиной"
+    }
+  },
+  "ZH": {
+    "wineBannerBadge": "🍷 堂食葡萄酒特权 • 9折优惠",
+    "wineBannerTitle": "精选葡萄酒 • 在线预订即可享受专属 10% 餐桌折扣",
+    "wineBannerDesc": "根据泰国法律，不允许在线配送酒精饮料。我们邀请您在我们位于拉廊的餐厅享用我们的酒窖精选：从我们的网站预订餐桌，即可在餐桌上享受所有葡萄酒瓶 10% 的折扣！",
+    "wineBannerButton": "预订餐桌（葡萄酒 9 折）",
+    "checkoutFirstOrderDiscount": "首单欢迎 10% 折扣",
+    "takeawayBoxExplanation": "您的披萨将新鲜烘焙，并装入保温箱，准备好在您到达我们餐厅柜台时取用。",
+    "kshopTitle": "如何使用 K-Shop（开泰银行）支付：",
+    "kshopStep1": "保存二维码或直接使用您的银行应用程序扫描。",
+    "kshopStep2": "手动输入确切的订单总额：{amount} ฿",
+    "kshopStep3": "确认转账并完成支付。",
+    "kshopStep4": "在下方上传您的付款收据截图（回执）。",
+    "omiseGenerating": "正在生成 Omise 二维码...",
+    "omiseNoUploadNeeded": "✅ 无需上传 — 支付自动确认。",
+    "omiseFailedToLoad": "加载 Omise 二维码失败。请重试。",
+    "retryQrBtn": "重试二维码",
+    "saveQrBtn": "保存二维码",
+    "extras": {
+      "spicy-no": "不辣",
+      "spicy-light": "微辣",
+      "spicy-medium": "中辣",
+      "spicy-very": "非常辣",
+      "sugar-no": "无糖（0%）",
+      "sugar-less": "少糖（50%）",
+      "sugar-regular": "正常甜度（100%）",
+      "sauce-none": "无酱料",
+      "sauce-ketchup": "番茄酱",
+      "sauce-mayo": "蛋黄酱",
+      "sauce-chili": "辣椒酱",
+      "fruit-watermelon": "西瓜",
+      "fruit-pineapple": "菠萝",
+      "fruit-banana": "香蕉",
+      "fruit-papaya": "木瓜",
+      "fruit-lime": "新鲜青柠",
+      "extra-mozzarella": "额外马苏里拉奶酪",
+      "extra-mushrooms": "新鲜蘑菇",
+      "extra-ham": "熟火腿",
+      "extra-bacon": "脆培根",
+      "extra-salami": "辣味萨拉米",
+      "extra-olives": "黑橄榄",
+      "extra-anchovies": "地中海凤尾鱼",
+      "extra-parmigiano": "帕马森干酪",
+      "extra-gorgonzola": "戈贡佐拉奶酪",
+      "extra-truffle": "松露油",
+      "extra-egg": "鸡蛋",
+      "extra-onion": "红洋葱",
+      "extra-fries": "炸薯条（配料）"
+    },
+    "pairingDishes": {
+      "coca-cola-can": "可口可乐（罐装）",
+      "coke-zero-can": "零度可乐（罐装）",
+      "sprite-can": "雪碧（罐装）",
+      "soda-water-bottle": "苏打水（瓶装）",
+      "mineral-water-bottle": "矿泉水（瓶装）",
+      "espresso": "意式浓缩咖啡",
+      "cappuccino": "奶油卡布奇诺",
+      "americano": "美式咖啡",
+      "latte-macchiato": "拿铁玛奇朵",
+      "tiramisu": "手工提拉米苏",
+      "cake-of-the-day": "今日蛋糕",
+      "affogato": "阿芙佳朵",
+      "crepes": "Nutella 可丽饼",
+      "pizza-margherita": "玛格丽特披萨",
+      "pizza-marinara": "玛丽娜拉披萨（纯素）",
+      "carbonara": "培根蛋面",
+      "bolognese": "博洛尼亚肉酱面",
+      "french-fries": "炸薯条",
+      "pizza-sandwich-parma": "帕尔马火腿佛卡夏"
+    }
+  }
+};
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingCart, Globe, ChevronDown, ChevronLeft, Wine, Beer, Sparkles, Filter, RotateCcw, Check, UtensilsCrossed, Truck, Percent, ArrowRight, MapPin, AlertTriangle, Clock, Leaf, Wheat, Salad, Sandwich } from 'lucide-react';
@@ -8,7 +640,7 @@ import CartDrawer from '../components/CartDrawer';
 import CheckoutFlow from '../components/CheckoutFlow';
 import { useCartStore } from '../store/cartStore';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
-import { INITIAL_WINE_COLLECTION, WINE_COUNTRY_OPTIONS, resolveWineCategoryType, sortWinesByCountryOrder, getCountryRank, WineCardData } from '../data/wineData';
+import { INITIAL_WINE_COLLECTION, WINE_COUNTRY_OPTIONS, resolveWineCategoryType, sortWinesByCountryOrder, getCountryRank, WineCardData, getWineTranslatedTitle, getWineTranslatedSubtitle, getWineTranslatedDesc } from '../data/wineData';
 import { fetchCloudWineCollection } from '../data/wineCloudService';
 import { fetchCloudMenuOverrides } from '../data/pizzaMenuCloudService';
 import { ServiceStatusBanner } from '../components/ServiceStatusBanner';
@@ -31,7 +663,65 @@ import { getDietaryType, type DietaryType } from '../utils/dietary';
 import { supabase } from '../../lib/supabase';
 
 
-const translations = {
+const WINE_PRIVILEGE_BANNER = {
+  badge: {
+    IT: '🍷 DEGUSTAZIONE IN LOCALE • SCONTO 10%',
+    EN: '🍷 DINE-IN WINE PRIVILEGE • 10% OFF',
+    TH: '🍷 สิทธิพิเศษไวน์ • ลด 10% ที่โต๊ะอาหาร',
+    MM: '🍷 ဆိုင်တွင်သောက်သုံးခြင်း အထူးအခွင့်အရေး • ၁၀% လျှော့',
+    DE: '🍷 WEINVERKOSTUNG VOR ORT • 10% RABATT',
+    ES: '🍷 PRIVILEGIO DE VINO EN MESA • 10% DTO.',
+    FR: '🍷 PRIVILÈGE VINS SUR PLACE • -10% DE RÉDUCTION',
+    RU: '🍷 ПРИВИЛЕГИЯ НА ВИНА В ЗАЛЕ • СКИДКА 10%',
+    ZH: '🍷 堂食精选葡萄酒特权 • 享9折优惠'
+  },
+  regulation: {
+    IT: '• Normativa Alcolici Thailandia',
+    EN: '• Thai Alcohol Regulation',
+    TH: '• กฎหมายแอลกอฮอล์แห่งประเทศไทย',
+    MM: '• ထိုင်းနိုင်ငံ အရက်ဥပဒေစည်းမျဉ်း',
+    DE: '• Alkoholgesetzgebung Thailand',
+    ES: '• Normativa de alcohol de Tailandia',
+    FR: '• Réglementation sur l\'alcool en Thaïlande',
+    RU: '• Закон Таиланда об алкогольной продукции',
+    ZH: '• 泰国酒精法规'
+  },
+  title: {
+    IT: 'Selezione Vini al Ristorante • Prenota dal sito e ricevi il 10% di sconto',
+    EN: 'Fine Wine Selection • Book online to receive an exclusive 10% table discount',
+    TH: 'ไวน์นำเข้าชั้นเลิศ • จองโต๊ะล่วงหน้ารับส่วนลดพิเศษ 10%',
+    MM: 'အဆင့်မြင့် ဝိုင်ရွေးချယ်မှုများ • စားပွဲကြိုတင်ပြီး သီးသန့် ၁၀% လျှော့ဈေးရယူပါ',
+    DE: 'Erlesene Weinkarte • Online reservieren und 10% Rabatt genießen',
+    ES: 'Selección de Vinos Finos • Reserva online y recibe un 10% de descuento en mesa',
+    FR: 'Sélection de Grands Vins • Réservez en ligne pour bénéficier de 10% de réduction à table',
+    RU: 'Коллекция изысканных вин • Забронируйте столик онлайн и получите скидку 10%',
+    ZH: '精选优质葡萄酒 • 在线订座立享餐桌专属9折特惠'
+  },
+  description: {
+    IT: 'In conformità con le leggi del Regno di Thailandia, la vendita e consegna a domicilio di alcolici online non è consentita. Ti invitiamo a degustare i nostri vini direttamente al ristorante: prenotando dal nostro sito web ricevi subito il 10% di sconto su tutte le bottiglie al tavolo!',
+    EN: 'In compliance with Thai law, online delivery of alcohol is not permitted. We invite you to enjoy our cellar selection at our restaurant in Ranong: reserve a table from our website to get a 10% discount on all wine bottles at your table!',
+    TH: 'ตามกฎหมายแห่งราชอาณาจักรไทย การสั่งซื้อเครื่องดื่มแอลกอฮอล์ออนไลน์เพื่อจัดส่งถึงบ้านไม่สามารถทำได้ ขอเชิญท่านมาลิ้มลองไวน์ชั้นเลิศในบรรยากาศสบายๆ ณ ร้านของเรา: จองโต๊ะผ่านเว็บไซต์ รับส่วนลด 10% สำหรับไวน์ทุกขวดที่โต๊ะอาหารทันที!',
+    MM: 'ထိုင်းနိုင်ငံ ဥပဒေအရ အွန်လိုင်းမှတစ်ဆင့် အရက်အိမ်တိုင်ရာရောက် ပို့ဆောင်ခြင်းကို ခွင့်မပြုပါ။ ရနောင်းရှိ ကျွန်ုပ်တို့၏ စားသောက်ဆိုင်တွင် အရည်အသွေးမြင့်ဝိုင်များကို သောက်သုံးနိုင်ရန် ဖိတ်ခေါ်ပါသည်- ဝဘ်ဆိုက်မှ စားပွဲကြိုတင်စာရင်းသွင်းပြီး စားပွဲပေါ်ရှိ ဝိုင်ပုလင်းအားလုံးအတွက် ၁၀% လျှော့ဈေး ရယူလိုက်ပါ!',
+    DE: 'Gemäß den gesetzlichen Bestimmungen Thailands ist die Online-Lieferung von Alkohol untersagt. Genießen Sie unsere Weine vor Ort im Restaurant: Bei einer Tischreservierung über unsere Website erhalten Sie 10% Rabatt auf alle Weinflaschen am Tisch!',
+    ES: 'En cumplimiento con la legislación tailandesa, no está permitida la entrega a domicilio de bebidas alcohólicas online. Le invitamos a disfrutar de nuestra selección de bodega directamente en nuestro restaurante en Ranong: ¡reserve mesa desde nuestra web y obtenga un 10% de descuento en todas las botellas de vino en su mesa!',
+    FR: 'Conformément à la législation thaïlandaise, la livraison d\'alcool à domicile est interdite en ligne. Nous vous invitons à déguster notre sélection de cave directement dans notre restaurant à Ranong : réservez une table depuis notre site web pour bénéficier de 10% de réduction sur toutes les bouteilles de vin à votre table !',
+    RU: 'В соответствии с законодательством Таиланда онлайн-доставка алкоголя запрещена. Приглашаем вас насладиться нашей винной картой непосредственно в ресторане в Ранонге: забронируйте столик через наш сайт и получите скидку 10% на все бутылки вина за вашим столиком!',
+    ZH: '根据泰国法律规定，禁止在线销售及外送酒类饮品。诚邀您亲临我们位于拉农的餐厅品尝窖藏佳酿：通过网站在线预订餐桌，即可享全场葡萄酒每瓶立减10%（9折）专属优惠！'
+  },
+  button: {
+    IT: 'Prenota Tavolo (-10% Vini)',
+    EN: 'Book Table (-10% Wine)',
+    TH: 'จองโต๊ะรับส่วนลด 10%',
+    MM: 'စားပွဲ ကြိုတင်စာရင်းသွင်း (-၁၀% ဝိုင်)',
+    DE: 'Tisch Reservieren (-10%)',
+    ES: 'Reservar Mesa (-10% Vinos)',
+    FR: 'Réserver une Table (-10% Vins)',
+    RU: 'Забронировать столик (-10% на вина)',
+    ZH: '预订餐桌（葡萄酒享9折）'
+  }
+};
+
+const translations: Record<string, any> = {
   IT: {
     title: 'Flower Power Pizza',
     subtitle: 'Ranong, Thailandia',
@@ -127,6 +817,82 @@ const translations = {
     bookTableSubtitle: 'အတွင်းခန်း၊ အပြင်ဘက် သို့မဟုတ် သဘာဝတဲ',
     bookTableBtn: 'ယခုဘွတ်ကင်လုပ်မည်',
   },
+  ES: {
+  "title": "Flower Power Pizza",
+  "subtitle": "Ranong, Tailandia",
+  "tagline1": "PIZZA Y COCINA ITALIANA",
+  "tagline2": "Chef italiano • Ingredientes importados",
+  "info1": "Abierto todos los días",
+  "info2": "11:00 – 21:30",
+  "info3": "Entrega y para llevar",
+  "cartItems": "artículos en el carrito",
+  "cartItem": "artículo en el carrito",
+  "promoTitle": "Promociones e información de entrega",
+  "deliveryLimit": "Las entregas se realizan exclusivamente dentro de la ciudad de Ranong.",
+  "promoFreeDelivery": "Entrega GRATIS para pedidos superiores a 300฿",
+  "promoFirstOrder": "10% de descuento en tu primer pedido",
+  "bookTableBadge": "COMER EN EL LUGAR",
+  "bookTableTitle": "Reserva una mesa o cabaña",
+  "bookTableSubtitle": "Mesas interiores, exteriores o cabaña",
+  "bookTableBtn": "RESERVAR AHORA"
+},
+  FR: {
+  "title": "Flower Power Pizza",
+  "subtitle": "Ranong, Thaïlande",
+  "tagline1": "PIZZA & CUISINE ITALIENNE",
+  "tagline2": "Chef italien • Ingrédients importés",
+  "info1": "Ouvert tous les jours",
+  "info2": "11h00 – 21h30",
+  "info3": "Livraison & à emporter",
+  "cartItems": "articles dans le panier",
+  "cartItem": "article dans le panier",
+  "promoTitle": "Promotions & Infos livraison",
+  "deliveryLimit": "Les livraisons sont effectuées exclusivement dans la ville de Ranong.",
+  "promoFreeDelivery": "Livraison GRATUITE pour toute commande supérieure à 300฿",
+  "promoFirstOrder": "10% de réduction sur votre première commande",
+  "bookTableBadge": "SUR PLACE",
+  "bookTableTitle": "Réservez une table ou une hutte",
+  "bookTableSubtitle": "Tables intérieures, extérieures ou hutte",
+  "bookTableBtn": "RÉSERVER"
+},
+  RU: {
+  "title": "Flower Power Pizza",
+  "subtitle": "Ранонг, Таиланд",
+  "tagline1": "ПИЦЦА И ИТАЛЬЯНСКАЯ КУХНЯ",
+  "tagline2": "Итальянский шеф-повар • Импортные ингредиенты",
+  "info1": "Открыто ежедневно",
+  "info2": "11:00 – 21:30",
+  "info3": "Доставка и на вынос",
+  "cartItems": "товаров в корзине",
+  "cartItem": "товар в корзине",
+  "promoTitle": "Акции и информация о доставке",
+  "deliveryLimit": "Доставка осуществляется исключительно в пределах города Ранонг.",
+  "promoFreeDelivery": "БЕСПЛАТНАЯ доставка при заказе от 300฿",
+  "promoFirstOrder": "Скидка 10% на первый заказ",
+  "bookTableBadge": "В ЗАЛЕ",
+  "bookTableTitle": "Забронировать столик или домик",
+  "bookTableSubtitle": "Столики в помещении, на улице или домик",
+  "bookTableBtn": "ЗАБРОНИРОВАТЬ"
+},
+  ZH: {
+  "title": "花之力量披萨",
+  "subtitle": "泰国拉廊",
+  "tagline1": "披萨与意大利美食",
+  "tagline2": "意大利主厨 • 进口食材",
+  "info1": "每日营业",
+  "info2": "11:00 – 21:30",
+  "info3": "配送与外卖",
+  "cartItems": "购物车商品",
+  "cartItem": "购物车商品",
+  "promoTitle": "促销与配送信息",
+  "deliveryLimit": "仅在拉廊市区内提供配送服务。",
+  "promoFreeDelivery": "订单满300泰铢免费配送",
+  "promoFirstOrder": "首次下单享9折优惠",
+  "bookTableBadge": "堂食",
+  "bookTableTitle": "预订餐桌或小屋",
+  "bookTableSubtitle": "室内、室外餐桌或小屋",
+  "bookTableBtn": "立即预订"
+}
 };
 
 const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
@@ -136,6 +902,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'จานพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
     DE: { name: 'Tagesgerichte', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs aus frischen Zutaten' },
     MM: { name: 'နေ့စဉ် ဟင်းပွဲများ', desc: 'အီတလီစားဖိုမှူးမှ လတ်ဆတ်သော ရာသီပေါ် ကုန်ကြမ်းများဖြင့် နေ့စဉ် သီးသန့် ဖန်တီးထားသော အထူးဟင်းလျာများ' },
+    ES: {"name":"Especiales del día","desc":"Creaciones exclusivas diarias y especialidades de temporada preparadas al momento por nuestro chef italiano con ingredientes premium"},
+    FR: {"name":"Spécialités du jour","desc":"Créations quotidiennes exclusives et spécialités de saison fraîchement préparées par notre chef italien avec des ingrédients de qualité supérieure"},
+    RU: {"name":"Ежедневные специальные предложения","desc":"Эксклюзивные ежедневные блюда и сезонные specialties, свежеприготовленные нашим итальянским шеф-поваром из премиальных ингредиентов"},
+    ZH: {"name":"每日特供","desc":"意大利主厨每日精选优质食材新鲜制作的独家创意菜和时令特色菜"},
   },
   'traditional-italian-pizza': {
     IT: { name: 'Pizze Classiche', desc: 'Impasto a fermentazione naturale' },
@@ -143,6 +913,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'พิซซ่าคลาสสิค', desc: 'แป้งหมักธรรมชาติสูตรดั้งเดิม' },
     DE: { name: 'Klassische Pizzas', desc: 'Natursauerteig-Pizzaboden' },
     MM: { name: 'ရိုးရာ အီတလီ ပီဇာ', desc: 'သဘာဝနည်းဖြင့် နှပ်ထားသော မုန့်သား' },
+    ES: {"name":"Pizzas clásicas","desc":"Masa italiana de fermentación lenta"},
+    FR: {"name":"Pizzas classiques","desc":"Pâte italienne à fermentation lente"},
+    RU: {"name":"Классические пиццы","desc":"Итальянское тесто медленного брожения"},
+    ZH: {"name":"经典披萨","desc":"慢发酵意大利面团"},
   },
   'pasta': {
     IT: { name: 'Pasta & Primi', desc: 'Primi piatti della tradizione e pasta fresca' },
@@ -150,6 +924,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'พาสต้า & อาหารจานแรก', desc: 'เมนูพาสต้าอิตาเลียนดั้งเดิมและอาหารจานเส้น' },
     DE: { name: 'Pasta & Primi', desc: 'Traditionelle italienische Pasta & Nudelgerichte' },
     MM: { name: 'ခေါက်ဆွဲ & ပတ်စ်တာ', desc: 'ရိုးရာ အီတလီ ခေါက်ဆွဲ ဟင်းလျာများ' },
+    ES: {"name":"Pastas y primeros platos","desc":"Pastas italianas tradicionales y primeros platos frescos"},
+    FR: {"name":"Pâtes & Primi Piatti","desc":"Pâtes italiennes traditionnelles & primi piatti frais"},
+    RU: {"name":"Паста и первые блюда","desc":"Традиционная итальянская паста и свежие первые блюда"},
+    ZH: {"name":"意面与前菜","desc":"传统意大利面与新鲜前菜"},
   },
   'breakfast-and-snacks': {
     IT: { name: 'Colazione & Snack', desc: 'Per iniziare la giornata' },
@@ -157,6 +935,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'อาหารเช้าและของว่าง', desc: 'เริ่มต้นวันใหม่ด้วยพลังงาน' },
     DE: { name: 'Frühstück & Snacks', desc: 'Für einen guten Start in den Tag' },
     MM: { name: 'နံနက်စာနှင့် သရေစာ', desc: 'နေ့သစ်ကို စတင်ရန်' },
+    ES: {"name":"Desayunos y aperitivos","desc":"Para empezar tu día"},
+    FR: {"name":"Petit-déjeuner & En-cas","desc":"Pour bien commencer la journée"},
+    RU: {"name":"Завтраки и закуски","desc":"Чтобы начать день"},
+    ZH: {"name":"早餐与小吃","desc":"开启美好一天"},
   },
   'coffee-shop': {
     IT: { name: 'Caffetteria', desc: 'Caffè espresso italiano' },
@@ -164,6 +946,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'ร้านกาแฟ', desc: 'เอสเพรสโซ่อิตาเลียนแท้' },
     DE: { name: 'Kaffeeshop', desc: 'Italienischer Espresso' },
     MM: { name: 'ကော်ဖီဆိုင်', desc: 'စစ်မှန်သော အီတလီ အက်စ်ပရက်ဆို ကော်ဖီ' },
+    ES: {"name":"Cafetería","desc":"Café expreso italiano"},
+    FR: {"name":"Café","desc":"Café espresso italien"},
+    RU: {"name":"Кофейня","desc":"Итальянский эспрессо"},
+    ZH: {"name":"咖啡厅","desc":"意式浓缩咖啡"},
   },
   'fruit-drinks': {
     IT: { name: 'Bevande alla Frutta', desc: 'Frullati e shake freschi' },
@@ -171,6 +957,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'เครื่องดื่มผลไม้', desc: 'ผลไม้สดปั่นสดใหม่' },
     DE: { name: 'Fruchtgetränke', desc: 'Frische Frucht-Shakes' },
     MM: { name: 'သစ်သီးဖျော်ရည်များ', desc: 'လတ်ဆတ်သော သစ်သီးဖျော်ရည်များ' },
+    ES: {"name":"Bebidas de frutas","desc":"Batidos de frutas frescas"},
+    FR: {"name":"Jus de fruits","desc":"Milkshakes aux fruits frais"},
+    RU: {"name":"Фруктовые напитки","desc":"Свежие фруктовые коктейли"},
+    ZH: {"name":"果汁饮品","desc":"新鲜水果奶昔"},
   },
   'soft-drinks': {
     IT: { name: 'Bibite & Acqua', desc: 'Bibite analcoliche in lattina, acqua minerale naturale e bevande rinfrescanti servite fredde.' },
@@ -178,6 +968,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'น้ำอัดลมและน้ำดื่ม', desc: 'น้ำอัดลมกระป๋อง น้ำดื่มธรรมชาติ และเครื่องดื่มเพิ่มความสดชื่นเสิร์ฟเย็น' },
     DE: { name: 'Erfrischungsgetränke & Wasser', desc: 'Erfrischungsgetränke in der Dose, natürliches Mineralwasser und gekühlte Getränke.' },
     MM: { name: 'အအေးနှင့် သောက်ရေသန့်', desc: 'ဗူးသွပ်အအေးများ၊ သဘာဝတွင်းထွက်ရေနှင့် အေးမြလန်းဆန်းစေသော သောက်စရာများ။' },
+    ES: {"name":"Refrescos y agua","desc":"Refrescos en lata, agua mineral natural y bebidas refrescantes frías."},
+    FR: {"name":"Boissons sans alcool & Eau","desc":"Boissons sans alcool en canette, eau minérale naturelle et boissons rafraîchissantes fraîches."},
+    RU: {"name":"Безалкогольные напитки и вода","desc":"Безалкогольные напитки в банках, натуральная минеральная вода и охлаждённые освежающие напитки."},
+    ZH: {"name":"软饮与水","desc":"罐装软饮、天然矿泉水及冰镇清爽饮品。"},
   },
   'beers': {
     IT: { name: 'Birre', desc: 'Le migliori marche di birra in bottiglia grande e piccola, servite ghiacciate.' },
@@ -185,6 +979,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'เบียร์', desc: 'เบียร์ขวดเย็นเจี๊ยบคุณภาพดี มีให้เลือกทั้งขวดใหญ่และขวดเล็ก' },
     DE: { name: 'Biere', desc: 'Beste thailändische und internationale Flaschenbiere eiskalt serviert.' },
     MM: { name: 'ဘီယာများ', desc: 'အကောင်းဆုံး ထိုင်းနှင့် နိုင်ငံတကာ ဘီယာပုလင်း အေးအေးများ။' },
+    ES: {"name":"Cervezas","desc":"Las mejores cervezas tailandesas e internacionales en botella, servidas bien frías."},
+    FR: {"name":"Bières","desc":"Les meilleures bières en bouteille thaïlandaises et internationales servies glacées."},
+    RU: {"name":"Пиво","desc":"Лучшее тайское и международное пиво в бутылках, подаётся ледяным."},
+    ZH: {"name":"啤酒","desc":"精选泰国及国际瓶装啤酒，冰爽供应。"},
   },
   'beers-and-wines': {
     IT: { name: 'Birre & Vini', desc: 'Birre fresche e selezione di vini italiani' },
@@ -192,6 +990,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'เบียร์และไวน์', desc: 'เบียร์เย็นๆ และไวน์อิตาเลียนคัดสรร' },
     DE: { name: 'Biere & Weine', desc: 'Gekühlte Biere und ausgewählte italienische Weine' },
     MM: { name: 'ဘီယာနှင့် ဝိုင်များ', desc: 'အေးမြသော ဘီယာများနှင့် ရွေးချယ်ထားသော အီတလီ ဝိုင်များ' },
+    ES: {"name":"Cervezas y vinos","desc":"Cervezas frías y selección de vinos italianos"},
+    FR: {"name":"Bières & Vins","desc":"Bières fraîches et sélection de vins italiens"},
+    RU: {"name":"Пиво и вина","desc":"Охлаждённое пиво и выбор итальянских вин"},
+    ZH: {"name":"啤酒与葡萄酒","desc":"冰镇啤酒与意大利葡萄酒精选"},
   },
   'wines': {
     IT: { name: 'Carta dei Vini', desc: 'Selezione accurata di vini italiani ed internazionali, scelti per esaltare i sapori di ogni piatto del nostro menù.' },
@@ -199,6 +1001,10 @@ const categoryDetails: Record<string, Record<string, { name: string; desc: strin
     TH: { name: 'รายการไวน์', desc: 'คัดสรรไวน์อิตาเลียนและไวน์นานาชาติชั้นเลิศอย่างพิถีพิถัน เพื่อเสริมรสชาติของทุกเมนูให้โดดเด่นและสมดุลยิ่งขึ้น' },
     DE: { name: 'Weinkarte', desc: 'Sorgfältig zusammengestellte Auswahl an italienischen und internationalen Weinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben.' },
     MM: { name: 'ဝိုင်စာရင်း', desc: 'ကျွန်ုပ်တို့၏ ဟင်းလျာ အရသာတိုင်းကို ပိုမိုပြည့်စုံစေရန် ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်ကောင်းများ။' },
+    ES: {"name":"Carta de vinos","desc":"Cuidada selección de finos vinos italianos e internacionales, elegidos para realzar los sabores de cada plato de nuestro menú."},
+    FR: {"name":"Carte des vins","desc":"Sélection soignée de vins italiens et internationaux de qualité, choisis pour rehausser les saveurs de chaque plat de notre menu."},
+    RU: {"name":"Винная карта","desc":"Тщательно подобранная коллекция изысканных итальянских и международных вин, выбранных, чтобы подчеркнуть вкус каждого блюда нашего меню."},
+    ZH: {"name":"葡萄酒单","desc":"精心挑选的意大利及国际优质葡萄酒，旨在提升菜单上每道菜的风味。"},
   },
 };
 
@@ -211,6 +1017,10 @@ const DAILY_SPECIALS_SECTIONS = [
       TH: 'อาหารจานแรก (พาสต้า)',
       DE: 'Erste Gänge (Pasta)',
       MM: 'ပထမဟင်းလျာများ (ပတ်စ်တာ)',
+      ES: 'Primeros platos',
+      FR: 'Primi Piatti',
+      RU: 'Первые блюда',
+      ZH: '前菜',
     },
     desc: {
       IT: 'Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali con formati a scelta.',
@@ -218,6 +1028,10 @@ const DAILY_SPECIALS_SECTIONS = [
       TH: 'สปาเก็ตตี้ซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมด เลือกเส้นและรูปแบบได้ตามใจชอบ',
       DE: 'Meeresfrüchte-Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte Ravioli mit wählbaren Formaten.',
       MM: 'လတ်ဆတ်သော ပင်လယ်စာ စပါဂက်တီ၊ ဂဏန်းသား၊ ဆယ်လ်မွန်၊ ပြည်ကြီးငါးမှင်ခေါက်ဆွဲနှင့် လက်လုပ် ရာဗီအိုလီများ။',
+      ES: 'Espaguetis con marisco, carne de cangrejo fresco, penne con salmón, tagliatelle con tinta de calamar y raviolis artesanales con el formato de pasta que elijas.',
+      FR: 'Spaghetti aux fruits de mer, chair de crabe fraîche, penne au saumon, tagliatelles à l\'encre de seiche et raviolis artisanaux avec le format de pâtes de votre choix.',
+      RU: 'Спагетти с морепродуктами, свежее крабовое мясо, пенне с лососем, тальятелле с чернилами кальмара и артизанальные равиоли с выбором формата пасты.',
+      ZH: '海鲜意面、新鲜蟹肉、三文鱼笔管面、墨鱼汁宽面，以及手工意大利饺，可选您喜欢的意面形状。',
     }
   },
   {
@@ -228,6 +1042,10 @@ const DAILY_SPECIALS_SECTIONS = [
       TH: 'พิซซ่ากูร์เมต์สูตรพิเศษ',
       DE: 'Gourmet-Spezialpizzen',
       MM: 'အထူး ဂူးမေး ပီဇာများ',
+      ES: 'Pizzas gourmet especiales',
+      FR: 'Pizzas gourmet spéciales',
+      RU: 'Гурманские специальные пиццы',
+      ZH: '美食特色披萨',
     },
     desc: {
       IT: 'Pizze artigianali a lievitazione naturale con polpa di granchio fresca o salsiccia nostrana, spinaci e gorgonzola.',
@@ -235,6 +1053,10 @@ const DAILY_SPECIALS_SECTIONS = [
       TH: 'พิซซ่าแป้งหมักยีสต์ธรรมชาติ หน้าเนื้อปูม้าสด และไส้กรอกหมูอิตาเลียนกับผักสตีลัชชี',
       DE: 'Handwerkliche Pizzen mit natürlicher Hefe und frischem Krabbenfleisch oder einheimischer Wurst, Spinat und Gorgonzola.',
       MM: 'လတ်ဆတ်သော ဂဏန်းသား သို့မဟုတ် အီတလီ ဝက်အူချောင်းဖြင့် ဖုတ်ထားသော လက်လုပ် ပီဇာများ။',
+      ES: 'Pizzas artesanales con fermentación natural, con carne de cangrejo fresco o salchicha local, espinacas y gorgonzola.',
+      FR: 'Pizzas artisanales à levain naturel avec chair de crabe fraîche ou saucisse locale, épinards et gorgonzola.',
+      RU: 'Артизанальные пиццы на естественной закваске со свежим крабовым мясом или местной колбасой, шпинатом и горгонзолой.',
+      ZH: '手工天然发酵披萨，搭配新鲜蟹肉或本地香肠、菠菜和戈贡佐拉奶酪。',
     }
   },
   {
@@ -245,6 +1067,10 @@ const DAILY_SPECIALS_SECTIONS = [
       TH: 'อาหารจานหลักแบบดั้งเดิม',
       DE: 'Traditionelle Hauptgerichte',
       MM: 'ရိုးရာ အဓိက အစားအစာများ',
+      ES: 'Platos principales tradicionales',
+      FR: 'Plats principaux traditionnels',
+      RU: 'Традиционные основные блюда',
+      ZH: '传统主菜',
     },
     desc: {
       IT: 'Grandi classici e torte salate della tradizione italiana preparati al momento: Cotoletta alla Milanese, Cotechino artigianale con Purè e autentica Torta Pasqualina ligure.',
@@ -252,6 +1078,10 @@ const DAILY_SPECIALS_SECTIONS = [
       TH: 'เมนูคลาสสิกและพายอบสไตล์อิตาเลียน: มิลานีสคัตเล็ตหมูทอดกรอบ ไส้กรอกโคเตคิโนโบราณพร้อมมันบด และพายตอร์ตา ปาสควาลินา',
       DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.',
       MM: 'လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ထားသော အီတလီ ရိုးရာ ဂန္တဝင် အစားအစာများနှင့် အရသာရှိ ပီဇာမုန့်များ။',
+      ES: 'Grandes clásicos y sabrosas tartas italianas preparadas al momento: milanesa, cotechino artesanal con puré de patatas y auténtica torta pasqualina ligur.',
+      FR: 'Grands classiques et tourtes italiennes savoureuses préparées fraîches : escalope milanaise, cotechino artisanal avec purée de pommes de terre et authentique torta pasqualina ligure.',
+      RU: 'Великие классические блюда и пикантные итальянские пироги, приготовленные свежими: миланский шницель, артизанальный котекино с картофельным пюре и аутентичная лигурийская торта пасквалина.',
+      ZH: '经典美味与咸香意大利馅饼，新鲜制作：米兰式炸肉排、手工科泰基诺香肠配土豆泥，以及正宗利古里亚复活节馅饼。',
     }
   },
   {
@@ -262,6 +1092,10 @@ const DAILY_SPECIALS_SECTIONS = [
       TH: 'ฟอคคาเซียอบสดสไตล์อิตาเลียน',
       DE: 'Hausgemachte Focaccia',
       MM: 'လက်လုပ် ဖိုကာချာ မုန့်များ',
+      ES: 'Focaccias artesanales',
+      FR: 'Focaccias artisanales',
+      RU: 'Ремесленные фокаччи',
+      ZH: '手工佛卡夏',
     },
     desc: {
       IT: 'Focacce fragranti da impasto pizza cotte al forno e farcite con i migliori salumi italiani selezionati: Finocchiona, Pancetta arrotolata, Porchetta, Prosciutto Cotto e Salame.',
@@ -269,6 +1103,10 @@ const DAILY_SPECIALS_SECTIONS = [
       TH: 'ฟอคคาเซียอบสดใหม่กรอบนอกนุ่มใน สอดไส้โคลด์คัทอิตาเลียนชั้นเลิศ: ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
       DE: 'Ofenfrische Focaccia gefüllt mit feinsten italienischen Wurstspezialitäten: Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
       MM: 'အီတလီ အသားလွှာ အကောင်းစားများ ညှပ်ထားသော မီးဖိုဖုတ် ဖိုကာချာ မုန့်များ။',
+      ES: 'Focaccias de masa de pizza recién horneadas con los mejores embutidos italianos.',
+      FR: 'Focaccias au four avec les meilleures charcuteries italiennes sélectionnées.',
+      RU: 'Ароматные запеченные фокаччи из теста для пиццы с лучшими итальянскими мясными деликатесами.',
+      ZH: '新鲜烤制的披萨面团佛卡夏，搭配精选优质意大利冷切肉。',
     }
   }
 ];
@@ -282,6 +1120,10 @@ const ITALIAN_SALADS_SECTIONS = [
       TH: 'สลัดอิตาเลียน',
       DE: 'Italienische Salate',
       MM: 'အီတလီဆလတ်များ',
+      ES: 'Ensaladas italianas',
+      FR: 'Salades italiennes',
+      RU: 'Итальянские салаты',
+      ZH: '意式沙拉',
     },
     desc: {
       IT: 'Insalate fresche con uova, pollo, patate o tonno preparate con verdure selezionate e condite con salse artigianali.',
@@ -289,6 +1131,10 @@ const ITALIAN_SALADS_SECTIONS = [
       TH: 'สลัดสดใหม่ใส่ไข่ ไก่ มันฝรั่ง หรือทูน่า ปรุงด้วยผักสดคัดสรรและน้ำสลัดโฮมเมด',
       DE: 'Frische Salate mit Eiern, Hähnchen, Kartoffeln oder Thunfisch, zubereitet mit ausgewähltem Gemüse und hausgemachten Dressings.',
       MM: 'ကြက်ဥ၊ ကြက်သား၊ အာလူး သို့မဟုတ် တူနာငါးတို့ဖြင့် ပြင်ဆင်ထားသော လတ်ဆတ်သည့် အသုပ်များ။',
+      ES: 'Ensaladas frescas con huevos, pollo, patatas o atún, preparadas con verduras crujientes seleccionadas y aderezos artesanales.',
+      FR: 'Salades fraîches avec œufs, poulet, pommes de terre ou thon, préparées avec des légumes croquants sélectionnés et des vinaigrettes artisanales.',
+      RU: 'Свежие салаты с яйцами, курицей, картофелем или тунцом, приготовленные из отборных хрустящих овощей и авторских заправок.',
+      ZH: '新鲜沙拉，配以鸡蛋、鸡肉、土豆或金枪鱼，搭配精选脆爽蔬菜和手工酱汁。',
     }
   },
   {
@@ -299,6 +1145,10 @@ const ITALIAN_SALADS_SECTIONS = [
       TH: 'อาหารจานหลักแบบดั้งเดิม',
       DE: 'Traditionelle Hauptgerichte',
       MM: 'ရိုးရာ အဓိက အစားအစာများ',
+      ES: 'Platos principales tradicionales',
+      FR: 'Plats principaux traditionnels',
+      RU: 'Традиционные основные блюда',
+      ZH: '传统主菜',
     },
     desc: {
       IT: 'Grandi classici e torte salate della tradizione italiana: Cotoletta alla Milanese con patate, Cotechino artigianale con purè e autentica Torta Pasqualina ligure.',
@@ -306,24 +1156,36 @@ const ITALIAN_SALADS_SECTIONS = [
       TH: 'เมนูคลาสสิกและพายอบสไตล์อิตาเลียน: มิลานีสคัตเล็ตหมูทอดกรอบ ไส้กรอกโคเตคิโนโบราณพร้อมมันบด และพายตอร์ตา ปาสควาลินา',
       DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.',
       MM: 'လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ထားသော အီတလီ ရိုးရာ ဂန္တဝင် အစားအစာများနှင့် အရသာရှိ ပီဇာမုန့်များ။',
+      ES: 'Clásicos culinarios italianos y tartas saladas recién hechas: Milanesa crujiente con patatas fritas, Cotechino artesanal con puré de patatas y Torta Pasqualina ligur.',
+      FR: 'Classiques de la cuisine italienne et tourtes salées préparées fraîches : escalope milanaise croustillante avec frites, cotechino artisanal avec purée de pommes de terre, et torta pasqualina ligure.',
+      RU: 'Итальянская кулинарная классика и пикантные пироги, приготовленные свежими: хрустящая миланская котлета с картофелем фри, ремесленный котекино с картофельным пюре и лигурийская пасхальная торта.',
+      ZH: '意式经典美食和咸味派新鲜制作：酥脆米兰炸肉排配薯条，手工科特基诺香肠配土豆泥，以及利古里亚复活节派。',
     }
   }
 ];
 
-const SALAD_SUBFILTER_LABELS = {
+const SALAD_SUBFILTER_LABELS: Record<string, Record<string, string>> = {
   IT: { all: 'Tutti i Piatti', salads: 'Insalate Italiane', mains: 'Secondi Piatti' },
   EN: { all: 'All Dishes', salads: 'Italian Salads', mains: 'Main Courses' },
   TH: { all: 'ทุกจาน', salads: 'สลัดอิตาเลียน', mains: 'จานหลัก' },
   DE: { all: 'Alle Gerichte', salads: 'Italienische Salate', mains: 'Hauptgerichte' },
   MM: { all: 'ဟင်းလျာအားလုံး', salads: 'အီတလီဆလတ်များ', mains: 'အဓိကဟင်းလျာများ' },
+  ES: {"all":"Todos los platos","salads":"Ensaladas italianas","mains":"Platos principales"},
+  FR: {"all":"Tous les plats","salads":"Salades italiennes","mains":"Plats principaux"},
+  RU: {"all":"Все блюда","salads":"Итальянские салаты","mains":"Основные блюда"},
+  ZH: {"all":"所有菜品","salads":"意式沙拉","mains":"主菜"}
 };
 
-const SANDWICH_SUBFILTER_LABELS = {
+const SANDWICH_SUBFILTER_LABELS: Record<string, Record<string, string>> = {
   IT: { all: 'Tutti i Piatti', focacce: 'Focacce', sandwiches: 'Pizza Sandwich' },
   EN: { all: 'All Dishes', focacce: 'Focaccia', sandwiches: 'Pizza Sandwich' },
   TH: { all: 'ทุกจาน', focacce: 'โฟกัชชา', sandwiches: 'พิซซ่าแซนด์วิช' },
   DE: { all: 'Alle Gerichte', focacce: 'Focacce', sandwiches: 'Pizza-Sandwich' },
   MM: { all: 'ဟင်းလျာအားလုံး', focacce: 'ဖိုကာချာများ', sandwiches: 'ပီဇာဆန်းဒဝစ်' },
+  ES: {"all":"Todos los platos","focacce":"Focaccia","sandwiches":"Sándwich de pizza"},
+  FR: {"all":"Tous les plats","focacce":"Focaccia","sandwiches":"Sandwich à la pizza"},
+  RU: {"all":"Все блюда","focacce":"Фокачча","sandwiches":"Пицца-сэндвич"},
+  ZH: {"all":"所有菜品","focacce":"佛卡夏","sandwiches":"披萨三明治"}
 };
 
 const FOCACCIA_SANDWICH_SECTIONS = [
@@ -335,6 +1197,10 @@ const FOCACCIA_SANDWICH_SECTIONS = [
       TH: 'โฟกัชชา',
       DE: 'Focacce',
       MM: 'ဖိုကာချာများ',
+      ES: 'Focaccia',
+      FR: 'Focaccia',
+      RU: 'Фокачча',
+      ZH: '佛卡夏',
     },
     desc: {
       IT: 'Focacce fragranti da impasto pizza all\'olio extravergine d\'oliva cotte al forno e farcite al momento con i migliori salumi italiani selezionati: Milanese, Finocchiona, Pancetta arrotolata, Porchetta, Prosciutto Cotto e Salame.',
@@ -342,6 +1208,10 @@ const FOCACCIA_SANDWICH_SECTIONS = [
       TH: 'ฟอคคาเซียแป้งพิซซ่าอบสดใหม่สไตล์โฮมเมด สอดไส้โคลด์คัทอิตาเลียนพรีเมียม: มิลานีส, ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
       DE: 'Ofenfrische Pizza-Focaccia gefüllt mit feinsten italienischen Spezialitäten: Mailänder Schnitzel, Toskanische Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
       MM: 'အီတလီ အသားလွှာ အကောင်းစားများနှင့် မီးဖိုဖုတ် ဖိုကာချာ မုန့်များ။',
+      ES: 'Fragantes focaccias de masa de pizza horneadas, rellenas de embutidos italianos premium: milanesa, Finocchiona toscana, Pancetta enrollada, Porchetta asada, jamón cocido y salami.',
+      FR: 'Focaccias parfumées à base de pâte à pizza cuite au four, garnies de charcuteries italiennes de qualité supérieure : escalope milanaise, finocchiona toscane, pancetta roulée, porchetta rôtie, jambon cuit et salami.',
+      RU: 'Ароматные фокаччи из теста для пиццы, запеченные в печи, с начинкой из премиальных итальянских мясных деликатесов: миланская котлета, тосканская финоккьона, рулетики из панчетты, жареная порчетта, вареная ветчина и салями.',
+      ZH: '香气扑鼻的烤箱烘焙披萨面团佛卡夏，夹入优质意大利冷切肉：米兰炸肉排、托斯卡纳芬诺基奥纳香肠、卷状培根、烤猪肉卷、熟火腿和萨拉米。',
     }
   },
   {
@@ -352,6 +1222,10 @@ const FOCACCIA_SANDWICH_SECTIONS = [
       TH: 'พิซซ่าแซนด์วิช',
       DE: 'Pizza-Sandwich',
       MM: 'ပီဇာဆန်းဒဝစ်',
+      ES: 'Sándwich de pizza',
+      FR: 'Sandwich à la pizza',
+      RU: 'Пицца-сэндвич',
+      ZH: '披萨三明治',
     },
     desc: {
       IT: 'Gustosi panini racchiusi nel nostro impasto pizza dorato e croccante con formaggio filante, pomodoro fresco e salumi italiani selezionati.',
@@ -359,6 +1233,10 @@ const FOCACCIA_SANDWICH_SECTIONS = [
       TH: 'แซนด์วิชแป้งพิซซ่ากรอบนอกนุ่มใน สอดไส้ชีสเยิ้มๆ มะเขือเทศสด และโคลด์คัทอิตาเลียนชั้นเลิศ',
       DE: 'Köstliche Sandwiches in knusprigem Pizzateig mit geschmolzenem Käse, frischen Tomaten und feinen italienischen Wurstwaren.',
       MM: 'ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ ပီဇာမုန့်သား၊ အရည်ပျော်နေသော ချိစ်နှင့် အသားလွှာများ ပါဝင်သော ပီဇာဆန်းဒဝစ်။',
+      ES: 'Sabrosos sándwiches envueltos en nuestra masa de pizza dorada y crujiente, con queso fundido, tomates frescos y embutidos italianos premium.',
+      FR: 'Sandwichs savoureux enveloppés dans notre croûte de pizza dorée et croustillante, avec fromage fondu, tomates fraîches et charcuteries italiennes de qualité supérieure.',
+      RU: 'Ароматные сэндвичи, завернутые в нашу золотистую хрустящую корочку для пиццы с расплавленным сыром, свежими помидорами и премиальными итальянскими мясными деликатесами.',
+      ZH: '风味十足的三明治，包裹在我们金黄酥脆的披萨饼皮中，配以融化的奶酪、新鲜番茄和优质意大利冷切肉。',
     }
   }
 ];
@@ -372,6 +1250,10 @@ const PASTA_SAUCES = [
       TH: 'พาสต้าและราวิโอลีสูตรพิเศษ', 
       DE: 'Spezialitäten & Gefüllte Pasta',
       MM: 'အထူးလက်ရာနှင့် အစာသွပ် ခေါက်ဆွဲ',
+      ES: 'Especialidades del chef y pasta rellena',
+      FR: 'Spécialités du chef et pâtes farcies',
+      RU: 'Особые блюда от шефа и паста с начинкой',
+      ZH: '厨师特选和馅料意面',
     }, 
     desc: {
       IT: 'Creazioni di mare e di terra della nostra cuoca: Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali ripieni.',
@@ -379,6 +1261,10 @@ const PASTA_SAUCES = [
       TH: 'พาสต้าซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมดสอดไส้สูตรดั้งเดิม',
       DE: 'Meeresfrüchte- und Spezialitätenkreationen: Frutti di Mare Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte gefüllte Ravioli.',
       MM: 'ပင်လယ်စာ စပါဂက်တီ၊ ဂဏန်းသား၊ ဆယ်လ်မွန်နှင့် လက်လုပ် ရာဗီအိုလီ အထူးဟင်းလျာများ။',
+      ES: 'Especialidades de marisco y artesanales: espaguetis con marisco, carne de cangrejo azul, penne con salmón, tagliatelle con tinta de calamar y raviolis rellenos hechos a mano.',
+      FR: 'Spécialités de la mer et artisanales : spaghetti aux fruits de mer, chair de crabe bleu, penne au saumon, tagliatelles à l\'encre de seiche et raviolis farcis faits à la main.',
+      RU: 'Морские и авторские specialties: спагетти с морепродуктами, мясо синего краба, пенне с лососем, тальятелле с чернилами кальмара и ручная равioli с начинкой.',
+      ZH: '海鲜和手工特色菜：海鲜意大利面、蓝蟹肉、三文鱼笔管面、墨鱼汁宽面和手工馅料意大利饺。',
     }, 
     pattern: 'special' 
   },
@@ -390,6 +1276,10 @@ const PASTA_SAUCES = [
       TH: 'อากลิโอ โอลิโอ พริกแห้ง', 
       DE: 'Knoblauch, Öl & Chili',
       MM: 'ကြက်သွန်ဖြူ၊ သံလွင်ဆီနှင့် ငရုတ်သီး',
+      ES: 'Ajo, aceite y guindilla',
+      FR: 'Ail, huile et piment',
+      RU: 'Чеснок, масло и чили',
+      ZH: '蒜香、橄榄油和辣椒',
     }, 
     desc: {
       IT: 'Un classico italiano semplice e saporito preparato con aglio, olio extravergine d\'oliva e peperoncino, con un gusto intenso e aromatico che delizia ogni singolo morso.',
@@ -397,6 +1287,10 @@ const PASTA_SAUCES = [
       TH: 'พาสต้าผัดกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติเข้มข้นจัดจ้านสไตล์อิตาเลียน',
       DE: 'Ein einfacher und geschmackvoller italienischer Klassiker aus Knoblauch, Olivenöl und Chili, mit einem intensiven, aromatischen Geschmack, der jeden Bissen begeistert.',
       MM: 'ကြက်သွန်ဖြူ၊ သံလွင်ဆီနှင့် ငရုတ်သီးတို့ဖြင့် မွှေးပျံ့စွာ ကြော်ထားသော ဂန္တဝင် အီတလီ ခေါက်ဆွဲ။',
+      ES: 'Un clásico italiano sencillo y sabroso hecho con ajo, aceite de oliva y guindilla, con un sabor intenso y aromático que deleita cada bocado.',
+      FR: 'Un classique italien simple et savoureux à base d\'ail, d\'huile d\'olive et de piment, au goût intense et aromatique qui ravit chaque bouchée.',
+      RU: 'Простая и ароматная итальянская классика, приготовленная с чесноком, оливковым маслом и чили, с интенсивным, ароматным вкусом, который радует каждый кусочек.',
+      ZH: '简单而美味的意大利经典，由大蒜、橄榄油和辣椒制成，味道浓郁芳香，每一口都令人愉悦',
     }, 
     pattern: 'Garlic, Oil' 
   },
@@ -408,6 +1302,10 @@ const PASTA_SAUCES = [
       TH: 'ซอสมะเขือเทศ', 
       DE: 'Tomatensauce',
       MM: 'ခရမ်းချဉ်သီးဆော့စ်',
+      ES: 'Salsa de tomate',
+      FR: 'Sauce tomate',
+      RU: 'Томатный соус',
+      ZH: '番茄酱',
     }, 
     desc: {
       IT: 'Salsa di pomodoro all\'italiana preparata con pomodori maturi, olio d\'oliva, aglio o cipolla, sale e basilico. È il cuore pulsante della cucina italiana.',
@@ -415,6 +1313,10 @@ const PASTA_SAUCES = [
       TH: 'ซอสมะเขือเทศอิตาเลียนรสเข้มข้น เคี่ยวกับกระเทียม หอมใหญ่ และใบโหระพาอิตาเลียน',
       DE: 'Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Sie ist das Herz der italienischen Küche.',
       MM: 'မှည့်ဝင်းသော ခရမ်းချဉ်သီး၊ သံလွင်ဆီနှင့် ပင်စိမ်းရွက်တို့ဖြင့် ချက်ထားသော ရိုးရာ အီတလီဆော့စ်။',
+      ES: 'Salsa de tomate italiana hecha con tomates maduros, aceite de oliva, ajo o cebolla, sal y albahaca. Es el corazón de la cocina italiana.',
+      FR: 'Sauce tomate italienne préparée avec des tomates mûres, de l\'huile d\'olive, de l\'ail ou de l\'oignon, du sel et du basilic. C\'est le cœur de la cuisine italienne.',
+      RU: 'Итальянский томатный соус, приготовленный из спелых помидоров, оливкового масла, чеснока или лука, соли и базилика. Это сердце итальянской кухни.',
+      ZH: '用成熟番茄、橄榄油、大蒜或洋葱、盐和罗勒制成的意大利番茄酱。它是意大利美食的核心',
     }, 
     pattern: 'Tomato Sauce' 
   },
@@ -426,6 +1328,10 @@ const PASTA_SAUCES = [
       TH: 'ซอสเพสโต้', 
       DE: 'Pesto Genovese',
       MM: 'ပက်စတို ဆော့စ်',
+      ES: 'Pesto genovés',
+      FR: 'Pesto génois',
+      RU: 'Песто генуэзское',
+      ZH: '热那亚青酱',
     }, 
     desc: {
       IT: 'Salsa fresca al basilico con anacardi, parmigiano, aglio e olio d\'oliva, con un sapore ricco e aromatico che evoca i profumi di Genova.',
@@ -433,6 +1339,10 @@ const PASTA_SAUCES = [
       TH: 'ซอสใบโหระพาอิตาเลียนปั่นสดใหม่ ใส่เม็ดมะม่วงหิมพานต์ พาเมซานชีส กระเทียม และน้ำมันมะกอก',
       DE: 'Frische Basilikumsauce mit Cashewnüssen, Parmesankäse, Knoblauch und Olivenöl, mit einem reichen, aromatischen Geschmack, der an Genua erinnert.',
       MM: 'လတ်ဆတ်သော ပင်စိမ်းရွက်၊ သီဟိုဠ်စေ့၊ ပါမီဂျန်ချိစ်နှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော မွှေးပျံ့သည့် ပက်စတိုဆော့စ်။',
+      ES: 'Salsa fresca de albahaca con anacardos, queso parmesano, ajo y aceite de oliva, con un sabor rico y aromático que evoca el aroma de Génova.',
+      FR: 'Sauce fraîche au basilic avec noix de cajou, parmesan, ail et huile d\'olive, à la saveur riche et aromatique qui évoque le parfum de Gênes.',
+      RU: 'Свежий соус из базилика с кешью, сыром пармезан, чесноком и оливковым маслом, с богатым, ароматным вкусом, напоминающим аромат Генуи.',
+      ZH: '新鲜罗勒酱配腰果、帕尔马干酪、大蒜和橄榄油，风味浓郁芳香，让人想起热那亚的气息',
     }, 
     pattern: 'Pesto Genovese' 
   },
@@ -444,119 +1354,128 @@ const PASTA_SAUCES = [
       TH: 'ซอสอามาริเชียนา', 
       DE: 'Amatriciana',
       MM: 'အာမာထရီချာနာ ဆော့စ်',
+      ES: 'Amatriciana',
+      FR: 'Amatriciana',
+      RU: 'Аматричана',
+      ZH: '阿马特里切纳',
     }, 
     desc: {
       IT: 'Salsa in stile romano con pomodoro, guanciale e pecorino, cotta lentamente per ottenere un sapore dolce e sapido bilanciato, un classico della tradizione italiana.',
       EN: 'Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition',
-      TH: 'ซอสมะเขือเทศเข้มข้นปรุงรสด้วยเบคอน หอมใหญ่ และใบโหระพา รสชาติกลมกล่อม',
-      DE: 'Römische Sauce mit Tomaten, gereifter Schweinebacke und Pecorino, langsam gekocht für einen ausgewogenen süß-salzigen Geschmack, ein Klassiker der italienischen Tradition.',
-      MM: 'ခရမ်းချဉ်သီး၊ ဝက်သားခြောက်နှင့် ချိစ်တို့ဖြင့် ဖြည်းညင်းစွာ ချက်ထားသော ရောမစတိုင် အရသာရှိ ဆော့စ်။',
+      TH: 'ซอสสไตล์โรมันเข้มข้น เคี่ยวกับแก้มหมูรมควัน กวานชาเล มะเขือเทศ และชีสเปโกริโน',
+      DE: 'Sauce nach römischer Art mit Tomaten, Guanciale und Pecorino, langsam gekocht für einen ausgewogenen süß-würzigen Geschmack, ein Klassiker der italienischen Tradition.',
+      MM: 'ခရမ်းချဉ်သီး၊ ဝက်ပါးစပ်သားနှင့် ပီကိုရီနိုချိစ်တို့ဖြင့် ဖြည်းညင်းစွာ ချက်ထားသော ရိုးရာ ရောမဆော့စ်။',
+      ES: 'Salsa al estilo romano con tomate, carrillada de cerdo curada y pecorino, cocinada a fuego lento para un sabor equilibrado entre dulce y salado, un clásico de la tradición italiana.',
+      FR: 'Sauce à la romaine avec tomate, joue de porc et pecorino, mijotée lentement pour une saveur équilibrée entre doux et salé, un classique de la tradition italienne.',
+      RU: 'Соус в римском стиле с томатами, свиной щековиной и пекорино, медленно приготовленный для сбалансированного сладкого и соленого вкуса, классика итальянской традиции.',
+      ZH: '罗马风味酱汁，配以番茄、腌猪颊肉和佩科里诺奶酪，慢炖出均衡的甜咸风味，是意大利传统的经典',
     }, 
     pattern: 'Amatriciana' 
   },
   { 
-    id: 'bolognese', 
-    name: { 
-      IT: 'Salsa Ragù Bolognese', 
-      EN: 'Bolognese Ragù', 
-      TH: 'ซอสเนื้อโบโลเนส', 
-      DE: 'Bolognese-Ragù',
-      MM: 'ဘိုလိုနိစ် အမဲသားဆော့စ်',
-    }, 
-    desc: {
-      IT: 'Un ricco ragù cotto lentamente con carne macinata, pomodori, verdure e vino rosso. Un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.',
-      EN: 'A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna\'s tradition',
-      TH: 'ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม',
-      DE: 'Eine reichhaltige, langsam gekochte Sauce mit Hackfleisch, Tomaten, Gemüse und Rotwein. Voller, einhüllender und unwiderstehlicher Geschmack, ein Symbol der Tradition von Bologna.',
-      MM: 'အမဲသားနုပ်နုပ်စင်း၊ ခရမ်းချဉ်သီးနှင့် အသီးအရွက်များဖြင့် အချိန်ယူချက်ထားသော ဘိုလိုနာ ရိုးရာ အသားဆော့စ်။',
-    }, 
-    pattern: 'Bolognese Ragu' 
-  },
-  { 
     id: 'carbonara', 
     name: { 
-      IT: 'Carbonara', 
+      IT: 'Salsa Carbonara', 
       EN: 'Carbonara', 
-      TH: 'ซอสคาร์โบนาร่า', 
+      TH: 'ซอสคาโบนาร่า', 
       DE: 'Carbonara',
       MM: 'ကာဘိုနာရာ ဆော့စ်',
+      ES: 'Carbonara',
+      FR: 'Carbonara',
+      RU: 'Карбонара',
+      ZH: '卡邦尼',
     }, 
     desc: {
-      IT: 'Uno dei piatti più amati d\'Italia, preparato con guanciale, uova fresche, pecorino romano e pepe nero. Cremoso e autentico, dal sapore ricco e tradizionale.',
-      EN: 'One of Italy\'s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor',
-      TH: 'ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ',
-      DE: 'Eines der beliebtesten Gerichte Italiens, zubereitet mit gereifter Schweinebacke, Eiern, Pecorino-Käse und schwarzem Pfeffer. Cremig und authentisch, mit einem reichen, traditionellen Geschmack.',
-      MM: 'ကြက်ဥ၊ ပါမီဂျန်ချိစ်၊ ငရုတ်ကောင်းမည်းနှင့် ဘေကွန်တို့ဖြင့် ပြုလုပ်ထားသော အီတလီ၏ လူကြိုက်အများဆုံး ကာဘိုနာရာ။',
+      IT: 'Ricetta autentica romana con tuorlo d\'uovo fresco, guanciale croccante e formaggio pecorino romano D.O.P., cremosa e irresistibile.',
+      EN: 'Authentic Roman recipe with fresh egg yolk, crispy guanciale, and aged Pecorino Romano D.O.P. cheese, rich and velvety.',
+      TH: 'สูตรต้นตำรับแท้จากกรุงโรม ผสมผสานไข่แดงสด กวานชาเลกรอบ และชีสเปโกริโน โรมาโน',
+      DE: 'Authentisches römisches Rezept mit frischem Eigelb, knusprigem Guanciale und Pecorino Romano D.O.P., cremig und unwiderstehlich.',
+      MM: 'လတ်ဆတ်သော ကြက်ဥအနှစ်၊ ကြွပ်ရွသော ဝက်ပါးစပ်သားနှင့် ပီကိုရီနိုချိစ်တို့ဖြင့် ဖျော်စပ်ထားသော စစ်မှန်သည့် ရောမ ကာဘိုနာရာ။',
+      ES: 'Auténtica receta romana con yema de huevo, guanciale y queso pecorino.',
+      FR: 'Recette romaine authentique avec jaune d\'œuf, guanciale et fromage pecorino.',
+      RU: 'Аутентичный римский рецепт с яичным желтком, гуанчале и сыром пекорино.',
+      ZH: '正宗的罗马食谱，配以蛋黄、猪颊肉和佩科里诺奶酪',
     }, 
     pattern: 'Carbonara' 
   },
   { 
-    id: 'quattro-formaggi', 
+    id: 'bolognese', 
     name: { 
-      IT: 'Quattro Formaggi', 
-      EN: 'Four Cheeses', 
-      TH: 'ซอสโฟร์ชีส', 
-      DE: 'Vier Käse',
-      MM: 'ချိစ်လေးမျိုး ဆော့စ်',
+      IT: 'Ragù alla Bolognese', 
+      EN: 'Bolognese Ragù', 
+      TH: 'ซอสเนื้อโบโลเนส', 
+      DE: 'Bolognese Ragù',
+      MM: 'ဘိုလိုနိစ် အမဲသားဆော့စ်',
+      ES: 'Ragú boloñés',
+      FR: 'Ragù bolognaise',
+      RU: 'Болоньезе рагу',
+      ZH: '博洛尼亚肉酱',
     }, 
     desc: {
-      IT: 'Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi perfettamente insieme per creare un sapore ricco, deciso e avvolgente ad ogni morso.',
-      EN: 'A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite',
-      TH: 'ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสระดับพรีเมียม',
-      DE: 'Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichen und kräftigen Geschmack zu kreieren.',
-      MM: 'အီတလီ ချိစ် ၄ မျိုးကို ရောစပ် အရည်ဖျော်ထားသော ခရင်မ်ဆန်ဆန် ချိစ်ဆော့စ်။',
+      IT: 'Salsa ricca e corposa di carne macinata di maiale cotta a fuoco lento per ore con pomodoro e aromi, come vuole la tradizione emiliana.',
+      EN: 'Rich and savory slow-cooked minced pork meat sauce simmered with tomatoes and herbs according to true Italian tradition.',
+      TH: 'ซอสเนื้อหมูสับเคี่ยวไฟอ่อนนานหลายชั่วโมงกับมะเขือเทศและเครื่องเทศตามแบบฉบับอิตาลีแท้',
+      DE: 'Herzhaftes, stundenlang sanft geköcheltes Fleischragù mit Tomaten und Kräutern nach echter italienischer Tradition.',
+      MM: 'ခရမ်းချဉ်သီးနှင့် ဟင်းခတ်အမွှေးအကြိုင်များဖြင့် နာရီပေါင်းများစွာ ဖြည်းညင်းစွာ ကျိုထားသော အမဲ/ဝက်သားဆော့စ်။',
+      ES: 'Salsa tradicional de carne picada cocinada a fuego lento.',
+      FR: 'Sauce traditionnelle à la viande hachée mijotée lentement.',
+      RU: 'Традиционный соус из мясного фарша, приготовленный на медленном огне.',
+      ZH: '慢炖的传统肉末酱',
     }, 
-    pattern: 'Four Cheeses' 
+    pattern: 'Bolognese' 
   },
   { 
-    id: 'flower-power', 
+    id: 'gorgonzola', 
     name: { 
-      IT: 'Flower Power', 
-      EN: 'Flower Power', 
-      TH: 'พาสต้าฟลาวเวอร์เพาเวอร์', 
-      DE: 'Flower Power',
-      MM: 'Flower Power အထူးလက်ရာ',
+      IT: 'Crema di Gorgonzola', 
+      EN: 'Creamy Gorgonzola', 
+      TH: 'ซอสครีมกอร์กอนโซล่า', 
+      DE: 'Cremiges Gorgonzola',
+      MM: 'ဂေါ်ဂွန်ဇိုလာ ချိစ်ဆော့စ်',
+      ES: 'Gorgonzola cremoso',
+      FR: 'Gorgonzola crémeux',
+      RU: 'Сливочная горгонзола',
+      ZH: '奶油戈贡佐拉',
     }, 
     desc: {
-      IT: 'Salsa per pasta artigianale preparata in casa con gorgonzola, salsiccia italiana e carciofi. Cremosa, ricca e dal sapore unico, perfetta per gli amanti dei gusti decisi.',
-      EN: 'House-made pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes',
-      TH: 'พาสต้าสูตรพิเศษของร้าน ปรุงรสด้วยวัตถุดิบสดใหม่รสชาติกลมกล่อม',
-      DE: 'Hausgemachte Nudelsauce mit Gorgonzola, italienischer Wurst und Artischocken. Cremig, reichhaltig und voller einzigartigem Geschmack, perfekt für Liebhaber kräftiger Aromen.',
-      MM: 'ဂေါ်ဂွန်ဇိုလာချိစ်၊ အီတလီ ဝက်အူချောင်းနှင့် အာတီချုပ်တို့ဖြင့် စီမံထားသော ဆိုင်၏ ကိုယ်ပိုင် အထူးဆော့စ်။',
+      IT: 'Salsa vellutata e intensa a base di autentico formaggio erborinato Gorgonzola D.O.P. fuso con burro di qualità.',
+      EN: 'Rich, creamy and intense sauce made with authentic melted Italian Gorgonzola D.O.P. blue cheese and butter.',
+      TH: 'ซอสครีมชีสบลูชีสกอร์กอนโซล่าแท้ รสชาติเข้มข้น หอมมัน กลมกล่อม',
+      DE: 'Samtig-würzige Sauce aus geschmolzenem italienischen Gorgonzola D.O.P. Blauschimmelkäse und Butter.',
+      MM: 'စစ်မှန်သော အီတလီ ဂေါ်ဂွန်ဇိုလာ ဘလူးချိစ်နှင့် ထောပတ်တို့ဖြင့် ဖျော်စပ်ထားသော အရသာပြည့်ဝသည့် ဆော့စ်။',
+      ES: 'Rica salsa de queso azul italiano.',
+      FR: 'Sauce riche au fromage bleu italien.',
+      RU: 'Насыщенный итальянский соус из голубого сыра.',
+      ZH: '浓郁的意大利蓝纹奶酪酱',
     }, 
-    pattern: 'Flower Power' 
-  },
-  { 
-    id: 'lasagne', 
-    name: { 
-      IT: 'Lasagne', 
-      EN: 'Baked Lasagna', 
-      TH: 'ลาซานญ่า', 
-      DE: 'Lasagne',
-      MM: 'လာဆန်းညာ',
-    }, 
-    desc: {
-      IT: 'Le lasagne fatte in casa sono un classico della cucina italiana, preparate con besciamella, ragù e parmigiano. Si prega di ordinare con un giorno di anticipo (minimo due porzioni) o chiedere allo staff. Tempo di cottura circa 30 minuti.',
-      EN: 'Homemade Lasagne Are A Classic Of Italian Cuisine, Made With Béchamel, Sauces, And Parmesan. Pre-Order One Day In Advance, Minimum Two Portions, Or Ask The Staff. Cooking Time About 30 Minutes.',
-      TH: 'ลาซานญ่าอบร้อนๆ สลับชั้นด้วยพาสต้า ซอสเนื้อรสเข้มข้น และชีสเยิ้มๆ',
-      DE: 'Hausgemachte Lasagne ist ein Klassiker der italienischen Küche, zubereitet mit Béchamelsauce, Fleischsauce und Parmesan. Bitte einen Tag im Voraus bestellen (mindestens zwei Portionen) oder das Personal fragen. Garzeit ca. 30 Minuten.',
-      MM: 'အသားဆော့စ်၊ ခရင်မ်နှင့် ပါမီဂျန်ချိစ်တို့ အထပ်ထပ်စီပြီး ဖုတ်ထားသော အိမ်လုပ် အီတလီ လာဆန်းညာ။',
-    }, 
-    pattern: 'Lasagne' 
+    pattern: 'Gorgonzola' 
   }
 ];
 
-const PASTA_FILTER_LABELS = {
+const PASTA_FILTER_LABELS: Record<string, { all: string }> = {
   IT: { all: 'Tutti i Primi' },
   EN: { all: 'All Pasta' },
   TH: { all: 'พาสต้าทั้งหมด' },
   DE: { all: 'Alle Nudelgerichte' },
   MM: { all: 'ခေါက်ဆွဲ အားလုံး' },
+  ES: { all: 'Todas las Pastas' },
+  FR: { all: 'Toutes les Pâtes' },
+  RU: { all: 'Все виды пасты' },
+  ZH: { all: '全部意面' },
 };
 
 // ─── Wine Filtering Definitions & Subsections ──────────────────────────────
 
-const WINE_FILTER_LABELS = {
+const WINE_FILTER_LABELS: Record<string, {
+  allTypes: string;
+  allCountries: string;
+  filterByCountry: string;
+  italianFirstBadge: string;
+  noWinesFound: string;
+  resetFilters: string;
+  winesCount: string;
+  wineCount: string;
+}> = {
   IT: {
     allTypes: 'Tutti i Vini',
     allCountries: 'Tutte le Origini',
@@ -606,60 +1525,196 @@ const WINE_FILTER_LABELS = {
     resetFilters: 'ဝိုင် အားလုံး ပြသရန်',
     winesCount: 'မျိုး',
     wineCount: 'မျိုး',
-  }
+  },
+  ES: {
+    allTypes: 'Todos los Vinos',
+    allCountries: 'Todos los Orígenes',
+    filterByCountry: 'Origen',
+    italianFirstBadge: 'Selección Italiana Destacada',
+    noWinesFound: 'No se encontraron vinos con los filtros seleccionados.',
+    resetFilters: 'Mostrar todos los vinos',
+    winesCount: 'vinos',
+    wineCount: 'vino',
+  },
+  FR: {
+    allTypes: 'Tous les Vins',
+    allCountries: 'Toutes les Origines',
+    filterByCountry: 'Origine',
+    italianFirstBadge: 'Sélection Italienne à l\'Honneur',
+    noWinesFound: 'Aucun vin trouvé avec les filtres sélectionnés.',
+    resetFilters: 'Afficher tous les vins',
+    winesCount: 'vins',
+    wineCount: 'vin',
+  },
+  RU: {
+    allTypes: 'Все Вина',
+    allCountries: 'Все Страны',
+    filterByCountry: 'Происхождение',
+    italianFirstBadge: 'Итальянская Коллекция',
+    noWinesFound: 'Вина не найдены по выбранным фильтрам.',
+    resetFilters: 'Показать все вина',
+    winesCount: 'вин',
+    wineCount: 'вино',
+  },
+  ZH: {
+    allTypes: '所有葡萄酒',
+    allCountries: '所有产地',
+    filterByCountry: '产地',
+    italianFirstBadge: '精选意大利佳酿',
+    noWinesFound: '未找到符合所选条件的葡萄酒。',
+    resetFilters: '显示所有葡萄酒',
+    winesCount: '款',
+    wineCount: '款',
+  },
 };
 
 const WINE_TYPE_SECTIONS = [
   {
     id: 'red',
-    name: { IT: 'Vini Rossi', EN: 'Red Wines', TH: 'ไวน์แดง', DE: 'Rotweine', MM: 'ဝိုင်နီ' },
+    name: {
+      IT: 'Vini Rossi',
+      EN: 'Red Wines',
+      TH: 'ไวน์แดง',
+      DE: 'Rotweine',
+      MM: 'ဝိုင်နီ',
+      ES: 'Vinos Tintos',
+      FR: 'Vins Rouges',
+      RU: 'Красные Вина',
+      ZH: '红葡萄酒',
+    },
     desc: {
       IT: 'Selezione di vini rossi strutturati, avvolgenti e armoniosi, ideali per accompagnare piatti saporiti, carni e formaggi.',
       EN: 'Curated selection of structured, full-bodied red wines, tailored for savory dishes, meats, and cheeses.',
       TH: 'คัดสรรไวน์แดงรสชาตินุ่มละมุนและเข้มข้น เหมาะสำหรับทานคู่กับอาหารจานหลักและเนื้อสัตว์',
       DE: 'Kuratierte Auswahl an strukturierten, vollmundigen Rotweinen, ideal zu herzhaften Gerichten, Fleisch und Käse.',
       MM: 'အသားဟင်းလျာများနှင့် တွဲဖက်ရန် အထူးသင့်လျော်သော အရသာပြည့်ဝ ဝိုင်နီများ။',
+      ES: 'Selección de vinos tintos estructurados, envolventes y armoniosos, ideales para acompañar platos sabrosos, carnes y quesos.',
+      FR: 'Sélection de vins rouges structurés, amples et harmonieux, parfaits pour accompagner plats savoureux, viandes et fromages.',
+      RU: 'Коллекция полнотелых и гармоничных красных вин, идеально подходящих к мясным блюдам и сырам.',
+      ZH: '精选酒体饱满、层次丰富的红葡萄酒，是搭配浓郁菜肴、肉类及奶酪的理想之选。',
     },
-    badge: { IT: 'Corposi & Strutturati', EN: 'Full-Bodied', TH: 'เข้มข้น', DE: 'Vollmundig', MM: 'အရသာပြည့်ဝ' },
+    badge: {
+      IT: 'Corposi & Strutturati',
+      EN: 'Full-Bodied',
+      TH: 'เข้มข้น',
+      DE: 'Vollmundig',
+      MM: 'အရသာပြည့်ဝ',
+      ES: 'Con Cuerpo y Estructurados',
+      FR: 'Corsés & Structurés',
+      RU: 'Полнотелые',
+      ZH: '浓郁醇厚',
+    },
     color: '#8b0000'
   },
   {
     id: 'white',
-    name: { IT: 'Vini Bianchi', EN: 'White Wines', TH: 'ไวน์ขาว', DE: 'Weißweine', MM: 'ဝိုင်ဖြူ' },
+    name: {
+      IT: 'Vini Bianchi',
+      EN: 'White Wines',
+      TH: 'ไวน์ขาว',
+      DE: 'Weißweine',
+      MM: 'ဝိုင်ဖြူ',
+      ES: 'Vinos Blancos',
+      FR: 'Vins Blancs',
+      RU: 'Белые Вина',
+      ZH: '白葡萄酒',
+    },
     desc: {
       IT: 'Vini bianchi freschi, minerali ed eleganti, ideali per aperitivi, antipasti, primi piatti e pesce.',
       EN: 'Fresh, mineral, and fragrant white wines, crafted to pair with appetizers, pastas, and seafood dishes.',
       TH: 'ไวน์ขาวสดชื่น กลิ่นหอมผลไม้และดอกไม้ เหมาะสำหรับดื่มเรียกน้ำย่อยและอาหารทะเล',
       DE: 'Frische, mineralische und elegante Weißweine, ideal zu Vorspeisen, Pasta und Fischgerichten.',
       MM: 'ပင်လယ်စာနှင့် အဆာပြေစာများနှင့် တွဲဖက်ရန် လတ်ဆတ်မွှေးပျံ့သော ဝိုင်ဖြူများ။',
+      ES: 'Vinos blancos frescos, minerales y elegantes, ideales para aperitivos, entrantes, primeros platos y pescados.',
+      FR: 'Vins blancs frais, minéraux et élégants, idéals pour les apéritifs, entrées, pâtes et poissons.',
+      RU: 'Свежие, минеральные и элегантные белые вина, превосходные для аперитива, пасты и рыбы.',
+      ZH: '清新、优雅且富有矿物感的白葡萄酒，非常适合作为开胃酒，并搭配前菜、意面与海鲜。',
     },
-    badge: { IT: 'Freschi & Minerali', EN: 'Crisp & Mineral', TH: 'สดชื่น', DE: 'Frisch & Mineralisch', MM: 'လတ်ဆတ်မွှေးပျံ့' },
+    badge: {
+      IT: 'Freschi & Minerali',
+      EN: 'Crisp & Mineral',
+      TH: 'สดชื่น',
+      DE: 'Frisch & Mineralisch',
+      MM: 'လတ်ဆတ်မွှေးပျံ့',
+      ES: 'Frescos y Minerales',
+      FR: 'Frais & Minéraux',
+      RU: 'Свежие и Минеральные',
+      ZH: '清新矿感',
+    },
     color: '#b45309'
   },
   {
     id: 'rose',
-    name: { IT: 'Vini Rosati', EN: 'Rosé Wines', TH: 'ไวน์โรเซ่', DE: 'Roséweine', MM: 'ရိုဇေး ဝိုင်' },
+    name: {
+      IT: 'Vini Rosati',
+      EN: 'Rosé Wines',
+      TH: 'ไวน์โรเซ่',
+      DE: 'Roséweine',
+      MM: 'ရိုဇေး ဝိုင်',
+      ES: 'Vinos Rosados',
+      FR: 'Vins Rosés',
+      RU: 'Розовые Вина',
+      ZH: '桃红葡萄酒',
+    },
     desc: {
       IT: 'Sfumature floreali e fruttate con un profilo fresco e versatile, perfetto per aperitivi e pietanze leggere.',
       EN: 'Delicate floral and fruity notes with a crisp, balanced profile, perfect for warm evenings and light dining.',
       TH: 'ไวน์โรเซ่สีสวย กลิ่นหอมสดชื่น ดื่มง่าย สดชื่นในทุกช่วงเวลา',
       DE: 'Florale und fruchtige Noten mit herrlicher Frische, ideal für warme Abende und leichte Küche.',
       MM: 'ပန်းရနံ့နှင့် သစ်သီးရနံ့ သင်းပျံ့သော လန်းဆန်းစေသည့် ရိုဇေးဝိုင်။',
+      ES: 'Notas florales y afrutadas con un perfil fresco y versátil, perfecto para aperitivos y platos ligeros.',
+      FR: 'Nuances florales et fruitées au profil frais et polyvalent, parfait pour l\'apéritif et les plats légers.',
+      RU: 'Цветочные и фруктовые ноты со свежим и универсальным вкусом, идеально для легких блюд.',
+      ZH: '带有花香与果香的清新优雅风味，百搭怡人，是开胃酒和轻食的绝佳伴侣。',
     },
-    badge: { IT: 'Floreali & Freschi', EN: 'Floral & Refreshing', TH: 'หอมละมุน', DE: 'Floral & Frisch', MM: 'ပန်းရနံ့သင်း' },
+    badge: {
+      IT: 'Floreali & Freschi',
+      EN: 'Floral & Refreshing',
+      TH: 'หอมละมุน',
+      DE: 'Floral & Frisch',
+      MM: 'ပန်းရနံ့သင်း',
+      ES: 'Florales y Frescos',
+      FR: 'Floraux & Frais',
+      RU: 'Цветочные и Свежие',
+      ZH: '花香清新',
+    },
     color: '#db2777'
   },
   {
     id: 'sparkling',
-    name: { IT: 'Spumanti', EN: 'Sparkling Wines', TH: 'สปาร์กลิงไวน์', DE: 'Schaumweine', MM: 'စပါကလင် ဝိုင်' },
+    name: {
+      IT: 'Spumanti',
+      EN: 'Sparkling Wines',
+      TH: 'สปาร์กลิงไวน์',
+      DE: 'Schaumweine',
+      MM: 'စပါကလင် ဝိုင်',
+      ES: 'Vinos Espumosos',
+      FR: 'Vins Effervescents',
+      RU: 'Игристые Вина',
+      ZH: '气泡起泡酒',
+    },
     desc: {
       IT: 'Spumanti e prosecchi dal perlage fine e persistente, pensati per brindisi raffinati e momenti speciali.',
       EN: 'Sparkling wines and prosecco with fine, delicate perlage, crafted for celebrations and elegant toasts.',
       TH: 'สปาร์กลิงไวน์และโพรเซกโกชั้นเลิศ ฟองละเอียดนุ่มลิ้น เพื่อทุกช่วงเวลาพิเศษ',
       DE: 'Edle Schaumweine und Prosecco mit feiner Perlage für besondere Anlässe und stilvolle Momente.',
       MM: 'အထူးအခမ်းအနားများနှင့် အောင်ပွဲများအတွက် အကောင်းစား စပါကလင်နှင့် ပရိုဆက်ကို ဝိုင်များ။',
+      ES: 'Espumosos y prosecco con un perlage fino y persistente, creados para brindis refinados y ocasiones especiales.',
+      FR: 'Effervescents et prosecco au perlage fin et persistant, conçus pour des toasts raffinés et des moments d\'exception.',
+      RU: 'Игристые вина и просекко с тонким и стойким перляжем для праздничных тостов и особых моментов.',
+      ZH: '气泡细腻持久的起泡酒与普罗塞克，专为优雅敬酒与特别时刻量身打造。',
     },
-    badge: { IT: 'Perlage & Prestigio', EN: 'Fine Perlage', TH: 'ฟองละเอียด', DE: 'Feine Perlage', MM: 'အထူးအမြှုပ်' },
+    badge: {
+      IT: 'Perlage & Prestigio',
+      EN: 'Fine Perlage',
+      TH: 'ฟองละเอียด',
+      DE: 'Feine Perlage',
+      MM: 'အထူးအမြှုပ်',
+      ES: 'Burbuja Fina y Prestigio',
+      FR: 'Perlage Fin & Prestige',
+      RU: 'Тонкий Перляж',
+      ZH: '细腻气泡',
+    },
     color: '#ca8a04'
   }
 ];
@@ -818,6 +1873,30 @@ const DROPDOWN_LABELS = {
     drinkFilter: 'သောက်စရာ အမျိုးအစား',
     wineTypeFilter: 'ဝိုင် အမျိုးအစား',
     wineCountryFilter: 'မူရင်းနိုင်ငံ',
+  },
+  ES: {
+    pastaFilter: 'Salsa / Tipo de Pasta',
+    drinkFilter: 'Categoría de Bebida',
+    wineTypeFilter: 'Tipo de Vino',
+    wineCountryFilter: 'Origen / País',
+  },
+  FR: {
+    pastaFilter: 'Sauce / Type de Pâtes',
+    drinkFilter: 'Catégorie de Boisson',
+    wineTypeFilter: 'Type de Vin',
+    wineCountryFilter: 'Origine / Pays',
+  },
+  RU: {
+    pastaFilter: 'Соус / Вид пасты',
+    drinkFilter: 'Категория напитков',
+    wineTypeFilter: 'Тип вина',
+    wineCountryFilter: 'Страна происхождения',
+  },
+  ZH: {
+    pastaFilter: '酱汁 / 面条种类',
+    drinkFilter: '饮品分类',
+    wineTypeFilter: '葡萄酒类型',
+    wineCountryFilter: '产地 / 国家',
   },
 };
 
@@ -1233,9 +2312,11 @@ export default function DeliveryMenu() {
     setIsReservationModalOpen(true);
   };
 
-  const t = translations[lang];
+  const baseT = translations[lang] || translations.EN || translations.IT || {};
+  const targetedT = targetedTranslations[lang] || targetedTranslations.EN || targetedTranslations.IT || {};
+  const t = { ...baseT, ...targetedT };
   const activeCategory = availableCategories.find((c) => c.id === activeCategoryId) ?? availableCategories[0] ?? menuData[0];
-  const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
+  const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || categoryDetails[activeCategory.id]?.EN?.name || categoryDetails[activeCategory.id]?.IT?.name || activeCategory.name;
 
   const isItalianWine = (item: any) => {
     if (item.flag === '🇮🇹') return true;
@@ -1260,6 +2341,8 @@ export default function DeliveryMenu() {
       const deletedSet = new Set<string>(deletedRaw ? JSON.parse(deletedRaw) : []);
 
       let rawWines: any[] = [];
+      const masterMap = new Map(INITIAL_WINE_COLLECTION.map(w => [w.id, w]));
+
       if (cloudWines && cloudWines.length > 0) {
         rawWines = cloudWines;
       } else {
@@ -1268,15 +2351,13 @@ export default function DeliveryMenu() {
           try {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed) && parsed.length > 0) {
-              const masterMap = new Map(INITIAL_WINE_COLLECTION.map(w => [w.id, w]));
               rawWines = parsed.map((w: any) => {
-                if (!w.bottleImage || w.bottleImage.includes('01-italian-wines.webp')) {
-                  const master = masterMap.get(w.id);
-                  if (master && master.bottleImage && !master.bottleImage.includes('01-italian-wines.webp')) {
-                    return { ...w, bottleImage: master.bottleImage };
-                  }
-                }
-                return w;
+                const master = masterMap.get(w.id);
+                return {
+                  ...(master || {}),
+                  ...w,
+                  bottleImage: (!w.bottleImage || w.bottleImage.includes('01-italian-wines.webp')) && master?.bottleImage ? master.bottleImage : w.bottleImage,
+                };
               });
               const currentIds = new Set(rawWines.map((w: any) => w.id));
               INITIAL_WINE_COLLECTION.forEach((masterWine) => {
@@ -1298,64 +2379,121 @@ export default function DeliveryMenu() {
       return rawWines
         .filter((w: any) => w.isAvailable !== false && !unavailableIds.has(w.id) && !deletedSet.has(w.id))
         .map((w: any) => {
-          const rawPrice = typeof w.price === 'string' ? parseFloat(w.price.replace(/[^0-9.]/g, '')) || 1190 : (w.price || 1190);
-          const finalPrice = priceOverrides[w.id] !== undefined ? priceOverrides[w.id] : rawPrice;
-          const titleForLang = (
-            lang === 'IT' ? (w.titleIt || w.title) :
-            lang === 'TH' ? (w.titleTh || w.title) :
-            lang === 'DE' ? (w.titleDe || w.title) :
-            (w.titleEn || w.title)
-          ) || w.title || '';
-          const subForLang = (
-            lang === 'IT' ? (w.subtitleIt || w.categorySubtitle) :
-            lang === 'TH' ? (w.subtitleTh || w.categorySubtitle) :
-            lang === 'DE' ? (w.subtitleDe || w.categorySubtitle) :
-            (w.subtitleEn || w.categorySubtitle)
-          ) || w.categorySubtitle || '';
-          const descForLang = (
-            lang === 'IT' ? (w.descriptionIt || w.description) :
-            lang === 'TH' ? (w.descriptionTh || w.description) :
-            lang === 'DE' ? (w.descriptionDe || w.description) :
-            (w.descriptionEn || w.description)
-          ) || w.description || '';
+          const master = masterMap.get(w.id);
+          const merged: any = {
+            ...(master || {}),
+            ...w,
+            titleZh: w.titleZh || master?.titleZh,
+            titleMm: w.titleMm || master?.titleMm,
+            titleRu: w.titleRu || master?.titleRu,
+            titleFr: w.titleFr || master?.titleFr,
+            titleEs: w.titleEs || master?.titleEs,
+            titleDe: w.titleDe || master?.titleDe,
+            titleTh: w.titleTh || master?.titleTh,
+            titleIt: w.titleIt || master?.titleIt,
+            titleEn: w.titleEn || master?.titleEn,
+            subtitleZh: w.subtitleZh || master?.subtitleZh,
+            subtitleMm: w.subtitleMm || master?.subtitleMm,
+            subtitleRu: w.subtitleRu || master?.subtitleRu,
+            subtitleFr: w.subtitleFr || master?.subtitleFr,
+            subtitleEs: w.subtitleEs || master?.subtitleEs,
+            subtitleDe: w.subtitleDe || master?.subtitleDe,
+            subtitleTh: w.subtitleTh || master?.subtitleTh,
+            subtitleIt: w.subtitleIt || master?.subtitleIt,
+            subtitleEn: w.subtitleEn || master?.subtitleEn,
+            descriptionZh: w.descriptionZh || master?.descriptionZh,
+            descriptionMm: w.descriptionMm || master?.descriptionMm,
+            descriptionRu: w.descriptionRu || master?.descriptionRu,
+            descriptionFr: w.descriptionFr || master?.descriptionFr,
+            descriptionEs: w.descriptionEs || master?.descriptionEs,
+            descriptionDe: w.descriptionDe || master?.descriptionDe,
+            descriptionTh: w.descriptionTh || master?.descriptionTh,
+            descriptionIt: w.descriptionIt || master?.descriptionIt,
+            descriptionEn: w.descriptionEn || master?.descriptionEn,
+          };
+
+          const rawPrice = typeof merged.price === 'string' ? parseFloat(merged.price.replace(/[^0-9.]/g, '')) || 1190 : (merged.price || 1190);
+          const finalPrice = priceOverrides[merged.id] !== undefined ? priceOverrides[merged.id] : rawPrice;
+          const titleForLang = getWineTranslatedTitle(merged, lang) || merged.title || '';
+          const subForLang = getWineTranslatedSubtitle(merged, lang) || merged.categorySubtitle || '';
+          const descForLang = getWineTranslatedDesc(merged, lang) || merged.description || '';
 
           return {
-            id: w.id,
+            id: merged.id,
             name: titleForLang,
-            nameIt: w.titleIt || w.title,
-            nameTh: w.titleTh || w.title,
-            nameDe: w.titleDe || w.title,
+            nameIt: merged.titleIt || merged.title,
+            nameEn: merged.titleEn || merged.title,
+            nameTh: merged.titleTh || merged.title,
+            nameMm: merged.titleMm || merged.title,
+            nameDe: merged.titleDe || merged.title,
+            nameEs: merged.titleEs || merged.title,
+            nameFr: merged.titleFr || merged.title,
+            nameRu: merged.titleRu || merged.title,
+            nameZh: merged.titleZh || merged.title,
             title: titleForLang,
-            titleIt: w.titleIt || w.title,
-            titleTh: w.titleTh || w.title,
-            titleDe: w.titleDe || w.title,
+            titleIt: merged.titleIt || merged.title,
+            titleEn: merged.titleEn || merged.title,
+            titleTh: merged.titleTh || merged.title,
+            titleMm: merged.titleMm || merged.title,
+            titleDe: merged.titleDe || merged.title,
+            titleEs: merged.titleEs || merged.title,
+            titleFr: merged.titleFr || merged.title,
+            titleRu: merged.titleRu || merged.title,
+            titleZh: merged.titleZh || merged.title,
             description: descForLang,
-            descriptionIt: w.descriptionIt || w.description,
-            descriptionTh: w.descriptionTh || w.description,
-            descriptionDe: w.descriptionDe || w.description,
-            description_it: w.descriptionIt || w.description,
-            description_th: w.descriptionTh || w.description,
-            description_de: w.descriptionDe || w.description,
+            descriptionIt: merged.descriptionIt || merged.description,
+            descriptionEn: merged.descriptionEn || merged.description,
+            descriptionTh: merged.descriptionTh || merged.description,
+            descriptionMm: merged.descriptionMm || merged.description,
+            descriptionDe: merged.descriptionDe || merged.description,
+            descriptionEs: merged.descriptionEs || merged.description,
+            descriptionFr: merged.descriptionFr || merged.description,
+            descriptionRu: merged.descriptionRu || merged.description,
+            descriptionZh: merged.descriptionZh || merged.description,
+            description_it: merged.descriptionIt || merged.description,
+            description_en: merged.descriptionEn || merged.description,
+            description_th: merged.descriptionTh || merged.description,
+            description_mm: merged.descriptionMm || merged.description,
+            description_de: merged.descriptionDe || merged.description,
+            description_es: merged.descriptionEs || merged.description,
+            description_fr: merged.descriptionFr || merged.description,
+            description_ru: merged.descriptionRu || merged.description,
+            description_zh: merged.descriptionZh || merged.description,
             price: finalPrice,
-            image: w.bottleImage,
-            image_file: w.bottleImage,
+            image: merged.bottleImage,
+            image_file: merged.bottleImage,
             category: 'wines',
-            categoryType: resolveWineCategoryType(w),
+            categoryType: resolveWineCategoryType(merged),
             categorySubtitle: subForLang,
-            categorySubtitleIt: w.subtitleIt || w.categorySubtitle,
-            categorySubtitleTh: w.subtitleTh || w.categorySubtitle,
-            categorySubtitleDe: w.subtitleDe || w.categorySubtitle,
-            flag: w.flag,
-            alcohol: w.alcohol,
-            bottleScale: w.bottleScale || 100,
-            bottleScaleX: w.bottleScaleX || 100,
-            bottleOffsetX: w.bottleOffsetX || 0,
-            bottleOffsetY: w.bottleOffsetY || 0,
+            categorySubtitleIt: merged.subtitleIt || merged.categorySubtitle,
+            categorySubtitleEn: merged.subtitleEn || merged.categorySubtitle,
+            categorySubtitleTh: merged.subtitleTh || merged.categorySubtitle,
+            categorySubtitleMm: merged.subtitleMm || merged.categorySubtitle,
+            categorySubtitleDe: merged.subtitleDe || merged.categorySubtitle,
+            categorySubtitleEs: merged.subtitleEs || merged.categorySubtitle,
+            categorySubtitleFr: merged.subtitleFr || merged.categorySubtitle,
+            categorySubtitleRu: merged.subtitleRu || merged.categorySubtitle,
+            categorySubtitleZh: merged.subtitleZh || merged.categorySubtitle,
+            subtitleIt: merged.subtitleIt || merged.categorySubtitle,
+            subtitleEn: merged.subtitleEn || merged.categorySubtitle,
+            subtitleTh: merged.subtitleTh || merged.categorySubtitle,
+            subtitleMm: merged.subtitleMm || merged.categorySubtitle,
+            subtitleDe: merged.subtitleDe || merged.categorySubtitle,
+            subtitleEs: merged.subtitleEs || merged.categorySubtitle,
+            subtitleFr: merged.subtitleFr || merged.categorySubtitle,
+            subtitleRu: merged.subtitleRu || merged.categorySubtitle,
+            subtitleZh: merged.subtitleZh || merged.categorySubtitle,
+            flag: merged.flag,
+            alcohol: merged.alcohol,
+            bottleScale: merged.bottleScale || 100,
+            bottleScaleX: merged.bottleScaleX || 100,
+            bottleOffsetX: merged.bottleOffsetX || 0,
+            bottleOffsetY: merged.bottleOffsetY || 0,
             isAvailable: true
           } as MenuItem;
         });
     } catch (e) {
-      console.warn('Error reading dynamic wines in DeliveryMenu:', e);
+      console.warn('Error reading dynamic wines:', e);
       return [];
     }
   };
@@ -1583,7 +2721,7 @@ export default function DeliveryMenu() {
       <div className="max-w-6xl mx-auto px-4 mt-24 md:mt-28">
         
         {/* Italian Chef Header Card */}
-        <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 rounded-2xl shadow-lg mb-6 z-30 overflow-hidden" style={{ backgroundColor: '#3b3530' }}>
+        <header className="relative text-stone-100 py-4 lg:py-8 px-4 md:px-8 rounded-2xl shadow-lg mb-6 z-30 overflow-visible" style={{ backgroundColor: '#3b3530' }}>
           {/* Inner Background with rounded corners & clipping */}
           <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
             <div className="absolute inset-0 opacity-40">
@@ -1595,40 +2733,54 @@ export default function DeliveryMenu() {
           {/* MOBILE HERO BANNER (Prominent Large Logo, Brand Title, Tagline & Hours Info) */}
           <div className="block lg:hidden relative z-10 py-3 px-2.5 sm:px-4">
             {/* Top-Right Language Selector */}
-            <div className="absolute top-2.5 right-2.5 z-20">
+            <div className="absolute top-2.5 right-2.5 z-50">
               <button
                 type="button"
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1 bg-black/55 backdrop-blur-md px-2 py-1 rounded-xl border border-white/15 shadow-sm text-stone-200 hover:text-white transition-all cursor-pointer font-bold text-[10px] uppercase"
+                className="flex items-center gap-1.5 bg-[#1c1917] px-2.5 py-1.5 rounded-xl border border-amber-400/60 shadow-lg text-white font-black text-xs uppercase cursor-pointer active:scale-95"
               >
-                <Globe className="w-3 h-3" />
-                <span>{lang}</span>
-                <ChevronDown className="w-2.5 h-2.5 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
+                <span className="text-sm leading-none">{LANGUAGE_METAS[lang]?.flag || '🌐'}</span>
+                <span className="tracking-wider">{lang}</span>
+                <ChevronDown className="w-3 h-3 text-amber-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
               </button>
 
               {isLangOpen && (
                 <>
-                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 mt-1.5 w-28 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
-                    {SUPPORTED_LANGUAGES.map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() => {
-                          setLang(l);
-                          setIsLangOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer flex items-center justify-between ${
-                          lang === l ? "text-[#fca5a5] bg-white/5" : "text-stone-300"
-                        }`}
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <span>{LANGUAGE_METAS[l]?.flag}</span>
-                          <span>{l}</span>
-                        </span>
-                        {lang === l && <span className="text-[10px]">✓</span>}
-                      </button>
-                    ))}
+                  <div className="fixed inset-0 z-[9990] cursor-default bg-black/60" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-[285px] sm:w-[305px] bg-[#18181b] rounded-2xl border-2 border-amber-400 shadow-[0_20px_50px_rgba(0,0,0,0.95)] z-[9999] p-2.5 animate-fadeIn">
+                    <div className="px-2 py-1 text-[10.5px] font-black uppercase tracking-wider text-amber-400 border-b border-stone-800 mb-2 flex items-center justify-between">
+                      <span>Lingua / Language</span>
+                      <Globe className="w-3.5 h-3.5 text-amber-400" />
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {SUPPORTED_LANGUAGES.map((l) => {
+                        const meta = LANGUAGE_METAS[l];
+                        const isSelected = lang === l;
+                        return (
+                          <button
+                            key={l}
+                            type="button"
+                            onClick={() => {
+                              setLang(l);
+                              setIsLangOpen(false);
+                            }}
+                            className={`flex flex-col items-center justify-center p-2 rounded-xl text-center cursor-pointer transition-all duration-150 select-none ${
+                              isSelected
+                                ? "bg-amber-400 text-stone-950 font-black shadow-md border border-amber-300 ring-2 ring-amber-400/50 scale-[1.02]"
+                                : "text-white bg-stone-900/90 hover:bg-stone-800 border border-stone-800 hover:border-amber-400/50"
+                            }`}
+                          >
+                            <span className="text-xl leading-none mb-1">{meta?.flag}</span>
+                            <span className="text-xs font-black tracking-wide uppercase leading-tight">
+                              {l}
+                            </span>
+                            <span className={`text-[9px] truncate max-w-full leading-tight mt-0.5 ${isSelected ? 'text-stone-900 font-bold' : 'text-stone-400'}`}>
+                              {meta?.nativeName}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </>
               )}
@@ -1687,40 +2839,54 @@ export default function DeliveryMenu() {
           {/* DESKTOP SCENIC HERO (Large Logo & Tagline) */}
           <div className="hidden lg:block relative z-10 my-auto py-2">
             {/* Symmetrical Language Dropdown Selector (Desktop) */}
-            <div className="absolute top-2 right-2 z-20">
+            <div className="absolute top-2 right-2 z-50">
               <button
                 type="button"
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1 bg-black/45 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-white/10 shadow-sm text-stone-300 hover:text-white transition-all cursor-pointer font-bold text-[10px] uppercase"
+                className="flex items-center gap-1.5 bg-[#1c1917] px-3 py-1.5 rounded-xl border border-amber-400/60 shadow-lg text-white font-black text-xs uppercase cursor-pointer active:scale-95"
               >
-                <Globe className="w-3.5 h-3.5" />
-                <span>{lang}</span>
-                <ChevronDown className="w-3 h-3 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
+                <span className="text-sm leading-none">{LANGUAGE_METAS[lang]?.flag || '🌐'}</span>
+                <span className="tracking-wider">{lang}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-amber-400 transition-transform duration-200" style={{ transform: isLangOpen ? 'rotate(180deg)' : 'none' }} />
               </button>
 
               {isLangOpen && (
                 <>
-                  <div className="fixed inset-0 z-40 cursor-default" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 mt-1.5 w-28 bg-[#3b3530]/95 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-50 overflow-hidden flex flex-col">
-                    {SUPPORTED_LANGUAGES.map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() => {
-                          setLang(l);
-                          setIsLangOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-[10px] font-bold transition-all hover:bg-white/10 cursor-pointer flex items-center justify-between ${
-                          lang === l ? "text-[#fca5a5] bg-white/5" : "text-stone-300"
-                        }`}
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <span>{LANGUAGE_METAS[l]?.flag}</span>
-                          <span>{l}</span>
-                        </span>
-                        {lang === l && <span className="text-[10px]">✓</span>}
-                      </button>
-                    ))}
+                  <div className="fixed inset-0 z-[9990] cursor-default bg-black/60" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-[295px] bg-[#18181b] rounded-2xl border-2 border-amber-400 shadow-[0_20px_50px_rgba(0,0,0,0.95)] z-[9999] p-2.5 animate-fadeIn">
+                    <div className="px-2 py-1 text-[10.5px] font-black uppercase tracking-wider text-amber-400 border-b border-stone-800 mb-2 flex items-center justify-between">
+                      <span>Lingua / Language</span>
+                      <Globe className="w-3.5 h-3.5 text-amber-400" />
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {SUPPORTED_LANGUAGES.map((l) => {
+                        const meta = LANGUAGE_METAS[l];
+                        const isSelected = lang === l;
+                        return (
+                          <button
+                            key={l}
+                            type="button"
+                            onClick={() => {
+                              setLang(l);
+                              setIsLangOpen(false);
+                            }}
+                            className={`flex flex-col items-center justify-center p-2 rounded-xl text-center cursor-pointer transition-all duration-150 select-none ${
+                              isSelected
+                                ? "bg-amber-400 text-stone-950 font-black shadow-md border border-amber-300 ring-2 ring-amber-400/50 scale-[1.02]"
+                                : "text-white bg-stone-900/90 hover:bg-stone-800 border border-stone-800 hover:border-amber-400/50"
+                            }`}
+                          >
+                            <span className="text-xl leading-none mb-1">{meta?.flag}</span>
+                            <span className="text-xs font-black tracking-wide uppercase leading-tight">
+                              {l}
+                            </span>
+                            <span className={`text-[9px] truncate max-w-full leading-tight mt-0.5 ${isSelected ? 'text-stone-900 font-bold' : 'text-stone-400'}`}>
+                              {meta?.nativeName}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </>
               )}
@@ -1742,7 +2908,7 @@ export default function DeliveryMenu() {
                     <span className="font-light italic text-[#f87171]">Pizza</span>
                   </h1>
                   <span className="text-[#fca5a5] font-bold tracking-widest text-xs uppercase text-left block pt-1">
-                    RANONG, THAILANDIA
+                    {(t.heroSubtitle || 'Ranong, Thailandia').toUpperCase()}
                   </span>
                 </div>
               </div>
@@ -1778,7 +2944,7 @@ export default function DeliveryMenu() {
 
         {/* Dynamic Promotions & Table Booking Cards (3 Rich Vertical Cards Side-by-Side on Mobile / Expansive on Desktop) */}
         <div className={`grid gap-2 sm:gap-3.5 max-w-6xl mx-auto px-2 mb-4 sm:mb-6 mt-2 sm:mt-4 ${
-          isFirstOrderEligible ? 'grid-cols-3 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-2'
+          (isFirstOrderEligible && !appliedPromo) ? 'grid-cols-3 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-2'
         }`}>
           {/* Card 1 (🟢 VERDE): Prenota un Tavolo o Capanna */}
           <div 
@@ -1790,62 +2956,46 @@ export default function DeliveryMenu() {
                 <UtensilsCrossed className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-colors" />
               </div>
               <h4 className="text-white font-black text-[9.5px] sm:text-xs md:text-sm leading-tight group-hover:text-emerald-300 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                {lang === 'TH' ? 'จองโต๊ะ' :
-                 lang === 'IT' ? 'Prenota Tavolo' :
-                 lang === 'DE' ? 'Tisch Buchen' :
-                 lang === 'MM' ? 'စားပွဲ ကြိုတင်ဘွတ်ကင်' :
-                 'Book a Table'}
+                {({"IT":"Prenota Tavolo","EN":"Book a Table","TH":"จองโต๊ะ","MM":"စားပွဲ ကြိုတင်ဘွတ်ကင်","DE":"Tisch Buchen","ES":"Reservar Mesa","FR":"Réserver une Table","RU":"Забронировать стол","ZH":"预订餐桌"})[lang] || 'Book a Table'}
               </h4>
             </div>
 
             <div className="space-y-0.5">
               <p className="text-emerald-100/90 text-[8px] sm:text-[9.5px] md:text-xs leading-snug font-normal line-clamp-3">
-                {lang === 'TH' ? 'โต๊ะในร่ม กลางแจ้ง หรือซุ้มไม้ไผ่ในสวน' :
-                 lang === 'IT' ? "Tavoli al chiuso, all'aperto o in capanna" :
-                 lang === 'DE' ? 'Innen-, Außenbereich oder Bambushütte' :
-                 lang === 'MM' ? 'အတွင်းခန်း၊ အပြင်ဘက် သို့မဟုတ် သဘာဝ ဝါးတဲ' :
-                 'Indoor, outdoor tables or bamboo garden hut'}
+                {({"IT":"Tavoli al chiuso, all'aperto o in capanna","EN":"Indoor, outdoor tables or bamboo garden hut","TH":"โต๊ะในร่ม กลางแจ้ง หรือซุ้มไม้ไผ่ในสวน","MM":"အတွင်းခန်း၊ အပြင်ဘက် သို့မဟုတ် သဘာဝ ဝါးတဲ","DE":"Innen-, Außenbereich oder Bambushütte","ES":"Mesas interiores, exteriores o cabaña de bambú","FR":"Tables intérieures, extérieures ou hutte en bambou","RU":"Столики в зале, на террасе или в бамбуковом домике","ZH":"室内、室外餐桌或花园竹林小屋"})[lang] || 'Indoor, outdoor tables or bamboo garden hut'}
               </p>
             </div>
 
             <div className="pt-0.5">
               <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-stone-950 font-black bg-emerald-400 group-hover:bg-emerald-300 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs transition-all">
-                <span>{lang === 'TH' ? 'จองเลย' : lang === 'IT' ? 'Prenota' : lang === 'DE' ? 'Reservieren' : lang === 'MM' ? 'ယခု ဘွတ်ကင်လုပ်မည်' : 'Book Now'}</span>
+                <span>{({"IT":"Prenota","EN":"Book Now","TH":"จองเลย","MM":"ယခု ဘွတ်ကင်လုပ်မည်","DE":"Reservieren","ES":"Reservar","FR":"Réserver","RU":"Забронировать","ZH":"立即预订"})[lang] || 'Book Now'}</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </span>
             </div>
           </div>
 
           {/* Card 2 (⚪ BIANCO & ORO): 10% Welcome Discount */}
-          {isFirstOrderEligible && (
+          {isFirstOrderEligible && !appliedPromo && (
             <div className="p-2.5 sm:p-3.5 md:p-4.5 bg-gradient-to-br from-white via-amber-50/60 to-amber-100/40 text-stone-900 rounded-2xl sm:rounded-3xl flex flex-col justify-between gap-1.5 sm:gap-2.5 shadow-md border-2 border-amber-300/90 ring-1 ring-amber-400/30 hover:border-amber-400 hover:shadow-xl transition-all cursor-pointer group text-left min-h-[130px] sm:min-h-[148px]">
               <div className="flex items-center gap-1.5 sm:gap-2.5">
                 <div className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 bg-amber-400 text-stone-950 group-hover:scale-105 group-hover:bg-stone-950 group-hover:text-amber-300 transition-all flex items-center justify-center shrink-0 rounded-xl shadow-xs">
                   <Percent className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 stroke-[2.5] transition-colors" />
                 </div>
                 <h4 className="text-stone-950 font-black text-[9.5px] sm:text-xs md:text-sm leading-tight group-hover:text-amber-600 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                  {lang === 'TH' ? 'ลด 10%' :
-                   lang === 'IT' ? '10% Sconto' :
-                   lang === 'DE' ? '10% Rabatt' :
-                   lang === 'MM' ? '၁၀% လျှော့စျေး' :
-                   '10% OFF'}
+                  {({"IT":"10% Sconto","EN":"10% OFF","TH":"ลด 10%","MM":"၁၀% လျှော့စျေး","DE":"10% Rabatt","ES":"10% Descuento","FR":"10% de Réduction","RU":"Скидка 10%","ZH":"立享9折"})[lang] || '10% OFF'}
                 </h4>
               </div>
 
               <div className="space-y-0.5">
                 <p className="text-stone-700 text-[8px] sm:text-[9.5px] md:text-xs leading-snug font-medium line-clamp-3">
-                  {lang === 'TH' ? 'สั่งครั้งแรก? รับส่วนลดอัตโนมัติในตะกร้าทันที' :
-                   lang === 'IT' ? 'Il tuo 1° ordine? Sconto applicato nel carrello!' :
-                   lang === 'DE' ? '1. Bestellung? Rabatt direkt im Warenkorb!' :
-                   lang === 'MM' ? 'ပထမဆုံး အော်ဒါလား? ခြင်းတောင်းထဲတွင် အလိုအလျောက် လျှော့ပေးပါသည်!' :
-                   '1st order? Discount applied automatically in cart!'}
+                  {({"IT":"Il tuo 1° ordine? Sconto applicato nel carrello!","EN":"1st order? Discount applied automatically in cart!","TH":"สั่งครั้งแรก? รับส่วนลดอัตโนมัติในตะกร้าทันที","MM":"ပထမဆုံး အော်ဒါလား? ခြင်းတောင်းထဲတွင် အလိုအလျောက် လျှော့ပေးပါသည်!","DE":"1. Bestellung? Rabatt direkt im Warenkorb!","ES":"¿Primer pedido? ¡Descuento aplicado en el carrito!","FR":"1ère commande ? Réduction appliquée dans le panier !","RU":"Первый заказ? Скидка применяется в корзине!","ZH":"首次下单？结账时在购物车中自动减免！"})[lang] || '1st order? Discount applied automatically in cart!'}
                 </p>
               </div>
 
               <div className="pt-0.5">
                 <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-emerald-900 font-bold bg-emerald-100/95 border border-emerald-300/90 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs">
                   <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
-                  <span>{lang === 'TH' ? 'ในตะกร้า' : lang === 'IT' ? 'Nel Carrello' : lang === 'DE' ? 'Im Warenkorb' : lang === 'MM' ? 'ခြင်းတောင်းထဲတွင်' : 'In Cart'}</span>
+                  <span>{({"IT":"Nel Carrello","EN":"In Cart","TH":"ในตะกร้า","MM":"ခြင်းတောင်းထဲတွင်","DE":"Im Warenkorb","ES":"En el Carrito","FR":"Au Panier","RU":"В корзине","ZH":"在购物车中"})[lang] || 'In Cart'}</span>
                 </span>
               </div>
             </div>
@@ -1864,27 +3014,21 @@ export default function DeliveryMenu() {
                 <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-colors" />
               </div>
               <h4 className="text-white font-black text-[9.5px] sm:text-xs md:text-sm leading-tight group-hover:text-red-200 transition-colors" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                {lang === 'TH' ? <><span>เดลิเวอรี่ &amp;</span><br className="sm:hidden"/><span> รับที่ร้าน</span></> :
-                 lang === 'IT' ? <><span>Delivery &amp;</span><br className="sm:hidden"/><span> Asporto</span></> :
-                 lang === 'DE' ? <><span>Lieferung &amp;</span><br className="sm:hidden"/><span> Abholung</span></> :
-                 lang === 'MM' ? <><span>ပို့ဆောင်မှု &amp;</span><br className="sm:hidden"/><span> ဆိုင်မှလာယူရန်</span></> :
-                 <><span>Delivery &amp;</span><br className="sm:hidden"/><span> Takeaway</span></>}
+                <span>{({"IT":"Delivery &","EN":"Delivery &","TH":"เดลิเวอรี่ &","MM":"ပို့ဆောင်မှု &","DE":"Lieferung &","ES":"Entrega &","FR":"Livraison &","RU":"Доставка &","ZH":"外送配送 &"})[lang] || 'Delivery &'}</span>
+                <br className="sm:hidden"/>
+                <span>{({"IT":" Asporto","EN":" Takeaway","TH":" รับที่ร้าน","MM":" ဆိုင်မှလာယူရန်","DE":" Abholung","ES":" Para Llevar","FR":" À Emporter","RU":" Самовывоз","ZH":" 门店自取"})[lang] || ' Takeaway'}</span>
               </h4>
             </div>
 
             <div className="space-y-0.5">
               <p className="text-red-100/90 text-[8px] sm:text-[9.5px] md:text-xs leading-snug font-normal line-clamp-3">
-                {lang === 'TH' ? 'ส่งไว (>300฿ ฟรี) และรับเองที่ร้านฟรีเสมอ' :
-                 lang === 'IT' ? 'A Ranong (>300฿ gratis), asporto sempre gratis!' :
-                 lang === 'DE' ? 'In Ranong (>300฿ gratis), Abholung immer gratis!' :
-                 lang === 'MM' ? 'ရနောင်းမြို့တွင်း (>300฿ အခမဲ့)၊ ဆိုင်မှလာယူပါက အမြဲအခမဲ့!' :
-                 'Ranong (>300฿ free), takeaway always free!'}
+                {({"IT":"A Ranong (>300฿ gratis), asporto sempre gratis!","EN":"Ranong (>300฿ free), takeaway always free!","TH":"ส่งไว (>300฿ ฟรี) และรับเองที่ร้านฟรีเสมอ","MM":"ရနောင်းမြို့တွင်း (>300฿ အခမဲ့)၊ ဆိုင်မှလာယူပါက အမြဲအခမဲ့!","DE":"In Ranong (>300฿ gratis), Abholung immer gratis!","ES":"En Ranong (>300฿ gratis), ¡para llevar siempre gratis!","FR":"À Ranong (>300฿ gratuit), à emporter toujours gratuit !","RU":"По Ранонгу (>300฿ бесплатно), самовывоз всегда бесплатно!","ZH":"拉廊市区（满300฿包邮），外卖自取永久免费！"})[lang] || 'Ranong (>300฿ free), takeaway always free!'}
               </p>
             </div>
 
             <div className="pt-0.5">
               <span className="inline-flex items-center gap-1 text-[7.5px] sm:text-[9px] md:text-xs text-white font-black bg-white/20 group-hover:bg-white group-hover:text-[#8B1E1E] border border-white/25 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl shadow-xs transition-all">
-                <span>{lang === 'TH' ? 'ดูเมนู' : lang === 'IT' ? 'Al Menu' : lang === 'DE' ? 'Zur Karte' : lang === 'MM' ? 'မီနူးသို့' : 'To Menu'}</span>
+                <span>{({"IT":"Al Menu","EN":"To Menu","TH":"ดูเมนู","MM":"မီနူးသို့","DE":"Zur Karte","ES":"Ver Menú","FR":"Au Menu","RU":"В меню","ZH":"查看菜单"})[lang] || 'To Menu'}</span>
                 <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </span>
             </div>
@@ -1931,6 +3075,10 @@ export default function DeliveryMenu() {
                        lang === 'IT' ? 'Tutti' :
                        lang === 'DE' ? 'Alle' :
                        lang === 'MM' ? 'အားလုံး' :
+                       lang === 'ES' ? 'Todos' :
+                       lang === 'FR' ? 'Tous' :
+                       lang === 'RU' ? 'Все' :
+                       lang === 'ZH' ? '全部' :
                        'All'}
                     </span>
                   </button>
@@ -1951,7 +3099,11 @@ export default function DeliveryMenu() {
                       {lang === 'TH' ? 'มังสวิรัติ' :
                        lang === 'IT' ? 'Veggie' :
                        lang === 'DE' ? 'Veggie' :
-                       lang === 'MM' ? 'သတ်သတ်လွတ်' :
+                       lang === 'MM' ? 'သက်သတ်လွတ်' :
+                       lang === 'ES' ? 'Vegetariano' :
+                       lang === 'FR' ? 'Végétarien' :
+                       lang === 'RU' ? 'Вегетарианское' :
+                       lang === 'ZH' ? '素食' :
                        'Veggie'}
                     </span>
                   </button>
@@ -1972,7 +3124,11 @@ export default function DeliveryMenu() {
                       {lang === 'TH' ? 'วีแกน' :
                        lang === 'IT' ? 'Vegan' :
                        lang === 'DE' ? 'Vegan' :
-                       lang === 'MM' ? 'ဗီဂျန်' :
+                       lang === 'MM' ? 'ဗီဂန်' :
+                       lang === 'ES' ? 'Vegano' :
+                       lang === 'FR' ? 'Végan' :
+                       lang === 'RU' ? 'Веганское' :
+                       lang === 'ZH' ? '纯素' :
                        'Vegan'}
                     </span>
                   </button>
@@ -1987,13 +3143,13 @@ export default function DeliveryMenu() {
         {activeCategoryId === 'pasta' && (
           <div className="relative z-30 mb-6 px-1 flex items-end gap-3 flex-wrap animate-fadeIn">
             <CustomFilterDropdown
-              label={DROPDOWN_LABELS[lang].pastaFilter}
+              label={(DROPDOWN_LABELS[lang] || DROPDOWN_LABELS.IT).pastaFilter}
               selectedId={selectedPastaSauce}
               options={[
-                { id: 'all', label: PASTA_FILTER_LABELS[lang].all, count: pastaSauceCounts.all || 0 },
+                { id: 'all', label: (PASTA_FILTER_LABELS[lang] || PASTA_FILTER_LABELS.IT).all, count: pastaSauceCounts.all || 0 },
                 ...PASTA_SAUCES.filter(s => (pastaSauceCounts[s.id] || 0) > 0).map(s => ({
                   id: s.id,
-                  label: s.name[lang],
+                  label: (s.name[lang] || s.name.IT || s.name.EN),
                   count: pastaSauceCounts[s.id] || 0
                 }))
               ]}
@@ -2092,10 +3248,7 @@ export default function DeliveryMenu() {
                     </span>
                   </span>
                   <span className="text-[9px] sm:text-[10px] text-stone-300/80 font-medium">
-                    {lang === 'TH' ? '• กฎหมายแอลกอฮอล์แห่งประเทศไทย' :
-                     lang === 'IT' ? '• Normativa Alcolici Thailandia' :
-                     lang === 'DE' ? '• Alkoholgesetzgebung Thailand' :
-                     '• Thai Alcohol Regulation'}
+                    {(WINE_PRIVILEGE_BANNER.regulation as any)[lang] || WINE_PRIVILEGE_BANNER.regulation.IT}
                   </span>
                 </div>
 
@@ -2131,12 +3284,7 @@ export default function DeliveryMenu() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[9.5px] sm:text-[10.5px] font-black uppercase tracking-wider shadow-xs">
                       <Wine className="w-3 h-3 text-amber-300" />
-                      <span>
-                        {lang === 'TH' ? '🍷 สิทธิพิเศษไวน์ • ลด 10% ที่โต๊ะอาหาร' :
-                         lang === 'IT' ? '🍷 DEGUSTAZIONE IN LOCALE • SCONTO 10%' :
-                         lang === 'DE' ? '🍷 WEINVERKOSTUNG VOR ORT • 10% RABATT' :
-                         '🍷 DINE-IN WINE PRIVILEGE • 10% OFF'}
-                      </span>
+                      <span>{(WINE_PRIVILEGE_BANNER.badge as any)[lang] || WINE_PRIVILEGE_BANNER.badge.IT}</span>
                     </span>
                     <span className="text-[9px] sm:text-[10px] text-stone-300/80 font-medium">
                       {lang === 'TH' ? '• กฎหมายแอลกอฮอล์แห่งประเทศไทย' :
@@ -2147,20 +3295,11 @@ export default function DeliveryMenu() {
                   </div>
 
                   <h3 className="text-sm sm:text-base md:text-lg font-black text-white tracking-tight leading-snug" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {lang === 'TH' ? 'ไวน์นำเข้าชั้นเลิศ • จองโต๊ะล่วงหน้ารับส่วนลดพิเศษ 10%' :
-                     lang === 'IT' ? 'Selezione Vini al Ristorante • Prenota dal sito e ricevi il 10% di sconto' :
-                     lang === 'DE' ? 'Erlesene Weinkarte • Online reservieren und 10% Rabatt genießen' :
-                     'Fine Wine Selection • Book online to receive an exclusive 10% table discount'}
+                    {(WINE_PRIVILEGE_BANNER.title as any)[lang] || WINE_PRIVILEGE_BANNER.title.IT}
                   </h3>
 
                   <p className="text-stone-300 text-[11px] sm:text-xs leading-relaxed font-normal">
-                    {lang === 'TH'
-                      ? 'ตามกฎหมายแห่งราชอาณาจักรไทย การสั่งซื้อเครื่องดื่มแอลกอฮอล์ออนไลน์เพื่อจัดส่งถึงบ้านไม่สามารถทำได้ ขอเชิญท่านมาลิ้มลองไวน์ชั้นเลิศในบรรยากาศสบายๆ ณ ร้านของเรา: จองโต๊ะผ่านเว็บไซต์ รับส่วนลด 10% สำหรับไวน์ทุกขวดที่โต๊ะอาหารทันที!'
-                      : lang === 'IT'
-                      ? 'In conformità con le leggi del Regno di Thailandia, la vendita e consegna a domicilio di alcolici online non è consentita. Ti invitiamo a degustare i nostri vini direttamente al ristorante: prenotando dal nostro sito web ricevi subito il 10% di sconto su tutte le bottiglie al tavolo!'
-                      : lang === 'DE'
-                      ? 'Gemäß den gesetzlichen Bestimmungen Thailands ist die Online-Lieferung von Alkohol untersagt. Genießen Sie unsere Weine vor Ort im Restaurant: Bei einer Tischreservierung über unsere Website erhalten Sie 10% Rabatt auf alle Weinflaschen am Tisch!'
-                      : 'In compliance with Thai law, online delivery of alcohol is not permitted. We invite you to enjoy our cellar selection at our restaurant in Ranong: reserve a table from our website to get a 10% discount on all wine bottles at your table!'}
+                    {(WINE_PRIVILEGE_BANNER.description as any)[lang] || WINE_PRIVILEGE_BANNER.description.IT}
                   </p>
                 </div>
 
@@ -2171,12 +3310,7 @@ export default function DeliveryMenu() {
                     className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-200 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg hover:shadow-amber-400/20 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer inline-flex items-center justify-center gap-2"
                   >
                     <UtensilsCrossed className="w-3.5 h-3.5 stroke-[2.5]" />
-                    <span>
-                      {lang === 'TH' ? 'จองโต๊ะรับส่วนลด 10%' :
-                       lang === 'IT' ? 'Prenota Tavolo (-10% Vini)' :
-                       lang === 'DE' ? 'Tisch Reservieren (-10%)' :
-                       'Book Table (-10% Wine)'}
-                    </span>
+                    <span>{(WINE_PRIVILEGE_BANNER.button as any)[lang] || WINE_PRIVILEGE_BANNER.button.IT}</span>
                     <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
                   </button>
                 </div>
@@ -2186,13 +3320,13 @@ export default function DeliveryMenu() {
             {/* Filter Dropdowns */}
             <div className="relative z-30 px-1 flex items-end gap-3 flex-wrap animate-fadeIn">
               <CustomFilterDropdown
-                label={DROPDOWN_LABELS[lang].wineTypeFilter}
+                label={(DROPDOWN_LABELS[lang] || DROPDOWN_LABELS.IT).wineTypeFilter}
                 selectedId={selectedWineType}
                 options={[
-                  { id: 'all', label: WINE_FILTER_LABELS[lang].allTypes, count: wineTypeCounts.all },
+                  { id: 'all', label: (WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).allTypes, count: wineTypeCounts.all },
                   ...WINE_TYPE_SECTIONS.map(s => ({
                     id: s.id,
-                    label: s.name[lang],
+                    label: (s.name[lang] || s.name.IT || s.name.EN),
                     count: wineTypeCounts[s.id] || 0
                   }))
                 ]}
@@ -2200,10 +3334,10 @@ export default function DeliveryMenu() {
               />
 
               <CustomFilterDropdown
-                label={DROPDOWN_LABELS[lang].wineCountryFilter}
+                label={(DROPDOWN_LABELS[lang] || DROPDOWN_LABELS.IT).wineCountryFilter}
                 selectedId={selectedWineCountry}
                 options={[
-                  { id: 'all', label: WINE_FILTER_LABELS[lang].allCountries },
+                  { id: 'all', label: (WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).allCountries },
                   ...availableWineCountries.map(c => ({
                     id: c.flag,
                     label: c.names?.[lang] || c.label,
@@ -2239,7 +3373,7 @@ export default function DeliveryMenu() {
                   <div className="px-2 mb-6">
                     <div className="flex items-center gap-3">
                       <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {group.name[lang]}
+                        {(group.name[lang] || group.name.IT || group.name.EN)}
                       </h3>
                       <span className="text-xs text-stone-400 font-medium">
                         ({group.items.length})
@@ -2248,7 +3382,7 @@ export default function DeliveryMenu() {
                     </div>
                     {group.desc && (
                       <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {group.desc[lang]}
+                        {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                       </p>
                     )}
                   </div>
@@ -2263,13 +3397,13 @@ export default function DeliveryMenu() {
                   <div className="px-2 mb-6">
                     <div className="flex items-center gap-3">
                       <h3 className="font-sans text-lg font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {group.name[lang]}
+                        {(group.name[lang] || group.name.IT || group.name.EN)}
                       </h3>
                       <div className="flex-1 h-px bg-stone-300/60" />
                     </div>
                     {group.desc && (
                       <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {group.desc[lang]}
+                        {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                       </p>
                     )}
                   </div>
@@ -2284,7 +3418,7 @@ export default function DeliveryMenu() {
                   <div className="px-2 mb-6">
                     <div className="flex items-center gap-3">
                       <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {group.name[lang]}
+                        {(group.name[lang] || group.name.IT || group.name.EN)}
                       </h3>
                       <span className="text-xs text-stone-400 font-medium">
                         ({group.items.length})
@@ -2293,7 +3427,7 @@ export default function DeliveryMenu() {
                     </div>
                     {group.desc && (
                       <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {group.desc[lang]}
+                        {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                       </p>
                     )}
                   </div>
@@ -2308,7 +3442,7 @@ export default function DeliveryMenu() {
                   <div className="px-2 mb-6">
                     <div className="flex items-center gap-3">
                       <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {group.name[lang]}
+                        {(group.name[lang] || group.name.IT || group.name.EN)}
                       </h3>
                       <span className="text-xs text-stone-400 font-medium">
                         ({group.items.length})
@@ -2317,7 +3451,7 @@ export default function DeliveryMenu() {
                     </div>
                     {group.desc && (
                       <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {group.desc[lang]}
+                        {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                       </p>
                     )}
                   </div>
@@ -2337,7 +3471,7 @@ export default function DeliveryMenu() {
                             className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight"
                             style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                           >
-                            {group.name[lang]}
+                            {(group.name[lang] || group.name.IT || group.name.EN)}
                           </h3>
                           <span className="text-xs text-stone-400 font-medium">
                             ({group.items.length})
@@ -2351,7 +3485,7 @@ export default function DeliveryMenu() {
                 </div>
               ) : (
                 <div className="text-center py-16 px-4 bg-white rounded-2xl border border-stone-200 my-6 shadow-sm">
-                  <p className="text-stone-700 font-medium text-sm">{WINE_FILTER_LABELS[lang].noWinesFound}</p>
+                  <p className="text-stone-700 font-medium text-sm">{(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).noWinesFound}</p>
                   <button
                     type="button"
                     onClick={() => {
@@ -2361,7 +3495,7 @@ export default function DeliveryMenu() {
                     className="mt-4 px-5 py-2 bg-[#8B1E1E] text-white rounded-xl text-xs font-semibold tracking-wider uppercase shadow-sm hover:bg-[#721818] transition-all cursor-pointer inline-flex items-center gap-1.5"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>{WINE_FILTER_LABELS[lang].resetFilters}</span>
+                    <span>{(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).resetFilters}</span>
                   </button>
                 </div>
               )
@@ -2380,7 +3514,7 @@ export default function DeliveryMenu() {
                               className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight"
                               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
                             >
-                              {activeSection.name[lang]}
+                              {((activeSection.name[lang] || activeSection.name.IT || activeSection.name.EN) || activeSection.name.IT || activeSection.name.EN)}
                             </h3>
                             <span className="text-xs text-stone-400 font-medium">
                               ({currentWinesForSelectedType.length})
@@ -2394,7 +3528,7 @@ export default function DeliveryMenu() {
                   </div>
                 ) : (
                   <div className="text-center py-16 px-4 bg-white rounded-2xl border border-stone-200 my-6 shadow-sm">
-                    <p className="text-stone-700 font-medium text-sm">{WINE_FILTER_LABELS[lang].noWinesFound}</p>
+                    <p className="text-stone-700 font-medium text-sm">{(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).noWinesFound}</p>
                     <button
                       type="button"
                       onClick={() => {
@@ -2404,7 +3538,7 @@ export default function DeliveryMenu() {
                       className="mt-4 px-5 py-2 bg-[#8B1E1E] text-white rounded-xl text-xs font-semibold tracking-wider uppercase shadow-sm hover:bg-[#721818] transition-all cursor-pointer inline-flex items-center gap-1.5"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
-                      <span>{WINE_FILTER_LABELS[lang].resetFilters}</span>
+                      <span>{(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).resetFilters}</span>
                     </button>
                   </div>
                 )}

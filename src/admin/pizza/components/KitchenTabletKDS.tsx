@@ -61,7 +61,7 @@ import {
 } from '../../../pizza/services/pizzaServiceStatus';
 import { sendNetworkHeartbeat } from '../../../pizza/services/networkAuthService';
 import { resolveDishDisplayName, resolveDishSubtitle } from '../utils/kdsCatalogService';
-import { resolveExtraDisplayName, resolveVariantDisplayName, KdsLanguage } from '../utils/kdsExtraDictionary';
+import { resolveExtraDisplayName, resolveVariantDisplayName, parseKdsItemDetails, KdsLanguage } from '../utils/kdsExtraDictionary';
 import { KDS_I18N } from '../utils/kdsI18n';
 
 export interface TableReservationKDS {
@@ -135,6 +135,111 @@ export const getVariantDisplayName = (v: any, lang: KdsLanguage | 'en' | 'th' | 
 
 export const getExtraDisplayName = (ex: any, lang: KdsLanguage | 'en' | 'th' | 'mm' | 'it' | 'de'): string => {
   return resolveExtraDisplayName(ex, (lang as KdsLanguage) || 'en');
+};
+
+/**
+ * Universal KDS Dish Item Block Renderer
+ * Renders quantity, localized title, subtitle, size/variant, Half & Half,
+ * Spiciness level, Sweetness level, Fruit selection, Sauces, Halal badge, Pre-order date, and Toppings.
+ */
+export const renderKdsDishItem = (item: any, idx: number, lang: KdsLanguage | 'en' | 'th' | 'mm' | 'it' | 'de', t: any, compact: boolean = false) => {
+  const kLang = (lang as KdsLanguage) || 'en';
+  const displayName = getDishDisplayName(item, kLang);
+  const subName = resolveDishSubtitle(item, kLang);
+  const details = parseKdsItemDetails(item, kLang);
+
+  return (
+    <div key={idx} className="border-b border-stone-800/80 last:border-0 pb-2.5 last:pb-0">
+      <div className="flex items-baseline gap-2.5">
+        <span className={`font-black ${compact ? 'text-lg' : 'text-xl lg:text-2xl'} text-amber-400 font-mono shrink-0`}>
+          {item.quantity}x
+        </span>
+        <div className="flex-1 min-w-0">
+          <span className={`font-black ${compact ? 'text-sm' : 'text-base lg:text-lg'} text-white leading-tight block`}>
+            {displayName}
+          </span>
+          {subName && (
+            <span className="text-xs font-semibold text-stone-400 block mt-0.5">
+              {subName}
+            </span>
+          )}
+
+          {/* Half & Half Special Box */}
+          {details.isHalfHalf && details.halfHalfTitle && (
+            <div className="mt-1 px-2.5 py-1 rounded-lg bg-red-950/70 border border-red-500/50 text-red-200 text-xs font-bold leading-snug">
+              🍕 {details.halfHalfTitle}
+            </div>
+          )}
+
+          {/* Size / Format Variant */}
+          {details.variantLabel && !details.isHalfHalf && (
+            <span className="text-xs font-bold text-stone-300 uppercase tracking-wide block mt-0.5">
+              {t?.sizeLabel || 'Format'}: {details.variantLabel}
+            </span>
+          )}
+
+          {/* Key Preparation & Dietary Badges */}
+          <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+            {/* Halal 100% Chicken */}
+            {details.halalBadge && (
+              <span className="px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-300 border border-emerald-500 font-black text-xs">
+                {details.halalBadge}
+              </span>
+            )}
+
+            {/* Lasagna Pre-order Date */}
+            {details.lasagnaDate && (
+              <span className="px-2 py-0.5 rounded-md bg-purple-950 text-purple-300 border border-purple-500 font-bold text-xs">
+                📅 {details.lasagnaDate}
+              </span>
+            )}
+
+            {/* Spiciness */}
+            {details.spicyBadge && (
+              <span className="px-2 py-0.5 rounded-md bg-red-950 text-red-200 border border-red-500 font-black text-xs">
+                {details.spicyBadge}
+              </span>
+            )}
+
+            {/* Sugar Level */}
+            {details.sugarBadge && (
+              <span className="px-2 py-0.5 rounded-md bg-cyan-950 text-cyan-200 border border-cyan-500 font-bold text-xs">
+                {details.sugarBadge}
+              </span>
+            )}
+
+            {/* Fruit Shake */}
+            {details.fruitBadge && (
+              <span className="px-2 py-0.5 rounded-md bg-pink-950 text-pink-200 border border-pink-500 font-bold text-xs">
+                🍓 {details.fruitBadge}
+              </span>
+            )}
+
+            {/* Sauces */}
+            {details.sauces.map((sauce, sIdx) => (
+              <span key={sIdx} className="px-2 py-0.5 rounded-md bg-orange-950 text-orange-200 border border-orange-600 font-bold text-xs">
+                🥣 {sauce}
+              </span>
+            ))}
+          </div>
+
+          {/* Extra Ingredients & Toppings */}
+          {details.regularExtras.length > 0 && (
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              {details.regularExtras.map((exName, exIdx) => (
+                <span 
+                  key={exIdx}
+                  className="px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 font-black text-xs uppercase"
+                >
+                  + {exName}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 
@@ -1735,54 +1840,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
 
                     {/* Giant Items List */}
                     <div className="bg-[#0b0e14] p-3 rounded-xl border border-stone-800 space-y-3">
-                      {items.map((item, idx) => {
-                        const displayName = getDishDisplayName(item, kdsLang);
-                        const subName = resolveDishSubtitle(item, kdsLang);
-                        const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
-                        const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
-
-                        return (
-                          <div key={idx} className="border-b border-stone-800/80 last:border-0 pb-2.5 last:pb-0">
-                            <div className="flex items-baseline gap-2.5">
-                              <span className="font-black text-xl lg:text-2xl text-amber-400 font-mono shrink-0">
-                                {item.quantity}x
-                              </span>
-                              <div className="flex-1">
-                                <span className="font-black text-base lg:text-lg text-white leading-tight block">
-                                  {displayName}
-                                </span>
-                                {subName && (
-                                  <span className="text-xs font-semibold text-stone-400 block mt-0.5">
-                                    {subName}
-                                  </span>
-                                )}
-                                {variant && (
-                                  <span className="text-xs font-bold text-stone-300 uppercase tracking-wide block mt-0.5">
-                                    {t.sizeLabel}: {variant}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Extra ingredients translated universally */}
-                            {extras.length > 0 && (
-                              <div className="mt-1.5 pl-7 flex flex-wrap gap-1">
-                                {extras.map((ex: any, exIdx: number) => {
-                                  const exName = getExtraDisplayName(ex, kdsLang);
-                                  return (
-                                    <span 
-                                      key={exIdx}
-                                      className="px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 font-black text-xs uppercase"
-                                    >
-                                      + {exName}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                      {items.map((item, idx) => renderKdsDishItem(item, idx, kdsLang, t))}
                     </div>
 
                     {/* NEW ORDER ACTIONS: ACCEPT OR MUTE */}
@@ -2049,54 +2107,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
 
                     {/* Full Ordered Items List with Universal Translated Extras */}
                     <div className="bg-[#0b0e14] p-3 rounded-xl border border-stone-800 space-y-3">
-                      {items.map((item, idx) => {
-                        const displayName = getDishDisplayName(item, kdsLang);
-                        const subName = resolveDishSubtitle(item, kdsLang);
-                        const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
-                        const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
-
-                        return (
-                          <div key={idx} className="border-b border-stone-800/80 last:border-0 pb-2.5 last:pb-0">
-                            <div className="flex items-baseline gap-2.5">
-                              <span className="font-black text-xl lg:text-2xl text-amber-400 font-mono shrink-0">
-                                {item.quantity}x
-                              </span>
-                              <div className="flex-1">
-                                <span className="font-black text-base lg:text-lg text-white leading-tight block">
-                                  {displayName}
-                                </span>
-                                {subName && (
-                                  <span className="text-xs font-semibold text-stone-400 block mt-0.5">
-                                    {subName}
-                                  </span>
-                                )}
-                                {variant && (
-                                  <span className="text-xs font-bold text-stone-300 uppercase tracking-wide block mt-0.5">
-                                    {t.sizeLabel}: {variant}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Extra ingredients translated universally */}
-                            {extras.length > 0 && (
-                              <div className="mt-1.5 pl-7 flex flex-wrap gap-1">
-                                {extras.map((ex: any, exIdx: number) => {
-                                  const exName = getExtraDisplayName(ex, kdsLang);
-                                  return (
-                                    <span 
-                                      key={exIdx}
-                                      className="px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 font-black text-xs uppercase"
-                                    >
-                                      + {exName}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
+                      {items.map((item, idx) => renderKdsDishItem(item, idx, kdsLang, t))}
                     </div>
 
                     {/* Action Buttons for Phase 2 */}
@@ -2366,50 +2377,9 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
             {/* Dishes / Ordered Items List */}
             <div className="overflow-y-auto flex-1 space-y-2 pr-1">
               <div className="bg-[#0b0e14] p-3 rounded-2xl border border-stone-800 space-y-3">
-                {((Array.isArray(selectedTrayOrder.items) ? selectedTrayOrder.items : []) as CartItemSaved[]).map((item, idx) => {
-                  const displayName = getDishDisplayName(item, kdsLang);
-                  const subName = resolveDishSubtitle(item, kdsLang);
-                  const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
-                  const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
-
-                  return (
-                    <div key={idx} className="border-b border-stone-800/80 last:border-0 pb-2.5 last:pb-0">
-                      <div className="flex items-baseline gap-2.5">
-                        <span className="font-black text-xl text-amber-400 font-mono shrink-0">
-                          {item.quantity}x
-                        </span>
-                        <div className="flex-1">
-                          <span className="font-black text-base text-white leading-tight block">
-                            {displayName}
-                          </span>
-                          {subName && (
-                            <span className="text-xs font-semibold text-stone-400 block mt-0.5">
-                              {subName}
-                            </span>
-                          )}
-                          {variant && (
-                            <span className="text-xs font-bold text-stone-300 uppercase tracking-wide block mt-0.5">
-                              {t.sizeLabel}: {variant}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {extras.length > 0 && (
-                        <div className="mt-1.5 pl-6 flex flex-wrap gap-1">
-                          {extras.map((ex: any, exIdx: number) => (
-                            <span 
-                              key={exIdx}
-                              className="px-2 py-0.5 rounded-md bg-amber-400 text-stone-950 font-black text-xs uppercase"
-                            >
-                              + {getExtraDisplayName(ex, kdsLang)}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                {((Array.isArray(selectedTrayOrder.items) ? selectedTrayOrder.items : []) as any[]).map((item, idx) => 
+                  renderKdsDishItem(item, idx, kdsLang, t)
+                )}
               </div>
 
               {selectedTrayOrder.address && parseCoordsFromAddress(selectedTrayOrder.address).notes && (
@@ -2791,32 +2761,8 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
                       </div>
 
                       {/* Items */}
-                      <div className="space-y-1 text-stone-300">
-                        {items.map((item: any, idx: number) => {
-                          const displayName = getDishDisplayName(item, kdsLang);
-                          const variant = getVariantDisplayName(item.selectedVariant, kdsLang);
-                          const extras = Array.isArray(item.selectedExtras) ? item.selectedExtras : [];
-                          return (
-                            <div key={idx} className="flex justify-between items-baseline gap-2">
-                              <div>
-                                <strong className="text-white font-black">{item.quantity}x</strong> {displayName}
-                                {variant && <span className="text-stone-400 text-[11px]"> ({variant})</span>}
-                                {extras.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 mt-0.5 pl-4">
-                                    {extras.map((ex: any, exIdx: number) => (
-                                      <span key={exIdx} className="text-amber-400/90 text-[10px]">
-                                        + {getExtraDisplayName(ex, kdsLang)}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                              <span className="font-mono text-stone-400 text-[11px] shrink-0">
-                                {item.itemTotal || item.total || ''} ฿
-                              </span>
-                            </div>
-                          );
-                        })}
+                      <div className="space-y-2 text-stone-300">
+                        {items.map((item: any, idx: number) => renderKdsDishItem(item, idx, kdsLang, t, true))}
                       </div>
 
                       {/* Address & Restore Button */}

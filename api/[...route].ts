@@ -30,6 +30,7 @@ import { handleUpdatePricesStagionale } from "./_handlers/api-update-prices-stag
 import { handleOctorateRestrictionsGrid } from "./_handlers/octorate-restrictions-grid.js";
 import { handleWineTranslate } from "./_handlers/wine-translate.js";
 import { handleDishTranslate } from "./_handlers/dish-translate.js";
+import { handleCampaignTranslate } from "./_handlers/campaign-translate.js";
 import { handleWineCollection } from "./_handlers/wine-collection.js";
 import { handleDocumentReader } from "./_handlers/reader.js";
 import { handleDocumentsApi } from "./_handlers/documents-api.js";
@@ -107,6 +108,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('dish-translate') || cleanPath.includes('dish_translate') || cleanPath.includes('food-translate')) {
     return handleDishTranslate(req, res);
+  }
+
+  if (cleanPath.includes('campaign-translate') || cleanPath.includes('campaign_translate') || cleanPath.includes('newsletter-translate')) {
+    return handleCampaignTranslate(req, res);
   }
 
   if (cleanPath.includes('wine-collection') || cleanPath.includes('wine_collection')) {

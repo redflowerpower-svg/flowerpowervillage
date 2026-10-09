@@ -81,5 +81,8 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
     - Se il tavolo ha già un ordine attivo in corso non saldato, alla riapertura del carrello i campi **Nome** ed **Email** vengono pre-compilati automaticamente con i dati inseriti nel primo invio.
     - Per i nuovi ordini o tavoli liberi, i campi partono al 100% puliti e vuoti (`""`).
     - Eliminati tutti i messaggi ridondanti sotto l'email (`emailHelper`), lasciando un form naturale, fluido e discreto.
-
-
+22. **Automazione Voucher 10% Delivery al Tavolo & Email Multi-Lingua (`DiningCheckoutModal.tsx`, `dining-voucher-email.ts`, `pizza-order-submit.ts`)**:
+    - Il campo Email al checkout del Dining Tablet è facoltativo e supporta l'autocompletamento nativo del browser (`name="email"`, `type="email"`, `autoComplete="email"`).
+    - Banner promozionale localizzato in 9 lingue certificate DeepSeek AI che spiega l'opportunità di ricevere il coupon sconto 10% per i successivi ordini da asporto o consegna a domicilio sul sito web.
+    - Generazione automatica del codice promo monouso `DINE10-XXXXX` con validità di 10 giorni, memorizzato nei metadati dell'ordine (`[DINING_VOUCHER: ...]`).
+    - Spedizione in background tramite Nodemailer / Gmail SMTP (`flowerpowerpizzaranong.th@gmail.com`) del template email dark luxury con pulsante ad applicazione istantanea con 1 click (`https://flowerpowerpizza.com/?promo=DINE10-XXXXX`).

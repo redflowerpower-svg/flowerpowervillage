@@ -234,36 +234,44 @@ function PizzaNav({
               <button
                 type="button"
                 onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-900 text-amber-300 border border-stone-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-900 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
               >
-                <span>{LANGUAGE_METAS[lang]?.flag}</span>
-                <span>{lang}</span>
-                <span className="text-[10px]">▼</span>
+                <span className="text-sm leading-none">{LANGUAGE_METAS[lang]?.flag || '🌐'}</span>
+                <span className="font-mono uppercase">{lang}</span>
+                <span className="text-[9px] text-amber-400">▼</span>
               </button>
 
               {isLangOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsLangOpen(false)} />
-                  <div className="absolute right-0 mt-1.5 w-32 bg-stone-900 border border-stone-700 rounded-xl shadow-2xl py-1 z-50 overflow-hidden animate-fadeIn">
-                    {SUPPORTED_LANGUAGES.map((l) => (
-                      <button
-                        key={l}
-                        type="button"
-                        onClick={() => {
-                          setLanguage(l);
-                          setIsLangOpen(false);
-                        }}
-                        className={`w-full px-3 py-2 text-left text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
-                          lang === l ? 'bg-[#8B1E1E] text-white' : 'text-stone-300 hover:bg-stone-800'
-                        }`}
-                      >
-                        <span className="flex items-center gap-2">
-                          <span>{LANGUAGE_METAS[l]?.flag}</span>
-                          <span>{LANGUAGE_METAS[l]?.label}</span>
-                        </span>
-                        {lang === l && <span className="text-[10px]">✓</span>}
-                      </button>
-                    ))}
+                  <div className="fixed inset-0 z-[9990] bg-black/60" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-[285px] bg-[#18181b] border-2 border-amber-400 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] p-2.5 z-[9999] animate-fadeIn">
+                    <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-amber-400 border-b border-stone-800 mb-2 flex items-center justify-between">
+                      <span>Lingua / Language</span>
+                      <span>🌐</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {SUPPORTED_LANGUAGES.map((l) => (
+                        <button
+                          key={l}
+                          type="button"
+                          onClick={() => {
+                            setLanguage(l);
+                            setIsLangOpen(false);
+                          }}
+                          className={`flex flex-col items-center justify-center p-2 rounded-xl text-center cursor-pointer transition-all duration-150 select-none ${
+                            lang === l
+                              ? 'bg-amber-400 text-stone-950 font-black shadow-md border border-amber-300 ring-2 ring-amber-400/50 scale-[1.02]'
+                              : 'bg-stone-900/90 text-stone-200 hover:bg-stone-800 hover:text-white border border-stone-800 hover:border-amber-400/50'
+                          }`}
+                        >
+                          <span className="text-xl leading-none mb-1">{LANGUAGE_METAS[l]?.flag}</span>
+                          <span className="text-xs font-black tracking-wide uppercase leading-tight">{l}</span>
+                          <span className={`text-[9px] truncate max-w-full leading-tight mt-0.5 ${lang === l ? 'text-stone-900 font-bold' : 'text-stone-400'}`}>
+                            {LANGUAGE_METAS[l]?.nativeName}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </>
               )}
@@ -284,20 +292,52 @@ function PizzaNav({
           </div>
 
           <div className="flex md:hidden items-center gap-2">
-            {/* Mobile Language Selector */}
-            <button
-              type="button"
-              onClick={() => {
-                const currentIndex = SUPPORTED_LANGUAGES.indexOf(lang);
-                const nextLang = SUPPORTED_LANGUAGES[(currentIndex + 1) % SUPPORTED_LANGUAGES.length];
-                setLanguage(nextLang);
-              }}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-stone-900/80 text-amber-300 border border-stone-700 text-[11px] font-bold"
-              title="Cambia Lingua"
-            >
-              <span>{LANGUAGE_METAS[lang]?.flag}</span>
-              <span>{lang}</span>
-            </button>
+            {/* Mobile Language Selector Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsLangOpen(!isLangOpen)}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-stone-900 text-amber-300 border border-amber-500/40 text-[11px] font-bold active:scale-95"
+                title="Cambia Lingua"
+              >
+                <span className="text-xs leading-none">{LANGUAGE_METAS[lang]?.flag || '🌐'}</span>
+                <span className="font-mono">{lang}</span>
+              </button>
+
+              {isLangOpen && (
+                <>
+                  <div className="fixed inset-0 z-[9990] bg-black/60" onClick={() => setIsLangOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-[280px] bg-[#18181b] border-2 border-amber-400 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.95)] p-2.5 z-[9999] animate-fadeIn">
+                    <div className="px-2 py-1 text-[9.5px] font-black uppercase tracking-wider text-amber-400 border-b border-stone-800 mb-2">
+                      Lingua / Language
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {SUPPORTED_LANGUAGES.map((l) => (
+                        <button
+                          key={l}
+                          type="button"
+                          onClick={() => {
+                            setLanguage(l);
+                            setIsLangOpen(false);
+                          }}
+                          className={`flex flex-col items-center justify-center p-2 rounded-xl text-center cursor-pointer transition-all duration-150 select-none ${
+                            lang === l
+                              ? 'bg-amber-400 text-stone-950 font-black shadow-md border border-amber-300 ring-2 ring-amber-400/50 scale-[1.02]'
+                              : 'bg-stone-900/90 text-stone-200 hover:bg-stone-800 hover:text-white border border-stone-800 hover:border-amber-400/50'
+                          }`}
+                        >
+                          <span className="text-xl leading-none mb-1">{LANGUAGE_METAS[l]?.flag}</span>
+                          <span className="text-xs font-black tracking-wide uppercase leading-tight">{l}</span>
+                          <span className={`text-[9px] truncate max-w-full leading-tight mt-0.5 ${lang === l ? 'text-stone-900 font-bold' : 'text-stone-400'}`}>
+                            {LANGUAGE_METAS[l]?.nativeName}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
             <button
               onClick={openCart}
               className="relative p-2 text-white bg-[#8B1E1E] rounded-xl hover:bg-[#721818] transition-colors"

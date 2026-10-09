@@ -14,18 +14,24 @@ if (typeof window !== 'undefined') {
   }
 }
 
+export const DEFAULT_DELIVERY_RADIUS_KM = 6;
+export const DEFAULT_TAKEAWAY_RADIUS_KM = 25;
+
 interface LocationState {
   userLat: number | null;
   userLng: number | null;
   distanceKm: number | null;
   maxRadiusKm: number;
+  maxTakeawayRadiusKm: number;
   isDeliverable: boolean;
+  isTakeawayAllowed: boolean;
   isLoading: boolean;
   error: string | null;
 
   requestLocation: () => Promise<{ lat: number; lng: number } | null>;
   setConfirmedLocation: (lat: number, lng: number) => void;
   setMaxRadius: (radius: number) => void;
+  setMaxTakeawayRadius: (radius: number) => void;
   setSimulatedLocation: () => void;
 }
 
@@ -33,8 +39,10 @@ export const useLocationStore = create<LocationState>((set, get) => ({
   userLat: null,
   userLng: null,
   distanceKm: null,
-  maxRadiusKm: 5,
+  maxRadiusKm: DEFAULT_DELIVERY_RADIUS_KM,
+  maxTakeawayRadiusKm: DEFAULT_TAKEAWAY_RADIUS_KM,
   isDeliverable: true,
+  isTakeawayAllowed: true,
   isLoading: false,
   error: null,
 
@@ -51,9 +59,13 @@ export const useLocationStore = create<LocationState>((set, get) => ({
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          const distance = calculateDistance(RESTAURANT_LAT, RESTAURANT_LNG, latitude, longitude);
           set({
             userLat: latitude,
             userLng: longitude,
+            distanceKm: distance,
+            isDeliverable: distance <= get().maxRadiusKm,
+            isTakeawayAllowed: distance <= get().maxTakeawayRadiusKm,
             isLoading: false
           });
           resolve({ lat: latitude, lng: longitude });
@@ -74,6 +86,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
       userLng: lng,
       distanceKm: distance,
       isDeliverable: distance <= get().maxRadiusKm,
+      isTakeawayAllowed: distance <= get().maxTakeawayRadiusKm,
       isLoading: false,
       error: null
     });
@@ -85,6 +98,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
       userLng: RESTAURANT_LNG + 0.01,
       distanceKm: 1.5,
       isDeliverable: true,
+      isTakeawayAllowed: true,
       isLoading: false,
       error: null,
     });
@@ -96,5 +110,14 @@ export const useLocationStore = create<LocationState>((set, get) => ({
       maxRadiusKm: radius,
       isDeliverable: currentDistance !== null ? currentDistance <= radius : true
     });
+  },
+
+  setMaxTakeawayRadius: (radius) => {
+    const currentDistance = get().distanceKm;
+    set({
+      maxTakeawayRadiusKm: radius,
+      isTakeawayAllowed: currentDistance !== null ? currentDistance <= radius : true
+    });
   }
 }));
+

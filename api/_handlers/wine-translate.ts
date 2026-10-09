@@ -1,7 +1,9 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 
+export type SupportedWineLang = 'IT' | 'EN' | 'TH' | 'MM' | 'DE' | 'ES' | 'FR' | 'RU' | 'ZH';
+
 interface WineTranslateRequestBody {
-  sourceLang: 'IT' | 'EN' | 'TH' | 'DE';
+  sourceLang: SupportedWineLang;
   vigna: string;
   dettagli: string;
   brand: string;
@@ -31,8 +33,17 @@ export async function handleWineTranslate(req: VercelRequest, res: VercelRespons
       description = ''
     }: WineTranslateRequestBody = req.body || {};
 
-    const prompt = `You are a master sommelier and professional translator for a prestigious Italian pizzeria and restaurant in Thailand.
-Translate and refine the following wine card details from the source language (${sourceLang}) into all 4 languages: IT (Italian), EN (English), TH (Thai), and DE (German).
+    const prompt = `You are a master sommelier and professional multilingual culinary translator for Flower Power Pizza & Wine Bar in Ranong, Thailand.
+Translate and refine the following wine card details from the source language (${sourceLang}) into all 9 supported languages:
+1. IT (Italian)
+2. EN (English)
+3. TH (Thai)
+4. MM (Burmese)
+5. DE (German)
+6. ES (Spanish)
+7. FR (French)
+8. RU (Russian)
+9. ZH (Simplified Chinese)
 
 SOURCE INPUTS (Source Language: ${sourceLang}):
 - Vigna (Line 1): "${vigna}"
@@ -43,40 +54,63 @@ SOURCE INPUTS (Source Language: ${sourceLang}):
 - Note di Degustazione (Description): "${description}"
 
 RULES:
-1. For THAI (TH): Write natural, authentic, modern sommelier tasting notes without spaces between Thai words. Use appetizing, elegant, professional restaurant phrasing.
-2. For GERMAN (DE): Use authentic German sommelier terminology.
-3. For ITALIAN (IT): Use authentic Italian sommelier terminology.
-4. For ENGLISH (EN): Use international sommelier terminology.
-5. In Subtitle Line 1:
-   - IT: VINO ROSSO | VINO BIANCO | VINO ROSATO | BOLLICINE
+1. For THAI (TH): Write natural, authentic, modern sommelier tasting notes without spaces between Thai words. Use appetizing, elegant, professional phrasing.
+2. For BURMESE (MM): Use authentic, prestigious Burmese wine & culinary phrasing in standard Unicode (no Zawgyi).
+3. For CHINESE (ZH): Use standard simplified Chinese sommelier terminology with natural wine tasting descriptions.
+4. For RUSSIAN (RU): Use professional Russian wine tasting vocabulary.
+5. For FRENCH (FR): Use prestigious French sommelier terms (Vins Rouges, Vins Blancs, Vins Rosés, Vins Effervescents/Pétillants).
+6. For SPANISH (ES): Use authentic Spanish wine terms (Vinos Tintos, Vinos Blancos, Vinos Rosados, Vinos Espumosos).
+7. For GERMAN (DE), ITALIAN (IT), ENGLISH (EN): Use respective official sommelier standards.
+8. Subtitle Line 1 (Wine Type):
+   - IT: VINO ROSSO | VINO BIANCO | VINO ROSATO | SPUMANTE
    - EN: RED WINE | WHITE WINE | ROSÉ WINE | SPARKLING WINE
    - TH: ไวน์แดง | ไวน์ขาว | ไวน์โรเซ่ | สปาร์กลิงไวน์
+   - MM: ဝိုင်နီ | ဝိုင်ဖြူ | ရိုဇေး ဝိုင် | စပါကလင် ဝိုင်
    - DE: ROTWEIN | WEISSWEIN | ROSÉWEIN | SCHAUMWEIN
-6. In Subtitle Line 2: Keep the format "COUNTRY - AREA" in each respective language (e.g. IT: "ITALIA - PUGLIA", EN: "ITALY - PUGLIA", TH: "อิตาลี - แคว้นปูลยา", DE: "ITALIEN - APULIEN").
-7. In Title lines:
-   - Line 1 (Vigna): Keep uppercase wine/denomination name.
-   - Line 2 (Dettagli): Translate terms like DOC/IGT/Extra Dry if appropriate or keep original.
-   - Line 3 (Brand): Keep Title Case.
-8. Output MUST be ONLY valid JSON matching this schema:
+   - ES: VINO TINTO | VINO BLANCO | VINO ROSADO | VINO ESPUMOSO
+   - FR: VIN ROUGE | VIN BLANC | VIN ROSÉ | VIN EFFERVESCENT
+   - RU: КРАСНОЕ ВИНО | БЕЛОЕ ВИНО | РОЗОВОЕ ВИНО | ИГРИСТОЕ ВИНО
+   - ZH: 红葡萄酒 | 白葡萄酒 | 桃红葡萄酒 | 气泡起泡酒
+9. Subtitle Line 2 (Country & Region): Format as "COUNTRY - REGION" in each language (e.g. IT: "ITALIA - PUGLIA", EN: "ITALY - PUGLIA", TH: "อิตาลี - ปูลยา", MM: "အီတလီ - ပူလီယာ", ZH: "意大利 - 普利亚", RU: "ИТАЛИЯ - АПУЛИЯ", FR: "ITALIE - POUILLES", ES: "ITALIA - APULIA", DE: "ITALIEN - APULIEN").
+10. Title:
+    - Line 1 (Vigna): Keep uppercase denomination/grape name.
+    - Line 2 (Dettagli): Translate DOC/IGT/Reserva terms if appropriate or keep original.
+    - Line 3 (Brand): Keep winery / brand title.
+11. Output MUST be ONLY valid JSON matching this schema:
 
 {
   "title": {
     "IT": "Line1\\nLine2\\nLine3",
     "EN": "Line1\\nLine2\\nLine3",
     "TH": "Line1\\nLine2\\nLine3",
-    "DE": "Line1\\nLine2\\nLine3"
+    "MM": "Line1\\nLine2\\nLine3",
+    "DE": "Line1\\nLine2\\nLine3",
+    "ES": "Line1\\nLine2\\nLine3",
+    "FR": "Line1\\nLine2\\nLine3",
+    "RU": "Line1\\nLine2\\nLine3",
+    "ZH": "Line1\\nLine2\\nLine3"
   },
   "categorySubtitle": {
     "IT": "Line1\\nLine2",
     "EN": "Line1\\nLine2",
     "TH": "Line1\\nLine2",
-    "DE": "Line1\\nLine2"
+    "MM": "Line1\\nLine2",
+    "DE": "Line1\\nLine2",
+    "ES": "Line1\\nLine2",
+    "FR": "Line1\\nLine2",
+    "RU": "Line1\\nLine2",
+    "ZH": "Line1\\nLine2"
   },
   "description": {
     "IT": "...",
     "EN": "...",
     "TH": "...",
-    "DE": "..."
+    "MM": "...",
+    "DE": "...",
+    "ES": "...",
+    "FR": "...",
+    "RU": "...",
+    "ZH": "..."
   }
 }`;
 

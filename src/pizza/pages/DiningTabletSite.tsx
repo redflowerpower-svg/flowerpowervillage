@@ -34,7 +34,7 @@ import { menuData, type MenuItem } from '../data/menuData';
 import CategoryTabs from '../components/CategoryTabs';
 import MenuGrid from '../components/MenuGrid';
 import { useCartStore, calcItemTotal } from '../store/cartStore';
-import { INITIAL_WINE_COLLECTION, WINE_COUNTRY_OPTIONS, resolveWineCategoryType, sortWinesByCountryOrder, getCountryRank, WineCardData } from '../data/wineData';
+import { INITIAL_WINE_COLLECTION,  WINE_COUNTRY_OPTIONS, resolveWineCategoryType, sortWinesByCountryOrder, getCountryRank, WineCardData , getWineTranslatedTitle, getWineTranslatedSubtitle, getWineTranslatedDesc } from '../data/wineData';
 import { fetchCloudWineCollection } from '../data/wineCloudService';
 import { fetchCloudMenuOverrides } from '../data/pizzaMenuCloudService';
 import { useLanguageStore } from '../store/languageStore';
@@ -164,6 +164,74 @@ const I18N_TABLE_PICKER: Record<Language, {
     enterBtn: 'မီနူးသို့ ဝင်မည်',
     logoutBtn: 'ထွက်မည်',
     qrStudioBtn: 'စားပွဲ QR ၁-၁၆'
+  },
+  ES: {
+    title: 'Flower Power Pizza Dining',
+    subtitle: 'Seleccione Mesa o Estación de Invitados',
+    desc: 'Toque su mesa o estación para acceder al menú completo con un 5% de descuento en mesa aplicado a todos los platos.',
+    tablesHeading: 'Mesas y Estaciones de Invitados',
+    freeLabel: 'Disponible',
+    activeLabel: 'Pedido en Cocina',
+    guestLabel: 'Smartphone en Vivo',
+    freeCard: 'Nuevo Pedido',
+    activeCardPrefix: 'Cuenta Abierta:',
+    guestCardPrefix: 'Pedido de Invitado en Vivo',
+    customLabel: 'O Ingrese Mesa / Estación Personalizada',
+    customPlaceholder: 'ej. Terraza 3 / Jardín / Barra',
+    enterBtn: 'Acceder al Menú',
+    logoutBtn: 'Cerrar Sesión',
+    qrStudioBtn: 'QR de Mesas 1-16',
+  },
+  FR: {
+    title: 'Flower Power Pizza Dining',
+    subtitle: 'Sélectionnez une table ou un poste invité',
+    desc: 'Touchez votre table ou poste pour accéder au menu complet avec 5 % de remise sur tous les plats.',
+    tablesHeading: 'Tables de salle et postes invités',
+    freeLabel: 'Disponible',
+    activeLabel: 'Commande en cuisine',
+    guestLabel: 'Smartphone en direct',
+    freeCard: 'Nouvelle commande',
+    activeCardPrefix: 'Addition ouverte :',
+    guestCardPrefix: 'Commande client en direct',
+    customLabel: 'Ou saisissez une table / un poste personnalisé',
+    customPlaceholder: 'ex. Terrasse 3 / Jardin / Comptoir',
+    enterBtn: 'Accéder au menu',
+    logoutBtn: 'Déconnexion',
+    qrStudioBtn: 'QR tables 1-16',
+  },
+  RU: {
+    title: 'Пиццерия Flower Power',
+    subtitle: 'Выберите столик или гостевую станцию',
+    desc: 'Коснитесь своего столика или станции, чтобы открыть полное меню со скидкой 5% на все блюда.',
+    tablesHeading: 'Столики и гостевые станции',
+    freeLabel: 'Свободен',
+    activeLabel: 'Заказ на кухне',
+    guestLabel: 'Смартфон онлайн',
+    freeCard: 'Новый заказ',
+    activeCardPrefix: 'Открытый счёт:',
+    guestCardPrefix: 'Гостевой заказ онлайн',
+    customLabel: 'Или введите свой столик / станцию',
+    customPlaceholder: 'например, Терраса 3 / Сад / Барная стойка',
+    enterBtn: 'Открыть меню',
+    logoutBtn: 'Выйти',
+    qrStudioBtn: 'QR-коды столиков 1–16',
+  },
+  ZH: {
+    title: '花之力量披萨餐厅',
+    subtitle: '选择餐桌或客人站点',
+    desc: '触摸您的餐桌或站点，即可访问完整菜单，所有菜品均享 5% 餐桌折扣。',
+    tablesHeading: '餐桌与客人站点',
+    freeLabel: '可用',
+    activeLabel: '厨房订单',
+    guestLabel: '智能手机实时',
+    freeCard: '新订单',
+    activeCardPrefix: '未结账单：',
+    guestCardPrefix: '客人实时点餐',
+    customLabel: '或输入自定义餐桌/站点',
+    customPlaceholder: '例如 露台3 / 花园 / 吧台',
+    enterBtn: '访问菜单',
+    logoutBtn: '退出登录',
+    qrStudioBtn: '餐桌二维码 1-16',
   }
 };
 
@@ -172,7 +240,28 @@ const I18N_RESET_CONFIRM: Record<Language, { prompt: string; short: string; full
   EN: { prompt: "Are you sure you want to cancel the order?", short: "Confirm?", full: "Sure? Tap to cancel and reset" },
   TH: { prompt: "คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำสั่งซื้อ?", short: "ยืนยัน?", full: "แน่ใจไหม? แตะอีกครั้งเพื่อยกเลิก" },
   DE: { prompt: "Sind Sie sicher, dass Sie die Bestellung stornieren möchten?", short: "Bestätigen?", full: "Sicher? Tippen zum Abbrechen" },
-  MM: { prompt: "သင်သည် အမှာစာကို ပယ်ဖျက်လိုသည်မှာ သေချာပါသလား။", short: "သေချာပြီလား?", full: "အတည်ပြုရန် ထပ်မံနှိပ်ပါ" }
+  MM: { prompt: "သင်သည် အမှာစာကို ပယ်ဖျက်လိုသည်မှာ သေချာပါသလား။", short: "သေချာပြီလား?", full: "အတည်ပြုရန် ထပ်မံနှိပ်ပါ"
+  },
+  ES: {
+    prompt: '¿Está seguro de que desea cancelar el pedido?',
+    short: '¿Confirmar?',
+    full: '¿Seguro? Toque para cancelar y reiniciar',
+  },
+  FR: {
+    prompt: 'Voulez-vous vraiment annuler la commande ?',
+    short: 'Confirmer ?',
+    full: 'Sûr ? Touchez pour annuler et réinitialiser',
+  },
+  RU: {
+    prompt: 'Вы уверены, что хотите отменить заказ?',
+    short: 'Подтвердить?',
+    full: 'Уверены? Нажмите, чтобы отменить и сбросить',
+  },
+  ZH: {
+    prompt: '您确定要取消订单吗？',
+    short: '确认？',
+    full: '确定？点击取消并重置',
+  }
 };
 
 const LOCATION_BY_LANG: Record<Language, string> = {
@@ -180,7 +269,11 @@ const LOCATION_BY_LANG: Record<Language, string> = {
   EN: 'RANONG, THAILAND',
   TH: 'ระนอง, ประเทศไทย',
   DE: 'RANONG, THAILAND',
-  MM: 'ရနောင်း၊ ထိုင်းနိုင်ငံ'
+  MM: 'ရနောင်း၊ ထိုင်းနိုင်ငံ',
+  ES: 'RANONG, TAILANDIA',
+  FR: 'RANONG, THAÏLANDE',
+  RU: 'РАНОНГ, ТАИЛАНД',
+  ZH: '泰国拉廊'
 };
 
 const categoryDetails: Record<string, Record<Language, { name: string; desc: string }>> = {
@@ -628,10 +721,20 @@ const PASTA_SAUCES = [
   }
 ];
 
-const WINE_FILTER_LABELS = {
+const WINE_FILTER_LABELS: Record<string, {
+  allTypes: string;
+  allCountries: string;
+  filterByCountry: string;
+  italianFirstBadge: string;
+  noWinesFound: string;
+  resetFilters: string;
+  winesCount: string;
+  wineCount: string;
+}> = {
   IT: {
     allTypes: 'Tutti i Vini',
     allCountries: 'Tutte le Origini',
+    filterByCountry: 'Origine',
     italianFirstBadge: 'Selezione Italiana in Evidenza',
     noWinesFound: 'Nessun vino trovato con i filtri selezionati.',
     resetFilters: 'Mostra tutti i vini',
@@ -641,6 +744,7 @@ const WINE_FILTER_LABELS = {
   EN: {
     allTypes: 'All Wines',
     allCountries: 'All Origins',
+    filterByCountry: 'Origin',
     italianFirstBadge: 'Italian Selection Featured',
     noWinesFound: 'No wines found matching your selected filters.',
     resetFilters: 'Show all wines',
@@ -650,6 +754,7 @@ const WINE_FILTER_LABELS = {
   TH: {
     allTypes: 'ไวน์ทั้งหมด',
     allCountries: 'ทุกแหล่งกำเนิด',
+    filterByCountry: 'แหล่งกำเนิด',
     italianFirstBadge: 'คัดสรรพิเศษจากอิตาลี',
     noWinesFound: 'ไม่พบรายการไวน์ตามตัวกรองที่เลือก',
     resetFilters: 'แสดงไวน์ทั้งหมด',
@@ -659,6 +764,7 @@ const WINE_FILTER_LABELS = {
   DE: {
     allTypes: 'Alle Weine',
     allCountries: 'Alle Herkunftsländer',
+    filterByCountry: 'Herkunft',
     italianFirstBadge: 'Italienische Auswahl im Fokus',
     noWinesFound: 'Keine Weine für die ausgewählten Filter gefunden.',
     resetFilters: 'Alle Weine anzeigen',
@@ -668,68 +774,262 @@ const WINE_FILTER_LABELS = {
   MM: {
     allTypes: 'ဝိုင် အားလုံး',
     allCountries: 'မူရင်းနိုင်ငံ အားလုံး',
+    filterByCountry: 'မူရင်းနိုင်ငံ',
     italianFirstBadge: 'အီတလီ အထူးရွေးချယ်မှု',
     noWinesFound: 'ရွေးချယ်ထားသော စစ်ထုတ်မှုနှင့် ကိုက်ညီသော ဝိုင် မရှိပါ။',
     resetFilters: 'ဝိုင် အားလုံး ပြသရန်',
     winesCount: 'မျိုး',
     wineCount: 'မျိုး',
   },
+  ES: {
+    allTypes: 'Todos los Vinos',
+    allCountries: 'Todos los Orígenes',
+    filterByCountry: 'Origen',
+    italianFirstBadge: 'Selección Italiana Destacada',
+    noWinesFound: 'No se encontraron vinos con los filtros seleccionados.',
+    resetFilters: 'Mostrar todos los vinos',
+    winesCount: 'vinos',
+    wineCount: 'vino',
+  },
+  FR: {
+    allTypes: 'Tous les Vins',
+    allCountries: 'Toutes les Origines',
+    filterByCountry: 'Origine',
+    italianFirstBadge: 'Sélection Italienne à l\'Honneur',
+    noWinesFound: 'Aucun vin trouvé avec les filtres sélectionnés.',
+    resetFilters: 'Afficher tous les vins',
+    winesCount: 'vins',
+    wineCount: 'vin',
+  },
+  RU: {
+    allTypes: 'Все Вина',
+    allCountries: 'Все Страны',
+    filterByCountry: 'Происхождение',
+    italianFirstBadge: 'Итальянская Коллекция',
+    noWinesFound: 'Вина не найдены по выбранным фильтрам.',
+    resetFilters: 'Показать все вина',
+    winesCount: 'вин',
+    wineCount: 'вино',
+  },
+  ZH: {
+    allTypes: '所有葡萄酒',
+    allCountries: '所有产地',
+    filterByCountry: '产地',
+    italianFirstBadge: '精选意大利佳酿',
+    noWinesFound: '未找到符合所选条件的葡萄酒。',
+    resetFilters: '显示所有葡萄酒',
+    winesCount: '款',
+    wineCount: '款',
+  },
 };
 
 const WINE_TYPE_SECTIONS = [
   {
     id: 'red',
-    name: { IT: 'Vini Rossi', EN: 'Red Wines', TH: 'ไวน์แดง', DE: 'Rotweine', MM: 'ဝိုင်နီ' },
-    desc: {
-      IT: 'Selezione di vini rossi strutturati, avvolgenti e armoniosi, ideali per accompagnare piatti saporiti, carni e pizze gourmet.',
-      EN: 'Curated selection of structured, full-bodied red wines, tailored for savory dishes, meats, and gourmet pizzas.',
-      TH: 'คัดสรรไวน์แดงรสชาตินุ่มละมุนและเข้มข้น เหมาะสำหรับทานคู่กับอาหารจานหลักและพิซซ่า',
-      DE: 'Kuratierte Auswahl an strukturierten, vollmundigen Rotweinen, ideal zu herzhaften Gerichten, Fleisch und Pizza.',
-      MM: 'အသားဟင်းလျာများနှင့် ပီဇာတို့နှင့် တွဲဖက်သောက်သုံးရန် သင့်တော်သော ဝိုင်နီများ'
+    name: {
+      IT: 'Vini Rossi',
+      EN: 'Red Wines',
+      TH: 'ไวน์แดง',
+      DE: 'Rotweine',
+      MM: 'ဝိုင်နီ',
+      ES: 'Vinos Tintos',
+      FR: 'Vins Rouges',
+      RU: 'Красные Вина',
+      ZH: '红葡萄酒',
     },
-    badge: { IT: 'Corposi & Strutturati', EN: 'Full-Bodied', TH: 'เข้มข้น', DE: 'Vollmundig', MM: 'ပြည့်စုံသောအရသာ' },
+    desc: {
+      IT: 'Selezione di vini rossi strutturati, avvolgenti e armoniosi, ideali per accompagnare piatti saporiti, carni e formaggi.',
+      EN: 'Curated selection of structured, full-bodied red wines, tailored for savory dishes, meats, and cheeses.',
+      TH: 'คัดสรรไวน์แดงรสชาตินุ่มละมุนและเข้มข้น เหมาะสำหรับทานคู่กับอาหารจานหลักและเนื้อสัตว์',
+      DE: 'Kuratierte Auswahl an strukturierten, vollmundigen Rotweinen, ideal zu herzhaften Gerichten, Fleisch und Käse.',
+      MM: 'အသားဟင်းလျာများနှင့် တွဲဖက်ရန် အထူးသင့်လျော်သော အရသာပြည့်ဝ ဝိုင်နီများ။',
+      ES: 'Selección de vinos tintos estructurados, envolventes y armoniosos, ideales para acompañar platos sabrosos, carnes y quesos.',
+      FR: 'Sélection de vins rouges structurés, amples et harmonieux, parfaits pour accompagner plats savoureux, viandes et fromages.',
+      RU: 'Коллекция полнотелых и гармоничных красных вин, идеально подходящих к мясным блюдам и сырам.',
+      ZH: '精选酒体饱满、层次丰富的红葡萄酒，是搭配浓郁菜肴、肉类及奶酪的理想之选。',
+    },
+    badge: {
+      IT: 'Corposi & Strutturati',
+      EN: 'Full-Bodied',
+      TH: 'เข้มข้น',
+      DE: 'Vollmundig',
+      MM: 'အရသာပြည့်ဝ',
+      ES: 'Con Cuerpo y Estructurados',
+      FR: 'Corsés & Structurés',
+      RU: 'Полнотелые',
+      ZH: '浓郁醇厚',
+    },
     color: '#8b0000'
   },
   {
     id: 'white',
-    name: { IT: 'Vini Bianchi', EN: 'White Wines', TH: 'ไวน์ขาว', DE: 'Weißweine', MM: 'ဝိုင်ဖြူ' },
+    name: {
+      IT: 'Vini Bianchi',
+      EN: 'White Wines',
+      TH: 'ไวน์ขาว',
+      DE: 'Weißweine',
+      MM: 'ဝိုင်ဖြူ',
+      ES: 'Vinos Blancos',
+      FR: 'Vins Blancs',
+      RU: 'Белые Вина',
+      ZH: '白葡萄酒',
+    },
     desc: {
       IT: 'Vini bianchi freschi, minerali ed eleganti, ideali per aperitivi, antipasti, primi piatti e pesce.',
       EN: 'Fresh, mineral, and fragrant white wines, crafted to pair with appetizers, pastas, and seafood dishes.',
       TH: 'ไวน์ขาวสดชื่น กลิ่นหอมผลไม้และดอกไม้ เหมาะสำหรับดื่มเรียกน้ำย่อยและอาหารทะเล',
       DE: 'Frische, mineralische und elegante Weißweine, ideal zu Vorspeisen, Pasta und Fischgerichten.',
-      MM: 'အမြည်းများနှင့် ပင်လယ်စာ ဟင်းလျာများအတွက် လတ်ဆတ်မွှေးကြိုင်သော ဝိုင်ဖြူများ'
+      MM: 'ပင်လယ်စာနှင့် အဆာပြေစာများနှင့် တွဲဖက်ရန် လတ်ဆတ်မွှေးပျံ့သော ဝိုင်ဖြူများ။',
+      ES: 'Vinos blancos frescos, minerales y elegantes, ideales para aperitivos, entrantes, primeros platos y pescados.',
+      FR: 'Vins blancs frais, minéraux et élégants, idéals pour les apéritifs, entrées, pâtes et poissons.',
+      RU: 'Свежие, минеральные и элегантные белые вина, превосходные для аперитива, пасты и рыбы.',
+      ZH: '清新、优雅且富有矿物感的白葡萄酒，非常适合作为开胃酒，并搭配前菜、意面与海鲜。',
     },
-    badge: { IT: 'Freschi & Minerali', EN: 'Crisp & Mineral', TH: 'สดชื่น', DE: 'Frisch & Mineralisch', MM: 'လတ်ဆတ်မွှေးကြိုင်' },
+    badge: {
+      IT: 'Freschi & Minerali',
+      EN: 'Crisp & Mineral',
+      TH: 'สดชื่น',
+      DE: 'Frisch & Mineralisch',
+      MM: 'လတ်ဆတ်မွှေးပျံ့',
+      ES: 'Frescos y Minerales',
+      FR: 'Frais & Minéraux',
+      RU: 'Свежие и Минеральные',
+      ZH: '清新矿感',
+    },
     color: '#b45309'
   },
   {
     id: 'rose',
-    name: { IT: 'Vini Rosati', EN: 'Rosé Wines', TH: 'ไวน์โรเซ่', DE: 'Roséweine', MM: 'ဝိုင်ရိုဆေး' },
+    name: {
+      IT: 'Vini Rosati',
+      EN: 'Rosé Wines',
+      TH: 'ไวน์โรเซ่',
+      DE: 'Roséweine',
+      MM: 'ရိုဇေး ဝိုင်',
+      ES: 'Vinos Rosados',
+      FR: 'Vins Rosés',
+      RU: 'Розовые Вина',
+      ZH: '桃红葡萄酒',
+    },
     desc: {
       IT: 'Sfumature floreali e fruttate con un profilo fresco e versatile, perfetto per aperitivi e pietanze leggere.',
       EN: 'Delicate floral and fruity notes with a crisp, balanced profile, perfect for warm evenings and light dining.',
       TH: 'ไวน์โรเซ่สีสวย กลิ่นหอมสดชื่น ดื่มง่าย สดชื่นในทุกช่วงเวลา',
       DE: 'Florale und fruchtige Noten mit herrlicher Frische, ideal für warme Abende und leichte Küche.',
-      MM: 'ပန်းရနံ့နှင့် သစ်သီးရနံ့ သင်းပျံ့သော သောက်သုံးရလွယ်ကူသည့် ရိုဆေးဝိုင်'
+      MM: 'ပန်းရနံ့နှင့် သစ်သီးရနံ့ သင်းပျံ့သော လန်းဆန်းစေသည့် ရိုဇေးဝိုင်။',
+      ES: 'Notas florales y afrutadas con un perfil fresco y versátil, perfecto para aperitivos y platos ligeros.',
+      FR: 'Nuances florales et fruitées au profil frais et polyvalent, parfait pour l\'apéritif et les plats légers.',
+      RU: 'Цветочные и фруктовые ноты со свежим и универсальным вкусом, идеально для легких блюд.',
+      ZH: '带有花香与果香的清新优雅风味，百搭怡人，是开胃酒和轻食的绝佳伴侣。',
     },
-    badge: { IT: 'Floreali & Freschi', EN: 'Floral & Refreshing', TH: 'หอมละมุน', DE: 'Floral & Frisch', MM: 'သင်းပျံ့လန်းဆန်း' },
+    badge: {
+      IT: 'Floreali & Freschi',
+      EN: 'Floral & Refreshing',
+      TH: 'หอมละมุน',
+      DE: 'Floral & Frisch',
+      MM: 'ပန်းရနံ့သင်း',
+      ES: 'Florales y Frescos',
+      FR: 'Floraux & Frais',
+      RU: 'Цветочные и Свежие',
+      ZH: '花香清新',
+    },
     color: '#db2777'
   },
   {
     id: 'sparkling',
-    name: { IT: 'Spumanti', EN: 'Sparkling Wines', TH: 'สปาร์กลิงไวน်', DE: 'Schaumweine', MM: 'စပါကလင် ဝိုင်' },
+    name: {
+      IT: 'Spumanti',
+      EN: 'Sparkling Wines',
+      TH: 'สปาร์กลิงไวน์',
+      DE: 'Schaumweine',
+      MM: 'စပါကလင် ဝိုင်',
+      ES: 'Vinos Espumosos',
+      FR: 'Vins Effervescents',
+      RU: 'Игристые Вина',
+      ZH: '气泡起泡酒',
+    },
     desc: {
       IT: 'Spumanti e prosecchi dal perlage fine e persistente, pensati per brindisi raffinati e momenti speciali.',
       EN: 'Sparkling wines and prosecco with fine, delicate perlage, crafted for celebrations and elegant toasts.',
       TH: 'สปาร์กลิงไวน์และโพรเซกโกชั้นเลิศ ฟองละเอียดนุ่มลิ้น เพื่อทุกช่วงเวลาพิเศษ',
       DE: 'Edle Schaumweine und Prosecco mit feiner Perlage für besondere Anlässe und stilvolle Momente.',
-      MM: 'အထူး အခမ်းအနားများနှင့် ဂုဏ်ပြုပွဲများအတွက် ပရိုဆက်ကိုနှင့် စပါကလင်ဝိုင်ကောင်းများ'
+      MM: 'အထူးအခမ်းအနားများနှင့် အောင်ပွဲများအတွက် အကောင်းစား စပါကလင်နှင့် ပရိုဆက်ကို ဝိုင်များ။',
+      ES: 'Espumosos y prosecco con un perlage fino y persistente, creados para brindis refinados y ocasiones especiales.',
+      FR: 'Effervescents et prosecco au perlage fin et persistant, conçus pour des toasts raffinés et des moments d\'exception.',
+      RU: 'Игристые вина и просекко с тонким и стойким перляжем для праздничных тостов и особых моментов.',
+      ZH: '气泡细腻持久的起泡酒与普罗塞克，专为优雅敬酒与特别时刻量身打造。',
     },
-    badge: { IT: 'Perlage & Prestigio', EN: 'Fine Perlage', TH: 'ฟองละเอียด', DE: 'Feine Perlage', MM: 'အမြှုပ်နုချောမွေ့' },
+    badge: {
+      IT: 'Perlage & Prestigio',
+      EN: 'Fine Perlage',
+      TH: 'ฟองละเอียด',
+      DE: 'Feine Perlage',
+      MM: 'အထူးအမြှုပ်',
+      ES: 'Burbuja Fina y Prestigio',
+      FR: 'Perlage Fin & Prestige',
+      RU: 'Тонкий Перляж',
+      ZH: '细腻气泡',
+    },
     color: '#ca8a04'
   }
 ];
+
+const DROPDOWN_LABELS = {
+  IT: {
+    pastaFilter: 'Condimento / Tipo di Pasta',
+    drinkFilter: 'Tipologia Bevanda',
+    wineTypeFilter: 'Tipologia Vino',
+    wineCountryFilter: 'Origine / Nazione',
+  },
+  EN: {
+    pastaFilter: 'Sauce / Pasta Type',
+    drinkFilter: 'Beverage Category',
+    wineTypeFilter: 'Wine Type',
+    wineCountryFilter: 'Origin / Country',
+  },
+  TH: {
+    pastaFilter: 'ประเภทซอสพาสต้า',
+    drinkFilter: 'ประเภทเครื่องดื่ม',
+    wineTypeFilter: 'ประเภทไวน์',
+    wineCountryFilter: 'แหล่งกำเนิด / ประเทศ',
+  },
+  DE: {
+    pastaFilter: 'Sauce / Nudelart',
+    drinkFilter: 'Getränkekategorie',
+    wineTypeFilter: 'Weinsorte',
+    wineCountryFilter: 'Herkunft / Land',
+  },
+  MM: {
+    pastaFilter: 'ခေါက်ဆွဲဆော့စ် / အမျိုးအစား',
+    drinkFilter: 'သောက်စရာ အမျိုးအစား',
+    wineTypeFilter: 'ဝိုင် အမျိုးအစား',
+    wineCountryFilter: 'မူရင်းနိုင်ငံ',
+  },
+  ES: {
+    pastaFilter: 'Salsa / Tipo de Pasta',
+    drinkFilter: 'Categoría de Bebida',
+    wineTypeFilter: 'Tipo de Vino',
+    wineCountryFilter: 'Origen / País',
+  },
+  FR: {
+    pastaFilter: 'Sauce / Type de Pâtes',
+    drinkFilter: 'Catégorie de Boisson',
+    wineTypeFilter: 'Type de Vin',
+    wineCountryFilter: 'Origine / Pays',
+  },
+  RU: {
+    pastaFilter: 'Соус / Вид пасты',
+    drinkFilter: 'Категория напитков',
+    wineTypeFilter: 'Тип вина',
+    wineCountryFilter: 'Страна происхождения',
+  },
+  ZH: {
+    pastaFilter: '酱汁 / 面条种类',
+    drinkFilter: '饮品分类',
+    wineTypeFilter: '葡萄酒类型',
+    wineCountryFilter: '产地 / 国家',
+  },
+};
 
 interface DropdownOption {
   id: string;
@@ -1332,6 +1632,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       const deletedSet = new Set<string>(deletedRaw ? JSON.parse(deletedRaw) : []);
 
       let rawWines: any[] = [];
+      const masterMap = new Map(INITIAL_WINE_COLLECTION.map(w => [w.id, w]));
+
       if (cloudWines && cloudWines.length > 0) {
         rawWines = cloudWines;
       } else {
@@ -1340,15 +1642,13 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           try {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed) && parsed.length > 0) {
-              const masterMap = new Map(INITIAL_WINE_COLLECTION.map(w => [w.id, w]));
               rawWines = parsed.map((w: any) => {
-                if (!w.bottleImage || w.bottleImage.includes('01-italian-wines.webp')) {
-                  const master = masterMap.get(w.id);
-                  if (master && master.bottleImage && !master.bottleImage.includes('01-italian-wines.webp')) {
-                    return { ...w, bottleImage: master.bottleImage };
-                  }
-                }
-                return w;
+                const master = masterMap.get(w.id);
+                return {
+                  ...(master || {}),
+                  ...w,
+                  bottleImage: (!w.bottleImage || w.bottleImage.includes('01-italian-wines.webp')) && master?.bottleImage ? master.bottleImage : w.bottleImage,
+                };
               });
               const currentIds = new Set(rawWines.map((w: any) => w.id));
               INITIAL_WINE_COLLECTION.forEach((masterWine) => {
@@ -1370,63 +1670,121 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       return rawWines
         .filter((w: any) => w.isAvailable !== false && !unavailableIds.has(w.id) && !deletedSet.has(w.id))
         .map((w: any) => {
-          const rawPrice = typeof w.price === 'string' ? parseFloat(w.price.replace(/[^0-9.]/g, '')) || 1190 : (w.price || 1190);
-          const titleForLang = (
-            lang === 'IT' ? (w.titleIt || w.title) :
-            lang === 'TH' ? (w.titleTh || w.title) :
-            lang === 'DE' ? (w.titleDe || w.title) :
-            (w.titleEn || w.title)
-          ) || w.title || '';
-          const subForLang = (
-            lang === 'IT' ? (w.subtitleIt || w.categorySubtitle) :
-            lang === 'TH' ? (w.subtitleTh || w.categorySubtitle) :
-            lang === 'DE' ? (w.subtitleDe || w.categorySubtitle) :
-            (w.subtitleEn || w.categorySubtitle)
-          ) || w.categorySubtitle || '';
-          const descForLang = (
-            lang === 'IT' ? (w.descriptionIt || w.description) :
-            lang === 'TH' ? (w.descriptionTh || w.description) :
-            lang === 'DE' ? (w.descriptionDe || w.description) :
-            (w.descriptionEn || w.description)
-          ) || w.description || '';
+          const master = masterMap.get(w.id);
+          const merged: any = {
+            ...(master || {}),
+            ...w,
+            titleZh: w.titleZh || master?.titleZh,
+            titleMm: w.titleMm || master?.titleMm,
+            titleRu: w.titleRu || master?.titleRu,
+            titleFr: w.titleFr || master?.titleFr,
+            titleEs: w.titleEs || master?.titleEs,
+            titleDe: w.titleDe || master?.titleDe,
+            titleTh: w.titleTh || master?.titleTh,
+            titleIt: w.titleIt || master?.titleIt,
+            titleEn: w.titleEn || master?.titleEn,
+            subtitleZh: w.subtitleZh || master?.subtitleZh,
+            subtitleMm: w.subtitleMm || master?.subtitleMm,
+            subtitleRu: w.subtitleRu || master?.subtitleRu,
+            subtitleFr: w.subtitleFr || master?.subtitleFr,
+            subtitleEs: w.subtitleEs || master?.subtitleEs,
+            subtitleDe: w.subtitleDe || master?.subtitleDe,
+            subtitleTh: w.subtitleTh || master?.subtitleTh,
+            subtitleIt: w.subtitleIt || master?.subtitleIt,
+            subtitleEn: w.subtitleEn || master?.subtitleEn,
+            descriptionZh: w.descriptionZh || master?.descriptionZh,
+            descriptionMm: w.descriptionMm || master?.descriptionMm,
+            descriptionRu: w.descriptionRu || master?.descriptionRu,
+            descriptionFr: w.descriptionFr || master?.descriptionFr,
+            descriptionEs: w.descriptionEs || master?.descriptionEs,
+            descriptionDe: w.descriptionDe || master?.descriptionDe,
+            descriptionTh: w.descriptionTh || master?.descriptionTh,
+            descriptionIt: w.descriptionIt || master?.descriptionIt,
+            descriptionEn: w.descriptionEn || master?.descriptionEn,
+          };
+
+          const rawPrice = typeof merged.price === 'string' ? parseFloat(merged.price.replace(/[^0-9.]/g, '')) || 1190 : (merged.price || 1190);
+          const finalPrice = priceOverrides[merged.id] !== undefined ? priceOverrides[merged.id] : rawPrice;
+          const titleForLang = getWineTranslatedTitle(merged, lang) || merged.title || '';
+          const subForLang = getWineTranslatedSubtitle(merged, lang) || merged.categorySubtitle || '';
+          const descForLang = getWineTranslatedDesc(merged, lang) || merged.description || '';
 
           return {
-            id: w.id,
+            id: merged.id,
             name: titleForLang,
-            nameIt: w.titleIt || w.title,
-            nameTh: w.titleTh || w.title,
-            nameDe: w.titleDe || w.title,
+            nameIt: merged.titleIt || merged.title,
+            nameEn: merged.titleEn || merged.title,
+            nameTh: merged.titleTh || merged.title,
+            nameMm: merged.titleMm || merged.title,
+            nameDe: merged.titleDe || merged.title,
+            nameEs: merged.titleEs || merged.title,
+            nameFr: merged.titleFr || merged.title,
+            nameRu: merged.titleRu || merged.title,
+            nameZh: merged.titleZh || merged.title,
             title: titleForLang,
-            titleIt: w.titleIt || w.title,
-            titleTh: w.titleTh || w.title,
-            titleDe: w.titleDe || w.title,
+            titleIt: merged.titleIt || merged.title,
+            titleEn: merged.titleEn || merged.title,
+            titleTh: merged.titleTh || merged.title,
+            titleMm: merged.titleMm || merged.title,
+            titleDe: merged.titleDe || merged.title,
+            titleEs: merged.titleEs || merged.title,
+            titleFr: merged.titleFr || merged.title,
+            titleRu: merged.titleRu || merged.title,
+            titleZh: merged.titleZh || merged.title,
             description: descForLang,
-            descriptionIt: w.descriptionIt || w.description,
-            descriptionTh: w.descriptionTh || w.description,
-            descriptionDe: w.descriptionDe || w.description,
-            description_it: w.descriptionIt || w.description,
-            description_th: w.descriptionTh || w.description,
-            description_de: w.descriptionDe || w.description,
-            price: rawPrice,
-            image: w.bottleImage,
-            image_file: w.bottleImage,
+            descriptionIt: merged.descriptionIt || merged.description,
+            descriptionEn: merged.descriptionEn || merged.description,
+            descriptionTh: merged.descriptionTh || merged.description,
+            descriptionMm: merged.descriptionMm || merged.description,
+            descriptionDe: merged.descriptionDe || merged.description,
+            descriptionEs: merged.descriptionEs || merged.description,
+            descriptionFr: merged.descriptionFr || merged.description,
+            descriptionRu: merged.descriptionRu || merged.description,
+            descriptionZh: merged.descriptionZh || merged.description,
+            description_it: merged.descriptionIt || merged.description,
+            description_en: merged.descriptionEn || merged.description,
+            description_th: merged.descriptionTh || merged.description,
+            description_mm: merged.descriptionMm || merged.description,
+            description_de: merged.descriptionDe || merged.description,
+            description_es: merged.descriptionEs || merged.description,
+            description_fr: merged.descriptionFr || merged.description,
+            description_ru: merged.descriptionRu || merged.description,
+            description_zh: merged.descriptionZh || merged.description,
+            price: finalPrice,
+            image: merged.bottleImage,
+            image_file: merged.bottleImage,
             category: 'wines',
-            categoryType: resolveWineCategoryType(w),
+            categoryType: resolveWineCategoryType(merged),
             categorySubtitle: subForLang,
-            categorySubtitleIt: w.subtitleIt || w.categorySubtitle,
-            categorySubtitleTh: w.subtitleTh || w.categorySubtitle,
-            categorySubtitleDe: w.subtitleDe || w.categorySubtitle,
-            flag: w.flag,
-            alcohol: w.alcohol,
-            bottleScale: w.bottleScale || 100,
-            bottleScaleX: w.bottleScaleX || 100,
-            bottleOffsetX: w.bottleOffsetX || 0,
-            bottleOffsetY: w.bottleOffsetY || 0,
+            categorySubtitleIt: merged.subtitleIt || merged.categorySubtitle,
+            categorySubtitleEn: merged.subtitleEn || merged.categorySubtitle,
+            categorySubtitleTh: merged.subtitleTh || merged.categorySubtitle,
+            categorySubtitleMm: merged.subtitleMm || merged.categorySubtitle,
+            categorySubtitleDe: merged.subtitleDe || merged.categorySubtitle,
+            categorySubtitleEs: merged.subtitleEs || merged.categorySubtitle,
+            categorySubtitleFr: merged.subtitleFr || merged.categorySubtitle,
+            categorySubtitleRu: merged.subtitleRu || merged.categorySubtitle,
+            categorySubtitleZh: merged.subtitleZh || merged.categorySubtitle,
+            subtitleIt: merged.subtitleIt || merged.categorySubtitle,
+            subtitleEn: merged.subtitleEn || merged.categorySubtitle,
+            subtitleTh: merged.subtitleTh || merged.categorySubtitle,
+            subtitleMm: merged.subtitleMm || merged.categorySubtitle,
+            subtitleDe: merged.subtitleDe || merged.categorySubtitle,
+            subtitleEs: merged.subtitleEs || merged.categorySubtitle,
+            subtitleFr: merged.subtitleFr || merged.categorySubtitle,
+            subtitleRu: merged.subtitleRu || merged.categorySubtitle,
+            subtitleZh: merged.subtitleZh || merged.categorySubtitle,
+            flag: merged.flag,
+            alcohol: merged.alcohol,
+            bottleScale: merged.bottleScale || 100,
+            bottleScaleX: merged.bottleScaleX || 100,
+            bottleOffsetX: merged.bottleOffsetX || 0,
+            bottleOffsetY: merged.bottleOffsetY || 0,
             isAvailable: true
           } as MenuItem;
         });
     } catch (e) {
-      console.warn('Error reading dynamic wines in DiningTabletSite:', e);
+      console.warn('Error reading dynamic wines:', e);
       return [];
     }
   };
@@ -2082,26 +2440,26 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         {lang === 'IT' ? 'Carta dei Vini • Degustazione al Tavolo' : lang === 'TH' ? 'รายการไวน์คัดพิเศษ • เสิร์ฟที่โต๊ะ' : lang === 'DE' ? 'Weinkarte • Tischverkostung' : 'Fine Wine List • Table Dining'}
                       </h3>
                       <p className="text-[11px] text-amber-300/90 font-medium">
-                        {allDynamicWines.length} {WINE_FILTER_LABELS[lang].winesCount} • Sconto 5% al tavolo applicato a carrello
+                        {allDynamicWines.length} {(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).winesCount} • Sconto 5% al tavolo applicato a carrello
                       </p>
                     </div>
                   </div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-bold self-start sm:self-auto">
                     <Sparkles className="w-3.5 h-3.5 fill-amber-300" />
-                    <span>{WINE_FILTER_LABELS[lang].italianFirstBadge}</span>
+                    <span>{(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).italianFirstBadge}</span>
                   </div>
                 </div>
 
                 {/* Filter Dropdowns */}
                 <div className="relative z-30 flex items-end gap-3 flex-wrap">
                   <CustomFilterDropdown
-                    label="Tipologia Vino"
+                    label={(DROPDOWN_LABELS[lang] || DROPDOWN_LABELS.IT).wineTypeFilter}
                     selectedId={selectedWineType}
                     options={[
-                      { id: 'all', label: WINE_FILTER_LABELS[lang].allTypes, count: wineTypeCounts.all },
+                      { id: 'all', label: (WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).allTypes, count: wineTypeCounts.all },
                       ...WINE_TYPE_SECTIONS.map(s => ({
                         id: s.id,
-                        label: s.name[lang],
+                        label: (s.name[lang] || s.name.IT || s.name.EN),
                         count: wineTypeCounts[s.id as keyof typeof wineTypeCounts] || 0
                       }))
                     ]}
@@ -2109,10 +2467,10 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                   />
 
                   <CustomFilterDropdown
-                    label="Origine / Nazione"
+                    label={(DROPDOWN_LABELS[lang] || DROPDOWN_LABELS.IT).wineCountryFilter}
                     selectedId={selectedWineCountry}
                     options={[
-                      { id: 'all', label: WINE_FILTER_LABELS[lang].allCountries },
+                      { id: 'all', label: (WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).allCountries },
                       ...availableWineCountries.map(c => ({
                         id: c.flag,
                         label: c.names?.[lang] || c.label,
@@ -2169,7 +2527,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                           }`}
                         >
                           <span>🍽️</span>
-                          <span>{lang === 'TH' ? 'ทั้งหมด' : lang === 'IT' ? 'Tutti' : lang === 'DE' ? 'Alle' : lang === 'MM' ? 'အားလုံး' : 'All'}</span>
+                          <span>{lang === 'TH' ? 'ทั้งหมด' : lang === 'IT' ? 'Tutti' : lang === 'DE' ? 'Alle' : lang === 'MM' ? 'အားလုံး' : lang === 'ES' ? 'Todos' : lang === 'FR' ? 'Tous' : lang === 'RU' ? 'Все' : lang === 'ZH' ? '全部' : 'All'}</span>
                         </button>
 
                         {/* Option 2: VEGGIE */}
@@ -2183,7 +2541,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                           }`}
                         >
                           <Wheat className={`w-3.5 h-3.5 ${dietaryFilter === 'veggie' ? 'text-stone-950 stroke-[2.5]' : 'text-amber-600'}`} />
-                          <span>{lang === 'TH' ? 'มังสวิรัติ' : lang === 'IT' ? 'Veggie' : lang === 'DE' ? 'Veggie' : lang === 'MM' ? 'သတ်သတ်လွတ်' : 'Veggie'}</span>
+                          <span>{lang === 'TH' ? 'มังสวิรัติ' : lang === 'IT' ? 'Veggie' : lang === 'DE' ? 'Veggie' : lang === 'MM' ? 'သတ်သတ်လွတ်' : lang === 'ES' ? 'Vegetariano' : lang === 'FR' ? 'Végétarien' : lang === 'RU' ? 'Вегетарианское' : lang === 'ZH' ? '素食' : 'Veggie'}</span>
                         </button>
 
                         {/* Option 3: VEGAN */}
@@ -2197,7 +2555,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                           }`}
                         >
                           <Leaf className={`w-3.5 h-3.5 ${dietaryFilter === 'vegan' ? 'text-emerald-100 stroke-[2.5]' : 'text-emerald-600'}`} />
-                          <span>{lang === 'TH' ? 'วีแกน' : lang === 'IT' ? 'Vegan' : lang === 'DE' ? 'Vegan' : lang === 'MM' ? 'ဗီဂျန်' : 'Vegan'}</span>
+                          <span>{lang === 'TH' ? 'วีแกน' : lang === 'IT' ? 'Vegan' : lang === 'DE' ? 'Vegan' : lang === 'MM' ? 'ဗီဂျန်' : lang === 'ES' ? 'Vegano' : lang === 'FR' ? 'Végan' : lang === 'RU' ? 'Веганское' : lang === 'ZH' ? '纯素' : 'Vegan'}</span>
                         </button>
                       </div>
                     </div>
@@ -2280,7 +2638,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                       <div className="px-2 mb-6">
                         <div className="flex items-center gap-3">
                           <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {group.name[lang]}
+                            {(group.name[lang] || group.name.IT || group.name.EN)}
                           </h3>
                           <span className="text-xs text-stone-400 font-medium">
                             ({group.items.length})
@@ -2289,7 +2647,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         </div>
                         {group.desc && (
                           <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {group.desc[lang]}
+                            {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                           </p>
                         )}
                       </div>
@@ -2304,13 +2662,13 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                       <div className="px-2 mb-6">
                         <div className="flex items-center gap-3">
                           <h3 className="font-sans text-lg font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {group.name[lang]}
+                            {(group.name[lang] || group.name.IT || group.name.EN)}
                           </h3>
                           <div className="flex-1 h-px bg-stone-300/60" />
                         </div>
                         {group.desc && (
                           <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {group.desc[lang]}
+                            {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                           </p>
                         )}
                       </div>
@@ -2325,7 +2683,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                       <div className="px-2 mb-6">
                         <div className="flex items-center gap-3">
                           <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {group.name[lang]}
+                            {(group.name[lang] || group.name.IT || group.name.EN)}
                           </h3>
                           <span className="text-xs text-stone-400 font-medium">
                             ({group.items.length})
@@ -2334,7 +2692,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         </div>
                         {group.desc && (
                           <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {group.desc[lang]}
+                            {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                           </p>
                         )}
                       </div>
@@ -2349,7 +2707,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                       <div className="px-2 mb-6">
                         <div className="flex items-center gap-3">
                           <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {group.name[lang]}
+                            {(group.name[lang] || group.name.IT || group.name.EN)}
                           </h3>
                           <span className="text-xs text-stone-400 font-medium">
                             ({group.items.length})
@@ -2358,7 +2716,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         </div>
                         {group.desc && (
                           <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {group.desc[lang]}
+                            {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                           </p>
                         )}
                       </div>
@@ -2375,7 +2733,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                           <div className="px-2 mb-6">
                             <div className="flex items-center gap-3">
                               <h3 className="font-sans text-xl font-black text-stone-900 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                                {group.name[lang]}
+                                {(group.name[lang] || group.name.IT || group.name.EN)}
                               </h3>
                               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase text-white shadow-xs" style={{ backgroundColor: group.color }}>
                                 {group.badge[lang]}
@@ -2384,7 +2742,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                             </div>
                             {group.desc && (
                               <p className="text-stone-600 text-xs sm:text-sm mt-1.5 font-light italic leading-relaxed max-w-3xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                                {group.desc[lang]}
+                                {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
                               </p>
                             )}
                           </div>
@@ -2395,13 +2753,13 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                   ) : (
                     <div className="py-16 text-center text-stone-500 space-y-3 bg-white/60 rounded-3xl border border-stone-200 p-8">
                       <Wine className="w-12 h-12 mx-auto text-stone-400 stroke-1" />
-                      <p className="text-sm font-semibold">{WINE_FILTER_LABELS[lang].noWinesFound}</p>
+                      <p className="text-sm font-semibold">{(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).noWinesFound}</p>
                       <button
                         type="button"
                         onClick={() => { setSelectedWineType('all'); setSelectedWineCountry('all'); }}
                         className="px-4 py-2 bg-[#8B1E1E] text-white text-xs font-bold rounded-xl shadow cursor-pointer hover:bg-[#701616]"
                       >
-                        {WINE_FILTER_LABELS[lang].resetFilters}
+                        {(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).resetFilters}
                       </button>
                     </div>
                   )
@@ -2411,13 +2769,13 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                   ) : (
                     <div className="py-16 text-center text-stone-500 space-y-3 bg-white/60 rounded-3xl border border-stone-200 p-8">
                       <Wine className="w-12 h-12 mx-auto text-stone-400 stroke-1" />
-                      <p className="text-sm font-semibold">{WINE_FILTER_LABELS[lang].noWinesFound}</p>
+                      <p className="text-sm font-semibold">{(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).noWinesFound}</p>
                       <button
                         type="button"
                         onClick={() => { setSelectedWineType('all'); setSelectedWineCountry('all'); }}
                         className="px-4 py-2 bg-[#8B1E1E] text-white text-xs font-bold rounded-xl shadow cursor-pointer hover:bg-[#701616]"
                       >
-                        {WINE_FILTER_LABELS[lang].resetFilters}
+                        {(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).resetFilters}
                       </button>
                     </div>
                   )

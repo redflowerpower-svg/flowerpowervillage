@@ -254,3 +254,41 @@ export function incrementPizzaPromoUsage(codeOrId: string): void {
   });
   savePizzaPromoCodes(updated);
 }
+
+/**
+ * Creates a unique single-use 10% discount promo code for Dining Tablet guests
+ * Valid for exactly 10 days from issue date.
+ */
+export function createUniqueDiningPromoCode(customPrefix: string = 'DINE10'): PizzaPromoCode {
+  const randomChars = Math.random().toString(36).substring(2, 7).toUpperCase();
+  const code = `${customPrefix}-${randomChars}`;
+  
+  const now = new Date();
+  const validFrom = now.toISOString().split('T')[0];
+  
+  const expiryDate = new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000);
+  const validTo = expiryDate.toISOString().split('T')[0];
+
+  const newPromo: PizzaPromoCode = {
+    id: `promo-dining-${Date.now()}-${randomChars}`,
+    code,
+    discountType: 'percentage',
+    discountValue: 10,
+    minOrder: 0,
+    slotsTotal: 1,
+    slotsUsed: 0,
+    isSingleUse: true,
+    validFrom,
+    validTo,
+    active: true,
+    createdAt: now.toISOString()
+  };
+
+  const currentCodes = loadPizzaPromoCodes();
+  // Filter out any duplicate code if collision (unlikely)
+  const updatedList = [...currentCodes.filter(c => c.code !== code), newPromo];
+  savePizzaPromoCodes(updatedList);
+
+  return newPromo;
+}
+

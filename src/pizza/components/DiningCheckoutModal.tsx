@@ -40,8 +40,38 @@ interface DiningCheckoutModalProps {
 }
 
 import { DINING_TABLES, formatTableStationName, getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
+import { createUniqueDiningPromoCode } from '../services/pizzaPromoService';
 
-const I18N_CHECKOUT = {
+const I18N_CHECKOUT: Record<string, {
+  modalTitle: string;
+  privilegeBadge: string;
+  tableSection: string;
+  customTableBtn: string;
+  listTableBtn: string;
+  customPlaceholder: string;
+  clientSection: string;
+  nameLabel: string;
+  namePlaceholder: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  emailNotice: string;
+  notesLabel: string;
+  notesPlaceholder: string;
+  payAtCounterTitle: string;
+  payAtCounterDesc: string;
+  payAtCounterBadge: string;
+  subtotalLabel: string;
+  discountLabel: string;
+  finalTotalLabel: string;
+  submitBtn: string;
+  submittingBtn: string;
+  successTitle: string;
+  successSubtitle: string;
+  giftTitle: string;
+  giftDesc: string;
+  summaryPill: string;
+  finishBtn: string;
+}> = {
   IT: {
     modalTitle: 'Invia Ordine al Tavolo',
     privilegeBadge: '-5% SCONTO AL TAVOLO',
@@ -52,8 +82,9 @@ const I18N_CHECKOUT = {
     clientSection: '2. Dati Cliente (Coupon Sconto 10% Delivery)',
     nameLabel: 'Nome / Riferimento',
     namePlaceholder: 'es. Marco',
-    emailLabel: 'Email (Coupon Sconto 10% Delivery)',
+    emailLabel: 'Email (Opzionale - Ricevi Coupon 10%)',
     emailPlaceholder: 'tuaemail@esempio.com',
+    emailNotice: "L'email non è obbligatoria. Se la inserisci, riceverai subito via email un coupon sconto del 10% valido 10 giorni per la tua prossima ordinazione da asporto o consegna a domicilio sul nostro sito web.",
     notesLabel: 'Note Speciali per la Cucina / Camerieri (Opzionale)',
     notesPlaceholder: 'es. Portare le pizze insieme, bicchieri extra...',
     payAtCounterTitle: 'Conto alla Cassa',
@@ -81,8 +112,9 @@ const I18N_CHECKOUT = {
     clientSection: '2. Guest Details (10% Delivery Voucher)',
     nameLabel: 'Name / Nickname',
     namePlaceholder: 'e.g. John',
-    emailLabel: 'Email (10% Delivery Voucher)',
+    emailLabel: 'Email (Optional - Get 10% Voucher)',
     emailPlaceholder: 'youremail@example.com',
+    emailNotice: 'Email is not required. If you enter it, you will immediately receive a 10% discount coupon by email, valid for 10 days, for your next takeout or home delivery order on our website.',
     notesLabel: 'Special Kitchen / Server Notes (Optional)',
     notesPlaceholder: 'e.g. Serve pizzas together, extra glasses...',
     payAtCounterTitle: 'Pay at Counter',
@@ -110,8 +142,9 @@ const I18N_CHECKOUT = {
     clientSection: '2. ข้อมูลลูกค้า (รับคูปองส่วนลด 10% เดลิเวอรี่)',
     nameLabel: 'ชื่อผู้สั่ง',
     namePlaceholder: 'เช่น สมชาย',
-    emailLabel: 'อีเมล (รับคูปองส่วนลด 10% เดลิเวอรี่)',
+    emailLabel: 'อีเมล (ไม่บังคับ - รับคูปอง 10%)',
     emailPlaceholder: 'yourname@example.com',
+    emailNotice: 'อีเมลไม่ใช่ข้อมูลบังคับ หากคุณกรอกอีเมล คุณจะได้รับคูปองส่วนลด 10% ทางอีเมลทันที ใช้ได้ 10 วัน สำหรับการสั่งซื้อแบบกลับบ้านหรือจัดส่งถึงบ้านครั้งถัดไปบนเว็บไซต์ของเรา',
     notesLabel: 'หมายเหตุถึงเชฟและพนักงาน (ถ้ามี)',
     notesPlaceholder: 'เช่น เสิร์ฟพร้อมกัน, แก้วน้ำเพิ่ม...',
     payAtCounterTitle: 'ชำระที่แคชเชียร์',
@@ -139,8 +172,9 @@ const I18N_CHECKOUT = {
     clientSection: '2. Gästeinformation (10% Liefergutschein)',
     nameLabel: 'Name / Notiz',
     namePlaceholder: 'z.B. Thomas',
-    emailLabel: 'E-Mail (10% Liefer-Rabattgutschein)',
+    emailLabel: 'E-Mail (Optional - 10% Gutschein erhalten)',
     emailPlaceholder: 'ihre.email@beispiel.de',
+    emailNotice: 'Die E-Mail-Adresse ist nicht verpflichtend. Wenn du sie eingibst, erhältst du sofort per E-Mail einen 10% Rabattgutschein, gültig für 10 Tage, für deine nächste Bestellung zum Mitnehmen oder zur Lieferung nach Hause auf unserer Website.',
     notesLabel: 'Sonderwünsche an Küche / Service (Optional)',
     notesPlaceholder: 'z.B. Pizzen zusammen servieren, extra Gläser...',
     payAtCounterTitle: 'Rechnung an der Kasse',
@@ -168,8 +202,9 @@ const I18N_CHECKOUT = {
     clientSection: '၂။ ဧည့်သည် အချက်အလက် (၁၀% လျှော့စျေးကူပွန်)',
     nameLabel: 'အမည်',
     namePlaceholder: 'ဥပမာ - မောင်မောင်',
-    emailLabel: 'အီးမေးလ် (၁၀% လျှော့စျေးကူပွန်)',
+    emailLabel: 'အီးမေးလ် (စိတ်ကြိုက် - ၁၀% ကူပွန်ရယူရန်)',
     emailPlaceholder: 'youremail@example.com',
+    emailNotice: 'အီးမေးလ်သည် မဖြစ်မနေ ထည့်သွင်းရန် မလိုအပ်ပါ။ သင်ထည့်သွင်းပါက ကျွန်ုပ်တို့၏ ဝဘ်ဆိုက်တွင် နောက်တစ်ကြိမ် အပြင်ယူရန် သို့မဟုတ် အိမ်အရောက်ပို့ဆောင်ရန် မှာယူမှုအတွက် ၁၀ ရာခိုင်နှုန်း လျှော့စျေး ကူပွန်ကို ၁၀ ရက်အထိ အသုံးပြုနိုင်သည့် သက်တမ်းဖြင့် အီးမေးလ်မှတစ်ဆင့် ချက်ချင်း လက်ခံရရှိမည်ဖြစ်သည်။',
     notesLabel: 'မီးဖိုချောင်နှင့် စားပွဲထိုးအတွက် အထူးမှာကြားချက် (စိတ်ကြိုက်)',
     notesPlaceholder: 'ဥပမာ - ပီဇာများကို တစ်ပြိုင်နက် ချပေးပါ၊ ဖန်ခွက်အပို...',
     payAtCounterTitle: 'ငွေရှင်းကောင်တာတွင် ငွေရှင်းရန်',
@@ -186,6 +221,126 @@ const I18N_CHECKOUT = {
     giftDesc: 'စားပွဲ၌ မှာယူအားပေးမှုအတွက် ကျေးဇူးတင်ပါသည်! အီးမေးလ် ထည့်သွင်းထားပါက flowerpowerpizza.com တွင် အိမ်အရောက်ပို့အတွက် ၁၀% လျှော့စျေးကူပွန် ရရှိပါမည်။',
     summaryPill: 'စားပွဲကျသင့်ငွေ (၅% လျှော့စျေးပြီး):',
     finishBtn: 'မီနူးသို့ ပြန်သွားမည် / ထပ်မံမှာယူမည်'
+  },
+  ES: {
+    modalTitle: 'Enviar Pedido de la Mesa',
+    privilegeBadge: '-5% DESCUENTO EN MESA',
+    tableSection: '1. Ubicación de la Mesa',
+    customTableBtn: 'Entrada manual',
+    listTableBtn: 'Elegir de la lista',
+    customPlaceholder: 'ej. Mesa 7 / Terraza / Barra',
+    clientSection: '2. Datos del Cliente (Cupón 10% Delivery)',
+    nameLabel: 'Nombre / Referencia',
+    namePlaceholder: 'ej. Carlos',
+    emailLabel: 'Email (Opcional - Recibe Cupón 10%)',
+    emailPlaceholder: 'tucorreo@ejemplo.com',
+    emailNotice: 'El correo electrónico no es obligatorio. Si lo introduces, recibirás de inmediato por correo electrónico un cupón de descuento del 10% válido durante 10 días para tu próximo pedido para llevar o entrega a domicilio en nuestro sitio web.',
+    notesLabel: 'Notas Especiales para Cocina / Camareros (Opcional)',
+    notesPlaceholder: 'ej. Servir las pizzas juntas, vasos extra...',
+    payAtCounterTitle: 'Cuenta en Caja',
+    payAtCounterDesc: 'La cuenta se abonará cómodamente en caja al terminar su consumición.',
+    payAtCounterBadge: 'EN CAJA',
+    subtotalLabel: 'Total Productos',
+    discountLabel: 'Descuento en Mesa (-5%)',
+    finalTotalLabel: 'Total Cuenta Final',
+    submitBtn: 'Enviar Pedido a Caja (-5%)',
+    submittingBtn: 'Enviando pedido a caja...',
+    successTitle: '¡Comanda Enviada a Caja!',
+    successSubtitle: 'Tus platos y pizzas se están preparando al momento.',
+    giftTitle: '¡Regalo Especial Delivery para Ti!',
+    giftDesc: '¡Gracias por pedir en mesa! Si has indicado tu email, recibirás tu cupón de descuento del 10% para tu próximo pedido a domicilio en flowerpowerpizza.com.',
+    summaryPill: 'Total Cuenta en Mesa (-5% aplicado):',
+    finishBtn: 'Volver a la Carta / Nuevo Pedido'
+  },
+  FR: {
+    modalTitle: 'Envoyer la Commande de Table',
+    privilegeBadge: '-5% DE RÉDUCTION À TABLE',
+    tableSection: '1. Emplacement de la Table',
+    customTableBtn: 'Saisie libre',
+    listTableBtn: 'Choisir dans la liste',
+    customPlaceholder: 'ex. Table 7 / Terrasse / Comptoir',
+    clientSection: '2. Coordonnées Client (Coupon 10% Livraison)',
+    nameLabel: 'Nom / Référence',
+    namePlaceholder: 'ex. Jean',
+    emailLabel: 'Email (Optionnel - Recevez -10%)',
+    emailPlaceholder: 'votre.email@exemple.com',
+    emailNotice: "L'email n'est pas obligatoire. Si vous la saisissez, vous recevrez immédiatement par email un coupon de réduction de 10 % valable 10 jours pour votre prochaine commande à emporter ou en livraison sur notre site web.",
+    notesLabel: 'Notes Spéciales pour la Cuisine (Optionnel)',
+    notesPlaceholder: 'ex. Servir les pizzas ensemble, verres en plus...',
+    payAtCounterTitle: 'Addition au Comptoir',
+    payAtCounterDesc: "L'addition se règle facilement au comptoir à la fin de votre repas.",
+    payAtCounterBadge: 'AU COMPTOIR',
+    subtotalLabel: 'Total Produits',
+    discountLabel: 'Privilège Restaurant (-5%)',
+    finalTotalLabel: 'Total Addition Finale',
+    submitBtn: 'Envoyer la Commande au Comptoir (-5%)',
+    submittingBtn: 'Envoi de la commande en cours...',
+    successTitle: 'Commande Envoyée au Comptoir !',
+    successSubtitle: 'Vos plats et pizzas sont fraîchement préparés en cuisine.',
+    giftTitle: 'Cadeau Spécial Livraison pour Vous !',
+    giftDesc: 'Merci pour votre commande à table ! Si vous avez renseigné votre email, vous recevrez un bon de 10 % de réduction pour votre prochaine livraison sur flowerpowerpizza.com.',
+    summaryPill: 'Total Addition à Table (-5% appliqué) :',
+    finishBtn: 'Retour au Menu / Nouvelle Commande'
+  },
+  RU: {
+    modalTitle: 'Отправить заказ со стола',
+    privilegeBadge: '-5% СКИДКА НА СТОЛ',
+    tableSection: '1. Номер / Расположение стола',
+    customTableBtn: 'Ввести вручную',
+    listTableBtn: 'Выбрать из списка',
+    customPlaceholder: 'напр. Стол 7 / Терраса / Бар',
+    clientSection: '2. Данные гостя (Купон 10% на доставку)',
+    nameLabel: 'Имя / Контакт',
+    namePlaceholder: 'напр. Александр',
+    emailLabel: 'Эл. почта (Необязательно - Купон 10%)',
+    emailPlaceholder: 'youremail@example.com',
+    emailNotice: 'Электронная почта не обязательна. Если вы её укажете, вы сразу получите по электронной почте купон на скидку 10%, действительный в течение 10 дней, на ваш следующий заказ на вынос или доставку на дом на нашем сайте.',
+    notesLabel: 'Пожелания для кухни / персонала (Опционально)',
+    notesPlaceholder: 'напр. Подать пиццы одновременно, доп. стаканы...',
+    payAtCounterTitle: 'Оплата на кассе',
+    payAtCounterDesc: 'Счёт можно удобно оплатить на кассе по завершении вашего визита.',
+    payAtCounterBadge: 'НА КАССЕ',
+    subtotalLabel: 'Сумма заказа',
+    discountLabel: 'Скидка на стол (-5%)',
+    finalTotalLabel: 'Итого к оплате',
+    submitBtn: 'Отправить заказ на кассу (-5%)',
+    submittingBtn: 'Отправка заказа на кассу...',
+    successTitle: 'Заказ успешно отправлен на кассу!',
+    successSubtitle: 'Ваши блюда и свежая пицца уже готовятся шеф-поваром.',
+    giftTitle: 'Специальный подарок для вас!',
+    giftDesc: 'Спасибо за заказ за столом! Если вы указали email, вы получите купон на скидку 10% для следующего заказа на дом на flowerpowerpizza.com.',
+    summaryPill: 'Итоговый чек со стола (со скидкой 5%):',
+    finishBtn: 'Вернуться в меню / Дозаказать'
+  },
+  ZH: {
+    modalTitle: '提交餐桌订单',
+    privilegeBadge: '享餐桌专属 95 折 (-5%)',
+    tableSection: '1. 餐桌位置',
+    customTableBtn: '手动输入',
+    listTableBtn: '从列表选择',
+    customPlaceholder: '例如：7号桌 / 露台 / 吧台',
+    clientSection: '2. 顾客信息（送外卖专属 10% 折扣券）',
+    nameLabel: '姓名 / 昵称',
+    namePlaceholder: '例如：李雷',
+    emailLabel: '电子邮箱（选填 - 立即获赠 10% 优惠券）',
+    emailPlaceholder: 'youremail@example.com',
+    emailNotice: '电子邮件不是必填项。如果您填写，将立即通过电子邮件收到一张10%折扣优惠券，有效期10天，可用于您下次在我们网站上的外卖自取或配送上门订单。',
+    notesLabel: '给后厨和服务的备注（选填）',
+    notesPlaceholder: '例如：披萨一起上，多要水杯...',
+    payAtCounterTitle: '前台收银台结账',
+    payAtCounterDesc: '用餐完毕后，您可以直接前往前台收银台结账。',
+    payAtCounterBadge: '前台结账',
+    subtotalLabel: '菜品总额',
+    discountLabel: '餐桌特惠 (-5%)',
+    finalTotalLabel: '应付总金额',
+    submitBtn: '提交订单至前台 (-5%)',
+    submittingBtn: '正在提交订单至前台...',
+    successTitle: '订单已成功发送至前台！',
+    successSubtitle: '大厨正在为您新鲜烘烤披萨与精致料理。',
+    giftTitle: '送给您的外卖专属礼遇！',
+    giftDesc: '感谢您在店内用餐！若您留下了电子邮箱，我们将向您发送一张用于下次外卖点餐的 10% 折扣优惠券。',
+    summaryPill: '餐桌账单总额（已享 95 折）：',
+    finishBtn: '返回菜单 / 加点菜品'
   }
 };
 
@@ -293,9 +448,19 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 
       const paymentLabel = paymentMethod === 'promptpay' ? 'promptpay_kshop_at_table' : paymentMethod === 'card' ? 'card_pos_at_table' : 'cash_at_table';
 
+      let diningPromoCode = '';
+      if (customerEmail.trim()) {
+        try {
+          diningPromoCode = createUniqueDiningPromoCode('DINE10');
+        } catch (e) {
+          console.warn('[DiningCheckout] Promo generation fallback:', e);
+        }
+      }
+
       const formattedAddress = `[DINE-IN: ${activeTable}]` + 
         (lang ? ` [LANG: ${lang}]` : '') + 
         (customerEmail.trim() ? ` [EMAIL: ${customerEmail.trim()}]` : '') + 
+        (diningPromoCode ? ` [DINING_VOUCHER: ${diningPromoCode}]` : '') + 
         (specialNotes.trim() ? ` [NOTE: ${specialNotes.trim()}]` : '');
 
       const canonicalCurrentTable = getCanonicalTableKey(activeTable);
@@ -307,11 +472,21 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         nameIt: i.nameIt,
         nameTh: i.nameTh,
         nameDe: i.nameDe,
+        nameMm: (i as any).nameMm || (i as any).name_mm,
+        name_mm: (i as any).nameMm || (i as any).name_mm,
+        nameEs: (i as any).nameEs,
+        nameFr: (i as any).nameFr,
+        nameRu: (i as any).nameRu,
+        nameZh: (i as any).nameZh,
         image: i.image || '',
         quantity: i.quantity,
         basePrice: i.basePrice,
-        variant: i.selectedVariant?.name || null,
-        extras: (i.selectedExtras || []).map(e => e.name),
+        selectedVariant: i.selectedVariant || null,
+        selectedExtras: i.selectedExtras || [],
+        variant: i.selectedVariant?.name || null, // legacy backward compat
+        extras: (i.selectedExtras || []).map(e => e.name), // legacy backward compat
+        isHalalChicken: (i as any).isHalalChicken || false,
+        lasagnaDate: (i as any).lasagnaDate || null,
         total: calcItemTotal(i)
       }));
 
@@ -368,12 +543,23 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         created_at: new Date().toISOString()
       };
 
+      const voucherEmailPayload = (customerEmail.trim() && diningPromoCode) ? {
+        toEmail: customerEmail.trim(),
+        customerName: finalCustomerName,
+        promoCode: diningPromoCode,
+        lang: lang || 'IT'
+      } : undefined;
+
       // 3. Primary: Serverless Backend API (service_role bypasses RLS and guaranteed atomic write/update)
       try {
         const res = await fetch('/api/pizza-order-submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ order: orderPayload, existingOrderId: activeExistingOrderId })
+          body: JSON.stringify({ 
+            order: orderPayload, 
+            existingOrderId: activeExistingOrderId,
+            voucherEmail: voucherEmailPayload
+          })
         });
         const apiRes = await res.json();
         if (apiRes && apiRes.success && apiRes.order) {
@@ -611,6 +797,14 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
                       className="w-full bg-stone-900 border border-stone-700 text-white rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-amber-400"
                     />
                   </div>
+                </div>
+
+                {/* Email Optional Notice & 10% Voucher explanation */}
+                <div className="p-2.5 bg-amber-500/10 border border-amber-500/25 rounded-xl flex items-start gap-2 text-amber-200/90 text-[11px] leading-relaxed">
+                  <Sparkles className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <p className="font-normal text-stone-300">
+                    {t.emailNotice}
+                  </p>
                 </div>
               </div>
 

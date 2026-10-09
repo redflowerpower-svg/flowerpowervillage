@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { sendDiningVoucherEmail } from "../_helpers/dining-voucher-email.js";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -116,9 +117,22 @@ export async function handlePizzaOrderSubmit(req: VercelRequest, res: VercelResp
       resultOrder = inserted;
     }
 
+    // Trigger dining voucher email in the background if email is provided
+    const voucherData = req.body?.voucherEmail;
+    if (voucherData && voucherData.toEmail) {
+      try {
+        sendDiningVoucherEmail(voucherData).catch(e => 
+          console.warn('[Order Submit API] Background voucher email failed:', e)
+        );
+      } catch (emailErr) {
+        console.warn('[Order Submit API] Error calling sendDiningVoucherEmail:', emailErr);
+      }
+    }
+
     return res.status(200).json({ success: true, order: resultOrder });
   } catch (err: any) {
     console.error('[Order Submit API Exception]:', err);
     return res.status(500).json({ error: "Internal server error", message: err.message });
   }
 }
+

@@ -1,0 +1,192 @@
+{
+  "dining_voucher_welcome": {
+    "IT": {
+      "subject": "🎁 Il tuo Sconto 10% Flower Power Pizza Ranong per Ordini Online!",
+      "message": "Gentile {name},\n\nGrazie per essere stato nostro gradito ospite al tavolo!\n\nEcco il tuo speciale buono sconto del 10% valido per 10 giorni per il tuo prossimo ordine da asporto o consegna a domicilio sul nostro sito web:\n\n👉 Ordina subito con sconto applicato con 1 click:\nhttps://flowerpowerpizza.com\n\nOppure inserisci il tuo codice promozionale personale al checkout.\n\nA presto!\nFlower Power Pizza & Wine Ranong"
+    },
+    "EN": {
+      "subject": "🎁 Your 10% Discount at Flower Power Pizza Ranong for Online Orders!",
+      "message": "Dear {name},\n\nThank you for being our valued guest at the table!\n\nHere is your special 10% discount voucher, valid for 10 days, for your next takeaway or delivery order on our website:\n\n👉 Order now with the discount applied in 1 click:\nhttps://flowerpowerpizza.com\n\nOr enter your personal promo code at checkout.\n\nSee you soon!\nFlower Power Pizza & Wine Ranong"
+    },
+    "TH": {
+      "subject": "🎁 รับส่วนลด 10% จาก Flower Power Pizza Ranong สำหรับสั่งออนไลน์!",
+      "message": "เรียนคุณ {name},\n\nขอบคุณที่มาเป็นแขกคนสำคัญของเราที่โต๊ะอาหาร!\n\nนี่คือบัตรส่วนลดพิเศษ 10% ของคุณ ใช้ได้ 10 วัน สำหรับการสั่งกลับบ้านหรือสั่งเดลิเวอรีครั้งถัดไปบนเว็บไซต์ของเรา:\n\n👉 สั่งเลยตอนนี้ รับส่วนลดทันทีใน 1 คลิก:\nhttps://flowerpowerpizza.com\n\nหรือกรอกโค้ดโปรโมชั่นส่วนตัวของคุณตอนชำระเงิน\n\nแล้วพบกันใหม่!\nFlower Power Pizza & Wine Ranong"
+    },
+    "MM": {
+      "subject": "🎁 အွန်လိုင်းမှာမှာယူရင် Flower Power Pizza Ranong မှာ 10% လျှော့စျေး ရယူလိုက်ပါ!",
+      "message": "ချစ်ခင်ရသော {name} ခင်ဗျာ၊\n\nကျွန်တော်တို့ရဲ့ စားပွဲမှာ တန်ဖိုးထားတဲ့ ဧည့်သည်အဖြစ် လာရောက်ပေးတဲ့အတွက် ကျေးဇူးတင်ပါတယ်!\n\nဒါက သင့်ရဲ့ အထူး 10% လျှော့စျေး ဗောက်ချာပါ၊ 10 ရက်အထိ သက်တမ်းရှိပြီး ကျွန်တော်တို့ရဲ့ ဝဘ်ဆိုက်မှာ နောက်တစ်ကြိမ် ပါဆယ်ယူ သို့မဟုတ် အိမ်အရောက်ပို့ မှာယူမှုအတွက် အသုံးပြုနိုင်ပါတယ်:\n\n👉 အခုပဲ 1 ချက်နှိပ်ပြီး လျှော့စျေးနဲ့ မှာယူလိုက်ပါ:\nhttps://flowerpowerpizza.com\n\nဒါမှမဟုတ် ငွေရှင်းတဲ့အခါ သင့်ကိုယ်ပိုင် ပရိုမိုကုဒ်ကို ထည့်ပါ။\n\nမကြာမီ တွေ့ကြပါစို့!\nFlower Power Pizza & Wine Ranong"
+    },
+    "DE": {
+      "subject": "🎁 Dein 10% Rabatt bei Flower Power Pizza Ranong für Online-Bestellungen!",
+      "message": "Liebe/r {name},\n\nvielen Dank, dass du unser geschätzter Gast am Tisch warst!\n\nHier ist dein spezieller 10% Rabattgutschein, gültig für 10 Tage, für deine nächste Bestellung zum Mitnehmen oder Liefern auf unserer Website:\n\n👉 Bestelle jetzt mit Rabatt in 1 Klick:\nhttps://flowerpowerpizza.com\n\nOder gib deinen persönlichen Promo-Code an der Kasse ein.\n\nBis bald!\nFlower Power Pizza & Wine Ranong"
+    },
+    "ES": {
+      "subject": "🎁 ¡Tu descuento del 10% en Flower Power Pizza Ranong para pedidos online!",
+      "message": "Estimado/a {name}:\n\n¡Gracias por ser nuestro apreciado invitado en la mesa!\n\nAquí tienes tu cupón de descuento especial del 10%, válido durante 10 días, para tu próximo pedido para llevar o a domicilio en nuestra web:\n\n👉 Pide ahora con el descuento aplicado en 1 clic:\nhttps://flowerpowerpizza.com\n\nO introduce tu código promocional personal en el checkout.\n\n¡Hasta pronto!\nFlower Power Pizza & Wine Ranong"
+    },
+    "FR": {
+      "subject": "🎁 Votre réduction de 10% chez Flower Power Pizza Ranong pour les commandes en ligne !",
+      "message": "Cher/Chère {name},\n\nMerci d'avoir été notre invité apprécié à table !\n\nVoici votre bon de réduction spécial de 10%, valable 10 jours, pour votre prochaine commande à emporter ou en livraison sur notre site web :\n\n👉 Commandez maintenant avec la réduction appliquée en 1 clic :\nhttps://flowerpowerpizza.com\n\nOu saisissez votre code promo personnel au moment du paiement.\n\nÀ bientôt !\nFlower Power Pizza & Wine Ranong"
+    },
+    "RU": {
+      "subject": "🎁 Ваша скидка 10% в Flower Power Pizza Ranong на онлайн-заказы!",
+      "message": "Уважаемый(ая) {name},\n\nСпасибо, что были нашим дорогим гостем за столом!\n\nВот ваш специальный купон на скидку 10%, действующий 10 дней, на следующий заказ на вынос или доставку на нашем сайте:\n\n👉 Закажите сейчас со скидкой в 1 клик:\nhttps://flowerpowerpizza.com\n\nИли введите свой персональный промокод при оформлении заказа.\n\nДо скорой встречи!\nFlower Power Pizza & Wine Ranong"
+    },
+    "ZH": {
+      "subject": "🎁 您在 Flower Power Pizza Ranong 在线订餐可享 10% 折扣！",
+      "message": "尊敬的 {name}：\n\n感谢您光临本店用餐！\n\n这是您的专属 10% 折扣券，有效期 10 天，可用于您下次在我们网站上的外带或外卖订单：\n\n👉 立即一键下单，自动享受折扣：\nhttps://flowerpowerpizza.com\n\n或在结账时输入您的个人优惠码。\n\n期待很快再见！\nFlower Power Pizza & Wine Ranong"
+    }
+  },
+  "weekend_promo": {
+    "IT": {
+      "subject": "🍕 Weekend Special: Sconto 10% sulle Pizze & Consegna Gratuita a Ranong!",
+      "message": "Ciao {name}!\n\nQuesto fine settimana regalati il vero sapore della pizza italiana a legna a Ranong.\n\n🔥 Ordina almeno 2 pizze e ricevi subito:\n- 10% di sconto sul totale\n- Consegna a domicilio rapida con i nostri rider dedicati\n\nVisita il nostro sito https://flowerpowerpizza.com o contattaci direttamente per prenotare la tua consegna calda e fragrante.\n\nA presto!\nFlower Power Pizza Ranong Team"
+    },
+    "EN": {
+      "subject": "🍕 Weekend Special: 10% Off Pizzas & Free Delivery in Ranong!",
+      "message": "Hi {name}!\n\nThis weekend, treat yourself to the true taste of Italian wood-fired pizza in Ranong.\n\n🔥 Order at least 2 pizzas and get instantly:\n- 10% off your total\n- Fast home delivery with our dedicated riders\n\nVisit our website https://flowerpowerpizza.com or contact us directly to book your hot, fresh delivery.\n\nSee you soon!\nFlower Power Pizza Ranong Team"
+    },
+    "TH": {
+      "subject": "🍕 โปรสุดสัปดาห์: ลด 10% พิซซ่า & ส่งฟรีในระนอง!",
+      "message": "สวัสดี {name}!\n\nสุดสัปดาห์นี้ เอาใจตัวเองด้วยรสชาติที่แท้จริงของพิซซ่าเตาถ่านอิตาเลียนในระนอง\n\n🔥 สั่งพิซซ่าขั้นต่ำ 2 ถาด รับทันที:\n- ลด 10% จากยอดรวม\n- จัดส่งถึงบ้านรวดเร็วโดยไรเดอร์ของเรา\n\nเยี่ยมชมเว็บไซต์ของเรา https://flowerpowerpizza.com หรือติดต่อเราโดยตรงเพื่อจองการจัดส่งที่ร้อนและสดใหม่\n\nแล้วพบกัน!\nทีม Flower Power Pizza ระนอง"
+    },
+    "MM": {
+      "subject": "🍕 အားလပ်ရက် အထူးကမ်းလှမ်းချက်- ပီဇာများ ၁၀% လျှော့စျေး & ရနောင်းတွင် အခမဲ့ ပို့ဆောင်ခြင်း!",
+      "message": "မင်္ဂလာပါ {name}!\n\nဒီအားလပ်ရက်မှာ ရနောင်းမြို့မှာ အီတလီမီးဖိုပီဇာရဲ့ အရသာစစ်စစ်ကို ခံစားလိုက်ပါ။\n\n🔥 ပီဇာ အနည်းဆုံး ၂ ခု မှာယူပါ၊ ချက်ချင်းရရှိမည်-\n- စုစုပေါင်းပေါ်တွင် ၁၀% လျှော့စျေး\n- ကျွန်ုပ်တို့၏ သီးသန့် ရိုက်ဒါများဖြင့် အမြန်အိမ်အရောက်ပို့ဆောင်ခြင်း\n\nကျွန်ုပ်တို့၏ ဝဘ်ဆိုဒ် https://flowerpowerpizza.com ကို ဝင်ရောက်ကြည့်ရှုပါ သို့မဟုတ် သင့်ပူနွေးလတ်ဆတ်သော ပို့ဆောင်မှုကို ကြိုတင်မှာယူရန် ကျွန်ုပ်တို့ကို တိုက်ရိုက်ဆက်သွယ်ပါ။\n\nမကြာမီတွေ့မယ်!\nFlower Power Pizza ရနောင်း အဖွဲ့"
+    },
+    "DE": {
+      "subject": "🍕 Wochenend-Special: 10% Rabatt auf Pizzen & kostenlose Lieferung in Ranong!",
+      "message": "Hallo {name}!\n\nGönn dir dieses Wochenende den echten Geschmack italienischer Holzofenpizza in Ranong.\n\n🔥 Bestelle mindestens 2 Pizzen und erhalte sofort:\n- 10% Rabatt auf deine Gesamtsumme\n- Schnelle Lieferung nach Hause mit unseren engagierten Fahrern\n\nBesuche unsere Website https://flowerpowerpizza.com oder kontaktiere uns direkt, um deine heiße, frische Lieferung zu buchen.\n\nBis bald!\nFlower Power Pizza Ranong Team"
+    },
+    "ES": {
+      "subject": "🍕 Especial de fin de semana: ¡10% de descuento en pizzas y entrega gratis en Ranong!",
+      "message": "¡Hola {name}!\n\nEste fin de semana, date el gusto de probar el auténtico sabor de la pizza italiana al horno de leña en Ranong.\n\n🔥 Pide al menos 2 pizzas y recibe al instante:\n- 10% de descuento en tu total\n- Entrega rápida a domicilio con nuestros repartidores dedicados\n\nVisita nuestro sitio web https://flowerpowerpizza.com o contáctanos directamente para reservar tu entrega caliente y fresca.\n\n¡Hasta pronto!\nEquipo de Flower Power Pizza Ranong"
+    },
+    "FR": {
+      "subject": "🍕 Spécial week-end : 10 % de réduction sur les pizzas et livraison gratuite à Ranong !",
+      "message": "Bonjour {name} !\n\nCe week-end, offrez-vous le vrai goût de la pizza italienne au feu de bois à Ranong.\n\n🔥 Commandez au moins 2 pizzas et recevez immédiatement :\n- 10 % de réduction sur votre total\n- Livraison rapide à domicile avec nos livreurs dédiés\n\nVisitez notre site web https://flowerpowerpizza.com ou contactez-nous directement pour réserver votre livraison chaude et fraîche.\n\nÀ bientôt !\nL'équipe Flower Power Pizza Ranong"
+    },
+    "RU": {
+      "subject": "🍕 Специальное предложение на выходные: скидка 10% на пиццу и бесплатная доставка в Ранонге!",
+      "message": "Привет, {name}!\n\nВ эти выходные побаллуйте себя настоящим вкусом итальянской пиццы на дровах в Ранонге.\n\n🔥 Закажите минимум 2 пиццы и получите сразу:\n- скидку 10% на общую сумму\n- быструю доставку на дом нашими преданными курьерами\n\nПосетите наш сайт https://flowerpowerpizza.com или свяжитесь с нами напрямую, чтобы заказать горячую и свежую доставку.\n\nДо скорого!\nКоманда Flower Power Pizza Ranong"
+    },
+    "ZH": {
+      "subject": "🍕 周末特惠：披萨 10% 折扣 & 拉廊免费配送！",
+      "message": "你好 {name}！\n\n这个周末，在拉廊尽情享受正宗意大利木火烤披萨的美味吧。\n\n🔥 订购至少 2 个披萨，立即享受：\n- 总价 10% 折扣\n- 由我们专属骑手快速送货上门\n\n访问我们的网站 https://flowerpowerpizza.com 或直接联系我们，预订热腾腾的新鲜配送。\n\n回头见！\nFlower Power Pizza 拉廊团队"
+    }
+  },
+  "new_pizza": {
+    "IT": {
+      "subject": "🌟 Nuova Creazione in Menu da Flower Power Pizza Ranong!",
+      "message": "Gentile {name},\n\nSiamo entusiasti di presentarti la nuova pizza speciale di questa settimana, preparata con ingredienti freschissimi e lievitazione naturale di oltre 48 ore.\n\n🧀 Vieni a provarla sul nostro menu online:\n👉 https://flowerpowerpizza.com\n\nOrdina online in pochi secondi con geolocalizzazione GPS precisa e pagamento sicuro con PromptPay o Carta.\n\nBuon appetito!\nFlower Power Pizza Ranong"
+    },
+    "EN": {
+      "subject": "🌟 New Menu Creation at Flower Power Pizza Ranong!",
+      "message": "Dear {name},\n\nWe're thrilled to introduce this week's new special pizza, made with the freshest ingredients and naturally leavened for over 48 hours.\n\n🧀 Come try it on our online menu:\n👉 https://flowerpowerpizza.com\n\nOrder online in seconds with precise GPS geolocation and secure payment via PromptPay or Card.\n\nEnjoy your meal!\nFlower Power Pizza Ranong"
+    },
+    "TH": {
+      "subject": "🌟 สร้างสรรค์เมนูใหม่ที่ Flower Power Pizza Ranong!",
+      "message": "เรียนคุณ {name},\n\nเราตื่นเต้นที่จะแนะนำพิซซ่าพิเศษใหม่ประจำสัปดาห์นี้ ปรุงด้วยวัตถุดิบสดใหม่ที่สุดและหมักตามธรรมชาติกว่า 48 ชั่วโมง\n\n🧀 แวะมาลิ้มลองได้ในเมนูออนไลน์ของเรา:\n👉 https://flowerpowerpizza.com\n\nสั่งออนไลน์ได้ในไม่กี่วินาทีด้วยระบบระบุตำแหน่ง GPS ที่แม่นยำ และชำระเงินปลอดภัยผ่าน PromptPay หรือบัตร\n\nทานให้อร่อยนะคะ/ครับ!\nFlower Power Pizza Ranong"
+    },
+    "MM": {
+      "subject": "🌟 Flower Power Pizza Ranong တွင် မီနူးအသစ် ဖန်တီးလိုက်ပါပြီ!",
+      "message": "ချစ်ခင်ရသော {name} ရေ၊\n\nဒီအပတ်ရဲ့ အထူးပီဇာအသစ်ကို မိတ်ဆက်ပေးရတာ ဝမ်းသာပါတယ်။ လတ်ဆတ်ဆုံး ပါဝင်ပစ္စည်းများနဲ့ သဘာဝအတိုင်း ၄၈ နာရီကျော် ဖောင်းပွအောင် ပြုလုပ်ထားပါတယ်။\n\n🧀 ကျွန်တော်တို့ရဲ့ အွန်လိုင်းမီနူးမှာ လာစမ်းကြည့်ပါ:\n👉 https://flowerpowerpizza.com\n\nတိကျတဲ့ GPS တည်နေရာနဲ့ စက္ကန့်ပိုင်းအတွင်း အွန်လိုင်းမှာ မှာယူနိုင်ပြီး PromptPay သို့မဟုတ် ကတ်နဲ့ လုံခြုံစွာ ငွေပေးချေနိုင်ပါတယ်။\n\nစားသုံးရတာ အရသာရှိပါစေ!\nFlower Power Pizza Ranong"
+    },
+    "DE": {
+      "subject": "🌟 Neue Menükreation bei Flower Power Pizza Ranong!",
+      "message": "Liebe/r {name},\n\nwir freuen uns, dir die neue Spezialpizza dieser Woche vorzustellen – zubereitet mit frischesten Zutaten und über 48 Stunden natürlicher Teigführung.\n\n🧀 Probier sie in unserem Online-Menü:\n👉 https://flowerpowerpizza.com\n\nBestelle online in Sekunden mit präziser GPS-Geolokalisierung und sicherer Zahlung per PromptPay oder Karte.\n\nGuten Appetit!\nFlower Power Pizza Ranong"
+    },
+    "ES": {
+      "subject": "🌟 ¡Nueva Creación en el Menú de Flower Power Pizza Ranong!",
+      "message": "Estimado/a {name},\n\nEstamos encantados de presentarte la nueva pizza especial de esta semana, elaborada con ingredientes fresquísimos y fermentación natural de más de 48 horas.\n\n🧀 Ven a probarla en nuestro menú online:\n👉 https://flowerpowerpizza.com\n\nPide online en segundos con geolocalización GPS precisa y pago seguro con PromptPay o Tarjeta.\n\n¡Buen provecho!\nFlower Power Pizza Ranong"
+    },
+    "FR": {
+      "subject": "🌟 Nouvelle Création au Menu chez Flower Power Pizza Ranong !",
+      "message": "Cher/Chère {name},\n\nNous sommes ravis de vous présenter la nouvelle pizza spéciale de cette semaine, préparée avec des ingrédients ultra-frais et une fermentation naturelle de plus de 48 heures.\n\n🧀 Venez la découvrir sur notre menu en ligne :\n👉 https://flowerpowerpizza.com\n\nCommandez en ligne en quelques secondes avec une géolocalisation GPS précise et un paiement sécurisé par PromptPay ou Carte.\n\nBon appétit !\nFlower Power Pizza Ranong"
+    },
+    "RU": {
+      "subject": "🌟 Новинка в меню Flower Power Pizza Ranong!",
+      "message": "Уважаемый(ая) {name},\n\nМы рады представить вам новую особенную пиццу этой недели, приготовленную из свежайших ингредиентов с естественной ферментацией теста более 48 часов.\n\n🧀 Попробуйте её в нашем онлайн-меню:\n👉 https://flowerpowerpizza.com\n\nЗаказывайте онлайн за секунды с точной GPS-геолокацией и безопасной оплатой через PromptPay или картой.\n\nПриятного аппетита!\nFlower Power Pizza Ranong"
+    },
+    "ZH": {
+      "subject": "🌟 Flower Power Pizza Ranong 全新菜单创意！",
+      "message": "尊敬的 {name}：\n\n我们很高兴向您介绍本周全新特色披萨，采用最新鲜的食材，经过超过48小时的自然发酵。\n\n🧀 快来我们的在线菜单品尝吧：\n👉 https://flowerpowerpizza.com\n\n通过精准的GPS定位，几秒钟即可在线下单，并支持 PromptPay 或银行卡安全支付。\n\n祝您用餐愉快！\nFlower Power Pizza Ranong"
+    }
+  },
+  "wine_selection": {
+    "IT": {
+      "subject": "🍷 Nuovi Arrivi dalla Cantina Italiana a Ranong!",
+      "message": "Caro {name},\n\nAbbiamo appena rinnovato la nostra selezione di vini e birre artigianali per accompagnare le tue pizze preferite.\n\nScopri i nuovi arrivi italiani (Prosecco DOC, Chianti, Pinot Grigio) disponibili per la consegna a domicilio e per la degustazione al tavolo a Ranong.\n\nSfoglia la nostra Wine Card online: https://flowerpowerpizza.com\n\nSalute!\nFlower Power Pizza & Wine Studio"
+    },
+    "EN": {
+      "subject": "🍷 New Arrivals from the Italian Cellar in Ranong!",
+      "message": "Dear {name},\n\nWe've just refreshed our wine and craft beer selection to pair perfectly with your favorite pizzas.\n\nDiscover our new Italian arrivals (Prosecco DOC, Chianti, Pinot Grigio) available for home delivery and in-house tasting in Ranong.\n\nBrowse our Wine Card online: https://flowerpowerpizza.com\n\nCheers!\nFlower Power Pizza & Wine Studio"
+    },
+    "TH": {
+      "subject": "🍷 ของใหม่จากห้องไวน์อิตาลีที่ระนอง!",
+      "message": "เรียนคุณ {name},\n\nเราเพิ่งปรับปรุงคัดสรรไวน์และเบียร์คราฟต์ของเราใหม่ เพื่อให้เข้ากับพิซซ่าจานโปรดของคุณได้อย่างลงตัว\n\nมาค้นพบไวน์อิตาลีตัวใหม่ (Prosecco DOC, Chianti, Pinot Grigio) พร้อมบริการส่งถึงบ้านและเสิร์ฟที่โต๊ะในระนอง\n\nเลือกชม Wine Card ของเราแบบออนไลน์: https://flowerpowerpizza.com\n\nไชโย!\nFlower Power Pizza & Wine Studio"
+    },
+    "MM": {
+      "subject": "🍷 ရနောင်မြို့ရှိ အီတလီစပျစ်ရည်ခန်းမှ ဝင်ရောက်လာသည့် အသစ်များ!",
+      "message": "ချစ်ခင်ရသော {name} ရေ၊\n\nသင့်အကြိုက်ဆုံး ပီဇာများနှင့် တွဲဖက်ရန် ကျွန်ုပ်တို့၏ စပျစ်ရည်နှင့် လက်မှုဘီယာ ရွေးချယ်မှုကို အသစ်ပြန်လည်ပြင်ဆင်လိုက်ပါပြီ။\n\nရနောင်မြို့တွင် အိမ်အထိ ပို့ဆောင်ခြင်းနှင့် စားပွဲတွင် မြည်းစမ်းနိုင်သော အီတလီအသစ်များ (Prosecco DOC, Chianti, Pinot Grigio) ကို ရှာဖွေကြည့်ရှုပါ။\n\nကျွန်ုပ်တို့၏ Wine Card ကို အွန်လိုင်းတွင် ကြည့်ရှုပါ - https://flowerpowerpizza.com\n\nကျန်းမာပါစေ!\nFlower Power Pizza & Wine Studio"
+    },
+    "DE": {
+      "subject": "🍷 Neue Ankünfte aus dem italienischen Weinkeller in Ranong!",
+      "message": "Liebe/r {name},\n\nWir haben gerade unsere Wein- und Craft-Bier-Auswahl erneuert, damit sie perfekt zu deinen Lieblingspizzen passt.\n\nEntdecke unsere neuen italienischen Ankünfte (Prosecco DOC, Chianti, Pinot Grigio) – erhältlich für Lieferung nach Hause und zum Verkosten am Tisch in Ranong.\n\nStöbere online in unserer Wine Card: https://flowerpowerpizza.com\n\nProst!\nFlower Power Pizza & Wine Studio"
+    },
+    "ES": {
+      "subject": "🍷 ¡Nuevas llegadas de la bodega italiana en Ranong!",
+      "message": "Estimado/a {name}:\n\nAcabamos de renovar nuestra selección de vinos y cervezas artesanales para acompañar perfectamente tus pizzas favoritas.\n\nDescubre las nuevas llegadas italianas (Prosecco DOC, Chianti, Pinot Grigio) disponibles para entrega a domicilio y degustación en mesa en Ranong.\n\nConsulta nuestra Wine Card online: https://flowerpowerpizza.com\n\n¡Salud!\nFlower Power Pizza & Wine Studio"
+    },
+    "FR": {
+      "subject": "🍷 Nouveautés de la cave italienne à Ranong !",
+      "message": "Cher/Chère {name},\n\nNous venons de renouveler notre sélection de vins et de bières artisanales pour accompagner parfaitement vos pizzas préférées.\n\nDécouvrez nos nouveautés italiennes (Prosecco DOC, Chianti, Pinot Grigio) disponibles pour la livraison à domicile et la dégustation à table à Ranong.\n\nParcourez notre Wine Card en ligne : https://flowerpowerpizza.com\n\nSanté !\nFlower Power Pizza & Wine Studio"
+    },
+    "RU": {
+      "subject": "🍷 Новинки из итальянского погреба в Ранонге!",
+      "message": "Дорогой {name},\n\nМы только что обновили наш выбор вин и крафтового пива, чтобы идеально дополнить вашу любимую пиццу.\n\nОткройте для себя новые итальянские поступления (Prosecco DOC, Chianti, Pinot Grigio), доступные для доставки на дом и дегустации за столиком в Ранонге.\n\nПросмотрите нашу Wine Card онлайн: https://flowerpowerpizza.com\n\nЗа здоровье!\nFlower Power Pizza & Wine Studio"
+    },
+    "ZH": {
+      "subject": "🍷 来自拉廊意大利酒窖的新品到货！",
+      "message": "亲爱的 {name}：\n\n我们刚刚更新了葡萄酒和精酿啤酒的选择，完美搭配您最爱的披萨。\n\n探索我们的意大利新品（Prosecco DOC、Chianti、Pinot Grigio），可在拉廊享受外卖配送和堂食品鉴。\n\n在线浏览我们的 Wine Card：https://flowerpowerpizza.com\n\n干杯！\nFlower Power Pizza & Wine Studio"
+    }
+  },
+  "thai_local": {
+    "IT": {
+      "subject": "🍕 Vera pizza italiana cotta nel forno a legna, consegnata a casa tua a Ranong!",
+      "message": "Ciao {name}!\n\nFlower Power Pizza Ranong ha una promozione speciale per te e la tua famiglia:\n\n✨ Ordina vera pizza cotta nel forno a legna, consegnata calda davanti a casa tua nella zona di Ranong\n✨ Ordina facilmente online con coordinate GPS precise\n✨ Paga comodamente con PromptPay QR o carta di credito\n\nOrdina ora: https://flowerpowerpizza.com\n\nBuon appetito con la vera pizza italiana!"
+    },
+    "EN": {
+      "subject": "🍕 Authentic Italian wood-fired pizza, delivered to your home in Ranong!",
+      "message": "Hello {name}!\n\nFlower Power Pizza Ranong has a special promotion for you and your family:\n\n✨ Order authentic wood-fired pizza, delivered hot to your doorstep in the Ranong area\n✨ Easy online ordering with precise GPS location\n✨ Convenient payment via PromptPay QR or credit card\n\nOrder now: https://flowerpowerpizza.com\n\nEnjoy authentic Italian pizza!"
+    },
+    "TH": {
+      "subject": "🍕 พิซซ่าอิตาเลียนแท้ อบเตาฟืน พร้อมส่งถึงบ้านคุณในระนอง!",
+      "message": "สวัสดีคุณ {name}!\n\nFlower Power Pizza Ranong ขอมอบโปรโมชั่นพิเศษสำหรับคุณและครอบครัว:\n\n✨ สั่งพิซซ่าอบเตาฟืนแท้ ส่งร้อนๆ ถึงหน้าบ้านในเขตระนอง\n✨ สั่งซื้อง่ายผ่านเว็บพร้อมระบุพิกัด GPS แม่นยำ\n✨ ชำระสะดวกผ่าน PromptPay QR หรือบัตรเครดิต\n\nสั่งเลยตอนนี้: https://flowerpowerpizza.com\n\nขอให้อร่อยกับพิซซ่าอิตาเลียนแท้ครับ/ค่ะ!"
+    },
+    "MM": {
+      "subject": "🍕 အီတလီမူရင်း မီးဖိုထင်းနှင့်ဖုတ်ထားသော ပီဇာ၊ ရနောင်မြို့ရှိ သင့်အိမ်သို့ ပို့ဆောင်ပေးမည်!",
+      "message": "မင်္ဂလာပါ {name}!\n\nFlower Power Pizza Ranong မှ သင့်နှင့် သင့်မိသားစုအတွက် အထူးပရိုမိုးရှင်းတစ်ခု ပေးအပ်ပါသည်:\n\n✨ အီတလီမူရင်း မီးဖိုထင်းနှင့်ဖုတ်ထားသော ပီဇာကို ရနောင်မြို့ဧရိယာအတွင်း သင့်အိမ်ရှေ့အထိ ပူပူနွေးနွေး ပို့ဆောင်ပေးပါသည်\n✨ GPS တည်နေရာအတိအကျဖြင့် ဝဘ်ဆိုက်မှတစ်ဆင့် အလွယ်တကူ မှာယူနိုင်ပါသည်\n✨ PromptPay QR သို့မဟုတ် ခရက်ဒစ်ကတ်ဖြင့် အဆင်ပြေစွာ ငွေပေးချေနိုင်ပါသည်\n\nယခုပင် မှာယူလိုက်ပါ: https://flowerpowerpizza.com\n\nအီတလီမူရင်း ပီဇာကို ခံစားလိုက်ပါ!"
+    },
+    "DE": {
+      "subject": "🍕 Echte italienische Holzofenpizza, geliefert zu Ihnen nach Hause in Ranong!",
+      "message": "Hallo {name}!\n\nFlower Power Pizza Ranong hat eine besondere Aktion für Sie und Ihre Familie:\n\n✨ Bestellen Sie echte Holzofenpizza, heiß geliefert bis vor Ihre Haustür im Gebiet Ranong\n✨ Einfache Online-Bestellung mit präzisen GPS-Koordinaten\n✨ Bequeme Zahlung per PromptPay QR oder Kreditkarte\n\nJetzt bestellen: https://flowerpowerpizza.com\n\nGenießen Sie echte italienische Pizza!"
+    },
+    "ES": {
+      "subject": "🍕 Auténtica pizza italiana al horno de leña, ¡entregada en tu casa en Ranong!",
+      "message": "¡Hola {name}!\n\nFlower Power Pizza Ranong tiene una promoción especial para ti y tu familia:\n\n✨ Pide auténtica pizza al horno de leña, entregada caliente en la puerta de tu casa en la zona de Ranong\n✨ Pedido fácil en línea con coordenadas GPS precisas\n✨ Pago cómodo con PromptPay QR o tarjeta de crédito\n\nPide ahora: https://flowerpowerpizza.com\n\n¡Disfruta de la auténtica pizza italiana!"
+    },
+    "FR": {
+      "subject": "🍕 Authentique pizza italienne au feu de bois, livrée chez vous à Ranong !",
+      "message": "Bonjour {name} !\n\nFlower Power Pizza Ranong a une promotion spéciale pour vous et votre famille :\n\n✨ Commandez une authentique pizza au feu de bois, livrée chaude devant votre porte dans la zone de Ranong\n✨ Commande facile en ligne avec des coordonnées GPS précises\n✨ Paiement pratique par PromptPay QR ou carte de crédit\n\nCommandez maintenant : https://flowerpowerpizza.com\n\nBon appétit avec l'authentique pizza italienne !"
+    },
+    "RU": {
+      "subject": "🍕 Настоящая итальянская пицца из дровяной печи с доставкой к вашему дому в Ранонге!",
+      "message": "Здравствуйте, {name}!\n\nFlower Power Pizza Ranong предлагает специальную акцию для вас и вашей семьи:\n\n✨ Закажите настоящую пиццу из дровяной печи — горячей доставим к вашему порогу в районе Ранонга\n✨ Удобный заказ онлайн с точными GPS-координатами\n✨ Удобная оплата через PromptPay QR или кредитной картой\n\nЗаказывайте сейчас: https://flowerpowerpizza.com\n\nПриятного аппетита с настоящей итальянской пиццей!"
+    },
+    "ZH": {
+      "subject": "🍕 正宗意大利柴火烤披萨，送到您在拉廊的家！",
+      "message": "您好 {name}！\n\nFlower Power Pizza Ranong 为您和您的家人推出特别优惠：\n\n✨ 订购正宗柴火烤披萨，热腾腾送到拉廊地区您家门口\n✨ 通过网站轻松下单，并提供精确的 GPS 定位\n✨ 支持 PromptPay QR 或信用卡便捷支付\n\n立即订购：https://flowerpowerpizza.com\n\n祝您享用正宗意大利披萨！"
+    }
+  }
+}

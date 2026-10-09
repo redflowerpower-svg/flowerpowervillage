@@ -90,16 +90,35 @@ All'interno di TUTTO il sito web (sia nel reparto Pizzeria / Delivery `/pizze` c
 - È severamente vietato l'uso di traduttori statici o dizionari empirici hardcoded: le traduzioni devono essere vive, contestuali, fluide e professionali in tutte le lingue supportate (`IT`, `EN`, `TH`, `DE`, `MM`), garantendo il massimo livello qualitativo.
 
 # 🌍 PROTOCOLLO UNIVERSALE: `[LINGUA] FULL TRANSLATION` / `[LINGUA] TRADUZIONE TOTALE`
-Quando l'utente inserisce il comando `[LINGUA] FULL TRANSLATION` oppure `[LINGUA] TRADUZIONE TOTALE` (ad es. `FRANCESE FULL TRANSLATION`, `FRENCH FULL TRANSLATION`, `RUSSO FULL TRANSLATION`, `CINESE FULL TRANSLATION`, `GIAPPONESE FULL TRANSLATION`, `FRANCESE TRADUZIONE TOTALE`), l'agente DEVE eseguire in autonomia la **Pipeline Multilingua Radicale a 9 Fasi** (utilizzando direttamente il motore DeepSeek Batch CLI `node scripts/deepseek-universal-translator.mjs --lang=[CODICE]`):
-1. **Configurazione Lingua (`src/pizza/config/languages.ts`)**: Registrazione codice ISO/Alpha-2, etichette, bandiera, nome nativo e font dedicato.
+Quando l'utente inserisce il comando `[LINGUA] FULL TRANSLATION` oppure `[LINGUA] TRADUZIONE TOTALE` (ad es. `FRANCESE FULL TRANSLATION`, `RUSSO FULL TRANSLATION`, `CINESE FULL TRANSLATION`, `TEDESCO FULL TRANSLATION`, `SPAGNOLO FULL TRANSLATION`), l'agente DEVE eseguire in autonomia e senza dimenticanze la **Pipeline Multilingua Radicale Certificata con DeepSeek AI** coprendo la totalità delle seguenti aree:
+
+1. **Configurazione Lingua (`src/pizza/config/languages.ts`)**: Registrazione codice ISO/Alpha-2, etichette, bandiera, nome nativo e font dedicato (es. font Cinese, Birmano, Thai).
 2. **Backend & Studi AI DeepSeek (`api/_handlers/dish-translate.ts`, `dishTranslatorEngine.ts`, `wineTranslatorEngine.ts`, `DishCardStudio.tsx`, `WineCardStudio.tsx`)**: Inserimento della nuova lingua nei prompt e schemi JSON di DeepSeek AI, con tab di anteprima/modifica live negli studi admin.
 3. **Catalogo Piatti Completo (`src/pizza/data/menuData.ts`)**: Traduzione DeepSeek di tutti i ~150 piatti (titoli `nameX`, descrizioni `descriptionX`, varianti taglia, ingredienti ed extra) e aggiornamento helper `MenuGrid.tsx` (`getTranslatedName`, `getTranslatedDesc`, `formatProductName`).
-4. **Enoteca & Vini (`src/pizza/data/wineData.tsx`, `wineTranslatorEngine.ts`)**: Traduzione di tutti i vini, vitigni, paesi d'origine in `WINE_COUNTRY_OPTIONS`, tipologie in `WINE_TYPE_OPTIONS`, note di degustazione e abbinamenti cibo-vino.
-5. **Dizionario Globale (`src/pizza/data/i18n.ts`)**: Traduzione di tutte le sezioni: header, navbar, orari, banner promozionali, footer, contatti, informative e disclaimer legali/PDPA.
-6. **Classificazioni Dietetiche & Badge (`src/pizza/components/DietaryWatermark.tsx`, `src/pizza/utils/dietary.ts`)**: Localizzazione badge `VEGAN`, `VEGGIE`, opzione 100% Pollo (Halal-friendly), No Maiale e parole chiave alimentari.
-7. **Esperienza Dining Tablet al Tavolo (`src/pizza/pages/DiningTabletSite.tsx`, `DiningCheckoutModal.tsx`, `TableSettlementModal.tsx`)**: Pop-up introductory al tavolo (-5% sconto), PIN/login staff, modale lead generation & coupon 10%, checkout tavolo e chiusura conto.
-8. **Delivery, Carrello & Checkout (`src/pizza/components/CartDrawer.tsx`, `src/pizza/components/CheckoutFlow.tsx`, `src/pizza/pages/DeliveryMenu.tsx`)**: Flusso d'ordine delivery, metodi di pagamento (PromptPay K-Shop, POS, Contanti), indirizzi e ricevute.
-9. **Collaudo Tecnico & Zero Errori**: Esecuzione `npx tsc --noEmit` per garantire zero errori di compilazione TypeScript.
+4. **Hero Banner & Banner Privilegio Vini (`src/pizza/pages/DeliveryMenu.tsx`)**:
+   - Tutte le 3 Card Top Hero (Prenota un Tavolo / Sconto 10% Dine-in, Sconto 10% Benvenuto 1° Ordine, Consegna Rapida & Asporto).
+   - Banner Privilegio Vini & Conformità Legale Alcolici (Badge, Titolo, Avviso legale PDPA/Thailandia e pulsante Prenota Tavolo).
+5. **Categorie & Slider Orizzontale (`src/pizza/components/CategoryTabs.tsx`)**: Traduzione di tutte le 14 categorie con nomi formattati su 2 righe e relative descrizioni emozionali.
+6. **Badge & Watermark Dietetici (`src/pizza/components/DietaryWatermark.tsx`, `src/pizza/utils/dietary.ts`, `DeliveryMenu.tsx`, `DiningTabletSite.tsx`)**: Traduzione barra filtri (`Tutti`, `Veggie`, `Vegan`) e watermark sovraimpressi sulle immagini dei piatti (`VEGAN`, `VEGGIE`, `100% Pollo Halal-friendly`, `No Maiale`).
+7. **Personalizzazioni Piatti, Extra & Opzioni (`src/pizza/components/ProductModal.tsx`, `MenuGrid.tsx`)**:
+   - Grado di piccantezza (`spicy-no` -> `spicy-very`: Non piccante, Poco piccante, Medio piccante, Molto piccante).
+   - Livello di dolcezza/zucchero (`sugar-no` -> `sugar-high`: Senza zucchero, Poco dolce, Normale, Molto dolce).
+   - Selezione frutti per frullati e bevande (Cocco fresco, Mango, Banana, Ananas, ecc.).
+   - Scelta salse e condimenti (Maionese, Ketchup, BBQ, Salsa piccante artigianale, ecc.).
+   - Tutti gli ingredienti Extra del catalogo (Mozzarella fior di latte, Burrata, Gorgonzola, Salumi, Verdure, Impasti speciali, ecc.).
+   - Intestazioni di gruppo varianti (`getVariantHeaderLabel`, `getGroupedExtras`).
+8. **Enoteca, Birre & Vini (`src/pizza/data/wineData.tsx`, `wineTranslatorEngine.ts`)**: Traduzione di tutti i vini, vitigni, paesi d'origine in `WINE_COUNTRY_OPTIONS`, tipologie in `WINE_TYPE_OPTIONS`, note di degustazione e abbinamenti.
+9. **Carrello & Esperienza Abbinamenti Consigliati (`src/pizza/components/CartDrawer.tsx`)**:
+   - Tutti i 19 piatti consigliati nel rituale di pairing (Patatine Crispy, Focacce, Dolci, Bibite, Acqua).
+   - Breakdown dello sconto (Primo ordine 10% o Tavolo 5%), countdown consegna gratuita, selettori gusto/formato, tasto checkout e continua a ordinare.
+10. **Checkout Flow, Mappa & Pagamenti (`src/pizza/components/CheckoutFlow.tsx`)**:
+    - Banner *"10% First Order Welcome Discount"* con spiegazione condizioni.
+    - Avviso e spiegazione box termico asporto Takeaway.
+    - Tasti flottanti e istruzioni mappa ("Portalo qui (Conferma Posizione)", "Tocca la mappa", "Espandi/Riduci", "Trova la mia posizione").
+    - Istruzioni K-Shop Kasikorn Bank (4 passaggi) e messaggi polling live QR Omise.
+11. **Dizionario Globale (`src/pizza/data/i18n.ts`)**: Traduzione di tutte le 165 sezioni (header, navbar, orari, footer, contatti, informative e disclaimer legali/PDPA).
+12. **Esperienza Dining Tablet al Tavolo (`src/pizza/pages/DiningTabletSite.tsx`, `DiningCheckoutModal.tsx`, `TableSettlementModal.tsx`)**: Pop-up introductory al tavolo (-5% sconto), PIN staff, lead generation coupon 10%, checkout tavolo e chiusura conto.
+13. **Collaudo Tecnico & Zero Errori**: Esecuzione `npx tsc --noEmit` per garantire zero errori di compilazione TypeScript.
 
 # 🛡️ REGOLA D'ORO SVILUPPO LOCALE & REGOLE AMBIENTI (LOCALE / VIRTUALE / PRODUZIONE)
 1. **LAVORO ORDINARIO 100% LOCALE (ZERO GIT PUSH SPONTANEO)**:

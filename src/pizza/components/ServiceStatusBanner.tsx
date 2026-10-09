@@ -68,8 +68,8 @@ export function ServiceStatusBanner({ lang: propLang, onStatusChange }: ServiceS
   const remM = calc.remainingMinutes % 60;
   const timeFormatted = remH > 0 ? `${remH}h ${remM}m` : `${remM} min`;
 
-  // Multilingual labels for IT, EN, TH, DE
-  const content = {
+  // Multilingual labels for IT, EN, TH, DE, MM, FR, ES, RU, ZH
+  const content: Record<string, any> = {
     IT: {
       pausedTitle: 'Ordinazioni Online Momentaneamente Sospese',
       pausedDesc: `La cucina è al completo per garantire la massima qualità dei piatti. Nuovi ordini tra: ${calc.remainingMinutes} min (alle ${calc.reopenTimeFormatted})`,
@@ -91,7 +91,7 @@ export function ServiceStatusBanner({ lang: propLang, onStatusChange }: ServiceS
       closedDesc: `จะเปิดรับออเดอร์วันนี้เวลา ${calc.reopenTimeFormatted} น. (อีก ${remH > 0 ? `${remH} ชม. ${remM} นาที` : `${remM} นาที`}) คุณสามารถเลือกดูเมนูล่วงหน้าได้ค่ะ`,
       callText: 'สอบถามข้อมูลเพิ่มเติม: โทรหาร้าน'
     },
-        DE: {
+    DE: {
       pausedTitle: 'Online-Bestellungen vorübergehend pausiert',
       pausedDesc: `Die Küche bereitet gerade Bestellungen vor. Neue Bestellungen sind wieder möglich in: ${calc.remainingMinutes} Min (um ${calc.reopenTimeFormatted} Uhr)`,
       closedTitle: 'Pizzeria derzeit geschlossen',
@@ -102,11 +102,39 @@ export function ServiceStatusBanner({ lang: propLang, onStatusChange }: ServiceS
       pausedTitle: 'အွန်လိုင်း အော်ဒါများကို ခေတ္တရပ်နားထားပါသည်',
       pausedDesc: `အကောင်းဆုံး အရည်အသွေး ရရှိစေရန် မီးဖိုချောင်တွင် အော်ဒါများ ပြင်ဆင်နေပါသည်။ အော်ဒါ ပြန်လည်လက်ခံမည့်အချိန်: ${calc.remainingMinutes} မိနစ် (${calc.reopenTimeFormatted})`,
       closedTitle: 'ပီဇာဆိုင် ယခုအချိန်တွင် ပိတ်ထားပါသည်',
-      closedDesc: `ယနေ့ ${calc.reopenTimeFormatted} တွင် ပြန်လည်ဖွင့်ပါမည် (${timeFormatted} အကြာတွင်)။ မီနူးကို ကြိုတင်ကြည့်ရှုနိုင်ပါသည်!`,
+      closedDesc: `ယနေ့ ${calc.reopenTimeFormatted} တွင် ပြန်လည်ဖွင့်ပါမည် (${remH > 0 ? `${remH} နာရီ ${remM} မိနစ်` : `${remM} မိနစ်`} အကြာတွင်)။ မီနူးကို ကြိုတင်ကြည့်ရှုနိုင်ပါသည်!`,
       callText: 'အရေးပေါ် မေးမြန်းရန်: ဆိုင်သို့ ဖုန်းဆက်ပါ'
+    },
+    FR: {
+      pausedTitle: 'Commandes en Ligne Momentanément Suspendues',
+      pausedDesc: `La cuisine prépare actuellement les commandes pour garantir la meilleure qualité. Nouvelles commandes dans : ${calc.remainingMinutes} min (à ${calc.reopenTimeFormatted})`,
+      closedTitle: 'La Pizzeria est Actuellement Fermée',
+      closedDesc: `Nous rouvrons aujourd'hui à ${calc.reopenTimeFormatted} (dans ${remH > 0 ? `${remH} h et ${remM} min` : `${remM} min`}). N'hésitez pas à consulter le menu !`,
+      callText: 'Pour informations : Appeler la Pizzeria'
+    },
+    ES: {
+      pausedTitle: 'Pedidos Online Temporalmente Pausados',
+      pausedDesc: `La cocina está preparando pedidos para garantizar la máxima calidad. Nuevos pedidos en: ${calc.remainingMinutes} min (a las ${calc.reopenTimeFormatted})`,
+      closedTitle: 'La Pizzería está Actualmente Cerrada',
+      closedDesc: `Reabrimos hoy a las ${calc.reopenTimeFormatted} (en ${remH > 0 ? `${remH} horas y ${remM} min` : `${remM} min`}). ¡Puedes explorar nuestro menú!`,
+      callText: 'Para información: Llamar a la Pizzería'
+    },
+    RU: {
+      pausedTitle: 'Онлайн-заказы Временно Приостановлены',
+      pausedDesc: `Кухня готовит заказы для гарантии наивысшего качества. Новые заказы через: ${calc.remainingMinutes} мин (в ${calc.reopenTimeFormatted})`,
+      closedTitle: 'Пиццерия Сейчас Закрыта',
+      closedDesc: `Мы открываемся сегодня в ${calc.reopenTimeFormatted} (через ${remH > 0 ? `${remH} ч и ${remM} мин` : `${remM} мин`}). Вы можете изучить наше меню!`,
+      callText: 'Для справок: Позвонить в Пиццерию'
+    },
+    ZH: {
+      pausedTitle: '在线点餐暂时暂停',
+      pausedDesc: `后厨正在全力备餐以保证出品品质。将于 ${calc.remainingMinutes} 分钟后恢复接单（${calc.reopenTimeFormatted}）`,
+      closedTitle: '披萨店目前已打烊',
+      closedDesc: `我们今天将于 ${calc.reopenTimeFormatted} 重新开门营业（剩余 ${remH > 0 ? `${remH} 小时 ${remM} 分钟` : `${remM} 分钟`}）。欢迎浏览菜单！`,
+      callText: '咨询信息：拨打餐厅电话'
     }
-  } as Record<string, any>;
-  const activeContent = content[lang] || content["IT"];
+  };
+  const activeContent = content[lang] || content["EN"] || content["IT"];
 
   const isPaused = calc.state === 'PAUSED';
 
