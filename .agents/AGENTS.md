@@ -155,92 +155,72 @@ La modalità **Dining Tablet** è il modulo dedicato all'ordinazione autonoma di
 - Solo il file cifrato `.secret_docs/api_credentials_report.md.enc` viene tracciato da Git (`!.secret_docs/api_credentials_report.md.enc`).
 - I file d'ambiente in chiaro (`.env`, `.env.local`, `.env.*`) DEVONO rimanere strettamente ignorati da Git.
 
-## Mandatory Trigger Words & Workflows
+## Mandatory Trigger Words & Workflows (Architettura a 3 Stadi)
+
+### 🏗️ Regola dei 3 Stadi di Sviluppo
+1. **Stadio 1: Locale (`localhost:3000`)**: Sviluppo a caldo sulla postazione.
+2. **Stadio 2: Staging / Virtuale Privato (`origin staging`)**: Sito online completo di test isolato sui server cloud Vercel, dove testare da smartphone in totale sicurezza senza toccare la produzione.
+3. **Stadio 3: Produzione Ufficiale (`origin main` -> `www.flowerpowerpizza.com` / `www.flowerpowervillage.com`)**: Dominio pubblico ufficiale, aggiornato solo quando lo staging è perfetto al 100%.
+
+---
 
 ### 1. `VAULT-SYNC` (Workflow Sincronizzazione Nuova Postazione)
 Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** sulla postazione:
-1. **Aggiornamento Automatico Git**: L'agente esegue preliminarmente in autonomia `git pull` da origin/main per scaricare l'ultimo codice e il file cifrato aggiornato `.md.enc`.
+1. **Aggiornamento Automatico Git**: Esegue preliminarmente `git pull` da origin per scaricare l'ultimo codice e il file cifrato aggiornato `.md.enc`.
 2. **Decifratura Vault**: Esegui `node scratch/vault-sync.mjs decrypt` (usando `MASTER_VAULT_KEY`).
 3. **Allineamento Ambiente**: Rigenera e allinea automaticamente i file `.env` e `.env.local` locali.
-4. **Verifica Connessioni**: Esegui `node scratch/test-credentials-verification.mjs` per confermare che Supabase, Stripe, Telegram, Octorate, Maps e SMTP siano connessi e operativi.
+4. **Verifica Connessioni**: Esegui `node scratch/test-credentials-verification.mjs`.
 5. **Check Sicurezza Git**: Esegui la verifica per confermare che `.secret_docs/api_credentials_report.md` e i file `.env` siano bloccati da `.gitignore`.
 6. **Conferma Operatività**: Mostra un report chiaro dell'esito dei test e dell'allineamento.
 
-### 2. `MARKDOWN-PROJECT` (Pre-PUSH Workflow - Virtual & Staging)
-Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`** (prima di un `git push` a fine sessione):
-1. **Analisi Modifiche**: Ispeziona i file modificati nella sessione corrente (`git status`).
-2. **Aggiornamento FISICO Documentazione Tecnica & Allineamento Istruzioni**:
-   - L'agente DEVE TASSATIVAMENTE usare i tool del file system (edit_file / write_file) per SOVRASCRIVERE FISICAMENTE i file sul disco. È severamente vietato allucinare l'aggiornamento o stampare il contenuto dei report solo nella chat.
-   - Apri e scrivi materialmente i file interessati dalle modifiche all'interno di `/documentation_reports/`: `architettura_core.md`, `modulo_pizza_delivery.md`, `modulo_dining_tablet.md`, `modulo_village.md`, `integrazione_telegram.md`, `schema_database.md`, `motore_prezzi_sconti.md`.
-   - L'agente DEVE usare il tool del terminale per eseguire fisicamente le copie di sicurezza:
-     `cp .agents/AGENTS.md documentation_reports/AGENTS.md`
-     `cp .agentinstructions documentation_reports/agentinstructions.txt`
-   - Se non hai salvato i file sul disco, non puoi procedere al Punto 3.
-3. **Cifratura Cassaforte**: Esegui `node scratch/vault-sync.mjs encrypt` per aggiornare e cifrare `.secret_docs/api_credentials_report.md` nel file `.secret_docs/api_credentials_report.md.enc`.
-4. **Automazione Git (Commit & Push Automatico)**:
-   Esegui automaticamente in autonomia la sequenza di salvataggio finale su GitHub (branch `main`):
-   - `git add .`
-   - Analizza le modifiche della sessione e genera un messaggio di commit sintetico e descrittivo (es. `"Update Dining Tablet and Octorate Tree component"` o `"Fix API webhook"`).
-   - `git commit -m "<messaggio_generato_da_te>"`
-   - `git push`
-5. **Notifica di Allineamento Notebook**: Al termine della procedura, l'agente DEVE stampare in chat una notifica visivamente evidente elencando ESATTAMENTE quali file (e solo quelli) all'interno della cartella `/documentation_reports/` sono stati modificati o sovrascritti in questa specifica sessione. Il formato richiesto è:
-   `⚠️ ATTENZIONE: Aggiorna le fonti in Gemini Notebook! Elimina le vecchie versioni e trascina nel taccuino i seguenti file appena aggiornati (prendendoli da /documentation_reports/):`
-   `[Nome File 1.md]`
-   `[Nome File 2.md]...`
-6. **Report HANDOFF a 5 Punti per Gemini Notebook**: Genera il report finale strutturato:
-   - **Punto 1: Riepilogo Modifiche Codice** (Elenco dei componenti e file sorgente modificati).
-   - **Punto 2: Impatto sui Report Tecnici (`/documentation_reports/`)** (Quali file `.md` e `.txt` sono stati aggiornati/copiati).
-   - **Punto 3: Stato della Cassaforte Credenziali (`.secret_docs/`)** (Esito cifratura `.md.enc`).
-   - **Punto 4: Stato dei Test di Connessione e Sicurezza Git** (Esito check `test-credentials-verification.mjs` e `.gitignore`).
-   - **Punto 5: Istruzioni per la Nuova Postazione (Koh Phayam / Ranong)** (Promemoria per `git pull` seguito da `VAULT-SYNC`).
+---
 
-### 3. `MARKDOWN-WEBSITE` (Production Release Workflow - Domini Ufficiali)
-Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WEBSITE`**:
-1. **Esecuzione Completa di MARKDOWN-PROJECT**: Esegue preliminarmente tutti i 6 passaggi del workflow `MARKDOWN-PROJECT` (analisi, report, copie sicurezza, vault encryption, git push su `main`).
-2. **Attivazione Modalità Domini Ufficiali**:
-   - 🍕 **Pizzeria Ranong (`www.flowerpowerpizza.com`)**: Attiva e convalida la conformità Payment Gateway (Zero Alcolici: schede Vini e Birre nascoste, 10 categorie alimentari/caffè/frullati pure, informative legali e conformità PDPA/PCI-DSS attive nel footer).
-   - 🔘 **Rimozione Selettore Versione**: Il pulsante Switcher *"Sito Nuovo / Sito Vecchio"* viene **automaticamente nascosto al pubblico** sui domini ufficiali, mostrando direttamente e in modo pulito l'ultima versione scelta.
-   - 🏖️ **Villaggio Koh Phayam (`www.flowerpowervillage.com`)**: Booking engine ufficiale villaggio e alloggi.
-3. **Verifica Build & Healthcheck Produzione**:
-   - Esegue `npx tsc --noEmit` per garantire zero errori di compilazione TypeScript.
-4. **Report di Rilascio Produzione**:
-   - Notifica di avvenuta pubblicazione e riepilogo dello stato dei domini ufficiali.
-
-### 4. `MARKDOWN-ALL` (All-in-One Global Release & Sync)
-Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-ALL`** (oppure `MARKDOWN ALL`):
-Esegue in un'unica sequenza automatica e ininterrotta l'allineamento globale e totale dell'intero ecosistema:
-1. **Allineamento Documentale Fisico (`MARKDOWN-PROJECT`)**:
-   - Ispezione delle modifiche con `git status`.
-   - Aggiornamento fisico e riscrittura su disco dei report in `/documentation_reports/`.
-   - Copie di sicurezza automatiche: `cp .agents/AGENTS.md documentation_reports/AGENTS.md` e `cp .agentinstructions documentation_reports/agentinstructions.txt`.
-   - Cifratura cassaforte API: `node scratch/vault-sync.mjs encrypt`.
-2. **Verifica di Conformità & Build Produzione (`MARKDOWN-WEBSITE`)**:
-   - Convalida zero errori TypeScript (`npx tsc --noEmit`).
-   - Verifica di sicurezza zero secret leak (`node scratch/security-audit.mjs`).
-   - Convalida conformità payment gateway per `www.flowerpowerpizza.com` e booking engine per `www.flowerpowervillage.com`.
-3. **Automazione Git & Deploy Live**:
-   - `git add .`
-   - Generazione messaggio di commit esaustivo e descrittivo.
-   - `git commit -m "..."` e `git push origin main` per il deploy automatico live su Vercel.
-4. **Report Handoff a 5 Punti & Notifica Notebook**:
-   - Stampa della notifica visiva con l'elenco dei file aggiornati da caricare in Gemini Notebook.
-   - Emissione del report riassuntivo a 5 punti.
-
-
-
-### 5. `FAST-PUSH` / `QUICK-DEPLOY` (Lean Live Deploy)
-Quando l'utente pronuncia la parola d'ordine **`FAST-PUSH`** o **`QUICK-DEPLOY`**:
-Esegue un deploy rapido ed essenziale su Vercel/GitHub durante lo sviluppo iterativo senza riscrittura dei report documentali:
-1. **Audit di Sicurezza & Cifratura Vault Silenziosa**:
+### 2. `FAST-PUSH` / `STAGING-PUSH` (Deploy Rapido su Ambiente di Test Segreto - Stadio 2)
+Quando l'utente pronuncia la parola d'ordine **`FAST-PUSH`** o **`STAGING-PUSH`**:
+Esegue un deploy rapido e sicuro **ESCLUSIVAMENTE sul branch `staging` di Vercel (zero impatto sui clienti di produzione)**:
+1. **Audit Sicurezza & Cifratura Silenziosa**:
    - Convalida zero secret leak (`node scratch/security-audit.mjs`).
    - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
 2. **Typecheck Istantaneo**:
-   - Verifica compilazione (`npx tsc --noEmit`).
-3. **Commit & Push Diretto**:
+   - Convalida zero errori TypeScript (`npx tsc --noEmit`).
+3. **Push Diretto su Staging**:
+   - Assicura di essere sul branch `staging` (`git checkout staging`).
    - `git add .`
    - `git commit -m "<messaggio_sintetico>"`
-   - `git push origin main`
-4. **Conferma Rapida**: Notifica di deploy inviata a Vercel in 1 riga senza blocchi o notifiche Notebook.
+   - `git push origin staging`
+4. **Notifica**: Conferma in 1 riga che il deploy è stato inviato all'ambiente di **Staging Privato** per il collaudo su cellulare.
+
+---
+
+### 3. `MARKDOWN-PROJECT` (Pre-PUSH Workflow Documentale)
+Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`**:
+1. **Analisi Modifiche**: Ispeziona i file modificati nella sessione corrente (`git status`).
+2. **Aggiornamento FISICO Documentazione Tecnica & Allineamento Istruzioni**:
+   - Sovrascrittura fisica dei file interessati in `/documentation_reports/`.
+   - Copie di sicurezza: `cp .agents/AGENTS.md documentation_reports/AGENTS.md` e `cp .agentinstructions documentation_reports/agentinstructions.txt`.
+3. **Cifratura Cassaforte**: Esegui `node scratch/vault-sync.mjs encrypt`.
+4. **Commit & Push su Staging**: `git add .`, commit e push su `origin staging`.
+5. **Notifica Gemini Notebook**: Elenco dei file aggiornati per il taccuino.
+
+---
+
+### 4. `MARKDOWN-WEBSITE` / `MARKDOWN-ALL` (Release Ufficiale su Produzione - Stadio 3)
+Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WEBSITE`** oppure **`MARKDOWN-ALL`**:
+Esegue il rilascio definitivo dal branch `staging` al branch di produzione `main` per i domini ufficiali (`www.flowerpowerpizza.com` & `www.flowerpowervillage.com`):
+1. **Esecuzione Documentale & Vault**:
+   - Aggiornamento fisico dei file in `/documentation_reports/` e copie di sicurezza.
+   - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
+   - Controllo zero secret leak (`node scratch/security-audit.mjs`).
+   - Typecheck (`npx tsc --noEmit`).
+2. **Merge & Push su Produzione (`main`)**:
+   - Commit delle modifiche su `staging`.
+   - `git checkout main`
+   - `git merge staging -m "Release: <descrizione_rilascio>"`
+   - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com`)
+   - Ritorno automatico su `staging` (`git checkout staging`) per mantenere l'ambiente di lavoro pulito.
+3. **Report Handoff a 5 Punti & Notifica Notebook**:
+   - Emissione del report per Gemini Notebook e conferma dell'avvenuto rilascio pubblico.
+
 
 # Protocollo di Compressione e Frazionamento dei Report (Gemini-Friendly)
 Per evitare che i report generati per l'utente superino i limiti di input di Gemini Notebook (impedendo l'invio del messaggio), l'agente DEVE seguire rigorosamente queste regole di formattazione:
