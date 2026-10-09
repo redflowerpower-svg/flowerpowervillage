@@ -3757,7 +3757,7 @@ export default function DeliveryMenu() {
       />
 
       {/* Floating Bottom Promo Banner (Village Parity: Yellow & Red pulsing banner) */}
-      {!selectedItem && !showCheckout && !isReservationModalOpen && !isPolicyModalOpen && !isCartOpen && (
+      {!showCheckout && !isReservationModalOpen && !isPolicyModalOpen && !isCartOpen && (
         <PizzaPromoBanner
           appliedPromo={appliedPromo}
           onRemove={() => clearAppliedPizzaPromo()}
