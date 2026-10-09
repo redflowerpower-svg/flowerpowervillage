@@ -1853,7 +1853,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
   const outOfRange = orderType === 'delivery'
     ? (distanceKm !== null && !isDeliverable)
     : (distanceKm !== null && !isTakeawayAllowed);
-  const t = targetedTranslations[lang] || translations.EN || translations.IT;
+  const t = (translations as any)[lang] || translations.IT || translations.EN;
 
   // Geocoding helper with strict language rules and clean text processing
   const fetchReverseGeocoding = async (lat: number, lng: number) => {
