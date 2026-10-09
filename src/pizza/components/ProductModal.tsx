@@ -402,13 +402,13 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
     <>
       {/* Backdrop Overlay */}
       <div
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm animate-fadeIn"
+        className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm animate-fadeIn"
         onClick={onClose}
       />
 
       {/* Sliding Drawer Panel */}
       <div
-        className="fixed top-0 right-0 bottom-0 h-full z-50 w-full max-w-[460px] bg-stone-50 border-l border-stone-300 flex flex-col shadow-2xl animate-slideLeft overflow-hidden min-h-0"
+        className="fixed top-0 right-0 bottom-0 h-full z-[80] w-full max-w-[460px] bg-stone-50 border-l border-stone-300 flex flex-col shadow-2xl animate-slideLeft overflow-hidden min-h-0"
       >
         {/* Header Section with Image Background */}
         <div className="relative h-48 sm:h-56 flex-shrink-0 overflow-hidden">

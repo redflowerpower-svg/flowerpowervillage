@@ -365,3 +365,11 @@ $$\text{Finestra Totale} = \text{Stadio 1 (gg)} + \text{Stadio 2 (gg)} + \text{S
   - `DeliveryMenu.tsx`, `CartDrawer.tsx` & `CheckoutFlow.tsx`: scaricano e applicano i coupon delivery rispettando date di validità, spesa minima e limiti di utilizzo.
 - **Aggiornamento Istantaneo dalla Dashboard Admin**: Qualsiasi creazione, modifica, attivazione, disattivazione o cancellazione di ticket in `PromoCodesSection.tsx` e `PizzaPromoCodesSection.tsx` propaga le modifiche su Supabase Cloud Storage in tempo reale.
 
+## 🎟️ 8. Sincronizzazione Universale Cloud Promozioni Supabase & Parità UI Pizzeria/Villaggio
+
+1. **Architettura Cloud Supabase Storage (`site-images/pizza_promo_codes.json` & `resort_promo_codes.json`)**:
+   - Endpoint unificato backend `/api/promo-codes` (`api/_handlers/promo-codes.ts`) con supporto GET / POST tramite Service Role Key.
+   - Sincronizzazione atomica bidirezionale tra pannello admin, storage cloud Supabase e front-end live sia per il Villaggio a Koh Phayam che per la Pizzeria a Ranong.
+2. **Banner Flottante Giallo-Rosso in Parità Perfetta**:
+   - Stessa interfaccia grafica vivace con badge sconto percentuale / fisso pulsante, Z-Index blindato a `z-30`, auto-hide sui flussi di checkout e traduzione DeepSeek a 9 lingue simultanee.
+

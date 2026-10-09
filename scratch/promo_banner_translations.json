@@ -1,0 +1,65 @@
+{
+  "IT": {
+    "coverageTitle": "COPERTURA SCONTO ATTIVA:",
+    "codeApplied": "Codice {code} applicato",
+    "pizzaScopeNote": "sconto valido su cibo e bevande",
+    "resortScopeNote": "valido su camera + ospiti extra",
+    "removeBtnTitle": "Rimuovi codice promozionale"
+  },
+  "EN": {
+    "coverageTitle": "ACTIVE DISCOUNT COVERAGE:",
+    "codeApplied": "Code {code} applied",
+    "pizzaScopeNote": "discount valid on food & drinks",
+    "resortScopeNote": "valid on room + extra guests",
+    "removeBtnTitle": "Remove promo code"
+  },
+  "TH": {
+    "coverageTitle": "ความคุ้มครองส่วนลดที่ใช้งานอยู่:",
+    "codeApplied": "ใช้โค้ด {code} แล้ว",
+    "pizzaScopeNote": "ส่วนลดใช้ได้กับอาหารและเครื่องดื่ม",
+    "resortScopeNote": "ใช้ได้กับห้องพัก + แขกเพิ่มเติม",
+    "removeBtnTitle": "ลบโค้ดโปรโมชั่น"
+  },
+  "MM": {
+    "coverageTitle": "အသုံးပြုနေသော လျှော့စျေး လွှမ်းခြုံမှု-",
+    "codeApplied": "ကုဒ် {code} ကို အသုံးပြုပြီးပါပြီ",
+    "pizzaScopeNote": "အစားအသောက်နှင့် အဖျော်ယမကာများအတွက် လျှော့စျေး အကျုံးဝင်သည်",
+    "resortScopeNote": "အခန်းနှင့် ဧည့်သည်အပိုများအတွက် အကျုံးဝင်သည်",
+    "removeBtnTitle": "ပရိုမိုကုဒ်ကို ဖယ်ရှားပါ"
+  },
+  "DE": {
+    "coverageTitle": "AKTIVE RABATTABDECKUNG:",
+    "codeApplied": "Code {code} angewendet",
+    "pizzaScopeNote": "Rabatt gültig für Speisen & Getränke",
+    "resortScopeNote": "gültig für Zimmer + zusätzliche Gäste",
+    "removeBtnTitle": "Promo-Code entfernen"
+  },
+  "ES": {
+    "coverageTitle": "COBERTURA DE DESCUENTO ACTIVA:",
+    "codeApplied": "Código {code} aplicado",
+    "pizzaScopeNote": "descuento válido en comida y bebidas",
+    "resortScopeNote": "válido en habitación + huéspedes adicionales",
+    "removeBtnTitle": "Eliminar código promocional"
+  },
+  "FR": {
+    "coverageTitle": "COUVERTURE DE RÉDUCTION ACTIVE :",
+    "codeApplied": "Code {code} appliqué",
+    "pizzaScopeNote": "réduction valable sur la nourriture et les boissons",
+    "resortScopeNote": "valable sur la chambre + les invités supplémentaires",
+    "removeBtnTitle": "Supprimer le code promo"
+  },
+  "RU": {
+    "coverageTitle": "АКТИВНОЕ ПОКРЫТИЕ СКИДКИ:",
+    "codeApplied": "Код {code} применён",
+    "pizzaScopeNote": "скидка действует на еду и напитки",
+    "resortScopeNote": "действует на номер + дополнительных гостей",
+    "removeBtnTitle": "Удалить промокод"
+  },
+  "ZH": {
+    "coverageTitle": "有效折扣覆盖范围：",
+    "codeApplied": "代码 {code} 已应用",
+    "pizzaScopeNote": "折扣适用于食品和饮料",
+    "resortScopeNote": "适用于客房 + 额外客人",
+    "removeBtnTitle": "移除促销代码"
+  }
+}

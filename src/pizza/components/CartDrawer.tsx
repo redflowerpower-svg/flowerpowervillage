@@ -1680,13 +1680,13 @@ export default function CartDrawer({ onCheckout, onSelectCategory, onContinueSho
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm animate-fadeIn"
+          className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm animate-fadeIn"
           onClick={closeCart}
         />
       )}
 
       <div
-        className="fixed top-0 right-0 h-full z-50 flex flex-col w-full sm:max-w-[480px] bg-stone-100 text-stone-900 border-l border-stone-300 shadow-2xl transition-transform duration-300 ease-out"
+        className="fixed top-0 right-0 h-full z-[80] flex flex-col w-full sm:max-w-[480px] bg-stone-100 text-stone-900 border-l border-stone-300 shadow-2xl transition-transform duration-300 ease-out"
         style={{
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
           fontFamily: lang === 'TH' ? 'Prompt, Kanit, Outfit, system-ui, sans-serif' : 'Outfit, system-ui, sans-serif'

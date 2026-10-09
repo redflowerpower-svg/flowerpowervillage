@@ -2080,7 +2080,7 @@ export default function DeliveryMenu() {
     }
     return false;
   });
-  const { getCount, getTotal, openCart } = useCartStore();
+  const { getCount, getTotal, openCart, isOpen: isCartOpen } = useCartStore();
   const count = getCount();
   const total = getTotal();
 
@@ -3757,11 +3757,13 @@ export default function DeliveryMenu() {
       />
 
       {/* Floating Bottom Promo Banner (Village Parity: Yellow & Red pulsing banner) */}
-      <PizzaPromoBanner
-        appliedPromo={appliedPromo}
-        onRemove={() => clearAppliedPizzaPromo()}
-        lang={lang}
-      />
+      {!selectedItem && !showCheckout && !isReservationModalOpen && !isPolicyModalOpen && !isCartOpen && (
+        <PizzaPromoBanner
+          appliedPromo={appliedPromo}
+          onRemove={() => clearAppliedPizzaPromo()}
+          lang={lang}
+        />
+      )}
 
       {count > 0 && <div className="h-24" />}
     </div>

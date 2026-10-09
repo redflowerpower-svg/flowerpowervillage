@@ -2623,7 +2623,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
       <div className="bg-white w-full max-w-md h-[92dvh] max-h-[740px] p-4 sm:p-5 border border-stone-300 text-stone-850 relative rounded-[2rem] shadow-2xl flex flex-col overflow-hidden">
         
         {/* Flower Power Pizza Logo at the top of all states */}

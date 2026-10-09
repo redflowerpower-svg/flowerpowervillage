@@ -1946,7 +1946,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       {/* DEDICATED CUSTOMIZATION MODAL (Zero layout shift, 100% structured touch interface) */}
       {customizingItem && (
         <div
-          className="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 animate-fadeIn"
+          className="fixed inset-0 z-[70] bg-stone-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-6 animate-fadeIn"
           onClick={handleCloseCustomize}
         >
           <div

@@ -381,7 +381,7 @@ export function TableReservationModal({ isOpen, onClose, lang: propLang, initial
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
       <div 
         className="relative w-full max-w-lg bg-[#292524] text-stone-100 rounded-3xl shadow-2xl border border-stone-700 overflow-hidden flex flex-col max-h-[92vh]"
         style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}

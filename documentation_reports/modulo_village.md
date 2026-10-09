@@ -1095,3 +1095,10 @@ executionMode:
   * **Risultato**: **0 OVERBOOKING** sull'intera stagione 2026/2027 (nessuna collisione rilevata).
   * Tutte le 7 tariffe attive (`BE`, `7d`, `Main bnb-7d`, `Main bnb-14d`, `AGD AC-7d`, `AGD AC-14d`, `AirBnB`) risultano perfettamente allineate tra dashboard e server Octorate.
 
+## 🌴 12. Ottimizzazione Banner Promozionale Villaggio & Allineamento a 9 Lingue (`booking-engine.tsx`)
+
+1. **Gerarchia Z-Index & Auto-Hide durante il Checkout**:
+   - Impostato a `z-30` e configurato con soppressione automatica non appena viene selezionato un alloggio (`!selectedRoom`), evitando sovrapposizioni visive con il riepilogo finanziario o i pulsanti di pagamento Kasikorn Bank / Ksher / PayPal.
+2. **Localizzazione DeepSeek N-Lingue**:
+   - Banner promozionale giallo-rosso arricchito con le 9 traduzioni certificate DeepSeek (`IT`, `EN`, `TH`, `MM`, `DE`, `ES`, `FR`, `RU`, `ZH`) con dicitura dedicata alla validità per camera + ospiti extra.
+

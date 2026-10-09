@@ -187,4 +187,13 @@ Tutti i piatti, descrizioni, varianti, dizionario globale, badge dietetici e flu
      - 🇲🇲 MM: `ပီဇာ မာဂါရီတာ`
      - 🇨🇳 ZH: `玛格丽特披萨`
 
+## 🍕 11. Isolamento Z-Index Banner Promozionale & Traduzioni DeepSeek a 9 Lingue (`PizzaPromoBanner.tsx`, `DeliveryMenu.tsx`)
+
+1. **Risoluzione Ostacoli Visivi e Gerarchia Z-Index**:
+   - **Banner Promozionale Flottante (`PizzaPromoBanner.tsx`)**: Abbassato a `z-30` (prima era a `z-[60]`) con ombra soft superiore per rimanere sullo sfondo rispetto a qualsiasi interazione avanzata.
+   - **Schede di Personalizzazione e Modali (`ProductModal.tsx`, `CartDrawer.tsx`, `CheckoutFlow.tsx`, `MenuGrid.tsx`)**: Elevati a `z-[70]` (backdrop) e `z-[80]` (pannello cassetto), garantendo che la barra di azione inferiore (*"TOTALE FINITO ... AGGIUNGI AL CARRELLO"*) rimanga sempre al 100% libera, cliccabile e mai coperta dal banner sconti.
+   - **Auto-Hide Intelligente (`DeliveryMenu.tsx`)**: Il banner promozionale si nasconde automaticamente ogni volta che è aperta una scheda piatto (`selectedItem`), il carrello (`isCartOpen`), il checkout (`showCheckout`), la modale prenotazione tavolo o le policy legali.
+
+2. **Copertura Multilingua DeepSeek Certificata a 9 Lingue (`BANNER_I18N`)**:
+   - Allineamento completo a tutte le 9 lingue del sito (`IT`, `EN`, `TH`, `MM`, `DE`, `ES`, `FR`, `RU`, `ZH`) tramite traduzione ufficiale da API DeepSeek per etichetta copertura, codice applicato, nota esplicativa alimenti e tooltip di cancellazione coupon.
 
