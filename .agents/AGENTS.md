@@ -169,9 +169,10 @@ Quando l'utente pronuncia la parola d'ordine **`VAULT-SYNC`** sulla postazione:
 1. **Aggiornamento Automatico Git**: Esegue preliminare `git pull` da origin per scaricare l'ultimo codice e il file cifrato aggiornato `.md.enc`.
 2. **Decifratura Vault**: Esegui `node scratch/vault-sync.mjs decrypt` (usando `MASTER_VAULT_KEY`).
 3. **Allineamento Ambiente**: Rigenera e allinea automaticamente i file `.env` e `.env.local` locali.
-4. **Verifica Connessioni**: Esegui `node scratch/test-credentials-verification.mjs`.
-5. **Check Sicurezza Git**: Esegui la verifica per confermare che `.secret_docs/api_credentials_report.md` e i file `.env` siano bloccati da `.gitignore`.
-6. **Conferma Operatività**: Mostra un report chiaro dell'esito dei test e dell'allineamento.
+4. **Allineamento Dipendenze NPM**: Esegue la verifica automatica di tutte le librerie in `package.json` (`syncDependencies()`); se mancano pacchetti in `node_modules` (es. aggiunti dall'altra postazione), lancia automaticamente `npm install` per azzerare ogni rischio di import mancanti in Vite.
+5. **Verifica Connessioni**: Esegui `node scratch/test-credentials-verification.mjs`.
+6. **Check Sicurezza Git**: Esegui la verifica per confermare che `.secret_docs/api_credentials_report.md` e i file `.env` siano bloccati da `.gitignore`.
+7. **Conferma Operatività**: Mostra un report chiaro dell'esito dei test e dell'allineamento.
 
 ---
 

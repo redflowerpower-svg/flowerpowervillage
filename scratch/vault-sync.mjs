@@ -1,6 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { execSync } from 'child_process';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 // Configuration
 const REPORT_PATH = path.resolve(process.cwd(), '.secret_docs/api_credentials_report.md');
@@ -82,7 +86,42 @@ export function decryptVault() {
 
   // Generate / update .env & .env.local
   syncEnvFromReport(decrypted);
+
+  // Allineamento automatico pacchetti npm
+  syncDependencies();
   return true;
+}
+
+export function syncDependencies() {
+  const pkgPath = path.resolve(process.cwd(), 'package.json');
+  if (!fs.existsSync(pkgPath)) return false;
+
+  try {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    const allDeps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
+    const missing = [];
+
+    for (const dep of Object.keys(allDeps)) {
+      const depFolder = path.resolve(process.cwd(), 'node_modules', ...dep.split('/'));
+      if (!fs.existsSync(depFolder)) {
+        missing.push(dep);
+      }
+    }
+
+    if (missing.length > 0) {
+      console.log(`📦 Rilevati pacchetti mancanti in node_modules: ${missing.join(', ')}`);
+      console.log(`⏳ Esecuzione automatica di 'npm install' per allineamento dipendenze...`);
+      execSync('npm install', { stdio: 'inherit', cwd: process.cwd() });
+      console.log(`✅ Dipendenze npm installate e allineate con successo.`);
+      return true;
+    } else {
+      console.log(`✅ Dipendenze npm verificate: tutte le librerie di package.json sono già presenti.`);
+      return true;
+    }
+  } catch (err) {
+    console.warn(`⚠️ Avviso durante la sincronizzazione delle dipendenze:`, err.message);
+    return false;
+  }
 }
 
 function syncEnvFromReport(reportText) {
@@ -232,6 +271,8 @@ if (mode === 'encrypt') {
   encryptVault();
 } else if (mode === 'decrypt') {
   decryptVault();
+} else if (mode === 'deps') {
+  syncDependencies();
 } else if (mode) {
-  console.log(`Uso: node scratch/vault-sync.mjs [encrypt|decrypt]`);
+  console.log(`Uso: node scratch/vault-sync.mjs [encrypt|decrypt|deps]`);
 }

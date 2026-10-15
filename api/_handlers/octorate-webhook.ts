@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { executeAutoShieldForReservation } from "../_helpers/octorate-auto-shield.js";
 import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync.js";
 import { handleDirectReservationCancellation } from "../_helpers/cancellation-email.js";
+import { checkAndNotifyOverbookings } from "../_helpers/overbooking-detector.js";
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -523,6 +524,13 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
         calculatedUpdatesCount = calculatedUpdates.length;
         console.log(`[OCTORATE WEBHOOK 24/7] Calculated ${calculatedUpdates.length} gap-filling updates.`);
+
+        // 🚨 [OVERBOOKING DETECTOR] Controllo collisioni e notifica istantanea Telegram allo Staff
+        try {
+          await checkAndNotifyOverbookings(bookingsData, supabaseAdmin, ALL_ACCOMMODATIONS_MAP);
+        } catch (overErr) {
+          console.warn('[OCTORATE WEBHOOK] Overbooking detection non-blocking warning:', overErr);
+        }
 
         // Invio sincronizzazione in blocchi (batch da 250 per Octorate API)
         if (calculatedUpdates.length > 0) {

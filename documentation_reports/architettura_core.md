@@ -197,3 +197,7 @@ Di seguito sono documentate le principali criticità architetturali emerse duran
 *   **DeepSeek AI Batch 9-in-1 Engine:** L'endpoint `/api/campaign-translate` instrada verso le API Chat di DeepSeek (`deepseek-chat`) con prompt per la generazione simultanea e sicura dei contenuti tradotti in 9 lingue certificate.
 *   **Automazione Voucher Dining Tablet:** Al checkout del tavolo, se fornita l'email, viene generato il voucher `DINE10-XXXXX` (10 giorni di validità) e inviata in background l'email con link 1-click via Nodemailer / Gmail SMTP.
 
+### Q. Auto-Allineamento Dipendenze Multi-Workstation (Vault-Sync NPM Engine)
+*   **Problema:** Nello spostamento frequente tra le postazioni di lavoro di Ranong e Koh Phayam, l'aggiunta di nuove librerie npm su una macchina (es. `qrcode`) causava errori di compilazione Vite (`Failed to resolve import`) sull'altra postazione dopo il `git pull` a causa della mancanza fisica dei pacchetti in `node_modules` (cartella non tracciata da Git).
+*   **Soluzione:** Integrata la scansione e sincronizzazione automatica delle dipendenze direttamente nel motore `scratch/vault-sync.mjs` (`syncDependencies()`) e codificata come Passo 4 ufficiale nel workflow `VAULT-SYNC`. Ad ogni sincronizzazione postazione, il sistema verifica la presenza di tutte le librerie di `package.json` in `node_modules` e, qualora ne manchi anche solo una, esegue in autonomia `npm install` garantendo operatività immediata a zero errori.
+
