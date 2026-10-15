@@ -58,7 +58,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Caffè Americano",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Artisan Tiramisù",
-      "cake-of-the-day": "Cake of the Day",
+      "cake-of-the-day": "TORTA DELLA NONNA WITH CHOCOLATE",
       "affogato": "Affogato al Caffè",
       "crepes": "Nutella Crepes",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -128,7 +128,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Caffè Americano",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Tiramisù Artigianale",
-      "cake-of-the-day": "Torta del Giorno",
+      "cake-of-the-day": "TORTA DELLA NONNA AL CIOCCOLATO",
       "affogato": "Affogato al Caffè",
       "crepes": "Crepes alla Nutella",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -198,7 +198,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "คาเฟ่ อเมริกาโน่",
       "latte-macchiato": "ลาเต้ มัคคิอาโต้",
       "tiramisu": "ทิรามิสุโฮมเมด",
-      "cake-of-the-day": "เค้กประจำวัน",
+      "cake-of-the-day": "ตอร์ตา เดลลา นอนนา ช็อกโกแลต",
       "affogato": "อัฟโฟกาโต้อัลคาเฟ่",
       "crepes": "เครปนูเทลล่า",
       "pizza-margherita": "พิซซ่ามาร์เกอริต้า",
@@ -268,7 +268,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "ကာဖီအမေရီကာနို",
       "latte-macchiato": "လတ်တေမက်ချာတို",
       "tiramisu": "အိမ်လုပ်တီရာမီဆု",
-      "cake-of-the-day": "ယနေ့အထူးကိတ်",
+      "cake-of-the-day": "ချောကလက် တွာတာ ဒယ်လာ နွန်နာ",
       "affogato": "အာဖိုဂါတိုကာဖီ",
       "crepes": "နူတဲလာခရိ(ပ်)",
       "pizza-margherita": "ပီဇာမာဂါရီတာ",
@@ -338,7 +338,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Caffè Americano",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Handwerkliches Tiramisù",
-      "cake-of-the-day": "Kuchen des Tages",
+      "cake-of-the-day": "TORTA DELLA NONNA MIT SCHOKOLADE",
       "affogato": "Affogato al Caffè",
       "crepes": "Nutella-Crêpes",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -408,7 +408,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Café Americano",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Tiramisú Artesanal",
-      "cake-of-the-day": "Pastel del Día",
+      "cake-of-the-day": "TARTA DE LA ABUELA AL CHOCOLATE",
       "affogato": "Affogato al Caffè",
       "crepes": "Crepes de Nutella",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -478,7 +478,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Café Américain",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Tiramisù Artisanal",
-      "cake-of-the-day": "Gâteau du Jour",
+      "cake-of-the-day": "TORTA DELLA NONNA AU CHOCOLAT",
       "affogato": "Affogato al Caffè",
       "crepes": "Crêpes à la Nutella",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -548,7 +548,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Кофе американо",
       "latte-macchiato": "Латте макиато",
       "tiramisu": "Тирамису ручной работы",
-      "cake-of-the-day": "Торт дня",
+      "cake-of-the-day": "ШОКОЛАДНЫЙ ТОРТ ДЕЛЛА НОННА",
       "affogato": "Аффогато аль каффе",
       "crepes": "Крепы с Nutella",
       "pizza-margherita": "ПИЦЦА МАРГАРИТА",
@@ -618,7 +618,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "美式咖啡",
       "latte-macchiato": "拿铁玛奇朵",
       "tiramisu": "手工提拉米苏",
-      "cake-of-the-day": "今日蛋糕",
+      "cake-of-the-day": "意式传统巧克力祖母蛋糕",
       "affogato": "阿芙佳朵",
       "crepes": "Nutella 可丽饼",
       "pizza-margherita": "玛格丽特披萨",
@@ -896,678 +896,17 @@ const translations: Record<string, any> = {
 }
 };
 
-const categoryDetails: Record<string, Record<string, { name: string; desc: string }>> = {
-  'daily-specials': {
-    IT: { name: 'Piatti del Giorno', desc: 'Creazioni esclusive e piatti speciali del giorno preparati dal nostro chef con ingredienti freschi di stagione' },
-    EN: { name: 'Daily Specials', desc: 'Exclusive daily creations and seasonal specialties freshly prepared by our Italian chef with premium ingredients' },
-    TH: { name: 'จานพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
-    DE: { name: 'Tagesgerichte', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs aus frischen Zutaten' },
-    MM: { name: 'နေ့စဉ် ဟင်းပွဲများ', desc: 'အီတလီစားဖိုမှူးမှ လတ်ဆတ်သော ရာသီပေါ် ကုန်ကြမ်းများဖြင့် နေ့စဉ် သီးသန့် ဖန်တီးထားသော အထူးဟင်းလျာများ' },
-    ES: {"name":"Especiales del día","desc":"Creaciones exclusivas diarias y especialidades de temporada preparadas al momento por nuestro chef italiano con ingredientes premium"},
-    FR: {"name":"Spécialités du jour","desc":"Créations quotidiennes exclusives et spécialités de saison fraîchement préparées par notre chef italien avec des ingrédients de qualité supérieure"},
-    RU: {"name":"Ежедневные специальные предложения","desc":"Эксклюзивные ежедневные блюда и сезонные specialties, свежеприготовленные нашим итальянским шеф-поваром из премиальных ингредиентов"},
-    ZH: {"name":"每日特供","desc":"意大利主厨每日精选优质食材新鲜制作的独家创意菜和时令特色菜"},
-  },
-  'traditional-italian-pizza': {
-    IT: { name: 'Pizze Classiche', desc: 'Impasto a fermentazione naturale' },
-    EN: { name: 'Classic Pizzas', desc: 'Slow-fermented Italian dough' },
-    TH: { name: 'พิซซ่าคลาสสิค', desc: 'แป้งหมักธรรมชาติสูตรดั้งเดิม' },
-    DE: { name: 'Klassische Pizzas', desc: 'Natursauerteig-Pizzaboden' },
-    MM: { name: 'ရိုးရာ အီတလီ ပီဇာ', desc: 'သဘာဝနည်းဖြင့် နှပ်ထားသော မုန့်သား' },
-    ES: {"name":"Pizzas clásicas","desc":"Masa italiana de fermentación lenta"},
-    FR: {"name":"Pizzas classiques","desc":"Pâte italienne à fermentation lente"},
-    RU: {"name":"Классические пиццы","desc":"Итальянское тесто медленного брожения"},
-    ZH: {"name":"经典披萨","desc":"慢发酵意大利面团"},
-  },
-  'pasta': {
-    IT: { name: 'Pasta & Primi', desc: 'Primi piatti della tradizione e pasta fresca' },
-    EN: { name: 'Pasta & First Courses', desc: 'Traditional Italian pasta & fresh first courses' },
-    TH: { name: 'พาสต้า & อาหารจานแรก', desc: 'เมนูพาสต้าอิตาเลียนดั้งเดิมและอาหารจานเส้น' },
-    DE: { name: 'Pasta & Primi', desc: 'Traditionelle italienische Pasta & Nudelgerichte' },
-    MM: { name: 'ခေါက်ဆွဲ & ပတ်စ်တာ', desc: 'ရိုးရာ အီတလီ ခေါက်ဆွဲ ဟင်းလျာများ' },
-    ES: {"name":"Pastas y primeros platos","desc":"Pastas italianas tradicionales y primeros platos frescos"},
-    FR: {"name":"Pâtes & Primi Piatti","desc":"Pâtes italiennes traditionnelles & primi piatti frais"},
-    RU: {"name":"Паста и первые блюда","desc":"Традиционная итальянская паста и свежие первые блюда"},
-    ZH: {"name":"意面与前菜","desc":"传统意大利面与新鲜前菜"},
-  },
-  'breakfast-and-snacks': {
-    IT: { name: 'Colazione & Snack', desc: 'Per iniziare la giornata' },
-    EN: { name: 'Breakfast & Snacks', desc: 'To start your day' },
-    TH: { name: 'อาหารเช้าและของว่าง', desc: 'เริ่มต้นวันใหม่ด้วยพลังงาน' },
-    DE: { name: 'Frühstück & Snacks', desc: 'Für einen guten Start in den Tag' },
-    MM: { name: 'နံနက်စာနှင့် သရေစာ', desc: 'နေ့သစ်ကို စတင်ရန်' },
-    ES: {"name":"Desayunos y aperitivos","desc":"Para empezar tu día"},
-    FR: {"name":"Petit-déjeuner & En-cas","desc":"Pour bien commencer la journée"},
-    RU: {"name":"Завтраки и закуски","desc":"Чтобы начать день"},
-    ZH: {"name":"早餐与小吃","desc":"开启美好一天"},
-  },
-  'coffee-shop': {
-    IT: { name: 'Caffetteria', desc: 'Caffè espresso italiano' },
-    EN: { name: 'Coffee Shop', desc: 'Italian espresso coffee' },
-    TH: { name: 'ร้านกาแฟ', desc: 'เอสเพรสโซ่อิตาเลียนแท้' },
-    DE: { name: 'Kaffeeshop', desc: 'Italienischer Espresso' },
-    MM: { name: 'ကော်ဖီဆိုင်', desc: 'စစ်မှန်သော အီတလီ အက်စ်ပရက်ဆို ကော်ဖီ' },
-    ES: {"name":"Cafetería","desc":"Café expreso italiano"},
-    FR: {"name":"Café","desc":"Café espresso italien"},
-    RU: {"name":"Кофейня","desc":"Итальянский эспрессо"},
-    ZH: {"name":"咖啡厅","desc":"意式浓缩咖啡"},
-  },
-  'fruit-drinks': {
-    IT: { name: 'Bevande alla Frutta', desc: 'Frullati e shake freschi' },
-    EN: { name: 'Fruit Drinks', desc: 'Fresh fruit shakes' },
-    TH: { name: 'เครื่องดื่มผลไม้', desc: 'ผลไม้สดปั่นสดใหม่' },
-    DE: { name: 'Fruchtgetränke', desc: 'Frische Frucht-Shakes' },
-    MM: { name: 'သစ်သီးဖျော်ရည်များ', desc: 'လတ်ဆတ်သော သစ်သီးဖျော်ရည်များ' },
-    ES: {"name":"Bebidas de frutas","desc":"Batidos de frutas frescas"},
-    FR: {"name":"Jus de fruits","desc":"Milkshakes aux fruits frais"},
-    RU: {"name":"Фруктовые напитки","desc":"Свежие фруктовые коктейли"},
-    ZH: {"name":"果汁饮品","desc":"新鲜水果奶昔"},
-  },
-  'soft-drinks': {
-    IT: { name: 'Bibite & Acqua', desc: 'Bibite analcoliche in lattina, acqua minerale naturale e bevande rinfrescanti servite fredde.' },
-    EN: { name: 'Soft Drinks & Water', desc: 'Canned soft drinks, natural mineral water, and chilled refreshing beverages.' },
-    TH: { name: 'น้ำอัดลมและน้ำดื่ม', desc: 'น้ำอัดลมกระป๋อง น้ำดื่มธรรมชาติ และเครื่องดื่มเพิ่มความสดชื่นเสิร์ฟเย็น' },
-    DE: { name: 'Erfrischungsgetränke & Wasser', desc: 'Erfrischungsgetränke in der Dose, natürliches Mineralwasser und gekühlte Getränke.' },
-    MM: { name: 'အအေးနှင့် သောက်ရေသန့်', desc: 'ဗူးသွပ်အအေးများ၊ သဘာဝတွင်းထွက်ရေနှင့် အေးမြလန်းဆန်းစေသော သောက်စရာများ။' },
-    ES: {"name":"Refrescos y agua","desc":"Refrescos en lata, agua mineral natural y bebidas refrescantes frías."},
-    FR: {"name":"Boissons sans alcool & Eau","desc":"Boissons sans alcool en canette, eau minérale naturelle et boissons rafraîchissantes fraîches."},
-    RU: {"name":"Безалкогольные напитки и вода","desc":"Безалкогольные напитки в банках, натуральная минеральная вода и охлаждённые освежающие напитки."},
-    ZH: {"name":"软饮与水","desc":"罐装软饮、天然矿泉水及冰镇清爽饮品。"},
-  },
-  'beers': {
-    IT: { name: 'Birre', desc: 'Le migliori marche di birra in bottiglia grande e piccola, servite ghiacciate.' },
-    EN: { name: 'Beers', desc: 'The best Thai and international bottled beers served ice cold.' },
-    TH: { name: 'เบียร์', desc: 'เบียร์ขวดเย็นเจี๊ยบคุณภาพดี มีให้เลือกทั้งขวดใหญ่และขวดเล็ก' },
-    DE: { name: 'Biere', desc: 'Beste thailändische und internationale Flaschenbiere eiskalt serviert.' },
-    MM: { name: 'ဘီယာများ', desc: 'အကောင်းဆုံး ထိုင်းနှင့် နိုင်ငံတကာ ဘီယာပုလင်း အေးအေးများ။' },
-    ES: {"name":"Cervezas","desc":"Las mejores cervezas tailandesas e internacionales en botella, servidas bien frías."},
-    FR: {"name":"Bières","desc":"Les meilleures bières en bouteille thaïlandaises et internationales servies glacées."},
-    RU: {"name":"Пиво","desc":"Лучшее тайское и международное пиво в бутылках, подаётся ледяным."},
-    ZH: {"name":"啤酒","desc":"精选泰国及国际瓶装啤酒，冰爽供应。"},
-  },
-  'beers-and-wines': {
-    IT: { name: 'Birre & Vini', desc: 'Birre fresche e selezione di vini italiani' },
-    EN: { name: 'Beers & Wines', desc: 'Chilled beers and Italian wine selection' },
-    TH: { name: 'เบียร์และไวน์', desc: 'เบียร์เย็นๆ และไวน์อิตาเลียนคัดสรร' },
-    DE: { name: 'Biere & Weine', desc: 'Gekühlte Biere und ausgewählte italienische Weine' },
-    MM: { name: 'ဘီယာနှင့် ဝိုင်များ', desc: 'အေးမြသော ဘီယာများနှင့် ရွေးချယ်ထားသော အီတလီ ဝိုင်များ' },
-    ES: {"name":"Cervezas y vinos","desc":"Cervezas frías y selección de vinos italianos"},
-    FR: {"name":"Bières & Vins","desc":"Bières fraîches et sélection de vins italiens"},
-    RU: {"name":"Пиво и вина","desc":"Охлаждённое пиво и выбор итальянских вин"},
-    ZH: {"name":"啤酒与葡萄酒","desc":"冰镇啤酒与意大利葡萄酒精选"},
-  },
-  'wines': {
-    IT: { name: 'Carta dei Vini', desc: 'Selezione accurata di vini italiani ed internazionali, scelti per esaltare i sapori di ogni piatto del nostro menù.' },
-    EN: { name: 'Wine List', desc: 'Carefully curated selection of fine Italian and international wines, chosen to enhance the flavors of every dish on our menu.' },
-    TH: { name: 'รายการไวน์', desc: 'คัดสรรไวน์อิตาเลียนและไวน์นานาชาติชั้นเลิศอย่างพิถีพิถัน เพื่อเสริมรสชาติของทุกเมนูให้โดดเด่นและสมดุลยิ่งขึ้น' },
-    DE: { name: 'Weinkarte', desc: 'Sorgfältig zusammengestellte Auswahl an italienischen und internationalen Weinen, die darauf abgestimmt sind, die Aromen jedes Gerichts auf unserer Speisekarte hervorzuheben.' },
-    MM: { name: 'ဝိုင်စာရင်း', desc: 'ကျွန်ုပ်တို့၏ ဟင်းလျာ အရသာတိုင်းကို ပိုမိုပြည့်စုံစေရန် ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်ကောင်းများ။' },
-    ES: {"name":"Carta de vinos","desc":"Cuidada selección de finos vinos italianos e internacionales, elegidos para realzar los sabores de cada plato de nuestro menú."},
-    FR: {"name":"Carte des vins","desc":"Sélection soignée de vins italiens et internationaux de qualité, choisis pour rehausser les saveurs de chaque plat de notre menu."},
-    RU: {"name":"Винная карта","desc":"Тщательно подобранная коллекция изысканных итальянских и международных вин, выбранных, чтобы подчеркнуть вкус каждого блюда нашего меню."},
-    ZH: {"name":"葡萄酒单","desc":"精心挑选的意大利及国际优质葡萄酒，旨在提升菜单上每道菜的风味。"},
-  },
-};
-
-const DAILY_SPECIALS_SECTIONS = [
-  {
-    id: 'pasta',
-    name: {
-      IT: 'Primi Piatti',
-      EN: 'First Courses',
-      TH: 'อาหารจานแรก (พาสต้า)',
-      DE: 'Erste Gänge (Pasta)',
-      MM: 'ပထမဟင်းလျာများ (ပတ်စ်တာ)',
-      ES: 'Primeros platos',
-      FR: 'Primi Piatti',
-      RU: 'Первые блюда',
-      ZH: '前菜',
-    },
-    desc: {
-      IT: 'Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali con formati a scelta.',
-      EN: 'Seafood Spaghetti, Fresh Crab Meat, Salmon Penne, Squid Ink Tagliatelle, and artisanal Ravioli with your choice of pasta format.',
-      TH: 'สปาเก็ตตี้ซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมด เลือกเส้นและรูปแบบได้ตามใจชอบ',
-      DE: 'Meeresfrüchte-Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte Ravioli mit wählbaren Formaten.',
-      MM: 'လတ်ဆတ်သော ပင်လယ်စာ စပါဂက်တီ၊ ဂဏန်းသား၊ ဆယ်လ်မွန်၊ ပြည်ကြီးငါးမှင်ခေါက်ဆွဲနှင့် လက်လုပ် ရာဗီအိုလီများ။',
-      ES: 'Espaguetis con marisco, carne de cangrejo fresco, penne con salmón, tagliatelle con tinta de calamar y raviolis artesanales con el formato de pasta que elijas.',
-      FR: 'Spaghetti aux fruits de mer, chair de crabe fraîche, penne au saumon, tagliatelles à l\'encre de seiche et raviolis artisanaux avec le format de pâtes de votre choix.',
-      RU: 'Спагетти с морепродуктами, свежее крабовое мясо, пенне с лососем, тальятелле с чернилами кальмара и артизанальные равиоли с выбором формата пасты.',
-      ZH: '海鲜意面、新鲜蟹肉、三文鱼笔管面、墨鱼汁宽面，以及手工意大利饺，可选您喜欢的意面形状。',
-    }
-  },
-  {
-    id: 'traditional-italian-pizza',
-    name: {
-      IT: 'Pizze Gourmet Speciali',
-      EN: 'Gourmet Special Pizzas',
-      TH: 'พิซซ่ากูร์เมต์สูตรพิเศษ',
-      DE: 'Gourmet-Spezialpizzen',
-      MM: 'အထူး ဂူးမေး ပီဇာများ',
-      ES: 'Pizzas gourmet especiales',
-      FR: 'Pizzas gourmet spéciales',
-      RU: 'Гурманские специальные пиццы',
-      ZH: '美食特色披萨',
-    },
-    desc: {
-      IT: 'Pizze artigianali a lievitazione naturale con polpa di granchio fresca o salsiccia nostrana, spinaci e gorgonzola.',
-      EN: 'Artisanal naturally leavened pizzas with fresh crab meat or local sausage, spinach, and gorgonzola.',
-      TH: 'พิซซ่าแป้งหมักยีสต์ธรรมชาติ หน้าเนื้อปูม้าสด และไส้กรอกหมูอิตาเลียนกับผักสตีลัชชี',
-      DE: 'Handwerkliche Pizzen mit natürlicher Hefe und frischem Krabbenfleisch oder einheimischer Wurst, Spinat und Gorgonzola.',
-      MM: 'လတ်ဆတ်သော ဂဏန်းသား သို့မဟုတ် အီတလီ ဝက်အူချောင်းဖြင့် ဖုတ်ထားသော လက်လုပ် ပီဇာများ။',
-      ES: 'Pizzas artesanales con fermentación natural, con carne de cangrejo fresco o salchicha local, espinacas y gorgonzola.',
-      FR: 'Pizzas artisanales à levain naturel avec chair de crabe fraîche ou saucisse locale, épinards et gorgonzola.',
-      RU: 'Артизанальные пиццы на естественной закваске со свежим крабовым мясом или местной колбасой, шпинатом и горгонзолой.',
-      ZH: '手工天然发酵披萨，搭配新鲜蟹肉或本地香肠、菠菜和戈贡佐拉奶酪。',
-    }
-  },
-  {
-    id: 'daily-specials',
-    name: {
-      IT: 'Secondi Piatti Tradizionali',
-      EN: 'Traditional Main Courses',
-      TH: 'อาหารจานหลักแบบดั้งเดิม',
-      DE: 'Traditionelle Hauptgerichte',
-      MM: 'ရိုးရာ အဓိက အစားအစာများ',
-      ES: 'Platos principales tradicionales',
-      FR: 'Plats principaux traditionnels',
-      RU: 'Традиционные основные блюда',
-      ZH: '传统主菜',
-    },
-    desc: {
-      IT: 'Grandi classici e torte salate della tradizione italiana preparati al momento: Cotoletta alla Milanese, Cotechino artigianale con Purè e autentica Torta Pasqualina ligure.',
-      EN: 'Italian culinary classics & savory pies made fresh: Crispy Milanese Cutlet with fries, Artisanal Cotechino with mashed potatoes, and Ligurian Torta Pasqualina.',
-      TH: 'เมนูคลาสสิกและพายอบสไตล์อิตาเลียน: มิลานีสคัตเล็ตหมูทอดกรอบ ไส้กรอกโคเตคิโนโบราณพร้อมมันบด และพายตอร์ตา ปาสควาลินา',
-      DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.',
-      MM: 'လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ထားသော အီတလီ ရိုးရာ ဂန္တဝင် အစားအစာများနှင့် အရသာရှိ ပီဇာမုန့်များ။',
-      ES: 'Grandes clásicos y sabrosas tartas italianas preparadas al momento: milanesa, cotechino artesanal con puré de patatas y auténtica torta pasqualina ligur.',
-      FR: 'Grands classiques et tourtes italiennes savoureuses préparées fraîches : escalope milanaise, cotechino artisanal avec purée de pommes de terre et authentique torta pasqualina ligure.',
-      RU: 'Великие классические блюда и пикантные итальянские пироги, приготовленные свежими: миланский шницель, артизанальный котекино с картофельным пюре и аутентичная лигурийская торта пасквалина.',
-      ZH: '经典美味与咸香意大利馅饼，新鲜制作：米兰式炸肉排、手工科泰基诺香肠配土豆泥，以及正宗利古里亚复活节馅饼。',
-    }
-  },
-  {
-    id: 'pizza-sandwich',
-    name: {
-      IT: 'Focacce Artigianali',
-      EN: 'Artisanal Focaccias',
-      TH: 'ฟอคคาเซียอบสดสไตล์อิตาเลียน',
-      DE: 'Hausgemachte Focaccia',
-      MM: 'လက်လုပ် ဖိုကာချာ မုန့်များ',
-      ES: 'Focaccias artesanales',
-      FR: 'Focaccias artisanales',
-      RU: 'Ремесленные фокаччи',
-      ZH: '手工佛卡夏',
-    },
-    desc: {
-      IT: 'Focacce fragranti da impasto pizza cotte al forno e farcite con i migliori salumi italiani selezionati: Finocchiona, Pancetta arrotolata, Porchetta, Prosciutto Cotto e Salame.',
-      EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Finocchiona, Rolled Pancetta, Porchetta, Cooked Ham, and Salami.',
-      TH: 'ฟอคคาเซียอบสดใหม่กรอบนอกนุ่มใน สอดไส้โคลด์คัทอิตาเลียนชั้นเลิศ: ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
-      DE: 'Ofenfrische Focaccia gefüllt mit feinsten italienischen Wurstspezialitäten: Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
-      MM: 'အီတလီ အသားလွှာ အကောင်းစားများ ညှပ်ထားသော မီးဖိုဖုတ် ဖိုကာချာ မုန့်များ။',
-      ES: 'Focaccias de masa de pizza recién horneadas con los mejores embutidos italianos.',
-      FR: 'Focaccias au four avec les meilleures charcuteries italiennes sélectionnées.',
-      RU: 'Ароматные запеченные фокаччи из теста для пиццы с лучшими итальянскими мясными деликатесами.',
-      ZH: '新鲜烤制的披萨面团佛卡夏，搭配精选优质意大利冷切肉。',
-    }
-  }
-];
-
-const ITALIAN_SALADS_SECTIONS = [
-  {
-    id: 'salads',
-    name: {
-      IT: 'Insalate Italiane',
-      EN: 'Italian Salads',
-      TH: 'สลัดอิตาเลียน',
-      DE: 'Italienische Salate',
-      MM: 'အီတလီဆလတ်များ',
-      ES: 'Ensaladas italianas',
-      FR: 'Salades italiennes',
-      RU: 'Итальянские салаты',
-      ZH: '意式沙拉',
-    },
-    desc: {
-      IT: 'Insalate fresche con uova, pollo, patate o tonno preparate con verdure selezionate e condite con salse artigianali.',
-      EN: 'Fresh salads with eggs, chicken, potatoes or tuna prepared with selected crisp vegetables and artisan dressings.',
-      TH: 'สลัดสดใหม่ใส่ไข่ ไก่ มันฝรั่ง หรือทูน่า ปรุงด้วยผักสดคัดสรรและน้ำสลัดโฮมเมด',
-      DE: 'Frische Salate mit Eiern, Hähnchen, Kartoffeln oder Thunfisch, zubereitet mit ausgewähltem Gemüse und hausgemachten Dressings.',
-      MM: 'ကြက်ဥ၊ ကြက်သား၊ အာလူး သို့မဟုတ် တူနာငါးတို့ဖြင့် ပြင်ဆင်ထားသော လတ်ဆတ်သည့် အသုပ်များ။',
-      ES: 'Ensaladas frescas con huevos, pollo, patatas o atún, preparadas con verduras crujientes seleccionadas y aderezos artesanales.',
-      FR: 'Salades fraîches avec œufs, poulet, pommes de terre ou thon, préparées avec des légumes croquants sélectionnés et des vinaigrettes artisanales.',
-      RU: 'Свежие салаты с яйцами, курицей, картофелем или тунцом, приготовленные из отборных хрустящих овощей и авторских заправок.',
-      ZH: '新鲜沙拉，配以鸡蛋、鸡肉、土豆或金枪鱼，搭配精选脆爽蔬菜和手工酱汁。',
-    }
-  },
-  {
-    id: 'main-courses',
-    name: {
-      IT: 'Secondi Piatti Tradizionali',
-      EN: 'Traditional Main Courses',
-      TH: 'อาหารจานหลักแบบดั้งเดิม',
-      DE: 'Traditionelle Hauptgerichte',
-      MM: 'ရိုးရာ အဓိက အစားအစာများ',
-      ES: 'Platos principales tradicionales',
-      FR: 'Plats principaux traditionnels',
-      RU: 'Традиционные основные блюда',
-      ZH: '传统主菜',
-    },
-    desc: {
-      IT: 'Grandi classici e torte salate della tradizione italiana: Cotoletta alla Milanese con patate, Cotechino artigianale con purè e autentica Torta Pasqualina ligure.',
-      EN: 'Italian culinary classics & savory pies made fresh: Crispy Milanese Cutlet with fries, Artisanal Cotechino with mashed potatoes, and Ligurian Torta Pasqualina.',
-      TH: 'เมนูคลาสสิกและพายอบสไตล์อิตาเลียน: มิลานีสคัตเล็ตหมูทอดกรอบ ไส้กรอกโคเตคิโนโบราณพร้อมมันบด และพายตอร์ตา ปาสควาลินา',
-      DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.',
-      MM: 'လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ထားသော အီတလီ ရိုးရာ ဂန္တဝင် အစားအစာများနှင့် အရသာရှိ ပီဇာမုန့်များ။',
-      ES: 'Clásicos culinarios italianos y tartas saladas recién hechas: Milanesa crujiente con patatas fritas, Cotechino artesanal con puré de patatas y Torta Pasqualina ligur.',
-      FR: 'Classiques de la cuisine italienne et tourtes salées préparées fraîches : escalope milanaise croustillante avec frites, cotechino artisanal avec purée de pommes de terre, et torta pasqualina ligure.',
-      RU: 'Итальянская кулинарная классика и пикантные пироги, приготовленные свежими: хрустящая миланская котлета с картофелем фри, ремесленный котекино с картофельным пюре и лигурийская пасхальная торта.',
-      ZH: '意式经典美食和咸味派新鲜制作：酥脆米兰炸肉排配薯条，手工科特基诺香肠配土豆泥，以及利古里亚复活节派。',
-    }
-  }
-];
-
-const SALAD_SUBFILTER_LABELS: Record<string, Record<string, string>> = {
-  IT: { all: 'Tutti i Piatti', salads: 'Insalate Italiane', mains: 'Secondi Piatti' },
-  EN: { all: 'All Dishes', salads: 'Italian Salads', mains: 'Main Courses' },
-  TH: { all: 'ทุกจาน', salads: 'สลัดอิตาเลียน', mains: 'จานหลัก' },
-  DE: { all: 'Alle Gerichte', salads: 'Italienische Salate', mains: 'Hauptgerichte' },
-  MM: { all: 'ဟင်းလျာအားလုံး', salads: 'အီတလီဆလတ်များ', mains: 'အဓိကဟင်းလျာများ' },
-  ES: {"all":"Todos los platos","salads":"Ensaladas italianas","mains":"Platos principales"},
-  FR: {"all":"Tous les plats","salads":"Salades italiennes","mains":"Plats principaux"},
-  RU: {"all":"Все блюда","salads":"Итальянские салаты","mains":"Основные блюда"},
-  ZH: {"all":"所有菜品","salads":"意式沙拉","mains":"主菜"}
-};
-
-const SANDWICH_SUBFILTER_LABELS: Record<string, Record<string, string>> = {
-  IT: { all: 'Tutti i Piatti', focacce: 'Focacce', sandwiches: 'Pizza Sandwich' },
-  EN: { all: 'All Dishes', focacce: 'Focaccia', sandwiches: 'Pizza Sandwich' },
-  TH: { all: 'ทุกจาน', focacce: 'โฟกัชชา', sandwiches: 'พิซซ่าแซนด์วิช' },
-  DE: { all: 'Alle Gerichte', focacce: 'Focacce', sandwiches: 'Pizza-Sandwich' },
-  MM: { all: 'ဟင်းလျာအားလုံး', focacce: 'ဖိုကာချာများ', sandwiches: 'ပီဇာဆန်းဒဝစ်' },
-  ES: {"all":"Todos los platos","focacce":"Focaccia","sandwiches":"Sándwich de pizza"},
-  FR: {"all":"Tous les plats","focacce":"Focaccia","sandwiches":"Sandwich à la pizza"},
-  RU: {"all":"Все блюда","focacce":"Фокачча","sandwiches":"Пицца-сэндвич"},
-  ZH: {"all":"所有菜品","focacce":"佛卡夏","sandwiches":"披萨三明治"}
-};
-
-const FOCACCIA_SANDWICH_SECTIONS = [
-  {
-    id: 'focacce',
-    name: {
-      IT: 'Focacce',
-      EN: 'Focaccia',
-      TH: 'โฟกัชชา',
-      DE: 'Focacce',
-      MM: 'ဖိုကာချာများ',
-      ES: 'Focaccia',
-      FR: 'Focaccia',
-      RU: 'Фокачча',
-      ZH: '佛卡夏',
-    },
-    desc: {
-      IT: 'Focacce fragranti da impasto pizza all\'olio extravergine d\'oliva cotte al forno e farcite al momento con i migliori salumi italiani selezionati: Milanese, Finocchiona, Pancetta arrotolata, Porchetta, Prosciutto Cotto e Salame.',
-      EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Milanese cutlet, Tuscan Finocchiona, Rolled Pancetta, Roasted Porchetta, Cooked Ham, and Salami.',
-      TH: 'ฟอคคาเซียแป้งพิซซ่าอบสดใหม่สไตล์โฮมเมด สอดไส้โคลด์คัทอิตาเลียนพรีเมียม: มิลานีส, ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
-      DE: 'Ofenfrische Pizza-Focaccia gefüllt mit feinsten italienischen Spezialitäten: Mailänder Schnitzel, Toskanische Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
-      MM: 'အီတလီ အသားလွှာ အကောင်းစားများနှင့် မီးဖိုဖုတ် ဖိုကာချာ မုန့်များ။',
-      ES: 'Fragantes focaccias de masa de pizza horneadas, rellenas de embutidos italianos premium: milanesa, Finocchiona toscana, Pancetta enrollada, Porchetta asada, jamón cocido y salami.',
-      FR: 'Focaccias parfumées à base de pâte à pizza cuite au four, garnies de charcuteries italiennes de qualité supérieure : escalope milanaise, finocchiona toscane, pancetta roulée, porchetta rôtie, jambon cuit et salami.',
-      RU: 'Ароматные фокаччи из теста для пиццы, запеченные в печи, с начинкой из премиальных итальянских мясных деликатесов: миланская котлета, тосканская финоккьона, рулетики из панчетты, жареная порчетта, вареная ветчина и салями.',
-      ZH: '香气扑鼻的烤箱烘焙披萨面团佛卡夏，夹入优质意大利冷切肉：米兰炸肉排、托斯卡纳芬诺基奥纳香肠、卷状培根、烤猪肉卷、熟火腿和萨拉米。',
-    }
-  },
-  {
-    id: 'pizza-sandwiches',
-    name: {
-      IT: 'Pizza Sandwich',
-      EN: 'Pizza Sandwich',
-      TH: 'พิซซ่าแซนด์วิช',
-      DE: 'Pizza-Sandwich',
-      MM: 'ပီဇာဆန်းဒဝစ်',
-      ES: 'Sándwich de pizza',
-      FR: 'Sandwich à la pizza',
-      RU: 'Пицца-сэндвич',
-      ZH: '披萨三明治',
-    },
-    desc: {
-      IT: 'Gustosi panini racchiusi nel nostro impasto pizza dorato e croccante con formaggio filante, pomodoro fresco e salumi italiani selezionati.',
-      EN: 'Flavorful sandwiches wrapped in our golden, crispy pizza crust with melted cheese, fresh tomatoes, and premium Italian cold cuts.',
-      TH: 'แซนด์วิชแป้งพิซซ่ากรอบนอกนุ่มใน สอดไส้ชีสเยิ้มๆ มะเขือเทศสด และโคลด์คัทอิตาเลียนชั้นเลิศ',
-      DE: 'Köstliche Sandwiches in knusprigem Pizzateig mit geschmolzenem Käse, frischen Tomaten und feinen italienischen Wurstwaren.',
-      MM: 'ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ ပီဇာမုန့်သား၊ အရည်ပျော်နေသော ချိစ်နှင့် အသားလွှာများ ပါဝင်သော ပီဇာဆန်းဒဝစ်။',
-      ES: 'Sabrosos sándwiches envueltos en nuestra masa de pizza dorada y crujiente, con queso fundido, tomates frescos y embutidos italianos premium.',
-      FR: 'Sandwichs savoureux enveloppés dans notre croûte de pizza dorée et croustillante, avec fromage fondu, tomates fraîches et charcuteries italiennes de qualité supérieure.',
-      RU: 'Ароматные сэндвичи, завернутые в нашу золотистую хрустящую корочку для пиццы с расплавленным сыром, свежими помидорами и премиальными итальянскими мясными деликатесами.',
-      ZH: '风味十足的三明治，包裹在我们金黄酥脆的披萨饼皮中，配以融化的奶酪、新鲜番茄和优质意大利冷切肉。',
-    }
-  }
-];
-
-const PASTA_SAUCES = [
-  { 
-    id: 'special-pasta', 
-    name: { 
-      IT: 'Specialità & Paste Ripiene', 
-      EN: "Chef's Specials & Stuffed Pasta", 
-      TH: 'พาสต้าและราวิโอลีสูตรพิเศษ', 
-      DE: 'Spezialitäten & Gefüllte Pasta',
-      MM: 'အထူးလက်ရာနှင့် အစာသွပ် ခေါက်ဆွဲ',
-      ES: 'Especialidades del chef y pasta rellena',
-      FR: 'Spécialités du chef et pâtes farcies',
-      RU: 'Особые блюда от шефа и паста с начинкой',
-      ZH: '厨师特选和馅料意面',
-    }, 
-    desc: {
-      IT: 'Creazioni di mare e di terra della nostra cuoca: Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali ripieni.',
-      EN: 'Seafood and artisan specialties: Seafood Spaghetti, Blue Crab Meat, Salmon Penne, Squid Ink Tagliatelle, and handmade stuffed Ravioli.',
-      TH: 'พาสต้าซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมดสอดไส้สูตรดั้งเดิม',
-      DE: 'Meeresfrüchte- und Spezialitätenkreationen: Frutti di Mare Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte gefüllte Ravioli.',
-      MM: 'ပင်လယ်စာ စပါဂက်တီ၊ ဂဏန်းသား၊ ဆယ်လ်မွန်နှင့် လက်လုပ် ရာဗီအိုလီ အထူးဟင်းလျာများ။',
-      ES: 'Especialidades de marisco y artesanales: espaguetis con marisco, carne de cangrejo azul, penne con salmón, tagliatelle con tinta de calamar y raviolis rellenos hechos a mano.',
-      FR: 'Spécialités de la mer et artisanales : spaghetti aux fruits de mer, chair de crabe bleu, penne au saumon, tagliatelles à l\'encre de seiche et raviolis farcis faits à la main.',
-      RU: 'Морские и авторские specialties: спагетти с морепродуктами, мясо синего краба, пенне с лососем, тальятелле с чернилами кальмара и ручная равioli с начинкой.',
-      ZH: '海鲜和手工特色菜：海鲜意大利面、蓝蟹肉、三文鱼笔管面、墨鱼汁宽面和手工馅料意大利饺。',
-    }, 
-    pattern: 'special' 
-  },
-  { 
-    id: 'aglio-olio', 
-    name: { 
-      IT: 'Aglio, Olio e Peperoncino', 
-      EN: 'Garlic, Oil & Chili', 
-      TH: 'อากลิโอ โอลิโอ พริกแห้ง', 
-      DE: 'Knoblauch, Öl & Chili',
-      MM: 'ကြက်သွန်ဖြူ၊ သံလွင်ဆီနှင့် ငရုတ်သီး',
-      ES: 'Ajo, aceite y guindilla',
-      FR: 'Ail, huile et piment',
-      RU: 'Чеснок, масло и чили',
-      ZH: '蒜香、橄榄油和辣椒',
-    }, 
-    desc: {
-      IT: 'Un classico italiano semplice e saporito preparato con aglio, olio extravergine d\'oliva e peperoncino, con un gusto intenso e aromatico che delizia ogni singolo morso.',
-      EN: 'A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite',
-      TH: 'พาสต้าผัดกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติเข้มข้นจัดจ้านสไตล์อิตาเลียน',
-      DE: 'Ein einfacher und geschmackvoller italienischer Klassiker aus Knoblauch, Olivenöl und Chili, mit einem intensiven, aromatischen Geschmack, der jeden Bissen begeistert.',
-      MM: 'ကြက်သွန်ဖြူ၊ သံလွင်ဆီနှင့် ငရုတ်သီးတို့ဖြင့် မွှေးပျံ့စွာ ကြော်ထားသော ဂန္တဝင် အီတလီ ခေါက်ဆွဲ။',
-      ES: 'Un clásico italiano sencillo y sabroso hecho con ajo, aceite de oliva y guindilla, con un sabor intenso y aromático que deleita cada bocado.',
-      FR: 'Un classique italien simple et savoureux à base d\'ail, d\'huile d\'olive et de piment, au goût intense et aromatique qui ravit chaque bouchée.',
-      RU: 'Простая и ароматная итальянская классика, приготовленная с чесноком, оливковым маслом и чили, с интенсивным, ароматным вкусом, который радует каждый кусочек.',
-      ZH: '简单而美味的意大利经典，由大蒜、橄榄油和辣椒制成，味道浓郁芳香，每一口都令人愉悦',
-    }, 
-    pattern: 'Garlic, Oil' 
-  },
-  { 
-    id: 'pomodoro', 
-    name: { 
-      IT: 'Salsa di Pomodoro', 
-      EN: 'Tomato Sauce', 
-      TH: 'ซอสมะเขือเทศ', 
-      DE: 'Tomatensauce',
-      MM: 'ခရမ်းချဉ်သီးဆော့စ်',
-      ES: 'Salsa de tomate',
-      FR: 'Sauce tomate',
-      RU: 'Томатный соус',
-      ZH: '番茄酱',
-    }, 
-    desc: {
-      IT: 'Salsa di pomodoro all\'italiana preparata con pomodori maturi, olio d\'oliva, aglio o cipolla, sale e basilico. È il cuore pulsante della cucina italiana.',
-      EN: 'Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It\'s the heart of Italian cuisine',
-      TH: 'ซอสมะเขือเทศอิตาเลียนรสเข้มข้น เคี่ยวกับกระเทียม หอมใหญ่ และใบโหระพาอิตาเลียน',
-      DE: 'Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Sie ist das Herz der italienischen Küche.',
-      MM: 'မှည့်ဝင်းသော ခရမ်းချဉ်သီး၊ သံလွင်ဆီနှင့် ပင်စိမ်းရွက်တို့ဖြင့် ချက်ထားသော ရိုးရာ အီတလီဆော့စ်။',
-      ES: 'Salsa de tomate italiana hecha con tomates maduros, aceite de oliva, ajo o cebolla, sal y albahaca. Es el corazón de la cocina italiana.',
-      FR: 'Sauce tomate italienne préparée avec des tomates mûres, de l\'huile d\'olive, de l\'ail ou de l\'oignon, du sel et du basilic. C\'est le cœur de la cuisine italienne.',
-      RU: 'Итальянский томатный соус, приготовленный из спелых помидоров, оливкового масла, чеснока или лука, соли и базилика. Это сердце итальянской кухни.',
-      ZH: '用成熟番茄、橄榄油、大蒜或洋葱、盐和罗勒制成的意大利番茄酱。它是意大利美食的核心',
-    }, 
-    pattern: 'Tomato Sauce' 
-  },
-  { 
-    id: 'pesto', 
-    name: { 
-      IT: 'Pesto Genovese', 
-      EN: 'Pesto Genovese', 
-      TH: 'ซอสเพสโต้', 
-      DE: 'Pesto Genovese',
-      MM: 'ပက်စတို ဆော့စ်',
-      ES: 'Pesto genovés',
-      FR: 'Pesto génois',
-      RU: 'Песто генуэзское',
-      ZH: '热那亚青酱',
-    }, 
-    desc: {
-      IT: 'Salsa fresca al basilico con anacardi, parmigiano, aglio e olio d\'oliva, con un sapore ricco e aromatico che evoca i profumi di Genova.',
-      EN: 'Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa',
-      TH: 'ซอสใบโหระพาอิตาเลียนปั่นสดใหม่ ใส่เม็ดมะม่วงหิมพานต์ พาเมซานชีส กระเทียม และน้ำมันมะกอก',
-      DE: 'Frische Basilikumsauce mit Cashewnüssen, Parmesankäse, Knoblauch und Olivenöl, mit einem reichen, aromatischen Geschmack, der an Genua erinnert.',
-      MM: 'လတ်ဆတ်သော ပင်စိမ်းရွက်၊ သီဟိုဠ်စေ့၊ ပါမီဂျန်ချိစ်နှင့် သံလွင်ဆီတို့ဖြင့် ပြုလုပ်ထားသော မွှေးပျံ့သည့် ပက်စတိုဆော့စ်။',
-      ES: 'Salsa fresca de albahaca con anacardos, queso parmesano, ajo y aceite de oliva, con un sabor rico y aromático que evoca el aroma de Génova.',
-      FR: 'Sauce fraîche au basilic avec noix de cajou, parmesan, ail et huile d\'olive, à la saveur riche et aromatique qui évoque le parfum de Gênes.',
-      RU: 'Свежий соус из базилика с кешью, сыром пармезан, чесноком и оливковым маслом, с богатым, ароматным вкусом, напоминающим аромат Генуи.',
-      ZH: '新鲜罗勒酱配腰果、帕尔马干酪、大蒜和橄榄油，风味浓郁芳香，让人想起热那亚的气息',
-    }, 
-    pattern: 'Pesto Genovese' 
-  },
-  { 
-    id: 'amatriciana', 
-    name: { 
-      IT: 'Salsa Amatriciana', 
-      EN: 'Amatriciana', 
-      TH: 'ซอสอามาริเชียนา', 
-      DE: 'Amatriciana',
-      MM: 'အာမာထရီချာနာ ဆော့စ်',
-      ES: 'Amatriciana',
-      FR: 'Amatriciana',
-      RU: 'Аматричана',
-      ZH: '阿马特里切纳',
-    }, 
-    desc: {
-      IT: 'Salsa in stile romano con pomodoro, guanciale e pecorino, cotta lentamente per ottenere un sapore dolce e sapido bilanciato, un classico della tradizione italiana.',
-      EN: 'Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition',
-      TH: 'ซอสสไตล์โรมันเข้มข้น เคี่ยวกับแก้มหมูรมควัน กวานชาเล มะเขือเทศ และชีสเปโกริโน',
-      DE: 'Sauce nach römischer Art mit Tomaten, Guanciale und Pecorino, langsam gekocht für einen ausgewogenen süß-würzigen Geschmack, ein Klassiker der italienischen Tradition.',
-      MM: 'ခရမ်းချဉ်သီး၊ ဝက်ပါးစပ်သားနှင့် ပီကိုရီနိုချိစ်တို့ဖြင့် ဖြည်းညင်းစွာ ချက်ထားသော ရိုးရာ ရောမဆော့စ်။',
-      ES: 'Salsa al estilo romano con tomate, carrillada de cerdo curada y pecorino, cocinada a fuego lento para un sabor equilibrado entre dulce y salado, un clásico de la tradición italiana.',
-      FR: 'Sauce à la romaine avec tomate, joue de porc et pecorino, mijotée lentement pour une saveur équilibrée entre doux et salé, un classique de la tradition italienne.',
-      RU: 'Соус в римском стиле с томатами, свиной щековиной и пекорино, медленно приготовленный для сбалансированного сладкого и соленого вкуса, классика итальянской традиции.',
-      ZH: '罗马风味酱汁，配以番茄、腌猪颊肉和佩科里诺奶酪，慢炖出均衡的甜咸风味，是意大利传统的经典',
-    }, 
-    pattern: 'Amatriciana' 
-  },
-  { 
-    id: 'carbonara', 
-    name: { 
-      IT: 'Salsa Carbonara', 
-      EN: 'Carbonara', 
-      TH: 'ซอสคาโบนาร่า', 
-      DE: 'Carbonara',
-      MM: 'ကာဘိုနာရာ ဆော့စ်',
-      ES: 'Carbonara',
-      FR: 'Carbonara',
-      RU: 'Карбонара',
-      ZH: '卡邦尼',
-    }, 
-    desc: {
-      IT: 'Ricetta autentica romana con tuorlo d\'uovo fresco, guanciale croccante e formaggio pecorino romano D.O.P., cremosa e irresistibile.',
-      EN: 'Authentic Roman recipe with fresh egg yolk, crispy guanciale, and aged Pecorino Romano D.O.P. cheese, rich and velvety.',
-      TH: 'สูตรต้นตำรับแท้จากกรุงโรม ผสมผสานไข่แดงสด กวานชาเลกรอบ และชีสเปโกริโน โรมาโน',
-      DE: 'Authentisches römisches Rezept mit frischem Eigelb, knusprigem Guanciale und Pecorino Romano D.O.P., cremig und unwiderstehlich.',
-      MM: 'လတ်ဆတ်သော ကြက်ဥအနှစ်၊ ကြွပ်ရွသော ဝက်ပါးစပ်သားနှင့် ပီကိုရီနိုချိစ်တို့ဖြင့် ဖျော်စပ်ထားသော စစ်မှန်သည့် ရောမ ကာဘိုနာရာ။',
-      ES: 'Auténtica receta romana con yema de huevo, guanciale y queso pecorino.',
-      FR: 'Recette romaine authentique avec jaune d\'œuf, guanciale et fromage pecorino.',
-      RU: 'Аутентичный римский рецепт с яичным желтком, гуанчале и сыром пекорино.',
-      ZH: '正宗的罗马食谱，配以蛋黄、猪颊肉和佩科里诺奶酪',
-    }, 
-    pattern: 'Carbonara' 
-  },
-  { 
-    id: 'bolognese', 
-    name: { 
-      IT: 'Ragù alla Bolognese', 
-      EN: 'Bolognese Ragù', 
-      TH: 'ซอสเนื้อโบโลเนส', 
-      DE: 'Bolognese Ragù',
-      MM: 'ဘိုလိုနိစ် အမဲသားဆော့စ်',
-      ES: 'Ragú boloñés',
-      FR: 'Ragù bolognaise',
-      RU: 'Болоньезе рагу',
-      ZH: '博洛尼亚肉酱',
-    }, 
-    desc: {
-      IT: 'Salsa ricca e corposa di carne macinata di maiale cotta a fuoco lento per ore con pomodoro e aromi, come vuole la tradizione emiliana.',
-      EN: 'Rich and savory slow-cooked minced pork meat sauce simmered with tomatoes and herbs according to true Italian tradition.',
-      TH: 'ซอสเนื้อหมูสับเคี่ยวไฟอ่อนนานหลายชั่วโมงกับมะเขือเทศและเครื่องเทศตามแบบฉบับอิตาลีแท้',
-      DE: 'Herzhaftes, stundenlang sanft geköcheltes Fleischragù mit Tomaten und Kräutern nach echter italienischer Tradition.',
-      MM: 'ခရမ်းချဉ်သီးနှင့် ဟင်းခတ်အမွှေးအကြိုင်များဖြင့် နာရီပေါင်းများစွာ ဖြည်းညင်းစွာ ကျိုထားသော အမဲ/ဝက်သားဆော့စ်။',
-      ES: 'Salsa tradicional de carne picada cocinada a fuego lento.',
-      FR: 'Sauce traditionnelle à la viande hachée mijotée lentement.',
-      RU: 'Традиционный соус из мясного фарша, приготовленный на медленном огне.',
-      ZH: '慢炖的传统肉末酱',
-    }, 
-    pattern: 'Bolognese' 
-  },
-  { 
-    id: 'gorgonzola', 
-    name: { 
-      IT: 'Crema di Gorgonzola', 
-      EN: 'Creamy Gorgonzola', 
-      TH: 'ซอสครีมกอร์กอนโซล่า', 
-      DE: 'Cremiges Gorgonzola',
-      MM: 'ဂေါ်ဂွန်ဇိုလာ ချိစ်ဆော့စ်',
-      ES: 'Gorgonzola cremoso',
-      FR: 'Gorgonzola crémeux',
-      RU: 'Сливочная горгонзола',
-      ZH: '奶油戈贡佐拉',
-    }, 
-    desc: {
-      IT: 'Salsa vellutata e intensa a base di autentico formaggio erborinato Gorgonzola D.O.P. fuso con burro di qualità.',
-      EN: 'Rich, creamy and intense sauce made with authentic melted Italian Gorgonzola D.O.P. blue cheese and butter.',
-      TH: 'ซอสครีมชีสบลูชีสกอร์กอนโซล่าแท้ รสชาติเข้มข้น หอมมัน กลมกล่อม',
-      DE: 'Samtig-würzige Sauce aus geschmolzenem italienischen Gorgonzola D.O.P. Blauschimmelkäse und Butter.',
-      MM: 'စစ်မှန်သော အီတလီ ဂေါ်ဂွန်ဇိုလာ ဘလူးချိစ်နှင့် ထောပတ်တို့ဖြင့် ဖျော်စပ်ထားသော အရသာပြည့်ဝသည့် ဆော့စ်။',
-      ES: 'Rica salsa de queso azul italiano.',
-      FR: 'Sauce riche au fromage bleu italien.',
-      RU: 'Насыщенный итальянский соус из голубого сыра.',
-      ZH: '浓郁的意大利蓝纹奶酪酱',
-    }, 
-    pattern: 'Gorgonzola' 
-  }
-];
-
-const PASTA_FILTER_LABELS: Record<string, { all: string }> = {
-  IT: { all: 'Tutti i Primi' },
-  EN: { all: 'All Pasta' },
-  TH: { all: 'พาสต้าทั้งหมด' },
-  DE: { all: 'Alle Nudelgerichte' },
-  MM: { all: 'ခေါက်ဆွဲ အားလုံး' },
-  ES: { all: 'Todas las Pastas' },
-  FR: { all: 'Toutes les Pâtes' },
-  RU: { all: 'Все виды пасты' },
-  ZH: { all: '全部意面' },
-};
-
-// ─── Wine Filtering Definitions & Subsections ──────────────────────────────
-
-const WINE_FILTER_LABELS: Record<string, {
-  allTypes: string;
-  allCountries: string;
-  filterByCountry: string;
-  italianFirstBadge: string;
-  noWinesFound: string;
-  resetFilters: string;
-  winesCount: string;
-  wineCount: string;
-}> = {
-  IT: {
-    allTypes: 'Tutti i Vini',
-    allCountries: 'Tutte le Origini',
-    filterByCountry: 'Origine',
-    italianFirstBadge: 'Selezione Italiana in Evidenza',
-    noWinesFound: 'Nessun vino trovato con i filtri selezionati.',
-    resetFilters: 'Mostra tutti i vini',
-    winesCount: 'etichette',
-    wineCount: 'etichetta',
-  },
-  EN: {
-    allTypes: 'All Wines',
-    allCountries: 'All Origins',
-    filterByCountry: 'Origin',
-    italianFirstBadge: 'Italian Selection Featured',
-    noWinesFound: 'No wines found matching your selected filters.',
-    resetFilters: 'Show all wines',
-    winesCount: 'wines',
-    wineCount: 'wine',
-  },
-  TH: {
-    allTypes: 'ไวน์ทั้งหมด',
-    allCountries: 'ทุกแหล่งกำเนิด',
-    filterByCountry: 'แหล่งกำเนิด',
-    italianFirstBadge: 'คัดสรรพิเศษจากอิตาลี',
-    noWinesFound: 'ไม่พบรายการไวน์ตามตัวกรองที่เลือก',
-    resetFilters: 'แสดงไวน์ทั้งหมด',
-    winesCount: 'รายการ',
-    wineCount: 'รายการ',
-  },
-  DE: {
-    allTypes: 'Alle Weine',
-    allCountries: 'Alle Herkunftsländer',
-    filterByCountry: 'Herkunft',
-    italianFirstBadge: 'Italienische Auswahl im Fokus',
-    noWinesFound: 'Keine Weine für die ausgewählten Filter gefunden.',
-    resetFilters: 'Alle Weine anzeigen',
-    winesCount: 'Weine',
-    wineCount: 'Wein',
-  },
-  MM: {
-    allTypes: 'ဝိုင် အားလုံး',
-    allCountries: 'မူရင်းနိုင်ငံ အားလုံး',
-    filterByCountry: 'မူရင်းနိုင်ငံ',
-    italianFirstBadge: 'အီတလီ အထူးရွေးချယ်မှု',
-    noWinesFound: 'ရွေးချယ်ထားသော စစ်ထုတ်မှုနှင့် ကိုက်ညီသော ဝိုင် မရှိပါ။',
-    resetFilters: 'ဝိုင် အားလုံး ပြသရန်',
-    winesCount: 'မျိုး',
-    wineCount: 'မျိုး',
-  },
-  ES: {
-    allTypes: 'Todos los Vinos',
-    allCountries: 'Todos los Orígenes',
-    filterByCountry: 'Origen',
-    italianFirstBadge: 'Selección Italiana Destacada',
-    noWinesFound: 'No se encontraron vinos con los filtros seleccionados.',
-    resetFilters: 'Mostrar todos los vinos',
-    winesCount: 'vinos',
-    wineCount: 'vino',
-  },
-  FR: {
-    allTypes: 'Tous les Vins',
-    allCountries: 'Toutes les Origines',
-    filterByCountry: 'Origine',
-    italianFirstBadge: 'Sélection Italienne à l\'Honneur',
-    noWinesFound: 'Aucun vin trouvé avec les filtres sélectionnés.',
-    resetFilters: 'Afficher tous les vins',
-    winesCount: 'vins',
-    wineCount: 'vin',
-  },
-  RU: {
-    allTypes: 'Все Вина',
-    allCountries: 'Все Страны',
-    filterByCountry: 'Происхождение',
-    italianFirstBadge: 'Итальянская Коллекция',
-    noWinesFound: 'Вина не найдены по выбранным фильтрам.',
-    resetFilters: 'Показать все вина',
-    winesCount: 'вин',
-    wineCount: 'вино',
-  },
-  ZH: {
-    allTypes: '所有葡萄酒',
-    allCountries: '所有产地',
-    filterByCountry: '产地',
-    italianFirstBadge: '精选意大利佳酿',
-    noWinesFound: '未找到符合所选条件的葡萄酒。',
-    resetFilters: '显示所有葡萄酒',
-    winesCount: '款',
-    wineCount: '款',
-  },
-};
+// Centralized 9-language definitions for category sub-sections, summaries and filters
+import {
+  CATEGORY_DETAILS as categoryDetails,
+  DAILY_SPECIALS_SECTIONS,
+  ITALIAN_SALADS_SECTIONS,
+  SALAD_SUBFILTER_LABELS,
+  SANDWICH_SUBFILTER_LABELS,
+  FOCACCIA_SANDWICH_SECTIONS,
+  PASTA_SAUCES,
+  WINE_FILTER_LABELS,
+} from '../data/subSectionsI18n';
 
 const WINE_TYPE_SECTIONS = [
   {
@@ -2338,7 +1677,7 @@ export default function DeliveryMenu() {
   const targetedT = targetedTranslations[lang] || targetedTranslations.EN || targetedTranslations.IT || {};
   const t = { ...baseT, ...targetedT };
   const activeCategory = availableCategories.find((c) => c.id === activeCategoryId) ?? availableCategories[0] ?? menuData[0];
-  const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || categoryDetails[activeCategory.id]?.EN?.name || categoryDetails[activeCategory.id]?.IT?.name || activeCategory.name;
+  const activeCategoryName = (categoryDetails[activeCategory.id]?.[lang]?.name || categoryDetails[activeCategory.id]?.EN?.name || categoryDetails[activeCategory.id]?.IT?.name || activeCategory.name).replace(/\n/g, ' ');
 
   const isItalianWine = (item: any) => {
     if (item.flag === '🇮🇹') return true;
@@ -2644,7 +1983,64 @@ export default function DeliveryMenu() {
     return group.items.length > 0;
   }) : [];
 
+    const allCatalogShowcaseItems = useMemo(() => {
+    const DEFAULT_SHOWCASE_IDS = [
+      'cake-of-the-day',
+      'torta-di-mele',
+      'profiteroles-al-cioccolato',
+      'tiramisu',
+      'torta-pasqualina-agli-spinaci-e-uova',
+      'baked-bolognese-lasagna'
+    ];
+
+    const itemsMap = new Map<string, any>();
+    menuData.forEach(cat => {
+      if (cat.items) {
+        cat.items.forEach(it => {
+          if (!itemsMap.has(it.id)) {
+            itemsMap.set(it.id, it);
+          }
+        });
+      }
+    });
+
+    const list: any[] = [];
+    DEFAULT_SHOWCASE_IDS.forEach(id => {
+      const it = itemsMap.get(id);
+      if (!it) return;
+      if (unavailableIds.has(it.id)) return;
+      const isOverridden = dailySpecialsOverrides[it.id];
+      const isShowcase = isOverridden !== undefined ? isOverridden === true : true;
+      if (isShowcase) {
+        list.push({ ...it, is_daily_special: true, _inShowcase: true });
+      }
+    });
+
+    itemsMap.forEach((it) => {
+      if (DEFAULT_SHOWCASE_IDS.includes(it.id)) return;
+      if (unavailableIds.has(it.id)) return;
+      if (dailySpecialsOverrides[it.id] === true) {
+        list.push({ ...it, is_daily_special: true, _inShowcase: true });
+      }
+    });
+
+    if (dietaryFilter === 'veggie') {
+      return list.filter(i => {
+        const d = getDietaryType(i, i.category || 'desserts');
+        return d === 'veggie' || d === 'vegan';
+      });
+    }
+    if (dietaryFilter === 'vegan') {
+      return list.filter(i => getDietaryType(i, i.category || 'desserts') === 'vegan');
+    }
+
+    return list;
+  }, [dailySpecialsOverrides, unavailableIds, dietaryFilter]);
+
   const groupedDailySpecials = activeCategoryId === 'daily-specials' ? DAILY_SPECIALS_SECTIONS.map(sec => {
+    if (sec.id === 'fresh-showcase') {
+      return { ...sec, items: allCatalogShowcaseItems };
+    }
     const items = filteredCategoryItems.filter((item: any) => {
       const id = item.id || '';
       if (dailySpecialsOverrides[id] === false) return false;
@@ -3390,27 +2786,49 @@ export default function DeliveryMenu() {
         <div className="px-1 relative z-10">
           {activeCategoryId === 'daily-specials' ? (
             <div className="space-y-12">
-              {groupedDailySpecials.map(group => (
-                <div key={group.id} id={`specials-${group.id}`} className="scroll-mt-24">
-                  <div className="px-2 mb-6">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {(group.name[lang] || group.name.IT || group.name.EN)}
-                      </h3>
-                      <span className="text-xs text-stone-400 font-medium">
-                        ({group.items.length})
-                      </span>
-                      <div className="flex-1 h-px bg-stone-300/60" />
+              {groupedDailySpecials.map(group => {
+                const isShowcase = group.id === 'fresh-showcase';
+                return (
+                  <div 
+                    key={group.id} 
+                    id={`specials-${group.id}`} 
+                    className={`scroll-mt-24 transition-all ${
+                      isShowcase
+                        ? 'p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/15 border-2 border-amber-400/50 shadow-lg shadow-amber-900/5 mb-8'
+                        : ''
+                    }`}
+                  >
+                    <div className="px-2 mb-6">
+                      <div className="flex items-center gap-3">
+                        {isShowcase && (
+                          <span className="p-1.5 sm:p-2 rounded-2xl bg-amber-400 text-stone-950 font-black shadow-md shadow-amber-400/30 flex items-center justify-center shrink-0">
+                            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 fill-stone-950" />
+                          </span>
+                        )}
+                        <h3 className={`font-sans text-lg md:text-xl font-extrabold tracking-tight ${
+                          isShowcase ? 'text-amber-950' : 'text-stone-800'
+                        }`} style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                          {(group.name[lang] || group.name.IT || group.name.EN)}
+                        </h3>
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                          isShowcase ? 'bg-amber-400 text-stone-950' : 'text-stone-400'
+                        }`}>
+                          ({group.items.length})
+                        </span>
+                        <div className={`flex-1 h-px ${isShowcase ? 'bg-amber-400/50' : 'bg-stone-300/60'}`} />
+                      </div>
+                      {group.desc && (
+                        <p className={`text-sm mt-1.5 leading-relaxed max-w-2xl ${
+                          isShowcase ? 'text-amber-900/80 font-medium' : 'text-stone-600 font-light italic'
+                        }`} style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                          {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
+                        </p>
+                      )}
                     </div>
-                    {group.desc && (
-                      <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
-                      </p>
-                    )}
+                    <MenuGrid items={group.items} lang={lang} onBookTable={handleBookWineTable} />
                   </div>
-                  <MenuGrid items={group.items} lang={lang} onBookTable={handleBookWineTable} />
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : activeCategoryId === 'pasta' ? (
             <div className="space-y-12">
@@ -3615,7 +3033,7 @@ export default function DeliveryMenu() {
             rel="noopener noreferrer"
             className="text-amber-800 hover:text-amber-700 font-bold transition-colors inline-flex items-center gap-1 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20"
           >
-            📱 {lang === 'IT' ? 'Dining Tablet (-5%)' : lang === 'TH' ? 'แท็บเล็ตสั่งที่โต๊ะ (-5%)' : lang === 'DE' ? 'Dining Tablet (-5%)' : 'Dining Tablet (-5%)'}
+            📱 {lang === 'IT' ? 'Dining Tablet' : lang === 'TH' ? 'แท็บเล็ตสั่งที่โต๊ะ' : 'Dining Tablet'}
           </a>
         </div>
         <p className="text-[11px] text-stone-500">

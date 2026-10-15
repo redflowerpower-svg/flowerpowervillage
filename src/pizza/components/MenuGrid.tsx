@@ -58,7 +58,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Caffè Americano",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Artisan Tiramisù",
-      "cake-of-the-day": "Cake of the Day",
+      "cake-of-the-day": "Torta della Nonna with Chocolate",
       "affogato": "Affogato al Caffè",
       "crepes": "Nutella Crepes",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -128,7 +128,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Caffè Americano",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Tiramisù Artigianale",
-      "cake-of-the-day": "Torta del Giorno",
+      "cake-of-the-day": "Torta della Nonna al Cioccolato",
       "affogato": "Affogato al Caffè",
       "crepes": "Crepes alla Nutella",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -198,7 +198,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "คาเฟ่ อเมริกาโน่",
       "latte-macchiato": "ลาเต้ มัคคิอาโต้",
       "tiramisu": "ทิรามิสุโฮมเมด",
-      "cake-of-the-day": "เค้กประจำวัน",
+      "cake-of-the-day": "ตอร์ตา เดลลา นอนนา ช็อกโกแลต",
       "affogato": "อัฟโฟกาโต้อัลคาเฟ่",
       "crepes": "เครปนูเทลล่า",
       "pizza-margherita": "พิซซ่ามาร์เกอริต้า",
@@ -268,7 +268,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "ကာဖီအမေရီကာနို",
       "latte-macchiato": "လတ်တေမက်ချာတို",
       "tiramisu": "အိမ်လုပ်တီရာမီဆု",
-      "cake-of-the-day": "ယနေ့အထူးကိတ်",
+      "cake-of-the-day": "ချောကလက် တွာတာ ဒယ်လာ နွန်နာ",
       "affogato": "အာဖိုဂါတိုကာဖီ",
       "crepes": "နူတဲလာခရိ(ပ်)",
       "pizza-margherita": "ပီဇာမာဂါရီတာ",
@@ -338,7 +338,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Caffè Americano",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Handwerkliches Tiramisù",
-      "cake-of-the-day": "Kuchen des Tages",
+      "cake-of-the-day": "Torta della Nonna mit Schokolade",
       "affogato": "Affogato al Caffè",
       "crepes": "Nutella-Crêpes",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -408,7 +408,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Café Americano",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Tiramisú Artesanal",
-      "cake-of-the-day": "Pastel del Día",
+      "cake-of-the-day": "Tarta de la Abuela al Chocolate",
       "affogato": "Affogato al Caffè",
       "crepes": "Crepes de Nutella",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -478,7 +478,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Café Américain",
       "latte-macchiato": "Latte Macchiato",
       "tiramisu": "Tiramisù Artisanal",
-      "cake-of-the-day": "Gâteau du Jour",
+      "cake-of-the-day": "Torta della Nonna au Chocolat",
       "affogato": "Affogato al Caffè",
       "crepes": "Crêpes à la Nutella",
       "pizza-margherita": "PIZZA MARGHERITA",
@@ -548,7 +548,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "Кофе американо",
       "latte-macchiato": "Латте макиато",
       "tiramisu": "Тирамису ручной работы",
-      "cake-of-the-day": "Торт дня",
+      "cake-of-the-day": "Шоколадный торт Делла Нонна",
       "affogato": "Аффогато аль каффе",
       "crepes": "Крепы с Nutella",
       "pizza-margherita": "ПИЦЦА МАРГАРИТА",
@@ -618,7 +618,7 @@ const targetedTranslations: Record<string, any> = {
       "americano": "美式咖啡",
       "latte-macchiato": "拿铁玛奇朵",
       "tiramisu": "手工提拉米苏",
-      "cake-of-the-day": "今日蛋糕",
+      "cake-of-the-day": "意式传统巧克力祖母蛋糕",
       "affogato": "阿芙佳朵",
       "crepes": "Nutella 可丽饼",
       "pizza-margherita": "玛格丽特披萨",
@@ -995,6 +995,18 @@ const WINE_CARD_LABELS = {
   }
 };
 
+const SHOWCASE_BADGES: Record<string, { badge: string; lasagna: string }> = {
+  IT: { badge: "Fresco del Giorno • Pronto Subito", lasagna: "Cotta Oggi al Forno • Porzione Singola Pronta Subito" },
+  EN: { badge: "Fresh Today • Ready to Serve", lasagna: "Freshly Baked Today • Ready to Serve" },
+  TH: { badge: "สดใหม่วันนี้ • พร้อมเสิร์ฟทันที", lasagna: "อบสดใหม่วันนี้ • พร้อมเสิร์ฟทันที" },
+  MM: { badge: "ယနေ့ လတ်လတ်ဆတ်ဆတ် • ချက်ချင်းရနိုင်သည်", lasagna: "ယနေ့ လတ်ဆတ်စွာ ဖုတ်ထားသော • ချက်ချင်း သုံးဆောင်နိုင်သည်" },
+  DE: { badge: "Heute frisch • Sofort servierbereit", lasagna: "Heute frisch gebacken • Sofort servierbereit" },
+  ES: { badge: "Fresco del día • Listo para servir", lasagna: "Horneada fresca hoy • Porción individual lista" },
+  FR: { badge: "Frais du jour • Prêt à servir", lasagna: "Fraîchement cuite au four • Prête à servir" },
+  RU: { badge: "Свежее сегодня • Готово к подаче", lasagna: "Свежеиспеченная сегодня • Готова к подаче" },
+  ZH: { badge: "今日新鲜特荐 • 现点立享", lasagna: "今日新鲜焗烤 • 现点立享单人份" }
+};
+
 export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningMode: propIsDiningMode }: Props) {
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
@@ -1019,8 +1031,9 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
   const [selectedBeerVariants, setSelectedBeerVariants] = useState<Record<string, Variant>>({});
 
   const t = labels[lang] || labels.EN || labels.IT;
+  const showcaseInfo = SHOWCASE_BADGES[lang] || SHOWCASE_BADGES.IT;
 
-  const isLasagna = (item: MenuItem) => item.id.includes('lasagna');
+  const isLasagna = (item: MenuItem) => item.id.includes('lasagna') && !item.is_daily_special && !(item as any)._inShowcase;
 
   const handleOpenCustomize = (item: MenuItem) => {
     setCustomizingItem(item);
@@ -1369,7 +1382,10 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
         </>
       );
     }
-    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT ', ' နှင့် '];
+    const splitKeywords = [
+      ' WITH ', ' CON ', ' พร้อม', ' MIT ', ' နှင့် ', ' & ', ' ET ', ' Y ', ' И ',
+      ' AL CIOCCOLATO', ' AU CHOCOLAT', ' AL CHOCOLATE', ' DE CHOCOLATE'
+    ];
     const upperName = name.toUpperCase();
     for (const kw of splitKeywords) {
       if (upperName.includes(kw)) {
@@ -1545,7 +1561,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                             {item.variants.map((variant) => {
                               const isVarSelected = (currentBeerVariant?.id || item.variants![0].id) === variant.id;
                               const varPrice = item.price + (variant.priceModifier || 0);
-                              const varDisplayPrice = isDiningMode ? Math.round(varPrice * 0.95) : varPrice;
+                              const varDisplayPrice = varPrice;
 
                               return (
                                 <button
@@ -1578,19 +1594,11 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                     {isDiningMode ? (
                       <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
                         <div className="flex flex-col min-w-0">
-                          <div className="flex items-center gap-1">
-                            <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                              {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
-                            </span>
-                            <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
-                              -5% TAVOLO
-                            </span>
-                          </div>
+                          <span className="text-[8px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                            {lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo'}
+                          </span>
                           <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
                             <span className="text-base sm:text-lg font-black text-[#8B1E1E]">
-                              {Math.round(currentBeerPrice * 0.95)}฿
-                            </span>
-                            <span className="text-xs text-stone-400 line-through font-semibold">
                               {currentBeerPrice}฿
                             </span>
                           </div>
@@ -1720,19 +1728,11 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                     ) : isDiningMode ? (
                       <div className="mt-4 pt-3 border-t border-stone-100 flex flex-col min-[480px]:flex-row min-[480px]:items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
                         <div className="flex flex-col min-w-0">
-                          <div className="flex items-center gap-1">
-                            <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
-                              {(WINE_CARD_LABELS.tablePrice as any)[lang] || WINE_CARD_LABELS.tablePrice.IT}
-                            </span>
-                            <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
-                              -5%
-                            </span>
-                          </div>
+                          <span className="text-[8.5px] uppercase tracking-widest text-stone-400 font-extrabold truncate" style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}>
+                            {(WINE_CARD_LABELS.tablePrice as any)[lang] || WINE_CARD_LABELS.tablePrice.IT}
+                          </span>
                           <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
                             <span className="text-lg sm:text-xl font-black text-[#8B1E1E]">
-                              {Math.round(item.price * 0.95)}฿
-                            </span>
-                            <span className="text-xs text-stone-400 line-through font-semibold">
                               {item.price}฿
                             </span>
                           </div>
@@ -1862,6 +1862,32 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                     </div>
                   )}
 
+                  {/* Lasagna in Showcase (Cotta Oggi / Sfornata Fresca) */}
+                  {item.id.includes('lasagna') && (item.is_daily_special || (item as any)._inShowcase) && (
+                    <div className="mt-2 mb-1 flex flex-col gap-0.5">
+                      <span
+                        className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-300 text-emerald-800 text-[9.5px] sm:text-[10px] font-black px-2.5 py-1 rounded-xl leading-tight shadow-xs"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                      >
+                        <span>🔥</span>
+                        <span>{showcaseInfo.lasagna}</span>
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Showcase Badge for fresh items */}
+                  {!item.id.includes('lasagna') && (item as any)._inShowcase && (
+                    <div className="mt-2 mb-1 flex flex-col gap-0.5">
+                      <span
+                        className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-800 text-[9.5px] sm:text-[10px] font-black px-2.5 py-1 rounded-xl leading-tight shadow-xs"
+                        style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
+                      >
+                        <span>⭐</span>
+                        <span>{showcaseInfo.badge}</span>
+                      </span>
+                    </div>
+                  )}
+
                   <p
                     className="text-stone-500 text-[11px] sm:text-xs font-light leading-relaxed mb-3 sm:mb-4 flex-grow mt-1"
                     style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
@@ -1891,33 +1917,11 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                         >
                           {hasOptions ? t.startingAt : (lang === 'TH' ? 'ราคา' : lang === 'DE' ? 'Preis' : lang === 'EN' ? 'Price' : 'Prezzo')}
                         </span>
-                        {isDiningMode && (
-                          <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded shrink-0">
-                            -5% TAVOLO
-                          </span>
-                        )}
                       </div>
-                      {isDiningMode ? (
-                        <div className="flex items-baseline gap-1.5 leading-tight mt-0.5">
-                          <span 
-                            className="text-lg sm:text-xl font-black text-stone-900"
-                            style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-                          >
-                            {Math.round(item.price * 0.95)}
-                          </span>
-                          <span className="text-xs sm:text-sm font-black text-stone-900 select-none">
-                            ฿
-                          </span>
-                          <span className="text-[11px] sm:text-xs text-stone-400 line-through font-semibold ml-0.5">
-                            {item.price}฿
-                          </span>
-                        </div>
-                      ) : (
-                        renderFormattedPrice(item.price, {
-                          numClass: "text-lg sm:text-xl font-extrabold text-stone-900",
-                          symbolClass: "text-xs sm:text-sm font-black text-stone-900 select-none"
-                        })
-                      )}
+                      {renderFormattedPrice(item.price, {
+                        numClass: "text-lg sm:text-xl font-extrabold text-stone-900",
+                        symbolClass: "text-xs sm:text-sm font-black text-stone-900 select-none"
+                      })}
                     </div>
 
                     <button
@@ -2523,28 +2527,12 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                   <span className="text-[8.5px] sm:text-[9px] uppercase tracking-wider text-stone-400 font-bold whitespace-nowrap">
                     {t.totalFinito}
                   </span>
-                  {isDiningMode && (
-                    <span className="text-[7.5px] font-black uppercase text-emerald-800 bg-emerald-100/90 border border-emerald-300/80 px-1 py-0.2 rounded">
-                      -5%
-                    </span>
-                  )}
                 </div>
-                {isDiningMode ? (
-                  <div className="flex items-baseline justify-end gap-1 leading-none mt-0.5">
-                    <span className="text-lg sm:text-2xl font-black text-[#8B1E1E] tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                      {Math.round(modalTotalPrice * 0.95)}฿
-                    </span>
-                    <span className="text-[10px] sm:text-xs text-stone-400 line-through font-semibold">
-                      {modalTotalPrice}฿
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-baseline justify-end leading-none mt-0.5">
-                    <span className="text-lg sm:text-2xl font-black text-[#8B1E1E] tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                      {modalTotalPrice}฿
-                    </span>
-                  </div>
-                )}
+                <div className="flex items-baseline justify-end leading-none mt-0.5">
+                  <span className="text-lg sm:text-2xl font-black text-[#8B1E1E] tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                    {modalTotalPrice}฿
+                  </span>
+                </div>
               </div>
 
               {/* CTA Button */}
@@ -2617,28 +2605,13 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                   {formatProductName(getTranslatedName(zoomedItem))}
                 </h2>
                 <div className="flex flex-col items-end shrink-0">
-                  {isDiningMode ? (
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-amber-400 font-black text-lg sm:text-2xl inline-flex items-baseline gap-0.5" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                        <span>{Math.round(zoomedItem.price * 0.95)}</span>
-                        <span className="text-xs font-black select-none text-amber-300">฿</span>
-                      </span>
-                      <span className="text-xs sm:text-sm text-stone-400 line-through font-semibold">
-                        {zoomedItem.price}฿
-                      </span>
-                      <span className="text-[8px] font-black uppercase text-emerald-400 bg-emerald-950/80 border border-emerald-500/50 px-1.5 py-0.5 rounded">
-                        -5%
-                      </span>
-                    </div>
-                  ) : (
-                    <span 
-                      className="text-amber-400 font-black text-lg sm:text-xl shrink-0 inline-flex items-baseline gap-0.5"
-                      style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
-                    >
-                      <span>{zoomedItem.price}</span>
-                      <span className="text-xs font-black select-none text-amber-300">฿</span>
-                    </span>
-                  )}
+                  <span 
+                    className="text-amber-400 font-black text-lg sm:text-xl shrink-0 inline-flex items-baseline gap-0.5"
+                    style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
+                  >
+                    <span>{zoomedItem.price}</span>
+                    <span className="text-xs font-black select-none text-amber-300">฿</span>
+                  </span>
                 </div>
               </div>
 
@@ -2681,7 +2654,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
                           <span>{lang === 'TH' ? 'ไวน์นำเข้าคุณภาพพรีเมียม' : lang === 'IT' ? 'Vino Pregiato Selezionato' : lang === 'DE' ? 'Ausgewählter Spitzenwein' : 'Selected Fine Wine'}</span>
                         </span>
                         <p className="text-stone-400 text-[11px] leading-tight mt-0.5">
-                          {lang === 'TH' ? 'สั่งที่โต๊ะพร้อมรับส่วนลด 5% ทันที' : lang === 'IT' ? 'Ordinabile al tavolo con sconto 5% attivo' : lang === 'DE' ? 'Am Tisch bestellbar mit 5% Rabatt' : 'Order at table with 5% discount'}
+                          {lang === 'TH' ? 'สั่งที่โต๊ะอาหารได้ทันที' : lang === 'IT' ? 'Ordinabile direttamente al tavolo' : lang === 'DE' ? 'Direkt am Tisch bestellbar' : 'Order directly at the table'}
                         </p>
                       </div>
                       <button

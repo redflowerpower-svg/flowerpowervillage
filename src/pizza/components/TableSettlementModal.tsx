@@ -33,91 +33,159 @@ interface TableSettlementModalProps {
   onSettled: () => void;
 }
 
-const I18N = {
-  IT: {
-    title: 'Chiusura & Saldo Conto al Tavolo',
-    station: 'Postazione:',
-    itemsHeading: 'Dettaglio Portate & Bevande',
-    subtotal: 'Totale Portate',
-    discount: 'Sconto Dining Privilege (-5%)',
-    totalPayable: 'Totale Finale da Saldare',
-    paymentSection: 'Modalità di Incasso',
-    payPromptPay: 'PromptPay K-Shop Kasikorn',
-    payCard: 'Carta / POS al Tavolo',
-    payCash: 'Contanti al Tavolo',
-    confirmBtn: 'Conferma Pagamento & Chiudi Tavolo',
-    processing: 'Chiusura in corso...',
-    successTitle: 'Conto Saldato & Tavolo Chiuso!',
-    successDesc: 'Il tavolo è stato liberato con successo ed archiviato.',
-    closeBtn: 'Torna al Menu'
+const I18N: Record<string, any> = {
+  "IT": {
+    "title": "Chiusura & Saldo Conto al Tavolo",
+    "station": "Postazione:",
+    "itemsHeading": "Dettaglio Portate & Bevande",
+    "subtotal": "Totale Portate",
+    "discount": "Sconto Promozionale",
+    "totalPayable": "Totale Finale da Saldare",
+    "paymentSection": "Modalità di Incasso",
+    "payPromptPay": "PromptPay K-Shop Kasikorn",
+    "payCard": "Carta / POS al Tavolo",
+    "payCash": "Contanti al Tavolo",
+    "confirmBtn": "Conferma Pagamento & Chiudi Tavolo",
+    "processing": "Chiusura in corso...",
+    "successTitle": "Conto Saldato & Tavolo Chiuso!",
+    "successDesc": "Il tavolo è stato liberato con successo ed archiviato.",
+    "closeBtn": "Torna al Menu"
   },
-  EN: {
-    title: 'Table Tab Settlement & Checkout',
-    station: 'Station:',
-    itemsHeading: 'Ordered Dishes & Drinks',
-    subtotal: 'Dishes Subtotal',
-    discount: 'Dining Privilege (-5%)',
-    totalPayable: 'Final Total to Settle',
-    paymentSection: 'Payment Collection Method',
-    payPromptPay: 'PromptPay K-Shop Kasikorn',
-    payCard: 'Card / Mobile POS',
-    payCash: 'Cash at Table',
-    confirmBtn: 'Confirm Settlement & Close Table',
-    processing: 'Closing session...',
-    successTitle: 'Tab Settled & Table Closed!',
-    successDesc: 'Table session has been archived and is now available.',
-    closeBtn: 'Back to Menu'
+  "EN": {
+    "title": "Table Closing & Bill Settlement",
+    "station": "Station:",
+    "itemsHeading": "Food & Beverage Details",
+    "subtotal": "Items Total",
+    "discount": "Promotional Discount",
+    "totalPayable": "Final Total to Pay",
+    "paymentSection": "Payment Method",
+    "payPromptPay": "PromptPay K-Shop Kasikorn",
+    "payCard": "Card / POS at Table",
+    "payCash": "Cash at Table",
+    "confirmBtn": "Confirm Payment & Close Table",
+    "processing": "Closing in progress...",
+    "successTitle": "Bill Settled & Table Closed!",
+    "successDesc": "The table has been successfully cleared and archived.",
+    "closeBtn": "Back to Menu"
   },
-  TH: {
-    title: 'เช็คบิลและชำระเงินที่โต๊ะอาหาร',
-    station: 'โต๊ะ/ที่นั่ง:',
-    itemsHeading: 'รายการอาหารและเครื่องดื่มทั้งหมด',
-    subtotal: 'ยอดรวมอาหาร',
-    discount: 'ส่วนลดพิเศษที่โต๊ะ (-5%)',
-    totalPayable: 'ยอดสุทธิที่ต้องชำระ',
-    paymentSection: 'เลือกวิธีการรับชำระเงิน',
-    payPromptPay: 'พร้อมเพย์ K-Shop กสิกรไทย',
-    payCard: 'รูดบัตรเครดิต / EDC',
-    payCash: 'เงินสด',
-    confirmBtn: 'ยืนยันรับชำระเงินและปิดโต๊ะ',
-    processing: 'กำลังบันทึกรายการ...',
-    successTitle: 'เช็คบิลเรียบร้อย โต๊ะว่างแล้ว!',
-    successDesc: 'บันทึกการชำระเงินและเคลียร์สถานะโต๊ะเรียบร้อยแล้ว',
-    closeBtn: 'กลับสู่หน้าหลัก'
+  "TH": {
+    "title": "ปิดบิลและชำระเงินที่โต๊ะ",
+    "station": "สถานี:",
+    "itemsHeading": "รายละเอียดอาหารและเครื่องดื่ม",
+    "subtotal": "ยอดรวมอาหาร",
+    "discount": "ส่วนลดโปรโมชั่น",
+    "totalPayable": "ยอดสุทธิที่ต้องชำระ",
+    "paymentSection": "วิธีการชำระเงิน",
+    "payPromptPay": "พร้อมเพย์ K-Shop กสิกรไทย",
+    "payCard": "บัตร / เครื่องรูดบัตรที่โต๊ะ",
+    "payCash": "เงินสดที่โต๊ะ",
+    "confirmBtn": "ยืนยันการชำระเงินและปิดโต๊ะ",
+    "processing": "กำลังปิดโต๊ะ...",
+    "successTitle": "ชำระเงินเรียบร้อยและปิดโต๊ะแล้ว!",
+    "successDesc": "โต๊ะว่างเรียบร้อยและถูกเก็บเข้าคลังแล้ว",
+    "closeBtn": "กลับสู่เมนู"
   },
-    DE: {
-    title: 'Tischabrechnung & Bezahlung',
-    station: 'Tisch/Gast:',
-    itemsHeading: 'Bestellte Speisen & Getränke',
-    subtotal: 'Zwischensumme',
-    discount: 'Tisch-Rabatt (-5%)',
-    totalPayable: 'Zu zahlender Endbetrag',
-    paymentSection: 'Zahlungsart',
-    payPromptPay: 'PromptPay K-Shop',
-    payCard: 'Kartenzahlung am Tisch',
-    payCash: 'Barzahlung am Tisch',
-    confirmBtn: 'Zahlung bestätigen & Tisch schließen',
-    processing: 'Wird verarbeitet...',
-    successTitle: 'Rechnung beglichen & Tisch freigegeben!',
-    successDesc: 'Tisch-Sitzung erfolgreich archiviert.',
-    closeBtn: 'Zurück zur Speisekarte'
+  "MM": {
+    "title": "စားပွဲပေါ်တွင် ငွေရှင်းခြင်းနှင့် စာရင်းပိတ်ခြင်း",
+    "station": "နေရာ:",
+    "itemsHeading": "အစားအသောက်နှင့် သောက်စရာ အသေးစိတ်",
+    "subtotal": "အစားအသောက် စုစုပေါင်း",
+    "discount": "ပရိုမိုးရှင်း လျှော့စျေး",
+    "totalPayable": "ပေးရမည့် စုစုပေါင်း",
+    "paymentSection": "ငွေပေးချေမှု နည်းလမ်း",
+    "payPromptPay": "PromptPay K-Shop Kasikorn",
+    "payCard": "ကတ် / POS စားပွဲပေါ်တွင်",
+    "payCash": "ငွေသား စားပွဲပေါ်တွင်",
+    "confirmBtn": "ငွေပေးချေမှု အတည်ပြုပြီး စားပွဲပိတ်မည်",
+    "processing": "ပိတ်နေသည်...",
+    "successTitle": "စာရင်းရှင်းပြီး စားပွဲပိတ်ပြီးပါပြီ!",
+    "successDesc": "စားပွဲကို အောင်မြင်စွာ လွှတ်ပေးပြီး သိမ်းဆည်းပြီးပါပြီ။",
+    "closeBtn": "မီနူးသို့ ပြန်သွားမည်"
   },
-  MM: {
-    title: 'စားပွဲ ဘေလ်ရှင်းခြင်းနှင့် ငွေပေးချေခြင်း',
-    station: 'စားပွဲ / နေရာ:',
-    itemsHeading: 'မှာယူထားသော အစားအသောက်နှင့် သောက်စရာများ',
-    subtotal: 'အစားအသောက် စုစုပေါင်း',
-    discount: 'စားပွဲ အထူးလျှော့စျေး (-၅%)',
-    totalPayable: 'ပေးချေရမည့် အပြီးသတ် စုစုပေါင်း',
-    paymentSection: 'ငွေပေးချေမှု နည်းလမ်း ရွေးချယ်ပါ',
-    payPromptPay: 'PromptPay K-Shop (QR Code)',
-    payCard: 'ကတ် / POS စက်ဖြင့် ပေးချေမည်',
-    payCash: 'စားပွဲတွင် ငွေသားဖြင့် ပေးချေမည်',
-    confirmBtn: 'ငွေပေးချေမှု အတည်ပြုပြီး စားပွဲပိတ်မည်',
-    processing: 'လုပ်ဆောင်နေပါသည်...',
-    successTitle: 'ဘေလ်ရှင်းပြီး စားပွဲ ရှင်းလင်းပြီးပါပြီ!',
-    successDesc: 'စားပွဲ မှတ်တမ်းကို သိမ်းဆည်းပြီး စားပွဲအား အဆင်သင့်ဖြစ်စေပါပြီ။',
-    closeBtn: 'မီနူးသို့ ပြန်သွားမည်'
+  "DE": {
+    "title": "Tischabschluss & Rechnungsbegleichung",
+    "station": "Station:",
+    "itemsHeading": "Details zu Speisen & Getränken",
+    "subtotal": "Gesamtsumme Speisen",
+    "discount": "Aktionsrabatt",
+    "totalPayable": "Endgültiger zu zahlender Betrag",
+    "paymentSection": "Zahlungsart",
+    "payPromptPay": "PromptPay K-Shop Kasikorn",
+    "payCard": "Karte / POS am Tisch",
+    "payCash": "Bargeld am Tisch",
+    "confirmBtn": "Zahlung bestätigen & Tisch schließen",
+    "processing": "Abschluss läuft...",
+    "successTitle": "Rechnung beglichen & Tisch geschlossen!",
+    "successDesc": "Der Tisch wurde erfolgreich freigegeben und archiviert.",
+    "closeBtn": "Zurück zum Menü"
+  },
+  "FR": {
+    "title": "Clôture & Règlement de l'Addition à Table",
+    "station": "Poste :",
+    "itemsHeading": "Détail des Plats & Boissons",
+    "subtotal": "Total des Plats",
+    "discount": "Remise Promotionnelle",
+    "totalPayable": "Total Final à Payer",
+    "paymentSection": "Mode de Paiement",
+    "payPromptPay": "PromptPay K-Shop Kasikorn",
+    "payCard": "Carte / TPE à Table",
+    "payCash": "Espèces à Table",
+    "confirmBtn": "Confirmer le Paiement & Fermer la Table",
+    "processing": "Clôture en cours...",
+    "successTitle": "Addition Réglée & Table Fermée !",
+    "successDesc": "La table a été libérée avec succès et archivée.",
+    "closeBtn": "Retour au Menu"
+  },
+  "ES": {
+    "title": "Cierre y Pago de Cuenta en la Mesa",
+    "station": "Estación:",
+    "itemsHeading": "Detalle de Platos y Bebidas",
+    "subtotal": "Total de Platos",
+    "discount": "Descuento Promocional",
+    "totalPayable": "Total Final a Pagar",
+    "paymentSection": "Método de Pago",
+    "payPromptPay": "PromptPay K-Shop Kasikorn",
+    "payCard": "Tarjeta / POS en la Mesa",
+    "payCash": "Efectivo en la Mesa",
+    "confirmBtn": "Confirmar Pago y Cerrar Mesa",
+    "processing": "Cerrando...",
+    "successTitle": "¡Cuenta Pagada y Mesa Cerrada!",
+    "successDesc": "La mesa ha sido liberada y archivada con éxito.",
+    "closeBtn": "Volver al Menú"
+  },
+  "RU": {
+    "title": "Закрытие счета и оплата за столом",
+    "station": "Станция:",
+    "itemsHeading": "Детали блюд и напитков",
+    "subtotal": "Итого по блюдам",
+    "discount": "Промо-скидка",
+    "totalPayable": "Итоговая сумма к оплате",
+    "paymentSection": "Способ оплаты",
+    "payPromptPay": "PromptPay K-Shop Kasikorn",
+    "payCard": "Карта / POS за столом",
+    "payCash": "Наличные за столом",
+    "confirmBtn": "Подтвердить оплату и закрыть стол",
+    "processing": "Закрытие...",
+    "successTitle": "Счет оплачен и стол закрыт!",
+    "successDesc": "Стол успешно освобожден и архивирован.",
+    "closeBtn": "Вернуться в меню"
+  },
+  "ZH": {
+    "title": "餐桌结账与清台",
+    "station": "站点：",
+    "itemsHeading": "菜品与饮品明细",
+    "subtotal": "菜品总计",
+    "discount": "促销折扣",
+    "totalPayable": "应付总额",
+    "paymentSection": "收款方式",
+    "payPromptPay": "PromptPay K-Shop Kasikorn",
+    "payCard": "刷卡 / 餐桌POS机",
+    "payCash": "餐桌现金支付",
+    "confirmBtn": "确认支付并关闭餐桌",
+    "processing": "正在结账...",
+    "successTitle": "账单已结清，餐桌已关闭！",
+    "successDesc": "餐桌已成功释放并归档。",
+    "closeBtn": "返回菜单"
   }
 };
 
@@ -273,16 +341,10 @@ export const TableSettlementModal: React.FC<TableSettlementModalProps> = ({
                 </div>
               </div>
 
-              {/* Total & Discount Breakdown */}
-              <div className="p-3.5 bg-stone-950/80 rounded-2xl border border-amber-400/30 space-y-2">
-                <div className="flex items-center justify-between text-xs text-stone-400">
-                  <span>{t.discount}</span>
-                  <span className="text-emerald-400 font-bold">-5% AL TAVOLO</span>
-                </div>
-                <div className="pt-2 border-t border-stone-800 flex items-center justify-between">
-                  <span className="text-sm font-black text-white uppercase">{t.totalPayable}</span>
-                  <span className="text-xl font-black text-amber-300 font-mono">{grandTotal} ฿</span>
-                </div>
+              {/* Total Breakdown */}
+              <div className="p-3.5 bg-stone-950/80 rounded-2xl border border-amber-400/30 flex items-center justify-between">
+                <span className="text-sm font-black text-white uppercase">{t.totalPayable}</span>
+                <span className="text-xl font-black text-amber-300 font-mono">{grandTotal} ฿</span>
               </div>
 
               {/* Payment Methods */}

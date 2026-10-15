@@ -63,6 +63,45 @@ import { supabase } from '../../lib/supabase';
 import { DiningAdminAuth } from '../components/DiningAdminAuth';
 import { DINING_TABLES, formatTableStationName, getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
 
+const DINING_LEAD_BANNER: Record<Language, { title: string; subtitle: string }> = {
+  IT: {
+    title: "Inserisci la tua email e ricevi il 10% di Sconto sul nostro sito web!",
+    subtitle: "Durante l'ordinazione al tavolo, inserisci la tua email: riceverai subito un Coupon Sconto del 10% per ordinare comodamente da casa su flowerpowerpizza.com."
+  },
+  EN: {
+    title: "Enter your email and get 10% off on our website!",
+    subtitle: "When ordering at the table, enter your email: you'll immediately receive a 10% discount coupon to order comfortably from home at flowerpowerpizza.com."
+  },
+  TH: {
+    title: "ป้อนอีเมลของคุณและรับส่วนลด 10% บนเว็บไซต์ของเรา!",
+    subtitle: "เมื่อสั่งอาหารที่โต๊ะ ป้อนอีเมลของคุณ: คุณจะได้รับคูปองส่วนลด 10% ทันที เพื่อสั่งอาหารจากที่บ้านได้อย่างสะดวกบน flowerpowerpizza.com"
+  },
+  DE: {
+    title: "Gib deine E-Mail ein und erhalte 10 % Rabatt auf unserer Website!",
+    subtitle: "Gib bei der Bestellung am Tisch deine E-Mail ein: Du erhältst sofort einen 10 % Rabattgutschein, um bequem von zu Hause auf flowerpowerpizza.com zu bestellen."
+  },
+  MM: {
+    title: "သင့်အီးမေးလ်ကို ထည့်သွင်းပြီး ကျွန်ုပ်တို့ဝဘ်ဆိုဒ်တွင် 10% လျှော့စျေး ရယူလိုက်ပါ။",
+    subtitle: "စားပွဲတွင် မှာယူစဉ် သင့်အီးမေးလ်ကို ထည့်သွင်းပါ။ flowerpowerpizza.com တွင် အိမ်မှ အဆင်ပြေစွာ မှာယူရန်အတွက် 10% လျှော့စျေးကူပွန်ကို ချက်ချင်း ရရှိမည်ဖြစ်သည်။"
+  },
+  FR: {
+    title: "Entrez votre e-mail et recevez 10 % de réduction sur notre site web !",
+    subtitle: "Lors de la commande à table, saisissez votre e-mail : vous recevrez immédiatement un coupon de réduction de 10 % pour commander confortablement depuis chez vous sur flowerpowerpizza.com."
+  },
+  ES: {
+    title: "¡Introduce tu correo electrónico y recibe un 10% de descuento en nuestro sitio web!",
+    subtitle: "Al hacer tu pedido en la mesa, introduce tu correo electrónico: recibirás de inmediato un cupón de descuento del 10% para pedir cómodamente desde casa en flowerpowerpizza.com."
+  },
+  RU: {
+    title: "Введите свой адрес электронной почты и получите скидку 10% на нашем сайте!",
+    subtitle: "При заказе за столиком введите свой адрес электронной почты: вы сразу получите купон на скидку 10%, чтобы удобно заказать домой на flowerpowerpizza.com."
+  },
+  ZH: {
+    title: "输入您的电子邮件，即可在我们的网站获得10%折扣！",
+    subtitle: "在餐桌点餐时，输入您的电子邮件：您将立即收到一张10%折扣优惠券，方便您在flowerpowerpizza.com上在家轻松下单。"
+  }
+};
+
 const I18N_TABLE_PICKER: Record<Language, {
   title: string;
   subtitle: string;
@@ -83,7 +122,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   IT: {
     title: 'Flower Power Pizza Dining',
     subtitle: 'Seleziona il tuo Tavolo o Cliente',
-    desc: 'Tocca la tua postazione per accedere al menu completo con lo sconto del 5% al tavolo applicato a tutte le portate.',
+    desc: 'Tocca la tua postazione per accedere al menu completo con ordinazione diretta al tavolo.',
     tablesHeading: 'Tavoli della Sala & Clienti',
     freeLabel: 'Libero',
     activeLabel: 'Comanda Cucina',
@@ -100,7 +139,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   EN: {
     title: 'Flower Power Pizza Dining',
     subtitle: 'Select Table or Guest Station',
-    desc: 'Touch your table or station to access the full menu with 5% table discount applied to all dishes.',
+    desc: 'Touch your table or station to access the full menu with direct table ordering.',
     tablesHeading: 'Dining Tables & Guest Stations',
     freeLabel: 'Available',
     activeLabel: 'Kitchen Order',
@@ -117,7 +156,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   TH: {
     title: 'Flower Power Pizza Dining',
     subtitle: 'เลือกโต๊ะอาหารหรือหมายเลขลูกค้าเพื่อเริ่มต้น',
-    desc: 'แตะที่โต๊ะของคุณเพื่อเปิดดูเมนูอาหารพร้อมรับส่วนลด 5% ทุกรายการทันที',
+    desc: 'แตะที่โต๊ะของคุณเพื่อเปิดดูเมนูอาหารและสั่งได้ทันทีที่โต๊ะ',
     tablesHeading: 'โต๊ะอาหารและที่นั่งลูกค้า',
     freeLabel: 'ว่าง / เริ่มใหม่',
     activeLabel: 'มีออเดอร์ในครัว',
@@ -134,7 +173,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   DE: {
     title: 'Flower Power Pizza Dining',
     subtitle: 'Wählen Sie Ihren Tisch oder Kunden',
-    desc: 'Tippen Sie auf Ihren Tisch, um das Menü mit 5% Tisch-Rabatt auf alle Gerichte zu öffnen.',
+    desc: 'Tippen Sie auf Ihren Tisch, um das Menü mit direkter Tischbestellung zu öffnen.',
     tablesHeading: 'Tische & Gäste-Stationen',
     freeLabel: 'Frei',
     activeLabel: 'Küche aktiv',
@@ -151,7 +190,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   MM: {
     title: 'Flower Power Pizza Dining',
     subtitle: 'သင့်စားပွဲ သို့မဟုတ် ဧည့်သည်နေရာကို ရွေးချယ်ပါ',
-    desc: 'ဟင်းလျာအားလုံးအတွက် ၅% စားပွဲလျှော့စျေးဖြင့် မီနူးအပြည့်အစုံကို ကြည့်ရှုရန် သင့်နေရာကို နှိပ်ပါ။',
+    desc: 'စားပွဲတွင် တိုက်ရိုက်မှာယူနိုင်သော မီနူးအပြည့်အစုံကို ကြည့်ရှုရန် သင့်နေရာကို နှိပ်ပါ။',
     tablesHeading: 'စားသောက်ခန်းမ စားပွဲများနှင့် ဧည့်သည်နေရာများ',
     freeLabel: 'အားလပ်သည်',
     activeLabel: 'မီးဖိုချောင်မှာယူမှု',
@@ -168,7 +207,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   ES: {
     title: 'Flower Power Pizza Dining',
     subtitle: 'Seleccione Mesa o Estación de Invitados',
-    desc: 'Toque su mesa o estación para acceder al menú completo con un 5% de descuento en mesa aplicado a todos los platos.',
+    desc: 'Toque su mesa o estación para acceder al menú completo con pedido directo en mesa.',
     tablesHeading: 'Mesas y Estaciones de Invitados',
     freeLabel: 'Disponible',
     activeLabel: 'Pedido en Cocina',
@@ -185,7 +224,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   FR: {
     title: 'Flower Power Pizza Dining',
     subtitle: 'Sélectionnez une table ou un poste invité',
-    desc: 'Touchez votre table ou poste pour accéder au menu complet avec 5 % de remise sur tous les plats.',
+    desc: 'Touchez votre table ou poste pour accéder au menu complet avec commande directe à table.',
     tablesHeading: 'Tables de salle et postes invités',
     freeLabel: 'Disponible',
     activeLabel: 'Commande en cuisine',
@@ -202,7 +241,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   RU: {
     title: 'Пиццерия Flower Power',
     subtitle: 'Выберите столик или гостевую станцию',
-    desc: 'Коснитесь своего столика или станции, чтобы открыть полное меню со скидкой 5% на все блюда.',
+    desc: 'Коснитесь своего столика или станции, чтобы открыть полное меню с прямым заказом за столиком.',
     tablesHeading: 'Столики и гостевые станции',
     freeLabel: 'Свободен',
     activeLabel: 'Заказ на кухне',
@@ -219,7 +258,7 @@ const I18N_TABLE_PICKER: Record<Language, {
   ZH: {
     title: '花之力量披萨餐厅',
     subtitle: '选择餐桌或客人站点',
-    desc: '触摸您的餐桌或站点，即可访问完整菜单，所有菜品均享 5% 餐桌折扣。',
+    desc: '触摸您的餐桌或站点，即可访问完整菜单并直接在餐桌点餐。',
     tablesHeading: '餐桌与客人站点',
     freeLabel: '可用',
     activeLabel: '厨房订单',
@@ -268,6 +307,63 @@ const I18N_RESET_CONFIRM: Record<Language, { prompt: string; short: string; full
   }
 };
 
+const I18N_LOGOUT_PIN: Record<Language, { title: string; subtitle: string; error: string; cancelBtn: string }> = {
+  IT: {
+    title: 'PIN Sicurezza Staff',
+    subtitle: 'Inserisci il PIN di 4 cifre per disconnettere il tablet',
+    error: 'PIN non valido. Riprova.',
+    cancelBtn: 'Annulla'
+  },
+  EN: {
+    title: 'Staff Security PIN',
+    subtitle: 'Enter 4-digit PIN to log out of dining tablet',
+    error: 'Incorrect PIN. Try again.',
+    cancelBtn: 'Cancel'
+  },
+  TH: {
+    title: 'รหัส PIN สำหรับพนักงาน',
+    subtitle: 'กรอกรหัส PIN 4 หลักเพื่อออกจากระบบแท็บเล็ต',
+    error: 'รหัส PIN ไม่ถูกต้อง กรุณาลองใหม่',
+    cancelBtn: 'ยกเลิก'
+  },
+  DE: {
+    title: 'Mitarbeiter-Sicherheits-PIN',
+    subtitle: '4-stellige PIN eingeben, um das Tablet abzumelden',
+    error: 'Falsche PIN. Erneut versuchen.',
+    cancelBtn: 'Abbrechen'
+  },
+  MM: {
+    title: 'ဝန်ထမ်း လုံခြုံရေး PIN',
+    subtitle: 'တက်ဘလက်မှ ထွက်ရန် ၄ လုံးဂဏန်း PIN ရိုက်ထည့်ပါ',
+    error: 'PIN ကုဒ် မှားယွင်းနေပါသည်။ ထပ်ကြိုးစားပါ။',
+    cancelBtn: 'ပယ်ဖျက်မည်'
+  },
+  ES: {
+    title: 'PIN de Seguridad de Personal',
+    subtitle: 'Introduce el PIN de 4 dígitos para cerrar sesión en la tableta',
+    error: 'PIN incorrecto. Inténtalo de nuevo.',
+    cancelBtn: 'Cancelar'
+  },
+  FR: {
+    title: 'PIN de Sécurité du Personnel',
+    subtitle: 'Saisissez le code PIN à 4 chiffres pour déconnecter la tablette',
+    error: 'PIN incorrect. Réessayez.',
+    cancelBtn: 'Annuler'
+  },
+  RU: {
+    title: 'ПИН-код Безопасности Персонала',
+    subtitle: 'Введите 4-значный ПИН-код для выхода из системы планшета',
+    error: 'Неверный ПИН-код. Попробуйте снова.',
+    cancelBtn: 'Отмена'
+  },
+  ZH: {
+    title: '员工安全密码',
+    subtitle: '输入4位数安全密码以退出平板系统',
+    error: '密码错误，请重试。',
+    cancelBtn: '取消'
+  }
+};
+
 const LOCATION_BY_LANG: Record<Language, string> = {
   IT: 'RANONG, THAILANDIA',
   EN: 'RANONG, THAILAND',
@@ -280,552 +376,17 @@ const LOCATION_BY_LANG: Record<Language, string> = {
   ZH: '泰国拉廊'
 };
 
-const categoryDetails: Record<string, Record<Language, { name: string; desc: string }>> = {
-  'daily-specials': {
-    IT: { name: 'Piatti del Giorno', desc: 'Creazioni esclusive e piatti speciali preparati dal nostro chef con ingredienti freschi' },
-    EN: { name: 'Daily Specials', desc: 'Exclusive daily creations and seasonal specialties freshly prepared by our Italian chef' },
-    TH: { name: 'จานพิเศษประจำวัน', desc: 'เมนูพิเศษประจำวันรังสรรค์โดยเชฟชาวอิตาเลียน ด้วยวัตถุดิบสดใหม่ตามฤดูกาล' },
-    DE: { name: 'Tagesgerichte', desc: 'Täglich wechselnde Spezialitäten und saisonale Gerichte unseres Chefkochs' },
-    MM: { name: 'နေ့စဉ် ဟင်းပွဲများ', desc: 'အီတလီစားဖိုမှူးမှ လတ်ဆတ်သော ရာသီပေါ် ကုန်ကြမ်းများဖြင့် နေ့စဉ် သီးသန့် ဖန်တီးထားသော အထူးဟင်းလျာများ' },
-  },
-  'traditional-italian-pizza': {
-    IT: { name: 'Pizze Classiche', desc: 'Impasto a lenta lievitazione naturale 48h con farine 100% italiane' },
-    EN: { name: 'Classic Pizzas', desc: '48h slow-fermented natural dough with 100% Italian flour' },
-    TH: { name: 'พิซซ่าคลาสสิค', desc: 'แป้งหมักธรรมชาติสูตรดั้งเดิม 48 ชม. ด้วยแป้งนำเข้าจากอิตาลี 100%' },
-    DE: { name: 'Klassische Pizzas', desc: '48 Std. natursauerteig-Pizzaboden mit 100% italienischem Mehl' },
-    MM: { name: 'ရိုးရာ အီတလီ ပီဇာ', desc: '၁၀၀% အီတလီဂျုံမှုန့်ဖြင့် ၄၈ နာရီကြာ သဘာဝနည်းဖြင့် နှပ်ထားသော မုန့်သား' },
-  },
-  'pasta': {
-    IT: { name: 'Primi Piatti & Pasta', desc: 'Pasta artigianale con ricette tradizionali e sughi freschi fatti in casa' },
-    EN: { name: 'Pasta Dishes', desc: 'Handcrafted pasta with traditional Italian recipes and fresh homemade sauces' },
-    TH: { name: 'พาสต้า & อาหารจานแรก', desc: 'พาสต้าสูตรต้นตำรับอิตาเลียนแท้ ปรุงสดใหม่พร้อมซอสโฮมเมดเข้มข้น' },
-    DE: { name: 'Pasta & Nudelgerichte', desc: 'Handgemachte Pasta nach traditionellen italienischen Rezepten und hausgemachten Saucen' },
-    MM: { name: 'ခေါက်ဆွဲ ဟင်းလျာများ', desc: 'အိမ်လုပ်ဆော့စ်နှင့် ရိုးရာနည်းဖြင့် ပြုလုပ်ထားသော လက်လုပ် အီတလီ ခေါက်ဆွဲ' },
-  },
-  'italian-salads': {
-    IT: { name: 'Insalate & Secondi', desc: 'Insalate fresche con verdure croccanti, contorni sfiziosi e secondi piatti della tradizione' },
-    EN: { name: 'Salads & Mains', desc: 'Fresh crisp salads with premium dressing and traditional Italian savory main courses' },
-    TH: { name: 'สลัด & จานหลัก', desc: 'สลัดผักสดกรอบคลุกเคล้ากับน้ำสลัดเมดิเตอร์เรเนียน และอาหารจานหลักสไตล์อิตาเลียน' },
-    DE: { name: 'Salate & Hauptgerichte', desc: 'Frische knackige Salate mit mediterranem Dressing und traditionelle Hauptgerichte' },
-    MM: { name: 'ဆလတ် & အဓိကဟင်း', desc: 'လတ်ဆတ်သော ဟင်းသီးဟင်းရွက် စာလတ်များနှင့် ရိုးရာ အရသာရှိသော အဓိကဟင်းလျာများ' },
-  },
-  'pizza-sandwich': {
-    IT: { name: 'Panuozzi & Pizza Sandwich', desc: 'Panuozzo napoletano cotto al forno a legna e farcito con salumi e mozzarella' },
-    EN: { name: 'Panuozzo & Pizza Sandwiches', desc: 'Neapolitan style baked pizza dough sandwich filled with cold cuts and cheese' },
-    TH: { name: 'ปานูออซโซ & แซนด์วิชพิซซ่า', desc: 'แซนด์วิชแป้งพิซซ่าสไตล์เนเปิลส์อบร้อนๆ สอดไส้ชีสและเนื้อสัตว์คุณภาพพรีเมียม' },
-    DE: { name: 'Panuozzi & Pizza-Sandwiches', desc: 'Im Ofen gebackenes neapolitanisches Pizza-Sandwich, gefüllt mit feinstem Aufschnitt und Mozzarella' },
-    MM: { name: 'ဖိုကာချာ ပီဇာ ဆန်းဒဝစ်', desc: 'မီးဖုတ် ပီဇာမုန့်သားဖြင့် အလယ်တွင် အသား၊ ချိစ်နှင့် ဟင်းသီးဟင်းရွက်များ ညှပ်ထားသော ဆန်းဒဝစ်' },
-  },
-  'pizza-burgers': {
-    IT: { name: 'Pizza Burger & Fries', desc: 'Burger saporiti con pane pizza speciale, serviti con patatine fritte' },
-    EN: { name: 'Pizza Burgers & Fries', desc: 'Savory homemade patties in fresh pizza bread, served with crispy fries' },
-    TH: { name: 'พิซซ่าเบอร์เกอร์ & เฟรนช์ฟรายส์', desc: 'เบอร์เกอร์แป้งพิซซ่าโฮมเมดแสนอร่อย เสิร์ฟพร้อมเฟรนช์ฟรายส์กรอบ' },
-    DE: { name: 'Pizza-Burger & Pommes', desc: 'Herzhafte hausgemachte Burger in frischem Pizzabrot, serviert mit knusprigen Pommes' },
-    MM: { name: 'ပီဇာ ဘာဂါနှင့် အာလူးကြော်', desc: 'ပီဇာမုန့်သားဖြင့် ပြုလုပ်ထားသည့် အရသာရှိသော ဘာဂါနှင့် အာလူးကြော်' },
-  },
-  'french-fries': {
-    IT: { name: 'Fritti & Sfizi', desc: 'Patatine fritte dorate, anelli di cipolla e crocchette calde' },
-    EN: { name: 'French Fries & Appetizers', desc: 'Golden french fries, crispy onion rings and hot finger food appetizers' },
-    TH: { name: 'เฟรนช์ฟรายส์ & ของทานเล่น', desc: 'เฟรนช์ฟรายส์สีทองกรอบ หอมทอด และของว่างทอดร้อนๆ แสนอร่อย' },
-    DE: { name: 'Pommes & Fingerfood', desc: 'Goldgelbe Pommes frites, knusprige Zwiebelringe und heiße Appetithäppchen' },
-    MM: { name: 'အာလူးကြော်နှင့် အမြည်းများ', desc: 'ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ အာလူးကြော်နှင့် ကြက်သွန်ကွင်းကြော်များ' },
-  },
-  'desserts': {
-    IT: { name: 'Dolci & Dessert', desc: 'Tiramisù della casa, torte del giorno, crepes e affogato al caffè' },
-    EN: { name: 'Desserts & Sweets', desc: 'Homemade classic Italian tiramisù, fresh daily cakes and gelato affogato' },
-    TH: { name: 'ของหวาน & เค้ก', desc: 'ทีรามิสุโฮมเมดสูตรคุณยาย เค้กประจำวัน เครป และไอศกรีมกาแฟอัฟโฟกาโต' },
-    DE: { name: 'Desserts & Süßspeisen', desc: 'Hausgemachtes klassisches Tiramisù, frische Tageskuchen und Kaffee-Affogato' },
-    MM: { name: 'အချိုပွဲနှင့် ဒက်ဆာ့တ်', desc: 'အိမ်လုပ် တီရာမီဆု၊ နေ့စဉ် ကိတ်များနှင့် ကော်ဖီ အက်ဖိုဂါတို' },
-  },
-  'breakfast-and-snacks': {
-    IT: { name: 'Colazione & Toast', desc: 'Colazione italiana, toast caldi, uova e macedonia di frutta' },
-    EN: { name: 'Breakfast & Toast', desc: 'Hearty Italian breakfast, warm toasts, eggs and fresh tropical fruit' },
-    TH: { name: 'อาหารเช้า & โทสต์', desc: 'อาหารเช้าสไตล์อิตาเลียน โทสต์อบร้อน ไข่ดาว และผลไม้สดรวม' },
-    DE: { name: 'Frühstück & Toast', desc: 'Italienisches Frühstück, warme Toasts, Eierspeisen und frischer Obstsalat' },
-    MM: { name: 'နံနက်စာနှင့် သရေစာ', desc: 'နံနက်စာ၊ ပေါင်မုန့်မီးကင်၊ ကြက်ဥနှင့် လတ်ဆတ်သော သစ်သီးများ' },
-  },
-  'coffee-shop': {
-    IT: { name: 'Caffetteria & Tè', desc: 'Vero espresso italiano, cappuccino cremoso e pregiati tè' },
-    EN: { name: 'Coffee & Tea Bar', desc: 'Authentic Italian espresso, creamy cappuccino and premium selected teas' },
-    TH: { name: 'กาแฟ & ชา', desc: 'เอสเพรสโซ่อิตาเลียนแท้ คาปูชิโน่ฟองนุ่มละมุน และชาชั้นดี' },
-    DE: { name: 'Kaffee & Teebar', desc: 'Echter italienischer Espresso, cremiger Cappuccino und erlesene Teesorten' },
-    MM: { name: 'ကော်ဖီဆိုင်', desc: 'စစ်မှန်သော အီတလီ အက်စ်ပရက်ဆို၊ ခရင်မ်ဆန်သော ကာပူချီနိုနှင့် လက်ဖက်ရည်' },
-  },
-  'fruit-drinks': {
-    IT: { name: 'Frullati & Smoothie', desc: 'Frutta fresca tropicale frullata al momento, smoothie e frappè' },
-    EN: { name: 'Fresh Smoothies & Shakes', desc: 'Fresh tropical fruits blended to order, energizing smoothies and shakes' },
-    TH: { name: 'น้ำผลไม้ปั่น & สมูทตี้', desc: 'ผลไม้เมืองร้อนสดใหม่ปั่นแก้วต่อแก้ว สมูทตี้เพิ่มความสดชื่น' },
-    DE: { name: 'Frische Smoothies & Shakes', desc: 'Frische tropische Früchte auf Bestellung gemixt, vitaminreiche Smoothies und Shakes' },
-    MM: { name: 'သစ်သီးဖျော်ရည်များ', desc: 'လတ်ဆတ်သော သစ်သီးဖျော်ရည်များနှင့် စမုသီများ' },
-  },
-  'soft-drinks': {
-    IT: { name: 'Bibite & Acqua', desc: 'Bibite rinfrescanti in lattina, acqua minerale naturale e soda servite fredde' },
-    EN: { name: 'Soft Drinks & Chilled Water', desc: 'Canned soft drinks, natural mineral water and iced refreshments' },
-    TH: { name: 'น้ำอัดลม & น้ำดื่มเย็น', desc: 'น้ำอัดลมกระป๋อง น้ำแร่ธรรมชาติ และเครื่องดื่มดับกระหายเสิร์ฟเย็น' },
-    DE: { name: 'Softdrinks & Mineralwasser', desc: 'Erfrischungsgetränke in der Dose, natürliches Mineralwasser und gekühlte Getränke' },
-    MM: { name: 'အအေးနှင့် သောက်ရေသန့်', desc: 'ဗူးသွပ်အအေးများ၊ သဘာဝတွင်းထွက်ရေနှင့် အေးမြလန်းဆန်းစေသော သောက်စရာများ' },
-  },
-  'beers': {
-    IT: { name: 'Birre Fresche', desc: 'Le migliori marche di birra in bottiglia grande e piccola, servite ghiacciate' },
-    EN: { name: 'Ice Cold Beers', desc: 'Premium Thai and international bottled beers served frosty cold' },
-    TH: { name: 'เบียร์เย็นเจี๊ยบ', desc: 'เบียร์ไทยและต่างประเทศชั้นนำ เสิร์ฟเย็นฉ่ำทั้งขวดเล็กและขวดใหญ่' },
-    DE: { name: 'Eiskalte Biere', desc: 'Ausgewählte thailändische und internationale Biere in großen und kleinen Flaschen' },
-    MM: { name: 'ဘီယာများ', desc: 'အကောင်းဆုံး ထိုင်းနှင့် နိုင်ငံတကာ ဘီယာပုလင်း အေးအေးများ' },
-  },
-  'wines': {
-    IT: { name: 'Carta dei Vini', desc: 'Selezione esclusiva di vini italiani e internazionali, perfetti per esaltare ogni piatto' },
-    EN: { name: 'Wine List', desc: 'Curated selection of fine Italian and international wines to enhance your dining experience' },
-    TH: { name: 'รายการไวน์', desc: 'คัดสรรไวน์อิตาเลียนและนานาชาติชั้นยอด เพื่อยกระดับมื้ออาหารสุดพิเศษของคุณ' },
-    DE: { name: 'Weinkarte', desc: 'Kuratierte Auswahl an feinen italienischen und internationalen Weinen für ein perfektes Geschmackserlebnis' },
-    MM: { name: 'ဝိုင်စာရင်း', desc: 'ကျွန်ုပ်တို့၏ ဟင်းလျာ အရသာတိုင်းကို ပိုမိုပြည့်စုံစေရန် ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီနှင့် နိုင်ငံတကာ ဝိုင်ကောင်းများ' },
-  },
-};
-
-const DAILY_SPECIALS_SECTIONS = [
-  {
-    id: 'pasta',
-    name: {
-      IT: 'Primi Piatti',
-      EN: 'First Courses',
-      TH: 'อาหารจานแรก (พาสต้า)',
-      DE: 'Erste Gänge (Pasta)',
-      MM: 'ပထမဟင်းလျာများ (ပတ်စ်တာ)'
-    },
-    desc: {
-      IT: 'Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali con formati a scelta.',
-      EN: 'Seafood Spaghetti, Fresh Crab Meat, Salmon Penne, Squid Ink Tagliatelle, and artisanal Ravioli with your choice of pasta format.',
-      TH: 'สปาเก็ตตี้ซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมด เลือกเส้นและรูปแบบได้ตามใจชอบ',
-      DE: 'Meeresfrüchte-Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte Ravioli mit wählbaren Formaten.',
-      MM: 'ပင်လယ်စာ စပါဂက်တီ၊ ဂဏန်းသား၊ ဆယ်လ်မွန်ပဲန်နေး၊ ပြည်ကြီးငါးမင် တာလီယာတဲလ်နှင့် အစာသွပ် ရာဗီအိုလီ'
-    }
-  },
-  {
-    id: 'traditional-italian-pizza',
-    name: {
-      IT: 'Pizze Gourmet Speciali',
-      EN: 'Gourmet Special Pizzas',
-      TH: 'พิซซ่ากูร์เมต์สูตรพิเศษ',
-      DE: 'Gourmet-Spezialpizzen',
-      MM: 'အထူး ဂေါ်မေး ပီဇာများ'
-    },
-    desc: {
-      IT: 'Pizze artigianali a lievitazione naturale con polpa di granchio fresca o salsiccia nostrana, spinaci e gorgonzola.',
-      EN: 'Artisanal naturally leavened pizzas with fresh crab meat or local sausage, spinach, and gorgonzola.',
-      TH: 'พิซซ่าแป้งหมักยีสต์ธรรมชาติ หน้าเนื้อปูม้าสด และไส้กรอกหมูอิตาเลียนกับผักสตีลัชชี',
-      DE: 'Handwerkliche Pizzen mit natürlicher Hefe und frischem Krabbenfleisch oder einheimischer Wurst, Spinat und Gorgonzola.',
-      MM: 'ဂဏန်းသား သို့မဟုတ် အီတလီဝက်အူချောင်းနှင့် ဟင်းသီးဟင်းရွက်များ တင်ထားသော အထူးပီဇာ'
-    }
-  },
-  {
-    id: 'daily-specials',
-    name: {
-      IT: 'Secondi Piatti Tradizionali',
-      EN: 'Traditional Main Courses',
-      TH: 'อาหารจานหลักแบบดั้งเดิม',
-      DE: 'Traditionelle Hauptgerichte',
-      MM: 'ရိုးရာ အဓိက ဟင်းလျာများ'
-    },
-    desc: {
-      IT: 'Grandi classici e torte salate della tradizione italiana preparati al momento: Cotoletta alla Milanese, Cotechino artigianale con Purè e autentica Torta Pasqualina ligure.',
-      EN: 'Italian culinary classics & savory pies made fresh: Crispy Milanese Cutlet with fries, Artisanal Cotechino with mashed potatoes, and Ligurian Torta Pasqualina.',
-      TH: 'เมนูคลาสสิกและพายอบสไตล์อิตาเลียน: มิลานีสคัตเล็ตหมูทอดกรอบ ไส้กรอกโคเตคิโนโบราณพร้อมมันบด และพายตอร์ตา ปาสควาลินา',
-      DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.',
-      MM: 'မီလန်စတိုင် အသားကပ်ကြော်၊ အာလူးထောင်းနှင့် ဝက်အူချောင်း၊ အီတလီ ရိုးရာ မုန့်ဖုတ်များ'
-    }
-  },
-  {
-    id: 'pizza-sandwich',
-    name: {
-      IT: 'Focacce Artigianali',
-      EN: 'Artisanal Focaccias',
-      TH: 'ฟอคคาเซียอบสดสไตล์อิตาเลียน',
-      DE: 'Hausgemachte Focaccia',
-      MM: 'လက်လုပ် ဖိုကာချာ မုန့်များ'
-    },
-    desc: {
-      IT: 'Focacce fragranti da impasto pizza cotte al forno e farcite con i migliori salumi italiani selezionati: Finocchiona, Pancetta arrotolata, Porchetta, Prosciutto Cotto e Salame.',
-      EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Finocchiona, Rolled Pancetta, Porchetta, Cooked Ham, and Salami.',
-      TH: 'ฟอคคาเซียอบสดใหม่กรอบนอกนุ่มใน สอดไส้โคลด์คัทอิตาเลียนชั้นเลิศ: ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
-      DE: 'Ofenfrische Focaccia gefüllt mit feinsten italienischen Wurstspezialitäten: Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
-      MM: 'အရည်အသွေးမြင့် အီတလီ အသားအပြားများ ညှပ်ထားသော မီးဖုတ် ဖိုကာချာ'
-    }
-  }
-];
-
-const ITALIAN_SALADS_SECTIONS = [
-  {
-    id: 'salads',
-    name: {
-      IT: 'Insalate Italiane',
-      EN: 'Italian Salads',
-      TH: 'สลัดอิตาเลียน',
-      DE: 'Italienische Salate',
-      MM: 'အီတလီဆလတ်များ',
-    },
-    desc: {
-      IT: 'Insalate fresche con uova, pollo, patate o tonno preparate con verdure selezionate e condite con salse artigianali.',
-      EN: 'Fresh salads with eggs, chicken, potatoes or tuna prepared with selected crisp vegetables and artisan dressings.',
-      TH: 'สลัดสดใหม่ใส่ไข่ ไก่ มันฝรั่ง หรือทูน่า ปรุงด้วยผักสดคัดสรรและน้ำสลัดโฮมเมด',
-      DE: 'Frische Salate mit Eiern, Hähnchen, Kartoffeln oder Thunfisch, zubereitet mit ausgewähltem Gemüse und hausgemachten Dressings.',
-      MM: 'ကြက်ဥ၊ ကြက်သား၊ အာလူး သို့မဟုတ် တူနာငါးတို့ဖြင့် ပြင်ဆင်ထားသော လတ်ဆတ်သည့် အသုပ်များ။',
-    }
-  },
-  {
-    id: 'main-courses',
-    name: {
-      IT: 'Secondi Piatti Tradizionali',
-      EN: 'Traditional Main Courses',
-      TH: 'อาหารจานหลักแบบดั้งเดิม',
-      DE: 'Traditionelle Hauptgerichte',
-      MM: 'ရိုးရာ အဓိက အစားအစာများ',
-    },
-    desc: {
-      IT: 'Grandi classici e torte salate della tradizione italiana: Cotoletta alla Milanese con patate, Cotechino artigianale con purè e autentica Torta Pasqualina ligure.',
-      EN: 'Italian culinary classics & savory pies made fresh: Crispy Milanese Cutlet with fries, Artisanal Cotechino with mashed potatoes, and Ligurian Torta Pasqualina.',
-      TH: 'เมนูคลาสสิกและพายอบสไตล์อิตาเลียน: มิลานีสคัตเล็ตหมูทอดกรอบ ไส้กรอกโคเตคิโนโบราณพร้อมมันบด และพายตอร์ตา ปาสควาลินา',
-      DE: 'Italienische Klassiker & herzhafte Torten: Knuspriges Mailänder Schnitzel, traditioneller Cotechino mit Kartoffelpüree und ligurische Torta Pasqualina.',
-      MM: 'လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ထားသော အီတလီ ရိုးရာ ဂန္တဝင် အစားအစာများနှင့် အရသာရှိ ပီဇာမုန့်များ။',
-    }
-  }
-];
-
-const SALAD_SUBFILTER_LABELS = {
-  IT: { all: 'Tutti i Piatti', salads: 'Insalate Italiane', mains: 'Secondi Piatti' },
-  EN: { all: 'All Dishes', salads: 'Italian Salads', mains: 'Main Courses' },
-  TH: { all: 'ทุกจาน', salads: 'สลัดอิตาเลียน', mains: 'จานหลัก' },
-  DE: { all: 'Alle Gerichte', salads: 'Italienische Salate', mains: 'Hauptgerichte' },
-  MM: { all: 'ဟင်းလျာအားလုံး', salads: 'အီတလီဆလတ်များ', mains: 'အဓိကဟင်းလျာများ' },
-};
-
-const SANDWICH_SUBFILTER_LABELS = {
-  IT: { all: 'Tutti i Piatti', focacce: 'Focacce', sandwiches: 'Pizza Sandwich' },
-  EN: { all: 'All Dishes', focacce: 'Focaccia', sandwiches: 'Pizza Sandwich' },
-  TH: { all: 'ทุกจาน', focacce: 'โฟกัชชา', sandwiches: 'พิซซ่าแซนด์วิช' },
-  DE: { all: 'Alle Gerichte', focacce: 'Focacce', sandwiches: 'Pizza-Sandwich' },
-  MM: { all: 'ဟင်းလျာအားလုံး', focacce: 'ဖိုကာချာများ', sandwiches: 'ပီဇာဆန်းဒဝစ်' },
-};
-
-const FOCACCIA_SANDWICH_SECTIONS = [
-  {
-    id: 'focacce',
-    name: {
-      IT: 'Focacce',
-      EN: 'Focaccia',
-      TH: 'โฟกัชชา',
-      DE: 'Focacce',
-      MM: 'ဖိုကာချာများ',
-    },
-    desc: {
-      IT: 'Focacce fragranti da impasto pizza all\'olio extravergine d\'oliva cotte al forno e farcite al momento con i migliori salumi italiani selezionati: Milanese, Finocchiona, Pancetta arrotolata, Porchetta, Prosciutto Cotto e Salame.',
-      EN: 'Fragrant oven-baked pizza dough focaccias filled with premium Italian cold cuts: Milanese cutlet, Tuscan Finocchiona, Rolled Pancetta, Roasted Porchetta, Cooked Ham, and Salami.',
-      TH: 'ฟอคคาเซียแป้งพิซซ่าอบสดใหม่สไตล์โฮมเมด สอดไส้โคลด์คัทอิตาเลียนพรีเมียม: มิลานีส, ฟินอคคิโอนา, ปานเชตตา, พอร์เคตตา, แฮมสุก และซาลามี',
-      DE: 'Ofenfrische Pizza-Focaccia gefüllt mit feinsten italienischen Spezialitäten: Mailänder Schnitzel, Toskanische Finocchiona, gerollte Pancetta, Porchetta, Kochschinken und Salami.',
-      MM: 'အီတလီ အသားလွှာ အကောင်းစားများနှင့် မီးဖိုဖုတ် ဖိုကာချာ မုန့်များ။',
-    }
-  },
-  {
-    id: 'pizza-sandwiches',
-    name: {
-      IT: 'Pizza Sandwich',
-      EN: 'Pizza Sandwich',
-      TH: 'พิซซ่าแซนด์วิช',
-      DE: 'Pizza-Sandwich',
-      MM: 'ပီဇာဆန်းဒဝစ်',
-    },
-    desc: {
-      IT: 'Gustosi panini racchiusi nel nostro impasto pizza dorato e croccante con formaggio filante, pomodoro fresco e salumi italiani selezionati.',
-      EN: 'Flavorful sandwiches wrapped in our golden, crispy pizza crust with melted cheese, fresh tomatoes, and premium Italian cold cuts.',
-      TH: 'แซนด์วิชแป้งพิซซ่ากรอบนอกนุ่มใน สอดไส้ชีสเยิ้มๆ มะเขือเทศสด และโคลด์คัทอิตาเลียนชั้นเลิศ',
-      DE: 'Köstliche Sandwiches in knusprigem Pizzateig mit geschmolzenem Käse, frischen Tomaten und feinen italienischen Wurstwaren.',
-      MM: 'ရွှေဝါရောင် ကြွပ်ကြွပ်ရွ ပီဇာမုန့်သား၊ အရည်ပျော်နေသော ချိစ်နှင့် အသားလွှာများ ပါဝင်သော ပီဇာဆန်းဒဝစ်။',
-    }
-  }
-];
-
-const PASTA_SAUCES = [
-  { 
-    id: 'special-pasta', 
-    name: { 
-      IT: 'Specialità & Paste Ripiene', 
-      EN: "Chef's Specials & Stuffed Pasta", 
-      TH: 'พาสต้าและราวิโอลีสูตรพิเศษ', 
-      DE: 'Spezialitäten & Gefüllte Pasta',
-      MM: 'စားဖိုမှူး အထူးနှင့် အစာသွပ် ခေါက်ဆွဲ'
-    }, 
-    desc: {
-      IT: 'Creazioni di mare e di terra della nostra cuoca: Spaghetti allo Scoglio, Polpa di Granchio, Penne al Salmone, Tagliatelle al Nero di Seppia e Ravioli artigianali ripieni.',
-      EN: 'Seafood and artisan specialties: Seafood Spaghetti, Blue Crab Meat, Salmon Penne, Squid Ink Tagliatelle, and handmade stuffed Ravioli.',
-      TH: 'พาสต้าซีฟู้ดสดใหม่ ปูม้า แซลมอน ตัลยาเตลเล่หมึกดำ และราวิโอลีโฮมเมดสอดไส้สูตรดั้งเดิม',
-      DE: 'Meeresfrüchte- und Spezialitätenkreationen: Frutti di Mare Spaghetti, Krabbenfleisch, Lachs-Penne, Tintenfisch-Tagliatelle und hausgemachte gefüllte Ravioli.',
-      MM: 'ပင်လယ်စာ စပါဂက်တီ၊ ဂဏန်းသား၊ ဆယ်လ်မွန်ပဲန်နေး၊ ပြည်ကြီးငါးမင် တာလီယာတဲလ်နှင့် အစာသွပ် ရာဗီအိုလီ'
-    }, 
-    pattern: 'special' 
-  },
-  { 
-    id: 'aglio-olio', 
-    name: { 
-      IT: 'Aglio, Olio e Peperoncino', 
-      EN: 'Garlic, Oil & Chili', 
-      TH: 'อากลิโอ โอลิโอ พริกแห้ง', 
-      DE: 'Knoblauch, Öl & Chili',
-      MM: 'ကြက်သွန်ဖြူ၊ သံလွင်ဆီနှင့် ငရုတ်သီး'
-    }, 
-    desc: {
-      IT: 'Un classico italiano semplice e saporito preparato con aglio, olio extravergine d\'oliva e peperoncino, con un gusto intenso e aromatico che delizia ogni singolo morso.',
-      EN: 'A simple and flavorful Italian classic made with garlic, olive oil, and chili, with an intense, aromatic taste that delights every single bite',
-      TH: 'พาสต้าผัดกระเทียม น้ำมันมะกอก และพริกแห้ง รสชาติเข้มข้นจัดจ้านสไตล์อิตาเลียน',
-      DE: 'Ein einfacher und geschmackvoller italienischer Klassiker aus Knoblauch, Olivenöl und Chili, mit einem intensiven, aromatischen Geschmack, der jeden Bissen begeistert.',
-      MM: 'ကြက်သွန်ဖြူ၊ သံလွင်ဆီနှင့် ငရုတ်သီးတို့ဖြင့် ရိုးရှင်းပြီး မွှေးကြိုင် အရသာရှိသော အီတလီ ရိုးရာဆော့စ်'
-    }, 
-    pattern: 'Garlic, Oil' 
-  },
-  { 
-    id: 'pomodoro', 
-    name: { 
-      IT: 'Salsa di Pomodoro', 
-      EN: 'Tomato Sauce', 
-      TH: 'ซอสมะเขือเทศ', 
-      DE: 'Tomatensauce',
-      MM: 'ခရမ်းချဉ်သီးဆော့စ်'
-    }, 
-    desc: {
-      IT: 'Salsa di pomodoro all\'italiana preparata con pomodori maturi, olio d\'oliva, aglio o cipolla, sale e basilico. È il cuore pulsante della cucina italiana.',
-      EN: 'Italian tomato sauce made with ripe tomatoes, olive oil, garlic or onion, salt, and basil. It\'s the heart of Italian cuisine',
-      TH: 'ซอสมะเขือเทศอิตาเลียนรสเข้มข้น เคี่ยวกับกระเทียม หอมใหญ่ และใบโหระพาอิตาเลียน',
-      DE: 'Italienische Tomatensauce aus reifen Tomaten, Olivenöl, Knoblauch oder Zwiebeln, Salz und Basilikum. Sie ist das Herz der italienischen Küche.',
-      MM: 'မှည့်ဝင်းသော ခရမ်းချဉ်သီး၊ သံလွင်ဆီ၊ ကြက်သွန်ဖြူနှင့် ပင်စိမ်းတို့ဖြင့် ပြုလုပ်ထားသော ရိုးရာ ခရမ်းချဉ်သီးဆော့စ်'
-    }, 
-    pattern: 'Tomato Sauce' 
-  },
-  { 
-    id: 'pesto', 
-    name: { 
-      IT: 'Pesto Genovese', 
-      EN: 'Pesto Genovese', 
-      TH: 'ซอสเพสโต้', 
-      DE: 'Pesto Genovese',
-      MM: 'ပင်စိမ်း ပက်စတိုဆော့စ်'
-    }, 
-    desc: {
-      IT: 'Salsa fresca al basilico con anacardi, parmigiano, aglio e olio d\'oliva, con un sapore ricco e aromatico che evoca i profumi di Genova.',
-      EN: 'Fresh basil sauce with cashews, parmesan cheese, garlic, and olive oil, with a rich, aromatic flavor that evokes the scent of Genoa',
-      TH: 'ซอสใบโหระพาอิตาเลียนปั่นสดใหม่ ใส่เม็ดมะม่วงหิมพานต์ พาเมซานชีส กระเทียม และน้ำมันมะกอก',
-      DE: 'Frische Basilikumsauce mit Cashewnüssen, Parmesankäse, Knoblauch und Olivenöl, mit einem reichen, aromatischen Geschmack, der an Genua erinnert.',
-      MM: 'လတ်ဆတ်သော ပင်စိမ်းရွက်၊ သီဟိုဠ်စေ့၊ ပါမီဂျန်ချိစ်၊ ကြက်သွန်ဖြူနှင့် သံလွင်ဆီတို့ဖြင့် မွှေးကြိုင်စွာ ပြုလုပ်ထားသော ပက်စတိုဆော့စ်'
-    }, 
-    pattern: 'Pesto Genovese' 
-  },
-  { 
-    id: 'amatriciana', 
-    name: { 
-      IT: 'Salsa Amatriciana', 
-      EN: 'Amatriciana', 
-      TH: 'ซอสอามาริเชียนา', 
-      DE: 'Amatriciana',
-      MM: 'အာမာထရီချာနာ ဆော့စ်'
-    }, 
-    desc: {
-      IT: 'Salsa in stile romano con pomodoro, guanciale e pecorino, cotta lentamente per ottenere un sapore dolce e sapido bilanciato, un classico della tradizione italiana.',
-      EN: 'Roman-style sauce with tomato, cured pork cheek, and pecorino, slowly cooked for a balanced sweet and savory flavor, a classic of Italian tradition',
-      TH: 'ซอสมะเขือเทศเข้มข้นปรุงรสด้วยเบคอน หอมใหญ่ และใบโหระพา รสชาติกลมกล่อม',
-      DE: 'Römische Sauce mit Tomaten, gereifter Schweinebacke und Pecorino, langsam gekocht für einen ausgewogenen süß-salzigen Geschmack, ein Klassiker der italienischen Tradition.',
-      MM: 'ခရမ်းချဉ်သီး၊ ဝက်ပါးနီအသားခြောက်နှင့် ပီကိုရီနိုချိစ်တို့ဖြင့် ဖြည်းဖြည်းချင်း ချက်ပြုတ်ထားသော ရိုမန်စတိုင် ဆော့စ်'
-    }, 
-    pattern: 'Amatriciana' 
-  },
-  { 
-    id: 'bolognese', 
-    name: { 
-      IT: 'Salsa Ragù Bolognese', 
-      EN: 'Bolognese Ragù', 
-      TH: 'ซอสเนื้อโบโลเนส', 
-      DE: 'Bolognese-Ragù',
-      MM: 'ဘိုလိုနိစ် အသားဆော့စ်'
-    }, 
-    desc: {
-      IT: 'Un ricco ragù cotto lentamente con carne macinata, pomodori, verdure e vino rosso. Un gusto pieno, avvolgente e irresistibile, simbolo della tradizione bolognese.',
-      EN: 'A rich, slow-cooked sauce with minced meat, tomatoes, vegetables, and red wine. Full, enveloping, and irresistible flavor, a symbol of Bologna\'s tradition',
-      TH: 'ซอสเนื้อสับเคี่ยวกับมะเขือเทศและเครื่องเทศอย่างช้าๆ รสชาติเข้มข้นสูตรดั้งเดิม',
-      DE: 'Eine reichhaltige, langsam gekochte Sauce mit Hackfleisch, Tomaten, Gemüse und Rotwein. Voller, einhüllender und unwiderstehlicher Geschmack, ein Symbol der Tradition von Bologna.',
-      MM: 'အမဲသားနုပ်နုပ်စင်း၊ ခရမ်းချဉ်သီး၊ အသီးအရွက်နှင့် ဝိုင်နီတို့ဖြင့် အချိန်ယူ ချက်ပြုတ်ထားသော ရိုးရာ အသားဆော့စ်'
-    }, 
-    pattern: 'Bolognese Ragu' 
-  },
-  { 
-    id: 'carbonara', 
-    name: { 
-      IT: 'Carbonara', 
-      EN: 'Carbonara', 
-      TH: 'ซอสคาร์โบนาร่า', 
-      DE: 'Carbonara',
-      MM: 'ကာဘိုနာရာ ဆော့စ်'
-    }, 
-    desc: {
-      IT: 'Uno dei piatti più amati d\'Italia, preparato con guanciale, uova fresche, pecorino romano e pepe nero. Cremoso e autentico, dal sapore ricco e tradizionale.',
-      EN: 'One of Italy\'s most loved dishes, made with cured pork cheek, eggs, pecorino cheese, and black pepper. Creamy and authentic, with a rich, traditional flavor',
-      TH: 'ซอสครีมคาร์โบนาร่าสูตรดั้งเดิม ใส่ไข่แดง พาเมซานชีส และเบคอนกรอบ',
-      DE: 'Eines der beliebtesten Gerichte Italiens, zubereitet mit gereifter Schweinebacke, Eiern, Pecorino-Käse und schwarzem Pfeffer. Cremig und authentisch, mit einem reichen, traditionellen Geschmack.',
-      MM: 'ဝက်ပါးနီအသားခြောက်၊ ကြက်ဥအနှစ်၊ ပီကိုရီနိုချိစ်နှင့် ငရုတ်ကောင်းနက်တို့ဖြင့် ပြုလုပ်ထားသော ခရင်မ်ဆန်ဆန် အီတလီ အရသာ'
-    }, 
-    pattern: 'Carbonara' 
-  },
-  { 
-    id: 'quattro-formaggi', 
-    name: { 
-      IT: 'Quattro Formaggi', 
-      EN: 'Four Cheeses', 
-      TH: 'ซอสโฟร์ชีส', 
-      DE: 'Vier Käse',
-      MM: 'ချိစ် ၄ မျိုး ဆော့စ်'
-    }, 
-    desc: {
-      IT: 'Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi perfettamente insieme per creare un sapore ricco, deciso e avvolgente ad ogni morso.',
-      EN: 'A creamy blend of four carefully selected Italian cheeses, melted together to create a rich, bold, and enveloping flavor with every bite',
-      TH: 'ซอสโฟร์ชีสเข้มข้น ผสมผสานชีสอิตาเลียนพรีเมียม 4 ชนิด หอมมัน กลมกล่อมลงตัว',
-      DE: 'Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, perfekt geschmolzen für einen reichen, kräftigen Geschmack.',
-      MM: 'အီတလီ ချိစ် ၄ မျိုးကို ပေါင်းစပ် အရည်ဖျော်ထားသော ခရင်မ်ဆန်ပြီး စွဲမက်ဖွယ် ကောင်းသော ဆော့စ်'
-    }, 
-    pattern: 'Four Cheeses' 
-  },
-  { 
-    id: 'flower-power', 
-    name: { 
-      IT: 'Flower Power (Panna e Funghi)', 
-      EN: 'Flower Power (Cream & Mushrooms)', 
-      TH: 'ฟลาวเวอร์พาวเวอร์ (ครีมและเห็ด)', 
-      DE: 'Flower Power (Sahne & Pilze)',
-      MM: 'ဖလားဝါး ပါဝါ (ခရင်မ်နှင့် မှို)'
-    }, 
-    desc: {
-      IT: 'Una deliziosa salsa a base di panna fresca con succulenti funghi trifolati, dal sapore avvolgente e confortante per gli amanti della pasta cremosa.',
-      EN: 'A delightful fresh cream sauce sautéed with juicy mushrooms, delivering a rich, comforting taste perfect for lovers of velvety pasta',
-      TH: 'ซอสครีมเห็ดสูตรพิเศษของทางร้าน หอมครีมสดแท้และเห็ดผัด รสละมุนกลมกล่อม',
-      DE: 'Eine köstliche frische Sahnesauce mit saftigen sautierten Pilzen, cremig und voll im Geschmack.',
-      MM: 'လတ်ဆတ်သော ခရင်မ်နှင့် မှိုတို့ဖြင့် ချက်ထားသော နူးညံ့ချိုမြိန်သည့် အထူးဆော့စ်'
-    }, 
-    pattern: 'Flower Power' 
-  },
-  { 
-    id: 'lasagne', 
-    name: { 
-      IT: 'Lasagne al Forno', 
-      EN: 'Oven-Baked Lasagna', 
-      TH: 'ลาซานญ่าอบเตาถ่าน', 
-      DE: 'Überbackene Lasagne',
-      MM: 'မီးဖုတ် လာဆန်းညား'
-    }, 
-    desc: {
-      IT: 'Sfoglia di pasta all\'uovo stesa a mano, strati generosi di besciamella vellutata, saporito ragù o verdure fresche, gratinata con crosticina dorata e filante.',
-      EN: 'Handcrafted fresh egg pasta sheets layered with velvety béchamel, savory ragù or fresh vegetables, baked to golden, bubbling perfection',
-      TH: 'แผ่นแป้งลาซานญ่าทำสด เรียงชั้นด้วยซอสโบโลเนสเข้มข้น ซอสเบชาเมล และชีส อบจนหอมกรุ่น',
-      DE: 'Handgemachte Eiernudelplatten geschichtet mit samtiger Béchamelsauce und herzhaftem Ragù, goldbraun und herrlich überbacken.',
-      MM: 'လက်လုပ် ကြက်ဥခေါက်ဆွဲလွှာများကြားတွင် ဘီရှာမယ်ဆော့စ်၊ အသားဆော့စ် သို့မဟုတ် အသီးအရွက်တို့ဖြင့် အထပ်ထပ်စီပြီး ရွှေဝါရောင် ဖုတ်ထားသော လာဆန်းညား'
-    }, 
-    pattern: '03-Lasagne' 
-  }
-];
-
-const WINE_FILTER_LABELS: Record<string, {
-  allTypes: string;
-  allCountries: string;
-  filterByCountry: string;
-  italianFirstBadge: string;
-  noWinesFound: string;
-  resetFilters: string;
-  winesCount: string;
-  wineCount: string;
-}> = {
-  IT: {
-    allTypes: 'Tutti i Vini',
-    allCountries: 'Tutte le Origini',
-    filterByCountry: 'Origine',
-    italianFirstBadge: 'Selezione Italiana in Evidenza',
-    noWinesFound: 'Nessun vino trovato con i filtri selezionati.',
-    resetFilters: 'Mostra tutti i vini',
-    winesCount: 'etichette',
-    wineCount: 'etichetta',
-  },
-  EN: {
-    allTypes: 'All Wines',
-    allCountries: 'All Origins',
-    filterByCountry: 'Origin',
-    italianFirstBadge: 'Italian Selection Featured',
-    noWinesFound: 'No wines found matching your selected filters.',
-    resetFilters: 'Show all wines',
-    winesCount: 'wines',
-    wineCount: 'wine',
-  },
-  TH: {
-    allTypes: 'ไวน์ทั้งหมด',
-    allCountries: 'ทุกแหล่งกำเนิด',
-    filterByCountry: 'แหล่งกำเนิด',
-    italianFirstBadge: 'คัดสรรพิเศษจากอิตาลี',
-    noWinesFound: 'ไม่พบรายการไวน์ตามตัวกรองที่เลือก',
-    resetFilters: 'แสดงไวน์ทั้งหมด',
-    winesCount: 'รายการ',
-    wineCount: 'รายการ',
-  },
-  DE: {
-    allTypes: 'Alle Weine',
-    allCountries: 'Alle Herkunftsländer',
-    filterByCountry: 'Herkunft',
-    italianFirstBadge: 'Italienische Auswahl im Fokus',
-    noWinesFound: 'Keine Weine für die ausgewählten Filter gefunden.',
-    resetFilters: 'Alle Weine anzeigen',
-    winesCount: 'Weine',
-    wineCount: 'Wein',
-  },
-  MM: {
-    allTypes: 'ဝိုင် အားလုံး',
-    allCountries: 'မူရင်းနိုင်ငံ အားလုံး',
-    filterByCountry: 'မူရင်းနိုင်ငံ',
-    italianFirstBadge: 'အီတလီ အထူးရွေးချယ်မှု',
-    noWinesFound: 'ရွေးချယ်ထားသော စစ်ထုတ်မှုနှင့် ကိုက်ညီသော ဝိုင် မရှိပါ။',
-    resetFilters: 'ဝိုင် အားလုံး ပြသရန်',
-    winesCount: 'မျိုး',
-    wineCount: 'မျိုး',
-  },
-  ES: {
-    allTypes: 'Todos los Vinos',
-    allCountries: 'Todos los Orígenes',
-    filterByCountry: 'Origen',
-    italianFirstBadge: 'Selección Italiana Destacada',
-    noWinesFound: 'No se encontraron vinos con los filtros seleccionados.',
-    resetFilters: 'Mostrar todos los vinos',
-    winesCount: 'vinos',
-    wineCount: 'vino',
-  },
-  FR: {
-    allTypes: 'Tous les Vins',
-    allCountries: 'Toutes les Origines',
-    filterByCountry: 'Origine',
-    italianFirstBadge: 'Sélection Italienne à l\'Honneur',
-    noWinesFound: 'Aucun vin trouvé avec les filtres sélectionnés.',
-    resetFilters: 'Afficher tous les vins',
-    winesCount: 'vins',
-    wineCount: 'vin',
-  },
-  RU: {
-    allTypes: 'Все Вина',
-    allCountries: 'Все Страны',
-    filterByCountry: 'Происхождение',
-    italianFirstBadge: 'Итальянская Коллекция',
-    noWinesFound: 'Вина не найдены по выбранным фильтрам.',
-    resetFilters: 'Показать все вина',
-    winesCount: 'вин',
-    wineCount: 'вино',
-  },
-  ZH: {
-    allTypes: '所有葡萄酒',
-    allCountries: '所有产地',
-    filterByCountry: '产地',
-    italianFirstBadge: '精选意大利佳酿',
-    noWinesFound: '未找到符合所选条件的葡萄酒。',
-    resetFilters: '显示所有葡萄酒',
-    winesCount: '款',
-    wineCount: '款',
-  },
-};
+// Centralized 9-language definitions for category sub-sections, summaries and filters
+import {
+  CATEGORY_DETAILS as categoryDetails,
+  DAILY_SPECIALS_SECTIONS,
+  ITALIAN_SALADS_SECTIONS,
+  SALAD_SUBFILTER_LABELS,
+  SANDWICH_SUBFILTER_LABELS,
+  FOCACCIA_SANDWICH_SECTIONS,
+  PASTA_SAUCES,
+  WINE_FILTER_LABELS,
+} from '../data/subSectionsI18n';
 
 const WINE_TYPE_SECTIONS = [
   {
@@ -1839,6 +1400,37 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
   const { getCount, getTotal, openCart } = useCartStore();
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
+  // Staff Security PIN Modal for Logout (Protection: 1296)
+  const [isLogoutPinModalOpen, setIsLogoutPinModalOpen] = useState(false);
+  const [logoutPinInput, setLogoutPinInput] = useState('');
+  const [logoutPinError, setLogoutPinError] = useState(false);
+
+  const handleLogoutPinDigit = (digit: string) => {
+    if (logoutPinInput.length >= 4) return;
+    const newPin = logoutPinInput + digit;
+    setLogoutPinInput(newPin);
+    setLogoutPinError(false);
+
+    if (newPin.length === 4) {
+      if (newPin === '1296') {
+        setIsLogoutPinModalOpen(false);
+        setLogoutPinInput('');
+        if (onLogout) onLogout();
+      } else {
+        setLogoutPinError(true);
+        setTimeout(() => {
+          setLogoutPinInput('');
+          setLogoutPinError(false);
+        }, 700);
+      }
+    }
+  };
+
+  const handleLogoutPinDelete = () => {
+    setLogoutPinInput(prev => prev.slice(0, -1));
+    setLogoutPinError(false);
+  };
+
   // Floating Cart Lateral Tab state (Compact by default, expands on desktop hover or mobile tap)
   const [isCartTabExpanded, setIsCartTabExpanded] = useState(false);
   const cartTabTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -1888,14 +1480,14 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
 
 
   const rawSubtotal = getTotal();
-  const discountAmount = Math.round(rawSubtotal * 0.05);
-  const discountedTotal = Math.max(0, rawSubtotal - discountAmount);
+  const discountAmount = 0;
+  const discountedTotal = rawSubtotal;
   const cartCount = getCount();
 
 
 
   const activeCategory = availableCategories.find((c) => c.id === activeCategoryId) ?? availableCategories[0];
-  const activeCategoryName = categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name;
+  const activeCategoryName = (categoryDetails[activeCategory.id]?.[lang]?.name || activeCategory.name).replace(/\n/g, ' ');
 
   const filteredCategoryItems = useMemo(() => {
     if (activeCategoryId === 'wines') {
@@ -1944,7 +1536,64 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     return group.items.length > 0;
   }) : [];
 
+    const allCatalogShowcaseItems = useMemo(() => {
+    const DEFAULT_SHOWCASE_IDS = [
+      'cake-of-the-day',
+      'torta-di-mele',
+      'profiteroles-al-cioccolato',
+      'tiramisu',
+      'torta-pasqualina-agli-spinaci-e-uova',
+      'baked-bolognese-lasagna'
+    ];
+
+    const itemsMap = new Map<string, any>();
+    menuData.forEach(cat => {
+      if (cat.items) {
+        cat.items.forEach(it => {
+          if (!itemsMap.has(it.id)) {
+            itemsMap.set(it.id, it);
+          }
+        });
+      }
+    });
+
+    const list: any[] = [];
+    DEFAULT_SHOWCASE_IDS.forEach(id => {
+      const it = itemsMap.get(id);
+      if (!it) return;
+      if (unavailableIds.has(it.id)) return;
+      const isOverridden = dailySpecialsOverrides[it.id];
+      const isShowcase = isOverridden !== undefined ? isOverridden === true : true;
+      if (isShowcase) {
+        list.push({ ...it, is_daily_special: true, _inShowcase: true });
+      }
+    });
+
+    itemsMap.forEach((it) => {
+      if (DEFAULT_SHOWCASE_IDS.includes(it.id)) return;
+      if (unavailableIds.has(it.id)) return;
+      if (dailySpecialsOverrides[it.id] === true) {
+        list.push({ ...it, is_daily_special: true, _inShowcase: true });
+      }
+    });
+
+    if (dietaryFilter === 'veggie') {
+      return list.filter(i => {
+        const d = getDietaryType(i, i.category || 'desserts');
+        return d === 'veggie' || d === 'vegan';
+      });
+    }
+    if (dietaryFilter === 'vegan') {
+      return list.filter(i => getDietaryType(i, i.category || 'desserts') === 'vegan');
+    }
+
+    return list;
+  }, [dailySpecialsOverrides, unavailableIds, dietaryFilter]);
+
   const groupedDailySpecials = activeCategoryId === 'daily-specials' ? DAILY_SPECIALS_SECTIONS.map(sec => {
+    if (sec.id === 'fresh-showcase') {
+      return { ...sec, items: allCatalogShowcaseItems };
+    }
     const items = filteredCategoryItems.filter((item: any) => {
       const id = item.id || '';
       if (dailySpecialsOverrides[id] === false) return false;
@@ -2214,6 +1863,99 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         </div>
       )}
 
+      {/* STAFF LOGOUT PIN SECURITY MODAL (Code: 1296) */}
+      {isLogoutPinModalOpen && (
+        <div className="fixed inset-0 z-[100002] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 animate-fadeIn">
+          <div className="bg-stone-900 border-2 border-amber-400/60 rounded-3xl w-full max-w-xs sm:max-w-sm p-5 sm:p-6 text-white text-center space-y-4 sm:space-y-5 shadow-2xl relative">
+            <button
+              type="button"
+              onClick={() => {
+                setIsLogoutPinModalOpen(false);
+                setLogoutPinInput('');
+                setLogoutPinError(false);
+              }}
+              className="absolute top-3.5 right-3.5 p-2 text-stone-400 hover:text-white rounded-full bg-stone-800/80 hover:bg-stone-700 transition cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="w-12 h-12 sm:w-14 sm:h-14 mx-auto rounded-2xl bg-amber-400/15 border border-amber-400/40 flex items-center justify-center text-amber-300 shadow-inner">
+              <Lock className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5]" />
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-base sm:text-lg font-black text-white tracking-tight">
+                {I18N_LOGOUT_PIN[lang]?.title || I18N_LOGOUT_PIN.IT.title}
+              </h3>
+              <p className="text-[11px] sm:text-xs text-stone-400 font-medium px-2">
+                {I18N_LOGOUT_PIN[lang]?.subtitle || I18N_LOGOUT_PIN.IT.subtitle}
+              </p>
+            </div>
+
+            {/* 4 PIN Dots */}
+            <div className={`flex items-center justify-center gap-3.5 py-1.5 ${logoutPinError ? 'animate-bounce text-red-500' : ''}`}>
+              {[0, 1, 2, 3].map(i => (
+                <div
+                  key={i}
+                  className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full transition-all duration-200 border-2 ${
+                    logoutPinError
+                      ? 'bg-red-500 border-red-400 shadow-lg shadow-red-500/50 scale-110'
+                      : i < logoutPinInput.length
+                        ? 'bg-amber-400 border-amber-300 shadow-md shadow-amber-400/40 scale-110'
+                        : 'bg-stone-800 border-stone-600'
+                  }`}
+                />
+              ))}
+            </div>
+
+            {logoutPinError && (
+              <p className="text-[11px] sm:text-xs font-bold text-red-400 animate-fadeIn">
+                {I18N_LOGOUT_PIN[lang]?.error || I18N_LOGOUT_PIN.IT.error}
+              </p>
+            )}
+
+            {/* Numeric Keypad (Touch-Friendly) */}
+            <div className="grid grid-cols-3 gap-2 sm:gap-2.5 max-w-[240px] sm:max-w-[260px] mx-auto pt-1">
+              {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => handleLogoutPinDigit(d)}
+                  className="h-11 sm:h-12 rounded-2xl bg-stone-800/90 hover:bg-stone-700/90 active:bg-amber-500 active:text-stone-950 text-white font-black text-lg sm:text-xl border border-stone-700/70 shadow transition-all cursor-pointer select-none"
+                >
+                  {d}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLogoutPinModalOpen(false);
+                  setLogoutPinInput('');
+                  setLogoutPinError(false);
+                }}
+                className="h-11 sm:h-12 rounded-2xl bg-stone-850 hover:bg-stone-800 text-stone-400 hover:text-white font-bold text-[11px] sm:text-xs border border-stone-700/70 shadow transition-all cursor-pointer select-none uppercase tracking-wider"
+              >
+                {I18N_LOGOUT_PIN[lang]?.cancelBtn || I18N_LOGOUT_PIN.IT.cancelBtn}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleLogoutPinDigit('0')}
+                className="h-11 sm:h-12 rounded-2xl bg-stone-800/90 hover:bg-stone-700/90 active:bg-amber-500 active:text-stone-950 text-white font-black text-lg sm:text-xl border border-stone-700/70 shadow transition-all cursor-pointer select-none"
+              >
+                0
+              </button>
+              <button
+                type="button"
+                onClick={handleLogoutPinDelete}
+                className="h-11 sm:h-12 rounded-2xl bg-stone-850 hover:bg-stone-800 text-amber-400 hover:text-amber-300 font-black text-base border border-stone-700/70 shadow transition-all cursor-pointer select-none flex items-center justify-center"
+              >
+                ⌫
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MANDATORY TABLE SELECTION OVERLAY (Only on Master Tablet when session not yet picked) */}
       {!isGuestMobile && !isTableSelected && (
         <div className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-5 animate-fadeIn">
@@ -2256,11 +1998,15 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                 {onLogout && (
                   <button
                     type="button"
-                    onClick={onLogout}
-                    className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-red-950/80 border border-red-500/60 hover:bg-red-900 text-red-300 hover:text-white text-[11px] sm:text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95 whitespace-nowrap"
-                    title={I18N_TABLE_PICKER[lang]?.logoutBtn || 'Logout'}
+                    onClick={() => {
+                      setLogoutPinInput('');
+                      setLogoutPinError(false);
+                      setIsLogoutPinModalOpen(true);
+                    }}
+                    className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-stone-850 hover:bg-stone-800 border border-stone-700/80 hover:border-amber-400/60 text-stone-300 hover:text-amber-300 text-[11px] sm:text-xs font-bold transition-all cursor-pointer shadow-md active:scale-95 whitespace-nowrap"
+                    title={I18N_LOGOUT_PIN[lang]?.title || 'Staff PIN (1296)'}
                   >
-                    <LogOut className="w-3.5 h-3.5 text-red-400" />
+                    <Lock className="w-3.5 h-3.5 text-amber-400/90" />
                     <span className="hidden sm:inline">{I18N_TABLE_PICKER[lang]?.logoutBtn || 'Logout'}</span>
                   </button>
                 )}
@@ -2420,32 +2166,14 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                 <div className="flex-1 min-w-0 space-y-1 sm:space-y-1.5 text-left">
                   {/* Hero Title */}
                   <h1 className="font-sans text-xs sm:text-base md:text-lg font-black tracking-tight text-white leading-snug">
-                    {lang === 'TH' ? (
-                      <>รับส่วนลดทันที <span className="text-amber-300">5% ทุกเมนู</span> เมื่อสั่งผ่านแท็บเล็ต!</>
-                    ) : lang === 'IT' ? (
-                      <>Sconto Immediato del <span className="text-amber-300">5% su Tutto il Menu</span> dal Tablet!</>
-                    ) : lang === 'DE' ? (
-                      <>Sofort <span className="text-amber-300">5% Rabatt auf alles</span> am Tablet!</>
-                    ) : lang === 'MM' ? (
-                      <>တက်ဘလက်ဖြင့် <span className="text-amber-300">မီနူးတစ်ခုလုံး ၅% လျှော့စျေး</span> ချက်ချင်းရယူပါ!</>
-                    ) : (
-                      <>Instant <span className="text-amber-300">5% OFF Entire Menu</span> on Tablet!</>
-                    )}
+                    <span className="text-amber-300">
+                      {DINING_LEAD_BANNER[lang]?.title || DINING_LEAD_BANNER.EN.title}
+                    </span>
                   </h1>
 
                   {/* Subtitle & Delivery Gift Incentive */}
                   <p className="text-[9.5px] sm:text-[10.5px] md:text-[11.5px] text-stone-200 leading-relaxed font-normal">
-                    {lang === 'IT' ? (
-                      <>Gusta la vera cucina italiana al tavolo con il <strong>-5% sul conto</strong> e ricevi un <strong>Coupon Sconto del 10%</strong> per i tuoi ordini delivery da casa su flowerpowerpizza.com!</>
-                    ) : lang === 'TH' ? (
-                      <>เพลิดเพลินกับอาหารอิตาเลียนและไวน์แท้ที่โต๊ะอาหาร รับส่วนลดทันที 5% และรับคูปองพิเศษลด 10% สำหรับสั่งเดลิเวอรี่ส่งตรงถึงบ้าน!</>
-                    ) : lang === 'DE' ? (
-                      <>Genießen Sie echte italienische Küche am Tisch mit <strong>5% Rabatt</strong> und erhalten Sie einen <strong>10% Willkommens-Gutschein</strong> für Ihre nächste Lieferung nach Hause!</>
-                    ) : lang === 'MM' ? (
-                      <>သင့်စားပွဲတွင် စစ်မှန်သော အီတလီအစားအစာကို သုံးဆောင်ပါ - <strong>စုစုပေါင်းငွေတောင်းခံလွှာအပေါ် ၅% လျှော့စျေး</strong> ရယူပြီး နောက်တစ်ကြိမ် အိမ်အရောက်ပို့အတွက် <strong>၁၀% ကြိုဆိုလက်ဆောင်ကူပွန်</strong> ကို ရယူလိုက်ပါ!</>
-                    ) : (
-                      <>Enjoy authentic Italian cuisine at your table: get <strong>5% OFF your total bill</strong> and receive a <strong>10% Welcome Coupon</strong> for your next delivery order at home!</>
-                    )}
+                    {DINING_LEAD_BANNER[lang]?.subtitle || DINING_LEAD_BANNER.EN.subtitle}
                   </p>
                 </div>
               </div>
@@ -2475,7 +2203,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         {lang === 'IT' ? 'Carta dei Vini • Degustazione al Tavolo' : lang === 'TH' ? 'รายการไวน์คัดพิเศษ • เสิร์ฟที่โต๊ะ' : lang === 'DE' ? 'Weinkarte • Tischverkostung' : 'Fine Wine List • Table Dining'}
                       </h3>
                       <p className="text-[11px] text-amber-300/90 font-medium">
-                        {allDynamicWines.length} {(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).winesCount} • Sconto 5% al tavolo applicato a carrello
+                        {allDynamicWines.length} {(WINE_FILTER_LABELS[lang] || WINE_FILTER_LABELS.IT).winesCount}
                       </p>
                     </div>
                   </div>
@@ -2668,27 +2396,49 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
             <div className="px-1 relative z-10">
               {activeCategoryId === 'daily-specials' ? (
                 <div className="space-y-12">
-                  {groupedDailySpecials.map(group => (
-                    <div key={group.id} id={`specials-${group.id}`} className="scroll-mt-24">
-                      <div className="px-2 mb-6">
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-sans text-lg md:text-xl font-extrabold text-stone-800 tracking-tight" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {(group.name[lang] || group.name.IT || group.name.EN)}
-                          </h3>
-                          <span className="text-xs text-stone-400 font-medium">
-                            ({group.items.length})
-                          </span>
-                          <div className="flex-1 h-px bg-stone-300/60" />
+                  {groupedDailySpecials.map(group => {
+                    const isShowcase = group.id === 'fresh-showcase';
+                    return (
+                      <div 
+                        key={group.id} 
+                        id={`specials-${group.id}`} 
+                        className={`scroll-mt-24 transition-all ${
+                          isShowcase
+                            ? 'p-4 sm:p-6 rounded-3xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-amber-500/15 border-2 border-amber-400/50 shadow-lg shadow-amber-900/5 mb-8'
+                            : ''
+                        }`}
+                      >
+                        <div className="px-2 mb-6">
+                          <div className="flex items-center gap-3">
+                            {isShowcase && (
+                              <span className="p-1.5 sm:p-2 rounded-2xl bg-amber-400 text-stone-950 font-black shadow-md shadow-amber-400/30 flex items-center justify-center shrink-0">
+                                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 fill-stone-950" />
+                              </span>
+                            )}
+                            <h3 className={`font-sans text-lg md:text-xl font-extrabold tracking-tight ${
+                              isShowcase ? 'text-amber-950' : 'text-stone-800'
+                            }`} style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                              {(group.name[lang] || group.name.IT || group.name.EN)}
+                            </h3>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                              isShowcase ? 'bg-amber-400 text-stone-950' : 'text-stone-400'
+                            }`}>
+                              ({group.items.length})
+                            </span>
+                            <div className={`flex-1 h-px ${isShowcase ? 'bg-amber-400/50' : 'bg-stone-300/60'}`} />
+                          </div>
+                          {group.desc && (
+                            <p className={`text-sm mt-1.5 leading-relaxed max-w-2xl ${
+                              isShowcase ? 'text-amber-900/80 font-medium' : 'text-stone-600 font-light italic'
+                            }`} style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
+                              {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
+                            </p>
+                          )}
                         </div>
-                        {group.desc && (
-                          <p className="text-stone-600 text-sm mt-1.5 font-light italic leading-relaxed max-w-2xl" style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}>
-                            {(group.desc?.[lang] || group.desc?.IT || group.desc?.EN || "")}
-                          </p>
-                        )}
+                        <MenuGrid items={group.items} lang={lang} isDiningMode={true} />
                       </div>
-                      <MenuGrid items={group.items} lang={lang} isDiningMode={true} />
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : activeCategoryId === 'pasta' ? (
                 <div className="space-y-12">
@@ -2840,7 +2590,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                 </a>
               </div>
               <p className="text-[11px] text-stone-500">
-                © {new Date().getFullYear()} Flower Power Pizza Ranong · Dining Tablet Mode (-5% Privilege).
+                © {new Date().getFullYear()} Flower Power Pizza Ranong · Dining Tablet Mode.
               </p>
             </footer>
           </main>
@@ -2907,17 +2657,6 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                         >
                           ฿
                         </span>
-                      </span>
-                    </div>
-
-                    {/* 5% Dining Privilege Badge */}
-                    <div className="text-[9px] font-extrabold text-emerald-300 inline-flex items-center justify-end gap-1">
-                      <Sparkles size={10} className="text-amber-300" />
-                      <span>
-                        {lang === 'IT' ? 'Sconto -5% Tavolo Attivo' :
-                         lang === 'TH' ? 'ลด 5% สั่งที่โต๊ะ' :
-                         lang === 'DE' ? '5% Tisch-Rabatt Aktiv' :
-                         '5% Table Discount Active'}
                       </span>
                     </div>
                   </div>

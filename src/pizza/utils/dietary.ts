@@ -35,6 +35,10 @@ export function getDietaryType(item?: MenuItem | null, categoryId: string = ''):
     'manzo', 'meat', 'carne', 'ragu', 'ragù', 'bolognese', 'amatriciana',
     'carbonara', 'tuna', 'tonno', 'anchov', 'acciughe', 'alice', 'alici', 
     'fish', 'pesce', 'seafood', 'shrimp', 'gamber', 'calamari', 'frutti di mare',
+    'cotoletta', 'milanese', 'cutlet', 'schnitzel', 'cotechino',
+    'granchio', 'crab', 'ปู', 'ဂဏန်း', 'krabbe',
+    'guanciale', 'bresaola', 'porchetta', 'finocchiona',
+    'salmone', 'salmon', 'polpo', 'octopus', 'nugget', 'nuggets',
     'หมู', 'ไก่', 'เนื้อ', 'เบคอน', 'แฮม', 'ไส้กรอก', 'ทูน่า', 'ปลา', 'กุ้ง', 'ซีฟู้ด',
     'schinken', 'rind', 'huhn', 'hähnchen', 'thunfisch',
     'ဝက်သား', 'အမဲသား', 'ကြက်သား', 'ငါး', 'ပုစွန်', 'ဘေကွန်', 'ဆာလာမီ', 'ဝက်အူချောင်း'
@@ -116,6 +120,11 @@ export function getDietaryType(item?: MenuItem | null, categoryId: string = ''):
     return 'veggie';
   }
 
+  // Daily Specials that are genuinely vegetarian (walnut ravioli, torta pasqualina)
+  if (id === 'ravioli-al-sugo-di-noci' || id === 'torta-pasqualina-agli-spinaci-e-uova') {
+    return 'veggie';
+  }
+
   // Dairy/Milk Drinks (Smoothies with milk, Cappuccino, Latte Macchiato, Marocchino, Hot Chocolate, Milk & Honey, Lassis with yogurt, Frappés with milk/ice-cream)
   if (
     cat === 'coffee-shop' || cat === 'fruit-drinks' ||
@@ -125,5 +134,5 @@ export function getDietaryType(item?: MenuItem | null, categoryId: string = ''):
     return 'veggie';
   }
 
-  return 'veggie';
+  return null;
 }

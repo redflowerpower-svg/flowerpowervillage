@@ -10,9 +10,9 @@ Il modulo **Dining Tablet** è la web app dedicata agli ordini autonomi dei clie
    - Tutte le 14 categorie e tutti i piatti a catalogo (49 piatti di pasta, 35 pizze, 7 focacce, 3 sandwich, 3 burger, snack, dolci, bevande, birre e vini) sono visibili e sincronizzati.
    - Schede piatti arricchite con le nuove aggiunte (*Focaccia con Capocollo 190฿*, *Pizza Capocollo e Anacardi 350฿*).
    - Allineamento completo dei pattern di riconoscimento condimenti per tutte le salse di pasta (*Aglio Olio, Pomodoro, Pesto, Amatriciana, Bolognese, Carbonara, 4 Formaggi, Flower Power/Panna Funghi, Specialità di Mare, Lasagne*).
-2. **Sconto Fisso al Tavolo (-5%)**:
-   - Ogni articolo mostra il prezzo normale barrato e il prezzo scontato del 5% in evidenza con badge verde `-5% SCONTO TAVOLO`.
-   - Nessun vincolo di primo ordine o minimo di spesa: applicato istantaneamente a tutto il carrello.
+2. **Prezzi Pieni Normali al Tavolo & Lead Gen Coupon 10% Delivery**:
+   - Tutti gli articoli vengono mostrati e conteggiati a prezzo di listino pieno normale (eliminato ogni sconto del 5% al tavolo).
+   - Nel banner hero superiore è presente il messaggio promozionale che invita i commensali a lasciare l'email per ricevere un esclusivo **Coupon Sconto del 10%** per il loro primo ordine delivery da casa su `flowerpowerpizza.com`.
 3. **Vini & Birre 100% Sbloccati & Gestione Disponibilità**:
    - Tutte le schede dei vini italiani ed esteri (sincronizzati da Supabase Cloud) e delle birre sono aperte e ordinabili al tavolo con filtri enoteca dedicati.
    - Sincronizzazione in tempo reale dello stato Esaurito / Disponibile per piatti e vini direttamente da Kitchen KDS e Dashboard Admin.

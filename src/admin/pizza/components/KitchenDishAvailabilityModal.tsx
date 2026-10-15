@@ -12,7 +12,8 @@ import {
   Filter,
   Check,
   Flame,
-  Globe
+  Globe,
+  Star
 } from 'lucide-react';
 import { usePizzaAdminStore, PizzaMenuItem } from '../store/usePizzaAdminStore';
 import { DISH_CATEGORIES } from './DishCardStudio';
@@ -37,7 +38,10 @@ const I18N_AVAILABILITY = {
     soldOutCountLabel: 'piatti esauriti',
     noDishesFound: 'Nessun piatto trovato',
     noDishesDesc: 'Nessun piatto corrisponde ai criteri di ricerca.',
-    loadingText: 'Caricamento catalogo menu in corso...'
+    loadingText: 'Caricamento catalogo menu in corso...',
+    inShowcaseBadge: '⭐ In Vetrina Oggi',
+    putInShowcaseBadge: 'Metti in Vetrina',
+    showcaseFilter: '⭐ In Vetrina Oggi'
   },
   en: {
     modalTitle: 'Dish & Menu Availability',
@@ -52,7 +56,10 @@ const I18N_AVAILABILITY = {
     soldOutCountLabel: 'sold out items',
     noDishesFound: 'No dishes found',
     noDishesDesc: 'No dishes match your search or selected category.',
-    loadingText: 'Loading menu catalog...'
+    loadingText: 'Loading menu catalog...',
+    inShowcaseBadge: '⭐ In Showcase Today',
+    putInShowcaseBadge: 'Put in Showcase',
+    showcaseFilter: '⭐ In Showcase'
   },
   th: {
     modalTitle: 'จัดการความพร้อมของเมนูอาหาร',
@@ -67,7 +74,10 @@ const I18N_AVAILABILITY = {
     soldOutCountLabel: 'รายการที่หมด',
     noDishesFound: 'ไม่พบรายการอาหาร',
     noDishesDesc: 'ไม่มีเมนูที่ตรงกับคำค้นหาหรือหมวดหมู่ที่เลือก',
-    loadingText: 'กำลังโหลดรายการเมนู...'
+    loadingText: 'กำลังโหลดรายการเมนู...',
+    inShowcaseBadge: '⭐ ในตู้โชว์วันนี้',
+    putInShowcaseBadge: 'ใส่ในตู้โชว์',
+    showcaseFilter: '⭐ ในตู้โชว์วันนี้'
   },
   mm: {
     modalTitle: 'ဟင်းလျာနှင့် မီနူး ရရှိနိုင်မှု စီမံခန့်ခွဲခြင်း',
@@ -82,7 +92,10 @@ const I18N_AVAILABILITY = {
     soldOutCountLabel: 'ကုန်သွားသော ဟင်းလျာများ',
     noDishesFound: 'ဟင်းလျာ မတွေ့ပါ',
     noDishesDesc: 'ရှာဖွေမှုနှင့် ကိုက်ညီသော ဟင်းလျာ မရှိပါ။',
-    loadingText: 'မီနူးစာရင်းကို ရယူနေပါသည်...'
+    loadingText: 'မီနူးစာရင်းကို ရယူနေပါသည်...',
+    inShowcaseBadge: '⭐ ယနေ့ ပြသခန်းတွင်',
+    putInShowcaseBadge: 'ပြသခန်းသို့ ထည့်ပါ',
+    showcaseFilter: '⭐ ပြသခန်းတွင်'
   },
   de: {
     modalTitle: 'Gerichte- & Menü-Verfügbarkeit',
@@ -97,7 +110,10 @@ const I18N_AVAILABILITY = {
     soldOutCountLabel: 'ausverkaufte Gerichte',
     noDishesFound: 'Keine Gerichte gefunden',
     noDishesDesc: 'Keine Gerichte entsprechen den Suchkriterien.',
-    loadingText: 'Menükatalog wird geladen...'
+    loadingText: 'Menükatalog wird geladen...',
+    inShowcaseBadge: '⭐ Heute in Vitrine',
+    putInShowcaseBadge: 'In Vitrine stellen',
+    showcaseFilter: '⭐ In der Vitrine'
   }
 };
 
@@ -112,12 +128,14 @@ export const KitchenDishAvailabilityModal: React.FC<KitchenDishAvailabilityModal
     menuItems, 
     menuLoading, 
     fetchMenuItems, 
-    toggleItemAvailability 
+    toggleItemAvailability,
+    toggleDailySpecial
   } = usePizzaAdminStore();
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [showOnlySoldOut, setShowOnlySoldOut] = useState<boolean>(false);
+  const [showOnlyShowcase, setShowOnlyShowcase] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -129,10 +147,17 @@ export const KitchenDishAvailabilityModal: React.FC<KitchenDishAvailabilityModal
     return menuItems.filter(i => i.is_available === false).length;
   }, [menuItems]);
 
+  const showcaseItemsCount = useMemo(() => {
+    return menuItems.filter(i => !!i.is_daily_special).length;
+  }, [menuItems]);
+
   const filteredItems = useMemo(() => {
     return menuItems.filter(item => {
       // Sold out filter
       if (showOnlySoldOut && item.is_available !== false) return false;
+
+      // Showcase filter
+      if (showOnlyShowcase && !item.is_daily_special) return false;
 
       // Category filter
       if (selectedCategory !== 'all' && item.category !== selectedCategory) return false;
@@ -150,7 +175,7 @@ export const KitchenDishAvailabilityModal: React.FC<KitchenDishAvailabilityModal
 
       return true;
     });
-  }, [menuItems, selectedCategory, searchQuery, showOnlySoldOut]);
+  }, [menuItems, selectedCategory, searchQuery, showOnlySoldOut, showOnlyShowcase]);
 
   if (!isOpen) return null;
 
@@ -221,13 +246,16 @@ export const KitchenDishAvailabilityModal: React.FC<KitchenDishAvailabilityModal
           )}
         </div>
 
-        {/* Quick Sold Out Filter Toggle */}
+        {/* Quick Sold Out & Showcase Filter Toggles */}
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setShowOnlySoldOut(false)}
+            onClick={() => {
+              setShowOnlySoldOut(false);
+              setShowOnlyShowcase(false);
+            }}
             className={`px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
-              !showOnlySoldOut
+              !showOnlySoldOut && !showOnlyShowcase
                 ? 'bg-stone-800 text-white border border-stone-600 shadow-sm'
                 : 'text-stone-400 hover:text-white hover:bg-stone-850'
             }`}
@@ -237,7 +265,30 @@ export const KitchenDishAvailabilityModal: React.FC<KitchenDishAvailabilityModal
 
           <button
             type="button"
-            onClick={() => setShowOnlySoldOut(true)}
+            onClick={() => {
+              setShowOnlyShowcase(!showOnlyShowcase);
+              if (!showOnlyShowcase) {
+                setShowOnlySoldOut(false);
+              }
+            }}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer border ${
+              showOnlyShowcase
+                ? 'bg-amber-400 text-stone-950 border-amber-300 shadow-md shadow-amber-400/20'
+                : 'text-amber-400 hover:bg-amber-950/40 border-amber-900/50'
+            }`}
+          >
+            <Star className={`w-3.5 h-3.5 ${showOnlyShowcase ? 'fill-stone-950 text-stone-950' : 'fill-amber-400 text-amber-400'}`} />
+            <span>{t.showcaseFilter} ({showcaseItemsCount})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setShowOnlySoldOut(!showOnlySoldOut);
+              if (!showOnlySoldOut) {
+                setShowOnlyShowcase(false);
+              }
+            }}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
               showOnlySoldOut
                 ? 'bg-red-600 text-white border border-red-400 shadow-md'
@@ -350,28 +401,45 @@ export const KitchenDishAvailabilityModal: React.FC<KitchenDishAvailabilityModal
                     </div>
                   </div>
 
-                  {/* 1-Tap Toggle Availability Button */}
-                  <button
-                    type="button"
-                    onClick={() => toggleItemAvailability(item.id, isAvailable)}
-                    className={`w-full py-2.5 px-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md active:scale-95 ${
-                      isAvailable
-                        ? 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white border border-emerald-400/50'
-                        : 'bg-red-600 hover:bg-red-500 active:bg-red-700 text-white border border-red-400 animate-pulse'
-                    }`}
-                  >
-                    {isAvailable ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 shrink-0" />
-                        <span>{t.availableBadge}</span>
-                      </>
-                    ) : (
-                      <>
-                        <AlertTriangle className="w-4 h-4 shrink-0" />
-                        <span>{t.soldOutBadge}</span>
-                      </>
-                    )}
-                  </button>
+                  {/* Action Buttons: Availability & Showcase */}
+                  <div className="space-y-2 mt-auto">
+                    {/* 1-Tap Toggle Availability Button */}
+                    <button
+                      type="button"
+                      onClick={() => toggleItemAvailability(item.id, isAvailable)}
+                      className={`w-full py-2.5 px-3 rounded-xl font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md active:scale-95 ${
+                        isAvailable
+                          ? 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white border border-emerald-400/50'
+                          : 'bg-red-600 hover:bg-red-500 active:bg-red-700 text-white border border-red-400 animate-pulse'
+                      }`}
+                    >
+                      {isAvailable ? (
+                        <>
+                          <CheckCircle className="w-4 h-4 shrink-0" />
+                          <span>{t.availableBadge}</span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertTriangle className="w-4 h-4 shrink-0" />
+                          <span>{t.soldOutBadge}</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* 1-Tap Toggle Showcase Button */}
+                    <button
+                      type="button"
+                      onClick={() => toggleDailySpecial(item.id, item.is_daily_special)}
+                      className={`w-full py-2 px-3 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95 border ${
+                        item.is_daily_special
+                          ? 'bg-amber-400 hover:bg-amber-300 text-stone-950 border-amber-300 font-black shadow-amber-400/20'
+                          : 'bg-stone-850 hover:bg-stone-800 text-stone-400 hover:text-white border-stone-750'
+                      }`}
+                    >
+                      <Star className={`w-3.5 h-3.5 ${item.is_daily_special ? 'fill-stone-950 text-stone-950' : 'text-stone-400'}`} />
+                      <span>{item.is_daily_special ? t.inShowcaseBadge : t.putInShowcaseBadge}</span>
+                    </button>
+                  </div>
                 </div>
               );
             })}

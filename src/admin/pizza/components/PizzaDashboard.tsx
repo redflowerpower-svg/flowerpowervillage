@@ -86,7 +86,7 @@ const formatProductName = (name: any) => {
     str = String(name);
   }
 
-  const connectors = [' CON ', ' & ', ' WITH ', ' พร้อม'];
+  const connectors = [' CON ', ' & ', ' WITH ', ' พร้อม', ' AL CIOCCOLATO', ' AU CHOCOLAT', ' AL CHOCOLATE', ' DE CHOCOLATE'];
   for (const conn of connectors) {
     if (str.includes(conn)) {
       const parts = str.split(conn);

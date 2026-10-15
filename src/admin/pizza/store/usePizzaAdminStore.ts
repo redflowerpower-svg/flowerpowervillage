@@ -362,6 +362,15 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
       }
 
       if (data && Array.isArray(data) && data.length > 0) {
+        const DEFAULT_SHOWCASE_IDS = new Set([
+          'cake-of-the-day',
+          'torta-di-mele',
+          'profiteroles-al-cioccolato',
+          'tiramisu',
+          'torta-pasqualina-agli-spinaci-e-uova',
+          'baked-bolognese-lasagna'
+        ]);
+
         const sanitizedData = data.map((item: any) => ({
           ...item,
           name: typeof item.name === 'string' ? item.name : (item.name?.name || item.name?.nameIt || item.name?.sku || 'Prodotto'),
@@ -372,7 +381,7 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
             : (item.is_available !== undefined && item.is_available !== null ? item.is_available : true),
           is_daily_special: cloudOverrides.dailySpecials[item.id] !== undefined
             ? cloudOverrides.dailySpecials[item.id]
-            : (item.is_daily_special !== undefined && item.is_daily_special !== null ? item.is_daily_special : false)
+            : (item.is_daily_special !== undefined && item.is_daily_special !== null ? item.is_daily_special : DEFAULT_SHOWCASE_IDS.has(item.id))
         }));
 
         try {
@@ -418,6 +427,14 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
         set({ menuItems: sanitizedData, menuLoading: false });
       } else {
         // Build initial items catalog from menuData
+        const DEFAULT_SHOWCASE_IDS = new Set([
+          'cake-of-the-day',
+          'torta-di-mele',
+          'profiteroles-al-cioccolato',
+          'tiramisu',
+          'torta-pasqualina-agli-spinaci-e-uova',
+          'baked-bolognese-lasagna'
+        ]);
         const dailyCat = menuData.find(c => c.id === 'daily-specials');
         const dailySpecialItemIds = new Set(dailyCat ? dailyCat.items.map(i => i.id) : []);
 
@@ -432,7 +449,7 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
             seenIds.add(item.id);
             const isSpecial = cloudOverrides.dailySpecials[item.id] !== undefined
               ? !!cloudOverrides.dailySpecials[item.id]
-              : dailySpecialItemIds.has(item.id);
+              : (DEFAULT_SHOWCASE_IDS.has(item.id) || dailySpecialItemIds.has(item.id));
 
             const isAvail = cloudOverrides.availability[item.id] !== undefined
               ? !!cloudOverrides.availability[item.id]

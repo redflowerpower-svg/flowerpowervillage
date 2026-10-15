@@ -339,15 +339,21 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
       if (lang === 'EN' && mapped.name) return mapped.name;
     }
 
-    if (lang === 'TH' && o.nameTh) return o.nameTh;
-    if (lang === 'IT' && (o.nameIt || o.name_it)) return o.nameIt || o.name_it || o.name;
-    if (lang === 'DE' && (o.nameDe || o.name_de)) return o.nameDe || o.name_de || o.name;
-    if (lang === 'MM' && (o.nameMm || o.name_mm)) return o.nameMm || o.name_mm || o.name;
-    if (lang === 'ES' && (o.nameEs || o.name_es)) return o.nameEs || o.name_es || o.name;
-    if (lang === 'FR' && o.nameFr) return o.nameFr;
-    if (lang === 'RU' && o.nameRu) return o.nameRu;
-    if (lang === 'ZH' && o.nameZh) return o.nameZh;
-    return o.name;
+    let rawResult = '';
+    if (lang === 'TH' && o.nameTh) rawResult = o.nameTh;
+    else if (lang === 'IT' && (o.nameIt || o.name_it)) rawResult = o.nameIt || o.name_it || o.name;
+    else if (lang === 'DE' && (o.nameDe || o.name_de)) rawResult = o.nameDe || o.name_de || o.name;
+    else if (lang === 'MM' && (o.nameMm || o.name_mm)) rawResult = o.nameMm || o.name_mm || o.name;
+    else if (lang === 'ES' && (o.nameEs || o.name_es)) rawResult = o.nameEs || o.name_es || o.name;
+    else if (lang === 'FR' && o.nameFr) rawResult = o.nameFr;
+    else if (lang === 'RU' && o.nameRu) rawResult = o.nameRu;
+    else if (lang === 'ZH' && o.nameZh) rawResult = o.nameZh;
+    else rawResult = o.name || '';
+
+    if (['IT', 'EN', 'DE', 'FR', 'ES', 'RU'].includes(lang)) {
+      return (rawResult || '').toUpperCase();
+    }
+    return rawResult || '';
   };
 
   const formatProductName = (name: string) => {
@@ -364,7 +370,10 @@ export default function ProductModal({ item, onClose, lang: propLang }: Props) {
         </>
       );
     }
-    const splitKeywords = [' WITH ', ' CON ', ' พร้อม', ' MIT '];
+    const splitKeywords = [
+      ' WITH ', ' CON ', ' พร้อม', ' MIT ', ' နှင့် ', ' & ', ' ET ', ' Y ', ' И ',
+      ' AL CIOCCOLATO', ' AU CHOCOLAT', ' AL CHOCOLATE', ' DE CHOCOLATE'
+    ];
     const upperName = name.toUpperCase();
     for (const kw of splitKeywords) {
       if (upperName.includes(kw)) {

@@ -98,7 +98,15 @@ Quando l'utente inserisce il comando `[LINGUA] FULL TRANSLATION` oppure `[LINGUA
 4. **Hero Banner & Banner Privilegio Vini (`src/pizza/pages/DeliveryMenu.tsx`)**:
    - Tutte le 3 Card Top Hero (Prenota un Tavolo / Sconto 10% Dine-in, Sconto 10% Benvenuto 1° Ordine, Consegna Rapida & Asporto).
    - Banner Privilegio Vini & Conformità Legale Alcolici (Badge, Titolo, Avviso legale PDPA/Thailandia e pulsante Prenota Tavolo).
-5. **Categorie & Slider Orizzontale (`src/pizza/components/CategoryTabs.tsx`)**: Traduzione di tutte le 14 categorie con nomi formattati su 2 righe e relative descrizioni emozionali.
+5. **Categorie, Sottosezioni & Intestazioni Gruppi Piatti (`src/pizza/components/CategoryTabs.tsx`, `src/pizza/data/subSectionsI18n.ts`)**:
+   - Traduzione di tutte le 14 categorie con nomi formattati su 2 righe e relative descrizioni emozionali.
+   - Traduzione DeepSeek tassativa in tutte le 9 lingue per **TUTTE le sottosezioni e gruppi interni di categoria**:
+     * `DAILY_SPECIALS_SECTIONS` (Primi Piatti / Pasta Dishes, Pizze Gourmet, ecc. con titoli e descrizioni riassuntive dei piatti).
+     * `PASTA_SAUCES` (Salsa al Pomodoro, Ragù alla Bolognese, Sugo allo Scoglio, ecc. con descrizioni di abbinamento).
+     * `ITALIAN_SALADS_SECTIONS` e `SALAD_SUBFILTER_LABELS` (Insalate Italiane, Secondi Piatti Tradizionali, filtri Tutti/Insalate/Secondi).
+     * `FOCACCIA_SANDWICH_SECTIONS` e `SANDWICH_SUBFILTER_LABELS` (Focacce Artigianali, Pizza Sandwiches, filtri).
+     * `CATEGORY_DETAILS` (Titoli e descrizioni estese di tutte le 14 categorie in testata).
+     * `WINE_FILTER_LABELS` e `WINE_TYPE_SECTIONS` (Filtri enoteca, badge, conteggi, tipologie vini).
 6. **Badge & Watermark Dietetici (`src/pizza/components/DietaryWatermark.tsx`, `src/pizza/utils/dietary.ts`, `DeliveryMenu.tsx`, `DiningTabletSite.tsx`)**: Traduzione barra filtri (`Tutti`, `Veggie`, `Vegan`) e watermark sovraimpressi sulle immagini dei piatti (`VEGAN`, `VEGGIE`, `100% Pollo Halal-friendly`, `No Maiale`).
 7. **Personalizzazioni Piatti, Extra & Opzioni (`src/pizza/components/ProductModal.tsx`, `MenuGrid.tsx`)**:
    - Grado di piccantezza (`spicy-no` -> `spicy-very`: Non piccante, Poco piccante, Medio piccante, Molto piccante).
@@ -132,9 +140,9 @@ Quando l'utente inserisce il comando `[LINGUA] FULL TRANSLATION` oppure `[LINGUA
 
 # 📱 REGOLA D'ORO DINING TABLET AL TAVOLO (`/dining`, `/dining-tablet`, `/tavoli`)
 La modalità **Dining Tablet** è il modulo dedicato all'ordinazione autonoma direttamente al tavolo del ristorante:
-1. **Sconto Fisso al Tavolo (-5%)**: Tutti i prodotti mostrano il prezzo normale barrato (`<del>price ฿</del>`) e il prezzo scontato del 5% in evidenza con badge verde `-5% SCONTO TAVOLO`. Nessun limite o soglia minima d'ordine. Lo sconto del 10% del primo ordine delivery NON compare mai nel tablet.
+1. **Prezzi Pieni Normali al Tavolo & Lead Gen Coupon 10% Delivery via Email**: Tutti i prodotti vengono ordinati e conteggiati a prezzo di listino pieno normale (nessuno sconto del 5% al tavolo). Nella parte alta è presente il banner promozionale (in tutte le 9 lingue certificate DeepSeek) che invita i clienti a inserire la propria email durante l'ordinazione per ricevere un coupon esclusivo del 10% di sconto sul primo ordine delivery da casa su `flowerpowerpizza.com`.
 2. **Vini & Birre 100% Sbloccati**: Tutte le schede dei vini italiani ed esteri (sincronizzati da Supabase Cloud) e delle birre sono visibili e ordinabili al tavolo con filtri enoteca e calici/bottiglie.
-3. **Carrello Drawer & Linguetta Flottante Laterale Destra (Zero Barre in Basso)**: Nel tablet l'accesso al carrello avviene **esclusivamente tramite la linguetta flottante destra (Edge-Hugger)** identica al sito ufficiale, eliminando completamente la barra flottante in basso per non ostacolare la visuale e lo scorrimento dei prodotti. Stesso `CartDrawer` completo con pairing consigliati e breakdown del 5% di sconto.
+3. **Carrello Drawer & Linguetta Flottante Laterale Destra (Zero Barre in Basso)**: Nel tablet l'accesso al carrello avviene **esclusivamente tramite la linguetta flottante destra (Edge-Hugger)** identica al sito ufficiale, eliminando completamente la barra flottante in basso per non ostacolare la visuale e lo scorrimento dei prodotti. Stesso `CartDrawer` completo con pairing consigliati.
 4. **Scelta Pagamento al Tavolo (3 Metodi)**:
    - 📱 **PromptPay K-Shop Kasikorn Bank (0% Commissioni)** con QR Code zoomabile tap-to-zoom.
    - 💳 **Carta di Credito / Bancomat (POS Portatile al Tavolo)** portato dal personale.
