@@ -128,7 +128,7 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeLabel: 'Comanda Cucina',
     guestLabel: 'Smartphone Live',
     freeCard: 'Nuovo Ordine',
-    activeCardPrefix: 'Conto Aperto:',
+    activeCardPrefix: 'Aperto:',
     guestCardPrefix: 'In Ordinazione Live',
     customLabel: 'Oppure Inserimento Postazione Libera',
     customPlaceholder: 'es. Terrazza 3 / Giardino / Bancone',
@@ -145,7 +145,7 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeLabel: 'Kitchen Order',
     guestLabel: 'Smartphone Live',
     freeCard: 'New Order',
-    activeCardPrefix: 'Open Tab:',
+    activeCardPrefix: 'Open:',
     guestCardPrefix: 'Guest Ordering Live',
     customLabel: 'Or Enter Custom Table / Station',
     customPlaceholder: 'e.g. Terrace 3 / Garden / Counter',
@@ -162,7 +162,7 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeLabel: 'มีออเดอร์ในครัว',
     guestLabel: 'ลูกค้ากำลังสั่งผ่านมือถือ',
     freeCard: 'ออเดอร์ใหม่',
-    activeCardPrefix: 'ยอดค้างชำระ:',
+    activeCardPrefix: 'ยอด:',
     guestCardPrefix: 'กำลังสั่งอาหารไลฟ์',
     customLabel: 'หรือระบุชื่อโต๊ะ / ที่นั่งเอง',
     customPlaceholder: 'เช่น ริมระเบียง 3 / โซนสวน / เคาน์เตอร์',
@@ -179,7 +179,7 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeLabel: 'Küche aktiv',
     guestLabel: 'Smartphone Live',
     freeCard: 'Neue Bestellung',
-    activeCardPrefix: 'Offener Tisch:',
+    activeCardPrefix: 'Offen:',
     guestCardPrefix: 'Gast bestellt live',
     customLabel: 'Oder Freie Tischnummer Eingeben',
     customPlaceholder: 'z.B. Terrasse 3 / Garten / Bar',
@@ -196,7 +196,7 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeLabel: 'မီးဖိုချောင်မှာယူမှု',
     guestLabel: 'စမတ်ဖုန်း အော်ဒါ',
     freeCard: 'အော်ဒါအသစ်',
-    activeCardPrefix: 'ကျသင့်ငွေစာရင်း:',
+    activeCardPrefix: 'ကျသင့်:',
     guestCardPrefix: 'ဧည့်သည် အော်ဒါမှာနေသည်',
     customLabel: 'သို့မဟုတ် အခြားစားပွဲ / နေရာအမည် ထည့်သွင်းပါ',
     customPlaceholder: 'ဥပမာ - လသာဆောင် ၃ / ပန်းခြံ / ကောင်တာ',
@@ -213,7 +213,7 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeLabel: 'Pedido en Cocina',
     guestLabel: 'Smartphone en Vivo',
     freeCard: 'Nuevo Pedido',
-    activeCardPrefix: 'Cuenta Abierta:',
+    activeCardPrefix: 'Abierto:',
     guestCardPrefix: 'Pedido de Invitado en Vivo',
     customLabel: 'O Ingrese Mesa / Estación Personalizada',
     customPlaceholder: 'ej. Terraza 3 / Jardín / Barra',
@@ -230,7 +230,7 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeLabel: 'Commande en cuisine',
     guestLabel: 'Smartphone en direct',
     freeCard: 'Nouvelle commande',
-    activeCardPrefix: 'Addition ouverte :',
+    activeCardPrefix: 'Ouvert :',
     guestCardPrefix: 'Commande client en direct',
     customLabel: 'Ou saisissez une table / un poste personnalisé',
     customPlaceholder: 'ex. Terrasse 3 / Jardin / Comptoir',
@@ -247,7 +247,7 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeLabel: 'Заказ на кухне',
     guestLabel: 'Смартфон онлайн',
     freeCard: 'Новый заказ',
-    activeCardPrefix: 'Открытый счёт:',
+    activeCardPrefix: 'Открыт:',
     guestCardPrefix: 'Гостевой заказ онлайн',
     customLabel: 'Или введите свой столик / станцию',
     customPlaceholder: 'например, Терраса 3 / Сад / Барная стойка',
@@ -264,7 +264,7 @@ const I18N_TABLE_PICKER: Record<Language, {
     activeLabel: '厨房订单',
     guestLabel: '智能手机实时',
     freeCard: '新订单',
-    activeCardPrefix: '未结账单：',
+    activeCardPrefix: '未结：',
     guestCardPrefix: '客人实时点餐',
     customLabel: '或输入自定义餐桌/站点',
     customPlaceholder: '例如 露台3 / 花园 / 吧台',
@@ -920,6 +920,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           const rawTable = extractTableFromAddress(payload?.new?.address) || payload?.new?.table_number || '';
           if (rawTable && currentTable && getCanonicalTableKey(rawTable) === getCanonicalTableKey(currentTable)) {
             clearCart();
+            setIsCheckoutModalOpen(false);
             if (isGuestMobile) {
               setIsGuestSettled(true);
             } else {
@@ -945,6 +946,17 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           setCurrentTable('');
         }
       }
+      if (evData.type === 'ORDER_COMPLETED' || evData.status === 'completed' || evData.type === 'TABLE_SETTLED') {
+        const rawTable = evData.tableKey || extractTableFromAddress(evData.order?.address) || '';
+        if (rawTable && currentTable && getCanonicalTableKey(rawTable) === getCanonicalTableKey(currentTable)) {
+          clearCart();
+          setIsCheckoutModalOpen(false);
+          if (!isGuestMobile) {
+            setIsTableSelected(false);
+            setCurrentTable('');
+          }
+        }
+      }
     };
 
     try {
@@ -959,10 +971,11 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       bcTable = new BroadcastChannel('pizza_table_channel');
       bcTable.onmessage = (ev) => {
         fetchActiveDineInOrders();
-        if (ev.data?.type === 'TABLE_SETTLED') {
+        if (ev.data?.type === 'TABLE_SETTLED' || ev.data?.type === 'TABLE_RESET') {
           const settledKey = ev.data?.tableKey ? getCanonicalTableKey(ev.data.tableKey) : '';
           if (settledKey && currentTable && getCanonicalTableKey(currentTable) === settledKey) {
             clearCart();
+            setIsCheckoutModalOpen(false);
             if (isGuestMobile) {
               setIsGuestSettled(true);
             } else {
@@ -1050,14 +1063,84 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
   const [isResetConfirming, setIsResetConfirming] = useState<boolean>(false);
   const resetConfirmTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleCancelAndResetTable = () => {
-    liveCartControllerRef.current?.broadcastClear();
+  const handleCancelAndResetTable = async () => {
+    const tableToReset = currentTable;
+    const canonical = tableToReset ? getCanonicalTableKey(tableToReset) : '';
+    const activeOrders = canonical ? (activeTableOrderMap[canonical] || []) : [];
+    const orderIds = activeOrders.map((o: any) => o.id).filter(Boolean);
+
+    // 1. Cancel in Supabase & notify API for each active order on this table
+    if (orderIds.length > 0) {
+      for (const id of orderIds) {
+        try {
+          await fetch('/api/pizza-order-status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: id, status: 'rejected' })
+          });
+        } catch (_) {}
+
+        try {
+          await supabase
+            .from('pizza_orders')
+            .update({ status: 'rejected' })
+            .eq('id', id);
+        } catch (_) {}
+      }
+
+      // Broadcast order cancellation to Kitchen Monitor & all dining clients
+      try {
+        const ch1 = new BroadcastChannel('pizza_orders_channel');
+        ch1.postMessage({ type: 'ORDER_CANCELLED', table: canonical, orderIds, status: 'rejected' });
+        ch1.close();
+      } catch (_) {}
+
+      try {
+        const ch2 = new BroadcastChannel('flower_power_orders_channel');
+        ch2.postMessage({ type: 'ORDER_CANCELLED', table: canonical, orderIds, status: 'rejected' });
+        ch2.close();
+      } catch (_) {}
+
+      try {
+        const chTable = new BroadcastChannel('pizza_table_channel');
+        chTable.postMessage({ type: 'TABLE_RESET', tableKey: canonical });
+        chTable.close();
+      } catch (_) {}
+    }
+
+    // 2. Revoke active dynamic session QR for this table
+    if (canonical) {
+      try {
+        revokeDiningTableSession(canonical);
+      } catch (_) {}
+    }
+
+    // 3. Clear live cart presence
+    try {
+      liveCartControllerRef.current?.broadcastClear();
+    } catch (_) {}
+
+    // 4. Clear local Zustand cart
     clearCart();
+
+    // 5. Instantly clear table from local activeTableOrderMap (0ms UI latency)
+    if (canonical) {
+      setActiveTableOrderMap(prev => {
+        const next = { ...prev };
+        delete next[canonical];
+        return next;
+      });
+    }
+
+    // 6. Return to table selection view
     if (!isGuestMobile) {
       setCurrentTable('');
       setIsTableSelected(false);
       setCustomTableInput('');
     }
+
+    // 7. Background refresh active orders from database
+    fetchActiveDineInOrders();
   };
 
   const handleResetClick = () => {
@@ -1269,7 +1352,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           };
 
           const rawPrice = typeof merged.price === 'string' ? parseFloat(merged.price.replace(/[^0-9.]/g, '')) || 1190 : (merged.price || 1190);
-          const finalPrice = priceOverrides[merged.id] !== undefined ? priceOverrides[merged.id] : rawPrice;
+          const finalPrice = rawPrice;
           const titleForLang = getWineTranslatedTitle(merged, lang) || merged.title || '';
           const subForLang = getWineTranslatedSubtitle(merged, lang) || merged.categorySubtitle || '';
           const descForLang = getWineTranslatedDesc(merged, lang) || merged.description || '';
@@ -1804,6 +1887,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
 
           {/* 5. Cancel & Reset Order Button (2-Step Confirmation with Localized Prompt) */}
           <button
+            id="cancel-reset-table-btn"
             type="button"
             onClick={handleResetClick}
             className={

@@ -1076,6 +1076,36 @@ export const PASTA_SAUCES = [
   }
 ];
 
+export const PASTA_FILTER_LABELS: Record<string, { all: string }> = {
+  "IT": {
+    "all": "Tutti i Condimenti"
+  },
+  "EN": {
+    "all": "All Pasta Sauces"
+  },
+  "TH": {
+    "all": "ซอสพาสต้าทั้งหมด"
+  },
+  "DE": {
+    "all": "Alle Nudelsaucen"
+  },
+  "MM": {
+    "all": "ခေါက်ဆွဲဆော့စ်အားလုံး"
+  },
+  "ES": {
+    "all": "Todas las Salsas"
+  },
+  "FR": {
+    "all": "Toutes les Sauces"
+  },
+  "RU": {
+    "all": "Все соусы для пасты"
+  },
+  "ZH": {
+    "all": "全部意面酱汁"
+  }
+};
+
 export const WINE_FILTER_LABELS: Record<string, {
   allTypes: string;
   allCountries: string;

@@ -9,7 +9,7 @@ Il modulo **Delivery Food & Pizzeria** gestisce l'intero flusso di ordinazione o
 Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra Website ufficiale, Dining Tablet e Kitchen KDS:
 
 1. **Piatti del Giorno (`daily-specials`)**: Vetrina dinamica con sottosezioni in evidenza:
-   - **Oggi in Vetrina • Freschi di Giornata**: Sezione spotlight dorata in cima alla schermata che valorizza torte del giorno, dolci freschi e piatti cotti pronti subito (*Torta della Nonna al Cioccolato, Torta di Mele, Profiteroles al Cioccolato, Tiramisù Artigianale, Torta Pasqualina ligure, Lasagna al Forno alla Bolognese* pronta come singola porzione).
+   - **Oggi in Vetrina • Freschi di Giornata**: Sezione spotlight dorata in cima alla schermata che valorizza torte del giorno, dolci freschi e piatti cotti pronti subito (*Torta al Cioccolato, Torta di Mele, Profiteroles al Cioccolato, Tiramisù Artigianale, Torta Pasqualina ligure, Lasagna al Forno alla Bolognese* pronta come singola porzione).
    - **Primi Piatti**: Rinominate da specialità mare/pasta ripiena a titolo compatto ed elegante *Primi Piatti* (*Spaghetti allo Scoglio, Ravioli di Carne, Gnocchi di Patate al Salmone e Zucchine*).
    - **Pizze Gourmet**: Include *Pizza Capocollo e Anacardi* (350฿, fior di latte, pomodoro fresco a cubetti, anacardi tostati, parmigiano, capocollo, olio EVO, sale, pepe) e *Pizza Carpaccio di Manzo*.
    - **Secondi Piatti**: Torta Pasqualina ligure e secondi della tradizione.
@@ -32,7 +32,7 @@ Il catalogo è organizzato in **14 categorie strutturate**, sincronizzate tra We
 6. **Pizza Burgers (`pizza-burgers`)**: 4 burger cotti in crosta pizza con patatine.
 7. **Fritti & Sfizi (`french-fries`)**: 6 snack e contorni fritti.
 8. **Dolci & Dessert (`desserts`)**: Dolci tradizionali italiani fatti in casa:
-   - *Torta della Nonna al Cioccolato* (90฿): soffice torta casalinga al cacao amaro e zucchero a velo (titolo su 2 righe).
+   - *Torta al Cioccolato* (90฿): soffice torta casalinga al cacao amaro e zucchero a velo (titolo su 2 righe).
    - *Torta di Mele* (90฿): torta da forno artigianale con mele fresche, profumo di limone e cannella.
    - *Profiteroles al Cioccolato con Crema* (150฿): bignè farciti di crema pasticcera e glassa di ganache al cioccolato fondente.
    - *Tiramisù Artigianale* (140฿), *Crepes alla Nutella* (90฿), *Affogato al Caffè* (90฿).

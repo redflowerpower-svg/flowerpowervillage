@@ -46,6 +46,7 @@ const I18N_CHECKOUT: Record<string, {
   modalTitle: string;
   privilegeBadge: string;
   tableSection: string;
+  tableAssignedBadge: string;
   customTableBtn: string;
   listTableBtn: string;
   customPlaceholder: string;
@@ -76,6 +77,7 @@ const I18N_CHECKOUT: Record<string, {
     "modalTitle": "Invia Ordine al Tavolo",
     "privilegeBadge": "ORDINAZIONE AL TAVOLO",
     "tableSection": "1. Postazione Tavolo",
+    "tableAssignedBadge": "Postazione Assegnata",
     "customTableBtn": "Inserimento libero",
     "listTableBtn": "Scegli da lista",
     "customPlaceholder": "es. Tavolo 7 / Terrazza / Bancone",
@@ -106,6 +108,7 @@ const I18N_CHECKOUT: Record<string, {
     "modalTitle": "Send Order to Table",
     "privilegeBadge": "TABLE ORDERING",
     "tableSection": "1. Table Location",
+    "tableAssignedBadge": "Assigned Station",
     "customTableBtn": "Free Entry",
     "listTableBtn": "Choose from List",
     "customPlaceholder": "e.g. Table 7 / Terrace / Counter",
@@ -136,6 +139,7 @@ const I18N_CHECKOUT: Record<string, {
     "modalTitle": "ส่งคำสั่งซื้อไปยังโต๊ะ",
     "privilegeBadge": "การสั่งอาหารที่โต๊ะ",
     "tableSection": "1. ตำแหน่งโต๊ะ",
+    "tableAssignedBadge": "โต๊ะที่กำหนด",
     "customTableBtn": "ป้อนเอง",
     "listTableBtn": "เลือกจากรายการ",
     "customPlaceholder": "เช่น โต๊ะ 7 / ระเบียง / เคาน์เตอร์",
@@ -166,6 +170,7 @@ const I18N_CHECKOUT: Record<string, {
     "modalTitle": "စားပွဲသို့ အမှာတင်ပို့ပါ",
     "privilegeBadge": "စားပွဲဝန်ဆောင်မှု",
     "tableSection": "၁။ စားပွဲနေရာ",
+    "tableAssignedBadge": "သတ်မှတ်ထားသော စားပွဲ",
     "customTableBtn": "လွတ်လပ်စွာထည့်သွင်းပါ",
     "listTableBtn": "စာရင်းမှ ရွေးချယ်ပါ",
     "customPlaceholder": "ဥပမာ - စားပွဲ ၇ / လှေကားထစ် / ကောင်တာ",
@@ -196,6 +201,7 @@ const I18N_CHECKOUT: Record<string, {
     "modalTitle": "Bestellung an den Tisch senden",
     "privilegeBadge": "TISCHBESTELLUNG",
     "tableSection": "1. Tischplatzierung",
+    "tableAssignedBadge": "Zugewiesener Tisch",
     "customTableBtn": "Freie Eingabe",
     "listTableBtn": "Aus Liste wählen",
     "customPlaceholder": "z.B. Tisch 7 / Terrasse / Theke",
@@ -226,6 +232,7 @@ const I18N_CHECKOUT: Record<string, {
     "modalTitle": "Envoyer la Commande à Table",
     "privilegeBadge": "COMMANDE À TABLE",
     "tableSection": "1. Emplacement de Table",
+    "tableAssignedBadge": "Table Assignée",
     "customTableBtn": "Saisie libre",
     "listTableBtn": "Choisir dans la liste",
     "customPlaceholder": "ex. Table 7 / Terrasse / Comptoir",
@@ -256,6 +263,7 @@ const I18N_CHECKOUT: Record<string, {
     "modalTitle": "Enviar Pedido a la Mesa",
     "privilegeBadge": "PEDIDO EN MESA",
     "tableSection": "1. Ubicación de la Mesa",
+    "tableAssignedBadge": "Mesa Asignada",
     "customTableBtn": "Entrada libre",
     "listTableBtn": "Elegir de la lista",
     "customPlaceholder": "ej. Mesa 7 / Terraza / Barra",
@@ -286,6 +294,7 @@ const I18N_CHECKOUT: Record<string, {
     "modalTitle": "Отправить заказ на стол",
     "privilegeBadge": "ЗАКАЗ ЗА СТОЛОМ",
     "tableSection": "1. Расположение стола",
+    "tableAssignedBadge": "Назначенный стол",
     "customTableBtn": "Свободный ввод",
     "listTableBtn": "Выбрать из списка",
     "customPlaceholder": "напр. Стол 7 / Терраса / Барная стойка",
@@ -316,6 +325,7 @@ const I18N_CHECKOUT: Record<string, {
     "modalTitle": "发送订单到餐桌",
     "privilegeBadge": "餐桌点餐",
     "tableSection": "1. 餐桌位置",
+    "tableAssignedBadge": "已分配桌位",
     "customTableBtn": "自由输入",
     "listTableBtn": "从列表选择",
     "customPlaceholder": "例如：7号桌 / 露台 / 吧台",
@@ -356,15 +366,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
 }) => {
   const t = I18N_CHECKOUT[lang] || I18N_CHECKOUT.IT;
   const { items, clearCart, getTotal } = useCartStore();
-  const [selectedTable, setSelectedTable] = useState<string>(initialTable);
-  const [isCustomTable, setIsCustomTable] = useState(false);
-  const [customTableText, setCustomTableText] = useState('');
-
-  useEffect(() => {
-    if (initialTable) {
-      setSelectedTable(initialTable);
-    }
-  }, [initialTable]);
+  const activeTable = initialTable || 'Tavolo 1 (Interno)';
 
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -403,6 +405,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
     }
 
     let bc: BroadcastChannel | null = null;
+    let bcTable: BroadcastChannel | null = null;
     try {
       bc = new BroadcastChannel('pizza_orders_channel');
       bc.onmessage = (ev) => {
@@ -411,10 +414,19 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
         }
       };
     } catch {}
+    try {
+      bcTable = new BroadcastChannel('pizza_table_channel');
+      bcTable.onmessage = (ev) => {
+        if (ev.data?.type === 'TABLE_SETTLED') {
+          onClose();
+        }
+      };
+    } catch {}
 
     if (!isSuccess) {
       return () => {
         if (bc) bc.close();
+        if (bcTable) bcTable.close();
       };
     }
 
@@ -425,6 +437,7 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
     return () => {
       clearTimeout(timer);
       if (bc) bc.close();
+      if (bcTable) bcTable.close();
     };
   }, [isSuccess, isOpen]);
 
@@ -436,11 +449,11 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
   const discountAmount = 0;
   const finalTotal = rawSubtotal;
 
-  const activeTable = isCustomTable && customTableText.trim() ? customTableText.trim() : selectedTable;
-
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    let savedOrder: any = null;
 
     try {
       const finalCustomerName = customerName.trim() || activeTable || 'Cliente Tavolo';
@@ -721,39 +734,34 @@ export const DiningCheckoutModal: React.FC<DiningCheckoutModalProps> = ({
             /* CHECKOUT FORM */
             <form onSubmit={handleSubmitOrder} className="space-y-4">
               
-              {/* 1. Table Selection */}
+              {/* 1. Table Location (Locked / Read-Only Display) */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center justify-between">
                   <span>{t.tableSection}</span>
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomTable(!isCustomTable)}
-                    className="text-[10px] text-stone-400 hover:text-white underline"
-                  >
-                    {isCustomTable ? t.listTableBtn : t.customTableBtn}
-                  </button>
+                  <span className="text-[10px] font-black text-amber-400 bg-amber-400/15 border border-amber-400/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    {t.tableAssignedBadge}
+                  </span>
                 </label>
 
-                {isCustomTable ? (
-                  <input
-                    type="text"
-                    required
-                    value={customTableText}
-                    onChange={(e) => setCustomTableText(e.target.value)}
-                    placeholder={t.customPlaceholder}
-                    className="w-full bg-stone-950 border border-stone-700 text-white rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-400"
-                  />
-                ) : (
-                  <select
-                    value={selectedTable}
-                    onChange={(e) => setSelectedTable(e.target.value)}
-                    className="w-full bg-stone-950 border border-stone-700 text-white rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-amber-400 cursor-pointer"
-                  >
-                    {DINING_TABLES.map(tOption => (
-                      <option key={tOption} value={tOption}>{formatTableStationName(tOption, lang)}</option>
-                    ))}
-                  </select>
-                )}
+                <div className="w-full bg-stone-950 border border-amber-400/30 rounded-2xl p-3 flex items-center justify-between shadow-inner">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8B1E1E] to-[#5a1111] border border-amber-400/40 text-amber-300 flex items-center justify-center font-black shadow-md shrink-0">
+                      <UtensilsCrossed className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-white font-black text-sm tracking-wide truncate">
+                        {formatTableStationName(activeTable, lang)}
+                      </div>
+                      <div className="text-stone-400 text-[10.5px] truncate">
+                        {activeTable}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-xl shrink-0">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>{lang === 'TH' ? 'พร้อมให้บริการ' : lang === 'DE' ? 'Aktiv' : lang === 'EN' ? 'Active' : 'Attivo'}</span>
+                  </div>
+                </div>
               </div>
 
               {/* 2. Customer Contact (Lead Gen - Optional Discount Coupon) */}

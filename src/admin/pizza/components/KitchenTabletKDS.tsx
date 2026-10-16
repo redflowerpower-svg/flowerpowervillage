@@ -701,7 +701,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
       const idStr = targetId ? String(targetId) : '';
 
       // If it's a new order or table reload with new items, re-arm buzzer, unminimize, and fetch new items
-      if (data.type === 'NEW_ORDER' || data.isTableReload || data.hasNewItems || data.order?.status === 'new') {
+      if (data.type === 'NEW_ORDER' || data.isTableReload || data.hasNewItems || data.order?.status === 'new' || data.type === 'ORDER_CANCELLED' || data.type === 'TABLE_RESET') {
         if (idStr) {
           setAcknowledgedOrderIds(prev => {
             if (!prev.has(idStr)) return prev;
