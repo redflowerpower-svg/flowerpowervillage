@@ -1,3 +1,5 @@
+import { supabase } from '../../lib/supabase';
+
 export interface PizzaMenuOverrides {
   availability: Record<string, boolean>; // id -> is_available (false = sold out)
   dailySpecials: Record<string, boolean>; // id -> is_daily_special
@@ -113,6 +115,19 @@ export async function saveCloudMenuOverride(payload: {
         prices: payload.prices
       });
     }
+
+    // Broadcast Realtime via Supabase per raggiungere tutti i tablet fisici e smartphone in rete
+    try {
+      supabase.channel('fp_pizza_menu_sync').send({
+        type: 'broadcast',
+        event: 'MENU_SYNC_UPDATE',
+        payload: {
+          availability: payload.availability,
+          dailySpecials: payload.dailySpecials,
+          prices: payload.prices
+        }
+      });
+    } catch (_) {}
   } catch (_) {}
 
   // 2. Persisti sul Cloud permanente

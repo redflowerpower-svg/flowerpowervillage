@@ -28,7 +28,8 @@ import {
   Trash2,
   LogOut,
   Sun,
-  SunMedium
+  SunMedium,
+  RotateCw
 } from 'lucide-react';
 import { KitchenAdminAuth } from './KitchenAdminAuth';
 import { KitchenDishAvailabilityModal } from './KitchenDishAvailabilityModal';
@@ -781,9 +782,22 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
     };
   }, []);
 
+  // Helper anti-zombie: ignora ordini pendenti più vecchi di 16 ore (residui di turni passati)
+  const isStaleOrder = (order: PizzaOrder, maxHours = 16) => {
+    if (!order.created_at) return false;
+    const ageMs = Date.now() - new Date(order.created_at).getTime();
+    return ageMs > maxHours * 60 * 60 * 1000;
+  };
+
   // Active Dining Tables in Hall (Guaranteed 1 single card per table in bottom dock)
   const activeDiningOrders = useMemo(() => {
-    const rawDining = orders.filter(o => isDiningTableOrder(o) && o.status !== 'completed' && o.status !== 'cancelled');
+    const rawDining = orders.filter(o => 
+      isDiningTableOrder(o) && 
+      o.status !== 'completed' && 
+      o.status !== 'cancelled' && 
+      (o.status as any) !== 'rejected' &&
+      !isStaleOrder(o, 16)
+    );
     const tableMap = new Map<string, PizzaOrder>();
     rawDining.forEach(o => {
       const rawTable = extractTableFromAddress(o.address) || o.table_number || String(o.id);
@@ -812,7 +826,11 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
   // Phase 1: In Kitchen (New orders to accept - delivery/takeaway and dining tables)
   // Deduplicates dining table orders by canonical table key so exactly 1 ticket per table is shown
   const kitchenOrders = useMemo(() => {
-    const rawKitchen = orders.filter(o => !isTableReservationOrder(o) && (o.status === 'new' || (o.status as any) === 'received'));
+    const rawKitchen = orders.filter(o => 
+      !isTableReservationOrder(o) && 
+      (o.status === 'new' || (o.status as any) === 'received') &&
+      !isStaleOrder(o, 16)
+    );
     const seenTables = new Set<string>();
     const result: PizzaOrder[] = [];
 
@@ -836,6 +854,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
     // 1. First filter active preparing or delivering orders
     const active = orders.filter(o => {
       if (isTableReservationOrder(o)) return false;
+      if (isStaleOrder(o, 16)) return false;
       const isReadyStatus = o.status === 'preparing' || o.status === 'delivering' || (o.status as any) === 'ready';
       return isReadyStatus;
     });
@@ -874,7 +893,7 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
 
   // Phase 3: Completed Orders Today (Archived & delivered in the last 24h)
   const completedTodayOrders = useMemo(() => {
-    return orders.filter(o => !isTableReservationOrder(o) && o.status === 'completed');
+    return orders.filter(o => !isTableReservationOrder(o) && o.status === 'completed' && !isStaleOrder(o, 24));
   }, [orders]);
 
   // Helper to calculate minutes spent in preparation
@@ -1534,7 +1553,21 @@ function KitchenTabletKDSContent({ onLogout }: { onLogout?: () => Promise<void> 
             {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
           </button>
 
-          {/* 8. Master Admin Logout / Lock Button */}
+          {/* 8. Quick Hard Refresh & Cache Buster Button */}
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.location.reload();
+              }
+            }}
+            className="w-9 h-9 rounded-xl bg-[#181d29] hover:bg-amber-950/50 hover:border-amber-500/60 text-stone-300 hover:text-amber-300 border border-stone-700/70 flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+            title={kdsLang === 'th' ? 'รีเฟรชหน้าจอ (อัปเดตระบบ)' : 'Ricarica Monitor Cucina (Aggiorna sistema / cache)'}
+          >
+            <RotateCw className="w-4 h-4" />
+          </button>
+
+          {/* 9. Master Admin Logout / Lock Button */}
           {onLogout && (
             <button
               onClick={() => {

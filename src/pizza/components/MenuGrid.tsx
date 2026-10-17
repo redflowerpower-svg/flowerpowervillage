@@ -1344,9 +1344,26 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       });
     } else {
       const isChicken = hasPorkMeat(item) && isHalalChicken;
-      const finalItemBasePrice = (selectedVariant?.price != null && Number(selectedVariant.price) > 0)
-        ? Number(selectedVariant.price)
-        : item.price;
+      const variantMod = selectedVariant ? (selectedVariant.priceModifier ?? 0) : 0;
+      const isSingleDefaultVariant = selectedVariant && (
+        item.variants?.length === 1 ||
+        selectedVariant.id === '10001' ||
+        selectedVariant.name === '12"' ||
+        variantMod === 0
+      );
+      const finalItemBasePrice = isSingleDefaultVariant
+        ? item.price
+        : (selectedVariant?.priceModifier !== undefined)
+          ? item.price + selectedVariant.priceModifier
+          : (selectedVariant?.price != null && Number(selectedVariant.price) > 0)
+            ? Number(selectedVariant.price)
+            : item.price;
+
+      const syncedVariant = selectedVariant ? {
+        ...selectedVariant,
+        price: finalItemBasePrice
+      } : null;
+
       addItem({
         productId: isChicken ? `${item.id}-chicken` : item.id,
         name: isChicken ? `${item.name} (100% Chicken 🐔)` : item.name,
@@ -1356,7 +1373,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
         nameMm: isChicken ? `${(item as any).nameMm || item.name} (၁၀၀% ကြက်သား 🐔)` : (item as any).nameMm,
         quantity,
         basePrice: finalItemBasePrice,
-        selectedVariant,
+        selectedVariant: syncedVariant,
         selectedExtras,
         image: item.image,
         lasagnaDate: isLasagna(item) ? lasagnaDate : undefined,

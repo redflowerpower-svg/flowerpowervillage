@@ -37,6 +37,7 @@ import { useCartStore, calcItemTotal } from '../store/cartStore';
 import { INITIAL_WINE_COLLECTION,  WINE_COUNTRY_OPTIONS, resolveWineCategoryType, sortWinesByCountryOrder, getCountryRank, WineCardData , getWineTranslatedTitle, getWineTranslatedSubtitle, getWineTranslatedDesc } from '../data/wineData';
 import { fetchCloudWineCollection } from '../data/wineCloudService';
 import { fetchCloudMenuOverrides } from '../data/pizzaMenuCloudService';
+import { supabase } from '../../lib/supabase';
 import { useLanguageStore } from '../store/languageStore';
 import { SUPPORTED_LANGUAGES, LANGUAGE_METAS, Language } from '../config/languages';
 import { getDietaryType, type DietaryType } from '../utils/dietary';
@@ -1236,37 +1237,84 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     };
     window.addEventListener('storage', syncFromStorage);
 
+    const refreshCloudOverrides = () => {
+      fetchCloudMenuOverrides().then((overrides) => {
+        if (overrides) {
+          if (overrides.dailySpecials) {
+            setDailySpecialsOverrides(overrides.dailySpecials);
+          }
+          if (overrides.prices) {
+            setPriceOverrides(overrides.prices);
+          }
+          if (overrides.availability) {
+            const unavail = Object.entries(overrides.availability)
+              .filter(([_, isAvail]) => isAvail === false)
+              .map(([id]) => id);
+            setUnavailableIds(new Set<string>(unavail));
+          }
+        }
+      });
+    };
+
+    // 1. BroadcastChannel locale per schede stesso dispositivo
     let bc: BroadcastChannel | null = null;
     if ('BroadcastChannel' in window) {
       bc = new BroadcastChannel('fp_pizza_menu_sync');
       bc.onmessage = (ev) => {
         if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE' || ev.data?.type === 'AVAILABILITY_TOGGLE' || ev.data?.type === 'PRICE_UPDATE' || ev.data?.type === 'MENU_SYNC_UPDATE') {
           syncFromStorage();
+          refreshCloudOverrides();
         }
       };
     }
 
-    // Carica immediatamente overrides ufficiali dal Cloud Supabase
-    fetchCloudMenuOverrides().then((overrides) => {
-      if (overrides) {
-        if (overrides.dailySpecials) {
-          setDailySpecialsOverrides(overrides.dailySpecials);
+    // 2. Supabase Realtime Channel per sincronizzazione istantanea cross-device (KDS -> Tablet in sala)
+    const realtimeChannel = supabase.channel('fp_pizza_menu_sync')
+      .on('broadcast', { event: 'MENU_SYNC_UPDATE' }, (msg) => {
+        const payload = msg?.payload;
+        if (payload) {
+          if (payload.prices) {
+            setPriceOverrides(prev => ({ ...prev, ...payload.prices }));
+          }
+          if (payload.dailySpecials) {
+            setDailySpecialsOverrides(prev => ({ ...prev, ...payload.dailySpecials }));
+          }
+          if (payload.availability) {
+            const unavail = Object.entries(payload.availability)
+              .filter(([_, isAvail]) => isAvail === false)
+              .map(([id]) => id);
+            setUnavailableIds(new Set<string>(unavail));
+          }
         }
-        if (overrides.prices) {
-          setPriceOverrides(overrides.prices);
-        }
-        if (overrides.availability) {
-          const unavail = Object.entries(overrides.availability)
-            .filter(([_, isAvail]) => isAvail === false)
-            .map(([id]) => id);
-          setUnavailableIds(new Set<string>(unavail));
-        }
+        refreshCloudOverrides();
+      })
+      .subscribe();
+
+    // 3. Carica immediatamente overrides ufficiali dal Cloud Supabase
+    refreshCloudOverrides();
+
+    // 4. Polling di sicurezza ogni 30 secondi e al ritorno visibilità/focus dello schermo tablet
+    const pollTimer = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        refreshCloudOverrides();
       }
-    });
+    }, 30000);
+
+    const handleFocus = () => {
+      if (document.visibilityState === 'visible') {
+        refreshCloudOverrides();
+      }
+    };
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleFocus);
 
     return () => {
       window.removeEventListener('storage', syncFromStorage);
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleFocus);
+      clearInterval(pollTimer);
       if (bc) bc.close();
+      supabase.removeChannel(realtimeChannel);
     };
   }, []);
 
@@ -1368,7 +1416,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           };
 
           const rawPrice = typeof merged.price === 'string' ? parseFloat(merged.price.replace(/[^0-9.]/g, '')) || 1190 : (merged.price || 1190);
-          const finalPrice = rawPrice;
+          const finalPrice = priceOverrides[merged.id] !== undefined ? priceOverrides[merged.id] : rawPrice;
           const titleForLang = getWineTranslatedTitle(merged, lang) || merged.title || '';
           const subForLang = getWineTranslatedSubtitle(merged, lang) || merged.categorySubtitle || '';
           const descForLang = getWineTranslatedDesc(merged, lang) || merged.description || '';
@@ -1666,7 +1714,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       const isOverridden = dailySpecialsOverrides[it.id];
       const isShowcase = isOverridden !== undefined ? isOverridden === true : true;
       if (isShowcase) {
-        list.push({ ...it, is_daily_special: true, _inShowcase: true });
+        const itemPrice = priceOverrides[it.id] !== undefined ? priceOverrides[it.id] : it.price;
+        list.push({ ...it, price: itemPrice, is_daily_special: true, _inShowcase: true });
       }
     });
 
@@ -1674,7 +1723,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       if (DEFAULT_SHOWCASE_IDS.includes(it.id)) return;
       if (unavailableIds.has(it.id)) return;
       if (dailySpecialsOverrides[it.id] === true) {
-        list.push({ ...it, is_daily_special: true, _inShowcase: true });
+        const itemPrice = priceOverrides[it.id] !== undefined ? priceOverrides[it.id] : it.price;
+        list.push({ ...it, price: itemPrice, is_daily_special: true, _inShowcase: true });
       }
     });
 
@@ -1689,7 +1739,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     }
 
     return list;
-  }, [dailySpecialsOverrides, unavailableIds, dietaryFilter]);
+  }, [dailySpecialsOverrides, unavailableIds, dietaryFilter, priceOverrides]);
 
   const groupedDailySpecials = activeCategoryId === 'daily-specials' ? DAILY_SPECIALS_SECTIONS.map(sec => {
     if (sec.id === 'fresh-showcase') {
