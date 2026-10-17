@@ -4,6 +4,8 @@ import { executeAutoShieldForReservation } from "../_helpers/octorate-auto-shiel
 import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync.js";
 import { handleDirectReservationCancellation } from "../_helpers/cancellation-email.js";
 import { checkAndNotifyOverbookings } from "../_helpers/overbooking-detector.js";
+import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
+import { runResortSentinelAudit } from "./resort-sentinel.js";
 
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "";
@@ -145,7 +147,7 @@ export const ALL_ACCOMMODATIONS_MAP: Record<string, { motherId: number; name: st
   }
 };
 
-function getCanonicalAccommodation(booking: any): { key: string; name: string; motherId: number } | null {
+export function getCanonicalAccommodation(booking: any): { key: string; name: string; motherId: number } | null {
   if (!booking) return null;
   const bProduct = String(booking.product || booking.pmsProduct || booking.accommodation_id || booking.roomId || '').trim();
   const bName = String(booking.roomName || booking.accommodation_name || booking.room_name || '').toLowerCase().trim();
@@ -228,7 +230,7 @@ export interface DynamicMinStayUpdate {
 /**
  * Algoritmo Serverless di Calcolo e Ripristino Soggiorno Minimo Dinamico 24/7
  */
-function calculateServerDynamicMinStay(
+export function calculateServerDynamicMinStay(
   bookings: any[],
   dateRange: { start: string; end: string }
 ): DynamicMinStayUpdate[] {
@@ -354,7 +356,7 @@ function calculateServerDynamicMinStay(
               dateFrom: blockStart,
               dateTo: blockEnd,
               minStay: blockMinStay,
-              reason: gapDays < blockMinStay
+              reason: gapDays < baseline
                 ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
                 : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
             });
@@ -372,7 +374,7 @@ function calculateServerDynamicMinStay(
             dateFrom: blockStart,
             dateTo: lastDate,
             minStay: blockMinStay,
-            reason: gapDays < blockMinStay
+            reason: gapDays < getBaselineMinStay(blockStart)
               ? `Gap-Fill Dinamico (${gapDays}d): M=${blockMinStay}`
               : `Minimo da Gestione Tariffe Derivate: M=${blockMinStay}`
           });
@@ -566,6 +568,23 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
           const results = await Promise.all(batchPromises);
           octorateStatus = results[0] || 200;
+
+          // 📲 [TELEGRAM NOTIFICATION] Notifica automatica Minimo Notti Dinamico
+          try {
+            const roomsAffected = [...new Set(calculatedUpdates.map(u => u.accommodationName).filter(Boolean))];
+            const sampleGaps = calculatedUpdates.filter(u => u.reason && u.reason.includes('Gap-Fill')).slice(0, 4);
+            const tgMsg = `📏 <b>[Soggiorno Minimo Dinamico (Gap-Fill)]</b>\n` +
+              `🏨 <b>Octorate PMS Sincronizzato con Successo 24/7</b>\n\n` +
+              `📊 Bucature allineate: <b>${calculatedUpdates.length} blocchi</b> su <b>${roomsAffected.length} Alloggi</b>\n` +
+              (sampleGaps.length > 0 ? `\n🔍 <i>Esempi aggiornati:</i>\n` + sampleGaps.map(g => `• <b>${g.accommodationName}</b> (${g.dateFrom} ➔ ${g.dateTo}): <b>${g.minStay} notti</b>`).join('\n') + `\n` : '') +
+              `\n🔄 Evento scatenante: <code>${eventType}</code>\n` +
+              `✅ Restrizioni MinStay allineate in tempo reale.`;
+            sendDepartmentTelegramMessage('village', tgMsg).catch(err => {
+              console.warn('[octorate-webhook] Telegram alert warning:', err);
+            });
+          } catch (tgErr) {
+            console.warn('[octorate-webhook] Telegram notification error:', tgErr);
+          }
         }
 
         // 🛡️ [AUTO-SHIELD] Sigillatura forzata immediata tariffe derivate per la prenotazione ricevuta
@@ -637,6 +656,15 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           await checkAndSyncCascadeLastMinute(accessToken, supabaseAdmin);
         } catch (cascadeErr) {
           console.warn('[OCTORATE WEBHOOK] Cascade sync non-fatal warning:', cascadeErr);
+        }
+
+        // 🛡️ [RESORT SENTINEL 24/7] Auto-audit di conformità e auto-guarigione live
+        try {
+          runResortSentinelAudit({ sendTelegram: true }).catch(err => {
+            console.warn('[OCTORATE WEBHOOK] Resort Sentinel background audit notice:', err);
+          });
+        } catch (sentinelErr) {
+          console.warn('[OCTORATE WEBHOOK] Sentinel dispatch notice:', sentinelErr);
         }
       }
     }

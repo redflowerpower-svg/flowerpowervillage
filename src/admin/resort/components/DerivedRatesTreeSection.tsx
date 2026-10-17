@@ -1919,6 +1919,30 @@ export function DerivedRatesTreeSection() {
   } | null>(null);
   const [unificationStatus, setUnificationStatus] = useState<string | null>(null);
   const [isUnificationOpen, setIsUnificationOpen] = useState(false);
+  const [sentinelRunning, setSentinelRunning] = useState(false);
+  const [sentinelStatusMsg, setSentinelStatusMsg] = useState<string | null>(null);
+
+  const handleRunSentinel = async () => {
+    setSentinelRunning(true);
+    setSentinelStatusMsg(null);
+    try {
+      const res = await fetch('/api/resort-sentinel?report=1&notify=1');
+      const data = await res.json();
+      if (data.success) {
+        if (data.allClear) {
+          setSentinelStatusMsg(`✅ Sentinel 24/7 OK: ${data.checkpointsAudited} verifiche superate su 18 alloggi (0 falle). Notifica Telegram inviata.`);
+        } else {
+          setSentinelStatusMsg(`🛠️ Sentinel Auto-Healer: ${data.anomaliesFixed} anomalie rilevate e corrette su Octorate! Notifica Telegram inviata.`);
+        }
+      } else {
+        setSentinelStatusMsg(`⚠️ Errore Sentinel: ${data.error || 'Risposta imprevista'}`);
+      }
+    } catch (err: any) {
+      setSentinelStatusMsg(`❌ Errore connessione: ${err.message || 'Errore di rete'}`);
+    } finally {
+      setSentinelRunning(false);
+    }
+  };
 
   const handleApplyUnification = (type: 'AC_BOOKING' | 'AC_AGODA' | 'AC_AIRBNB' | 'BREAKFAST', val: number) => {
     if (type === 'AC_BOOKING') {
@@ -2333,6 +2357,17 @@ export function DerivedRatesTreeSection() {
 
           <button
             type="button"
+            onClick={handleRunSentinel}
+            disabled={sentinelRunning}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-900 to-teal-900 hover:from-emerald-800 hover:to-teal-800 text-emerald-200 border border-emerald-500/50 font-black text-xs rounded-xl shadow transition-all cursor-pointer disabled:opacity-50"
+            title="Esegui Audit Sentinel 24/7 in tempo reale su Octorate + Notifica Telegram"
+          >
+            <ShieldCheck className={`w-3.5 h-3.5 text-emerald-400 ${sentinelRunning ? 'animate-pulse' : ''}`} />
+            <span>{sentinelRunning ? 'Audit Sentinel...' : 'Audit Sentinel 24/7'}</span>
+          </button>
+
+          <button
+            type="button"
             onClick={expandAll}
             className="px-3 py-1.5 bg-stone-950 hover:bg-stone-800 border border-stone-800 text-stone-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
           >
@@ -2349,6 +2384,23 @@ export function DerivedRatesTreeSection() {
           </button>
         </div>
       </div>
+
+      {/* Sentinel Live Status Banner */}
+      {sentinelStatusMsg && (
+        <div className="bg-emerald-950/80 border border-emerald-500/60 p-3.5 rounded-2xl text-xs font-bold text-emerald-200 flex items-center justify-between gap-3 shadow-lg animate-in fade-in">
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <span>{sentinelStatusMsg}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSentinelStatusMsg(null)}
+            className="text-emerald-400 hover:text-white text-xs font-black px-2 py-0.5 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* PANNELLO DI CONTROLLO: PREZZI UNIFICATI AC PER CANALE E COLAZIONE */}
       <div className="bg-stone-900 border-4 border-double border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-xl space-y-4 transition-all">

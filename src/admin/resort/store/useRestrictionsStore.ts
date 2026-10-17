@@ -625,7 +625,7 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
           return DEFAULT_DISABLED;
         }
       })(),
-      liveViewMode: 'test',
+      liveViewMode: 'prod',
       syncingPeriodId: null,
       syncAllRunning: false,
       isSaving: false,
@@ -727,8 +727,8 @@ export const useRestrictionsStore = create<RestrictionsStoreState>()(
         set({ isFetchingLive: true, lastSyncMessage: null });
         try {
           const url = liveViewMode === 'test'
-            ? '/api/resort/octorate-restrictions-grid?testOnly=true'
-            : '/api/resort/octorate-restrictions-grid';
+            ? '/api/octorate-restrictions-grid?testOnly=true'
+            : '/api/octorate-restrictions-grid';
           const res = await fetch(url);
           if (!res.ok) {
             const errText = await res.text().catch(() => `Status ${res.status}`);

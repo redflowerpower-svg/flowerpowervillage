@@ -808,17 +808,17 @@ const CalendarCell = React.memo(function CalendarCell({
 
   const hasDiscount = !isClosedOrStopSell && originalPrice > 0 && originalPrice < 10000 && beDiscountedPrice > 0 && beDiscountedPrice < originalPrice && (Boolean(simulatedMatch?.isSimulatedDiscount) || beDiscountedPrice < originalPrice);
 
-  let motherMinStayNum = expectedBaseline;
+  const rawLiveMinStay = Number(
+    motherData?.minStay ?? motherData?.minstay ?? motherData?.minNights ?? motherData?.min_stay ?? motherData?.minimumStay ??
+    beData?.minStay ?? beData?.minstay ?? beData?.minNights ?? beData?.min_stay ?? beData?.minimumStay ??
+    0
+  );
+
+  let motherMinStayNum = rawLiveMinStay > 0 ? rawLiveMinStay : expectedBaseline;
 
   const isGapFillActive = Boolean(isDynamicCalculationEnabled && gapFillCellInfo?.isGapFill);
   if (isGapFillActive && gapFillCellInfo?.minStay !== undefined && gapFillCellInfo.minStay > 0) {
     motherMinStayNum = gapFillCellInfo.minStay;
-  } else if (!isDynamicCalculationEnabled) {
-    motherMinStayNum = Number(
-      motherData?.minStay ?? motherData?.minstay ?? motherData?.minNights ?? motherData?.min_stay ?? motherData?.minimumStay ??
-      beData?.minStay ?? beData?.minstay ?? beData?.minNights ?? beData?.min_stay ?? beData?.minimumStay ??
-      expectedBaseline
-    );
   }
 
   let isMinStayAltered = motherMinStayNum !== expectedBaseline;
@@ -850,9 +850,8 @@ const CalendarCell = React.memo(function CalendarCell({
   );
 
   const isSyncConfirmed = Boolean(
-    dynamicMinStayResult?.success === true &&
-    dynamicMinStayResult?.dryRun === false &&
-    !dynamicMinStayRunning
+    (dynamicMinStayResult?.success === true && dynamicMinStayResult?.dryRun === false && !dynamicMinStayRunning) ||
+    (rawLiveMinStay > 0 && rawLiveMinStay !== expectedBaseline)
   );
 
   const isSimulatedBadge = Boolean(

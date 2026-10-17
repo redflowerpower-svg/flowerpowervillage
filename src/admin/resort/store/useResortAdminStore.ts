@@ -3,7 +3,7 @@ import { ACCOMMODATIONS } from '../../../booking/resort/config/accommodations';
 import { updateLastMinuteRatesStrategy, resetLastMinuteRatesStrategy, disableLastMinuteRatesStrategy, updateStandardProtectionStrategy, fetchOctorateLiveReservations } from '../../../booking/lib/octorate';
 import { calculateCascadeDiscountUpdates, calculateDynamicMinStay, calculateStandardProtectionUpdates, StandardProtectionUpdate, toThailandDateStr, getSeasonalEndDateStr, DiscountExecutionMode, ALL_ACCOMMODATIONS_MAP, FALLBACK_BASELINE_PRICES } from '../lib/octorateAdmin';
 import { isValidActiveBooking } from '../lib/bookingFilters';
-import { useRestrictionsStore } from './useRestrictionsStore';
+import { useRestrictionsStore } from './useRestrictionsStore-v17';
 import { fetchCloudResortPromoCodes, saveCloudResortPromoCodes } from '../services/resortPromoCloudService';
 
 const ALL_ACCOMMODATIONS_MAP_LOCAL = ALL_ACCOMMODATIONS_MAP;
@@ -166,6 +166,7 @@ interface ResortAdminState {
   setDynamicMinStayGapFill: (enabled: boolean) => void;
   setDynamicMinStayExecutionMode: (mode: DiscountExecutionMode) => void;
   executeDynamicMinStayStrategy: (resetToBaseline?: boolean, customRange?: { start: string; end: string }) => Promise<void>;
+  autoAdvanceDailyDynamicMinStay: () => Promise<void>;
 
   // Last-Minute Actions
   setLastMinuteStage1Days: (days: number) => void;
@@ -659,7 +660,7 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
         const lastDayStr = `${item.year}-${String(item.month).padStart(2, '0')}-${String(lastDayNum).padStart(2, '0')}`;
 
         try {
-          const res = await fetch(`/api/resort/octorate-bookings?dateFrom=${firstDayStr}&dateTo=${lastDayStr}`);
+          const res = await fetch(`/api/octorate-bookings?dateFrom=${firstDayStr}&dateTo=${lastDayStr}`);
           if (res.ok) {
             const json = await res.json();
             if (json.data && Array.isArray(json.data)) {
@@ -802,8 +803,8 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
           }));
 
       const endpoints = [
-        '/api/resort/octorate-min-stay',
         '/api/octorate-min-stay',
+        '/api/resort/octorate-min-stay',
         '/api/resort-octorate-min-stay'
       ];
 
@@ -870,6 +871,20 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
     }
   },
 
+  autoAdvanceDailyDynamicMinStay: async () => {
+    const { dynamicMinStayGapFill, dynamicMinStayRunning } = get();
+    if (!dynamicMinStayGapFill || dynamicMinStayRunning) return;
+    const todayStr = toThailandDateStr(new Date());
+    const lastSyncDate = typeof window !== 'undefined' ? localStorage.getItem('fp_dynamic_min_stay_sync_date') : '';
+    if (todayStr && todayStr !== lastSyncDate) {
+      console.log(`[useResortAdminStore] 🔄 Daily Auto-Advance Dynamic MinStay to ${todayStr}...`);
+      await get().executeDynamicMinStayStrategy(false);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('fp_dynamic_min_stay_sync_date', todayStr);
+      }
+    }
+  },
+
   applyClosedToArrival: true,
   lastMinuteRunning: false,
   lastMinuteResult: null,
@@ -887,7 +902,7 @@ export const useResortAdminStore = create<ResortAdminState>((set, get) => ({
       const seasonEndStr = getSeasonalEndDateStr(todayStr);
 
       // 1. Download Stagionale in Blocco da oggi al 31 Ottobre nel fuso Asia/Bangkok
-      const res = await fetch(`/api/resort/octorate-bookings?dateFrom=${todayStr}&dateTo=${seasonEndStr}`);
+      const res = await fetch(`/api/octorate-bookings?dateFrom=${todayStr}&dateTo=${seasonEndStr}`);
       if (res.ok) {
         const json = await res.json();
         if (json.data && Array.isArray(json.data) && json.data.length > 0) {

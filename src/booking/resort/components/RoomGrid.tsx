@@ -164,7 +164,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({
         const futureDateObj = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
         const futureDate = futureDateObj.toISOString().substring(0, 10);
 
-        const res = await fetch(`/api/resort/octorate-grid?dateFrom=${today}&dateTo=${futureDate}`);
+        const res = await fetch(`/api/octorate-grid?dateFrom=${today}&dateTo=${futureDate}`);
         if (res.ok) {
           const payload = await res.json();
           const items = payload && Array.isArray(payload.beGrid) && payload.beGrid.length > 0

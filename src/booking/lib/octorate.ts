@@ -140,7 +140,7 @@ export async function getStoredTokens(): Promise<OAuthTokens | null> {
  */
 export async function fetchOctorateLiveReservations(): Promise<any[]> {
   try {
-    const res = await fetch("/api/resort/octorate-bookings");
+    const res = await fetch("/api/octorate-bookings");
     if (res.ok) {
       const json = await res.json();
       if (json.success && Array.isArray(json.data)) {
@@ -535,7 +535,7 @@ export async function checkAvailability(
 ): Promise<AvailabilityResult[]> {
   // 1. Try first via the optimized serverless backend endpoint (/api/resort/octorate-grid)
   try {
-    const gridRes = await fetch(`/api/resort/octorate-grid?dateFrom=${checkIn}&dateTo=${checkOut}`);
+    const gridRes = await fetch(`/api/octorate-grid?dateFrom=${checkIn}&dateTo=${checkOut}`);
     if (gridRes.ok) {
       const payload = await gridRes.json();
       const items = payload && Array.isArray(payload.beGrid) && payload.beGrid.length > 0
@@ -706,7 +706,7 @@ export async function fetchOctorateMonthlyGrid(
   const result: Record<string, Record<string, OctorateDayData>> = {};
 
   try {
-    const url = `/api/resort/octorate-grid?dateFrom=${dateFrom}&dateTo=${dateTo}`;
+    const url = `/api/octorate-grid?dateFrom=${dateFrom}&dateTo=${dateTo}`;
     const res = await fetch(url);
 
     if (!res.ok) {

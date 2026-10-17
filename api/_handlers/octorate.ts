@@ -3,6 +3,7 @@ import path from "path";
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync.js";
+import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
 
 function getSupabaseAdmin() {
   let url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://gjqevgkbjkharczhikcl.supabase.co";
@@ -770,6 +771,22 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
 
     const isTest = executionMode === 'test_bungalows' || isTestEnvironment;
     const modeLabel = isTest ? 'Ambiente di Test (Fake Bungalows)' : 'Produzione Reale Resort';
+
+    // 📲 [TELEGRAM NOTIFICATION] Notifica manuale/dashboard Minimo Notti Dinamico
+    try {
+      const roomsAffected = [...new Set(updateItems.map((u: any) => u.accommodationName || u.name).filter(Boolean))];
+      const tgMsg = `📏 <b>[Soggiorno Minimo Dinamico]</b>\n` +
+        `🏨 <b>Sincronizzazione Octorate Completata</b>\n\n` +
+        `⚙️ Modalità: <b>${isTest ? '🧪 Ambiente di Test' : '🌐 Produzione Reale Resort'}</b>\n` +
+        `📊 Aggiornamenti inviati: <b>${roomsPayload.length} blocchi</b> (${chunks.length} batch)\n` +
+        `🛏️ Alloggi coinvolti: <b>${roomsAffected.length}</b>\n` +
+        `✅ Valori MinStay applicati su Octorate PMS.`;
+      sendDepartmentTelegramMessage('village', tgMsg).catch(err => {
+        console.warn('[handleOctorateMinStay] Telegram alert warning:', err);
+      });
+    } catch (tgErr) {
+      console.warn('[handleOctorateMinStay] Telegram notification error:', tgErr);
+    }
 
     return res.status(200).json({ 
       success: true, 

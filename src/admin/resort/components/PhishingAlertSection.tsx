@@ -76,7 +76,7 @@ export const PhishingAlertSection: React.FC = () => {
     const bookingId = String(b.id || b.reservationId || Math.random());
     setSendingEmail(bookingId);
     try {
-      const res = await fetch('/api/resort/email-alerts', {
+      const res = await fetch('/api/email-alerts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ emails: [email], guestName: getGuestName(b) }),
@@ -98,7 +98,7 @@ export const PhishingAlertSection: React.FC = () => {
     setSendingAll(true);
     setAllResult(null);
     try {
-      const res = await fetch('/api/resort/email-alerts', {
+      const res = await fetch('/api/email-alerts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ emails: emailList }),

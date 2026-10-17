@@ -138,7 +138,8 @@ export async function handleUpdateRateplanRestrictionsBulk(req: VercelRequest, r
     const stopSell = Boolean(stopSellParam === true || stopSellParam === 'true' || stopSellParam === 1 || stopSellParam === '1' || strategy === 'stopsell');
 
     const todayStr = new Date().toISOString().slice(0, 10);
-    const dateFrom = req.body?.dateFrom || req.query?.dateFrom || todayStr;
+    const rawDateFrom = req.body?.dateFrom || req.query?.dateFrom || todayStr;
+    const dateFrom = rawDateFrom < todayStr ? todayStr : rawDateFrom;
     const dateTo = req.body?.dateTo || req.query?.dateTo || dateFrom;
 
     if (!rateId) {

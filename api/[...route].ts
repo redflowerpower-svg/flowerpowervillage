@@ -47,6 +47,7 @@ import { handlePizzaMenuSync } from "./_handlers/pizza-menu-sync.js";
 import { handlePizzaOrderSubmit } from "./_handlers/pizza-order-submit.js";
 import { handleNetworkAuth } from "./_handlers/network-auth.js";
 import { handlePromoCodes } from "./_handlers/promo-codes.js";
+import { handleResortSentinel } from "./_handlers/resort-sentinel.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -141,6 +142,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (cleanPath.includes('update-rateplan-restrictions-bulk') || cleanPath.includes('update_rateplan_restrictions_bulk')) {
     return handleUpdateRateplanRestrictionsBulk(req, res);
+  }
+
+  if (cleanPath.includes('resort-sentinel') || cleanPath.includes('sentinel')) {
+    return handleResortSentinel(req, res);
   }
 
   if (cleanPath.includes('update-prices-stagionale') || cleanPath.includes('update_prices_stagionale')) {

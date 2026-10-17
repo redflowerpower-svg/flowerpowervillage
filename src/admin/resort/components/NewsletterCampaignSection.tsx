@@ -734,7 +734,7 @@ export const NewsletterCampaignSection: React.FC = () => {
       const batch = activePlaylistEmails.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE);
 
       try {
-        const res = await fetch('/api/resort/send-newsletter', {
+        const res = await fetch('/api/send-newsletter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ emails: batch, subject, message, senderAccount })

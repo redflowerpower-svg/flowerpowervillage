@@ -66,7 +66,7 @@ export const OctorateImportSection: React.FC = () => {
     setSuccessMessage(null);
 
     try {
-      const response = await fetch('/api/resort/octorate-import');
+      const response = await fetch('/api/octorate-import');
       if (!response.ok) {
         const errJson = await response.json().catch(() => ({ error: 'Errore risposta server' }));
         throw new Error(errJson.error || `HTTP ${response.status}`);
@@ -170,7 +170,7 @@ export const OctorateImportSection: React.FC = () => {
         throw new Error('Nessun alloggio selezionato per la sincronizzazione.');
       }
 
-      const response = await fetch('/api/resort/octorate-import', {
+      const response = await fetch('/api/octorate-import', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ updates: selectedUpdates })

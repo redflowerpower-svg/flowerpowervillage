@@ -4,6 +4,12 @@
       "includeFiles": "public/**"
     }
   },
+  "crons": [
+    {
+      "path": "/api/resort-sentinel",
+      "schedule": "0 1 * * *"
+    }
+  ],
   "redirects": [
     {
       "source": "/flowerpowerpizzaranong",
@@ -20,6 +26,22 @@
     {
       "source": "/api-octorate/:path*",
       "destination": "https://api.octorate.com/:path*"
+    },
+    {
+      "source": "/api/webhooks/octorate",
+      "destination": "/api/octorate-webhook"
+    },
+    {
+      "source": "/api/webhooks/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/api/resort/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/api/admin/:path*",
+      "destination": "/api/:path*"
     },
     {
       "source": "/dining",
