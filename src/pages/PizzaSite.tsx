@@ -810,7 +810,7 @@ function PizzaAboutPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void })
   );
 }
 
-function PizzaContactPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void }) {
+function PizzaContactPage({ onNavigate, onOpenPolicy }: { onNavigate?: (p: PizzaPage) => void; onOpenPolicy?: (tab: PolicyTab) => void }) {
   const { language: lang } = useLanguageStore();
   const c = i18n.contact;
   const hours = usePizzeriaHours();
@@ -1020,6 +1020,56 @@ function PizzaContactPage({ onNavigate }: { onNavigate?: (p: PizzaPage) => void 
               </div>
             </div>
 
+            {/* Card 5: Informative Legali & Politiche (Consegna, Rimborsi, Privacy & TikTok API) */}
+            <div id="legal-policies" className="bg-white border border-stone-200/90 rounded-[2rem] p-5 sm:p-6 shadow-xs">
+              <div className="flex items-start gap-3.5">
+                <div className="w-10 h-10 bg-emerald-500/10 flex items-center justify-center shrink-0 rounded-2xl">
+                  <ShieldCheck size={18} className="text-emerald-700" />
+                </div>
+                <div className="text-xs flex-1 min-w-0">
+                  <p className="text-stone-400 text-[10px] uppercase tracking-wider font-bold mb-1">
+                    {lang === 'TH' ? 'นโยบายและความเป็นส่วนตัว' : lang === 'EN' ? 'Legal Policies & Compliance' : 'Informative Legali & Politiche'}
+                  </p>
+                  <p className="text-stone-900 font-extrabold text-xs sm:text-sm">
+                    {lang === 'TH' ? 'ข้อกำหนดการใช้งานและความปลอดภัย' : lang === 'EN' ? 'Terms of Service, Privacy & TikTok API' : 'Termini di Servizio, Privacy & TikTok API'}
+                  </p>
+                  <p className="text-stone-500 text-[11px] mt-1 leading-relaxed">
+                    {lang === 'TH' 
+                      ? 'นโยบายการจัดส่ง การคืนเงิน การคุ้มครองข้อมูลส่วนบุคคล (PDPA) และความปลอดภัยเกตเวย์การชำระเงิน'
+                      : lang === 'EN'
+                      ? 'Official delivery terms, 100% refund guarantee, Thailand PDPA & GDPR data safety, and TikTok Social Studio integration.'
+                      : 'Condizioni ufficiali di consegna, garanzia rimborso 100%, conformità PDPA Thailandia e integrazione TikTok Social Studio.'}
+                  </p>
+                  <div className="mt-3 pt-2.5 border-t border-stone-100 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onOpenPolicy?.('delivery')}
+                      className="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-[#8B1E1E] hover:text-white text-stone-700 font-semibold text-[11px] transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <Truck size={13} className="text-[#8B1E1E]" />
+                      <span>{lang === 'TH' ? 'การจัดส่ง' : lang === 'EN' ? 'Delivery Policy' : 'Spedizioni'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenPolicy?.('refund')}
+                      className="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-amber-600 hover:text-white text-stone-700 font-semibold text-[11px] transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <RotateCcw size={13} className="text-amber-600" />
+                      <span>{lang === 'TH' ? 'การคืนเงิน' : lang === 'EN' ? 'Refund Policy' : 'Rimborsi'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onOpenPolicy?.('privacy')}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-700 hover:text-white text-emerald-900 font-bold text-[11px] transition-colors cursor-pointer flex items-center gap-1.5 border border-emerald-200"
+                    >
+                      <ShieldCheck size={13} className="text-emerald-600" />
+                      <span>{lang === 'TH' ? 'ความเป็นส่วนตัว & TikTok' : lang === 'EN' ? 'Privacy & TikTok API' : 'Privacy & TikTok API'}</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -1171,7 +1221,18 @@ export default function PizzaSite() {
   useEffect(() => {
     setActivePage(getPageFromPath());
     window.scrollTo(0, 0);
-  }, [location.pathname]);
+
+    const hash = location.hash.toLowerCase();
+    const search = new URLSearchParams(location.search);
+    const policyParam = search.get('policy');
+    if (hash.includes('privacy') || policyParam === 'privacy') {
+      openPolicy('privacy');
+    } else if (hash.includes('delivery') || hash.includes('terms') || policyParam === 'delivery') {
+      openPolicy('delivery');
+    } else if (hash.includes('refund') || policyParam === 'refund') {
+      openPolicy('refund');
+    }
+  }, [location.pathname, location.hash, location.search]);
 
   const navigate = (page: PizzaPage) => {
     const path = page === 'order' ? '/pizza' : `/pizza/${page}`;
@@ -1185,7 +1246,7 @@ export default function PizzaSite() {
     switch (activePage) {
       case 'order': return <DeliveryMenu />;
       case 'about': return <PizzaAboutPage onNavigate={navigate} />;
-      case 'contact': return <PizzaContactPage onNavigate={navigate} />;
+      case 'contact': return <PizzaContactPage onNavigate={navigate} onOpenPolicy={openPolicy} />;
       default: return <DeliveryMenu />;
     }
   };

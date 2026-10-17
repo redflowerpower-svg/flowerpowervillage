@@ -2,6 +2,8 @@
 - **/pizze**: Indica che lavoreremo nel reparto stagno dedicato alla delivery food e alla pizzeria a Ranong (codice sorgente in `/src/pizza` e `/api` relativi alla pizzeria).
 - **/villaggio**: Indica che lavoreremo nel reparto stagno dedicato al booking engine e al villaggio a Koh Phayam (codice sorgente in `/src/booking` e `/api` relativi alle prenotazioni e alloggi).
 - **/docs** o **/reader**: Indica che lavoreremo nel reparto stagno dedicato al **Web Reader & Documenti** (codice sorgente in `/src/lib/documentExtractor.ts`, `/src/lib/documentStore.ts`, `/src/admin/components/DocumentReaderStudio.tsx`, `/src/pages/DocumentReaderPage.tsx` e `/api/_handlers/documents-api.ts`, `/api/_handlers/reader.ts`).
+- **/social**: Indica che lavoreremo nel reparto dedicato al **Social Media Studio & Publisher** (Facebook, Instagram Stories/Feed/Reels, TikTok) per Pizzeria Ranong e Villaggio Koh Phayam, con interfaccia live raggiungibile all'URL dedicato `/social`.
+
 
 ---
 
@@ -10,6 +12,14 @@ Questo reparto **Web Reader & Documenti** è **TASSATIVAMENTE E TOTALMENTE INDIP
 1. **Zero Contaminazione del Codice**: Qualunque modifica, cambiamento, nuova funzionalità, refactoring, gestione file (PDF, Excel, Word, OCR, estensioni future) deve essere programmata in modo 100% autonomo e confinato al proprio reparto, senza MAI intaccare o dipendere dal codice del Villaggio (`/villaggio`) o della Pizzeria (`/pizze`).
 2. **Database & Storage Indipendenti**: Le tabelle (`stored_documents`, `document_pages`), le funzioni API e i bucket di Storage Supabase (`documents`) dedicati a questo reparto sono completamente separati. È vietato creare chiavi esterne, relazioni incrociate o dipendenze con tabelle di prenotazioni, clienti o ordini.
 3. **Isolamento dell'Infrastruttura**: Il funzionamento della macchina del Web Reader (token a 256-bit, visualizzazione HTML, scadenza temporizzata, estrazione testo) vive come entità a sé stante e non deve mai risentire o influenzare lo stato degli altri due reparti.
+
+# 🛡️ REGOLA FONDAMENTALE E BASILARE IMPRESCINDIBILE: REPARTO STAGNO "SOCIAL MEDIA STUDIO & PUBLISHER" (/social)
+Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E TOTALMENTE STAGNO E INDIPENDENTE DA TUTTO IL RESTO DEL SISTEMA**:
+1. **Zero Contaminazione del Codice**: L'intero codice sorgente risiede confinato nella propria directory dedicata `/src/social/` e nei relativi endpoint dedicati (es. `/api/_handlers/social-publisher.ts`, `/social`). Non deve MAI intaccare, importare o modificare le logiche core, i componenti e lo stato dei reparti già operativi (Pizzeria `/pizza`, Tavoli `/dining`, Cucina `/kitchen`, Villaggio `/village` o Documenti `/read`).
+2. **Database & Storage Indipendenti**: Le tabelle dedicate (`social_scheduled_posts`, `social_logs`, ecc.) e i bucket dedicati di storage sono totalmente isolati. Non hanno vincoli di integrità o foreign key con ordini o prenotazioni, prevenendo qualsiasi blocco o effetto collaterale a catena.
+3. **Isolamento dei Processi & Zero Downtime**: Chiamate verso le API esterne (Meta Graph API, Instagram Container, TikTok API), eventuali timeout o rate-limit non devono MAI impattare le prestazioni della cassa, la ricezione degli ordini della pizzeria o la disponibilità delle stanze del villaggio.
+4. **Sicurezza & Zero Leak**: Token e credenziali dei social rimangono protetti nella cassaforte (`.secret_docs`) e nei file `.env`, garantendo sempre zero secret leak nel codice tracciato da Git.
+
 
 # Autonomous Execution & Research Protocol (`/goal`, `AUTOPILOT`, `In autonomia`)
 Quando l'utente attiva una richiesta usando il comando `/goal`, la parola chiave `AUTOPILOT` o il prefisso `In autonomia:`:

@@ -52,6 +52,8 @@ const content = {
     privPoint2Desc: 'Tutte le transazioni online sono elaborate tramite il gateway finanziario OMISE (Opn Payments) con crittografia SSL a 256-bit e protocollo 3D Secure. I numeri completi delle carte di credito/debito e i codici CVV non transitano e NON vengono mai salvati nei nostri database o server, rispettando il massimo livello di certificazione PCI-DSS Level 1.',
     privPoint3Title: 'Diritti dell’Interessato',
     privPoint3Desc: 'In conformità con il Personal Data Protection Act (PDPA) thailandese e il GDPR europeo, il cliente ha diritto in qualsiasi momento di richiedere la verifica, modifica o cancellazione definitiva dei propri dati inviando un’email a flowerpowerpizzaranong.th@gmail.com.',
+    privPoint4Title: 'Integrazione TikTok for Developers & Social Studio',
+    privPoint4Desc: 'Il nostro applicativo interno (Flower Power Social Studio) accede alle API ufficiali TikTok unicamente per la pubblicazione di contenuti autorizzati e risposta ai commenti. È fatto divieto assoluto di cessione o vendita dei dati a terze parti. Gli utenti possono revocare i permessi dall\'app TikTok o richiedere la cancellazione totale dei dati scrivendo a redflowerpower@gmail.com.',
     closeBtn: 'Chiudi'
   },
   EN: {
@@ -93,6 +95,8 @@ const content = {
     privPoint2Desc: 'All online payments are securely processed through OMISE (Opn Payments) with 256-bit SSL encryption and mandatory 3D Secure authentication. Credit card numbers and CVV codes are NEVER stored on or processed through our servers, fully compliant with PCI-DSS Level 1 standards.',
     privPoint3Title: 'Customer Data Rights (PDPA Compliance)',
     privPoint3Desc: 'Under Thailand’s Personal Data Protection Act (PDPA) and GDPR, customers may request access, correction, or deletion of their personal information by contacting flowerpowerpizzaranong.th@gmail.com.',
+    privPoint4Title: 'TikTok for Developers & Social Studio Integration',
+    privPoint4Desc: 'Our internal marketing application (Flower Power Social Studio) accesses TikTok APIs solely for authorized content publishing (videos, 9:16 vertical stories, photos) and community comment responses. User credentials and data are NEVER sold, rented, or transferred to third parties. Tokens are encrypted using enterprise AES-256 standards. You may revoke access at any time directly in your TikTok profile settings or request immediate data deletion by contacting redflowerpower@gmail.com.',
     closeBtn: 'Close'
   },
   TH: {
@@ -134,6 +138,8 @@ const content = {
     privPoint2Desc: 'การชำระเงินออนไลน์ทั้งหมดดำเนินการผ่าน OMISE (Opn Payments) ซึ่งได้รับการรับรองความปลอดภัยระดับสูงสุด PCI-DSS Level 1 พร้อมระบบ 3D Secure และการเข้ารหัส SSL 256-bit ทางเราไม่มีการจัดเก็บหมายเลขบัตรเครดิตหรือรหัส CVV บนเซิร์ฟเวอร์ของเราอย่างเด็ดขาด',
     privPoint3Title: 'สิทธิของเจ้าของข้อมูลส่วนบุคคล (ตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล)',
     privPoint3Desc: 'ตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) ลูกค้ามีสิทธิขอตรวจสอบ แก้ไข หรือลบข้อมูลส่วนบุคคลของท่านได้ โดยติดต่อผ่านอีเมล flowerpowerpizzaranong.th@gmail.com',
+    privPoint4Title: 'การเชื่อมต่อระบบ TikTok API และ Social Studio',
+    privPoint4Desc: 'แอปพลิเคชันภายในของเรา (Flower Power Social Studio) เข้าถึง TikTok API เพื่อการโพสต์เนื้อหาที่ได้รับอนุญาตและตอบกลับความคิดเห็นเท่านั้น เราไม่มีนโยบายจำหน่ายหรือเปิดเผยข้อมูลแก่บุคคลภายนอกอย่างเด็ดขาด โทเค็นได้รับการเข้ารหัสอย่างปลอดภัย ผู้ใช้สามารถยกเลิกสิทธิ์ได้ผ่านการตั้งค่าในแอป TikTok หรือส่งคำขอลบข้อมูลได้ที่ redflowerpower@gmail.com',
     closeBtn: 'ปิดหน้าต่าง'
   },
   DE: {
@@ -175,6 +181,8 @@ const content = {
     privPoint2Desc: 'Kartenzahlungen werden nach PCI-DSS Level 1 über Omise (Opn Payments) mit 3D Secure abgewickelt. Es werden niemals Kartennummern oder CVV-Codes auf unseren Servern gespeichert.',
     privPoint3Title: 'Ihre Rechte (PDPA & DSGVO)',
     privPoint3Desc: 'Sie haben das Recht auf Auskunft, Korrektur oder Löschung Ihrer Daten via flowerpowerpizzaranong.th@gmail.com.',
+    privPoint4Title: 'TikTok for Developers & Social Studio Integration',
+    privPoint4Desc: 'Unsere interne Marketing-Anwendung (Flower Power Social Studio) greift auf offizielle TikTok-APIs ausschließlich zur Veröffentlichung von Inhalten und Beantwortung von Kommentaren zu. Daten werden niemals an Dritte weitergegeben oder verkauft. Tokens sind sicher mit AES-256 verschlüsselt. Sie können Berechtigungen jederzeit in der TikTok-App widerrufen oder die Löschung via redflowerpower@gmail.com beantragen.',
     closeBtn: 'Schließen'
   }
 };
@@ -353,6 +361,16 @@ export default function PizzaPoliciesModal({ isOpen, onClose, initialTab = 'deli
                   </h4>
                   <p className="text-stone-600 pl-6 text-xs">{t.privPoint3Desc}</p>
                 </div>
+
+                {t.privPoint4Title && (
+                  <div className="p-3.5 rounded-2xl bg-stone-900 text-stone-100 border border-stone-800 shadow-xs">
+                    <h4 className="font-black text-amber-400 flex items-center gap-2 mb-1">
+                      <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>{t.privPoint4Title}</span>
+                    </h4>
+                    <p className="text-stone-300 pl-6 text-xs leading-relaxed">{t.privPoint4Desc}</p>
+                  </div>
+                )}
               </div>
             </div>
           )}

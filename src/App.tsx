@@ -8,6 +8,7 @@ import AccommodationDetailPage from './pages/AccommodationDetailPage';
 import DocumentReaderPage from './pages/DocumentReaderPage';
 import { KitchenTabletKDS } from './admin/pizza/components/KitchenTabletKDS';
 import DiningTabletSite from './pizza/pages/DiningTabletSite';
+import LegalPage from './pages/LegalPage';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -66,9 +67,15 @@ function DynamicHeadManager() {
     const ogImage = document.querySelector<HTMLMetaElement>("meta[property='og:image']");
     const manifestLink = document.querySelector<HTMLLinkElement>("link[rel='manifest']");
     const appleTitle = document.querySelector<HTMLMetaElement>("meta[name='apple-mobile-web-app-title']");
-    const themeColor = document.querySelector<HTMLMetaElement>("meta[name='theme-color']");
+    const isLegal = pathname.startsWith('/terms') || pathname.startsWith('/privacy') || pathname.startsWith('/legal') || pathname.startsWith('/policy');
 
-    if (isKitchen) {
+    if (isLegal) {
+      document.title = 'Flower Power — Terms of Service & Privacy Policy';
+      if (manifestLink) manifestLink.href = '/manifest.json';
+      if (metaDesc) {
+        metaDesc.content = 'Official Terms of Service, Privacy Policy (PDPA & GDPR), and TikTok Content Posting API compliance for Flower Power Pizza Ranong and Flower Power Farm Village Koh Phayam.';
+      }
+    } else if (isKitchen) {
       document.title = 'Flower Power Pizza — Kitchen KDS';
       if (manifestLink) manifestLink.href = '/manifest-kitchen.json';
       if (appleTitle) appleTitle.content = 'FP Kitchen';
@@ -145,6 +152,11 @@ function App() {
           <Route path="/rooms/:slug" element={<AccommodationDetailPage />} />
           <Route path="/read/:token" element={<DocumentReaderPage />} />
           <Route path="/read/:token/page/:pageNum" element={<DocumentReaderPage />} />
+          <Route path="/terms" element={<LegalPage initialTab="terms" />} />
+          <Route path="/privacy" element={<LegalPage initialTab="privacy" />} />
+          <Route path="/legal" element={<LegalPage initialTab="all" />} />
+          <Route path="/policy" element={<Navigate to="/privacy" replace />} />
+          <Route path="/policies" element={<Navigate to="/terms" replace />} />
           <Route path="/flowerpowerpizzaranong/*" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           <Route path="/flowerpowerpizzaranong" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           {/* Legacy hash-based admin redirect */}

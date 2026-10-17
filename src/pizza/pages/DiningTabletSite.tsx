@@ -60,7 +60,6 @@ import {
 } from '../services/diningTablePresenceService';
 import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
-import { supabase } from '../../lib/supabase';
 import { DiningAdminAuth } from '../components/DiningAdminAuth';
 import { DINING_TABLES, formatTableStationName, getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
 

@@ -244,7 +244,16 @@ function syncEnvFromReport(reportText) {
     ``,
     `# Ksher Payment Gateway (Thailand)`,
     `KSHER_APP_ID=${ksherAppId}`,
-    `KSHER_PRIVATE_KEY="${ksherPrivateKey}"`
+    `KSHER_PRIVATE_KEY="${ksherPrivateKey}"`,
+    ``,
+    `# Meta Graph API (Facebook & Instagram Social Publisher)`,
+    `META_APP_ID=2221982939199938`,
+    `META_PIZZA_PAGE_ID=410856732111386`,
+    `META_PIZZA_IG_ID=17841469176521344`,
+    `META_PIZZA_PAGE_TOKEN=${(reportText.match(/###\s*8\.1\.\s*Pizzeria[\s\S]*?\*\*Page Access Token:\*\*\s*`([^`]+)`/i) || [])[1]?.trim() || ''}`,
+    `META_VILLAGE_PAGE_ID=106883044573670`,
+    `META_VILLAGE_IG_ID=17841444373676743`,
+    `META_VILLAGE_PAGE_TOKEN=${(reportText.match(/###\s*8\.2\.\s*Villaggio[\s\S]*?\*\*Page Access Token:\*\*\s*`([^`]+)`/i) || [])[1]?.trim() || ''}`
   ].join('\n');
 
   fs.writeFileSync(ENV_PATH, envLines, 'utf8');
