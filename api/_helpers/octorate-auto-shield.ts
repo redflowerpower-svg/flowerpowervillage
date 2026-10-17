@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { sendDepartmentTelegramMessage } from "./telegram.js";
 
 /**
  * Mappatura completa e autoritativa dei Rate ID derivati da chiudere TASSATIVAMENTE (Stop Sell forzato)
@@ -152,35 +153,11 @@ export function identifyAccommodationKey(
  * Invia un alert Telegram asincrono allo staff in caso di auto-shielding attivo
  */
 export async function sendAutoShieldTelegramAlert(
-  supabase: any,
+  _supabase: any,
   message: string
 ): Promise<void> {
-  if (!supabase) return;
   try {
-    const { data: config } = await supabase
-      .from('telegram_config')
-      .select('bot_token, chat_id')
-      .eq('id', 'village')
-      .maybeSingle();
-
-    const botToken = config?.bot_token || process.env.TELEGRAM_VILLAGE_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN_VILLAGE;
-    const chatId = config?.chat_id || process.env.TELEGRAM_VILLAGE_CHAT_ID || process.env.TELEGRAM_CHAT_ID_VILLAGE;
-
-    if (!botToken || !chatId) {
-      console.log('[Auto-Shield Telegram Alert] Village Telegram Bot not configured yet. Skipping alert to avoid mixing with Pizzeria.');
-      return;
-    }
-
-    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: 'HTML',
-        disable_web_page_preview: true
-      })
-    });
+    await sendDepartmentTelegramMessage('village', message, { topic: 'BOOKINGS' });
   } catch (err) {
     console.warn('[Auto-Shield Telegram Alert Warning]:', err);
   }

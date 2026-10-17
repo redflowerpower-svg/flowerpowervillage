@@ -162,6 +162,7 @@ export function PizzaDashboard() {
   const [serviceCalc, setServiceCalc] = useState<ServiceCalculationResult>(() => calculateServiceState(DEFAULT_PIZZERIA_STATUS));
   const [searchQuery, setSearchQuery] = useState('');
   const [menuSearchQuery, setMenuSearchQuery] = useState('');
+  const [savedPriceNotice, setSavedPriceNotice] = useState<Record<string, boolean>>({});
   const audioCtxRef = useRef<AudioContext | null>(null);
 
   useEffect(() => {
@@ -803,9 +804,16 @@ export function PizzaDashboard() {
 
                     {/* Price Editor & Toggle Switch Footer */}
                     <div className="pt-4 border-t border-stone-850 space-y-3">
-                      {/* Live Price Input */}
+                      {/* Live Price Input & Cloud Sync */}
                       <div className="flex items-center justify-between bg-stone-950 px-3 py-2 rounded-2xl border border-stone-800">
-                        <span className="text-xs font-bold text-stone-400">Prezzo (THB):</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-stone-400">Prezzo (THB):</span>
+                          {savedPriceNotice[item.id] && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-black text-emerald-400 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-800 animate-pulse">
+                              <CheckCircle className="w-3 h-3 text-emerald-400" /> Cloud OK
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-1">
                           <span className="text-amber-400 font-bold text-sm">฿</span>
                           <input
@@ -813,8 +821,18 @@ export function PizzaDashboard() {
                             min="0"
                             step="10"
                             value={safePrice}
-                            onChange={(e) => updateItemPrice(item.id, parseFloat(e.target.value))}
-                            className="w-20 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 font-mono text-sm text-white text-right font-black focus:outline-none focus:border-amber-400"
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              updateItemPrice(item.id, isNaN(val) ? 0 : val);
+                            }}
+                            onBlur={async () => {
+                              await updateItemPrice(item.id, safePrice);
+                              setSavedPriceNotice(prev => ({ ...prev, [item.id]: true }));
+                              setTimeout(() => {
+                                setSavedPriceNotice(prev => ({ ...prev, [item.id]: false }));
+                              }, 2500);
+                            }}
+                            className="w-20 bg-stone-900 border border-stone-700 rounded-xl px-2 py-1 font-mono text-sm text-white text-right font-black focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
                           />
                         </div>
                       </div>

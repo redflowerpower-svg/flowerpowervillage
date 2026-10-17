@@ -781,7 +781,7 @@ export async function handleOctorateMinStay(req: VercelRequest, res: VercelRespo
         `📊 Aggiornamenti inviati: <b>${roomsPayload.length} blocchi</b> (${chunks.length} batch)\n` +
         `🛏️ Alloggi coinvolti: <b>${roomsAffected.length}</b>\n` +
         `✅ Valori MinStay applicati su Octorate PMS.`;
-      sendDepartmentTelegramMessage('village', tgMsg).catch(err => {
+      sendDepartmentTelegramMessage('village', tgMsg, { topic: 'DAILY_REPORT' }).catch(err => {
         console.warn('[handleOctorateMinStay] Telegram alert warning:', err);
       });
     } catch (tgErr) {

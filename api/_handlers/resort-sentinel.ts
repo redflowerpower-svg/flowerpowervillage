@@ -437,7 +437,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
         `⚡ <b>SISTEMA LAST MINUTE:</b>\n• Stato: <b>${detectedStage}</b>\n${sampleLines}\n\n` +
         `🛠️ <b>Azione Eseguita:</b> L'Auto-Healer ha inviato l'aggiornamento a Octorate (${healedCount} blocchi aggiornati).\n` +
         `✅ <b>Stato Attuale:</b> Le falle sono state sanate e tutte le OTA sono ora protette e allineate.`;
-      await sendDepartmentTelegramMessage('village', alertMsg);
+      await sendDepartmentTelegramMessage('village', alertMsg, { topic: 'ALERTS_OVERBOOKING' });
     } else if (options?.forceReport || allClear) {
       const okMsg = `🛡️ <b>FPV RESORT SENTINEL — REPORT DI CONFORMITÀ GLOBALE</b>\n\n` +
         `✅ <b>1. SACRO GRAAL & TARIFFE DERIVATE OTA</b>\n` +
@@ -457,7 +457,7 @@ export async function runResortSentinelAudit(options?: { sendTelegram?: boolean;
         `🎯 <b>ESITO SENTINEL: TUTTI I 3 SISTEMI OPERATIVI AL 100%</b>\n` +
         `<i>Auto-Healer attivo 24/7. Notifica certificata alle ${new Date().toLocaleTimeString('it-IT')}.</i>`;
 
-      await sendDepartmentTelegramMessage('village', okMsg);
+      await sendDepartmentTelegramMessage('village', okMsg, { topic: 'DAILY_REPORT' });
     }
   }
 

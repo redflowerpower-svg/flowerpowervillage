@@ -1562,7 +1562,13 @@ export default function DeliveryMenu() {
     }
   });
 
-  const priceOverrides: Record<string, number> = {};
+  const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('fp_pizza_prices_overrides') || '{}');
+    } catch {
+      return {};
+    }
+  });
 
   // Sub-filtering states
   const [selectedPastaSauce, setSelectedPastaSauce] = useState<string>('all');
@@ -1587,7 +1593,7 @@ export default function DeliveryMenu() {
     });
   }, []);
 
-  // Sync daily specials and availability overrides from admin dashboard & Cloud
+  // Sync daily specials, prices and availability overrides from admin dashboard & Cloud
   const [dailySpecialsOverrides, setDailySpecialsOverrides] = useState<Record<string, boolean>>(() => {
     try {
       return JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
@@ -1605,6 +1611,11 @@ export default function DeliveryMenu() {
       } catch {}
 
       try {
+        const prOverrides = JSON.parse(localStorage.getItem('fp_pizza_prices_overrides') || '{}');
+        setPriceOverrides(prOverrides);
+      } catch {}
+
+      try {
         const availOverrides = JSON.parse(localStorage.getItem('fp_pizza_availability_overrides') || '{}');
         const unavail = Object.entries(availOverrides)
           .filter(([_, isAvail]) => isAvail === false)
@@ -1618,7 +1629,7 @@ export default function DeliveryMenu() {
     if ('BroadcastChannel' in window) {
       bc = new BroadcastChannel('fp_pizza_menu_sync');
       bc.onmessage = (ev) => {
-        if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE' || ev.data?.type === 'AVAILABILITY_TOGGLE' || ev.data?.type === 'MENU_SYNC_UPDATE') {
+        if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE' || ev.data?.type === 'AVAILABILITY_TOGGLE' || ev.data?.type === 'PRICE_UPDATE' || ev.data?.type === 'MENU_SYNC_UPDATE') {
           syncFromStorage();
         }
       };
@@ -1629,6 +1640,9 @@ export default function DeliveryMenu() {
       if (overrides) {
         if (overrides.dailySpecials) {
           setDailySpecialsOverrides(overrides.dailySpecials);
+        }
+        if (overrides.prices) {
+          setPriceOverrides(overrides.prices);
         }
         if (overrides.availability) {
           const unavail = Object.entries(overrides.availability)

@@ -31,6 +31,7 @@ export async function fetchCloudMenuOverrides(): Promise<PizzaMenuOverrides> {
         try {
           localStorage.setItem('fp_pizza_availability_overrides', JSON.stringify(overrides.availability));
           localStorage.setItem('fp_pizza_daily_specials_overrides', JSON.stringify(overrides.dailySpecials));
+          localStorage.setItem('fp_pizza_prices_overrides', JSON.stringify(overrides.prices));
         } catch (_) {}
 
         return overrides;
@@ -50,6 +51,7 @@ export async function fetchCloudMenuOverrides(): Promise<PizzaMenuOverrides> {
         try {
           localStorage.setItem('fp_pizza_availability_overrides', JSON.stringify(overrides.availability || {}));
           localStorage.setItem('fp_pizza_daily_specials_overrides', JSON.stringify(overrides.dailySpecials || {}));
+          localStorage.setItem('fp_pizza_prices_overrides', JSON.stringify(overrides.prices || {}));
         } catch (_) {}
         return overrides;
       }
@@ -63,11 +65,14 @@ export async function fetchCloudMenuOverrides(): Promise<PizzaMenuOverrides> {
   const fallbackDaily = (() => {
     try { return JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}'); } catch { return {}; }
   })();
+  const fallbackPrices = (() => {
+    try { return JSON.parse(localStorage.getItem('fp_pizza_prices_overrides') || '{}'); } catch { return {}; }
+  })();
 
   return {
     availability: fallbackAvailability,
     dailySpecials: fallbackDaily,
-    prices: {},
+    prices: fallbackPrices,
     lastUpdated: new Date().toISOString()
   };
 }
@@ -94,12 +99,18 @@ export async function saveCloudMenuOverride(payload: {
       const merged = { ...stored, ...payload.dailySpecials };
       localStorage.setItem('fp_pizza_daily_specials_overrides', JSON.stringify(merged));
     }
+    if (payload.prices) {
+      const stored = JSON.parse(localStorage.getItem('fp_pizza_prices_overrides') || '{}');
+      const merged = { ...stored, ...payload.prices };
+      localStorage.setItem('fp_pizza_prices_overrides', JSON.stringify(merged));
+    }
 
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       new BroadcastChannel('fp_pizza_menu_sync').postMessage({
         type: 'MENU_SYNC_UPDATE',
         availability: payload.availability,
-        dailySpecials: payload.dailySpecials
+        dailySpecials: payload.dailySpecials,
+        prices: payload.prices
       });
     }
   } catch (_) {}

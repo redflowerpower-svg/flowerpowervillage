@@ -31,6 +31,7 @@ import { translateDishCardAllLanguages, type DishLang } from '../../../pizza/dat
 import { getDietaryType, type DietaryType } from '../../../pizza/utils/dietary';
 import { formatWineProductName as formatProductName } from '../../../pizza/data/wineData';
 import { usePizzaAdminStore } from '../store/usePizzaAdminStore';
+import { saveCloudMenuOverride } from '../../../pizza/data/pizzaMenuCloudService';
 
 export interface DishCategoryOption {
   id: string;
@@ -396,15 +397,32 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
         extras: formData.extras
       };
 
-      const { error } = await supabase
-        .from('pizza_menu_items')
-        .upsert(payload, { onConflict: 'id' });
+      // 1. Salva sempre nel file di configurazione Cloud condiviso su Supabase Storage (pizza_menu_overrides.json)
+      // Questo propaga istantaneamente i prezzi e gli aggiornamenti su Local, Staging e Produzione
+      const cloudRes = await saveCloudMenuOverride({
+        prices: { [dishId]: Number(formData.price) || 0 },
+        dailySpecials: { [dishId]: !!formData.isDailySpecial },
+        updatedItem: payload
+      });
 
-      if (error && error.code !== '42P01') {
-        console.warn('Supabase upsert notice:', error);
+      if (!cloudRes.success) {
+        console.warn('Avviso sincronizzazione Cloud JSON:', cloudRes.error);
       }
 
-      // Sync with active admin store and local catalog
+      // 2. Tentativo opzionale su tabella SQL se presente nel database
+      try {
+        const { error } = await supabase
+          .from('pizza_menu_items')
+          .upsert(payload, { onConflict: 'id' });
+
+        if (error && error.code !== '42P01') {
+          console.warn('Supabase upsert notice:', error);
+        }
+      } catch (sqlErr) {
+        // Nessun blocco se la tabella non è ancora presente
+      }
+
+      // 3. Sync with active admin store and local catalog
       usePizzaAdminStore.getState().upsertMenuItem(payload);
       setCatalogItems(prev => {
         const exists = prev.some(i => i.id === dishId);
@@ -414,7 +432,7 @@ const getCategoryDefaultExtras = (categoryId: string): { allowed_extras_group?: 
         return [{ ...payload, sku: '' } as MenuItem, ...prev];
       });
 
-      showNotification('Scheda piatto salvata e sincronizzata con successo su Supabase Cloud!');
+      showNotification('Scheda piatto e prezzo salvati e sincronizzati con successo su Supabase Cloud!');
     } catch (err: any) {
       console.error('Save error:', err);
       showNotification('Salvataggio completato localmente', 'success');

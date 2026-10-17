@@ -618,23 +618,10 @@ export const usePizzaAdminStore = create<PizzaAdminState>((set, get) => ({
 
     try {
       const item = get().menuItems.find((i) => i.id === id);
-      if (!item) return;
-
-      const { error } = await supabase
-        .from('pizza_menu_items')
-        .upsert({
-          id: item.id,
-          name: item.name,
-          category: item.category,
-          price: safePrice,
-          is_available: item.is_available,
-          image: item.image,
-          description: item.description
-        });
-
-      if (error) {
-        console.warn('[usePizzaAdminStore] Upsert price notice:', error.message);
-      }
+      await saveCloudMenuOverride({
+        prices: { [id]: safePrice },
+        updatedItem: item ? { ...item, price: safePrice } : undefined
+      });
     } catch (e) {
       console.error('[usePizzaAdminStore] updateItemPrice error:', e);
     }

@@ -255,7 +255,7 @@ export async function handleDirectReservationCancellation(booking: any): Promise
       `Date: <code>${(booking.checkin || '').slice(0, 10)} ➔ ${(booking.checkout || '').slice(0, 10)}</code>\n` +
       `🔒 <i>Nessuna email cliente inviata dal sito (gestita direttamente da ${booking.channelName || 'OTA'}).</i>`;
     
-    sendDepartmentTelegramMessage('village', otaAlertMsg).catch(() => {});
+    sendDepartmentTelegramMessage('village', otaAlertMsg, { topic: 'MODIFICATIONS_CANCELLATIONS' }).catch(() => {});
     return { processed: false, emailSent: false, telegramNotified: true, reason: 'Prenotazione OTA: email cliente esclusa' };
   }
 
@@ -329,7 +329,7 @@ export async function handleDirectReservationCancellation(booking: any): Promise
         ? `📧 <b>Email cliente inviata con successo a:</b> <code>${guestEmail}</code>` 
         : `⚠️ <b>Email non inviata:</b> ${guestEmail ? 'Errore SMTP' : 'Email non presente'}`);
 
-    const tgRes = await sendDepartmentTelegramMessage('village', staffAlertMsg);
+    const tgRes = await sendDepartmentTelegramMessage('village', staffAlertMsg, { topic: 'MODIFICATIONS_CANCELLATIONS' });
     telegramNotified = tgRes.success;
   } catch (tgErr: any) {
     console.warn(`[Cancellation Warning] Telegram alert fallito per #${reservationId}:`, tgErr);

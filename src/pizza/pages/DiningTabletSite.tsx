@@ -1196,10 +1196,18 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     }
   });
 
-  // Sync daily specials and availability overrides from admin dashboard
+  // Sync daily specials, prices and availability overrides from admin dashboard & Cloud
   const [dailySpecialsOverrides, setDailySpecialsOverrides] = useState<Record<string, boolean>>(() => {
     try {
       return JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+  const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('fp_pizza_prices_overrides') || '{}');
     } catch {
       return {};
     }
@@ -1211,6 +1219,11 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       try {
         const specialOverrides = JSON.parse(localStorage.getItem('fp_pizza_daily_specials_overrides') || '{}');
         setDailySpecialsOverrides(specialOverrides);
+      } catch {}
+
+      try {
+        const prOverrides = JSON.parse(localStorage.getItem('fp_pizza_prices_overrides') || '{}');
+        setPriceOverrides(prOverrides);
       } catch {}
 
       try {
@@ -1227,7 +1240,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     if ('BroadcastChannel' in window) {
       bc = new BroadcastChannel('fp_pizza_menu_sync');
       bc.onmessage = (ev) => {
-        if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE' || ev.data?.type === 'AVAILABILITY_TOGGLE' || ev.data?.type === 'MENU_SYNC_UPDATE') {
+        if (ev.data?.type === 'DAILY_SPECIAL_TOGGLE' || ev.data?.type === 'AVAILABILITY_TOGGLE' || ev.data?.type === 'PRICE_UPDATE' || ev.data?.type === 'MENU_SYNC_UPDATE') {
           syncFromStorage();
         }
       };
@@ -1238,6 +1251,9 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       if (overrides) {
         if (overrides.dailySpecials) {
           setDailySpecialsOverrides(overrides.dailySpecials);
+        }
+        if (overrides.prices) {
+          setPriceOverrides(overrides.prices);
         }
         if (overrides.availability) {
           const unavail = Object.entries(overrides.availability)
@@ -1576,7 +1592,9 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     if (activeCategoryId === 'wines') {
       return filterWineItems(selectedWineType);
     }
-    const raw = activeCategory.items.filter((i: any) => !unavailableIds.has(i.id));
+    const raw = activeCategory.items
+      .filter((i: any) => !unavailableIds.has(i.id))
+      .map((item: any) => priceOverrides[item.id] !== undefined ? { ...item, price: priceOverrides[item.id] } : item);
     if (dietaryFilter === 'all') return raw;
     if (dietaryFilter === 'veggie') {
       return raw.filter(i => {
@@ -1588,7 +1606,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       return raw.filter(i => getDietaryType(i, activeCategoryId) === 'vegan');
     }
     return raw;
-  }, [activeCategoryId, activeCategory, dietaryFilter, selectedWineType, selectedWineCountry, allDynamicWines, unavailableIds]);
+  }, [activeCategoryId, activeCategory, dietaryFilter, selectedWineType, selectedWineCountry, allDynamicWines, unavailableIds, priceOverrides]);
 
   const isSpecialPasta = (item: any) => {
     const id = item.id || '';

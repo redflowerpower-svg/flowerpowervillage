@@ -115,13 +115,27 @@ export async function updateTelegramCredentials(
   }
 }
 
+export const VILLAGE_TOPICS = {
+  BOOKINGS: 3,
+  MODIFICATIONS_CANCELLATIONS: 7,
+  ALERTS_OVERBOOKING: 8,
+  DAILY_REPORT: 9
+} as const;
+
+export type VillageTopicKey = keyof typeof VILLAGE_TOPICS;
+
 /**
  * Sends a Telegram message to a specific department ('pizza' or 'village').
  */
 export async function sendDepartmentTelegramMessage(
   department: TelegramDepartment,
   message: string,
-  options?: { parseMode?: 'HTML' | 'MarkdownV2'; disableWebPagePreview?: boolean }
+  options?: {
+    parseMode?: 'HTML' | 'MarkdownV2';
+    disableWebPagePreview?: boolean;
+    threadId?: number;
+    topic?: VillageTopicKey;
+  }
 ): Promise<{ success: boolean; error?: string; result?: any }> {
   const { botToken, chatId } = await getTelegramCredentials(department);
   if (!botToken || !chatId) {
@@ -129,16 +143,25 @@ export async function sendDepartmentTelegramMessage(
     return { success: false, error: 'Telegram not configured for this department' };
   }
 
+  const payload: any = {
+    chat_id: chatId,
+    text: message,
+    parse_mode: options?.parseMode || 'HTML',
+    disable_web_page_preview: options?.disableWebPagePreview ?? true
+  };
+
+  if (department === 'village') {
+    const threadId = options?.threadId || (options?.topic ? VILLAGE_TOPICS[options.topic] : undefined);
+    if (threadId) {
+      payload.message_thread_id = threadId;
+    }
+  }
+
   try {
     const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: message,
-        parse_mode: options?.parseMode || 'HTML',
-        disable_web_page_preview: options?.disableWebPagePreview ?? true
-      })
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
     return { success: data.ok, result: data };

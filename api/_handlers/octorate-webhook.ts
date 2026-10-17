@@ -579,7 +579,10 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               (sampleGaps.length > 0 ? `\n🔍 <i>Esempi aggiornati:</i>\n` + sampleGaps.map(g => `• <b>${g.accommodationName}</b> (${g.dateFrom} ➔ ${g.dateTo}): <b>${g.minStay} notti</b>`).join('\n') + `\n` : '') +
               `\n🔄 Evento scatenante: <code>${eventType}</code>\n` +
               `✅ Restrizioni MinStay allineate in tempo reale.`;
-            sendDepartmentTelegramMessage('village', tgMsg).catch(err => {
+            const targetTopic = (eventType && (eventType.toLowerCase().includes('cancel') || eventType.toLowerCase().includes('modifi')))
+              ? 'MODIFICATIONS_CANCELLATIONS'
+              : 'BOOKINGS';
+            sendDepartmentTelegramMessage('village', tgMsg, { topic: targetTopic }).catch(err => {
               console.warn('[octorate-webhook] Telegram alert warning:', err);
             });
           } catch (tgErr) {

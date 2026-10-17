@@ -218,7 +218,7 @@ Verificare tempestivamente l'alloggio per contattare i clienti o il supporto OTA
         console.log(`[Overbooking Detector] 🚨 Rilevato overbooking #${firstBooking.id} & #${secondBooking.id} su ${roomTitle}. Invio Telegram...`);
 
         try {
-          const telegramRes = await sendDepartmentTelegramMessage('village', alertMessage);
+          const telegramRes = await sendDepartmentTelegramMessage('village', alertMessage, { topic: 'ALERTS_OVERBOOKING' });
           if (telegramRes.success) {
             notifiedCount++;
             console.log(`[Overbooking Detector] ✅ Alert Telegram inviato con successo per collisione ${collisionKey}.`);
