@@ -220,7 +220,8 @@ Esegue il rilascio definitivo direttamente sul branch di produzione `main` (`www
 ### 4. `MARKDOWN-PROJECT` (Master Workflow Completo: Documentazione + Gemini Report + Staging + Produzione)
 Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-PROJECT`**:
 Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi i reparti:
-1. **Fase 1 - Versioning & Documentazione Tecnica**:
+1. **Fase 1 - Versioning & Documentazione Tecnica (Regola Progressiva `01_`, `02_`, ...)**:
+   - **TASSATIVO PREFISSO PROGRESSIVO**: Tutti i documenti core in `/documentation_reports/` destinati a Gemini Notebook, GitHub o backup DEVONO iniziare rigorosamente con il prefisso numerico progressivo a due cifre (`01_`, `02_`, `03_`, ...). Questo garantisce un ordinamento naturale, immediato e coerente in qualsiasi interfaccia o importatore esterno.
    - Aggiornamento fisico dei file in `/documentation_reports/` e copie di sicurezza.
    - Cifratura cassaforte (`node scratch/vault-sync.mjs encrypt`).
    - Controllo zero secret leak (`node scratch/security-audit.mjs`).
