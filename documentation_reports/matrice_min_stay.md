@@ -1,7 +1,7 @@
 # 📏 Matrice Canonica Soggiorno Minimo Dinamico (Min Stay)
 
 *File di Configurazione di Riferimento: `src/admin/resort/config/min_stay_canonical_timeline.json`*  
-*Ultimo Aggiornamento:* 18 Agosto 2026
+*Ultimo Aggiornamento:* 17 Ottobre 2026
 
 ---
 
@@ -26,6 +26,7 @@ Per qualsiasi intervallo temporale libero (buco) di capienza $G$ notti tra due p
 3. Il valore target assegnato a Octorate è:
    $$\text{TargetMinStay}(d) = \min(G, \text{Baseline}(d))$$
 4. I giorni consecutivi aventi lo stesso valore vengono raggruppati in un unico blocco bulk `[dateFrom, dateTo, minStay]` con `dateTo` inclusivo.
+5. **Classificazione Gap-Fill**: Un intervallo è marcato come `Gap-Fill Dinamico` se $G < \text{Baseline}(d)$ (es. 1 notte libera prima del check-in successivo a fronte di un baseline di 2 notti).
 
 ---
 
@@ -41,3 +42,10 @@ Per qualsiasi intervallo temporale libero (buco) di capienza $G$ notti tra due p
 
 * **Interval Merging Canonico**: Prima del calcolo dei buchi liberi, tutti i record di prenotazione attivi (inclusi eventuali record duplicati o adiacenti) vengono fusi in blocchi occupati contigui `[in, out]`. Questo garantisce l'assoluta pulizia geometrica dei buchi liberi intermedi.
 * **Broadcast Multi-Tariffa Octorate**: Le modifiche di `minStay` vengono trasmesse simultaneamente sia alla Tariffa Madre (Livello 0) che a tutte le Tariffe Derivate collegate (AirBnB, Booking.com, Agoda, Standard, AC) per garantire la coerenza visiva e funzionale immediata su ogni riga del calendario PMS di Octorate.
+
+---
+
+## 5. Alloggi Collegati (Linked Units) & Auto-Guarigione Sentinel
+
+* **Sincronizzazione Parent/Child**: Per alloggi composti come **Jungle Villa (529773)**, **Jungle Villa Left (495795)** e **Jungle Villa Right (495796)**, il motore fonde le prenotazioni delle unità correlate (`linkedKeys`). Se Jungle Villa ha una prenotazione dal 18 Ottobre, anche Jungle Villa Left e Right ereditano l'occupazione e il buco residuo per il 17 Ottobre viene impostato a `minStay = 1` su tutte e 3 le unità.
+* **Resort Sentinel Auto-Healer**: Durante l'audit giornaliero (o via Vercel Cron alle 07:00), Sentinel interroga Octorate: se rileva che un buco residuo attivo ha un `minStay` sul PMS superiore al valore calcolato, invia una chiamata correttiva istantanea a `/calendar/bulk` e notifica l'avvenuta auto-guarigione su Telegram.

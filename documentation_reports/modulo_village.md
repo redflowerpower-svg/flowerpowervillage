@@ -1102,3 +1102,25 @@ executionMode:
 2. **Localizzazione DeepSeek N-Lingue**:
    - Banner promozionale giallo-rosso arricchito con le 9 traduzioni certificate DeepSeek (`IT`, `EN`, `TH`, `MM`, `DE`, `ES`, `FR`, `RU`, `ZH`) con dicitura dedicata alla validità per camera + ospiti extra.
 
+---
+
+## 18. Resort Sentinel 24/7 & Auto-Healer Octorate (`/api/resort-sentinel` - 17/10/2026)
+
+### A. Architettura a 3 Pilastri
+1. **Sacro Graal & Restrizioni OTA (738 checkpoints)**:
+   - Tariffe AC (`ac_7d`, `ac_14d`, `ac_bnb_7d`, `ac_bnb_14d`, `airbnb_ac`) forzate in `stopSells: true, closed: true`.
+   - Standard 7d forzata in Stop-Sell durante l'Alta Stagione (`2026-12-16` ➔ `2027-03-31`).
+   - Main bnb-14d aperta a Capodanno e chiusa a Febbraio; Main bnb-7d chiusa a Capodanno e aperta dopo.
+2. **Soggiorno Minimo Dinamico & Gap-Fill**:
+   - Calcolo live da prenotazioni attive per l'intera stagione (`octorate-webhook.ts`).
+   - Correzione bug gap calculation: confronto `gapDays < baseline` per etichettare correttamente i buchi di 1 notte prima del check-in successivo.
+   - Allineamento automatico unità collegate (`linkedKeys` per Jungle Villa, Left e Right).
+3. **Sistema Last Minute (Sconti a Cascata)**:
+   - Verifica live dei prezzi delle Tariffe Madri su Octorate per rilevare lo stadio attivo (Stadio 1 al -10%).
+
+### B. Auto-Healer & Vercel Cron
+- **Rilevamento & Push Istantaneo**: Se Sentinel rileva anomalie o buchi con `minStay` non allineato, effettua una chiamata correttiva istantanea all'endpoint bulk Octorate (`/calendar/bulk`).
+- **Schedulazione Vercel Cron**: Esecuzione automatica programmata ogni mattina alle 07:00 via `vercel.json` (`/api/resort-sentinel?cron=1`).
+- **Notifica Telegram**: Invio automatico del report certificato a 3 pilastri sul canale staff del villaggio (`village`).
+
+

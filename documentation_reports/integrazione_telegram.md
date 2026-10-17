@@ -101,3 +101,12 @@ La funzione helper `normalizeThaiPhone` converte i numeri di telefono inseriti d
     *   Il messaggio Telegram viene immediatamente modificato via `editMessageText` con l'indicazione `[PRENOTAZIONE CONFERMATA DA @operatore]` o `[PRENOTAZIONE RIFIUTATA]`.
     *   Il tablet KDS in cucina riceve la notifica in tempo reale via Supabase Realtime, archivia la comanda del tavolo e spegne automaticamente l'allarme sonoro.
 
+### F. Resort Sentinel Report a 3 Pilastri & Alert Auto-Guarigione (`village`)
+*   **Canale Telegram Villaggio (`village`):** L'engine `resort-sentinel.ts` invia notifiche in formato HTML nativo con 2 modalità operative:
+    1.  **Report di Conformità Globale (Verde / OK):** Eseguito via Vercel Cron (ogni mattina alle 07:00) o on-demand con `?report=1`. Certifica i 3 pilastri operativi:
+        *   *Pilastro 1 — Sacro Graal:* Tariffe AC chiuse in stop-sell, Standard 7d bloccata a Capodanno/Febbraio, allineamento temporale Main bnb-14d / 7d (738 checkpoints).
+        *   *Pilastro 2 — Soggiorno Minimo Dinamico:* Rilevamento e certificazione buchi attivi (Gap-Fill ridotto a 1 notte) ed evidenza della baseline stagionale (2 notti).
+        *   *Pilastro 3 — Sistema Last Minute:* Rilevamento dello stadio attivo (Stadio 1 al -10%) e prezzi live a cascata sulle Tariffe Madri.
+    2.  **Alert Intervento di Auto-Guarigione (Rosso / Alert):** Inviato istantaneamente se vengono rilevate discrepanze o falle su Octorate, dettagliando le anomalie corrette e il numero di blocchi risigillati dall'Auto-Healer.
+
+
