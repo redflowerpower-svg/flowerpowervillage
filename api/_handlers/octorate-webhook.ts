@@ -620,14 +620,80 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           }
 
           if (targetBooking && (targetBooking.checkin || targetBooking.checkIn) && (targetBooking.checkout || targetBooking.checkOut)) {
-            const rawIn = targetBooking.checkin || targetBooking.checkIn;
-            const rawOut = targetBooking.checkout || targetBooking.checkOut;
+            const rawIn = String(targetBooking.checkin || targetBooking.checkIn).slice(0, 10);
+            const rawOut = String(targetBooking.checkout || targetBooking.checkOut).slice(0, 10);
             const st = String(targetBooking.status || '').toUpperCase().trim();
+            const bookerGuest = (targetBooking.guests || []).find((g: any) => g.type === 'BOOKER') || targetBooking.guests?.[0];
+            const guestName = bookerGuest ? `${bookerGuest.givenName || ''} ${bookerGuest.familyName || ''}`.trim() : (targetBooking.guestName || `${targetBooking.firstName || ''} ${targetBooking.lastName || ''}`.trim() || 'Ospite N/D');
+            const roomName = targetBooking.roomName || targetBooking.accommodation_name || targetBooking.accommodation || 'Alloggio Flower Power';
+            const channelName = targetBooking.channelName || targetBooking.channel || (targetBooking.channelId === 233 ? 'Sito Web Diretto' : `OTA (#${targetBooking.channelId || 'N/D'})`);
+            const reservationId = targetBooking.id || targetResId;
 
-            if (st !== 'CANCELLED' && st !== 'CANCELED' && st !== 'DELETED' && st !== 'VOID') {
-              const bookerGuest = (targetBooking.guests || []).find((g: any) => g.type === 'BOOKER') || targetBooking.guests?.[0];
-              const guestName = bookerGuest ? `${bookerGuest.givenName || ''} ${bookerGuest.familyName || ''}`.trim() : (targetBooking.guestName || 'OTA Guest');
+            // Calcolo durata esatta in notti
+            let stayNights = 1;
+            try {
+              const dIn = new Date(rawIn);
+              const dOut = new Date(rawOut);
+              if (!isNaN(dIn.getTime()) && !isNaN(dOut.getTime())) {
+                stayNights = Math.max(1, Math.round((dOut.getTime() - dIn.getTime()) / (1000 * 60 * 60 * 24)));
+              }
+            } catch {}
 
+            // Calcolo totale formattato
+            const totalGross = targetBooking.totalGross ?? targetBooking.roomGross ?? targetBooking.total ?? 0;
+            const currency = targetBooking.currency || 'THB';
+            const formattedTotal = typeof totalGross === 'number'
+              ? totalGross.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+              : String(totalGross);
+
+            const isCancelled = st === 'CANCELLED' || st === 'CANCELED' || st === 'DELETED' || st === 'VOID' || eventType.toUpperCase().includes('CANCEL');
+            const isModified = !isCancelled && (eventType.toUpperCase().includes('CHANGE') || eventType.toUpperCase().includes('MODIF'));
+
+            // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio
+            try {
+              let tgMessage = '';
+              let targetTopicKey: 'BOOKINGS' | 'MODIFICATIONS_CANCELLATIONS' = 'BOOKINGS';
+
+              if (isCancelled) {
+                targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
+                tgMessage = `🔴 <b>[CANCELLAZIONE PRENOTAZIONE]</b>\n` +
+                  `🏨 <b>Alloggio:</b> ${roomName}\n` +
+                  `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                  `🌐 <b>Canale:</b> ${channelName}\n` +
+                  `📅 <b>Periodo Annullato:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
+                  `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                  `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+              } else if (isModified) {
+                targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
+                tgMessage = `🟡 <b>[PRENOTAZIONE MODIFICATA]</b>\n` +
+                  `🏨 <b>Alloggio:</b> ${roomName}\n` +
+                  `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                  `🌐 <b>Canale:</b> ${channelName}\n` +
+                  `📅 <b>Nuovo Periodo:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
+                  `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                  `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+              } else {
+                targetTopicKey = 'BOOKINGS';
+                tgMessage = `🟢 <b>[NUOVA PRENOTAZIONE RICEVUTA]</b>\n` +
+                  `🏨 <b>Alloggio:</b> ${roomName}\n` +
+                  `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                  `🌐 <b>Canale:</b> ${channelName}\n` +
+                  `📅 <b>Check-in:</b> <code>${rawIn}</code>\n` +
+                  `🛫 <b>Check-out:</b> <code>${rawOut}</code>\n` +
+                  `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
+                  `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                  `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+              }
+
+              sendDepartmentTelegramMessage('village', tgMessage, { topic: targetTopicKey }).catch(tgErr => {
+                console.warn('[OCTORATE WEBHOOK] Errore invio notifica Telegram prenotazione:', tgErr);
+              });
+            } catch (notifyErr) {
+              console.warn('[OCTORATE WEBHOOK] Errore creazione notifica Telegram:', notifyErr);
+            }
+
+            // 🛡️ 2. Auto-Shield o Gestione Cancellazione Diretta
+            if (!isCancelled) {
               await executeAutoShieldForReservation({
                 accessToken,
                 checkIn: toThailandDateStr(rawIn),
@@ -651,7 +717,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
             }
           }
         } catch (shieldErr) {
-          console.warn('[OCTORATE WEBHOOK] Auto-Shield error (non-blocking):', shieldErr);
+          console.warn('[OCTORATE WEBHOOK] Auto-Shield / Notification error (non-blocking):', shieldErr);
         }
 
         // ⚡ [CASCADE LAST-MINUTE 24/7] Verifica e rinnovo automatico finestra 7 giorni sconti a cascata
