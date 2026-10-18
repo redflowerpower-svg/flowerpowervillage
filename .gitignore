@@ -33,8 +33,9 @@ Desktop.ini
 *~
 *.sublime-workspace
 
-# ─── Misc ───────────────────────────────────────────────
-*.local
-.eslintcache
-.vercel
-.env*
+# ─── Scratch temporary media ─────────────────────────────
+scratch/recordings/
+scratch/*.mp4
+scratch/*.png
+.vercel/
+

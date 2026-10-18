@@ -64,59 +64,64 @@ function DynamicHeadManager() {
     const isPizza = host.includes('flowerpowerpizza.com') || pathname.startsWith('/pizza') || isKitchen || isDining;
     const isVillage = host.includes('flowerpowervillage.com') || pathname.startsWith('/village') || pathname.startsWith('/rooms');
 
-    const metaDesc = document.querySelector<HTMLMetaElement>("meta[name='description']");
-    const ogImage = document.querySelector<HTMLMetaElement>("meta[property='og:image']");
-    const manifestLink = document.querySelector<HTMLLinkElement>("link[rel='manifest']");
-    const appleTitle = document.querySelector<HTMLMetaElement>("meta[name='apple-mobile-web-app-title']");
-    const isLegal = pathname.startsWith('/terms') || pathname.startsWith('/privacy') || pathname.startsWith('/legal') || pathname.startsWith('/policy');
-    const isSocial = pathname.startsWith('/social');
+    try {
+      const metaDesc = document.querySelector<HTMLMetaElement>("meta[name='description']");
+      const ogImage = document.querySelector<HTMLMetaElement>("meta[property='og:image']");
+      const manifestLink = document.querySelector<HTMLLinkElement>("link[rel='manifest']");
+      const appleTitle = document.querySelector<HTMLMetaElement>("meta[name='apple-mobile-web-app-title']");
+      const themeColor = document.querySelector<HTMLMetaElement>("meta[name='theme-color']");
+      const isLegal = pathname.startsWith('/terms') || pathname.startsWith('/privacy') || pathname.startsWith('/legal') || pathname.startsWith('/policy');
+      const isSocial = pathname.startsWith('/social');
 
-    if (isSocial) {
-      document.title = 'Flower Power Social Studio — TikTok & Meta Publisher';
-      if (manifestLink) manifestLink.href = '/manifest.json';
-      if (metaDesc) {
-        metaDesc.content = 'Flower Power Social Studio: Automated multichannel publishing and scheduling for TikTok Content Posting API v2, Instagram Reels, and Facebook Pages.';
+      if (isSocial) {
+        document.title = 'Flower Power Social Studio — TikTok & Meta Publisher';
+        if (manifestLink) manifestLink.href = '/manifest.json';
+        if (metaDesc) {
+          metaDesc.content = 'Flower Power Social Studio: Automated multichannel publishing and scheduling for TikTok Content Posting API v2, Instagram Reels, and Facebook Pages.';
+        }
+      } else if (isLegal) {
+        document.title = 'Flower Power — Terms of Service & Privacy Policy';
+        if (manifestLink) manifestLink.href = '/manifest.json';
+        if (metaDesc) {
+          metaDesc.content = 'Official Terms of Service, Privacy Policy (PDPA & GDPR), and TikTok Content Posting API compliance for Flower Power Pizza Ranong and Flower Power Farm Village Koh Phayam.';
+        }
+      } else if (isKitchen) {
+        document.title = 'Flower Power Pizza — Kitchen KDS';
+        if (manifestLink) manifestLink.href = '/manifest-kitchen.json';
+        if (appleTitle) appleTitle.content = 'FP Kitchen';
+        if (themeColor) themeColor.content = '#8b1e1e';
+      } else if (isDining) {
+        document.title = 'Flower Power Dining — Tablet Sala & Tavoli';
+        if (manifestLink) manifestLink.href = '/manifest-dining.json';
+        if (appleTitle) appleTitle.content = 'FP Dining';
+        if (themeColor) themeColor.content = '#d97706';
+      } else if (isPizza) {
+        document.title = 'Flower Power Pizza Ranong · Authentic Italian Pizza & Homemade Fresh Pasta';
+        if (manifestLink) manifestLink.href = '/manifest.json';
+        if (metaDesc) {
+          metaDesc.content = 'Flower Power Pizza Ranong — Authentic Italian pizza (48h slow-fermented crust, 100% Italian flour), homemade fresh pasta, artisan sausage, and fine wines in a tropical oasis with a private waterfall near Raksawarin Hot Springs. Fast delivery in Ranong.';
+        }
+        if (ogImage) {
+          ogImage.content = '/flower-power-pizza-emblem.png';
+        }
+      } else if (isVillage) {
+        document.title = 'Flower Power · Farm Village & Spa · Koh Phayam';
+        if (manifestLink) manifestLink.href = '/manifest.json';
+        if (metaDesc) {
+          metaDesc.content = "Flower Power Farm Village & Spa on Koh Phayam, Thailand — eco-resort bungalows, villas, pool club, wellness spa, and authentic restaurant on Thailand's tropical island paradise.";
+        }
+        if (ogImage) {
+          ogImage.content = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+        }
+      } else {
+        document.title = 'Flower Power · Farm Village & Spa · Pizza Ranong';
+        if (manifestLink) manifestLink.href = '/manifest.json';
+        if (metaDesc) {
+          metaDesc.content = 'Flower Power — Koh Phayam Eco Resort & Spa and Authentic Italian Pizzeria in Ranong, Thailand.';
+        }
       }
-    } else if (isLegal) {
-      document.title = 'Flower Power — Terms of Service & Privacy Policy';
-      if (manifestLink) manifestLink.href = '/manifest.json';
-      if (metaDesc) {
-        metaDesc.content = 'Official Terms of Service, Privacy Policy (PDPA & GDPR), and TikTok Content Posting API compliance for Flower Power Pizza Ranong and Flower Power Farm Village Koh Phayam.';
-      }
-    } else if (isKitchen) {
-      document.title = 'Flower Power Pizza — Kitchen KDS';
-      if (manifestLink) manifestLink.href = '/manifest-kitchen.json';
-      if (appleTitle) appleTitle.content = 'FP Kitchen';
-      if (themeColor) themeColor.content = '#8b1e1e';
-    } else if (isDining) {
-      document.title = 'Flower Power Dining — Tablet Sala & Tavoli';
-      if (manifestLink) manifestLink.href = '/manifest-dining.json';
-      if (appleTitle) appleTitle.content = 'FP Dining';
-      if (themeColor) themeColor.content = '#d97706';
-    } else if (isPizza) {
-      document.title = 'Flower Power Pizza Ranong · Authentic Italian Pizza & Homemade Fresh Pasta';
-      if (manifestLink) manifestLink.href = '/manifest.json';
-      if (metaDesc) {
-        metaDesc.content = 'Flower Power Pizza Ranong — Authentic Italian pizza (48h slow-fermented crust, 100% Italian flour), homemade fresh pasta, artisan sausage, and fine wines in a tropical oasis with a private waterfall near Raksawarin Hot Springs. Fast delivery in Ranong.';
-      }
-      if (ogImage) {
-        ogImage.content = '/flower-power-pizza-emblem.png';
-      }
-    } else if (isVillage) {
-      document.title = 'Flower Power · Farm Village & Spa · Koh Phayam';
-      if (manifestLink) manifestLink.href = '/manifest.json';
-      if (metaDesc) {
-        metaDesc.content = "Flower Power Farm Village & Spa on Koh Phayam, Thailand — eco-resort bungalows, villas, pool club, wellness spa, and authentic restaurant on Thailand's tropical island paradise.";
-      }
-      if (ogImage) {
-        ogImage.content = '/FP_04_-_LOGO_OFFICIAL_HD.png';
-      }
-    } else {
-      document.title = 'Flower Power · Farm Village & Spa · Pizza Ranong';
-      if (manifestLink) manifestLink.href = '/manifest.json';
-      if (metaDesc) {
-        metaDesc.content = 'Flower Power — Koh Phayam Eco Resort & Spa and Authentic Italian Pizzeria in Ranong, Thailand.';
-      }
+    } catch (e) {
+      console.warn('DynamicHeadManager safe catch:', e);
     }
   }, []);
 

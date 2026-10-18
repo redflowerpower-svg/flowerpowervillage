@@ -19,6 +19,9 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
 2. **Database & Storage Indipendenti**: Le tabelle dedicate (`social_scheduled_posts`, `social_logs`, ecc.) e i bucket dedicati di storage sono totalmente isolati. Non hanno vincoli di integrità o foreign key con ordini o prenotazioni, prevenendo qualsiasi blocco o effetto collaterale a catena.
 3. **Isolamento dei Processi & Zero Downtime**: Chiamate verso le API esterne (Meta Graph API, Instagram Container, TikTok API), eventuali timeout o rate-limit non devono MAI impattare le prestazioni della cassa, la ricezione degli ordini della pizzeria o la disponibilità delle stanze del villaggio.
 4. **Sicurezza & Zero Leak**: Token e credenziali dei social rimangono protetti nella cassaforte (`.secret_docs`) e nei file `.env`, garantendo sempre zero secret leak nel codice tracciato da Git.
+5. **Checklist Blindatura Post-Approvazione TikTok**: Non appena l'applicazione riceve l'approvazione definitiva da TikTok for Developers e viene pianificato il rilascio in produzione (`MARKDOWN-WEBSITE`), l'agente DEVE categoricamente ricordare e procedere alla **blindatura totale di tutte le aree staff**:
+   - Rimuovere il bypass temporaneo di revisione in `SocialAdminAuth.tsx` per rendere `/social` 100% protetto da password anche sul dominio di produzione.
+   - Verificare che tutte le console interne (`/social`, `/kitchen`, `/dining`, `/admin`) siano protette dal Single Sign-On unificato Supabase, senza alcuna rotta staff esposta liberamente al pubblico.
 
 
 # Autonomous Execution & Research Protocol (`/goal`, `AUTOPILOT`, `In autonomia`)
@@ -74,7 +77,7 @@ To ensure the application is optimized for web agents (including Antigravity, se
 - **New Services Integration & API Specs**: Whenever a new external service, SDK, API, or library is introduced to the project, the agent **MUST** first perform a comprehensive web search of its official documentation, endpoints, request/response formats, and security guidelines.
 - **Local Documentation**: Before writing any implementation code, the agent must create a dedicated local reference file (e.g., `.agents/docs_servicename.md`) containing the service's base specifications.
 - **Monthly Scheduler Inclusion**: Once documented, this new service must be automatically appended to the checklist of the monthly scheduler for updates, deprecations, and changelog verification:
-  - *Active External Services Checklist*: Supabase, Stripe, Telegram, Octorate, DeepSeek AI, Google Maps, Ksher Pay (Village Booking), Omise / Opn Payments (Pizza Delivery).
+  - *Active External Services Checklist*: Supabase, Stripe, Telegram, Octorate, DeepSeek AI, Google Maps, Ksher Pay (Village Booking), Omise / Opn Payments (Pizza Delivery), Google Business Profile (Social Studio).
 
 # Pizzeria / Delivery Food Design Rules
 - **Product Name Line Breaking (Double Line Layout)**: Per tutti i prodotti del reparto delivery food (`/pizza`), i nomi dei prodotti che contengono connettori logici devono essere mandati a capo per visualizzarsi sempre su due righe. La logica di formattazione a capo (`formatProductName` nei componenti React) deve dividere il nome prima dei seguenti connettori:

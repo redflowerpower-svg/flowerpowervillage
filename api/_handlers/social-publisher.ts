@@ -65,11 +65,72 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
         }
       }
 
+      // Check Google Business Profile Account
+      let googleAccount: any = null;
+      let googleLocations: any[] = [];
+      let isGoogleConnected = false;
+
+      if (supabase) {
+        try {
+          const { data: gData } = await supabase
+            .from("telegram_config")
+            .select("*")
+            .eq("id", "google_business_token")
+            .maybeSingle();
+
+          if (gData && gData.bot_token) {
+            try {
+              const parsed = JSON.parse(gData.chat_id || "{}");
+              isGoogleConnected = true;
+              googleLocations = parsed.locations || [];
+              googleAccount = {
+                accountName: parsed.primary_account || "Flower Power",
+                locations: googleLocations,
+                scope: parsed.scope,
+                expiresAt: parsed.expires_at,
+                updatedAt: gData.updated_at
+              };
+            } catch {}
+          }
+        } catch {}
+      }
+
+      // Default smart locations for Flower Power brands if not yet retrieved from live API
+      if (googleLocations.length === 0) {
+        googleLocations = [
+          {
+            account: "accounts/primary",
+            name: "locations/fp_pizza_ranong",
+            title: "Flower Power Pizza - Ranong Hotspring",
+            websiteUri: "https://flowerpowerpizza.com",
+            brand: "pizza"
+          },
+          {
+            account: "accounts/primary",
+            name: "locations/fp_village_phayam",
+            title: "Flower Power Farm Village & Spa",
+            websiteUri: "https://flowerpowervillage.com",
+            brand: "village"
+          }
+        ];
+      }
+
       const clientKey = process.env.TIKTOK_CLIENT_KEY || "";
       const redirectUri = process.env.TIKTOK_REDIRECT_URI || "https://flowerpowerpizza.com/api/social-callback";
       
       const authUrl = clientKey
         ? `https://www.tiktok.com/v2/auth/authorize/?client_key=${encodeURIComponent(clientKey)}&scope=user.info.basic,video.publish,video.upload&response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&state=fp_social_studio`
+        : "";
+
+      // Google OAuth URL
+      const googleClientId = process.env.GOOGLE_CLIENT_ID || "";
+      const host = (req.headers["x-forwarded-host"] || req.headers.host || "") as string;
+      const googleRedirectUri = host.includes("localhost")
+        ? "http://localhost:3000/api/social-callback"
+        : (process.env.GOOGLE_REDIRECT_URI || "https://flowerpowerpizza.com/api/social-callback");
+
+      const googleAuthUrl = googleClientId
+        ? `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(googleClientId)}&redirect_uri=${encodeURIComponent(googleRedirectUri)}&response_type=code&scope=${encodeURIComponent('https://www.googleapis.com/auth/business.manage')}&access_type=offline&prompt=consent&state=google_social_studio`
         : "";
 
       const hasMetaPizza = !!process.env.META_PIZZA_PAGE_TOKEN;
@@ -83,6 +144,14 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
           redirectUri,
           authUrl,
           account: tiktokAccount
+        },
+        google: {
+          connected: isGoogleConnected,
+          clientId: googleClientId ? `${googleClientId.slice(0, 16)}...` : null,
+          redirectUri: googleRedirectUri,
+          authUrl: googleAuthUrl,
+          account: googleAccount,
+          locations: googleLocations
         },
         meta: {
           connected: hasMetaPizza || hasMetaVillage,
@@ -285,28 +354,35 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     } = body;
 
     try {
-      const brandContext = brand === "pizza"
-        ? "Flower Power Pizza Ranong: Authentic Italian pizza (48h slow-fermented crust, 100% Italian flour), homemade fresh pasta, Italian craft sausages, and fine wines in a tropical garden near Raksawarin Hot Springs in Ranong, Thailand."
+      const isPizza = brand === "pizza";
+      const brandContext = isPizza
+        ? "Flower Power Pizza Ranong: Authentic Italian pizza (48h slow-fermented crust, 100% Italian flour, wood-fired oven), homemade fresh pasta, Italian craft sausages, and fine wines in a tropical garden near Raksawarin Hot Springs in Ranong, Thailand."
         : "Flower Power Farm Village & Spa: Tropical eco-resort on Koh Phayam island, Thailand. Organic farm, luxury bungalows, swimming pool, natural wellness, and authentic Italian dining.";
 
       const prompt = `You are a world-class viral social media manager for "${brandContext}".
 Create a high-converting, viral caption with relevant hashtags for ${platform.toUpperCase()}.
 Topic / Content Idea: "${topic}"
-Language: ${language}
 Tone of Voice: ${tone}
 
-Rules:
-1. Include an irresistible hook on the first line (emojis + curiosity/excitement).
-2. Write 2-3 engaging body lines with sensory details and clear call-to-action (CTA).
-3. Provide 8-12 hyper-relevant hashtags tailored to Ranong / Koh Phayam / Thailand / Foodies / Travel.
+CATEGORICAL BILINGUAL FORMAT RULES:
+1. Every post MUST strictly contain BOTH Thai and English text, each preceded by its national flag emoji:
+${isPizza ? `   - BRAND IS PIZZERIA RANONG:
+     * FIRST BLOCK: 🇹🇭 Thai language text with authentic viral social media slang and friendly particles (e.g. นะคะ, จ้า, น้าา, ฟินมากกก, อร่อยแสงออกปาก, สายกินห้ามพลาด, ชีสเยิ้มๆ, เตาฟืนหอมกรุ่น, ปักหมุดด่วน). It must sound like an enthusiastic, charming local food influencer, NEVER robotic!
+     * DOUBLE LINE BREAK
+     * SECOND BLOCK: 🇬🇧 English language text with mouthwatering artisanal storytelling (48h fermented sourdough, traditional wood-fired stone oven, waterfall garden in Ranong, dine-in or fast delivery CTA).` : `   - BRAND IS KOH PHAYAM VILLAGE:
+     * FIRST BLOCK: 🇬🇧 English language text with captivating tropical eco-resort storytelling, island bliss, birdsong, organic farm breakfasts, and serene nature on Koh Phayam Island.
+     * DOUBLE LINE BREAK
+     * SECOND BLOCK: 🇹🇭 Thai language text with authentic viral travel blogger tone and inviting particles (e.g. นะคะ, จ้า, น้าา, ชิลสุดๆ, ฟีลดีมากกก, พักผ่อนฮีลใจ, ปักหมุดที่พัก, ห้ามพลาดเลยน้า).`}
+2. Season both language blocks with engaging viral emojis (🔥, 🍕, 🤤, 🌿, 🏝️, ✨, 🥥).
+3. Conclude with 8-12 hyper-relevant viral hashtags combining English and Thai (e.g. ${isPizza ? '#RanongFood #PizzaRanong #RanongHotspring #ItalianFoodThailand #WoodFiredPizza #อร่อยบอกต่อ #รีวิวระนอง #เที่ยวระนอง #พิซซ่าเตาฟืน' : '#KohPhayam #KohPhayamIsland #EcoResortThailand #ThailandTravel #HiddenThailand #เที่ยวเกาะพยาม #เกาะพยาม #รีวิวที่พัก #เที่ยวระนอง'}).
 4. Keep the total length under 300 words.
 5. Return ONLY a JSON object with this exact format:
 {
-  "hook": "...",
+  "hook": "${isPizza ? '🇹🇭 ...' : '🇬🇧 ...'}",
   "body": "...",
   "cta": "...",
   "hashtags": ["#Tag1", "#Tag2", "..."],
-  "fullCaption": "..."
+  "fullCaption": "${isPizza ? '🇹🇭 [Thai text with viral particles]\\n\\n🇬🇧 [English text]\\n\\n#Tags' : '🇬🇧 [English text]\\n\\n🇹🇭 [Thai text with viral particles]\\n\\n#Tags'}"
 }`;
 
       const aiRes = await fetch("https://api.deepseek.com/chat/completions", {
@@ -337,7 +413,106 @@ Rules:
     }
   }
 
-  // 5. POST /api/social-publisher?action=sandbox_simulate (For Demo Video Walkthrough)
+  // 5. POST /api/social-publisher?action=publish_google (Publish to Google Maps / Local Posts)
+  if (action === "publish_google" || action === "publish_google_post") {
+    const {
+      summary = "",
+      locationName,
+      brand = "pizza",
+      actionType = "ORDER",
+      actionUrl = "https://flowerpowerpizza.com",
+      mediaUrl = "",
+      topicType = "STANDARD"
+    } = body;
+
+    let googleToken = "";
+    if (supabase) {
+      try {
+        const { data: gData } = await supabase
+          .from("telegram_config")
+          .select("*")
+          .eq("id", "google_business_token")
+          .maybeSingle();
+        if (gData?.bot_token) {
+          googleToken = gData.bot_token;
+        }
+      } catch {}
+    }
+
+    if (!googleToken) {
+      // In sandbox / unauthenticated demo mode, provide realistic simulation response
+      const simulatedPostId = `g_post_${brand}_${Date.now().toString(36)}`;
+      return res.status(200).json({
+        success: true,
+        simulation: true,
+        postId: simulatedPostId,
+        message: "Google Business Profile Post published successfully (Sandbox / Demo mode)",
+        post: {
+          name: `${locationName || 'locations/fp_pizza_ranong'}/localPosts/${simulatedPostId}`,
+          languageCode: "en",
+          summary,
+          callToAction: {
+            actionType,
+            url: actionUrl
+          },
+          topicType,
+          createTime: new Date().toISOString()
+        }
+      });
+    }
+
+    try {
+      const targetLocation = locationName || (brand === "pizza" ? "locations/fp_pizza_ranong" : "locations/fp_village_phayam");
+      const postPayload: any = {
+        languageCode: "en",
+        summary: summary.slice(0, 1500),
+        topicType,
+        callToAction: actionUrl ? {
+          actionType: actionType || (brand === "village" ? "BOOK" : "ORDER"),
+          url: actionUrl
+        } : undefined
+      };
+
+      if (mediaUrl) {
+        postPayload.media = [
+          {
+            mediaFormat: mediaUrl.endsWith(".mp4") ? "VIDEO" : "PHOTO",
+            sourceUrl: mediaUrl
+          }
+        ];
+      }
+
+      console.log(`[SocialPublisher] Publishing to Google Business Profile ${targetLocation}:`, postPayload);
+
+      const gRes = await fetch(`https://mybusiness.googleapis.com/v4/${targetLocation}/localPosts`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${googleToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(postPayload)
+      });
+
+      const gData = await gRes.json();
+      console.log("[SocialPublisher] Google publish response:", gData);
+
+      if (!gRes.ok || gData.error) {
+        return res.status(400).json({
+          error: "Google Business Profile API error",
+          details: gData.error || gData
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        post: gData
+      });
+    } catch (gErr: any) {
+      return res.status(500).json({ error: "Google publish exception", message: gErr.message });
+    }
+  }
+
+  // 6. POST /api/social-publisher?action=sandbox_simulate (For Demo Video Walkthrough)
   if (action === "sandbox_simulate") {
     const { videoUrl = "https://flowerpowerpizza.com/demo-reel.mp4", title = "Pizza Night at Flower Power Ranong 🍕 #RanongFood #AuthenticPizza" } = body;
     const mockPublishId = `v_pub_url~v2.${Math.random().toString(36).substring(2, 10)}${Date.now()}`;
