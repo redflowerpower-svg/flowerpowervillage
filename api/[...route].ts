@@ -48,6 +48,8 @@ import { handlePizzaOrderSubmit } from "./_handlers/pizza-order-submit.js";
 import { handleNetworkAuth } from "./_handlers/network-auth.js";
 import { handlePromoCodes } from "./_handlers/promo-codes.js";
 import { handleResortSentinel } from "./_handlers/resort-sentinel.js";
+import { handleSocialCallback } from "./_handlers/social-callback.js";
+import { handleSocialPublisher } from "./_handlers/social-publisher.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.url?.includes('webhooks/octorate') || req.url?.includes('octorate-webhook')) {
@@ -79,6 +81,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Normalize path string (lowercase, remove leading 'api/' and trailing slashes)
   const queryRoute = Array.isArray(req.query?.route) ? req.query.route.join('/') : String(req.query?.route || '');
   const cleanPath = (pathname || queryRoute || '').replace(/^api\//i, '').replace(/\/$/, '').toLowerCase();
+
+  if (cleanPath.startsWith('social-callback') || cleanPath.startsWith('social/callback') || cleanPath.startsWith('tiktok-callback')) {
+    return handleSocialCallback(req, res);
+  }
+
+  if (cleanPath.startsWith('social-publisher') || cleanPath.startsWith('social/publisher') || cleanPath.startsWith('social-publish') || cleanPath.startsWith('tiktok-publish')) {
+    return handleSocialPublisher(req, res);
+  }
 
   if (cleanPath.startsWith('documents-api') || cleanPath.startsWith('documents')) {
     return handleDocumentsApi(req, res);
@@ -274,6 +284,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     case 'table-reservations':
     case 'pizza-table-reservation':
       return handleTableReservation(req, res);
+
+    case 'social-callback':
+    case 'social/callback':
+    case 'tiktok-callback':
+      return handleSocialCallback(req, res);
 
     default:
       return res.status(404).json({ error: `Route not found: /api/${cleanPath}` });

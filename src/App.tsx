@@ -9,6 +9,7 @@ import DocumentReaderPage from './pages/DocumentReaderPage';
 import { KitchenTabletKDS } from './admin/pizza/components/KitchenTabletKDS';
 import DiningTabletSite from './pizza/pages/DiningTabletSite';
 import LegalPage from './pages/LegalPage';
+import SocialStudioPage from './social/pages/SocialStudioPage';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -68,8 +69,15 @@ function DynamicHeadManager() {
     const manifestLink = document.querySelector<HTMLLinkElement>("link[rel='manifest']");
     const appleTitle = document.querySelector<HTMLMetaElement>("meta[name='apple-mobile-web-app-title']");
     const isLegal = pathname.startsWith('/terms') || pathname.startsWith('/privacy') || pathname.startsWith('/legal') || pathname.startsWith('/policy');
+    const isSocial = pathname.startsWith('/social');
 
-    if (isLegal) {
+    if (isSocial) {
+      document.title = 'Flower Power Social Studio — TikTok & Meta Publisher';
+      if (manifestLink) manifestLink.href = '/manifest.json';
+      if (metaDesc) {
+        metaDesc.content = 'Flower Power Social Studio: Automated multichannel publishing and scheduling for TikTok Content Posting API v2, Instagram Reels, and Facebook Pages.';
+      }
+    } else if (isLegal) {
       document.title = 'Flower Power — Terms of Service & Privacy Policy';
       if (manifestLink) manifestLink.href = '/manifest.json';
       if (metaDesc) {
@@ -157,6 +165,8 @@ function App() {
           <Route path="/legal" element={<LegalPage initialTab="all" />} />
           <Route path="/policy" element={<Navigate to="/privacy" replace />} />
           <Route path="/policies" element={<Navigate to="/terms" replace />} />
+          <Route path="/social" element={<SocialStudioPage />} />
+          <Route path="/social/*" element={<SocialStudioPage />} />
           <Route path="/flowerpowerpizzaranong/*" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           <Route path="/flowerpowerpizzaranong" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           {/* Legacy hash-based admin redirect */}
