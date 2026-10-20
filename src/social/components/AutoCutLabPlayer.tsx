@@ -851,27 +851,27 @@ export function AutoCutLabPlayer({
 
   return (
     <div className="flex flex-col items-center w-full">
-      {/* 🎛️ STUDIO CONTROL BAR (Quadro di lettura stiloso centrato, rettangoli eleganti, mai a capo) */}
+      {/* 🎛️ STUDIO CONTROL BAR (Tre rettangoli fluttuanti centrati rispetto al cellulare, senza rettangolo di sfondo) */}
       {!testRun.isEmptyShowcase && (
-        <div className="w-full max-w-[480px] flex items-center justify-between gap-2 px-3 py-2 mb-3 rounded-2xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-md">
+        <div className="w-full max-w-[340px] flex items-center justify-center gap-1.5 mb-2.5">
           {/* Rettangolo 1: Engine & Mode */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-amber-500/40 shadow-inner whitespace-nowrap shrink-0">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span className="text-[11.5px] font-black text-amber-300 tracking-wide whitespace-nowrap">
-              {isInOutro ? 'Stamp Outro Reveal' : `${mode} · Pan & Zoom`}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950 border border-amber-500/50 shadow-md whitespace-nowrap shrink-0">
+            <Sparkles className="w-3 h-3 text-amber-400 shrink-0" />
+            <span className="text-[11px] font-black text-amber-300 tracking-wide whitespace-nowrap">
+              {isInOutro ? 'Outro' : `${mode} · Pan & Zoom`}
             </span>
           </div>
 
           {/* Rettangolo 2: Scene & Timer (Centrato) */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-700 shadow-inner whitespace-nowrap text-xs font-mono text-slate-200 shrink-0">
-            <Layers className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-700 shadow-md whitespace-nowrap text-[11px] font-mono text-slate-200 shrink-0">
+            <Layers className="w-3 h-3 text-amber-400 shrink-0" />
             <span className="font-bold text-amber-300 whitespace-nowrap">
-              {isInOutro ? 'OUTRO' : `SCENE ${activeSceneIndex + 1}/${sceneCount}`}
+              {isInOutro ? 'OUTRO' : `${activeSceneIndex + 1}/${sceneCount}`}
             </span>
             <span className="text-slate-600">|</span>
-            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <Clock className="w-3 h-3 text-slate-400 shrink-0" />
             <span className="font-semibold text-slate-300 whitespace-nowrap">
-              {currentElapsed.toFixed(1)}s / {totalVideoDuration.toFixed(1)}s
+              {currentElapsed.toFixed(1)}s/{totalVideoDuration.toFixed(0)}s
             </span>
           </div>
 
@@ -879,14 +879,14 @@ export function AutoCutLabPlayer({
           <button
             type="button"
             onClick={handleToggleMute}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-950 border border-slate-700 hover:border-slate-500 text-xs font-mono text-white shadow-inner whitespace-nowrap transition cursor-pointer shrink-0"
+            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-950 border border-slate-700 hover:border-slate-500 text-[11px] font-mono text-white shadow-md whitespace-nowrap transition cursor-pointer shrink-0"
           >
             {isAudioMuted ? (
-              <VolumeX className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+              <VolumeX className="w-3 h-3 text-rose-400 shrink-0" />
             ) : (
-              <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse shrink-0" />
+              <Volume2 className="w-3 h-3 text-emerald-400 animate-pulse shrink-0" />
             )}
-            <span className="truncate max-w-[100px] sm:max-w-[130px] font-medium whitespace-nowrap">{audioTrack.title}</span>
+            <span className="truncate max-w-[75px] sm:max-w-[95px] font-medium whitespace-nowrap">{audioTrack.title}</span>
           </button>
         </div>
       )}
