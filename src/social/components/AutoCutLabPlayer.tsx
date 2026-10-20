@@ -39,16 +39,7 @@ export function AutoCutLabPlayer({
   const [isAudioMuted, setIsAudioMuted] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
   const [progress, setProgress] = useState(0);
-  const progressRef = useRef(0);
-  progressRef.current = progress;
   const [activeSceneIndex, setActiveSceneIndex] = useState(0);
-
-  // ✨ MOTORE PROFONDITÀ CINEMATOGRAFICA 3D (2.5D Parallax & Bokeh)
-  const [is3DDepthEnabled, setIs3DDepthEnabled] = useState(true);
-  const is3DDepthRef = useRef(true);
-  is3DDepthRef.current = is3DDepthEnabled;
-  const depthOffCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const renderFrameRef = useRef<((elapsed: number) => void) | null>(null);
 
   const lastTestRunRef = useRef(testRun);
   useEffect(() => {
@@ -244,100 +235,12 @@ export function AutoCutLabPlayer({
         }
       }
 
-      if (is3DDepthRef.current && !is43) {
-        // ✨ MOTORE PROFONDITÀ CINEMATOGRAFICA 3D & PARALLASSE 2.5D
-        // 1. Passaggio Sfondo Ambientale Profondo (Morbido Bokeh + Parallasse Lento 0.80x)
-        cCtx.save();
-        cCtx.globalAlpha = opacity;
-        cCtx.filter = 'blur(6px) brightness(0.90) contrast(1.08) saturate(1.15)';
-        cCtx.translate(w / 2 + panX * 0.80, h / 2 + panY * 0.80);
-        cCtx.scale(scale * 1.02, scale * 1.02);
-        cCtx.drawImage(img, -baseW / 2, -baseH / 2, baseW, baseH);
-        cCtx.restore();
-        cCtx.filter = 'none';
-
-        // 2. Passaggio Soggetto in Primo Piano 3D Pop (Nitidissimo, Ingrandito e Galleggiante in Parallasse Rapido 1.18x)
-        if (!depthOffCanvasRef.current) {
-          depthOffCanvasRef.current = document.createElement('canvas');
-        }
-        const offC = depthOffCanvasRef.current;
-        if (offC.width !== w || offC.height !== h) {
-          offC.width = w;
-          offC.height = h;
-        }
-        const offCtx = offC.getContext('2d');
-        if (offCtx) {
-          offCtx.clearRect(0, 0, w, h);
-
-          // Disegna il soggetto con scala maggiorata e anticipo di parallasse (3D Pop)
-          offCtx.save();
-          offCtx.translate(w / 2 + panX * 1.18, h / 2 + panY * 1.18);
-          offCtx.scale(scale * 1.05, scale * 1.05);
-          offCtx.drawImage(img, -baseW / 2, -baseH / 2, baseW, baseH);
-          offCtx.restore();
-
-          // Maschera radiale ovale sfumata sul centro focale (es. piatto o letto/terrazza)
-          const focalY = isFoodContent ? h * 0.50 : h * 0.48;
-          const focalRadiusInner = Math.min(w, h) * 0.22;
-          const focalRadiusOuter = Math.min(w, h) * 0.52;
-
-          const focalGrad = offCtx.createRadialGradient(
-            w / 2 + panX, focalY + panY, focalRadiusInner,
-            w / 2 + panX, focalY + panY, focalRadiusOuter
-          );
-          focalGrad.addColorStop(0, 'rgba(0, 0, 0, 1)');
-          focalGrad.addColorStop(0.70, 'rgba(0, 0, 0, 0.95)');
-          focalGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-          offCtx.globalCompositeOperation = 'destination-in';
-          offCtx.fillStyle = focalGrad;
-          offCtx.fillRect(0, 0, w, h);
-
-          // Composita il soggetto nitido sopra lo sfondo sfocato con ombreggiatura di profondità 3D
-          cCtx.save();
-          cCtx.globalAlpha = opacity;
-          cCtx.shadowColor = 'rgba(0, 0, 0, 0.65)';
-          cCtx.shadowBlur = 24;
-          cCtx.drawImage(offC, 0, 0);
-          cCtx.restore();
-        }
-
-        // 3. Fascio di Luce Volumetrica e Specular Shimmer 3D (scorre sui contorni in contro-luce)
-        cCtx.save();
-        cCtx.globalAlpha = opacity;
-        const lightX = w / 2 - panX * 1.4;
-        const lightY = (isFoodContent ? h * 0.42 : h * 0.36) - panY * 0.8;
-        const volGrad = cCtx.createRadialGradient(
-          lightX, lightY, 15,
-          w / 2, h * 0.48, w * 0.70
-        );
-        volGrad.addColorStop(0, 'rgba(255, 250, 230, 0.18)');
-        volGrad.addColorStop(0.45, 'rgba(255, 235, 190, 0.06)');
-        volGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        cCtx.fillStyle = volGrad;
-        cCtx.fillRect(0, 0, w, h);
-        cCtx.restore();
-
-        // 4. Vignettatura Sferica Profonda (convoglia lo sguardo nella terza dimensione)
-        cCtx.save();
-        cCtx.globalAlpha = opacity * 0.45;
-        const vigGrad = cCtx.createRadialGradient(
-          w / 2, h / 2, w * 0.35,
-          w / 2, h / 2, Math.max(w, h) * 0.72
-        );
-        vigGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        vigGrad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
-        cCtx.fillStyle = vigGrad;
-        cCtx.fillRect(0, 0, w, h);
-        cCtx.restore();
-      } else {
-        cCtx.save();
-        cCtx.globalAlpha = opacity;
-        cCtx.translate(w / 2 + panX, h / 2 + panY);
-        cCtx.scale(scale, scale);
-        cCtx.drawImage(img, -baseW / 2, -baseH / 2, baseW, baseH);
-        cCtx.restore();
-      }
+      cCtx.save();
+      cCtx.globalAlpha = opacity;
+      cCtx.translate(w / 2 + panX, h / 2 + panY);
+      cCtx.scale(scale, scale);
+      cCtx.drawImage(img, -baseW / 2, -baseH / 2, baseW, baseH);
+      cCtx.restore();
     };
 
     // Helper per disegnare in parallelo sia su 9:16 che su 4:3 companion
@@ -350,7 +253,6 @@ export function AutoCutLabPlayer({
 
     const renderFrame = (elapsed: number) => {
       if (isCancelled) return;
-      renderFrameRef.current = renderFrame;
       setProgress(elapsed / totalVideoDuration);
 
       const w = canvas.width;
@@ -939,18 +841,6 @@ export function AutoCutLabPlayer({
     }
   };
 
-  const handleToggle3DDepth = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIs3DDepthEnabled(prev => {
-      const next = !prev;
-      is3DDepthRef.current = next;
-      if (!isPlayingRef.current && renderFrameRef.current) {
-        renderFrameRef.current(progressRef.current * totalVideoDuration);
-      }
-      return next;
-    });
-  };
-
   const currentScene = scenes[activeSceneIndex] || scenes[0];
   const isSingleHero = mode === 'P1' || mode === 'DS';
   const OUTRO_DURATION = isSingleHero ? 0 : 4.0;
@@ -964,27 +854,12 @@ export function AutoCutLabPlayer({
       {/* 🎛️ STUDIO CONTROL BAR: 3 Controlli in Colonna Centrati a Piena Larghezza Telefono */}
       {!testRun.isEmptyShowcase && (
         <div className="w-full max-w-[340px] flex flex-col items-center gap-1.5 mb-2.5">
-          {/* Riga 2 (dopo Genera Nuovo Video): Mode & Cinematica con Toggle 3D Depth */}
-          <div className="w-full flex items-center justify-between gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 border border-amber-500/50 shadow-md">
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="text-xs font-black text-amber-300 tracking-wide">
-                {isInOutro ? 'Stamp Outro Reveal' : `${mode} · Pan & Zoom`}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={handleToggle3DDepth}
-              title="Attiva/Disattiva Motore Profondità 3D (2.5D Parallax Bokeh)"
-              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[10px] font-bold border transition active:scale-95 cursor-pointer ${
-                is3DDepthEnabled
-                  ? 'bg-amber-500/20 border-amber-400/60 text-amber-200 shadow-sm'
-                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <span>3D DEPTH</span>
-              <span className={`w-1.5 h-1.5 rounded-full ${is3DDepthEnabled ? 'bg-amber-400 animate-pulse' : 'bg-slate-500'}`} />
-            </button>
+          {/* Riga 2 (dopo Genera Nuovo Video): Mode & Cinematica */}
+          <div className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 border border-amber-500/50 shadow-md">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="text-xs font-black text-amber-300 tracking-wide">
+              {isInOutro ? 'Stamp Outro Reveal' : `${mode} · Pan & Zoom`}
+            </span>
           </div>
 
           {/* Riga 3: Scene & Minuti/Secondi Live */}
