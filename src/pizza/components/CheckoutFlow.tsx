@@ -696,7 +696,11 @@ const translations = {
   IT: {
     step1Title: 'I Tuoi Dati & Servizio',
     fulfillmentDelivery: 'Consegna a Domicilio',
+    fulfillmentDeliveryL1: 'Consegna',
+    fulfillmentDeliveryL2: 'a Domicilio',
     fulfillmentTakeaway: 'Ritiro al Locale (Takeaway)',
+    fulfillmentTakeawayL1: 'Ritiro al Locale',
+    fulfillmentTakeawayL2: '(Takeaway)',
     pickupLocationTitle: 'Ritiro presso il Ristorante',
     pickupLocationAddress: 'Flower Power Pizza – Ranong Hot Springs, Bang Rin',
     pickupLocationHours: '⏰ Orario Ritiro: 11:00 – 21:30 (Aperto)',
@@ -768,7 +772,11 @@ const translations = {
   EN: {
     step1Title: 'Your Information & Service',
     fulfillmentDelivery: 'Home Delivery',
+    fulfillmentDeliveryL1: 'Home',
+    fulfillmentDeliveryL2: 'Delivery',
     fulfillmentTakeaway: 'Restaurant Pickup (Takeaway)',
+    fulfillmentTakeawayL1: 'Restaurant Pickup',
+    fulfillmentTakeawayL2: '(Takeaway)',
     pickupLocationTitle: 'Pickup at Restaurant',
     pickupLocationAddress: 'Flower Power Pizza – Ranong Hot Springs, Bang Rin',
     pickupLocationHours: '⏰ Pickup Hours: 11:00 – 21:30 (Open)',
@@ -843,7 +851,11 @@ const translations = {
   TH: {
     step1Title: 'ข้อมูลและประเภทบริการ',
     fulfillmentDelivery: 'บริการจัดส่งถึงบ้าน',
+    fulfillmentDeliveryL1: 'บริการจัดส่ง',
+    fulfillmentDeliveryL2: 'ถึงบ้าน',
     fulfillmentTakeaway: 'รับที่ร้าน (Takeaway)',
+    fulfillmentTakeawayL1: 'รับที่ร้าน',
+    fulfillmentTakeawayL2: '(Takeaway)',
     pickupLocationTitle: 'รับสินค้าที่ร้านอาหาร',
     pickupLocationAddress: 'ฟลาวเวอร์ พาวเวอร์ พิซซ่า – บ่อน้ำพุร้อนรักษะวาริน, บางริ้น',
     pickupLocationHours: '⏰ เวลาเปิดรับสินค้า: 11:00 – 21:30 (เปิดบริการ)',
@@ -918,7 +930,11 @@ const translations = {
   DE: {
     step1Title: 'Ihre Daten & Service',
     fulfillmentDelivery: 'Lieferung nach Hause',
+    fulfillmentDeliveryL1: 'Lieferung',
+    fulfillmentDeliveryL2: 'nach Hause',
     fulfillmentTakeaway: 'Selbstabholung (Takeaway)',
+    fulfillmentTakeawayL1: 'Selbstabholung',
+    fulfillmentTakeawayL2: '(Takeaway)',
     pickupLocationTitle: 'Abholung im Restaurant',
     pickupLocationAddress: 'Flower Power Pizza – Ranong Hot Springs, Bang Rin',
     pickupLocationHours: '⏰ Abholzeiten: 11:00 – 21:30 (Geöffnet)',
@@ -993,7 +1009,11 @@ const translations = {
   MM: {
     step1Title: 'သင့်အချက်အလက်များနှင့် ဝန်ဆောင်မှု',
     fulfillmentDelivery: 'အိမ်အရောက်ပို့ ဝန်ဆောင်မှု',
+    fulfillmentDeliveryL1: 'အိမ်အရောက်ပို့',
+    fulfillmentDeliveryL2: 'ဝန်ဆောင်မှု',
     fulfillmentTakeaway: 'ဆိုင်တွင် လာယူမည် (Takeaway)',
+    fulfillmentTakeawayL1: 'ဆိုင်တွင် လာယူမည်',
+    fulfillmentTakeawayL2: '(Takeaway)',
     pickupLocationTitle: 'ဆိုင်တွင် လာယူရန် နေရာ',
     pickupLocationAddress: 'Flower Power Pizza – Ranong Hot Springs, Bang Rin',
     pickupLocationHours: '⏰ ဆိုင်ဖွင့်ချိန်: ၁၁:၀၀ – ၂၁:၃၀ (ဖွင့်သည်)',
@@ -1068,7 +1088,11 @@ const translations = {
   ES: {
     step1Title: "Tu información y servicio",
     fulfillmentDelivery: "Entrega a domicilio",
+    fulfillmentDeliveryL1: "Entrega",
+    fulfillmentDeliveryL2: "a domicilio",
     fulfillmentTakeaway: "Recogida en el restaurante (para llevar)",
+    fulfillmentTakeawayL1: "Recogida",
+    fulfillmentTakeawayL2: "(Takeaway)",
     pickupLocationTitle: "Recogida en el restaurante",
     pickupLocationAddress: "Flower Power Pizza – Ranong Hot Springs, Bang Rin",
     pickupLocationHours: "⏰ Horario de recogida: 11:00 – 21:30 (Abierto)",
@@ -1143,7 +1167,11 @@ const translations = {
   FR: {
     step1Title: "Vos informations et service",
     fulfillmentDelivery: "Livraison à domicile",
+    fulfillmentDeliveryL1: "Livraison",
+    fulfillmentDeliveryL2: "à domicile",
     fulfillmentTakeaway: "Retrait au restaurant (à emporter)",
+    fulfillmentTakeawayL1: "Retrait restaurant",
+    fulfillmentTakeawayL2: "(À emporter)",
     pickupLocationTitle: "Retrait au restaurant",
     pickupLocationAddress: "Flower Power Pizza – Ranong Hot Springs, Bang Rin",
     pickupLocationHours: "⏰ Heures de retrait : 11h00 – 21h30 (Ouvert)",
@@ -1218,7 +1246,11 @@ const translations = {
   RU: {
     step1Title: "Ваша информация и обслуживание",
     fulfillmentDelivery: "Доставка на дом",
+    fulfillmentDeliveryL1: "Доставка",
+    fulfillmentDeliveryL2: "на дом",
     fulfillmentTakeaway: "Самовывоз из ресторана",
+    fulfillmentTakeawayL1: "Самовывоз",
+    fulfillmentTakeawayL2: "(Takeaway)",
     pickupLocationTitle: "Самовывоз из ресторана",
     pickupLocationAddress: "Flower Power Pizza – Ranong Hot Springs, Bang Rin",
     pickupLocationHours: "⏰ Часы самовывоза: 11:00 – 21:30 (Открыто)",
@@ -1293,7 +1325,11 @@ const translations = {
   ZH: {
     step1Title: "您的信息与服务",
     fulfillmentDelivery: "外卖配送",
+    fulfillmentDeliveryL1: "外卖配送",
+    fulfillmentDeliveryL2: "(Delivery)",
     fulfillmentTakeaway: "餐厅自取（外带）",
+    fulfillmentTakeawayL1: "餐厅自取",
+    fulfillmentTakeawayL2: "(Takeaway)",
     pickupLocationTitle: "餐厅自取",
     pickupLocationAddress: "Flower Power Pizza – Ranong Hot Springs, Bang Rin",
     pickupLocationHours: "⏰ 取餐时间：11:00 – 21:30（营业中）",
@@ -2725,26 +2761,32 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                 <button
                   type="button"
                   onClick={() => setOrderType('delivery')}
-                  className={`py-1.5 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                  className={`py-1 px-1.5 sm:px-2 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none min-h-[38px] ${
                     orderType === 'delivery'
                       ? 'bg-white text-[#8B1E1E] shadow-sm border border-stone-200/80 ring-1 ring-[#8B1E1E]/20'
                       : 'text-stone-500 hover:text-stone-800'
                   }`}
                 >
-                  <span>🛵</span>
-                  <span className="truncate">{t.fulfillmentDelivery}</span>
+                  <span className="text-sm sm:text-base shrink-0">🛵</span>
+                  <div className="text-center leading-[1.1] min-w-0">
+                    <span className="block text-[10.5px] sm:text-[11.5px] font-black tracking-tight truncate">{t.fulfillmentDeliveryL1 || t.fulfillmentDelivery}</span>
+                    <span className="block text-[8.5px] sm:text-[9.5px] font-semibold opacity-85 truncate">{t.fulfillmentDeliveryL2}</span>
+                  </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setOrderType('takeaway')}
-                  className={`py-1.5 px-2 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                  className={`py-1 px-1.5 sm:px-2 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none min-h-[38px] ${
                     orderType === 'takeaway'
                       ? 'bg-white text-[#8B1E1E] shadow-sm border border-stone-200/80 ring-1 ring-[#8B1E1E]/20'
                       : 'text-stone-500 hover:text-stone-800'
                   }`}
                 >
-                  <span>🛍️</span>
-                  <span className="truncate">{t.fulfillmentTakeaway}</span>
+                  <span className="text-sm sm:text-base shrink-0">🛍️</span>
+                  <div className="text-center leading-[1.1] min-w-0">
+                    <span className="block text-[10.5px] sm:text-[11.5px] font-black tracking-tight truncate">{t.fulfillmentTakeawayL1 || t.fulfillmentTakeaway}</span>
+                    <span className="block text-[8.5px] sm:text-[9.5px] font-semibold opacity-85 truncate">{t.fulfillmentTakeawayL2}</span>
+                  </div>
                 </button>
               </div>
               
