@@ -19,6 +19,7 @@ import {
 import { AUTOCUT_RULES_REGISTRY } from '../services/autoCutRulesRegistry';
 import { AutoCutLabPlayer } from './AutoCutLabPlayer';
 import { AutoCutPostCopywriter } from './AutoCutPostCopywriter';
+import { AutoCutDistributionPanel } from './AutoCutDistributionPanel';
 
 export function AutoCutLabView() {
   const [activeMode, setActiveMode] = useState<AutoCutLabMode>('P1');
@@ -345,6 +346,11 @@ export function AutoCutLabView() {
           <span className="text-[11px] text-slate-500 mt-2 font-mono">
             Tocca lo schermo per mettere in pausa o riavvolgere
           </span>
+
+          {/* 📡 CANALE DI DISTRIBUZIONE (Test vs Produzione, 4 Canali, Posizioni API) */}
+          <AutoCutDistributionPanel
+            testRun={currentTest}
+          />
 
           {/* ✍️ AI POST CONTENT STUDIO: Testi multilingua, proverbi e hashtag posizionati sotto il cellulare */}
           <AutoCutPostCopywriter
