@@ -249,11 +249,20 @@ export function generatePostCopy(
   proverbIndexSeed: number = 0
 ): PostCopyResult {
   const seasonCtx = getCurrentSeasonContext();
-  const isPizza = testRun.brand === 'pizza';
+  // 🛡️ REGOLA IMMODIFICABILE 15: Nel testo del post, il nome del piatto o dell'alloggio NON deve MAI andare a capo.
+  // Anche se nel video si va a capo per ragioni cinematiche/grafiche, nel post è una locuzione unica continua su singola riga.
+  const cleanInlineTitle = (raw: string | undefined | null): string => {
+    if (!raw) return '';
+    return raw
+      .replace(/[\r\n]+/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  };
+
   const primaryScene = testRun.scenes[0];
-  const dishOrRoomName = primaryScene ? primaryScene.titlePrimary : (isPizza ? 'Specialità Italiana' : 'Bungalow nel Verde');
-  const secondaryName = primaryScene ? primaryScene.titleSecondary : '';
-  const categoryName = primaryScene?.badgeCategory || '';
+  const dishOrRoomName = cleanInlineTitle(primaryScene ? primaryScene.titlePrimary : (isPizza ? 'Specialità Italiana' : 'Bungalow nel Verde'));
+  const secondaryName = cleanInlineTitle(primaryScene ? primaryScene.titleSecondary : '');
+  const categoryName = cleanInlineTitle(primaryScene?.badgeCategory || '');
 
   // 1. Proverbio
   const proverbList = isPizza ? PIZZA_PROVERBS : VILLAGE_PROVERBS;

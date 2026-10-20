@@ -52,10 +52,13 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
     - **A Capo Semantico Naturale (Divieto Assoluto Tagli Arbitrari o Parole Orfane)**: Se un titolo deve andare a capo (lunghezza o connettori), DEVE essere spezzato esclusivamente in un punto a senso logico:
       1. *Inglese*: Tagliare tassativamente prima dei connettori culinari (`WITH `, `& `, `AND `, `ALLA `, `ALLO `, `AL `, `CON `, o prima della parentesi `(`) evitando parole orfane isolate a fine riga (es. `HOMEMADE RAVIOLI` a capo `WITH LIGURIAN WALNUT SAUCE`).
       2. *Tailandese*: Tagliare tassativamente al confine tra la base del piatto e il condimento prima dei connettori semantici Thai (`ซอส` es. salsa/crema, `สไตล์` es. stile, `พร้อม` es. servito con, `และ`, `กับ` o prima della parentesi `(`) evitando categoricamente di troncare sillabe o parole a metà (es. `ราวิโอลีโฮมเมด` a capo `ซอสครีมวอลนัทสไตล์ลิกูเรีย`).
-    - **Rendering Multi-Blocco**: Nel player video, ogni singola riga logica risultante dall'a capo semantico viene renderizzata come elemento a blocco autonomo (`<span className="block leading-tight">`), scongiurando qualsiasi wrapping imprevisto del browser.
 14. **Regola Thumbnail Ufficiale Pizzeria & Daily Special (Primo Piatto al Massimo Zoom Centrale)**:
     - Per tutti i video social della Pizzeria e tassativamente per il formato `DS` Daily Special, il fotogramma di copertina (thumbnail ufficiale da visualizzare prima dell'avvio e da esportare per TikTok e Instagram) DEVE corrispondere **TASSATIVAMENTE AL PRIMO PIATTO IN VETRINA (HERO)**.
     - Il fotogramma deve essere estratto esattamente al culmine del suo movimento cinematografico: ovvero con **centratura perfetta a 0 coordinate orizzontali (`panX = 0`)** e al **massimo livello di zoom macro centrale** sul condimento/cuore del piatto prima che inizi la dissolvenza verso la seconda scena.
+15. **Regola Immodificabile Nomi Piatti/Alloggi nei Post Social (Zero A Capo / Locuzione Unica Continua)**:
+    - Nel testo dei post social (didascalie, caption, schede descrittive di TikTok, Instagram, Facebook e Google), il nome del piatto o dell'alloggio **NON DEVE MAI ANDARE A CAPO**: è **TASSATIVAMENTE UNA LOCUZIONE UNICA CONTINUA SU SINGOLA RIGA**.
+    - Anche se nel player video 9:16 il titolo viene formattato su due righe per ragioni cinematiche (Regola 13), quando viene passato e renderizzato nei post (`autoCutCopywriterEngine.ts`, `AutoCutPostCopywriter.tsx`, prompt DeepSeek AI) deve essere ripulito da qualsiasi interruzione di riga (`\n`, `\r`) ed espresso come un'unica stringa fluida (es. `HOMEMADE RAVIOLI WITH LIGURIAN WALNUT SAUCE` e `ราวิโอลีโฮมเมด ซอสครีมวอลนัทสไตล์ลิกูเรีย`).
+
 
 
 

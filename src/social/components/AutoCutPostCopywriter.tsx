@@ -101,7 +101,12 @@ export function AutoCutPostCopywriter({
   const handleGenerateDeepSeekAi = async () => {
     setIsGeneratingAi(true);
     try {
-      const dishes = testRun.scenes.map(s => s.sourceName || s.titlePrimary);
+      const dishes = testRun.scenes.map(s => 
+        (s.sourceName || s.titlePrimary || '')
+          .replace(/[\r\n]+/g, ' ')
+          .replace(/\s{2,}/g, ' ')
+          .trim()
+      ).filter(Boolean);
       const res = await fetch('/api/social-publisher?action=generate_ai_post_copy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
