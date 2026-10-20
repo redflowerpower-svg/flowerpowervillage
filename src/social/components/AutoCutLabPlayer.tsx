@@ -1354,22 +1354,23 @@ export function AutoCutLabPlayer({
               className="w-full h-full object-cover"
             />
 
-            {/* Top Badge 4:3 */}
-            <div className="absolute top-2.5 left-2.5 right-2.5 z-30 flex items-center justify-between pointer-events-none">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold shadow-lg">
-                <img
-                  src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
-                  alt="Logo"
-                  className="w-3.5 h-3.5 rounded-full object-cover"
-                />
-                <span className="truncate max-w-[150px]">
+            {/* Watermark Ufficiale 4:3 (Logo 3x + Titolo con riverbero nero + Sottotitolo Delivery / Direct Booking) */}
+            <div className={`absolute top-3 left-3 z-30 flex items-center gap-2.5 pointer-events-none transition-all duration-300 ${
+              isInOutro ? 'opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
+            }`}>
+              <img
+                src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
+                alt="Logo"
+                className="w-10 h-10 rounded-full object-cover border-[1.5px] border-amber-400/80 shadow-[0_4px_14px_rgba(0,0,0,0.85)] shrink-0 bg-black/40"
+              />
+              <div className="flex flex-col text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                <span className="text-xs sm:text-[13px] font-black text-white uppercase tracking-wider leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                   {brand === 'pizza' ? 'Flower Power Pizza' : 'Flower Power Village'}
                 </span>
-              </span>
-
-              <span className="text-[9.5px] font-mono font-bold text-amber-300 bg-black/85 backdrop-blur-md px-2 py-0.5 rounded-full border border-amber-500/50 shadow-md">
-                4:3 LANDSCAPE
-              </span>
+                <span className="text-[10px] sm:text-[10.5px] font-bold leading-tight mt-0.5 tracking-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
+                  {brand === 'pizza' ? '🛵 Delivery Service' : '🌴 Direct Booking'}
+                </span>
+              </div>
             </div>
 
             {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA (Zero box opaco, identica al 9:16) */}
