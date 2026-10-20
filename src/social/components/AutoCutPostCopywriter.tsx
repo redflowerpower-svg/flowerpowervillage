@@ -16,12 +16,11 @@ interface AutoCutPostCopywriterProps {
 export function AutoCutPostCopywriter({ testRun }: AutoCutPostCopywriterProps) {
   const [proverbSeed, setProverbSeed] = useState(0);
   const [copiedType, setCopiedType] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'all' | 'th' | 'en' | 'it' | 'links'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'th' | 'en' | 'links'>('all');
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [aiOverride, setAiOverride] = useState<{
     thaiContent?: string;
     englishContent?: string;
-    italianContent?: string;
   } | null>(null);
 
   // Reset override AI quando cambia la prova o il proverbio
@@ -39,12 +38,11 @@ export function AutoCutPostCopywriter({ testRun }: AutoCutPostCopywriterProps) {
     if (!aiOverride) return basePostData;
     const th = aiOverride.thaiContent || basePostData.thaiContent;
     const en = aiOverride.englishContent || basePostData.englishContent;
-    const it = aiOverride.italianContent || basePostData.italianContent;
     
     const isPizza = testRun.brand === 'pizza';
     const fullCaptionInstagram = isPizza
-      ? `${th}\n\n${en}\n\n${it}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}`
-      : `${en}\n\n${th}\n\n${it}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}`;
+      ? `${th}\n\n${en}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}`
+      : `${en}\n\n${th}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}`;
 
     const fullCaptionTikTok = isPizza
       ? `${th}\n\n${en}\n\n${basePostData.fixedLink}\n${basePostData.crossTag}`
@@ -54,7 +52,7 @@ export function AutoCutPostCopywriter({ testRun }: AutoCutPostCopywriterProps) {
       ...basePostData,
       thaiContent: th,
       englishContent: en,
-      italianContent: it,
+      italianContent: '',
       fullCaptionInstagram,
       fullCaptionTikTok
     };
@@ -196,14 +194,6 @@ export function AutoCutPostCopywriter({ testRun }: AutoCutPostCopywriterProps) {
             🇬🇧 EN
           </button>
           <button
-            onClick={() => setActiveTab('it')}
-            className={`px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
-              activeTab === 'it' ? 'bg-slate-800 text-emerald-300' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            🇮🇹 IT
-          </button>
-          <button
             onClick={() => setActiveTab('links')}
             className={`px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
               activeTab === 'links' ? 'bg-slate-800 text-rose-300' : 'text-slate-400 hover:text-white'
@@ -298,25 +288,6 @@ export function AutoCutPostCopywriter({ testRun }: AutoCutPostCopywriterProps) {
           </div>
         )}
 
-        {/* 3° Blocco: ITALIANO 🇮🇹 */}
-        {(activeTab === 'all' || activeTab === 'it') && (
-          <div className="p-3 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-1.5 relative group">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-black text-emerald-300 flex items-center gap-1.5">
-                <span>🇮🇹 TRADUZIONE LETTERALE (con Proverbio Tradotto)</span>
-              </span>
-              <button
-                onClick={() => handleCopy(postData.italianContent, 'it_only')}
-                className="text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800/80 transition"
-              >
-                {copiedType === 'it_only' ? '✓ Copiato' : 'Copia'}
-              </button>
-            </div>
-            <p className="text-slate-200 leading-relaxed font-normal whitespace-pre-line">
-              {postData.italianContent}
-            </p>
-          </div>
-        )}
 
         {/* 4° Blocco: LINK & TAG */}
         {(activeTab === 'all' || activeTab === 'links') && (

@@ -43,14 +43,12 @@ Genera un post social multilingue e virale seguendo rigorosamente queste istruzi
 - STILE: TASSATIVAMENTE NON FARE MONOBLOCCHI! Usa interlinee doppie e a capo frequenti per una lettura ariosa, ritmata ed accattivante.
 - THAI 🇹🇭: Al maschile con particelle simpatiche e vive (es. ครับ, เลยครับ, ฟินสุดๆ, พาความอร่อยมารายงานตัวครับ), emoticon creative, proverbio thailandese geniale pertinente al tema, chiusura con invito a ordinare su www.flowerpowerpizza.com con sconto 10% prima prenotazione. Includi DIRETTAMENTE nel testo thai 4-5 hashtag virali thai (es. #FlowerPowerPizza, hashtag del piatto, #ของกินระนอง, #อร่อยบอกต่อ, #ระนอง).
 - INGLESE 🇬🇧: Linguaggio giovanile, fresco, accattivante ma umile, a capo ariosi, proverbio a tema senza apici "", chiusura con 10% sconto. Includi DIRETTAMENTE nel testo 4-5 hashtag inglesi virali (es. #FlowerPowerPizza, hashtag piatto, #RanongFoodie, #ThailandEats).
-- ITALIANO 🇮🇹: Traduzione letterale dal thai con a capo ariosi e proverbio tradotto in evidenza, chiusura con 10% sconto.
 - LINK & TAG: Link fisso Google Maps Ranong Hotspring e tag @flowerpowerphayam.
 
 Rispondi SOLO con un JSON valido con questa struttura esatta:
 {
   "thaiContent": "...",
-  "englishContent": "...",
-  "italianContent": "..."
+  "englishContent": "..."
 }`
         : `Sei un esperto di social media marketing e traduttore creativo per Flower Power Village a Koh Phayam, Thailandia.
 Genera un post social multilingue e virale seguendo rigorosamente queste istruzioni:
@@ -59,14 +57,12 @@ Genera un post social multilingue e virale seguendo rigorosamente queste istruzi
 - STILE: TASSATIVAMENTE NON FARE MONOBLOCCHI! Usa interlinee doppie e a capo frequenti per una lettura ariosa.
 - INGLESE 🇬🇧: Fresco, umile, accattivante, proverbio a tema senza apici "", chiusura con invito a prenotare su www.flowerpowervillage.com con miglior prezzo garantito e 10% diretto. Includi 4-5 hashtag virali in inglese (es. #FlowerPowerVillage, hashtag alloggio, #KohPhayam, #BuffaloBay, #TropicalEscape).
 - THAI 🇹🇭: Reinterpretazione al maschile con particelle amichevoli (ครับ, เลยครับ), regole toponimi: Koh Phayam = เกาะพยาม, Buffalo Bay = อ่าวเขาควาย, Long Beach = อ่าวใหญ่. Proverbio thai a tema, chiusura 10%. Includi 4-5 hashtag virali in thai (es. #FlowerPowerVillage, hashtag alloggio, #เกาะพยาม, #อ่าวเขาควาย, #ที่พักเกาะพยาม).
-- ITALIANO 🇮🇹: Traduzione letterale dal thai con proverbio tradotto e chiusura 10%.
 - LINK & TAG: Link fisso www.flowerpowervillage.com e tag @flowerpowerpizzaranong.
 
 Rispondi SOLO con un JSON valido con questa struttura esatta:
 {
   "thaiContent": "...",
-  "englishContent": "...",
-  "italianContent": "..."
+  "englishContent": "..."
 }`;
 
       const aiRes = await fetch('https://api.deepseek.com/chat/completions', {

@@ -439,10 +439,10 @@ Miglior tariffa garantita online e 10% di privilegio prenotazione diretta! 🥥�
     crossTag = `@flowerpowerpizzaranong`;
   }
 
-  // Costruzione Caption Finale Completa per Instagram / Facebook (Organica, senza mega-blocchi in fondo)
+  // Costruzione Caption Finale Completa per Instagram / Facebook (Thai + Inglese + Link & Tag)
   const fullCaptionInstagram = isPizza
-    ? `${thaiContent}\n\n${englishContent}\n\n${italianContent}\n\n${fixedLink}\n\n${crossTag}`
-    : `${englishContent}\n\n${thaiContent}\n\n${italianContent}\n\n${fixedLink}\n\n${crossTag}`;
+    ? `${thaiContent}\n\n${englishContent}\n\n${fixedLink}\n\n${crossTag}`
+    : `${englishContent}\n\n${thaiContent}\n\n${fixedLink}\n\n${crossTag}`;
 
   // Caption per TikTok (più snella: Thai + Inglese con i loro hashtag integrati + Link + Tag)
   const fullCaptionTikTok = isPizza
@@ -455,7 +455,7 @@ Miglior tariffa garantita online e 10% di privilegio prenotazione diretta! 🥥�
     seasonContext: `${seasonCtx.monthName} · ${seasonCtx.festiveNotice}`,
     thaiContent,
     englishContent,
-    italianContent,
+    italianContent: '',
     thaiHashtags: smartTags.thai,
     englishHashtags: smartTags.english,
     fixedLink,
