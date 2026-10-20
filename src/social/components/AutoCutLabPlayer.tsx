@@ -997,24 +997,128 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
-      {/* 👑 WATERMARK UFFICIALE 9:16 (Logo 3x + Titolo con riverbero nero + Sottotitolo - Senza Banner, con Sfondo Sfumato Nero per TUTTI i format: P1-P3, DS, V1-V3, R1, LM1) */}
+      {/* 👑 WATERMARK & HEADER UFFICIALE 9:16 (Logo separato + tutte le scritte Thai/Inglese originali in grande - SENZA BANNER/BOX, con sfondo sfumato nero) */}
       {!isInOutro && (
-        <div className="absolute top-14 left-3.5 z-30 flex items-center gap-2.5 pointer-events-none transition-all duration-300">
+        <div className="absolute top-14 left-3.5 right-3.5 z-30 flex items-center gap-3 pointer-events-none transition-all duration-300">
           <img
             src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
             alt="Logo"
-            className="w-11 h-11 rounded-full object-cover border-[1.5px] border-amber-400/90 shadow-[0_4px_16px_rgba(0,0,0,0.9)] shrink-0 bg-black/40"
+            className="w-12 h-12 rounded-full object-cover border-[1.5px] border-amber-400/90 shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0 bg-black/40"
           />
-          <div className="flex flex-col text-left drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-            <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-              {brand === 'pizza' ? 'Flower Power Pizza' : 'Flower Power Village'}
-            </span>
-            <span className="text-[10px] sm:text-[11px] font-bold leading-tight mt-0.5 tracking-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
-              {brand === 'pizza'
-                ? (mode === 'DS' ? 'Daily Special · Delivery Service' : 'Delivery Service')
-                : (mode === 'LM1' ? 'Last Minute · Direct Booking' : (mode === 'R1' ? 'Restaurant · Delivery' : 'Direct Booking'))}
-            </span>
-          </div>
+
+          {/* ⚡ FORMATO DS DAILY SPECIAL (Dinamico: Live Showcase vs Chef Specials) */}
+          {mode === 'DS' && (
+            <div className="flex flex-col text-left">
+              {/* Riga 1: THAI PRIMA IN GRANDE, POI INGLESE */}
+              <div className="inline-flex items-center gap-2 whitespace-nowrap">
+                <span className="text-sm sm:text-base font-black text-amber-300 tracking-tight leading-tight flex items-center gap-1.5 [text-shadow:_0_2px_8px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                  {currentScene?.isLiveShowcase ? (
+                    <>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                      <span>สดใหม่ในตู้โชว์</span>
+                    </>
+                  ) : (
+                    <span>เมนูพิเศษประจำวัน</span>
+                  )}
+                </span>
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md border text-[10px] sm:text-[11px] font-black text-white tracking-wider uppercase shadow-md ${
+                  currentScene?.isLiveShowcase
+                    ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500 border-amber-300 shadow-[0_0_14px_rgba(244,63,94,0.7)] animate-pulse'
+                    : 'bg-indigo-600/90 border-indigo-400'
+                }`}>
+                  <Sparkles className="w-2.5 h-2.5 text-white shrink-0 animate-spin" style={{ animationDuration: '3s' }} />
+                  {currentScene?.isLiveShowcase ? 'LIVE SHOWCASE' : 'CHEF SPECIALS'}
+                </span>
+              </div>
+              {/* Riga 2: CONSEGNA RAPIDA IN GRANDE (THAI PRIMA, POI INGLESE) */}
+              <div className="flex items-center gap-1.5 text-xs sm:text-[13px] font-bold text-white/95 tracking-tight mt-0.5 whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                <span className="text-emerald-400 font-black">พร้อมส่ง</span>
+                <span className="text-white/40">•</span>
+                <span>Fast Delivery</span>
+                <span className="text-white/40">•</span>
+                <span className="text-amber-200 font-mono">Ranong</span>
+              </div>
+            </div>
+          )}
+
+          {/* 🍕 FORMATO PIZZA REGULAR (P1, P2, P3) */}
+          {brand === 'pizza' && mode !== 'DS' && (
+            <div className="flex flex-col text-left">
+              <span className="text-sm sm:text-base font-black text-amber-300 uppercase tracking-tight leading-tight whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                ส่งถึงบ้าน · Ranong Delivery
+              </span>
+              <span className="text-xs sm:text-[13px] font-bold text-white/95 leading-tight mt-0.5 tracking-tight whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                flowerpowerpizza.com • Link in Bio
+              </span>
+            </div>
+          )}
+
+          {/* 🍽️ FORMATO R1 RESTAURANT & DELIVERY (Koh Phayam) */}
+          {mode === 'R1' && (
+            <div className="flex flex-col text-left">
+              <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                Flower Power Village
+              </span>
+              <div className="inline-flex items-center gap-1.5 mt-0.5">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/30 border border-amber-400/90 shadow-[0_0_12px_rgba(251,191,36,0.6)] animate-[pulse_1.1s_ease-in-out_infinite]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] shrink-0" />
+                  <span className="text-xs sm:text-[13px] font-black text-amber-200 tracking-wider drop-shadow-[0_0_8px_rgba(251,191,36,0.95)]">
+                    DELIVERY
+                  </span>
+                </span>
+                <span className="text-xs sm:text-[13px] font-bold text-amber-300 tracking-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1)]">
+                  · เดลิเวอรี่
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 mt-0.5">
+                <span className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-[#25D366] shrink-0 shadow-sm">
+                  <svg className="w-2 h-2 fill-white" viewBox="0 0 24 24">
+                    <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8.01 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 13.99C16.32 13.86 15.12 13.27 14.9 13.19C14.68 13.1 14.52 13.06 14.36 13.3C14.19 13.55 13.73 14.11 13.59 14.27C13.45 14.44 13.31 14.46 13.06 14.34C12.82 14.21 12.05 13.96 11.13 13.14C10.42 12.5 9.93 11.72 9.8 11.49C9.66 11.25 9.78 11.11 9.9 10.99C10.01 10.88 10.15 10.7 10.27 10.56C10.39 10.41 10.44 10.31 10.52 10.15C10.6 9.99 10.56 9.85 10.5 9.72C10.44 9.6 9.95 8.41 9.75 7.91C9.55 7.43 9.35 7.5 9.19 7.49C9.05 7.49 8.89 7.48 8.72 7.48L8.53 7.33Z"/>
+                  </svg>
+                </span>
+                <span className="text-xs sm:text-[13px] font-black text-[#25D366] tracking-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1)]">
+                  +66 095 882 5573
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* 🔥 FORMATO LM1 STORIES LAST MINUTE (Koh Phayam) */}
+          {mode === 'LM1' && (
+            <div className="flex flex-col text-left">
+              <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                Flower Power Village
+              </span>
+              <div className="inline-flex items-center gap-1.5 mt-0.5">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/30 border border-amber-400/90 shadow-[0_0_12px_rgba(251,191,36,0.6)] animate-[pulse_1.1s_ease-in-out_infinite]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e] shrink-0" />
+                  <span className="text-xs sm:text-[13px] font-black text-amber-200 tracking-wider drop-shadow-[0_0_8px_rgba(251,191,36,0.95)]">
+                    LAST MINUTE
+                  </span>
+                </span>
+                <span className="text-xs sm:text-[13px] font-bold text-amber-300 tracking-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1)]">
+                  · ห้องว่างวันนี้
+                </span>
+              </div>
+              <div className="flex items-center justify-between gap-2.5 text-xs sm:text-[13px] font-semibold text-white/95 tracking-tight mt-0.5 [text-shadow:_0_2px_8px_rgba(0,0,0,1)]">
+                <span className="font-bold text-amber-200">Direct Booking</span>
+                <span className="text-white/40">•</span>
+                <span>flowerpowervillage.com</span>
+              </div>
+            </div>
+          )}
+
+          {/* 🌴 FORMATO VILLAGE REGULAR (V1, V2, V3) */}
+          {brand === 'village' && mode !== 'R1' && mode !== 'LM1' && (
+            <div className="flex flex-col text-left">
+              <span className="text-sm sm:text-base font-black text-emerald-300 uppercase tracking-tight leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                Direct Booking
+              </span>
+              <span className="text-xs sm:text-[13px] font-bold text-white/95 leading-tight mt-0.5 tracking-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                flowerpowervillage.com • Link in Bio
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -1234,10 +1338,8 @@ export function AutoCutLabPlayer({
                 <span className="text-xs sm:text-[13px] font-black text-white uppercase tracking-wider leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                   {brand === 'pizza' ? 'Flower Power Pizza' : 'Flower Power Village'}
                 </span>
-                <span className="text-[10px] sm:text-[10.5px] font-bold leading-tight mt-0.5 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
-                  {brand === 'pizza'
-                    ? (mode === 'DS' ? 'Daily Special · Delivery Service' : 'Delivery Service')
-                    : (mode === 'LM1' ? 'Last Minute · Direct Booking' : (mode === 'R1' ? 'Restaurant · Delivery' : 'Direct Booking'))}
+                <span className="text-[10px] sm:text-[11px] font-bold leading-tight mt-0.5 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
+                  {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking'}
                 </span>
               </div>
             </div>
