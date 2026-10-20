@@ -192,27 +192,27 @@ export function AutoCutDistributionPanel({
           <button
             type="button"
             onClick={() => setEnvironment('test')}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition whitespace-nowrap cursor-pointer ${
               environment === 'test'
                 ? 'bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <FlaskConical className="w-3.5 h-3.5 text-amber-400" />
-            <span>🧪 TEST Sandbox</span>
+            <FlaskConical className={`w-3.5 h-3.5 shrink-0 ${environment === 'test' ? 'text-amber-400' : 'text-slate-400'}`} />
+            <span>Test</span>
           </button>
 
           <button
             type="button"
             onClick={() => setEnvironment('production')}
-            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition whitespace-nowrap cursor-pointer ${
               environment === 'production'
                 ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950 border border-emerald-400'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
-            <Rocket className="w-3.5 h-3.5 text-white" />
-            <span>🚀 PRODUZIONE</span>
+            <Rocket className={`w-3.5 h-3.5 shrink-0 ${environment === 'production' ? 'text-white' : 'text-slate-400'}`} />
+            <span>Produzione</span>
           </button>
         </div>
 
