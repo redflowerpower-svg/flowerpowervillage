@@ -27,6 +27,7 @@ export function AutoCutLabPlayer({
   autoPlay = true
 }: AutoCutLabPlayerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvas43Ref = useRef<HTMLCanvasElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -49,14 +50,17 @@ export function AutoCutLabPlayer({
   }, [testRun]);
 
   const { scenes, totalDuration, sceneDuration, audioTrack, brand, mode } = testRun;
+  const isCompanionEligible = mode === 'P1' || mode === 'V1';
   const sceneCount = scenes.length;
 
-  // Riproduzione / Canvas Render Loop con Pan & Zoom Simultanei e Crossfade
+  // Riproduzione / Canvas Render Loop con Pan & Zoom Simultanei e Crossfade (9:16 + 4:3 Companion)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+    const canvas43 = canvas43Ref.current;
+    const ctx43 = canvas43 ? canvas43.getContext('2d') : null;
 
     // Precarica tutte le immagini delle scene
     const loadedImages: HTMLImageElement[] = scenes.map((scene) => {
@@ -117,17 +121,20 @@ export function AutoCutLabPlayer({
       : Math.max(0.1, scene1Dur * 0.50);
 
     const drawSceneToCanvas = (
+      c: HTMLCanvasElement,
+      cCtx: CanvasRenderingContext2D,
       img: HTMLImageElement,
       scene: AutoCutScene,
       localT: number,
-      opacity: number
+      opacity: number,
+      is43: boolean = false
     ) => {
       if (!img.complete || img.naturalWidth === 0) return;
 
-      const w = canvas.width;
-      const h = canvas.height;
+      const w = c.width;
+      const h = c.height;
 
-      // Adattamento proporzioni cover 9:16
+      // Adattamento proporzioni cover (9:16 o 4:3)
       const imgAspect = img.naturalWidth / img.naturalHeight;
       const canvasAspect = w / h;
       let baseW = w;
@@ -143,93 +150,96 @@ export function AutoCutLabPlayer({
       // Curva di accelerazione morbida (Ease-in-out)
       const t = localT < 0.5 ? 2 * localT * localT : 1 - Math.pow(-2 * localT + 2, 2) / 2;
 
-      let scale = 1.15;
+      let scale = is43 ? 1.06 : 1.15;
       let panX = 0;
       let panY = 0;
 
-      const maxPanX = Math.max(0, (baseW * 1.15 - w) / 2);
-      const maxPanY = Math.max(0, (baseH * 1.18 - h) / 2);
+      const maxPanX = Math.max(0, (baseW * (is43 ? 1.08 : 1.15) - w) / 2);
+      const maxPanY = Math.max(0, (baseH * (is43 ? 1.10 : 1.18) - h) / 2);
+      const panMultiplier = is43 ? 0.60 : 1.0;
 
       // Metodo CapCut Elegante: Pan e Zoom Simultanei
       switch (scene.trajectory) {
-        // 🍕 FOOD COMMERCIAL MACRO-FOCUS (2 SOLE FASI CONTINUE CON RANGE INTERMEDIO SOFFICE):
-        // Fase 1 (0% -> 50%): Carrellata Lenta & Sinuosa da punto intermedio (senza mai toccare gli estremi)
-        // Fase 2 (50% -> 100%): Rientro verso il Centro E CONTEMPORANEAMENTE Zoom Macro sul cuore del piatto
+        // 🍕 FOOD COMMERCIAL MACRO-FOCUS (2 SOLE FASI CONTINUE CON RANGE INTERMEDIO SOFFICE)
         case 'food_macro_focus_lr': {
-          const softPanX = maxPanX * 0.42; // Escursione ancora più morbida e calma (zero fretta)
+          const softPanX = maxPanX * 0.42 * panMultiplier;
 
           if (localT < 0.50) {
-            // Fase 1: da -softPanX scivola dolcemente verso +softPanX
             const p1 = localT / 0.50;
-            const easeP1 = 0.5 - 0.5 * Math.cos(p1 * Math.PI); // Cosinusoidale pura vellutata
+            const easeP1 = 0.5 - 0.5 * Math.cos(p1 * Math.PI);
             panX = -softPanX + (easeP1 * 2 * softPanX);
-            scale = 1.12 + (easeP1 * 0.02);
+            scale = (is43 ? 1.05 : 1.12) + (easeP1 * 0.02);
           } else {
-            // Fase 2: da +softPanX rientra dolcemente al Centro E CONTEMPORANEAMENTE zooma nel piatto
             const p2 = (localT - 0.50) / 0.50;
             const easeP2 = 0.5 - 0.5 * Math.cos(p2 * Math.PI);
-            panX = softPanX - (easeP2 * softPanX); // da +softPanX a 0 (centro perfetto)
-            scale = 1.14 + (easeP2 * 0.22); // Zoom progressivo continuo fino a 1.36x sul piatto
+            panX = softPanX - (easeP2 * softPanX);
+            scale = (is43 ? 1.07 : 1.14) + (easeP2 * (is43 ? 0.14 : 0.22));
           }
           panY = 0;
           break;
         }
 
-        // 🍕 FOOD COMMERCIAL MACRO-FOCUS SPECULARE (Destra -> Sinistra -> Centro Zoom Simultaneo)
+        // 🍕 FOOD COMMERCIAL MACRO-FOCUS SPECULARE (Destra -> Sinistra -> Centro Zoom)
         case 'food_macro_focus_rl': {
-          const softPanX = maxPanX * 0.42;
+          const softPanX = maxPanX * 0.42 * panMultiplier;
 
           if (localT < 0.50) {
-            // Fase 1: da +softPanX scivola dolcemente verso -softPanX
             const p1 = localT / 0.50;
             const easeP1 = 0.5 - 0.5 * Math.cos(p1 * Math.PI);
             panX = softPanX - (easeP1 * 2 * softPanX);
-            scale = 1.12 + (easeP1 * 0.02);
+            scale = (is43 ? 1.05 : 1.12) + (easeP1 * 0.02);
           } else {
-            // Fase 2: da -softPanX rientra dolcemente al Centro E CONTEMPORANEAMENTE zooma nel piatto
             const p2 = (localT - 0.50) / 0.50;
             const easeP2 = 0.5 - 0.5 * Math.cos(p2 * Math.PI);
-            panX = -softPanX + (easeP2 * softPanX); // da -softPanX a 0 (centro perfetto)
-            scale = 1.14 + (easeP2 * 0.22); // Zoom progressivo continuo fino a 1.36x
+            panX = -softPanX + (easeP2 * softPanX);
+            scale = (is43 ? 1.07 : 1.14) + (easeP2 * (is43 ? 0.14 : 0.22));
           }
           panY = 0;
           break;
         }
 
         case 'pan_left_zoom_in':
-          scale = 1.10 + (t * 0.12);
-          panX = maxPanX - (t * 2 * maxPanX);
+          scale = (is43 ? 1.04 : 1.10) + (t * (is43 ? 0.08 : 0.12));
+          panX = (maxPanX - (t * 2 * maxPanX)) * panMultiplier;
           panY = 0;
           break;
         case 'pan_right_zoom_in':
-          scale = 1.10 + (t * 0.12);
-          panX = -maxPanX + (t * 2 * maxPanX);
+          scale = (is43 ? 1.04 : 1.10) + (t * (is43 ? 0.08 : 0.12));
+          panX = (-maxPanX + (t * 2 * maxPanX)) * panMultiplier;
           panY = 0;
           break;
         case 'pan_left_zoom_out':
-          scale = 1.20 - (t * 0.12);
-          panX = maxPanX - (t * 2 * maxPanX);
+          scale = (is43 ? 1.12 : 1.20) - (t * (is43 ? 0.08 : 0.12));
+          panX = (maxPanX - (t * 2 * maxPanX)) * panMultiplier;
           panY = 0;
           break;
         case 'pan_right_zoom_out':
-          scale = 1.20 - (t * 0.12);
-          panX = -maxPanX + (t * 2 * maxPanX);
+          scale = (is43 ? 1.12 : 1.20) - (t * (is43 ? 0.08 : 0.12));
+          panX = (-maxPanX + (t * 2 * maxPanX)) * panMultiplier;
           panY = 0;
           break;
         case 'push_in_focal':
         default:
-          scale = 1.08 + (t * 0.12);
+          scale = (is43 ? 1.04 : 1.08) + (t * (is43 ? 0.08 : 0.12));
           panX = 0;
           panY = 0;
           break;
       }
 
-      ctx.save();
-      ctx.globalAlpha = opacity;
-      ctx.translate(w / 2 + panX, h / 2 + panY);
-      ctx.scale(scale, scale);
-      ctx.drawImage(img, -baseW / 2, -baseH / 2, baseW, baseH);
-      ctx.restore();
+      cCtx.save();
+      cCtx.globalAlpha = opacity;
+      cCtx.translate(w / 2 + panX, h / 2 + panY);
+      cCtx.scale(scale, scale);
+      cCtx.drawImage(img, -baseW / 2, -baseH / 2, baseW, baseH);
+      cCtx.restore();
+    };
+
+    // Helper per disegnare in parallelo sia su 9:16 che su 4:3 companion
+    const drawBothCanvases = (img: HTMLImageElement, scene: AutoCutScene, localT: number, opacity: number) => {
+      drawSceneToCanvas(canvas, ctx, img, scene, localT, opacity, false);
+      if (canvas43 && ctx43) {
+        drawSceneToCanvas(canvas43, ctx43, img, scene, localT, opacity, true);
+      }
     };
 
     const renderFrame = (elapsed: number) => {
@@ -240,9 +250,17 @@ export function AutoCutLabPlayer({
       const h = canvas.height;
       ctx.clearRect(0, 0, w, h);
 
+      if (canvas43 && ctx43) {
+        ctx43.clearRect(0, 0, canvas43.width, canvas43.height);
+      }
+
       if (testRun.isEmptyShowcase || sceneCount === 0) {
         ctx.fillStyle = '#090d16';
         ctx.fillRect(0, 0, w, h);
+        if (canvas43 && ctx43) {
+          ctx43.fillStyle = '#090d16';
+          ctx43.fillRect(0, 0, canvas43.width, canvas43.height);
+        }
         return;
       }
 
@@ -280,11 +298,11 @@ export function AutoCutLabPlayer({
       const INCOMING_OFFSET = 0.20;
       const subT = currentIdx === 0 ? rawSubT : (INCOMING_OFFSET + (rawSubT * (1.0 - INCOMING_OFFSET)));
 
-      // 1. Disegna la scena corrente a piena opacità
+      // 1. Disegna la scena corrente a piena opacità su entrambi i canvas
       const currentImg = loadedImages[currentIdx];
       const currentScene = scenes[currentIdx];
       if (currentImg && currentScene) {
-        drawSceneToCanvas(currentImg, currentScene, subT, 1.0);
+        drawBothCanvases(currentImg, currentScene, subT, 1.0);
       }
 
       // 2. Se ci stiamo avvicinando alla fine della scena e c'è una scena successiva (prima dell'outro):
@@ -309,8 +327,8 @@ export function AutoCutLabPlayer({
           const crossfadeRatio = Math.min(1.0, Math.max(0.0, (elapsed - transitionThreshold) / effectiveDissolve));
           const nextOpacity = 0.5 - 0.5 * Math.cos(crossfadeRatio * Math.PI);
 
-          // Disegna la scena entrante GIA' IN CORSA SOPRA la precedente
-          drawSceneToCanvas(nextImg, nextScene, nextSubT, nextOpacity);
+          // Disegna la scena entrante GIA' IN CORSA SOPRA la precedente su entrambi i canvas
+          drawBothCanvases(nextImg, nextScene, nextSubT, nextOpacity);
 
           if (crossfadeRatio >= 0.5) {
             dominantIdx = nextIdx;
@@ -329,6 +347,18 @@ export function AutoCutLabPlayer({
         grad.addColorStop(1, 'rgba(0,0,0,0.92)');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
+
+        if (canvas43 && ctx43) {
+          const w43 = canvas43.width;
+          const h43 = canvas43.height;
+          const grad43 = ctx43.createLinearGradient(0, 0, 0, h43);
+          grad43.addColorStop(0, 'rgba(0,0,0,0.35)');
+          grad43.addColorStop(0.35, 'rgba(0,0,0,0.0)');
+          grad43.addColorStop(0.65, 'rgba(0,0,0,0.20)');
+          grad43.addColorStop(1, 'rgba(0,0,0,0.85)');
+          ctx43.fillStyle = grad43;
+          ctx43.fillRect(0, 0, w43, h43);
+        }
       }
 
       // 🍕 4. OUTRO DEL BRAND & QR CODE (in P1 dentro la coda musicale, negli altri a fine brano)
@@ -345,6 +375,91 @@ export function AutoCutLabPlayer({
         const darkAlpha = Math.min(0.88, (outroElapsed / 0.35) * 0.88);
         ctx.fillStyle = `rgba(0, 0, 0, ${darkAlpha})`;
         ctx.fillRect(0, 0, w, h);
+
+        // Rendering Outro specifico anche per Canvas 4:3 Companion
+        if (canvas43 && ctx43) {
+          const w43 = canvas43.width;
+          const h43 = canvas43.height;
+          const cx43 = w43 / 2;
+          ctx43.fillStyle = `rgba(0, 0, 0, ${darkAlpha})`;
+          ctx43.fillRect(0, 0, w43, h43);
+
+          if (logoImg.complete && logoImg.naturalWidth > 0) {
+            const lSize = 130;
+            ctx43.save();
+            ctx43.shadowColor = 'rgba(0, 0, 0, 0.9)';
+            ctx43.shadowBlur = 20;
+            ctx43.drawImage(logoImg, cx43 - lSize / 2, 100, lSize, lSize);
+            ctx43.restore();
+          }
+
+          ctx43.font = '900 32px "Outfit", "Inter", sans-serif';
+          ctx43.fillStyle = brand === 'pizza' ? '#fbbf24' : '#34d399';
+          ctx43.textAlign = 'center';
+          ctx43.fillText(
+            brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE',
+            cx43,
+            275
+          );
+
+          ctx43.font = '800 20px "Inter", sans-serif';
+          ctx43.fillStyle = '#ffffff';
+          ctx43.fillText(
+            brand === 'pizza' ? 'RANONG · THAILAND' : 'KOH PHAYAM · THAILAND',
+            cx43,
+            315
+          );
+
+          ctx43.font = '600 16px "Inter", sans-serif';
+          ctx43.fillStyle = '#cbd5e1';
+          ctx43.fillText(
+            brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary',
+            cx43,
+            348
+          );
+
+          const cardW = 600;
+          const cardH = 150;
+          const cardX = cx43 - (cardW / 2);
+          const cardY = 390;
+          ctx43.save();
+          ctx43.fillStyle = 'rgba(11, 17, 32, 0.94)';
+          if (typeof ctx43.roundRect === 'function') {
+            ctx43.roundRect(cardX, cardY, cardW, cardH, 20);
+          } else {
+            ctx43.rect(cardX, cardY, cardW, cardH);
+          }
+          ctx43.fill();
+          ctx43.strokeStyle = brand === 'pizza' ? 'rgba(245, 158, 11, 0.65)' : 'rgba(52, 211, 153, 0.75)';
+          ctx43.lineWidth = 2.5;
+          ctx43.stroke();
+          ctx43.restore();
+
+          ctx43.font = '900 24px "Inter", sans-serif';
+          ctx43.fillStyle = '#ffffff';
+          ctx43.textAlign = 'center';
+          ctx43.fillText(
+            brand === 'pizza' ? '🌐 flowerpowerpizza.com' : '🌐 flowerpowervillage.com',
+            cx43,
+            cardY + 46
+          );
+
+          ctx43.font = '800 18px "Inter", sans-serif';
+          ctx43.fillStyle = brand === 'pizza' ? '#fbbf24' : '#34d399';
+          ctx43.fillText(
+            brand === 'pizza' ? '🛵 Fast Delivery Ranong · 10% Off 1st Order' : '🌴 Direct Booking · Best Rates Guaranteed',
+            cx43,
+            cardY + 86
+          );
+
+          ctx43.font = '600 15px "Inter", sans-serif';
+          ctx43.fillStyle = '#94a3b8';
+          ctx43.fillText(
+            brand === 'pizza' ? 'Order Online or Visit us near Hot Springs' : 'Koh Phayam Island · Thailand',
+            cx43,
+            cardY + 118
+          );
+        }
 
         // Animazione Volo & Stampo con Overshoot Bounce
         const stampDuration = 0.65;
@@ -726,15 +841,17 @@ export function AutoCutLabPlayer({
   const isInOutro = currentElapsed >= outroStartTime;
 
   return (
-    <div className="relative w-full h-full bg-black select-none overflow-hidden group rounded-[32px] shadow-2xl border-[4px] border-slate-700">
-      {/* Dynamic 9:16 AutoCut Canvas */}
-      <canvas
-        ref={canvasRef}
-        width={720}
-        height={1280}
-        className="w-full h-full object-cover cursor-pointer"
-        onClick={handleTogglePlay}
-      />
+    <div className="flex flex-col items-center w-full">
+      {/* 📱 1. MASTER SMARTPHONE PLAYER 9:16 (TikTok & Instagram Reels) */}
+      <div className="relative w-full h-[580px] sm:h-[620px] bg-black select-none overflow-hidden group rounded-[32px] shadow-2xl border-[4px] border-slate-700">
+        {/* Dynamic 9:16 AutoCut Canvas */}
+        <canvas
+          ref={canvasRef}
+          width={720}
+          height={1280}
+          className="w-full h-full object-cover cursor-pointer"
+          onClick={handleTogglePlay}
+        />
 
       {/* ⚡ SCHERMATA ELEGANTE VETRINA DAILY SPECIAL VUOTA */}
       {mode === 'DS' && testRun.isEmptyShowcase && (
@@ -1196,6 +1313,124 @@ export function AutoCutLabPlayer({
             <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
             <span>Replay Video · เล่นซ้ำ</span>
           </div>
+        </div>
+      )}
+      </div>
+
+      {/* 🖥️ 2. COMPANION LANDSCAPE PLAYER 4:3 (Google Maps & Facebook Feed) - Esclusivo per P1 e V1 */}
+      {isCompanionEligible && !testRun.isEmptyShowcase && (
+        <div className="w-full mt-4 flex flex-col items-center">
+          {/* Header Barra di Stato 4:3 */}
+          <div className="w-full flex items-center justify-between px-1 mb-1.5">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+              <span className="text-[11px] font-bold text-blue-300 font-mono tracking-wide">
+                🖥️ GOOGLE MAPS · 4:3 COMPANION
+              </span>
+            </div>
+            <span className="text-[10px] text-slate-300 font-mono bg-slate-800/90 px-2 py-0.5 rounded-full border border-slate-700/80 shadow-xs">
+              📸 Thumbnail Reale 4:3
+            </span>
+          </div>
+
+          {/* 4:3 Player Canvas Container */}
+          <div 
+            onClick={handleTogglePlay}
+            className="relative w-full aspect-[4/3] bg-black select-none overflow-hidden group rounded-2xl shadow-xl border-[3px] border-slate-700/90 hover:border-blue-500/60 transition-all cursor-pointer"
+          >
+            <canvas
+              ref={canvas43Ref}
+              width={960}
+              height={720}
+              className="w-full h-full object-cover"
+            />
+
+            {/* Top Badge 4:3 */}
+            <div className="absolute top-2.5 left-2.5 right-2.5 z-30 flex items-center justify-between pointer-events-none">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold shadow-lg">
+                <img
+                  src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
+                  alt="Logo"
+                  className="w-3.5 h-3.5 rounded-full object-cover"
+                />
+                <span className="truncate max-w-[150px]">
+                  {brand === 'pizza' ? 'Flower Power Pizza' : 'Flower Power Village'}
+                </span>
+              </span>
+
+              <span className="text-[9.5px] font-mono font-bold text-amber-300 bg-black/85 backdrop-blur-md px-2 py-0.5 rounded-full border border-amber-500/50 shadow-md">
+                4:3 LANDSCAPE
+              </span>
+            </div>
+
+            {/* Lower-Third Gourmet Card (Ottimizzata per Google Maps) */}
+            {currentScene && (
+              <div className={`absolute left-2.5 right-2.5 bottom-2.5 z-30 pointer-events-none transition-all duration-300 ${
+                isInOutro ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
+              }`}>
+                <div className="bg-black/90 backdrop-blur-md border border-white/15 rounded-xl p-2.5 shadow-2xl flex items-center justify-between gap-2">
+                  <div className="flex flex-col text-left min-w-0 flex-1">
+                    {brand === 'pizza' ? (
+                      <>
+                        <span className="text-xs sm:text-[13px] font-black text-amber-300 leading-tight truncate drop-shadow-sm">
+                          {currentScene.titlePrimary.replace(/\n/g, ' ')}
+                        </span>
+                        <span className="text-[10px] sm:text-[11px] font-semibold text-white/95 leading-tight truncate mt-0.5 drop-shadow-xs">
+                          {currentScene.titleSecondary.replace(/\n/g, ' ')}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-xs sm:text-[13px] font-black text-white leading-tight truncate drop-shadow-sm">
+                          {currentScene.lodgingTitle || currentScene.titlePrimary}
+                        </span>
+                        <span className="text-[10px] sm:text-[11px] font-bold text-emerald-300 leading-tight truncate mt-0.5 drop-shadow-xs">
+                          {currentScene.lodgingSubtitle || currentScene.titleSecondary}
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Prezzo Piatto / Alloggio */}
+                  {currentScene.priceLabel && (
+                    <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/60 text-amber-300 font-mono font-black text-[11px] sm:text-xs shrink-0 shadow-md">
+                      {currentScene.priceLabel}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Progress Bar 4:3 Bottom Edge */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20 z-30 pointer-events-none">
+              <div
+                className="h-full bg-gradient-to-r from-amber-400 via-rose-500 to-emerald-400 transition-all duration-75 ease-linear"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
+
+            {/* Overlay Play al centro quando il video è in pausa */}
+            {!isPlaying && !isEnded && (
+              <div className="absolute inset-0 z-35 bg-black/25 flex items-center justify-center pointer-events-none">
+                <div className="w-11 h-11 rounded-full bg-gradient-to-r from-amber-500 to-rose-600 text-white flex items-center justify-center shadow-lg border border-white/30 pl-0.5 group-hover:scale-110 transition-transform">
+                  <Play className="w-5 h-5 fill-white" />
+                </div>
+              </div>
+            )}
+
+            {/* Overlay Replay al termine del video */}
+            {isEnded && (
+              <div className="absolute inset-0 z-40 bg-black/25 flex items-center justify-center pointer-events-none">
+                <div className="w-11 h-11 rounded-full bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 text-white flex items-center justify-center shadow-lg border border-white/30 pl-0.5 group-hover:scale-110 transition-transform">
+                  <RotateCcw className="w-5 h-5 text-white" />
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <span className="text-[10px] text-slate-400 mt-1 font-mono">
+            Sincronizzato al 100% con il video smartphone soprastante
+          </span>
         </div>
       )}
     </div>

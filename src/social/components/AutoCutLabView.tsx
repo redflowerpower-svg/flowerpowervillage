@@ -339,7 +339,7 @@ export function AutoCutLabView() {
             </button>
           </div>
 
-          <div className="w-[310px] sm:w-[330px] h-[580px] sm:h-[620px] relative">
+          <div className="w-[310px] sm:w-[330px] relative">
             <AutoCutLabPlayer
               key={`${activeMode}_${shuffleKey}`}
               testRun={currentTest}
