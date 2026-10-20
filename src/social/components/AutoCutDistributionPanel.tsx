@@ -123,7 +123,7 @@ export function AutoCutDistributionPanel({ testRun }: AutoCutDistributionPanelPr
   };
 
   return (
-    <div className="w-full max-w-[340px] mt-3 p-3.5 bg-slate-900/95 rounded-2xl border border-slate-800 shadow-2xl space-y-3.5 text-left text-xs select-none">
+    <div className="w-full mt-3 p-4 bg-slate-900/95 rounded-2xl border border-slate-800 shadow-2xl space-y-3.5 text-left text-xs select-none">
       
       {/* 1. HEADER: TITOLO & SWITCH AMBIENTE (TEST vs PRODUZIONE) */}
       <div className="space-y-2">
@@ -180,8 +180,8 @@ export function AutoCutDistributionPanel({ testRun }: AutoCutDistributionPanelPr
         </p>
       </div>
 
-      {/* 2. I 4 CANALI & RELATIVE POSIZIONI */}
-      <div className="space-y-2.5">
+      {/* 2. I 4 CANALI & RELATIVE POSIZIONI (Griglia a 2 Canali per Riga) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         
         {/* CANALE 1: TIKTOK */}
         <div className={`p-2.5 rounded-xl border transition ${
