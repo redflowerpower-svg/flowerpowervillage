@@ -404,7 +404,7 @@ La buona tavola non aspetta: regalatevi un momento di autentica bontà a Ranong!
 Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
     }
 
-    fixedLink = `🍕 FLOWER POWER PIZZA🌸 - Ranong Hotspring\nhttps://maps.app.goo.gl/qjpYt6t69y17R4DF6`;
+    fixedLink = `🍕 FLOWER POWER PIZZA🌸 - Ranong Hotspring\n📍 Google Maps: https://maps.app.goo.gl/qjpYt6t69y17R4DF6\n🌐 www.flowerpowerpizza.com`;
     crossTag = `@flowerpowerphayam`;
 
   } else {
@@ -454,7 +454,7 @@ Una vacanza autentica per rigenerare corpo e spirito nel cuore dell'isola!
 🎁 Prenota direttamente su www.flowerpowervillage.com
 Miglior tariffa garantita online e 10% di privilegio prenotazione diretta! 🥥✨`;
 
-    fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\nhttps://www.flowerpowervillage.com`;
+    fixedLink = `🌴 FLOWER POWER VILLAGE 🌸 - Buffalo Bay, Koh Phayam\n📍 Google Maps: https://maps.app.goo.gl/mugY88Wpuzjeebf56\n🌐 www.flowerpowervillage.com`;
     crossTag = `@flowerpowerpizzaranong`;
   }
 

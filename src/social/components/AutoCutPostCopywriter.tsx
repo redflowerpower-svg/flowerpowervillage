@@ -62,10 +62,23 @@ export function AutoCutPostCopywriter({
   const [googleCoupon, setGoogleCoupon] = useState('WELCOME10');
   const [googleOfferTitle, setGoogleOfferTitle] = useState(testRun.brand === 'pizza' ? 'Sconto Benvenuto 10% Primo Ordine' : '10% Privilegio Prenotazione Diretta');
 
-  // Reset override AI quando cambia la prova o il proverbio
+  // Reset override AI e sincronizzazione automatica parametri al cambio modalità o brand
   React.useEffect(() => {
     setAiOverride(null);
   }, [testRun.mode, proverbSeed]);
+
+  React.useEffect(() => {
+    const isP = testRun.brand === 'pizza';
+    setTiktokPoi(isP ? 'Flower Power Pizza Ranong' : 'Flower Power Village Koh Phayam');
+    setIgStickerUrl(isP ? 'https://www.flowerpowerpizza.com/delivery' : 'https://www.flowerpowervillage.com');
+    setIgStickerText(isP ? '🍕 Ordina Online (-10%)' : '🌴 Prenota Bungalow');
+    setIgCollaborator(isP ? '@flowerpowerphayam' : '@flowerpowerpizzaranong');
+    setFbCtaType(isP ? 'ORDER_NOW' : 'BOOK_NOW');
+    setFbTargetUrl(isP ? 'https://www.flowerpowerpizza.com' : 'https://www.flowerpowervillage.com');
+    setFbCheckin(isP ? 'Flower Power Pizza Ranong' : 'Flower Power Village Koh Phayam');
+    setGoogleCtaType(isP ? 'ORDER' : 'BOOK');
+    setGoogleOfferTitle(isP ? 'Sconto Benvenuto 10% Primo Ordine' : '10% Privilegio Prenotazione Diretta');
+  }, [testRun.brand, testRun.mode]);
 
   // Genera i testi base a 0ms (con layout arioso, particelle e hashtag del piatto)
   const basePostData: PostCopyResult = useMemo(() => {
@@ -144,9 +157,12 @@ export function AutoCutPostCopywriter({
 
   // 1. Didascalia Finale per TikTok
   const finalTikTokCaption = useMemo(() => {
+    const mapsLink = isPizza
+      ? 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'
+      : 'https://maps.app.goo.gl/mugY88Wpuzjeebf56';
     const callout = isPizza
-      ? `🛵 สั่งอาหาร / จองโต๊ะ: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n📍 พิกัด: ${tiktokPoi}\n${postData.crossTag}`
-      : `🌴 จองตรงราคาดีที่สุด: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n📍 พิกัด: ${tiktokPoi}\n${postData.crossTag}`;
+      ? `🛵 สั่งอาหาร / จองโต๊ะ: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n📍 พิกัด (GPS): ${mapsLink}\n${postData.crossTag}`
+      : `🌴 จองตรงราคาดีที่สุด: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n📍 พิกัด (GPS): ${mapsLink}\n${postData.crossTag}`;
     return isPizza
       ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${callout}`
       : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${callout}`;
@@ -164,9 +180,12 @@ export function AutoCutPostCopywriter({
 
   // 3. Didascalia Finale per Facebook
   const finalFacebookCaption = useMemo(() => {
+    const mapsLink = isPizza
+      ? 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'
+      : 'https://maps.app.goo.gl/mugY88Wpuzjeebf56';
     const directLinkNotice = isPizza
-      ? `👉 สั่งเดลิเวอรี่ออนไลน์ / Order Online Direct:\n🔗 ${fbTargetUrl}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`
-      : `👉 จองห้องพักออนไลน์ / Book Your Island Stay:\n🔗 ${fbTargetUrl}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`;
+      ? `👉 สั่งเดลิเวอรี่ออนไลน์ / Order Online Direct:\n🔗 ${fbTargetUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`
+      : `👉 จองห้องพักออนไลน์ / Book Your Island Stay:\n🔗 ${fbTargetUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`;
     return isPizza
       ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${directLinkNotice}`
       : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${directLinkNotice}`;
@@ -346,16 +365,28 @@ export function AutoCutPostCopywriter({
 
             <div>
               <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">
-                Punto d'Interesse Geotag (POI Fisico):
+                Punto d'Interesse Geotag (POI Fisico & GPS):
               </label>
               <select
                 value={tiktokPoi}
                 onChange={e => setTiktokPoi(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400 font-sans cursor-pointer"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400 font-sans cursor-pointer mb-1.5"
               >
                 <option value="Flower Power Pizza Ranong">📍 Flower Power Pizza Ranong (Hotspring)</option>
                 <option value="Flower Power Village Koh Phayam">📍 Flower Power Village Koh Phayam (Buffalo Bay)</option>
               </select>
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] font-mono">
+                <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                <span className="text-slate-400">GPS Maps:</span>
+                <a
+                  href={tiktokPoi.includes('Village') ? 'https://maps.app.goo.gl/mugY88Wpuzjeebf56' : 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-cyan-300 hover:underline truncate"
+                >
+                  {tiktokPoi.includes('Village') ? 'https://maps.app.goo.gl/mugY88Wpuzjeebf56' : 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'}
+                </a>
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80 text-[11px]">
@@ -491,15 +522,27 @@ export function AutoCutPostCopywriter({
             </div>
 
             <div>
-              <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Check-in Luogo Ufficiale:</label>
+              <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Check-in Luogo Ufficiale & Posizione GPS:</label>
               <select
                 value={fbCheckin}
                 onChange={e => setFbCheckin(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-sans cursor-pointer"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-sans cursor-pointer mb-1.5"
               >
                 <option value="Flower Power Pizza Ranong">📍 Flower Power Pizza Ranong</option>
                 <option value="Flower Power Village Koh Phayam">📍 Flower Power Village Koh Phayam</option>
               </select>
+              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] font-mono">
+                <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <span className="text-slate-400">GPS Maps:</span>
+                <a
+                  href={fbCheckin.includes('Village') ? 'https://maps.app.goo.gl/mugY88Wpuzjeebf56' : 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sky-300 hover:underline truncate"
+                >
+                  {fbCheckin.includes('Village') ? 'https://maps.app.goo.gl/mugY88Wpuzjeebf56' : 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'}
+                </a>
+              </div>
             </div>
           </div>
         )}
