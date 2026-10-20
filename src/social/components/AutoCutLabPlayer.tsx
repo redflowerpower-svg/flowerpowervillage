@@ -1329,16 +1329,11 @@ export function AutoCutLabPlayer({
       {/* 🖥️ 2. COMPANION LANDSCAPE PLAYER 4:3 (Google Maps & Facebook Feed) - Esclusivo per P1 e V1 */}
       {isCompanionEligible && !testRun.isEmptyShowcase && (
         <div className="w-full mt-4 flex flex-col items-center">
-          {/* Header Barra di Stato 4:3 */}
-          <div className="w-full flex items-center justify-between px-1 mb-1.5">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-              <span className="text-[11px] font-bold text-blue-300 font-mono tracking-wide">
-                🖥️ GOOGLE MAPS · 4:3 COMPANION
-              </span>
-            </div>
-            <span className="text-[10px] text-slate-300 font-mono bg-slate-800/90 px-2 py-0.5 rounded-full border border-slate-700/80 shadow-xs">
-              📸 Thumbnail Reale 4:3
+          {/* Header Pulito Google Maps 4:3 */}
+          <div className="w-full flex items-center gap-2 px-1 mb-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="text-xs font-bold text-slate-200 tracking-wide">
+              Google Maps 4:3
             </span>
           </div>
 
@@ -1471,10 +1466,6 @@ export function AutoCutLabPlayer({
               </div>
             )}
           </div>
-          
-          <span className="text-[10px] text-slate-400 mt-1 font-mono">
-            Sincronizzato al 100% con il video smartphone soprastante
-          </span>
         </div>
       )}
     </div>
