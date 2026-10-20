@@ -230,8 +230,8 @@ export function AutoCutDistributionPanel({ testRun }: AutoCutDistributionPanelPr
         </p>
       </div>
 
-      {/* 2. I 4 CANALI & RELATIVE POSIZIONI (Griglia a 2 Canali per Riga) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* 2. I 4 CANALI & RELATIVE POSIZIONI (In Colonna Singola) */}
+      <div className="grid grid-cols-1 gap-2.5">
         
         {/* RIGA 1, COLONNA 1: TIKTOK */}
         <div className={`p-2.5 rounded-xl border transition ${

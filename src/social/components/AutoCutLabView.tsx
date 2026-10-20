@@ -101,7 +101,7 @@ export function AutoCutLabView() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="space-y-6 max-w-[1680px] mx-auto pb-12">
       
       {/* Header Intro Banco di Taratura */}
       <div className="bg-[#121826] border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
@@ -319,12 +319,12 @@ export function AutoCutLabView() {
         </div>
       </div>
 
-      {/* 2-Column Workbench: Left Smartphone Player vs Right Distribution & Post Content Studio */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* 3-Column Workbench: Left Smartphone Player vs Center AI Post Studio vs Right Distribution Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (4-5 cols) */}
-        <div className="lg:col-span-5 xl:col-span-4 flex flex-col items-center">
-          <div className="w-full max-w-[340px] mb-2 px-0.5">
+        {/* 1. COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (spostato a sinistra) */}
+        <div className="lg:col-span-4 xl:col-span-3 flex flex-col items-start">
+          <div className="w-full max-w-[320px] mb-2 px-0.5">
             <button
               type="button"
               onClick={handleRegenerateCurrent}
@@ -336,27 +336,28 @@ export function AutoCutLabView() {
             </button>
           </div>
 
-          <div className="w-full max-w-[340px] flex flex-col items-center relative">
+          <div className="w-full max-w-[320px] flex flex-col items-center relative">
             <AutoCutLabPlayer
               key={`${activeMode}_${shuffleKey}`}
               testRun={currentTest}
               autoPlay={true}
             />
           </div>
-          <span className="text-[11px] text-slate-500 mt-2 font-mono">
+          <span className="text-[11px] text-slate-500 mt-2 font-mono pl-1">
             Tocca lo schermo per mettere in pausa o riavvolgere
           </span>
         </div>
 
-        {/* COLONNA DESTRA: Canale di Distribuzione & AI Post Content Studio (7-8 cols) */}
-        <div className="lg:col-span-7 xl:col-span-8 space-y-6">
-          {/* 📡 CANALE DI DISTRIBUZIONE (Test vs Produzione, 4 Canali con Loghi Vettoriali e Posizioni API) */}
-          <AutoCutDistributionPanel
+        {/* 2. COLONNA CENTRALE: AI Post Content Studio & Traduzioni in Colonna */}
+        <div className="lg:col-span-5 xl:col-span-6 space-y-4">
+          <AutoCutPostCopywriter
             testRun={currentTest}
           />
+        </div>
 
-          {/* ✍️ AI POST CONTENT STUDIO: Testi multilingua, proverbi e hashtag */}
-          <AutoCutPostCopywriter
+        {/* 3. COLONNA DESTRA: Canale di Distribuzione Stretto con Canali Incolonnati */}
+        <div className="lg:col-span-3 xl:col-span-3 space-y-4">
+          <AutoCutDistributionPanel
             testRun={currentTest}
           />
         </div>
