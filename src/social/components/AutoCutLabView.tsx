@@ -19,10 +19,11 @@ import {
 import { AUTOCUT_RULES_REGISTRY } from '../services/autoCutRulesRegistry';
 import { AutoCutLabPlayer } from './AutoCutLabPlayer';
 import { AutoCutPostCopywriter } from './AutoCutPostCopywriter';
-import { AutoCutDistributionPanel } from './AutoCutDistributionPanel';
+import { AutoCutDistributionPanel, DistributionChannelId } from './AutoCutDistributionPanel';
 
 export function AutoCutLabView() {
   const [activeMode, setActiveMode] = useState<AutoCutLabMode>('P1');
+  const [selectedChannel, setSelectedChannel] = useState<DistributionChannelId>('tiktok');
   const [testsByMode, setTestsByMode] = useState<Partial<Record<AutoCutLabMode, AutoCutTestRun>>>(() => {
     const init = generateAutoCutTestByMode('P1');
     return { P1: init };
@@ -348,10 +349,12 @@ export function AutoCutLabView() {
           </span>
         </div>
 
-        {/* 2. COLONNA CENTRALE: AI Post Content Studio & Traduzioni in Colonna */}
+        {/* 2. COLONNA CENTRALE: AI Post Content Studio & Traduzioni in Colonna (Dinamico per Canale) */}
         <div className="lg:col-span-5 xl:col-span-6 space-y-4">
           <AutoCutPostCopywriter
             testRun={currentTest}
+            selectedChannel={selectedChannel}
+            onSelectChannel={setSelectedChannel}
           />
         </div>
 
@@ -359,6 +362,8 @@ export function AutoCutLabView() {
         <div className="lg:col-span-3 xl:col-span-3 space-y-4">
           <AutoCutDistributionPanel
             testRun={currentTest}
+            selectedChannel={selectedChannel}
+            onSelectChannel={setSelectedChannel}
           />
         </div>
 
