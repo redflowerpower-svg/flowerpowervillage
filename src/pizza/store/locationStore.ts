@@ -56,25 +56,47 @@ export const useLocationStore = create<LocationState>((set, get) => ({
         return;
       }
 
+      const applyPos = (position: GeolocationPosition) => {
+        const { latitude, longitude } = position.coords;
+        const distance = calculateDistance(RESTAURANT_LAT, RESTAURANT_LNG, latitude, longitude);
+        set({
+          userLat: latitude,
+          userLng: longitude,
+          distanceKm: distance,
+          isDeliverable: distance <= get().maxRadiusKm,
+          isTakeawayAllowed: distance <= get().maxTakeawayRadiusKm,
+          isLoading: false,
+          error: null
+        });
+        resolve({ lat: latitude, lng: longitude });
+      };
+
+      // Stadio 1: Tentativo rapido e ad alta precisione (15s timeout, accetta cache recente fino a 60s)
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const distance = calculateDistance(RESTAURANT_LAT, RESTAURANT_LNG, latitude, longitude);
-          set({
-            userLat: latitude,
-            userLng: longitude,
-            distanceKm: distance,
-            isDeliverable: distance <= get().maxRadiusKm,
-            isTakeawayAllowed: distance <= get().maxTakeawayRadiusKm,
-            isLoading: false
-          });
-          resolve({ lat: latitude, lng: longitude });
+        applyPos,
+        (err) => {
+          // Stadio 2: Se timeout o segnale GPS debole al chiuso, fallback a precisione standard (WiFi / Cella telefonica)
+          if (err.code === err.TIMEOUT || err.code === err.POSITION_UNAVAILABLE) {
+            navigator.geolocation.getCurrentPosition(
+              applyPos,
+              (err2) => {
+                const msg = err2.code === err2.PERMISSION_DENIED
+                  ? 'Permessi GPS non concessi. Puoi indicare la posizione sulla mappa.'
+                  : 'Segnale GPS non disponibile. Puoi indicare la posizione sulla mappa.';
+                set({ error: msg, isLoading: false });
+                resolve(null);
+              },
+              { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+            );
+          } else {
+            const msg = err.code === err.PERMISSION_DENIED
+              ? 'Permessi GPS non concessi. Puoi indicare la posizione sulla mappa.'
+              : 'Impossibile rilevare la posizione GPS.';
+            set({ error: msg, isLoading: false });
+            resolve(null);
+          }
         },
-        (_error) => {
-          set({ error: 'Permessi GPS non concessi o segnale non disponibile.', isLoading: false });
-          resolve(null);
-        },
-        { enableHighAccuracy: true, timeout: 6000 }
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
       );
     });
   },

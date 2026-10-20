@@ -1573,6 +1573,8 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
 
   const [markerPos, setMarkerPos] = useState<{ lat: number; lng: number }>({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
   const [isLocationConfirmed, setIsLocationConfirmed] = useState(false);
+  const [isLocatingGPS, setIsLocatingGPS] = useState(false);
+  const [gpsNotice, setGpsNotice] = useState<string | null>(null);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   // Advanced browser autofill prevention states and hooks
@@ -1898,10 +1900,10 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
 
   const handlePointSelected = useCallback(async (lat: number, lng: number) => {
     setMarkerPos({ lat, lng });
-    setIsLocationConfirmed(false);
-    useLocationStore.setState({ distanceKm: null, userLat: null, userLng: null });
+    setConfirmedLocation(lat, lng);
+    setIsLocationConfirmed(true);
     await fetchReverseGeocoding(lat, lng);
-  }, [lang]);
+  }, [lang, setConfirmedLocation]);
 
   const geocodeAddressText = async (textToSearch: string) => {
     if (!textToSearch || !textToSearch.trim()) return;
@@ -1932,32 +1934,62 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
 
   const detectUserGPS = async (isManualClick: boolean = true) => {
     if (!navigator.geolocation) {
-      setMarkerPos({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
-      await fetchReverseGeocoding(RESTAURANT_LAT, RESTAURANT_LNG);
+      await handlePointSelected(RESTAURANT_LAT, RESTAURANT_LNG);
       return;
     }
 
+    setIsLocatingGPS(true);
+    setGpsNotice(null);
+
+    const onPosSuccess = async (position: GeolocationPosition) => {
+      const { latitude, longitude } = position.coords;
+      const distFromPizzeria = calculateDistance(RESTAURANT_LAT, RESTAURANT_LNG, latitude, longitude);
+
+      // Se il rilevamento è automatico in avvio e le coordinate sono palesemente un gateway cellulare
+      // remoto fuori provincia (es. gateway a più di 40km da Ranong), posizioniamo la mappa su Ranong / Pizzeria
+      if (!isManualClick && distFromPizzeria > 40) {
+        await handlePointSelected(RESTAURANT_LAT, RESTAURANT_LNG);
+        setIsLocatingGPS(false);
+        return;
+      }
+
+      await handlePointSelected(latitude, longitude);
+      setIsLocatingGPS(false);
+      setGpsNotice(null);
+    };
+
+    // Stadio 1: Alta precisione con timeout realistico a 15s (accetta cache del telefono fino a 60s)
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
-        const distFromPizzeria = calculateDistance(RESTAURANT_LAT, RESTAURANT_LNG, latitude, longitude);
-
-        // If it's an automatic detection and the coordinates are a remote ISP IP
-        // (e.g. Chumphon gateway at 120km away) or accuracy is poor (> 1500m), stay at our Pizzeria in Ranong!
-        if (!isManualClick && (distFromPizzeria > 15 || (accuracy && accuracy > 1500))) {
-          setMarkerPos({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
-          await fetchReverseGeocoding(RESTAURANT_LAT, RESTAURANT_LNG);
-          return;
+      onPosSuccess,
+      (err) => {
+        // Stadio 2: Se timeout o segnale GPS schermato/debole al chiuso, fallback a precisione standard (WiFi / Rete mobile)
+        if (err.code === err.TIMEOUT || err.code === err.POSITION_UNAVAILABLE) {
+          navigator.geolocation.getCurrentPosition(
+            onPosSuccess,
+            async (err2) => {
+              setIsLocatingGPS(false);
+              if (err2.code === err2.PERMISSION_DENIED) {
+                setGpsNotice(lang === 'TH' ? 'กรุณาอนุญาตการเข้าถึงตำแหน่ง GPS หรือแตะเลือกจุดบนแผนที่' : 'Permesso GPS negato. Tocca la mappa per indicare la tua posizione.');
+              } else {
+                setGpsNotice(lang === 'TH' ? 'ไม่พบสัญญาณ GPS กรุณาแตะเลือกจุดบนแผนที่' : 'Segnale GPS non disponibile. Tocca la mappa per indicare la tua posizione.');
+              }
+              if (!markerPos) {
+                await handlePointSelected(RESTAURANT_LAT, RESTAURANT_LNG);
+              }
+            },
+            { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+          );
+        } else {
+          setIsLocatingGPS(false);
+          if (err.code === err.PERMISSION_DENIED) {
+            setGpsNotice(lang === 'TH' ? 'กรุณาอนุญาตการเข้าถึงตำแหน่ง GPS หรือแตะเลือกจุดบนแผนที่' : 'Permesso GPS non concesso. Tocca la mappa per indicare la tua posizione.');
+          }
+          if (!markerPos) {
+            handlePointSelected(RESTAURANT_LAT, RESTAURANT_LNG);
+          }
         }
-
-        await handlePointSelected(latitude, longitude);
       },
-      async () => {
-        // Geolocation failed or denied: default to Pizzeria in Ranong
-        setMarkerPos({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
-        await fetchReverseGeocoding(RESTAURANT_LAT, RESTAURANT_LNG);
-      },
-      { enableHighAccuracy: true, timeout: 6000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
     );
   };
 
@@ -1970,8 +2002,7 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
         detectUserGPS(false);
       } else {
         // On computers / desktop devices without native GPS: open strictly at our Pizzeria in Ranong
-        setMarkerPos({ lat: RESTAURANT_LAT, lng: RESTAURANT_LNG });
-        fetchReverseGeocoding(RESTAURANT_LAT, RESTAURANT_LNG);
+        handlePointSelected(RESTAURANT_LAT, RESTAURANT_LNG);
       }
     }
   }, [step]);
@@ -2933,11 +2964,28 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                   <button
                     type="button"
                     onClick={() => detectUserGPS(true)}
-                    className="absolute bottom-2.5 right-2.5 z-[400] bg-white hover:bg-stone-50 text-stone-750 p-2.5 rounded-xl border border-stone-300 shadow-md flex items-center justify-center transition-all cursor-pointer active:scale-95 hover:shadow-lg"
+                    disabled={isLocatingGPS}
+                    className="absolute bottom-2.5 right-2.5 z-[400] bg-white hover:bg-stone-50 text-stone-750 p-2.5 rounded-xl border border-stone-300 shadow-md flex items-center justify-center transition-all cursor-pointer active:scale-95 hover:shadow-lg disabled:opacity-75"
                     title={t.detectLocBtn}
                   >
-                    <Navigation size={14} className="text-[#8B1E1E]" />
+                    <Navigation size={14} className={`text-[#8B1E1E] ${isLocatingGPS ? 'animate-spin' : ''}`} />
                   </button>
+
+                  {/* Searching GPS feedback pill */}
+                  {isLocatingGPS && (
+                    <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-[400] bg-black/85 backdrop-blur-xs text-white px-3 py-1 rounded-full shadow-md text-[9.5px] font-bold flex items-center gap-1.5 pointer-events-none animate-fadeIn whitespace-nowrap">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                      <span>{lang === 'TH' ? 'กำลังค้นหาตำแหน่ง GPS...' : 'Ricerca posizione GPS...'}</span>
+                    </div>
+                  )}
+
+                  {/* GPS notice feedback pill */}
+                  {gpsNotice && !isLocatingGPS && (
+                    <div className="absolute top-2.5 left-2.5 right-12 z-[400] bg-amber-500/95 backdrop-blur-xs text-black px-2.5 py-1 rounded-lg shadow-md text-[9px] font-bold flex items-center gap-1.5 animate-fadeIn">
+                      <span>⚠️</span>
+                      <span className="truncate">{gpsNotice}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
