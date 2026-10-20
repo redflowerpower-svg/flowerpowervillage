@@ -324,7 +324,7 @@ export function AutoCutLabView() {
         
         {/* 1. COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (spostato a sinistra) */}
         <div className="lg:col-span-4 xl:col-span-3 flex flex-col items-start">
-          <div className="w-full max-w-[340px] mb-2 px-0.5">
+          <div className="w-full max-w-[340px] mb-1.5">
             <button
               type="button"
               onClick={handleRegenerateCurrent}

@@ -851,45 +851,42 @@ export function AutoCutLabPlayer({
 
   return (
     <div className="flex flex-col items-center w-full">
-      {/* 🎛️ STUDIO CONTROL BAR: Riga 1 (Mode + Scene/Timer) e Riga 2 (Canzone per intero) */}
+      {/* 🎛️ STUDIO CONTROL BAR: 3 Controlli in Colonna Centrati a Piena Larghezza Telefono */}
       {!testRun.isEmptyShowcase && (
         <div className="w-full max-w-[340px] flex flex-col items-center gap-1.5 mb-2.5">
-          {/* Riga 1: Mode & Scene / Timer */}
-          <div className="w-full flex items-center justify-between gap-1.5">
-            {/* Banner 1: Engine & Mode */}
-            <div className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-950 border border-amber-500/50 shadow-md whitespace-nowrap">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="text-xs font-black text-amber-300 tracking-wide whitespace-nowrap">
-                {isInOutro ? 'Stamp Outro Reveal' : `${mode} · Pan & Zoom`}
-              </span>
-            </div>
-
-            {/* Banner 2: Scene & Timer */}
-            <div className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 shadow-md whitespace-nowrap text-xs font-mono text-slate-200">
-              <Layers className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="font-bold text-amber-300 whitespace-nowrap">
-                {isInOutro ? 'OUTRO' : `SCENE ${activeSceneIndex + 1}/${sceneCount}`}
-              </span>
-              <span className="text-slate-600">|</span>
-              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span className="font-semibold text-slate-300 whitespace-nowrap">
-                {currentElapsed.toFixed(1)}s / {totalVideoDuration.toFixed(0)}s
-              </span>
-            </div>
+          {/* Riga 2 (dopo Genera Nuovo Video): Mode & Cinematica */}
+          <div className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 border border-amber-500/50 shadow-md">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="text-xs font-black text-amber-300 tracking-wide">
+              {isInOutro ? 'Stamp Outro Reveal' : `${mode} · Pan & Zoom`}
+            </span>
           </div>
 
-          {/* Riga 2: Terzo Banner Canzone per intero (Audio Track & Mute) */}
+          {/* Riga 3: Scene & Minuti/Secondi Live */}
+          <div className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-700 shadow-md text-xs font-mono text-slate-200">
+            <Layers className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span className="font-bold text-amber-300">
+              {isInOutro ? 'OUTRO BRAND' : `SCENA ${activeSceneIndex + 1} / ${sceneCount}`}
+            </span>
+            <span className="text-slate-600">|</span>
+            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span className="font-semibold text-slate-300">
+              {currentElapsed.toFixed(1)}s / {totalVideoDuration.toFixed(0)}s
+            </span>
+          </div>
+
+          {/* Riga 4: Titolo della Canzone (Audio Track & Mute) */}
           <button
             type="button"
             onClick={handleToggleMute}
-            className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-700 hover:border-slate-500 text-xs font-mono text-white shadow-md transition cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-700 hover:border-slate-500 text-xs font-mono text-white shadow-md transition cursor-pointer"
           >
             {isAudioMuted ? (
               <VolumeX className="w-3.5 h-3.5 text-rose-400 shrink-0" />
             ) : (
               <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse shrink-0" />
             )}
-            <span className="font-semibold text-slate-200 tracking-wide truncate max-w-[270px]">
+            <span className="font-semibold text-slate-200 tracking-wide truncate max-w-[280px]">
               {audioTrack.title}
             </span>
           </button>
