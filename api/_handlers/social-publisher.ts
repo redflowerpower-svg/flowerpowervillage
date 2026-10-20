@@ -19,9 +19,82 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     return res.status(200).end();
   }
 
-  const query = req.query || {};
-  const body = req.body || {};
-  const action = (query.action || body.action || "") as string;
+  // 0. POST /api/social-publisher?action=generate_ai_post_copy
+  if (action === "generate_ai_post_copy") {
+    const apiKey = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'DEEPSEEK_API_KEY not configured' });
+    }
+
+    try {
+      const {
+        brand = 'pizza',
+        mode = 'P1',
+        dishes = [],
+        season = ''
+      } = body;
+
+      const isPizza = brand === 'pizza';
+      const prompt = isPizza
+        ? `Sei un esperto di social media marketing e traduttore creativo per Flower Power Pizza a Ranong, Thailandia.
+Genera un post social multilingue e virale seguendo rigorosamente queste istruzioni:
+- Piatti mostrati nel filmato: ${dishes.join(', ')}
+- Stagione/Meteo: ${season}
+- STILE: TASSATIVAMENTE NON FARE MONOBLOCCHI! Usa interlinee doppie e a capo frequenti per una lettura ariosa, ritmata ed accattivante.
+- THAI 🇹🇭: Al maschile con particelle simpatiche e vive (es. ครับ, เลยครับ, ฟินสุดๆ, พาความอร่อยมารายงานตัวครับ), emoticon creative, proverbio thailandese geniale pertinente al tema, chiusura con invito a ordinare su www.flowerpowerpizza.com con sconto 10% prima prenotazione. Includi DIRETTAMENTE nel testo thai 4-5 hashtag virali thai (es. #FlowerPowerPizza, hashtag del piatto, #ของกินระนอง, #อร่อยบอกต่อ, #ระนอง).
+- INGLESE 🇬🇧: Linguaggio giovanile, fresco, accattivante ma umile, a capo ariosi, proverbio a tema senza apici "", chiusura con 10% sconto. Includi DIRETTAMENTE nel testo 4-5 hashtag inglesi virali (es. #FlowerPowerPizza, hashtag piatto, #RanongFoodie, #ThailandEats).
+- ITALIANO 🇮🇹: Traduzione letterale dal thai con a capo ariosi e proverbio tradotto in evidenza, chiusura con 10% sconto.
+- LINK & TAG: Link fisso Google Maps Ranong Hotspring e tag @flowerpowerphayam.
+
+Rispondi SOLO con un JSON valido con questa struttura esatta:
+{
+  "thaiContent": "...",
+  "englishContent": "...",
+  "italianContent": "..."
+}`
+        : `Sei un esperto di social media marketing e traduttore creativo per Flower Power Village a Koh Phayam, Thailandia.
+Genera un post social multilingue e virale seguendo rigorosamente queste istruzioni:
+- Alloggi mostrati nel filmato: ${dishes.join(', ')}
+- Stagione: ${season}
+- STILE: TASSATIVAMENTE NON FARE MONOBLOCCHI! Usa interlinee doppie e a capo frequenti per una lettura ariosa.
+- INGLESE 🇬🇧: Fresco, umile, accattivante, proverbio a tema senza apici "", chiusura con invito a prenotare su www.flowerpowervillage.com con miglior prezzo garantito e 10% diretto. Includi 4-5 hashtag virali in inglese (es. #FlowerPowerVillage, hashtag alloggio, #KohPhayam, #BuffaloBay, #TropicalEscape).
+- THAI 🇹🇭: Reinterpretazione al maschile con particelle amichevoli (ครับ, เลยครับ), regole toponimi: Koh Phayam = เกาะพยาม, Buffalo Bay = อ่าวเขาควาย, Long Beach = อ่าวใหญ่. Proverbio thai a tema, chiusura 10%. Includi 4-5 hashtag virali in thai (es. #FlowerPowerVillage, hashtag alloggio, #เกาะพยาม, #อ่าวเขาควาย, #ที่พักเกาะพยาม).
+- ITALIANO 🇮🇹: Traduzione letterale dal thai con proverbio tradotto e chiusura 10%.
+- LINK & TAG: Link fisso www.flowerpowervillage.com e tag @flowerpowerpizzaranong.
+
+Rispondi SOLO con un JSON valido con questa struttura esatta:
+{
+  "thaiContent": "...",
+  "englishContent": "...",
+  "italianContent": "..."
+}`;
+
+      const aiRes = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [{ role: 'user', content: prompt }],
+          response_format: { type: 'json_object' }
+        })
+      });
+
+      if (!aiRes.ok) {
+        throw new Error(`DeepSeek API error: ${aiRes.status}`);
+      }
+
+      const aiData = await aiRes.json();
+      const rawJson = aiData.choices?.[0]?.message?.content;
+      const parsed = JSON.parse(rawJson);
+      return res.status(200).json({ success: true, data: parsed });
+    } catch (err: any) {
+      console.error('[social-publisher] DeepSeek AI copy generation error:', err);
+      return res.status(500).json({ error: err.message || 'DeepSeek generation failed' });
+    }
+  }
 
   // 1. GET /api/social-publisher?action=status
   if (action === "status" || action === "get_account") {
@@ -410,6 +483,217 @@ ${isPizza ? `   - BRAND IS PIZZERIA RANONG:
       return res.status(200).json({ success: true, result: parsed });
     } catch (err: any) {
       return res.status(500).json({ error: "AI generation error", message: err.message });
+    }
+  }
+
+  // 4b. POST /api/social-publisher?action=analyze_visual_ai (Google Gemini Vision + DeepSeek AI)
+  if (action === "analyze_visual_ai") {
+    const deepseekKey = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY || (body.deepseekApiKey || "");
+    const geminiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || (body.geminiApiKey || "");
+
+    const {
+      imageUrl = "",
+      brand = "pizza", // 'pizza' or 'village'
+      itemTitle = "Pizza Margherita",
+      itemTitleTh = "พิซซ่ามาเกริต้า",
+      category = "Pizza",
+      price = 240,
+      currentTheme = "standard"
+    } = body;
+
+    try {
+      // 1. Fase Vision AI (Google Gemini 1.5 Flash se disponibile, altrimenti fallback contestuale)
+      let visualAnalysis: any = {
+        subject: itemTitle,
+        dominantColors: brand === "pizza" ? ["#ea580c", "#1c1917"] : ["#059669", "#064e3b"],
+        visualElements: brand === "pizza"
+          ? ["crosta dorata cotta a legna", "pomodoro brillante", "mozzarella filante", "foglie di basilico fresco"]
+          : ["costruzione in legno naturale", "giardino tropicale", "amaca", "palme da cocco"],
+        negativeSpaceBestPosition: "bottom",
+        lighting: brand === "pizza" ? "calda e invitante da forno a pietra" : "luce naturale dorata tropicale",
+        usedGemini: false
+      };
+
+      if (geminiKey && imageUrl) {
+        try {
+          const imgRes = await fetch(imageUrl);
+          if (imgRes.ok) {
+            const arrayBuffer = await imgRes.arrayBuffer();
+            const base64Data = Buffer.from(arrayBuffer).toString("base64");
+            const contentType = imgRes.headers.get("content-type") || "image/jpeg";
+
+            const geminiRes = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  contents: [
+                    {
+                      parts: [
+                        {
+                          text: `You are an expert food & tropical hospitality art director. Analyze this photo of "${itemTitle}" (${brand === "pizza" ? "Italian wood-fired pizza & pasta in Ranong, Thailand" : "Tropical eco-resort on Koh Phayam Island, Thailand"}).
+Return ONLY a JSON object:
+{
+  "subject": "detected primary subject",
+  "dominantColors": ["#hex1", "#hex2"],
+  "visualElements": ["element1", "element2", "element3"],
+  "negativeSpaceBestPosition": "bottom" or "top",
+  "lighting": "lighting style description"
+}`
+                        },
+                        {
+                          inlineData: {
+                            mimeType: contentType,
+                            data: base64Data
+                          }
+                        }
+                      ]
+                    }
+                  ],
+                  generationConfig: {
+                    temperature: 0.2,
+                    responseMimeType: "application/json"
+                  }
+                })
+              }
+            );
+
+            if (geminiRes.ok) {
+              const geminiData = await geminiRes.json();
+              const textOut = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (textOut) {
+                const parsed = JSON.parse(textOut);
+                visualAnalysis = { ...visualAnalysis, ...parsed, usedGemini: true };
+              }
+            }
+          }
+        } catch (gErr: any) {
+          console.warn("[SocialPublisher] Gemini Vision optional call bypassed:", gErr.message);
+        }
+      }
+
+      // 2. Fase DeepSeek AI: Generazione Copy Bilingue Virale, Carosello a 3 Slide & Reel Overlay
+      if (!deepseekKey) {
+        // Fallback programmatico senza DeepSeek
+        return res.status(200).json({
+          success: true,
+          visualAnalysis,
+          reelOverlay: {
+            title: brand === "pizza" ? `🍕 ${itemTitleTh || itemTitle} อบเตาฟืนแท้ๆ` : `🌴 ${itemTitle} เกาะพยาม`,
+            subtitle: brand === "pizza" ? "Impasto a lenta lievitazione & ingredienti freschi" : "Immerso nella natura tropicale senza auto",
+            badge: brand === "pizza" ? "🔥 เตาฟืน 100%" : "✨ Eco-Luxury",
+            priceTag: price ? `${price} THB` : ""
+          },
+          slides: [
+            {
+              id: "slide-1",
+              slideType: "hook",
+              title: brand === "pizza" ? `🍕 ${itemTitleTh} อร่อยฟินแสงออกปาก!` : `🌴 ${itemTitle} พักผ่อนฮีลใจ`,
+              subtitle: brand === "pizza" ? "Autentica tradizione italiana a Ranong" : "La vera pace dell'isola di Koh Phayam",
+              badge: brand === "pizza" ? "🔥 เตาฟืนแท้" : "🏝️ Koh Phayam",
+              ctaText: "Swipe per i dettagli ➔"
+            },
+            {
+              id: "slide-2",
+              slideType: "feature",
+              title: visualAnalysis.visualElements?.slice(0, 2).join(" • ") || itemTitle,
+              subtitle: "Qualità artigianale e rispetto delle materie prime",
+              badge: "✨ Artigianale",
+              ctaText: "Scopri di più ➔"
+            },
+            {
+              id: "slide-3",
+              slideType: "cta",
+              title: brand === "pizza" ? "สั่งเดลิเวอรี่ส่งไวถึงบ้าน หรือแวะมาทานที่สวนน้ำแร่" : "จองตรงราคาดีที่สุดบนเว็บไซต์",
+              subtitle: brand === "pizza" ? "flowerpowerpizza.com • Sconto 10% primo ordine" : "flowerpowervillage.com • Prenota subito",
+              badge: price ? `${price} THB` : "🌟 Prenota Ora",
+              ctaText: brand === "pizza" ? "Ordina Online 🍕" : "Prenota Diretto 🌴"
+            }
+          ],
+          socialCaption: {
+            thai: brand === "pizza" ? `สายกินห้ามพลาด! ${itemTitleTh} อบเตาฟืนหอมกรุ่นชีสเยิ้มๆ ปักหมุดระนองนะคะ 🍕🔥` : `หนีความวุ่นวายมาพักผ่อนที่เกาะพยามกับ ${itemTitle} บรรยากาศสุดชิลล์ 🌿🏝️`,
+            english: brand === "pizza" ? `Craving real Italian pizza in Ranong? Try our ${itemTitle} baked in traditional stone oven!` : `Pure island serenity at Flower Power Village Koh Phayam. Experience ${itemTitle}.`,
+            hashtags: brand === "pizza" ? ["#PizzaRanong", "#RanongFood", "#รีวิวระนอง", "#ของกินระนอง", "#FlowerPowerPizza"] : ["#KohPhayam", "#PhayamIsland", "#เที่ยวเกาะพยาม", "#FlowerPowerVillage"]
+          }
+        });
+      }
+
+      const isPizza = brand === "pizza";
+      const prompt = `You are the viral Creative Director for Flower Power (${isPizza ? "Pizzeria & Italian Restaurant in Ranong, Thailand" : "Eco-resort on Koh Phayam Island, Thailand"}).
+We are creating a high-converting TikTok / Instagram 9:16 Video Reel and 3-Slide Carousel.
+Visual Elements detected in photo: ${JSON.stringify(visualAnalysis.visualElements)}
+Subject: "${itemTitle}" (Thai: "${itemTitleTh}")
+Price: ${price} THB
+Theme/Occasion: "${currentTheme}"
+
+MANDATORY RULES:
+1. For Ranong Pizza:
+   - Primary language must be THAI with authentic viral food influencer tone (นะคะ, จ้า, ฟินมากกก, อร่อยแสงออกปาก, สายกินห้ามพลาด, ชีสเยิ้มๆ, เตาฟืนหอมกรุ่น).
+   - Secondary language must be ITALIAN with authentic gourmet pride.
+2. For Koh Phayam Village:
+   - Primary language ENGLISH (tropical bliss, peaceful island life), Secondary THAI (พักผ่อนฮีลใจ, ชิลสุดๆ, ธรรมชาติ).
+3. Generate 3 slides:
+   - Slide 1: Magnetic viral Hook (title under 8 words, subtitle under 12 words, short badge 2-3 words, CTA "Swipe ➔")
+   - Slide 2: Feature/Sensory detail highlighting detected visual elements
+   - Slide 3: Strong Call To Action with website link & price
+4. Generate Reel Overlay texts:
+   - title (Hook bilingue, compact, impactful)
+   - subtitle (Sensory detail)
+   - badge (Eye-catching badge with emoji)
+   - priceTag ("${price} THB")
+5. Return ONLY a valid JSON:
+{
+  "reelOverlay": {
+    "title": "...",
+    "subtitle": "...",
+    "badge": "...",
+    "priceTag": "${price ? `${price} THB` : ''}"
+  },
+  "slides": [
+    { "id": "slide-1", "slideType": "hook", "title": "...", "subtitle": "...", "badge": "...", "ctaText": "Swipe ➔" },
+    { "id": "slide-2", "slideType": "feature", "title": "...", "subtitle": "...", "badge": "...", "ctaText": "Scopri ➔" },
+    { "id": "slide-3", "slideType": "cta", "title": "...", "subtitle": "...", "badge": "...", "ctaText": "${isPizza ? 'Ordina Online 🍕' : 'Prenota Diretto 🌴'}" }
+  ],
+  "socialCaption": {
+    "thai": "...",
+    "english": "...",
+    "hashtags": ["#Tag1", "#Tag2", "#Tag3", "#Tag4", "#Tag5"]
+  }
+}`;
+
+      const aiRes = await fetch("https://api.deepseek.com/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${deepseekKey}`
+        },
+        body: JSON.stringify({
+          model: "deepseek-chat",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.7,
+          response_format: { type: "json_object" }
+        })
+      });
+
+      if (!aiRes.ok) {
+        throw new Error(`DeepSeek API failed: ${await aiRes.text()}`);
+      }
+
+      const aiData = await aiRes.json();
+      const content = aiData.choices?.[0]?.message?.content || "{}";
+      const generated = JSON.parse(content);
+
+      return res.status(200).json({
+        success: true,
+        visualAnalysis,
+        reelOverlay: generated.reelOverlay,
+        slides: generated.slides,
+        socialCaption: generated.socialCaption
+      });
+    } catch (err: any) {
+      console.error("[SocialPublisher] analyze_visual_ai error:", err);
+      return res.status(500).json({ error: "Visual AI analysis error", message: err.message });
     }
   }
 

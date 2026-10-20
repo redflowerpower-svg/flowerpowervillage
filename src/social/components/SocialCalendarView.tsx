@@ -3,7 +3,7 @@ import {
   ChevronLeft, ChevronRight, Calendar as CalendarIcon, 
   Clock, Plus, Sparkles, Trash2, Edit3, Send, CheckCircle, 
   Pizza, Palmtree, Film, Image as ImageIcon, ExternalLink,
-  Filter, Zap, Play, Heart, MessageCircle, Bookmark, Globe, Search, Check, Share2
+  Filter, Zap, Play, Heart, MessageCircle, Bookmark, Globe, Search, Check, Share2, Music
 } from 'lucide-react';
 import { 
   TikTokIcon, 
@@ -20,6 +20,8 @@ import {
   SocialFormat,
   generateAutopilotCampaign 
 } from '../services/autoContentEngine';
+import { generateFullAutoCutCampaign } from '../services/autoCutIntelligence';
+import { AutoCutReelPlayer } from './AutoCutReelPlayer';
 
 interface SocialCalendarViewProps {
   scheduledPosts: ScheduledSocialPost[];
@@ -57,6 +59,7 @@ export function SocialCalendarView({
   const [autopilotBrand, setAutopilotBrand] = useState<BrandType>('pizza');
   const [autopilotWeeks, setAutopilotWeeks] = useState(4);
   const [autopilotPostsPerWeek, setAutopilotPostsPerWeek] = useState(3);
+  const [replaceExisting, setReplaceExisting] = useState(true);
 
   // Month navigation helpers
   const year = currentDate.getFullYear();
@@ -102,7 +105,7 @@ export function SocialCalendarView({
     }
   });
 
-  // Run autopilot campaign generator
+  // Run autopilot campaign generator (con opzione pulizia integrale)
   const handleRunAutopilot = () => {
     const newCampaign = generateAutopilotCampaign({
       brand: autopilotBrand,
@@ -111,7 +114,7 @@ export function SocialCalendarView({
       postsPerWeek: autopilotPostsPerWeek
     });
 
-    onUpdatePosts([...scheduledPosts, ...newCampaign]);
+    onUpdatePosts(replaceExisting ? newCampaign : [...scheduledPosts, ...newCampaign]);
     setShowAutopilotModal(false);
   };
 
@@ -123,6 +126,12 @@ export function SocialCalendarView({
   const handleSaveInspectingPost = (updated: ScheduledSocialPost) => {
     onUpdatePosts(scheduledPosts.map((p) => (p.id === updated.id ? updated : p)));
     setInspectingPost(null);
+  };
+
+  // Rigenerazione Totale con Motore AutoCut (Wipe & Replace sia Pizzeria che Villaggio)
+  const handleRegenerateAllAutoCutCampaign = () => {
+    const fullCampaign = generateFullAutoCutCampaign() as ScheduledSocialPost[];
+    onUpdatePosts(fullCampaign);
   };
 
   const today = new Date();
@@ -203,13 +212,24 @@ export function SocialCalendarView({
             </button>
           </div>
 
+          {/* Quick Total AutoCut Regenerate Button */}
+          <button
+            type="button"
+            onClick={handleRegenerateAllAutoCutCampaign}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-950/40 transition"
+            title="Rigenera l'intero palinsesto con il motore AutoCut 7.8s (MP3 + Pan & Scan)"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>{uiLang === 'EN' ? '⚡ Generate All AutoCut (Wipe & Replace)' : '⚡ Genera Tutto AutoCut (Pulisci & Sostituisci)'}</span>
+          </button>
+
           {/* Autopilot Button (Key Feature!) */}
           <button
             onClick={() => setShowAutopilotModal(true)}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-pink-600 hover:from-amber-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-950/40 transition"
           >
             <Zap className="w-3.5 h-3.5" />
-            <span>{uiLang === 'EN' ? 'Autopilot Campaign' : 'Pilota Automatico Piatti'}</span>
+            <span>{uiLang === 'EN' ? 'Custom Campaign' : 'Campagna Personalizzata'}</span>
           </button>
         </div>
 
@@ -276,15 +296,18 @@ export function SocialCalendarView({
                           setInspectingPost(post);
                           setInspectPreviewPlatform(post.platforms[0] || 'tiktok');
                         }}
-                        className={`p-1.5 rounded-lg border text-left cursor-pointer transition-all hover:scale-[1.02] flex items-center gap-1.5 shadow ${
+                        className={`p-1.5 rounded-lg border text-left cursor-pointer transition-all hover:scale-[1.02] flex items-center gap-2 shadow group ${
                           isPizza 
-                            ? 'bg-rose-950/30 border-rose-800/40 hover:border-rose-600 text-rose-100'
-                            : 'bg-emerald-950/30 border-emerald-800/40 hover:border-emerald-600 text-emerald-100'
+                            ? 'bg-rose-950/40 border-rose-800/50 hover:border-rose-500 text-rose-100'
+                            : 'bg-emerald-950/40 border-emerald-800/50 hover:border-emerald-500 text-emerald-100'
                         }`}
                       >
-                        {/* Media Thumbnail */}
-                        <div className="w-7 h-7 rounded overflow-hidden bg-slate-800 shrink-0">
-                          <img src={post.media_url} alt="" className="w-full h-full object-cover" />
+                        {/* Media Thumbnail with AutoCut Reel Indicator */}
+                        <div className="w-8 h-8 rounded-md overflow-hidden bg-slate-800 shrink-0 relative">
+                          <img src={post.media_url} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-200" />
+                          <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                            <Play className="w-3 h-3 text-white fill-white drop-shadow" />
+                          </div>
                         </div>
 
                         {/* Info */}
@@ -302,9 +325,25 @@ export function SocialCalendarView({
                               ))}
                             </div>
                           </div>
-                          <p className="text-[10px] font-semibold truncate leading-tight mt-0.5 text-white">
+                          <p className="text-[10px] font-bold truncate leading-tight mt-0.5 text-white">
                             {post.title}
                           </p>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            {post.slides && post.slides.length > 1 ? (
+                              <span className="px-1.5 py-0.5 rounded bg-amber-500/25 text-amber-300 text-[8px] font-mono font-bold border border-amber-500/40">
+                                ⚡ AutoCut {post.slides.length} Scene
+                              </span>
+                            ) : (
+                              <span className="px-1 py-0.2 rounded bg-amber-500/20 text-amber-300 text-[8px] font-mono font-bold">
+                                🎬 7.8s
+                              </span>
+                            )}
+                            {post.audio_track_name && (
+                              <span className="text-[8px] text-slate-400 font-mono truncate max-w-[90px]">
+                                🎵 {post.audio_track_name.split('(')[0]}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
@@ -436,6 +475,26 @@ export function SocialCalendarView({
                 </p>
               </div>
 
+              {/* Wipe & Replace Toggle */}
+              <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900 border border-slate-800 cursor-pointer hover:border-slate-700 transition">
+                <input
+                  type="checkbox"
+                  checked={replaceExisting}
+                  onChange={(e) => setReplaceExisting(e.target.checked)}
+                  className="w-4 h-4 rounded text-amber-500 bg-slate-800 border-slate-700 focus:ring-0"
+                />
+                <div className="text-left">
+                  <p className="text-xs text-white font-bold">
+                    {uiLang === 'EN' ? 'Wipe & Replace (Clean Slate)' : 'Pulizia Totale & Sostituzione'}
+                  </p>
+                  <p className="text-[10px] text-slate-400">
+                    {uiLang === 'EN'
+                      ? 'Removes all old posts and replaces them with new AutoCut 7.8s Motion + MP3 Audio.'
+                      : 'Elimina tutti i vecchi post e li sostituisce con il nuovo motore AutoCut + MP3 Audio.'}
+                  </p>
+                </div>
+              </label>
+
             </div>
 
             <div className="flex items-center gap-2 pt-2">
@@ -562,16 +621,23 @@ export function SocialCalendarView({
                     <div className="w-7 h-1 bg-slate-800 rounded-full"></div>
                   </div>
 
-                  {/* Main Media Background */}
+                  {/* Main Media Background - AutoCut Reel Player Dinamico 7.8s con Pan & Scan & Audio MP3 */}
                   <div className="w-full h-full relative bg-slate-950 flex items-center justify-center overflow-hidden">
-                    <img
-                      src={inspectingPost.media_url}
-                      alt={inspectingPost.title}
-                      className="w-full h-full object-cover"
+                    <AutoCutReelPlayer
+                      imageUrl={inspectingPost.media_url}
+                      slides={inspectingPost.slides}
+                      trajectory={inspectingPost.camera_trajectory || 'pan_left_to_right'}
+                      audioSrc={inspectingPost.audio_track_src}
+                      audioTitle={inspectingPost.audio_track_name}
+                      titleTh={inspectingPost.title_th}
+                      titleEn={inspectingPost.title_en}
+                      badge={inspectingPost.badge}
+                      price={inspectingPost.price}
+                      platform={inspectPreviewPlatform as any}
+                      caption={inspectingPost.caption}
+                      brand={inspectingPost.brand}
+                      autoPlay={true}
                     />
-
-                    {/* Gradient Overlay for Text Readability */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/90 pointer-events-none" />
 
                     {/* TIKTOK 9:16 LIVE OVERLAY */}
                     {inspectPreviewPlatform === 'tiktok' && (
@@ -805,6 +871,36 @@ export function SocialCalendarView({
                     }
                   </p>
                 </div>
+
+                {/* 🎵 Audio Suite MP3 & AutoCut 7.8s Badge */}
+                {inspectingPost.audio_track_name && (
+                  <div className="p-3 rounded-xl bg-purple-950/40 border border-purple-800/50 text-purple-200 flex items-center justify-between gap-2 shadow-lg">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
+                        <Music className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-xs text-white truncate">{inspectingPost.audio_track_name}</p>
+                        <p className="text-[10px] text-purple-300/80 truncate">
+                          AutoCut 7.8s • {inspectingPost.camera_trajectory || 'Pan Cinematic'} • {inspectingPost.overlay_atmosphere || 'Naturale'}
+                        </p>
+                      </div>
+                    </div>
+                    {inspectingPost.audio_track_src && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const a = new Audio(inspectingPost.audio_track_src);
+                          a.play().catch(e => console.log('Audio playback info:', e));
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-[11px] flex items-center gap-1.5 shadow transition shrink-0"
+                      >
+                        <Play className="w-3 h-3 fill-current" />
+                        <span>Ascolta MP3</span>
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 {/* Target Platforms Toggle */}
                 <div>

@@ -38,6 +38,10 @@ scratch/recordings/
 scratch/*.mp4
 scratch/*.png
 scratch/*.json
+scratch/*.mp3
+scratch/*.mjs
+!scratch/vault-sync.mjs
+!scratch/deepseek-translate.mjs
 scratch/audit_report_bookings.md
 .vercel/
 
