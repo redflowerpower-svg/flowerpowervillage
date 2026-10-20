@@ -323,7 +323,8 @@ export function generatePostCopy(
       // ⚡ DS DAILY SPECIAL: Enfatizza piatto fresco del giorno, preparato oggi e in pronta consegna
       thaiContent = `🇹🇭 สดใหม่จากเตาวันนี้! เมนูพิเศษ Daily Special มาแล้วครับ ⚡️🍕✨
 
-เมนูเด็ดประจำวัน: ${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''} 
+เมนูเด็ดประจำวัน:
+${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
 ปรุงสดใหม่จากครัวร้อนๆ หอมกรุ่นด้วยวัตถุดิบคุณภาพ คัดสรรมาเป็นพิเศษเฉพาะวันนี้เท่านั้น พร้อมส่งทันที ฟินสุดๆ เลยครับ 😋🔥
 
 โบราณว่าไว้: "${proverb.thai}"
@@ -336,7 +337,8 @@ ${smartTags.thai.join(' ')}`;
 
       englishContent = `🇬🇧 Fresh out of the oven today! Chef's Daily Special is ready ⚡️🍕✨
 
-Today's Special: ${secondaryName || dishOrRoomName} 
+Today's Special:
+${secondaryName || dishOrRoomName}
 Freshly prepared in our kitchen with premium ingredients, cooked to perfection and ready for immediate delivery! 😋🔥
 
 As the wise saying goes: ${cleanEnProverb}
@@ -349,7 +351,8 @@ ${smartTags.english.join(' ')}`;
 
       italianContent = `🇮🇹 Appena sfornato dalla cucina! Il Fuori Menu Daily Special di oggi ⚡️🍕✨
 
-Specialità Fresca del Giorno: ${dishOrRoomName} 
+Specialità Fresca del Giorno:
+${dishOrRoomName}
 Preparato fresco oggi con ingredienti selezionati, fragrante e pronto in pronta consegna calda a Ranong! 😋🔥
 
 Un saggio proverbio ricorda: "${proverb.it}"
@@ -362,7 +365,8 @@ Approfitta del 10% di sconto sul tuo primo ordine! 💨`;
       // 🍕 P1, P2, P3: Testo Standard Pizzeria
       thaiContent = `🇹🇭 สวัสดีครับทุกคน! วันนี้พาความอร่อยมารายงานตัวครับ 🍕✨
 
-เมนูเด็ดวันนี้: ${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''} 
+เมนูเด็ดวันนี้:
+${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
 หอมกรุ่นจากเตา แป้งกรอบนอกนุ่มในสไตล์อิตาเลียนแท้ๆ อบด้วยความใส่ใจทุกถาด ฟินสุดๆ เลยครับ 😋🔥
 
 โบราณว่าไว้: "${proverb.thai}"
@@ -375,7 +379,8 @@ ${smartTags.thai.join(' ')}`;
 
       englishContent = `🇬🇧 Hey food lovers! Fresh out of our Ranong oven today 🍕✨
 
-On the table: ${secondaryName || dishOrRoomName} 
+On the table:
+${secondaryName || dishOrRoomName}
 Crispy crust, slow-fermented dough and 100% authentic Italian ingredients made with real passion! 😋🔥
 
 As the wise saying goes: ${cleanEnProverb}
@@ -388,7 +393,8 @@ ${smartTags.english.join(' ')}`;
 
       italianContent = `🇮🇹 Ciao a tutti! Direttamente dal nostro forno a Ranong 🍕✨
 
-Protagonista di oggi: ${dishOrRoomName} 
+Protagonista di oggi:
+${dishOrRoomName}
 Cornicione croccante e fragrante, cotto a puntino con ingredienti genuini e tanta passione italiana! 😋🔥
 
 Un saggio proverbio ricorda: "${proverb.it}"
@@ -408,7 +414,8 @@ Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
     // Inglese: Fresco, tropicale, a capo ariosi
     englishContent = `🇬🇧 Paradise calling from Buffalo Bay, Koh Phayam 🌴🌊✨
 
-Featured stay: ${dishOrRoomName} 
+Featured stay:
+${dishOrRoomName}
 Nestled in lush tropical gardens with ocean breeze, birds singing and pure island peace! 🌺🍃
 
 Remember: ${cleanEnProverb}
@@ -422,7 +429,8 @@ ${smartTags.english.join(' ')}`;
     // Thai: Maschile, particelle amichevoli, toponimi esatti, a capo ariosi
     thaiContent = `🇹🇭 หลีกหนีความวุ่นวาย มาสัมผัสความเงียบสงบที่ อ่าวเขาควาย เกาะพยาม กันครับ 🌴🌊✨
 
-แนะนำวันนี้: ${dishOrRoomName} 
+แนะนำวันนี้:
+${dishOrRoomName}
 บังกะโลไม้ใต้ร่มเงาธรรมชาติ สูดอากาศบริสุทธิ์ริมทะเล และฟังเสียงคลื่นเบาๆ ฟินสุดๆ เลยครับ 🌺🍃
 
 คนโบราณกล่าวไว้: "${proverb.thai}"
@@ -436,7 +444,8 @@ ${smartTags.thai.join(' ')}`;
     // Italiano: Traduzione letterale con proverbio e a capo ariosi
     italianContent = `🇮🇹 Fuggite dal caos per ritrovare la vera tranquillità a Buffalo Bay, Koh Phayam 🌴🌊✨
 
-In evidenza oggi: ${dishOrRoomName} 
+In evidenza oggi:
+${dishOrRoomName}
 Bungalow e alloggi in legno immersi nella natura tropicale, tra brezza marina e totale relax! 🌺🍃
 
 Come dice un saggio proverbio: "${proverb.it}"
