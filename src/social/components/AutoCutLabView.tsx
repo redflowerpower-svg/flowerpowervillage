@@ -323,7 +323,7 @@ export function AutoCutLabView() {
         
         {/* COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (5 cols) */}
         <div className="lg:col-span-5 flex flex-col items-center">
-          <div className="w-[310px] sm:w-[330px] flex items-center justify-between gap-2 mb-2 px-1">
+          <div className="w-full max-w-[480px] flex items-center justify-between gap-2 mb-2 px-1">
             <span className="text-[11px] font-bold text-slate-300 font-mono flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Video Attivo: <strong className="text-white">{activeMode}</strong></span>
@@ -339,7 +339,7 @@ export function AutoCutLabView() {
             </button>
           </div>
 
-          <div className="w-[310px] sm:w-[330px] relative">
+          <div className="w-full max-w-[480px] flex flex-col items-center relative">
             <AutoCutLabPlayer
               key={`${activeMode}_${shuffleKey}`}
               testRun={currentTest}
