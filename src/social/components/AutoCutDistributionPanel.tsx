@@ -173,7 +173,7 @@ export function AutoCutDistributionPanel({ testRun }: AutoCutDistributionPanelPr
   };
 
   return (
-    <div className="w-full mt-3 p-4 bg-slate-900/95 rounded-2xl border border-slate-800 shadow-2xl space-y-3.5 text-left text-xs select-none">
+    <div className="w-full p-5 bg-[#121826] rounded-3xl border border-slate-800 shadow-2xl space-y-4 text-left text-xs select-none">
       
       {/* 1. HEADER: TITOLO & SWITCH AMBIENTE (TEST vs PRODUZIONE) */}
       <div className="space-y-2">

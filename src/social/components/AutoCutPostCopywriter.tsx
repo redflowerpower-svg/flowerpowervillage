@@ -97,7 +97,7 @@ export function AutoCutPostCopywriter({ testRun }: AutoCutPostCopywriterProps) {
   const isPizza = testRun.brand === 'pizza';
 
   return (
-    <div className="w-full bg-[#121826] border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4 relative overflow-hidden mt-3">
+    <div className="w-full bg-[#121826] border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4 relative overflow-hidden">
       {/* Glow d'atmosfera */}
       <div className={`absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl pointer-events-none ${
         isPizza ? 'bg-rose-500/10' : 'bg-emerald-500/10'
