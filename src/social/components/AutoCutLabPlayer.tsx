@@ -1184,7 +1184,7 @@ export function AutoCutLabPlayer({
               )}
               
               {/* THAI IN GRANDE SOPRA (A capo semantico logico) */}
-              <h3 className="text-base sm:text-lg font-black text-amber-300 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+              <h3 className="text-base sm:text-lg font-black text-amber-300 leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                 {currentScene.titlePrimary.split('\n').map((line, idx) => (
                   <span key={idx} className="block leading-tight">
                     {line}
@@ -1193,7 +1193,7 @@ export function AutoCutLabPlayer({
               </h3>
 
               {/* INGLESE SOTTO (A capo semantico logico prima dei connettori WITH, &, ecc.) */}
-              <div className="text-xs font-semibold text-white/95 leading-snug drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+              <div className="text-xs font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                 {currentScene.titleSecondary.split('\n').map((line, idx) => (
                   <span key={idx} className="block leading-snug">
                     {line}
@@ -1201,24 +1201,24 @@ export function AutoCutLabPlayer({
                 ))}
               </div>
 
-              {/* PREZZO PIATTO / PIZZE 8" E 12" */}
+              {/* PREZZO PIATTO / PIZZE 8" E 12" (DUE BADGE STACCATI CON PUNTINO GIALLO - ZERO EMOJI) */}
               <div className="pt-1">
                 {currentScene.pizzaSizes ? (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-950/90 border border-amber-500/70 shadow-lg text-white font-mono font-bold text-xs whitespace-nowrap">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                    <span className="inline-flex items-center gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-950/90 border border-amber-500/70 shadow-lg text-white font-mono font-bold text-xs whitespace-nowrap">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
                       <span className="text-amber-300 font-black">8"</span>
                       <span>{currentScene.pizzaSizes.size8Price} THB</span>
                     </span>
-                    <span className="text-white/40 text-[10px]">•</span>
-                    <span className="inline-flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-950/90 border border-amber-500/70 shadow-lg text-white font-mono font-bold text-xs whitespace-nowrap">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
                       <span className="text-amber-300 font-black">12"</span>
                       <span>{currentScene.pizzaSizes.size12Price} THB</span>
                     </span>
                   </div>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-950/90 border border-amber-500/60 shadow-lg text-white font-mono font-bold text-xs whitespace-nowrap">
-                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
                     <span>{currentScene.priceLabel}</span>
                   </span>
                 )}
@@ -1255,7 +1255,7 @@ export function AutoCutLabPlayer({
               )}
 
               {/* INGLESE STRUTTURATO SEMANTICO (Nome alloggio in grande + Sottotitolo a capo pulito) */}
-              <div className="leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+              <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                 {currentScene.lodgingTitle ? (
                   <>
                     <h3 className="text-base sm:text-lg font-black text-white leading-tight">
@@ -1275,7 +1275,7 @@ export function AutoCutLabPlayer({
               </div>
 
               {/* THAI SECCO SOTTO (Senza riscrivere l'inglese) */}
-              <p className="text-xs font-semibold text-stone-200/95 leading-snug drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] pt-0.5">
+              <p className="text-xs font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
                 {currentScene.titleSecondary}
               </p>
 
@@ -1362,8 +1362,8 @@ export function AutoCutLabPlayer({
                 <span className="text-xs sm:text-[13px] font-black text-white uppercase tracking-wider leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                   {brand === 'pizza' ? 'Flower Power Pizza' : 'Flower Power Village'}
                 </span>
-                <span className="text-[10px] sm:text-[10.5px] font-bold leading-tight mt-0.5 tracking-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
-                  {brand === 'pizza' ? '🛵 Delivery Service' : '🌴 Direct Booking'}
+                <span className="text-[10px] sm:text-[10.5px] font-bold leading-tight mt-0.5 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
+                  {brand === 'pizza' ? 'Delivery Service' : 'Direct Booking'}
                 </span>
               </div>
             </div>
@@ -1383,7 +1383,7 @@ export function AutoCutLabPlayer({
                     )}
 
                     {/* THAI IN GRANDE SOPRA (A capo semantico logico) */}
-                    <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                    <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                       {currentScene.titlePrimary.split('\n').map((line, idx) => (
                         <span key={idx} className="block leading-tight">
                           {line}
@@ -1392,7 +1392,7 @@ export function AutoCutLabPlayer({
                     </h3>
 
                     {/* INGLESE SOTTO (A capo semantico logico prima dei connettori) */}
-                    <div className="text-[11px] sm:text-xs font-semibold text-white/95 leading-snug drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                    <div className="text-[11px] sm:text-xs font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                       {currentScene.titleSecondary.split('\n').map((line, idx) => (
                         <span key={idx} className="block leading-snug">
                           {line}
@@ -1400,15 +1400,28 @@ export function AutoCutLabPlayer({
                       ))}
                     </div>
 
-                    {/* PREZZO PIATTO */}
-                    {currentScene.priceLabel && (
-                      <div className="pt-0.5">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-950/90 border border-amber-500/60 shadow-lg text-white font-mono font-bold text-[10px] whitespace-nowrap">
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (DUE BADGE STACCATI CON PUNTINO GIALLO - ZERO EMOJI) */}
+                    <div className="pt-0.5">
+                      {currentScene.pizzaSizes ? (
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-950/90 border border-amber-500/70 shadow-lg text-white font-mono font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                            <span className="text-amber-300 font-black">8"</span>
+                            <span>{currentScene.pizzaSizes.size8Price} THB</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-950/90 border border-amber-500/70 shadow-lg text-white font-mono font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                            <span className="text-amber-300 font-black">12"</span>
+                            <span>{currentScene.pizzaSizes.size12Price} THB</span>
+                          </span>
+                        </div>
+                      ) : currentScene.priceLabel ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-950/90 border border-amber-500/60 shadow-lg text-white font-mono font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
                           <span>{currentScene.priceLabel}</span>
                         </span>
-                      </div>
-                    )}
+                      ) : null}
+                    </div>
                   </div>
                 )}
 
@@ -1421,7 +1434,7 @@ export function AutoCutLabPlayer({
                       </span>
                     )}
 
-                    <div className="leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                    <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                       <h3 className="text-sm sm:text-base font-black text-white leading-tight">
                         {currentScene.lodgingTitle || currentScene.titlePrimary}
                       </h3>
@@ -1432,7 +1445,7 @@ export function AutoCutLabPlayer({
                       )}
                     </div>
 
-                    <p className="text-[10px] sm:text-[11px] font-semibold text-stone-200/95 leading-snug drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] pt-0.5">
+                    <p className="text-[10px] sm:text-[11px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
                       {currentScene.titleSecondary}
                     </p>
                   </div>
