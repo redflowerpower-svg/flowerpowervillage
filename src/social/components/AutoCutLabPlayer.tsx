@@ -1113,8 +1113,8 @@ export function AutoCutLabPlayer({
               <span className="mt-1 text-base sm:text-lg font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_2px_12px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
                 ห้องว่างวันนี้
               </span>
-              {/* Sotto DIRECT BOOKING in stampatello */}
-              <span className="text-xs sm:text-[13px] font-black text-amber-200 uppercase tracking-wide leading-tight whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1)]">
+              {/* Sotto DIRECT BOOKING in stampatello verde */}
+              <span className="text-xs sm:text-[13px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
               {/* Sotto flowerpowervillage.com */}
