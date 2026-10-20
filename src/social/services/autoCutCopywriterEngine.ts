@@ -248,6 +248,7 @@ export function generatePostCopy(
   testRun: AutoCutTestRun,
   proverbIndexSeed: number = 0
 ): PostCopyResult {
+  const isPizza = testRun.brand === 'pizza';
   const seasonCtx = getCurrentSeasonContext();
   // 🛡️ REGOLA IMMODIFICABILE 15: Nel testo del post, il nome del piatto o dell'alloggio NON deve MAI andare a capo.
   // Anche se nel video si va a capo per ragioni cinematiche/grafiche, nel post è una locuzione unica continua su singola riga.
