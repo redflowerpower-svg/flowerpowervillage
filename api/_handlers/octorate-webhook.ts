@@ -387,6 +387,90 @@ export function calculateServerDynamicMinStay(
 }
 
 /**
+ * Risolve l'alloggio canonico del resort da un oggetto prenotazione grezzo Octorate
+ * analizzando Product ID, Room Type ID e keyword testuali.
+ */
+function resolveAccommodationName(booking: any): string {
+  if (!booking) return 'Alloggio Flower Power';
+
+  // 1. Match diretto per Product ID o Room Type ID nella mappatura canonica
+  const productId = String(
+    booking.product ||
+    booking.pmsProduct ||
+    booking.accommodation_id ||
+    booking.roomId ||
+    booking.roomTypeId ||
+    booking.rooms?.[0]?.product ||
+    booking.rooms?.[0]?.pmsProduct ||
+    booking.rooms?.[0]?.roomTypeId ||
+    ''
+  ).trim();
+
+  if (productId) {
+    for (const [key, entry] of Object.entries(ALL_ACCOMMODATIONS_MAP)) {
+      if (String(entry.motherId) === productId || entry.ids.includes(productId)) {
+        return entry.name;
+      }
+    }
+  }
+
+  // 2. Match testuale / fuzzy sui nomi e descrizioni delle camere
+  const rawName = String(
+    booking.roomName ||
+    booking.accommodation_name ||
+    booking.accommodation ||
+    booking.rooms?.[0]?.roomName ||
+    booking.rooms?.[0]?.name ||
+    booking.rooms?.[0]?.description ||
+    ''
+  ).toLowerCase().trim();
+
+  if (rawName) {
+    if (rawName.includes('jvr') || rawName.includes('right')) return 'Jungle Villa Right';
+    if (rawName.includes('jvl') || rawName.includes('left')) return 'Jungle Villa Left';
+    for (const [key, entry] of Object.entries(ALL_ACCOMMODATIONS_MAP)) {
+      if (entry.keywords.every(group => group.some(kw => rawName.includes(kw)))) {
+        return entry.name;
+      }
+    }
+    const clean = rawName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    if (clean) return clean;
+  }
+
+  return 'Alloggio Flower Power';
+}
+
+/**
+ * Risolve il nome reale dell'ospite esplorando tutti i campi anagrafici Octorate e OTA.
+ */
+function resolveGuestName(booking: any): string {
+  if (!booking) return 'Ospite';
+  if (typeof booking.guestName === 'string' && booking.guestName.trim()) {
+    return booking.guestName.trim();
+  }
+  if (typeof booking.guest_name === 'string' && booking.guest_name.trim()) {
+    return booking.guest_name.trim();
+  }
+
+  const b = booking.booker || booking.customer || booking.contact;
+  if (b) {
+    const bName = `${b.firstName || b.givenName || ''} ${b.lastName || b.familyName || ''}`.trim() || b.name;
+    if (bName && typeof bName === 'string' && bName.trim()) return bName.trim();
+  }
+
+  const direct = `${booking.firstName || booking.first_name || ''} ${booking.lastName || booking.last_name || ''}`.trim();
+  if (direct) return direct;
+
+  if (Array.isArray(booking.guests) && booking.guests.length > 0) {
+    const booker = booking.guests.find((g: any) => g.type === 'BOOKER') || booking.guests[0];
+    const gName = `${booker.givenName || booker.firstName || ''} ${booker.familyName || booker.lastName || ''}`.trim() || booker.name;
+    if (gName) return gName;
+  }
+
+  return 'Ospite';
+}
+
+/**
  * Handler Webhook Octorate 24/7 per Soggiorno Minimo Dinamico (Gap-Filling & Ripristino)
  * Rotta API Gateway: POST /api/webhooks/octorate
  */
@@ -569,30 +653,13 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           const results = await Promise.all(batchPromises);
           octorateStatus = results[0] || 200;
 
-          // 📲 [TELEGRAM NOTIFICATION] Notifica automatica Minimo Notti Dinamico
-          try {
-            const roomsAffected = [...new Set(calculatedUpdates.map(u => u.accommodationName).filter(Boolean))];
-            const sampleGaps = calculatedUpdates.filter(u => u.reason && u.reason.includes('Gap-Fill')).slice(0, 4);
-            const tgMsg = `📏 <b>[Soggiorno Minimo Dinamico (Gap-Fill)]</b>\n` +
-              `🏨 <b>Octorate PMS Sincronizzato con Successo 24/7</b>\n\n` +
-              `📊 Bucature allineate: <b>${calculatedUpdates.length} blocchi</b> su <b>${roomsAffected.length} Alloggi</b>\n` +
-              (sampleGaps.length > 0 ? `\n🔍 <i>Esempi aggiornati:</i>\n` + sampleGaps.map(g => `• <b>${g.accommodationName}</b> (${g.dateFrom} ➔ ${g.dateTo}): <b>${g.minStay} notti</b>`).join('\n') + `\n` : '') +
-              `\n🔄 Evento scatenante: <code>${eventType}</code>\n` +
-              `✅ Restrizioni MinStay allineate in tempo reale.`;
-            const targetTopic = (eventType && (eventType.toLowerCase().includes('cancel') || eventType.toLowerCase().includes('modifi')))
-              ? 'MODIFICATIONS_CANCELLATIONS'
-              : 'BOOKINGS';
-            sendDepartmentTelegramMessage('village', tgMsg, { topic: targetTopic }).catch(err => {
-              console.warn('[octorate-webhook] Telegram alert warning:', err);
-            });
-          } catch (tgErr) {
-            console.warn('[octorate-webhook] Telegram notification error:', tgErr);
-          }
+          // Sincronizzazione Gap-Fill su Octorate completata silenziosamente (zero spam Telegram)
+          console.log(`[OCTORATE WEBHOOK 24/7] Gap-fill sync completed: ${calculatedUpdates.length} updates sent to Octorate.`);
         }
 
-        // 🛡️ [AUTO-SHIELD] Sigillatura forzata immediata tariffe derivate per la prenotazione ricevuta
+        // 🛡️ [AUTO-SHIELD & NOTIFICHE PRENOTAZIONI REALI CERTIFICATE]
         try {
-          const targetResId = eventPayload?.id || eventPayload?.data?.id || eventPayload?.reservation?.id || eventPayload?.reservationId;
+          const targetResId = eventPayload?.id || eventPayload?.data?.id || eventPayload?.reservation?.id || eventPayload?.reservationId || eventPayload?.resId;
           let targetBooking: any = null;
 
           if (targetResId) {
@@ -615,106 +682,113 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           }
 
           // Se il webhook invia direttamente l'oggetto prenotazione nel payload
-          if (!targetBooking && (eventPayload?.checkin || eventPayload?.reservation?.checkin)) {
+          if (!targetBooking && (eventPayload?.checkin || eventPayload?.reservation?.checkin || eventPayload?.check_in || eventPayload?.startDate)) {
             targetBooking = eventPayload.reservation || eventPayload;
           }
 
-          if (targetBooking && (targetBooking.checkin || targetBooking.checkIn) && (targetBooking.checkout || targetBooking.checkOut)) {
-            const rawIn = String(targetBooking.checkin || targetBooking.checkIn).slice(0, 10);
-            const rawOut = String(targetBooking.checkout || targetBooking.checkOut).slice(0, 10);
-            const st = String(targetBooking.status || '').toUpperCase().trim();
-            const bookerGuest = (targetBooking.guests || []).find((g: any) => g.type === 'BOOKER') || targetBooking.guests?.[0];
-            const guestName = bookerGuest ? `${bookerGuest.givenName || ''} ${bookerGuest.familyName || ''}`.trim() : (targetBooking.guestName || `${targetBooking.firstName || ''} ${targetBooking.lastName || ''}`.trim() || 'Ospite N/D');
-            const roomName = targetBooking.roomName || targetBooking.accommodation_name || targetBooking.accommodation || 'Alloggio Flower Power';
-            const channelName = targetBooking.channelName || targetBooking.channel || (targetBooking.channelId === 233 ? 'Sito Web Diretto' : `OTA (#${targetBooking.channelId || 'N/D'})`);
-            const reservationId = targetBooking.id || targetResId;
+          if (targetBooking) {
+            const rawIn = String(targetBooking.checkin || targetBooking.checkIn || targetBooking.check_in || targetBooking.startDate || targetBooking.rooms?.[0]?.checkin || targetBooking.rooms?.[0]?.startDate || '').slice(0, 10);
+            const rawOut = String(targetBooking.checkout || targetBooking.checkOut || targetBooking.check_out || targetBooking.endDate || targetBooking.rooms?.[0]?.checkout || targetBooking.rooms?.[0]?.endDate || '').slice(0, 10);
 
-            // Calcolo durata esatta in notti
-            let stayNights = 1;
-            try {
-              const dIn = new Date(rawIn);
-              const dOut = new Date(rawOut);
-              if (!isNaN(dIn.getTime()) && !isNaN(dOut.getTime())) {
-                stayNights = Math.max(1, Math.round((dOut.getTime() - dIn.getTime()) / (1000 * 60 * 60 * 24)));
-              }
-            } catch {}
+            // Filtro anti-falsi allarmi: invia notifiche solo se le date sono reali e valide (lunghezza 10: YYYY-MM-DD)
+            if (rawIn.length === 10 && rawOut.length === 10 && !rawIn.includes('undefined') && !rawOut.includes('undefined')) {
+              const st = String(targetBooking.status || '').toUpperCase().trim();
+              const guestName = resolveGuestName(targetBooking);
+              const roomName = resolveAccommodationName(targetBooking);
+              const channelName = targetBooking.channelName || targetBooking.channel || targetBooking.ota || (targetBooking.channelId === 233 ? 'Sito Web Diretto' : `OTA (#${targetBooking.channelId || 'N/D'})`);
+              const reservationId = targetBooking.id || targetResId || 'N/D';
 
-            // Calcolo totale formattato
-            const totalGross = targetBooking.totalGross ?? targetBooking.roomGross ?? targetBooking.total ?? 0;
-            const currency = targetBooking.currency || 'THB';
-            const formattedTotal = typeof totalGross === 'number'
-              ? totalGross.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
-              : String(totalGross);
-
-            const isCancelled = st === 'CANCELLED' || st === 'CANCELED' || st === 'DELETED' || st === 'VOID' || eventType.toUpperCase().includes('CANCEL');
-            const isModified = !isCancelled && (eventType.toUpperCase().includes('CHANGE') || eventType.toUpperCase().includes('MODIF'));
-
-            // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio
-            try {
-              let tgMessage = '';
-              let targetTopicKey: 'BOOKINGS' | 'MODIFICATIONS_CANCELLATIONS' = 'BOOKINGS';
-
-              if (isCancelled) {
-                targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                tgMessage = `🔴 <b>[CANCELLAZIONE PRENOTAZIONE]</b>\n` +
-                  `🏨 <b>Alloggio:</b> ${roomName}\n` +
-                  `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                  `🌐 <b>Canale:</b> ${channelName}\n` +
-                  `📅 <b>Periodo Annullato:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
-                  `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                  `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-              } else if (isModified) {
-                targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                tgMessage = `🟡 <b>[PRENOTAZIONE MODIFICATA]</b>\n` +
-                  `🏨 <b>Alloggio:</b> ${roomName}\n` +
-                  `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                  `🌐 <b>Canale:</b> ${channelName}\n` +
-                  `📅 <b>Nuovo Periodo:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
-                  `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                  `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-              } else {
-                targetTopicKey = 'BOOKINGS';
-                tgMessage = `🟢 <b>[NUOVA PRENOTAZIONE RICEVUTA]</b>\n` +
-                  `🏨 <b>Alloggio:</b> ${roomName}\n` +
-                  `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                  `🌐 <b>Canale:</b> ${channelName}\n` +
-                  `📅 <b>Check-in:</b> <code>${rawIn}</code>\n` +
-                  `🛫 <b>Check-out:</b> <code>${rawOut}</code>\n` +
-                  `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
-                  `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                  `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-              }
-
-              sendDepartmentTelegramMessage('village', tgMessage, { topic: targetTopicKey }).catch(tgErr => {
-                console.warn('[OCTORATE WEBHOOK] Errore invio notifica Telegram prenotazione:', tgErr);
-              });
-            } catch (notifyErr) {
-              console.warn('[OCTORATE WEBHOOK] Errore creazione notifica Telegram:', notifyErr);
-            }
-
-            // 🛡️ 2. Auto-Shield o Gestione Cancellazione Diretta
-            if (!isCancelled) {
-              await executeAutoShieldForReservation({
-                accessToken,
-                checkIn: toThailandDateStr(rawIn),
-                checkOut: toThailandDateStr(rawOut),
-                roomName: targetBooking.roomName || targetBooking.accommodation_name || '',
-                productId: targetBooking.product || targetBooking.accommodation_id,
-                pmsProductId: targetBooking.pmsProduct,
-                reservationId: targetBooking.id || targetResId,
-                guestName,
-                channelName: targetBooking.channelName || targetBooking.channel || 'OTA Webhook',
-                supabaseAdmin
-              });
-            } else {
-              // ✉️ Gestione Cancellazione: Solo per prenotazioni dirette (Sito Web o Octorate interno)
+              // Calcolo durata esatta in notti
+              let stayNights = 1;
               try {
-                console.log(`[OCTORATE WEBHOOK] Rilevata cancellazione per prenotazione #${targetBooking.id || targetResId} (${targetBooking.channelName || targetBooking.channelId}). Avvio gestione diretta...`);
-                await handleDirectReservationCancellation(targetBooking);
-              } catch (cancelErr) {
-                console.warn('[OCTORATE WEBHOOK] Errore gestione cancellazione:', cancelErr);
+                const dIn = new Date(rawIn);
+                const dOut = new Date(rawOut);
+                if (!isNaN(dIn.getTime()) && !isNaN(dOut.getTime())) {
+                  stayNights = Math.max(1, Math.round((dOut.getTime() - dIn.getTime()) / (1000 * 60 * 60 * 24)));
+                }
+              } catch {}
+
+              // Calcolo totale formattato
+              const totalGross = targetBooking.totalGross ?? targetBooking.roomGross ?? targetBooking.total ?? targetBooking.totalPrice ?? 0;
+              const currency = targetBooking.currency || 'THB';
+              const formattedTotal = typeof totalGross === 'number'
+                ? totalGross.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+                : String(totalGross);
+
+              const isCancelled = st === 'CANCELLED' || st === 'CANCELED' || st === 'DELETED' || st === 'VOID' || st === 'REJECTED' || eventType.toUpperCase().includes('CANCEL');
+              const isModified = !isCancelled && (eventType.toUpperCase().includes('CHANGE') || eventType.toUpperCase().includes('MODIF') || eventType.toUpperCase().includes('UPDATE'));
+
+              // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio
+              try {
+                let tgMessage = '';
+                let targetTopicKey: 'BOOKINGS' | 'MODIFICATIONS_CANCELLATIONS' = 'BOOKINGS';
+
+                if (isCancelled) {
+                  targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
+                  tgMessage = `🔴 <b>[CANCELLAZIONE PRENOTAZIONE]</b>\n` +
+                    `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                    `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                    `🌐 <b>Canale:</b> ${channelName}\n` +
+                    `📅 <b>Periodo Annullato:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
+                    `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                    `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                } else if (isModified) {
+                  targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
+                  tgMessage = `🟡 <b>[PRENOTAZIONE MODIFICATA]</b>\n` +
+                    `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                    `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                    `🌐 <b>Canale:</b> ${channelName}\n` +
+                    `📅 <b>Nuovo Periodo:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
+                    `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                    `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                } else {
+                  targetTopicKey = 'BOOKINGS';
+                  tgMessage = `🟢 <b>[NUOVA PRENOTAZIONE RICEVUTA]</b>\n` +
+                    `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                    `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                    `🌐 <b>Canale:</b> ${channelName}\n` +
+                    `📅 <b>Check-in:</b> <code>${rawIn}</code>\n` +
+                    `🛫 <b>Check-out:</b> <code>${rawOut}</code>\n` +
+                    `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
+                    `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                    `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                }
+
+                sendDepartmentTelegramMessage('village', tgMessage, { topic: targetTopicKey }).catch(tgErr => {
+                  console.warn('[OCTORATE WEBHOOK] Errore invio notifica Telegram prenotazione:', tgErr);
+                });
+              } catch (notifyErr) {
+                console.warn('[OCTORATE WEBHOOK] Errore creazione notifica Telegram:', notifyErr);
               }
+
+              // 🛡️ 2. Auto-Shield o Gestione Cancellazione Diretta
+              if (!isCancelled) {
+                await executeAutoShieldForReservation({
+                  accessToken,
+                  checkIn: toThailandDateStr(rawIn),
+                  checkOut: toThailandDateStr(rawOut),
+                  roomName: targetBooking.roomName || targetBooking.accommodation_name || roomName,
+                  productId: targetBooking.product || targetBooking.accommodation_id,
+                  pmsProductId: targetBooking.pmsProduct,
+                  reservationId: targetBooking.id || targetResId,
+                  guestName,
+                  channelName: targetBooking.channelName || targetBooking.channel || 'OTA Webhook',
+                  supabaseAdmin
+                });
+              } else {
+                // ✉️ Gestione Cancellazione: Solo per prenotazioni dirette (Sito Web o Octorate interno)
+                try {
+                  console.log(`[OCTORATE WEBHOOK] Rilevata cancellazione per prenotazione #${targetBooking.id || targetResId} (${targetBooking.channelName || targetBooking.channelId}). Avvio gestione diretta...`);
+                  await handleDirectReservationCancellation(targetBooking);
+                } catch (cancelErr) {
+                  console.warn('[OCTORATE WEBHOOK] Errore gestione cancellazione:', cancelErr);
+                }
+              }
+            } else {
+              console.log(`[OCTORATE WEBHOOK] Evento '${eventType}' senza intervallo date completo (${rawIn} ➔ ${rawOut}). Notifica Telegram ignorata.`);
             }
+          } else {
+            console.log(`[OCTORATE WEBHOOK] Evento '${eventType}' senza prenotazione associata. Notifica Telegram ignorata.`);
           }
         } catch (shieldErr) {
           console.warn('[OCTORATE WEBHOOK] Auto-Shield / Notification error (non-blocking):', shieldErr);
@@ -727,9 +801,9 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           console.warn('[OCTORATE WEBHOOK] Cascade sync non-fatal warning:', cascadeErr);
         }
 
-        // 🛡️ [RESORT SENTINEL 24/7] Auto-audit di conformità e auto-guarigione live
+        // 🛡️ [RESORT SENTINEL 24/7] Auto-audit silenzioso di conformità (zero spam: il report arriva alle 01:00 via cron)
         try {
-          runResortSentinelAudit({ sendTelegram: true }).catch(err => {
+          runResortSentinelAudit({ sendTelegram: false }).catch(err => {
             console.warn('[OCTORATE WEBHOOK] Resort Sentinel background audit notice:', err);
           });
         } catch (sentinelErr) {
