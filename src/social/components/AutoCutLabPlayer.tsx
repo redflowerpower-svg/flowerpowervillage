@@ -150,80 +150,89 @@ export function AutoCutLabPlayer({
       // Curva di accelerazione morbida (Ease-in-out)
       const t = localT < 0.5 ? 2 * localT * localT : 1 - Math.pow(-2 * localT + 2, 2) / 2;
 
-      let scale = is43 ? 1.06 : 1.15;
+      let scale = 1.15;
       let panX = 0;
       let panY = 0;
 
-      const maxPanX = Math.max(0, (baseW * (is43 ? 1.08 : 1.15) - w) / 2);
-      const maxPanY = Math.max(0, (baseH * (is43 ? 1.10 : 1.18) - h) / 2);
-      const panMultiplier = is43 ? 0.60 : 1.0;
+      if (is43) {
+        // 🖥️ FORMATO 4:3 GOOGLE MAPS / FB:
+        // Zero movimento laterale (panX = 0, panY = 0)
+        // Zoom continuo progressivo in avanti che ingrandisce sempre di più il piatto / alloggio!
+        const easeZoom = 0.5 - 0.5 * Math.cos(localT * Math.PI); // Curva cosinusoidale pura vellutata
+        scale = 1.02 + (easeZoom * 0.18); // Da 1.02x naturale fino a 1.20x macro continuo
+        panX = 0;
+        panY = 0;
+      } else {
+        const maxPanX = Math.max(0, (baseW * 1.15 - w) / 2);
+        const maxPanY = Math.max(0, (baseH * 1.18 - h) / 2);
 
-      // Metodo CapCut Elegante: Pan e Zoom Simultanei
-      switch (scene.trajectory) {
-        // 🍕 FOOD COMMERCIAL MACRO-FOCUS (2 SOLE FASI CONTINUE CON RANGE INTERMEDIO SOFFICE)
-        case 'food_macro_focus_lr': {
-          const softPanX = maxPanX * 0.42 * panMultiplier;
+        // Metodo CapCut Elegante: Pan e Zoom Simultanei per 9:16 Smartphone
+        switch (scene.trajectory) {
+          // 🍕 FOOD COMMERCIAL MACRO-FOCUS (2 SOLE FASI CONTINUE CON RANGE INTERMEDIO SOFFICE)
+          case 'food_macro_focus_lr': {
+            const softPanX = maxPanX * 0.42;
 
-          if (localT < 0.50) {
-            const p1 = localT / 0.50;
-            const easeP1 = 0.5 - 0.5 * Math.cos(p1 * Math.PI);
-            panX = -softPanX + (easeP1 * 2 * softPanX);
-            scale = (is43 ? 1.05 : 1.12) + (easeP1 * 0.02);
-          } else {
-            const p2 = (localT - 0.50) / 0.50;
-            const easeP2 = 0.5 - 0.5 * Math.cos(p2 * Math.PI);
-            panX = softPanX - (easeP2 * softPanX);
-            scale = (is43 ? 1.07 : 1.14) + (easeP2 * (is43 ? 0.14 : 0.22));
+            if (localT < 0.50) {
+              const p1 = localT / 0.50;
+              const easeP1 = 0.5 - 0.5 * Math.cos(p1 * Math.PI);
+              panX = -softPanX + (easeP1 * 2 * softPanX);
+              scale = 1.12 + (easeP1 * 0.02);
+            } else {
+              const p2 = (localT - 0.50) / 0.50;
+              const easeP2 = 0.5 - 0.5 * Math.cos(p2 * Math.PI);
+              panX = softPanX - (easeP2 * softPanX);
+              scale = 1.14 + (easeP2 * 0.22);
+            }
+            panY = 0;
+            break;
           }
-          panY = 0;
-          break;
-        }
 
-        // 🍕 FOOD COMMERCIAL MACRO-FOCUS SPECULARE (Destra -> Sinistra -> Centro Zoom)
-        case 'food_macro_focus_rl': {
-          const softPanX = maxPanX * 0.42 * panMultiplier;
+          // 🍕 FOOD COMMERCIAL MACRO-FOCUS SPECULARE (Destra -> Sinistra -> Centro Zoom)
+          case 'food_macro_focus_rl': {
+            const softPanX = maxPanX * 0.42;
 
-          if (localT < 0.50) {
-            const p1 = localT / 0.50;
-            const easeP1 = 0.5 - 0.5 * Math.cos(p1 * Math.PI);
-            panX = softPanX - (easeP1 * 2 * softPanX);
-            scale = (is43 ? 1.05 : 1.12) + (easeP1 * 0.02);
-          } else {
-            const p2 = (localT - 0.50) / 0.50;
-            const easeP2 = 0.5 - 0.5 * Math.cos(p2 * Math.PI);
-            panX = -softPanX + (easeP2 * softPanX);
-            scale = (is43 ? 1.07 : 1.14) + (easeP2 * (is43 ? 0.14 : 0.22));
+            if (localT < 0.50) {
+              const p1 = localT / 0.50;
+              const easeP1 = 0.5 - 0.5 * Math.cos(p1 * Math.PI);
+              panX = softPanX - (easeP1 * 2 * softPanX);
+              scale = 1.12 + (easeP1 * 0.02);
+            } else {
+              const p2 = (localT - 0.50) / 0.50;
+              const easeP2 = 0.5 - 0.5 * Math.cos(p2 * Math.PI);
+              panX = -softPanX + (easeP2 * softPanX);
+              scale = 1.14 + (easeP2 * 0.22);
+            }
+            panY = 0;
+            break;
           }
-          panY = 0;
-          break;
-        }
 
-        case 'pan_left_zoom_in':
-          scale = (is43 ? 1.04 : 1.10) + (t * (is43 ? 0.08 : 0.12));
-          panX = (maxPanX - (t * 2 * maxPanX)) * panMultiplier;
-          panY = 0;
-          break;
-        case 'pan_right_zoom_in':
-          scale = (is43 ? 1.04 : 1.10) + (t * (is43 ? 0.08 : 0.12));
-          panX = (-maxPanX + (t * 2 * maxPanX)) * panMultiplier;
-          panY = 0;
-          break;
-        case 'pan_left_zoom_out':
-          scale = (is43 ? 1.12 : 1.20) - (t * (is43 ? 0.08 : 0.12));
-          panX = (maxPanX - (t * 2 * maxPanX)) * panMultiplier;
-          panY = 0;
-          break;
-        case 'pan_right_zoom_out':
-          scale = (is43 ? 1.12 : 1.20) - (t * (is43 ? 0.08 : 0.12));
-          panX = (-maxPanX + (t * 2 * maxPanX)) * panMultiplier;
-          panY = 0;
-          break;
-        case 'push_in_focal':
-        default:
-          scale = (is43 ? 1.04 : 1.08) + (t * (is43 ? 0.08 : 0.12));
-          panX = 0;
-          panY = 0;
-          break;
+          case 'pan_left_zoom_in':
+            scale = 1.10 + (t * 0.12);
+            panX = maxPanX - (t * 2 * maxPanX);
+            panY = 0;
+            break;
+          case 'pan_right_zoom_in':
+            scale = 1.10 + (t * 0.12);
+            panX = -maxPanX + (t * 2 * maxPanX);
+            panY = 0;
+            break;
+          case 'pan_left_zoom_out':
+            scale = 1.20 - (t * 0.12);
+            panX = maxPanX - (t * 2 * maxPanX);
+            panY = 0;
+            break;
+          case 'pan_right_zoom_out':
+            scale = 1.20 - (t * 0.12);
+            panX = -maxPanX + (t * 2 * maxPanX);
+            panY = 0;
+            break;
+          case 'push_in_focal':
+          default:
+            scale = 1.08 + (t * 0.12);
+            panX = 0;
+            panY = 0;
+            break;
+        }
       }
 
       cCtx.save();
@@ -1363,41 +1372,75 @@ export function AutoCutLabPlayer({
               </span>
             </div>
 
-            {/* Lower-Third Gourmet Card (Ottimizzata per Google Maps) */}
+            {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA (Zero box opaco, identica al 9:16) */}
             {currentScene && (
-              <div className={`absolute left-2.5 right-2.5 bottom-2.5 z-30 pointer-events-none transition-all duration-300 ${
+              <div className={`absolute left-3 right-3 bottom-3 z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
                 isInOutro ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
-                <div className="bg-black/90 backdrop-blur-md border border-white/15 rounded-xl p-2.5 shadow-2xl flex items-center justify-between gap-2">
-                  <div className="flex flex-col text-left min-w-0 flex-1">
-                    {brand === 'pizza' ? (
-                      <>
-                        <span className="text-xs sm:text-[13px] font-black text-amber-300 leading-tight truncate drop-shadow-sm">
-                          {currentScene.titlePrimary.replace(/\n/g, ' ')}
+                {/* Caso CIBO / PIATTI (P1): Categoria, Thai sopra in grande, Inglese sotto a scalare, prezzo */}
+                {(brand === 'pizza' || mode === 'R1') && (
+                  <div className="space-y-1 w-full">
+                    {currentScene.badgeCategory && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide shadow-md uppercase bg-rose-600 text-white border border-rose-400">
+                        {currentScene.badgeCategory}
+                      </span>
+                    )}
+
+                    {/* THAI IN GRANDE SOPRA (A capo semantico logico) */}
+                    <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                      {currentScene.titlePrimary.split('\n').map((line, idx) => (
+                        <span key={idx} className="block leading-tight">
+                          {line}
                         </span>
-                        <span className="text-[10px] sm:text-[11px] font-semibold text-white/95 leading-tight truncate mt-0.5 drop-shadow-xs">
-                          {currentScene.titleSecondary.replace(/\n/g, ' ')}
+                      ))}
+                    </h3>
+
+                    {/* INGLESE SOTTO (A capo semantico logico prima dei connettori) */}
+                    <div className="text-[11px] sm:text-xs font-semibold text-white/95 leading-snug drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]">
+                      {currentScene.titleSecondary.split('\n').map((line, idx) => (
+                        <span key={idx} className="block leading-snug">
+                          {line}
                         </span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-xs sm:text-[13px] font-black text-white leading-tight truncate drop-shadow-sm">
-                          {currentScene.lodgingTitle || currentScene.titlePrimary}
+                      ))}
+                    </div>
+
+                    {/* PREZZO PIATTO */}
+                    {currentScene.priceLabel && (
+                      <div className="pt-0.5">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-950/90 border border-amber-500/60 shadow-lg text-white font-mono font-bold text-[10px] whitespace-nowrap">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                          <span>{currentScene.priceLabel}</span>
                         </span>
-                        <span className="text-[10px] sm:text-[11px] font-bold text-emerald-300 leading-tight truncate mt-0.5 drop-shadow-xs">
-                          {currentScene.lodgingSubtitle || currentScene.titleSecondary}
-                        </span>
-                      </>
+                      </div>
                     )}
                   </div>
+                )}
 
-                  {/* Prezzo Piatto / Alloggio */}
-                  {currentScene.priceLabel && (
-                    <span className="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/60 text-amber-300 font-mono font-black text-[11px] sm:text-xs shrink-0 shadow-md">
-                      {currentScene.priceLabel}
-                    </span>
-                  )}
-                </div>
+                {/* Caso ALLOGGI (V1): Categoria, Nome Alloggio, Sottotitolo, Thai */}
+                {brand === 'village' && mode !== 'R1' && (
+                  <div className="space-y-1 w-full">
+                    {currentScene.badgeCategory && (
+                      <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[9px] font-bold tracking-wide shadow-md uppercase">
+                        {currentScene.badgeCategory}
+                      </span>
+                    )}
+
+                    <div className="leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                      <h3 className="text-sm sm:text-base font-black text-white leading-tight">
+                        {currentScene.lodgingTitle || currentScene.titlePrimary}
+                      </h3>
+                      {currentScene.lodgingSubtitle && (
+                        <p className="text-[11px] sm:text-xs font-bold text-amber-300 leading-tight mt-0.5">
+                          {currentScene.lodgingSubtitle}
+                        </p>
+                      )}
+                    </div>
+
+                    <p className="text-[10px] sm:text-[11px] font-semibold text-stone-200/95 leading-snug drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] pt-0.5">
+                      {currentScene.titleSecondary}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
