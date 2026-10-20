@@ -897,7 +897,7 @@ export function AutoCutLabPlayer({
       )}
 
       {/* 📱 1. MASTER SMARTPHONE PLAYER 9:16 (TikTok & Instagram Reels) */}
-      <div className="relative w-full max-w-[340px] h-[580px] sm:h-[620px] bg-black select-none overflow-hidden group rounded-[32px] shadow-2xl border-[4px] border-slate-700">
+      <div className="relative w-full max-w-[340px] aspect-[9/16] bg-black select-none overflow-hidden group rounded-[32px] shadow-2xl border-[4px] border-slate-700">
         {/* Dynamic 9:16 AutoCut Canvas */}
         <canvas
           ref={canvasRef}

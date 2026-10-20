@@ -324,7 +324,7 @@ export function AutoCutLabView() {
         
         {/* 1. COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (spostato a sinistra) */}
         <div className="lg:col-span-4 xl:col-span-3 flex flex-col items-start">
-          <div className="w-full max-w-[320px] mb-2 px-0.5">
+          <div className="w-full max-w-[340px] mb-2 px-0.5">
             <button
               type="button"
               onClick={handleRegenerateCurrent}
@@ -336,7 +336,7 @@ export function AutoCutLabView() {
             </button>
           </div>
 
-          <div className="w-full max-w-[320px] flex flex-col items-center relative">
+          <div className="w-full max-w-[340px] flex flex-col items-center relative">
             <AutoCutLabPlayer
               key={`${activeMode}_${shuffleKey}`}
               testRun={currentTest}
