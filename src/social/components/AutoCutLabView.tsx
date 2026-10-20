@@ -323,18 +323,14 @@ export function AutoCutLabView() {
         
         {/* COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (5 cols) */}
         <div className="lg:col-span-5 flex flex-col items-center">
-          <div className="w-full max-w-[340px] flex items-center justify-between gap-2 mb-2 px-0.5">
-            <span className="text-[11px] font-bold text-slate-300 font-mono flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Video Attivo: <strong className="text-white">{activeMode}</strong></span>
-            </span>
+          <div className="w-full max-w-[340px] mb-2 px-0.5">
             <button
               type="button"
               onClick={handleRegenerateCurrent}
               disabled={isGenerating}
-              className="text-[11px] font-bold px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 flex items-center gap-1.5 transition active:scale-95 disabled:opacity-50"
+              className="w-full text-xs font-bold py-1.5 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-slate-700/80 flex items-center justify-center gap-2 transition active:scale-95 shadow-sm disabled:opacity-50"
             >
-              <RefreshCw className={`w-3 h-3 ${isGenerating ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isGenerating ? 'animate-spin' : ''}`} />
               <span>{isGenerating ? 'Generazione...' : '✨ Genera Nuovo Video'}</span>
             </button>
           </div>
