@@ -3,7 +3,8 @@ import {
   Sparkles, Copy, Check, RefreshCw,
   MapPin, AtSign, Calendar, Share2, Tag,
   ExternalLink, MousePointerClick, MessageSquare,
-  Users, CheckCircle2, Sliders, ShieldCheck
+  Users, CheckCircle2, Sliders, ShieldCheck,
+  Layers, ArrowDown, FileText, Send
 } from 'lucide-react';
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
 import { 
@@ -31,7 +32,6 @@ export function AutoCutPostCopywriter({
 }: AutoCutPostCopywriterProps) {
   const [proverbSeed, setProverbSeed] = useState(0);
   const [copiedType, setCopiedType] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'channel_form' | 'th' | 'en' | 'all'>('channel_form');
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [aiOverride, setAiOverride] = useState<{
     thaiContent?: string;
@@ -137,9 +137,8 @@ export function AutoCutPostCopywriter({
 
   const isPizza = testRun.brand === 'pizza';
 
-  // Didascalie Sartoriali per Ciascun Canale
-  // 1. TikTok: Senza link HTTP grezzi (morti), con invito "Link in Bio" e tag del POI
-  const tailoredTikTokCaption = useMemo(() => {
+  // 1. Didascalia Finale per TikTok
+  const finalTikTokCaption = useMemo(() => {
     const callout = isPizza
       ? `🛵 สั่งอาหาร / จองโต๊ะ: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n📍 พิกัด: ${tiktokPoi}\n${postData.crossTag}`
       : `🌴 จองตรงราคาดีที่สุด: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n📍 พิกัด: ${tiktokPoi}\n${postData.crossTag}`;
@@ -148,8 +147,8 @@ export function AutoCutPostCopywriter({
       : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${callout}`;
   }, [postData, isPizza, tiktokPoi]);
 
-  // 2. Instagram: Reels (visual layout senza link morti) o Stories con Sticker Link
-  const tailoredInstagramCaption = useMemo(() => {
+  // 2. Didascalia Finale per Instagram
+  const finalInstagramCaption = useMemo(() => {
     const callout = igPlacement === 'stories'
       ? `🔗 Link Sticker: ${igStickerText} ➔ ${igStickerUrl}\n${postData.crossTag}`
       : `✨ จิ้มลิงก์หน้าโปรไฟล์เพื่อสั่งเดลิเวอรี่ / Link in Bio to Order\n📍 ${isPizza ? 'Ranong Hotspring' : 'Buffalo Bay, Koh Phayam'}\nCo-Author: ${igCollaborator}\n${postData.crossTag}`;
@@ -158,8 +157,8 @@ export function AutoCutPostCopywriter({
       : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${callout}`;
   }, [postData, isPizza, igPlacement, igStickerText, igStickerUrl, igCollaborator]);
 
-  // 3. Facebook: Con Link Cliccabile HTTP in evidenza + CTA
-  const tailoredFacebookCaption = useMemo(() => {
+  // 3. Didascalia Finale per Facebook
+  const finalFacebookCaption = useMemo(() => {
     const directLinkNotice = isPizza
       ? `👉 สั่งเดลิเวอรี่ออนไลน์ / Order Online Direct:\n🔗 ${fbTargetUrl}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`
       : `👉 จองห้องพักออนไลน์ / Book Your Island Stay:\n🔗 ${fbTargetUrl}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`;
@@ -168,8 +167,8 @@ export function AutoCutPostCopywriter({
       : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${directLinkNotice}`;
   }, [postData, isPizza, fbTargetUrl, fbCheckin]);
 
-  // 4. Google Business: Zero Hashtag (penalizzanti per SEO Maps), testo pulito keyword-rich
-  const tailoredGoogleCaption = useMemo(() => {
+  // 4. Didascalia Finale per Google Business
+  const finalGoogleCaption = useMemo(() => {
     const cleanThai = postData.thaiContent.replace(/#\S+/g, '').trim();
     const cleanEn = postData.englishContent.replace(/#\S+/g, '').trim();
     
@@ -189,7 +188,7 @@ export function AutoCutPostCopywriter({
         'bg-pink-500/10'
       }`} />
 
-      {/* INTESTAZIONE DINAMICA: PILOTATA DAL CANALE SELEZIONATO A DESTRA */}
+      {/* HEADER STUDIO: CANALE ATTIVO & STAGIONALITÀ */}
       <div className="pb-3 border-b border-slate-800/80 relative z-10 space-y-2.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -209,10 +208,7 @@ export function AutoCutPostCopywriter({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-black text-white tracking-tight truncate">
-                  {selectedChannel === 'tiktok' && 'Modulo Dedicato TikTok'}
-                  {selectedChannel === 'google' && 'Modulo Dedicato Google Business'}
-                  {selectedChannel === 'facebook' && 'Modulo Dedicato Facebook'}
-                  {selectedChannel === 'instagram' && 'Modulo Dedicato Instagram'}
+                  Studio Post {selectedChannel === 'tiktok' ? 'TikTok' : selectedChannel === 'google' ? 'Google Business' : selectedChannel === 'facebook' ? 'Facebook' : 'Instagram'}
                 </h3>
                 <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase shrink-0 ${
                   isPizza ? 'bg-rose-500/20 text-rose-300' : 'bg-emerald-500/20 text-emerald-300'
@@ -221,10 +217,7 @@ export function AutoCutPostCopywriter({
                 </span>
               </div>
               <p className="text-[11px] text-slate-400 font-mono truncate">
-                {selectedChannel === 'tiktok' && 'Didascalia senza link morti · POI Geotag · Feed Nei Dintorni'}
-                {selectedChannel === 'google' && 'Local SEO Maps · Zero Hashtag Spam · Tasto CTA & Offerte'}
-                {selectedChannel === 'facebook' && 'Link Cliccabile Diretto · Scheda OpenGraph · Check-in'}
-                {selectedChannel === 'instagram' && 'Reels & Stories · Link Sticker 24h · Tag Collaboratore'}
+                Fase costruttiva a 2 reparti separati ➔ Unione automatica alla pubblicazione
               </p>
             </div>
           </div>
@@ -262,13 +255,83 @@ export function AutoCutPostCopywriter({
         </div>
       </div>
 
-      {/* 🎛️ MODULO CAMPI SARTORIALI DEDICATO PER IL CANALE SELEZIONATO */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* 🏗️ 1. FASE COSTRUTTIVA: I 2 REPARTI LINGUISTICI BEN SEPARATI */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      <div className="space-y-3 relative z-10 text-xs">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <Layers className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Fase Costruttiva: Reparti Linguistici Autonomi</span>
+          </span>
+          <span className="text-[10px] text-indigo-400 font-mono">Bicultural Thai / English</span>
+        </div>
+
+        {/* 🇹🇭 REPARTO 1: THAILANDESE (Indipendente e Dedicato) */}
+        <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 space-y-2 shadow-md">
+          <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🇹🇭</span>
+              <div>
+                <h4 className="text-xs font-black text-amber-300 uppercase tracking-wide">
+                  Reparto Lingua Thailandese
+                </h4>
+                <span className="text-[10px] text-slate-400 font-mono">Particelle amichevoli, proverbio Thai & hashtag</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleCopy(postData.thaiContent, 'th_only')}
+              className="text-[10px] text-slate-300 hover:text-white px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 transition cursor-pointer"
+            >
+              {copiedType === 'th_only' ? '✓ Copiato!' : 'Copia Solo Thai'}
+            </button>
+          </div>
+
+          <p className="text-slate-200 leading-relaxed font-sans whitespace-pre-line text-[11.5px] p-2 bg-slate-900/50 rounded-xl border border-slate-800/80">
+            {postData.thaiContent}
+          </p>
+        </div>
+
+        {/* 🇬🇧 REPARTO 2: INGLESE (Indipendente e Dedicato) */}
+        <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-sky-500/30 space-y-2 shadow-md">
+          <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
+            <div className="flex items-center gap-2">
+              <span className="text-base">🇬🇧</span>
+              <div>
+                <h4 className="text-xs font-black text-sky-300 uppercase tracking-wide">
+                  Reparto Lingua Inglese
+                </h4>
+                <span className="text-[10px] text-slate-400 font-mono">Storytelling internazionale, proverbio EN & callout</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleCopy(postData.englishContent, 'en_only')}
+              className="text-[10px] text-slate-300 hover:text-white px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 transition cursor-pointer"
+            >
+              {copiedType === 'en_only' ? '✓ Copiato!' : 'Copia Solo Inglese'}
+            </button>
+          </div>
+
+          <p className="text-slate-200 leading-relaxed font-sans whitespace-pre-line text-[11.5px] p-2 bg-slate-900/50 rounded-xl border border-slate-800/80">
+            {postData.englishContent}
+          </p>
+        </div>
+
+      </div>
+
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* ⚙️ 2. PARAMETRI SPECIFICI DEL CANALE SELEZIONATO              */}
+      {/* ───────────────────────────────────────────────────────────── */}
       <div className="space-y-3 relative z-10 text-xs">
         
-        {/* A. CONTESTO & CAMPI SPECIFICI PER TIKTOK */}
+        {/* TIKTOK PARAMETERS */}
         {selectedChannel === 'tiktok' && (
-          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-cyan-500/30 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-cyan-500/30 space-y-2.5">
+            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
               <span className="text-[11px] font-bold text-cyan-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <MapPin className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Parametri API & POI TikTok</span>
@@ -276,7 +339,6 @@ export function AutoCutPostCopywriter({
               <span className="text-[10px] text-cyan-400/80 font-mono">Geo Indexing</span>
             </div>
 
-            {/* Scelta POI (Point of Interest) */}
             <div>
               <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">
                 Punto d'Interesse Geotag (POI Fisico):
@@ -284,55 +346,34 @@ export function AutoCutPostCopywriter({
               <select
                 value={tiktokPoi}
                 onChange={e => setTiktokPoi(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400 font-sans"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400 font-sans cursor-pointer"
               >
                 <option value="Flower Power Pizza Ranong">📍 Flower Power Pizza Ranong (Hotspring)</option>
                 <option value="Flower Power Village Koh Phayam">📍 Flower Power Village Koh Phayam (Buffalo Bay)</option>
               </select>
-              <span className="text-[10px] text-slate-500 mt-1 block">
-                • Questo POI aggancia il video alla pagina del luogo di TikTok spingendolo nel feed locale.
-              </span>
             </div>
 
-            {/* Toggles Interazione TikTok */}
             <div className="grid grid-cols-3 gap-2 pt-1 border-t border-slate-800/80 text-[11px]">
               <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={tiktokDuet}
-                  onChange={e => setTiktokDuet(e.target.checked)}
-                  className="accent-cyan-400"
-                />
+                <input type="checkbox" checked={tiktokDuet} onChange={e => setTiktokDuet(e.target.checked)} className="accent-cyan-400" />
                 <span>Duetti ON</span>
               </label>
-
               <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={tiktokStitch}
-                  onChange={e => setTiktokStitch(e.target.checked)}
-                  className="accent-cyan-400"
-                />
+                <input type="checkbox" checked={tiktokStitch} onChange={e => setTiktokStitch(e.target.checked)} className="accent-cyan-400" />
                 <span>Stitch ON</span>
               </label>
-
               <label className="flex items-center gap-1.5 text-slate-300 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={tiktokComment}
-                  onChange={e => setTiktokComment(e.target.checked)}
-                  className="accent-cyan-400"
-                />
+                <input type="checkbox" checked={tiktokComment} onChange={e => setTiktokComment(e.target.checked)} className="accent-cyan-400" />
                 <span>Commenti</span>
               </label>
             </div>
           </div>
         )}
 
-        {/* B. CONTESTO & CAMPI SPECIFICI PER GOOGLE BUSINESS PROFILE */}
+        {/* GOOGLE BUSINESS PARAMETERS */}
         {selectedChannel === 'google' && (
-          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-blue-500/30 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-blue-500/30 space-y-2.5">
+            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
               <span className="text-[11px] font-bold text-blue-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <Tag className="w-3.5 h-3.5 text-blue-400" />
                 <span>Parametri Post Google Business</span>
@@ -355,16 +396,13 @@ export function AutoCutPostCopywriter({
               </div>
             </div>
 
-            {/* Pulsante CTA Ufficiale */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
-                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">
-                  Pulsante Azione (CTA):
-                </label>
+                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Pulsante Azione (CTA):</label>
                 <select
                   value={googleCtaType}
                   onChange={e => setGoogleCtaType(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-400 font-sans"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-400 font-sans cursor-pointer"
                 >
                   <option value="ORDER">ORDINA ORA (Order Online)</option>
                   <option value="BOOK">PRENOTA SUBITO (Book Now)</option>
@@ -374,9 +412,7 @@ export function AutoCutPostCopywriter({
               </div>
 
               <div>
-                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">
-                  URL di Destinazione:
-                </label>
+                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">URL di Destinazione:</label>
                 <input
                   type="text"
                   readOnly
@@ -386,13 +422,8 @@ export function AutoCutPostCopywriter({
               </div>
             </div>
 
-            {/* Dettagli Offerta Speciale */}
             {googlePostType === 'offer' && (
               <div className="p-2.5 bg-amber-950/20 rounded-xl border border-amber-500/30 space-y-2">
-                <div className="flex items-center gap-1.5 text-amber-300 text-[11px] font-bold">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Campi Offerta Promozionale Google Maps</span>
-                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
@@ -411,17 +442,16 @@ export function AutoCutPostCopywriter({
                 </div>
               </div>
             )}
-
             <span className="text-[10px] text-emerald-400/90 block">
-              ✓ Gli hashtag sono stati rimossi automaticamente dal testo (penalizzano il posizionamento locale su Google Maps).
+              ✓ Gli hashtag vengono rimossi automaticamente nell'unione finale (penalizzanti su Maps).
             </span>
           </div>
         )}
 
-        {/* C. CONTESTO & CAMPI SPECIFICI PER FACEBOOK */}
+        {/* FACEBOOK PARAMETERS */}
         {selectedChannel === 'facebook' && (
-          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-blue-600/30 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-blue-600/30 space-y-2.5">
+            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
               <span className="text-[11px] font-bold text-blue-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
                 <span>Link Cliccabile & Check-in Facebook</span>
@@ -431,9 +461,7 @@ export function AutoCutPostCopywriter({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
-                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">
-                  Link Diretto Cliccabile nel Post:
-                </label>
+                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Link Diretto Cliccabile:</label>
                 <input
                   type="text"
                   value={fbTargetUrl}
@@ -443,13 +471,11 @@ export function AutoCutPostCopywriter({
               </div>
 
               <div>
-                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">
-                  Pulsante CTA Pagina:
-                </label>
+                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Pulsante CTA Pagina:</label>
                 <select
                   value={fbCtaType}
                   onChange={e => setFbCtaType(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-400 font-sans"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-400 font-sans cursor-pointer"
                 >
                   <option value="ORDER_NOW">Ordina Subito (Order Now)</option>
                   <option value="BOOK_NOW">Prenota Subito (Book Now)</option>
@@ -460,13 +486,11 @@ export function AutoCutPostCopywriter({
             </div>
 
             <div>
-              <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">
-                Check-in Luogo Ufficiale:
-              </label>
+              <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Check-in Luogo Ufficiale:</label>
               <select
                 value={fbCheckin}
                 onChange={e => setFbCheckin(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-sans"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-sans cursor-pointer"
               >
                 <option value="Flower Power Pizza Ranong">📍 Flower Power Pizza Ranong</option>
                 <option value="Flower Power Village Koh Phayam">📍 Flower Power Village Koh Phayam</option>
@@ -475,10 +499,10 @@ export function AutoCutPostCopywriter({
           </div>
         )}
 
-        {/* D. CONTESTO & CAMPI SPECIFICI PER INSTAGRAM */}
+        {/* INSTAGRAM PARAMETERS */}
         {selectedChannel === 'instagram' && (
-          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-pink-500/30 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-pink-500/30 space-y-2.5">
+            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
               <span className="text-[11px] font-bold text-pink-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <MousePointerClick className="w-3.5 h-3.5 text-pink-400" />
                 <span>Impostazioni Instagram (Reels & Stories)</span>
@@ -503,10 +527,6 @@ export function AutoCutPostCopywriter({
 
             {igPlacement === 'stories' ? (
               <div className="p-2.5 bg-purple-950/20 rounded-xl border border-purple-500/30 space-y-2">
-                <div className="flex items-center gap-1.5 text-purple-300 text-[11px] font-bold">
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Adesivo Link Interattivo (Story Link Sticker)</span>
-                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
                     <label className="text-[10px] text-slate-400 block mb-0.5">Testo Adesivo:</label>
@@ -531,9 +551,7 @@ export function AutoCutPostCopywriter({
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">
-                    Tag Collaboratore (Co-Author):
-                  </label>
+                  <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Tag Collaboratore (Co-Author):</label>
                   <input
                     type="text"
                     value={igCollaborator}
@@ -542,9 +560,7 @@ export function AutoCutPostCopywriter({
                   />
                 </div>
                 <div>
-                  <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">
-                    Geolocalizzazione (Place Tag):
-                  </label>
+                  <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Geolocalizzazione (Place Tag):</label>
                   <input
                     type="text"
                     readOnly
@@ -559,14 +575,57 @@ export function AutoCutPostCopywriter({
 
       </div>
 
-      {/* PULSANTE GRANDE: COPIA SARTORIALE PER IL CANALE SELEZIONATO */}
-      <div className="pt-1">
+      {/* ───────────────────────────────────────────────────────────── */}
+      {/* 🚀 3. FASE DI PUBBLICAZIONE: UNIONE AUTOMATICA FINALE          */}
+      {/* ───────────────────────────────────────────────────────────── */}
+      <div className="pt-2 border-t border-slate-800 space-y-3 relative z-10 text-xs">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+            <Send className="w-3.5 h-3.5" />
+            <span>Fase di Pubblicazione: Unione Automatica Canale</span>
+          </span>
+          <span className="text-[10px] text-slate-400 font-mono">
+            {isPizza ? 'Thai ➔ English ➔ Link/CTA' : 'English ➔ Thai ➔ Link/CTA'}
+          </span>
+        </div>
+
+        {/* ANTEPRIMA DEL TESTO UNIFICATO AL 100% */}
+        <div className="p-3.5 bg-emerald-950/20 rounded-2xl border border-emerald-500/40 space-y-2">
+          <div className="flex items-center justify-between pb-1.5 border-b border-emerald-900/40">
+            <div className="flex items-center gap-1.5 text-emerald-300 font-bold text-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Didascalia Finale per {selectedChannel.toUpperCase()}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const text = selectedChannel === 'tiktok' ? finalTikTokCaption :
+                  selectedChannel === 'google' ? finalGoogleCaption :
+                  selectedChannel === 'facebook' ? finalFacebookCaption :
+                  finalInstagramCaption;
+                handleCopy(text, 'unified_box');
+              }}
+              className="text-[10px] text-emerald-300 hover:text-white px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-700/60 transition cursor-pointer"
+            >
+              {copiedType === 'unified_box' ? '✓ Copiato!' : 'Copia Testo'}
+            </button>
+          </div>
+
+          <p className="text-slate-200 leading-relaxed font-sans whitespace-pre-line text-[11.5px] p-2 bg-slate-950/60 rounded-xl border border-emerald-900/40">
+            {selectedChannel === 'tiktok' && finalTikTokCaption}
+            {selectedChannel === 'google' && finalGoogleCaption}
+            {selectedChannel === 'facebook' && finalFacebookCaption}
+            {selectedChannel === 'instagram' && finalInstagramCaption}
+          </p>
+        </div>
+
+        {/* PULSANTE GRANDE FINALE DI COPIA UNIFICATA */}
         <button
           onClick={() => {
-            if (selectedChannel === 'tiktok') handleCopy(tailoredTikTokCaption, 'tt');
-            if (selectedChannel === 'instagram') handleCopy(tailoredInstagramCaption, 'ig');
-            if (selectedChannel === 'facebook') handleCopy(tailoredFacebookCaption, 'fb');
-            if (selectedChannel === 'google') handleCopy(tailoredGoogleCaption, 'google');
+            if (selectedChannel === 'tiktok') handleCopy(finalTikTokCaption, 'tt_final');
+            if (selectedChannel === 'instagram') handleCopy(finalInstagramCaption, 'ig_final');
+            if (selectedChannel === 'facebook') handleCopy(finalFacebookCaption, 'fb_final');
+            if (selectedChannel === 'google') handleCopy(finalGoogleCaption, 'google_final');
           }}
           className={`w-full flex items-center justify-center gap-2 p-3 rounded-2xl font-black text-xs text-white transition shadow-lg active:scale-[0.98] cursor-pointer ${
             selectedChannel === 'tiktok' ? 'bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 shadow-cyan-950/50' :
@@ -575,99 +634,22 @@ export function AutoCutPostCopywriter({
             'bg-gradient-to-r from-pink-600 via-purple-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 shadow-pink-950/50'
           }`}
         >
-          {copiedType ? (
+          {copiedType && copiedType.endsWith('_final') ? (
             <>
               <Check className="w-4 h-4 text-emerald-300 animate-bounce" />
               <span className="text-emerald-100 uppercase tracking-wide">
-                Copiato per {selectedChannel.toUpperCase()}!
+                Didascalia Finale Unificata Copiata!
               </span>
             </>
           ) : (
             <>
               <Copy className="w-4 h-4" />
               <span>
-                Copia Didascalia Sartoriale per {selectedChannel === 'tiktok' ? 'TikTok' : selectedChannel === 'google' ? 'Google Business' : selectedChannel === 'facebook' ? 'Facebook' : 'Instagram'}
+                Copia Didascalia Unificata per {selectedChannel === 'tiktok' ? 'TikTok' : selectedChannel === 'google' ? 'Google Business' : selectedChannel === 'facebook' ? 'Facebook' : 'Instagram'}
               </span>
             </>
           )}
         </button>
-      </div>
-
-      {/* BARRA TAB DI ISPEZIONE TESTI */}
-      <div className="flex flex-wrap items-center justify-between gap-2 relative z-10 pt-2 border-t border-slate-800/80">
-        <div className="flex flex-wrap items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
-          <button
-            onClick={() => setActiveTab('channel_form')}
-            className={`px-2.5 py-1 rounded-lg font-bold transition ${
-              activeTab === 'channel_form' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            📋 Testo Canale Attivo
-          </button>
-          <button
-            onClick={() => setActiveTab('th')}
-            className={`px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
-              activeTab === 'th' ? 'bg-slate-800 text-amber-300' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            🇹🇭 Solo Thai
-          </button>
-          <button
-            onClick={() => setActiveTab('en')}
-            className={`px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
-              activeTab === 'en' ? 'bg-slate-800 text-sky-300' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            🇬🇧 Solo EN
-          </button>
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`px-2 py-1 rounded-lg font-bold transition flex items-center gap-1 ${
-              activeTab === 'all' ? 'bg-slate-800 text-emerald-300' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Tutto
-          </button>
-        </div>
-
-        <span className="text-[10px] text-slate-400 font-mono">
-          {selectedChannel === 'google' ? '🚫 Zero hashtag (Anti-Spam Maps)' : '✨ Hashtag virali nel testo'}
-        </span>
-      </div>
-
-      {/* ANTEPRIMA DEL TESTO ATTIVO */}
-      <div className="p-3 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-2 relative text-xs">
-        <div className="flex items-center justify-between pb-1.5 border-b border-slate-800/80">
-          <span className="text-[11px] font-black text-amber-300 flex items-center gap-1.5 uppercase tracking-wide">
-            <span>Didascalia Pronta ({selectedChannel.toUpperCase()})</span>
-          </span>
-          <button
-            onClick={() => {
-              const text = selectedChannel === 'tiktok' ? tailoredTikTokCaption :
-                selectedChannel === 'google' ? tailoredGoogleCaption :
-                selectedChannel === 'facebook' ? tailoredFacebookCaption :
-                tailoredInstagramCaption;
-              handleCopy(text, 'current_box');
-            }}
-            className="text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800/80 transition"
-          >
-            {copiedType === 'current_box' ? '✓ Copiato' : 'Copia Testo'}
-          </button>
-        </div>
-
-        <p className="text-slate-200 leading-relaxed font-normal whitespace-pre-line font-sans text-[11.5px]">
-          {activeTab === 'channel_form' && (
-            selectedChannel === 'tiktok' ? tailoredTikTokCaption :
-            selectedChannel === 'google' ? tailoredGoogleCaption :
-            selectedChannel === 'facebook' ? tailoredFacebookCaption :
-            tailoredInstagramCaption
-          )}
-          {activeTab === 'th' && postData.thaiContent}
-          {activeTab === 'en' && postData.englishContent}
-          {activeTab === 'all' && (
-            `${postData.thaiContent}\n\n${postData.englishContent}\n\n${postData.fixedLink}\n\n${postData.crossTag}`
-          )}
-        </p>
       </div>
 
     </div>
