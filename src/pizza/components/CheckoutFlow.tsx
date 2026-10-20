@@ -1542,6 +1542,11 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     try { return localStorage.getItem('fp_pizza_customer_email') || ''; } catch { return ''; }
   });
   const [notes, setNotes] = useState('');
+  const [whatsAppActive, setWhatsAppActive] = useState(false);
+  const [lineActive, setLineActive] = useState(false);
+  const [address, setAddress] = useState('');
+  const [thaiAddress, setThaiAddress] = useState('');
+
   const isSecretBypass = useMemo(() => notes.toLowerCase().includes('powerflowerpizza'), [notes]);
 
   useEffect(() => {
@@ -1552,10 +1557,6 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
       }
     }
   }, [isSecretBypass, distanceKm, maxRadiusKm, address, setSimulatedLocation]);
-  const [whatsAppActive, setWhatsAppActive] = useState(false);
-  const [lineActive, setLineActive] = useState(false);
-  const [address, setAddress] = useState('');
-  const [thaiAddress, setThaiAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'promptpay' | 'card' | 'cash'>('promptpay');
   const [loading, setLoading] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
