@@ -1542,6 +1542,16 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
     try { return localStorage.getItem('fp_pizza_customer_email') || ''; } catch { return ''; }
   });
   const [notes, setNotes] = useState('');
+  const isSecretBypass = useMemo(() => notes.toLowerCase().includes('powerflowerpizza'), [notes]);
+
+  useEffect(() => {
+    if (isSecretBypass && (distanceKm === null || distanceKm > maxRadiusKm)) {
+      setSimulatedLocation();
+      if (!address) {
+        setAddress('Flower Power Pizza Ranong Hot Springs (Staff Secret Bypass)');
+      }
+    }
+  }, [isSecretBypass, distanceKm, maxRadiusKm, address, setSimulatedLocation]);
   const [whatsAppActive, setWhatsAppActive] = useState(false);
   const [lineActive, setLineActive] = useState(false);
   const [address, setAddress] = useState('');
@@ -3073,13 +3083,6 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                   <p className="text-[#8B1E1E] text-[9.5px] leading-relaxed font-semibold">
                     {t.outOfRangeTakeawayNotice}
                   </p>
-                  <button
-                    type="button"
-                    onClick={setSimulatedLocation}
-                    className="text-[8.5px] text-red-800 font-extrabold underline mt-1 block mx-auto cursor-pointer"
-                  >
-                    {t.simLoc}
-                  </button>
                 </div>
               )}
 
@@ -3089,12 +3092,14 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                   <p className="text-[#8B1E1E] text-[9px] leading-relaxed font-bold">
                     {t.outOfRange(distanceKm!, maxRadiusKm)}
                   </p>
-                  <button
-                    onClick={setSimulatedLocation}
-                    className="text-[8px] text-red-800 font-extrabold underline mt-1 block mx-auto cursor-pointer"
-                  >
-                    {t.simLoc}
-                  </button>
+                </div>
+              )}
+
+              {/* Staff Secret Bypass Notice */}
+              {isSecretBypass && (
+                <div className="bg-emerald-500/15 border border-emerald-500/40 text-emerald-900 rounded-xl p-2 text-center text-[9.5px] font-bold animate-fadeIn flex items-center justify-center gap-1.5 shadow-2xs">
+                  <span>🧪</span>
+                  <span>Modalità Test Staff Attiva (Bypass Distanza Abilitato)</span>
                 </div>
               )}
 
@@ -3143,9 +3148,11 @@ export default function CheckoutFlow({ onClose, onSuccess, lang: propLang }: Pro
                   setStep(2);
                 }}
                 disabled={
-                  orderType === 'delivery'
-                    ? (distanceKm === null || outOfRange || !isFormValid || !address)
-                    : (!isFormValid || isBeyond25km)
+                  !isSecretBypass && (
+                    orderType === 'delivery'
+                      ? (distanceKm === null || outOfRange || !isFormValid || !address)
+                      : (!isFormValid || isBeyond25km)
+                  )
                 }
                 className="w-full bg-[#8B1E1E] hover:bg-[#721818] text-white py-2 px-3 rounded-full font-bold transition-all disabled:bg-stone-100 disabled:text-stone-400 disabled:shadow-none shadow-sm hover:shadow-md cursor-pointer duration-200 transform active:scale-95 text-[9px] tracking-wider uppercase flex-shrink-0"
                 style={{ fontFamily: 'Inter, sans-serif' }}
