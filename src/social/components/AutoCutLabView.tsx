@@ -358,19 +358,88 @@ export function AutoCutLabView() {
           />
         </div>
 
-        {/* 3. COLONNA DESTRA: Canale di Distribuzione Stretto con Canali Incolonnati */}
+        {/* 3. COLONNA DESTRA: Canale di Distribuzione Stretto con Canali Incolonnati + STORYBOARD SOTTO IN VERTICALE */}
         <div className="lg:col-span-3 xl:col-span-3 space-y-4">
           <AutoCutDistributionPanel
             testRun={currentTest}
             selectedChannel={selectedChannel}
             onSelectChannel={setSelectedChannel}
           />
+
+          {/* STORYBOARD (ex Diagnostica Live) */}
+          <div className="bg-[#121826] border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl space-y-3.5">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4 text-indigo-400" />
+                <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-tight">
+                  🎬 Storyboard
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-lg">
+                {currentTest.scenes.length} {currentTest.scenes.length === 1 ? 'Foto' : 'Scene'}
+              </span>
+            </div>
+
+            {/* Traccia Audio Casuale & Durata */}
+            <div className="p-3 bg-slate-900/90 rounded-2xl border border-slate-800/90 flex items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/30">
+                  <Music className="w-4 h-4 animate-pulse" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[9px] uppercase font-bold text-indigo-400 tracking-wider block">MP3 Attuale</span>
+                  <span className="text-xs font-bold text-white truncate block">{currentTest.audioTrack.title}</span>
+                </div>
+              </div>
+
+              <span className="px-2 py-0.5 rounded-full bg-slate-800 text-[9px] font-mono font-bold text-amber-300 shrink-0">
+                {currentTest.mode === 'P1' ? 'Beat Outro' : `${currentTest.totalDuration.toFixed(1)}s`}
+              </span>
+            </div>
+
+            {/* Sequenza Live delle Scene dello Storyboard */}
+            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-0.5">
+              {currentTest.scenes.map((scene, idx) => (
+                <div 
+                  key={idx}
+                  className="flex items-center gap-2.5 p-2 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition"
+                >
+                  <span className="w-5 h-5 rounded-md bg-slate-800 text-slate-300 flex items-center justify-center text-[10px] font-bold shrink-0">
+                    {idx + 1}
+                  </span>
+
+                  <div className="w-11 h-11 rounded-lg overflow-hidden bg-slate-950 shrink-0 border border-slate-700">
+                    <img src={scene.imageUrl} alt="" className="w-full h-full object-cover" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1.5">
+                      <h4 className="text-[11px] font-bold text-white truncate">
+                        {scene.titlePrimary.replace(/\n+/g, ' ')}
+                      </h4>
+                      <span className="text-[10px] font-mono text-amber-300 font-bold shrink-0">
+                        {scene.priceLabel}
+                      </span>
+                    </div>
+
+                    <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                      {scene.titleSecondary.replace(/\n+/g, ' ')}
+                    </p>
+
+                    <span className="inline-block px-1.5 py-0.5 rounded bg-indigo-950/60 text-indigo-300 text-[9px] font-mono mt-1 border border-indigo-800/40">
+                      🎬 {scene.trajectory.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
       </div>
 
-      {/* SEZIONE INFERIORE: ARCHIVIO UFFICIALE & DIAGNOSTICA SEQUENZA (ORIZZONTALE A 2 COLONNE) */}
-      <div className="mt-12 pt-8 border-t border-slate-800/80 space-y-6">
+      {/* SEZIONE INFERIORE A TUTTA LARGHEZZA: ARCHIVIO REGOLE UFFICIALI & SPECIFICHE FORMATO */}
+      <div className="mt-12 pt-8 border-t border-slate-800/80 space-y-6 w-full">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
@@ -378,10 +447,10 @@ export function AutoCutLabView() {
             </div>
             <div>
               <h3 className="text-sm sm:text-base font-black text-white tracking-tight uppercase">
-                Archivio Regole Ufficiali & Diagnostica Live
+                Archivio Regole Ufficiali & Specifiche Formato
               </h3>
               <p className="text-xs text-slate-400">
-                Specifiche architetturali, cinematica di camera e sequenza live per il format {activeMode}
+                Specifiche architetturali, cinematica di camera e gerarchia semantica per il format {activeMode}
               </p>
             </div>
           </div>
@@ -399,265 +468,183 @@ export function AutoCutLabView() {
             : 'bg-amber-500/20 text-amber-300 border-amber-500/30';
 
           return (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-              {/* SCHEDA 1: Archivio Regole & Specifiche Ufficiali */}
-              <div className="bg-[#121826] border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden space-y-5">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+            <div className="w-full bg-[#121826] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden space-y-6">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-                {/* Testata della Scheda Regole */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800/80 relative z-10">
-                  <div className="flex items-center gap-3">
-                    <span className={`px-3 py-1 rounded-xl text-xs font-black tracking-wide border uppercase ${badgeBg}`}>
-                      {currentRule.badgeLabel}
-                    </span>
-                    <div>
-                      <h2 className="text-base sm:text-lg font-black text-white tracking-tight">
-                        {currentRule.title}
-                      </h2>
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        {currentRule.subtitle}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-                    <span className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono font-bold text-slate-300 flex items-center gap-1.5">
-                      <Bookmark className="w-3.5 h-3.5 text-indigo-400" />
-                      Archivio Ufficiale
-                    </span>
-                  </div>
-                </div>
-
-                {/* 3 Pillole Specifiche: Target, Formato e Durata */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 relative z-10">
-                  <div className="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center gap-2.5">
-                    <Target className="w-4 h-4 text-rose-400 shrink-0" />
-                    <div className="min-w-0">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Piattaforme</span>
-                      <span className="text-xs font-bold text-white truncate block">{currentRule.targetPlatform}</span>
-                    </div>
-                  </div>
-
-                  <div className="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center gap-2.5">
-                    <Video className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <div className="min-w-0">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Canvas & Aspect</span>
-                      <span className="text-xs font-bold text-white truncate block">{currentRule.aspectRatio}</span>
-                    </div>
-                  </div>
-
-                  <div className="p-3 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center gap-2.5">
-                    <Clock className="w-4 h-4 text-amber-400 shrink-0" />
-                    <div className="min-w-0">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Timing & MP3</span>
-                      <span className="text-xs font-bold text-white truncate block">AutoCut Audio Beat</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Obiettivo Strategico */}
-                <div className="p-3.5 bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-slate-900/50 rounded-2xl border border-indigo-900/50 relative z-10">
-                  <div className="flex items-start gap-2.5">
-                    <Target className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="text-xs font-bold text-indigo-300 block mb-0.5">Obiettivo Strategico & Funzione:</strong>
-                      <p className="text-xs text-slate-200 leading-relaxed">
-                        {currentRule.objective}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sezione Asset & Esclusioni */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
-                  {/* Asset Ammessi */}
-                  <div className="p-4 bg-emerald-950/20 rounded-2xl border border-emerald-900/40 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <h4 className="text-xs font-bold text-emerald-300 uppercase tracking-wider">Asset Ammessi</h4>
-                    </div>
-                    <ul className="space-y-1.5 text-xs text-slate-300">
-                      {currentRule.assetRules.map((rule, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5">
-                          <span className="text-emerald-400 font-bold shrink-0 mt-0.5">•</span>
-                          <span>{rule}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Esclusioni e Filtri */}
-                  <div className="p-4 bg-rose-950/20 rounded-2xl border border-rose-900/40 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Ban className="w-4 h-4 text-rose-400" />
-                      <h4 className="text-xs font-bold text-rose-300 uppercase tracking-wider">Esclusioni Categoriche</h4>
-                    </div>
-                    <ul className="space-y-1.5 text-xs text-slate-300">
-                      {currentRule.exclusions.map((excl, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5">
-                          <span className="text-rose-400 font-bold shrink-0 mt-0.5">•</span>
-                          <span>{excl}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* Gerarchia Tipografica & Semantica */}
-                <div className="p-4 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-2.5 relative z-10">
-                  <div className="flex items-center gap-2">
-                    <Type className="w-4 h-4 text-amber-400" />
-                    <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Gerarchia Tipografica & Semantica</h4>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                    {currentRule.typographyRules.topBanner && (
-                      <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80 sm:col-span-2">
-                        <span className="text-[10px] uppercase font-bold text-amber-400 block mb-0.5">Banner Superiore:</span>
-                        <span className="text-slate-200">{currentRule.typographyRules.topBanner}</span>
-                      </div>
-                    )}
-                    <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Titolo Primario:</span>
-                      <span className="text-slate-200">{currentRule.typographyRules.primaryTitle}</span>
-                    </div>
-                    <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Titolo Secondario:</span>
-                      <span className="text-slate-200">{currentRule.typographyRules.secondaryTitle}</span>
-                    </div>
-                    <div className="p-2.5 bg-slate-950/60 rounded-xl border border-slate-800/80 sm:col-span-2">
-                      <span className="text-[10px] uppercase font-bold text-amber-400 block mb-0.5">Cartellino Prezzo:</span>
-                      <span className="text-slate-200">{currentRule.typographyRules.priceBadge}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Cinematica di Camera & Outro */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
-                  {/* Movimento di Camera */}
-                  <div className="p-4 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Compass className="w-4 h-4 text-indigo-400" />
-                      <h4 className="text-xs font-bold text-indigo-300 uppercase tracking-wider">Cinematica Camera</h4>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {currentRule.cameraMovement}
+              {/* Testata della Scheda Regole */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800/80 relative z-10">
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded-xl text-xs font-black tracking-wide border uppercase ${badgeBg}`}>
+                    {currentRule.badgeLabel}
+                  </span>
+                  <div>
+                    <h2 className="text-base sm:text-xl font-black text-white tracking-tight">
+                      {currentRule.title}
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {currentRule.subtitle}
                     </p>
                   </div>
+                </div>
 
-                  {/* Outro Brand */}
-                  <div className="p-4 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-rose-400" />
-                      <h4 className="text-xs font-bold text-rose-300 uppercase tracking-wider">Outro Brand & CTA</h4>
-                    </div>
-                    <p className="text-[11px] text-slate-400 font-mono">
-                      ⏱️ {currentRule.outroSpec.timing}
-                    </p>
-                    <ul className="space-y-1 text-xs text-slate-300">
-                      {currentRule.outroSpec.elements.map((elem, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5">
-                          <span className="text-rose-400 font-bold shrink-0 mt-0.5">•</span>
-                          <span>{elem}</span>
-                        </li>
-                      ))}
-                    </ul>
+                <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+                  <span className="px-3 py-1 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono font-bold text-slate-300 flex items-center gap-1.5">
+                    <Bookmark className="w-3.5 h-3.5 text-indigo-400" />
+                    Archivio Specifiche Ufficiali
+                  </span>
+                </div>
+              </div>
+
+              {/* Row 1: 3 Pillole Specifiche + Obiettivo Strategico (Griglia a 4 colonne) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative z-10">
+                <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center gap-3">
+                  <Target className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div className="min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Piattaforme</span>
+                    <span className="text-xs font-bold text-white truncate block">{currentRule.targetPlatform}</span>
                   </div>
                 </div>
 
-                {/* Divieti Categorici di Sistema */}
-                <div className="p-4 bg-red-950/30 rounded-2xl border border-red-900/50 space-y-2 relative z-10">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-4 h-4 text-red-400" />
-                    <h4 className="text-xs font-bold text-red-300 uppercase tracking-wider">Divieti Categorici (Zero Tolleranza)</h4>
+                <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center gap-3">
+                  <Video className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <div className="min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Canvas & Aspect</span>
+                    <span className="text-xs font-bold text-white truncate block">{currentRule.aspectRatio}</span>
                   </div>
-                  <ul className="space-y-1 text-xs text-red-200/90">
-                    {currentRule.strictProhibitions.map((prohib, idx) => (
+                </div>
+
+                <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center gap-3">
+                  <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+                  <div className="min-w-0">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Timing & MP3</span>
+                    <span className="text-xs font-bold text-white truncate block">AutoCut Audio Beat</span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 bg-gradient-to-r from-indigo-950/40 via-purple-950/20 to-slate-900/50 rounded-2xl border border-indigo-900/50 flex items-start gap-2.5">
+                  <Target className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <strong className="text-[10px] uppercase font-bold text-indigo-300 block tracking-wider mb-0.5">Obiettivo:</strong>
+                    <p className="text-xs text-slate-200 line-clamp-2">
+                      {currentRule.objective}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: Asset Ammessi & Esclusioni Categoriche (2 Colonne Ampie) */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 relative z-10">
+                {/* Asset Ammessi */}
+                <div className="p-4 bg-emerald-950/20 rounded-2xl border border-emerald-900/40 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <h4 className="text-xs font-bold text-emerald-300 uppercase tracking-wider">Asset Ammessi</h4>
+                  </div>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-slate-300">
+                    {currentRule.assetRules.map((rule, idx) => (
                       <li key={idx} className="flex items-start gap-1.5">
-                        <span className="text-red-400 font-bold shrink-0">⚠️</span>
-                        <span>{prohib}</span>
+                        <span className="text-emerald-400 font-bold shrink-0 mt-0.5">•</span>
+                        <span>{rule}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-              </div>
-
-              {/* SCHEDA 2: DIAGNOSTICA LIVE: Traccia Audio & Sequenza Live Estratta */}
-              <div className="bg-[#121826] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                {/* Esclusioni e Filtri */}
+                <div className="p-4 bg-rose-950/20 rounded-2xl border border-rose-900/40 space-y-2">
                   <div className="flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-indigo-400" />
-                    <h3 className="text-sm font-bold text-white">
-                      Diagnostica Live della Sequenza in Esecuzione
-                    </h3>
+                    <Ban className="w-4 h-4 text-rose-400" />
+                    <h4 className="text-xs font-bold text-rose-300 uppercase tracking-wider">Esclusioni Categoriche</h4>
                   </div>
-                  <span className="text-xs font-mono text-slate-400">
-                    {currentTest.scenes.length} {currentTest.scenes.length === 1 ? 'Foto' : 'Scene'}
-                  </span>
-                </div>
-
-                {/* Traccia Audio Casuale & Durata */}
-                <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/30">
-                      <Music className="w-5 h-5 animate-pulse" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider">MP3 Attuale:</span>
-                        <span className="text-xs font-bold text-white">{currentTest.audioTrack.title}</span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                        {currentTest.mode === 'P1'
-                          ? `Audio Full MP3: ${currentTest.totalDuration.toFixed(1)}s (Piatto: ${currentTest.sceneDuration.toFixed(1)}s · Outro nel Beat: ${(currentTest.totalDuration - currentTest.sceneDuration).toFixed(1)}s)`
-                          : `Audio: ${currentTest.totalDuration.toFixed(1)}s · Outro Brand: +4.0s (Totale Video: ${(currentTest.totalDuration + 4.0).toFixed(1)}s)`}
-                      </p>
-                    </div>
-                  </div>
-
-                  <span className="px-2.5 py-1 rounded-full bg-slate-800 text-[10px] font-mono font-bold text-amber-300 shrink-0">
-                    {currentTest.mode === 'P1' ? '🎵 Beat Outro MP3' : '🎵 Full MP3'}
-                  </span>
-                </div>
-
-                {/* Sequenza Live */}
-                <div className="space-y-2">
-                  {currentTest.scenes.map((scene, idx) => (
-                    <div 
-                      key={idx}
-                      className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 hover:border-slate-700 transition"
-                    >
-                      <span className="w-6 h-6 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-xs font-bold shrink-0">
-                        {idx + 1}
-                      </span>
-
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-950 shrink-0 border border-slate-700">
-                        <img src={scene.imageUrl} alt="" className="w-full h-full object-cover" />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <h4 className="text-xs font-bold text-white truncate">
-                            {scene.titlePrimary.replace(/\n+/g, ' ')}
-                          </h4>
-                          <span className="text-[10px] font-mono text-amber-300 font-bold shrink-0">
-                            {scene.priceLabel}
-                          </span>
-                        </div>
-
-                        <p className="text-[11px] text-slate-400 truncate mt-0.5">
-                          {scene.titleSecondary.replace(/\n+/g, ' ')}
-                        </p>
-
-                        <span className="inline-block px-1.5 py-0.2 rounded bg-indigo-950/60 text-indigo-300 text-[9px] font-mono mt-1 border border-indigo-800/40">
-                          🎬 {scene.trajectory.replace(/_/g, ' ')}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-slate-300">
+                    {currentRule.exclusions.map((excl, idx) => (
+                      <li key={idx} className="flex items-start gap-1.5">
+                        <span className="text-rose-400 font-bold shrink-0 mt-0.5">•</span>
+                        <span>{excl}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
+
+              {/* Row 3: Gerarchia Tipografica & Semantica (Orizzontale a 4 Colonne) */}
+              <div className="p-4 sm:p-5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-3 relative z-10">
+                <div className="flex items-center gap-2">
+                  <Type className="w-4 h-4 text-amber-400" />
+                  <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider">Gerarchia Tipografica & Semantica Orizzontale</h4>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  {currentRule.typographyRules.topBanner && (
+                    <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800/80">
+                      <span className="text-[10px] uppercase font-bold text-amber-400 block mb-1">Banner Superiore:</span>
+                      <span className="text-slate-200 font-medium">{currentRule.typographyRules.topBanner}</span>
+                    </div>
+                  )}
+                  <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800/80">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Titolo Primario (Thai):</span>
+                    <span className="text-slate-200 font-medium">{currentRule.typographyRules.primaryTitle}</span>
+                  </div>
+                  <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800/80">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Titolo Secondario (Inglese):</span>
+                    <span className="text-slate-200 font-medium">{currentRule.typographyRules.secondaryTitle}</span>
+                  </div>
+                  <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800/80">
+                    <span className="text-[10px] uppercase font-bold text-amber-400 block mb-1">Cartellino Prezzo (Badge):</span>
+                    <span className="text-slate-200 font-medium">{currentRule.typographyRules.priceBadge}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 4: Cinematica di Camera & Outro Brand (2 Colonne) */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 relative z-10">
+                <div className="p-4 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Compass className="w-4 h-4 text-indigo-400" />
+                    <h4 className="text-xs font-bold text-indigo-300 uppercase tracking-wider">Cinematica Camera</h4>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {currentRule.cameraMovement}
+                  </p>
+                </div>
+
+                <div className="p-4 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-rose-400" />
+                      <h4 className="text-xs font-bold text-rose-300 uppercase tracking-wider">Outro Brand & CTA</h4>
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      ⏱️ {currentRule.outroSpec.timing}
+                    </span>
+                  </div>
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-slate-300">
+                    {currentRule.outroSpec.elements.map((elem, idx) => (
+                      <li key={idx} className="flex items-start gap-1.5">
+                        <span className="text-rose-400 font-bold shrink-0 mt-0.5">•</span>
+                        <span>{elem}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Row 5: Divieti Categorici di Sistema (Orizzontale Pieno) */}
+              <div className="p-4 sm:p-5 bg-red-950/30 rounded-2xl border border-red-900/50 space-y-2 relative z-10">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-red-400" />
+                  <h4 className="text-xs font-bold text-red-300 uppercase tracking-wider">Divieti Categorici (Zero Tolleranza)</h4>
+                </div>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs text-red-200/90 pt-1">
+                  {currentRule.strictProhibitions.map((prohib, idx) => (
+                    <li key={idx} className="flex items-start gap-1.5 bg-red-950/40 p-2 rounded-xl border border-red-900/30">
+                      <span className="text-red-400 font-bold shrink-0">⚠️</span>
+                      <span>{prohib}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
             </div>
           );
         })()}

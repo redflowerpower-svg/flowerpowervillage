@@ -12,12 +12,16 @@
  *   • Official Production (flowerpowerpizza.com / flowerpowervillage.com): Official clean badge
  */
 
-type SectionType = 'public' | 'admin_pizza' | 'admin_village' | 'admin_gateway' | 'kitchen';
+type SectionType = 'public' | 'admin_pizza' | 'admin_village' | 'admin_gateway' | 'kitchen' | 'social';
 
 export function getActiveSection(): SectionType {
   if (typeof window === 'undefined') return 'public';
   const path = window.location.pathname.toLowerCase();
   const search = window.location.search.toLowerCase();
+
+  if (path.startsWith('/social') || path.startsWith('/autocut')) {
+    return 'social';
+  }
 
   if (path.startsWith('/kitchen')) {
     return 'kitchen';
@@ -183,7 +187,33 @@ export function applyEnvironmentFavicon(): void {
     return;
   }
 
-  // Section 5: PUBLIC SITE (Flower Power Emblem)
+  // Section 5: SOCIAL STUDIO ("SOCIAL")
+  if (section === 'social') {
+    drawRingAndSet(() => {
+      // Dark Slate/Purple background
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
+      ctx.fillStyle = '#181126';
+      ctx.fill();
+
+      // Top line: "SOCIAL" in vibrant fuchsia/pink
+      ctx.fillStyle = '#f472b6';
+      ctx.font = 'bold 10px Outfit, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('SOCIAL', size / 2, 24);
+
+      // Bottom line: "FP" in crisp white
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 21px Outfit, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('FP', size / 2, 44);
+    });
+    return;
+  }
+
+  // Section 6: PUBLIC SITE (Flower Power Emblem)
   const img = new Image();
   img.crossOrigin = 'anonymous';
   img.src = '/flower-power-pizza-emblem.png';
