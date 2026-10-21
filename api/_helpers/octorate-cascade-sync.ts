@@ -2,6 +2,7 @@
  * ⚡ Motore Serverless Permanente: Sconti a Cascata Last-Minute (3 Stadi Sequenziali)
  * Sincronizzazione automatica 24/7 su Octorate PMS (Regola d'Oro: Sempre e solo Livello 0).
  */
+import { formatDateDMY, formatAllDatesToDMY } from "./date-formatter.js";
 
 export interface CascadeRoomConfig {
   motherId: number;
@@ -73,12 +74,13 @@ async function sendTelegramAlert(supabase: any, message: string): Promise<void> 
       return;
     }
 
+    const cleanMessage = formatAllDatesToDMY(message);
     await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         chat_id: chatId,
-        text: message,
+        text: cleanMessage,
         parse_mode: 'HTML',
         disable_web_page_preview: true
       })
@@ -211,7 +213,7 @@ export async function checkAndSyncCascadeLastMinute(
     if (supabaseAdmin) {
       const endWindowStr = addDaysToDate(todayStr, 6);
       const alertMsg = `⚡ <b>[Cascade Last-Minute Auto-Roll]</b>\n` +
-        `📅 Finestra Sconti Aggiornata: <code>${todayStr}</code> ➔ <code>${endWindowStr}</code>\n` +
+        `📅 Finestra Sconti Aggiornata: <code>${formatDateDMY(todayStr)}</code> ➔ <code>${formatDateDMY(endWindowStr)}</code>\n` +
         `🏨 Applicati sconti a cascata su <b>${CASCADE_MOTHER_ROOMS.length} Alloggi</b> (Livello 0):\n` +
         `• Gg 0-2 (3 gg): <b>-10.0%</b>\n` +
         `• Gg 3-4 (2 gg): <b>-5.0%</b>\n` +

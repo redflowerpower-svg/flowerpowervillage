@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { sendDepartmentTelegramMessage } from './telegram.js';
+import { formatDateDMY } from './date-formatter.js';
 
 /**
  * Identifica se una prenotazione Octorate è DIRETTA:
@@ -186,11 +187,11 @@ export function generateCancellationEmailHTML(params: {
                 </tr>
                 <tr>
                   <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">${t.checkIn}</td>
-                  <td align="right" style="padding: 6px 0; font-size: 13px; color: #10b981; font-weight: bold;">${checkIn}</td>
+                  <td align="right" style="padding: 6px 0; font-size: 13px; color: #10b981; font-weight: bold;">${formatDateDMY(checkIn)}</td>
                 </tr>
                 <tr>
                   <td style="padding: 6px 0; font-size: 12px; color: #a8a29e; text-transform: uppercase; font-weight: bold;">${t.checkOut}</td>
-                  <td align="right" style="padding: 6px 0; font-size: 13px; color: #10b981; font-weight: bold;">${checkOut}</td>
+                  <td align="right" style="padding: 6px 0; font-size: 13px; color: #10b981; font-weight: bold;">${formatDateDMY(checkOut)}</td>
                 </tr>
               </table>
 
@@ -252,7 +253,7 @@ export async function handleDirectReservationCancellation(booking: any): Promise
       `Prenotazione: <b>#${booking.id}</b>\n` +
       `Canale: <b>${booking.channelName || 'OTA'}</b>\n` +
       `Ospite: <b>${booking.guestName || booking.firstName + ' ' + booking.lastName || 'N/D'}</b>\n` +
-      `Date: <code>${(booking.checkin || '').slice(0, 10)} ➔ ${(booking.checkout || '').slice(0, 10)}</code>\n` +
+      `Date: <code>${formatDateDMY(booking.checkin)} ➔ ${formatDateDMY(booking.checkout)}</code>\n` +
       `🔒 <i>Nessuna email cliente inviata dal sito (gestita direttamente da ${booking.channelName || 'OTA'}).</i>`;
     
     sendDepartmentTelegramMessage('village', otaAlertMsg, { topic: 'MODIFICATIONS_CANCELLATIONS' }).catch(() => {});
@@ -324,7 +325,7 @@ export async function handleDirectReservationCancellation(booking: any): Promise
       `Ospite: <b>${guestName}</b>\n` +
       `Alloggio: <b>${roomName}</b>\n` +
       `Lingua ospite: <b>${guestLang}</b>\n` +
-      `Date: <code>${checkIn} ➔ ${checkOut}</code>\n` +
+      `Date: <code>${formatDateDMY(checkIn)} ➔ ${formatDateDMY(checkOut)}</code>\n` +
       (emailSent 
         ? `📧 <b>Email cliente inviata con successo a:</b> <code>${guestEmail}</code>` 
         : `⚠️ <b>Email non inviata:</b> ${guestEmail ? 'Errore SMTP' : 'Email non presente'}`);

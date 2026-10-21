@@ -5,6 +5,7 @@ import { checkAndSyncCascadeLastMinute } from "../_helpers/octorate-cascade-sync
 import { handleDirectReservationCancellation } from "../_helpers/cancellation-email.js";
 import { checkAndNotifyOverbookings } from "../_helpers/overbooking-detector.js";
 import { sendDepartmentTelegramMessage } from "../_helpers/telegram.js";
+import { formatDateDMY } from "../_helpers/date-formatter.js";
 import { runResortSentinelAudit } from "./resort-sentinel.js";
 
 function getSupabaseAdmin() {
@@ -758,7 +759,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                       `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
                       `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
                       `🌐 <b>Canale:</b> ${channelName}\n` +
-                      `📅 <b>Periodo Annullato:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
+                      `📅 <b>Periodo Annullato:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
                       `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
                       `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
                   } else if (isModified) {
@@ -767,7 +768,7 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                       `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
                       `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
                       `🌐 <b>Canale:</b> ${channelName}\n` +
-                      `📅 <b>Nuovo Periodo:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
+                      `📅 <b>Nuovo Periodo:</b> <code>${formatDateDMY(rawIn)} ➔ ${formatDateDMY(rawOut)}</code> (<b>${stayNights} notti</b>)\n` +
                       `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
                       `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
                   } else {
@@ -776,8 +777,8 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                       `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
                       `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
                       `🌐 <b>Canale:</b> ${channelName}\n` +
-                      `📅 <b>Check-in:</b> <code>${rawIn}</code>\n` +
-                      `🛫 <b>Check-out:</b> <code>${rawOut}</code>\n` +
+                      `📅 <b>Check-in:</b> <code>${formatDateDMY(rawIn)}</code>\n` +
+                      `🛫 <b>Check-out:</b> <code>${formatDateDMY(rawOut)}</code>\n` +
                       `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
                       `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
                       `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;

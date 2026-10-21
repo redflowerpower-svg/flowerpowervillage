@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { uploadFileToGoogleDrive } from "../_helpers/google-drive.js";
+import { formatAllDatesToDMY } from "../_helpers/date-formatter.js";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -50,7 +51,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
         body: JSON.stringify({
           chat_id,
           message_thread_id,
-          text,
+          text: formatAllDatesToDMY(text),
           parse_mode: "HTML",
           disable_web_page_preview: false,
           reply_markup

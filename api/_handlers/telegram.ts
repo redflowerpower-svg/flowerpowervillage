@@ -4,7 +4,8 @@ import {
   getTelegramCredentials,
   updateTelegramCredentials,
   buildContactLines,
-  getSupabaseClient
+  getSupabaseClient,
+  formatAllDatesToDMY
 } from "../_helpers/telegram.js";
 import {
   sendPizzaOrderEmail,
@@ -133,7 +134,7 @@ export async function handleTelegramNotify(req: VercelRequest, res: VercelRespon
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
-        text: messageText,
+        text: formatAllDatesToDMY(messageText),
         parse_mode: "HTML",
         reply_markup: inlineKeyboard,
         disable_web_page_preview: false

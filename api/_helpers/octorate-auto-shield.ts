@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { sendDepartmentTelegramMessage } from "./telegram.js";
+import { formatDateDMY } from "./date-formatter.js";
 
 /**
  * Mappatura completa e autoritativa dei Rate ID derivati da chiudere TASSATIVAMENTE (Stop Sell forzato)
@@ -259,7 +260,7 @@ export async function executeAutoShieldForReservation(params: {
               `Prenotazione: <b>#${reservationId}</b> (${channelName || 'OTA'})\n` +
               `Ospite: <b>${guestName || 'N/D'}</b>\n` +
               `Alloggio: <b>${roomName || accKey || 'N/D'}</b>\n` +
-              `Date: <code>${cleanCheckIn}</code> ➔ <code>${cleanCheckOut}</code>\n` +
+              `Date: <code>${formatDateDMY(cleanCheckIn)}</code> ➔ <code>${formatDateDMY(cleanCheckOut)}</code>\n` +
               `🔒 Sigillate <b>${rateIdsToClose.length} tariffe derivate</b> in Stop Sell preventivo contro overbooking.`;
             
             await sendAutoShieldTelegramAlert(supabaseAdmin, alertMsg);
