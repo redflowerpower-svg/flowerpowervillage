@@ -18,6 +18,7 @@ import {
   FacebookLogo, 
   InstagramLogo 
 } from './AutoCutDistributionPanel';
+import { getLiveWeather, WeatherConditionSummary } from '../services/ranongWeatherService';
 
 interface AutoCutPostCopywriterProps {
   testRun: AutoCutTestRun;
@@ -33,6 +34,7 @@ export function AutoCutPostCopywriter({
   const [proverbSeed, setProverbSeed] = useState(0);
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [liveWeather, setLiveWeather] = useState<WeatherConditionSummary | null>(null);
   const [aiOverride, setAiOverride] = useState<{
     thaiContent?: string;
     englishContent?: string;
@@ -80,6 +82,17 @@ export function AutoCutPostCopywriter({
     setGoogleOfferTitle(isP ? 'Sconto Benvenuto 10% Primo Ordine' : '10% Privilegio Prenotazione Diretta');
   }, [testRun.brand, testRun.mode]);
 
+  // Carica meteo live reale di Ranong / Koh Phayam
+  React.useEffect(() => {
+    let isMounted = true;
+    getLiveWeather(testRun.brand === 'pizza' ? 'Ranong' : 'Koh Phayam')
+      .then(w => {
+        if (isMounted) setLiveWeather(w);
+      })
+      .catch(console.warn);
+    return () => { isMounted = false; };
+  }, [testRun.brand]);
+
   // Genera i testi base a 0ms (con layout arioso, particelle e hashtag del piatto)
   const basePostData: PostCopyResult = useMemo(() => {
     return generatePostCopy(testRun, proverbSeed);
@@ -110,7 +123,7 @@ export function AutoCutPostCopywriter({
     };
   }, [basePostData, aiOverride, testRun.brand]);
 
-  // Generazione Live con DeepSeek AI
+  // Generazione Live con DeepSeek AI (contestuale a meteo, ingredienti e tradizione)
   const handleGenerateDeepSeekAi = async () => {
     setIsGeneratingAi(true);
     try {
@@ -120,6 +133,13 @@ export function AutoCutPostCopywriter({
           .replace(/\s{2,}/g, ' ')
           .trim()
       ).filter(Boolean);
+
+      const dishDetails = testRun.scenes.map(s => ({
+        name: (s.sourceName || s.titlePrimary || '').replace(/[\r\n]+/g, ' ').trim(),
+        nameTh: (s.titleSecondary || '').replace(/[\r\n]+/g, ' ').trim(),
+        description: s.badgeCategory || ''
+      }));
+
       const res = await fetch('/api/social-publisher?action=generate_ai_post_copy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -127,7 +147,9 @@ export function AutoCutPostCopywriter({
           brand: testRun.brand,
           mode: testRun.mode,
           dishes,
-          season: basePostData.seasonContext
+          dishDetails,
+          season: basePostData.seasonContext,
+          weather: liveWeather
         })
       });
 
@@ -155,14 +177,16 @@ export function AutoCutPostCopywriter({
 
   const isPizza = testRun.brand === 'pizza';
 
-  // 1. Didascalia Finale per TikTok
+  // 1. Didascalia Finale per TikTok (Clean domain + Link in Bio)
   const finalTikTokCaption = useMemo(() => {
     const mapsLink = isPizza
       ? 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'
       : 'https://maps.app.goo.gl/mugY88Wpuzjeebf56';
+    const siteUrl = isPizza ? 'www.flowerpowerpizza.com' : 'www.flowerpowervillage.com';
+    const discount = isPizza ? ' (ลด 10% ออร์เดอร์แรก)' : '';
     const callout = isPizza
-      ? `🛵 สั่งอาหาร / จองโต๊ะ: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n📍 พิกัด (GPS): ${mapsLink}\n${postData.crossTag}`
-      : `🌴 จองตรงราคาดีที่สุด: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n📍 พิกัด (GPS): ${mapsLink}\n${postData.crossTag}`;
+      ? `🛵 สั่งอาหาร / จองโต๊ะ: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n🌐 ${siteUrl}${discount}\n📍 พิกัด (GPS): ${mapsLink}\n${postData.crossTag}`
+      : `🌴 จองตรงราคาดีที่สุด: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n🌐 ${siteUrl}\n📍 พิกัด (GPS): ${mapsLink}\n${postData.crossTag}`;
     return isPizza
       ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${callout}`
       : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${callout}`;
@@ -170,36 +194,40 @@ export function AutoCutPostCopywriter({
 
   // 2. Didascalia Finale per Instagram
   const finalInstagramCaption = useMemo(() => {
+    const siteUrl = isPizza ? 'www.flowerpowerpizza.com' : 'www.flowerpowervillage.com';
     const callout = igPlacement === 'stories'
-      ? `🔗 Link Sticker: ${igStickerText} ➔ ${igStickerUrl}\n${postData.crossTag}`
-      : `✨ จิ้มลิงก์หน้าโปรไฟล์เพื่อสั่งเดลิเวอรี่ / Link in Bio to Order\n📍 ${isPizza ? 'Ranong Hotspring' : 'Buffalo Bay, Koh Phayam'}\nCo-Author: ${igCollaborator}\n${postData.crossTag}`;
+      ? `🔗 Link Sticker: ${igStickerText} ➔ ${igStickerUrl}\n🌐 ${siteUrl}\n${postData.crossTag}`
+      : `✨ จิ้มลิงก์หน้าโปรไฟล์เพื่อสั่งเดลิเวอรี่ / Link in Bio to Order 👆\n🌐 ${siteUrl} (${isPizza ? '10% Off 1st Order' : 'Best Rate Direct'})\n📍 ${isPizza ? 'Ranong Hotspring' : 'Buffalo Bay, Koh Phayam'}\nCo-Author: ${igCollaborator}\n${postData.crossTag}`;
     return isPizza
       ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${callout}`
       : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${callout}`;
   }, [postData, isPizza, igPlacement, igStickerText, igStickerUrl, igCollaborator]);
 
-  // 3. Didascalia Finale per Facebook
+  // 3. Didascalia Finale per Facebook (Link 100% cliccabile)
   const finalFacebookCaption = useMemo(() => {
     const mapsLink = isPizza
       ? 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'
       : 'https://maps.app.goo.gl/mugY88Wpuzjeebf56';
+    const siteUrl = isPizza ? 'https://www.flowerpowerpizza.com' : 'https://www.flowerpowervillage.com';
     const directLinkNotice = isPizza
-      ? `👉 สั่งเดลิเวอรี่ออนไลน์ / Order Online Direct:\n🔗 ${fbTargetUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`
-      : `👉 จองห้องพักออนไลน์ / Book Your Island Stay:\n🔗 ${fbTargetUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`;
+      ? `👉 สั่งเดลิเวอรี่ออนไลน์ / Order Online Direct (10% Off):\n🔗 ${siteUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`
+      : `👉 จองห้องพักออนไลน์ / Book Your Island Stay Direct:\n🔗 ${siteUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`;
     return isPizza
       ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${directLinkNotice}`
       : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${directLinkNotice}`;
   }, [postData, isPizza, fbTargetUrl, fbCheckin]);
 
-  // 4. Didascalia Finale per Google Business
+  // 4. Didascalia Finale per Google Business Profile (SEO Locale + Bottone)
   const finalGoogleCaption = useMemo(() => {
     const cleanThai = postData.thaiContent.replace(/#\S+/g, '').trim();
     const cleanEn = postData.englishContent.replace(/#\S+/g, '').trim();
+    const siteUrl = isPizza ? 'www.flowerpowerpizza.com' : 'www.flowerpowervillage.com';
+    const fullSiteUrl = isPizza ? 'https://flowerpowerpizza.com' : 'https://flowerpowervillage.com';
     
     if (googlePostType === 'offer') {
-      return `🎁 ${googleOfferTitle.toUpperCase()}\n\n${cleanThai}\n\n${cleanEn}\n\n🏷️ Codice Coupon: ${googleCoupon}\n📌 Pulsante Azione: [${googleCtaType}] ➔ ${isPizza ? 'https://flowerpowerpizza.com' : 'https://flowerpowervillage.com'}`;
+      return `🎁 ${googleOfferTitle.toUpperCase()}\n\n${cleanThai}\n\n${cleanEn}\n\n🌐 ${siteUrl}\n🏷️ Codice Coupon: ${googleCoupon}\n📌 Pulsante Azione: [${googleCtaType}] ➔ ${fullSiteUrl}`;
     }
-    return `${cleanThai}\n\n${cleanEn}\n\n📌 Pulsante Azione: [${googleCtaType}] ➔ ${isPizza ? 'https://flowerpowerpizza.com' : 'https://flowerpowervillage.com'}`;
+    return `${cleanThai}\n\n${cleanEn}\n\n🌐 ${siteUrl} · ${isPizza ? 'Ranong Delivery' : 'Koh Phayam Resort'}\n📌 Pulsante Azione: [${googleCtaType}] ➔ ${fullSiteUrl}`;
   }, [postData, googlePostType, googleOfferTitle, googleCoupon, googleCtaType, isPizza]);
 
   return (
@@ -246,11 +274,35 @@ export function AutoCutPostCopywriter({
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-[10px] text-slate-300 font-medium shrink-0">
-            <Calendar className="w-3 h-3 text-indigo-400 shrink-0" />
-            <span className="truncate max-w-[110px] sm:max-w-none">
-              {postData.seasonContext.split(':')[0] || 'Green Season'}
-            </span>
+          <div className="flex items-center gap-2 shrink-0">
+            {/* 🌦️ Live Weather Badge (Ranong / Koh Phayam) */}
+            {liveWeather && (
+              <div 
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-bold shrink-0 transition-colors ${
+                  liveWeather.isRaining 
+                    ? 'bg-blue-950/80 border-blue-500/60 text-blue-200 shadow-sm shadow-blue-950/50' 
+                    : liveWeather.isNight
+                    ? 'bg-purple-950/80 border-purple-500/50 text-purple-200'
+                    : 'bg-amber-950/80 border-amber-500/50 text-amber-200'
+                }`}
+                title={`Meteo Live: ${liveWeather.sensoryAngle}`}
+              >
+                <span className="text-xs">{liveWeather.isRaining ? '🌧️' : liveWeather.isNight ? '🌙' : '☀️'}</span>
+                <span>{liveWeather.city} {liveWeather.tempC}°C</span>
+                {liveWeather.isRaining && (
+                  <span className="px-1 py-0.2 rounded-xs bg-rose-600 text-[8px] font-black text-white animate-pulse">
+                    RAIN
+                  </span>
+                )}
+              </div>
+            )}
+
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-[10px] text-slate-300 font-medium shrink-0">
+              <Calendar className="w-3 h-3 text-indigo-400 shrink-0" />
+              <span className="truncate max-w-[110px] sm:max-w-none">
+                {postData.seasonContext.split(':')[0] || 'Green Season'}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -271,10 +323,10 @@ export function AutoCutPostCopywriter({
             onClick={handleGenerateDeepSeekAi}
             disabled={isGeneratingAi}
             className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-xs font-bold text-white shadow-lg shadow-purple-950/40 transition disabled:opacity-50 active:scale-95 cursor-pointer"
-            title="Lancia il prompt personalizzato direttamente dentro DeepSeek AI"
+            title="Genera testo unico e ad effetto con DeepSeek AI, tarato su meteo, piatto e tradizione"
           >
             <Sparkles className={`w-3.5 h-3.5 text-amber-300 fill-amber-300 shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-            <span className="truncate">{isGeneratingAi ? 'Generazione...' : '✨ DeepSeek AI Live'}</span>
+            <span className="truncate">{isGeneratingAi ? 'Generazione DeepSeek...' : '✨ DeepSeek AI · Micro-Copy'}</span>
           </button>
         </div>
       </div>

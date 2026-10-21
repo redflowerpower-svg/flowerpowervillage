@@ -31,41 +31,75 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
         brand = 'pizza',
         mode = 'P1',
         dishes = [],
-        season = ''
+        dishDetails = [],
+        season = '',
+        weather = null
       } = body;
 
       const isPizza = brand === 'pizza';
+      const city = isPizza ? 'Ranong' : 'Koh Phayam';
+      const weatherText = weather 
+        ? `${weather.labelIt || weather.labelEn || 'Clima tropicale'} (${weather.isRaining ? 'STA PIOVENDO A ' + city.toUpperCase() : 'Cielo sereno'}). Spunto sensoriale: ${weather.sensoryAngle || 'Atmosfera conviviale.'}`
+        : 'Clima tropicale a Ranong';
+
+      const dishListText = dishDetails && dishDetails.length > 0
+        ? dishDetails.map((d: any) => `- ${d.name} (${d.nameTh}): ${d.description || 'Autentica ricetta artigianale'}`).join('\n')
+        : dishes.map((d: string) => `- ${d}`).join('\n');
+
       const prompt = isPizza
-        ? `Sei un esperto di social media marketing e traduttore creativo per Flower Power Pizza a Ranong, Thailandia.
-Genera un post social multilingue e virale seguendo rigorosamente queste istruzioni:
-- Piatti mostrati nel filmato: ${dishes.join(', ')}
-- Stagione/Meteo: ${season}
-- STILE: TASSATIVAMENTE NON FARE MONOBLOCCHI! Usa interlinee doppie e a capo frequenti per una lettura ariosa, ritmata ed accattivante.
-- REGOLA NOMI PIATTI: Nel testo del post il nome del piatto NON DEVE MAI andare a capo! È una locuzione unica continua su una sola riga (es. Homemade ravioli with Ligurian walnut sauce).
-- THAI 🇹🇭: Al maschile con particelle simpatiche e vive (es. ครับ, เลยครับ, ฟินสุดๆ, พาความอร่อยมารายงานตัวครับ), emoticon creative, proverbio thailandese geniale pertinente al tema, chiusura con invito a ordinare su www.flowerpowerpizza.com con sconto 10% prima prenotazione. Includi DIRETTAMENTE nel testo thai 4-5 hashtag virali thai (es. #FlowerPowerPizza, hashtag del piatto, #ของกินระนอง, #อร่อยบอกต่อ, #ระนอง).
-- INGLESE 🇬🇧: Linguaggio giovanile, fresco, accattivante ma umile, a capo ariosi, proverbio a tema senza apici "", chiusura con 10% sconto. Includi DIRETTAMENTE nel testo 4-5 hashtag inglesi virali (es. #FlowerPowerPizza, hashtag piatto, #RanongFoodie, #ThailandEats).
-- LINK & TAG: Link fisso Google Maps Ranong Hotspring e tag @flowerpowerphayam.
+        ? `Sei il copywriter ufficiale di Flower Power Pizza a Ranong, Thailandia (pizzeria & ristorante italiano artigianale).
+Scrivi un micro-post social biculturale (Thai + Inglese) ad alto impatto per promuovere la nostra autentica pizza tradizionale e cucina italiana.
+
+CONTESTO ATTUALE:
+- Piatti protagonisti:
+${dishListText}
+- METEO LIVE A RANONG IN QUESTO MOMENTO: ${weatherText}
+- Stagione: ${season || 'Alta stagione / Clima tropicale'}
+- Sito ufficiale: www.flowerpowerpizza.com (10% sconto prima ordinazione online, consegna a domicilio veloce a Ranong o al tavolo)
+
+MISSIONE E REGOLE FERREE:
+1. NON FARE UN PAPIRO! MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Testo arioso, interlinee frequenti, zero muri di parole, ritmo dinamico leggibile in 3 secondi.
+2. IL GANCIO DEL GIORNO (Cogli il particolare giusto): Crea un contrasto vivido e sensoriale tra il meteo reale di oggi a Ranong (es. pioggia battente = profumo del forno a legna, comfort food caldo, consegna asciutta e fumante sul divano; sole/sera = croccantezza dorata, ingredienti freschi, cena rilassante all'aperto) e l'anima artigianale del piatto (lievitazione lenta 48 ore, pomodoro italiano, fiordilatte, salsa di noci liguri fatta in casa, pasta fresca).
+3. MARCHIO DI FABBRICA: "IL PROVERBIO DEL GIORNO": Inserisci SEMPRE come firma distintiva un proverbio geniale e calzante sulla vita, il buon cibo, la pioggia o la convivialità (sempre DIVERSO, originale, mai scontato o ripetuto), sia in Thai che in Inglese:
+   - In Thai: 📜 สุภาษิตประจำวัน: "..."
+   - In Inglese: 📜 Proverb of the Day: "..."
+4. REGOLA NOMI PIATTI: Il nome del piatto NON DEVE MAI andare a capo a metà! È una locuzione unica continua su singola riga.
+5. CHIUSURA: Invito veloce a ordinare su www.flowerpowerpizza.com (10% sconto).
+6. HASHTAG: Inserisci DIRETTAMENTE 4-5 hashtag virali e mirati (es. #FlowerPowerPizza #RanongFood #ของกินระนอง #อร่อยบอกต่อ #ระนอง).
 
 Rispondi SOLO con un JSON valido con questa struttura esatta:
 {
   "thaiContent": "...",
-  "englishContent": "..."
-}
-`
-        : `Sei un esperto di social media marketing e traduttore creativo per Flower Power Village a Koh Phayam, Thailandia.
-Genera un post social multilingue e virale seguendo rigorosamente queste istruzioni:
-- Alloggi mostrati nel filmato: ${dishes.join(', ')}
-- Stagione: ${season}
-- STILE: TASSATIVAMENTE NON FARE MONOBLOCCHI! Usa interlinee doppie e a capo frequenti per una lettura ariosa.
-- REGOLA NOMI ALLOGGI: Nel testo del post il nome dell'alloggio NON DEVE MAI andare a capo! È una locuzione unica continua su una sola riga.
-- INGLESE 🇬🇧: Fresco, umile, accattivante, proverbio a tema senza apici "", chiusura con invito a prenotare su www.flowerpowervillage.com con miglior prezzo garantito e 10% diretto. Includi 4-5 hashtag virali in inglese (es. #FlowerPowerVillage, hashtag alloggio, #KohPhayam, #BuffaloBay, #TropicalEscape).
-- THAI 🇹🇭: Reinterpretazione al maschile con particelle amichevoli (ครับ, เลยครับ), regole toponimi: Koh Phayam = เกาะพยาม, Buffalo Bay = อ่าวเขาควาย, Long Beach = อ่าวใหญ่. Proverbio thai a tema, chiusura 10%. Includi 4-5 hashtag virali in thai (es. #FlowerPowerVillage, hashtag alloggio, #เกาะพยาม, #อ่าวเขาควาย, #ที่พักเกาะพยาม).
-- LINK & TAG: Link fisso www.flowerpowervillage.com e tag @flowerpowerpizzaranong.
+  "englishContent": "...",
+  "proverbThai": "...",
+  "proverbEnglish": "..."
+}`
+        : `Sei il copywriter ufficiale di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale a Buffalo Bay / อ่าวเขาควาย).
+Scrivi un micro-post social biculturale (Inglese + Thai) ad alto impatto per promuovere il soggiorno o il ristorante dell'isola.
+
+CONTESTO ATTUALE:
+- Alloggio/Piatto:
+${dishListText}
+- METEO LIVE A KOH PHAYAM: ${weatherText}
+- Stagione: ${season || 'Stagione tropicale'}
+- Sito ufficiale: www.flowerpowervillage.com (Miglior tariffa diretta garantita online)
+
+MISSIONE E REGOLE FERREE:
+1. MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Testo arioso, interlinee frequenti, zero muri di parole, atmosfera tropicale rilassante ma magnetica.
+2. IL GANCIO DEL GIORNO: Cogli l'essenza dell'isola (la brezza marina, il bungalow in legno naturale tra le palme, il silenzio della baia, il tramonto su Buffalo Bay).
+3. MARCHIO DI FABBRICA: "IL PROVERBIO DEL GIORNO": Inserisci SEMPRE come firma distintiva un proverbio saggio e suggestivo sul viaggio, la calma, il mare o il relax (sempre DIVERSO e mai banale):
+   - In Inglese: 📜 Proverb of the Day: "..."
+   - In Thai: 📜 สุภาษิตประจำวัน: "..."
+4. REGOLA NOMI ALLOGGI: Il nome dell'alloggio NON DEVE MAI andare a capo a metà!
+5. CHIUSURA: Invito a prenotare su www.flowerpowervillage.com.
+6. HASHTAG: 4-5 hashtag virali mirati (#FlowerPowerVillage #KohPhayam #เกาะพยาม #BuffaloBay #TropicalEscape).
 
 Rispondi SOLO con un JSON valido con questa struttura esatta:
 {
   "thaiContent": "...",
-  "englishContent": "..."
+  "englishContent": "...",
+  "proverbThai": "...",
+  "proverbEnglish": "..."
 }`;
 
       const aiRes = await fetch('https://api.deepseek.com/chat/completions', {
@@ -76,6 +110,7 @@ Rispondi SOLO con un JSON valido con questa struttura esatta:
         },
         body: JSON.stringify({
           model: 'deepseek-chat',
+          temperature: 0.88, // Creatività e varietà elevata, mai contenuti uguali
           messages: [{ role: 'user', content: prompt }],
           response_format: { type: 'json_object' }
         })
@@ -88,7 +123,28 @@ Rispondi SOLO con un JSON valido con questa struttura esatta:
       const aiData = await aiRes.json();
       const rawJson = aiData.choices?.[0]?.message?.content;
       const parsed = JSON.parse(rawJson);
-      return res.status(200).json({ success: true, data: parsed });
+
+      let thaiContent = parsed.thaiContent || '';
+      let englishContent = parsed.englishContent || '';
+
+      if (parsed.proverbThai && !thaiContent.includes(parsed.proverbThai)) {
+        const pLabel = parsed.proverbThai.startsWith('📜') ? parsed.proverbThai : `📜 สุภาษิตประจำวัน: "${parsed.proverbThai}"`;
+        thaiContent = `${thaiContent}\n\n${pLabel}`;
+      }
+
+      if (parsed.proverbEnglish && !englishContent.includes(parsed.proverbEnglish)) {
+        const pLabel = parsed.proverbEnglish.startsWith('📜') ? parsed.proverbEnglish : `📜 Proverb of the Day: "${parsed.proverbEnglish}"`;
+        englishContent = `${englishContent}\n\n${pLabel}`;
+      }
+
+      return res.status(200).json({ 
+        success: true, 
+        data: {
+          ...parsed,
+          thaiContent,
+          englishContent
+        } 
+      });
     } catch (err: any) {
       console.error('[social-publisher] DeepSeek AI copy generation error:', err);
       return res.status(500).json({ error: err.message || 'DeepSeek generation failed' });
