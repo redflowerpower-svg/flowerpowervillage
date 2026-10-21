@@ -460,7 +460,7 @@ export default function AutoCutStudioPage() {
     <SocialAdminAuth>
       <div className="min-h-screen bg-[#0b0f17] text-slate-100 font-sans selection:bg-rose-500 selection:text-white">
         {/* Top Navbar */}
-        <header className="border-b border-slate-800 bg-[#0f1420]/90 backdrop-blur sticky top-0 z-30 px-4 lg:px-8 py-3.5">
+        <header className="border-b border-slate-800 bg-[#0b0f17] sticky top-0 z-50 px-4 lg:px-8 py-3.5 shadow-xl">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
           
           {/* Logo & Reparto Stagno Title */}
@@ -918,7 +918,7 @@ export default function AutoCutStudioPage() {
 
       {/* MODAL: Connect Google Business Profile / OAuth Info */}
       {showGoogleModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-[#121826] border border-blue-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
             <button
               onClick={() => setShowGoogleModal(false)}
@@ -1038,7 +1038,7 @@ export default function AutoCutStudioPage() {
 
       {/* MODAL: Meta (Instagram & Facebook) Info */}
       {showMetaModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-[#121826] border border-pink-500/40 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
             <button
               onClick={() => setShowMetaModal(false)}
@@ -1140,7 +1140,7 @@ export default function AutoCutStudioPage() {
 
       {/* MODAL 2: Guide for TikTok App Review Demo Video */}
       {showDemoGuideModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-[#121826] border border-slate-700 rounded-2xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowDemoGuideModal(false)}

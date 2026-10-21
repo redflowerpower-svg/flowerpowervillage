@@ -877,7 +877,7 @@ export function AutoCutLabPlayer({
   const isInOutro = currentElapsed >= outroStartTime;
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex flex-col items-center w-full isolate">
       {/* 🎛️ STUDIO CONTROL BAR: 3 Controlli in Colonna Centrati a Piena Larghezza Telefono */}
       {!testRun.isEmptyShowcase && (
         <div className="w-full max-w-[340px] flex flex-col items-center gap-1.5 mb-2.5">
@@ -921,7 +921,7 @@ export function AutoCutLabPlayer({
       )}
 
       {/* 📱 1. MASTER SMARTPHONE PLAYER 9:16 (TikTok & Instagram Reels) */}
-      <div className="relative w-full max-w-[340px] aspect-[9/16] bg-black select-none overflow-hidden group rounded-[32px] shadow-2xl border-[4px] border-slate-700">
+      <div className="relative w-full max-w-[340px] aspect-[9/16] bg-black select-none overflow-hidden group rounded-[32px] shadow-2xl border-[4px] border-slate-700 isolate">
         {/* Dynamic 9:16 AutoCut Canvas */}
         <canvas
           ref={canvasRef}

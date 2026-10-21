@@ -598,7 +598,7 @@ export default function TikTokAuditStudioPage() {
   return (
     <div className="min-h-screen bg-[#0b0f17] text-slate-100 font-sans selection:bg-rose-500 selection:text-white">
       {/* Top Navbar */}
-      <header className="border-b border-slate-800 bg-[#0f1420]/90 backdrop-blur sticky top-0 z-30 px-4 lg:px-8 py-3.5">
+      <header className="border-b border-slate-800 bg-[#0b0f17] sticky top-0 z-50 px-4 lg:px-8 py-3.5 shadow-xl">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
           
           {/* Logo & Reparto Stagno Title */}

@@ -336,7 +336,7 @@ export function AutoCutLabView() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* 1. COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (spostato a sinistra) */}
-        <div className="lg:col-span-4 xl:col-span-3 flex flex-col items-start">
+        <div className="lg:col-span-4 xl:col-span-3 flex flex-col items-start isolate">
           <div className="w-full max-w-[340px] mb-1.5">
             <button
               type="button"
@@ -349,7 +349,7 @@ export function AutoCutLabView() {
             </button>
           </div>
 
-          <div className="w-full max-w-[340px] flex flex-col items-center relative">
+          <div className="w-full max-w-[340px] flex flex-col items-center relative isolate">
             <AutoCutLabPlayer
               key={`${activeMode}_${shuffleKey}`}
               testRun={currentTest}
