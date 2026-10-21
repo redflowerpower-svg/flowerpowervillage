@@ -1,0 +1,14 @@
+# Local scratch & test scripts
+scratch/
+tests/
+video_out/
+artifacts/
+
+# Documentation & internal blueprints
+documentation_reports/
+.agents/
+.secret_docs/
+
+# Logs & temp files
+*.log
+.tempmediaStorage/
