@@ -1484,33 +1484,36 @@ export function AutoCutLabPlayer({
               }`}>
                 {/* Caso CIBO / PIATTI (P1): Categoria, Thai sopra in grande, Inglese sotto a scalare, prezzo */}
                 {(brand === 'pizza' || mode === 'R1') && (
-                  <div className="space-y-1 w-full">
-                    {currentScene.badgeCategory && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide shadow-md uppercase bg-rose-600 text-white border border-rose-400">
-                        {currentScene.badgeCategory}
-                      </span>
-                    )}
-
-                    {/* THAI IN GRANDE SOPRA (Per P1 4:3 se lo spazio basta sta su una riga, altrimenti va a capo con contesto) */}
-                    <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                      {(mode === 'P1' ? format43DishTitle(currentScene.titlePrimary, 'th') : currentScene.titlePrimary.split('\n')).map((line, idx) => (
-                        <span key={idx} className="block leading-tight">
-                          {line}
+                  <div className={`w-full ${mode === 'P1' ? 'flex items-end justify-between gap-2.5' : 'space-y-1'}`}>
+                    {/* Blocco Titoli (Sinistra) */}
+                    <div className="space-y-1 flex-1 min-w-0">
+                      {currentScene.badgeCategory && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide shadow-md uppercase bg-rose-600 text-white border border-rose-400">
+                          {currentScene.badgeCategory}
                         </span>
-                      ))}
-                    </h3>
+                      )}
 
-                    {/* INGLESE SOTTO (Per P1 4:3 se lo spazio basta sta su una riga, altrimenti va a capo con contesto) */}
-                    <div className="text-[11px] sm:text-xs font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                      {(mode === 'P1' ? format43DishTitle(currentScene.titleSecondary, 'en') : currentScene.titleSecondary.split('\n')).map((line, idx) => (
-                        <span key={idx} className="block leading-snug">
-                          {line}
-                        </span>
-                      ))}
+                      {/* THAI IN GRANDE SOPRA (Per P1 4:3 se lo spazio basta sta su una riga, altrimenti va a capo con contesto) */}
+                      <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                        {(mode === 'P1' ? format43DishTitle(currentScene.titlePrimary, 'th') : currentScene.titlePrimary.split('\n')).map((line, idx) => (
+                          <span key={idx} className="block leading-tight">
+                            {line}
+                          </span>
+                        ))}
+                      </h3>
+
+                      {/* INGLESE SOTTO (Per P1 4:3 se lo spazio basta sta su una riga, altrimenti va a capo con contesto) */}
+                      <div className="text-[11px] sm:text-xs font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                        {(mode === 'P1' ? format43DishTitle(currentScene.titleSecondary, 'en') : currentScene.titleSecondary.split('\n')).map((line, idx) => (
+                          <span key={idx} className="block leading-snug">
+                            {line}
+                          </span>
+                        ))}
+                      </div>
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (SCALATO DEL 25% MANTENENDO LE PROPORZIONI PER P1) */}
-                    <div className={`pt-0.5 origin-left w-fit ${mode === 'P1' ? 'scale-[0.75]' : 'scale-[0.88]'}`}>
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (PER P1 SCALATO DEL 25% E POSIZIONATO IN BASSO A DESTRA) */}
+                    <div className={`w-fit shrink-0 ${mode === 'P1' ? 'origin-bottom-right scale-[0.75] pb-0.5' : 'pt-0.5 origin-left scale-[0.88]'}`}>
                       {currentScene.pizzaSizes && mode !== 'R1' ? (
                         <div className="flex items-center gap-1.5">
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
