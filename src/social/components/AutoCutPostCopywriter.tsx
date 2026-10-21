@@ -13,6 +13,7 @@ import {
 } from '../services/autoCutCopywriterEngine';
 import { 
   DistributionChannelId, 
+  ChannelFormatMap,
   TikTokLogo, 
   GoogleLogo, 
   FacebookLogo, 
@@ -31,6 +32,8 @@ interface AutoCutPostCopywriterProps {
   testRun: AutoCutTestRun;
   selectedChannel?: DistributionChannelId;
   onSelectChannel?: (channel: DistributionChannelId) => void;
+  channelFormats?: ChannelFormatMap;
+  onChangeChannelFormat?: (channel: DistributionChannelId, format: any) => void;
   onCaptionsChange?: (captions: PostCaptionsBundle) => void;
 }
 
@@ -38,6 +41,8 @@ export function AutoCutPostCopywriter({
   testRun,
   selectedChannel = 'tiktok',
   onSelectChannel,
+  channelFormats,
+  onChangeChannelFormat,
   onCaptionsChange
 }: AutoCutPostCopywriterProps) {
   const [proverbSeed, setProverbSeed] = useState(0);
@@ -67,11 +72,26 @@ export function AutoCutPostCopywriter({
   const [fbTargetUrl, setFbTargetUrl] = useState(testRun.brand === 'pizza' ? 'https://www.flowerpowerpizza.com' : 'https://www.flowerpowervillage.com');
   const [fbCheckin, setFbCheckin] = useState(testRun.brand === 'pizza' ? 'Flower Power Pizza Ranong' : 'Flower Power Village Koh Phayam');
 
-  // 4. Google Business Profile State
-  const [googlePostType, setGooglePostType] = useState<'update' | 'offer'>('update');
+  // 4. Formati e Parametri Dinamici Canali
+  const activeTiktokFormat = channelFormats?.tiktok || 'feed';
+  const activeInstagramFormat = channelFormats?.instagram || 'reels';
+  const activeFacebookFormat = channelFormats?.facebook || 'post';
+  const activeGoogleFormat = channelFormats?.google || 'update';
+
   const [googleCtaType, setGoogleCtaType] = useState(testRun.brand === 'pizza' ? 'ORDER' : 'BOOK');
   const [googleCoupon, setGoogleCoupon] = useState('WELCOME10');
   const [googleOfferTitle, setGoogleOfferTitle] = useState(testRun.brand === 'pizza' ? 'Sconto Benvenuto 10% Primo Ordine' : '10% Privilegio Prenotazione Diretta');
+  const [googleStartDate, setGoogleStartDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [googleEndDate, setGoogleEndDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return d.toISOString().split('T')[0];
+  });
+  const [googleTerms, setGoogleTerms] = useState(
+    testRun.brand === 'pizza' 
+      ? 'Valido per ordini delivery online diretti su flowerpowerpizza.com. Non cumulabile con altri sconti.' 
+      : 'Valido per prenotazioni dirette sul sito ufficiale flowerpowervillage.com.'
+  );
 
   // Firma identificativa univoca del video/scena attuale (cambia appena si genera un nuovo piatto/video/alloggio)
   const currentDishKey = testRun.scenes.map(s => `${s.sourceName || s.titlePrimary || ''}_${s.imageUrl}`).join('|');
@@ -244,11 +264,17 @@ export function AutoCutPostCopywriter({
     const siteUrl = isPizza ? 'www.flowerpowerpizza.com' : 'www.flowerpowervillage.com';
     const fullSiteUrl = isPizza ? 'https://flowerpowerpizza.com' : 'https://flowerpowervillage.com';
     
-    if (googlePostType === 'offer') {
-      return `🎁 ${googleOfferTitle.toUpperCase()}\n\n${cleanThai}\n\n${cleanEn}\n\n🌐 ${siteUrl}\n🏷️ Codice Coupon: ${googleCoupon}\n📌 Pulsante Azione: [${googleCtaType}] ➔ ${fullSiteUrl}`;
+    if (activeGoogleFormat === 'offer') {
+      const datesStr = `📅 Validità Promozione: dal ${googleStartDate} al ${googleEndDate}`;
+      const couponStr = googleCoupon ? `🏷️ Codice Coupon: ${googleCoupon}` : '';
+      const termsStr = googleTerms ? `📜 Condizioni: ${googleTerms}` : '';
+      return `🎁 ${googleOfferTitle.toUpperCase()}\n\n${cleanThai}\n\n${cleanEn}\n\n${datesStr}\n${couponStr}\n${termsStr}\n🌐 ${siteUrl}\n📌 Pulsante Azione: [${googleCtaType}] ➔ ${fullSiteUrl}`;
+    }
+    if (activeGoogleFormat === 'media') {
+      return `[Google Maps Media Gallery]\n\n${cleanThai}\n\n${cleanEn}\n\n📍 Geolocalizzazione: ${isPizza ? 'Ranong, Thailand' : 'Koh Phayam Island, Ranong'}\n🌐 ${siteUrl}`;
     }
     return `${cleanThai}\n\n${cleanEn}\n\n🌐 ${siteUrl} · ${isPizza ? 'Ranong Delivery' : 'Koh Phayam Resort'}\n📌 Pulsante Azione: [${googleCtaType}] ➔ ${fullSiteUrl}`;
-  }, [postData, googlePostType, googleOfferTitle, googleCoupon, googleCtaType, isPizza]);
+  }, [postData, activeGoogleFormat, googleOfferTitle, googleCoupon, googleStartDate, googleEndDate, googleTerms, googleCtaType, isPizza]);
 
   useEffect(() => {
     if (onCaptionsChange) {
@@ -437,13 +463,28 @@ export function AutoCutPostCopywriter({
         
         {/* TIKTOK PARAMETERS */}
         {selectedChannel === 'tiktok' && (
-          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-cyan-500/30 space-y-2.5">
-            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
+          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-cyan-500/30 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
               <span className="text-[11px] font-bold text-cyan-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <MapPin className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Parametri API & POI TikTok</span>
               </span>
-              <span className="text-[10px] text-cyan-400/80 font-mono">Geo Indexing</span>
+              <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[10px]">
+                <button
+                  type="button"
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('tiktok', 'feed')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeTiktokFormat === 'feed' ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Feed Video (9:16)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('tiktok', 'story')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeTiktokFormat === 'story' ? 'bg-pink-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Stories (Telegram)
+                </button>
+              </div>
             </div>
 
             <div>
@@ -491,172 +532,320 @@ export function AutoCutPostCopywriter({
 
         {/* GOOGLE BUSINESS PARAMETERS */}
         {selectedChannel === 'google' && (
-          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-blue-500/30 space-y-2.5">
-            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
+          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-blue-500/30 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
               <span className="text-[11px] font-bold text-blue-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <Tag className="w-3.5 h-3.5 text-blue-400" />
-                <span>Parametri Post Google Business</span>
+                <span>Parametri Google Business Profile</span>
               </span>
               <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[10px]">
                 <button
                   type="button"
-                  onClick={() => setGooglePostType('update')}
-                  className={`px-2 py-0.5 rounded-md font-bold transition ${googlePostType === 'update' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('google', 'update')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeGoogleFormat === 'update' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                 >
                   Novità
                 </button>
                 <button
                   type="button"
-                  onClick={() => setGooglePostType('offer')}
-                  className={`px-2 py-0.5 rounded-md font-bold transition ${googlePostType === 'offer' ? 'bg-amber-600 text-white' : 'text-slate-400'}`}
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('google', 'offer')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeGoogleFormat === 'offer' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                 >
-                  Offerta
+                  Offerta Promo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('google', 'media')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeGoogleFormat === 'media' ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Maps Gallery
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div>
-                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Pulsante Azione (CTA):</label>
-                <select
-                  value={googleCtaType}
-                  onChange={e => setGoogleCtaType(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-400 font-sans cursor-pointer"
-                >
-                  <option value="ORDER">ORDINA ORA (Order Online)</option>
-                  <option value="BOOK">PRENOTA SUBITO (Book Now)</option>
-                  <option value="LEARN_MORE">SCOPRI DI PIÙ (Learn More)</option>
-                  <option value="CALL">CHIAMA ORA (Call Restaurant)</option>
-                </select>
-              </div>
+            {/* CASO 1: NOVITÀ / UPDATE (Standard) */}
+            {activeGoogleFormat === 'update' && (
+              <div className="space-y-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Pulsante Azione (CTA):</label>
+                    <select
+                      value={googleCtaType}
+                      onChange={e => setGoogleCtaType(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-400 font-sans cursor-pointer"
+                    >
+                      <option value="ORDER">ORDINA ORA (Order Online)</option>
+                      <option value="BOOK">PRENOTA SUBITO (Book Now)</option>
+                      <option value="LEARN_MORE">SCOPRI DI PIÙ (Learn More)</option>
+                      <option value="CALL">CHIAMA ORA (Call Restaurant)</option>
+                    </select>
+                  </div>
 
-              <div>
-                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">URL di Destinazione:</label>
-                <input
-                  type="text"
-                  readOnly
-                  value={isPizza ? 'https://www.flowerpowerpizza.com/delivery' : 'https://www.flowerpowervillage.com'}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 font-mono truncate"
-                />
+                  <div>
+                    <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">URL di Destinazione:</label>
+                    <input
+                      type="text"
+                      readOnly
+                      value={isPizza ? 'https://www.flowerpowerpizza.com/delivery' : 'https://www.flowerpowervillage.com'}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 font-mono truncate"
+                    />
+                  </div>
+                </div>
+                <span className="text-[10px] text-emerald-400/90 block">
+                  ✓ Formato Novità Standard: post visibile nella bacheca di Google Maps e Ricerca con link d'azione diretto.
+                </span>
               </div>
-            </div>
+            )}
 
-            {googlePostType === 'offer' && (
-              <div className="p-2.5 bg-amber-950/20 rounded-xl border border-amber-500/30 space-y-2">
-                <div className="grid grid-cols-2 gap-2">
+            {/* CASO 2: OFFERTA SPECIALE PROMO (Richiede campi specifici API Google) */}
+            {activeGoogleFormat === 'offer' && (
+              <div className="p-3 bg-amber-950/20 rounded-xl border border-amber-500/40 space-y-2.5">
+                <div className="flex items-center gap-1.5 text-amber-300 text-xs font-bold">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Dati Specifici Offerta Google (Richiesti da API)</span>
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-amber-200/80 block mb-0.5">Titolo Offerta Promo:</label>
                   <input
                     type="text"
                     value={googleOfferTitle}
                     onChange={e => setGoogleOfferTitle(e.target.value)}
-                    placeholder="Titolo Offerta"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white font-sans"
+                    placeholder="es. Sconto 10% Primo Ordine Online"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-sans"
                   />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Data Inizio Validità:</label>
+                    <input
+                      type="date"
+                      value={googleStartDate}
+                      onChange={e => setGoogleStartDate(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Data Fine Validità:</label>
+                    <input
+                      type="date"
+                      value={googleEndDate}
+                      onChange={e => setGoogleEndDate(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-300 font-mono font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Codice Coupon / Voucher:</label>
+                    <input
+                      type="text"
+                      value={googleCoupon}
+                      onChange={e => setGoogleCoupon(e.target.value)}
+                      placeholder="es. WELCOME10"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-300 font-mono font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Pulsante Riscatto CTA:</label>
+                    <select
+                      value={googleCtaType}
+                      onChange={e => setGoogleCtaType(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white font-sans"
+                    >
+                      <option value="ORDER">RISCATTA ONLINE (Order Now)</option>
+                      <option value="BOOK">PRENOTA PROMO (Book Now)</option>
+                      <option value="LEARN_MORE">DETTAGLI (Learn More)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Termini & Condizioni Offerta:</label>
                   <input
                     type="text"
-                    value={googleCoupon}
-                    onChange={e => setGoogleCoupon(e.target.value)}
-                    placeholder="Codice Coupon (es. WELCOME10)"
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-300 font-mono font-bold"
+                    value={googleTerms}
+                    onChange={e => setGoogleTerms(e.target.value)}
+                    placeholder="es. Non cumulabile con altri sconti..."
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-300 font-sans"
                   />
                 </div>
               </div>
             )}
+
+            {/* CASO 3: GOOGLE MAPS MEDIA GALLERY */}
+            {activeGoogleFormat === 'media' && (
+              <div className="p-3 bg-rose-950/20 rounded-xl border border-rose-500/40 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-rose-300 text-xs font-bold">
+                  <MapPin className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Caricamento Diretto Gallery Fotografica Google Maps</span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  In questo formato il video e la copertina vengono inseriti direttamente nella sezione Foto/Video di Google Maps dell'attività.
+                  Non genera un post effimero, ma un asset visivo permanente che compare a tutti i viaggiatori che cercano il ristorante o il resort.
+                </p>
+              </div>
+            )}
+
             <span className="text-[10px] text-emerald-400/90 block">
-              ✓ Gli hashtag vengono rimossi automaticamente nell'unione finale (penalizzanti su Maps).
+              ✓ Gli hashtag vengono rimossi automaticamente nell'unione finale (penalizzanti su Google Maps).
             </span>
           </div>
         )}
 
         {/* FACEBOOK PARAMETERS */}
         {selectedChannel === 'facebook' && (
-          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-blue-600/30 space-y-2.5">
-            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
+          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-blue-600/30 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
               <span className="text-[11px] font-bold text-blue-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-                <span>Link Cliccabile & Check-in Facebook</span>
+                <span>Parametri Facebook</span>
               </span>
-              <span className="text-[10px] text-blue-400/80 font-mono">OpenGraph Card</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div>
-                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Link Diretto Cliccabile:</label>
-                <input
-                  type="text"
-                  value={fbTargetUrl}
-                  onChange={e => setFbTargetUrl(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-sky-300 font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Pulsante CTA Pagina:</label>
-                <select
-                  value={fbCtaType}
-                  onChange={e => setFbCtaType(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-400 font-sans cursor-pointer"
+              <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[10px]">
+                <button
+                  type="button"
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('facebook', 'post')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeFacebookFormat === 'post' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                 >
-                  <option value="ORDER_NOW">Ordina Subito (Order Now)</option>
-                  <option value="BOOK_NOW">Prenota Subito (Book Now)</option>
-                  <option value="LEARN_MORE">Scopri di più (Learn More)</option>
-                  <option value="WHATSAPP">Invia Messaggio WhatsApp</option>
-                </select>
+                  Post Pagina
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('facebook', 'reels')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeFacebookFormat === 'reels' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Reels
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('facebook', 'story')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeFacebookFormat === 'story' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Stories
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('facebook', 'group')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeFacebookFormat === 'group' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Gruppo Phayam
+                </button>
               </div>
             </div>
 
-            <div>
-              <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Check-in Luogo Ufficiale & Posizione GPS:</label>
-              <select
-                value={fbCheckin}
-                onChange={e => setFbCheckin(e.target.value)}
-                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-sans cursor-pointer mb-1.5"
-              >
-                <option value="Flower Power Pizza Ranong">Flower Power Pizza Ranong</option>
-                <option value="Flower Power Village Koh Phayam">Flower Power Village Koh Phayam</option>
-              </select>
-              <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] font-mono">
-                <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                <span className="text-slate-400">GPS Maps:</span>
-                <a
-                  href={fbCheckin.includes('Village') ? 'https://maps.app.goo.gl/mugY88Wpuzjeebf56' : 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sky-300 hover:underline truncate"
-                >
-                  {fbCheckin.includes('Village') ? 'https://maps.app.goo.gl/mugY88Wpuzjeebf56' : 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'}
-                </a>
+            {activeFacebookFormat === 'group' ? (
+              <div className="p-3 bg-amber-950/30 rounded-xl border border-amber-600/40 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-amber-400" />
+                    <span>Gruppo Community Koh Phayam (Topic 2 Telegram)</span>
+                  </span>
+                  <a
+                    href="https://www.facebook.com/share/g/1Hyh1mJ7Hu/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] text-sky-400 hover:text-sky-300 font-mono font-bold hover:underline flex items-center gap-1"
+                  >
+                    <span>Apri Gruppo FB</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed">
+                  Invia automaticamente una scheda pronta con testo persuasivo bilingue al bot Telegram dello Staff sul Topic 2, con pulsante per la condivisione istantanea nel gruppo Facebook dei residenti e viaggiatori dell'isola.
+                </p>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Link Diretto Cliccabile:</label>
+                    <input
+                      type="text"
+                      value={fbTargetUrl}
+                      onChange={e => setFbTargetUrl(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-sky-300 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Pulsante CTA Pagina:</label>
+                    <select
+                      value={fbCtaType}
+                      onChange={e => setFbCtaType(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-400 font-sans cursor-pointer"
+                    >
+                      <option value="ORDER_NOW">Ordina Subito (Order Now)</option>
+                      <option value="BOOK_NOW">Prenota Subito (Book Now)</option>
+                      <option value="LEARN_MORE">Scopri di più (Learn More)</option>
+                      <option value="WHATSAPP">Invia Messaggio WhatsApp</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10.5px] uppercase font-bold text-slate-400 block mb-1">Check-in Luogo Ufficiale & Posizione GPS:</label>
+                  <select
+                    value={fbCheckin}
+                    onChange={e => setFbCheckin(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-sans cursor-pointer mb-1.5"
+                  >
+                    <option value="Flower Power Pizza Ranong">Flower Power Pizza Ranong</option>
+                    <option value="Flower Power Village Koh Phayam">Flower Power Village Koh Phayam</option>
+                  </select>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] font-mono">
+                    <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                    <span className="text-slate-400">GPS Maps:</span>
+                    <a
+                      href={fbCheckin.includes('Village') ? 'https://maps.app.goo.gl/mugY88Wpuzjeebf56' : 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sky-300 hover:underline truncate"
+                    >
+                      {fbCheckin.includes('Village') ? 'https://maps.app.goo.gl/mugY88Wpuzjeebf56' : 'https://maps.app.goo.gl/qjpYt6t69y17R4DF6'}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* INSTAGRAM PARAMETERS */}
         {selectedChannel === 'instagram' && (
-          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-pink-500/30 space-y-2.5">
-            <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
+          <div className="p-3.5 bg-slate-950/70 rounded-2xl border border-pink-500/30 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
               <span className="text-[11px] font-bold text-pink-300 flex items-center gap-1.5 uppercase tracking-wider">
                 <MousePointerClick className="w-3.5 h-3.5 text-pink-400" />
-                <span>Impostazioni Instagram (Reels & Stories)</span>
+                <span>Impostazioni Instagram</span>
               </span>
               <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[10px]">
                 <button
                   type="button"
-                  onClick={() => setIgPlacement('reels')}
-                  className={`px-2 py-0.5 rounded-md font-bold transition ${igPlacement === 'reels' ? 'bg-pink-600 text-white' : 'text-slate-400'}`}
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('instagram', 'reels')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeInstagramFormat === 'reels' ? 'bg-pink-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                 >
                   Reels (9:16)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIgPlacement('stories')}
-                  className={`px-2 py-0.5 rounded-md font-bold transition ${igPlacement === 'stories' ? 'bg-purple-600 text-white' : 'text-slate-400'}`}
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('instagram', 'story')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeInstagramFormat === 'story' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
                 >
                   Stories (24h)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onChangeChannelFormat && onChangeChannelFormat('instagram', 'feed')}
+                  className={`px-2 py-0.5 rounded-md font-bold transition cursor-pointer ${activeInstagramFormat === 'feed' ? 'bg-rose-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'}`}
+                >
+                  Feed Post
                 </button>
               </div>
             </div>
 
-            {igPlacement === 'stories' ? (
+            {activeInstagramFormat === 'story' ? (
               <div className="p-2.5 bg-purple-950/20 rounded-xl border border-purple-500/30 space-y-2">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
@@ -678,6 +867,9 @@ export function AutoCutPostCopywriter({
                     />
                   </div>
                 </div>
+                <span className="text-[10px] text-purple-300/80 block">
+                  ✓ Nelle Stories Instagram la didascalia lunga non viene mostrata nel feed: l'utente visualizza l'adesivo interattivo con link diretto.
+                </span>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

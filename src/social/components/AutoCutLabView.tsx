@@ -19,11 +19,17 @@ import {
 import { AUTOCUT_RULES_REGISTRY } from '../services/autoCutRulesRegistry';
 import { AutoCutLabPlayer } from './AutoCutLabPlayer';
 import { AutoCutPostCopywriter, PostCaptionsBundle } from './AutoCutPostCopywriter';
-import { AutoCutDistributionPanel, DistributionChannelId } from './AutoCutDistributionPanel';
+import { AutoCutDistributionPanel, DistributionChannelId, ChannelFormatMap } from './AutoCutDistributionPanel';
 
 export function AutoCutLabView() {
   const [activeMode, setActiveMode] = useState<AutoCutLabMode>('P1');
   const [selectedChannel, setSelectedChannel] = useState<DistributionChannelId>('tiktok');
+  const [channelFormats, setChannelFormats] = useState<ChannelFormatMap>({
+    tiktok: 'feed',
+    google: 'update',
+    facebook: 'post',
+    instagram: 'reels'
+  });
   const [liveCaptions, setLiveCaptions] = useState<PostCaptionsBundle | null>(null);
   const [testsByMode, setTestsByMode] = useState<Partial<Record<AutoCutLabMode, AutoCutTestRun>>>(() => {
     const init = generateAutoCutTestByMode('P1');
@@ -361,6 +367,8 @@ export function AutoCutLabView() {
             testRun={currentTest}
             selectedChannel={selectedChannel}
             onSelectChannel={setSelectedChannel}
+            channelFormats={channelFormats}
+            onChangeChannelFormat={(channel, format) => setChannelFormats(prev => ({ ...prev, [channel]: format }))}
             onCaptionsChange={setLiveCaptions}
           />
         </div>
@@ -371,6 +379,8 @@ export function AutoCutLabView() {
             testRun={currentTest}
             selectedChannel={selectedChannel}
             onSelectChannel={setSelectedChannel}
+            channelFormats={channelFormats}
+            onChangeChannelFormat={(channel, format) => setChannelFormats(prev => ({ ...prev, [channel]: format }))}
             liveCaptions={liveCaptions}
           />
 

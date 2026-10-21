@@ -13,10 +13,19 @@ import { generatePostCopy } from '../services/autoCutCopywriterEngine';
 export type DistributionEnvironment = 'test' | 'production';
 export type DistributionChannelId = 'tiktok' | 'google' | 'facebook' | 'instagram';
 
+export type ChannelFormatMap = {
+  tiktok: 'feed' | 'story';
+  google: 'update' | 'offer' | 'media';
+  facebook: 'post' | 'reels' | 'story' | 'group';
+  instagram: 'reels' | 'story' | 'feed';
+};
+
 export interface AutoCutDistributionPanelProps {
   testRun: AutoCutTestRun;
   selectedChannel?: DistributionChannelId;
   onSelectChannel?: (channel: DistributionChannelId) => void;
+  channelFormats?: ChannelFormatMap;
+  onChangeChannelFormat?: (channel: DistributionChannelId, format: any) => void;
   selectedPlacement?: string;
   onSelectPlacement?: (placement: string) => void;
   liveCaptions?: {
@@ -81,6 +90,8 @@ export function AutoCutDistributionPanel({
   testRun,
   selectedChannel: controlledChannel,
   onSelectChannel,
+  channelFormats: controlledFormats,
+  onChangeChannelFormat,
   liveCaptions
 }: AutoCutDistributionPanelProps) {
   // 0. Selettore Brand & Account Target (default sul brand del testRun corrente)
@@ -106,28 +117,23 @@ export function AutoCutDistributionPanel({
     }
   };
 
-  // 3. Posizioni attive per canale
-  const [placements, setPlacements] = useState({
-    // TikTok
-    tiktokFeed: true,
-    tiktokStoryTelegram: false,
-    
-    // Google Business Profile
-    googleUpdate: true,
-    googleOffer: testRun.mode === 'LM1',
-    googleMedia: false,
-
-    // Facebook
-    facebookReels: true,
-    facebookStories: false,
-    facebookPageVideo: true,
-    facebookGroupsTelegram: false,
-
-    // Instagram
-    instagramReels: true,
-    instagramStories: true,
-    instagramFeed: false
+  // 3. Formato Attivo Univoco per ogni Canale (Scelta Esclusiva Radio)
+  const [internalFormats, setInternalFormats] = useState<ChannelFormatMap>({
+    tiktok: 'feed',
+    google: testRun.mode === 'LM1' ? 'offer' : 'update',
+    facebook: 'post',
+    instagram: 'reels'
   });
+
+  const formats = controlledFormats || internalFormats;
+
+  const setFormat = (channel: DistributionChannelId, format: any) => {
+    if (onChangeChannelFormat) {
+      onChangeChannelFormat(channel, format);
+    } else {
+      setInternalFormats(prev => ({ ...prev, [channel]: format }));
+    }
+  };
 
   // Stato esecuzione
   const [isPublishing, setIsPublishing] = useState(false);
@@ -136,11 +142,6 @@ export function AutoCutDistributionPanel({
     message: string;
     details?: string[];
   }>({ type: null, message: '' });
-
-  // Toggle singola posizione
-  const togglePlacement = (placement: keyof typeof placements) => {
-    setPlacements(prev => ({ ...prev, [placement]: !prev[placement] }));
-  };
 
   // Nome formattato canale attivo
   const channelNames: Record<DistributionChannelId, string> = {
@@ -157,7 +158,7 @@ export function AutoCutDistributionPanel({
 
     try {
       // Invio REALE al bot Telegram Staff se l'opzione Gruppo Koh Phayam è selezionata (SEMPRE Topic 2)
-      if (activeChannel === 'facebook' && placements.facebookGroupsTelegram) {
+      if (activeChannel === 'facebook' && formats.facebook === 'group') {
         const copyResult = generatePostCopy(testRun, 0);
         const captionText = liveCaptions?.facebook || liveCaptions?.instagram || copyResult.fullCaptionInstagram;
         await dispatchPostToTelegramTopic({
@@ -172,7 +173,7 @@ export function AutoCutDistributionPanel({
       }
 
       // Invio REALE al bot Telegram Staff se l'opzione TikTok Stories Telegram è selezionata (Topic 3)
-      if (activeChannel === 'tiktok' && placements.tiktokStoryTelegram) {
+      if (activeChannel === 'tiktok' && formats.tiktok === 'story') {
         const copyResult = generatePostCopy(testRun, 0);
         const captionText = liveCaptions?.tiktok || copyResult.fullCaptionTikTok;
         const brandLabel = selectedBrand === 'pizza' ? 'Flower Power Pizza (Ranong)' : 'Flower Power Farm Village (Koh Phayam)';
@@ -194,13 +195,14 @@ export function AutoCutDistributionPanel({
           type: 'success',
           message: `Test simulazione completato per ${channelNames[activeChannel]}!`,
           details: [
+            `Formato attivo: ${formats[activeChannel].toUpperCase()}`,
             `Payload compilato conformemente alle API di ${channelNames[activeChannel]}`,
             `Profilo target applicato: ${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}`,
             'Verifica del testo, formattazione bilingue e link attivi superata',
-            ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
+            ...(activeChannel === 'facebook' && formats.facebook === 'group'
               ? ['Notifica inviata con successo al Topic 2 "Koh Phayam Group" su Telegram con bottone diretto!']
               : []),
-            ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
+            ...(activeChannel === 'tiktok' && formats.tiktok === 'story'
               ? ['Notifica inviata con successo al Topic 3 "TikTok Stories" su Telegram!']
               : []),
             'Nessun dato reale inviato al profilo pubblico'
@@ -347,29 +349,33 @@ export function AutoCutDistributionPanel({
 
           {activeChannel === 'tiktok' && (
             <div className="mt-3 pt-2.5 space-y-1.5 pl-3 border-l-2 border-cyan-500/40 text-[11px]" onClick={e => e.stopPropagation()}>
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Video className="w-3 h-3 text-cyan-400" />
-                  <span>Feed Video (9:16)</span>
+                  <Video className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className={formats.tiktok === 'feed' ? 'font-bold text-white' : ''}>Feed Video (9:16)</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.tiktokFeed}
-                  onChange={() => togglePlacement('tiktokFeed')}
-                  className="accent-cyan-400"
+                  type="radio"
+                  name="placement_tiktok"
+                  checked={formats.tiktok === 'feed'}
+                  onChange={() => setFormat('tiktok', 'feed')}
+                  className="accent-cyan-400 cursor-pointer"
                 />
               </label>
 
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Smartphone className="w-3 h-3 text-pink-400" />
-                  <span>Stories <span className="text-[10px] text-amber-400">(via Telegram)</span></span>
+                  <Smartphone className="w-3.5 h-3.5 text-pink-400" />
+                  <span className={formats.tiktok === 'story' ? 'font-bold text-white' : ''}>
+                    Stories <span className="text-[10px] text-amber-400 font-mono">(via Telegram)</span>
+                  </span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.tiktokStoryTelegram}
-                  onChange={() => togglePlacement('tiktokStoryTelegram')}
-                  className="accent-pink-400"
+                  type="radio"
+                  name="placement_tiktok"
+                  checked={formats.tiktok === 'story'}
+                  onChange={() => setFormat('tiktok', 'story')}
+                  className="accent-pink-400 cursor-pointer"
                 />
               </label>
             </div>
@@ -404,42 +410,45 @@ export function AutoCutDistributionPanel({
 
           {activeChannel === 'google' && (
             <div className="mt-3 pt-2.5 space-y-1.5 pl-3 border-l-2 border-blue-500/40 text-[11px]" onClick={e => e.stopPropagation()}>
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Tag className="w-3 h-3 text-emerald-400" />
-                  <span>Novità / Update (con CTA)</span>
+                  <Tag className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className={formats.google === 'update' ? 'font-bold text-white' : ''}>Novità / Update (con CTA)</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.googleUpdate}
-                  onChange={() => togglePlacement('googleUpdate')}
-                  className="accent-emerald-400"
+                  type="radio"
+                  name="placement_google"
+                  checked={formats.google === 'update'}
+                  onChange={() => setFormat('google', 'update')}
+                  className="accent-emerald-400 cursor-pointer"
                 />
               </label>
 
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
-                  <span>Offerta Speciale Promo</span>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span className={formats.google === 'offer' ? 'font-bold text-white' : ''}>Offerta Speciale Promo</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.googleOffer}
-                  onChange={() => togglePlacement('googleOffer')}
-                  className="accent-amber-400"
+                  type="radio"
+                  name="placement_google"
+                  checked={formats.google === 'offer'}
+                  onChange={() => setFormat('google', 'offer')}
+                  className="accent-amber-400 cursor-pointer"
                 />
               </label>
 
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <MapPin className="w-3 h-3 text-rose-400" />
-                  <span>Google Maps Video Gallery</span>
+                  <MapPin className="w-3.5 h-3.5 text-rose-400" />
+                  <span className={formats.google === 'media' ? 'font-bold text-white' : ''}>Google Maps Video Gallery</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.googleMedia}
-                  onChange={() => togglePlacement('googleMedia')}
-                  className="accent-rose-400"
+                  type="radio"
+                  name="placement_google"
+                  checked={formats.google === 'media'}
+                  onChange={() => setFormat('google', 'media')}
+                  className="accent-rose-400 cursor-pointer"
                 />
               </label>
             </div>
@@ -474,59 +483,63 @@ export function AutoCutDistributionPanel({
 
           {activeChannel === 'facebook' && (
             <div className="mt-3 pt-2.5 space-y-1.5 pl-3 border-l-2 border-blue-600/40 text-[11px]" onClick={e => e.stopPropagation()}>
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Video className="w-3 h-3 text-blue-400" />
-                  <span>Facebook Reels</span>
+                  <Video className="w-3.5 h-3.5 text-sky-400" />
+                  <span className={formats.facebook === 'post' ? 'font-bold text-white' : ''}>Post Video di Pagina (con Link)</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.facebookReels}
-                  onChange={() => togglePlacement('facebookReels')}
-                  className="accent-blue-400"
+                  type="radio"
+                  name="placement_facebook"
+                  checked={formats.facebook === 'post'}
+                  onChange={() => setFormat('facebook', 'post')}
+                  className="accent-sky-400 cursor-pointer"
                 />
               </label>
 
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Video className="w-3 h-3 text-sky-400" />
-                  <span>Post Video di Pagina (con Link)</span>
+                  <Video className="w-3.5 h-3.5 text-blue-400" />
+                  <span className={formats.facebook === 'reels' ? 'font-bold text-white' : ''}>Facebook Reels</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.facebookPageVideo}
-                  onChange={() => togglePlacement('facebookPageVideo')}
-                  className="accent-sky-400"
+                  type="radio"
+                  name="placement_facebook"
+                  checked={formats.facebook === 'reels'}
+                  onChange={() => setFormat('facebook', 'reels')}
+                  className="accent-blue-400 cursor-pointer"
                 />
               </label>
 
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Smartphone className="w-3 h-3 text-indigo-400" />
-                  <span>Stories di Pagina (24h)</span>
+                  <Smartphone className="w-3.5 h-3.5 text-indigo-400" />
+                  <span className={formats.facebook === 'story' ? 'font-bold text-white' : ''}>Stories di Pagina (24h)</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.facebookStories}
-                  onChange={() => togglePlacement('facebookStories')}
-                  className="accent-indigo-400"
+                  type="radio"
+                  name="placement_facebook"
+                  checked={formats.facebook === 'story'}
+                  onChange={() => setFormat('facebook', 'story')}
+                  className="accent-indigo-400 cursor-pointer"
                 />
               </label>
 
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Users className="w-3 h-3 text-amber-400" />
-                  <span>Gruppo Koh Phayam <span className="text-[10px] text-amber-400">(via Telegram)</span></span>
+                  <Users className="w-3.5 h-3.5 text-amber-400" />
+                  <span className={formats.facebook === 'group' ? 'font-bold text-white' : ''}>Gruppo Koh Phayam (via Telegram)</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.facebookGroupsTelegram}
-                  onChange={() => togglePlacement('facebookGroupsTelegram')}
-                  className="accent-amber-400"
+                  type="radio"
+                  name="placement_facebook"
+                  checked={formats.facebook === 'group'}
+                  onChange={() => setFormat('facebook', 'group')}
+                  className="accent-amber-400 cursor-pointer"
                 />
               </label>
 
-              {placements.facebookGroupsTelegram && (
+              {formats.facebook === 'group' && (
                 <div className="mt-1.5 p-2.5 bg-amber-950/40 border border-amber-600/40 rounded-xl space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black text-amber-300 flex items-center gap-1">
@@ -581,42 +594,45 @@ export function AutoCutDistributionPanel({
 
           {activeChannel === 'instagram' && (
             <div className="mt-3 pt-2.5 space-y-1.5 pl-3 border-l-2 border-pink-500/40 text-[11px]" onClick={e => e.stopPropagation()}>
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Video className="w-3 h-3 text-pink-400" />
-                  <span>Reels (9:16 + Cover)</span>
+                  <Video className="w-3.5 h-3.5 text-pink-400" />
+                  <span className={formats.instagram === 'reels' ? 'font-bold text-white' : ''}>Reels (9:16 + Cover)</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.instagramReels}
-                  onChange={() => togglePlacement('instagramReels')}
-                  className="accent-pink-400"
+                  type="radio"
+                  name="placement_instagram"
+                  checked={formats.instagram === 'reels'}
+                  onChange={() => setFormat('instagram', 'reels')}
+                  className="accent-pink-400 cursor-pointer"
                 />
               </label>
 
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Smartphone className="w-3 h-3 text-purple-400" />
-                  <span>Stories (Link Sticker 24h)</span>
+                  <Smartphone className="w-3.5 h-3.5 text-purple-400" />
+                  <span className={formats.instagram === 'story' ? 'font-bold text-white' : ''}>Stories (Link Sticker 24h)</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.instagramStories}
-                  onChange={() => togglePlacement('instagramStories')}
-                  className="accent-purple-400"
+                  type="radio"
+                  name="placement_instagram"
+                  checked={formats.instagram === 'story'}
+                  onChange={() => setFormat('instagram', 'story')}
+                  className="accent-purple-400 cursor-pointer"
                 />
               </label>
 
-              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
+              <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-1 px-1.5 rounded-lg hover:bg-slate-900/60 transition">
                 <span className="flex items-center gap-1.5">
-                  <Clock className="w-3 h-3 text-rose-400" />
-                  <span>Feed Video Post</span>
+                  <Clock className="w-3.5 h-3.5 text-rose-400" />
+                  <span className={formats.instagram === 'feed' ? 'font-bold text-white' : ''}>Feed Video Post</span>
                 </span>
                 <input
-                  type="checkbox"
-                  checked={placements.instagramFeed}
-                  onChange={() => togglePlacement('instagramFeed')}
-                  className="accent-rose-400"
+                  type="radio"
+                  name="placement_instagram"
+                  checked={formats.instagram === 'feed'}
+                  onChange={() => setFormat('instagram', 'feed')}
+                  className="accent-rose-400 cursor-pointer"
                 />
               </label>
             </div>
