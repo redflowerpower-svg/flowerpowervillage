@@ -15,6 +15,84 @@ globalPizzaLogoImg.src = '/flower-power-pizza-logo-512.png';
 const globalVillageLogoImg = new Image();
 globalVillageLogoImg.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
 
+/**
+ * 🏷️ Formattatore Testi Specifico per Video 4:3 Companion (P1):
+ * - Se lo spazio è sufficiente su una sola riga (<= 28 caratteri per EN, <= 26 per TH), non va MAI a capo.
+ * - Se supera la capienza orizzontale, va a capo con CONTESTO:
+ *   1) Prima della categoria finale del piatto (es. "EGG AND VEGETABLE" a capo "SALAD")
+ *   2) Prima dei connettori culinari (WITH, CON, ALLA, ALLO, AL, IN...) MAI lasciando parole orfane a inizio riga
+ *   3) Per il Thai prima di connettori semantici (ซอส, สไตล์, พร้อม, parentesi)
+ */
+function format43DishTitle(rawText: string, lang: 'th' | 'en'): string[] {
+  if (!rawText) return [];
+  const clean = rawText.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!clean) return [];
+
+  const maxSingleLine = lang === 'en' ? 28 : 26;
+
+  // Se lo spazio è sufficiente su una sola riga, non andare MAI a capo
+  if (clean.length <= maxSingleLine) {
+    return [clean];
+  }
+
+  if (lang === 'en') {
+    const upper = clean.toUpperCase();
+
+    // 1. Categoria finale (es: "EGG AND VEGETABLE" a capo "SALAD")
+    const CATEGORIES = [' SALAD', ' PIZZA', ' PASTA', ' BURGER', ' SANDWICH', ' SOUP', ' DESSERT', ' STEAK'];
+    for (const cat of CATEGORIES) {
+      const idx = upper.lastIndexOf(cat);
+      if (idx >= 8 && (clean.length - idx) <= 12) {
+        const part1 = clean.substring(0, idx).trim();
+        const part2 = clean.substring(idx).trim();
+        return [part1, part2];
+      }
+    }
+
+    // 2. Connettori culinari (solo se la prima parte ha almeno 7 caratteri, mai orfani come "EGG")
+    const CONNECTORS = [' WITH ', ' CON ', ' ALLA ', ' ALLO ', ' AL ', ' IN ', ' & ', ' AND '];
+    for (const conn of CONNECTORS) {
+      const idx = upper.indexOf(conn);
+      if (idx >= 7 && (clean.length - idx) >= 5) {
+        const part1 = clean.substring(0, idx).trim();
+        const part2 = clean.substring(idx).trim();
+        return [part1, part2];
+      }
+    }
+
+    // 3. Spezza allo spazio più centrale evitando orfani
+    const words = clean.split(' ');
+    if (words.length >= 2) {
+      const mid = Math.ceil(words.length / 2);
+      const part1 = words.slice(0, mid).join(' ');
+      const part2 = words.slice(mid).join(' ');
+      return [part1, part2];
+    }
+
+    return [clean];
+  }
+
+  // THAI
+  const THAI_CONNECTORS = ['ซอส', 'สไตล์', 'พร้อม', ' ('];
+  for (const conn of THAI_CONNECTORS) {
+    const idx = clean.indexOf(conn);
+    if (idx >= 6 && (clean.length - idx) >= 4) {
+      const part1 = clean.substring(0, idx).trim();
+      const part2 = clean.substring(idx).trim();
+      return [part1, part2];
+    }
+  }
+
+  if (clean.includes(' ')) {
+    const spaceIdx = clean.indexOf(' ');
+    if (spaceIdx >= 6 && (clean.length - spaceIdx) >= 5) {
+      return [clean.substring(0, spaceIdx).trim(), clean.substring(spaceIdx).trim()];
+    }
+  }
+
+  return [clean];
+}
+
 export interface AutoCutLabPlayerProps {
   testRun: AutoCutTestRun;
   onReplay?: () => void;
@@ -1355,11 +1433,11 @@ export function AutoCutLabPlayer({
       {/* 🖥️ 2. COMPANION LANDSCAPE PLAYER 4:3 (Google Maps & Facebook Feed) - Esclusivo per P1 e V1 */}
       {isCompanionEligible && !testRun.isEmptyShowcase && (
         <div className="w-full mt-4 flex flex-col items-center">
-          {/* Header Pulito Google Maps 4:3 */}
+          {/* Header Pulito Google Business 4:3 */}
           <div className="w-full flex items-center gap-2 px-1 mb-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
             <span className="text-xs font-bold text-slate-200 tracking-wide">
-              Google Maps 4:3
+              Google Business 4:3
             </span>
           </div>
 
@@ -1413,26 +1491,26 @@ export function AutoCutLabPlayer({
                       </span>
                     )}
 
-                    {/* THAI IN GRANDE SOPRA (A capo semantico logico) */}
+                    {/* THAI IN GRANDE SOPRA (Per P1 4:3 se lo spazio basta sta su una riga, altrimenti va a capo con contesto) */}
                     <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                      {currentScene.titlePrimary.split('\n').map((line, idx) => (
+                      {(mode === 'P1' ? format43DishTitle(currentScene.titlePrimary, 'th') : currentScene.titlePrimary.split('\n')).map((line, idx) => (
                         <span key={idx} className="block leading-tight">
                           {line}
                         </span>
                       ))}
                     </h3>
 
-                    {/* INGLESE SOTTO (A capo semantico logico prima dei connettori) */}
+                    {/* INGLESE SOTTO (Per P1 4:3 se lo spazio basta sta su una riga, altrimenti va a capo con contesto) */}
                     <div className="text-[11px] sm:text-xs font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                      {currentScene.titleSecondary.split('\n').map((line, idx) => (
+                      {(mode === 'P1' ? format43DishTitle(currentScene.titleSecondary, 'en') : currentScene.titleSecondary.split('\n')).map((line, idx) => (
                         <span key={idx} className="block leading-snug">
                           {line}
                         </span>
                       ))}
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (STESSA IDENTICA FORMA ORIGINALE, SCALATO LEGGERMENTE CON SCALE 88%) */}
-                    <div className="pt-0.5 origin-left scale-[0.88] w-fit">
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (SCALATO DEL 25% MANTENENDO LE PROPORZIONI PER P1) */}
+                    <div className={`pt-0.5 origin-left w-fit ${mode === 'P1' ? 'scale-[0.75]' : 'scale-[0.88]'}`}>
                       {currentScene.pizzaSizes && mode !== 'R1' ? (
                         <div className="flex items-center gap-1.5">
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
