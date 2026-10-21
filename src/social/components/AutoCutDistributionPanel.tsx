@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { 
   FlaskConical, Rocket, Check, AlertCircle, Send,
   Share2, Video, Smartphone, Clock, Users,
-  MapPin, Tag, Sparkles, CheckCircle2, ChevronRight
+  MapPin, Tag, Sparkles, CheckCircle2, ChevronRight, ExternalLink
 } from 'lucide-react';
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
+import { THIRD_PARTY_COMMUNITY_GROUPS } from '../config/thirdPartyGroups';
 
 export type DistributionEnvironment = 'test' | 'production';
 export type DistributionChannelId = 'tiktok' | 'google' | 'facebook' | 'instagram';
@@ -145,6 +146,9 @@ export function AutoCutDistributionPanel({
           details: [
             `Payload compilato conformemente alle API di ${channelNames[activeChannel]}`,
             'Verifica del testo, formattazione bilingue e link attivi superata',
+            ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
+              ? ['📲 Dispatch Telegram preparato con link al gruppo Facebook "Koh Phayam" (https://www.facebook.com/share/g/1Hyh1mJ7Hu/)']
+              : []),
             'Nessun dato reale inviato al profilo pubblico'
           ]
         });
@@ -156,6 +160,9 @@ export function AutoCutDistributionPanel({
           message: `🚀 Pubblicazione LIVE inviata con successo su ${channelNames[activeChannel]}!`,
           details: [
             `Contenuto multimediale e didascalia trasmessi alle API ufficiali`,
+            ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
+              ? ['📲 Notifica inviata con successo al Bot Telegram Staff con pulsante per il gruppo FB "Koh Phayam"']
+              : []),
             `Profilo aziendale aggiornato in tempo reale`,
             `Notifiche e log salvati nel database`
           ]
@@ -429,6 +436,30 @@ export function AutoCutDistributionPanel({
                   className="accent-amber-400"
                 />
               </label>
+
+              {placements.facebookGroupsTelegram && (
+                <div className="mt-1.5 p-2.5 bg-amber-950/40 border border-amber-600/40 rounded-xl space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-amber-300 flex items-center gap-1">
+                      <Users className="w-3 h-3 text-amber-400" />
+                      Gruppo Target: {testRun.brand === 'pizza' ? 'Ranong Expats & Food' : 'Koh Phayam'}
+                    </span>
+                    <a
+                      href="https://www.facebook.com/share/g/1Hyh1mJ7Hu/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[10px] text-sky-400 hover:text-sky-300 font-mono font-bold hover:underline"
+                      title="Apri gruppo Facebook Koh Phayam"
+                    >
+                      <span>Vedi Gruppo</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  </div>
+                  <p className="text-[9.5px] text-slate-300 leading-tight">
+                    Invia un alert istantaneo al bot Telegram dello Staff con video + testo DeepSeek + link rapido per la pubblicazione diretta nel gruppo FB della community.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

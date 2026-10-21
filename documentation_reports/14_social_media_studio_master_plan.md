@@ -108,6 +108,16 @@ Trasformare le foto statiche in contenuti magnetici:
    - **Supabase**: database ultra-leggero che conserva unicamente l'indice testuale e i metadati dei post (occupazione inferiore a pochi kilobyte, 100% gratuito per sempre).
    - **Bot Telegram**: riceve foto e video dallo smartphone e li trasferisce in automatico nella cartella di Google Drive, indicizzandoli subito nello studio `/social`.
 
+### 8.B Distribuzione Gruppi Terze Parti & Community (via Bot Telegram Staff)
+Poiché le API Meta Graph vietano la pubblicazione automatica diretta all'interno di gruppi Facebook gestiti da terzi (mancanza di permessi admin di terze parti), il sistema adotta il protocollo **Telegram Staff Dispatcher**:
+1. **Gruppo Target Ufficiale Villaggio (Koh Phayam)**:
+   - **Nome**: *Koh Phayam Community*
+   - **URL Ufficiale**: `https://www.facebook.com/share/g/1Hyh1mJ7Hu/`
+   - **Format Assegnati**: `LM1` (Last Minute Live con sconti reali a cascata), `V1`–`V3` (Bungalow tropicali e tramonti), `R1` (Delivery & Piatti Ristorante del Resort).
+2. **Flusso Operativo**:
+   - Dalla console `/social`, selezionando la spunta *"Gruppi (via Telegram)"*, il server impacchetta video 9:16, copy DeepSeek bilingue e link diretto `flowerpowervillage.com`.
+   - Il Bot Telegram dello staff riceve l'alert con pulsante inline rapido **`🌐 Apri Gruppo FB Koh Phayam`**, consentendo la condivisione istantanea nel gruppo della community in soli 3 secondi da smartphone.
+
 ---
 
 ## 🗓️ 9. Roadmap di Sviluppo
