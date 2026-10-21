@@ -253,7 +253,11 @@ function syncEnvFromReport(reportText) {
     `META_PIZZA_PAGE_TOKEN=${(reportText.match(/###\s*8\.1\.\s*Pizzeria[\s\S]*?\*\*Page Access Token:\*\*\s*`([^`]+)`/i) || [])[1]?.trim() || ''}`,
     `META_VILLAGE_PAGE_ID=106883044573670`,
     `META_VILLAGE_IG_ID=17841444373676743`,
-    `META_VILLAGE_PAGE_TOKEN=${(reportText.match(/###\s*8\.2\.\s*Villaggio[\s\S]*?\*\*Page Access Token:\*\*\s*`([^`]+)`/i) || [])[1]?.trim() || ''}`
+    `META_VILLAGE_PAGE_TOKEN=${(reportText.match(/###\s*8\.2\.\s*Villaggio[\s\S]*?\*\*Page Access Token:\*\*\s*`([^`]+)`/i) || [])[1]?.trim() || ''}`,
+    ``,
+    `# Google Gemini Vision (Social Media Studio & Vision OCR)`,
+    `GEMINI_API_KEY=${extract(/\*\*Gemini API Key:\*\*\s*`([^`]+)`/) || extract(/GEMINI_API_KEY:\s*([^\s\n\r]+)/) || ''}`,
+    `VITE_GEMINI_API_KEY=${extract(/\*\*Gemini API Key:\*\*\s*`([^`]+)`/) || extract(/GEMINI_API_KEY:\s*([^\s\n\r]+)/) || ''}`
   ].join('\n');
 
   fs.writeFileSync(ENV_PATH, envLines, 'utf8');
@@ -276,12 +280,12 @@ ${envLines}
 
 // Command execution if called directly
 const mode = process.argv[2];
-if (mode === 'encrypt') {
+if (mode === 'encrypt' || mode === 'lock') {
   encryptVault();
-} else if (mode === 'decrypt') {
+} else if (mode === 'decrypt' || mode === 'unlock') {
   decryptVault();
 } else if (mode === 'deps') {
   syncDependencies();
 } else if (mode) {
-  console.log(`Uso: node scratch/vault-sync.mjs [encrypt|decrypt|deps]`);
+  console.log(`Uso: node scratch/vault-sync.mjs [lock|unlock|encrypt|decrypt|deps]`);
 }

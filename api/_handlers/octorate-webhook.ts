@@ -390,7 +390,7 @@ export function calculateServerDynamicMinStay(
  * Risolve l'alloggio canonico del resort da un oggetto prenotazione grezzo Octorate
  * analizzando Product ID, Room Type ID e keyword testuali.
  */
-function resolveAccommodationName(booking: any): string {
+export function resolveAccommodationName(booking: any): string {
   if (!booking) return 'Alloggio Flower Power';
 
   // 1. Match diretto per Product ID o Room Type ID nella mappatura canonica
@@ -443,7 +443,7 @@ function resolveAccommodationName(booking: any): string {
 /**
  * Risolve il nome reale dell'ospite esplorando tutti i campi anagrafici Octorate e OTA.
  */
-function resolveGuestName(booking: any): string {
+export function resolveGuestName(booking: any): string {
   if (!booking) return 'Ospite';
   if (typeof booking.guestName === 'string' && booking.guestName.trim()) {
     return booking.guestName.trim();
@@ -659,7 +659,21 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
 
         // 🛡️ [AUTO-SHIELD & NOTIFICHE PRENOTAZIONI REALI CERTIFICATE]
         try {
-          const targetResId = eventPayload?.id || eventPayload?.data?.id || eventPayload?.reservation?.id || eventPayload?.reservationId || eventPayload?.resId;
+          let targetResId: any =
+            eventPayload?.id ||
+            eventPayload?.data?.id ||
+            eventPayload?.reservation?.id ||
+            eventPayload?.reservationId ||
+            eventPayload?.resId ||
+            eventPayload?.reservationNumber ||
+            eventPayload?.bookingId ||
+            (Array.isArray(eventPayload) && eventPayload[0]?.id) ||
+            req.body?.id ||
+            req.body?.reservationId ||
+            req.query?.id ||
+            req.query?.reservationId ||
+            req.query?.resId;
+
           let targetBooking: any = null;
 
           if (targetResId) {
@@ -684,6 +698,25 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
           // Se il webhook invia direttamente l'oggetto prenotazione nel payload
           if (!targetBooking && (eventPayload?.checkin || eventPayload?.reservation?.checkin || eventPayload?.check_in || eventPayload?.startDate)) {
             targetBooking = eventPayload.reservation || eventPayload;
+          }
+
+          // 🔄 Fallback Intelligente: Se targetResId non è passato nel payload ma l'evento è RESERVATION_CREATED/CHANGE,
+          // identifichiamo in bookingsData la prenotazione più recente non ancora notificata
+          if (!targetBooking && bookingsData.length > 0 && (eventType.includes('RESERVATION') || eventType.includes('CREATED') || eventType.includes('CHANGE'))) {
+            for (const b of bookingsData) {
+              if (!b.id) continue;
+              const { data: alreadyNotified } = await supabaseAdmin
+                .from('telegram_config')
+                .select('id')
+                .eq('id', `res_notified_${b.id}`)
+                .maybeSingle();
+              if (!alreadyNotified) {
+                targetBooking = b;
+                targetResId = b.id;
+                console.log(`[OCTORATE WEBHOOK] Trovata nuova prenotazione #${b.id} da notificare via fallback!`);
+                break;
+              }
+            }
           }
 
           if (targetBooking) {
@@ -718,47 +751,66 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
               const isCancelled = st === 'CANCELLED' || st === 'CANCELED' || st === 'DELETED' || st === 'VOID' || st === 'REJECTED' || eventType.toUpperCase().includes('CANCEL');
               const isModified = !isCancelled && (eventType.toUpperCase().includes('CHANGE') || eventType.toUpperCase().includes('MODIF') || eventType.toUpperCase().includes('UPDATE'));
 
-              // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio
+              // 📲 1. Notifica Telegram Immediata allo Staff del Villaggio (Strict AWAIT per evitare Context Freeze di Vercel)
               try {
                 let tgMessage = '';
                 let targetTopicKey: 'BOOKINGS' | 'MODIFICATIONS_CANCELLATIONS' = 'BOOKINGS';
 
-                if (isCancelled) {
-                  targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                  tgMessage = `🔴 <b>[CANCELLAZIONE PRENOTAZIONE]</b>\n` +
-                    `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
-                    `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                    `🌐 <b>Canale:</b> ${channelName}\n` +
-                    `📅 <b>Periodo Annullato:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
-                    `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                    `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-                } else if (isModified) {
-                  targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
-                  tgMessage = `🟡 <b>[PRENOTAZIONE MODIFICATA]</b>\n` +
-                    `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
-                    `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                    `🌐 <b>Canale:</b> ${channelName}\n` +
-                    `📅 <b>Nuovo Periodo:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
-                    `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                    `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-                } else {
-                  targetTopicKey = 'BOOKINGS';
-                  tgMessage = `🟢 <b>[NUOVA PRENOTAZIONE RICEVUTA]</b>\n` +
-                    `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
-                    `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
-                    `🌐 <b>Canale:</b> ${channelName}\n` +
-                    `📅 <b>Check-in:</b> <code>${rawIn}</code>\n` +
-                    `🛫 <b>Check-out:</b> <code>${rawOut}</code>\n` +
-                    `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
-                    `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
-                    `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
-                }
+                // Verifica se già notificata come nuova prenotazione per evitare spam
+                const notificationKey = isCancelled ? `res_cancelled_${reservationId}` : (isModified ? `res_modified_${reservationId}_${rawIn}_${rawOut}` : `res_notified_${reservationId}`);
+                const { data: alreadySent } = await supabaseAdmin
+                  .from('telegram_config')
+                  .select('id')
+                  .eq('id', notificationKey)
+                  .maybeSingle();
 
-                sendDepartmentTelegramMessage('village', tgMessage, { topic: targetTopicKey }).catch(tgErr => {
-                  console.warn('[OCTORATE WEBHOOK] Errore invio notifica Telegram prenotazione:', tgErr);
-                });
+                if (!alreadySent) {
+                  if (isCancelled) {
+                    targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
+                    tgMessage = `🔴 <b>[CANCELLAZIONE PRENOTAZIONE]</b>\n` +
+                      `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                      `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                      `🌐 <b>Canale:</b> ${channelName}\n` +
+                      `📅 <b>Periodo Annullato:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
+                      `💰 <b>Importo Rilasciato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                      `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                  } else if (isModified) {
+                    targetTopicKey = 'MODIFICATIONS_CANCELLATIONS';
+                    tgMessage = `🟡 <b>[PRENOTAZIONE MODIFICATA]</b>\n` +
+                      `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                      `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                      `🌐 <b>Canale:</b> ${channelName}\n` +
+                      `📅 <b>Nuovo Periodo:</b> <code>${rawIn} ➔ ${rawOut}</code> (<b>${stayNights} notti</b>)\n` +
+                      `💰 <b>Totale Aggiornato:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                      `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                  } else {
+                    targetTopicKey = 'BOOKINGS';
+                    tgMessage = `🟢 <b>[NUOVA PRENOTAZIONE RICEVUTA]</b>\n` +
+                      `🏨 <b>Alloggio:</b> <b>${roomName}</b>\n` +
+                      `👤 <b>Ospite:</b> <b>${guestName}</b>\n` +
+                      `🌐 <b>Canale:</b> ${channelName}\n` +
+                      `📅 <b>Check-in:</b> <code>${rawIn}</code>\n` +
+                      `🛫 <b>Check-out:</b> <code>${rawOut}</code>\n` +
+                      `🌙 <b>Durata:</b> <b>${stayNights} notti</b>\n` +
+                      `💰 <b>Totale:</b> <b>${formattedTotal} ${currency}</b>\n` +
+                      `🔖 <b>Codice Prenotazione:</b> <code>#${reservationId}</code>`;
+                  }
+
+                  const tgRes = await sendDepartmentTelegramMessage('village', tgMessage, { topic: targetTopicKey });
+                  console.log(`[OCTORATE WEBHOOK] Inviata notifica Telegram per prenotazione #${reservationId}:`, tgRes);
+
+                  // Memorizzazione chiave notifica inviata per non duplicare
+                  await supabaseAdmin.from('telegram_config').upsert({
+                    id: notificationKey,
+                    bot_token: 'notified',
+                    chat_id: String(reservationId),
+                    updated_at: new Date().toISOString()
+                  });
+                } else {
+                  console.log(`[OCTORATE WEBHOOK] Notifica Telegram per prenotazione #${reservationId} (${notificationKey}) già inviata in precedenza. Ignorata per evitare duplicati.`);
+                }
               } catch (notifyErr) {
-                console.warn('[OCTORATE WEBHOOK] Errore creazione notifica Telegram:', notifyErr);
+                console.warn('[OCTORATE WEBHOOK] Errore creazione/invio notifica Telegram:', notifyErr);
               }
 
               // 🛡️ 2. Auto-Shield o Gestione Cancellazione Diretta
