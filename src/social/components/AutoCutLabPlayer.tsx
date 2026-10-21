@@ -1546,8 +1546,14 @@ export function AutoCutLabPlayer({
                       </div>
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (TASSATIVAMENTE UNO SOPRA L'ALTRO, RIDOTTO DI UN ULTERIORE 25% scale-[0.56]) */}
-                    <div className={`w-fit shrink-0 ${currentScene.pizzaSizes && mode !== 'R1' ? 'origin-bottom-right scale-[0.56] pb-0.5' : 'origin-bottom-right scale-[0.70] pb-0.5'}`}>
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (TASSATIVAMENTE UNO SOPRA L'ALTRO, RIDOTTO DI UN ULTERIORE 25%) */}
+                    <div 
+                      className="w-fit shrink-0 pb-0.5"
+                      style={{
+                        transform: currentScene.pizzaSizes && mode !== 'R1' ? 'scale(0.42)' : 'scale(0.52)',
+                        transformOrigin: 'bottom right'
+                      }}
+                    >
                       {currentScene.pizzaSizes && mode !== 'R1' ? (
                         <div className="flex flex-col items-end gap-1">
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
