@@ -1196,26 +1196,28 @@ export function AutoCutLabPlayer({
                 ))}
               </div>
 
-              {/* PREZZO PIATTO / PIZZE 8" E 12" (BANNER GIALLO BORDATO DI NERO, TESTO NERO, SIMBOLO ฿, PUNTINO ROSSO LAMPEGGIANTE) */}
-              <div className="pt-1">
+              {/* PREZZO PIATTO / PIZZE 8" E 12" (BORDI RETTANGOLO ADERENTI AI LIMITI DELLA SCRITTA - TIGHT FIT) */}
+              <div className="pt-0.5 origin-left scale-[0.88] w-fit">
                 {currentScene.pizzaSizes ? (
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-black font-mono font-black text-xs whitespace-nowrap">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
-                      <span className="text-black font-black">8"</span>
-                      <span>{currentScene.pizzaSizes.size8Price} ฿</span>
-                    </span>
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-black font-mono font-black text-xs whitespace-nowrap">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
-                      <span className="text-black font-black">12"</span>
-                      <span>{currentScene.pizzaSizes.size12Price} ฿</span>
-                    </span>
+                  <div className="flex items-center gap-1.5">
+                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
+                      <span className="font-['Kanit',sans-serif] text-[11px] font-black bg-black text-[#FFE500] px-1 rounded-sm leading-none">8"</span>
+                      <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size8Price}฿</span>
+                    </div>
+                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
+                      <span className="font-['Kanit',sans-serif] text-[11px] font-black bg-black text-[#FFE500] px-1 rounded-sm leading-none">12"</span>
+                      <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size12Price}฿</span>
+                    </div>
                   </div>
                 ) : (
-                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-black font-mono font-black text-xs whitespace-nowrap">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
-                    <span>{currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, ' ฿') : ''}</span>
-                  </span>
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
+                    <span className="font-['Kanit',sans-serif] text-lg sm:text-xl font-black leading-none tracking-tight">
+                      {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
+                    </span>
+                  </div>
                 )}
               </div>
 
@@ -1276,11 +1278,13 @@ export function AutoCutLabPlayer({
 
               {/* PREZZO OCTORATE LAST MINUTE: SOLO IN LM1 */}
               {mode === 'LM1' && (
-                <div className="pt-1.5">
-                  <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400 border-2 border-black text-black font-mono font-black text-xs shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
-                    <span>{currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, ' ฿') : ''}</span>
-                  </span>
+                <div className="pt-1 origin-left scale-[0.88] w-fit">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
+                    <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">
+                      {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -1400,26 +1404,28 @@ export function AutoCutLabPlayer({
                       ))}
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (BANNER GIALLO BORDATO DI NERO, TESTO NERO, SIMBOLO ฿, PUNTINO ROSSO) */}
-                    <div className="pt-0.5">
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (STESSA IDENTICA FORMA ORIGINALE, SCALATO LEGGERMENTE CON SCALE 88%) */}
+                    <div className="pt-0.5 origin-left scale-[0.88] w-fit">
                       {currentScene.pizzaSizes ? (
                         <div className="flex items-center gap-1.5">
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-black font-mono font-black text-[10px] sm:text-[11px] whitespace-nowrap">
-                            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
-                            <span className="text-black font-black">8"</span>
-                            <span>{currentScene.pizzaSizes.size8Price} ฿</span>
-                          </span>
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-black font-mono font-black text-[10px] sm:text-[11px] whitespace-nowrap">
-                            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
-                            <span className="text-black font-black">12"</span>
-                            <span>{currentScene.pizzaSizes.size12Price} ฿</span>
-                          </span>
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
+                            <span className="font-['Kanit',sans-serif] text-[11px] font-black bg-black text-[#FFE500] px-1 rounded-sm leading-none">8"</span>
+                            <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size8Price}฿</span>
+                          </div>
+                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
+                            <span className="font-['Kanit',sans-serif] text-[11px] font-black bg-black text-[#FFE500] px-1 rounded-sm leading-none">12"</span>
+                            <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size12Price}฿</span>
+                          </div>
                         </div>
                       ) : currentScene.priceLabel ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-black font-mono font-black text-[10px] sm:text-[11px] whitespace-nowrap">
-                          <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
-                          <span>{currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, ' ฿')}</span>
-                        </span>
+                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                          <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
+                          <span className="font-['Kanit',sans-serif] text-lg sm:text-xl font-black leading-none tracking-tight">
+                            {currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
+                          </span>
+                        </div>
                       ) : null}
                     </div>
                   </div>
