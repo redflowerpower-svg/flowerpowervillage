@@ -1200,14 +1200,14 @@ export function AutoCutLabPlayer({
               <div className="pt-0.5 origin-left scale-[0.88] w-fit">
                 {currentScene.pizzaSizes ? (
                   <div className="flex items-center gap-1.5">
-                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                    <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                       <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                      <span className="font-['Kanit',sans-serif] text-[11px] font-black bg-black text-[#FFE500] px-1 rounded-sm leading-none">8"</span>
+                      <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
                       <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size8Price}฿</span>
                     </div>
-                    <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                    <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                       <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                      <span className="font-['Kanit',sans-serif] text-[11px] font-black bg-black text-[#FFE500] px-1 rounded-sm leading-none">12"</span>
+                      <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
                       <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size12Price}฿</span>
                     </div>
                   </div>
@@ -1408,14 +1408,14 @@ export function AutoCutLabPlayer({
                     <div className="pt-0.5 origin-left scale-[0.88] w-fit">
                       {currentScene.pizzaSizes ? (
                         <div className="flex items-center gap-1.5">
-                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                          <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                             <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                            <span className="font-['Kanit',sans-serif] text-[11px] font-black bg-black text-[#FFE500] px-1 rounded-sm leading-none">8"</span>
+                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
                             <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size8Price}฿</span>
                           </div>
-                          <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                          <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                             <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                            <span className="font-['Kanit',sans-serif] text-[11px] font-black bg-black text-[#FFE500] px-1 rounded-sm leading-none">12"</span>
+                            <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
                             <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size12Price}฿</span>
                           </div>
                         </div>
