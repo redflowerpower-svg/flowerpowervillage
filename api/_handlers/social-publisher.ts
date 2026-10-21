@@ -230,63 +230,116 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
 
       const isPizza = brand === 'pizza';
       const city = isPizza ? 'Ranong' : 'Koh Phayam';
-      const weatherText = weather 
-        ? `${weather.labelIt || weather.labelEn || 'Clima tropicale'} (${weather.isRaining ? 'STA PIOVENDO A ' + city.toUpperCase() : 'Cielo sereno'}). Spunto sensoriale: ${weather.sensoryAngle || 'Atmosfera conviviale.'}`
-        : 'Clima tropicale a Ranong';
+
+      // 🕒 Calcolo Contesto Temporale e Culturale (Orario locale Thailandia UTC+7)
+      const now = new Date();
+      // Offset per orario thai (UTC+7)
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const thaiDate = new Date(utc + (3600000 * 7));
+      const thaiDayOfWeek = thaiDate.getDay(); // 0: Dom, 1: Lun, ... 5: Ven, 6: Sab
+      const thaiHours = thaiDate.getHours();
+
+      const daysContext = [
+        { it: 'Domenica', th: 'วันอาทิตย์', angle: 'Domenica di puro relax e ricarica: zero stress, comfort food sul divano prima di ricominciare la settimana.' },
+        { it: 'Lunedì', th: 'วันจันทร์', angle: 'Lunedì: inizio settimana, serve una coccola o un boost di buonumore per partire alla grande.' },
+        { it: 'Martedì', th: 'วันอังคาร', angle: 'Martedì: routine lavorativa, voglia di una pausa gustosa senza complicazioni.' },
+        { it: 'Mercoledì', th: 'วันพุธ', angle: 'Mercoledì: giro di boa della settimana, ci si premia a metà percorso.' },
+        { it: 'Giovedì', th: 'วันพฤหัสบดี', angle: 'Giovedì: aria di pre-weekend, si pianifica la serata con amici o famiglia.' },
+        { it: 'Venerdì', th: 'วันศุกร์แห่งชาติ', angle: 'Venerdì Nazionale (วันศุกร์แห่งชาติ): festa e liberazione! Stasera niente fornelli, premiati con un vero pizza party!' },
+        { it: 'Sabato', th: 'วันเสาร์', angle: 'Sabato sera: relax totale, maratona serie TV, film, amici o serata romantica.' }
+      ];
+      const todayCtx = daysContext[thaiDayOfWeek];
+
+      let mealMoment = 'Cena & Serata (momento clou per rilassarsi, ordinare caldo a casa o cenare in compagnia)';
+      if (thaiHours >= 11 && thaiHours < 15) {
+        mealMoment = 'Pranzo (pausa appetitosa, energia autentica, consegna rapida in ufficio o a casa)';
+      } else if (thaiHours >= 15 && thaiHours < 18) {
+        mealMoment = 'Tardo Pomeriggio / Pre-Cena (il momento in cui sale la voglia di qualcosa di sfizioso e confortevole)';
+      }
+
+      // 🌦️ Spunto Meteo Tradotto in Opportunità Emotiva / Confortevole
+      let weatherAngle = 'Clima tropicale piacevole: perfetto per gustare una cena all\'aperto o rilassarsi con buon cibo.';
+      if (weather) {
+        if (weather.isRaining) {
+          weatherAngle = isPizza
+            ? `FUORI STA PIOVENDO A RANONG (${weather.tempC}°C). In Thailandia e a Ranong (famosa per gli 8 mesi di pioggia) la pioggia è l'occasione perfetta per il "Sabai Sabai": non bagnarsi in scooter, stare comodi a piedi nudi sul divano con la serie TV preferita, mentre il rider di Flower Power bussa con la pizza caldissima e croccante in scatola termica.`
+            : `PIOGGIA TROPICALE A KOH PHAYAM (${weather.tempC}°C). Il suono rilassante della pioggia sulle foglie di palma, il profumo della terra bagnata a Buffalo Bay e la quiete intima del bungalow.`;
+        } else if (weather.isNight) {
+          weatherAngle = `Serata stellata tropicale (${weather.tempC}°C): aria piacevole, brezza serale, la compagnia giusta e i profumi del forno a legna.`;
+        } else {
+          weatherAngle = `Giornata serena e luminosa (${weather.tempC}°C): sole tropicale, energia positiva, voglia di sapori freschi e autentici.`;
+        }
+      }
 
       const dishListText = dishDetails && dishDetails.length > 0
         ? dishDetails.map((d: any) => `- ${d.name} (${d.nameTh}): ${d.description || 'Autentica ricetta artigianale'}`).join('\n')
         : dishes.map((d: string) => `- ${d}`).join('\n');
 
       const prompt = isPizza
-        ? `Sei il copywriter ufficiale di Flower Power Pizza a Ranong, Thailandia (pizzeria & ristorante italiano artigianale).
-Scrivi un micro-post social biculturale (Thai + Inglese) ad alto impatto per promuovere la nostra autentica pizza tradizionale e cucina italiana.
+        ? `Sei il copywriter creativo di Flower Power Pizza a Ranong, Thailandia (autentica pizzeria tradizionale e cucina artigianale italiana).
+Scrivi un micro-post social biculturale (THAI in alto + INGLESE in basso) magnetico, divertente e profondamente calato nel costume e nella vita reale thailandese.
 
 CONTESTO ATTUALE:
 - Piatti protagonisti:
 ${dishListText}
-- METEO LIVE A RANONG IN QUESTO MOMENTO: ${weatherText}
-- Stagione: ${season || 'Alta stagione / Clima tropicale'}
-- Sito ufficiale: www.flowerpowerpizza.com (10% sconto prima ordinazione online, consegna a domicilio veloce a Ranong o al tavolo)
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
+- Stagione: ${season || 'Clima tropicale'}
+- Sito ufficiale: www.flowerpowerpizza.com (10% di sconto sul primo ordine online, consegna veloce in tutta Ranong o tavolo al ristorante)
 
-MISSIONE E REGOLE FERREE:
-1. NON FARE UN PAPIRO! MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Testo arioso, interlinee frequenti, zero muri di parole, ritmo dinamico leggibile in 3 secondi.
-2. IL GANCIO DEL GIORNO (Cogli il particolare giusto): Crea un contrasto vivido e sensoriale tra il meteo reale di oggi a Ranong (es. pioggia battente = profumo del forno a legna, comfort food caldo, consegna asciutta e fumante sul divano; sole/sera = croccantezza dorata, ingredienti freschi, cena rilassante all'aperto) e l'anima artigianale del piatto (lievitazione lenta 48 ore, pomodoro italiano, fiordilatte, salsa di noci liguri fatta in casa, pasta fresca).
-3. MARCHIO DI FABBRICA: "IL PROVERBIO DEL GIORNO": Inserisci SEMPRE come firma distintiva un proverbio geniale e calzante sulla vita, il buon cibo, la pioggia o la convivialità (sempre DIVERSO, originale, mai scontato o ripetuto), sia in Thai che in Inglese:
-   - In Thai: 📜 สุภาษิตประจำวัน: "..."
-   - In Inglese: 📜 Proverb of the Day: "..."
-4. REGOLA NOMI PIATTI: Il nome del piatto NON DEVE MAI andare a capo a metà! È una locuzione unica continua su singola riga.
-5. CHIUSURA: Invito veloce a ordinare su www.flowerpowerpizza.com (10% sconto).
-6. HASHTAG: Inserisci DIRETTAMENTE 4-5 hashtag virali e mirati (es. #FlowerPowerPizza #RanongFood #ของกินระนอง #อร่อยบอกต่อ #ระนอง).
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. DIVIETO ASSOLUTO DI INIZIARE SEMPRE CON IL METEO:
+   Non fare il bollettino meteo! Il meteo è solo UNO degli spunti a tua disposizione.
+   Varia sistematicamente il punto di partenza del post:
+   - A volte parti direttamente dall'esperienza sensoriale del piatto (il cornicione fragrante, il profumo del pomodoro italiano, il formaggio che fila).
+   - A volte parti dalla situazione umana del giorno (es. "Oggi è venerdì: meriti di rilassarti", "Chi ha voglia di cucinare stasera?", "Maratona serie TV sul divano?").
+   - A volte sfrutta il meteo con complicità (es. se piove: non bagnarti in motorino, piedi sul divano e ci pensiamo noi a farti arrivare la pizza calda fumante).
+   - A volte parti con una curiosità o un proverbio simpatico.
 
-Rispondi SOLO con un JSON valido con questa struttura esatta:
+2. CULTURA E GERGO THAILANDESE (Nativo, caldo, spontaneo):
+   - Usa un tono amichevole, caloroso e moderno (particelle naturali come ครับ, ฟินสุดๆ, สบายๆ, อร่อยบอกต่อ, ส่งร้อนๆ ถึงหน้าบ้าน).
+   - Evita traduzioni letterali da cartella stampa: parla come parla chi vive a Ranong e ama il buon cibo e la comodità della vita quotidiana.
+
+3. STRUTTURA & LUNGHEZZA:
+   - MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Spaziatura ariosa, zero muri di testo.
+   - Nomi dei piatti: REGOLA IMMODIFICABILE: il nome del piatto NON DEVE MAI andare a capo a metà! È una locuzione unica continua su singola riga.
+   - Proverbio del Giorno: inserisci sempre come firma distintiva un proverbio o battuta sulla vita, il cibo o il relax (in Thai: 📜 สุภาษิตประจำวัน: "..." | in Inglese: 📜 Proverb of the Day: "...").
+   - Chiusura breve: invito a ordinare su www.flowerpowerpizza.com con il 10% di sconto prima ordinazione.
+   - Hashtag: 4-5 hashtag mirati e virali nel testo.
+
+Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 {
   "thaiContent": "...",
   "englishContent": "...",
   "proverbThai": "...",
   "proverbEnglish": "..."
 }`
-        : `Sei il copywriter ufficiale di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale a Buffalo Bay / อ่าวเขาควาย).
-Scrivi un micro-post social biculturale (Inglese + Thai) ad alto impatto per promuovere il soggiorno o il ristorante dell'isola.
+        : `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale e ristorante a Buffalo Bay / อ่าวเขาควาย).
+Scrivi un micro-post social biculturale (INGLESE in alto + THAI in basso) evocativo, rilassante e magnetico.
 
 CONTESTO ATTUALE:
 - Alloggio/Piatto:
 ${dishListText}
-- METEO LIVE A KOH PHAYAM: ${weatherText}
+- Momento della settimana: ${todayCtx.it} (${todayCtx.th}) ➔ ${todayCtx.angle}
+- Fascia oraria: ${mealMoment}
+- Situazione meteo del momento: ${weatherAngle}
 - Stagione: ${season || 'Stagione tropicale'}
 - Sito ufficiale: www.flowerpowervillage.com (Miglior tariffa diretta garantita online)
 
-MISSIONE E REGOLE FERREE:
-1. MASSIMO 3-4 RIGHE AD ALTO IMPATTO per lingua. Testo arioso, interlinee frequenti, zero muri di parole, atmosfera tropicale rilassante ma magnetica.
-2. IL GANCIO DEL GIORNO: Cogli l'essenza dell'isola (la brezza marina, il bungalow in legno naturale tra le palme, il silenzio della baia, il tramonto su Buffalo Bay).
-3. MARCHIO DI FABBRICA: "IL PROVERBIO DEL GIORNO": Inserisci SEMPRE come firma distintiva un proverbio saggio e suggestivo sul viaggio, la calma, il mare o il relax (sempre DIVERSO e mai banale):
-   - In Inglese: 📜 Proverb of the Day: "..."
-   - In Thai: 📜 สุภาษิตประจำวัน: "..."
-4. REGOLA NOMI ALLOGGI: Il nome dell'alloggio NON DEVE MAI andare a capo a metà!
-5. CHIUSURA: Invito a prenotare su www.flowerpowervillage.com.
-6. HASHTAG: 4-5 hashtag virali mirati (#FlowerPowerVillage #KohPhayam #เกาะพยาม #BuffaloBay #TropicalEscape).
+REGOLE FONDAMENTALI DI SCRITTURA:
+1. DIVIETO DI MONOTONIA:
+   Varia sempre l'attacco: a volte il rumore del mare e la brezza marina, a volte la magia del bungalow in legno tra le palme, a volte la fuga dal caos cittadino (slow life), a volte il buon cibo all'ombra dei giardini tropicali.
+2. CULTURA SLOW LIFE DI KOH PHAYAM:
+   Evoca la pace autentica dell'isola, il dondolarsi sull'amaca, il tramonto a Buffalo Bay, il piacere di staccare la spina.
+3. STRUTTURA & LUNGHEZZA:
+   - MASSIMO 3-4 RIGHE per lingua. Spaziatura ariosa, zero muri di parole.
+   - Nomi alloggi: REGOLA IMMODIFICABILE: il nome dell'alloggio NON DEVE MAI andare a capo a metà!
+   - Proverbio del Giorno: saggio e suggestivo sul viaggio, la lentezza, la natura o il mare.
+   - Chiusura: invito a prenotare su www.flowerpowervillage.com.
+   - Hashtag: 4-5 hashtag mirati (#FlowerPowerVillage #KohPhayam #เกาะพยาม #BuffaloBay #TropicalEscape).
 
-Rispondi SOLO con un JSON valido con questa struttura esatta:
+Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 {
   "thaiContent": "...",
   "englishContent": "...",
@@ -302,7 +355,7 @@ Rispondi SOLO con un JSON valido con questa struttura esatta:
         },
         body: JSON.stringify({
           model: 'deepseek-chat',
-          temperature: 0.88, // Creatività e varietà elevata, mai contenuti uguali
+          temperature: 0.90, // Elevata creatività e varietà espressiva ogni volta
           messages: [{ role: 'user', content: prompt }],
           response_format: { type: 'json_object' }
         })
@@ -334,7 +387,8 @@ Rispondi SOLO con un JSON valido con questa struttura esatta:
         data: {
           ...parsed,
           thaiContent,
-          englishContent
+          englishContent,
+          promptSent: prompt
         } 
       });
     } catch (err: any) {
