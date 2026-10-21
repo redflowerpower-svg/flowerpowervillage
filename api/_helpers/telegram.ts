@@ -122,10 +122,14 @@ export const VILLAGE_TOPICS = {
   DAILY_REPORT: 9
 } as const;
 
+export { formatDateDMY, formatAllDatesToDMY } from "./date-formatter.js";
+import { formatAllDatesToDMY } from "./date-formatter.js";
+
 export type VillageTopicKey = keyof typeof VILLAGE_TOPICS;
 
 /**
  * Sends a Telegram message to a specific department ('pizza' or 'village').
+ * Garantisce tassativamente che tutte le date siano espresse in formato giorno/mese/anno (DD/MM/YYYY).
  */
 export async function sendDepartmentTelegramMessage(
   department: TelegramDepartment,
@@ -143,9 +147,12 @@ export async function sendDepartmentTelegramMessage(
     return { success: false, error: 'Telegram not configured for this department' };
   }
 
+  // 📅 Trasformazione universale: tutte le date inviate a Telegram diventano Giorno/Mese/Anno (DD/MM/YYYY)
+  const cleanMessage = formatAllDatesToDMY(message);
+
   const payload: any = {
     chat_id: chatId,
-    text: message,
+    text: cleanMessage,
     parse_mode: options?.parseMode || 'HTML',
     disable_web_page_preview: options?.disableWebPagePreview ?? true
   };

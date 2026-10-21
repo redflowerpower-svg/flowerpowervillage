@@ -1,4 +1,5 @@
 import { sendDepartmentTelegramMessage } from "./telegram.js";
+import { formatDateDMY } from "./date-formatter.js";
 
 export interface CanonicalAccommodation {
   key: string;
@@ -196,7 +197,7 @@ export async function checkAndNotifyOverbookings(
 `🚨 <b>ALLERTA OVERBOOKING IMMEDIATA!</b>
 ━━━━━━━━━━━━━━━━━━━━
 🏨 <b>Alloggio:</b> <b>${roomTitle}</b>
-📅 <b>Periodo Conflitto:</b> ${firstBooking.checkin} ➔ ${firstBooking.checkout}
+📅 <b>Periodo Conflitto:</b> ${formatDateDMY(firstBooking.checkin)} ➔ ${formatDateDMY(firstBooking.checkout)}
 
 <b>1️⃣ Prima Prenotazione Ricevuta:</b>
 • <b>Ospite:</b> ${firstBooking.guestName}

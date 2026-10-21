@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { getTelegramCredentials } from "../_helpers/telegram.js";
+import { formatDateDMY, formatAllDatesToDMY } from "../_helpers/date-formatter.js";
 import { sendTableReservationEmail } from "../_helpers/table-reservation-email.js";
 import type { TableReservationData } from "../_helpers/table-reservation-parser.js";
 import { 
@@ -298,7 +299,7 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
           text += `✉️ <b>Email</b>: <code>${escapeHtml(customerEmail)}</code>\n`;
         }
         text += `👥 <b>Ospiti</b>: <b>${reservationRecord.guests} persone</b>\n`;
-        text += `📅 <b>Data</b>: <b>${reservationRecord.reservation_date}</b>\n`;
+        text += `📅 <b>Data</b>: <b>${formatDateDMY(reservationRecord.reservation_date)}</b>\n`;
         text += `🕒 <b>Orario</b>: <b>${reservationRecord.reservation_time}</b>\n`;
         text += `🛖 <b>Ambiente</b>: <b>${seatingLabel}</b>\n`;
         if (reservationRecord.occasion) {
@@ -325,7 +326,7 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             chat_id: chatId,
-            text,
+            text: formatAllDatesToDMY(text),
             parse_mode: 'HTML',
             reply_markup: inlineKeyboard
           })
