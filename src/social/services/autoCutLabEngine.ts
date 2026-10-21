@@ -1012,14 +1012,17 @@ export function generateR1Test(): AutoCutTestRun {
 
   const scenes: AutoCutScene[] = selectedDishes.map((entry, idx) => {
     const { titlePrimary, titleSecondary } = getCleanDishTitles(entry.dish);
-    const priceInfo = getDishPriceInfo(entry.dish);
+    // 🍕 REGOLA R1: Per le pizze si espone ESCLUSIVAMENTE la 12 pollici, senza specifica delle 8", come prezzo normale standard
+    const v12 = entry.dish.variants?.find(v => v.name.includes('12') || v.name.includes('12"'));
+    const singlePrice = v12?.price || entry.dish.price || 0;
+
     return {
       imageUrl: entry.dish.image || '',
       titlePrimary,
       titleSecondary,
-      priceLabel: priceInfo.priceLabel,
-      priceValue: priceInfo.priceValue,
-      pizzaSizes: priceInfo.pizzaSizes,
+      priceLabel: `${singlePrice} ฿`,
+      priceValue: singlePrice,
+      pizzaSizes: undefined, // Disattivato in R1: solo prezzo singolo standard
       trajectory: FOOD_MACRO_TRAJECTORIES[idx % FOOD_MACRO_TRAJECTORIES.length],
       badgeCategory: entry.catName,
       sourceName: entry.dish.name

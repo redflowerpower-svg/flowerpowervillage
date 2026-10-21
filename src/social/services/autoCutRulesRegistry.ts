@@ -353,7 +353,7 @@ export const AUTOCUT_RULES_REGISTRY: Record<AutoCutLabMode, AutoCutModeRuleDetai
       topBanner: 'Banner superiore a 3 righe: FLOWER POWER VILLAGE / [🟢 DELIVERY] lampeggiante · เดลิเวอรี่ / [✆ WhatsApp] +66 095 882 5573 (logo 48px, respiro a destra, zero sito web).',
       primaryTitle: '🇹🇭 Thai grande sopra.',
       secondaryTitle: '🇬🇧 Inglese sotto.',
-      priceBadge: 'Doppi prezzi 8" e 12" per le pizze, prezzo singolo per primi, secondi e dessert.'
+      priceBadge: 'Prezzo singolo standard (in ฿) per tutti i piatti. Per le pizze viene esposto SOLO il prezzo della 12" (senza specifica delle 8", esattamente come piatto unico).'
     },
     cameraMovement: 'Pan macro e zoom continuo sui piatti caldi.',
     outroSpec: {
