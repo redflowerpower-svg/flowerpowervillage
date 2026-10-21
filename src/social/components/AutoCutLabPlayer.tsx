@@ -1198,7 +1198,7 @@ export function AutoCutLabPlayer({
 
               {/* PREZZO PIATTO / PIZZE 8" E 12" (BORDI RETTANGOLO ADERENTI AI LIMITI DELLA SCRITTA - TIGHT FIT) */}
               <div className="pt-0.5 origin-left scale-[0.88] w-fit">
-                {currentScene.pizzaSizes ? (
+                {currentScene.pizzaSizes && mode !== 'R1' ? (
                   <div className="flex items-center gap-1.5">
                     <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                       <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
@@ -1406,7 +1406,7 @@ export function AutoCutLabPlayer({
 
                     {/* PREZZO PIATTO / PIZZE 8" E 12" (STESSA IDENTICA FORMA ORIGINALE, SCALATO LEGGERMENTE CON SCALE 88%) */}
                     <div className="pt-0.5 origin-left scale-[0.88] w-fit">
-                      {currentScene.pizzaSizes ? (
+                      {currentScene.pizzaSizes && mode !== 'R1' ? (
                         <div className="flex items-center gap-1.5">
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                             <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
