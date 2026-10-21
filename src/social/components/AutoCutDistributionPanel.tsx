@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
 import { THIRD_PARTY_COMMUNITY_GROUPS } from '../config/thirdPartyGroups';
+import { dispatchPostToTelegramTopic } from '../services/telegramStudioDispatcher';
+import { generatePostCopy } from '../services/autoCutCopywriterEngine';
 
 export type DistributionEnvironment = 'test' | 'production';
 export type DistributionChannelId = 'tiktok' | 'google' | 'facebook' | 'instagram';
@@ -137,9 +139,37 @@ export function AutoCutDistributionPanel({
     setPublishStatus({ type: null, message: '' });
 
     try {
+      // Invio REALE al bot Telegram Staff se l'opzione gruppi FB è selezionata
+      if (activeChannel === 'facebook' && placements.facebookGroupsTelegram) {
+        const copyResult = generatePostCopy(testRun, 0);
+        await dispatchPostToTelegramTopic({
+          topic: 'kohPhayamGroup',
+          title: `Post Pronto per Gruppo Facebook Koh Phayam · Format ${testRun.mode}`,
+          copyText: copyResult.fullCaptionInstagram,
+          format: testRun.mode,
+          brand: testRun.brand,
+          priceBadge: testRun.scenes[0]?.priceLabel,
+          imageUrl: testRun.scenes[0]?.imageUrl
+        });
+      }
+
+      // Invio REALE al bot Telegram Staff se l'opzione TikTok Stories Telegram è selezionata
+      if (activeChannel === 'tiktok' && placements.tiktokStoryTelegram) {
+        const copyResult = generatePostCopy(testRun, 0);
+        await dispatchPostToTelegramTopic({
+          topic: 'tikTokStories',
+          title: `Post Pronto per TikTok Stories / Reels · Format ${testRun.mode}`,
+          copyText: copyResult.fullCaptionTikTok,
+          format: testRun.mode,
+          brand: testRun.brand,
+          priceBadge: testRun.scenes[0]?.priceLabel,
+          imageUrl: testRun.scenes[0]?.imageUrl
+        });
+      }
+
       if (environment === 'test') {
         // Simulazione Test Sandbox
-        await new Promise(r => setTimeout(r, 900));
+        await new Promise(r => setTimeout(r, 600));
         setPublishStatus({
           type: 'success',
           message: `🧪 Test simulazione completato per ${channelNames[activeChannel]}!`,
@@ -147,21 +177,27 @@ export function AutoCutDistributionPanel({
             `Payload compilato conformemente alle API di ${channelNames[activeChannel]}`,
             'Verifica del testo, formattazione bilingue e link attivi superata',
             ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
-              ? ['📲 Dispatch Telegram preparato con link al gruppo Facebook "Koh Phayam" (https://www.facebook.com/share/g/1Hyh1mJ7Hu/)']
+              ? ['📲 Notifica inviata con successo al Topic "Koh Phayam Group" su Telegram con bottone diretto!']
+              : []),
+            ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
+              ? ['📲 Notifica inviata con successo al Topic "TikTok Stories" su Telegram!']
               : []),
             'Nessun dato reale inviato al profilo pubblico'
           ]
         });
       } else {
         // Invio Reale in Produzione
-        await new Promise(r => setTimeout(r, 1400));
+        await new Promise(r => setTimeout(r, 1000));
         setPublishStatus({
           type: 'success',
           message: `🚀 Pubblicazione LIVE inviata con successo su ${channelNames[activeChannel]}!`,
           details: [
             `Contenuto multimediale e didascalia trasmessi alle API ufficiali`,
             ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
-              ? ['📲 Notifica inviata con successo al Bot Telegram Staff con pulsante per il gruppo FB "Koh Phayam"']
+              ? ['📲 Notifica inviata con successo al Topic "Koh Phayam Group" su Telegram con bottone diretto!']
+              : []),
+            ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
+              ? ['📲 Notifica inviata con successo al Topic "TikTok Stories" su Telegram!']
               : []),
             `Profilo aziendale aggiornato in tempo reale`,
             `Notifiche e log salvati nel database`

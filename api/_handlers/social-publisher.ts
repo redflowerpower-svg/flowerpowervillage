@@ -19,6 +19,48 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     return res.status(200).end();
   }
 
+  // 0. POST /api/social-publisher?action=telegram_dispatch
+  if (action === "telegram_dispatch") {
+    try {
+      const { chat_id, message_thread_id, text, reply_markup } = req.body || {};
+      let botToken = process.env.TELEGRAM_SOCIAL_BOT_TOKEN;
+
+      if (!botToken && supabase) {
+        const { data } = await supabase
+          .from("telegram_config")
+          .select("bot_token")
+          .eq("id", "social")
+          .maybeSingle();
+        if (data?.bot_token) {
+          botToken = data.bot_token;
+        }
+      }
+
+      if (!botToken) {
+        return res.status(500).json({ ok: false, error: "Telegram Social bot token not configured" });
+      }
+
+      const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id,
+          message_thread_id,
+          text,
+          parse_mode: "HTML",
+          disable_web_page_preview: false,
+          reply_markup
+        })
+      });
+
+      const tgData = await tgRes.json();
+      return res.status(200).json(tgData);
+    } catch (err: any) {
+      console.error("[social-publisher] Telegram dispatch error:", err);
+      return res.status(500).json({ ok: false, error: err.message || "Telegram dispatch failed" });
+    }
+  }
+
   // 0. POST /api/social-publisher?action=generate_ai_post_copy
   if (action === "generate_ai_post_copy") {
     const apiKey = process.env.DEEPSEEK_API_KEY || process.env.VITE_DEEPSEEK_API_KEY;
