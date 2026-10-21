@@ -28,7 +28,7 @@ function format43DishTitle(rawText: string, lang: 'th' | 'en'): string[] {
   const clean = rawText.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
   if (!clean) return [];
 
-  const maxSingleLine = lang === 'en' ? 28 : 26;
+  const maxSingleLine = lang === 'en' ? 34 : 30;
 
   // Se lo spazio è sufficiente su una sola riga, non andare MAI a capo
   if (clean.length <= maxSingleLine) {
@@ -1512,38 +1512,44 @@ export function AutoCutLabPlayer({
               }`}>
                 {/* Caso CIBO / PIATTI (P1): Categoria, Thai sopra in grande, Inglese sotto a scalare, prezzo */}
                 {(brand === 'pizza' || mode === 'R1') && (
-                  <div className={`w-full ${mode === 'P1' ? 'flex items-end justify-between gap-2.5' : 'space-y-1'}`}>
+                  <div className="w-full flex items-end justify-between gap-2">
                     {/* Blocco Titoli (Sinistra) */}
-                    <div className="space-y-1 flex-1 min-w-0">
-                      {currentScene.badgeCategory && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide shadow-md uppercase bg-rose-600 text-white border border-rose-400">
-                          {currentScene.badgeCategory}
-                        </span>
-                      )}
+                    <div className="space-y-1 flex-1 min-w-0 pr-1">
+                      {currentScene.badgeCategory && (() => {
+                        let catText = currentScene.badgeCategory;
+                        if (catText.toUpperCase().includes('TRADITIONAL ITALIAN PIZZA') || catText.toUpperCase() === 'TRADITIONAL PIZZA') {
+                          catText = 'ITALIAN PIZZA';
+                        }
+                        return (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide shadow-md uppercase bg-rose-600 text-white border border-rose-400 whitespace-nowrap shrink-0">
+                            {catText}
+                          </span>
+                        );
+                      })()}
 
-                      {/* THAI IN GRANDE SOPRA (Per P1 4:3 se lo spazio basta sta su una riga, altrimenti va a capo con contesto) */}
+                      {/* THAI IN GRANDE SOPRA (Per 4:3 se breve su singola riga protetta) */}
                       <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                         {(mode === 'P1' ? format43DishTitle(currentScene.titlePrimary, 'th') : currentScene.titlePrimary.split('\n')).map((line, idx) => (
-                          <span key={idx} className="block leading-tight">
+                          <span key={idx} className="block leading-tight whitespace-nowrap">
                             {line}
                           </span>
                         ))}
                       </h3>
 
-                      {/* INGLESE SOTTO (Per P1 4:3 se lo spazio basta sta su una riga, altrimenti va a capo con contesto) */}
+                      {/* INGLESE SOTTO (Per 4:3 se breve su singola riga protetta) */}
                       <div className="text-[11px] sm:text-xs font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                         {(mode === 'P1' ? format43DishTitle(currentScene.titleSecondary, 'en') : currentScene.titleSecondary.split('\n')).map((line, idx) => (
-                          <span key={idx} className="block leading-snug">
+                          <span key={idx} className="block leading-snug whitespace-nowrap">
                             {line}
                           </span>
                         ))}
                       </div>
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (PER P1 SCALATO DEL 25% E POSIZIONATO IN BASSO A DESTRA) */}
-                    <div className={`w-fit shrink-0 ${mode === 'P1' ? 'origin-bottom-right scale-[0.75] pb-0.5' : 'pt-0.5 origin-left scale-[0.88]'}`}>
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (TASSATIVAMENTE UNO SOPRA L'ALTRO, RIDOTTO DI UN ULTERIORE 25% scale-[0.56]) */}
+                    <div className={`w-fit shrink-0 ${currentScene.pizzaSizes && mode !== 'R1' ? 'origin-bottom-right scale-[0.56] pb-0.5' : 'origin-bottom-right scale-[0.70] pb-0.5'}`}>
                       {currentScene.pizzaSizes && mode !== 'R1' ? (
-                        <div className={`flex ${mode === 'P1' ? 'flex-col items-end gap-1' : 'items-center gap-1.5'}`}>
+                        <div className="flex flex-col items-end gap-1">
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
                             <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
                             <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
