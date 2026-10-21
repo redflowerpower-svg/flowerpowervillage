@@ -1243,45 +1243,45 @@ export const VisualMotionStudio: React.FC<VisualMotionStudioProps> = ({
         const priceParts = cleanPrice.split(/\s+/);
         const amountPart = priceParts[0] || priceText;
         const currencyPart = '฿';
+        const fullText = amountPart ? `${amountPart}฿` : '';
 
-        ctx.font = '900 15px sans-serif';
-        const amountMetrics = ctx.measureText(amountPart);
-        ctx.font = '900 13px sans-serif';
-        const currMetrics = ctx.measureText(currencyPart);
+        ctx.font = '900 15px Kanit, sans-serif';
+        const textMetrics = ctx.measureText(fullText);
 
-        const pillWidth = 32 + amountMetrics.width + currMetrics.width + 6;
-        const pillHeight = 28;
-        const pillY = textY - 18;
+        const pillWidth = 22 + textMetrics.width + 8;
+        const pillHeight = 24;
+        const pillY = textY - 17;
 
-        // Sfondo Banner Giallo brillante
-        ctx.fillStyle = '#facc15';
+        // Ombra 3D neo-brutale nera
+        ctx.fillStyle = '#000000';
         ctx.beginPath();
-        ctx.roundRect(posX, pillY, pillWidth, pillHeight, 14);
+        ctx.roundRect(posX + 2, pillY + 2, pillWidth, pillHeight, 5);
         ctx.fill();
 
-        // Bordo Nero netto
+        // Sfondo Banner Giallo brillante #FFE500
+        ctx.fillStyle = '#FFE500';
+        ctx.beginPath();
+        ctx.roundRect(posX, pillY, pillWidth, pillHeight, 5);
+        ctx.fill();
+
+        // Bordo Nero netto 2px
         ctx.strokeStyle = '#000000';
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.roundRect(posX, pillY, pillWidth, pillHeight, 14);
+        ctx.roundRect(posX, pillY, pillWidth, pillHeight, 5);
         ctx.stroke();
 
-        // Puntino rosso lampeggiante leggermente più grosso a sinistra
+        // Puntino rosso rubino
         ctx.fillStyle = '#dc2626';
         ctx.beginPath();
-        ctx.arc(posX + 13, pillY + pillHeight / 2, 4.5, 0, Math.PI * 2);
+        ctx.arc(posX + 10, pillY + pillHeight / 2, 3.5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Cifra numerica in nero marcato
-        ctx.font = '900 15px sans-serif';
+        // Cifra e Baht ฿ unificati in Kanit 900 nero
+        ctx.font = '900 15px Kanit, sans-serif';
         ctx.fillStyle = '#000000';
         ctx.textAlign = 'left';
-        ctx.fillText(amountPart, posX + 24, pillY + 19);
-
-        // Simbolo del Baht ฿ in nero marcato
-        ctx.font = '900 13px sans-serif';
-        ctx.fillStyle = '#000000';
-        ctx.fillText(currencyPart, posX + 24 + amountMetrics.width + 4, pillY + 19);
+        ctx.fillText(fullText, posX + 18, pillY + 17);
       }
 
       // Resetta ombra per elementi successivi
