@@ -20,16 +20,25 @@ import {
 } from './AutoCutDistributionPanel';
 import { getLiveWeather, WeatherConditionSummary } from '../services/ranongWeatherService';
 
+export interface PostCaptionsBundle {
+  tiktok: string;
+  instagram: string;
+  facebook: string;
+  google: string;
+}
+
 interface AutoCutPostCopywriterProps {
   testRun: AutoCutTestRun;
   selectedChannel?: DistributionChannelId;
   onSelectChannel?: (channel: DistributionChannelId) => void;
+  onCaptionsChange?: (captions: PostCaptionsBundle) => void;
 }
 
 export function AutoCutPostCopywriter({ 
   testRun,
   selectedChannel = 'tiktok',
-  onSelectChannel
+  onSelectChannel,
+  onCaptionsChange
 }: AutoCutPostCopywriterProps) {
   const [proverbSeed, setProverbSeed] = useState(0);
   const [copiedType, setCopiedType] = useState<string | null>(null);
@@ -240,6 +249,17 @@ export function AutoCutPostCopywriter({
     }
     return `${cleanThai}\n\n${cleanEn}\n\n🌐 ${siteUrl} · ${isPizza ? 'Ranong Delivery' : 'Koh Phayam Resort'}\n📌 Pulsante Azione: [${googleCtaType}] ➔ ${fullSiteUrl}`;
   }, [postData, googlePostType, googleOfferTitle, googleCoupon, googleCtaType, isPizza]);
+
+  useEffect(() => {
+    if (onCaptionsChange) {
+      onCaptionsChange({
+        tiktok: finalTikTokCaption,
+        instagram: finalInstagramCaption,
+        facebook: finalFacebookCaption,
+        google: finalGoogleCaption
+      });
+    }
+  }, [finalTikTokCaption, finalInstagramCaption, finalFacebookCaption, finalGoogleCaption, onCaptionsChange]);
 
   return (
     <div className="w-full bg-[#121826] border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-2xl space-y-4 relative overflow-hidden">

@@ -18,12 +18,13 @@ import {
 } from '../services/autoCutLabEngine';
 import { AUTOCUT_RULES_REGISTRY } from '../services/autoCutRulesRegistry';
 import { AutoCutLabPlayer } from './AutoCutLabPlayer';
-import { AutoCutPostCopywriter } from './AutoCutPostCopywriter';
+import { AutoCutPostCopywriter, PostCaptionsBundle } from './AutoCutPostCopywriter';
 import { AutoCutDistributionPanel, DistributionChannelId } from './AutoCutDistributionPanel';
 
 export function AutoCutLabView() {
   const [activeMode, setActiveMode] = useState<AutoCutLabMode>('P1');
   const [selectedChannel, setSelectedChannel] = useState<DistributionChannelId>('tiktok');
+  const [liveCaptions, setLiveCaptions] = useState<PostCaptionsBundle | null>(null);
   const [testsByMode, setTestsByMode] = useState<Partial<Record<AutoCutLabMode, AutoCutTestRun>>>(() => {
     const init = generateAutoCutTestByMode('P1');
     return { P1: init };
@@ -360,6 +361,7 @@ export function AutoCutLabView() {
             testRun={currentTest}
             selectedChannel={selectedChannel}
             onSelectChannel={setSelectedChannel}
+            onCaptionsChange={setLiveCaptions}
           />
         </div>
 
@@ -369,6 +371,7 @@ export function AutoCutLabView() {
             testRun={currentTest}
             selectedChannel={selectedChannel}
             onSelectChannel={setSelectedChannel}
+            liveCaptions={liveCaptions}
           />
 
           {/* STORYBOARD (ex Diagnostica Live) */}

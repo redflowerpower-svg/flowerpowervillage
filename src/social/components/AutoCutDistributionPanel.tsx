@@ -18,6 +18,12 @@ export interface AutoCutDistributionPanelProps {
   onSelectChannel?: (channel: DistributionChannelId) => void;
   selectedPlacement?: string;
   onSelectPlacement?: (placement: string) => void;
+  liveCaptions?: {
+    tiktok: string;
+    instagram: string;
+    facebook: string;
+    google: string;
+  } | null;
 }
 
 // 🎨 VETTORIALI UFFICIALI DEI 4 CANALI SOCIAL (Esportati per uso condiviso)
@@ -73,8 +79,18 @@ export function InstagramLogo({ className = "w-4 h-4 shrink-0" }: { className?: 
 export function AutoCutDistributionPanel({ 
   testRun,
   selectedChannel: controlledChannel,
-  onSelectChannel
+  onSelectChannel,
+  liveCaptions
 }: AutoCutDistributionPanelProps) {
+  // 0. Selettore Brand & Account Target (default sul brand del testRun corrente)
+  const [selectedBrand, setSelectedBrand] = useState<'pizza' | 'village'>(testRun.brand || 'pizza');
+
+  React.useEffect(() => {
+    if (testRun.brand) {
+      setSelectedBrand(testRun.brand);
+    }
+  }, [testRun.brand, testRun.mode]);
+
   // 1. Switch Ambiente (Test Sandbox vs Produzione Live)
   const [environment, setEnvironment] = useState<DistributionEnvironment>('test');
 
@@ -139,29 +155,32 @@ export function AutoCutDistributionPanel({
     setPublishStatus({ type: null, message: '' });
 
     try {
-      // Invio REALE al bot Telegram Staff se l'opzione gruppi FB è selezionata
+      // Invio REALE al bot Telegram Staff se l'opzione Gruppo Koh Phayam è selezionata (SEMPRE Topic 2)
       if (activeChannel === 'facebook' && placements.facebookGroupsTelegram) {
         const copyResult = generatePostCopy(testRun, 0);
+        const captionText = liveCaptions?.facebook || liveCaptions?.instagram || copyResult.fullCaptionInstagram;
         await dispatchPostToTelegramTopic({
           topic: 'kohPhayamGroup',
           title: `Post Pronto per Gruppo Facebook Koh Phayam · Format ${testRun.mode}`,
-          copyText: copyResult.fullCaptionInstagram,
+          copyText: captionText,
           format: testRun.mode,
-          brand: testRun.brand,
+          brand: selectedBrand,
           priceBadge: testRun.scenes[0]?.priceLabel,
           imageUrl: testRun.scenes[0]?.imageUrl
         });
       }
 
-      // Invio REALE al bot Telegram Staff se l'opzione TikTok Stories Telegram è selezionata
+      // Invio REALE al bot Telegram Staff se l'opzione TikTok Stories Telegram è selezionata (Topic 3)
       if (activeChannel === 'tiktok' && placements.tiktokStoryTelegram) {
         const copyResult = generatePostCopy(testRun, 0);
+        const captionText = liveCaptions?.tiktok || copyResult.fullCaptionTikTok;
+        const brandLabel = selectedBrand === 'pizza' ? '🍕 Flower Power Pizza (Ranong)' : '🌴 Flower Power Farm Village (Koh Phayam)';
         await dispatchPostToTelegramTopic({
           topic: 'tikTokStories',
-          title: `Post Pronto per TikTok Stories / Reels · Format ${testRun.mode}`,
-          copyText: copyResult.fullCaptionTikTok,
+          title: `Stories TikTok & Reels · Format ${testRun.mode}`,
+          copyText: `🏷️ <b>Profilo Target:</b> ${brandLabel}\n\n${captionText}`,
           format: testRun.mode,
-          brand: testRun.brand,
+          brand: selectedBrand,
           priceBadge: testRun.scenes[0]?.priceLabel,
           imageUrl: testRun.scenes[0]?.imageUrl
         });
@@ -175,12 +194,13 @@ export function AutoCutDistributionPanel({
           message: `🧪 Test simulazione completato per ${channelNames[activeChannel]}!`,
           details: [
             `Payload compilato conformemente alle API di ${channelNames[activeChannel]}`,
+            `Profilo target applicato: ${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}`,
             'Verifica del testo, formattazione bilingue e link attivi superata',
             ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
-              ? ['📲 Notifica inviata con successo al Topic "Koh Phayam Group" su Telegram con bottone diretto!']
+              ? ['📲 Notifica inviata con successo al Topic 2 "Koh Phayam Group" su Telegram con bottone diretto!']
               : []),
             ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
-              ? ['📲 Notifica inviata con successo al Topic "TikTok Stories" su Telegram!']
+              ? ['📲 Notifica inviata con successo al Topic 3 "TikTok Stories" su Telegram!']
               : []),
             'Nessun dato reale inviato al profilo pubblico'
           ]
@@ -193,11 +213,12 @@ export function AutoCutDistributionPanel({
           message: `🚀 Pubblicazione LIVE inviata con successo su ${channelNames[activeChannel]}!`,
           details: [
             `Contenuto multimediale e didascalia trasmessi alle API ufficiali`,
+            `Profilo aziendale: ${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}`,
             ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
-              ? ['📲 Notifica inviata con successo al Topic "Koh Phayam Group" su Telegram con bottone diretto!']
+              ? ['📲 Notifica inviata con successo al Topic 2 "Koh Phayam Group" su Telegram con bottone diretto!']
               : []),
             ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
-              ? ['📲 Notifica inviata con successo al Topic "TikTok Stories" su Telegram!']
+              ? ['📲 Notifica inviata con successo al Topic 3 "TikTok Stories" su Telegram!']
               : []),
             `Profilo aziendale aggiornato in tempo reale`,
             `Notifiche e log salvati nel database`
@@ -217,8 +238,8 @@ export function AutoCutDistributionPanel({
   return (
     <div className="w-full p-4 sm:p-5 bg-[#121826] rounded-3xl border border-slate-800 shadow-2xl space-y-4 text-left text-xs select-none">
       
-      {/* 1. HEADER: TITOLO & SWITCH AMBIENTE (TEST vs PRODUZIONE) */}
-      <div className="space-y-2">
+      {/* 1. HEADER: BRAND TARGET & SWITCH AMBIENTE (TEST vs PRODUZIONE) */}
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 font-black text-white text-xs tracking-wide">
             <Share2 className="w-4 h-4 text-amber-400" />
@@ -228,6 +249,40 @@ export function AutoCutDistributionPanel({
           <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-amber-300">
             1 Canale Attivo
           </span>
+        </div>
+
+        {/* Brand & Account Target Switcher (Pizzeria vs Villaggio) */}
+        <div className="space-y-1">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center justify-between">
+            <span>Brand / Account Target</span>
+            <span className="text-[9px] font-mono text-amber-400/90 font-bold">
+              {selectedBrand === 'pizza' ? '🍕 Pizzeria Ranong' : '🌴 Villaggio Koh Phayam'}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-bold gap-1">
+            <button
+              type="button"
+              onClick={() => setSelectedBrand('pizza')}
+              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition whitespace-nowrap cursor-pointer ${
+                selectedBrand === 'pizza'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>🍕 Pizzeria (Ranong)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedBrand('village')}
+              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition whitespace-nowrap cursor-pointer ${
+                selectedBrand === 'village'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>🌴 Villaggio (Koh Phayam)</span>
+            </button>
+          </div>
         </div>
 
         {/* Master Selector: Test vs Produzione */}
@@ -297,6 +352,9 @@ export function AutoCutDistributionPanel({
               <span className="text-[10px] text-slate-500 font-mono">Seleziona</span>
             )}
           </div>
+          <div className="text-[10px] text-cyan-300/80 font-mono pl-6 pt-0.5">
+            Profilo: {selectedBrand === 'pizza' ? '@flowerpowerpizza_ranong' : '@flowerpowervillage'}
+          </div>
 
           {activeChannel === 'tiktok' && (
             <div className="mt-3 pt-2.5 space-y-1.5 pl-3 border-l-2 border-cyan-500/40 text-[11px]" onClick={e => e.stopPropagation()}>
@@ -350,6 +408,9 @@ export function AutoCutDistributionPanel({
             ) : (
               <span className="text-[10px] text-slate-500 font-mono">Seleziona</span>
             )}
+          </div>
+          <div className="text-[10px] text-blue-300/80 font-mono pl-6 pt-0.5">
+            Scheda: {selectedBrand === 'pizza' ? 'Flower Power Pizza - Ranong' : 'Flower Power Farm Village & Spa'}
           </div>
 
           {activeChannel === 'google' && (
@@ -418,6 +479,9 @@ export function AutoCutDistributionPanel({
               <span className="text-[10px] text-slate-500 font-mono">Seleziona</span>
             )}
           </div>
+          <div className="text-[10px] text-blue-300/80 font-mono pl-6 pt-0.5">
+            Pagina: {selectedBrand === 'pizza' ? 'Flower Power Pizza - Ranong' : 'Flower Power Farm Village - Koh Phayam'}
+          </div>
 
           {activeChannel === 'facebook' && (
             <div className="mt-3 pt-2.5 space-y-1.5 pl-3 border-l-2 border-blue-600/40 text-[11px]" onClick={e => e.stopPropagation()}>
@@ -463,7 +527,7 @@ export function AutoCutDistributionPanel({
               <label className="flex items-center justify-between text-slate-300 hover:text-white cursor-pointer py-0.5">
                 <span className="flex items-center gap-1.5">
                   <Users className="w-3 h-3 text-amber-400" />
-                  <span>Gruppi <span className="text-[10px] text-amber-400">(via Telegram)</span></span>
+                  <span>Gruppo Koh Phayam <span className="text-[10px] text-amber-400">(via Telegram)</span></span>
                 </span>
                 <input
                   type="checkbox"
@@ -478,7 +542,7 @@ export function AutoCutDistributionPanel({
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black text-amber-300 flex items-center gap-1">
                       <Users className="w-3 h-3 text-amber-400" />
-                      Gruppo Target: {testRun.brand === 'pizza' ? 'Ranong Expats & Food' : 'Koh Phayam'}
+                      Destinazione: Topic 2 (Koh Phayam Group)
                     </span>
                     <a
                       href="https://www.facebook.com/share/g/1Hyh1mJ7Hu/"
@@ -492,7 +556,7 @@ export function AutoCutDistributionPanel({
                     </a>
                   </div>
                   <p className="text-[9.5px] text-slate-300 leading-tight">
-                    Invia un alert istantaneo al bot Telegram dello Staff con video + testo DeepSeek + link rapido per la pubblicazione diretta nel gruppo FB della community.
+                    Invia sempre il post al Topic 2 (Koh Phayam Group) di Telegram con testo DeepSeek e link rapido per la pubblicazione diretta nel gruppo Facebook dell'isola.
                   </p>
                 </div>
               )}
@@ -521,6 +585,9 @@ export function AutoCutDistributionPanel({
             ) : (
               <span className="text-[10px] text-slate-500 font-mono">Seleziona</span>
             )}
+          </div>
+          <div className="text-[10px] text-pink-300/80 font-mono pl-6 pt-0.5">
+            Account: {selectedBrand === 'pizza' ? '@flowerpowerpizza' : '@flowerpowervillage'}
           </div>
 
           {activeChannel === 'instagram' && (
