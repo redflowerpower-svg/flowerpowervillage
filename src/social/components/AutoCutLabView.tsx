@@ -32,6 +32,7 @@ export function AutoCutLabView() {
   const [shuffleKey, setShuffleKey] = useState(0);
   const [dailySpecialDishes, setDailySpecialDishes] = useState<MenuItem[]>(() => getLiveDailySpecialDishes());
   const [isGenerating, setIsGenerating] = useState(false);
+  const [shouldAutoPlay, setShouldAutoPlay] = useState(false);
 
   // Helper unificato per creare un nuovo montaggio video reale per una data modalità
   const createTestForMode = async (mode: AutoCutLabMode): Promise<AutoCutTestRun> => {
@@ -68,6 +69,9 @@ export function AutoCutLabView() {
   const handleSelectMode = async (mode: AutoCutLabMode) => {
     setActiveMode(mode);
 
+    // Switch di modalità: non avviare la riproduzione in automatico
+    setShouldAutoPlay(false);
+
     // Se per questa modalità esiste già un video in memoria, mostralo direttamente
     const existing = testsByMode[mode];
     if (existing) {
@@ -91,6 +95,7 @@ export function AutoCutLabView() {
   // Genera esplicitamente un NUOVO video per la modalità corrente
   const handleRegenerateCurrent = async () => {
     setIsGenerating(true);
+    setShouldAutoPlay(true);
     try {
       const newTest = await createTestForMode(activeMode);
       setTestsByMode(prev => ({ ...prev, [activeMode]: newTest }));
@@ -341,7 +346,7 @@ export function AutoCutLabView() {
             <AutoCutLabPlayer
               key={`${activeMode}_${shuffleKey}`}
               testRun={currentTest}
-              autoPlay={true}
+              autoPlay={shouldAutoPlay}
             />
           </div>
           <span className="text-[11px] text-slate-500 mt-2 font-mono pl-1">
