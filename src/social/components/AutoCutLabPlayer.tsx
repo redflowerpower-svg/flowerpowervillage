@@ -1196,25 +1196,25 @@ export function AutoCutLabPlayer({
                 ))}
               </div>
 
-              {/* PREZZO PIATTO / PIZZE 8" E 12" (DUE BADGE STACCATI CON PUNTINO GIALLO - ZERO EMOJI) */}
+              {/* PREZZO PIATTO / PIZZE 8" E 12" (BANNER GIALLO BORDATO DI NERO, TESTO NERO, SIMBOLO ฿, PUNTINO ROSSO LAMPEGGIANTE) */}
               <div className="pt-1">
                 {currentScene.pizzaSizes ? (
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-950/90 border border-amber-500/70 shadow-lg text-white font-mono font-bold text-xs whitespace-nowrap">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                      <span className="text-amber-300 font-black">8"</span>
-                      <span>{currentScene.pizzaSizes.size8Price} THB</span>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-black font-mono font-black text-xs whitespace-nowrap">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
+                      <span className="text-black font-black">8"</span>
+                      <span>{currentScene.pizzaSizes.size8Price} ฿</span>
                     </span>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-950/90 border border-amber-500/70 shadow-lg text-white font-mono font-bold text-xs whitespace-nowrap">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                      <span className="text-amber-300 font-black">12"</span>
-                      <span>{currentScene.pizzaSizes.size12Price} THB</span>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-black font-mono font-black text-xs whitespace-nowrap">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
+                      <span className="text-black font-black">12"</span>
+                      <span>{currentScene.pizzaSizes.size12Price} ฿</span>
                     </span>
                   </div>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-950/90 border border-amber-500/60 shadow-lg text-white font-mono font-bold text-xs whitespace-nowrap">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                    <span>{currentScene.priceLabel}</span>
+                  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_10px_rgba(0,0,0,0.6)] text-black font-mono font-black text-xs whitespace-nowrap">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
+                    <span>{currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, ' ฿') : ''}</span>
                   </span>
                 )}
               </div>
@@ -1274,12 +1274,12 @@ export function AutoCutLabPlayer({
                 {currentScene.titleSecondary}
               </p>
 
-              {/* PREZZO OCTORATE LAST MINUTE: SOLO IN LM1 (Categoricamente rimosso da V1, V2, V3) */}
+              {/* PREZZO OCTORATE LAST MINUTE: SOLO IN LM1 */}
               {mode === 'LM1' && (
                 <div className="pt-1.5">
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.2 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-stone-950 font-bold text-xs shadow-lg border border-yellow-200/50">
-                    <Sparkles className="w-3 h-3 text-stone-950 fill-stone-950" />
-                    <span>{currentScene.priceLabel}</span>
+                  <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400 border-2 border-black text-black font-mono font-black text-xs shadow-[0_2px_10px_rgba(0,0,0,0.6)]">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
+                    <span>{currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, ' ฿') : ''}</span>
                   </span>
                 </div>
               )}
@@ -1400,25 +1400,25 @@ export function AutoCutLabPlayer({
                       ))}
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (DUE BADGE STACCATI CON PUNTINO GIALLO - ZERO EMOJI) */}
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (BANNER GIALLO BORDATO DI NERO, TESTO NERO, SIMBOLO ฿, PUNTINO ROSSO) */}
                     <div className="pt-0.5">
                       {currentScene.pizzaSizes ? (
                         <div className="flex items-center gap-1.5">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-950/90 border border-amber-500/70 shadow-lg text-white font-mono font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                            <span className="text-amber-300 font-black">8"</span>
-                            <span>{currentScene.pizzaSizes.size8Price} THB</span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-black font-mono font-black text-[10px] sm:text-[11px] whitespace-nowrap">
+                            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
+                            <span className="text-black font-black">8"</span>
+                            <span>{currentScene.pizzaSizes.size8Price} ฿</span>
                           </span>
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-950/90 border border-amber-500/70 shadow-lg text-white font-mono font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                            <span className="text-amber-300 font-black">12"</span>
-                            <span>{currentScene.pizzaSizes.size12Price} THB</span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-black font-mono font-black text-[10px] sm:text-[11px] whitespace-nowrap">
+                            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
+                            <span className="text-black font-black">12"</span>
+                            <span>{currentScene.pizzaSizes.size12Price} ฿</span>
                           </span>
                         </div>
                       ) : currentScene.priceLabel ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-950/90 border border-amber-500/60 shadow-lg text-white font-mono font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                          <span>{currentScene.priceLabel}</span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400 border-2 border-black shadow-[0_2px_8px_rgba(0,0,0,0.5)] text-black font-mono font-black text-[10px] sm:text-[11px] whitespace-nowrap">
+                          <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
+                          <span>{currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, ' ฿')}</span>
                         </span>
                       ) : null}
                     </div>

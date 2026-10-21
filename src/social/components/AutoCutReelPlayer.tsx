@@ -374,10 +374,9 @@ export function AutoCutReelPlayer({
             </p>
           )}
           {activePrice && (
-            <div className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-950/85 text-white border border-amber-500/50 shadow">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              <span className="text-[10px] font-black text-white">{activePrice}</span>
-              <span className="text-[8px] font-bold text-amber-300">THB</span>
+            <div className="mt-1.5 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-400 border-2 border-black text-black shadow-[0_2px_8px_rgba(0,0,0,0.5)] font-mono font-black">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/20" />
+              <span className="text-[11px] font-black text-black">{activePrice} ฿</span>
             </div>
           )}
         </div>

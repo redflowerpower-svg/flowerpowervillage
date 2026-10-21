@@ -53,7 +53,7 @@ export const AUTOCUT_RULES_REGISTRY: Record<AutoCutLabMode, AutoCutModeRuleDetai
       topBanner: 'Pill Ranong Delivery · ส่งถึงบ้าน (flowerpowerpizza.com • Link in Bio).',
       primaryTitle: '🇹🇭 THAI IN GRANDE SOPRA (20px font-black text-amber-300 drop-shadow). A capo semantico naturale prima dei condimenti/salse (es. ซอส, สไตล์).',
       secondaryTitle: '🇬🇧 INGLESE SOTTO (13px font-bold text-white). Taglio a senso prima dei connettori logici (es. WITH, &, AND, ALLA). Tassativamente MAI Italiano.',
-      priceBadge: '🍕 Per le pizze: doppi prezzi affiancati 8" e 12" (es. 8" 120 THB • 12" 190 THB). Per altri piatti: prezzo singolo.'
+      priceBadge: '🍕 Fondo banner giallo oro vivo bordato di nero (border-2 border-black), scritta del prezzo in nero (text-black), simbolo del baht ฿ (es. 8" 120 ฿ • 12" 190 ฿, o 290 ฿) e puntino rosso rubino lampeggiante più evidente.'
     },
     cameraMovement: 'Food Macro Focus a 2 sole fasi continue (Pan orizzontale morbido + Rientro al centro con Climax Zoom Macro sul cuore del piatto).',
     outroSpec: {
@@ -394,7 +394,7 @@ export const AUTOCUT_RULES_REGISTRY: Record<AutoCutLabMode, AutoCutModeRuleDetai
       topBanner: 'Banner a 3 righe: FLOWER POWER VILLAGE / [🔴 LAST MINUTE] lampeggiante · ห้องว่างวันนี้ / Direct Booking • FlowerPowerVillage.com (senza Octorate).',
       primaryTitle: 'Nome alloggio in grande (es. "Green Bungalow") con sottotitolo semantico a capo (es. "Tropical Hideaway").',
       secondaryTitle: '🇹🇭 Traduzione secca in Thai (es. "กรีน บังกะโล สไตล์ธรรมชาติใต้ร่มเงาไม้").',
-      priceBadge: 'Badge esclusivo dorato: [✨ Today Last Minute: 711 THB] (presente SOLO in LM1).'
+      priceBadge: 'Badge esclusivo giallo vivo bordato di nero con puntino rosso e simbolo ฿: [Today Last Minute: 711 ฿] (presente SOLO in LM1).'
     },
     cameraMovement: 'Pan orizzontale e diagonale sulle camere accoglienti e pronte per il check-in immediato.',
     outroSpec: {
@@ -435,7 +435,7 @@ export const AUTOCUT_RULES_REGISTRY: Record<AutoCutLabMode, AutoCutModeRuleDetai
       topBanner: 'Pill esclusivo con logo Flower Power Pizza, [สดใหม่วันนี้ · DAILY SPECIAL] e [⚡ พร้อมส่ง • Fast Delivery • Ranong].',
       primaryTitle: '🇹🇭 THAI IN GRANDE SOPRA (20px font-black text-amber-300 drop-shadow).',
       secondaryTitle: '🇬🇧 INGLESE SOTTO (13px font-bold text-white).',
-      priceBadge: 'Badge Piatto dorato: [✨ เมนูพิเศษวันนี้ · DAILY SPECIAL], prezzo THB e dicitura bilingue [🔥 ทำสดใหม่ พร้อมส่งทันทีในระนอง / Freshly Made · Fast Delivery in Ranong].'
+      priceBadge: 'Badge Piatto giallo vivo bordato di nero con testo nero, simbolo ฿, puntino rosso e dicitura bilingue [🔥 ทำสดใหม่ พร้อมส่งทันทีในระนอง / Freshly Made · Fast Delivery in Ranong].'
     },
     cameraMovement: 'Food Macro Focus fluido CapCut alternato (SX->DX e DX->SX con climax zoom macro sui piatti freschi).',
     outroSpec: {

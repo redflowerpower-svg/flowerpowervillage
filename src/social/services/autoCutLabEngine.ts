@@ -676,7 +676,7 @@ export function getDishPriceInfo(dish: MenuItem): {
 
   if (v8 && v12 && v8.price && v12.price) {
     return {
-      priceLabel: `8" ${v8.price} THB • 12" ${v12.price} THB`,
+      priceLabel: `8" ${v8.price} ฿ • 12" ${v12.price} ฿`,
       priceValue: v12.price,
       pizzaSizes: {
         size8Price: v8.price,
@@ -686,7 +686,7 @@ export function getDishPriceInfo(dish: MenuItem): {
   }
 
   return {
-    priceLabel: `${dish.price} THB`,
+    priceLabel: `${dish.price} ฿`,
     priceValue: dish.price
   };
 }
@@ -870,7 +870,7 @@ export function generateV1Test(): AutoCutTestRun {
   const effectiveDuration = Math.min(8.0, audio.duration);
 
   // Prezzo Octorate reale odierno verificato dalla matrice stagionale
-  const priceLabel = `Last Minute Price: ${lodging.octoratePrice.toLocaleString('en-US')} THB`;
+  const priceLabel = `Last Minute Price: ${lodging.octoratePrice.toLocaleString('en-US')} ฿`;
 
   const scene: AutoCutScene = {
     imageUrl: lodging.mainImage,
@@ -910,7 +910,7 @@ export function generateV2Test(): AutoCutTestRun {
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 5;
 
-  const priceLabel = `Last Minute Price: ${lodging.octoratePrice.toLocaleString('en-US')} THB`;
+  const priceLabel = `Last Minute Price: ${lodging.octoratePrice.toLocaleString('en-US')} ฿`;
 
   // 🛡️ Filtro rigoroso: solo foto pulite dello STESSO alloggio, categoricamente ZERO bagni
   const purePhotos = lodging.gallery.filter(photo => !isBathroomPhoto(photo.file)).slice(0, 5);
@@ -961,7 +961,7 @@ export function generateV3Test(): AutoCutTestRun {
       titleSecondary: lodging.nameTh, // 🇹🇭 Traduzione secca in Thai
       lodgingTitle: lodging.lodgingTitle,
       lodgingSubtitle: lodging.lodgingSubtitle,
-      priceLabel: `Last Minute Price: ${lodging.octoratePrice.toLocaleString('en-US')} THB`,
+      priceLabel: `Last Minute Price: ${lodging.octoratePrice.toLocaleString('en-US')} ฿`,
       priceValue: lodging.octoratePrice,
       trajectory: TRAJECTORIES_SEQUENCE[idx % TRAJECTORIES_SEQUENCE.length],
       badgeCategory: lodging.category,
@@ -1145,7 +1145,7 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
     titleSecondary: entry.lodging.nameTh, // Traduzione secca in Thai
     lodgingTitle: entry.lodging.lodgingTitle,
     lodgingSubtitle: entry.lodging.lodgingSubtitle,
-    priceLabel: `Today Last Minute: ${entry.livePrice.toLocaleString('en-US')} THB`,
+    priceLabel: `Today Last Minute: ${entry.livePrice.toLocaleString('en-US')} ฿`,
     priceValue: entry.livePrice,
     trajectory: TRAJECTORIES_SEQUENCE[idx % TRAJECTORIES_SEQUENCE.length],
     badgeCategory: '🔥 AVAILABLE TONIGHT · ว่างวันนี้',

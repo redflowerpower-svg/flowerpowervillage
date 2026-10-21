@@ -1238,52 +1238,50 @@ export const VisualMotionStudio: React.FC<VisualMotionStudioProps> = ({
         textY += 6;
         ctx.shadowColor = 'transparent';
 
-        // Estrai cifra e valuta pulite (es. "240" e "THB")
-        const cleanPrice = priceText.replace(/[^\d฿\s\w]/g, '').trim();
+        // Estrai cifra e valuta pulite (es. "240" e "฿")
+        const cleanPrice = priceText.replace(/\bTHB\b/gi, '฿').replace(/[^\d฿\s\w]/g, '').trim();
         const priceParts = cleanPrice.split(/\s+/);
         const amountPart = priceParts[0] || priceText;
-        const currencyPart = priceParts[1] || (amountPart.includes('฿') ? '' : 'THB');
+        const currencyPart = '฿';
 
         ctx.font = '900 15px sans-serif';
         const amountMetrics = ctx.measureText(amountPart);
-        ctx.font = '700 11px sans-serif';
+        ctx.font = '900 13px sans-serif';
         const currMetrics = ctx.measureText(currencyPart);
 
-        const pillWidth = 28 + amountMetrics.width + (currencyPart ? currMetrics.width + 6 : 0);
+        const pillWidth = 32 + amountMetrics.width + currMetrics.width + 6;
         const pillHeight = 28;
         const pillY = textY - 18;
 
-        // Sfondo Glassmorphism scuro satinato
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        // Sfondo Banner Giallo brillante
+        ctx.fillStyle = '#facc15';
         ctx.beginPath();
         ctx.roundRect(posX, pillY, pillWidth, pillHeight, 14);
         ctx.fill();
 
-        // Micro-bordo dorato/ambra metallico sottile
-        ctx.strokeStyle = currentItem.brand === 'pizza' ? 'rgba(245, 158, 11, 0.55)' : 'rgba(16, 185, 129, 0.55)';
-        ctx.lineWidth = 1;
+        // Bordo Nero netto
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.roundRect(posX, pillY, pillWidth, pillHeight, 14);
         ctx.stroke();
 
-        // Micro-punto gioiello ambra a sinistra
-        ctx.fillStyle = currentItem.brand === 'pizza' ? '#f59e0b' : '#10b981';
+        // Puntino rosso lampeggiante leggermente più grosso a sinistra
+        ctx.fillStyle = '#dc2626';
         ctx.beginPath();
-        ctx.arc(posX + 12, pillY + pillHeight / 2, 3, 0, Math.PI * 2);
+        ctx.arc(posX + 13, pillY + pillHeight / 2, 4.5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Cifra numerica in bianco brillante
+        // Cifra numerica in nero marcato
         ctx.font = '900 15px sans-serif';
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#000000';
         ctx.textAlign = 'left';
-        ctx.fillText(amountPart, posX + 22, pillY + 19);
+        ctx.fillText(amountPart, posX + 24, pillY + 19);
 
-        // Valuta in ambra/oro
-        if (currencyPart) {
-          ctx.font = '700 11px sans-serif';
-          ctx.fillStyle = currentItem.brand === 'pizza' ? '#fbbf24' : '#34d399';
-          ctx.fillText(currencyPart, posX + 22 + amountMetrics.width + 5, pillY + 18);
-        }
+        // Simbolo del Baht ฿ in nero marcato
+        ctx.font = '900 13px sans-serif';
+        ctx.fillStyle = '#000000';
+        ctx.fillText(currencyPart, posX + 24 + amountMetrics.width + 4, pillY + 19);
       }
 
       // Resetta ombra per elementi successivi
@@ -3087,8 +3085,8 @@ export const VisualMotionStudio: React.FC<VisualMotionStudioProps> = ({
                   <div className="relative rounded-xl overflow-hidden border border-stone-800 h-52 my-2 shadow-md">
                     <img src={selectedItem.imageUrl} className="w-full h-full object-cover" alt="Google Local" />
                     {selectedItem.price && (
-                      <span className="absolute bottom-2 right-2 bg-stone-950/85 backdrop-blur-md text-amber-300 font-extrabold text-xs px-2.5 py-1 rounded-lg border border-amber-500/30">
-                        {selectedItem.price} THB
+                      <span className="absolute bottom-2 right-2 bg-amber-400 border-2 border-black text-black font-black text-xs px-2.5 py-0.5 rounded-lg shadow-md">
+                        {selectedItem.price} ฿
                       </span>
                     )}
                   </div>
