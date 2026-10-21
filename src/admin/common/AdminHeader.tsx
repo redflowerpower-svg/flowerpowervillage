@@ -1,4 +1,4 @@
-import { LogOut, ArrowLeftRight, Shield, Pizza, Hotel, FileText, CreditCard, Tablet } from 'lucide-react';
+import { LogOut, ArrowLeftRight, Shield, Pizza, Hotel, FileText, CreditCard, Tablet, Video, Sparkles } from 'lucide-react';
 
 interface AdminHeaderProps {
   userEmail?: string;
@@ -121,10 +121,21 @@ export function AdminHeader({ userEmail, activeDept, onSelectDept, onLogout }: A
           )}
         </div>
 
-        {/* Right User Info & Logout */}
-        <div className="flex items-center gap-3">
+        {/* Right User Info, Social Studio & Logout */}
+        <div className="flex items-center gap-2.5">
+          <a
+            href="/social"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-xs text-fuchsia-300 hover:text-white bg-fuchsia-950/40 hover:bg-fuchsia-900/60 border border-fuchsia-700/50 px-2.5 py-1.5 rounded-xl transition-all cursor-pointer font-bold shadow-sm"
+            title="Apri Flower Power Social Studio (AutoCut, TikTok, Reels)"
+          >
+            <Video className="w-3.5 h-3.5 text-fuchsia-400" />
+            <span className="hidden sm:inline">Social Studio</span>
+          </a>
+
           {userEmail && (
-            <span className="text-xs text-stone-400 font-medium hidden lg:inline">
+            <span className="text-xs text-stone-400 font-medium hidden lg:inline px-1">
               {userEmail}
             </span>
           )}

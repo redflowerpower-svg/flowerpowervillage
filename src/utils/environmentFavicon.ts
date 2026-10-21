@@ -157,20 +157,28 @@ export function applyEnvironmentFavicon(): void {
     return;
   }
 
-  // Section 4: ADMIN GATEWAY / SHELL (🛡️)
+  // Section 4: ADMIN GATEWAY / SHELL (Admin FP Badge)
   if (section === 'admin_gateway') {
     drawRingAndSet(() => {
-      // Dark Slate background
+      // Dark Slate / Titanium background
       ctx.beginPath();
       ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2);
-      ctx.fillStyle = '#18181b';
+      ctx.fillStyle = '#1c1917';
       ctx.fill();
 
-      // Shield / Lock Icon
-      ctx.font = '32px sans-serif';
+      // Top line: "ADMIN" in warm amber/gold
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 11px Outfit, -apple-system, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('🛡️', size / 2, size / 2 + 1);
+      ctx.fillText('ADMIN', size / 2, 24);
+
+      // Bottom line: "FP" in crisp white
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 21px Outfit, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('FP', size / 2, 44);
     });
     return;
   }

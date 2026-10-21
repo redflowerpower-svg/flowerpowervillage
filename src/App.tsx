@@ -72,9 +72,15 @@ function DynamicHeadManager() {
       const appleTitle = document.querySelector<HTMLMetaElement>("meta[name='apple-mobile-web-app-title']");
       const themeColor = document.querySelector<HTMLMetaElement>("meta[name='theme-color']");
       const isLegal = pathname.startsWith('/terms') || pathname.startsWith('/privacy') || pathname.startsWith('/legal') || pathname.startsWith('/policy');
+      const isAdmin = pathname.startsWith('/admin');
       const isSocial = pathname.startsWith('/social');
 
-      if (isSocial) {
+      if (isAdmin) {
+        document.title = 'Admin FP — Flower Power Staff Portal';
+        if (manifestLink) manifestLink.href = '/manifest.json';
+        if (appleTitle) appleTitle.content = 'Admin FP';
+        if (themeColor) themeColor.content = '#1c1917';
+      } else if (isSocial) {
         document.title = 'Flower Power Social Studio — TikTok & Meta Publisher';
         if (manifestLink) manifestLink.href = '/manifest.json';
         if (metaDesc) {
