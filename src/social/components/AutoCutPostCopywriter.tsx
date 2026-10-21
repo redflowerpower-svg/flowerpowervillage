@@ -52,7 +52,9 @@ export function AutoCutPostCopywriter({
   const [aiOverride, setAiOverride] = useState<{
     thaiContent?: string;
     englishContent?: string;
+    promptSent?: string;
   } | null>(null);
+  const [showPromptInspector, setShowPromptInspector] = useState(false);
 
   // Stati Dinamici per Canale
   // 1. TikTok State
@@ -363,16 +365,33 @@ export function AutoCutPostCopywriter({
           </div>
         </div>
 
-        {/* Barra di Stato DeepSeek AI & Tasto Rigenera */}
-        <div className="flex items-center justify-between gap-2 pt-0.5">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
-            <Sparkles className={`w-3.5 h-3.5 text-amber-300 shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-            <span className="font-semibold text-xs">
-              {isGeneratingAi ? 'DeepSeek AI sta scrivendo il copy...' : (aiOverride ? 'Copy DeepSeek AI Attivo' : 'Copy Bilingue Autonomo')}
-            </span>
-            {aiOverride && !isGeneratingAi && (
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-0.5" title="Copy DeepSeek AI sincronizzato live"></span>
-            )}
+        {/* Barra di Stato DeepSeek AI, Tasto Ispezione Prompt & Tasto Rigenera */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
+              <Sparkles className={`w-3.5 h-3.5 text-amber-300 shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
+              <span className="font-semibold text-xs">
+                {isGeneratingAi ? 'DeepSeek AI sta scrivendo il copy...' : (aiOverride ? 'Copy DeepSeek AI Attivo' : 'Copy Bilingue Autonomo')}
+              </span>
+              {aiOverride && !isGeneratingAi && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-0.5" title="Copy DeepSeek AI sincronizzato live"></span>
+              )}
+            </div>
+
+            {/* Tasto Trasparenza Prompt DeepSeek */}
+            <button
+              type="button"
+              onClick={() => setShowPromptInspector(!showPromptInspector)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition cursor-pointer ${
+                showPromptInspector
+                  ? 'bg-cyan-950/80 border-cyan-500 text-cyan-200 shadow-sm shadow-cyan-950/50'
+                  : 'bg-slate-900 hover:bg-slate-800 border-slate-800 text-slate-300 hover:text-white'
+              }`}
+              title="Visualizza il prompt ingegnerizzato in italiano inviato a DeepSeek AI"
+            >
+              <FileText className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+              <span>{showPromptInspector ? 'Nascondi Prompt' : 'Prompt DeepSeek AI'}</span>
+            </button>
           </div>
 
           <button
@@ -386,6 +405,51 @@ export function AutoCutPostCopywriter({
             <span>{isGeneratingAi ? 'Scrittura in corso...' : 'Rigenera Copy AI'}</span>
           </button>
         </div>
+
+        {/* 📜 PANNELLO TRASPARENZA PROMPT DEEPSEEK (Italiano) */}
+        {showPromptInspector && (
+          <div className="mt-2.5 p-3.5 bg-slate-950/95 border border-cyan-500/40 rounded-2xl shadow-2xl space-y-2.5 animate-fadeIn">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs font-black text-cyan-300 uppercase tracking-wide">
+                  Prompt DeepSeek AI (Italiano)
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-950 text-cyan-300 border border-cyan-500/30">
+                  Trasparenza Live
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {aiOverride?.promptSent && (
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(aiOverride.promptSent || '', 'prompt_text')}
+                    className="text-[10px] text-cyan-300 hover:text-white px-2.5 py-1 rounded-lg bg-cyan-950/60 border border-cyan-500/40 hover:bg-cyan-900/60 transition cursor-pointer flex items-center gap-1"
+                  >
+                    <Copy className="w-3 h-3 text-cyan-400" />
+                    <span>{copiedType === 'prompt_text' ? 'Copiato!' : 'Copia Prompt'}</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowPromptInspector(false)}
+                  className="text-[10px] text-slate-400 hover:text-slate-200 px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 transition cursor-pointer"
+                >
+                  Chiudi
+                </button>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-400 leading-normal">
+              Questo è il prompt esatto inviato a DeepSeek con tutte le coordinate vive del momento (piatto selezionato, giorno della settimana, orario thai, meteo sensoriale e istruzioni culturali).
+            </p>
+
+            <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 text-[11px] font-mono text-slate-300 leading-relaxed whitespace-pre-wrap max-h-72 overflow-y-auto selection:bg-cyan-500/30">
+              {aiOverride?.promptSent || (isGeneratingAi ? 'Generazione del prompt e scrittura AI in corso...' : 'Nessun prompt registrato ancora. Clicca su "Rigenera Copy AI" per inviare il prompt in tempo reale a DeepSeek.')}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ───────────────────────────────────────────────────────────── */}
