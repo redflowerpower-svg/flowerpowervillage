@@ -17,6 +17,7 @@ export default defineConfig({
     },
   },
   server: {
+    port: 3000,
     watch: {
       ignored: ['**/dist/**', '**/.vercel/**', '**/.git/**', '**/.agents/**', '**/video_out/**', '**/scratch/**'],
     },

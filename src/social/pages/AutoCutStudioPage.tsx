@@ -481,32 +481,6 @@ export default function AutoCutStudioPage() {
             </div>
           </div>
 
-          {/* Brand Switcher Pills */}
-          <div className="flex items-center bg-slate-900/90 border border-slate-800 p-1 rounded-xl shadow-inner">
-            <button
-              onClick={() => handleSwitchBrand('pizza')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                selectedBrand === 'pizza'
-                  ? 'bg-rose-600 text-white shadow-md shadow-rose-950/50'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Pizza className="w-3.5 h-3.5 shrink-0" />
-              <span>{t.brandPizza}</span>
-            </button>
-            <button
-              onClick={() => handleSwitchBrand('village')}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                selectedBrand === 'village'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/50'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Palmtree className="w-3.5 h-3.5 shrink-0" />
-              <span>{t.brandVillage}</span>
-            </button>
-          </div>
-
           {/* Language Switcher & Action Badges */}
           <div className="flex items-center gap-2.5">
             

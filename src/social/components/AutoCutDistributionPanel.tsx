@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { 
   FlaskConical, Rocket, Check, AlertCircle, Send,
   Share2, Video, Smartphone, Clock, Users,
-  MapPin, Tag, Sparkles, CheckCircle2, ChevronRight
+  MapPin, Tag, Sparkles, CheckCircle2, ChevronRight, ExternalLink
 } from 'lucide-react';
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
+import { THIRD_PARTY_COMMUNITY_GROUPS } from '../config/thirdPartyGroups';
+import { dispatchPostToTelegramTopic } from '../services/telegramStudioDispatcher';
+import { generatePostCopy } from '../services/autoCutCopywriterEngine';
 
 export type DistributionEnvironment = 'test' | 'production';
 export type DistributionChannelId = 'tiktok' | 'google' | 'facebook' | 'instagram';
@@ -136,26 +139,66 @@ export function AutoCutDistributionPanel({
     setPublishStatus({ type: null, message: '' });
 
     try {
+      // Invio REALE al bot Telegram Staff se l'opzione gruppi FB è selezionata
+      if (activeChannel === 'facebook' && placements.facebookGroupsTelegram) {
+        const copyResult = generatePostCopy(testRun, 0);
+        await dispatchPostToTelegramTopic({
+          topic: 'kohPhayamGroup',
+          title: `Post Pronto per Gruppo Facebook Koh Phayam · Format ${testRun.mode}`,
+          copyText: copyResult.fullCaptionInstagram,
+          format: testRun.mode,
+          brand: testRun.brand,
+          priceBadge: testRun.scenes[0]?.priceLabel,
+          imageUrl: testRun.scenes[0]?.imageUrl
+        });
+      }
+
+      // Invio REALE al bot Telegram Staff se l'opzione TikTok Stories Telegram è selezionata
+      if (activeChannel === 'tiktok' && placements.tiktokStoryTelegram) {
+        const copyResult = generatePostCopy(testRun, 0);
+        await dispatchPostToTelegramTopic({
+          topic: 'tikTokStories',
+          title: `Post Pronto per TikTok Stories / Reels · Format ${testRun.mode}`,
+          copyText: copyResult.fullCaptionTikTok,
+          format: testRun.mode,
+          brand: testRun.brand,
+          priceBadge: testRun.scenes[0]?.priceLabel,
+          imageUrl: testRun.scenes[0]?.imageUrl
+        });
+      }
+
       if (environment === 'test') {
         // Simulazione Test Sandbox
-        await new Promise(r => setTimeout(r, 900));
+        await new Promise(r => setTimeout(r, 600));
         setPublishStatus({
           type: 'success',
           message: `🧪 Test simulazione completato per ${channelNames[activeChannel]}!`,
           details: [
             `Payload compilato conformemente alle API di ${channelNames[activeChannel]}`,
             'Verifica del testo, formattazione bilingue e link attivi superata',
+            ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
+              ? ['📲 Notifica inviata con successo al Topic "Koh Phayam Group" su Telegram con bottone diretto!']
+              : []),
+            ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
+              ? ['📲 Notifica inviata con successo al Topic "TikTok Stories" su Telegram!']
+              : []),
             'Nessun dato reale inviato al profilo pubblico'
           ]
         });
       } else {
         // Invio Reale in Produzione
-        await new Promise(r => setTimeout(r, 1400));
+        await new Promise(r => setTimeout(r, 1000));
         setPublishStatus({
           type: 'success',
           message: `🚀 Pubblicazione LIVE inviata con successo su ${channelNames[activeChannel]}!`,
           details: [
             `Contenuto multimediale e didascalia trasmessi alle API ufficiali`,
+            ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
+              ? ['📲 Notifica inviata con successo al Topic "Koh Phayam Group" su Telegram con bottone diretto!']
+              : []),
+            ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
+              ? ['📲 Notifica inviata con successo al Topic "TikTok Stories" su Telegram!']
+              : []),
             `Profilo aziendale aggiornato in tempo reale`,
             `Notifiche e log salvati nel database`
           ]
@@ -429,6 +472,30 @@ export function AutoCutDistributionPanel({
                   className="accent-amber-400"
                 />
               </label>
+
+              {placements.facebookGroupsTelegram && (
+                <div className="mt-1.5 p-2.5 bg-amber-950/40 border border-amber-600/40 rounded-xl space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-amber-300 flex items-center gap-1">
+                      <Users className="w-3 h-3 text-amber-400" />
+                      Gruppo Target: {testRun.brand === 'pizza' ? 'Ranong Expats & Food' : 'Koh Phayam'}
+                    </span>
+                    <a
+                      href="https://www.facebook.com/share/g/1Hyh1mJ7Hu/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[10px] text-sky-400 hover:text-sky-300 font-mono font-bold hover:underline"
+                      title="Apri gruppo Facebook Koh Phayam"
+                    >
+                      <span>Vedi Gruppo</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  </div>
+                  <p className="text-[9.5px] text-slate-300 leading-tight">
+                    Invia un alert istantaneo al bot Telegram dello Staff con video + testo DeepSeek + link rapido per la pubblicazione diretta nel gruppo FB della community.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

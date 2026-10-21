@@ -24,7 +24,7 @@ export interface AutoCutLabPlayerProps {
 export function AutoCutLabPlayer({
   testRun,
   onReplay,
-  autoPlay = true
+  autoPlay = false
 }: AutoCutLabPlayerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvas43Ref = useRef<HTMLCanvasElement | null>(null);

@@ -21,6 +21,17 @@ export function AdminMain() {
     } else {
       setActiveDept('gateway');
     }
+
+    // Update document.title for Admin FP
+    const titles: Record<string, string> = {
+      gateway: 'Admin FP — Bivio Selezione Reparto',
+      resort: 'Admin FP — Resort & Booking (Koh Phayam)',
+      pizza: 'Admin FP — Pizzeria & Delivery (Ranong)',
+      payments: 'Admin FP — Gestione Pagamenti & Multi-Gateway',
+      docs: 'Admin FP — Web Reader & Documenti',
+    };
+    const current = (deptParam && titles[deptParam]) ? deptParam : 'gateway';
+    document.title = titles[current] || 'Admin FP — Staff Portal';
   }, [searchParams]);
 
   const handleSelectDept = (dept: 'gateway' | 'pizza' | 'resort' | 'docs' | 'payments') => {
