@@ -10,6 +10,7 @@ import { KitchenTabletKDS } from './admin/pizza/components/KitchenTabletKDS';
 import DiningTabletSite from './pizza/pages/DiningTabletSite';
 import LegalPage from './pages/LegalPage';
 import SocialStudioPage from './social/pages/SocialStudioPage';
+import AutoCutStudioPage from './social/pages/AutoCutStudioPage';
 
 class ErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -172,6 +173,8 @@ function App() {
           <Route path="/policies" element={<Navigate to="/terms" replace />} />
           <Route path="/social" element={<SocialStudioPage />} />
           <Route path="/social/*" element={<SocialStudioPage />} />
+          <Route path="/autocut" element={<AutoCutStudioPage />} />
+          <Route path="/autocut/*" element={<AutoCutStudioPage />} />
           <Route path="/flowerpowerpizzaranong/*" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           <Route path="/flowerpowerpizzaranong" element={<RedirectToExternal url="https://www.flowerpowerpizza.com" />} />
           {/* Legacy hash-based admin redirect */}
