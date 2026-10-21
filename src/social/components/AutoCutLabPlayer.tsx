@@ -1550,7 +1550,7 @@ export function AutoCutLabPlayer({
                     <div 
                       className="w-fit shrink-0 pb-0.5"
                       style={{
-                        transform: currentScene.pizzaSizes && mode !== 'R1' ? 'scale(0.42)' : 'scale(0.52)',
+                        transform: currentScene.pizzaSizes && mode !== 'R1' ? 'scale(0.50)' : 'scale(0.62)',
                         transformOrigin: 'bottom right'
                       }}
                     >
