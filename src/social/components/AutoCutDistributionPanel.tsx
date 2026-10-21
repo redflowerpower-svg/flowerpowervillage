@@ -172,14 +172,19 @@ export function AutoCutDistributionPanel({
         });
       }
 
-      // Invio REALE al bot Telegram Staff se l'opzione TikTok Stories Telegram è selezionata (Topic 3)
-      if (activeChannel === 'tiktok' && formats.tiktok === 'story') {
+      // Invio REALE al bot Telegram Staff se Stories TikTok o Stories Instagram è selezionata (Topic 3)
+      if (
+        (activeChannel === 'tiktok' && formats.tiktok === 'story') ||
+        (activeChannel === 'instagram' && formats.instagram === 'story')
+      ) {
         const copyResult = generatePostCopy(testRun, 0);
-        const captionText = liveCaptions?.tiktok || copyResult.fullCaptionTikTok;
+        const captionText = activeChannel === 'instagram'
+          ? (liveCaptions?.instagram || copyResult.fullCaptionInstagram)
+          : (liveCaptions?.tiktok || copyResult.fullCaptionTikTok);
         const brandLabel = selectedBrand === 'pizza' ? 'Flower Power Pizza (Ranong)' : 'Flower Power Farm Village (Koh Phayam)';
         await dispatchPostToTelegramTopic({
           topic: 'tikTokStories',
-          title: `Stories TikTok & Reels · Format ${testRun.mode}`,
+          title: `Stories ${activeChannel === 'instagram' ? 'Instagram' : 'TikTok'} & Reels · Format ${testRun.mode}`,
           copyText: `<b>Profilo Target:</b> ${brandLabel}\n\n${captionText}`,
           format: testRun.mode,
           brand: selectedBrand,
@@ -202,7 +207,7 @@ export function AutoCutDistributionPanel({
             ...(activeChannel === 'facebook' && formats.facebook === 'group'
               ? ['Notifica inviata con successo al Topic 2 "Koh Phayam Group" su Telegram con bottone diretto!']
               : []),
-            ...(activeChannel === 'tiktok' && formats.tiktok === 'story'
+            ...((activeChannel === 'tiktok' && formats.tiktok === 'story') || (activeChannel === 'instagram' && formats.instagram === 'story')
               ? ['Notifica inviata con successo al Topic 3 "TikTok Stories" su Telegram!']
               : []),
             'Nessun dato reale inviato al profilo pubblico'
@@ -217,10 +222,10 @@ export function AutoCutDistributionPanel({
           details: [
             `Contenuto multimediale e didascalia trasmessi alle API ufficiali`,
             `Profilo aziendale: ${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}`,
-            ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
+            ...(activeChannel === 'facebook' && formats.facebook === 'group'
               ? ['Notifica inviata con successo al Topic 2 "Koh Phayam Group" su Telegram con bottone diretto!']
               : []),
-            ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
+            ...((activeChannel === 'tiktok' && formats.tiktok === 'story') || (activeChannel === 'instagram' && formats.instagram === 'story')
               ? ['Notifica inviata con successo al Topic 3 "TikTok Stories" su Telegram!']
               : []),
             `Profilo aziendale aggiornato in tempo reale`,
@@ -661,12 +666,24 @@ export function AutoCutDistributionPanel({
           ) : environment === 'test' ? (
             <>
               <FlaskConical className="w-3.5 h-3.5 text-amber-400" />
-              <span>Simula Test su {channelNames[activeChannel]}</span>
+              <span>
+                {activeChannel === 'facebook' && formats.facebook === 'group'
+                  ? 'Simula Invio Gruppo FB (Topic 2)'
+                  : (activeChannel === 'tiktok' && formats.tiktok === 'story') || (activeChannel === 'instagram' && formats.instagram === 'story')
+                  ? 'Simula Invio Stories su Telegram (Topic 3)'
+                  : `Simula Test su ${channelNames[activeChannel]}`}
+              </span>
             </>
           ) : (
             <>
               <Send className="w-3.5 h-3.5 text-white" />
-              <span>Pubblica Subito su {channelNames[activeChannel]}</span>
+              <span>
+                {activeChannel === 'facebook' && formats.facebook === 'group'
+                  ? 'Invia al Gruppo FB su Telegram (Topic 2)'
+                  : (activeChannel === 'tiktok' && formats.tiktok === 'story') || (activeChannel === 'instagram' && formats.instagram === 'story')
+                  ? 'Invia Stories su Telegram (Topic 3)'
+                  : `Pubblica Subito su ${channelNames[activeChannel]}`}
+              </span>
             </>
           )}
         </button>
