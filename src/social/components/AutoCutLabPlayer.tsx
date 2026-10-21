@@ -53,6 +53,30 @@ export function AutoCutLabPlayer({
   const isCompanionEligible = mode === 'P1' || mode === 'V1';
   const sceneCount = scenes.length;
 
+  // Setup e caricamento traccia audio (SOLO quando cambia la sorgente audioTrack.src)
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(audioTrack.src);
+    } else {
+      const fullUrl = new URL(audioTrack.src, window.location.href).href;
+      if (audioRef.current.src !== fullUrl) {
+        audioRef.current.pause();
+        audioRef.current.src = audioTrack.src;
+        audioRef.current.load();
+      }
+    }
+    audioRef.current.volume = 1.0;
+    audioRef.current.currentTime = 0;
+    audioRef.current.muted = isAudioMuted;
+  }, [audioTrack.src]);
+
+  // Sincronizza mute
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.muted = isAudioMuted;
+    }
+  }, [isAudioMuted]);
+
   // Riproduzione / Canvas Render Loop con Pan & Zoom Simultanei e Crossfade (9:16 + 4:3 Companion)
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -72,22 +96,14 @@ export function AutoCutLabPlayer({
 
     let isCancelled = false;
 
-    // Setup audio
-    if (!audioRef.current) {
-      audioRef.current = new Audio(audioTrack.src);
-    } else {
-      audioRef.current.src = audioTrack.src;
-    }
-    audioRef.current.currentTime = 0;
-    audioRef.current.muted = isAudioMuted;
-
     if (isPlaying && !testRun.isEmptyShowcase) {
       startTimeRef.current = performance.now();
       setIsEnded(false);
       setActiveSceneIndex(0);
       if (audioRef.current) {
+        audioRef.current.volume = 1.0;
         audioRef.current.currentTime = 0;
-        audioRef.current.play().catch(e => console.log('Audio autoplay info:', e));
+        audioRef.current.play().catch(e => console.log('Audio play info:', e));
       }
     }
 
@@ -764,6 +780,8 @@ export function AutoCutLabPlayer({
         setIsPlaying(false);
         if (audioRef.current) {
           audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+          audioRef.current.volume = 1.0;
         }
         // 📸 FOTOGRAMMA THUMBNAIL RIPRISTINATO IMMEDIATAMENTE AL TERMINE DEL VIDEO (Zero schermo nero / velo)
         renderFrame(thumbnailTimestamp);
@@ -808,7 +826,9 @@ export function AutoCutLabPlayer({
     setIsEnded(false);
     setIsPlaying(true);
     setActiveSceneIndex(0);
+    setProgress(0);
     if (audioRef.current) {
+      audioRef.current.volume = 1.0;
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(e => console.log('Replay err:', e));
     }
@@ -825,6 +845,13 @@ export function AutoCutLabPlayer({
     setIsPlaying(next);
     if (audioRef.current) {
       if (next) {
+        audioRef.current.volume = 1.0;
+        const curTime = (progress || 0) * totalVideoDuration;
+        if (curTime >= totalDuration) {
+          audioRef.current.currentTime = 0;
+        } else {
+          audioRef.current.currentTime = curTime;
+        }
         audioRef.current.play().catch(e => console.log('Play err:', e));
       } else {
         audioRef.current.pause();

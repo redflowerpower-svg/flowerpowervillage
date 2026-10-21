@@ -64,11 +64,11 @@ export function AutoCutPostCopywriter({
   const [googleCoupon, setGoogleCoupon] = useState('WELCOME10');
   const [googleOfferTitle, setGoogleOfferTitle] = useState(testRun.brand === 'pizza' ? 'Sconto Benvenuto 10% Primo Ordine' : '10% Privilegio Prenotazione Diretta');
 
-  // Reset override AI e sincronizzazione automatica parametri al cambio modalità o brand
-  React.useEffect(() => {
-    setAiOverride(null);
-  }, [testRun.mode, proverbSeed]);
+  // Firma identificativa univoca del video/scena attuale (cambia appena si genera un nuovo piatto/video/alloggio)
+  const currentDishKey = testRun.scenes.map(s => `${s.sourceName || s.titlePrimary || ''}_${s.imageUrl}`).join('|');
+  const testRunSignature = `${testRun.brand}_${testRun.mode}_${currentDishKey}`;
 
+  // Sincronizzazione automatica parametri al cambio modalità o brand
   React.useEffect(() => {
     const isP = testRun.brand === 'pizza';
     setTiktokPoi(isP ? 'Flower Power Pizza Ranong' : 'Flower Power Village Koh Phayam');
@@ -98,6 +98,51 @@ export function AutoCutPostCopywriter({
     return generatePostCopy(testRun, proverbSeed);
   }, [testRun, proverbSeed]);
 
+  // Generazione Live con DeepSeek AI (contestuale a meteo, ingredienti e tradizione)
+  const handleGenerateDeepSeekAi = React.useCallback(async (wOverride?: WeatherConditionSummary | null) => {
+    setIsGeneratingAi(true);
+    try {
+      const dishes = testRun.scenes.map(s => 
+        (s.sourceName || s.titlePrimary || '')
+          .replace(/[\r\n]+/g, ' ')
+          .replace(/\s{2,}/g, ' ')
+          .trim()
+      ).filter(Boolean);
+
+      const dishDetails = testRun.scenes.map(s => ({
+        name: (s.sourceName || s.titlePrimary || '').replace(/[\r\n]+/g, ' ').trim(),
+        nameTh: (s.titleSecondary || '').replace(/[\r\n]+/g, ' ').trim(),
+        description: s.badgeCategory || ''
+      }));
+
+      const activeWeather = wOverride !== undefined ? wOverride : liveWeather;
+
+      const res = await fetch('/api/social-publisher?action=generate_ai_post_copy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brand: testRun.brand,
+          mode: testRun.mode,
+          dishes,
+          dishDetails,
+          season: basePostData.seasonContext,
+          weather: activeWeather
+        })
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setAiOverride(json.data);
+        }
+      }
+    } catch (err) {
+      console.warn('[AutoCutPostCopywriter] DeepSeek API live notice:', err);
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  }, [testRun, basePostData.seasonContext, liveWeather]);
+
   // Applica eventuale override live DeepSeek
   const postData: PostCopyResult = useMemo(() => {
     if (!aiOverride) return basePostData;
@@ -123,48 +168,14 @@ export function AutoCutPostCopywriter({
     };
   }, [basePostData, aiOverride, testRun.brand]);
 
-  // Generazione Live con DeepSeek AI (contestuale a meteo, ingredienti e tradizione)
-  const handleGenerateDeepSeekAi = async () => {
-    setIsGeneratingAi(true);
-    try {
-      const dishes = testRun.scenes.map(s => 
-        (s.sourceName || s.titlePrimary || '')
-          .replace(/[\r\n]+/g, ' ')
-          .replace(/\s{2,}/g, ' ')
-          .trim()
-      ).filter(Boolean);
-
-      const dishDetails = testRun.scenes.map(s => ({
-        name: (s.sourceName || s.titlePrimary || '').replace(/[\r\n]+/g, ' ').trim(),
-        nameTh: (s.titleSecondary || '').replace(/[\r\n]+/g, ' ').trim(),
-        description: s.badgeCategory || ''
-      }));
-
-      const res = await fetch('/api/social-publisher?action=generate_ai_post_copy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          brand: testRun.brand,
-          mode: testRun.mode,
-          dishes,
-          dishDetails,
-          season: basePostData.seasonContext,
-          weather: liveWeather
-        })
-      });
-
-      if (res.ok) {
-        const json = await res.json();
-        if (json.success && json.data) {
-          setAiOverride(json.data);
-        }
-      }
-    } catch (err) {
-      console.warn('[AutoCutPostCopywriter] DeepSeek API live notice:', err);
-    } finally {
-      setIsGeneratingAi(false);
-    }
-  };
+  // 🚀 AUTOMATISMO TOTALE: Quando cambia il piatto o il video:
+  // 1. Rimescola il seed per avere sempre un proverbio e layout differente all'istante
+  // 2. Lancia in automatico DeepSeek AI per generare il copy vivo e contestuale
+  React.useEffect(() => {
+    setProverbSeed(Math.floor(Math.random() * 1000000));
+    setAiOverride(null);
+    handleGenerateDeepSeekAi();
+  }, [testRunSignature]);
 
   // Gestione copia negli appunti con feedback visivo
   const handleCopy = (text: string, type: string) => {
@@ -306,27 +317,27 @@ export function AutoCutPostCopywriter({
           </div>
         </div>
 
-        {/* Pulsanti Azione Header: Nuovo Proverbio + DeepSeek AI */}
-        <div className="grid grid-cols-2 gap-2 pt-0.5">
-          <button
-            type="button"
-            onClick={() => setProverbSeed(s => s + 1)}
-            className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-slate-200 transition shadow-sm active:scale-95 cursor-pointer"
-            title="Genera un'altra combinazione con proverbio differente"
-          >
-            <RefreshCw className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-            <span className="truncate">Nuovo Proverbio</span>
-          </button>
+        {/* Barra di Stato DeepSeek AI & Tasto Rigenera */}
+        <div className="flex items-center justify-between gap-2 pt-0.5">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
+            <Sparkles className={`w-3.5 h-3.5 text-amber-300 shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
+            <span className="font-semibold text-xs">
+              {isGeneratingAi ? 'DeepSeek AI sta scrivendo il copy...' : (aiOverride ? '✨ Copy DeepSeek AI Attivo' : 'Copy Bilingue Autonomo')}
+            </span>
+            {aiOverride && !isGeneratingAi && (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-0.5" title="Copy DeepSeek AI sincronizzato live"></span>
+            )}
+          </div>
 
           <button
             type="button"
-            onClick={handleGenerateDeepSeekAi}
+            onClick={() => handleGenerateDeepSeekAi()}
             disabled={isGeneratingAi}
-            className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-xs font-bold text-white shadow-lg shadow-purple-950/40 transition disabled:opacity-50 active:scale-95 cursor-pointer"
-            title="Genera testo unico e ad effetto con DeepSeek AI, tarato su meteo, piatto e tradizione"
+            className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-xs font-bold text-white shadow-md shadow-purple-950/40 transition disabled:opacity-50 active:scale-95 cursor-pointer"
+            title="Rigenera un nuovo copy ad effetto con DeepSeek AI per questo piatto"
           >
-            <Sparkles className={`w-3.5 h-3.5 text-amber-300 fill-amber-300 shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-            <span className="truncate">{isGeneratingAi ? 'Generazione DeepSeek...' : '✨ DeepSeek AI · Micro-Copy'}</span>
+            <RefreshCw className={`w-3.5 h-3.5 text-white shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
+            <span>{isGeneratingAi ? 'Scrittura in corso...' : '✨ Rigenera Copy AI'}</span>
           </button>
         </div>
       </div>

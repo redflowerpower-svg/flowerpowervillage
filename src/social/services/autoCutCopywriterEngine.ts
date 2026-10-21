@@ -362,8 +362,31 @@ Un piatto fresco del giorno va gustato subito: porzioni limitate solo per oggi!
 Approfitta del 10% di sconto sul tuo primo ordine! 💨`;
 
     } else {
-      // 🍕 P1, P2, P3: Testo Standard Pizzeria
-      thaiContent = `🇹🇭 สวัสดีครับทุกคน! วันนี้พาความอร่อยมารายงานตัวครับ 🍕✨
+      // 🍕 P1, P2, P3: Testo Standard Pizzeria con Ganci Multipli Dinamici
+      const pizzaThaiHooks = [
+        '🇹🇭 สวัสดีครับทุกคน! วันนี้พาความอร่อยมารายงานตัวครับ 🍕✨',
+        '🇹🇭 กลิ่นเตาอบหอมฟุ้งลอยไปทั่วระนองแล้วครับ! วันนี้ขอเสิร์ฟเมนูสุดพิเศษ 🍕🔥',
+        '🇹🇭 สายกินห้ามพลาด! เมนูอิตาเลียนแท้ๆ ทำสดใหม่จากเตาร้อนๆ พร้อมเสิร์ฟครับ 🇮🇹✨',
+        '🇹🇭 ใครกำลังมองหาของอร่อยมื้อนี้ ยกความอร่อยส่งตรงถึงหน้าบ้านเลยครับ! 🛵💨'
+      ];
+
+      const pizzaEnHooks = [
+        '🇬🇧 Hey food lovers! Fresh out of our Ranong oven today 🍕✨',
+        '🇬🇧 Wood-fired perfection right here in Ranong! Check out today\'s highlight 🍕🔥',
+        '🇬🇧 Craving real Italian flavor? Made fresh with 48h slow-fermented dough! 🇮🇹✨',
+        '🇬🇧 Straight from our Italian kitchen to your table in Ranong! 🛵💨'
+      ];
+
+      const pizzaItHooks = [
+        '🇮🇹 Ciao a tutti! Direttamente dal nostro forno a Ranong 🍕✨',
+        '🇮🇹 Profumo di legna e autentica cucina italiana oggi a Ranong 🍕🔥',
+        '🇮🇹 Per chi ama i sapori veri: impasto artigianale lievitato 48 ore! 🇮🇹✨',
+        '🇮🇹 Dalla nostra cucina italiana direttamente a casa tua caldissimo! 🛵💨'
+      ];
+
+      const pIdx = Math.abs(proverbIndexSeed) % pizzaThaiHooks.length;
+
+      thaiContent = `${pizzaThaiHooks[pIdx]}
 
 เมนูเด็ดวันนี้:
 ${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
@@ -377,7 +400,7 @@ ${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
 
 ${smartTags.thai.join(' ')}`;
 
-      englishContent = `🇬🇧 Hey food lovers! Fresh out of our Ranong oven today 🍕✨
+      englishContent = `${pizzaEnHooks[pIdx]}
 
 On the table:
 ${secondaryName || dishOrRoomName}
@@ -391,7 +414,7 @@ Enjoy your 10% first-order welcome discount! 🛵💨
 
 ${smartTags.english.join(' ')}`;
 
-      italianContent = `🇮🇹 Ciao a tutti! Direttamente dal nostro forno a Ranong 🍕✨
+      italianContent = `${pizzaItHooks[pIdx]}
 
 Protagonista di oggi:
 ${dishOrRoomName}
@@ -408,11 +431,27 @@ Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
     crossTag = `@flowerpowerphayam`;
 
   } else {
-    // 🌴 VILLAGGIO KOH PHAYAM
+    // 🌴 VILLAGGIO KOH PHAYAM CON GANCI DINAMICI
     const cleanEnProverb = proverb.en.replace(/["']/g, '');
 
+    const villageEnHooks = [
+      '🇬🇧 Paradise calling from Buffalo Bay, Koh Phayam 🌴🌊✨',
+      '🇬🇧 Escape the noise and wake up to the sound of waves at Buffalo Bay 🌴🌺✨',
+      '🇬🇧 Tropical breeze, lush green gardens and peaceful island vibes 🥥🍃✨',
+      '🇬🇧 Your eco-sanctuary on the car-free island of Koh Phayam ☀️🌊✨'
+    ];
+
+    const villageThHooks = [
+      '🇹🇭 หลีกหนีความวุ่นวาย มาสัมผัสความเงียบสงบที่ อ่าวเขาควาย เกาะพยาม กันครับ 🌴🌊✨',
+      '🇹🇭 ตื่นเช้ารับลมทะเล สัมผัสธรรมชาติที่แท้จริงในเกาะพยามกันครับ 🌴🌺✨',
+      '🇹🇭 พักผ่อนท่ามกลางสวนทรอปิคอลเขียวขจี ฟังเสียงคลื่นบนเปลญวนสุดชิลล์ 🥥🍃✨',
+      '🇹🇭 วันหยุดนี้มาเติมพลังชีวิตในบังกะโลไม้ริมอ่าวเขาควาย เกาะพยาม กันครับ ☀️🌊✨'
+    ];
+
+    const vIdx = Math.abs(proverbIndexSeed) % villageEnHooks.length;
+
     // Inglese: Fresco, tropicale, a capo ariosi
-    englishContent = `🇬🇧 Paradise calling from Buffalo Bay, Koh Phayam 🌴🌊✨
+    englishContent = `${villageEnHooks[vIdx]}
 
 Featured stay:
 ${dishOrRoomName}
@@ -427,7 +466,7 @@ Best rate guaranteed with an exclusive 10% direct booking privilege! 🥥✨
 ${smartTags.english.join(' ')}`;
 
     // Thai: Maschile, particelle amichevoli, toponimi esatti, a capo ariosi
-    thaiContent = `🇹🇭 หลีกหนีความวุ่นวาย มาสัมผัสความเงียบสงบที่ อ่าวเขาควาย เกาะพยาม กันครับ 🌴🌊✨
+    thaiContent = `${villageThHooks[vIdx]}
 
 แนะนำวันนี้:
 ${dishOrRoomName}
