@@ -19,6 +19,9 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     return res.status(200).end();
   }
 
+  const action = (req.query.action as string) || req.body?.action || "";
+  const body = req.body || {};
+
   // 0. POST /api/social-publisher?action=telegram_dispatch
   if (action === "telegram_dispatch") {
     try {
