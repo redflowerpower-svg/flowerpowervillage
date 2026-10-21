@@ -809,49 +809,51 @@ export const VisualMotionStudio: React.FC<VisualMotionStudioProps> = ({
 
           const maxPanX = Math.max(0, (baseW * 1.15 - w) / 2);
           const maxPanY = Math.max(0, (baseH * 1.18 - h) / 2);
+          const safePanX = maxPanX * 0.68;
+          const safePanY = maxPanY * 0.68;
 
           switch (traj) {
             case 'pan_left_to_right': {
-              currentScale = 1.15;
-              panX = maxPanX - (t * 2 * maxPanX);
+              currentScale = 1.16;
+              panX = safePanX - (t * 2 * safePanX);
               panY = 0;
               break;
             }
             case 'pan_right_to_left': {
-              currentScale = 1.15;
-              panX = -maxPanX + (t * 2 * maxPanX);
+              currentScale = 1.16;
+              panX = -safePanX + (t * 2 * safePanX);
               panY = 0;
               break;
             }
             case 'tilt_top_to_bottom': {
               currentScale = 1.18;
               panX = 0;
-              panY = maxPanY - (t * 2 * maxPanY);
+              panY = safePanY - (t * 2 * safePanY);
               break;
             }
             case 'tilt_bottom_to_top': {
               currentScale = 1.18;
               panX = 0;
-              panY = -maxPanY + (t * 2 * maxPanY);
+              panY = -safePanY + (t * 2 * safePanY);
               break;
             }
             case 'push_in_focal': {
-              currentScale = 1.05 + (t * 0.23);
+              currentScale = 1.14 + (t * 0.12);
               panX = 0;
               panY = 0;
               break;
             }
             case 'diagonal_up_left': {
               currentScale = 1.18;
-              panX = -maxPanX + (t * 2 * maxPanX);
-              panY = -maxPanY + (t * 2 * maxPanY);
+              panX = -safePanX + (t * 2 * safePanX);
+              panY = -safePanY + (t * 2 * safePanY);
               break;
             }
             case 'diagonal_up_right':
             default: {
               currentScale = 1.18;
-              panX = maxPanX - (t * 2 * maxPanX);
-              panY = -maxPanY + (t * 2 * maxPanY);
+              panX = safePanX - (t * 2 * safePanX);
+              panY = -safePanY + (t * 2 * safePanY);
               break;
             }
           }

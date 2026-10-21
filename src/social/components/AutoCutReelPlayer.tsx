@@ -161,33 +161,35 @@ export function AutoCutReelPlayer({
 
         const maxPanX = Math.max(0, (baseW * 1.15 - w) / 2);
         const maxPanY = Math.max(0, (baseH * 1.18 - h) / 2);
+        const safePanX = maxPanX * 0.68;
+        const safePanY = maxPanY * 0.68;
 
         const currentTrajectory = currentSlide.trajectory || trajectory || 'pan_left_to_right';
 
         switch (currentTrajectory) {
           case 'pan_left_to_right':
-            scale = 1.15 + beatPunch;
-            panX = maxPanX - (t * 2 * maxPanX);
+            scale = 1.16 + beatPunch;
+            panX = safePanX - (t * 2 * safePanX);
             panY = 0;
             break;
           case 'pan_right_to_left':
-            scale = 1.15 + beatPunch;
-            panX = -maxPanX + (t * 2 * maxPanX);
+            scale = 1.16 + beatPunch;
+            panX = -safePanX + (t * 2 * safePanX);
             panY = 0;
             break;
           case 'diagonal_up_right':
             scale = 1.18 + beatPunch;
-            panX = maxPanX - (t * 2 * maxPanX);
-            panY = maxPanY - (t * 2 * maxPanY);
+            panX = safePanX - (t * 2 * safePanX);
+            panY = -safePanY + (t * 2 * safePanY);
             break;
           case 'diagonal_up_left':
             scale = 1.18 + beatPunch;
-            panX = -maxPanX + (t * 2 * maxPanX);
-            panY = maxPanY - (t * 2 * maxPanY);
+            panX = -safePanX + (t * 2 * safePanX);
+            panY = -safePanY + (t * 2 * safePanY);
             break;
           case 'push_in_focal':
           default:
-            scale = 1.08 + (t * 0.14) + beatPunch;
+            scale = 1.14 + (t * 0.12) + beatPunch;
             panX = 0;
             panY = 0;
             break;
