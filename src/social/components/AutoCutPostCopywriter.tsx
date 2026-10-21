@@ -59,7 +59,7 @@ export function AutoCutPostCopywriter({
   // 2. Instagram State
   const [igPlacement, setIgPlacement] = useState<'reels' | 'stories'>('reels');
   const [igStickerUrl, setIgStickerUrl] = useState(testRun.brand === 'pizza' ? 'https://www.flowerpowerpizza.com/delivery' : 'https://www.flowerpowervillage.com');
-  const [igStickerText, setIgStickerText] = useState(testRun.brand === 'pizza' ? '🍕 Ordina Online (-10%)' : '🌴 Prenota Bungalow');
+  const [igStickerText, setIgStickerText] = useState(testRun.brand === 'pizza' ? 'Ordina Online (-10%)' : 'Prenota Bungalow');
   const [igCollaborator, setIgCollaborator] = useState(testRun.brand === 'pizza' ? '@flowerpowerphayam' : '@flowerpowerpizzaranong');
 
   // 3. Facebook State
@@ -82,7 +82,7 @@ export function AutoCutPostCopywriter({
     const isP = testRun.brand === 'pizza';
     setTiktokPoi(isP ? 'Flower Power Pizza Ranong' : 'Flower Power Village Koh Phayam');
     setIgStickerUrl(isP ? 'https://www.flowerpowerpizza.com/delivery' : 'https://www.flowerpowervillage.com');
-    setIgStickerText(isP ? '🍕 Ordina Online (-10%)' : '🌴 Prenota Bungalow');
+    setIgStickerText(isP ? 'Ordina Online (-10%)' : 'Prenota Bungalow');
     setIgCollaborator(isP ? '@flowerpowerphayam' : '@flowerpowerpizzaranong');
     setFbCtaType(isP ? 'ORDER_NOW' : 'BOOK_NOW');
     setFbTargetUrl(isP ? 'https://www.flowerpowerpizza.com' : 'https://www.flowerpowervillage.com');
@@ -342,7 +342,7 @@ export function AutoCutPostCopywriter({
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
             <Sparkles className={`w-3.5 h-3.5 text-amber-300 shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
             <span className="font-semibold text-xs">
-              {isGeneratingAi ? 'DeepSeek AI sta scrivendo il copy...' : (aiOverride ? '✨ Copy DeepSeek AI Attivo' : 'Copy Bilingue Autonomo')}
+              {isGeneratingAi ? 'DeepSeek AI sta scrivendo il copy...' : (aiOverride ? 'Copy DeepSeek AI Attivo' : 'Copy Bilingue Autonomo')}
             </span>
             {aiOverride && !isGeneratingAi && (
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse ml-0.5" title="Copy DeepSeek AI sincronizzato live"></span>
@@ -357,7 +357,7 @@ export function AutoCutPostCopywriter({
             title="Rigenera un nuovo copy ad effetto con DeepSeek AI per questo piatto"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-white shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-            <span>{isGeneratingAi ? 'Scrittura in corso...' : '✨ Rigenera Copy AI'}</span>
+            <span>{isGeneratingAi ? 'Scrittura in corso...' : 'Rigenera Copy AI'}</span>
           </button>
         </div>
       </div>
@@ -378,7 +378,7 @@ export function AutoCutPostCopywriter({
         <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 space-y-2 shadow-md">
           <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
             <div className="flex items-center gap-2">
-              <span className="text-base">🇹🇭</span>
+              <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] font-black border border-amber-500/40">TH</span>
               <div>
                 <h4 className="text-xs font-black text-amber-300 uppercase tracking-wide">
                   Reparto Lingua Thailandese
@@ -405,7 +405,7 @@ export function AutoCutPostCopywriter({
         <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-sky-500/30 space-y-2 shadow-md">
           <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
             <div className="flex items-center gap-2">
-              <span className="text-base">🇬🇧</span>
+              <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono text-[10px] font-black border border-sky-500/40">EN</span>
               <div>
                 <h4 className="text-xs font-black text-sky-300 uppercase tracking-wide">
                   Reparto Lingua Inglese
@@ -455,8 +455,8 @@ export function AutoCutPostCopywriter({
                 onChange={e => setTiktokPoi(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400 font-sans cursor-pointer mb-1.5"
               >
-                <option value="Flower Power Pizza Ranong">📍 Flower Power Pizza Ranong (Hotspring)</option>
-                <option value="Flower Power Village Koh Phayam">📍 Flower Power Village Koh Phayam (Buffalo Bay)</option>
+                <option value="Flower Power Pizza Ranong">Flower Power Pizza Ranong (Hotspring)</option>
+                <option value="Flower Power Village Koh Phayam">Flower Power Village Koh Phayam (Buffalo Bay)</option>
               </select>
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] font-mono">
                 <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
@@ -611,8 +611,8 @@ export function AutoCutPostCopywriter({
                 onChange={e => setFbCheckin(e.target.value)}
                 className="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-white font-sans cursor-pointer mb-1.5"
               >
-                <option value="Flower Power Pizza Ranong">📍 Flower Power Pizza Ranong</option>
-                <option value="Flower Power Village Koh Phayam">📍 Flower Power Village Koh Phayam</option>
+                <option value="Flower Power Pizza Ranong">Flower Power Pizza Ranong</option>
+                <option value="Flower Power Village Koh Phayam">Flower Power Village Koh Phayam</option>
               </select>
               <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-900/80 rounded-xl border border-slate-800 text-[11px] font-mono">
                 <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />

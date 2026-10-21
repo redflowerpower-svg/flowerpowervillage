@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { 
   FlaskConical, Rocket, Check, AlertCircle, Send,
   Share2, Video, Smartphone, Clock, Users,
-  MapPin, Tag, Sparkles, CheckCircle2, ChevronRight, ExternalLink
+  MapPin, Tag, Sparkles, CheckCircle2, ChevronRight, ExternalLink,
+  Pizza, Palmtree
 } from 'lucide-react';
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
 import { THIRD_PARTY_COMMUNITY_GROUPS } from '../config/thirdPartyGroups';
@@ -174,11 +175,11 @@ export function AutoCutDistributionPanel({
       if (activeChannel === 'tiktok' && placements.tiktokStoryTelegram) {
         const copyResult = generatePostCopy(testRun, 0);
         const captionText = liveCaptions?.tiktok || copyResult.fullCaptionTikTok;
-        const brandLabel = selectedBrand === 'pizza' ? '🍕 Flower Power Pizza (Ranong)' : '🌴 Flower Power Farm Village (Koh Phayam)';
+        const brandLabel = selectedBrand === 'pizza' ? 'Flower Power Pizza (Ranong)' : 'Flower Power Farm Village (Koh Phayam)';
         await dispatchPostToTelegramTopic({
           topic: 'tikTokStories',
           title: `Stories TikTok & Reels · Format ${testRun.mode}`,
-          copyText: `🏷️ <b>Profilo Target:</b> ${brandLabel}\n\n${captionText}`,
+          copyText: `<b>Profilo Target:</b> ${brandLabel}\n\n${captionText}`,
           format: testRun.mode,
           brand: selectedBrand,
           priceBadge: testRun.scenes[0]?.priceLabel,
@@ -191,16 +192,16 @@ export function AutoCutDistributionPanel({
         await new Promise(r => setTimeout(r, 600));
         setPublishStatus({
           type: 'success',
-          message: `🧪 Test simulazione completato per ${channelNames[activeChannel]}!`,
+          message: `Test simulazione completato per ${channelNames[activeChannel]}!`,
           details: [
             `Payload compilato conformemente alle API di ${channelNames[activeChannel]}`,
             `Profilo target applicato: ${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}`,
             'Verifica del testo, formattazione bilingue e link attivi superata',
             ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
-              ? ['📲 Notifica inviata con successo al Topic 2 "Koh Phayam Group" su Telegram con bottone diretto!']
+              ? ['Notifica inviata con successo al Topic 2 "Koh Phayam Group" su Telegram con bottone diretto!']
               : []),
             ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
-              ? ['📲 Notifica inviata con successo al Topic 3 "TikTok Stories" su Telegram!']
+              ? ['Notifica inviata con successo al Topic 3 "TikTok Stories" su Telegram!']
               : []),
             'Nessun dato reale inviato al profilo pubblico'
           ]
@@ -210,15 +211,15 @@ export function AutoCutDistributionPanel({
         await new Promise(r => setTimeout(r, 1000));
         setPublishStatus({
           type: 'success',
-          message: `🚀 Pubblicazione LIVE inviata con successo su ${channelNames[activeChannel]}!`,
+          message: `Pubblicazione LIVE inviata con successo su ${channelNames[activeChannel]}!`,
           details: [
             `Contenuto multimediale e didascalia trasmessi alle API ufficiali`,
             `Profilo aziendale: ${selectedBrand === 'pizza' ? 'Pizzeria Ranong' : 'Villaggio Koh Phayam'}`,
             ...(activeChannel === 'facebook' && placements.facebookGroupsTelegram
-              ? ['📲 Notifica inviata con successo al Topic 2 "Koh Phayam Group" su Telegram con bottone diretto!']
+              ? ['Notifica inviata con successo al Topic 2 "Koh Phayam Group" su Telegram con bottone diretto!']
               : []),
             ...(activeChannel === 'tiktok' && placements.tiktokStoryTelegram
-              ? ['📲 Notifica inviata con successo al Topic 3 "TikTok Stories" su Telegram!']
+              ? ['Notifica inviata con successo al Topic 3 "TikTok Stories" su Telegram!']
               : []),
             `Profilo aziendale aggiornato in tempo reale`,
             `Notifiche e log salvati nel database`
@@ -238,51 +239,39 @@ export function AutoCutDistributionPanel({
   return (
     <div className="w-full p-4 sm:p-5 bg-[#121826] rounded-3xl border border-slate-800 shadow-2xl space-y-4 text-left text-xs select-none">
       
-      {/* 1. HEADER: BRAND TARGET & SWITCH AMBIENTE (TEST vs PRODUZIONE) */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 font-black text-white text-xs tracking-wide">
-            <Share2 className="w-4 h-4 text-amber-400" />
-            <span>CANALE DI DISTRIBUZIONE</span>
-          </div>
-
-          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-amber-300">
-            1 Canale Attivo
-          </span>
+      {/* 1. HEADER: TITOLO SU RIGA UNICA & BRAND TARGET */}
+      <div className="space-y-2.5">
+        <div className="flex items-center gap-2 font-black text-white text-xs tracking-wider whitespace-nowrap">
+          <Share2 className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>CANALE DI DISTRIBUZIONE</span>
         </div>
 
-        {/* Brand & Account Target Switcher (Pizzeria vs Villaggio) */}
-        <div className="space-y-1">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1 flex items-center justify-between">
-            <span>Brand / Account Target</span>
-            <span className="text-[9px] font-mono text-amber-400/90 font-bold">
-              {selectedBrand === 'pizza' ? '🍕 Pizzeria Ranong' : '🌴 Villaggio Koh Phayam'}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-bold gap-1">
-            <button
-              type="button"
-              onClick={() => setSelectedBrand('pizza')}
-              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition whitespace-nowrap cursor-pointer ${
-                selectedBrand === 'pizza'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <span>🍕 Pizzeria (Ranong)</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedBrand('village')}
-              className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition whitespace-nowrap cursor-pointer ${
-                selectedBrand === 'village'
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <span>🌴 Villaggio (Koh Phayam)</span>
-            </button>
-          </div>
+        {/* Brand Target Switcher: Pizzeria vs Villaggio */}
+        <div className="grid grid-cols-2 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-bold gap-1">
+          <button
+            type="button"
+            onClick={() => setSelectedBrand('pizza')}
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition whitespace-nowrap cursor-pointer ${
+              selectedBrand === 'pizza'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Pizza className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>Pizzeria</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedBrand('village')}
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg transition whitespace-nowrap cursor-pointer ${
+              selectedBrand === 'village'
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 shadow-sm'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Palmtree className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <span>Villaggio</span>
+          </button>
         </div>
 
         {/* Master Selector: Test vs Produzione */}
@@ -346,7 +335,7 @@ export function AutoCutDistributionPanel({
             </div>
             {activeChannel === 'tiktok' ? (
               <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-                Attivo 👈
+                Attivo
               </span>
             ) : (
               <span className="text-[10px] text-slate-500 font-mono">Seleziona</span>
@@ -403,7 +392,7 @@ export function AutoCutDistributionPanel({
             </div>
             {activeChannel === 'google' ? (
               <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40">
-                Attivo 👈
+                Attivo
               </span>
             ) : (
               <span className="text-[10px] text-slate-500 font-mono">Seleziona</span>
@@ -473,7 +462,7 @@ export function AutoCutDistributionPanel({
             </div>
             {activeChannel === 'facebook' ? (
               <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-300 border border-blue-500/40">
-                Attivo 👈
+                Attivo
               </span>
             ) : (
               <span className="text-[10px] text-slate-500 font-mono">Seleziona</span>
@@ -580,7 +569,7 @@ export function AutoCutDistributionPanel({
             </div>
             {activeChannel === 'instagram' ? (
               <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/40">
-                Attivo 👈
+                Attivo
               </span>
             ) : (
               <span className="text-[10px] text-slate-500 font-mono">Seleziona</span>

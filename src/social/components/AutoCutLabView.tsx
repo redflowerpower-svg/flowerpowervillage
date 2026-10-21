@@ -142,7 +142,7 @@ export function AutoCutLabView() {
             className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 hover:from-amber-400 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-950/40 transition active:scale-95 shrink-0 disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-            <span>{isGenerating ? 'Generazione in corso...' : `✨ Genera Nuovo Video (${activeMode})`}</span>
+            <span>{isGenerating ? 'Generazione in corso...' : `Genera Nuovo Video (${activeMode})`}</span>
           </button>
         </div>
 
@@ -339,7 +339,7 @@ export function AutoCutLabView() {
               className="w-full text-xs font-bold py-2 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-slate-700/80 flex items-center justify-center gap-2 transition active:scale-95 shadow-sm disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isGenerating ? 'animate-spin' : ''}`} />
-              <span>{isGenerating ? 'Generazione...' : '✨ Genera Nuovo Video'}</span>
+              <span>{isGenerating ? 'Generazione...' : 'Genera Nuovo Video'}</span>
             </button>
           </div>
 
@@ -380,7 +380,7 @@ export function AutoCutLabView() {
               <div className="flex items-center gap-2">
                 <Layers className="w-4 h-4 text-indigo-400" />
                 <h3 className="text-xs sm:text-sm font-black text-white uppercase tracking-tight">
-                  🎬 Storyboard
+                  Storyboard
                 </h3>
               </div>
               <span className="text-[10px] font-mono font-bold text-slate-300 bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-lg">
@@ -405,8 +405,8 @@ export function AutoCutLabView() {
               </span>
             </div>
 
-            {/* Sequenza Live delle Scene dello Storyboard */}
-            <div className="space-y-2 max-h-[380px] overflow-y-auto pr-0.5">
+            {/* Sequenza Live delle Scene dello Storyboard (Altezza naturale senza scrollbar) */}
+            <div className="space-y-2">
               {currentTest.scenes.map((scene, idx) => (
                 <div 
                   key={idx}
@@ -434,8 +434,9 @@ export function AutoCutLabView() {
                       {scene.titleSecondary.replace(/\n+/g, ' ')}
                     </p>
 
-                    <span className="inline-block px-1.5 py-0.5 rounded bg-indigo-950/60 text-indigo-300 text-[9px] font-mono mt-1 border border-indigo-800/40">
-                      🎬 {scene.trajectory.replace(/_/g, ' ')}
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-indigo-950/60 text-indigo-300 text-[9px] font-mono mt-1 border border-indigo-800/40">
+                      <Compass className="w-2.5 h-2.5 text-indigo-400 shrink-0" />
+                      <span>{scene.trajectory.replace(/_/g, ' ')}</span>
                     </span>
                   </div>
                 </div>
