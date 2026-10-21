@@ -1,5 +1,6 @@
 import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
+import { uploadFileToGoogleDrive } from "../_helpers/google-drive";
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
@@ -61,6 +62,151 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
     } catch (err: any) {
       console.error("[social-publisher] Telegram dispatch error:", err);
       return res.status(500).json({ ok: false, error: err.message || "Telegram dispatch failed" });
+    }
+  }
+
+  // 0. POST /api/social-publisher?action=telegram_studio_webhook
+  if (action === "telegram_studio_webhook") {
+    try {
+      const update = req.body || {};
+      const message = update.message;
+
+      if (!message) {
+        return res.status(200).json({ ok: true, skipped: "No message in update" });
+      }
+
+      const chatId = message.chat?.id;
+      const messageThreadId = message.message_thread_id;
+      const isTopic4 = messageThreadId === 4;
+
+      let botToken = process.env.TELEGRAM_SOCIAL_BOT_TOKEN;
+      if (!botToken && supabase) {
+        const { data } = await supabase
+          .from("telegram_config")
+          .select("bot_token")
+          .eq("id", "social")
+          .maybeSingle();
+        if (data?.bot_token) botToken = data.bot_token;
+      }
+
+      if (!botToken) {
+        return res.status(200).json({ ok: false, error: "Bot token not available" });
+      }
+
+      // Handle Topic 4 media uploads
+      if (isTopic4) {
+        let fileId: string | null = null;
+        let fileName: string = "";
+        let mimeType: string = "image/jpeg";
+
+        if (message.photo && Array.isArray(message.photo) && message.photo.length > 0) {
+          const largest = message.photo[message.photo.length - 1];
+          fileId = largest.file_id;
+          fileName = `photo_${Date.now()}.jpg`;
+          mimeType = "image/jpeg";
+        } else if (message.video) {
+          fileId = message.video.file_id;
+          fileName = message.video.file_name || `video_${Date.now()}.mp4`;
+          mimeType = message.video.mime_type || "video/mp4";
+        } else if (message.document) {
+          fileId = message.document.file_id;
+          fileName = message.document.file_name || `file_${Date.now()}`;
+          mimeType = message.document.mime_type || "application/octet-stream";
+        }
+
+        if (fileId) {
+          // 1. Get file path from Telegram Bot API
+          const fileInfoRes = await fetch(`https://api.telegram.org/bot${botToken}/getFile?file_id=${fileId}`);
+          const fileInfo = await fileInfoRes.json();
+          const filePath = fileInfo.result?.file_path;
+
+          if (!filePath) {
+            throw new Error(`Impossibile recuperare il percorso del file da Telegram: ${JSON.stringify(fileInfo)}`);
+          }
+
+          // 2. Download file buffer
+          const fileDownloadRes = await fetch(`https://api.telegram.org/file/bot${botToken}/${filePath}`);
+          const fileArrayBuffer = await fileDownloadRes.arrayBuffer();
+          const buffer = Buffer.from(fileArrayBuffer);
+
+          // 3. Upload to Google Drive Vault
+          const uploadResult = await uploadFileToGoogleDrive({
+            buffer,
+            fileName,
+            mimeType
+          });
+
+          const sizeKb = (buffer.byteLength / 1024).toFixed(1);
+          const sizeMb = (buffer.byteLength / (1024 * 1024)).toFixed(2);
+          const displaySize = buffer.byteLength > 1024 * 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
+
+          // 4. Send confirmation reply in Topic 4
+          const replyText = `☁️ <b>Media salvato nel Vault Google Drive (5 TB)!</b>\n\n` +
+            `📁 <b>Cartella:</b> <code>FlowerPower_Social_Vault</code>\n` +
+            `📄 <b>File:</b> <code>${uploadResult.name || fileName}</code>\n` +
+            `📦 <b>Dimensione:</b> ${displaySize}\n` +
+            `🆔 <b>ID Drive:</b> <code>${uploadResult.id}</code>\n\n` +
+            `🔗 <a href="https://drive.google.com/drive/folders/1cf23Ag-cXEnbkSsSy7CLhYnonEAN9lRe">Visualizza nel tuo Google Drive</a>`;
+
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: chatId,
+              message_thread_id: 4,
+              reply_to_message_id: message.message_id,
+              text: replyText,
+              parse_mode: "HTML",
+              disable_web_page_preview: false
+            })
+          });
+
+          return res.status(200).json({ ok: true, uploaded: uploadResult });
+        } else if (message.text && (message.text.startsWith("/") || message.text.toLowerCase().includes("help") || message.text.toLowerCase().includes("test"))) {
+          const helpText = `ℹ️ <b>Topic 4: MediaBox — Google Drive 5TB</b>\n\n` +
+            `Invia qui foto o video dallo smartphone:\n` +
+            `verranno archiviati automaticamente ad alta risoluzione nel cloud Google Drive nella cartella <b>FlowerPower_Social_Vault</b>! ☁️✨`;
+
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: chatId,
+              message_thread_id: 4,
+              text: helpText,
+              parse_mode: "HTML"
+            })
+          });
+        }
+      }
+
+      return res.status(200).json({ ok: true });
+    } catch (err: any) {
+      console.error("[telegram_studio_webhook] Error:", err);
+      return res.status(200).json({ ok: false, error: err.message });
+    }
+  }
+
+  // 0. POST /api/social-publisher?action=upload_drive_media
+  if (action === "upload_drive_media") {
+    try {
+      const { fileName, mimeType, base64Data, folderId } = req.body || {};
+      if (!fileName || !base64Data) {
+        return res.status(400).json({ ok: false, error: "fileName and base64Data are required" });
+      }
+
+      const buffer = Buffer.from(base64Data, "base64");
+      const uploadResult = await uploadFileToGoogleDrive({
+        buffer,
+        fileName,
+        mimeType: mimeType || "application/octet-stream",
+        folderId
+      });
+
+      return res.status(200).json({ ok: true, file: uploadResult });
+    } catch (err: any) {
+      console.error("[upload_drive_media] Error:", err);
+      return res.status(500).json({ ok: false, error: err.message || "Upload to Google Drive failed" });
     }
   }
 
