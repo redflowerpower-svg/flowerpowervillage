@@ -260,6 +260,12 @@ export function AutoCutLabPlayer({
         const maxPanX = Math.max(0, (baseW * 1.15 - w) / 2);
         const maxPanY = Math.max(0, (baseH * 1.18 - h) / 2);
 
+        // 🛡️ Margine di sicurezza villaggio (V1, V2, V3, LM1):
+        // Come per la pizzeria, parte un po' dopo nello scorrimento e finisce un po' prima (68% del massimo)
+        // con scala minima protetta a 1.16x, azzerando categoricamente qualsiasi riga nera su tutti i canvas.
+        const safePanX = maxPanX * 0.68;
+        const safePanY = maxPanY * 0.68;
+
         // Metodo CapCut Elegante: Pan e Zoom Simultanei per 9:16 Smartphone
         switch (scene.trajectory) {
           // 🍕 FOOD COMMERCIAL MACRO-FOCUS (2 SOLE FASI CONTINUE CON RANGE INTERMEDIO SOFFICE)
@@ -300,29 +306,51 @@ export function AutoCutLabPlayer({
             break;
           }
 
+          // ↔️ Sinistra verso Destra
+          case 'pan_left_to_right':
           case 'pan_left_zoom_in':
-            scale = 1.10 + (t * 0.12);
-            panX = maxPanX - (t * 2 * maxPanX);
+            scale = 1.16 + (t * 0.08);
+            panX = safePanX - (t * 2 * safePanX);
             panY = 0;
             break;
+
+          // ↔️ Destra verso Sinistra
+          case 'pan_right_to_left':
           case 'pan_right_zoom_in':
-            scale = 1.10 + (t * 0.12);
-            panX = -maxPanX + (t * 2 * maxPanX);
+            scale = 1.16 + (t * 0.08);
+            panX = -safePanX + (t * 2 * safePanX);
             panY = 0;
             break;
+
           case 'pan_left_zoom_out':
-            scale = 1.20 - (t * 0.12);
-            panX = maxPanX - (t * 2 * maxPanX);
+            scale = 1.24 - (t * 0.08);
+            panX = safePanX - (t * 2 * safePanX);
             panY = 0;
             break;
+
           case 'pan_right_zoom_out':
-            scale = 1.20 - (t * 0.12);
-            panX = -maxPanX + (t * 2 * maxPanX);
+            scale = 1.24 - (t * 0.08);
+            panX = -safePanX + (t * 2 * safePanX);
             panY = 0;
             break;
+
+          // ↗️ Diagonale Basso-SX verso Alto-DX
+          case 'diagonal_up_right':
+            scale = 1.18 + (t * 0.06);
+            panX = safePanX - (t * 2 * safePanX);
+            panY = -safePanY + (t * 2 * safePanY);
+            break;
+
+          // ↖️ Diagonale Basso-DX verso Alto-SX
+          case 'diagonal_up_left':
+            scale = 1.18 + (t * 0.06);
+            panX = -safePanX + (t * 2 * safePanX);
+            panY = -safePanY + (t * 2 * safePanY);
+            break;
+
           case 'push_in_focal':
           default:
-            scale = 1.08 + (t * 0.12);
+            scale = 1.14 + (t * 0.10);
             panX = 0;
             panY = 0;
             break;
