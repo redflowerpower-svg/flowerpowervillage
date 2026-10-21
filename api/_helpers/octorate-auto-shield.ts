@@ -244,16 +244,38 @@ export async function executeAutoShieldForReservation(params: {
     if (isOk) {
       console.log(`🛡️ [AUTO-SHIELD] Successo: ${rateIdsToClose.length} tariffe derivate sigillate su Octorate per ${cleanCheckIn} -> ${cleanCheckOut}.`);
       
-      // Se presente una notifica di prenotazione rilevante, notifica Telegram
+      // Se presente una notifica di prenotazione rilevante, notifica Telegram (con deduplicazione rigorosa)
       if (supabaseAdmin && reservationId) {
-        const alertMsg = `🛡️ <b>[Auto-Shield Antigravity Active]</b>\n` +
-          `Prenotazione: <b>#${reservationId}</b> (${channelName || 'OTA'})\n` +
-          `Ospite: <b>${guestName || 'N/D'}</b>\n` +
-          `Alloggio: <b>${roomName || accKey || 'N/D'}</b>\n` +
-          `Date: <code>${cleanCheckIn}</code> ➔ <code>${cleanCheckOut}</code>\n` +
-          `🔒 Sigillate <b>${rateIdsToClose.length} tariffe derivate</b> in Stop Sell preventivo contro overbooking.`;
-        
-        sendAutoShieldTelegramAlert(supabaseAdmin, alertMsg).catch(() => {});
+        const shieldKey = `shield_notified_${reservationId}_${cleanCheckIn}_${cleanCheckOut}`;
+        try {
+          const { data: alreadyShieldNotified } = await supabaseAdmin
+            .from('telegram_config')
+            .select('id')
+            .eq('id', shieldKey)
+            .maybeSingle();
+
+          if (!alreadyShieldNotified) {
+            const alertMsg = `🛡️ <b>[Auto-Shield Antigravity Active]</b>\n` +
+              `Prenotazione: <b>#${reservationId}</b> (${channelName || 'OTA'})\n` +
+              `Ospite: <b>${guestName || 'N/D'}</b>\n` +
+              `Alloggio: <b>${roomName || accKey || 'N/D'}</b>\n` +
+              `Date: <code>${cleanCheckIn}</code> ➔ <code>${cleanCheckOut}</code>\n` +
+              `🔒 Sigillate <b>${rateIdsToClose.length} tariffe derivate</b> in Stop Sell preventivo contro overbooking.`;
+            
+            await sendAutoShieldTelegramAlert(supabaseAdmin, alertMsg);
+
+            await supabaseAdmin.from('telegram_config').upsert({
+              id: shieldKey,
+              bot_token: 'notified',
+              chat_id: String(reservationId),
+              updated_at: new Date().toISOString()
+            });
+          } else {
+            console.log(`🛡️ [AUTO-SHIELD] Notifica Telegram per #${reservationId} (${shieldKey}) già inviata. Ignorata per evitare duplicati.`);
+          }
+        } catch (shieldNoticeErr) {
+          console.warn('[AUTO-SHIELD] Errore verifica/invio notifica Telegram:', shieldNoticeErr);
+        }
       }
 
       return {

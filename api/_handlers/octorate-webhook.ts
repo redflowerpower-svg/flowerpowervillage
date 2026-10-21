@@ -700,23 +700,10 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
             targetBooking = eventPayload.reservation || eventPayload;
           }
 
-          // 🔄 Fallback Intelligente: Se targetResId non è passato nel payload ma l'evento è RESERVATION_CREATED/CHANGE,
-          // identifichiamo in bookingsData la prenotazione più recente non ancora notificata
-          if (!targetBooking && bookingsData.length > 0 && (eventType.includes('RESERVATION') || eventType.includes('CREATED') || eventType.includes('CHANGE'))) {
-            for (const b of bookingsData) {
-              if (!b.id) continue;
-              const { data: alreadyNotified } = await supabaseAdmin
-                .from('telegram_config')
-                .select('id')
-                .eq('id', `res_notified_${b.id}`)
-                .maybeSingle();
-              if (!alreadyNotified) {
-                targetBooking = b;
-                targetResId = b.id;
-                console.log(`[OCTORATE WEBHOOK] Trovata nuova prenotazione #${b.id} da notificare via fallback!`);
-                break;
-              }
-            }
+          // Se l'evento non specifica un targetResId né un oggetto prenotazione, è un aggiornamento calendario/tariffe/stop-sells:
+          // non dobbiamo selezionare a caso prenotazioni per evitare falsi allarmi e loop a catena.
+          if (!targetBooking && !targetResId) {
+            console.log(`[OCTORATE WEBHOOK] Evento '${eventType}' senza ID prenotazione specifico nel payload. Nessuna azione su prenotazioni.`);
           }
 
           if (targetBooking) {
@@ -806,6 +793,15 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                     chat_id: String(reservationId),
                     updated_at: new Date().toISOString()
                   });
+
+                  if (notificationKey !== `res_notified_${reservationId}`) {
+                    await supabaseAdmin.from('telegram_config').upsert({
+                      id: `res_notified_${reservationId}`,
+                      bot_token: 'notified',
+                      chat_id: String(reservationId),
+                      updated_at: new Date().toISOString()
+                    });
+                  }
                 } else {
                   console.log(`[OCTORATE WEBHOOK] Notifica Telegram per prenotazione #${reservationId} (${notificationKey}) già inviata in precedenza. Ignorata per evitare duplicati.`);
                 }
@@ -813,20 +809,24 @@ export async function handleOctorateWebhook(req: VercelRequest, res: VercelRespo
                 console.warn('[OCTORATE WEBHOOK] Errore creazione/invio notifica Telegram:', notifyErr);
               }
 
-              // 🛡️ 2. Auto-Shield o Gestione Cancellazione Diretta
+              // 🛡️ 2. Auto-Shield o Gestione Cancellazione Diretta (Anti-Loop: eseguito solo per nuove prenotazioni non ancora processate)
               if (!isCancelled) {
-                await executeAutoShieldForReservation({
-                  accessToken,
-                  checkIn: toThailandDateStr(rawIn),
-                  checkOut: toThailandDateStr(rawOut),
-                  roomName: targetBooking.roomName || targetBooking.accommodation_name || roomName,
-                  productId: targetBooking.product || targetBooking.accommodation_id,
-                  pmsProductId: targetBooking.pmsProduct,
-                  reservationId: targetBooking.id || targetResId,
-                  guestName,
-                  channelName: targetBooking.channelName || targetBooking.channel || 'OTA Webhook',
-                  supabaseAdmin
-                });
+                if (!alreadySent) {
+                  await executeAutoShieldForReservation({
+                    accessToken,
+                    checkIn: toThailandDateStr(rawIn),
+                    checkOut: toThailandDateStr(rawOut),
+                    roomName: targetBooking.roomName || targetBooking.accommodation_name || roomName,
+                    productId: targetBooking.product || targetBooking.accommodation_id,
+                    pmsProductId: targetBooking.pmsProduct,
+                    reservationId: targetBooking.id || targetResId,
+                    guestName,
+                    channelName: targetBooking.channelName || targetBooking.channel || 'OTA Webhook',
+                    supabaseAdmin
+                  });
+                } else {
+                  console.log(`[OCTORATE WEBHOOK] Auto-Shield per #${reservationId} già sigillato in precedenza. Ignorato per evitare loop.`);
+                }
               } else {
                 // ✉️ Gestione Cancellazione: Solo per prenotazioni dirette (Sito Web o Octorate interno)
                 try {
