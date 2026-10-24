@@ -1,4 +1,4 @@
-import { getCanonicalTableKey } from '../utils/tableUtils';
+import { getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
 import { supabase } from '../../lib/supabase';
 
 export interface DiningTableSession {
@@ -163,4 +163,50 @@ export function buildDiningQrUrl(tableKey: string, token: string): string {
 
   const canonical = getCanonicalTableKey(tableKey);
   return `${origin}/dining?table=${encodeURIComponent(canonical)}&token=${encodeURIComponent(token)}`;
+}
+
+/**
+ * Self-healing reconciler:
+ * Queries Supabase for all active dining orders (status not completed/cancelled/rejected/settled).
+ * Automatically purges stale localStorage sessions for tables that have 0 active orders in the database.
+ */
+export async function reconcileAllDiningTableSessions(): Promise<Set<string>> {
+  try {
+    const { data: activeOrders, error } = await supabase
+      .from('pizza_orders')
+      .select('id, address, status, created_at')
+      .neq('status', 'completed')
+      .neq('status', 'cancelled')
+      .neq('status', 'rejected')
+      .neq('status', 'settled');
+
+    if (error) return new Set();
+
+    const occupiedTables = new Set<string>();
+    const now = Date.now();
+    const MAX_ORDER_AGE_MS = 16 * 60 * 60 * 1000; // 16 ore: ignora ordini di turni passati rimasti aperti
+
+    (activeOrders || []).forEach((o: any) => {
+      if (o.created_at) {
+        const ageMs = now - new Date(o.created_at).getTime();
+        if (ageMs > MAX_ORDER_AGE_MS) return;
+      }
+      const raw = extractTableFromAddress(o.address) || '';
+      if (raw) occupiedTables.add(getCanonicalTableKey(raw));
+    });
+
+    // Check all tables 1..16: if table has 0 active orders in Supabase, purge stale session
+    for (let i = 1; i <= 16; i++) {
+      const key = `Tavolo ${i}`;
+      if (!occupiedTables.has(key)) {
+        try {
+          localStorage.removeItem(`${STORAGE_PREFIX}${key}`);
+        } catch {}
+      }
+    }
+
+    return occupiedTables;
+  } catch {
+    return new Set();
+  }
 }
