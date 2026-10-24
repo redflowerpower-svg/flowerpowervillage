@@ -100,14 +100,17 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
       1. Su click manuale dell'utente sul rispettivo pulsante dedicato ("Genera Nuovo Video" o "Rigenera Copy AI").
       2. Dalla programmazione editoriale automatica (cron / publisher pianificato) quando ne ha esplicitamente bisogno.
 22. **Regola Immodificabile Standard Device di Riferimento: Xiaomi Mi Pad 4 (Tablet Ufficiale in Verticale)**:
-    - **Device di Riferimento Ufficiale**: Xiaomi Mi Pad 4 / Mi Pad 4 Plus (schermo 16:10, risoluzione fisica 1920x1200, MIUI Android DPR 2.25x/2.0x).
-    - **Larghezza Viewport Logica CSS (Verticale / Portrait)**: Compresa tra $480\text{px}$ e $600\text{px}$ (con ridimensionamento caratteri/display MIUI standard calcolata a $\sim 533\text{px}$ o $411\text{px}$–$432\text{px}$).
+    - **Device di Riferimento Ufficiale**: Xiaomi Mi Pad 4 / Mi Pad 4 Plus (schermo 16:10, risoluzione fisica 1920x1200, MIUI Android DPR 2.0x/2.25x/2.75x).
+    - **Larghezza Viewport Logica CSS (Verticale / Portrait)**: Compresa tra $411\text{px}$ e $533\text{px}$ in base al livello di zoom caratteri/display impostato su MIUI.
+    - **Divieto Assoluto della Trappola Breakpoint Mobile**: È severamente e categoricamente vietato utilizzare media query standard come `sm:` (640px), `md:` (768px) o soglie a 480px per definire i layout tablet, perché su Android MIUI lo schermo verticale del tablet viene scambiato per uno smartphone. Qualsiasi layout per tablet DEVE essere attivo già a partire da $360\text{px}$.
     - **Griglia Prodotti Menu (Standard Tassativo 3 Colonne)**:
       1. Su questo tablet di riferimento e su qualsiasi tablet, i prodotti culinari (pizze, piatti, paste, insalate, burger) devono essere **TASSATIVAMENTE 3 PER RIGA IN ORIZZONTALE**, sia in orientamento verticale che orizzontale, sia nella schermata Sala (`/dining`) sia nel menù delivery/asporto (`/` o `flowerpowerpizza.com`).
       2. Per non dipendere mai da breakpoint CSS arbitrari o cache dei browser Android, la griglia dei prodotti impone 3 colonne di default (`grid-template-columns: repeat(3, minmax(0, 1fr))`) e applica il fallback a 2 colonne solo ed esclusivamente su schermi micro-smartphone stretti ($< 360\text{px}$).
     - **Selettore Categorie (CategoryTabs)**:
-      1. Sul tablet di riferimento Xiaomi Mi Pad 4 e su tutti i tablet in verticale ($\ge 480\text{px}$), il selettore categorie adotta **TASSATIVAMENTE IL MENU STATICO SU DUE RIGHE FISSE** (`category-tabs-desktop` con `gridTemplateColumns: repeat(cols, minmax(0, 1fr))`), dove tutte le categorie sono visibili e selezionabili immediatamente senza scorrimento.
-      2. Solo su smartphone stretti ($< 480\text{px}$) adotta lo slider orizzontale compatto a scorrimento (`category-tabs-mobile`).
+      1. Sul tablet di riferimento Xiaomi Mi Pad 4 e su tutti i tablet in verticale, il selettore categorie adotta **TASSATIVAMENTE IL MENU STATICO SU DUE RIGHE FISSE** (`category-tabs-desktop` con `gridTemplateColumns: repeat(cols, minmax(0, 1fr))` ed inline-style/CSS `display: grid !important`), dove tutte le categorie sono visibili e selezionabili immediatamente senza scorrimento orizzontale.
+      2. Le dimensioni delle schede categoria sono tassativamente calibrate per il viewport verticale del tablet: altezza $88\text{px}$ (`h-[88px]`), icona $28\text{px}$ (`w-7 h-7`) e font ottimizzato (`text-[9px] sm:text-[10px]`).
+      3. Solo ed esclusivamente su micro-smartphone stretti ($< 360\text{px}$) adotta lo slider orizzontale compatto a scorrimento (`category-tabs-mobile`).
+    - **Integrità Totale Interfaccia Tablet**: Qualsiasi futuro sviluppo di modali, carrello, banner, schede o flussi d'ordine DEVE essere progettato e collaudato rispettando le proporzioni di questo standard device tablet in verticale.
 
 # 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
 Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):
