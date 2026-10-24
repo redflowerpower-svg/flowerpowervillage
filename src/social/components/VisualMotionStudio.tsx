@@ -346,8 +346,8 @@ export const VILLAGE_AUDIO_TRACKS: JingleTrackOption[] = [
     title: 'Island Funk Groove',
     part: 'Tropical Funk Pop',
     tagline: 'Groovy e festoso per aperitivi al tramonto e social',
-    badge: '🌴 Funk 31s',
-    duration: '31.0s',
+    badge: '🌴 Funk 28s',
+    duration: '27.6s',
     src: '/audio/village/02%20Flower%20Power%20Village%20-%20Island%20Funk%20Groove%20(Tropical%20Funk).mp3'
   },
   {
@@ -356,8 +356,8 @@ export const VILLAGE_AUDIO_TRACKS: JingleTrackOption[] = [
     title: 'Phayam Island Groove',
     part: 'Island Disco Pop',
     tagline: 'Atmosfera tropicale e festosa per piscina e cocktail',
-    badge: '🌺 Pop 26s',
-    duration: '25.6s',
+    badge: '🌺 Pop 19s',
+    duration: '19.3s',
     src: '/audio/village/03%20Flower%20Power%20Village%20-%20Phayam%20Island%20Groove%20(Island%20Disco).mp3'
   },
   {
@@ -366,8 +366,8 @@ export const VILLAGE_AUDIO_TRACKS: JingleTrackOption[] = [
     title: 'Island Vibes & Sun',
     part: 'Reggae Island Pop',
     tagline: 'Solare, rilassante e spensierato per spiagge e sole',
-    badge: '🌺 Reggae 31s',
-    duration: '31.0s',
+    badge: '🌺 Reggae 26s',
+    duration: '25.6s',
     src: '/audio/village/04%20Flower%20Power%20Village%20-%20Island%20Vibes%20&%20Golden%20Sun%20(Reggae%20Pop).mp3'
   },
   {
@@ -376,8 +376,8 @@ export const VILLAGE_AUDIO_TRACKS: JingleTrackOption[] = [
     title: 'Sunshine Riddim',
     part: 'Reggae Roots',
     tagline: 'Riddim rilassato con chitarra skank e organo',
-    badge: '🏝️ Roots 31s',
-    duration: '31.0s',
+    badge: '🏝️ Roots 30s',
+    duration: '30.5s',
     src: '/audio/village/05%20Flower%20Power%20Village%20-%20Island%20Sunshine%20Riddim%20(Reggae%20Roots).mp3'
   },
   {
@@ -386,8 +386,8 @@ export const VILLAGE_AUDIO_TRACKS: JingleTrackOption[] = [
     title: 'Phayam Paradise Vibes',
     part: 'Island Reggae',
     tagline: 'Vibes tropicali e spensierate per amache e natura',
-    badge: '🏝️ Reggae 31s',
-    duration: '31.0s',
+    badge: '🏝️ Reggae 27s',
+    duration: '26.8s',
     src: '/audio/village/06%20Flower%20Power%20Village%20-%20Koh%20Phayam%20Paradise%20Vibes%20(Island%20Reggae).mp3'
   },
   {
@@ -396,8 +396,8 @@ export const VILLAGE_AUDIO_TRACKS: JingleTrackOption[] = [
     title: 'Tropical Escape',
     part: 'Tropical Reggae',
     tagline: 'Ritmo vivace per escursioni e vita all aperto',
-    badge: '🌴 Escape 31s',
-    duration: '30.9s',
+    badge: '🌴 Escape 25s',
+    duration: '24.7s',
     src: '/audio/village/07%20Flower%20Power%20Village%20-%20Tropical%20Island%20Escape%20(Tropical%20Reggae).mp3'
   },
   {
@@ -416,8 +416,8 @@ export const VILLAGE_AUDIO_TRACKS: JingleTrackOption[] = [
     title: 'Love in Koh Phayam',
     part: 'Vocal Jazz Bossa',
     tagline: 'Voce calda, contrabbasso e pianoforte per cene intime',
-    badge: '🌺 Bossa 31s',
-    duration: '31.0s',
+    badge: '🌺 Bossa 44s',
+    duration: '43.7s',
     src: '/audio/village/09%20Flower%20Power%20Village%20-%20Love%20in%20Koh%20Phayam%20(Vocal%20Jazz%20Bossa).mp3'
   },
   {

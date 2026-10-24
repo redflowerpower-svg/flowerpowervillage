@@ -52,24 +52,100 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
     - **A Capo Semantico Naturale (Divieto Assoluto Tagli Arbitrari o Parole Orfane)**: Se un titolo deve andare a capo (lunghezza o connettori), DEVE essere spezzato esclusivamente in un punto a senso logico:
       1. *Inglese*: Tagliare tassativamente prima dei connettori culinari (`WITH `, `& `, `AND `, `ALLA `, `ALLO `, `AL `, `CON `, o prima della parentesi `(`) evitando parole orfane isolate a fine riga (es. `HOMEMADE RAVIOLI` a capo `WITH LIGURIAN WALNUT SAUCE`).
       2. *Tailandese*: Tagliare tassativamente al confine tra la base del piatto e il condimento prima dei connettori semantici Thai (`ซอส` es. salsa/crema, `สไตล์` es. stile, `พร้อม` es. servito con, `และ`, `กับ` o prima della parentesi `(`) evitando categoricamente di troncare sillabe o parole a metà (es. `ราวิโอลีโฮมเมด` a capo `ซอสครีมวอลนัทสไตล์ลิกูเรีย`).
-14. **Regola Thumbnail Ufficiale Pizzeria & Daily Special (Primo Piatto al Massimo Zoom Centrale)**:
-    - Per tutti i video social della Pizzeria e tassativamente per il formato `DS` Daily Special, il fotogramma di copertina (thumbnail ufficiale da visualizzare prima dell'avvio e da esportare per TikTok e Instagram) DEVE corrispondere **TASSATIVAMENTE AL PRIMO PIATTO IN VETRINA (HERO)**.
-    - Il fotogramma deve essere estratto esattamente al culmine del suo movimento cinematografico: ovvero con **centratura perfetta a 0 coordinate orizzontali (`panX = 0`)** e al **massimo livello di zoom macro centrale** sul condimento/cuore del piatto prima che inizi la dissolvenza verso la seconda scena.
+14. **Regola Immodificabile Thumbnail Ufficiale Pre-Dissolvenza (Massimo Zoom Senza Fade / Zero Ghosting Seconda Immagine in Tutti i Montaggi Video)**:
+    - Per TUTTI i montaggi e formati video del Social Media Studio (Pizzeria `P1/P2/P3/DS`, Ristorante `R1`, Villaggio `V1/V2/V3/LM1`, AutoCut e reel social), il fotogramma di copertina (thumbnail ufficiale da visualizzare prima dell'avvio nel player e da esportare per TikTok, Instagram, Facebook e Google) DEVE corrispondere **TASSATIVAMENTE AL PRIMO ELEMENTO IN VETRINA (HERO)**.
+    - **Timing Immodificabile Pre-Fade**: Il fotogramma deve essere estratto **TASSATIVAMENTE UN ATTIMO PRIMA DELL'INIZIO DEL FADE VERSO LA SECONDA SCENA** (`thumbnailTimestamp = transitionThreshold - 0.05s`, ovvero prima di `scene1Dur - effectiveDissolve`).
+    - **DIVIETO CATEGORICO E ASSOLUTO**: È severamente e categoricamente vietato estrarre la thumbnail quando la dissolvenza è già iniziata (`elapsed >= transitionThreshold`), azzerando al 100% qualsiasi effetto fantasma, doppia esposizione, dissolvenza parziale o velo opaco della seconda immagine sovrapposta alla copertina.
+    - La thumbnail deve catturare la prima scena al massimo culmine del suo movimento cinematografico: centratura orizzontale perfetta (`panX = 0`) e massimo zoom macro sul soggetto con nitidezza cristallina assoluta e seconda scena rigorosamente a 0 opacità.
 15. **Regola Immodificabile Nomi Piatti/Alloggi nei Post Social (Zero A Capo / Locuzione Unica Continua)**:
     - Nel testo dei post social (didascalie, caption, schede descrittive di TikTok, Instagram, Facebook e Google), il nome del piatto o dell'alloggio **NON DEVE MAI ANDARE A CAPO**: è **TASSATIVAMENTE UNA LOCUZIONE UNICA CONTINUA SU SINGOLA RIGA**.
     - Anche se nel player video 9:16 il titolo viene formattato su due righe per ragioni cinematiche (Regola 13), quando viene passato e renderizzato nei post (`autoCutCopywriterEngine.ts`, `AutoCutPostCopywriter.tsx`, prompt DeepSeek AI) deve essere ripulito da qualsiasi interruzione di riga (`\n`, `\r`) ed espresso come un'unica stringa fluida (es. `HOMEMADE RAVIOLI WITH LIGURIAN WALNUT SAUCE` e `ราวิโอลีโฮมเมด ซอสครีมวอลนัทสไตล์ลิกูเรีย`).
+16. **Regola Immodificabile Posizione Hashtag nei Post Social (Solo Alla Fine, Mai Tra Una Traduzione e l'Altra)**:
+    - Nel testo dei post social (caption TikTok, Instagram, Facebook e Gruppo Koh Phayam su Telegram, anche nel blocco `<pre>` copiabile) gli hashtag NON DEVONO MAI comparire tra il blocco Thai e il blocco Inglese.
+    - Devono essere raccolti in **UN UNICO BLOCCO FINALE** (hashtag Thai + hashtag Inglesi), posto **DOPO** testo bilingue, link/Google Maps e tag (`@flowerpowerpizzaranong` ecc.).
+    - Ordine caption: `Testo bilingue → Link/Maps → @tag → #hashtag`.
+    - I testi generati da DeepSeek NON devono contenere hashtag; il sistema (`autoCutCopywriterEngine.ts`, `AutoCutPostCopywriter.tsx`) li aggiunge in coda e rimuove eventuali hashtag inline residui.
+17. **Regola Immodificabile Bandiera Lingua & Emoji nel Testo dei Post Social**:
+    - Ogni blocco di lingua nei post social (TikTok, Instagram, Facebook, Gruppo Koh Phayam su Telegram) DEVE iniziare con la propria bandiera **prima della prima lettera**: 🇹🇭 per il blocco Thai, 🇬🇧 per il blocco Inglese.
+    - Il sistema (`ensureLangFlag` in `autoCutCopywriterEngine.ts`, `AutoCutPostCopywriter.tsx`) garantisce la bandiera corretta anche sui testi generati da DeepSeek, e i prompt di DeepSeek richiedono bandiera ed emoji contestuali.
+18. **Regola Immodificabile Divieto Assoluto Forno a Legna (Wood-Fired Oven / เตาฟืน / Holzofen / Aroma di Legna)**:
+    - **NON ABBIAMO IL FORNO A LEGNA**: Flower Power Pizza a Ranong e Flower Power Restaurant a Koh Phayam **NON DISPONGONO DI FORNO A LEGNA**.
+    - È **SEVERAMENTE, CATEGORICAMENTE E TASSATIVAMENTE VIETATO** usare o menzionare le parole "forno a legna", "wood-fired", "wood-fired oven", "wood oven", "wood crust", "เตาฟืน", "Holzofen", "aroma di legna" o qualsiasi allusione alla legna nei prompt di DeepSeek AI, nei post social (TikTok, Instagram, Facebook, Telegram), nelle didascalie, nei titoli, nei banner, nei video, nelle email o nei template.
+    - La pizza è **TASSATIVAMENTE ED ESCLUSIVAMENTE AUTENTICA PIZZA TRADIZIONALE ITALIANA** cotta su pietra refrattaria ad alta temperatura / forno professionale per pizza tradizionale con impasto a lievitazione naturale 48 ore e farina italiana.
+    - Il sistema applica sanitizzatori regex sia in `social-publisher.ts` sia in `autoCutCopywriterEngine.ts` che eliminano automaticamente qualsiasi residuo di "wood-fired" o "เตาฟืน" a monte e a valle.
+19. **Regola Immodificabile Distribuzione Dinamica delle Emoji nel Testo (Divieto Assoluto Emoji Raggruppate a Fine Frase)**:
+    - **DIVIETO CATEGORICO E ASSOLUTO**: È severamente vietato piazzare 3 o 4 emoji tutte raggruppate insieme alla fine della frase o del paragrafo (es. `...delizioso! 🍕🔥🤤`).
+    - Le emoji devono essere **TASSATIVAMENTE DISTRIBUITE IN MODO DINAMICO, CONTESTUALE E NATURALE NEL FLUSSO DEL DISCORSO**, accompagnando le singole parole per ammorbidire e rendere viva e accogliente la lettura (es. "impasto a lievitazione lenta 🍕 fragrante e dorato", "fior di latte 🧀 filante", "consegna rapida a casa tua 🛵💨", "serata fresca 🌿", "relax vista mare 🌊", "natura tropicale 🌴").
+    - I prompt di DeepSeek richiedono esplicitamente la collocazione delle emoji contestualmente alle singole parole.
+20. **Regola Immodificabile Header Brand Universale (Logo +20%, FLOWER POWER a Campata Piena con Auto-Fit Dimensione Font e Spaziatura Naturale)**:
+    - **Logo Ufficiale (+20%)**: In tutti i formati video (`P1`, `P2`, `P3`, `DS`, `R1`, `LM1`, `V1`, `V2`, `V3`), il logo circolare di Flower Power a sinistra ha diametro ingrandito del +20%: $90\text{px}$ in anteprima DOM (`w-[90px] h-[90px]`) e $91 \times s$ su Canvas (`logoSize = 91 * s`, $\approx 164\text{px}$ su 720p).
+    - **FLOWER POWER a Campata Piena con Spaziatura Naturale**:
+      - Dal punto di inizio del testo a destra del logo ($tx$) fino all'estremo margine destro dello schermo, la scritta `FLOWER POWER` deve occupare **TASSATIVAMENTE TUTTA LA LARGHEZZA UTILE A DISPOSIZIONE**, con la fine della stanghetta della lettera "R" che tocca perfettamente il margine destro.
+      - **DIVIETO ASSOLUTO DI TRACKING / LETTER-SPACING ARTIFICIALE**: È categoricamente vietato allargare o dilatare lo spazio tra le singole lettere. La spaziatura tra i caratteri deve rimanere rigorosamente **standard, uniforme e naturale** (`tracking-normal`, font *Outfit 900 Black*).
+      - **Auto-Fit Matematico della Dimensione Font**: La campata totale si ottiene scalando proporzionalmente la sola dimensione del font ($fontSize = fontSizeBase \times (availableWidth / measuredNaturalWidth)$), sia nell'anteprima DOM ($26.5\text{px}$–$27.5\text{px}$) sia su Canvas a qualsiasi risoluzione ($\sim 52\text{px}$ su 720p).
+    - **Sottotitolo Village / Pizza & Elementi Header Ribilanciati a Cascata**:
+      - La scritta `Village` e `Pizza` è ingrandita proporzionalmente da $16\text{px}$ a $18.5\text{px}$–$20\text{px}$ in corsivo elegante (*Outfit italic*).
+      - In `P1`, `P2`, `P3`: le scritte `Ranong Delivery` ($17\text{px}$/$20 \times s$), Thai `ส่งถึงบ้าน` ($19\text{px}$/$23 \times s$), `flowerpowerpizza.com` ($14.5\text{px}$/$16 \times s$) e `Link in Bio` ($14.5\text{px}$/$15 \times s$) sono **ingrandite del +20% mantenendo la stessa distanza da Pizza** (`pt-1` / `ty += 10 * s`).
+      - In `DS`: `LIVE SHOWCASE` ($14.5\text{px}$/$14.5 \times s$), Thai ($19\text{px}$/$23 \times s$) e `FAST DELIVERY` ($14.5\text{px}$/$16.5 \times s$) sono **ingranditi del +20% mantenendo la stessa distanza da Pizza** (`pt-1.5` / `ty += 10 * s`).
+      - In `V1`, `V2`, `V3` (e `LM1`): `DIRECT BOOKING` ($18.5\text{px}$–$21\text{px}$/$20 \times s$), `flowerpowervillage.com` ($14.5\text{px}$/$16 \times s$) e `Link in Bio` ($14.5\text{px}$/$15 \times s$) sono **ingranditi del +20% allontanandosi di 2 pixel netti dalla parola Village** (`pt-1.5 mt-0.5` / `ty += 12 * s`).
+      - In `R1`: `DELIVERY` rosso lampeggiante passa a $21.5\text{px}$ ($22 \times s$), `เดลิเวอรี่` a $17\text{px}$ ($17 \times s$), numero WhatsApp a $16.5\text{px}$ ($16 \times s$) e `Koh Phayam` a $15\text{px}$ ($14.5 \times s$).
+      - La sfumatura superiore scura (Top Vignette Fade) si estende a $240\text{px}$ (`h-60`) in DOM e $260 \times s$ su Canvas per garantire contrasto e leggibilità impeccabile.
+21. **Regola Immodificabile Anti-Spreco Token & Persistenza al Refresh e al Cambio Scheda (Zero Rigenerazione Automatica)**:
+    - **DIVIETO CATEGORICO DI CHIAMATE AI AUTOMATICHE**: È severamente e categoricamente vietato invocare automaticamente API di Intelligenza Artificiale (DeepSeek, Gemini, OpenAI) al caricamento iniziale della pagina, al refresh (F5) o quando l'utente si sposta tra i formati (`P1`, `P2`, `P3`, `DS`, `V1`, `V2`, `V3`, `R1`, `LM1`).
+    - **Persistenza Totale dello Stato Utente in `localStorage`**:
+      1. L'ultima modalità video attiva (`activeMode`), l'ultimo montaggio generato a schermo (`currentTest`) e i video in memoria per ciascun formato (`testsByMode`) sono persistiti in `localStorage`.
+      2. Al riavvio della pagina o al cambio tra i formati, il sistema ripristina fedelmente l'esatta elaborazione precedente a 0ms: non rimescola i piatti, non estrae nuove scene e non altera il testo.
+      3. I testi generati con DeepSeek AI per ciascun piatto o alloggio sono salvati in `localStorage` associati alla firma identificativa univoca del video (`autocut_ai_copy_${testRunSignature}`). Se un formato non ha ancora un testo AI generato, mostra il copy bilingue locale deterministico senza mai invocare le API esterne.
+    - **Rigenerazione Solo su Richiesta Esplicita**: La generazione di un nuovo montaggio video o di un nuovo testo DeepSeek AI avviene **SOLO ED ESCLUSIVAMENTE**:
+      1. Su click manuale dell'utente sul rispettivo pulsante dedicato ("Genera Nuovo Video" o "Rigenera Copy AI").
+      2. Dalla programmazione editoriale automatica (cron / publisher pianificato) quando ne ha esplicitamente bisogno.
 
+# 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
+Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):
 
-
-
-
-
-# Autonomous Execution & Research Protocol (`/goal`, `AUTOPILOT`, `In autonomia`)
-Quando l'utente attiva una richiesta usando il comando `/goal`, la parola chiave `AUTOPILOT` o il prefisso `In autonomia:`:
 1. **DIVIETO ASSOLUTO DI PLANNING BLOCK**: L'agente NON deve MAI creare file di piano con `RequestFeedback: true`. È severamente vietato far comparire nella UI dell'IDE i pulsanti "Proceed" o "Submit".
 2. **DIVIETO ASSOLUTO DI STRUMENTI INTERATTIVI**: L'agente NON deve MAI usare il tool `ask_question` né generare modali di conferma.
 3. **ESECUZIONE DIRETTA CONTINUA**: L'agente deve procedere immediatamente con l'esecuzione reale (lettura/modifica codice, esecuzione script da terminale, diagnostica e correzioni), iterando autonomamente fino al raggiungimento dell'obiettivo.
-4. **REPORT FINALE COMPATTO**: Solo a obiettivo raggiunto, produrre il resoconto finale chiaro e sintetico.
+4. **GESTIONE AUTONOMA DEI FILE (NESSUNA ATTESA DI "ACCEPT ALL")**:
+   - **Zero Modifiche in Sospeso**: Non lasciare modifiche in sospeso o finestre di diff/revisione aperta in attesa che l'utente prema manualmente "Accept All".
+   - **Consolidamento Diretto**: Applica e consolida le modifiche direttamente nei file sorgente, procedendo con il task fino al completamento.
+   - **Verifica Autonoma**: Esegui tu stesso eventuali controlli di sintassi, lint o test di verifica (es. script mirati in `scratch/`, test Node.js o comandi di compilazione) in autonomia.
+   - **Stop Solo su Blocco Critico**: Fermati e chiedi l'intervento dell'utente **SOLO ED ESCLUSIVAMENTE** se si verifica un errore bloccante per due volte consecutive (Error Loop Breaker) o se si rischia di violare i guardrail protetti.
+5. **DIVIETO / MINIMIZZAZIONE DELL'USO DEL BROWSER TOOL (TOKEN SAVING RULE)**:
+   - **Zero Spreco di Token**: Evita categoricamente di aprire o navigare tramite il browser integrato dell'agente (`browser_subagent`, Playwright, Puppeteer o visual DOM inspect), poiché scarica e ricarica interi DOM complessi consumando una quantità spropositata di token e rallentando il flusso.
+   - **Vie Alternative Più Rapide & Leggere (Sempre Obbligatorie)**:
+     * Esegui script diagnostici mirati in `scratch/` via Node.js o PowerShell nativo (usando `curl`, `fetch`, chiamate API dirette o analisi statica del file).
+     * Leggi direttamente file locali, endpoint mockati o log del server.
+     * Utilizza comandi da riga di comando o test da terminale anziché renderizzare pagine web nel browser subagent.
+   - **Eccezione Categorica**: L'uso del browser subagent è consentito **SOLO ED ESCLUSIVAMENTE se espressamente richiesto dall'utente** o se è tecnicamente impossibile testare la funzionalità in qualsiasi altro modo.
+6. **REPORT FINALE COMPATTO**: Solo a obiettivo raggiunto, produrre il resoconto finale chiaro, sintetico e puntuale.
+
+### 🛡️ Guardrail Operativi Inviolabili (Safe at First)
+1. **Terminal Restrictions (Divieto Comandi Distruttivi)**:
+   - **DIVIETO ASSOLUTO** per comandi che distruggono lo storico o il codice:
+     `git reset --hard`, `git clean -f`, `git push --force`, `rm -rf /`, `Remove-Item -Recurse -Force` su directory di progetto.
+   - Qualsiasi cancellazione deve riguardare solo ed esclusivamente file isolati creati dall'agente stesso nella cartella `scratch/`.
+2. **Environment & Credential Blindness (Zero Leak & Zero Sovrascrittura)**:
+   - **DIVIETO ASSOLUTO** di cancellare, modificare o sovrascrivere file `.env`, `.env.local`, `.env.production` o la cassaforte `.secret_docs`.
+   - **DIVIETO ASSOLUTO** di committare token, password o secret keys (Supabase, Stripe, Octorate, DeepSeek, Google, Ksher, Telegram) nel codice tracciato da Git.
+3. **Vercel Hobby Cap & Serverless Structure (Max 12 Functions)**:
+   - **DIVIETO CATEGORICO** di creare nuovi file `.ts`/`.js` direttamente dentro la root `/api/`.
+   - Qualsiasi nuovo endpoint backend deve essere sviluppato come modulo all'interno di `/api/_handlers/` o agganciato tramite routing interno agli handler aggregati esistenti, per non violare mai il limite Vercel Hobby (max 12 serverless functions) e non far fallire il deploy.
+4. **Scope & File Discipline (Chirurgia Mirata)**:
+   - Modificare **esclusivamente i file strettamente necessari** per l'obiettivo corrente.
+   - È severamente vietato riorganizzare directory, rinominare cartelle stabili o refattorizzare file non coinvolti nel task.
+   - **Inviolabilità di `menuData.ts`**: divieto di rigenerare il catalogo da zero; ogni modifica a piatti o prezzi deve essere chirurgica.
+   - **Sandbox Obbligatoria `scratch/`**: qualsiasi script node di utilità o diagnostica deve risiedere esclusivamente in `scratch/`.
+5. **Error Loop Breaker (Massimo 2 Tentativi)**:
+   - Se un comando da terminale, un test di build (`tsc`) o un'esecuzione fallisce per **DUE volte consecutive con lo stesso errore**, l'agente DEVE:
+     1. Fermare immediatamente qualsiasi ulteriore tentativo automatico.
+     2. Non tentare modifiche a raffica "alla cieca" che bruciano token e rischiano di degradare il codice.
+     3. Formulare un'analisi diagnostica sintetica e chiedere istruzioni all'utente spiegando esattamente dove si è bloccato.
+6. **Protezione Processi & Connessioni Esterne**:
+   - **No Duplicate Dev Servers**: non lanciare ulteriori istanze di `vercel dev` o `npm run dev` se il server è già attivo in background.
+   - **Octorate & Payment Safety**: nessun push live verso le OTA (Booking/Agoda) o chiamate a gateway di pagamento reali durante test di script, a meno che il comando dell'utente non richieda esplicitamente la sincronizzazione di produzione.
+   - **PowerShell Native Syntax**: utilizzare sempre sintassi nativa compatibile con Windows PowerShell (`pwsh`).
+   - **Token Economy**: massima parsimonia nell'invocazione di subagent e divieto di loop di polling o query ridondanti.
 
 ---
 

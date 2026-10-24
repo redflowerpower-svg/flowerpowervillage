@@ -172,7 +172,7 @@ export const AUTOCUT_RULES_REGISTRY: Record<AutoCutLabMode, AutoCutModeRuleDetai
       '1 solo piatto protagonista con priorità rigorosa:',
       '  - Priorità 1: il 1° piatto attivo nella vetrina Daily Specials del Kitchen Monitor (es. Ravioli al Sugo di Noci).',
       '  - Priorità 2 (se vetrina vuota): il 1° piatto disponibile della categoria Daily Specials dal catalogo.',
-      '📸 Regola Thumbnail Ufficiale: la copertina/thumbnail del video DEVE essere tassativamente il 1° piatto in vetrina al suo massimo zoom macro centrale prima dell’outro.',
+      '📸 Regola Thumbnail Ufficiale: la copertina/thumbnail del video DEVE essere tassativamente il 1° piatto in vetrina al suo massimo zoom macro centrale prima dell’inizio del fade verso la 2a scena (zero ghosting / zero velo della seconda immagine).',
       'Rigorosamente verificato come DISPONIBILE nel Kitchen Monitor (Zero Sold Out / 86).'
     ],
     exclusions: [

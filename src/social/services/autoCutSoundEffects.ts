@@ -27,7 +27,7 @@ class AutoCutSoundEngine {
   /**
    * Master bus con Dynamics Compressor per prevenire clipping e massimizzare il volume e l'impatto sonoro
    */
-  private getMasterBus(ctx: AudioContext): AudioNode {
+  private getMasterBus(ctx: AudioContext, customDest?: AudioNode): AudioNode {
     const comp = ctx.createDynamicsCompressor();
     comp.threshold.setValueAtTime(-6, ctx.currentTime);
     comp.knee.setValueAtTime(8, ctx.currentTime);
@@ -39,7 +39,11 @@ class AutoCutSoundEngine {
     masterGain.gain.setValueAtTime(1.45, ctx.currentTime); // +45% di boost master per staccare sulla musica
 
     comp.connect(masterGain);
-    masterGain.connect(ctx.destination);
+    if (customDest) {
+      masterGain.connect(customDest);
+    } else {
+      masterGain.connect(ctx.destination);
+    }
     return comp;
   }
 
@@ -48,14 +52,14 @@ class AutoCutSoundEngine {
    * 1. Cinematic Whoosh d'aria (filtro passa-banda su rumore bianco in sweep potente) da 0.0s a 0.46s
    * 2. Deep Sub-Bass Punch & Thud a 0.46s (impatto profondo 150Hz -> 42Hz + snap secco)
    */
-  playPizzaOutroImpact(isMuted: boolean = false) {
+  playPizzaOutroImpact(isMuted: boolean = false, customCtx?: AudioContext, customDest?: AudioNode, startTimeOffset: number = 0) {
     if (isMuted) return;
-    const ctx = this.getContext();
+    const ctx = customCtx || this.getContext();
     if (!ctx) return;
 
     try {
-      const now = ctx.currentTime;
-      const master = this.getMasterBus(ctx);
+      const now = ctx.currentTime + startTimeOffset;
+      const master = this.getMasterBus(ctx, customDest);
 
       // --- FASE 1: POTENTE WHOOSH D'ARIA (da now a now + 0.46s) ---
       const bufferSize = Math.floor(ctx.sampleRate * 0.50);
@@ -132,14 +136,14 @@ class AutoCutSoundEngine {
    * 1. Gentle Air Breeze (soffio ricco e avvolgente)
    * 2. Crystal Zen Chime (armonici cristallini squillanti C-Major con lungo decadimento armonico)
    */
-  playVillageOutroImpact(isMuted: boolean = false) {
+  playVillageOutroImpact(isMuted: boolean = false, customCtx?: AudioContext, customDest?: AudioNode, startTimeOffset: number = 0) {
     if (isMuted) return;
-    const ctx = this.getContext();
+    const ctx = customCtx || this.getContext();
     if (!ctx) return;
 
     try {
-      const now = ctx.currentTime;
-      const master = this.getMasterBus(ctx);
+      const now = ctx.currentTime + startTimeOffset;
+      const master = this.getMasterBus(ctx, customDest);
 
       // --- FASE 1: BREZZA TROPICALE (Whoosh soffice presente) ---
       const bufferSize = Math.floor(ctx.sampleRate * 0.50);
@@ -199,11 +203,11 @@ class AutoCutSoundEngine {
   /**
    * Riproduce l'effetto sonoro di impatto corretto in base al brand
    */
-  playOutroImpact(brand: 'pizza' | 'village', isMuted: boolean = false) {
+  playOutroImpact(brand: 'pizza' | 'village', isMuted: boolean = false, customCtx?: AudioContext, customDest?: AudioNode, startTimeOffset: number = 0) {
     if (brand === 'pizza') {
-      this.playPizzaOutroImpact(isMuted);
+      this.playPizzaOutroImpact(isMuted, customCtx, customDest, startTimeOffset);
     } else {
-      this.playVillageOutroImpact(isMuted);
+      this.playVillageOutroImpact(isMuted, customCtx, customDest, startTimeOffset);
     }
   }
 }

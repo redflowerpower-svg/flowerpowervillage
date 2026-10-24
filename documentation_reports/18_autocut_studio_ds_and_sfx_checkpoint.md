@@ -20,7 +20,12 @@ Su indicazione della direzione, è stato **completamente superato il vecchio for
    - **Movimento del Piatto**: Dura circa ~8.85s (fino al cantato *"Flower Power!"*), con traiettoria `food_macro_focus_lr` che parte in carrellata morbida e rientra verso il centro con zoom macro continuo sul condimento.
    - **Outro nel Beat**: Entra a tempo sulla battuta finale con rimbalzo elastico 3D del Logo, Card Consegna, QR Code LINE e sconto 10% 1° ordine, terminando all'unisono con la colonna sonora.
 3. **Regola Thumbnail Ufficiale (Regola 14 AGENTS.md)**:
-   - La copertina per TikTok, Reels e anteprime è **tassativamente il fotogramma al massimo zoom macro centrale (95% della durata della scena)** con il piatto perfettamente centrato sull'asse orizzontale (`panX = 0`) e il badge visibile.
+   - La copertina per TikTok, Reels e anteprime è **tassativamente il fotogramma al massimo zoom macro centrale estratto un attimo prima dell'inizio del fade verso la 2a scena (`transitionThreshold - 0.05s`, zero ghosting/velo)** con il piatto perfettamente centrato sull'asse orizzontale (`panX = 0`), seconda scena a zero opacità e tutti i badge visibili.
+4. **Regola Posizione Hashtag nei Post (Regola 16 AGENTS.md)**:
+   - Gli hashtag (Thai + Inglesi) stanno **solo in un unico blocco finale**, dopo testo bilingue, link/Maps e tag; **mai tra la traduzione Thai e quella Inglese**.
+   - Ordine caption: `Testo bilingue → Link/Maps → @tag → #hashtag`. DeepSeek non scrive hashtag; il sistema li aggiunge in coda (`autoCutCopywriterEngine.ts`, `AutoCutPostCopywriter.tsx`).
+5. **Regola Bandiera Lingua & Emoji (Regola 17 AGENTS.md)**:
+   - Ogni blocco lingua inizia con la sua bandiera prima della prima lettera (🇹🇭 Thai, 🇬🇧 Inglese) e il testo contiene emoji pertinenti e divertenti.
 
 ---
 

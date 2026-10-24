@@ -22,7 +22,15 @@ import { AutoCutPostCopywriter, PostCaptionsBundle } from './AutoCutPostCopywrit
 import { AutoCutDistributionPanel, DistributionChannelId, ChannelFormatMap } from './AutoCutDistributionPanel';
 
 export function AutoCutLabView() {
-  const [activeMode, setActiveMode] = useState<AutoCutLabMode>('P1');
+  const [activeMode, setActiveMode] = useState<AutoCutLabMode>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('autocut_active_mode') as AutoCutLabMode | null;
+        if (saved) return saved;
+      } catch (e) {}
+    }
+    return 'P1';
+  });
   const [selectedChannel, setSelectedChannel] = useState<DistributionChannelId>('tiktok');
   const [channelFormats, setChannelFormats] = useState<ChannelFormatMap>({
     tiktok: 'feed',
@@ -32,10 +40,36 @@ export function AutoCutLabView() {
   });
   const [liveCaptions, setLiveCaptions] = useState<PostCaptionsBundle | null>(null);
   const [testsByMode, setTestsByMode] = useState<Partial<Record<AutoCutLabMode, AutoCutTestRun>>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('autocut_tests_by_mode');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object') return parsed;
+        }
+      } catch (e) {}
+    }
     const init = generateAutoCutTestByMode('P1');
     return { P1: init };
   });
-  const [currentTest, setCurrentTest] = useState<AutoCutTestRun>(() => generateAutoCutTestByMode('P1'));
+  const [currentTest, setCurrentTest] = useState<AutoCutTestRun>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedCurrent = localStorage.getItem('autocut_current_test');
+        if (savedCurrent) {
+          const parsed = JSON.parse(savedCurrent);
+          if (parsed && parsed.scenes && parsed.scenes.length > 0) return parsed;
+        }
+        const savedMode = (localStorage.getItem('autocut_active_mode') as AutoCutLabMode | null) || 'P1';
+        const saved = localStorage.getItem('autocut_tests_by_mode');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed[savedMode]) return parsed[savedMode];
+        }
+      } catch (e) {}
+    }
+    return generateAutoCutTestByMode('P1');
+  });
   const [shuffleKey, setShuffleKey] = useState(0);
   const [dailySpecialDishes, setDailySpecialDishes] = useState<MenuItem[]>(() => getLiveDailySpecialDishes());
   const [isGenerating, setIsGenerating] = useState(false);
@@ -60,21 +94,38 @@ export function AutoCutLabView() {
     return generateAutoCutTestByMode(mode);
   };
 
-  // Sincronizzazione iniziale degli overrides di disponibilità del Kitchen Monitor e Daily Specials
+  // 🛡️ REGOLA 21 AGENTS.MD: PERSISTENZA AL REFRESH (ZERO RIGENERAZIONE AL RICARICAMENTO DELLA PAGINA)
+  // Non rigenera il video né brucia token al semplice refresh: mantiene quello salvato nel browser!
   React.useEffect(() => {
     fetchLiveKitchenAvailability().then(() => {
       const liveSpecials = getLiveDailySpecialDishes();
       setDailySpecialDishes(liveSpecials);
-      const initialP1 = generateAutoCutTestByMode('P1');
-      setCurrentTest(initialP1);
-      setTestsByMode(prev => ({ ...prev, P1: initialP1 }));
-      setShuffleKey(k => k + 1);
+
+      const hasSavedTests = typeof window !== 'undefined' && localStorage.getItem('autocut_tests_by_mode');
+      if (!hasSavedTests) {
+        const initialP1 = generateAutoCutTestByMode('P1');
+        setCurrentTest(initialP1);
+        setTestsByMode(prev => {
+          const updated = { ...prev, P1: initialP1 };
+          try {
+            localStorage.setItem('autocut_tests_by_mode', JSON.stringify(updated));
+            localStorage.setItem('autocut_active_mode', 'P1');
+          } catch (e) {}
+          return updated;
+        });
+        setShuffleKey(k => k + 1);
+      }
     });
   }, []);
 
   // Switch di modalità: visualizza il video già pronto in memoria senza rigenerare!
   const handleSelectMode = async (mode: AutoCutLabMode) => {
     setActiveMode(mode);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('autocut_active_mode', mode);
+      } catch (e) {}
+    }
 
     // Switch di modalità: non avviare la riproduzione in automatico
     setShouldAutoPlay(false);
@@ -83,15 +134,29 @@ export function AutoCutLabView() {
     const existing = testsByMode[mode];
     if (existing) {
       setCurrentTest(existing);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('autocut_current_test', JSON.stringify(existing));
+        } catch (e) {}
+      }
       setShuffleKey(k => k + 1);
       return;
     }
 
-    // Altrimenti genera il primo video per questa modalità e conservalo nella memoria
+    // Altrimenti genera il primo video per questa modalità e conservalo nella memoria e in localStorage
     setIsGenerating(true);
     try {
       const newTest = await createTestForMode(mode);
-      setTestsByMode(prev => ({ ...prev, [mode]: newTest }));
+      setTestsByMode(prev => {
+        const updated = { ...prev, [mode]: newTest };
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('autocut_tests_by_mode', JSON.stringify(updated));
+            localStorage.setItem('autocut_current_test', JSON.stringify(newTest));
+          } catch (e) {}
+        }
+        return updated;
+      });
       setCurrentTest(newTest);
       setShuffleKey(k => k + 1);
     } finally {
@@ -99,13 +164,22 @@ export function AutoCutLabView() {
     }
   };
 
-  // Genera esplicitamente un NUOVO video per la modalità corrente
+  // Genera esplicitamente un NUOVO video per la modalità corrente (solo su click manuale!)
   const handleRegenerateCurrent = async () => {
     setIsGenerating(true);
     setShouldAutoPlay(true);
     try {
       const newTest = await createTestForMode(activeMode);
-      setTestsByMode(prev => ({ ...prev, [activeMode]: newTest }));
+      setTestsByMode(prev => {
+        const updated = { ...prev, [activeMode]: newTest };
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('autocut_tests_by_mode', JSON.stringify(updated));
+            localStorage.setItem('autocut_current_test', JSON.stringify(newTest));
+          } catch (e) {}
+        }
+        return updated;
+      });
       setCurrentTest(newTest);
       setShuffleKey(k => k + 1);
     } finally {
@@ -335,9 +409,9 @@ export function AutoCutLabView() {
       {/* 3-Column Workbench: Left Smartphone Player vs Center AI Post Studio vs Right Distribution Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* 1. COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (spostato a sinistra) */}
-        <div className="lg:col-span-4 xl:col-span-3 flex flex-col items-start isolate">
-          <div className="w-full max-w-[340px] mb-1.5">
+        {/* 1. COLONNA SINISTRA: Smartphone Mockup con AutoCut Player (dimensione reale 395px fedele a smartphone moderno) */}
+        <div className="lg:col-span-4 xl:col-span-4 flex flex-col items-start isolate">
+          <div className="w-full max-w-[395px] mb-1.5">
             <button
               type="button"
               onClick={handleRegenerateCurrent}
@@ -349,7 +423,7 @@ export function AutoCutLabView() {
             </button>
           </div>
 
-          <div className="w-full max-w-[340px] flex flex-col items-center relative isolate">
+          <div className="w-full max-w-[395px] flex flex-col items-center relative isolate">
             <AutoCutLabPlayer
               key={`${activeMode}_${shuffleKey}`}
               testRun={currentTest}
@@ -362,7 +436,7 @@ export function AutoCutLabView() {
         </div>
 
         {/* 2. COLONNA CENTRALE: AI Post Content Studio & Traduzioni in Colonna (Dinamico per Canale) */}
-        <div className="lg:col-span-5 xl:col-span-6 space-y-4">
+        <div className="lg:col-span-5 xl:col-span-5 space-y-4">
           <AutoCutPostCopywriter
             testRun={currentTest}
             selectedChannel={selectedChannel}

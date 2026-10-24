@@ -1073,6 +1073,84 @@ export const PASTA_SAUCES = [
       "ZH": "浓郁的意大利蓝纹奶酪酱"
     },
     "pattern": "Gorgonzola"
+  },
+  {
+    "id": "quattro-formaggi",
+    "name": {
+      "IT": "Quattro Formaggi",
+      "EN": "Four Cheeses",
+      "TH": "ซอสโฟร์ชีส",
+      "DE": "Vier Käse",
+      "MM": "ချိစ်လေးမျိုး ဆော့စ်",
+      "ES": "Cuatro Quesos",
+      "FR": "Quatre Fromages",
+      "RU": "Четыре Сыра",
+      "ZH": "四种奶酪"
+    },
+    "desc": {
+      "IT": "Una cremosa miscela di quattro formaggi italiani accuratamente selezionati, fusi perfettamente insieme per creare un sapore ricco, deciso e avvolgente ad ogni morso.",
+      "EN": "A creamy blend of four carefully selected Italian cheeses, perfectly melted together to create a rich, bold, and indulgent flavor in every bite.",
+      "TH": "ซอสชีส 4 ชนิดเข้มข้นสไตล์อิตาเลียน ละมุนลิ้นด้วยชีสคุณภาพระดับพรีเมียม",
+      "DE": "Eine cremige Mischung aus vier sorgfältig ausgewählten italienischen Käsesorten, die perfekt miteinander verschmelzen, um bei jedem Bissen einen reichen und kräftigen Geschmack zu kreieren.",
+      "MM": "ဂရုတစိုက် ရွေးချယ်ထားသော အီတလီ ချိစ် ၄ မျိုးဖြင့် အရည်ဖျော်ထားသည့် နူးညံ့ပျစ်ခဲသော အရသာရှိ ဆော့စ်။",
+      "ES": "Una cremosa mezcla de cuatro quesos italianos cuidadosamente seleccionados, fundidos a la perfección para crear un sabor intenso y envolvente.",
+      "FR": "Un mélange onctueux de quatre fromages italiens soigneusement sélectionnés, fondus à la perfection pour une saveur riche et enveloppante.",
+      "RU": "Нежная сливочная смесь из четырех отборных итальянских сыров, идеально расплавленных для насыщенного и глубокого вкуса.",
+      "ZH": "精选四种纯正意大利奶酪慢火融合成的浓郁酱汁，醇厚丝滑，奶香四溢。"
+    },
+    "pattern": "Four Cheeses"
+  },
+  {
+    "id": "flower-power",
+    "name": {
+      "IT": "Salsa Flower Power",
+      "EN": "Flower Power Sauce",
+      "TH": "ซอสฟลาวเวอร์ พาวเวอร์",
+      "DE": "Flower Power Sauce",
+      "MM": "ဖလာဝါ ပါဝါ ဆော့စ်",
+      "ES": "Salsa Flower Power",
+      "FR": "Sauce Flower Power",
+      "RU": "Соус Флауэр Пауэр",
+      "ZH": "花漾力量特制酱"
+    },
+    "desc": {
+      "IT": "Salsa per pasta artigianale preparata in casa con gorgonzola, salsiccia italiana e carciofi. Cremosa, ricca e dal sapore unico, perfetta per gli amanti dei gusti decisi.",
+      "EN": "House-made artisanal pasta sauce with gorgonzola, Italian sausage, and artichokes. Creamy, rich, and full of unique flavor, perfect for lovers of bold tastes.",
+      "TH": "ซอสพาสต้าโฮมเมดสูตรพิเศษของร้าน ปรุงด้วยกอร์กอนโซลา ไส้กรอกอิตาเลียน และอาร์ติโชก เข้มข้นกลมกล่อม",
+      "DE": "Hausgemachte handwerkliche Nudelsauce mit Gorgonzola, italienischer Wurst und Artischocken. Cremig, reichhaltig und voller unverwechselbarem Geschmack.",
+      "MM": "ဂေါ်ဂွန်ဇိုလာချိစ်၊ အီတလီ ဝက်အူချောင်းနှင့် အာတီချုတ်တို့ဖြင့် အိမ်လုပ် ပြုလုပ်ထားသော ထူးခြားအရသာရှိသည့် ခေါက်ဆွဲဆော့စ်။",
+      "ES": "Salsa artesanal para pasta hecha en casa con gorgonzola, salchicha italiana y alcachofas. Cremosa, rica y de sabor único.",
+      "FR": "Sauce artisanale maison avec gorgonzola, saucisse italienne et artichauts. Crémeuse, riche et pleine de saveurs uniques.",
+      "RU": "Фирменный домашний соус с горгондзолой, итальянской колбаской и артишоками. Сливочный, насыщенный и с неповторимым вкусом.",
+      "ZH": "餐厅自制特色手工意面酱，融合戈贡佐拉蓝纹奶酪、意大利风味香肠与朝鲜蓟，浓郁鲜美，风味独具。"
+    },
+    "pattern": "Flower Power"
+  },
+  {
+    "id": "lasagne",
+    "name": {
+      "IT": "Lasagne al Forno",
+      "EN": "Baked Lasagna",
+      "TH": "ลาซานญ่าอบ",
+      "DE": "Ofenfrische Lasagne",
+      "MM": "ဖုတ်ထားသော လာဆန်းညား",
+      "ES": "Lasaña al Horno",
+      "FR": "Lasagnes au Four",
+      "RU": "Лазанья из Печи",
+      "ZH": "正宗焗烤千层意面"
+    },
+    "desc": {
+      "IT": "Autentiche lasagne artigianali preparate secondo la tradizione con sfoglia all'uovo, besciamella vellutata e parmigiano.",
+      "EN": "Authentic artisanal lasagna baked according to Italian tradition with layered fresh egg pasta, silky béchamel, and rich fillings.",
+      "TH": "ลาซานญ่าสูตรดั้งเดิมแท้จากอิตาลี อบสดใหม่ด้วยเส้นพาสต้าไข่ ซอสเข้มข้น และชีสเยิ้มๆ",
+      "DE": "Authentische hausgemachte Lasagne nach italienischer Tradition mit frischen Teigplatten, samtiger Béchamelsauce und herzhafter Füllung.",
+      "MM": "ရိုးရာ အီတလီ နည်းစနစ်အတိုင်း အလွှာလိုက် ဖုတ်ထားသော မွှေးကြိုင်လှသည့် လက်လုပ် လာဆန်းညား။",
+      "ES": "Auténtica lasaña artesanal horneada según la tradición italiana con capas de pasta al huevo fresca, bechamel suave y sabrosos rellenos.",
+      "FR": "Authentiques lasagnes artisanales cuites au four selon la tradition avec pâtes fraîches aux œufs, béchamel onctueuse et parmesan.",
+      "RU": "Традиционная итальянская лазанья из печи со слоями свежей яичной пасты, нежным соусом бешамель и пармезаном.",
+      "ZH": "纯正意大利传统焗烤千层意面，多层新鲜鸡蛋面皮，搭配丝滑白酱与醇香芝士，口感浓郁丰富。"
+    },
+    "pattern": "Lasagna"
   }
 ];
 

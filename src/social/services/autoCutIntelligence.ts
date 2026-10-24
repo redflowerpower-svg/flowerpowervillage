@@ -396,17 +396,17 @@ export const PIZZA_AUTOCUT_CONCEPTS: AutoCutConcept[] = [
   {
     id: 'pizza-tradizionale-masters',
     brand: 'pizza',
-    titleTh: 'พิซซ่าเตาฟืน แป้งหมักช้า 48 ชม. อิตาเลียนแท้ ระนอง',
-    titleEn: 'Wood-Fired Pizza Masters | 48h Fermented Dough Ranong',
-    conceptName: '48h Fermented Wood-Fired Pizza Masters',
+    titleTh: 'พิซซ่าอิตาเลียนแท้ แป้งหมักช้า 48 ชม. ระนอง',
+    titleEn: 'Traditional Italian Pizza Masters | 48h Fermented Dough Ranong',
+    conceptName: '48h Fermented Traditional Italian Pizza Masters',
     category: 'PIZZA TRADIZIONALE',
-    descriptionTh: 'พิซซ่าอิตาเลียนแท้ แป้งหมักสูตรลับ 48 ชม. อบเตาฟืนไฟแรง ขอบพองกรอบนอกนุ่มใน มอสซาเรลล่าอิตาเลียนแท้เยิ้มๆ ฟินทุกคำ! 🍕🔥🤤',
+    descriptionTh: 'พิซซ่าอิตาเลียนแท้ แป้งหมักสูตรลับ 48 ชม. อบเตาหินไฟแรง ขอบพองกรอบนอกนุ่มใน มอสซาเรลล่าอิตาเลียนแท้เยิ้มๆ ฟินทุกคำ! 🍕🔥',
     descriptionEn: 'The real Italian pizza experience in Ranong! 48h slow cold-fermented dough, bubbling volcanic stone crust, and 100% certified Italian toppings. 🇮🇹',
     audioTrackId: 'yeah',
     audioTrackName: 'Yeah! (Parte 1 - High Energy Intro)',
     audioTrackSrc: '/audio/01-flower-power-yeah.mp3',
     audioDuration: '13.0s',
-    tags: ['#PizzaRanong', '#WoodFiredPizza', '#PizzaTradizionale', '#RanongDelivery', '#RanongEats'],
+    tags: ['#PizzaRanong', '#TraditionalItalianPizza', '#PizzaTradizionale', '#RanongDelivery', '#RanongEats'],
     slides: [
       {
         imageUrl: `${STORAGE_FOOD}/01-Pizza/02-pizza-margherita.webp`,
@@ -434,9 +434,9 @@ export const PIZZA_AUTOCUT_CONCEPTS: AutoCutConcept[] = [
       },
       {
         imageUrl: `${STORAGE_FOOD}/01-Pizza/02-pizza-margherita.webp`,
-        labelTh: 'อบจากเตาฟืนหอมกรุ่น ขอบพองกรอบนุ่ม',
-        labelEn: 'Baked to Bubbling Perfection on Live Stone Flame',
-        badge: 'WOOD-FIRED OVEN',
+        labelTh: 'อบจากเตาอบหินร้อนฉ่า ขอบพองกรอบนุ่ม',
+        labelEn: 'Baked to Bubbling Perfection on High-Temp Stone Deck',
+        badge: 'STONE DECK OVEN',
         price: 240,
         trajectory: 'diagonal_up_left'
       },

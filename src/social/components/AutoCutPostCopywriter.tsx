@@ -9,6 +9,7 @@ import {
 import { AutoCutTestRun } from '../services/autoCutLabEngine';
 import { 
   generatePostCopy, 
+  ensureLangFlag,
   PostCopyResult 
 } from '../services/autoCutCopywriterEngine';
 import { 
@@ -45,7 +46,6 @@ export function AutoCutPostCopywriter({
   onChangeChannelFormat,
   onCaptionsChange
 }: AutoCutPostCopywriterProps) {
-  const [proverbSeed, setProverbSeed] = useState(0);
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [liveWeather, setLiveWeather] = useState<WeatherConditionSummary | null>(null);
@@ -124,12 +124,22 @@ export function AutoCutPostCopywriter({
     return () => { isMounted = false; };
   }, [testRun.brand]);
 
-  // Genera i testi base a 0ms (con layout arioso, particelle e hashtag del piatto)
-  const basePostData: PostCopyResult = useMemo(() => {
-    return generatePostCopy(testRun, proverbSeed);
-  }, [testRun, proverbSeed]);
+  // Calcolo seed deterministico basato sulla firma univoca del video (zero rimescolamenti arbitrari al cambio scheda!)
+  const deterministicSeed = useMemo(() => {
+    let hash = 0;
+    for (let i = 0; i < testRunSignature.length; i++) {
+      hash = ((hash << 5) - hash) + testRunSignature.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }, [testRunSignature]);
 
-  // Generazione Live con DeepSeek AI (contestuale a meteo, ingredienti e tradizione)
+  // Genera i testi base deterministici a 0ms (con layout arioso, particelle e hashtag del piatto)
+  const basePostData: PostCopyResult = useMemo(() => {
+    return generatePostCopy(testRun, deterministicSeed);
+  }, [testRun, deterministicSeed]);
+
+  // Generazione Live con DeepSeek AI (SOLO su click manuale dell'utente o programmazione!)
   const handleGenerateDeepSeekAi = React.useCallback(async (wOverride?: WeatherConditionSummary | null) => {
     setIsGeneratingAi(true);
     try {
@@ -165,6 +175,12 @@ export function AutoCutPostCopywriter({
         const json = await res.json();
         if (json.success && json.data) {
           setAiOverride(json.data);
+          // 🛡️ REGOLA 21: Salva nella cache locale associato alla firma univoca del piatto/video
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem(`autocut_ai_copy_${testRunSignature}`, JSON.stringify(json.data));
+            } catch (e) {}
+          }
         }
       }
     } catch (err) {
@@ -172,22 +188,40 @@ export function AutoCutPostCopywriter({
     } finally {
       setIsGeneratingAi(false);
     }
-  }, [testRun, basePostData.seasonContext, liveWeather]);
+  }, [testRun, basePostData.seasonContext, liveWeather, testRunSignature]);
 
   // Applica eventuale override live DeepSeek
   const postData: PostCopyResult = useMemo(() => {
-    if (!aiOverride) return basePostData;
-    const th = aiOverride.thaiContent || basePostData.thaiContent;
-    const en = aiOverride.englishContent || basePostData.englishContent;
+    // 🛡️ REGOLA IMMODIFICABILE 16 & 18: Zero hashtag inline e zero forno a legna
+    const scrubWoodFired = (t: string) => {
+      return t
+        .replace(/\b(wood-fired|wood fired|wood-oven|wood oven)\s*(oven|pizza|crust)?/gi, 'authentic Italian pizza')
+        .replace(/\bforno a legna\b/gi, 'forno tradizionale per pizza')
+        .replace(/\baroma di legna\b/gi, 'profumo di pizza appena sfornata')
+        .replace(/เตาฟืน/g, 'เตาอบพิซซ่า');
+    };
+
+    if (!aiOverride) {
+      return {
+        ...basePostData,
+        thaiContent: scrubWoodFired(basePostData.thaiContent),
+        englishContent: scrubWoodFired(basePostData.englishContent)
+      };
+    }
+
+    const stripTags = (t: string) => scrubWoodFired(t.replace(/[ \t]*#\S+/g, '').replace(/\n{3,}/g, '\n\n').trim());
+    const th = ensureLangFlag(stripTags(aiOverride.thaiContent || basePostData.thaiContent), 'th');
+    const en = ensureLangFlag(stripTags(aiOverride.englishContent || basePostData.englishContent), 'en');
+    const tagFooter = [...basePostData.thaiHashtags, ...basePostData.englishHashtags].join(' ');
     
     const isPizza = testRun.brand === 'pizza';
     const fullCaptionInstagram = isPizza
-      ? `${th}\n\n${en}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}`
-      : `${en}\n\n${th}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}`;
+      ? `${th}\n\n${en}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}\n\n${tagFooter}`
+      : `${en}\n\n${th}\n\n${basePostData.fixedLink}\n\n${basePostData.crossTag}\n\n${tagFooter}`;
 
     const fullCaptionTikTok = isPizza
-      ? `${th}\n\n${en}\n\n${basePostData.fixedLink}\n${basePostData.crossTag}`
-      : `${en}\n\n${th}\n\n${basePostData.fixedLink}\n${basePostData.crossTag}`;
+      ? `${th}\n\n${en}\n\n${basePostData.fixedLink}\n${basePostData.crossTag}\n\n${tagFooter}`
+      : `${en}\n\n${th}\n\n${basePostData.fixedLink}\n${basePostData.crossTag}\n\n${tagFooter}`;
 
     return {
       ...basePostData,
@@ -199,13 +233,31 @@ export function AutoCutPostCopywriter({
     };
   }, [basePostData, aiOverride, testRun.brand]);
 
-  // 🚀 AUTOMATISMO TOTALE: Quando cambia il piatto o il video:
-  // 1. Rimescola il seed per avere sempre un proverbio e layout differente all'istante
-  // 2. Lancia in automatico DeepSeek AI per generare il copy vivo e contestuale
+  // 🛡️ REGOLA 21 AGENTS.MD: ZERO SPRECO TOKEN & PERSISTENZA AL REFRESH E AL CAMBIO SCHEDA
+  // Quando cambia il piatto o il video:
+  // 1. Controlla prima se per questa signature esiste già un copy AI salvato in localStorage
+  // 2. Se esiste, caricalo all'istante a 0ms e ZERO CHIAMATE API (zero token consumati)
+  // 3. Se NON esiste, mostra il copy base autonomo deterministico (SENZA chiamare DeepSeek)
+  // 4. DeepSeek viene invocato SOLO SE l'utente clicca esplicitamente il tasto "Rigenera Copy AI" o dalla programmazione!
   React.useEffect(() => {
-    setProverbSeed(Math.floor(Math.random() * 1000000));
+    const cacheKey = `autocut_ai_copy_${testRunSignature}`;
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && (parsed.thaiContent || parsed.englishContent)) {
+            setAiOverride(parsed);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Error reading AI cache:', e);
+      }
+    }
+
+    // Nessuna cache precedente: mostra il copy base senza chiamare DeepSeek
     setAiOverride(null);
-    handleGenerateDeepSeekAi();
   }, [testRunSignature]);
 
   // Gestione copia negli appunti con feedback visivo
@@ -229,9 +281,10 @@ export function AutoCutPostCopywriter({
     const callout = isPizza
       ? `🛵 สั่งอาหาร / จองโต๊ะ: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n🌐 ${siteUrl}${discount}\n📍 พิกัด (GPS): ${mapsLink}\n${postData.crossTag}`
       : `🌴 จองตรงราคาดีที่สุด: จิ้มลิงก์หน้าโปรไฟล์ (Link in Bio) 👆✨\n🌐 ${siteUrl}\n📍 พิกัด (GPS): ${mapsLink}\n${postData.crossTag}`;
+    const tagFooter = [...postData.thaiHashtags, ...postData.englishHashtags].join(' ');
     return isPizza
-      ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${callout}`
-      : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${callout}`;
+      ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${callout}\n\n${tagFooter}`
+      : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${callout}\n\n${tagFooter}`;
   }, [postData, isPizza, tiktokPoi]);
 
   // 2. Didascalia Finale per Instagram
@@ -240,9 +293,10 @@ export function AutoCutPostCopywriter({
     const callout = igPlacement === 'stories'
       ? `🔗 Link Sticker: ${igStickerText} ➔ ${igStickerUrl}\n🌐 ${siteUrl}\n${postData.crossTag}`
       : `✨ จิ้มลิงก์หน้าโปรไฟล์เพื่อสั่งเดลิเวอรี่ / Link in Bio to Order 👆\n🌐 ${siteUrl} (${isPizza ? '10% Off 1st Order' : 'Best Rate Direct'})\n📍 ${isPizza ? 'Ranong Hotspring' : 'Buffalo Bay, Koh Phayam'}\nCo-Author: ${igCollaborator}\n${postData.crossTag}`;
+    const tagFooter = [...postData.thaiHashtags, ...postData.englishHashtags].join(' ');
     return isPizza
-      ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${callout}`
-      : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${callout}`;
+      ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${callout}\n\n${tagFooter}`
+      : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${callout}\n\n${tagFooter}`;
   }, [postData, isPizza, igPlacement, igStickerText, igStickerUrl, igCollaborator]);
 
   // 3. Didascalia Finale per Facebook (Link 100% cliccabile)
@@ -254,9 +308,10 @@ export function AutoCutPostCopywriter({
     const directLinkNotice = isPizza
       ? `👉 สั่งเดลิเวอรี่ออนไลน์ / Order Online Direct (10% Off):\n🔗 ${siteUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`
       : `👉 จองห้องพักออนไลน์ / Book Your Island Stay Direct:\n🔗 ${siteUrl}\n📍 Google Maps GPS:\n${mapsLink}\n📍 Check-in: ${fbCheckin}\n${postData.crossTag}`;
+    const tagFooter = [...postData.thaiHashtags, ...postData.englishHashtags].join(' ');
     return isPizza
-      ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${directLinkNotice}`
-      : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${directLinkNotice}`;
+      ? `${postData.thaiContent}\n\n${postData.englishContent}\n\n${directLinkNotice}\n\n${tagFooter}`
+      : `${postData.englishContent}\n\n${postData.thaiContent}\n\n${directLinkNotice}\n\n${tagFooter}`;
   }, [postData, isPizza, fbTargetUrl, fbCheckin]);
 
   // 4. Didascalia Finale per Google Business Profile (SEO Locale + Bottone)

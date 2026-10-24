@@ -1,0 +1,80 @@
+name: Flower Power Social Cloud Publisher
+
+on:
+  # 1. Trigger Manuale dal pannello GitHub o da App Mobile
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Formato Video Social da renderizzare'
+        required: true
+        default: 'R1'
+        type: choice
+        options:
+          - 'R1'
+          - 'P1'
+          - 'P2'
+          - 'P3'
+          - 'DS'
+          - 'V1'
+          - 'V2'
+          - 'V3'
+          - 'LM1'
+      topic:
+        description: 'Topic Telegram di destinazione'
+        required: true
+        default: 'kohPhayamGroup'
+        type: choice
+        options:
+          - 'kohPhayamGroup'
+          - 'tikTokStories'
+      send_telegram:
+        description: 'Invia automaticamente il video a Telegram Staff'
+        required: true
+        default: true
+        type: boolean
+
+  # 2. Trigger Webhook via API (da Vercel / Smartphone / Bot Telegram)
+  repository_dispatch:
+    types: [publish_social_video]
+
+  # 3. Cron Automatico Giornaliero (Ore 09:00 Bangkok / 02:00 UTC)
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  render-and-publish:
+    name: Cloud Native Video Render (1080x1920 Full HD)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install System FFmpeg & Fonts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-liberation fonts-thai-tlwg fonts-dejavu-core
+
+      - name: Install NPM Dependencies
+        run: npm ci || npm install --include=dev
+
+      - name: Render Full HD Video & Publish
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          TELEGRAM_SOCIAL_BOT_TOKEN: ${{ secrets.TELEGRAM_SOCIAL_BOT_TOKEN }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          FFMPEG_PATH: /usr/bin/ffmpeg
+        run: |
+          MODE="${{ inputs.mode || github.event.client_payload.mode || 'R1' }}"
+          TOPIC="${{ inputs.topic || github.event.client_payload.topic || 'kohPhayamGroup' }}"
+          SEND="${{ inputs.send_telegram || 'true' }}"
+          echo "Avvio Cloud Rendering per Formato: $MODE su Topic: $TOPIC (Send Telegram: $SEND)..."
+          node scripts/render-social-video-cloud.mjs --mode="$MODE" --topic="$TOPIC" --send="$SEND"

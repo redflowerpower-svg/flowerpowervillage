@@ -385,6 +385,7 @@ import {
   SANDWICH_SUBFILTER_LABELS,
   FOCACCIA_SANDWICH_SECTIONS,
   PASTA_SAUCES,
+  PASTA_FILTER_LABELS,
   WINE_FILTER_LABELS,
 } from '../data/subSectionsI18n';
 
@@ -1666,6 +1667,25 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
            id.startsWith('special-');
   };
 
+  const pastaSauceCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: filteredCategoryItems.length };
+    PASTA_SAUCES.forEach(sauce => {
+      const c = filteredCategoryItems.filter((item: any) => {
+        const path = item.image_file || "";
+        const name = item.id || "";
+        if (sauce.id === 'special-pasta') {
+          return isSpecialPasta(item);
+        }
+        if (isSpecialPasta(item)) return false;
+        if (path.includes(sauce.pattern)) return true;
+        if (sauce.id === 'lasagne' && name.includes('lasagna')) return true;
+        return false;
+      }).length;
+      counts[sauce.id] = c;
+    });
+    return counts;
+  }, [filteredCategoryItems]);
+
   const groupedPasta = activeCategoryId === 'pasta' ? PASTA_SAUCES.map(sauce => {
     const items = filteredCategoryItems.filter((item: any) => {
       const path = item.image_file || "";
@@ -2476,6 +2496,35 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                   )}
                 </div>
                 <div className="w-8 h-0.5 bg-[#8B1E1E] mt-1 mb-3" />
+              </div>
+            )}
+
+            {/* Submenu for Pasta (Stylish Dropdown Menu) */}
+            {activeCategoryId === 'pasta' && (
+              <div className="relative z-30 mb-6 px-1 flex items-end gap-3 flex-wrap animate-fadeIn">
+                <CustomFilterDropdown
+                  label={(DROPDOWN_LABELS[lang] || DROPDOWN_LABELS.IT).pastaFilter}
+                  selectedId={selectedPastaSauce}
+                  options={[
+                    { id: 'all', label: (PASTA_FILTER_LABELS[lang] || PASTA_FILTER_LABELS.IT).all, count: pastaSauceCounts.all || 0 },
+                    ...PASTA_SAUCES.filter(s => (pastaSauceCounts[s.id] || 0) > 0).map(s => ({
+                      id: s.id,
+                      label: (s.name[lang] || s.name.IT || s.name.EN),
+                      count: pastaSauceCounts[s.id] || 0
+                    }))
+                  ]}
+                  onSelect={setSelectedPastaSauce}
+                />
+                {selectedPastaSauce !== 'all' && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPastaSauce('all')}
+                    className="px-3.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold uppercase tracking-wider rounded-2xl transition-all cursor-pointer inline-flex items-center gap-1.5 shrink-0 shadow-xs"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Reset</span>
+                  </button>
+                )}
               </div>
             )}
 

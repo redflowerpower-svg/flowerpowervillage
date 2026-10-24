@@ -2,10 +2,227 @@ import { VercelRequest, VercelResponse } from "@vercel/node";
 import { createClient } from "@supabase/supabase-js";
 import { uploadFileToGoogleDrive } from "../_helpers/google-drive.js";
 import { formatAllDatesToDMY } from "../_helpers/date-formatter.js";
+import { Agent, setGlobalDispatcher } from "undici";
+import { execFile, execSync, execFileSync } from "child_process";
+import fs from "fs";
+import path from "path";
+import os from "os";
+import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
+import ffmpegStatic from "ffmpeg-static";
+
+// Configura il dispatcher globale con timeout esteso (180s) per prevenire HeadersTimeoutError durante invii di file multimediali su Telegram
+try {
+  setGlobalDispatcher(new Agent({
+    headersTimeout: 180_000,
+    bodyTimeout: 180_000,
+    connectTimeout: 60_000
+  }));
+} catch (dispatcherErr) {
+  // Ignora se già registrato in un'altra invocazione
+}
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
 const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+
+/**
+ * ⚡ Ottimizzatore Video MP4 Broadcast con FFmpeg:
+ * Applica `-movflags +faststart` al file MP4 in meno di 100ms:
+ * Sposta il blocco 'moov' all'inizio del file e genera la tabella degli indici temporali.
+ * Questo elimina al 100% i blocchi di scrubbing su Telegram, iPhone e Android, consentendo
+ * di muovere la timeline del lettore in modo perfettamente fluido dall'inizio alla fine.
+ */
+async function optimizeVideoWithFaststart(buffer: Buffer): Promise<Buffer> {
+  const ffmpegPath = process.env.FFMPEG_PATH || ffmpegStatic || ffmpegInstaller?.path;
+  if (!ffmpegPath) return buffer;
+
+  const tmpDir = os.tmpdir();
+  const rand = Math.random().toString(36).substring(2, 9);
+  const inPath = path.join(tmpDir, `fp_in_${Date.now()}_${rand}.mp4`);
+  const outPath = path.join(tmpDir, `fp_out_${Date.now()}_${rand}.mp4`);
+
+  try {
+    await fs.promises.writeFile(inPath, buffer);
+    // Prima tenta copia istantanea con faststart
+    try {
+      await new Promise<void>((resolve, reject) => {
+        execFile(ffmpegPath, ['-y', '-i', inPath, '-c', 'copy', '-movflags', '+faststart', outPath], (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    } catch {
+      // Se fallisce (es. formato WebM dal browser), ricodifica in H.264 con gamma colori piena BT.709
+      await new Promise<void>((resolve, reject) => {
+        execFile(ffmpegPath, [
+          '-y', '-i', inPath,
+          '-c:v', 'libx264', '-preset', 'fast', '-crf', '18',
+          '-pix_fmt', 'yuv420p', '-color_range', '1',
+          '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709',
+          '-c:a', 'aac', '-b:a', '192k',
+          '-movflags', '+faststart', outPath
+        ], (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
+
+    if (fs.existsSync(outPath)) {
+      const optimizedBuffer = await fs.promises.readFile(outPath);
+      console.log(`[social-publisher] Faststart MP4 sigillato con FFmpeg (${optimizedBuffer.length} bytes, full-range BT.709, seekable al 100%)`);
+      return optimizedBuffer;
+    }
+  } catch (err) {
+    console.warn('[social-publisher] Faststart optimization warning, fallback:', err);
+  } finally {
+    try { if (fs.existsSync(inPath)) fs.unlinkSync(inPath); } catch {}
+    try { if (fs.existsSync(outPath)) fs.unlinkSync(outPath); } catch {}
+  }
+  return buffer;
+}
+
+interface MuxResult {
+  videoBuffer: Buffer;
+  thumbBuffer?: Buffer;
+}
+
+async function muxAudioOntoVideo(
+  videoBuf: Buffer,
+  localAudioPath: string,
+  outroStartTime?: number,
+  brand?: string,
+  thumbnailTimeSec?: number
+): Promise<MuxResult> {
+  const ffmpegPath = process.env.FFMPEG_PATH || ffmpegStatic || "ffmpeg";
+  const tmpDir = os.tmpdir();
+  const rand = Math.random().toString(36).substring(2, 9);
+  const inPath = path.join(tmpDir, `in_${rand}.mp4`);
+  const outPath = path.join(tmpDir, `out_${rand}.mp4`);
+  const thumbPath = path.join(tmpDir, `thumb_${rand}.jpg`);
+
+  try {
+    fs.writeFileSync(inPath, videoBuf);
+
+    // 📸 REGOLA 14: ESTRAZIONE THUMBNAIL UFFICIALE PRE-DISSOLVENZA (ZERO GHOSTING)
+    let thumbBuf: Buffer | undefined;
+    const targetThumbTime = typeof thumbnailTimeSec === "number" && thumbnailTimeSec > 0
+      ? thumbnailTimeSec
+      : 2.0;
+
+    try {
+      execFileSync(ffmpegPath, [
+        "-y",
+        "-ss", targetThumbTime.toFixed(2),
+        "-i", inPath,
+        "-vframes", "1",
+        "-q:v", "2",
+        thumbPath
+      ]);
+      if (fs.existsSync(thumbPath) && fs.statSync(thumbPath).size > 1000) {
+        thumbBuf = fs.readFileSync(thumbPath);
+        console.log(`[social-publisher] 📸 Thumbnail Ufficiale estratta a t=${targetThumbTime.toFixed(2)}s (${thumbBuf.length} bytes)`);
+      }
+    } catch (thErr: any) {
+      console.warn("[social-publisher] Avviso estrazione thumbnail:", thErr?.message || thErr);
+    }
+
+    const sfxFileName = brand === "pizza" ? "sfx-outro-pizza.wav" : "sfx-outro-village.wav";
+    let sfxPath = path.resolve("./public/audio", sfxFileName);
+    if (!fs.existsSync(sfxPath)) {
+      try {
+        const cloudSfxUrl = `https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/audio/${sfxFileName}`;
+        const sfxRes = await fetch(cloudSfxUrl);
+        if (sfxRes.ok) {
+          const sfxBuf = Buffer.from(await sfxRes.arrayBuffer());
+          const tmpSfx = path.join(tmpDir, `cloud_${sfxFileName}`);
+          fs.writeFileSync(tmpSfx, sfxBuf);
+          sfxPath = tmpSfx;
+        }
+      } catch (eSfx) {}
+    }
+    const hasSfx = fs.existsSync(sfxPath) && typeof outroStartTime === "number" && outroStartTime > 0;
+
+    let args: string[] = ["-y", "-i", inPath, "-i", localAudioPath];
+    if (hasSfx) args.push("-i", sfxPath);
+
+    if (hasSfx) {
+      const delayMs = Math.round(outroStartTime * 1000);
+      console.log(`[social-publisher] Muxing SFX Outro (${sfxFileName}) con delay esatto: ${delayMs}ms...`);
+      args.push(
+        "-filter_complex",
+        `[1:a]volume=1.0[bg];[2:a]adelay=${delayMs}|${delayMs},volume=1.8[sfx];[bg][sfx]amix=inputs=2:duration=first:dropout_transition=2[aout]`,
+        "-map", "0:v",
+        "-map", "[aout]",
+        "-c:v", "copy",
+        "-c:a", "aac",
+        "-b:a", "192k",
+        "-shortest",
+        "-movflags", "+faststart",
+        outPath
+      );
+    } else {
+      args.push(
+        "-map", "0:v",
+        "-map", "1:a",
+        "-c:v", "copy",
+        "-c:a", "aac",
+        "-b:a", "192k",
+        "-shortest",
+        "-movflags", "+faststart",
+        outPath
+      );
+    }
+
+    execFileSync(ffmpegPath, args);
+    if (fs.existsSync(outPath)) {
+      const resBuf = fs.readFileSync(outPath);
+      console.log(`[social-publisher] Video MP4 broadcast completo (${resBuf.length} bytes) e Thumbnail estratta (${thumbBuf?.length || 0} bytes)`);
+      return { videoBuffer: resBuf, thumbBuffer: thumbBuf };
+    }
+  } catch (err: any) {
+    console.error("[social-publisher] muxAudioOntoVideo error:", err?.message || err);
+  } finally {
+    try { if (fs.existsSync(inPath)) fs.unlinkSync(inPath); } catch {}
+    try { if (fs.existsSync(outPath)) fs.unlinkSync(outPath); } catch {}
+    try { if (fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath); } catch {}
+  }
+  return { videoBuffer: videoBuf };
+}
+
+/**
+ * 🧹 Pulizia automatica file effimeri in Supabase Storage:
+ * Elimina automaticamente i video social generati più di 12 ore fa per mantenere il bucket leggero e pulito.
+ */
+async function cleanExpiredSocialStories() {
+  if (!supabase) return;
+  try {
+    const { data: files, error } = await supabase.storage.from("assets").list("social_stories", {
+      limit: 50,
+      sortBy: { column: "created_at", order: "asc" }
+    });
+    if (error || !files) return;
+
+    const twelveHoursAgo = Date.now() - (12 * 60 * 60 * 1000);
+    const toDelete: string[] = [];
+
+    for (const file of files) {
+      if (file.name && file.created_at) {
+        const fileTime = new Date(file.created_at).getTime();
+        if (fileTime < twelveHoursAgo && file.name.startsWith("story_video_")) {
+          toDelete.push(`social_stories/${file.name}`);
+        }
+      }
+    }
+
+    if (toDelete.length > 0) {
+      await supabase.storage.from("assets").remove(toDelete);
+      console.log(`[social-publisher] Pulizia automatica: eliminati ${toDelete.length} video social più vecchi di 12 ore.`);
+    }
+  } catch (cleanErr) {
+    console.warn("[social-publisher] Pulizia file scaduti warning:", cleanErr);
+  }
+}
 
 /**
  * Social Publisher & Content Posting API Handler
@@ -24,10 +241,241 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
   const action = (req.query.action as string) || req.body?.action || "";
   const body = req.body || {};
 
+  // 0. GET/POST /api/social-publisher?action=get_story_upload_url (Signed URL per upload diretto ad alto bitrate)
+  if (action === "get_story_upload_url") {
+    try {
+      if (!supabase) {
+        return res.status(500).json({ ok: false, error: "Supabase not initialized" });
+      }
+      const filename = String(req.query.filename || body?.filename || `story_video_${Date.now()}.mp4`).replace(/[^a-zA-Z0-9_.-]/g, "_");
+      const path = `social_stories/${filename}`;
+      const { data: signedData, error: signErr } = await supabase.storage
+        .from("assets")
+        .createSignedUploadUrl(path);
+
+      if (signErr || !signedData?.signedUrl) {
+        console.error("[social-publisher] createSignedUploadUrl error:", signErr);
+        return res.status(500).json({ ok: false, error: signErr?.message || "Failed to create signed upload url" });
+      }
+
+      const { data: { publicUrl } } = supabase.storage.from("assets").getPublicUrl(path);
+
+      // Pulizia automatica asincrona dei video più vecchi di 12 ore (zero latenza per l'utente)
+      cleanExpiredSocialStories().catch(() => {});
+
+      return res.status(200).json({
+        ok: true,
+        signedUrl: signedData.signedUrl,
+        publicUrl,
+        path,
+        token: signedData.token
+      });
+    } catch (err: any) {
+      console.error("[social-publisher] get_story_upload_url error:", err);
+      return res.status(500).json({ ok: false, error: err.message || "Failed to generate signed url" });
+    }
+  }
+
+  // 0. POST /api/social-publisher?action=render_master_video (Render 60 FPS Master Video in Cloud/Server)
+  if (action === "render_master_video") {
+    try {
+      const mode = String(req.body?.mode || req.query.mode || "R1").toUpperCase();
+      const topic = String(req.body?.topic || req.query.topic || "kohPhayamGroup");
+      const sendTelegram = req.body?.send_telegram === true || req.query.send_telegram === "true";
+      const testRun = req.body?.testRun;
+
+      console.log(`[social-publisher] Avvio rendering Master Video 60 FPS (Mode: ${mode}, Send TG: ${sendTelegram}, Has TestRun: ${!!testRun})...`);
+      
+      const scriptPath = path.resolve("./scripts/render-social-video-cloud.mjs");
+      let testRunArg = "";
+      if (testRun && typeof testRun === "object") {
+        const tmpDir = path.resolve("./scratch");
+        if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+        const runFile = path.join(tmpDir, `active_test_run_${Date.now()}.json`);
+        fs.writeFileSync(runFile, JSON.stringify(testRun, null, 2), "utf8");
+        testRunArg = ` --testRunFile="${runFile}"`;
+      }
+
+      const cmd = `node "${scriptPath}" --mode=${mode} --topic=${topic} --send=${sendTelegram}${testRunArg}`;
+      
+      const output = execSync(cmd, { encoding: "utf8", timeout: 180_000 });
+      
+      const urlMatch = output.match(/🔗 Video pubblico disponibile:\s*(https:\/\/[^\s]+)/);
+      const publicUrl = urlMatch ? urlMatch[1] : null;
+      
+      const sizeMatch = output.match(/Dimensione file:\s*([0-9.]+)\s*MB/);
+      const sizeMb = sizeMatch ? parseFloat(sizeMatch[1]) : null;
+
+      return res.status(200).json({
+        ok: true,
+        publicUrl,
+        sizeMb,
+        mode
+      });
+    } catch (err: any) {
+      console.error("[social-publisher] render_master_video error:", err);
+      return res.status(500).json({ ok: false, error: err.message || "Master video render failed" });
+    }
+  }
+
+  // 0. POST /api/social-publisher?action=attach_audio_to_story
+  if (action === "attach_audio_to_story") {
+    try {
+      const { video_url, audio_track, outro_start_time, brand } = req.body || {};
+      if (!video_url || !supabase) {
+        return res.status(400).json({ ok: false, error: "Missing video_url" });
+      }
+
+      const videoRes = await fetch(video_url);
+      if (!videoRes.ok) throw new Error("Failed to fetch video for audio mux");
+      const videoBuf = Buffer.from(await videoRes.arrayBuffer());
+
+      let finalBuffer = videoBuf;
+      let cleanAudio = audio_track || "";
+      try {
+        if (cleanAudio.startsWith("http://") || cleanAudio.startsWith("https://")) {
+          cleanAudio = new URL(cleanAudio).pathname;
+        }
+      } catch (e) {}
+      cleanAudio = cleanAudio.replace(/^\/+/, "");
+      try {
+        cleanAudio = decodeURIComponent(cleanAudio);
+      } catch (e) {}
+      const candidate = path.resolve("./public", cleanAudio);
+      let resolvedAudio = fs.existsSync(candidate) ? candidate : null;
+
+      // 🛡️ Fallback Cloud: se siamo in ambiente serverless / background con PC locale spento
+      if (!resolvedAudio && cleanAudio) {
+        try {
+          const encodedAudio = cleanAudio.split("/").map(seg => encodeURIComponent(seg)).join("/");
+          const cloudUrls = [
+            `https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/assets/${encodedAudio}`,
+            `https://flowerpowervillage.com/${encodedAudio}`,
+            (audio_track && audio_track.startsWith("http")) ? audio_track : null
+          ].filter(Boolean) as string[];
+
+          for (const cUrl of cloudUrls) {
+            try {
+              const aRes = await fetch(cUrl);
+              if (aRes.ok) {
+                const aBuf = Buffer.from(await aRes.arrayBuffer());
+                if (aBuf.length > 1000) {
+                  const tmpAudio = path.resolve(os.tmpdir(), `cloud_track_${Date.now()}_${path.basename(cleanAudio)}`);
+                  fs.writeFileSync(tmpAudio, aBuf);
+                  resolvedAudio = tmpAudio;
+                  console.log(`[social-publisher] Traccia audio recuperata da cloud (${cUrl}): ${resolvedAudio} (${aBuf.length} bytes)`);
+                  break;
+                }
+              }
+            } catch (dlErr) {}
+          }
+        } catch (errCloud) {
+          console.warn("[social-publisher] Avviso recupero cloud audio:", errCloud);
+        }
+      }
+
+      console.log("[social-publisher] Audio candidate:", candidate, "resolvedAudio:", resolvedAudio, "outroStartTime:", outro_start_time, "brand:", brand);
+
+      let finalThumbBuf: Buffer | undefined;
+
+      if (resolvedAudio) {
+        const muxRes = await muxAudioOntoVideo(
+          videoBuf,
+          resolvedAudio,
+          typeof outro_start_time === "number" ? outro_start_time : undefined,
+          brand
+        );
+        finalBuffer = muxRes.videoBuffer;
+        finalThumbBuf = muxRes.thumbBuffer;
+      } else {
+        finalBuffer = await optimizeVideoWithFaststart(videoBuf);
+      }
+
+      // Re-upload salvando con suffisso _master per azzerare qualsiasi cache CDN / browser
+      const urlObj = new URL(video_url);
+      const originalPath = urlObj.pathname.split("/public/assets/")[1] || `social_stories/story_video_${Date.now()}.mp4`;
+      const cleanPath = originalPath.split("?")[0];
+      const masterPath = cleanPath.replace(/(_master)?\.mp4$/i, "") + "_master.mp4";
+
+      const { error: upErr } = await supabase.storage.from("assets").upload(masterPath, finalBuffer, {
+        contentType: "video/mp4",
+        upsert: true
+      });
+
+      if (upErr) throw upErr;
+      const { data: { publicUrl } } = supabase.storage.from("assets").getPublicUrl(masterPath);
+      console.log(`[social-publisher] Master video con audio e cover art caricato su Supabase: ${publicUrl} (bytes: ${finalBuffer.length})`);
+
+      // 📸 Upload Thumbnail Ufficiale Supabase se presente
+      let publicThumbUrl: string | undefined;
+      if (finalThumbBuf && finalThumbBuf.length > 1000) {
+        const thumbPath = masterPath.replace(/\.mp4$/i, ".jpg");
+        const { error: thErr } = await supabase.storage.from("assets").upload(thumbPath, finalThumbBuf, {
+          contentType: "image/jpeg",
+          upsert: true
+        });
+        if (!thErr) {
+          publicThumbUrl = supabase.storage.from("assets").getPublicUrl(thumbPath).data.publicUrl;
+          console.log(`[social-publisher] 📸 Thumbnail Ufficiale Supabase disponibile: ${publicThumbUrl}`);
+        }
+      }
+
+      return res.status(200).json({ ok: true, url: publicUrl, thumbnail_url: publicThumbUrl });
+    } catch (err: any) {
+      console.error("[social-publisher] attach_audio_to_story error:", err);
+      return res.status(500).json({ ok: false, error: err.message });
+    }
+  }
+
+  // 0. POST /api/social-publisher?action=upload_story_media
+  if (action === "upload_story_media") {
+    try {
+      const { data_url, filename, content_type } = req.body || {};
+      if (!data_url || !supabase) {
+        return res.status(400).json({ ok: false, error: "Missing data_url or Supabase not initialized" });
+      }
+
+      const base64Data = data_url.replace(/^data:[^,]*;base64,/, "");
+      let buffer = Buffer.from(base64Data, "base64");
+      const safeFilename = filename || `story_916_${Date.now()}.jpg`;
+      const isVideo = safeFilename.endsWith(".mp4") || String(content_type).includes("video");
+      if (isVideo) {
+        buffer = await optimizeVideoWithFaststart(buffer);
+      }
+      const path = `social_stories/${safeFilename}`;
+
+      const { data, error } = await supabase.storage.from("assets").upload(path, buffer, {
+        contentType: String(content_type || (isVideo ? "video/mp4" : "image/jpeg")).split(";")[0],
+        upsert: true
+      });
+
+      if (error) {
+        console.error("[social-publisher] Upload to storage failed:", error);
+        return res.status(500).json({ ok: false, error: error.message });
+      }
+
+      const { data: { publicUrl } } = supabase.storage.from("assets").getPublicUrl(path);
+      return res.status(200).json({ ok: true, url: publicUrl });
+    } catch (err: any) {
+      console.error("[social-publisher] Upload story media error:", err);
+      return res.status(500).json({ ok: false, error: err.message || "Upload failed" });
+    }
+  }
+
   // 0. POST /api/social-publisher?action=telegram_dispatch
   if (action === "telegram_dispatch") {
     try {
-      const { chat_id, message_thread_id, text, reply_markup } = req.body || {};
+      const {
+        chat_id,
+        message_thread_id,
+        text,
+        reply_markup,
+        media_url,
+        media_type,
+        media_caption,
+        thumbnail_url
+      } = req.body || {};
+
       let botToken = process.env.TELEGRAM_SOCIAL_BOT_TOKEN;
 
       if (!botToken && supabase) {
@@ -45,6 +493,200 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
         return res.status(500).json({ ok: false, error: "Telegram Social bot token not configured" });
       }
 
+      // 1. Invio nativo del file Multimediale (Video 9:16 o Foto HD) nel Topic se fornito
+      let mediaSent = false;
+      let mediaMessageId: number | undefined;
+      let mediaErrorDetail: string | undefined;
+
+      if (media_url && typeof media_url === "string") {
+        let fullMediaUrl = media_url.trim();
+        if (fullMediaUrl.startsWith("/")) {
+          fullMediaUrl = `https://flowerpowervillage.com${fullMediaUrl}`;
+        }
+
+        if (fullMediaUrl.startsWith("http://") || fullMediaUrl.startsWith("https://")) {
+          const isVideo =
+            media_type === "video" ||
+            fullMediaUrl.toLowerCase().endsWith(".mp4") ||
+            fullMediaUrl.toLowerCase().endsWith(".webm");
+          const endpoint = isVideo ? "sendVideo" : "sendPhoto";
+          const paramKey = isVideo ? "video" : "photo";
+
+          // ⚡ Se è un video, ottimizziamo SEMPRE con FFmpeg faststart prima della consegna a Telegram
+          let optimizedVideoBuf: Buffer | null = null;
+          if (isVideo) {
+            try {
+              const fileRes = await fetch(fullMediaUrl);
+              if (fileRes.ok) {
+                const rawBuf = Buffer.from(await fileRes.arrayBuffer());
+                optimizedVideoBuf = await optimizeVideoWithFaststart(rawBuf);
+
+                // Aggiorna anche il file su Supabase Storage così il link per scaricarlo è 100% seekable e non frammentato
+                if (supabase && fullMediaUrl.includes("social_stories/")) {
+                  const urlParts = fullMediaUrl.split("social_stories/");
+                  if (urlParts[1]) {
+                    const cleanPath = `social_stories/${urlParts[1].split("?")[0]}`;
+                    await supabase.storage.from("assets").upload(cleanPath, optimizedVideoBuf, {
+                      contentType: "video/mp4",
+                      upsert: true
+                    });
+                    console.log(`[social-publisher] Supabase video sigillato con FFmpeg faststart: ${cleanPath}`);
+                  }
+                }
+              }
+            } catch (optErr) {
+              console.warn("[social-publisher] Faststart buffer preparation warning:", optErr);
+            }
+          }
+
+          // 📸 Recupero Buffer Thumbnail Ufficiale per Telegram
+          let thumbBuf: Buffer | null = null;
+          if (isVideo) {
+            try {
+              let thumbCandidateUrl = thumbnail_url;
+              if (!thumbCandidateUrl && fullMediaUrl.includes("social_stories/")) {
+                thumbCandidateUrl = fullMediaUrl.replace(/(_master)?\.mp4(\?.*)?$/i, ".jpg");
+              }
+              if (thumbCandidateUrl) {
+                const tRes = await fetch(thumbCandidateUrl);
+                if (tRes.ok) {
+                  thumbBuf = Buffer.from(await tRes.arrayBuffer());
+                  console.log(`[social-publisher] 📸 Thumbnail recuperata da ${thumbCandidateUrl} (${thumbBuf.length} bytes)`);
+                }
+              }
+              // Se non ancora disponibile e abbiamo il video buffer, estraiamo al volo con FFmpeg a t=2.0s
+              if (!thumbBuf && optimizedVideoBuf) {
+                const ffmpegPath = process.env.FFMPEG_PATH || ffmpegStatic || "ffmpeg";
+                const tmpDir = os.tmpdir();
+                const tmpIn = path.join(tmpDir, `tmp_in_${Date.now()}.mp4`);
+                const tmpTh = path.join(tmpDir, `tmp_th_${Date.now()}.jpg`);
+                fs.writeFileSync(tmpIn, optimizedVideoBuf);
+                execFileSync(ffmpegPath, ["-y", "-ss", "2.0", "-i", tmpIn, "-vframes", "1", "-q:v", "2", tmpTh]);
+                if (fs.existsSync(tmpTh)) {
+                  thumbBuf = fs.readFileSync(tmpTh);
+                  try { fs.unlinkSync(tmpIn); fs.unlinkSync(tmpTh); } catch {}
+                  console.log(`[social-publisher] 📸 Thumbnail estratta al volo con FFmpeg (${thumbBuf.length} bytes)`);
+                }
+              }
+            } catch (tErr: any) {
+              console.warn("[social-publisher] Avviso recupero thumbnail per Telegram:", tErr?.message || tErr);
+            }
+          }
+
+          // Tentativo 1: Invio via FormData con Video URL / Buffer e Thumbnail nativa allegata
+          try {
+            const form = new FormData();
+            form.append("chat_id", String(chat_id));
+            if (message_thread_id) {
+              form.append("message_thread_id", String(message_thread_id));
+            }
+            form.append("caption", formatAllDatesToDMY((media_caption || "🌴 <b>Flower Power Social Media Studio</b>").slice(0, 1024)));
+            form.append("parse_mode", "HTML");
+            if (reply_markup) {
+              form.append("reply_markup", typeof reply_markup === "string" ? reply_markup : JSON.stringify(reply_markup));
+            }
+
+            if (isVideo) {
+              form.append("supports_streaming", "true");
+              form.append("width", "1080");
+              form.append("height", "1920");
+
+              // Invio URL CDN se valido
+              form.append("video", fullMediaUrl);
+
+              // 📸 THUMBNAIL UFFICIALE: Passata come InputFile binario
+              if (thumbBuf && thumbBuf.length > 1000) {
+                const thumbBlob = new Blob([thumbBuf], { type: "image/jpeg" });
+                form.append("thumbnail", thumbBlob, "thumbnail.jpg");
+                console.log(`[social-publisher] 📸 Allegata Thumbnail nativa (${thumbBuf.length} bytes) a Telegram sendVideo!`);
+              }
+            } else {
+              form.append("photo", fullMediaUrl);
+            }
+
+            const mediaRes = await fetch(`https://api.telegram.org/bot${botToken}/${endpoint}`, {
+              method: "POST",
+              body: form
+            });
+
+            const mediaData = await mediaRes.json();
+            if (mediaData.ok) {
+              mediaSent = true;
+              mediaMessageId = mediaData.result?.message_id;
+              console.log(`[social-publisher] Telegram ${endpoint} con Thumbnail consegnato con successo (message_id: ${mediaMessageId})!`);
+            } else {
+              mediaErrorDetail = mediaData.description || JSON.stringify(mediaData);
+              console.warn(`[social-publisher] Telegram ${endpoint} via FormData URL warning:`, mediaData);
+            }
+          } catch (urlErr: any) {
+            mediaErrorDetail = urlErr.message;
+            console.warn("[social-publisher] Telegram FormData URL dispatch error:", urlErr);
+          }
+
+          // Tentativo 2: Fallback con video buffer completo se l'URL non è stato scaricato da Telegram
+          if (!mediaSent) {
+            try {
+              const fileBuffer = optimizedVideoBuf || (await (await fetch(fullMediaUrl)).arrayBuffer());
+              const form = new FormData();
+              form.append("chat_id", String(chat_id));
+              if (message_thread_id) {
+                form.append("message_thread_id", String(message_thread_id));
+              }
+              const blobType = isVideo ? "video/mp4" : "image/jpeg";
+              const fileName = isVideo ? "story_video_916.mp4" : "story_photo_916.jpg";
+              const fileObj = typeof File !== "undefined"
+                ? new File([fileBuffer], fileName, { type: blobType })
+                : new Blob([fileBuffer], { type: blobType });
+              form.append(paramKey, fileObj, fileName);
+              form.append("caption", formatAllDatesToDMY((media_caption || "🌴 <b>Flower Power Social Media Studio</b>").slice(0, 1024)));
+              form.append("parse_mode", "HTML");
+              if (isVideo) {
+                form.append("supports_streaming", "true");
+                form.append("width", "1080");
+                form.append("height", "1920");
+                if (thumbBuf && thumbBuf.length > 1000) {
+                  form.append("thumbnail", new Blob([thumbBuf], { type: "image/jpeg" }), "thumbnail.jpg");
+                }
+              }
+              if (reply_markup) {
+                form.append("reply_markup", typeof reply_markup === "string" ? reply_markup : JSON.stringify(reply_markup));
+              }
+
+              const mediaRes = await fetch(`https://api.telegram.org/bot${botToken}/${endpoint}`, {
+                method: "POST",
+                body: form
+              });
+              const mediaData = await mediaRes.json();
+              if (mediaData.ok) {
+                mediaSent = true;
+                mediaMessageId = mediaData.result?.message_id;
+                console.log(`[social-publisher] Telegram ${endpoint} via Full Buffer completato!`);
+              } else {
+                mediaErrorDetail = mediaData.description || JSON.stringify(mediaData);
+                console.error(`[social-publisher] Telegram ${endpoint} via Full Buffer error:`, mediaData);
+              }
+            } catch (formErr: any) {
+              mediaErrorDetail = formErr.message;
+              console.error("[social-publisher] Telegram Full Buffer error:", formErr);
+            }
+          }
+
+
+          // Se l'invio richiesto era un VIDEO e Telegram non l'ha accettato, blocca con errore esplicito
+          if (!mediaSent && isVideo) {
+            return res.status(500).json({
+              ok: false,
+              error: `Invio del video a Telegram fallito: ${mediaErrorDetail || 'errore sconosciuto bot API'}`
+            });
+          }
+        }
+
+        // Manteniamo il file in Supabase Storage per consentire all'utente di scaricarlo tramite il pulsante su Telegram
+        console.log('[social-publisher] File multimediale conservato su Supabase Storage per download:', fullMediaUrl);
+      }
+
+      // 2. Invio del messaggio formattato con blocco <pre> per copia con 1 tocco e tastiera inline
+      // NOTA: disable_web_page_preview: true è TASSATIVO per evitare che Telegram generi schede con foto statiche dei link!
       const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,13 +695,17 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
           message_thread_id,
           text: formatAllDatesToDMY(text),
           parse_mode: "HTML",
-          disable_web_page_preview: false,
+          disable_web_page_preview: true,
           reply_markup
         })
       });
 
       const tgData = await tgRes.json();
-      return res.status(200).json(tgData);
+      return res.status(200).json({
+        ...tgData,
+        media_sent: mediaSent,
+        media_message_id: mediaMessageId
+      });
     } catch (err: any) {
       console.error("[social-publisher] Telegram dispatch error:", err);
       return res.status(500).json({ ok: false, error: err.message || "Telegram dispatch failed" });
@@ -265,7 +911,7 @@ export async function handleSocialPublisher(req: VercelRequest, res: VercelRespo
             ? `FUORI STA PIOVENDO A RANONG (${weather.tempC}°C). In Thailandia e a Ranong (famosa per gli 8 mesi di pioggia) la pioggia è l'occasione perfetta per il "Sabai Sabai": non bagnarsi in scooter, stare comodi a piedi nudi sul divano con la serie TV preferita, mentre il rider di Flower Power bussa con la pizza caldissima e croccante in scatola termica.`
             : `PIOGGIA TROPICALE A KOH PHAYAM (${weather.tempC}°C). Il suono rilassante della pioggia sulle foglie di palma, il profumo della terra bagnata a Buffalo Bay e la quiete intima del bungalow.`;
         } else if (weather.isNight) {
-          weatherAngle = `Serata stellata tropicale (${weather.tempC}°C): aria piacevole, brezza serale, la compagnia giusta e i profumi del forno a legna.`;
+          weatherAngle = `Serata stellata tropicale (${weather.tempC}°C): aria piacevole, brezza serale, la compagnia giusta e il profumo irresistibile dell'autentica pizza italiana appena sfornata.`;
         } else {
           weatherAngle = `Giornata serena e luminosa (${weather.tempC}°C): sole tropicale, energia positiva, voglia di sapori freschi e autentici.`;
         }
@@ -306,7 +952,10 @@ REGOLE FONDAMENTALI DI SCRITTURA:
    - Nomi dei piatti: REGOLA IMMODIFICABILE: il nome del piatto NON DEVE MAI andare a capo a metà! È una locuzione unica continua su singola riga.
    - Proverbio del Giorno: inserisci sempre come firma distintiva un proverbio o battuta sulla vita, il cibo o il relax (in Thai: 📜 สุภาษิตประจำวัน: "..." | in Inglese: 📜 Proverb of the Day: "...").
    - Chiusura breve: invito a ordinare su www.flowerpowerpizza.com con il 10% di sconto prima ordinazione.
-   - Hashtag: 4-5 hashtag mirati e virali nel testo.
+    - Hashtag: NON scrivere alcun hashtag (#) nei testi: vengono aggiunti dal sistema in fondo al post, dopo le due lingue.
+    - Bandiera: ogni testo (thaiContent / englishContent) DEVE iniziare con la propria bandiera prima della prima lettera (🇹🇭 per il Thai, 🇬🇧 per l'Inglese).
+    - DIVIETO CATEGORICO FORNO A LEGNA: NON ABBIAMO IL FORNO A LEGNA! È TASSATIVAMENTE E SEVERAMENTE VIETATO menzionare forno a legna, "wood-fired", "wood-fired oven", "wood oven", "เตาฟืน", "Holzofen", "aroma di legna" o alludere alla legna! La pizza è autentica pizza tradizionale italiana cotta su pietra refrattaria ad alta temperatura / forno per pizza.
+    - REGOLA EMOJI CONTESTUALI (DIVIETO EMOJI A FINE FRASE): DIVIETO ASSOLUTO di piazzare 3 o 4 emoji tutte raggruppate alla fine della frase o del paragrafo. Le emoji devono essere DISTRIBUITE IN MODO NATURALE NEL CORPO DEL TESTO, affiancate alle singole parole man mano che la frase scorre per ammorbidire e rendere piacevole il ritmo (es. "impasto a lenta lievitazione 🍕 fragrante e dorato", "fior di latte 🧀 filante", "consegna calda a casa tua 🛵💨", "aria fresca della sera 🌿", "momento di relax 😋").
 
 Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 {
@@ -337,7 +986,10 @@ REGOLE FONDAMENTALI DI SCRITTURA:
    - Nomi alloggi: REGOLA IMMODIFICABILE: il nome dell'alloggio NON DEVE MAI andare a capo a metà!
    - Proverbio del Giorno: saggio e suggestivo sul viaggio, la lentezza, la natura o il mare.
    - Chiusura: invito a prenotare su www.flowerpowervillage.com.
-   - Hashtag: 4-5 hashtag mirati (#FlowerPowerVillage #KohPhayam #เกาะพยาม #BuffaloBay #TropicalEscape).
+    - Hashtag: NON scrivere alcun hashtag (#) nei testi: vengono aggiunti dal sistema in fondo al post, dopo le due lingue.
+    - Bandiera: ogni testo (thaiContent / englishContent) DEVE iniziare con la propria bandiera prima della prima lettera (🇹🇭 per il Thai, 🇬🇧 per l'Inglese).
+    - DIVIETO CATEGORICO FORNO A LEGNA: NON ABBIAMO IL FORNO A LEGNA! È severamente vietato parlare di forno a legna o "wood-fired" o "เตาฟืน".
+    - REGOLA EMOJI CONTESTUALI (DIVIETO EMOJI A FINE FRASE): DIVIETO ASSOLUTO di piazzare 3 o 4 emoji raggruppate alla fine della frase. Le emoji devono essere DISTRIBUITE IN MODO NATURALE NEL CORPO DEL TESTO, accompagnando le singole parole (es. "natura tropicale 🌴", "brezza sul mare 🌊", "suono delle onde 🌺", "relax sull'amaca 🥥").
 
 Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 {
@@ -371,6 +1023,17 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
 
       let thaiContent = parsed.thaiContent || '';
       let englishContent = parsed.englishContent || '';
+
+      // 🛡️ REGOLA IMMODIFICABILE 18: Sanitizzazione automatica zero forno a legna
+      const scrubWoodFired = (t: string) => {
+        return t
+          .replace(/\b(wood-fired|wood fired|wood-oven|wood oven)\s*(oven|pizza|crust)?/gi, 'authentic Italian pizza')
+          .replace(/\bforno a legna\b/gi, 'forno tradizionale per pizza')
+          .replace(/\baroma di legna\b/gi, 'profumo di pizza appena sfornata')
+          .replace(/เตาฟืน/g, 'เตาอบพิซซ่า');
+      };
+      thaiContent = scrubWoodFired(thaiContent);
+      englishContent = scrubWoodFired(englishContent);
 
       if (parsed.proverbThai && !thaiContent.includes(parsed.proverbThai)) {
         const pLabel = parsed.proverbThai.startsWith('📜') ? parsed.proverbThai : `📜 สุภาษิตประจำวัน: "${parsed.proverbThai}"`;
@@ -730,7 +1393,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
     try {
       const isPizza = brand === "pizza";
       const brandContext = isPizza
-        ? "Flower Power Pizza Ranong: Authentic Italian pizza (48h slow-fermented crust, 100% Italian flour, wood-fired oven), homemade fresh pasta, Italian craft sausages, and fine wines in a tropical garden near Raksawarin Hot Springs in Ranong, Thailand."
+        ? "Flower Power Pizza Ranong: Authentic Italian pizza (48h slow-fermented crust, 100% Italian flour, traditional high-temp stone deck pizza oven), homemade fresh pasta, Italian craft sausages, and fine wines in a tropical garden near Raksawarin Hot Springs in Ranong, Thailand."
         : "Flower Power Farm Village & Spa: Tropical eco-resort on Koh Phayam island, Thailand. Organic farm, luxury bungalows, swimming pool, natural wellness, and authentic Italian dining.";
 
       const prompt = `You are a world-class viral social media manager for "${brandContext}".
@@ -741,15 +1404,16 @@ Tone of Voice: ${tone}
 CATEGORICAL BILINGUAL FORMAT RULES:
 1. Every post MUST strictly contain BOTH Thai and English text, each preceded by its national flag emoji:
 ${isPizza ? `   - BRAND IS PIZZERIA RANONG:
-     * FIRST BLOCK: 🇹🇭 Thai language text with authentic viral social media slang and friendly particles (e.g. นะคะ, จ้า, น้าา, ฟินมากกก, อร่อยแสงออกปาก, สายกินห้ามพลาด, ชีสเยิ้มๆ, เตาฟืนหอมกรุ่น, ปักหมุดด่วน). It must sound like an enthusiastic, charming local food influencer, NEVER robotic!
+     * FIRST BLOCK: 🇹🇭 Thai language text with authentic viral social media slang and friendly particles (e.g. นะคะ, จ้า, น้าา, ฟินมากกก, อร่อยแสงออกปาก, สายกินห้ามพลาด, ชีสเยิ้มๆ, หอมกรุ่นจากเตา, ปักหมุดด่วน). It must sound like an enthusiastic, charming local food influencer, NEVER robotic!
      * DOUBLE LINE BREAK
-     * SECOND BLOCK: 🇬🇧 English language text with mouthwatering artisanal storytelling (48h fermented sourdough, traditional wood-fired stone oven, waterfall garden in Ranong, dine-in or fast delivery CTA).` : `   - BRAND IS KOH PHAYAM VILLAGE:
+     * SECOND BLOCK: 🇬🇧 English language text with mouthwatering artisanal storytelling (48h fermented sourdough, traditional high-temperature stone deck pizza oven, waterfall garden in Ranong, dine-in or fast delivery CTA).` : `   - BRAND IS KOH PHAYAM VILLAGE:
      * FIRST BLOCK: 🇬🇧 English language text with captivating tropical eco-resort storytelling, island bliss, birdsong, organic farm breakfasts, and serene nature on Koh Phayam Island.
      * DOUBLE LINE BREAK
      * SECOND BLOCK: 🇹🇭 Thai language text with authentic viral travel blogger tone and inviting particles (e.g. นะคะ, จ้า, น้าา, ชิลสุดๆ, ฟีลดีมากกก, พักผ่อนฮีลใจ, ปักหมุดที่พัก, ห้ามพลาดเลยน้า).`}
-2. Season both language blocks with engaging viral emojis (🔥, 🍕, 🤤, 🌿, 🏝️, ✨, 🥥).
-3. Conclude with 8-12 hyper-relevant viral hashtags combining English and Thai (e.g. ${isPizza ? '#RanongFood #PizzaRanong #RanongHotspring #ItalianFoodThailand #WoodFiredPizza #อร่อยบอกต่อ #รีวิวระนอง #เที่ยวระนอง #พิซซ่าเตาฟืน' : '#KohPhayam #KohPhayamIsland #EcoResortThailand #ThailandTravel #HiddenThailand #เที่ยวเกาะพยาม #เกาะพยาม #รีวิวที่พัก #เที่ยวระนอง'}).
-4. Keep the total length under 300 words.
+2. CONTEXTUAL INLINE EMOJIS: Distribute emojis naturally throughout the body text next to relevant words (e.g. dough 🍕, melted cheese 🧀, delivery 🛵💨, garden 🌿). STRICTLY FORBIDDEN to dump 3 or 4 emojis all together at the end of a sentence.
+3. STRICT WOOD-FIRED BAN: WE DO NOT HAVE A WOOD-FIRED OVEN. Strictly forbidden to mention "wood-fired", "wood oven", "forno a legna" or "เตาฟืน".
+4. Conclude with 8-12 hyper-relevant viral hashtags combining English and Thai (e.g. ${isPizza ? '#RanongFood #PizzaRanong #RanongHotspring #ItalianFoodThailand #AuthenticPizza #อร่อยบอกต่อ #รีวิวระนอง #เที่ยวระนอง #พิซซ่าอิตาเลียน' : '#KohPhayam #KohPhayamIsland #EcoResortThailand #ThailandTravel #HiddenThailand #เที่ยวเกาะพยาม #เกาะพยาม #รีวิวที่พัก #เที่ยวระนอง'}).
+5. Keep the total length under 300 words.
 5. Return ONLY a JSON object with this exact format:
 {
   "hook": "${isPizza ? '🇹🇭 ...' : '🇬🇧 ...'}",
@@ -833,7 +1497,7 @@ ${isPizza ? `   - BRAND IS PIZZERIA RANONG:
                     {
                       parts: [
                         {
-                          text: `You are an expert food & tropical hospitality art director. Analyze this photo of "${itemTitle}" (${brand === "pizza" ? "Italian wood-fired pizza & pasta in Ranong, Thailand" : "Tropical eco-resort on Koh Phayam Island, Thailand"}).
+                          text: `You are an expert food & tropical hospitality art director. Analyze this photo of "${itemTitle}" (${brand === "pizza" ? "Authentic Italian traditional pizza & pasta in Ranong, Thailand" : "Tropical eco-resort on Koh Phayam Island, Thailand"}).
 Return ONLY a JSON object:
 {
   "subject": "detected primary subject",
