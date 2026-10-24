@@ -141,6 +141,22 @@ export function subscribeToHallTablePresence(
           devices
         };
         onPresenceChange({ ...localMap });
+      } else if (ev.data?.type === 'GUEST_LEFT_TABLE' && ev.data.tableKey) {
+        const canonical = getCanonicalTableKey(ev.data.tableKey);
+        const dev = ev.data.deviceId;
+        if (localMap[canonical]) {
+          const remainingDevices = localMap[canonical].devices.filter(d => d !== dev);
+          if (remainingDevices.length === 0) {
+            delete localMap[canonical];
+          } else {
+            localMap[canonical] = {
+              ...localMap[canonical],
+              guestCount: remainingDevices.length,
+              devices: remainingDevices
+            };
+          }
+          onPresenceChange({ ...localMap });
+        }
       } else if (ev.data?.type === 'HALL_PRESENCE_UPDATE' && ev.data.occupiedMap) {
         localMap = { ...localMap, ...ev.data.occupiedMap };
         onPresenceChange({ ...localMap });
@@ -148,12 +164,12 @@ export function subscribeToHallTablePresence(
     };
   }
 
-  // Periodic pruning of dead guest sessions (older than 35s)
+  // Periodic pruning of dead guest sessions (older than 20s)
   const pruneTimer = setInterval(() => {
     const now = Date.now();
     let changed = false;
     for (const [key, info] of Object.entries(localMap)) {
-      if (now - info.lastActive > 35000) {
+      if (now - info.lastActive > 20000) {
         delete localMap[key];
         changed = true;
       }
@@ -161,7 +177,7 @@ export function subscribeToHallTablePresence(
     if (changed) {
       onPresenceChange({ ...localMap });
     }
-  }, 10000);
+  }, 5000);
 
   return () => {
     try {
@@ -243,16 +259,42 @@ export function reportTableGuestPresence(
     sendPing();
   }, 8000);
 
+  const sendLeave = () => {
+    try {
+      const leaveBc = new BroadcastChannel('fp_dining_hall_presence');
+      leaveBc.postMessage({
+        type: 'GUEST_LEFT_TABLE',
+        tableKey: canonical,
+        deviceId,
+        timestamp: Date.now()
+      });
+      setTimeout(() => {
+        try { leaveBc.close(); } catch {}
+      }, 500);
+    } catch {}
+
+    try {
+      rtChannel.send({
+        type: 'broadcast',
+        event: 'GUEST_LEFT_TABLE',
+        payload: { tableKey: canonical, deviceId }
+      });
+    } catch {}
+  };
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('beforeunload', sendLeave);
+    window.addEventListener('pagehide', sendLeave);
+  }
+
   return () => {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('beforeunload', sendLeave);
+      window.removeEventListener('pagehide', sendLeave);
+    }
     try {
       clearInterval(heartbeatTimer);
-      try {
-        rtChannel.send({
-          type: 'broadcast',
-          event: 'GUEST_LEFT_TABLE',
-          payload: { tableKey: canonical, deviceId }
-        });
-      } catch {}
+      sendLeave();
       rtChannel.untrack().catch(() => {});
       rtChannel.unsubscribe();
     } catch {}

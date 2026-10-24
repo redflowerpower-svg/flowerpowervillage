@@ -50,7 +50,8 @@ import { I18N_DINING_QR } from '../data/diningQrI18n';
 import { 
   generateDiningTableSession, 
   validateDiningTableSession, 
-  revokeDiningTableSession 
+  revokeDiningTableSession,
+  reconcileAllDiningTableSessions 
 } from '../services/diningSessionService';
 import { connectDiningLiveCart, type DiningLiveCartController } from '../services/diningLiveCartService';
 import { 
@@ -860,12 +861,13 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     return generateDiningTableSession(currentTable);
   }, [currentTable]);
 
-  // Ensure fresh table selection on reload if not guest mobile
+  // Ensure fresh table selection on reload if not guest mobile and reconcile ground truth
   useEffect(() => {
     try {
       if (!isGuestMobile) {
         localStorage.removeItem('fp_dining_active_table');
       }
+      reconcileAllDiningTableSessions();
     } catch {}
   }, [isGuestMobile]);
 
@@ -889,7 +891,15 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
       }
 
       const map: Record<string, any[]> = {};
+      const now = Date.now();
+      const MAX_ORDER_AGE_MS = 16 * 60 * 60 * 1000; // 16 ore: ignora ordini di turni passati rimasti aperti
+
       (data || []).forEach((order: any) => {
+        if (order.created_at) {
+          const ageMs = now - new Date(order.created_at).getTime();
+          if (ageMs > MAX_ORDER_AGE_MS) return;
+        }
+
         const rawTable = extractTableFromAddress(order.address) || order.table_number || '';
         if (rawTable) {
           const canonical = getCanonicalTableKey(rawTable);
@@ -898,6 +908,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
         }
       });
       setActiveTableOrderMap(map);
+      reconcileAllDiningTableSessions();
     } catch (err) {
       console.error('fetchActiveDineInOrders exception:', err);
     }
@@ -982,6 +993,12 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
             } else {
               setIsTableSelected(false);
               setCurrentTable('');
+              reconcileAllDiningTableSessions();
+              try {
+                if (window.location.search) {
+                  window.history.replaceState({}, '', window.location.pathname);
+                }
+              } catch {}
             }
           }
         }
@@ -2204,10 +2221,10 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                     const isOccupied = orders.length > 0;
                     const openTotal = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
                     
-                    // Check active guest presence on this table
+                    // Check active guest presence on this table (strictly with freshness TTL < 20s)
                     const guestPresence = hallPresence[canonical];
-                    const isGuestOccupied = !!(guestPresence && guestPresence.guestCount > 0);
-                    const guestCount = guestPresence?.guestCount || 0;
+                    const isGuestOccupied = !!(guestPresence && guestPresence.guestCount > 0 && (Date.now() - (guestPresence.lastActive || 0) < 20000));
+                    const guestCount = isGuestOccupied ? (guestPresence?.guestCount || 0) : 0;
 
                     return (
                       <button
