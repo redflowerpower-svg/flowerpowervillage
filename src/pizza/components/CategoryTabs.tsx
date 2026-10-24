@@ -711,10 +711,10 @@ export default function CategoryTabs({ categories, activeId, onChange, lang: pro
 
   return (
     <div className="w-full">
-      {/* MOBILE CATEGORY SELECTOR (High contrast square mini-cards slider - No truncation) */}
+      {/* MOBILE CATEGORY SELECTOR (Slider for phones < 480px) */}
       <div
         ref={scrollRef}
-        className="flex md:hidden gap-2.5 overflow-x-auto pb-3 pt-1 px-1 snap-x no-scrollbar"
+        className="category-tabs-mobile gap-2.5 overflow-x-auto pb-3 pt-1 px-1 snap-x no-scrollbar"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {categories.map((item) => {
@@ -759,9 +759,9 @@ export default function CategoryTabs({ categories, activeId, onChange, lang: pro
         })}
       </div>
 
-      {/* DESKTOP CATEGORY SELECTOR (High contrast rectangular cards grid - exactly 2 equal rows) */}
+      {/* TABLET & DESKTOP CATEGORY SELECTOR (Static 2 uniform rows from 480px upwards, including Xiaomi Mi Pad 4) */}
       <div 
-        className="hidden md:grid gap-2.5 lg:gap-3 mb-6 w-full"
+        className="category-tabs-desktop gap-2 sm:gap-2.5 lg:gap-3 mb-6 w-full"
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`
         }}

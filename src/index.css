@@ -183,3 +183,20 @@ body {
   }
 }
 
+/* Category Tabs: 1-row scroll slider on mobile (<480px), 2 static rows on Xiaomi Mi Pad 4 and all tablets (>=480px) */
+.category-tabs-mobile {
+  display: flex !important;
+}
+.category-tabs-desktop {
+  display: none !important;
+}
+
+@media (min-width: 480px) {
+  .category-tabs-mobile {
+    display: none !important;
+  }
+  .category-tabs-desktop {
+    display: grid !important;
+  }
+}
+
