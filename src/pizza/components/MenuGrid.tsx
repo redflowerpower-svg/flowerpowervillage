@@ -1516,7 +1516,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
 
   return (
     <>
-      <div className="grid gap-2.5 sm:gap-3.5 md:gap-4.5 lg:gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3">
+      <div className="grid gap-2.5 sm:gap-3.5 md:gap-4.5 lg:gap-6 product-menu-grid">
         {items.map((item) => {
           const isBeer = (item as any).category === 'beers' || item.id === 'chang-beer' || item.id === 'leo-beer' || item.id === 'singha-beer' || item.id.includes('beer');
           const isWine = !isBeer && (item.category === 'wines' || item.category === 'beers-and-wines' || (item as any).bottleScale !== undefined || !!(item as any).flag);
