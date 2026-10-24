@@ -759,10 +759,11 @@ export default function CategoryTabs({ categories, activeId, onChange, lang: pro
         })}
       </div>
 
-      {/* TABLET & DESKTOP CATEGORY SELECTOR (Static 2 uniform rows from 480px upwards, including Xiaomi Mi Pad 4) */}
+      {/* TABLET & DESKTOP CATEGORY SELECTOR (Static 2 uniform rows default on Xiaomi Mi Pad 4 and all tablets) */}
       <div 
-        className="category-tabs-desktop gap-2 sm:gap-2.5 lg:gap-3 mb-6 w-full"
+        className="category-tabs-desktop gap-1.5 sm:gap-2.5 lg:gap-3 mb-6 w-full"
         style={{
+          display: 'grid',
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`
         }}
       >
@@ -776,7 +777,7 @@ export default function CategoryTabs({ categories, activeId, onChange, lang: pro
               key={item.id}
               type="button"
               onClick={() => onChange(item.id)}
-              className={`w-full h-[100px] sm:h-[106px] lg:h-[110px] flex flex-col items-center justify-between p-2.5 sm:p-3 rounded-2xl transition-all duration-200 border-2 text-center group cursor-pointer select-none ${
+              className={`w-full h-[88px] sm:h-[100px] lg:h-[110px] flex flex-col items-center justify-between p-1.5 sm:p-2.5 rounded-2xl transition-all duration-200 border-2 text-center group cursor-pointer select-none ${
                 isSelected
                   ? 'bg-gradient-to-b from-[#8B1E1E] to-[#611010] border-[#8B1E1E] text-white shadow-lg ring-2 ring-[#8B1E1E]/30 scale-[1.02]'
                   : 'bg-[#ede5d8] border-[#cfbea6] text-[#2c1a11] shadow-[0_2px_6px_rgba(44,26,17,0.08)] hover:bg-[#e6dcce] hover:border-[#8B1E1E]/50 hover:text-black hover:shadow-md active:scale-[0.98]'
@@ -784,16 +785,16 @@ export default function CategoryTabs({ categories, activeId, onChange, lang: pro
               style={{ fontFamily: 'Outfit, IBM Plex Sans Thai, system-ui, sans-serif' }}
             >
               <div
-                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                className={`w-7 h-7 sm:w-8.5 sm:h-8.5 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
                   isSelected 
                     ? 'bg-white/20 text-white shadow-sm' 
                     : 'bg-[#ded0bf] text-[#8B1E1E] group-hover:bg-[#8B1E1E]/15 shadow-inner'
                 }`}
               >
-                <Icon className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.3]" />
+                <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.3]" />
               </div>
-              <div className="flex-1 flex items-center justify-center w-full min-h-[32px] px-0.5 mt-1">
-                <span className="text-[10px] sm:text-[10.5px] lg:text-[11px] font-black tracking-wide uppercase leading-tight text-balance break-words">
+              <div className="flex-1 flex items-center justify-center w-full min-h-[28px] px-0.5 mt-0.5">
+                <span className="text-[9px] sm:text-[10px] lg:text-[11px] font-black tracking-wide uppercase leading-tight text-balance break-words">
                   {details.name.includes('\n') ? (
                     details.name.split('\n').map((line, idx) => (
                       <span key={idx} className="block">{line}</span>
