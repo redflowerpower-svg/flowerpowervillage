@@ -1518,7 +1518,7 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
     <>
       <div className={`grid gap-2.5 sm:gap-3.5 md:gap-4.5 lg:gap-6 ${
         isDiningMode
-          ? 'grid-cols-2 min-[700px]:grid-cols-3 md:grid-cols-3 landscape:grid-cols-3'
+          ? 'grid-cols-2 min-[550px]:grid-cols-3 md:grid-cols-3 landscape:grid-cols-3'
           : 'grid-cols-2 md:grid-cols-2 portrait:md:grid-cols-2 landscape:md:grid-cols-3 landscape:lg:grid-cols-3 lg:portrait:grid-cols-2 xl:grid-cols-3'
       }`}>
         {items.map((item) => {
