@@ -171,15 +171,15 @@ body {
   display: block !important;
 }
 
-/* Universal product grid: 2 cols on mobile (<400px), 3 cols on Xiaomi Mi Pad 4 (411dp/432dp) and all tablets */
+/* Universal product grid: 3 columns default on all tablets and screens, 2 only on narrow micro-phones (< 360px) */
 .product-menu-grid {
   display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
-@media (min-width: 400px), (orientation: landscape) {
+@media (max-width: 359px) {
   .product-menu-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
 

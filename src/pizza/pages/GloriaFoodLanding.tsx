@@ -914,7 +914,13 @@ export const GloriaFoodLanding: React.FC<GloriaFoodLandingProps> = ({ onSwitchTo
                   </div>
 
                   {/* 3 Articoli del Reparto */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  <div 
+                    className="grid product-menu-grid gap-5"
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                    }}
+                  >
                     {cat.items.map((dish) => {
                       const name = lang === 'IT' ? dish.nameIt : lang === 'TH' ? dish.nameTh : lang === 'DE' ? dish.nameDe : dish.nameEn;
                       const desc = lang === 'IT' ? dish.descIt : lang === 'TH' ? dish.descTh : lang === 'DE' ? dish.descDe : dish.descEn;
