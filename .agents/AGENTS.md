@@ -99,6 +99,15 @@ Anche questo reparto **Social Media Studio & Publisher** è **TASSATIVAMENTE E T
     - **Rigenerazione Solo su Richiesta Esplicita**: La generazione di un nuovo montaggio video o di un nuovo testo DeepSeek AI avviene **SOLO ED ESCLUSIVAMENTE**:
       1. Su click manuale dell'utente sul rispettivo pulsante dedicato ("Genera Nuovo Video" o "Rigenera Copy AI").
       2. Dalla programmazione editoriale automatica (cron / publisher pianificato) quando ne ha esplicitamente bisogno.
+22. **Regola Immodificabile Standard Device di Riferimento: Xiaomi Mi Pad 4 (Tablet Ufficiale in Verticale)**:
+    - **Device di Riferimento Ufficiale**: Xiaomi Mi Pad 4 / Mi Pad 4 Plus (schermo 16:10, risoluzione fisica 1920x1200, MIUI Android DPR 2.25x/2.0x).
+    - **Larghezza Viewport Logica CSS (Verticale / Portrait)**: Compresa tra $480\text{px}$ e $600\text{px}$ (con ridimensionamento caratteri/display MIUI standard calcolata a $\sim 533\text{px}$ o $411\text{px}$–$432\text{px}$).
+    - **Griglia Prodotti Menu (Standard Tassativo 3 Colonne)**:
+      1. Su questo tablet di riferimento e su qualsiasi tablet, i prodotti culinari (pizze, piatti, paste, insalate, burger) devono essere **TASSATIVAMENTE 3 PER RIGA IN ORIZZONTALE**, sia in orientamento verticale che orizzontale, sia nella schermata Sala (`/dining`) sia nel menù delivery/asporto (`/` o `flowerpowerpizza.com`).
+      2. Per non dipendere mai da breakpoint CSS arbitrari o cache dei browser Android, la griglia dei prodotti impone 3 colonne di default (`grid-template-columns: repeat(3, minmax(0, 1fr))`) e applica il fallback a 2 colonne solo ed esclusivamente su schermi micro-smartphone stretti ($< 360\text{px}$).
+    - **Selettore Categorie (CategoryTabs)**:
+      1. Sul tablet di riferimento Xiaomi Mi Pad 4 in verticale, il selettore categorie adotta il carosello orizzontale compatto a scorrimento (`flex overflow-x-auto` a riga singola con teaser animato) per massimizzare lo spazio verticale per le 3 colonne di piatti sottostanti.
+      2. Su schermi desktop/monitor ampi ($\ge 768\text{px}$), le categorie si distribuiscono su 2 righe fisse senza scorrimento.
 
 # 🛡️ PROTOCOLLO DI AUTO-APPROVAZIONE SICURA (AUTONOMOUS EXECUTION & ZERO-DISRUPTION GUARDRAILS)
 Il sistema opera in modalità di **esecuzione completamente autonoma, rapida e continua** (predefinita su tutte le richieste, e tassativa con `/goal`, `AUTOPILOT`, `procedi` o `In autonomia:`):
