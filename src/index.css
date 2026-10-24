@@ -183,20 +183,20 @@ body {
   }
 }
 
-/* Category Tabs: 1-row scroll slider on mobile (<480px), 2 static rows on Xiaomi Mi Pad 4 and all tablets (>=480px) */
-.category-tabs-mobile {
-  display: flex !important;
-}
+/* Category Tabs: 2 static rows default on Xiaomi Mi Pad 4 and all tablets/desktops; 1-row scroll slider ONLY on micro-phones (<360px) */
 .category-tabs-desktop {
+  display: grid !important;
+}
+.category-tabs-mobile {
   display: none !important;
 }
 
-@media (min-width: 480px) {
-  .category-tabs-mobile {
+@media (max-width: 359px) {
+  .category-tabs-desktop {
     display: none !important;
   }
-  .category-tabs-desktop {
-    display: grid !important;
+  .category-tabs-mobile {
+    display: flex !important;
   }
 }
 
