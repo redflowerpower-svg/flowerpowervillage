@@ -630,7 +630,8 @@ const targetedTranslations: Record<string, any> = {
     }
   }
 };
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, Minus, X, Search, Check, ChevronDown, ShoppingCart } from 'lucide-react';
 import type { MenuItem, ExtraOption, Variant } from '../data/menuData';
 import { menuData } from '../data/menuData';
@@ -1029,6 +1030,16 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
   const [zoomedItem, setZoomedItem] = useState<MenuItem | null>(null);
   const [lasagnaDate, setLasagnaDate] = useState<string>('');
   const [selectedBeerVariants, setSelectedBeerVariants] = useState<Record<string, Variant>>({});
+
+  useEffect(() => {
+    if (zoomedItem || customizingItem) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [zoomedItem, customizingItem]);
 
   const t = labels[lang] || labels.EN || labels.IT;
   const showcaseInfo = SHOWCASE_BADGES[lang] || SHOWCASE_BADGES.IT;
@@ -1505,9 +1516,9 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
 
   return (
     <>
-      <div className={`grid gap-2.5 sm:gap-4 md:gap-5 lg:gap-6 ${
+      <div className={`grid gap-2.5 sm:gap-3.5 md:gap-4.5 lg:gap-6 ${
         isDiningMode
-          ? 'grid-cols-2 landscape:grid-cols-3'
+          ? 'grid-cols-2 min-[700px]:grid-cols-3 md:grid-cols-3 landscape:grid-cols-3'
           : 'grid-cols-2 md:grid-cols-2 portrait:md:grid-cols-2 landscape:md:grid-cols-3 landscape:lg:grid-cols-3 lg:portrait:grid-cols-2 xl:grid-cols-3'
       }`}>
         {items.map((item) => {
@@ -1965,9 +1976,9 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
       </div>
 
       {/* DEDICATED CUSTOMIZATION MODAL (Zero layout shift, 100% structured touch interface) */}
-      {customizingItem && (
+      {customizingItem && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[70] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-3 pb-16 sm:p-4 md:p-6 animate-fadeIn"
+          className="fixed inset-0 z-[999990] bg-stone-950/80 backdrop-blur-sm flex items-center justify-center p-3 pb-16 sm:p-4 md:p-6 animate-fadeIn"
           onClick={handleCloseCustomize}
         >
           <div
@@ -2569,71 +2580,72 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Lightbox Zoom Preview Modal with Dish Name & Ingredients */}
-      {zoomedItem && (
+      {zoomedItem && typeof document !== 'undefined' && createPortal(
         <div 
-          className="fixed inset-0 z-[100] bg-stone-950/90 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 cursor-zoom-out animate-fadeIn"
+          className="fixed inset-0 z-[999999] bg-stone-950/90 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-4 md:p-6 lg:p-8 cursor-zoom-out animate-fadeIn"
           onClick={() => setZoomedItem(null)}
         >
           <button
             type="button"
             onClick={() => setZoomedItem(null)}
-            className="absolute top-4 right-4 sm:top-6 sm:right-6 w-11 h-11 bg-stone-900/90 hover:bg-stone-800 text-white rounded-full flex items-center justify-center shadow-2xl border border-white/20 transition-all cursor-pointer active:scale-95 z-30"
+            className="absolute top-3 right-3 sm:top-5 sm:right-5 md:top-6 md:right-6 w-10 h-10 sm:w-11 sm:h-11 bg-stone-900/90 hover:bg-stone-800 text-white rounded-full flex items-center justify-center shadow-2xl border border-white/20 transition-all cursor-pointer active:scale-95 z-30"
             aria-label="Chiudi anteprima"
           >
             <X size={22} />
           </button>
 
           <div 
-            className="relative max-w-2xl w-full max-h-[90vh] flex flex-col rounded-[2rem] shadow-2xl border border-stone-800/80 bg-stone-900 overflow-hidden cursor-default animate-scaleIn"
+            className="relative w-[96vw] max-w-lg sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl max-h-[94vh] sm:max-h-[92vh] flex flex-col rounded-3xl sm:rounded-[2rem] shadow-2xl border border-stone-800/80 bg-stone-900 overflow-hidden cursor-default animate-scaleIn"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               type="button"
               onClick={() => setZoomedItem(null)}
-              className="absolute top-3.5 right-3.5 z-20 w-9 h-9 rounded-full bg-black/65 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg cursor-pointer transition-all active:scale-95"
+              className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-20 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/65 hover:bg-black/85 text-white flex items-center justify-center backdrop-blur-md border border-white/20 shadow-lg cursor-pointer transition-all active:scale-95"
               aria-label="Chiudi"
             >
               <X size={18} />
             </button>
 
-            <div className="relative w-full max-h-[58vh] sm:max-h-[64vh] bg-stone-950 flex items-center justify-center overflow-hidden">
+            <div className="relative w-full max-h-[50vh] sm:max-h-[58vh] md:max-h-[66vh] lg:max-h-[70vh] xl:max-h-[72vh] bg-stone-950 flex items-center justify-center overflow-hidden">
               {getDietaryType(zoomedItem) && (
-                <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none">
+                <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-20 pointer-events-none">
                   <DietaryWatermark type={getDietaryType(zoomedItem)} />
                 </div>
               )}
               <img 
                 src={withCacheBust(zoomedItem.image)} 
                 alt={getTranslatedName(zoomedItem)} 
-                className="max-w-full max-h-[58vh] sm:max-h-[64vh] object-contain select-none"
+                className="max-w-full w-auto max-h-[50vh] sm:max-h-[58vh] md:max-h-[66vh] lg:max-h-[70vh] xl:max-h-[72vh] object-contain select-none drop-shadow-2xl"
               />
             </div>
 
-            <div className="p-4 sm:p-5 bg-gradient-to-b from-stone-900 to-stone-950 border-t border-stone-800 flex flex-col gap-1.5">
+            <div className="p-3.5 sm:p-4 md:p-5 lg:p-6 bg-gradient-to-b from-stone-900 to-stone-950 border-t border-stone-800 flex flex-col gap-1 sm:gap-1.5 shrink-0 overflow-y-auto max-h-[36vh]">
               <div className="flex items-start justify-between gap-3">
                 <h2 
-                  className="text-white font-black text-lg sm:text-2xl leading-tight"
+                  className="text-white font-black text-base sm:text-xl md:text-2xl lg:text-3xl leading-tight"
                   style={{ fontFamily: 'Cormorant Garamond, Georgia, serif', letterSpacing: '0.01em' }}
                 >
                   {formatProductName(getTranslatedName(zoomedItem))}
                 </h2>
                 <div className="flex flex-col items-end shrink-0">
                   <span 
-                    className="text-amber-400 font-black text-lg sm:text-xl shrink-0 inline-flex items-baseline gap-0.5"
+                    className="text-amber-400 font-black text-lg sm:text-xl md:text-2xl shrink-0 inline-flex items-baseline gap-0.5"
                     style={{ fontFamily: 'Outfit, system-ui, sans-serif' }}
                   >
                     <span>{zoomedItem.price}</span>
-                    <span className="text-xs font-black select-none text-amber-300">฿</span>
+                    <span className="text-xs sm:text-sm font-black select-none text-amber-300">฿</span>
                   </span>
                 </div>
               </div>
 
               {getTranslatedDesc(zoomedItem) && (
-                <p className="text-stone-300 text-xs sm:text-sm font-normal leading-relaxed">
+                <p className="text-stone-300 text-xs sm:text-sm md:text-base font-normal leading-relaxed line-clamp-3 sm:line-clamp-none">
                   {getTranslatedDesc(zoomedItem)}
                 </p>
               )}
@@ -2692,7 +2704,8 @@ export default function MenuGrid({ items, lang: propLang, onBookTable, isDiningM
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

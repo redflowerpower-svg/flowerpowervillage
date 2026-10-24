@@ -377,9 +377,11 @@ export function AutoCutReelPlayer({
           )}
           {activePrice && (
             <div className="mt-1.5 origin-left scale-[0.88] w-fit">
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">
+              <div className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                <span
+                  className="font-['Kanit',sans-serif] text-[20px] sm:text-[22px] font-black leading-none tracking-tight"
+                  style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
+                >
                   {activePrice.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                 </span>
               </div>

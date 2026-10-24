@@ -38,6 +38,7 @@ export interface AutoCutScene {
     | 'pan_right_zoom_out' 
     | 'push_in_focal';
   badgeCategory?: string;
+  badgeCategoryTh?: string;
   sourceName?: string;
   duration?: number;
   isLiveShowcase?: boolean;
@@ -101,7 +102,7 @@ export const PIZZA_JINGLE_TRACKS: AutoCutAudioTrack[] = [
   }
 ];
 
-// 🌺 Brani Sonori Koh Phayam Village (Scelta 100% Casuale)
+// 🌺 Brani Sonori Koh Phayam Village (Scelta 100% Casuale tra tutte le 11 tracce ufficiali)
 export const VILLAGE_AUDIO_TRACKS_LAB: AutoCutAudioTrack[] = [
   {
     id: 'village_01',
@@ -111,21 +112,63 @@ export const VILLAGE_AUDIO_TRACKS_LAB: AutoCutAudioTrack[] = [
   },
   {
     id: 'village_02',
-    title: 'Island Funk Groove (Tropical Pop)',
+    title: 'Island Funk Groove (Tropical Funk Pop)',
     src: '/audio/village/02%20Flower%20Power%20Village%20-%20Island%20Funk%20Groove%20(Tropical%20Funk).mp3',
-    duration: 31.0
+    duration: 27.6
   },
   {
     id: 'village_03',
     title: 'Phayam Island Groove (Island Disco)',
     src: '/audio/village/03%20Flower%20Power%20Village%20-%20Phayam%20Island%20Groove%20(Island%20Disco).mp3',
-    duration: 25.6
+    duration: 19.3
   },
   {
     id: 'village_04',
-    title: 'Island Vibes & Sun (Reggae Island)',
+    title: 'Island Vibes & Sun (Reggae Pop)',
     src: '/audio/village/04%20Flower%20Power%20Village%20-%20Island%20Vibes%20&%20Golden%20Sun%20(Reggae%20Pop).mp3',
+    duration: 25.6
+  },
+  {
+    id: 'village_05',
+    title: 'Island Sunshine Riddim (Reggae Roots)',
+    src: '/audio/village/05%20Flower%20Power%20Village%20-%20Island%20Sunshine%20Riddim%20(Reggae%20Roots).mp3',
+    duration: 30.5
+  },
+  {
+    id: 'village_06',
+    title: 'Koh Phayam Paradise Vibes (Island Reggae)',
+    src: '/audio/village/06%20Flower%20Power%20Village%20-%20Koh%20Phayam%20Paradise%20Vibes%20(Island%20Reggae).mp3',
+    duration: 26.8
+  },
+  {
+    id: 'village_07',
+    title: 'Tropical Island Escape (Tropical Reggae)',
+    src: '/audio/village/07%20Flower%20Power%20Village%20-%20Tropical%20Island%20Escape%20(Tropical%20Reggae).mp3',
+    duration: 24.7
+  },
+  {
+    id: 'village_08',
+    title: 'Sweet Island Sunshine (Chillhop Lo-Fi)',
+    src: '/audio/village/08%20Flower%20Power%20Village%20-%20Sweet%20Island%20Sunshine%20(Chillhop%20Lo-Fi).mp3',
+    duration: 18.9
+  },
+  {
+    id: 'village_09',
+    title: 'Love in Koh Phayam (Vocal Jazz Bossa)',
+    src: '/audio/village/09%20Flower%20Power%20Village%20-%20Love%20in%20Koh%20Phayam%20(Vocal%20Jazz%20Bossa).mp3',
+    duration: 43.7
+  },
+  {
+    id: 'village_10',
+    title: 'Tropical Soul Sanctuary (Neo-Soul Lounge)',
+    src: '/audio/village/10%20Flower%20Power%20Village%20-%20Tropical%20Soul%20Sanctuary%20(Neo-Soul%20Lounge).mp3',
     duration: 31.0
+  },
+  {
+    id: 'village_11',
+    title: 'Island Breeze & Sabai Life (Tropical Acoustic)',
+    src: '/audio/village/11%20Flower%20Power%20Village%20-%20Island%20Breeze%20&%20Sabai%20Life%20(Tropical%20Acoustic).mp3',
+    duration: 30.9
   }
 ];
 
@@ -517,6 +560,34 @@ export function getAvailableDishesFromCategory(items: MenuItem[]): MenuItem[] {
   return (items || []).filter(dish => isDishAvailableInKitchen(dish));
 }
 
+/**
+ * 🇹🇭 Mappatura Ufficiale Categorie Culinari Bilingui (Thai & English):
+ * Estrae il nome Thai da menuData o dai termini standard gastronomici
+ */
+export function getCategoryThaiName(catNameOrId?: string): string {
+  if (!catNameOrId) return '';
+  const clean = catNameOrId.replace(/^[✦⭐\s*]+/, '').trim();
+  const found = menuData.find(c => 
+    c.id.toLowerCase() === clean.toLowerCase() || 
+    c.name.toLowerCase() === clean.toLowerCase() || 
+    (c as any).categoryName?.toLowerCase() === clean.toLowerCase()
+  );
+  if (found?.nameTh) return found.nameTh;
+
+  const lower = clean.toLowerCase();
+  if (lower.includes('showcase')) return 'สดใหม่ในตู้โชว์วันนี้';
+  if (lower.includes('traditional pizza') || lower.includes('pizza tradizionale')) return 'พิซซ่าอิตาเลียนแท้';
+  if (lower.includes('pizza')) return 'พิซซ่าเตาอบหินอิตาเลียน';
+  if (lower.includes('artisanal pasta') || lower.includes('pasta')) return 'พาสต้าเส้นสดทำมือ';
+  if (lower.includes('appetizer') || lower.includes('antipast') || lower.includes('starter')) return 'อาหารเรียกน้ำย่อยสไตล์อิตาเลียน';
+  if (lower.includes('salad') || lower.includes('insalat')) return 'สลัดสไตล์อิตาเลียน';
+  if (lower.includes('focaccia') || lower.includes('bread')) return 'ฟอกาเซียและขนมปังอบสด';
+  if (lower.includes('burger')) return 'เบอร์เกอร์โฮมเมด';
+  if (lower.includes('dessert') || lower.includes('dolc') || lower.includes('cake')) return 'ของหวานโฮมเมดสไตล์อิตาเลียน';
+  if (lower.includes('special') || lower.includes('chef')) return 'เมนูพิเศษประจำวัน';
+  return 'อาหารอิตาเลียนรสเลิศ';
+}
+
 // 🍝 Categorie Ammesse Pizzeria Generali
 export const ELIGIBLE_FOOD_CATEGORIES = menuData.filter(cat => 
   !isExcludedBeverageCategory(cat.id, cat.name || (cat as any).categoryName)
@@ -727,6 +798,7 @@ export function generateP1Test(): AutoCutTestRun {
     pizzaSizes: priceInfo.pizzaSizes,
     trajectory: 'food_macro_focus_lr',
     badgeCategory: selected.categoryName,
+    badgeCategoryTh: getCategoryThaiName(selected.categoryName),
     sourceName: selected.item.name
   };
 
@@ -785,6 +857,7 @@ export function generateP2Test(): AutoCutTestRun {
       pizzaSizes: priceInfo.pizzaSizes,
       trajectory: FOOD_MACRO_TRAJECTORIES[idx % FOOD_MACRO_TRAJECTORIES.length],
       badgeCategory: catName,
+      badgeCategoryTh: getCategoryThaiName(catName),
       sourceName: dish.name
     };
   });
@@ -839,6 +912,7 @@ export function generateP3Test(): AutoCutTestRun {
       pizzaSizes: priceInfo.pizzaSizes,
       trajectory: FOOD_MACRO_TRAJECTORIES[idx % FOOD_MACRO_TRAJECTORIES.length],
       badgeCategory: entry.catName,
+      badgeCategoryTh: getCategoryThaiName(entry.catName),
       sourceName: entry.dish.name
     };
   });
@@ -1025,6 +1099,7 @@ export function generateR1Test(): AutoCutTestRun {
       pizzaSizes: undefined, // Disattivato in R1: solo prezzo singolo standard
       trajectory: FOOD_MACRO_TRAJECTORIES[idx % FOOD_MACRO_TRAJECTORIES.length],
       badgeCategory: entry.catName,
+      badgeCategoryTh: getCategoryThaiName(entry.catName),
       sourceName: entry.dish.name
     };
   });
@@ -1234,8 +1309,11 @@ export function generateDSTest(customDishes?: MenuItem[]): AutoCutTestRun {
     pizzaSizes: priceInfo.pizzaSizes,
     trajectory: 'food_macro_focus_lr',
     badgeCategory: isFromShowcase
-      ? '⭐ สดใหม่ในตู้โชว์วันนี้ · FRESH IN SHOWCASE TODAY'
-      : '✨ เมนูพิเศษวันนี้ · DAILY SPECIAL',
+      ? 'FRESH IN SHOWCASE TODAY'
+      : 'DAILY SPECIAL',
+    badgeCategoryTh: isFromShowcase
+      ? 'สดใหม่ในตู้โชว์วันนี้'
+      : 'เมนูพิเศษวันนี้',
     sourceName: heroDish.name,
     duration: sceneDuration,
     isLiveShowcase: isFromShowcase

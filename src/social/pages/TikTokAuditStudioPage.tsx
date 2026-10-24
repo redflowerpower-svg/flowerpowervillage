@@ -25,8 +25,8 @@ const DEMO_ASSETS: DemoAsset[] = [
   {
     id: 'pizza-margherita',
     title: {
-      EN: 'Wood-Fired Pizza Margherita 48h Fermentation',
-      IT: 'Pizza Margherita 48h Forno a Legna'
+      EN: 'Traditional Italian Pizza Margherita 48h Fermentation',
+      IT: 'Pizza Margherita 48h Tradizionale Italiana'
     },
     type: 'video',
     url: 'https://assets.mixkit.co/videos/preview/mixkit-taking-a-slice-of-freshly-baked-pizza-42861-large.mp4',
@@ -316,7 +316,7 @@ export default function TikTokAuditStudioPage() {
   // Post composer state
   const [postTitle, setPostTitle] = useState('');
   const [postCaption, setPostCaption] = useState(
-    '🍕 Authentic Italian Pizza in Ranong! 48h slow-fermented crust, wood-fired oven and San Marzano tomatoes in our tropical garden near Raksawarin Hot Springs. Visit us! 🌴🔥 #RanongFood #PizzaRanong #KohPhayam #ThailandFoodie'
+    '🍕 Authentic Italian Pizza in Ranong! 48h slow-fermented crust, premium Italian flour and San Marzano tomatoes in our tropical garden near Raksawarin Hot Springs. Visit us! 🌴🔥 #RanongFood #PizzaRanong #KohPhayam #ThailandFoodie'
   );
   const [selectedAsset, setSelectedAsset] = useState<DemoAsset>(DEMO_ASSETS[0]);
   const [customMediaUrl, setCustomMediaUrl] = useState('');
@@ -335,7 +335,7 @@ export default function TikTokAuditStudioPage() {
 
   // DeepSeek AI Generator Modal / State
   const [isAiGenerating, setIsAiGenerating] = useState(false);
-  const [aiTopic, setAiTopic] = useState('Wood-fired Pizza Margherita freshly baked');
+  const [aiTopic, setAiTopic] = useState('Traditional Italian Pizza Margherita freshly baked');
   const [aiTone, setAiTone] = useState<'viral' | 'gourmet' | 'relax'>('viral');
   const [aiLang, setAiLang] = useState<'EN' | 'IT' | 'TH' | 'DE'>('EN');
 
@@ -348,7 +348,7 @@ export default function TikTokAuditStudioPage() {
       id: 'p1',
       brand: 'pizza',
       platform: 'tiktok',
-      title: 'Wood-Fired Pizza Margherita 48h',
+      title: 'Traditional Italian Pizza Margherita 48h',
       caption: 'Discover authentic Italian pizza in Ranong! 48h slow dough & San Marzano tomatoes. #Ranong #PizzaRanong',
       status: 'published',
       published_at: 'Today, 11:20',
@@ -401,12 +401,12 @@ export default function TikTokAuditStudioPage() {
     setUiLang(newLang);
     if (newLang === 'IT') {
       setAiLang('IT');
-      setAiTopic('Pizza Margherita sfornata al momento nel forno a legna');
-      setPostCaption('🍕 Autentica Pizza Italiana a Ranong! 48h di lievitazione, forno a legna e pomodoro San Marzano nel nostro giardino tropicale con cascata privata. Ti aspettiamo! 🌴🔥 #RanongFood #PizzaRanong #KohPhayam #ThailandFoodie');
+      setAiTopic('Pizza Margherita sfornata al momento');
+      setPostCaption('🍕 Autentica Pizza Italiana a Ranong! 48h di lievitazione naturale e pomodoro San Marzano nel nostro giardino tropicale con cascata privata. Ti aspettiamo! 🌴🔥 #RanongFood #PizzaRanong #KohPhayam #ThailandFoodie');
     } else {
       setAiLang('EN');
-      setAiTopic('Wood-fired Pizza Margherita freshly baked');
-      setPostCaption('🍕 Authentic Italian Pizza in Ranong! 48h slow-fermented crust, wood-fired oven and San Marzano tomatoes in our tropical garden near Raksawarin Hot Springs. Visit us! 🌴🔥 #RanongFood #PizzaRanong #KohPhayam #ThailandFoodie');
+      setAiTopic('Traditional Italian Pizza Margherita freshly baked');
+      setPostCaption('🍕 Authentic Italian Pizza in Ranong! 48h slow-fermented crust, premium Italian flour and San Marzano tomatoes in our tropical garden near Raksawarin Hot Springs. Visit us! 🌴🔥 #RanongFood #PizzaRanong #KohPhayam #ThailandFoodie');
     }
   };
 

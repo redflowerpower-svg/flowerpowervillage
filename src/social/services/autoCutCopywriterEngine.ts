@@ -2,8 +2,8 @@
  * AutoCut Post Copywriter Engine
  * Generatore automatico e biculturale di testi social per Pizzeria Ranong e Villaggio Koh Phayam.
  * Gestisce in totale autonomia contenuti multilingua, proverbi contestuali,
- * e hashtag intelligenti e virali INSERITI DIRETTAMENTE NEL TESTO (Thai & Inglese),
- * senza blocchi separati o liste obsolete di 30 hashtag.
+ * e hashtag intelligenti e virali (Thai + Inglesi) raccolti in UN UNICO BLOCCO ALLA FINE DEL POST,
+ * mai tra una traduzione e l'altra (Regola 16).
  */
 
 import { AutoCutTestRun } from './autoCutLabEngine';
@@ -114,6 +114,16 @@ export function getCurrentSeasonContext(): { season: 'high' | 'green'; monthName
     monthName: monthNames[month],
     festiveNotice
   };
+}
+
+/**
+ * 🚩 Regola 17: ogni blocco lingua inizia con la propria bandiera (🇹🇭 Thai, 🇬🇧 Inglese),
+ * prima della prima lettera. Rimuove eventuali bandiere iniziali errate/duplicate e antepone quella giusta.
+ */
+export function ensureLangFlag(text: string, lang: 'th' | 'en'): string {
+  const flag = lang === 'th' ? '🇹🇭' : '🇬🇧';
+  const cleaned = (text || '').replace(/^\s*(?:[\u{1F1E6}-\u{1F1FF}]{2}\s*)+/u, '').trimStart();
+  return `${flag} ${cleaned}`;
 }
 
 /**
@@ -331,9 +341,7 @@ ${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
 เมนูพิเศษสดใหม่แบบนี้ มีจำนวนจำกัดเฉพาะวันนี้เท่านั้น อย่ารอช้า สั่งทานกันร้อนๆ เลยนะครับ!
 
 🛵 พร้อมส่งทันทีถึงบ้าน สั่งง่ายๆ ผ่าน www.flowerpowerpizza.com
-รับส่วนลดพิเศษ 10% สำหรับการสั่งซื้อครั้งแรกทันทีครับ! 💨
-
-${smartTags.thai.join(' ')}`;
+รับส่วนลดพิเศษ 10% สำหรับการสั่งซื้อครั้งแรกทันทีครับ! 💨`;
 
       englishContent = `🇬🇧 Fresh out of the oven today! Chef's Daily Special is ready ⚡️🍕✨
 
@@ -345,9 +353,7 @@ As the wise saying goes: ${cleanEnProverb}
 Fresh daily specials sell out fast! Treat yourself to today's exclusive culinary delight right now. 🤙
 
 🛵 Ready for immediate delivery! Order on www.flowerpowerpizza.com
-Enjoy your 10% first-order welcome discount! 💨
-
-${smartTags.english.join(' ')}`;
+Enjoy your 10% first-order welcome discount! 💨`;
 
       italianContent = `🇮🇹 Appena sfornato dalla cucina! Il Fuori Menu Daily Special di oggi ⚡️🍕✨
 
@@ -371,15 +377,15 @@ Approfitta del 10% di sconto sul tuo primo ordine! 💨`;
       ];
 
       const pizzaEnHooks = [
-        '🇬🇧 Hey food lovers! Fresh out of our Ranong oven today 🍕✨',
-        '🇬🇧 Wood-fired perfection right here in Ranong! Check out today\'s highlight 🍕🔥',
+        '🇬🇧 Hey food lovers! Fresh 🍕 out of our Ranong oven today ✨',
+        '🇬🇧 Authentic Italian pizza 🍕 baked to perfection right here in Ranong 🔥',
         '🇬🇧 Craving real Italian flavor? Made fresh with 48h slow-fermented dough! 🇮🇹✨',
-        '🇬🇧 Straight from our Italian kitchen to your table in Ranong! 🛵💨'
+        '🇬🇧 Straight from our Italian kitchen to your table 🛵💨 in Ranong!'
       ];
 
       const pizzaItHooks = [
-        '🇮🇹 Ciao a tutti! Direttamente dal nostro forno a Ranong 🍕✨',
-        '🇮🇹 Profumo di legna e autentica cucina italiana oggi a Ranong 🍕🔥',
+        '🇮🇹 Ciao a tutti! Direttamente dal nostro forno 🍕 a Ranong ✨',
+        '🇮🇹 Profumo inconfondibile 🍕 di autentica pizza italiana oggi a Ranong 🔥',
         '🇮🇹 Per chi ama i sapori veri: impasto artigianale lievitato 48 ore! 🇮🇹✨',
         '🇮🇹 Dalla nostra cucina italiana direttamente a casa tua caldissimo! 🛵💨'
       ];
@@ -396,9 +402,7 @@ ${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
 ความอร่อยไม่เคยรอใคร อย่าปล่อยให้ความหิวรอนาน มาเติมเต็มความสุขกันนะครับ!
 
 🎁 สั่งง่ายๆ ผ่าน www.flowerpowerpizza.com
-รับส่วนลดพิเศษ 10% สำหรับการสั่งซื้อครั้งแรกทันทีครับ! 🛵💨
-
-${smartTags.thai.join(' ')}`;
+รับส่วนลดพิเศษ 10% สำหรับการสั่งซื้อครั้งแรกทันทีครับ! 🛵💨`;
 
       englishContent = `${pizzaEnHooks[pIdx]}
 
@@ -410,9 +414,7 @@ As the wise saying goes: ${cleanEnProverb}
 Good food is meant to be shared with good vibes. Treat yourself and your friends today! 🤙
 
 🎁 Order directly on www.flowerpowerpizza.com
-Enjoy your 10% first-order welcome discount! 🛵💨
-
-${smartTags.english.join(' ')}`;
+Enjoy your 10% first-order welcome discount! 🛵💨`;
 
       italianContent = `${pizzaItHooks[pIdx]}
 
@@ -428,6 +430,67 @@ Approfitta subito del 10% di sconto sul tuo primo ordine! 🛵💨`;
     }
 
     fixedLink = `🍕 FLOWER POWER PIZZA🌸 - Ranong Hotspring\n📍 Google Maps: https://maps.app.goo.gl/qjpYt6t69y17R4DF6\n🌐 www.flowerpowerpizza.com`;
+    crossTag = `@flowerpowerphayam`;
+
+  } else if (testRun.mode === 'R1') {
+    // 🍽️ R1: RESTAURANT & DELIVERY A KOH PHAYAM (BUFFALO BAY)
+    const cleanEnProverb = proverb.en.replace(/["']/g, '');
+
+    const r1ThHooks = [
+      '🇹🇭 หิวอาหารอิตาเลียนแท้ๆ บนเกาะพยามใช่ไหมครับ? ครัว Flower Power พร้อมเสิร์ฟความอร่อย 🍝🍕 สดใหม่ครับ!',
+      '🇹🇭 กลิ่นอาหารอิตาเลียนหอมฟุ้ง ริมอ่าวเขาควาย 🌿 เกาะพยาม! แวะมาทานของอร่อยกันครับ 🔥',
+      '🇹🇭 มื้อพิเศษบนเกาะพยาม! พาสต้าเส้นสด 🍝 และพิซซ่าอิตาเลียนแท้ๆ 🍕 รสชาติต้นตำรับ 🇮🇹🌴',
+      '🇹🇭 วันนี้ครัว Flower Power เกาะพยาม พร้อมเสิร์ฟทั้งนั่งทานในสวน 🌿 และส่งเดลิเวอรี่ถึงที่พักครับ 🛵✨'
+    ];
+
+    const r1EnHooks = [
+      '🇬🇧 Craving authentic Italian food on Koh Phayam? Flower Power Restaurant 🍝🍕 is open!',
+      '🇬🇧 Freshly cooked Italian specialties 🍝 right in the heart of Buffalo Bay, Koh Phayam 🌴🔥',
+      '🇬🇧 Handmade pasta 🍝, traditional Italian pizza 🍕 and artisan taste on Koh Phayam island 🇮🇹🥥',
+      '🇬🇧 Dine in our lush tropical garden 🌴 or get hot delivery directly to your resort on Koh Phayam 🛵✨'
+    ];
+
+    const rIdx = Math.abs(proverbIndexSeed) % r1EnHooks.length;
+
+    thaiContent = `${r1ThHooks[rIdx]}
+
+เมนูเด็ดแนะนำวันนี้:
+${dishOrRoomName} ${secondaryName ? `(${secondaryName})` : ''}
+ปรุงสดใหม่จานต่อจานโดยใช้วัตถุดิบนำเข้าและวัตถุดิบสดจากธรรมชาติ รสชาติอิตาเลียนแท้ๆ ทานแล้วฟินแน่นอนครับ! 😋🔥
+
+โบราณว่าไว้: "${proverb.thai}"
+มื้ออร่อยสร้างความสุขได้เสมอ แวะมาทานที่ร้านท่ามกลางสวนธรรมชาติ หรือสั่งเดลิเวอรี่ส่งตรงถึงที่พักบนเกาะพยามได้เลยครับ!
+
+🛵 บริการส่งเดลิเวอรี่บนเกาะพยาม สั่งง่ายๆ ผ่าน WhatsApp:
+✆ WhatsApp: +66 095 882 5573
+🌐 ข้อมูลและที่พัก: www.flowerpowervillage.com`;
+
+    englishContent = `${r1EnHooks[rIdx]}
+
+Featured dish today:
+${secondaryName || dishOrRoomName}
+Cooked from scratch with premium ingredients and genuine Italian passion right here in Buffalo Bay! 😋🔥
+
+As the wise proverb says: ${cleanEnProverb}
+Good food shared in paradise creates unforgettable memories. Treat yourself to real Italian taste on Koh Phayam! 🤙
+
+🛵 Island Delivery on Koh Phayam — order via WhatsApp:
+✆ WhatsApp: +66 095 882 5573
+🌐 Resort & Dining: www.flowerpowervillage.com`;
+
+    italianContent = `🇮🇹 Voglia di vera cucina italiana a Koh Phayam? Il ristorante Flower Power è aperto! 🍝🍕✨
+
+Piatto del giorno:
+${dishOrRoomName}
+Pasta fresca fatta a mano, pizze e specialità italiane autentiche a Buffalo Bay! 😋🔥
+
+Un saggio proverbio ricorda: "${proverb.it}"
+La buona cucina italiana nel cuore dell'isola di Koh Phayam!
+
+🛵 Consegna a domicilio sull'isola tramite WhatsApp: +66 095 882 5573
+🌐 www.flowerpowervillage.com`;
+
+    fixedLink = `🌺 FLOWER POWER RESTAURANT & RESORT 🌸 - Buffalo Bay, Koh Phayam\n📍 WhatsApp Delivery: +66 095 882 5573\n🌐 www.flowerpowervillage.com`;
     crossTag = `@flowerpowerphayam`;
 
   } else {
@@ -461,9 +524,7 @@ Remember: ${cleanEnProverb}
 Pack your flip-flops and let nature recharge your soul! 🤙
 
 🎁 Book directly on www.flowerpowervillage.com
-Best rate guaranteed with an exclusive 10% direct booking privilege! 🥥✨
-
-${smartTags.english.join(' ')}`;
+Best rate guaranteed with an exclusive 10% direct booking privilege! 🥥✨`;
 
     // Thai: Maschile, particelle amichevoli, toponimi esatti, a capo ariosi
     thaiContent = `${villageThHooks[vIdx]}
@@ -476,9 +537,7 @@ ${dishOrRoomName}
 วันหยุดทั้งที ต้องให้ธรรมชาติบำบัดหัวใจและเติมพลังชีวิตนะครับ!
 
 🎁 จองตรงกับเราที่ www.flowerpowervillage.com
-รับราคาดีที่สุด พร้อมส่วนลดพิเศษ 10% สำหรับการจองตรงครับ! 🥥✨
-
-${smartTags.thai.join(' ')}`;
+รับราคาดีที่สุด พร้อมส่วนลดพิเศษ 10% สำหรับการจองตรงครับ! 🥥✨`;
 
     // Italiano: Traduzione letterale con proverbio e a capo ariosi
     italianContent = `🇮🇹 Fuggite dal caos per ritrovare la vera tranquillità a Buffalo Bay, Koh Phayam 🌴🌊✨
@@ -497,15 +556,27 @@ Miglior tariffa garantita online e 10% di privilegio prenotazione diretta! 🥥�
     crossTag = `@flowerpowerpizzaranong`;
   }
 
+  // 🛡️ REGOLA IMMODIFICABILE 18: Sanitizzazione zero forno a legna
+  const scrubWoodFired = (t: string) => {
+    return t
+      .replace(/\b(wood-fired|wood fired|wood-oven|wood oven)\s*(oven|pizza|crust)?/gi, 'authentic Italian pizza')
+      .replace(/\bforno a legna\b/gi, 'forno tradizionale per pizza')
+      .replace(/\baroma di legna\b/gi, 'profumo di pizza appena sfornata')
+      .replace(/เตาฟืน/g, 'เตาอบพิซซ่า');
+  };
+
+  thaiContent = scrubWoodFired(ensureLangFlag(thaiContent, 'th'));
+  englishContent = scrubWoodFired(ensureLangFlag(englishContent, 'en'));
+
   // Costruzione Caption Finale Completa per Instagram / Facebook (Thai + Inglese + Link & Tag)
   const fullCaptionInstagram = isPizza
-    ? `${thaiContent}\n\n${englishContent}\n\n${fixedLink}\n\n${crossTag}`
-    : `${englishContent}\n\n${thaiContent}\n\n${fixedLink}\n\n${crossTag}`;
+    ? `${thaiContent}\n\n${englishContent}\n\n${fixedLink}\n\n${crossTag}\n\n${[...smartTags.thai, ...smartTags.english].join(' ')}`
+    : `${englishContent}\n\n${thaiContent}\n\n${fixedLink}\n\n${crossTag}\n\n${[...smartTags.thai, ...smartTags.english].join(' ')}`;
 
   // Caption per TikTok (più snella: Thai + Inglese con i loro hashtag integrati + Link + Tag)
   const fullCaptionTikTok = isPizza
-    ? `${thaiContent}\n\n${englishContent}\n\n${fixedLink}\n${crossTag}`
-    : `${englishContent}\n\n${thaiContent}\n\n${fixedLink}\n${crossTag}`;
+    ? `${thaiContent}\n\n${englishContent}\n\n${fixedLink}\n${crossTag}\n\n${[...smartTags.thai, ...smartTags.english].join(' ')}`
+    : `${englishContent}\n\n${thaiContent}\n\n${fixedLink}\n${crossTag}\n\n${[...smartTags.thai, ...smartTags.english].join(' ')}`;
 
   return {
     brand: testRun.brand,

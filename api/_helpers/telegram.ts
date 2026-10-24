@@ -195,11 +195,8 @@ function normalizeThaiPhone(phone: string): string {
  * Returns an array of lines to spread into the message array.
  */
 export function buildContactLines(phone: string, _hasWhatsApp?: boolean, _hasLine?: boolean): string[] {
-  const normalized = normalizeThaiPhone(phone);
   return [
     `📞 <b>Phone / เบอร์โทร:</b> ${phone}`,
-    `🟢 <a href="https://wa.me/${normalized}">Chat on WhatsApp / แชท WhatsApp</a>`,
-    `🟩 <a href="https://line.me/ti/p/~${normalized}">Contact on LINE / แชท LINE</a>`
   ];
 }
 

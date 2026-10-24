@@ -35,13 +35,23 @@ Desktop.ini
 
 # ─── Scratch temporary media & logs ─────────────────────
 scratch/recordings/
+scratch/outro_frames/
+scratch/Flower Power Village - Soundtrack/
+scratch/documentation_reports/
 scratch/*.mp4
 scratch/*.png
+scratch/*.jpg
+scratch/*.jpeg
+scratch/*.webp
 scratch/*.json
 scratch/*.mp3
+scratch/*.wav
+scratch/*.txt
 scratch/*.mjs
+scratch/*.ts
 !scratch/vault-sync.mjs
 !scratch/deepseek-translate.mjs
+!scratch/security-audit.mjs
 scratch/audit_report_bookings.md
 .vercel/
 

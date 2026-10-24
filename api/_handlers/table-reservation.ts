@@ -234,8 +234,8 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
       total: 0,
       status: 'new',
       payment_method: 'table_reservation',
-      has_whatsapp: true,
-      has_line: true,
+      has_whatsapp: false,
+      has_line: false,
       created_at: reservationRecord.created_at
     };
 
@@ -294,7 +294,7 @@ export async function handleTableReservation(req: VercelRequest, res: VercelResp
         }
         text += `📌 <b>ID Prenotazione</b>: <code>#${actualOrderId}</code>\n`;
         text += `👤 <b>Cliente</b>: <b>${escapeHtml(reservationRecord.customer_name)}</b>\n`;
-        text += `📞 <b>Contatto (LINE / Tel)</b>: <code>${escapeHtml(reservationRecord.contact)}</code>\n`;
+        text += `📞 <b>Telefono / Phone</b>: <code>${escapeHtml(reservationRecord.contact)}</code>\n`;
         if (customerEmail) {
           text += `✉️ <b>Email</b>: <code>${escapeHtml(customerEmail)}</code>\n`;
         }

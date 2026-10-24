@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Sparkles, Layers, Clock, Music, Star } from 'lucide-react';
-import { AutoCutTestRun, AutoCutScene } from '../services/autoCutLabEngine';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
+import { Play, Pause, RotateCcw, RotateCw, SkipBack, SkipForward, Volume2, VolumeX, Sparkles, Layers, Clock, Music, Star } from 'lucide-react';
+import { AutoCutTestRun, AutoCutScene, getCategoryThaiName } from '../services/autoCutLabEngine';
 import { LINE_QR_CODE_BASE64 } from '../services/lineQrData';
 import { autoCutSoundEngine } from '../services/autoCutSoundEffects';
+import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 
 // Immagine QR Code Base64 precaricata e decodificata in memoria all'avvio (zero CORS, zero latenza)
 const globalLineQrImg = new Image();
@@ -10,10 +11,22 @@ globalLineQrImg.src = LINE_QR_CODE_BASE64;
 
 // Loghi Ufficiali precaricati all'avvio per watermark istantaneo sul canvas
 const globalPizzaLogoImg = new Image();
+globalPizzaLogoImg.crossOrigin = 'anonymous';
 globalPizzaLogoImg.src = '/flower-power-pizza-logo-512.png';
 
 const globalVillageLogoImg = new Image();
+globalVillageLogoImg.crossOrigin = 'anonymous';
 globalVillageLogoImg.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+
+// SVG Path ufficiale WhatsApp per rendering fedele su Canvas 2D
+const WA_PHONE_PATH_DATA =
+  'M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8.01 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 13.99C16.32 13.86 15.12 13.27 14.9 13.19C14.68 13.1 14.52 13.06 14.36 13.3C14.19 13.55 13.73 14.11 13.59 14.27C13.45 14.44 13.31 14.46 13.06 14.34C12.82 14.21 12.05 13.96 11.13 13.14C10.42 12.5 9.93 11.72 9.8 11.49C9.66 11.25 9.78 11.11 9.9 10.99C10.01 10.88 10.15 10.7 10.27 10.56C10.39 10.41 10.44 10.31 10.52 10.15C10.6 9.99 10.56 9.85 10.5 9.72C10.44 9.6 9.95 8.41 9.75 7.91C9.55 7.43 9.35 7.5 9.19 7.49C9.05 7.49 8.89 7.48 8.72 7.48L8.53 7.33Z';
+const waPhonePath2D = typeof Path2D !== 'undefined' ? new Path2D(WA_PHONE_PATH_DATA) : null;
+
+// SVG Path ufficiale LINE per rendering fedele su Canvas 2D
+const LINE_ICON_PATH_DATA =
+  'M12 2C6.48 2 2 5.82 2 10.53c0 4.23 3.61 7.77 8.5 8.41.33.07.78.22.89.51.1.26.07.67.03.93l-.15.91c-.05.28-.22 1.1.96.6 1.18-.5 6.38-3.76 8.7-6.44C22.25 13.9 22 12.28 22 10.53 22 5.82 17.52 2 12 2zm-3.8 11.5H6.4c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5V13h1.3c.28 0 .5.22.5.5s-.22.5-.5.5zm2.1-.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5zm4.3 0c0 .22-.15.42-.36.48-.06.02-.11.02-.16.02-.17 0-.32-.08-.41-.21L12.1 10.1v2.4c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.23.15-.42.36-.48.05-.02.11-.02.16-.02.17 0 .32.08.41.21l2.07 2.7V8c0-.28.22-.5.5-.5s.5.22.5.5v5zm3.1-3.2h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5h-1.9c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5h1.9c.28 0 .5.22.5.5s-.22.5-.5.5h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5z';
+const lineIconPath2D = typeof Path2D !== 'undefined' ? new Path2D(LINE_ICON_PATH_DATA) : null;
 
 /**
  * 🏷️ Formattatore Testi Specifico per Video 4:3 Companion (P1):
@@ -119,17 +132,55 @@ export function AutoCutLabPlayer({
   const [progress, setProgress] = useState(0);
   const [activeSceneIndex, setActiveSceneIndex] = useState(0);
 
+  const currentElapsedRef = useRef<number>(0);
+  const renderFrameRef = useRef<((elapsed: number) => void) | null>(null);
+
   const lastTestRunRef = useRef(testRun);
   useEffect(() => {
     if (lastTestRunRef.current !== testRun) {
       lastTestRunRef.current = testRun;
+      currentElapsedRef.current = 0;
+      setProgress(0);
       setIsEnded(false);
+      setIsPlaying(false);
     }
   }, [testRun]);
 
   const { scenes, totalDuration, sceneDuration, audioTrack, brand, mode } = testRun;
   const isCompanionEligible = mode === 'P1' || mode === 'V1';
   const sceneCount = scenes.length;
+
+  const isSingleHero = mode === 'P1' || mode === 'DS';
+  // Durata Outro finale e sincronizzazione perfetta audio per tutti i formati
+  const OUTRO_DURATION = isSingleHero ? Math.max(3.5, totalDuration - (scenes[0]?.duration || sceneDuration)) : 3.8;
+  const totalVideoDuration = isSingleHero ? totalDuration : (totalDuration >= 14 ? totalDuration : totalDuration + 3.8);
+  const musicDuration = totalVideoDuration;
+  const outroStartTime = Math.max(4.0, totalVideoDuration - OUTRO_DURATION);
+
+  // 🎬 CONTINUOUS SEAMLESS FLYING CROSSFADE: Calcolo timeline cumulativa per ciascuna scena distribuita in [0, outroStartTime]
+  const sceneTimeline = useMemo(() => {
+    const list: Array<{ start: number; end: number; duration: number }> = [];
+    const availableScenesTime = outroStartTime;
+    const rawTotalScenesDur = scenes.reduce((acc, sc) => acc + (sc.duration || sceneDuration), 0) || 1;
+    let cumTime = 0;
+    for (let i = 0; i < scenes.length; i++) {
+      const origDur = scenes[i].duration || sceneDuration;
+      const dur = (origDur / rawTotalScenesDur) * availableScenesTime;
+      list.push({
+        start: cumTime,
+        end: cumTime + dur,
+        duration: dur
+      });
+      cumTime += dur;
+    }
+    return list;
+  }, [scenes, sceneDuration, outroStartTime]);
+
+  // 📸 REGOLA 14 AGENTS.MD: CALCOLO FOTOGRAMMA THUMBNAIL UFFICIALE (MASSIMO ZOOM PRE-DISSOLVENZA)
+  const scene1Dur = sceneTimeline[0]?.duration || sceneDuration;
+  const effectiveDissolve1 = Math.min(0.65, scene1Dur * 0.28);
+  const transitionThreshold1 = scene1Dur - effectiveDissolve1;
+  const thumbnailTimestamp = Math.max(0.1, transitionThreshold1 - 0.05);
 
   // Setup e caricamento traccia audio (SOLO quando cambia la sorgente audioTrack.src)
   useEffect(() => {
@@ -175,12 +226,11 @@ export function AutoCutLabPlayer({
     let isCancelled = false;
 
     if (isPlaying && !testRun.isEmptyShowcase) {
-      startTimeRef.current = performance.now();
+      startTimeRef.current = performance.now() - (currentElapsedRef.current * 1000);
       setIsEnded(false);
-      setActiveSceneIndex(0);
       if (audioRef.current) {
         audioRef.current.volume = 1.0;
-        audioRef.current.currentTime = 0;
+        audioRef.current.currentTime = Math.min(musicDuration, currentElapsedRef.current);
         audioRef.current.play().catch(e => console.log('Audio play info:', e));
       }
     }
@@ -197,23 +247,6 @@ export function AutoCutLabPlayer({
       lineQrImg.src = LINE_QR_CODE_BASE64;
     }
 
-    const isSingleHero = mode === 'P1' || mode === 'DS';
-    // Per P1 e DS l'Outro è integrato dentro la colonna sonora (durata totale = durata intero MP3)
-    // Per le altre prove, l'Outro ha una sosta di 4.0s a fine musica
-    const OUTRO_DURATION = isSingleHero ? 0 : 4.0;
-    const musicDuration = totalDuration;
-    const totalVideoDuration = musicDuration + OUTRO_DURATION;
-    const outroStartTime = isSingleHero ? sceneDuration : musicDuration;
-
-    // 📸 CALCOLO FOTOGRAMMA THUMBNAIL UFFICIALE:
-    // Pizzeria & DS Daily Special: TASSATIVAMENTE il 1° piatto in vetrina al suo massimo zoom macro centrale (apice della Scena 1 prima del crossfade)
-    // Alloggi Villaggio: Scorrimento a metà della 1ª scena con camera centrata sul resort
-    const isFoodContent = brand === 'pizza' || mode === 'R1';
-    const scene1Dur = scenes[0]?.duration || sceneDuration;
-    const thumbnailTimestamp = isFoodContent
-      ? Math.max(0.1, scene1Dur * 0.95)
-      : Math.max(0.1, scene1Dur * 0.50);
-
     const drawSceneToCanvas = (
       c: HTMLCanvasElement,
       cCtx: CanvasRenderingContext2D,
@@ -224,6 +257,9 @@ export function AutoCutLabPlayer({
       is43: boolean = false
     ) => {
       if (!img.complete || img.naturalWidth === 0) return;
+
+      cCtx.imageSmoothingEnabled = true;
+      cCtx.imageSmoothingQuality = 'high';
 
       const w = c.width;
       const h = c.height;
@@ -373,9 +409,320 @@ export function AutoCutLabPlayer({
       }
     };
 
+    // 🎬 Helper universale per disegnare l'Outro del Brand (Logo 3D con rimbalzo elastico, card e contatti)
+    const drawFullOutroToContext = (
+      targetCtx: CanvasRenderingContext2D,
+      w: number,
+      h: number,
+      outroElapsed: number
+    ) => {
+      targetCtx.save();
+      // 📐 Scala proporzionale automatica: rende l'outro perfetto sia su 720p che su 1080p Full HD
+      targetCtx.scale(w / 720, h / 1280);
+      const wVirtual = 720;
+      const hVirtual = 1280;
+
+      // Velo scuro cinematografico che fa risaltare lo stampo del logo e la card contatti
+      const darkAlpha = Math.min(0.88, (outroElapsed / 0.35) * 0.88);
+      targetCtx.fillStyle = `rgba(0, 0, 0, ${darkAlpha})`;
+      targetCtx.fillRect(0, 0, wVirtual, hVirtual);
+
+      // Animazione Regale d'Ingresso Logo (morbida discesa da 1.85x a 0.96x con assestamento vellutato a 1.0x)
+      const stampDuration = 0.55;
+      const stampProgress = Math.min(1.0, outroElapsed / stampDuration);
+      let stampScale = 1.0;
+      let stampAlpha = 1.0;
+      let stampRotate = 0;
+
+      if (stampProgress < 0.75) {
+        // Fase 1: Vola dolcemente da 1.85x a 0.96x con discesa quadratica vellutata
+        const p = stampProgress / 0.75;
+        const easeIn = p * p;
+        stampScale = 1.85 - (easeIn * (1.85 - 0.96));
+        stampAlpha = Math.min(1.0, p * 1.5);
+        stampRotate = (-3 * (1 - p)) * (Math.PI / 180);
+      } else {
+        // Fase 2: Impatto a stampo & rimbalzo elastico assestandosi a 1.0x
+        const p = (stampProgress - 0.75) / 0.25;
+        const bounce = Math.sin(p * Math.PI);
+        stampScale = 0.96 + (p * 0.04) + (bounce * 0.04);
+        stampAlpha = 1.0;
+        stampRotate = 0;
+      }
+
+      const cx = wVirtual / 2;
+      const cy = 370; // Posizionato elegantemente nella metà superiore
+      const baseLogoSize = 210;
+
+      // Alone luminoso dorato radiale all'impatto
+      if (stampProgress >= 0.65) {
+        const glowAlpha = Math.min(0.50, (outroElapsed - 0.40) * 0.7);
+        const glow = targetCtx.createRadialGradient(cx, cy, 25, cx, cy, 240);
+        glow.addColorStop(0, `rgba(245, 158, 11, ${glowAlpha})`);
+        glow.addColorStop(0.55, `rgba(217, 119, 6, ${glowAlpha * 0.45})`);
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        targetCtx.fillStyle = glow;
+        targetCtx.fillRect(0, 0, wVirtual, hVirtual);
+      }
+
+      // Disegno Logo Centrato con Ombra 3D d'Impatto
+      if (logoImg.complete && logoImg.naturalWidth > 0) {
+        targetCtx.save();
+        targetCtx.translate(cx, cy);
+        targetCtx.rotate(stampRotate);
+        targetCtx.scale(stampScale, stampScale);
+        targetCtx.globalAlpha = stampAlpha;
+
+        targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        targetCtx.shadowBlur = 40;
+        targetCtx.shadowOffsetY = 16;
+
+        targetCtx.drawImage(logoImg, -baseLogoSize / 2, -baseLogoSize / 2, baseLogoSize, baseLogoSize);
+        targetCtx.restore();
+      }
+
+      // Titoli e firma del Brand (emergono in dissolvenza sotto al logo dopo la stampata)
+      if (outroElapsed > 0.40) {
+        const textAlpha = Math.min(1.0, (outroElapsed - 0.40) / 0.35);
+        targetCtx.save();
+        targetCtx.globalAlpha = textAlpha;
+        targetCtx.textAlign = 'center';
+
+        // Nome Brand Dorato (Grande & Incisivo)
+        targetCtx.font = '900 36px "Outfit", "Inter", sans-serif';
+        targetCtx.fillStyle = '#fbbf24';
+        targetCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        targetCtx.shadowBlur = 12;
+        targetCtx.fillText(
+          brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE',
+          cx,
+          cy + (baseLogoSize / 2) + 48
+        );
+
+        // Località (Grande & Chiara)
+        targetCtx.font = '800 22px "Inter", sans-serif';
+        targetCtx.fillStyle = '#ffffff';
+        targetCtx.shadowBlur = 8;
+        targetCtx.fillText(
+          brand === 'pizza' ? 'RANONG · THAILAND' : 'KOH PHAYAM · THAILAND',
+          cx,
+          cy + (baseLogoSize / 2) + 82
+        );
+
+        // Sottotitolo / Identità Ufficiale (Zero Napoletana - Solo Tradizionale Italiana)
+        targetCtx.font = '600 17px "Inter", sans-serif';
+        targetCtx.fillStyle = '#cbd5e1';
+        targetCtx.shadowBlur = 4;
+        targetCtx.fillText(
+          brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary',
+          cx,
+          cy + (baseLogoSize / 2) + 112
+        );
+
+        // 🛵 CARD FINALE AD ALTO IMPATTO (VISIVA, INCISIVA & LEGGIBILE IN 4 SECONDI)
+        const boxX = 28;
+        const boxY = cy + (baseLogoSize / 2) + 130;
+        const boxW = wVirtual - 56; // 664px (più larga, ariosa e maestosa)
+        const boxH = 475;           // 475px (sfrutta lo spazio in basso senza comprimere i testi)
+        const radius = 28;
+
+        // Sfondo scuro satinato con bordo dorato/smeraldo luminescente
+        targetCtx.save();
+        targetCtx.beginPath();
+        if (typeof targetCtx.roundRect === 'function') {
+          targetCtx.roundRect(boxX, boxY, boxW, boxH, radius);
+        } else {
+          targetCtx.rect(boxX, boxY, boxW, boxH);
+        }
+        targetCtx.fillStyle = 'rgba(11, 17, 32, 0.95)';
+        targetCtx.fill();
+        targetCtx.lineWidth = 2.5;
+        targetCtx.strokeStyle = brand === 'pizza' ? 'rgba(245, 158, 11, 0.70)' : 'rgba(52, 211, 153, 0.80)';
+        targetCtx.shadowColor = brand === 'pizza' ? 'rgba(245, 158, 11, 0.40)' : 'rgba(52, 211, 153, 0.40)';
+        targetCtx.shadowBlur = 22;
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        // Intestazione Card (Inglese & Thailandese - Font 25px Bold)
+        targetCtx.font = '900 25px "Inter", sans-serif';
+        targetCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#fbbf24' : '#34d399';
+        targetCtx.textAlign = 'center';
+        targetCtx.fillText(
+          mode === 'R1'
+            ? '🛵 BUFFALO BAY DELIVERY & RESTAURANT · เกาะพยาม'
+            : (brand === 'pizza' 
+              ? '🛵 RANONG DELIVERY · ส่งถึงบ้าน' 
+              : '🌴 DIRECT BOOKING · จองตรงที่พัก'),
+          cx,
+          boxY + 46
+        );
+
+        if (mode === 'R1') {
+          // Modalità R1 Ristorante & Delivery Buffalo Bay (Koh Phayam)
+          const btnW = 560;
+          const btnH = 72;
+          const btnX = cx - (btnW / 2);
+          const btnY = boxY + 76;
+
+          targetCtx.save();
+          targetCtx.beginPath();
+          if (typeof targetCtx.roundRect === 'function') {
+            targetCtx.roundRect(btnX, btnY, btnW, btnH, 20);
+          } else {
+            targetCtx.rect(btnX, btnY, btnW, btnH);
+          }
+          targetCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+          targetCtx.fill();
+          targetCtx.lineWidth = 2.5;
+          targetCtx.strokeStyle = '#34d399';
+          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.55)';
+          targetCtx.shadowBlur = 18;
+          targetCtx.stroke();
+          targetCtx.restore();
+
+          targetCtx.textAlign = 'center';
+          targetCtx.font = '900 33px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+          targetCtx.shadowBlur = 8;
+          targetCtx.fillText('✆ WhatsApp +66 095 882 5573', cx, btnY + 47);
+
+          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.fillText('🛵 Fast Island Delivery in Koh Phayam', cx, boxY + 215);
+
+          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.fillStyle = '#38bdf8';
+          targetCtx.fillText('🍕 Authentic Italian Pizza & Homemade Pasta', cx, boxY + 280);
+
+          targetCtx.font = '700 22px "Inter", sans-serif';
+          targetCtx.fillStyle = '#e2e8f0';
+          targetCtx.fillText('🌴 Buffalo Bay (Ao Khao Kwai) · Koh Phayam', cx, boxY + 360);
+        } else if (brand === 'pizza') {
+          // Disegno QR Code Ufficiale LINE (Colonna Sinistra 185x185)
+          const qrSize = 185;
+          const qrX = boxX + 24;
+          const qrY = boxY + 76;
+
+          targetCtx.save();
+          targetCtx.beginPath();
+          if (typeof targetCtx.roundRect === 'function') {
+            targetCtx.roundRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20, 18);
+          } else {
+            targetCtx.rect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
+          }
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.fill();
+          targetCtx.shadowColor = 'rgba(0,0,0,0.6)';
+          targetCtx.shadowBlur = 18;
+
+          // Disegna il QR Code Ufficiale LINE
+          if (lineQrImg.complete && lineQrImg.naturalWidth > 0) {
+            targetCtx.drawImage(lineQrImg, qrX, qrY, qrSize, qrSize);
+          } else if (globalLineQrImg.complete && globalLineQrImg.naturalWidth > 0) {
+            targetCtx.drawImage(globalLineQrImg, qrX, qrY, qrSize, qrSize);
+          }
+          targetCtx.restore();
+
+          // Didascalia sotto al QR Code (Grande & Incisiva)
+          targetCtx.font = '900 18px "Inter", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.textAlign = 'center';
+          targetCtx.fillText('📲 Scan to Order', qrX + (qrSize / 2), qrY + qrSize + 30);
+          targetCtx.font = '800 17px "Prompt", sans-serif';
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.fillText('สแกนสั่งอาหาร', qrX + (qrSize / 2), qrY + qrSize + 56);
+
+          // Dati di Contatto & Ordine (Colonna Destra - Grandi & Incisivi con ampio respiro)
+          const infoX = boxX + 242;
+          targetCtx.textAlign = 'left';
+
+          targetCtx.font = '900 28px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.fillText('🌐 flowerpowerpizza.com', infoX, boxY + 120);
+
+          targetCtx.font = '800 24px "Inter", sans-serif';
+          targetCtx.fillStyle = '#10b981';
+          targetCtx.fillText('💚 LINE: @flowerpowerpizza', infoX, boxY + 178);
+
+          targetCtx.font = '800 21px "Inter", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.fillText('🎁 10% Off 1st Order · ลด 10%', infoX, boxY + 234);
+
+          targetCtx.font = '800 21px "Inter", sans-serif';
+          targetCtx.fillStyle = '#38bdf8';
+          targetCtx.fillText('👆 Link in Bio ➔ Order Now', infoX, boxY + 288);
+
+          targetCtx.font = '700 17px "Inter", sans-serif';
+          targetCtx.fillStyle = '#94a3b8';
+          targetCtx.fillText('🔥 Hot & Fresh in Thermal Box', infoX, boxY + 340);
+        } else {
+          // Modalità Villaggio (Koh Phayam): Layout Diretto, Visivo e Gigante
+          const btnW = 560;
+          const btnH = 72;
+          const btnX = cx - (btnW / 2);
+          const btnY = boxY + 76;
+
+          targetCtx.save();
+          targetCtx.beginPath();
+          if (typeof targetCtx.roundRect === 'function') {
+            targetCtx.roundRect(btnX, btnY, btnW, btnH, 20);
+          } else {
+            targetCtx.rect(btnX, btnY, btnW, btnH);
+          }
+          targetCtx.fillStyle = 'rgba(16, 185, 129, 0.22)';
+          targetCtx.fill();
+          targetCtx.lineWidth = 2.5;
+          targetCtx.strokeStyle = '#34d399';
+          targetCtx.shadowColor = 'rgba(52, 211, 153, 0.55)';
+          targetCtx.shadowBlur = 18;
+          targetCtx.stroke();
+          targetCtx.restore();
+
+          targetCtx.textAlign = 'center';
+          targetCtx.font = '900 34px "Outfit", "Inter", sans-serif';
+          targetCtx.fillStyle = '#ffffff';
+          targetCtx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+          targetCtx.shadowBlur = 8;
+          targetCtx.fillText('🌐 flowerpowervillage.com', cx, btnY + 47);
+
+          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.fillStyle = '#fbbf24';
+          targetCtx.fillText('✨ Best Rate Guaranteed Online', cx, boxY + 215);
+
+          targetCtx.font = '800 25px "Inter", sans-serif';
+          targetCtx.fillStyle = '#38bdf8';
+          targetCtx.fillText('👉 Link in Bio ➔ Book Your Stay', cx, boxY + 280);
+
+          targetCtx.font = '700 22px "Inter", sans-serif';
+          targetCtx.fillStyle = '#e2e8f0';
+          targetCtx.fillText('🌺 Eco Wooden Bungalows & Sunset Suites', cx, boxY + 360);
+        }
+
+        // Payoff Footer Card (Sicuro all'interno del box)
+        targetCtx.textAlign = 'center';
+        targetCtx.font = '800 19px "Inter", sans-serif';
+        targetCtx.fillStyle = '#f1f5f9';
+        targetCtx.fillText(
+          mode === 'R1'
+            ? '🇮🇹 Authentic Traditional Italian Pizza & Kitchen in Koh Phayam'
+            : (brand === 'pizza'
+              ? '🇮🇹 Authentic Traditional Italian Pizza in Ranong'
+              : '🌴 Tropical Island Resort & Eco Sanctuary in Koh Phayam'),
+          cx,
+          boxY + boxH - 26
+        );
+
+        targetCtx.restore();
+      }
+      targetCtx.restore();
+    };
+
     const renderFrame = (elapsed: number) => {
       if (isCancelled) return;
-      setProgress(elapsed / totalVideoDuration);
+      currentElapsedRef.current = elapsed;
+      const nextProgress = totalVideoDuration > 0 ? elapsed / totalVideoDuration : 0;
+      setProgress(prev => Math.abs(prev - nextProgress) >= 0.003 ? nextProgress : prev);
 
       const w = canvas.width;
       const h = canvas.height;
@@ -395,20 +742,6 @@ export function AutoCutLabPlayer({
         return;
       }
 
-      // 🎬 CONTINUOUS SEAMLESS FLYING CROSSFADE CON DURATE ASIMMETRICHE
-      // Calcolo timeline cumulativa per ciascuna scena
-      const sceneTimeline: Array<{ start: number; end: number; duration: number }> = [];
-      let cumTime = 0;
-      for (let i = 0; i < scenes.length; i++) {
-        const dur = scenes[i].duration || sceneDuration;
-        sceneTimeline.push({
-          start: cumTime,
-          end: cumTime + dur,
-          duration: dur
-        });
-        cumTime += dur;
-      }
-
       // Determina la scena corrente in base al tempo trascorso
       let currentIdx = 0;
       for (let i = 0; i < sceneTimeline.length; i++) {
@@ -426,8 +759,11 @@ export function AutoCutLabPlayer({
       const rawSubT = Math.min(1.0, currentAge / currentLife);
 
       // 🏎️ PUNTO DI INGRESSO AVANZATO (per le immagini successive, il moto è già avviato al 20% in regime di crociera)
+      // Durante l'Outro finale, il moto della scena di fondo si CONGELA dolcemente al 100% (zero scatti o salti visivi)
       const INCOMING_OFFSET = 0.20;
-      const subT = currentIdx === 0 ? rawSubT : (INCOMING_OFFSET + (rawSubT * (1.0 - INCOMING_OFFSET)));
+      const subT = elapsed >= outroStartTime 
+        ? 1.0 
+        : (currentIdx === 0 ? rawSubT : (INCOMING_OFFSET + (rawSubT * (1.0 - INCOMING_OFFSET))));
 
       // 1. Disegna la scena corrente a piena opacità su entrambi i canvas
       const currentImg = loadedImages[currentIdx];
@@ -467,15 +803,15 @@ export function AutoCutLabPlayer({
         }
       }
 
-      setActiveSceneIndex(dominantIdx);
+      setActiveSceneIndex(prev => prev !== dominantIdx ? dominantIdx : prev);
 
       // 3. Overlay gradiente cinematografico per contrasto tipografico (solo durante la visione dei piatti)
       if (elapsed < outroStartTime) {
         const grad = ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, 'rgba(0,0,0,0.45)');
-        grad.addColorStop(0.25, 'rgba(0,0,0,0.05)');
-        grad.addColorStop(0.65, 'rgba(0,0,0,0.25)');
-        grad.addColorStop(1, 'rgba(0,0,0,0.92)');
+        grad.addColorStop(0, 'rgba(0,0,0,0.25)');
+        grad.addColorStop(0.20, 'rgba(0,0,0,0.0)');
+        grad.addColorStop(0.80, 'rgba(0,0,0,0.0)');
+        grad.addColorStop(1, 'rgba(0,0,0,0.35)');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, w, h);
 
@@ -592,260 +928,9 @@ export function AutoCutLabPlayer({
           );
         }
 
-        // Animazione Volo & Stampo con Overshoot Bounce
-        const stampDuration = 0.65;
-        const stampProgress = Math.min(1.0, outroElapsed / stampDuration);
-        let stampScale = 1.0;
-        let stampAlpha = 1.0;
-        let stampRotate = 0;
 
-        if (stampProgress < 0.72) {
-          // Fase 1: Vola da fuori (scala 3.8x -> 0.92x, inclinazione -7° -> 0°)
-          const p = stampProgress / 0.72;
-          const easeIn = p * p;
-          stampScale = 3.8 - (easeIn * (3.8 - 0.92));
-          stampAlpha = Math.min(1.0, p * 1.5);
-          stampRotate = (-7 * (1 - p)) * (Math.PI / 180);
-        } else {
-          // Fase 2: Impatto a stampo & rimbalzo elastico assestandosi a 1.0x
-          const p = (stampProgress - 0.72) / 0.28;
-          const bounce = Math.sin(p * Math.PI);
-          stampScale = 0.92 + (p * 0.08) + (bounce * 0.10);
-          stampAlpha = 1.0;
-          stampRotate = 0;
-        }
-
-        const cx = w / 2;
-        const cy = 370; // Posizionato elegantemente nella metà superiore
-        const baseLogoSize = 210;
-
-        // Alone luminoso dorato radiale all'impatto
-        if (stampProgress >= 0.65) {
-          const glowAlpha = Math.min(0.50, (outroElapsed - 0.40) * 0.7);
-          const glow = ctx.createRadialGradient(cx, cy, 25, cx, cy, 240);
-          glow.addColorStop(0, `rgba(245, 158, 11, ${glowAlpha})`);
-          glow.addColorStop(0.55, `rgba(217, 119, 6, ${glowAlpha * 0.45})`);
-          glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-          ctx.fillStyle = glow;
-          ctx.fillRect(0, 0, w, h);
-        }
-
-        // Disegno Logo Centrato con Ombra 3D d'Impatto
-        if (logoImg.complete && logoImg.naturalWidth > 0) {
-          ctx.save();
-          ctx.translate(cx, cy);
-          ctx.rotate(stampRotate);
-          ctx.scale(stampScale, stampScale);
-          ctx.globalAlpha = stampAlpha;
-
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-          ctx.shadowBlur = 40;
-          ctx.shadowOffsetY = 16;
-
-          ctx.drawImage(logoImg, -baseLogoSize / 2, -baseLogoSize / 2, baseLogoSize, baseLogoSize);
-          ctx.restore();
-        }
-
-        // Titoli e firma del Brand (emergono in dissolvenza sotto al logo dopo la stampata)
-        if (outroElapsed > 0.65) {
-          const textAlpha = Math.min(1.0, (outroElapsed - 0.65) / 0.40);
-          ctx.save();
-          ctx.globalAlpha = textAlpha;
-          ctx.textAlign = 'center';
-
-          // Nome Brand Dorato (Grande & Incisivo)
-          ctx.font = '900 36px "Outfit", "Inter", sans-serif';
-          ctx.fillStyle = '#fbbf24';
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
-          ctx.shadowBlur = 12;
-          ctx.fillText(
-            brand === 'pizza' ? 'FLOWER POWER PIZZA' : 'FLOWER POWER VILLAGE',
-            cx,
-            cy + (baseLogoSize / 2) + 48
-          );
-
-          // Località (Grande & Chiara)
-          ctx.font = '800 22px "Inter", sans-serif';
-          ctx.fillStyle = '#ffffff';
-          ctx.shadowBlur = 8;
-          ctx.fillText(
-            brand === 'pizza' ? 'RANONG · THAILAND' : 'KOH PHAYAM · THAILAND',
-            cx,
-            cy + (baseLogoSize / 2) + 82
-          );
-
-          // Sottotitolo / Identità Ufficiale (Zero Napoletana - Solo Tradizionale Italiana)
-          ctx.font = '600 17px "Inter", sans-serif';
-          ctx.fillStyle = '#cbd5e1';
-          ctx.shadowBlur = 4;
-          ctx.fillText(
-            brand === 'pizza' ? 'Authentic Traditional Italian Pizza' : 'Tropical Island Resort & Eco Sanctuary',
-            cx,
-            cy + (baseLogoSize / 2) + 112
-          );
-
-          // 🛵 CARD FINALE AD ALTO IMPATTO (VISIVA, INCISIVA & LEGGIBILE IN 4 SECONDI)
-          const boxX = 36;
-          const boxY = cy + (baseLogoSize / 2) + 135;
-          const boxW = w - 72;
-          const boxH = 430;
-          const radius = 26;
-
-          // Sfondo scuro satinato con bordo dorato/smeraldo luminescente
-          ctx.save();
-          ctx.beginPath();
-          if (typeof ctx.roundRect === 'function') {
-            ctx.roundRect(boxX, boxY, boxW, boxH, radius);
-          } else {
-            ctx.rect(boxX, boxY, boxW, boxH);
-          }
-          ctx.fillStyle = 'rgba(11, 17, 32, 0.94)';
-          ctx.fill();
-          ctx.lineWidth = 2.5;
-          ctx.strokeStyle = brand === 'pizza' ? 'rgba(245, 158, 11, 0.65)' : 'rgba(52, 211, 153, 0.75)';
-          ctx.shadowColor = brand === 'pizza' ? 'rgba(245, 158, 11, 0.35)' : 'rgba(52, 211, 153, 0.35)';
-          ctx.shadowBlur = 20;
-          ctx.stroke();
-          ctx.restore();
-
-          // Intestazione Card (Inglese & Thailandese - Font 24px Bold)
-          ctx.font = '900 24px "Inter", sans-serif';
-          ctx.fillStyle = brand === 'pizza' ? '#fbbf24' : '#34d399';
-          ctx.textAlign = 'center';
-          ctx.fillText(
-            brand === 'pizza' 
-              ? '🛵 RANONG DELIVERY · ส่งถึงบ้าน' 
-              : '🌴 DIRECT BOOKING · จองตรงที่พัก',
-            cx,
-            boxY + 44
-          );
-
-          if (brand === 'pizza') {
-            // Disegno QR Code Ufficiale LINE (Colonna Sinistra 200x200)
-            const qrSize = 195;
-            const qrX = boxX + 24;
-            const qrY = boxY + 75;
-
-            // Cornice bianca ad alto contrasto per scansione istantanea con fotocamera
-            ctx.save();
-            ctx.beginPath();
-            if (typeof ctx.roundRect === 'function') {
-              ctx.roundRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20, 18);
-            } else {
-              ctx.rect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
-            }
-            ctx.fillStyle = '#ffffff';
-            ctx.fill();
-            ctx.shadowColor = 'rgba(0,0,0,0.6)';
-            ctx.shadowBlur = 18;
-
-            // Disegna il QR Code Ufficiale LINE
-            if (lineQrImg.complete && lineQrImg.naturalWidth > 0) {
-              ctx.drawImage(lineQrImg, qrX, qrY, qrSize, qrSize);
-            } else if (globalLineQrImg.complete && globalLineQrImg.naturalWidth > 0) {
-              ctx.drawImage(globalLineQrImg, qrX, qrY, qrSize, qrSize);
-            }
-            ctx.restore();
-
-            // Didascalia sotto al QR Code (Grande & Incisiva)
-            ctx.font = '900 17px "Inter", sans-serif';
-            ctx.fillStyle = '#fbbf24';
-            ctx.textAlign = 'center';
-            ctx.fillText('📲 Scan to Order', qrX + (qrSize / 2), qrY + qrSize + 30);
-            ctx.font = '700 16px "Inter", sans-serif';
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText('สแกนสั่งอาหาร', qrX + (qrSize / 2), qrY + qrSize + 56);
-
-            // Dati di Contatto & Ordine (Colonna Destra - Grandi & Incisivi)
-            const infoX = boxX + 252;
-            ctx.textAlign = 'left';
-
-            // Sito Web Pizzeria
-            ctx.font = '900 26px "Outfit", "Inter", sans-serif';
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText('🌐 flowerpowerpizza.com', infoX, boxY + 115);
-
-            // LINE ID Ufficiale
-            ctx.font = '800 22px "Inter", sans-serif';
-            ctx.fillStyle = '#10b981';
-            ctx.fillText('💚 LINE: @flowerpowerpizza', infoX, boxY + 168);
-
-            // Sconto Benvenuto 10% (Inglese & Thai)
-            ctx.font = '800 19px "Inter", sans-serif';
-            ctx.fillStyle = '#fbbf24';
-            ctx.fillText('🎁 10% Off 1st Order · ลด 10%', infoX, boxY + 220);
-
-            // Indicazione Link in Bio
-            ctx.font = '800 19px "Inter", sans-serif';
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillText('👆 Link in Bio ➔ Order Now', infoX, boxY + 270);
-
-            // Box Termico & Consegna
-            ctx.font = '600 16px "Inter", sans-serif';
-            ctx.fillStyle = '#94a3b8';
-            ctx.fillText('🔥 Hot & Fresh in Thermal Box', infoX, boxY + 315);
-          } else {
-            // Modalità Villaggio (Koh Phayam): Layout Diretto, Visivo e Gigante
-            const btnW = 540;
-            const btnH = 68;
-            const btnX = cx - (btnW / 2);
-            const btnY = boxY + 76;
-
-            // Bottone Sito Web con Bagliore Smeraldo
-            ctx.save();
-            ctx.beginPath();
-            if (typeof ctx.roundRect === 'function') {
-              ctx.roundRect(btnX, btnY, btnW, btnH, 20);
-            } else {
-              ctx.rect(btnX, btnY, btnW, btnH);
-            }
-            ctx.fillStyle = 'rgba(16, 185, 129, 0.22)';
-            ctx.fill();
-            ctx.lineWidth = 2.5;
-            ctx.strokeStyle = '#34d399';
-            ctx.shadowColor = 'rgba(52, 211, 153, 0.55)';
-            ctx.shadowBlur = 18;
-            ctx.stroke();
-            ctx.restore();
-
-            // Sito Web GIGANTE al centro del pulsante
-            ctx.textAlign = 'center';
-            ctx.font = '900 32px "Outfit", "Inter", sans-serif';
-            ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-            ctx.shadowBlur = 8;
-            ctx.fillText('🌐 flowerpowervillage.com', cx, btnY + 45);
-
-            // Best Rate Guaranteed Online (senza Octorate, grande in oro)
-            ctx.font = '800 23px "Inter", sans-serif';
-            ctx.fillStyle = '#fbbf24';
-            ctx.fillText('✨ Best Rate Guaranteed Online', cx, boxY + 205);
-
-            // Link in Bio (in azzurro cielo, visibile subito)
-            ctx.font = '800 23px "Inter", sans-serif';
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillText('👉 Link in Bio ➔ Book Your Stay', cx, boxY + 265);
-
-            // Sottotitolo Identità Villaggio
-            ctx.font = '700 20px "Inter", sans-serif';
-            ctx.fillStyle = '#e2e8f0';
-            ctx.fillText('🌺 Eco Wooden Bungalows & Sunset Suites', cx, boxY + 340);
-          }
-
-          // Payoff Footer Card (Visibile e Nitido)
-          ctx.textAlign = 'center';
-          ctx.font = '700 18px "Inter", sans-serif';
-          ctx.fillStyle = '#f1f5f9';
-          ctx.fillText(
-            brand === 'pizza'
-              ? '🇮🇹 Authentic Traditional Italian Pizza in Ranong'
-              : '🌴 Tropical Island Resort & Eco Sanctuary in Koh Phayam',
-            cx,
-            boxY + boxH - 24
-          );
-
-          ctx.restore();
-        }
+        // Rendering Outro 9:16 ufficiale universale
+        drawFullOutroToContext(ctx, w, h, outroElapsed);
       }
     };
 
@@ -884,6 +969,8 @@ export function AutoCutLabPlayer({
       if (ended) {
         setIsEnded(true);
         setIsPlaying(false);
+        currentElapsedRef.current = totalVideoDuration;
+        setProgress(1.0);
         if (audioRef.current) {
           audioRef.current.pause();
           audioRef.current.currentTime = 0;
@@ -899,17 +986,1198 @@ export function AutoCutLabPlayer({
       }
     };
 
+    // 🎨 Helper universale per disegnare gli overlay 9:16 esattamente con le stesse proporzioni della preview (s = w / 395)
+    const renderOverlaysToContext = (
+      oCtx: CanvasRenderingContext2D,
+      w: number,
+      h: number,
+      scene: AutoCutScene,
+      isOutro: boolean,
+      tElapsed: number = 0
+    ) => {
+      if (isOutro || !scene) return;
+      const s = w / 395; // Proporzione fedele 1:1 rispetto alla preview del container reale a 395px
+
+      // 1. Top Vignette Fade ultra-morbido fedele 1:1 all'anteprima DOM (h-60 = 240px proporzionato: 240 * s)
+      const topFadeH = 240 * s;
+      const topGrad = oCtx.createLinearGradient(0, 0, 0, topFadeH);
+      topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.48)');
+      topGrad.addColorStop(0.40, 'rgba(0, 0, 0, 0.22)');
+      topGrad.addColorStop(0.75, 'rgba(0, 0, 0, 0.08)');
+      topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      oCtx.fillStyle = topGrad;
+      oCtx.fillRect(0, 0, w, topFadeH);
+
+      // 2. Bottom Vignette Fade soffice (massima purezza, zero neri bruciati o colori finti)
+      const btmFadeH = 135 * s;
+      const btmGrad = oCtx.createLinearGradient(0, h - btmFadeH, 0, h);
+      btmGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      btmGrad.addColorStop(0.40, 'rgba(0, 0, 0, 0.15)');
+      btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.40)');
+      oCtx.fillStyle = btmGrad;
+      oCtx.fillRect(0, h - btmFadeH, w, btmFadeH);
+
+      // 3. Header Top: Logo a sinistra (+20%) + Testi a destra (SEMPRE CENTRATI SULL'ASSE VERTICALE IN TUTTI I FORMATI)
+      const logoSize = 91 * s; // Ingrandito del +20% (era 76 * s)
+      const logoY = 24 * s;    // Ancoraggio superiore
+      const gap = 12 * s;
+      const fpFontSize = Math.round(27.5 * s);
+
+      // Calcolo larghezza colonna testi per centratura perfetta sull'asse verticale in qualsiasi formato
+      oCtx.save();
+      oCtx.font = `900 ${fpFontSize}px "Outfit", sans-serif`;
+      const fpW = oCtx.measureText('FLOWER POWER').width;
+      let maxSubW = fpW;
+
+      if (mode === 'R1') {
+        oCtx.font = `900 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
+        const phoneW = (12.65 * 4 + 11) * s + oCtx.measureText('+66 095 882 5573').width;
+        maxSubW = Math.max(fpW, phoneW);
+      } else if (mode === 'DS') {
+        oCtx.font = `900 ${Math.round(23 * s)}px "Prompt", "Kanit", sans-serif`;
+        const dsThai = scene.isLiveShowcase ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน';
+        const dsW = oCtx.measureText(dsThai).width;
+        maxSubW = Math.max(fpW, dsW);
+      } else if (brand === 'pizza') {
+        oCtx.font = `900 ${Math.round(25.3 * s)}px "Prompt", "Kanit", sans-serif`;
+        const thaiW = oCtx.measureText('ส่งถึงบ้าน').width;
+        oCtx.font = `600 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
+        const siteW = oCtx.measureText('flowerpowerpizza.com').width;
+        oCtx.font = `900 ${Math.round(22 * s)}px "Outfit", "Inter", sans-serif`;
+        const delivW = oCtx.measureText('RANONG DELIVERY').width;
+        maxSubW = Math.max(fpW, thaiW, siteW, delivW);
+      } else {
+        // Villaggio V1-V3, LM1
+        oCtx.font = `900 ${Math.round(22 * s)}px "Prompt", "Kanit", sans-serif`;
+        const thaiW = oCtx.measureText(mode === 'LM1' ? 'ห้องว่างวันนี้' : 'เกาะพยาม').width;
+        oCtx.font = `600 ${Math.round(16 * s)}px "Outfit", sans-serif`;
+        const siteW = oCtx.measureText('flowerpowervillage.com').width;
+        maxSubW = Math.max(fpW, thaiW, siteW);
+      }
+      oCtx.restore();
+
+      const textColW = Math.max(fpW, maxSubW);
+      const totalBlockW = logoSize + gap + textColW;
+      const logoX = Math.round((w - totalBlockW) / 2);
+      const tx = logoX + logoSize + gap;
+
+      if (logoImg.complete && logoImg.naturalWidth > 0) {
+        oCtx.save();
+        oCtx.beginPath();
+        oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+        oCtx.closePath();
+        oCtx.clip();
+        oCtx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+        oCtx.restore();
+
+        oCtx.save();
+        oCtx.beginPath();
+        oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
+        oCtx.lineWidth = 2.5 * s;
+        oCtx.strokeStyle = '#f59e0b';
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        oCtx.shadowBlur = 12 * s;
+        oCtx.stroke();
+        oCtx.restore();
+      }
+
+      // Blocco Testi Header (a destra del logo, sempre centrato)
+      let ty = logoY + (2 * s);
+
+      oCtx.save();
+      oCtx.textAlign = 'left';
+      oCtx.textBaseline = 'top';
+      oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+      oCtx.shadowBlur = 14 * s;
+      oCtx.shadowOffsetY = 3 * s;
+
+      oCtx.font = `900 ${fpFontSize}px "Outfit", sans-serif`;
+      oCtx.fillStyle = '#ffffff';
+      oCtx.fillText('FLOWER POWER', tx, ty);
+      ty += fpFontSize + (4 * s);
+
+      // Riga 2: Village / Pizza (+10% ulteriore: 26.0 * s con font Outfit italic 500)
+      const subFontSize = Math.round(26.0 * s);
+      oCtx.font = `italic 500 ${subFontSize}px "Outfit", sans-serif`;
+      oCtx.fillStyle = (brand === 'pizza' && mode !== 'R1') ? '#f87171' : '#34d399';
+      oCtx.fillText((brand === 'pizza' && mode !== 'R1') ? 'Pizza' : 'Village', tx, ty);
+      ty += subFontSize + (5 * s);
+
+      // Riga 3-6: R1 specifico (Delivery Koh Phayam) o Pizzeria / Villaggio
+      if (mode === 'R1') {
+        ty += 15 * s; // distacco da Village (+5px totali)
+
+        // DELIVERY in rosso con contorno bianco netto E PULSAZIONE SINUSOIDALE DINAMICA! (+10%)
+        const pulse = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.4));
+        oCtx.save();
+        oCtx.globalAlpha = pulse;
+        const delivFontSize = Math.round(24.2 * s);
+        oCtx.font = `900 ${delivFontSize}px "Outfit", sans-serif`;
+        oCtx.lineWidth = 4.4 * s;
+        oCtx.strokeStyle = '#ffffff';
+        oCtx.lineJoin = 'round';
+        oCtx.strokeText('DELIVERY', tx, ty);
+        oCtx.fillStyle = '#ef4444';
+        oCtx.fillText('DELIVERY', tx, ty);
+        oCtx.restore();
+        ty += delivFontSize + (7 * s); // allontanato di 2 pixel netti
+
+        // เดลิเวอรี่ in bianco Prompt bold (+10%)
+        oCtx.font = `800 ${Math.round(18.7 * s)}px "Prompt", "Kanit", sans-serif`;
+        oCtx.fillStyle = '#ffffff';
+        oCtx.fillText('เดลิเวอรี่', tx, ty);
+        ty += 20 * s + (6 * s);
+
+        // WhatsApp Icon circle (+10%) + LINE Icon circle (+10%) + Phone (+10%)
+        const iconR = 12.65 * s; // Ingrandito del +10%
+        let curIconX = tx + iconR;
+        const iconCy = ty + iconR;
+
+        // 1. WhatsApp circle
+        oCtx.save();
+        oCtx.fillStyle = '#25D366';
+        oCtx.beginPath();
+        oCtx.arc(curIconX, iconCy, iconR, 0, Math.PI * 2);
+        oCtx.fill();
+
+        if (waPhonePath2D) {
+          oCtx.save();
+          const waScale = (iconR * 1.35) / 24;
+          oCtx.translate(curIconX - (12 * waScale), iconCy - (12 * waScale));
+          oCtx.scale(waScale, waScale);
+          oCtx.fillStyle = '#ffffff';
+          oCtx.fill(waPhonePath2D);
+          oCtx.restore();
+        }
+        oCtx.restore();
+
+        // 2. LINE circle
+        curIconX += (iconR * 2) + (5 * s);
+        oCtx.save();
+        oCtx.fillStyle = '#06C755';
+        oCtx.beginPath();
+        oCtx.arc(curIconX, iconCy, iconR, 0, Math.PI * 2);
+        oCtx.fill();
+
+        if (lineIconPath2D) {
+          oCtx.save();
+          const lineScale = (iconR * 1.35) / 24;
+          oCtx.translate(curIconX - (12 * lineScale), iconCy - (12 * lineScale));
+          oCtx.scale(lineScale, lineScale);
+          oCtx.fillStyle = '#ffffff';
+          oCtx.fill(lineIconPath2D);
+          oCtx.restore();
+        }
+        oCtx.restore();
+
+        // Numero con font Outfit 900 (+10%)
+        oCtx.font = `900 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
+        oCtx.fillStyle = '#25D366';
+        oCtx.fillText('+66 095 882 5573', curIconX + iconR + (6 * s), ty + (2 * s));
+        ty += (iconR * 2) + (10 * s); // Distacco perfetto: Koh Phayam sotto alle icone e al numero (zero accavallamento)
+
+        // Koh Phayam con font Outfit 700 (+10%)
+        oCtx.font = `700 ${Math.round(16 * s)}px "Outfit", sans-serif`;
+        oCtx.fillStyle = '#ffffff';
+        oCtx.fillText('Koh Phayam', tx, ty);
+      } else if (mode === 'DS') {
+        // Formato DS Daily Special: live showcase distanziato di 5px dalla parola Pizza
+        ty += 5 * s;
+        const isLive = !!scene.isLiveShowcase;
+        const dsBadgeText = isLive ? 'LIVE SHOWCASE' : 'CHEF SPECIALS';
+        const dsBadgeFontSize = Math.round(14.5 * s);
+        oCtx.font = `900 ${dsBadgeFontSize}px "Outfit", sans-serif`;
+        const dsBadgeW = oCtx.measureText(dsBadgeText).width + (18 * s);
+        const dsBadgeH = 22 * s;
+        oCtx.save();
+        oCtx.fillStyle = isLive ? '#e11d48' : '#4f46e5';
+        if (typeof oCtx.roundRect === 'function') {
+          oCtx.roundRect(tx, ty, dsBadgeW, dsBadgeH, 6 * s);
+        } else {
+          oCtx.rect(tx, ty, dsBadgeW, dsBadgeH);
+        }
+        oCtx.fill();
+        oCtx.lineWidth = 1.5 * s;
+        oCtx.strokeStyle = '#ffffff';
+        oCtx.stroke();
+        oCtx.fillStyle = '#ffffff';
+        oCtx.textAlign = 'center';
+        oCtx.fillText(dsBadgeText, tx + (dsBadgeW / 2), ty + (4 * s));
+        oCtx.restore();
+        ty += dsBadgeH + (5 * s); // e fast delivery con la sua traduzione in Thai altri 5px più in basso
+
+        // Scritta Thai (+20%)
+        const dsThaiText = isLive ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน';
+        oCtx.font = `900 ${Math.round(23 * s)}px "Prompt", "Kanit", sans-serif`;
+        oCtx.fillStyle = '#fcd34d';
+        oCtx.fillText(dsThaiText, tx, ty);
+        ty += 23 * s;
+
+        // FAST DELIVERY (+20%)
+        oCtx.font = `900 ${Math.round(16.5 * s)}px "Outfit", sans-serif`;
+        oCtx.fillStyle = '#34d399';
+        oCtx.fillText('FAST DELIVERY', tx, ty);
+      } else if (brand === 'pizza') {
+        // P1, P2, P3: blocco ingrandito del +10%, Ranong Delivery + Thai distanziati di +4px da Pizza, website distanziato di +4px da Thai
+        ty += 14 * s; // +4px di distacco in blocco dalla parola Pizza (era 10 * s)
+        oCtx.font = `900 ${Math.round(22 * s)}px "Outfit", "Inter", sans-serif`; // +10% (era 20 * s)
+        oCtx.fillStyle = '#fcd34d';
+        oCtx.fillText('RANONG DELIVERY', tx, ty);
+        ty += 24 * s;
+        oCtx.font = `900 ${Math.round(25.3 * s)}px "Prompt", "Kanit", sans-serif`; // +10% (era 23 * s)
+        oCtx.fillStyle = '#fef08a';
+        oCtx.fillText('ส่งถึงบ้าน', tx, ty);
+        ty += 28 * s; // +4px di distacco in blocco da ส่งถึงบ้าน (era 22 * s)
+        oCtx.font = `600 ${Math.round(17.6 * s)}px "Outfit", "Inter", sans-serif`; // +10% (era 16 * s)
+        oCtx.fillStyle = 'rgba(255,255,255,0.95)';
+        oCtx.fillText('flowerpowerpizza.com', tx, ty);
+        ty += 20 * s;
+        oCtx.font = `700 ${Math.round(16.5 * s)}px "Inter", sans-serif`; // +10% (era 15 * s)
+        oCtx.fillStyle = '#fcd34d';
+        oCtx.fillText('Link in Bio', tx, ty);
+      } else {
+        // Formato Villaggio Regular (V1, V2, V3) e LM1
+        // +20%, allontanato di 2 pixel netti dalla parola Village (12 * s invece di 10 * s)
+        ty += 12 * s;
+        oCtx.font = `900 ${Math.round(20 * s)}px "Outfit", "Inter", sans-serif`;
+        oCtx.fillStyle = '#34d399';
+        oCtx.fillText(mode === 'LM1' ? 'LAST MINUTE' : 'DIRECT BOOKING', tx, ty);
+        ty += 22 * s;
+        oCtx.font = `900 ${Math.round(22 * s)}px "Prompt", "Kanit", sans-serif`;
+        oCtx.fillStyle = '#fef08a';
+        oCtx.fillText(mode === 'LM1' ? 'ห้องว่างวันนี้' : 'เกาะพยาม', tx, ty);
+        ty += 21 * s;
+        oCtx.font = `600 ${Math.round(16 * s)}px "Outfit", "Inter", sans-serif`;
+        oCtx.fillStyle = 'rgba(255,255,255,0.95)';
+        oCtx.fillText('flowerpowervillage.com', tx, ty);
+        ty += 18 * s;
+        oCtx.font = `700 ${Math.round(15 * s)}px "Inter", sans-serif`;
+        oCtx.fillStyle = '#38bdf8';
+        oCtx.fillText('Link in Bio', tx, ty);
+      }
+      oCtx.restore();
+
+      // 4. Card Bassa Proporzionata (Categoria, Titoli Bilingui, Prezzo) - ingrandita del 10%
+      // 4. Card Bassa Proporzionata (Categoria Bilingue Thai/Eng, Titoli Ingranditi +20%, Prezzo, Alzata di +20px)
+      if (brand === 'pizza' || mode === 'R1') {
+        const bx = 25 * s; // Distanziato 25 pixel dal bordo sinistro
+        const hasBadge = !!scene.badgeCategory;
+        const thaiLines = (scene.titlePrimary || '').split('\n').filter(Boolean);
+        const engLines = (scene.titleSecondary || '').split('\n').filter(Boolean);
+        const hasPrice = !!scene.priceLabel;
+
+        // Auto-scaling del font Thai per garantire la regola assoluta: MAI andare a capo a 3 righe
+        const maxThaiLen = Math.max(...thaiLines.map(l => l.length), 0);
+        const thaiFontSize = maxThaiLen > 24
+          ? Math.round(21.5 * s)
+          : maxThaiLen > 20
+          ? Math.round(23.5 * s)
+          : Math.round(27.6 * s);
+        const thaiLineStep = maxThaiLen > 24
+          ? (27 * s)
+          : maxThaiLen > 20
+          ? (30 * s)
+          : (35 * s);
+
+        // Categoria bilingue (Thai sopra a 17.5*s, Inglese sotto a 14*s): altezza 39*s
+        const badgeH = hasBadge ? (39 * s) : 0;
+        const thaiH = thaiLines.length * thaiLineStep;
+        const engH = engLines.length * (24 * s);   // Interlinea +20% (era 20*s)
+        const priceH = (hasPrice || scene.pizzaSizes) ? (43 * s + 20 * s) : 0; // Box Prezzo +20% (distacco alzato di +10px da 10*s a 20*s)
+        const totalCardH = badgeH + thaiH + engH + priceH;
+
+        // Alzata di +20px dal bordo inferiore dello schermo: da 31*s a 51*s
+        let by = h - (51 * s) - totalCardH;
+
+        oCtx.save();
+        oCtx.textAlign = 'left';
+        oCtx.textBaseline = 'top';
+
+        // 🏷️ Categoria del Cibo Bilingue (THAI SOPRA, INGLESE SOTTO A CAPO - 100% SEPARATE)
+        if (hasBadge) {
+          let catClean = (scene.badgeCategory || '').replace(/^[✦⭐✨\s*]+/, '').trim();
+          if (mode === 'DS') {
+            catClean = scene.isLiveShowcase ? 'FRESH IN SHOWCASE TODAY' : 'CHEF DAILY SPECIAL';
+          } else {
+            if (catClean.includes(' · ')) {
+              const parts = catClean.split(' · ');
+              const enPart = parts.find(p => !/[\u0E00-\u0E7F]/.test(p));
+              if (enPart) catClean = enPart.trim();
+            }
+            catClean = catClean.replace(/[\u0E00-\u0E7F]/g, '').trim().toUpperCase();
+          }
+
+          let catThai = scene.badgeCategoryTh || getCategoryThaiName(scene.badgeCategory);
+          if (mode === 'DS') {
+            catThai = scene.isLiveShowcase ? 'สดใหม่ในตู้โชว์วันนี้' : 'เมนูพิเศษวันนี้';
+          } else {
+            if (catThai.includes(' · ')) {
+              const parts = catThai.split(' · ');
+              const thPart = parts.find(p => /[\u0E00-\u0E7F]/.test(p));
+              if (thPart) catThai = thPart.trim();
+            }
+          }
+
+          const diamondFont = `900 ${Math.round(17.5 * s)}px "Prompt", "Kanit", sans-serif`;
+          const diamondColor = '#dc2626'; // Rosso intenso e vivo
+
+          // Riga 1: Thai sopra con simbolo ✦ rosso intenso
+          oCtx.font = diamondFont;
+          oCtx.fillStyle = diamondColor;
+          oCtx.fillText('✦', bx, by);
+          oCtx.font = `900 ${Math.round(17.5 * s)}px "Prompt", "Kanit", sans-serif`;
+          oCtx.fillStyle = '#fcd34d'; // Ambra caldo leggibile
+          oCtx.fillText(catThai, bx + (18 * s), by);
+          by += 21 * s;
+
+          // Riga 2: Inglese sotto a capo con simbolo ✦ rosso intenso (stessa identica dimensione di riga 1)
+          oCtx.font = diamondFont;
+          oCtx.fillStyle = diamondColor;
+          oCtx.fillText('✦', bx, by);
+          oCtx.font = `900 ${Math.round(14 * s)}px "Outfit", "Inter", sans-serif`;
+          oCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+          oCtx.fillText(catClean, bx + (18 * s), by);
+          by += 18 * s;
+        }
+
+        // Titolo Thai sopra in grande e marcato con contorno nero solido e ombra profonda (Auto-scale a 2 righe max)
+        if (thaiLines.length > 0) {
+          oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
+          thaiLines.forEach(l => {
+            oCtx.save();
+            oCtx.strokeStyle = 'rgba(0, 0, 0, 0.98)';
+            oCtx.lineWidth = 4.8 * s;
+            oCtx.lineJoin = 'round';
+            oCtx.shadowColor = '#000000';
+            oCtx.shadowBlur = 14 * s;
+            oCtx.shadowOffsetY = 2.5 * s;
+            oCtx.strokeText(l, bx, by);
+            oCtx.restore();
+
+            oCtx.fillStyle = '#fcd34d';
+            oCtx.fillText(l, bx, by);
+            by += thaiLineStep;
+          });
+        }
+
+        // Titolo Inglese sotto (+20%: 19.2*s) con contorno nero solido e ombra profonda
+        if (engLines.length > 0) {
+          oCtx.font = `800 ${Math.round(19.2 * s)}px "Outfit", "Inter", sans-serif`;
+          engLines.forEach(l => {
+            oCtx.save();
+            oCtx.strokeStyle = 'rgba(0, 0, 0, 0.98)';
+            oCtx.lineWidth = 4.2 * s;
+            oCtx.lineJoin = 'round';
+            oCtx.shadowColor = '#000000';
+            oCtx.shadowBlur = 12 * s;
+            oCtx.shadowOffsetY = 2.5 * s;
+            oCtx.strokeText(l, bx, by);
+            oCtx.restore();
+
+            oCtx.fillStyle = 'rgba(255, 255, 255, 0.98)';
+            oCtx.fillText(l, bx, by);
+            by += 24 * s;
+          });
+        }
+
+        // Box Prezzo (+20%, a tutta area con bordo bianco 2px)
+        if (scene.pizzaSizes && mode !== 'R1') {
+          by += 20 * s; // Distacco alzato di +10px (era 10*s)
+          const p8 = `${scene.pizzaSizes.size8Price}฿`;
+          const p12 = `${scene.pizzaSizes.size12Price}฿`;
+
+          const drawPizzaBadge = (label: string, priceStr: string, startX: number) => {
+            oCtx.font = `900 ${Math.round(25.2 * s)}px "Kanit", sans-serif`;
+            const pW = oCtx.measureText(priceStr).width;
+            const bW = (38 * s) + pW + (16 * s);
+            const bH = 38.5 * s;
+            const bRad = 7 * s;
+
+            // Ombra solida nera 2px 2px
+            oCtx.fillStyle = '#000000';
+            oCtx.beginPath();
+            if (typeof oCtx.roundRect === 'function') {
+              oCtx.roundRect(startX + 2 * s, by + 2 * s, bW, bH, bRad);
+            } else {
+              oCtx.rect(startX + 2 * s, by + 2 * s, bW, bH);
+            }
+            oCtx.fill();
+
+            // Sfondo giallo #FFE500
+            oCtx.fillStyle = '#FFE500';
+            oCtx.beginPath();
+            if (typeof oCtx.roundRect === 'function') {
+              oCtx.roundRect(startX, by, bW, bH, bRad);
+            } else {
+              oCtx.rect(startX, by, bW, bH);
+            }
+            oCtx.fill();
+
+            // Bordo nero 2px
+            oCtx.strokeStyle = '#000000';
+            oCtx.lineWidth = 2 * s;
+            oCtx.stroke();
+
+            // Badge nero per la taglia (8" o 12")
+            oCtx.fillStyle = '#000000';
+            const tagW = 24 * s;
+            const tagH = 21 * s;
+            if (typeof oCtx.roundRect === 'function') {
+              oCtx.roundRect(startX + 6 * s, by + (8.5 * s), tagW, tagH, 3.5 * s);
+            } else {
+              oCtx.rect(startX + 6 * s, by + (8.5 * s), tagW, tagH);
+            }
+            oCtx.fill();
+
+            // Testo taglia bianco
+            oCtx.font = `900 ${Math.round(15.5 * s)}px "Kanit", sans-serif`;
+            oCtx.fillStyle = '#ffffff';
+            oCtx.textAlign = 'center';
+            oCtx.textBaseline = 'middle';
+            oCtx.fillText(label, startX + 6 * s + (tagW / 2), by + (8.5 * s) + (tagH / 2) + Math.round(1 * s));
+
+            // Testo prezzo centrato con contorno bianco allineato
+            oCtx.font = `900 ${Math.round(25.2 * s)}px "Kanit", sans-serif`;
+            const priceCx = startX + 6 * s + tagW + 5 * s + (pW / 2);
+            const priceCy = by + (bH / 2) + Math.round(1.5 * s);
+            oCtx.strokeStyle = '#ffffff';
+            oCtx.lineWidth = 4 * s;
+            oCtx.lineJoin = 'round';
+            oCtx.strokeText(priceStr, priceCx, priceCy);
+
+            oCtx.fillStyle = '#000000';
+            oCtx.shadowColor = 'transparent';
+            oCtx.shadowBlur = 0;
+            oCtx.fillText(priceStr, priceCx, priceCy);
+            return bW;
+          };
+
+          oCtx.save();
+          const w8 = drawPizzaBadge('8"', p8, bx);
+          drawPizzaBadge('12"', p12, bx + w8 + (8 * s));
+          oCtx.restore();
+        } else if (hasPrice) {
+          by += 20 * s; // Distacco alzato di +10px (era 10*s)
+          const priceClean = scene.priceLabel!.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
+          oCtx.font = `900 ${Math.round(31.8 * s)}px "Kanit", sans-serif`;
+          const pTextW = oCtx.measureText(priceClean).width;
+          const boxPadX = 14 * s;
+          const boxW = pTextW + (boxPadX * 2);
+          const boxH = 43 * s;
+          const boxRadius = 8 * s;
+
+          oCtx.save();
+          // Ombra solida nera 2px 2px (come shadow-[2px_2px_0px_#000000] in DOM)
+          oCtx.fillStyle = '#000000';
+          oCtx.beginPath();
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(bx + 2 * s, by + 2 * s, boxW, boxH, boxRadius);
+          } else {
+            oCtx.rect(bx + 2 * s, by + 2 * s, boxW, boxH);
+          }
+          oCtx.fill();
+
+          // Sfondo giallo #FFE500
+          oCtx.fillStyle = '#FFE500';
+          oCtx.beginPath();
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(bx, by, boxW, boxH, boxRadius);
+          } else {
+            oCtx.rect(bx, by, boxW, boxH);
+          }
+          oCtx.fill();
+
+          // Bordo nero 2px
+          oCtx.strokeStyle = '#000000';
+          oCtx.lineWidth = 2 * s;
+          oCtx.stroke();
+
+          // Allineamento testo: CENTRATO verticalmente e orizzontalmente
+          oCtx.textAlign = 'center';
+          oCtx.textBaseline = 'middle';
+          const textCx = bx + (boxW / 2);
+          const textCy = by + (boxH / 2) + Math.round(2.5 * s);
+
+          // Bordo esterno bianco di 4.2px centrato perfettamente
+          oCtx.lineWidth = 4.2 * s;
+          oCtx.strokeStyle = '#ffffff';
+          oCtx.lineJoin = 'round';
+          oCtx.strokeText(priceClean, textCx, textCy);
+
+          // Testo cifra in nero a tutta ampiezza centrato identico
+          oCtx.fillStyle = '#000000';
+          oCtx.shadowColor = 'transparent';
+          oCtx.shadowBlur = 0;
+          oCtx.fillText(priceClean, textCx, textCy);
+          oCtx.restore();
+        }
+
+        oCtx.restore();
+      } else if (brand === 'village') {
+        // Modalità Alloggi Villaggio (V1, V2, V3, LM1) - Ingrandita del +20% e alzata di +20px
+        const bx = 16 * s;
+        const hasBadge = !!scene.badgeCategory;
+        const badgeH = hasBadge ? 24 * s : 0;
+        const titleH = 29 * s; // +20%
+        const subtitleH = scene.lodgingSubtitle ? 22 * s : 0; // +20%
+        const thaiH = scene.titlePrimary ? 24 * s : 0;
+        const hasPrice = !!scene.priceLabel;
+        const priceH = hasPrice ? 38 * s : 0;
+        const totalCardH = badgeH + titleH + subtitleH + thaiH + priceH + (14 * s);
+
+        // Alzata dal basso di +20px: da 36*s a 56*s
+        let by = h - (56 * s) - totalCardH;
+
+        oCtx.save();
+        oCtx.textAlign = 'left';
+        oCtx.textBaseline = 'top';
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        oCtx.shadowBlur = 10 * s;
+
+        if (hasBadge) {
+          oCtx.font = `800 ${Math.round(13.5 * s)}px "Inter", sans-serif`;
+          oCtx.fillStyle = '#34d399';
+          oCtx.fillText(scene.badgeCategory!.toUpperCase(), bx, by);
+          by += 24 * s;
+        }
+
+        const lTitle = scene.lodgingTitle || scene.titlePrimary || '';
+        if (lTitle) {
+          oCtx.font = `900 ${Math.round(23 * s)}px "Outfit", "Inter", sans-serif`;
+          oCtx.fillStyle = '#ffffff';
+          oCtx.fillText(lTitle, bx, by);
+          by += 29 * s;
+        }
+
+        if (scene.lodgingSubtitle) {
+          oCtx.font = `700 ${Math.round(15.6 * s)}px "Inter", sans-serif`;
+          oCtx.fillStyle = '#fcd34d';
+          oCtx.fillText(scene.lodgingSubtitle, bx, by);
+          by += 22 * s;
+        }
+
+        if (hasPrice) {
+          by += 5 * s;
+          const priceClean = scene.priceLabel!.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
+          oCtx.font = `900 ${Math.round(26.4 * s)}px "Kanit", sans-serif`;
+          const pTextW = oCtx.measureText(priceClean).width;
+          const boxPadX = 10 * s;
+          const boxW = pTextW + (boxPadX * 2);
+          const boxH = 34 * s;
+
+          oCtx.save();
+          oCtx.fillStyle = '#FFE500';
+          if (typeof oCtx.roundRect === 'function') {
+            oCtx.roundRect(bx, by, boxW, boxH, 6 * s);
+          } else {
+            oCtx.rect(bx, by, boxW, boxH);
+          }
+          oCtx.fill();
+
+          // Bordo esterno bianco intorno al font del prezzo e Baht
+          oCtx.lineWidth = 4.0 * s;
+          oCtx.strokeStyle = '#ffffff';
+          oCtx.lineJoin = 'round';
+          oCtx.strokeText(priceClean, bx + boxPadX, by + (boxH / 2));
+
+          oCtx.fillStyle = '#000000';
+          oCtx.textBaseline = 'middle';
+          oCtx.fillText(priceClean, bx + boxPadX, by + (boxH / 2));
+          oCtx.restore();
+        }
+
+        oCtx.restore();
+      }
+    };
+
+    // Espone l'esportatore del fotogramma composito 9:16 e del VIDEO MP4 Full HD (1080x1920)
+    if (typeof window !== 'undefined') {
+      (window as any).__autoCutGetCanvas = () => {
+        const c = canvasRef.current;
+        const off = document.createElement('canvas');
+        off.width = 1080;
+        off.height = 1920;
+        const offCtx = off.getContext('2d');
+        if (!offCtx) return c;
+
+        const currIdx = activeSceneIndex >= 0 && activeSceneIndex < scenes.length ? activeSceneIndex : 0;
+        const currScene = scenes[currIdx] || scenes[0];
+        const currImg = loadedImages[currIdx] || loadedImages[0];
+
+        // 1. Copia il frame video corrente (o disegna direttamente se disponibile)
+        if (c && c.width > 0 && c.height > 0) {
+          offCtx.drawImage(c, 0, 0, 1080, 1920);
+        } else if (currImg && currImg.complete && currImg.naturalWidth > 0) {
+          drawSceneToCanvas(off, offCtx, currImg, currScene, 0.5, 1.0, false);
+        }
+
+        // 2. Disegna gli overlay con proporzioni perfette 1:1 e font ufficiali
+        if (currScene) {
+          renderOverlaysToContext(offCtx, 1080, 1920, currScene, false);
+        }
+
+        return off;
+      };
+
+      // 🎬 Generatore Video MP4 Full HD con MediaRecorder a 30fps con Audio Muxato, Font Originali e Outro Ufficiale Completo
+      (window as any).__autoCutGetVideo = async (onProgress?: (pct: number, stepIndex?: number, stepLabel?: string) => void): Promise<string | null> => {
+        const c = canvasRef.current;
+        if (!c) return null;
+
+        if (onProgress) onProgress(3, 0, 'Inizializzazione motore video Full HD 1080x1920...');
+
+        // Assicura che tutti i web font ufficiali (Outfit, Prompt, Kanit, IBM Plex Sans Thai, Inter) siano scaricati e pronti
+        if (typeof document !== 'undefined' && document.fonts) {
+          if (onProgress) onProgress(18, 1, 'Verifica e caricamento web font ufficiali (Outfit, Kanit, Prompt)...');
+          try {
+            await document.fonts.ready;
+          } catch (e) {
+            console.warn('Font loading await error:', e);
+          }
+        }
+
+        const off = document.createElement('canvas');
+        off.width = 1080;
+        off.height = 1920;
+        off.style.position = 'fixed';
+        off.style.left = '0px';
+        off.style.top = '0px';
+        off.style.width = '1080px';
+        off.style.height = '1920px';
+        off.style.zIndex = '-99999';
+        off.style.opacity = '0.01';
+        off.style.pointerEvents = 'none';
+        if (typeof document !== 'undefined' && document.body) {
+          document.body.appendChild(off);
+        }
+
+        const cleanupOff = () => {
+          if (off && off.parentNode) {
+            try { off.parentNode.removeChild(off); } catch {}
+          }
+        };
+
+        const offCtx = off.getContext('2d');
+        if (!offCtx) {
+          cleanupOff();
+          return null;
+        }
+        offCtx.imageSmoothingEnabled = true;
+        offCtx.imageSmoothingQuality = 'high';
+
+        // 🎨 Funzione di disegno fotogramma universale (100% identica alla preview del player)
+        const renderFrameToOffscreen = (tElapsed: number) => {
+          let curIdx = 0;
+          for (let i = 0; i < sceneTimeline.length; i++) {
+            if (tElapsed >= sceneTimeline[i].start && (tElapsed < sceneTimeline[i].end || i === sceneTimeline.length - 1)) {
+              curIdx = i;
+              break;
+            }
+          }
+
+          const curTiming = sceneTimeline[curIdx] || { start: 0, end: sceneDuration, duration: sceneDuration };
+          const effDissolve = Math.min(0.65, curTiming.duration * 0.28);
+          const curBirth = curIdx === 0 ? 0 : (curTiming.start - effDissolve);
+          const curLife = curIdx === 0 ? curTiming.duration : (curTiming.duration + effDissolve);
+          const curAge = Math.max(0, tElapsed - curBirth);
+          const rawSubT = Math.min(1.0, curAge / curLife);
+          const INCOMING_OFFSET = 0.20;
+
+          // Durante l'Outro finale, il moto della scena di fondo si CONGELA a 1.0 (zero scatti, zero modulo!)
+          const subT = tElapsed >= outroStartTime
+            ? 1.0
+            : (curIdx === 0 ? rawSubT : (INCOMING_OFFSET + (rawSubT * (1.0 - INCOMING_OFFSET))));
+
+          const activeSc = scenes[curIdx] || scenes[0];
+          const activeImg = loadedImages[curIdx] || loadedImages[0];
+
+          offCtx.clearRect(0, 0, 1080, 1920);
+          if (activeImg && activeSc) {
+            drawSceneToCanvas(off, offCtx, activeImg, activeSc, subT, 1.0, false);
+          }
+
+          // Crossfade con la scena successiva: SOLTANTO L'IMMAGINE DI FONDO DISSOLVE, L'HEADER RIMANE FISSO!
+          let dominantIdx = curIdx;
+          const transThreshold = curTiming.end - effDissolve;
+          if (tElapsed < outroStartTime && tElapsed >= transThreshold && curIdx < sceneCount - 1) {
+            const nextIdx = curIdx + 1;
+            const nextTiming = sceneTimeline[nextIdx];
+            const nextImg = loadedImages[nextIdx];
+            const nextSc = scenes[nextIdx];
+            if (nextImg && nextSc && nextTiming) {
+              const nBirth = nextTiming.start - effDissolve;
+              const nLife = nextTiming.duration + effDissolve;
+              const nAge = Math.max(0, tElapsed - nBirth);
+              const nRawSubT = Math.min(1.0, nAge / nLife);
+              const nSubT = INCOMING_OFFSET + (nRawSubT * (1.0 - INCOMING_OFFSET));
+              const crossRatio = Math.min(1.0, Math.max(0.0, (tElapsed - transThreshold) / effDissolve));
+              const nOpacity = 0.5 - 0.5 * Math.cos(crossRatio * Math.PI);
+              drawSceneToCanvas(off, offCtx, nextImg, nextSc, nSubT, nOpacity, false);
+              if (crossRatio >= 0.5) {
+                dominantIdx = nextIdx;
+              }
+            }
+          }
+
+          // Overlay gradiente cinematografico per contrasto tipografico
+          if (tElapsed < outroStartTime) {
+            const grad = offCtx.createLinearGradient(0, 0, 0, 1920);
+            grad.addColorStop(0, 'rgba(0,0,0,0.25)');
+            grad.addColorStop(0.20, 'rgba(0,0,0,0.0)');
+            grad.addColorStop(0.80, 'rgba(0,0,0,0.0)');
+            grad.addColorStop(1, 'rgba(0,0,0,0.35)');
+            offCtx.fillStyle = grad;
+            offCtx.fillRect(0, 0, 1080, 1920);
+          }
+
+          // 2. Disegna gli overlay identici alla preview (con dissolvenza dolce prima dell'outro) o l'Outro finale animato
+          if (tElapsed < outroStartTime) {
+            const fadeThreshold = outroStartTime - 0.35;
+            let overlayAlpha = 1.0;
+            if (tElapsed > fadeThreshold) {
+              overlayAlpha = Math.max(0, (outroStartTime - tElapsed) / 0.35);
+            }
+            offCtx.save();
+            offCtx.globalAlpha = overlayAlpha;
+            renderOverlaysToContext(offCtx, 1080, 1920, scenes[dominantIdx] || activeSc, false, tElapsed);
+            offCtx.restore();
+          } else {
+            drawFullOutroToContext(offCtx, 1080, 1920, tElapsed - outroStartTime);
+          }
+        };
+
+        // 🚀 METODO PRIMARIO: RENDERING DETERMINISTICO 60 FPS VIA WEBCODECS
+        // Zero scatti, zero frame drop, 100% identico alla preview canvas del Social Studio!
+        if (typeof window !== 'undefined' && typeof (window as any).VideoEncoder === 'function') {
+          try {
+            if (onProgress) onProgress(6, 1, 'Inizializzazione encoder hardware WebCodecs 60 FPS...');
+
+            const muxer = new Muxer({
+              target: new ArrayBufferTarget(),
+              video: {
+                codec: 'avc',
+                width: 1080,
+                height: 1920
+              },
+              fastStart: 'in-memory'
+            });
+
+            let encoderError: any = null;
+            const encoder = new (window as any).VideoEncoder({
+              output: (chunk: any, meta: any) => muxer.addVideoChunk(chunk, meta),
+              error: (e: any) => { encoderError = e; console.error('[WebCodecs] Encoder error:', e); }
+            });
+
+            const targetDuration = (totalVideoDuration > 0 ? totalVideoDuration : 15) + 0.4;
+            // Target ~16 MB max (così anche con audio muxato rimane < 18 MB, ben sotto il limite URL di 20 MB di Telegram)
+            const safeMaxBits = 16.0 * 1024 * 1024 * 8;
+            const targetBitrate = Math.min(6_500_000, Math.max(3_600_000, Math.floor(safeMaxBits / targetDuration)));
+
+            encoder.configure({
+              codec: 'avc1.64002a', // H.264 High Profile Level 4.2 Full HD 1080x1920
+              width: 1080,
+              height: 1920,
+              bitrate: targetBitrate,
+              framerate: 60,
+              latencyMode: 'quality'
+            });
+
+            const fps = 60;
+            const totalFrames = Math.round(targetDuration * fps);
+
+            for (let currentFrame = 0; currentFrame < totalFrames; currentFrame++) {
+              if (encoderError) throw encoderError;
+
+              const tElapsed = currentFrame / fps;
+              renderFrameToOffscreen(tElapsed);
+
+              const videoFrame = new (window as any).VideoFrame(off, {
+                timestamp: Math.round((currentFrame * 1_000_000) / fps)
+              });
+              encoder.encode(videoFrame, { keyFrame: currentFrame % 60 === 0 });
+              videoFrame.close();
+
+              if (currentFrame % 30 === 0) {
+                const pct = Math.min(85, Math.round((currentFrame / totalFrames) * 85));
+                if (onProgress) onProgress(pct, 2, `Rendering fluido 60 FPS (${Math.round((currentFrame / totalFrames) * 100)}%)...`);
+                await new Promise(r => setTimeout(r, 0));
+              }
+            }
+
+            await encoder.flush();
+            muxer.finalize();
+
+            // 📸 REGOLA 14: ESTRAZIONE THUMBNAIL UFFICIALE PRE-DISSOLVENZA (ZERO GHOSTING / MASSIMO ZOOM)
+            let thumbBlob: Blob | null = null;
+            let thumbUrl: string | null = null;
+            try {
+              renderFrameToOffscreen(thumbnailTimestamp);
+              thumbBlob = await new Promise<Blob | null>(res => off.toBlob(res, 'image/jpeg', 0.95));
+            } catch (thErr) {
+              console.warn('[AutoCutLabPlayer] Errore estrazione thumbnail:', thErr);
+            }
+
+            cleanupOff();
+
+            if (onProgress) onProgress(88, 3, 'Finalizzazione file MP4 broadcast con Cover Art...');
+            const videoBlob = new Blob([muxer.target.buffer], { type: 'video/mp4' });
+
+            const cleanFilename = `story_video_${testRun.mode}_${brand}_${Date.now()}.mp4`;
+            if (onProgress) onProgress(92, 4, 'Upload su Cloud Storage (Supabase S3)...');
+
+            // Upload della Thumbnail Ufficiale su Supabase S3
+            if (thumbBlob) {
+              try {
+                const thumbFilename = `story_thumb_${testRun.mode}_${brand}_${Date.now()}.jpg`;
+                const signResTh = await fetch(`/api/social-publisher?action=get_story_upload_url&filename=${encodeURIComponent(thumbFilename)}`);
+                const signDataTh = await signResTh.json();
+                if (signDataTh.ok && signDataTh.signedUrl) {
+                  const putThRes = await fetch(signDataTh.signedUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'image/jpeg' },
+                    body: thumbBlob
+                  });
+                  if (putThRes.ok && signDataTh.publicUrl) {
+                    thumbUrl = signDataTh.publicUrl;
+                    (window as any).__lastGeneratedThumbnailUrl = thumbUrl;
+                    console.log('[AutoCutLabPlayer] 📸 Thumbnail Ufficiale salvata su Supabase:', thumbUrl);
+                  }
+                }
+              } catch (thUpErr) {
+                console.warn('[AutoCutLabPlayer] Upload thumbnail warning:', thUpErr);
+              }
+            }
+
+            // Signed URL upload diretto a piena banda per il video
+            const signRes = await fetch(`/api/social-publisher?action=get_story_upload_url&filename=${encodeURIComponent(cleanFilename)}`);
+            const signData = await signRes.json();
+
+            if (signData.ok && signData.signedUrl) {
+              const putRes = await fetch(signData.signedUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'video/mp4' },
+                body: videoBlob
+              });
+
+              if (putRes.ok && signData.publicUrl) {
+                // Muxing audio istantaneo lato server (0.2s) con inserimento Cover Art nell'MP4
+                if (audioTrack?.src) {
+                  if (onProgress) onProgress(96, 5, 'Sincronizzazione audio jingle e Cover Art ufficiale...');
+                  try {
+                    const muxRes = await fetch('/api/social-publisher?action=attach_audio_to_story', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        video_url: signData.publicUrl,
+                        audio_track: audioTrack.src,
+                        outro_start_time: outroStartTime,
+                        brand: brand,
+                        thumbnail_url: thumbUrl,
+                        thumbnail_time: thumbnailTimestamp
+                      })
+                    });
+                    const muxData = await muxRes.json();
+                    if (muxData.ok && muxData.url) {
+                      if (muxData.thumbnail_url) {
+                        (window as any).__lastGeneratedThumbnailUrl = muxData.thumbnail_url;
+                      }
+                      if (onProgress) onProgress(100, 6, 'Master Video 60 FPS completato con successo!');
+                      return muxData.url;
+                    }
+                  } catch (muxErr) {
+                    console.warn('[AutoCutLabPlayer] Audio attach warning, fallback to direct url:', muxErr);
+                  }
+                }
+                if (onProgress) onProgress(100, 6, 'Master Video 60 FPS completato con successo!');
+                return signData.publicUrl;
+              }
+            }
+          } catch (webcodecsErr) {
+            console.warn('[AutoCutLabPlayer] WebCodecs fallback to MediaRecorder:', webcodecsErr);
+          }
+        }
+
+        // --- FALLBACK MEDIARECORDER (per browser non supportati) ---
+        const canvasStream = off.captureStream(30);
+        let recordingStream = canvasStream;
+        let exportAudioCtx: AudioContext | null = null;
+        let audioSourceNode: AudioBufferSourceNode | null = null;
+        let audioDestNode: MediaStreamAudioDestinationNode | null = null;
+
+        // Muxing Audio Jingle Ufficiale via WebAudio Buffer (Zero blocchi CORS, zero ritardi di buffer)
+        if (audioTrack?.src) {
+          try {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioContextClass) {
+              exportAudioCtx = new AudioContextClass();
+              await exportAudioCtx.resume().catch(() => {});
+
+              try {
+                const audioRes = await fetch(audioTrack.src);
+                if (audioRes.ok) {
+                  const arrayBuf = await audioRes.arrayBuffer();
+                  const decodedAudio = await exportAudioCtx.decodeAudioData(arrayBuf);
+                  const dest = exportAudioCtx.createMediaStreamDestination();
+                  audioDestNode = dest;
+                  audioSourceNode = exportAudioCtx.createBufferSource();
+                  audioSourceNode.buffer = decodedAudio;
+                  audioSourceNode.connect(dest);
+
+                  const aTracks = dest.stream.getAudioTracks();
+                  if (aTracks.length > 0) {
+                    recordingStream = new MediaStream([
+                      ...canvasStream.getVideoTracks(),
+                      ...aTracks
+                    ]);
+                  }
+                }
+              } catch (fetchAudioErr) {
+                console.warn('[AutoCutLabPlayer] Audio fetch/decode error, fallback video-only:', fetchAudioErr);
+              }
+            }
+          } catch (aErr) {
+            console.warn('Audio mux fallback to video stream:', aErr);
+          }
+        }
+
+        const mimeTypes = [
+          'video/mp4;codecs=avc1,mp4a.40.2',
+          'video/mp4',
+          'video/webm;codecs=vp9,opus',
+          'video/webm;codecs=vp8,opus',
+          'video/webm'
+        ];
+        const selectedMime = mimeTypes.find(t => {
+          try { return MediaRecorder.isTypeSupported(t); } catch { return false; }
+        }) || 'video/webm';
+
+        // Durata completa comprensiva delle scene e dell'Outro animato ufficiale (con buffer finale anti-troncamento)
+        const targetDuration = (totalVideoDuration > 0 ? totalVideoDuration : 15) + 0.4;
+        const fps = 30;
+        const totalFrames = Math.round(targetDuration * fps);
+
+        // 🛡️ Bitrate Dinamico Broadcast Full HD (1080x1920): 6.8 Mbps per massima nitidezza fotografica (~10-12 MB)
+        const maxTelegramSafeBits = 14 * 1024 * 1024 * 8; // Target ~12 MB di sicurezza assoluta (ben sotto i 20 MB di Telegram)
+        const dynamicBitrate = Math.min(6800000, Math.floor(maxTelegramSafeBits / targetDuration));
+
+        const recorder = new MediaRecorder(recordingStream, {
+          mimeType: selectedMime,
+          videoBitsPerSecond: dynamicBitrate
+        });
+
+        const chunks: Blob[] = [];
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
+        return new Promise<string | null>((resolve) => {
+          let isResolved = false;
+          let renderLoopInterval: any = null;
+          let timerWorker: Worker | null = null;
+
+          const stopAllTimers = () => {
+            if (renderLoopInterval) {
+              clearInterval(renderLoopInterval);
+              renderLoopInterval = null;
+            }
+            if (timerWorker) {
+              try {
+                timerWorker.postMessage('stop');
+                timerWorker.terminate();
+              } catch {}
+              timerWorker = null;
+            }
+          };
+
+          const safeResolve = (val: string | null) => {
+            if (!isResolved) {
+              isResolved = true;
+              clearTimeout(safetyTimeout);
+              stopAllTimers();
+              cleanupOff();
+              resolve(val);
+            }
+          };
+
+          // Timer di sicurezza dinamico anti-freeze (durata reale + 20s di tolleranza, zero interruzione precoce!)
+          const safetyTimeoutMs = Math.max(45000, Math.round((targetDuration + 20) * 1000));
+          const safetyTimeout = setTimeout(() => {
+            console.warn(`[AutoCutLabPlayer] Timeout di sicurezza registrazione video raggiunto (${Math.round(safetyTimeoutMs / 1000)}s).`);
+            stopAllTimers();
+            cleanupOff();
+            if (recorder.state === 'recording') {
+              try { recorder.stop(); } catch {}
+            } else {
+              safeResolve(null);
+            }
+          }, safetyTimeoutMs);
+
+          recorder.onstop = async () => {
+            stopAllTimers();
+            if (audioSourceNode) {
+              try { audioSourceNode.stop(); } catch {}
+              audioSourceNode = null;
+            }
+            if (exportAudioCtx && exportAudioCtx.state !== 'closed') {
+              exportAudioCtx.close().catch(() => {});
+              exportAudioCtx = null;
+            }
+
+            if (onProgress) onProgress(80, 3, 'Finalizzazione file MP4 HD...');
+
+            const videoBlob = new Blob(chunks, { type: selectedMime.split(';')[0] });
+            if (videoBlob.size < 5000) {
+              console.error('[AutoCutLabPlayer] Registrazione video vuota o troppo piccola:', videoBlob.size, 'bytes');
+              safeResolve(null);
+              return;
+            }
+
+            const ext = selectedMime.includes('mp4') ? 'mp4' : 'webm';
+            const cleanFilename = `story_video_${testRun.mode}_${brand}_${Date.now()}.${ext}`;
+            const contentType = selectedMime.split(';')[0] || 'video/mp4';
+
+            if (onProgress) onProgress(88, 4, 'Upload su Cloud Storage (Supabase S3)...');
+
+            try {
+              // 1. Richiesta signed URL per bypass totale del limite Vercel 4.5MB (upload diretto binario ad altissima velocità su Supabase S3)
+              const signRes = await fetch(`/api/social-publisher?action=get_story_upload_url&filename=${encodeURIComponent(cleanFilename)}`);
+              const signData = await signRes.json();
+
+              if (signData.ok && signData.signedUrl) {
+                const putRes = await fetch(signData.signedUrl, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': contentType },
+                  body: videoBlob
+                });
+                if (putRes.ok && signData.publicUrl) {
+                  safeResolve(signData.publicUrl);
+                  return;
+                } else {
+                  console.warn('[AutoCutLabPlayer] Direct PUT to signed URL non riuscito, fallback base64...', putRes.statusText);
+                }
+              }
+            } catch (signErr) {
+              console.warn('[AutoCutLabPlayer] Signed upload url fallback:', signErr);
+            }
+
+            // Fallback Base64 classico se il signed upload diretto non è disponibile
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+              const base64Data = reader.result as string;
+              try {
+                const uploadRes = await fetch('/api/social-publisher?action=upload_story_media', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    data_url: base64Data,
+                    filename: cleanFilename,
+                    content_type: contentType
+                  })
+                });
+                const uploadData = await uploadRes.json();
+                if (uploadData.ok && uploadData.url) {
+                  safeResolve(uploadData.url);
+                } else {
+                  safeResolve(null);
+                }
+              } catch (upErr) {
+                console.error('Video upload failed fallback:', upErr);
+                safeResolve(null);
+              }
+            };
+            reader.readAsDataURL(videoBlob);
+          };
+
+          recorder.onerror = (ev: any) => {
+            console.error('[AutoCutLabPlayer] MediaRecorder error:', ev?.error || ev);
+          };
+          recorder.start(250);
+          if (audioSourceNode) {
+            try { audioSourceNode.start(0); } catch (e) {}
+          }
+          if (exportAudioCtx && audioDestNode) {
+            try {
+              autoCutSoundEngine.playOutroImpact(brand, false, exportAudioCtx, audioDestNode, outroStartTime);
+            } catch (sfxErr) {
+              console.warn('[AutoCutLabPlayer] Outro SFX mux warning:', sfxErr);
+            }
+          }
+
+          let currentFrame = 0;
+          const frameInterval = 1000 / fps;
+
+          const renderTick = () => {
+            try {
+              currentFrame++;
+              const tElapsed = currentFrame / fps;
+              renderFrameToOffscreen(tElapsed);
+
+              const pct = Math.min(100, Math.round((currentFrame / totalFrames) * 100));
+              if (onProgress) onProgress(pct);
+
+              if (currentFrame >= totalFrames) {
+                // Buffer finale di 15 frame: continua a mantenere dipinto l'outro per sigillare il video senza troncamenti
+                if (currentFrame >= totalFrames + 15) {
+                  stopAllTimers();
+                  if (recorder.state === 'recording') {
+                    try {
+                      recorder.stop();
+                    } catch (stopErr) {
+                      console.warn('[AutoCutLabPlayer] Recorder stop error:', stopErr);
+                    }
+                  }
+                }
+                return;
+              }
+            } catch (frameErr) {
+              console.warn('[AutoCutLabPlayer] Frame rendering error tick:', frameErr);
+            }
+          };
+
+          // Timer anti-throttling Web Worker (continua fluido a 30fps anche con tab in background o minimizzato)
+          try {
+            const workerCode = `
+              var t = null;
+              onmessage = function(e) {
+                if (e.data === 'start') {
+                  t = setInterval(function() { postMessage('tick'); }, ${Math.round(frameInterval)});
+                } else if (e.data === 'stop') {
+                  if (t) clearInterval(t);
+                }
+              };
+            `;
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            timerWorker = new Worker(URL.createObjectURL(blob));
+            timerWorker.onmessage = renderTick;
+            timerWorker.postMessage('start');
+          } catch (workerErr) {
+            renderLoopInterval = setInterval(renderTick, frameInterval);
+          }
+        });
+      };
+    }
+
+    renderFrameRef.current = renderFrame;
+
     if (isPlaying) {
       animFrameRef.current = requestAnimationFrame(render);
     } else {
-      // 📸 STATO INIZIALE STATICHE: Disegna subito la thumbnail perfetta prima di premere Play
-      renderFrame(thumbnailTimestamp);
+      // 📸 STATO INIZIALE STATICHE: Disegna subito il fotogramma corrente (se in pausa) o la thumbnail perfetta
+      if (currentElapsedRef.current > 0) {
+        renderFrame(currentElapsedRef.current);
+      } else {
+        renderFrame(thumbnailTimestamp);
+      }
       // E quando le immagini completano il caricamento in memoria, ridisegna se ancora fermo
       loadedImages.forEach((img) => {
         if (!img.complete || img.naturalWidth === 0) {
           img.onload = () => {
             if (!isPlayingRef.current) {
-              renderFrame(thumbnailTimestamp);
+              if (currentElapsedRef.current > 0) {
+                renderFrame(currentElapsedRef.current);
+              } else {
+                renderFrame(thumbnailTimestamp);
+              }
             }
           };
         }
@@ -918,6 +2186,7 @@ export function AutoCutLabPlayer({
 
     return () => {
       isCancelled = true;
+      renderFrameRef.current = null;
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (audioRef.current) {
         audioRef.current.pause();
@@ -927,10 +2196,10 @@ export function AutoCutLabPlayer({
 
   const handleReplay = () => {
     if (testRun.isEmptyShowcase) return;
+    currentElapsedRef.current = 0;
     startTimeRef.current = performance.now();
     hasPlayedOutroSfxRef.current = false;
     setIsEnded(false);
-    setIsPlaying(true);
     setActiveSceneIndex(0);
     setProgress(0);
     if (audioRef.current) {
@@ -938,6 +2207,7 @@ export function AutoCutLabPlayer({
       audioRef.current.currentTime = 0;
       audioRef.current.play().catch(e => console.log('Replay err:', e));
     }
+    setIsPlaying(true);
     if (onReplay) onReplay();
   };
 
@@ -948,21 +2218,73 @@ export function AutoCutLabPlayer({
       return;
     }
     const next = !isPlaying;
-    setIsPlaying(next);
-    if (audioRef.current) {
-      if (next) {
+    if (next) {
+      if (currentElapsedRef.current >= totalVideoDuration - 0.1) {
+        currentElapsedRef.current = 0;
+        setProgress(0);
+      }
+      startTimeRef.current = performance.now() - (currentElapsedRef.current * 1000);
+      if (audioRef.current) {
         audioRef.current.volume = 1.0;
-        const curTime = (progress || 0) * totalVideoDuration;
-        if (curTime >= totalDuration) {
-          audioRef.current.currentTime = 0;
-        } else {
-          audioRef.current.currentTime = curTime;
-        }
+        audioRef.current.currentTime = Math.min(musicDuration, currentElapsedRef.current);
         audioRef.current.play().catch(e => console.log('Play err:', e));
-      } else {
+      }
+    } else {
+      if (audioRef.current) {
         audioRef.current.pause();
       }
     }
+    setIsPlaying(next);
+  };
+
+  const handleSeek = (targetSeconds: number) => {
+    if (testRun.isEmptyShowcase) return;
+    const clamped = Math.max(0, Math.min(totalVideoDuration, targetSeconds));
+    currentElapsedRef.current = clamped;
+    const newProgress = totalVideoDuration > 0 ? clamped / totalVideoDuration : 0;
+    setProgress(newProgress);
+
+    startTimeRef.current = performance.now() - (clamped * 1000);
+
+    if (audioRef.current) {
+      audioRef.current.currentTime = Math.min(musicDuration, clamped);
+    }
+
+    if (clamped < outroStartTime) {
+      hasPlayedOutroSfxRef.current = false;
+    }
+
+    if (clamped < totalVideoDuration && isEnded) {
+      setIsEnded(false);
+    }
+
+    let sIdx = 0;
+    for (let i = 0; i < sceneTimeline.length; i++) {
+      if (clamped >= sceneTimeline[i].start && (clamped < sceneTimeline[i].end || i === sceneTimeline.length - 1)) {
+        sIdx = i;
+        break;
+      }
+    }
+    setActiveSceneIndex(sIdx);
+
+    renderFrameRef.current?.(clamped);
+  };
+
+  const handleStepBack = (step: number = 1.0) => {
+    handleSeek(currentElapsedRef.current - step);
+  };
+
+  const handleStepForward = (step: number = 1.0) => {
+    handleSeek(currentElapsedRef.current + step);
+  };
+
+  const handleJumpScene = (index: number) => {
+    if (index < 0 || index >= sceneTimeline.length) return;
+    handleSeek(sceneTimeline[index].start);
+  };
+
+  const handleJumpOutro = () => {
+    handleSeek(outroStartTime);
   };
 
   const handleToggleMute = (e: React.MouseEvent) => {
@@ -975,10 +2297,6 @@ export function AutoCutLabPlayer({
   };
 
   const currentScene = scenes[activeSceneIndex] || scenes[0];
-  const isSingleHero = mode === 'P1' || mode === 'DS';
-  const OUTRO_DURATION = isSingleHero ? 0 : 4.0;
-  const totalVideoDuration = totalDuration + OUTRO_DURATION;
-  const outroStartTime = isSingleHero ? sceneDuration : totalDuration;
   const currentElapsed = progress * totalVideoDuration;
   const isInOutro = currentElapsed >= outroStartTime;
 
@@ -1026,8 +2344,8 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
-      {/* 📱 1. MASTER SMARTPHONE PLAYER 9:16 (TikTok & Instagram Reels) */}
-      <div className="relative w-full max-w-[340px] aspect-[9/16] bg-black select-none overflow-hidden group rounded-[32px] shadow-2xl border-[4px] border-slate-700 isolate">
+      {/* 📱 1. MASTER CANVAS 9:16 (TikTok & Instagram Reels - Viewport Rettangolare Puro 9:16) */}
+      <div className="relative w-full max-w-[395px] aspect-[9/16] bg-black select-none overflow-hidden group shadow-2xl border-2 border-slate-800 rounded-none isolate">
         {/* Dynamic 9:16 AutoCut Canvas */}
         <canvas
           ref={canvasRef}
@@ -1130,30 +2448,33 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
-      {/* Sfondo leggermente sfumato nero in alto (Top Vignette Fade esteso e morbido per massima leggibilità) */}
-      <div className={`absolute top-0 left-0 right-0 h-52 bg-gradient-to-b from-black/90 via-black/55 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
+      {/* Sfondo leggermente sfumato nero in alto (Top Vignette Fade delicato per massima purezza fotografica) */}
+      <div className={`absolute top-0 left-0 right-0 h-60 bg-gradient-to-b from-black/45 via-black/15 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
         isInOutro ? 'opacity-0' : 'opacity-100'
       }`} />
 
-      {/* 👑 WATERMARK & HEADER UFFICIALE 9:16 (Logo separato + testi impilati verticalmente, Thai grande, badge solidi ad altissimo contrasto) */}
+      {/* 👑 WATERMARK & HEADER UFFICIALE 9:16 (Logo +20% + testi) SEMPRE CENTRATO SULL'ASSE VERTICALE IN TUTTI I FORMATI */}
       {!isInOutro && (
-        <div className="absolute top-7 left-3.5 right-3.5 z-30 flex items-start gap-3.5 pointer-events-none transition-all duration-300">
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-max z-30 flex items-start gap-3 pointer-events-none transition-all duration-300">
           <img
             src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
             alt="Logo"
-            className="w-[72px] h-[72px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
+            className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
           />
 
           {/* ⚡ FORMATO DS DAILY SPECIAL */}
           {mode === 'DS' && (
-            <div className="flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[13px] sm:text-sm font-black text-white uppercase tracking-wider [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                FLOWER POWER PIZZA
+            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                FLOWER POWER
+              </span>
+              <span className="font-medium italic text-[#f87171] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+                Pizza
               </span>
 
-              {/* Riga 2: LIVE SHOWCASE su una riga sola */}
-              <div>
-                <span className={`inline-flex items-center px-3 py-0.5 rounded-lg border text-xs font-black text-white tracking-wider uppercase shadow-[0_4px_16px_rgba(0,0,0,0.8)] whitespace-nowrap animate-pulse ${
+              {/* Riga 2: LIVE SHOWCASE su una riga sola (distanziato di 5px da pizza: pt-[5px]) */}
+              <div className="pt-[5px]">
+                <span className={`inline-flex items-center px-3.5 py-1 rounded-lg border text-[14px] sm:text-[15px] font-black text-white tracking-wider uppercase shadow-[0_4px_16px_rgba(0,0,0,0.8)] whitespace-nowrap animate-pulse ${
                   currentScene?.isLiveShowcase
                     ? 'bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 border-yellow-200'
                     : 'bg-indigo-600 border-indigo-300'
@@ -1162,13 +2483,13 @@ export function AutoCutLabPlayer({
                 </span>
               </div>
 
-              {/* Riga 3: Scritta Thai più staccata e più grossa con bagliore scuro */}
-              <span className="mt-1 text-base sm:text-lg font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
+              {/* Riga 3: Fast Delivery Thai + English distanziato dal live showcase di altri 5 pixel: mt-[5px] */}
+              <span className="mt-[5px] text-[19px] sm:text-[21.5px] font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
                 {currentScene?.isLiveShowcase ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน'}
               </span>
 
-              {/* Riga 4: Solo Fast Delivery più grosso con bagliore scuro */}
-              <span className="text-xs sm:text-sm font-black text-emerald-400 tracking-wider uppercase whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              {/* Riga 4: Solo Fast Delivery più grosso con bagliore scuro (+20%) */}
+              <span className="text-[14px] sm:text-[16px] font-black text-emerald-400 tracking-wider uppercase whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 FAST DELIVERY
               </span>
             </div>
@@ -1176,24 +2497,27 @@ export function AutoCutLabPlayer({
 
           {/* 🍕 FORMATO PIZZA REGULAR (P1, P2, P3) */}
           {brand === 'pizza' && mode !== 'DS' && (
-            <div className="flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[13px] sm:text-sm font-black text-white uppercase tracking-wider [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                FLOWER POWER PIZZA
+            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                FLOWER POWER
               </span>
-              {/* Ranong Delivery sopra */}
-              <span className="text-sm sm:text-base font-black text-amber-300 uppercase tracking-wide leading-tight whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              <span className="font-medium italic text-[#f87171] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+                Pizza
+              </span>
+              {/* Ranong Delivery sopra (+10%, distanziato di +4px dalla parola Pizza: pt-2) */}
+              <span className="text-[18.5px] sm:text-[21px] font-black text-amber-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-2 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 Ranong Delivery
               </span>
-              {/* Scritta Thai sotto più grossa e ben visibile con bagliore scuro */}
-              <span className="text-base sm:text-lg font-black text-amber-200 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_12px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
+              {/* Scritta Thai sotto (+10%) ben visibile con bagliore scuro */}
+              <span className="text-[21px] sm:text-[23.5px] font-black text-amber-200 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_12px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
                 ส่งถึงบ้าน
               </span>
-              {/* flowerpowerpizza.com */}
-              <span className="text-xs font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+              {/* flowerpowerpizza.com (+10%, distanziato in blocco di +4px da ส่งถึงบ้าน: pt-1) */}
+              <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap pt-1 [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
                 flowerpowerpizza.com
               </span>
-              {/* Link in bio sotto leggermente più distanziato */}
-              <span className="mt-1 text-xs font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+              {/* Link in bio sotto (+10%) */}
+              <span className="mt-0.5 text-[15.5px] sm:text-[16.5px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
                 Link in Bio
               </span>
             </div>
@@ -1201,44 +2525,59 @@ export function AutoCutLabPlayer({
 
           {/* 🍽️ FORMATO R1 RESTAURANT & DELIVERY (Koh Phayam) */}
           {mode === 'R1' && (
-            <div className="flex flex-col text-left gap-1 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[13px] sm:text-sm font-black text-white uppercase tracking-wider [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                FLOWER POWER VILLAGE
+            <div className="shrink-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                FLOWER POWER
               </span>
-              {/* Badge DELIVERY solido con Thai in grande ben distanziato */}
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-stone-950 font-black text-xs shadow-xl tracking-wider border border-yellow-200 whitespace-nowrap">
-                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse shrink-0" />
+              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+                Village
+              </span>
+              {/* DELIVERY lampeggiante senza pallino, con sotto Thai (+10%) - distacco +5px totali da Village */}
+              <div className="flex flex-col items-start pt-[13px] leading-none">
+                <span
+                  className="font-['Outfit',sans-serif] text-[22px] sm:text-[23.5px] font-black uppercase tracking-wider text-[#ef4444] whitespace-nowrap leading-none animate-pulse"
+                  style={{
+                    filter: 'drop-shadow(1px 0 0 #ffffff) drop-shadow(-1px 0 0 #ffffff) drop-shadow(0 1px 0 #ffffff) drop-shadow(0 -1px 0 #ffffff) drop-shadow(0 2px 4px rgba(0,0,0,0.95))'
+                  }}
+                >
                   DELIVERY
                 </span>
-                <span className="text-sm sm:text-base font-black text-amber-300 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)] whitespace-nowrap">
-                  · เดลิเวอรี่
+                <span className="font-['Prompt',sans-serif] text-[17.5px] sm:text-[19px] font-extrabold tracking-normal text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap leading-none mt-1.5 pt-0.5">
+                  เดลิเวอรี่
                 </span>
               </div>
-              {/* Koh Phayam bianca con bagliore scuro */}
-              <span className="text-xs sm:text-[13px] font-bold text-white tracking-wide whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                Koh Phayam
-              </span>
-              {/* Sotto numero telefono verde con icona WhatsApp (senza puntino) */}
-              <div className="flex items-center gap-1.5 text-xs sm:text-[13px] font-black text-[#25D366] whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#25D366] shrink-0 shadow-md">
-                  <svg className="w-2.5 h-2.5 fill-white" viewBox="0 0 24 24">
+              {/* Sotto numero telefono verde con icona WhatsApp e LINE Ufficiale (+10%) */}
+              <div className="flex items-center gap-1.5 text-[17px] sm:text-[18px] font-black text-[#25D366] font-['Outfit',sans-serif] whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)] mt-1.5">
+                <span className="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#25D366] shrink-0 shadow-md">
+                  <svg className="w-[13.5px] h-[13.5px] fill-white" viewBox="0 0 24 24">
                     <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8.01 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 13.99C16.32 13.86 15.12 13.27 14.9 13.19C14.68 13.1 14.52 13.06 14.36 13.3C14.19 13.55 13.73 14.11 13.59 14.27C13.45 14.44 13.31 14.46 13.06 14.34C12.82 14.21 12.05 13.96 11.13 13.14C10.42 12.5 9.93 11.72 9.8 11.49C9.66 11.25 9.78 11.11 9.9 10.99C10.01 10.88 10.15 10.7 10.27 10.56C10.39 10.41 10.44 10.31 10.52 10.15C10.6 9.99 10.56 9.85 10.5 9.72C10.44 9.6 9.95 8.41 9.75 7.91C9.55 7.43 9.35 7.5 9.19 7.49C9.05 7.49 8.89 7.48 8.72 7.48L8.53 7.33Z"/>
+                  </svg>
+                </span>
+                <span className="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#06C755] shrink-0 shadow-md">
+                  <svg className="w-[15.5px] h-[15.5px] fill-white" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 5.82 2 10.53c0 4.23 3.61 7.77 8.5 8.41.33.07.78.22.89.51.1.26.07.67.03.93l-.15.91c-.05.28-.22 1.1.96.6 1.18-.5 6.38-3.76 8.7-6.44C22.25 13.9 22 12.28 22 10.53 22 5.82 17.52 2 12 2zm-3.8 11.5H6.4c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5V13h1.3c.28 0 .5.22.5.5s-.22.5-.5.5zm2.1-.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5s.5.22.5.5v4.5zm4.3 0c0 .22-.15.42-.36.48-.06.02-.11.02-.16.02-.17 0-.32-.08-.41-.21L12.1 10.1v2.4c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-4.5c0-.23.15-.42.36-.48.05-.02.11-.02.16-.02.17 0 .32.08.41.21l2.07 2.7V8c0-.28.22-.5.5-.5s.5.22.5.5v5zm3.1-3.2h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5h-1.9c-.28 0-.5-.22-.5-.5v-4.5c0-.28.22-.5.5-.5h1.9c.28 0 .5.22.5.5s-.22.5-.5.5h-1.4v.9h1.4c.28 0 .5.22.5.5s-.22.5-.5.5z"/>
                   </svg>
                 </span>
                 <span>+66 095 882 5573</span>
               </div>
+              {/* Koh Phayam bianca subito sotto a WhatsApp con font Outfit (+10%) */}
+              <span className="text-[15.5px] sm:text-[16.5px] font-bold text-white tracking-wide whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                Koh Phayam
+              </span>
             </div>
           )}
 
           {/* 🔥 FORMATO LM1 STORIES LAST MINUTE (Koh Phayam) */}
           {mode === 'LM1' && (
-            <div className="flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[13px] sm:text-sm font-black text-white uppercase tracking-wider [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                FLOWER POWER VILLAGE
+            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                FLOWER POWER
+              </span>
+              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+                Village
               </span>
               {/* Last minute su una sola riga */}
-              <div>
+              <div className="pt-1">
                 <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-lg bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-stone-950 font-black text-xs shadow-xl tracking-wider border border-yellow-200 whitespace-nowrap animate-pulse">
                   <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping shrink-0" />
                   LAST MINUTE
@@ -1248,12 +2587,12 @@ export function AutoCutLabPlayer({
               <span className="mt-1 text-base sm:text-lg font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_12px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
                 ห้องว่างวันนี้
               </span>
-              {/* Sotto DIRECT BOOKING in stampatello verde con bagliore scuro */}
-              <span className="text-xs sm:text-[13px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              {/* Sotto DIRECT BOOKING in stampatello verde con bagliore scuro (+20%, allontanato di 2px da Village) */}
+              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* Sotto flowerpowervillage.com */}
-              <span className="text-[11.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+              {/* Sotto flowerpowervillage.com (+20%) */}
+              <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
                 flowerpowervillage.com
               </span>
             </div>
@@ -1261,17 +2600,23 @@ export function AutoCutLabPlayer({
 
           {/* 🌴 FORMATO VILLAGE REGULAR (V1, V2, V3) */}
           {brand === 'village' && mode !== 'R1' && mode !== 'LM1' && (
-            <div className="flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[13px] sm:text-sm font-black text-white uppercase tracking-wider [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
-                FLOWER POWER VILLAGE
+            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+                FLOWER POWER
               </span>
-              <span className="text-sm sm:text-base font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+                Village
+              </span>
+              {/* DIRECT BOOKING (+20%, allontanato di 2px netti dalla parola Village: pt-1.5 mt-0.5) */}
+              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              <span className="text-xs font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+              {/* flowerpowervillage.com (+20%) */}
+              <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
                 flowerpowervillage.com
               </span>
-              <span className="mt-1 text-xs font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
+              {/* Link in bio (+20%) */}
+              <span className="mt-1 text-[14px] sm:text-[15px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
                 Link in Bio
               </span>
             </div>
@@ -1279,142 +2624,163 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
-      {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO - sfuma durante l'outro del brand) */}
+      {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO PROPORZIONATA - ALZATA DI 20PX: bottom-[47px]) */}
       {!testRun.isEmptyShowcase && currentScene && (
-        <div className={`absolute left-3.5 right-3.5 bottom-8 z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-500 ${
+        <div className={`absolute left-[25px] right-3.5 bottom-[47px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-500 ${
           isInOutro ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
         }`}>
           
-          {/* Caso CIBO / PIATTI (Pizzeria e R1 Restaurant): Sopra più grosso in THAILANDESE, sotto in INGLESE, prezzo THB */}
+          {/* Caso CIBO / PIATTI (Pizzeria e R1 Restaurant): Categoria Bilingue (Thai sopra, Eng sotto), Titoli +20%, Prezzo */}
           {(brand === 'pizza' || mode === 'R1') && (
-            <div className="space-y-1 w-full">
+            <div className="w-full">
               {currentScene.badgeCategory && (
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-black tracking-wide shadow-lg uppercase whitespace-nowrap ${
-                  mode === 'DS'
-                    ? (currentScene.isLiveShowcase
-                        ? 'bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white border border-rose-300/90 shadow-[0_0_18px_rgba(225,29,72,0.7)]'
-                        : 'bg-indigo-950/85 text-white border border-indigo-500 shadow-md')
-                    : 'bg-rose-600 text-white border border-rose-400'
-                }`}>
-                  {mode === 'DS' && currentScene.isLiveShowcase ? (
-                    <>
-                      <Star className="w-3 h-3 text-white fill-white shrink-0 drop-shadow-sm" />
-                      <span className="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
-                        {currentScene.badgeCategory.replace(/^⭐\s*/, '')}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
-                      {currentScene.badgeCategory}
+                <div className="flex flex-col items-start gap-0.5 mb-1.5">
+                  <div className="inline-flex items-center gap-1.5 text-[15.5px] sm:text-[17.5px] font-black tracking-wide text-amber-300 drop-shadow-[0_2px_8px_rgba(0,0,0,1)] whitespace-nowrap">
+                    <span className="text-[#dc2626] font-black text-[16px] drop-shadow-[0_0_8px_rgba(220,38,38,0.95)]">✦</span>
+                    <span className="font-['Prompt',sans-serif] [text-shadow:_0_2px_8px_rgba(0,0,0,1)]">
+                      {(() => {
+                        if (mode === 'DS') {
+                          return currentScene.isLiveShowcase ? 'สดใหม่ในตู้โชว์วันนี้' : 'เมนูพิเศษวันนี้';
+                        }
+                        let catThai = currentScene.badgeCategoryTh || getCategoryThaiName(currentScene.badgeCategory);
+                        if (catThai.includes(' · ')) {
+                          const parts = catThai.split(' · ');
+                          const thPart = parts.find(p => /[\u0E00-\u0E7F]/.test(p));
+                          if (thPart) catThai = thPart.trim();
+                        }
+                        return catThai;
+                      })()}
                     </span>
-                  )}
-                </span>
+                  </div>
+                  <div className="inline-flex items-center gap-1.5 text-[12.5px] sm:text-[14px] font-black tracking-widest uppercase text-white/95 drop-shadow-[0_2px_6px_rgba(0,0,0,1)] whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_6px_rgba(0,0,0,1)]">
+                    <span className="text-[#dc2626] font-black text-[16px] drop-shadow-[0_0_8px_rgba(220,38,38,0.95)]">✦</span>
+                    <span>
+                      {(() => {
+                        if (mode === 'DS') {
+                          return currentScene.isLiveShowcase ? 'FRESH IN SHOWCASE TODAY' : 'CHEF DAILY SPECIAL';
+                        }
+                        let catClean = currentScene.badgeCategory.replace(/^[✦⭐✨\s*]+/, '').trim();
+                        if (catClean.includes(' · ')) {
+                          const parts = catClean.split(' · ');
+                          const enPart = parts.find(p => !/[\u0E00-\u0E7F]/.test(p));
+                          if (enPart) catClean = enPart.trim();
+                        }
+                        catClean = catClean.replace(/[\u0E00-\u0E7F]/g, '').trim().toUpperCase();
+                        return catClean;
+                      })()}
+                    </span>
+                  </div>
+                </div>
               )}
               
-              {/* THAI IN GRANDE SOPRA (A capo semantico logico) */}
-              <h3 className="text-base sm:text-lg font-black text-amber-300 leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                {currentScene.titlePrimary.split('\n').map((line, idx) => (
-                  <span key={idx} className="block leading-tight">
-                    {line}
-                  </span>
-                ))}
-              </h3>
+              {/* THAI IN GRANDE SOPRA (REGOLA ASSOLUTA: MASSIMO 2 RIGHE, MAI ANDARE A CAPO A 3 RIGHE) */}
+              {(() => {
+                const thaiLines = currentScene.titlePrimary.split('\n').filter(Boolean);
+                const maxLineLen = Math.max(...thaiLines.map(l => l.length), 0);
+                const thaiSizeClass = maxLineLen > 24
+                  ? 'text-[18.5px] sm:text-[21.5px]'
+                  : maxLineLen > 20
+                  ? 'text-[20.5px] sm:text-[24px]'
+                  : 'text-[24px] sm:text-[29px]';
+                return (
+                  <h3 className={`font-['Prompt',sans-serif] ${thaiSizeClass} font-black text-amber-300 leading-tight mt-1 [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]`}>
+                    {thaiLines.map((line, idx) => (
+                      <span key={idx} className="block leading-tight whitespace-nowrap">
+                        {line}
+                      </span>
+                    ))}
+                  </h3>
+                );
+              })()}
 
-              {/* INGLESE SOTTO (A capo semantico logico prima dei connettori WITH, &, ecc.) */}
-              <div className="text-xs font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+              {/* INGLESE SOTTO (+20%: text-[17.5px] sm:text-[20px]) */}
+              <div className="font-['Outfit',sans-serif] text-[17.5px] sm:text-[20px] font-bold text-white/95 leading-snug mt-1 [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                 {currentScene.titleSecondary.split('\n').map((line, idx) => (
-                  <span key={idx} className="block leading-snug">
+                  <span key={idx} className="block leading-snug whitespace-nowrap">
                     {line}
                   </span>
                 ))}
               </div>
 
-              {/* PREZZO PIATTO / PIZZE 8" E 12" (BORDI RETTANGOLO ADERENTI AI LIMITI DELLA SCRITTA - TIGHT FIT) */}
-              <div className="pt-0.5 origin-left scale-[0.88] w-fit">
+              {/* PREZZO PIATTO / PIZZE 8" E 12" (SCALA PIENA +20%, BORDI RETTANGOLO ADERENTI - distacco alzato di +10px a pt-5) */}
+              <div className="pt-5 origin-left w-fit">
                 {currentScene.pizzaSizes && mode !== 'R1' ? (
-                  <div className="flex items-center gap-1.5">
-                    <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                      <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
-                      <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size8Price}฿</span>
+                  <div className="flex items-center gap-2">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                      <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
+                      <span
+                        className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
+                        style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                      >
+                        {currentScene.pizzaSizes.size8Price}฿
+                      </span>
                     </div>
-                    <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                      <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
-                      <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size12Price}฿</span>
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                      <span className="font-['Kanit',sans-serif] text-[15.5px] sm:text-[17px] font-black bg-black text-white px-2 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
+                      <span
+                        className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
+                        style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                      >
+                        {currentScene.pizzaSizes.size12Price}฿
+                      </span>
                     </div>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                    <span className="font-['Kanit',sans-serif] text-lg sm:text-xl font-black leading-none tracking-tight">
+                  <div className="inline-flex items-center px-3.5 py-1.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                    <span
+                      className="font-['Kanit',sans-serif] text-[31.5px] sm:text-[34px] font-black leading-none tracking-tight"
+                      style={{ paintOrder: 'stroke fill', WebkitTextStroke: '4.2px #ffffff' }}
+                    >
                       {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
                     </span>
                   </div>
                 )}
               </div>
-
-              {/* ⚡ BADGE PRONTA CONSEGNA VELOCE PER DS (TASSATIVAMENTE THAI PRIMA, POI INGLESE) */}
-              {mode === 'DS' && (
-                <div className="pt-1.5 flex flex-col items-start gap-0.5 text-left">
-                  <div className="inline-flex items-center gap-1.5 text-[11px] font-black text-emerald-300 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] whitespace-nowrap">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
-                    <span>
-                      {currentScene.isLiveShowcase
-                        ? '🔥 ทำสดใหม่ พร้อมส่งทันทีในระนอง'
-                        : '👨‍🍳 ปรุงสดใหม่ตามสั่ง สไตล์อิตาเลียนแท้'}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-bold text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] whitespace-nowrap pl-3.5">
-                    {currentScene.isLiveShowcase
-                      ? 'Freshly Made Today · Ready for Immediate Delivery'
-                      : 'Fresh Made to Order · Authentic Italian Taste'}
-                  </span>
-                </div>
-              )}
             </div>
           )}
 
-          {/* Caso ALLOGGI (V1, V2, V3, LM1): Nome alloggio + Sottotitolo semantico a capo, sotto traduzione secca in Thai */}
+          {/* Caso ALLOGGI (V1, V2, V3, LM1): Ingrandito +20% e alzato a bottom-[47px] */}
           {brand === 'village' && mode !== 'R1' && (
-            <div className="space-y-1 w-full">
+            <div className="space-y-1.5 w-full">
               {currentScene.badgeCategory && (
-                <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[9px] font-bold tracking-wide shadow-md uppercase">
+                <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide shadow-md uppercase">
                   {currentScene.badgeCategory}
                 </span>
               )}
 
-              {/* INGLESE STRUTTURATO SEMANTICO (Nome alloggio in grande + Sottotitolo a capo pulito) */}
+              {/* INGLESE STRUTTURATO SEMANTICO (+20%) */}
               <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                 {currentScene.lodgingTitle ? (
                   <>
-                    <h3 className="text-base sm:text-lg font-black text-white leading-tight">
+                    <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
                       {currentScene.lodgingTitle}
                     </h3>
                     {currentScene.lodgingSubtitle && (
-                      <p className="text-xs sm:text-[13px] font-bold text-amber-300 leading-tight mt-0.5">
+                      <p className="text-sm sm:text-[15.5px] font-bold text-amber-300 leading-tight mt-0.5">
                         {currentScene.lodgingSubtitle}
                       </p>
                     )}
                   </>
                 ) : (
-                  <h3 className="text-base sm:text-lg font-black text-white leading-tight">
+                  <h3 className="text-lg sm:text-xl font-black text-white leading-tight">
                     {currentScene.titlePrimary}
                   </h3>
                 )}
               </div>
 
-              {/* THAI SECCO SOTTO (Senza riscrivere l'inglese) */}
-              <p className="text-xs font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
+              {/* THAI SECCO SOTTO (+20%) */}
+              <p className="text-sm sm:text-[14.5px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
                 {currentScene.titleSecondary}
               </p>
 
-              {/* PREZZO OCTORATE LAST MINUTE: SOLO IN LM1 */}
+              {/* PREZZO OCTORATE LAST MINUTE: SOLO IN LM1 (+20%) */}
               {mode === 'LM1' && (
-                <div className="pt-1 origin-left scale-[0.88] w-fit">
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                    <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">
+                <div className="pt-1.5 origin-left w-fit">
+                  <div className="inline-flex items-center px-3 py-1 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                    <span
+                      className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
+                      style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                    >
                       {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
                     </span>
                   </div>
@@ -1458,6 +2824,202 @@ export function AutoCutLabPlayer({
       )}
       </div>
 
+      {/* ⏱️ TIMELINE & CONTROLLI SCRUBBER AUTO-CUT LAB (Dashboard Player Console) */}
+      {!testRun.isEmptyShowcase && (
+        <div className="w-full max-w-[395px] mt-3.5 p-3 rounded-2xl bg-slate-950/95 border border-slate-800 shadow-[0_12px_36px_rgba(0,0,0,0.65)] backdrop-blur-md flex flex-col gap-2.5 isolate select-none">
+          {/* Header Timeline: Scena Attiva & Tempo Live */}
+          <div className="flex items-center justify-between text-xs font-mono">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${
+                isPlaying ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'
+              }`} />
+              <span className="font-bold text-slate-200 truncate">
+                {isInOutro ? (
+                  <span className="text-amber-400">OUTRO BRAND &amp; QR</span>
+                ) : (
+                  <span>
+                    <span className="text-amber-400 font-bold">SCENA {activeSceneIndex + 1}/{sceneCount}</span>
+                    {currentScene?.titlePrimary && (
+                      <span className="text-slate-400 font-normal ml-1 truncate">
+                        · {currentScene.titlePrimary}
+                      </span>
+                    )}
+                  </span>
+                )}
+              </span>
+            </div>
+
+            {/* Tempo trascorso / Totale */}
+            <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-black/60 border border-slate-700/70 text-slate-300 font-semibold shrink-0">
+              <Clock className="w-3 h-3 text-amber-400" />
+              <span className="text-amber-300">{currentElapsed.toFixed(1)}s</span>
+              <span className="text-slate-500">/</span>
+              <span>{totalVideoDuration.toFixed(1)}s</span>
+            </div>
+          </div>
+
+          {/* Scrubber Range Bar con Scene Markers */}
+          <div className="relative w-full flex flex-col justify-center pt-1 pb-0.5 group">
+            {/* Background Track con markers delle scene */}
+            <div className="relative w-full h-2 rounded-full bg-slate-800 overflow-hidden cursor-pointer">
+              {/* Barra di riempimento colorata */}
+              <div
+                className={`h-full transition-all duration-75 ${
+                  brand === 'pizza'
+                    ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-pink-500'
+                    : 'bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400'
+                }`}
+                style={{ width: `${Math.min(100, Math.max(0, progress * 100))}%` }}
+              />
+            </div>
+
+            {/* Marcatori verticali di inizio scena e outro posizionati sopra il track */}
+            <div className="absolute inset-x-0 h-2 top-1 pointer-events-none flex items-center">
+              {sceneTimeline.map((item, idx) => {
+                if (idx === 0) return null;
+                const leftPercent = (item.start / totalVideoDuration) * 100;
+                return (
+                  <div
+                    key={`marker-${idx}`}
+                    className="absolute top-0 bottom-0 w-[2px] bg-slate-950/90 shadow-[0_0_2px_rgba(255,255,255,0.4)]"
+                    style={{ left: `${leftPercent}%` }}
+                    title={`Scena ${idx + 1}`}
+                  />
+                );
+              })}
+              {/* Outro Marker */}
+              <div
+                className="absolute top-0 bottom-0 w-[2px] bg-amber-400/90 shadow-[0_0_4px_rgba(251,191,36,0.8)]"
+                style={{ left: `${(outroStartTime / totalVideoDuration) * 100}%` }}
+                title="Outro Brand"
+              />
+            </div>
+
+            {/* Slider reale input range trasparente sovrapposto */}
+            <input
+              type="range"
+              min={0}
+              max={totalVideoDuration}
+              step={0.05}
+              value={Math.min(totalVideoDuration, currentElapsed)}
+              onChange={(e) => handleSeek(parseFloat(e.target.value))}
+              aria-label="Timeline scrubber"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-10"
+            />
+          </div>
+
+          {/* Bottoni di Navigazione: Replay, -1s, Play/Pause grande, +1s, Outro */}
+          <div className="flex items-center justify-between pt-1">
+            {/* Gruppo Sinistra: Replay & Indietro -1s */}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={handleReplay}
+                title="Riavvolgi all'inizio (0s)"
+                className="p-2 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-slate-500 text-slate-300 hover:text-white transition active:scale-95 shadow-sm"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-slate-300" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleStepBack(1.0)}
+                title="Indietro 1 secondo (-1s)"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-amber-500/60 text-slate-200 hover:text-amber-300 transition active:scale-95 shadow-sm text-xs font-mono font-bold"
+              >
+                <SkipBack className="w-3.5 h-3.5" />
+                <span>-1s</span>
+              </button>
+            </div>
+
+            {/* Centro: Play / Pause Primario */}
+            <button
+              type="button"
+              onClick={handleTogglePlay}
+              title={isPlaying ? 'Metti in Pausa' : 'Riproduci'}
+              className={`w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-lg active:scale-95 border ${
+                isPlaying
+                  ? 'bg-gradient-to-r from-amber-500 to-rose-600 border-amber-300 text-white shadow-amber-950/60'
+                  : 'bg-gradient-to-r from-emerald-500 to-teal-600 border-emerald-300 text-white shadow-emerald-950/60 pl-0.5'
+              }`}
+            >
+              {isPlaying ? (
+                <Pause className="w-5 h-5 fill-white" />
+              ) : (
+                <Play className="w-5 h-5 fill-white" />
+              )}
+            </button>
+
+            {/* Gruppo Destra: Avanti +1s & Salta ad Outro */}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleStepForward(1.0)}
+                title="Avanti 1 secondo (+1s)"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700/80 hover:border-amber-500/60 text-slate-200 hover:text-amber-300 transition active:scale-95 shadow-sm text-xs font-mono font-bold"
+              >
+                <span>+1s</span>
+                <SkipForward className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleJumpOutro}
+                title="Salta all'Outro Brand finale"
+                className={`px-2 py-1.5 rounded-xl border text-[11px] font-bold font-mono transition active:scale-95 shadow-sm ${
+                  isInOutro
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-400'
+                    : 'bg-slate-900 border-slate-700/80 hover:border-amber-500/50 text-slate-400 hover:text-amber-300'
+                }`}
+              >
+                End
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Scene Jump Chips (se ci sono 2 o più scene) */}
+          {scenes.length > 1 && (
+            <div className="flex items-center gap-1 pt-1 overflow-x-auto no-scrollbar">
+              <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider mr-0.5 shrink-0">
+                Scene:
+              </span>
+              {scenes.map((sc, i) => {
+                const isActive = !isInOutro && activeSceneIndex === i;
+                return (
+                  <button
+                    key={sc.id || i}
+                    type="button"
+                    onClick={() => handleJumpScene(i)}
+                    title={`Vai a Scena ${i + 1}: ${sc.titlePrimary || ''}`}
+                    className={`flex-1 min-w-[28px] py-1 px-1.5 rounded-lg text-[10px] font-mono font-bold transition border ${
+                      isActive
+                        ? (brand === 'pizza'
+                            ? 'bg-amber-500/25 border-amber-400 text-amber-300 shadow-sm'
+                            : 'bg-emerald-500/25 border-emerald-400 text-emerald-300 shadow-sm')
+                        : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                    }`}
+                  >
+                    #{i + 1}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={handleJumpOutro}
+                title="Vai all'Outro finale con Logo e contatti"
+                className={`py-1 px-2 rounded-lg text-[10px] font-mono font-bold transition border shrink-0 ${
+                  isInOutro
+                    ? 'bg-rose-500/25 border-rose-400 text-rose-300 shadow-sm'
+                    : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-rose-300 hover:border-slate-700'
+                }`}
+              >
+                Outro
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 🖥️ 2. COMPANION LANDSCAPE PLAYER 4:3 (Google Maps & Facebook Feed) - Esclusivo per P1 e V1 */}
       {isCompanionEligible && !testRun.isEmptyShowcase && (
         <div className="w-full mt-4 flex flex-col items-center">
@@ -1496,10 +3058,15 @@ export function AutoCutLabPlayer({
                 className="w-10 h-10 rounded-full object-cover border-[1.5px] border-amber-400/80 shadow-[0_4px_14px_rgba(0,0,0,0.85)] shrink-0 bg-black/40"
               />
               <div className="flex flex-col text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
-                <span className="text-xs sm:text-[13px] font-black text-white uppercase tracking-wider leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
-                  {brand === 'pizza' ? 'Flower Power Pizza' : 'Flower Power Village'}
-                </span>
-                <span className="text-[10px] sm:text-[11px] font-bold leading-tight mt-0.5 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
+                <div className="flex flex-col text-left leading-none">
+                  <span className="text-[13px] sm:text-[14.5px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                    FLOWER POWER
+                  </span>
+                  <span className={`font-light italic text-[11.5px] sm:text-xs capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
+                    {brand === 'pizza' ? 'Pizza' : 'Village'}
+                  </span>
+                </div>
+                <span className="text-[10px] sm:text-[11px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
                   {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking'}
                 </span>
               </div>
@@ -1514,21 +3081,22 @@ export function AutoCutLabPlayer({
                 {(brand === 'pizza' || mode === 'R1') && (
                   <div className="w-full flex items-end justify-between gap-2">
                     {/* Blocco Titoli (Sinistra) */}
-                    <div className="space-y-1 flex-1 min-w-0 pr-1">
+                    <div className="flex-1 min-w-0 pr-1">
                       {currentScene.badgeCategory && (() => {
                         let catText = currentScene.badgeCategory;
                         if (catText.toUpperCase().includes('TRADITIONAL ITALIAN PIZZA') || catText.toUpperCase() === 'TRADITIONAL PIZZA') {
                           catText = 'ITALIAN PIZZA';
                         }
                         return (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-wide shadow-md uppercase bg-rose-600 text-white border border-rose-400 whitespace-nowrap shrink-0">
-                            {catText}
-                          </span>
+                          <div className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-black tracking-wider uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
+                            <span className="text-rose-500 font-black text-xs">✦</span>
+                            <span className="[text-shadow:_0_2px_6px_rgba(0,0,0,1)]">{catText.replace(/^[✦⭐\s*]+/, '')}</span>
+                          </div>
                         );
                       })()}
 
                       {/* THAI IN GRANDE SOPRA (Per 4:3 se breve su singola riga protetta) */}
-                      <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                      <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight mt-0.5 [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                         {(mode === 'P1' ? format43DishTitle(currentScene.titlePrimary, 'th') : currentScene.titlePrimary.split('\n')).map((line, idx) => (
                           <span key={idx} className="block leading-tight whitespace-nowrap">
                             {line}
@@ -1557,20 +3125,30 @@ export function AutoCutLabPlayer({
                       {currentScene.pizzaSizes && mode !== 'R1' ? (
                         <div className="flex flex-col items-end gap-1">
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
                             <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">8"</span>
-                            <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size8Price}฿</span>
+                            <span
+                              className="font-['Kanit',sans-serif] text-[19px] sm:text-[21px] font-black leading-none tracking-tight"
+                              style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
+                            >
+                              {currentScene.pizzaSizes.size8Price}฿
+                            </span>
                           </div>
                           <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
                             <span className="font-['Kanit',sans-serif] text-xs sm:text-[13px] font-black bg-black text-white px-1.5 py-0.5 rounded-[3px] leading-none tracking-tight">12"</span>
-                            <span className="font-['Kanit',sans-serif] text-base sm:text-lg font-black leading-none tracking-tight">{currentScene.pizzaSizes.size12Price}฿</span>
+                            <span
+                              className="font-['Kanit',sans-serif] text-[19px] sm:text-[21px] font-black leading-none tracking-tight"
+                              style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3px #ffffff' }}
+                            >
+                              {currentScene.pizzaSizes.size12Price}฿
+                            </span>
                           </div>
                         </div>
                       ) : currentScene.priceLabel ? (
-                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
-                          <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse shrink-0 ring-1 ring-black/40" />
-                          <span className="font-['Kanit',sans-serif] text-lg sm:text-xl font-black leading-none tracking-tight">
+                        <div className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-[#FFE500] border-2 border-black shadow-[2px_2px_0px_#000000] text-black">
+                          <span
+                            className="font-['Kanit',sans-serif] text-[24px] sm:text-[26px] font-black leading-none tracking-tight"
+                            style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
+                          >
                             {currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿')}
                           </span>
                         </div>

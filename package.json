@@ -9,7 +9,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "render:cloud": "node scripts/render-social-video-cloud.mjs"
   },
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",
@@ -22,6 +23,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.344.0",
     "mammoth": "^1.12.1",
+    "mp4-muxer": "^5.2.2",
     "nodemailer": "^9.0.3",
     "pdfjs-dist": "^4.10.38",
     "pdfkit": "^0.19.1",
@@ -37,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vercel/node": "^5.8.23",
