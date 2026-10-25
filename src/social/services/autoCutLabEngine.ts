@@ -104,6 +104,14 @@ export const PIZZA_JINGLE_TRACKS: AutoCutAudioTrack[] = [
   }
 ];
 
+// 🎵 Brano Completo Ufficiale Flower Power Jingle (Arrangiamento Intero Signature Sound 27.8s)
+export const PIZZA_FULL_JINGLE_TRACK: AutoCutAudioTrack = {
+  id: 'pizza_full',
+  title: 'Flower Power Jingle (Versione Completa - Signature Sound)',
+  src: '/audio/00-flower-power-jingle-full.mp3',
+  duration: 27.8
+};
+
 // 🌺 Brani Sonori Koh Phayam Village (Scelta 100% Casuale tra tutte le 11 tracce ufficiali)
 export const VILLAGE_AUDIO_TRACKS_LAB: AutoCutAudioTrack[] = [
   {
@@ -494,7 +502,7 @@ export function getLiveDailySpecialDishes(): MenuItem[] {
     const isOverridden = dailyOverrides[id];
     const isShowcase = isOverridden !== undefined ? isOverridden === true : true;
     if (isShowcase) {
-      list.push({ ...dish, isDailySpecial: true });
+      list.push({ ...dish, isDailySpecial: true } as MenuItem);
     }
   });
 
@@ -504,7 +512,7 @@ export function getLiveDailySpecialDishes(): MenuItem[] {
     if (!dish.image || dish.image.trim() === '') return;
     if (availOverrides[id] === false || (dish as any).is_available === false) return;
     if (dailyOverrides[id] === true) {
-      list.push({ ...dish, isDailySpecial: true });
+      list.push({ ...dish, isDailySpecial: true } as MenuItem);
     }
   });
 
@@ -843,7 +851,8 @@ export function generateP2Test(): AutoCutTestRun {
 
   const catName = selectedCat.name;
   const selectedDishes = getRandomItems(selectedCat.availableItems, Math.min(3, selectedCat.availableItems.length));
-  const audio = getRandomItem(PIZZA_JINGLE_TRACKS);
+  // 🎵 REGOLA: Per P2 si usa SEMPRE l'MP3 completo della pizzeria (27.8s)
+  const audio = PIZZA_FULL_JINGLE_TRACK;
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 3;
 
@@ -898,7 +907,8 @@ export function generateP3Test(): AutoCutTestRun {
     catName: c.name
   }));
 
-  const audio = getRandomItem(PIZZA_JINGLE_TRACKS);
+  // 🎵 REGOLA: Per P3 si usa SEMPRE l'MP3 completo della pizzeria (27.8s)
+  const audio = PIZZA_FULL_JINGLE_TRACK;
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / (selectedDishes.length || 1);
 
@@ -1024,7 +1034,8 @@ export function generateV2Test(): AutoCutTestRun {
  */
 export function generateV3Test(): AutoCutTestRun {
   const lodgings = getRandomItems(getVillageLodgingsLive(), 5);
-  const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
+  // 🎵 REGOLA: Dove c'è più di un alloggio si usa sempre l'MP3 completo Flower Power (27.8s)
+  const audio = PIZZA_FULL_JINGLE_TRACK;
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / 5;
 
@@ -1215,7 +1226,8 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
       ? cachedLiveLastMinuteRooms
       : defaultRooms;
 
-  const audio = getRandomItem(VILLAGE_AUDIO_TRACKS_LAB);
+  // 🎵 REGOLA: Dove c'è più di un alloggio si usa sempre l'MP3 completo Flower Power (27.8s)
+  const audio = PIZZA_FULL_JINGLE_TRACK;
   const totalDuration = audio.duration;
   const sceneDuration = totalDuration / rooms.length;
 
