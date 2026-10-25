@@ -1008,12 +1008,14 @@ export function AutoCutLabPlayer({
       oCtx.fillStyle = topGrad;
       oCtx.fillRect(0, 0, w, topFadeH);
 
-      // 2. Bottom Vignette Fade soffice (massima purezza, zero neri bruciati o colori finti)
-      const btmFadeH = 135 * s;
+      // 2. Bottom Vignette Fade cinematografica: protegge interamente la card testi (categoria, titoli e prezzo)
+      const btmFadeH = 340 * s;
       const btmGrad = oCtx.createLinearGradient(0, h - btmFadeH, 0, h);
       btmGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      btmGrad.addColorStop(0.40, 'rgba(0, 0, 0, 0.15)');
-      btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.40)');
+      btmGrad.addColorStop(0.28, 'rgba(0, 0, 0, 0.22)');
+      btmGrad.addColorStop(0.58, 'rgba(0, 0, 0, 0.55)');
+      btmGrad.addColorStop(0.82, 'rgba(0, 0, 0, 0.75)');
+      btmGrad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
       oCtx.fillStyle = btmGrad;
       oCtx.fillRect(0, h - btmFadeH, w, btmFadeH);
 
@@ -1030,9 +1032,11 @@ export function AutoCutLabPlayer({
       let maxSubW = fpW;
 
       if (mode === 'R1') {
+        oCtx.font = `900 ${Math.round(24.2 * s)}px "Outfit", sans-serif`;
+        const delivW = oCtx.measureText('DELIVERY ').width + (24 * s);
         oCtx.font = `900 ${Math.round(17.6 * s)}px "Outfit", sans-serif`;
         const phoneW = (12.65 * 4 + 11) * s + oCtx.measureText('+66 095 882 5573').width;
-        maxSubW = Math.max(fpW, phoneW);
+        maxSubW = Math.max(fpW, phoneW, delivW);
       } else if (mode === 'DS') {
         oCtx.font = `900 ${Math.round(23 * s)}px "Prompt", "Kanit", sans-serif`;
         const dsThai = scene.isLiveShowcase ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน';
@@ -1107,7 +1111,7 @@ export function AutoCutLabPlayer({
       if (mode === 'R1') {
         ty += 15 * s; // distacco da Village (+5px totali)
 
-        // DELIVERY in rosso con contorno bianco netto E PULSAZIONE SINUSOIDALE DINAMICA! (+10%)
+        // DELIVERY in rosso con contorno bianco netto, emoji moto delivery 🛵 E PULSAZIONE SINUSOIDALE DINAMICA! (+10%)
         const pulse = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.4));
         oCtx.save();
         oCtx.globalAlpha = pulse;
@@ -1119,6 +1123,11 @@ export function AutoCutLabPlayer({
         oCtx.strokeText('DELIVERY', tx, ty);
         oCtx.fillStyle = '#ef4444';
         oCtx.fillText('DELIVERY', tx, ty);
+
+        // Emoji Moto Delivery 🛵 affiancata con resa nativa brillante
+        const delivTextW = oCtx.measureText('DELIVERY').width;
+        oCtx.font = `${Math.round(21 * s)}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+        oCtx.fillText('🛵', tx + delivTextW + (6 * s), ty + (1 * s));
         oCtx.restore();
         ty += delivFontSize + (7 * s); // allontanato di 2 pixel netti
 
@@ -1279,8 +1288,8 @@ export function AutoCutLabPlayer({
           ? (30 * s)
           : (35 * s);
 
-        // Categoria bilingue (Thai sopra a 17.5*s, Inglese sotto a 14*s): altezza 39*s
-        const badgeH = hasBadge ? (39 * s) : 0;
+        // Categoria bilingue (Thai sopra a 17.5*s, Inglese sotto a 14*s + stacco 14*s): altezza 53*s (era 39*s)
+        const badgeH = hasBadge ? (53 * s) : 0;
         const thaiH = thaiLines.length * thaiLineStep;
         const engH = engLines.length * (24 * s);   // Interlinea +20% (era 20*s)
         const priceH = (hasPrice || scene.pizzaSizes) ? (43 * s + 20 * s) : 0; // Box Prezzo +20% (distacco alzato di +10px da 10*s a 20*s)
@@ -1337,7 +1346,7 @@ export function AutoCutLabPlayer({
           oCtx.font = `900 ${Math.round(14 * s)}px "Outfit", "Inter", sans-serif`;
           oCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
           oCtx.fillText(catClean, bx + (18 * s), by);
-          by += 18 * s;
+          by += 32 * s; // Distacco netto e armonioso (+14px di respiro: da 18*s a 32*s) prima del titolo del piatto
         }
 
         // Titolo Thai sopra in grande e marcato con contorno nero solido e ombra profonda (Auto-scale a 2 righe max)
@@ -2532,15 +2541,15 @@ export function AutoCutLabPlayer({
               <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
                 Village
               </span>
-              {/* DELIVERY lampeggiante senza pallino, con sotto Thai (+10%) - distacco +5px totali da Village */}
+              {/* DELIVERY lampeggiante con emoji moto 🛵 - distacco +5px totali da Village */}
               <div className="flex flex-col items-start pt-[13px] leading-none">
                 <span
-                  className="font-['Outfit',sans-serif] text-[22px] sm:text-[23.5px] font-black uppercase tracking-wider text-[#ef4444] whitespace-nowrap leading-none animate-pulse"
+                  className="font-['Outfit',sans-serif] text-[22px] sm:text-[23.5px] font-black uppercase tracking-wider text-[#ef4444] whitespace-nowrap leading-none animate-pulse inline-flex items-center gap-1.5"
                   style={{
                     filter: 'drop-shadow(1px 0 0 #ffffff) drop-shadow(-1px 0 0 #ffffff) drop-shadow(0 1px 0 #ffffff) drop-shadow(0 -1px 0 #ffffff) drop-shadow(0 2px 4px rgba(0,0,0,0.95))'
                   }}
                 >
-                  DELIVERY
+                  DELIVERY <span className="text-[20px] sm:text-[22px] not-italic drop-shadow-none">🛵</span>
                 </span>
                 <span className="font-['Prompt',sans-serif] text-[17.5px] sm:text-[19px] font-extrabold tracking-normal text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap leading-none mt-1.5 pt-0.5">
                   เดลิเวอรี่
@@ -2624,6 +2633,11 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
+      {/* Sfondo sfumato nero in basso (Bottom Vignette Fade cinematografica: protegge categoria, titoli bilingui e prezzo) */}
+      <div className={`absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-black/85 via-black/55 via-45% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
+        isInOutro ? 'opacity-0' : 'opacity-100'
+      }`} />
+
       {/* 🏷️ GERARCHIA TIPOGRAFICA RIGOROSA (SAFE ZONE IN BASSO PROPORZIONATA - ALZATA DI 20PX: bottom-[47px]) */}
       {!testRun.isEmptyShowcase && currentScene && (
         <div className={`absolute left-[25px] right-3.5 bottom-[47px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-500 ${
@@ -2634,7 +2648,7 @@ export function AutoCutLabPlayer({
           {(brand === 'pizza' || mode === 'R1') && (
             <div className="w-full">
               {currentScene.badgeCategory && (
-                <div className="flex flex-col items-start gap-0.5 mb-1.5">
+                <div className="flex flex-col items-start gap-0.5 mb-4">
                   <div className="inline-flex items-center gap-1.5 text-[15.5px] sm:text-[17.5px] font-black tracking-wide text-amber-300 drop-shadow-[0_2px_8px_rgba(0,0,0,1)] whitespace-nowrap">
                     <span className="text-[#dc2626] font-black text-[16px] drop-shadow-[0_0_8px_rgba(220,38,38,0.95)]">✦</span>
                     <span className="font-['Prompt',sans-serif] [text-shadow:_0_2px_8px_rgba(0,0,0,1)]">
