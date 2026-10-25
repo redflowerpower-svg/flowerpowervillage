@@ -241,6 +241,17 @@
 - **Effetto reale:** Sia in anteprima a schermo nel Social Studio sia nei video esportati, i formati del villaggio V1, V2 e V3 mostrano esattamente lo stesso identico logo approvato di LM1 con il bordo giallo oro e la grafica ad alta risoluzione.
 - **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
 
+### 🟩 [26/10/2026 - ORE 01:38] · SOCIAL STUDIO AUTOCUT: CONCENTRAZIONE TOTALE A 2 COLONNE (METEO/FESTA A SX + DEEPSEEK & BOTTONI A DX)
+- **Cosa abbiamo fatto:** Riorganizzata la seconda riga del cockpit di [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx) in una griglia perfettamente bilanciata a 2 colonne (`grid grid-cols-1 md:grid-cols-2 gap-2.5 items-stretch`), recuperando oltre 70px di altezza verticale e azzerando lo spazio vuoto:
+  - 📐 **Colonna Sinistra**: Il box a 3 righe con `METEO` (Koh Phayam 26°C RAIN), `PERIODO` (Ottobre · Green Season) e `FESTA` (🎃 Halloween 31 Ott).
+  - 🤖 **Colonna Destra**:
+    - **Sopra**: Il banner compatto di **DeepSeek AI V3** con il logo del balenottero e spia di sincronizzazione live.
+    - **Sotto**: I due pulsanti d'azione affiancati in 2 colonne (`Prompt AI` in grigio scuro e `Rigenera` con gradiente blu-indaco e icona rotante).
+- **Effetto reale:** L'intera testata di controllo è ora ultra-compatta, densa e concentrata, occupando metà dell'altezza precedente e posizionando tutti gli strumenti critici a portata di mano senza occupare spazio sopra la preview del copy.
+- **Stato:** ✅ Compilato (0 errori TypeScript), verificato con screenshot live in browser e 100% operativo.
+
+---
+
 ### 🟩 [26/10/2026 - ORE 01:34] · SOCIAL STUDIO AUTOCUT: OTTIMIZZAZIONE METEO/FESTIVITÀ IN 3 RIGHE COMPATTE (ZERO OVERFLOW & DESIGN PERFETTO)
 - **Cosa abbiamo fatto:** Trasformato il widget del meteo e festività in [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx) da 3 colonne larghe a **3 righe compatte sovrapposte** (`flex flex-col gap-1.5 px-3 py-2 rounded-xl bg-slate-950/90 border border-slate-800`), eliminando qualsiasi sbordamento ("sbuzza fuori") dal bordo della card:
   - 🌦️ **Riga 1 (Meteo)**: Etichetta `METEO` a larghezza fissa + icona dinamica, città reale (`Koh Phayam 26°C`) e badge pulsante `RAIN`.
