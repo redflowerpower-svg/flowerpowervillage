@@ -21,6 +21,81 @@ if (globalVillageLogoImg instanceof Image) {
   globalVillageLogoImg.src = VILLAGE_LOGO_512_BASE64;
 }
 
+// 🛡️ Precaricamento sincrono Canvas Buffer per Loghi Ufficiali (Pizza & Village)
+// Creare un canvas 512x512 nativo garantisce che i pixel RGBA siano fisicamente presenti nella memoria RAM/GPU,
+// azzerando qualsiasi rischio di decodifica ritardata o drawImage() a vuoto nel ciclo a 60 fps di Chromium.
+let cachedVillageLogoCanvas: HTMLCanvasElement | null = null;
+let cachedPizzaLogoCanvas: HTMLCanvasElement | null = null;
+
+function renderBase64ToCanvas(base64Data: string): HTMLCanvasElement | null {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    ctx.clearRect(0, 0, 512, 512);
+    ctx.drawImage(img, 0, 0, 512, 512);
+  };
+  img.src = base64Data;
+  if (img.complete && img.naturalWidth > 0) {
+    ctx.clearRect(0, 0, 512, 512);
+    ctx.drawImage(img, 0, 0, 512, 512);
+  }
+  return canvas;
+}
+
+if (typeof document !== 'undefined') {
+  cachedPizzaLogoCanvas = renderBase64ToCanvas(PIZZA_LOGO_512_BASE64);
+  cachedVillageLogoCanvas = renderBase64ToCanvas(VILLAGE_LOGO_512_BASE64);
+}
+
+async function ensureBrandLogosReady(): Promise<void> {
+  if (typeof document === 'undefined') return;
+
+  const bakeCanvas = (src: string, existing: HTMLCanvasElement | null): Promise<HTMLCanvasElement> => {
+    return new Promise((resolve) => {
+      const c = existing || document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        if (ctx) {
+          ctx.clearRect(0, 0, 512, 512);
+          ctx.drawImage(img, 0, 0, 512, 512);
+        }
+        resolve(c);
+      };
+      img.onerror = () => resolve(c);
+      img.src = src;
+      if (img.complete && img.naturalWidth > 0) {
+        if (ctx) {
+          ctx.clearRect(0, 0, 512, 512);
+          ctx.drawImage(img, 0, 0, 512, 512);
+        }
+        resolve(c);
+      }
+    });
+  };
+
+  const [pizzaC, villageC] = await Promise.all([
+    bakeCanvas(PIZZA_LOGO_512_BASE64, cachedPizzaLogoCanvas),
+    bakeCanvas(VILLAGE_LOGO_512_BASE64, cachedVillageLogoCanvas)
+  ]);
+  cachedPizzaLogoCanvas = pizzaC;
+  cachedVillageLogoCanvas = villageC;
+}
+
+if (typeof window !== 'undefined') {
+  ensureBrandLogosReady().catch(() => {});
+}
+
 // SVG Path ufficiale WhatsApp per rendering fedele su Canvas 2D
 const WA_PHONE_PATH_DATA =
   'M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8.01 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 13.99C16.32 13.86 15.12 13.27 14.9 13.19C14.68 13.1 14.52 13.06 14.36 13.3C14.19 13.55 13.73 14.11 13.59 14.27C13.45 14.44 13.31 14.46 13.06 14.34C12.82 14.21 12.05 13.96 11.13 13.14C10.42 12.5 9.93 11.72 9.8 11.49C9.66 11.25 9.78 11.11 9.9 10.99C10.01 10.88 10.15 10.7 10.27 10.56C10.39 10.41 10.44 10.31 10.52 10.15C10.6 9.99 10.56 9.85 10.5 9.72C10.44 9.6 9.95 8.41 9.75 7.91C9.55 7.43 9.35 7.5 9.19 7.49C9.05 7.49 8.89 7.48 8.72 7.48L8.53 7.33Z';
@@ -469,10 +544,19 @@ export function AutoCutLabPlayer({
       }
 
       // Disegno Logo Centrato con Ombra 3D d'Impatto
+      const outroLogoCanvas = brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
       const domOutroLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
-      const effectiveOutroLogo = (domOutroLogo && domOutroLogo.complete && domOutroLogo.naturalWidth > 0) ? domOutroLogo : logoImg;
+      const targetOutroLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
+      const effectiveOutroLogo: CanvasImageSource | null =
+        (outroLogoCanvas && outroLogoCanvas.width > 0)
+          ? outroLogoCanvas
+          : (domOutroLogo && domOutroLogo.complete && domOutroLogo.naturalWidth > 0)
+            ? domOutroLogo
+            : (targetOutroLogo && targetOutroLogo.complete && targetOutroLogo.naturalWidth > 0)
+              ? targetOutroLogo
+              : logoImg;
 
-      if (effectiveOutroLogo && (effectiveOutroLogo.complete || (effectiveOutroLogo as any).naturalWidth > 0)) {
+      if (effectiveOutroLogo) {
         targetCtx.save();
         targetCtx.translate(cx, cy);
         targetCtx.rotate(stampRotate);
@@ -857,12 +941,13 @@ export function AutoCutLabPlayer({
           ctx43.fillStyle = `rgba(0, 0, 0, ${darkAlpha})`;
           ctx43.fillRect(0, 0, w43, h43);
 
-          if (logoImg.complete && logoImg.naturalWidth > 0) {
+          const comp43Logo = (brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas) || (logoImg.complete && logoImg.naturalWidth > 0 ? logoImg : null);
+          if (comp43Logo) {
             const lSize = 130;
             ctx43.save();
             ctx43.shadowColor = 'rgba(0, 0, 0, 0.9)';
             ctx43.shadowBlur = 20;
-            ctx43.drawImage(logoImg, cx43 - lSize / 2, 100, lSize, lSize);
+            ctx43.drawImage(comp43Logo, cx43 - lSize / 2, 100, lSize, lSize);
             ctx43.restore();
           }
 
@@ -1078,13 +1163,20 @@ export function AutoCutLabPlayer({
       const logoX = Math.round((w - totalBlockW) / 2);
       const tx = logoX + logoSize + gap;
 
+      // 🛡️ Selezione logo ultra-robusta: canvas pre-renderizzato > domLogo decodificato > targetLogo > logoImg
+      const brandLogoCanvas = brand === 'pizza' ? cachedPizzaLogoCanvas : cachedVillageLogoCanvas;
       const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
       const domLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
-      const effectiveLogo = (targetLogo && (targetLogo.complete || (targetLogo as any).naturalWidth > 0))
-        ? targetLogo
-        : (domLogo && (domLogo.complete || (domLogo as any).naturalWidth > 0))
-          ? domLogo
-          : logoImg;
+      const effectiveLogo: CanvasImageSource | null =
+        (brandLogoCanvas && brandLogoCanvas.width > 0)
+          ? brandLogoCanvas
+          : (domLogo && domLogo.complete && domLogo.naturalWidth > 0)
+            ? domLogo
+            : (targetLogo && targetLogo.complete && targetLogo.naturalWidth > 0)
+              ? targetLogo
+              : (logoImg && logoImg.complete && logoImg.naturalWidth > 0)
+                ? logoImg
+                : null;
 
       if (effectiveLogo) {
         oCtx.save();
@@ -1092,6 +1184,11 @@ export function AutoCutLabPlayer({
         oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
         oCtx.closePath();
         oCtx.clip();
+
+        // 🛡️ Sfondo circolare solido di contrasto: elimina al 100% qualsiasi trasparenza o infiltrazione del fogliame video sottostante
+        oCtx.fillStyle = '#0b1120';
+        oCtx.fill();
+
         try {
           oCtx.drawImage(effectiveLogo, logoX, logoY, logoSize, logoSize);
         } catch (drawErr) {
@@ -1540,7 +1637,7 @@ export function AutoCutLabPlayer({
         const siteFontSize = Math.round(14.5 * s);
         oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('flowerpowervillage.com', tx, ty, 'rgba(255,255,255,0.95)', 2.8 * s);
-        ty += siteFontSize + (2 * s); // Legato in blocco unico compatto
+        ty += siteFontSize + (6 * s); // Distanziato di esattamente 4px extra (da 2*s a 6*s) sotto flowerpowervillage.com
 
         const bioFontSize = Math.round(14.5 * s);
         oCtx.font = `700 ${bioFontSize}px "Outfit", sans-serif`;
@@ -2140,6 +2237,7 @@ export function AutoCutLabPlayer({
         // 🖼️ Precarica e decodifica tutti gli asset visivi critici (Logo Ufficiale Brand + Immagini Full HD)
         if (onProgress) onProgress(18, 1, 'Decodifica e preriscaldamento logo ufficiale e fotogrammi Full HD...');
         try {
+          await ensureBrandLogosReady();
           const domLogoEl = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
           const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
           if (targetLogo instanceof Image && !targetLogo.src) {
@@ -3219,8 +3317,8 @@ export function AutoCutLabPlayer({
               >
                 10% OFF
               </span>
-              {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1.5 */}
-              <div className="flex flex-col gap-0.5 mt-1.5">
+              {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1.5, con Link in Bio distanziato 4px in più (gap-[6px]) */}
+              <div className="flex flex-col gap-[6px] mt-1.5">
                 <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                   flowerpowervillage.com
                 </span>

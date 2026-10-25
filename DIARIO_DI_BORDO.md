@@ -3,6 +3,21 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 21:30] · SOCIAL STUDIO AUTOCUT: BUFFER CANVAS SINCRONO PER LOGHI (ZERO LOGHI VUOTI NEL VIDEO) E DISTANZIAMENTO LINK IN BIO +4PX
+- **Cosa abbiamo fatto:** Risolto definitivamente il problema del logo invisibile/trasparente nei video esportati (V3, V1, V2, LM1, P1, P2, P3, DS) e calibrato la spaziatura della dicitura `Link in Bio` in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 🛡️ **Buffer Sincrono `HTMLCanvasElement` per Loghi Ufficiali (Pizza & Village)**:
+    - Creato il sistema di rasterizzazione preliminare `cachedVillageLogoCanvas` e `cachedPizzaLogoCanvas` tramite `renderBase64ToCanvas` ed `ensureBrandLogosReady`. Un elemento canvas in memoria memorizza direttamente i pixel RGBA nativi: quando viene invocato `drawImage(canvas)`, Chromium copia direttamente i pixel senza dipendere dalla decodifica asincrona di `new Image()`.
+    - Integrata la decodifica asincrona forzata con `await ensureBrandLogosReady()` prima di avviare il loop dei fotogrammi di esportazione in `__autoCutGetVideo`.
+    - Inserito un fondo circolare solido di contrasto (`#0b1120`) all'interno dell'area mascherata del cerchio prima del disegno del logo: azzera categoricamente ogni rischio di trasparenza o infiltrazione della foto di sfondo (es. il fogliame verde della Jungle Villa).
+    - Aggiornati con il medesimo fallback sia il logo di testata overlay, sia il logo centrale d'impatto dell'Outro, sia il rendering del video companion 4:3.
+  - 📏 **Distanziamento +4px di `Link in Bio` da `flowerpowervillage.com`**:
+    - Nel Canvas video di esportazione: la coordinata verticale passa da `ty += siteFontSize + (2 * s)` a `ty += siteFontSize + (6 * s)` (+4px scalati reali).
+    - Nel player di anteprima DOM: aumentato il gap tra `flowerpowervillage.com` e `Link in Bio` da `gap-0.5` (2px) a `gap-[6px]` (6px, ovvero +4px netti), garantendo perfetta conformità 1:1 tra anteprima a schermo e file esportato per Telegram/TikTok/Instagram.
+- **Effetto reale:** Nei video esportati il logo Flower Power Village e Flower Power Pizza appare sempre nitido, perfettamente colorato e con cornice oro brillante, senza cerchi vuoti o sfondi che traspaiono. La dicitura `Link in Bio` è visivamente più ariosa e leggibile.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 21:15] · DINING TABLET & KDS: BLINDATURA 2 ORE, ESPOSIZIONE IMPORTO CARRELLO E SANDBOX LOCALE A CIRCUITO CHIUSO (ISOLAMENTO TOTALE DALLA THAILANDIA)
 - **Cosa abbiamo fatto:** Risolto il problema degli ordini fantasma e creato una sandbox locale ermetica per collaudare tutto il ciclo comande su `localhost` senza contaminare il ristorante reale a Ranong:
   - ⏱️ **Auto-Chiusura Categorica a 2 Ore (Anti-Ghost Orders)**:
