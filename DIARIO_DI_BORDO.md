@@ -5,6 +5,16 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 12:54] · PROVA COMPARATIVA OFFERTE (OPZIONE 1: BADGE PREZZO + OPZIONE 2: NASTRO TICKER)
+- **Cosa abbiamo fatto:** Integrate contemporaneamente entrambe le soluzioni di design nei formati Pizzeria Ranong (`P1`, `P2`, `P3`, `DS`) sia nel motore Canvas (`renderOverlaysToContext`) sia nell'anteprima DOM in `AutoCutLabPlayer.tsx`:
+  - 🏷️ **Opzione 1 (Badge a destra del Prezzo)**: Inserito a destra del box giallo del prezzo uno smart tag sagomato in vetro scuro con bordino oro/ambra contenente:
+    - 🇹🇭 `🛵 ส่งฟรี 300฿+ · 🏷️ ลด 10%`
+    - 🇬🇧 `Free Delivery 300฿+ · 1st Order -10%`
+  - 🎗️ **Opzione 2 (Nastro Ticker Sottile sotto l'Header)**: Inserita una pillola orizzontale ultrasottile (26px) sotto il blocco del logo e dei titoli header:
+    - `🛵 ส่งฟรี 300฿+ (Free Delivery) ✦ 🏷️ ลด 10% ครั้งแรก (10% OFF 1st)`
+- **Effetto reale:** Ora sul player puoi vedere e confrontare dal vivo entrambe le soluzioni a schermo: valuta se preferisci il nastro orizzontale in alto (Opzione 2) o il cartellino promozionale a destra del prezzo in basso (Opzione 1), oppure se tenerli entrambi.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 12:35] · ALLONTANAMENTO MILLIMETRICO DS (+10PX PIZZA-BADGE & +10PX BADGE-TESTI)
 - **Cosa abbiamo fatto:** Aumentata nettamente la spaziatura nel formato **DS** sia sul Canvas sia nel DOM in `AutoCutLabPlayer.tsx` in risposta al feedback visivo:
   - 📏 **Live Showcase allontanato di ulteriori 10px da Pizza (totale 15px)**: Nel DOM applicato `mt-[15px]` e su Canvas `ty += 10 * s` (totale 15*s). Il badge rettangolare scende verso il basso creando una separazione netta e visibile da *Pizza*.
