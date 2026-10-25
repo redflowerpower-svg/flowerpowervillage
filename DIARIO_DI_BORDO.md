@@ -3,6 +3,34 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [26/10/2026 - ORE 00:30] · SOCIAL STUDIO SCHEDULER: PALINSESTO PERFEZIONATO (GRUPPO PHAYAM ALLOGGI ORE 08:45, TIKTOK CENA ORE 17:15 & REEL NOTTURNO INTERNAZIONALE ORE 23:00 PER L'EUROPA)
+- **Cosa abbiamo fatto:** Ottimizzato il palinsesto del Social Studio in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) armonizzando i compiti manuali dello staff con i flussi turistici reali e integrando lo slot notturno automatico per il pubblico europeo:
+  - 🏝️ **Post Gruppo Facebook Koh Phayam al Mattino (Ore 08:45)**:
+    - 👥 `🟡` Ore 08:45: Spostato il post manuale sul gruppo di Koh Phayam al mattino (`LM1` Alloggi Disponibili Oggi). È il momento perfetto: chi fa check-out dai resort (ore 10:00-11:00) o chi sbarca dai motoscafi da Ranong (ore 10:00-11:30) cerca dove dormire mentre fa colazione.
+  - 🍕 **TikTok Story Serale Pizzeria Ranong (Ore 17:15)**:
+    - 🎵 `🟡` Ore 17:15: Aggiunta una seconda Story TikTok per la Pizzeria (formato `P1` con pizza calda, impasto 48h e claim delivery). Stimola la fame quando gli uffici chiudono e le persone tornano a casa a Ranong, generando ordini per la serata.
+  - 🌍 **Reel Internazionale Notturno Villaggio per l'Europa (Ore 23:00)**:
+    - 🌙 `🤖` Ore 23:00 (Thai Time): Slot 100% automatico per Instagram e Facebook (`V3` Tropical Escape Villaggio). Nel fuso orario thailandese è notte fonda, ma in Europa (Italia, Germania, Francia) sono le **17:00 / 18:00**, l'orario di punta in cui le persone staccano dal lavoro e pianificano le vacanze tropicali invernali. Zero cerchio giallo, il server pubblica in background mentre lo staff riposa.
+- **Effetto reale:** Nel calendario mensile ogni giornata è strutturata in 8 momenti strategici ad altissima resa: 3 sole azioni manuali per Marco (08:00 TikTok x2, 08:45 Gruppo Phayam, 17:15 TikTok Cena) tutte con pallino giallo `🟡`, e il resto della giornata e della notte affidato al server automatico.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
+### 🟩 [26/10/2026 - ORE 00:25] · SOCIAL STUDIO AUTOCUT: RIMOZIONE TOTALE DEL CERCHIO, CONTORNI E MASCHERE (PURO LOGO AUTENTICO AD ASSET PULITO SIA IN ANTEPRIMA CHE IN RENDERING CANVAS)
+- **Cosa abbiamo fatto:** Eliminato radicalmente qualsiasi cerchio, bordo dorato, maschera circolare o sfondo di contenimento attorno al logo in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx), caricando ed esponendo esclusivamente l'asset grafico trasparente originale del brand:
+  - 🚫 **Azzerati Sfondi e Maschere Circolari (Addio Rounded, Bg e Clip)**:
+    - Nel player di anteprima DOM (9:16 e 4:3 per DS, P1, P2, P3, R1, LM1, V1, V2, V3): rimosso `rounded-full`, rimosso `border-2 border-amber-400`, rimosso `bg-black/60` e rimosso `object-cover`.
+    - Applicato lo stile puro `w-[90px] h-[90px] object-contain drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0`: viene mostrato direttamente il logo nativo con le sue trasparenze originali e una morbida ombra naturale di profondità.
+  - 🎨 **Pulizia Totale nel Rendering Canvas (`renderOverlaysToContext`)**:
+    - Rimosso lo sfondo circolare `oCtx.fillStyle = '#0b1120'`.
+    - Rimossa la maschera di ritaglio `oCtx.clip()`.
+    - Rimosso il contorno dorato `oCtx.strokeStyle = '#f59e0b'` / `oCtx.stroke()`.
+    - Ora il canvas esegue il disegno diretto di `effectiveLogo` con `oCtx.drawImage(effectiveLogo, logoX, logoY, logoSize, logoSize)` accompagnato da ombra `rgba(0,0,0,0.95)`, esattamente identico all'infallibile Outro finale.
+- **Effetto reale:** Nessun cerchio o bordo artificioso compare più sul video: sia nell'anteprima del Social Studio sia nei video esportati per Telegram/TikTok/Instagram/Facebook compare unicamente il logo autentico pulito e nitido.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [26/10/2026 - ORE 00:15] · SOCIAL STUDIO SCHEDULER: DOPPIA TIKTOK STORY ORE 08:00 CONTEMPORANEA (PIZZA + VILLAGGIO), R1 GRUPPI ALLE 17:00 & BLINDATURA FASCIA DIURNA (08:00 - 17:00)
 - **Cosa abbiamo fatto:** Riorganizzata la schedulazione manuale e automatica dello Scheduler in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) e [AutoCutStudioPage.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/pages/AutoCutStudioPage.tsx):
   - 🌅 **Doppia Story TikTok Contemporanea alle 08:00 del Mattino**:
