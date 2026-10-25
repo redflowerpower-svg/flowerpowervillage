@@ -13,12 +13,12 @@ globalLineQrImg.src = LINE_QR_CODE_BASE64;
 // Loghi Ufficiali precaricati e decodificati all'avvio garantiti al 100% da Data URI Base64 in memoria (zero CORS, zero fetch di rete, zero latenza, mai vuoti)
 const globalPizzaLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
 if (globalPizzaLogoImg instanceof Image) {
-  globalPizzaLogoImg.src = '/flower-power-pizza-logo-512.png';
+  globalPizzaLogoImg.src = PIZZA_LOGO_512_BASE64;
 }
 
 const globalVillageLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
 if (globalVillageLogoImg instanceof Image) {
-  globalVillageLogoImg.src = '/flower-power-village-logo-512.png';
+  globalVillageLogoImg.src = VILLAGE_LOGO_512_BASE64;
 }
 
 // 🛡️ Precaricamento sincrono Canvas Buffer per Loghi Ufficiali (Pizza & Village)
@@ -344,7 +344,7 @@ export function AutoCutLabPlayer({
     // Riferimento al logo ufficiale (Pizza / Villaggio)
     const logoImg = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
     if (logoImg instanceof Image && !logoImg.src) {
-      logoImg.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png';
+      logoImg.src = brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64;
     }
 
     // QR Code ufficiale LINE della Pizzeria garantito da istanza Base64 in memoria
@@ -2277,7 +2277,7 @@ export function AutoCutLabPlayer({
           const domLogoEl = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
           const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
           if (targetLogo instanceof Image && !targetLogo.src) {
-            targetLogo.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png';
+            targetLogo.src = brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64;
           }
 
           const imgsToDecode: HTMLImageElement[] = [
@@ -3060,7 +3060,7 @@ export function AutoCutLabPlayer({
           {/* Top Brand Pill */}
           <div className="pt-4 flex flex-col items-center">
             <img
-              src="/flower-power-pizza-logo-512.png"
+              src={PIZZA_LOGO_512_BASE64}
               alt="Flower Power Pizza"
               className="w-14 h-14 rounded-full object-cover border-2 border-amber-400/80 shadow-[0_0_20px_rgba(245,158,11,0.35)] mb-2.5"
             />
@@ -3160,7 +3160,7 @@ export function AutoCutLabPlayer({
             <div className="flex items-start gap-3">
               <img
                 id="autoCutHeaderLogoImg"
-                src="/flower-power-pizza-logo-512.png"
+                src={PIZZA_LOGO_512_BASE64}
                 alt="Flower Power Pizza"
                 className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
               />
@@ -3201,7 +3201,7 @@ export function AutoCutLabPlayer({
             <div className="flex items-start gap-3">
               <img
                 id="autoCutHeaderLogoImg"
-                src="/flower-power-pizza-logo-512.png"
+                src={PIZZA_LOGO_512_BASE64}
                 alt="Flower Power Pizza"
                 className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
               />
@@ -3237,13 +3237,7 @@ export function AutoCutLabPlayer({
             <div className="flex items-start gap-3">
               <img
                 id="autoCutHeaderLogoImg"
-                src="/flower-power-village-logo-512.png"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (target.src.indexOf('FP_04_-_LOGO_OFFICIAL_HD.png') === -1) {
-                    target.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
-                  }
-                }}
+                src={VILLAGE_LOGO_512_BASE64}
                 alt="Flower Power Village"
                 className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
               />
@@ -3295,13 +3289,7 @@ export function AutoCutLabPlayer({
             <div className="flex items-start gap-3">
               <img
                 id="autoCutHeaderLogoImg"
-                src="/flower-power-village-logo-512.png"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (target.src.indexOf('FP_04_-_LOGO_OFFICIAL_HD.png') === -1) {
-                    target.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
-                  }
-                }}
+                src={VILLAGE_LOGO_512_BASE64}
                 alt="Flower Power Village"
                 className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
               />
@@ -3372,13 +3360,7 @@ export function AutoCutLabPlayer({
             <div className="flex items-start gap-3">
               <img
                 id="autoCutHeaderLogoImg"
-                src="/flower-power-village-logo-512.png"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  if (target.src.indexOf('FP_04_-_LOGO_OFFICIAL_HD.png') === -1) {
-                    target.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
-                  }
-                }}
+                src={VILLAGE_LOGO_512_BASE64}
                 alt="Flower Power Village"
                 className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
               />
@@ -3878,9 +3860,9 @@ export function AutoCutLabPlayer({
             }`}>
               <img
                 crossOrigin="anonymous"
-                src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png'}
+                src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
                 alt="Logo"
-                className="w-[60px] h-[60px] rounded-full object-cover border-[2.5px] border-amber-400/80 shadow-[0_4px_16px_rgba(0,0,0,0.9)] shrink-0 bg-black/40"
+                className="w-[60px] h-[60px] rounded-full object-cover border-[2.5px] border-amber-400/80 shadow-[0_4px_16px_rgba(0,0,0,0.95)] shrink-0 bg-black/40"
               />
               <div className="flex flex-col text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                 <div className="flex flex-col text-left leading-none">
