@@ -5,6 +5,16 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 13:57] · GOOGLE BUSINESS 4:3: LOGO +25%, TESTI/PREZZI +25% E SAFE ZONE +3PX IN ALTO
+- **Cosa abbiamo fatto:** Perfezionata l'impaginazione del lettore companion orizzontale 4:3 per Google Business & Facebook (`AutoCutLabPlayer.tsx`):
+  - 🍕 **Watermark Alto-SX Ingrandito (+25%)**: Mantenuta la posizione fissa `top-3 left-3`, il logo circolare cresce da 40px a **50px** (`w-[50px] h-[50px]`), con font brand `FLOWER POWER` scalato a 16px/18px, sottotitolo *Pizza/Village* a 14.5px/15px e claim Thai/Ranong Delivery a 12.5px/14px. Top vignette alzata a `h-32` per avvolgere morbidamente il testo.
+  - 📐 **Safe Zone Inferiore Rialzata (+3px)**: Il contenitore inferiore con titoli e prezzi è stato sollevato verso l'alto da `bottom-3` (12px) a **`bottom-[15px]`**, allontanandolo dal margine basso dello schermo.
+  - 🏷️ **Titoli Ingranditi (+25%)**: Categoria a 14px/15px (con bullet ✦ a 14px), titolo Thai sopra in grande a 17.5px/20px e titolo Inglese sotto a 14px/15px.
+  - 💰 **Prezzo Ingrandito (+25%)**: La scala del blocco prezzi a destra è aumentata proporzionalmente del 25% (da `scale(0.605)` a `scale(0.756)` per le pizze incolonnate 8"/12", e da `scale(0.75)` a `scale(0.938)` per i piatti singoli), preservando nitidezza vettoriale, font Kanit e shadow 3D.
+- **Effetto reale:** Nel formato Google Business 4:3 il brand e le scritte risultano immediatamente più leggibili e autorevoli sugli schermi desktop e tablet, mantenendo una safe zone impeccabile senza sovrapporsi alle pietanze.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+
 ### 🟩 [25/10/2026 - ORE 13:51] · SIMMETRIA PERFETTA BORDO DESTRO BANNER PROMO (25PX SPECULARI AL PREZZO A SINISTRA)
 - **Cosa abbiamo fatto:** Risolto l'effetto "a filo col bordo" nel player video (`AutoCutLabPlayer.tsx`):
   - 📐 **Margine Destro Speculare (`right-[25px]`)**: Sostituito il vecchio `right-3.5` (che lasciava solo 14px) con `right-[25px]`, equiparando al millesimo la distanza tra il bordo destro del banner e il margine destro del video allo spazio di 25px presente tra il margine sinistro del video e il riquadro giallo del prezzo.

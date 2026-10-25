@@ -3190,43 +3190,43 @@ export function AutoCutLabPlayer({
             />
 
             {/* Sfondo leggermente sfumato nero in alto (Top Vignette Fade per massima leggibilità watermark) */}
-            <div className={`absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
+            <div className={`absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black/85 via-black/40 to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
               isInOutro ? 'opacity-0' : 'opacity-100'
             }`} />
 
-            {/* Watermark Ufficiale 4:3 (Logo 3x + Titolo con riverbero nero + Sottotitolo - Senza Banner, con Sfondo Sfumato Nero) */}
-            <div className={`absolute top-3 left-3 z-30 flex items-center gap-2.5 pointer-events-none transition-all duration-300 ${
+            {/* Watermark Ufficiale 4:3 (Logo +25% + Titolo con riverbero nero + Sottotitolo - Ingrandito del 25%, posizione top-3 left-3 invariata) */}
+            <div className={`absolute top-3 left-3 z-30 flex items-center gap-3 pointer-events-none transition-all duration-300 ${
               isInOutro ? 'opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
             }`}>
               <img
                 src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
                 alt="Logo"
-                className="w-10 h-10 rounded-full object-cover border-[1.5px] border-amber-400/80 shadow-[0_4px_14px_rgba(0,0,0,0.85)] shrink-0 bg-black/40"
+                className="w-[50px] h-[50px] rounded-full object-cover border-[2px] border-amber-400/80 shadow-[0_4px_14px_rgba(0,0,0,0.85)] shrink-0 bg-black/40"
               />
               <div className="flex flex-col text-left drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                 <div className="flex flex-col text-left leading-none">
-                  <span className="text-[13px] sm:text-[14.5px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
+                  <span className="text-[16px] sm:text-[18px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                     FLOWER POWER
                   </span>
-                  <span className={`font-light italic text-[11.5px] sm:text-xs capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
+                  <span className={`font-light italic text-[14.5px] sm:text-[15px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
                     {brand === 'pizza' ? 'Pizza' : 'Village'}
                   </span>
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
+                <span className="text-[12.5px] sm:text-[14px] font-bold leading-tight mt-1 tracking-tight [text-shadow:_0_1px_4px_rgba(0,0,0,1)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] text-amber-300">
                   {brand === 'pizza' ? 'ส่งถึงบ้าน · Ranong Delivery' : 'Direct Booking'}
                 </span>
               </div>
             </div>
 
-            {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA (Zero box opaco, identica al 9:16) */}
+            {/* 🏷️ GERARCHIA TIPOGRAFICA SCALARE A VISTA (Sollevata di 3px a bottom-[15px], testi e prezzo ingranditi del 25%) */}
             {currentScene && (
-              <div className={`absolute left-3 right-3 bottom-3 z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
+              <div className={`absolute left-3 right-3 bottom-[15px] z-30 flex flex-col items-start text-left pointer-events-none transition-all duration-300 ${
                 isInOutro ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'
               }`}>
                 {/* Caso CIBO / PIATTI (P1): Categoria, Thai sopra in grande, Inglese sotto a scalare, prezzo */}
                 {(brand === 'pizza' || mode === 'R1') && (
                   <div className="w-full flex items-end justify-between gap-2">
-                    {/* Blocco Titoli (Sinistra) */}
+                    {/* Blocco Titoli (Sinistra) - Ingrandito del 25% */}
                     <div className="flex-1 min-w-0 pr-1">
                       {currentScene.badgeCategory && (() => {
                         let catText = currentScene.badgeCategory;
@@ -3234,15 +3234,15 @@ export function AutoCutLabPlayer({
                           catText = 'ITALIAN PIZZA';
                         }
                         return (
-                          <div className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-black tracking-wider uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
-                            <span className="text-rose-500 font-black text-xs">✦</span>
+                          <div className="inline-flex items-center gap-1 text-[14px] sm:text-[15px] font-black tracking-wider uppercase text-white drop-shadow-[0_2px_4px_rgba(0,0,0,1)] whitespace-nowrap shrink-0 translate-y-0.5">
+                            <span className="text-rose-500 font-black text-[14px]">✦</span>
                             <span className="[text-shadow:_0_2px_6px_rgba(0,0,0,1)]">{catText.replace(/^[✦⭐\s*]+/, '')}</span>
                           </div>
                         );
                       })()}
 
-                      {/* THAI IN GRANDE SOPRA (Per 4:3 se breve su singola riga protetta) */}
-                      <h3 className="text-sm sm:text-base font-black text-amber-300 leading-tight mt-0.5 [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                      {/* THAI IN GRANDE SOPRA (+25%) */}
+                      <h3 className="text-[17.5px] sm:text-[20px] font-black text-amber-300 leading-tight mt-0.5 [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                         {(mode === 'P1' ? format43DishTitle(currentScene.titlePrimary, 'th') : currentScene.titlePrimary.split('\n')).map((line, idx) => (
                           <span key={idx} className="block leading-tight whitespace-nowrap">
                             {line}
@@ -3250,8 +3250,8 @@ export function AutoCutLabPlayer({
                         ))}
                       </h3>
 
-                      {/* INGLESE SOTTO (Per 4:3 se breve su singola riga protetta) */}
-                      <div className="text-[11px] sm:text-xs font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
+                      {/* INGLESE SOTTO (+25%) */}
+                      <div className="text-[14px] sm:text-[15px] font-semibold text-white/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                         {(mode === 'P1' ? format43DishTitle(currentScene.titleSecondary, 'en') : currentScene.titleSecondary.split('\n')).map((line, idx) => (
                           <span key={idx} className="block leading-snug whitespace-nowrap">
                             {line}
@@ -3260,11 +3260,11 @@ export function AutoCutLabPlayer({
                       </div>
                     </div>
 
-                    {/* PREZZO PIATTO / PIZZE 8" E 12" (TASSATIVAMENTE UNO SOPRA L'ALTRO, RIDOTTO DI UN ULTERIORE 25%) */}
+                    {/* PREZZO PIATTO / PIZZE 8" E 12" (TASSATIVAMENTE UNO SOPRA L'ALTRO, INGRANDITO DEL 25%) */}
                     <div 
                       className="w-fit shrink-0 pb-0.5"
                       style={{
-                        transform: currentScene.pizzaSizes && mode !== 'R1' ? 'scale(0.605)' : 'scale(0.75)',
+                        transform: currentScene.pizzaSizes && mode !== 'R1' ? 'scale(0.756)' : 'scale(0.938)',
                         transformOrigin: 'bottom right'
                       }}
                     >
@@ -3307,23 +3307,23 @@ export function AutoCutLabPlayer({
                 {brand === 'village' && mode !== 'R1' && (
                   <div className="space-y-1 w-full">
                     {currentScene.badgeCategory && (
-                      <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[9px] font-bold tracking-wide shadow-md uppercase">
+                      <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide shadow-md uppercase">
                         {currentScene.badgeCategory}
                       </span>
                     )}
 
                     <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
-                      <h3 className="text-sm sm:text-base font-black text-white leading-tight">
+                      <h3 className="text-[17.5px] sm:text-[20px] font-black text-white leading-tight">
                         {currentScene.lodgingTitle || currentScene.titlePrimary}
                       </h3>
                       {currentScene.lodgingSubtitle && (
-                        <p className="text-[11px] sm:text-xs font-bold text-amber-300 leading-tight mt-0.5">
+                        <p className="text-[14px] sm:text-[15px] font-bold text-amber-300 leading-tight mt-0.5">
                           {currentScene.lodgingSubtitle}
                         </p>
                       )}
                     </div>
 
-                    <p className="text-[10px] sm:text-[11px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
+                    <p className="text-[12.5px] sm:text-[14px] font-semibold text-stone-200/95 leading-snug [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)] pt-0.5">
                       {currentScene.titleSecondary}
                     </p>
                   </div>
