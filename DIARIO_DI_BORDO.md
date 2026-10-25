@@ -5,6 +5,14 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 14:50] · RISOLUZIONE DEFINITIVA CONFIGURAZIONE XIAOMI MI PAD 4 / PLUS (3 COLONNE IN VERTICALE & TABLET STATION BLINDATA)
+- **Cosa abbiamo fatto:** Risolto alla radice il problema di configurazione dello standard tablet **Xiaomi Mi Pad 4 / Mi Pad 4 Plus** in orientamento verticale in [src/index.css](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/index.css) e [DiningTabletSite.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/pages/DiningTabletSite.tsx):
+  - 📐 **Media Query Ibrida Intelligente su Aspect-Ratio**: Aggiunta la regola `@media (min-width: 460px), ((min-width: 380px) and (min-aspect-ratio: 58/100))`. I tablet (16:10 o 4:3, con aspect-ratio portrait $\ge 0.625$) vengono isolati con precisione matematica dai telefoni cellulari moderni (19.5:9 o 20:9, con aspect-ratio portrait $\le 0.46$). Anche se il display zoom di Android riduce i pixel CSS logici del Mi Pad 4 a 400px–436px, scattano sempre le 3 colonne.
+  - 🛡️ **Override Hardware Diretto Modalità Sala (`data-dining-station="tablet"`)**: In `DiningTabletSite.tsx`, quando la pagina è usata come tablet di sala o postazione cameriere (`!isGuestMobile`), viene impostato l'attributo `data-dining-station="tablet"` con regole CSS dedicate che forzano imperativamente 3 colonne e il menu categorie fisso su 2 righe, esenti da qualsiasi variazione o zoom del browser.
+  - 📱 **Zero Regressioni su Smartphone Clienti**: Tutti gli smartphone (iPhone, Samsung Galaxy, Xiaomi) che inquadrano il QR code dal tavolo (`isGuestMobile === true` e aspect-ratio $\le 0.46$) mantengono rigorosamente le **2 colonne di prodotti** e lo **slider orizzontale compatto a 1 riga**.
+- **Effetto reale:** Lo Xiaomi Mi Pad 4 in verticale mostra ora sempre e stabilmente 3 prodotti per riga e le categorie fisse su 2 righe ordinate. I cellulari dei clienti mantengono l'impaginazione a 2 colonne.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 14:35] · LAST MINUTE LM1: CATEGORIA SOLO INGLESE "AVAILABLE TONIGHT" (RIMOSSO THAI)
 - **Cosa abbiamo fatto:** Su indicazione dell'utente, rimosso il testo Thai (`ว่างวันนี้`) dal badge di categoria del formato **LM1** (Stories Last Minute Villaggio) sia a livello di motore dati ([autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts)) sia in tutti i player DOM e Canvas ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)):
   - 🇬🇧 **Badge Esclusivamente Inglese**: Mostra ora con chiarezza e brevità **`🔥 AVAILABLE TONIGHT`**, senza alcuna appendice in lingua Thai.
