@@ -5,6 +5,14 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 14:03] · BANNER PROMO CALIBRATO: 25PX DI SPAZIO SPECULARE A DESTRA E SINISTRA
+- **Cosa abbiamo fatto:** Risolto l'ingombro fisico che impediva al banner di arretrare in `AutoCutLabPlayer.tsx`:
+  - 📏 **Calibrazione Tipografica & Padding**: Alleggerito il padding a `px-2 py-1` (era `px-3 py-1.5`) e la taglia del testo inglese a `text-[8.5px] sm:text-[9.5px]` con margine compatto `mt-0.5`.
+  - 📐 **Larghezza Ottimale (200px vs 232px)**: L'ingombro del banner scende a 200px, permettendo al contenitore con `left-[25px] right-[25px]` di non andare in overflow e di respirare comodamente.
+  - ⚖️ **Simmetria Millimetrica Garantita**: Ora ci sono esattamente **25px** tra il bordo sinistro e il prezzo, **25px** tra il prezzo e il banner, e **25px esatti** tra il banner e il bordo destro dello schermo.
+- **Effetto reale:** Il banner promozionale rubino/oro non tocca più il bordo destro: è visivamente staccato e armonioso, identico alla distanza dal bordo sinistro.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 14:02] · GOOGLE BUSINESS 4:3: SCRITTA "PIZZA" INGRANDITA DEL +20%
 - **Cosa abbiamo fatto:** Ingrandita ulteriormente del +20% la scritta in corsivo *"Pizza"* (e *"Village"*) nel watermark in alto a sinistra del player 4:3 Google Business ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)):
   - 🍕 **Dimensione Font Portata a 21px/22px**: Da 17.5px/18px a **`text-[21px] sm:text-[22px]`** (+20%), donando alla parola chiave gastronomica del brand un risalto corsivo ancora più evidente e armonioso a fianco di `FLOWER POWER` e sopra il claim delivery.

@@ -2868,15 +2868,15 @@ export function AutoCutLabPlayer({
                 {(mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && (
                   <div className={`shrink-0 rounded-lg border-2 border-yellow-200 bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 shadow-[0_4px_16px_rgba(225,29,72,0.65)] flex flex-col items-center justify-center text-center ${
                     currentScene.pizzaSizes
-                      ? 'px-3 py-2 max-w-[230px]'
-                      : 'px-3 py-1.5 max-w-[240px]'
+                      ? 'px-2.5 py-1.5'
+                      : 'px-2 py-1'
                   }`}>
-                    <div className="flex items-center justify-center gap-1.5 font-['Prompt',sans-serif] font-black text-amber-200 leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] whitespace-nowrap text-[11.5px] sm:text-[12.5px]">
+                    <div className="flex items-center justify-center gap-1 font-['Prompt',sans-serif] font-black text-amber-200 leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] whitespace-nowrap text-[11px] sm:text-[11.5px]">
                       <span>🛵 ส่งฟรี 300฿+</span>
                       <span className="text-white/80 font-normal">·</span>
                       <span className="text-yellow-100">🏷️ ลด 10%</span>
                     </div>
-                    <div className="font-['Outfit',sans-serif] font-extrabold text-white tracking-wide uppercase leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] mt-1 whitespace-nowrap text-[9.5px] sm:text-[10.5px]">
+                    <div className="font-['Outfit',sans-serif] font-extrabold text-white tracking-wide uppercase leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] mt-0.5 whitespace-nowrap text-[8.5px] sm:text-[9.5px]">
                       Free Delivery 300฿+ · 1st Order -10%
                     </div>
                   </div>
