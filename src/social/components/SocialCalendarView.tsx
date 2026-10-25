@@ -67,6 +67,27 @@ export function SocialCalendarView({
   const [selectedPlatformFilter, setSelectedPlatformFilter] = useState<SocialPlatform | 'all'>('all');
   const [showLegend, setShowLegend] = useState(true);
   
+  // 🛡️ Master Switch Stato Scheduler (Standby / Fermo vs In Produzione)
+  const [schedulerMode, setSchedulerMode] = useState<'standby' | 'production'>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('fp_social_scheduler_mode');
+        if (saved === 'production' || saved === 'standby') return saved;
+      } catch {}
+    }
+    return 'standby';
+  });
+
+  const handleToggleSchedulerMode = () => {
+    const nextMode = schedulerMode === 'standby' ? 'production' : 'standby';
+    setSchedulerMode(nextMode);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('fp_social_scheduler_mode', nextMode);
+      } catch {}
+    }
+  };
+
   // Modals
   const [showAutopilotModal, setShowAutopilotModal] = useState(false);
   const [inspectingPost, setInspectingPost] = useState<ScheduledSocialPost | null>(null);
@@ -511,6 +532,29 @@ export function SocialCalendarView({
           <h2 className="text-base sm:text-lg font-black text-white tracking-wide">
             {MONTH_NAMES[uiLang][month]} {year}
           </h2>
+
+          {/* 🛡️ MASTER SWITCH: FERMO (STANDBY) vs IN PRODUZIONE */}
+          <button
+            type="button"
+            onClick={handleToggleSchedulerMode}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs font-black transition cursor-pointer shadow-md select-none ${
+              schedulerMode === 'production'
+                ? 'bg-emerald-500/20 hover:bg-emerald-500/30 border-emerald-400 text-emerald-300 shadow-emerald-950/40'
+                : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-300 shadow-amber-950/30'
+            }`}
+            title={
+              schedulerMode === 'production'
+                ? 'Scheduler ATTIVO in Produzione: i post possono essere inviati. Clicca per mettere in Standby.'
+                : 'Scheduler in STANDBY (Fermo): nessuna pubblicazione possibile. Clicca per attivare lo stato di Produzione.'
+            }
+          >
+            <span className={`w-2.5 h-2.5 rounded-full ${schedulerMode === 'production' ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+            <span>
+              {schedulerMode === 'production'
+                ? (uiLang === 'EN' ? '🟢 STATUS: LIVE IN PRODUCTION' : '🟢 STATO: IN PRODUZIONE')
+                : (uiLang === 'EN' ? '⏸️ STATUS: STANDBY (PAUSED)' : '⏸️ STATO: FERMO (STANDBY)')}
+            </span>
+          </button>
         </div>
 
         {/* Filters & Actions */}
@@ -966,14 +1010,29 @@ export function SocialCalendarView({
                 <div className="flex items-center gap-2 pt-3 border-t border-slate-800">
                   <button
                     type="button"
+                    disabled={schedulerMode === 'standby'}
                     onClick={() => {
+                      if (schedulerMode === 'standby') return;
                       onPublishNow(inspectingPost);
                       setInspectingPost(null);
                     }}
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-xs shadow-lg transition flex items-center justify-center gap-2"
+                    className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+                      schedulerMode === 'standby'
+                        ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed opacity-80 shadow-none'
+                        : 'bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white shadow-lg cursor-pointer'
+                    }`}
+                    title={
+                      schedulerMode === 'standby'
+                        ? 'Pubblicazione disabilitata: attiva lo stato "IN PRODUZIONE" in cima al calendario per inviare i post'
+                        : 'Pubblica subito il post sui canali selezionati'
+                    }
                   >
-                    <Send className="w-3.5 h-3.5" />
-                    <span>Pubblica Subito</span>
+                    {schedulerMode === 'standby' ? <ShieldCheck className="w-3.5 h-3.5 text-amber-400" /> : <Send className="w-3.5 h-3.5" />}
+                    <span>
+                      {schedulerMode === 'standby'
+                        ? (uiLang === 'EN' ? 'Publish Locked (Standby Mode)' : 'Pubblicazione Bloccata (In Standby)')
+                        : (uiLang === 'EN' ? 'Publish Now' : 'Pubblica Subito')}
+                    </span>
                   </button>
 
                   <button
