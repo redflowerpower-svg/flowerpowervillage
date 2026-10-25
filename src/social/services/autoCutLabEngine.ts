@@ -1223,7 +1223,7 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
     titleSecondary: entry.lodging.nameTh, // Traduzione secca in Thai
     lodgingTitle: entry.lodging.lodgingTitle,
     lodgingSubtitle: entry.lodging.lodgingSubtitle,
-    priceLabel: `Today Last Minute: ${entry.livePrice.toLocaleString('en-US')} ฿`,
+    priceLabel: `Last Minute: ${entry.livePrice.toLocaleString('en-US')} ฿`,
     priceValue: entry.livePrice,
     trajectory: TRAJECTORIES_SEQUENCE[idx % TRAJECTORIES_SEQUENCE.length],
     badgeCategory: '🔥 AVAILABLE TONIGHT · ว่างวันนี้',

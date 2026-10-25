@@ -1248,6 +1248,9 @@ export function AutoCutLabPlayer({
         // Formato Villaggio Regular (V1, V2, V3) e LM1
         // +20%, allontanato di 2 pixel netti dalla parola Village (12 * s invece di 10 * s)
         ty += 12 * s;
+        if (mode === 'LM1') {
+          ty += 6 * s; // Allontanato di ulteriori 6px da Village
+        }
         oCtx.font = `900 ${Math.round(20 * s)}px "Outfit", "Inter", sans-serif`;
         oCtx.fillStyle = '#34d399';
         oCtx.fillText(mode === 'LM1' ? 'LAST MINUTE' : 'DIRECT BOOKING', tx, ty);
@@ -1676,7 +1679,7 @@ export function AutoCutLabPlayer({
 
         if (hasPrice) {
           by += 5 * s;
-          const priceClean = scene.priceLabel!.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
+          const priceClean = scene.priceLabel!.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿');
           oCtx.font = `900 ${Math.round(26.4 * s)}px "Kanit", sans-serif`;
           const pTextW = oCtx.measureText(priceClean).width;
           const boxPadX = 10 * s;
@@ -2694,8 +2697,8 @@ export function AutoCutLabPlayer({
               <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
                 Village
               </span>
-              {/* Last minute su una sola riga */}
-              <div className="pt-1">
+              {/* Last minute su una sola riga: allontanato di ulteriori 6px da Village (pt-1 -> pt-[10px]) */}
+              <div className="pt-[10px]">
                 <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-lg bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-stone-950 font-black text-xs shadow-xl tracking-wider border border-yellow-200 whitespace-nowrap animate-pulse">
                   <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping shrink-0" />
                   LAST MINUTE
@@ -2927,7 +2930,7 @@ export function AutoCutLabPlayer({
                       className="font-['Kanit',sans-serif] text-[25px] sm:text-[27.5px] font-black leading-none tracking-tight"
                       style={{ paintOrder: 'stroke fill', WebkitTextStroke: '3.5px #ffffff' }}
                     >
-                      {currentScene.priceLabel ? currentScene.priceLabel.replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
+                      {currentScene.priceLabel ? currentScene.priceLabel.replace(/^Today\s+/i, '').replace(/\bTHB\b/g, '฿').replace(/\s*฿/g, '฿') : ''}
                     </span>
                   </div>
                 </div>

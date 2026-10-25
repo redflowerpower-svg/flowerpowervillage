@@ -5,6 +5,13 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 14:10] · LAST MINUTE LM1: PREZZO PULITO "LAST MINUTE" (ZERO "TODAY") & HEADER ALTO DISTANZIATO (+6PX DA VILLAGE)
+- **Cosa abbiamo fatto:** Perfezionati due dettagli chiave nel formato **LM1** (Stories Last Minute Villaggio) sia su Canvas sia nel DOM ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) e [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts)):
+  - 🏷️ **Prezzo in Basso Pulito**: Rimossa la parola "Today" dall'etichetta del prezzo: ora mostra esclusivamente `Last Minute: 711 ฿` (solo last minute e prezzo, come richiesto). Il filtro applicato pulisce all'istante anche le sessioni già in memoria.
+  - 📏 **Header Alto Distanziato (+6px da Village)**: Allontanato di 6 pixel netti l'intero blocco informativo (badge Last Minute, Thai `ห้องว่างวันนี้`, Direct Booking e sito web) dalla parola *Village* (`pt-[10px]` nel DOM e `ty += 6 * s` su Canvas).
+- **Effetto reale:** Nel formato LM1 la scritta in basso è più sintetica, pulita e diretta, e in alto il blocco Last Minute e le prenotazioni non soffocano più il logo/brand Village, donando al video pieno respiro.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 14:05] · VILLAGGIO (V1, V2, V3, LM1): CATEGORIA, TITOLO BUNGALOW E SOTTOTITOLO GIALLO INGRANDITI DEL +20%
 - **Cosa abbiamo fatto:** Potenziata la gerarchia visiva per gli alloggi di Koh Phayam nei formati `V1`, `V2`, `V3` e `LM1` sia nel DOM sia su Canvas ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)):
   - 🌿 **Badge Categoria (+20%)**: Da 11px a **13px** (`text-[13px]`) nel DOM con padding maggiorato `px-3 py-0.5`, e da 13.5 a **16.2*s** su Canvas.
