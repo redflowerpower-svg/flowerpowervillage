@@ -23,6 +23,44 @@ import {
 } from './AutoCutDistributionPanel';
 import { getLiveWeather, WeatherConditionSummary } from '../services/ranongWeatherService';
 
+export function DeepSeekWhaleLogo({ className = "w-5 h-5" }: { className?: string }) {
+  return (
+    <svg 
+      viewBox="0 0 48 48" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg" 
+      className={className}
+    >
+      {/* Corpo Balenottero DeepSeek in gradiente blu ciano */}
+      <path 
+        d="M41.5 21C40.8 14.5 35.2 9.5 28.5 9.5C20.2 9.5 14.5 15.2 10.8 20.8C7.8 25.3 6 31 8.5 35.8C9.5 37.8 11.5 39.2 13.8 38.5C16.2 37.8 18.2 35.2 19.8 33.2C22.2 30.2 24.8 29.2 28.2 29.8C30.8 30.2 32.8 31.8 34.8 33.5C36.2 34.8 38.2 34.5 39.5 33C41.2 31 42.2 26 41.5 21Z" 
+        fill="url(#deepseek-whale-gradient)" 
+      />
+      {/* Occhietto vivace del balenottero */}
+      <circle cx="32" cy="18" r="2" fill="#FFFFFF" />
+      <circle cx="32.5" cy="17.8" r="1" fill="#0F172A" />
+      {/* Pinna pettorale amichevole */}
+      <path 
+        d="M26 26C23 27.5 19.5 28 17.5 26.5C16.5 25.8 17 24 18.5 23.5C21.5 22.5 24.5 23.5 26 26Z" 
+        fill="#93C5FD" 
+      />
+      {/* Spruzzo d'acqua d'ispirazione AI */}
+      <path 
+        d="M28.5 7.5C28.5 5 27 3.5 25 4M28.5 7.5C29.5 5.5 31.5 4.5 33 5" 
+        stroke="#60A5FA" 
+        strokeWidth="1.5" 
+        strokeLinecap="round" 
+      />
+      <defs>
+        <linearGradient id="deepseek-whale-gradient" x1="8" y1="10" x2="42" y2="38" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#38BDF8" />
+          <stop offset="1" stopColor="#2563EB" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
 export interface PostCaptionsBundle {
   tiktok: string;
   instagram: string;
@@ -531,12 +569,13 @@ REGOLE FONDAMENTALI DI SCRITTURA:
         'bg-indigo-500/5'
       }`} />
 
-      {/* HEADER STUDIO: CANALE ATTIVO & STAGIONALITÀ (Zero troncamenti) */}
-      <div className="pb-3 border-b border-slate-800 relative z-10 space-y-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
+      {/* 🧭 COCKPIT EXECUTIVE SOCIAL STUDIO (Zero Troncamenti & Design Armonioso) */}
+      <div className="p-3.5 bg-slate-900/95 border border-slate-800 rounded-2xl shadow-xl space-y-3 relative z-10 backdrop-blur-sm">
+        {/* RIGA 1: CANALE TARGET + CAPSULA UNIFICATA METEO & STAGIONE */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-2.5 border-b border-slate-800/80">
+          <div className="flex items-center gap-3">
             {/* Logo Vettoriale del Canale Attivo */}
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-slate-900 border border-slate-750 text-white shadow-inner">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-slate-950 border border-slate-750 text-white shadow-md">
               {selectedChannel === 'tiktok' && <TikTokLogo className="w-5 h-5" />}
               {selectedChannel === 'google' && <GoogleLogo className="w-5 h-5" />}
               {selectedChannel === 'facebook' && <FacebookLogo className="w-5 h-5" />}
@@ -544,93 +583,104 @@ REGOLE FONDAMENTALI DI SCRITTURA:
             </div>
 
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
                 <h3 className="text-sm font-black text-white tracking-tight">
                   Studio Post {selectedChannel === 'tiktok' ? 'TikTok' : selectedChannel === 'google' ? 'Google Business' : selectedChannel === 'facebook' ? 'Facebook' : 'Instagram'}
                 </h3>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase border shrink-0 ${
-                  isPizza ? 'bg-rose-950/60 border-rose-500/40 text-rose-300' : 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
+                <span className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider border shrink-0 ${
+                  isPizza ? 'bg-rose-500/15 border-rose-500/30 text-rose-300' : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
                 }`}>
                   {testRun.mode}
                 </span>
               </div>
-              <p className="text-xs text-slate-400 font-medium">
-                Generazione copy bilingue DeepSeek AI & parametri di pubblicazione
+              <p className="text-[11px] text-slate-400 font-medium">
+                Generazione copy biculturale DeepSeek AI & parametri ufficiali
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            {/* 🌦️ Live Weather Badge (Ranong / Koh Phayam) */}
+          {/* CAPSULA CONTESTO UNIFICATA (Meteo Live + Mese + Stagione in un unico elemento) */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-750/80 text-xs shadow-inner">
             {liveWeather && (
-              <div 
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-bold shrink-0 transition-colors ${
-                  liveWeather.isRaining 
-                    ? 'bg-blue-950/60 border-blue-500/50 text-blue-200' 
-                    : liveWeather.isNight
-                    ? 'bg-purple-950/60 border-purple-500/40 text-purple-200'
-                    : 'bg-amber-950/60 border-amber-500/40 text-amber-200'
-                }`}
-                title={`Meteo Live: ${liveWeather.sensoryAngle}`}
-              >
-                <span className="text-xs">{liveWeather.isRaining ? '🌧️' : liveWeather.isNight ? '🌙' : '☀️'}</span>
+              <span className="flex items-center gap-1.5 font-bold text-slate-200" title={`Meteo Live: ${liveWeather.sensoryAngle}`}>
+                <span>{liveWeather.isRaining ? '🌧️' : liveWeather.isNight ? '🌙' : '☀️'}</span>
                 <span>{liveWeather.city} {liveWeather.tempC}°C</span>
                 {liveWeather.isRaining && (
-                  <span className="px-1 py-0.2 rounded bg-rose-600 text-[8px] font-black text-white animate-pulse">
+                  <span className="px-1.5 py-0.2 rounded bg-rose-600 text-[8px] font-black text-white animate-pulse">
                     RAIN
                   </span>
                 )}
-              </div>
-            )}
-
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-750 text-xs text-slate-300 font-medium shrink-0">
-              <Calendar className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-              <span>
-                {postData.seasonContext.split(':')[0] || 'Green Season'}
               </span>
-            </div>
+            )}
+            <span className="text-slate-700 font-bold">·</span>
+            <span className="flex items-center gap-1 text-slate-300 font-medium text-xs">
+              <Calendar className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <span>{postData.seasonContext.split(':')[0] || 'Ottobre'} · 🌿 Green Season</span>
+            </span>
           </div>
         </div>
 
-        {/* Barra di Stato DeepSeek AI, Tasto Ispezione Prompt & Tasto Rigenera */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-750 text-xs text-slate-300 shadow-inner">
-              <Sparkles className={`w-3.5 h-3.5 text-amber-300 shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-              <span className="font-semibold text-xs text-white">
-                {isGeneratingAi ? 'DeepSeek AI sta scrivendo il copy...' : (aiOverride ? 'Copy DeepSeek AI Attivo' : 'Copy Bilingue Autonomo')}
-              </span>
-              {aiOverride && !isGeneratingAi && (
-                <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] ml-0.5" title="Copy DeepSeek AI sincronizzato live" />
-              )}
+        {/* RIGA 2: BARRA STRUMENTI DEEPSEEK AI (Logo Balenottero, Stato Esplicito & Azioni Allineate) */}
+        <div className="flex flex-wrap items-center justify-between gap-2.5">
+          {/* BADGE MOTORE DEEPSEEK AI CON LOGO BALENOTTERO 🐋 */}
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-blue-500/25 text-xs shadow-inner">
+            <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-400/30 flex items-center justify-center shrink-0 shadow-sm" title="DeepSeek-Chat V3 AI Engine">
+              <DeepSeekWhaleLogo className="w-5 h-5" />
             </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="font-black text-xs text-white tracking-wide">
+                  DeepSeek AI
+                </span>
+                <span className="text-[10px] font-mono font-bold text-blue-300 bg-blue-950/80 px-1.5 py-0.2 rounded border border-blue-500/30">
+                  V3
+                </span>
+                <span 
+                  className={`w-2 h-2 rounded-full ${
+                    aiOverride 
+                      ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse' 
+                      : 'bg-emerald-400/80 shadow-[0_0_6px_rgba(52,211,153,0.6)]'
+                  }`} 
+                  title={aiOverride ? "DeepSeek AI: Copy personalizzato attivo" : "DeepSeek AI: Motore biculturale pronto"} 
+                />
+              </div>
+              <span className="text-[10px] text-slate-400 font-medium">
+                {isGeneratingAi 
+                  ? 'DeepSeek AI sta scrivendo il copy...' 
+                  : (aiOverride ? 'Copy DeepSeek Sincronizzato Live' : 'Copy Bilingue DeepSeek Pronto')}
+              </span>
+            </div>
+          </div>
 
+          {/* BOTTONI AZIONE DEEPSEEK (Altezza identica e stile compatto ed executive) */}
+          <div className="flex items-center gap-2 shrink-0">
             {/* Tasto Ispezione Prompt DeepSeek */}
             <button
               type="button"
               onClick={() => setShowPromptInspector(!showPromptInspector)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
                 showPromptInspector
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm'
-                  : 'bg-slate-900 hover:bg-slate-850 border-slate-750 text-slate-300 hover:text-white'
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                  : 'bg-slate-950 hover:bg-slate-850 border-slate-750 text-slate-300 hover:text-white'
               }`}
               title="Visualizza il prompt ingegnerizzato completo inviato a DeepSeek AI"
             >
               <FileText className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-              <span>{showPromptInspector ? 'Nascondi Prompt AI' : 'Ispeziona Prompt AI'}</span>
+              <span>{showPromptInspector ? 'Nascondi Prompt' : 'Prompt DeepSeek AI'}</span>
+            </button>
+
+            {/* Tasto Rigenera Copy AI */}
+            <button
+              type="button"
+              onClick={() => handleGenerateDeepSeekAi()}
+              disabled={isGeneratingAi}
+              className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-black text-white shadow-md transition disabled:opacity-50 active:scale-95 cursor-pointer border border-blue-400/30"
+              title="Rigenera un nuovo copy ad effetto con DeepSeek AI per questo piatto o alloggio"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-white shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
+              <span>{isGeneratingAi ? 'Scrittura in corso...' : 'Rigenera Copy AI'}</span>
             </button>
           </div>
-
-          <button
-            type="button"
-            onClick={() => handleGenerateDeepSeekAi()}
-            disabled={isGeneratingAi}
-            className="flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white shadow-md transition disabled:opacity-50 active:scale-95 cursor-pointer"
-            title="Rigenera un nuovo copy ad effetto con DeepSeek AI per questo piatto o alloggio"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 text-white shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-            <span>{isGeneratingAi ? 'Scrittura in corso...' : 'Rigenera Copy AI'}</span>
-          </button>
         </div>
 
         {/* 📜 PANNELLO TRASPARENZA PROMPT DEEPSEEK (STRUTTURATO ED EXECUTIVE) */}
@@ -639,8 +689,8 @@ REGOLE FONDAMENTALI DI SCRITTURA:
             {/* Header dell'Inspector */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-                  <FileText className="w-4 h-4" />
+                <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-400/30 flex items-center justify-center shrink-0 shadow-sm">
+                  <DeepSeekWhaleLogo className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
