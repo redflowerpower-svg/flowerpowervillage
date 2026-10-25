@@ -398,12 +398,20 @@ Esegue l'intero ciclo a 360 gradi a fine sessione o grande rilascio per entrambi
 
 ---
 
-### 5. `MARKDOWN-WAIT` (Freeze Social Studio TikTok Review + Deploy Completo di Tutto il Resto)
-Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WAIT`**:
-Esegue l'intero workflow di **`MARKDOWN-PROJECT`** (documentazione tecnica, cifratura vault, audit di sicurezza, typecheck, sincronizzazione staging e deploy simultaneo su produzione `main`) per tutti i reparti (Pizzeria, Delivery, Ristorante, Villaggio Koh Phayam, Octorate, Booking Engine, Documenti e Kitchen Monitor), garantendo il **CONGELAMENTO CATEGORICO DEL SOCIAL ONLINE**:
-1. **Blindatura Social in Produzione**: Il routing in `src/social/pages/SocialStudioPage.tsx` garantisce tassativamente che sul dominio ufficiale `https://www.flowerpowerpizza.com/social` rimanga attiva ed esposta **SOLO ED ESCLUSIVAMENTE la versione primordiale `TikTokAuditStudioPage.tsx`** sottoposta a revisione per le API TikTok for Developers (con TikTok Sandbox, demo assets e bottoni di simulazione identici al video inviato).
-2. **Libertà Totale di Sviluppo in Locale**: In locale (`localhost:5173/social`), lo sviluppatore continua a progettare e affinare la versione ultramoderna `AutoCutStudioPage.tsx` (tutti i formati video, Ken Burns, meteo Ranong e copywriter DeepSeek con il *Proverbio del Giorno*) senza che questa sovrascriva mai la versione online per gli auditor.
-3. **Controllo di Sicurezza Pre-Merge**: Prima di qualsiasi merge/push su `main`, il comando verifica che `SocialStudioPage.tsx` contenga il discriminatore d'ambiente attivo, impedendo ogni rilascio accidentale del nuovo codice social su `flowerpowerpizza.com/social` fino alla notifica ufficiale di approvazione da TikTok.
+### 5. `MARKDOWN-WAIT` (Identico al 100% a MARKDOWN-PROJECT + Freeze Social TikTok Online + Report Gemini)
+Quando l'utente pronuncia la parola d'ordine **`MARKDOWN-WAIT`** (o *markdown wait*):
+È **TASSATIVAMENTE IDENTICO IN OGNI SINGOLO MILLIMETRO A `MARKDOWN-PROJECT`**, eseguendo SEMPRE E SENZA ECCEZIONI:
+1. **Aggiornamento Documentazione & Diario**: Aggiornamento fisico dei file in `/documentation_reports/` e di `DIARIO_DI_BORDO.md`.
+2. **Typecheck & Sicurezza**: `npx tsc --noEmit` a zero errori e audit segreti.
+3. **Deploy Simultaneo su Entrambi gli Ambienti (Staging + Produzione `main`)**:
+   - Commit delle modifiche sul branch `staging`.
+   - `git push origin staging` (Aggiorna `staging.flowerpowerpizza.com`).
+   - `git checkout main`
+   - `git merge staging -m "Release: <descrizione_rilascio>"`
+   - `git push origin main` (Pubblica all'istante su `www.flowerpowerpizza.com` e `www.flowerpowervillage.com`).
+   - Ritorno automatico su `staging` (`git checkout staging`).
+4. **Report Completo per Gemini NotebookLM**: Emissione del report dettagliato con l'elenco esatto dei file `.md` aggiornati da copiare su Google Gemini Notebook.
+5. **UNICA ECCEZIONE CATEGORICA**: Sul dominio di produzione `https://www.flowerpowerpizza.com/social`, la rotta `/social` rimane **TASSATIVAMENTE INTOCCATA E CONGELATA** sulla versione primordiale `TikTokAuditStudioPage.tsx` per i revisori di TikTok (grazie al discriminatore d'ambiente in `SocialStudioPage.tsx`), mentre in locale e su staging lo sviluppo continua liberamente.
 
 
 
