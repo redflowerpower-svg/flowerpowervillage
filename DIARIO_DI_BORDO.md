@@ -241,6 +241,22 @@
 - **Effetto reale:** Sia in anteprima a schermo nel Social Studio sia nei video esportati, i formati del villaggio V1, V2 e V3 mostrano esattamente lo stesso identico logo approvato di LM1 con il bordo giallo oro e la grafica ad alta risoluzione.
 - **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
 
+### 🟩 [26/10/2026 - ORE 01:20] · SOCIAL STUDIO: RESTYLING EXECUTIVE PROMPT INSPECTOR & STUDIO POST COPYWRITER (ZERO TRONCAMENTI & TASTI UNIFICATI)
+- **Cosa abbiamo fatto:** Completata la trasformazione estetica e funzionale della console **Studio Post & Prompt Inspector** in [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx), risolvendo l'effetto "improvvisato", i pulsanti con colori disallineati (ciano, rosa, viola arcobaleno) e i testi troncati con puntini di sospensione:
+  - 🏷️ **Header & Contesto Live a Campata Piena (Zero Troncamenti)**:
+    - Risolto il bug dei testi troncati (`St...` e `Fase costr...`): rimossa la forzatura `truncate` sul contenitore flessibile, consentendo la lettura chiara e completa del titolo (`Studio Post TikTok/Instagram/Facebook/Google`), del badge alloggio/piatto e del sottotitolo esplicativo.
+    - Badges meteo (`Ranong 26°C` / `Koh Phayam 26°C RAIN`) e stagione armonizzati in capsule dark con indicatori visivi dedicati.
+  - 📜 **Prompt Inspector "DeepSeek AI Prompt Studio" Riprogettato**:
+    - **Header dedicato**: Logo, titolo *DeepSeek AI Prompt Studio*, badge versione modello (`deepseek-chat v3`) e pulsanti solidi coordinati (*Copia Prompt* e *Chiudi*).
+    - **Griglia a 4 Schede Contesto Live**: Mostra in modo chiaro e immediato i 4 parametri cardinali del post (*Soggetto/Hero*, *Formato Video 9:16 HD*, *Canale Target*, *Meteo & Ora Thai*).
+    - **Area Testo ad Altissima Leggibilità**: Sostituito il box ciano compresso con un'ampia area a fondo scuro profondo (`bg-slate-900/95`), font mono chiaro e brillante (`text-slate-100 text-xs font-mono leading-relaxed`), con rendering perfetto dei caratteri thai e occidentali.
+  - 🎛️ **Unificazione Totale dei Tasti e Controlli Segmentati**:
+    - Sostituiti tutti i pulsanti multicolore disallineati nei selettori formato (TikTok `Feed/Stories`, Google `Novità/Offerta/Gallery`, Facebook `Post/Reels/Stories/Gruppo`, Instagram `Reels/Stories/Feed`) con controlli segmentati coerenti in stile SaaS (`bg-indigo-600 text-white font-bold` attivo, `text-slate-400` inattivo).
+    - Pulsanti di copia dedicati (*Copia Solo Thai*, *Copia Solo Inglese*, *Copia Testo*) standardizzati in pillole scure con bordi calibrati e icone tematiche.
+    - Pulsante finale di copia didascalia unificata reso autorevole ed elegante in indaco solido (`bg-indigo-600 hover:bg-indigo-500`), eliminando il pesante gradiente a 3 tinte.
+- **Effetto reale:** L'operatore visualizza un modulo copywriter e un ispettore dei prompt solido, impeccabile, leggibile e coerente con un software professionale di fascia alta.
+- **Stato:** ✅ Compilato (0 errori TypeScript), verificato via browser con screenshot ad alta risoluzione e 100% operativo.
+
 ---
 
 ### 🟩 [25/10/2026 - ORE 22:35] · SOCIAL STUDIO AUTOCUT: SOSTITUZIONE RADICALE LOGO ANTEPRIMA CON ASSET STATICO FISICO (IDENTICO AD APPROVAZIONE LM1)
