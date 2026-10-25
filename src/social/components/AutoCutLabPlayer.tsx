@@ -1266,35 +1266,6 @@ export function AutoCutLabPlayer({
       }
       oCtx.restore();
 
-      // 🎗️ OPZIONE 2 (CANVAS): Ticker / Nastro Promozionale Sottile Bilingue (P1, P2, P3, DS)
-      if ((mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro) {
-        oCtx.save();
-        const ribbonW = w - (48 * s);
-        const ribbonH = 26 * s;
-        const ribbonX = (w - ribbonW) / 2;
-        const ribbonY = 176 * s;
-        const ribbonRad = 13 * s;
-
-        oCtx.fillStyle = 'rgba(0, 0, 0, 0.82)';
-        if (typeof oCtx.roundRect === 'function') {
-          oCtx.roundRect(ribbonX, ribbonY, ribbonW, ribbonH, ribbonRad);
-        } else {
-          oCtx.rect(ribbonX, ribbonY, ribbonW, ribbonH);
-        }
-        oCtx.fill();
-        oCtx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
-        oCtx.lineWidth = 1.2 * s;
-        oCtx.stroke();
-
-        oCtx.textAlign = 'center';
-        oCtx.textBaseline = 'middle';
-        const ribbonCy = ribbonY + (ribbonH / 2) + Math.round(1 * s);
-        oCtx.font = `900 ${Math.round(11 * s)}px "Prompt", "Kanit", sans-serif`;
-        oCtx.fillStyle = '#fcd34d';
-        oCtx.fillText('🛵 ส่งฟรี 300฿+ (Free Delivery)   ✦   🏷️ ลด 10% ครั้งแรก (10% OFF 1st)', w / 2, ribbonCy);
-        oCtx.restore();
-      }
-
       // 4. Card Bassa Proporzionata (Categoria, Titoli Bilingui, Prezzo) - ingrandita del 10%
       // 4. Card Bassa Proporzionata (Categoria Bilingue Thai/Eng, Titoli Ingranditi +20%, Prezzo, Alzata di +20px)
       if (brand === 'pizza' || mode === 'R1') {
@@ -1495,24 +1466,30 @@ export function AutoCutLabPlayer({
           drawPizzaBadge('12"', p12, bx + w8 + (8 * s));
           oCtx.restore();
 
-          // 🏷️ OPZIONE 1 (CANVAS): Badge Promo a destra per pizza a due taglie
+          // 🏷️ BADGE PROMO BILINGUE A DESTRA (Adattivo su Canvas, Centrato, Gradiente Brillante)
           if ((mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro) {
             oCtx.save();
-            const badgeW = 180 * s;
+            const pRight = bx + w8 + (8 * s) + (100 * s);
+            const maxAvailW = Math.max(160 * s, w - bx - pRight);
+            const badgeW = Math.min(185 * s, maxAvailW);
             const badgeH = 37 * s;
             const badgeX = w - bx - badgeW;
             const badgeY = by + (1 * s);
             const badgeRad = 7 * s;
 
-            oCtx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-            if (typeof oCtx.roundRect === 'function') {
-              oCtx.roundRect(badgeX + (2 * s), badgeY + (2 * s), badgeW, badgeH, badgeRad);
-            } else {
-              oCtx.rect(badgeX + (2 * s), badgeY + (2 * s), badgeW, badgeH);
-            }
-            oCtx.fill();
+            // Ombra
+            oCtx.shadowColor = 'rgba(225, 29, 72, 0.65)';
+            oCtx.shadowBlur = 10 * s;
+            oCtx.shadowOffsetY = 2 * s;
 
-            oCtx.fillStyle = 'rgba(10, 10, 10, 0.88)';
+            // Gradiente Rosso Rubino -> Rosa -> Ambra
+            const grad = oCtx.createLinearGradient(badgeX, badgeY, badgeX + badgeW, badgeY + badgeH);
+            grad.addColorStop(0, '#dc2626');
+            grad.addColorStop(0.5, '#e11d48');
+            grad.addColorStop(1, '#f59e0b');
+            oCtx.fillStyle = grad;
+
+            oCtx.beginPath();
             if (typeof oCtx.roundRect === 'function') {
               oCtx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeRad);
             } else {
@@ -1520,19 +1497,25 @@ export function AutoCutLabPlayer({
             }
             oCtx.fill();
 
-            oCtx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
-            oCtx.lineWidth = 1.3 * s;
+            // Bordino oro chiaro 1.6px
+            oCtx.strokeStyle = '#fef08a';
+            oCtx.lineWidth = 1.6 * s;
             oCtx.stroke();
 
-            oCtx.textAlign = 'right';
-            oCtx.textBaseline = 'top';
-            oCtx.font = `900 ${Math.round(10.5 * s)}px "Prompt", sans-serif`;
-            oCtx.fillStyle = '#fcd34d';
-            oCtx.fillText('🛵 ส่งฟรี 300฿+ · 🏷️ ลด 10%', badgeX + badgeW - (8 * s), badgeY + (4.5 * s));
+            // Testo rigorosamente CENTRATO
+            oCtx.textAlign = 'center';
+            oCtx.textBaseline = 'middle';
+            const badgeCx = badgeX + (badgeW / 2);
+
+            oCtx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+            oCtx.shadowBlur = 4 * s;
+            oCtx.font = `900 ${Math.round(10.5 * s)}px "Prompt", "Kanit", sans-serif`;
+            oCtx.fillStyle = '#fef08a';
+            oCtx.fillText('🛵 ส่งฟรี 300฿+ · 🏷️ ลด 10%', badgeCx, badgeY + (12 * s));
 
             oCtx.font = `800 ${Math.round(9 * s)}px "Outfit", sans-serif`;
-            oCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeX + badgeW - (8 * s), badgeY + (19 * s));
+            oCtx.fillStyle = '#ffffff';
+            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeCx, badgeY + (25 * s));
             oCtx.restore();
           }
         } else if (hasPrice) {
@@ -1590,24 +1573,28 @@ export function AutoCutLabPlayer({
           oCtx.fillText(priceClean, textCx, textCy);
           oCtx.restore();
 
-          // 🏷️ OPZIONE 1 (CANVAS): Badge Promo a destra del prezzo singolo
+          // 🏷️ BADGE PROMO BILINGUE A DESTRA DEL PREZZO SINGOLO (Centrato, Gradiente Brillante)
           if ((mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro) {
             oCtx.save();
-            const badgeW = 195 * s;
-            const badgeH = 39 * s;
+            const badgeW = 205 * s;
+            const badgeH = 41 * s;
             const badgeX = w - bx - badgeW;
             const badgeY = by + ((boxH - badgeH) / 2);
-            const badgeRad = 7 * s;
+            const badgeRad = 8 * s;
 
-            oCtx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-            if (typeof oCtx.roundRect === 'function') {
-              oCtx.roundRect(badgeX + (2 * s), badgeY + (2 * s), badgeW, badgeH, badgeRad);
-            } else {
-              oCtx.rect(badgeX + (2 * s), badgeY + (2 * s), badgeW, badgeH);
-            }
-            oCtx.fill();
+            // Ombra
+            oCtx.shadowColor = 'rgba(225, 29, 72, 0.65)';
+            oCtx.shadowBlur = 10 * s;
+            oCtx.shadowOffsetY = 2 * s;
 
-            oCtx.fillStyle = 'rgba(10, 10, 10, 0.88)';
+            // Gradiente Rosso Rubino -> Rosa -> Ambra
+            const grad = oCtx.createLinearGradient(badgeX, badgeY, badgeX + badgeW, badgeY + badgeH);
+            grad.addColorStop(0, '#dc2626');
+            grad.addColorStop(0.5, '#e11d48');
+            grad.addColorStop(1, '#f59e0b');
+            oCtx.fillStyle = grad;
+
+            oCtx.beginPath();
             if (typeof oCtx.roundRect === 'function') {
               oCtx.roundRect(badgeX, badgeY, badgeW, badgeH, badgeRad);
             } else {
@@ -1615,19 +1602,25 @@ export function AutoCutLabPlayer({
             }
             oCtx.fill();
 
-            oCtx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
-            oCtx.lineWidth = 1.3 * s;
+            // Bordino oro chiaro 1.8px
+            oCtx.strokeStyle = '#fef08a';
+            oCtx.lineWidth = 1.8 * s;
             oCtx.stroke();
 
-            oCtx.textAlign = 'right';
-            oCtx.textBaseline = 'top';
-            oCtx.font = `900 ${Math.round(11 * s)}px "Prompt", sans-serif`;
-            oCtx.fillStyle = '#fcd34d';
-            oCtx.fillText('🛵 ส่งฟรี 300฿+  ·  🏷️ ลด 10%', badgeX + badgeW - (8 * s), badgeY + (5 * s));
+            // Testo rigorosamente CENTRATO
+            oCtx.textAlign = 'center';
+            oCtx.textBaseline = 'middle';
+            const badgeCx = badgeX + (badgeW / 2);
+
+            oCtx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+            oCtx.shadowBlur = 4 * s;
+            oCtx.font = `900 ${Math.round(11.5 * s)}px "Prompt", "Kanit", sans-serif`;
+            oCtx.fillStyle = '#fef08a';
+            oCtx.fillText('🛵 ส่งฟรี 300฿+  ·  🏷️ ลด 10%', badgeCx, badgeY + (13 * s));
 
             oCtx.font = `800 ${Math.round(9.5 * s)}px "Outfit", sans-serif`;
-            oCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeX + badgeW - (8 * s), badgeY + (20 * s));
+            oCtx.fillStyle = '#ffffff';
+            oCtx.fillText('Free Delivery 300฿+ · 1st Order -10%', badgeCx, badgeY + (27 * s));
             oCtx.restore();
           }
         }
@@ -2744,25 +2737,6 @@ export function AutoCutLabPlayer({
         </div>
       )}
 
-      {/* 🎗️ OPZIONE 2 (PROVA): Ticker / Nastro Promozionale Sottile Bilingue sotto l'Header */}
-      {(mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && !isInOutro && (
-        <div className="absolute top-[178px] left-1/2 -translate-x-1/2 z-30 pointer-events-none w-[92%] max-w-[420px]">
-          <div className="bg-black/80 backdrop-blur-md border border-amber-400/80 rounded-full px-3 py-1 flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.85)]">
-            <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] font-black text-amber-300 whitespace-nowrap">
-              <span>🛵</span>
-              <span className="font-['Prompt',sans-serif]">ส่งฟรี 300฿+</span>
-              <span className="text-white/85 font-['Outfit',sans-serif] text-[10px] sm:text-[11px] font-bold uppercase">(Free Delivery)</span>
-            </div>
-            <span className="text-amber-400 font-black text-xs px-1">✦</span>
-            <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] font-black text-emerald-400 whitespace-nowrap">
-              <span>🏷️</span>
-              <span className="font-['Prompt',sans-serif]">ลด 10% สั่งครั้งแรก</span>
-              <span className="text-white/85 font-['Outfit',sans-serif] text-[10px] sm:text-[11px] font-bold uppercase">(10% OFF 1st)</span>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Sfondo sfumato nero in basso (Bottom Vignette Fade cinematografica: protegge categoria, titoli bilingui e prezzo) */}
       <div className={`absolute bottom-0 left-0 right-0 h-96 bg-gradient-to-t from-black/85 via-black/55 via-45% to-transparent pointer-events-none z-25 transition-opacity duration-300 ${
         isInOutro ? 'opacity-0' : 'opacity-100'
@@ -2883,15 +2857,19 @@ export function AutoCutLabPlayer({
                   )}
                 </div>
 
-                {/* 🏷️ OPZIONE 1 (PROVA): Badge Promozionale Bilingue a destra del prezzo */}
+                {/* 🏷️ BADGE PROMO BILINGUE A DESTRA DEL PREZZO (Adattivo, Centrato, Gradiente Brillante) */}
                 {(mode === 'P1' || mode === 'P2' || mode === 'P3' || mode === 'DS') && (
-                  <div className="shrink-0 bg-black/85 backdrop-blur-md border border-amber-400/80 rounded-lg px-2.5 py-1.5 shadow-[0_4px_16px_rgba(0,0,0,0.85)] flex flex-col items-end text-right">
-                    <div className="flex items-center gap-1.5 text-[11px] sm:text-[12px] font-black text-amber-300 font-['Prompt',sans-serif] leading-tight drop-shadow whitespace-nowrap">
+                  <div className={`shrink-0 rounded-lg border-2 border-yellow-200 bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 shadow-[0_4px_16px_rgba(225,29,72,0.65)] flex flex-col items-center justify-center text-center ${
+                    currentScene.pizzaSizes
+                      ? 'px-2 py-1 flex-1 min-w-0 max-w-[195px]'
+                      : 'px-3 py-1.5 max-w-[240px]'
+                  }`}>
+                    <div className="flex items-center justify-center gap-1 font-['Prompt',sans-serif] font-black text-amber-200 leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] whitespace-nowrap text-[11px] sm:text-[12px]">
                       <span>🛵 ส่งฟรี 300฿+</span>
-                      <span className="text-white/60">·</span>
-                      <span className="text-emerald-400">🏷️ ลด 10%</span>
+                      <span className="text-white/80 font-normal">·</span>
+                      <span className="text-yellow-100">🏷️ ลด 10%</span>
                     </div>
-                    <div className="text-[9.5px] sm:text-[10.5px] font-bold text-white/95 font-['Outfit',sans-serif] tracking-wide uppercase leading-tight drop-shadow mt-0.5 whitespace-nowrap">
+                    <div className="font-['Outfit',sans-serif] font-extrabold text-white tracking-wide uppercase leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.95)] mt-0.5 whitespace-nowrap text-[9.5px] sm:text-[10.5px]">
                       Free Delivery 300฿+ · 1st Order -10%
                     </div>
                   </div>
