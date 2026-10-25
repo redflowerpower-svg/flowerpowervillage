@@ -1062,13 +1062,16 @@ export function AutoCutLabPlayer({
         maxSubW = Math.max(fpW, thaiW, siteW, delivW);
       } else {
         // Villaggio V1-V3, LM1
-        oCtx.font = `900 ${Math.round(22 * s)}px "Prompt", "Kanit", sans-serif`;
-        const thaiW = oCtx.measureText(mode === 'LM1' ? 'ห้องว่างวันนี้' : 'เกาะพยาม').width;
-        oCtx.font = `600 ${Math.round(16 * s)}px "Outfit", sans-serif`;
-        const siteW = oCtx.measureText('flowerpowervillage.com').width;
-        oCtx.font = `900 ${Math.round(20 * s)}px "Outfit", "Inter", sans-serif`;
+        oCtx.font = `900 ${Math.round(19.5 * s)}px "Outfit", sans-serif`;
         const dbW = oCtx.measureText('DIRECT BOOKING').width;
-        maxSubW = Math.max(fpW, thaiW, siteW, dbW);
+        oCtx.font = `600 ${Math.round(15 * s)}px "Outfit", sans-serif`;
+        const siteW = oCtx.measureText('flowerpowervillage.com').width;
+        let lmExtraW = 0;
+        if (mode === 'LM1') {
+          oCtx.font = `900 ${Math.round(19.5 * s)}px "Prompt", sans-serif`;
+          lmExtraW = oCtx.measureText('ห้องว่างวันนี้').width;
+        }
+        maxSubW = Math.max(fpW, dbW, siteW, lmExtraW);
       }
       oCtx.restore();
 
@@ -1251,21 +1254,28 @@ export function AutoCutLabPlayer({
         oCtx.fillStyle = '#34d399';
         oCtx.fillText('FAST DELIVERY', tx, ty);
       } else if (brand === 'pizza') {
-        // P1, P2, P3: blocco ingrandito del +10%, Ranong Delivery + Thai distanziati di +4px da Pizza, website distanziato di +4px da Thai
-        ty += 14 * s; // +4px di distacco in blocco dalla parola Pizza (era 10 * s)
-        oCtx.font = `900 ${Math.round(22 * s)}px "Outfit", "Inter", sans-serif`; // +10% (era 20 * s)
+        // P1, P2, P3: blocco proporzionato sincronizzato 1:1 con il DOM React dell'Editor
+        ty += 4 * s;
+        const rdFontSize = Math.round(19.5 * s);
+        oCtx.font = `900 ${rdFontSize}px "Outfit", sans-serif`;
         oCtx.fillStyle = '#fcd34d';
         oCtx.fillText('RANONG DELIVERY', tx, ty);
-        ty += 24 * s;
-        oCtx.font = `900 ${Math.round(25.3 * s)}px "Prompt", "Kanit", sans-serif`; // +10% (era 23 * s)
+        ty += rdFontSize + (3 * s);
+
+        const thaiFontSize = Math.round(22 * s);
+        oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
         oCtx.fillStyle = '#fef08a';
         oCtx.fillText('ส่งถึงบ้าน', tx, ty);
-        ty += 28 * s; // +4px di distacco in blocco da ส่งถึงบ้าน (era 22 * s)
-        oCtx.font = `600 ${Math.round(17.6 * s)}px "Outfit", "Inter", sans-serif`; // +10% (era 16 * s)
+        ty += thaiFontSize + (5 * s);
+
+        const siteFontSize = Math.round(16 * s);
+        oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
         oCtx.fillStyle = 'rgba(255,255,255,0.95)';
         oCtx.fillText('flowerpowerpizza.com', tx, ty);
-        ty += 20 * s;
-        oCtx.font = `700 ${Math.round(16.5 * s)}px "Inter", sans-serif`; // +10% (era 15 * s)
+        ty += siteFontSize + (4 * s);
+
+        const bioFontSize = Math.round(15.5 * s);
+        oCtx.font = `700 ${bioFontSize}px "Outfit", sans-serif`;
         oCtx.fillStyle = '#fcd34d';
         oCtx.fillText('Link in Bio', tx, ty);
       } else if (mode === 'LM1') {
@@ -1433,19 +1443,24 @@ export function AutoCutLabPlayer({
         oCtx.fillStyle = 'rgba(255,255,255,0.95)';
         oCtx.fillText('flowerpowervillage.com', tx, ty);
       } else {
-        // Formato Villaggio Regular (V1, V2, V3)
-        // +20%, allontanato di 2 pixel netti dalla parola Village (12 * s invece di 10 * s)
-        ty += 12 * s;
-        oCtx.font = `900 ${Math.round(19.5 * s)}px "Outfit", "Inter", sans-serif`;
-        oCtx.fillStyle = '#34d399';
+        // Formato Villaggio Regular (V1, V2, V3) - Identico al DOM React dell'Editor
+        // Distacco pt-1.5 mt-0.5 rispetto a 'Village' (3 * s)
+        ty += 3 * s;
+        const dbFontSize = Math.round(19.5 * s);
+        oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
+        oCtx.fillStyle = '#6ee7b7'; // emerald-300 identico al DOM
         oCtx.fillText('DIRECT BOOKING', tx, ty);
-        ty += 22 * s;
-        oCtx.font = `600 ${Math.round(15.5 * s)}px "Outfit", "Inter", sans-serif`;
+        ty += dbFontSize + (4 * s);
+
+        const siteFontSize = Math.round(14.5 * s);
+        oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
         oCtx.fillStyle = 'rgba(255,255,255,0.95)';
         oCtx.fillText('flowerpowervillage.com', tx, ty);
-        ty += 19 * s;
-        oCtx.font = `700 ${Math.round(14.5 * s)}px "Inter", sans-serif`;
-        oCtx.fillStyle = '#fcd34d';
+        ty += siteFontSize + (5 * s);
+
+        const bioFontSize = Math.round(14.5 * s);
+        oCtx.font = `700 ${bioFontSize}px "Outfit", sans-serif`;
+        oCtx.fillStyle = '#fcd34d'; // amber-300 identico al DOM
         oCtx.fillText('Link in Bio', tx, ty);
       }
       oCtx.restore();
@@ -1531,7 +1546,7 @@ export function AutoCutLabPlayer({
           oCtx.font = diamondFont;
           oCtx.fillStyle = diamondColor;
           oCtx.fillText('✦', bx, by);
-          oCtx.font = `900 ${Math.round(14 * s)}px "Outfit", "Inter", sans-serif`;
+          oCtx.font = `900 ${Math.round(14 * s)}px "Outfit", sans-serif`;
           oCtx.fillStyle = 'rgba(255, 255, 255, 0.95)';
           oCtx.fillText(catClean, bx + (18 * s), by);
           by += 32 * s; // Distacco netto e armonioso (+14px di respiro: da 18*s a 32*s) prima del titolo del piatto
@@ -1559,7 +1574,7 @@ export function AutoCutLabPlayer({
 
         // Titolo Inglese sotto (+20%: 19.2*s) con contorno nero solido e ombra profonda
         if (engLines.length > 0) {
-          oCtx.font = `800 ${Math.round(19.2 * s)}px "Outfit", "Inter", sans-serif`;
+          oCtx.font = `800 ${Math.round(19.2 * s)}px "Outfit", sans-serif`;
           engLines.forEach(l => {
             oCtx.save();
             oCtx.strokeStyle = 'rgba(0, 0, 0, 0.98)';
@@ -1818,11 +1833,40 @@ export function AutoCutLabPlayer({
       } else if (brand === 'village') {
         // Modalità Alloggi Villaggio (V1, V2, V3, LM1) - Sincronizzata 1:1 con il DOM React dell'Editor
         const bx = 25 * s;
+        const maxTextW = w - bx - (25 * s);
         const hasBadge = !!scene.badgeCategory;
-        const badgeH = hasBadge ? (32 * s) : 0;
-        const titleH = 28 * s;
-        const subtitleH = scene.lodgingSubtitle ? (24 * s) : 0;
-        const thaiH = scene.titleSecondary ? (22 * s) : 0;
+        const badgeH = hasBadge ? (33 * s) : 0;
+        const titleH = 28 * s + (3 * s);
+        const subtitleH = scene.lodgingSubtitle ? (24 * s + 3 * s) : 0;
+
+        // Misura e suddivisione su 2 righe per Thai se supera la larghezza massima
+        let thaiLines: string[] = [];
+        if (scene.titleSecondary) {
+          const thaiFontSize = Math.round(14 * s);
+          oCtx.font = `600 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
+          if (oCtx.measureText(scene.titleSecondary).width <= maxTextW) {
+            thaiLines = [scene.titleSecondary];
+          } else {
+            const words = scene.titleSecondary.split(' ');
+            if (words.length > 1) {
+              let curLine = '';
+              for (const word of words) {
+                const testLine = curLine ? `${curLine} ${word}` : word;
+                if (oCtx.measureText(testLine).width <= maxTextW) {
+                  curLine = testLine;
+                } else {
+                  if (curLine) thaiLines.push(curLine);
+                  curLine = word;
+                }
+              }
+              if (curLine) thaiLines.push(curLine);
+            } else {
+              const mid = Math.floor(scene.titleSecondary.length / 2);
+              thaiLines = [scene.titleSecondary.slice(0, mid), scene.titleSecondary.slice(mid)];
+            }
+          }
+        }
+        const thaiH = thaiLines.length > 0 ? (thaiLines.length * (20 * s) + (3 * s)) : 0;
         const hasPrice = !!scene.priceLabel && mode === 'LM1';
         const priceH = hasPrice ? (46 * s) : 0;
         const totalCardH = badgeH + titleH + subtitleH + thaiH + priceH;
@@ -1883,12 +1927,15 @@ export function AutoCutLabPlayer({
           by += 24 * s + (3 * s); // +3 pixel di distacco verso la scritta Thai
         }
 
-        // 4. Descrizione Thai Alloggio (Prompt 600)
-        if (scene.titleSecondary) {
+        // 4. Descrizione Thai Alloggio (Prompt 600 con wrapping naturale)
+        if (thaiLines.length > 0) {
           oCtx.font = `600 ${Math.round(14 * s)}px "Prompt", "Kanit", sans-serif`;
           oCtx.fillStyle = 'rgba(226, 232, 240, 0.95)';
-          oCtx.fillText(scene.titleSecondary, bx, by);
-          by += 22 * s + (3 * s); // +3 pixel di distacco verso il prezzo
+          thaiLines.forEach(tl => {
+            oCtx.fillText(tl, bx, by);
+            by += 20 * s;
+          });
+          by += 3 * s; // +3 pixel di distacco verso il prezzo
         }
 
         // 5. Prezzo Last Minute Octorate (SOLO IN LM1): Box Giallo #FFE500 con bordo nero 2px, ombra solida e outline bianco centrato

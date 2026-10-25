@@ -3,6 +3,38 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 18:15] · ALLINEAMENTO 1:1 TOTALE RENDERING CANVAS SU TUTTI I 9 FORMATI (P1, P2, P3, DS, V1, V2, V3, LM1, R1): FONT OUTFIT, DISTANZE VERTICALI & WRAPPING THAI ALLOGGI
+- **Cosa abbiamo fatto:** Allineato radicalmente e matematicamente il rendering 2D Canvas di esportazione video con l'anteprima DOM dell'editor in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx), [index.html](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/index.html) e [src/index.css](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/index.css):
+  - 🔤 **Importazione Completa Pesi e Corsivi Google Font Outfit (Zero Fallback / Font Sbagliati)**:
+    - *Causa individuata*: Nel file `index.html` e `src/index.css`, `Outfit` veniva importato solo nei pesi regolari (`wght@300..900`). Quando il canvas richiedeva `italic 500 Outfit` per `Village` o `Pizza`, il browser faceva fallback a un font con grazie o generico di sistema (Times/Arial), sfasando sia l'estetica visiva che le metriche di larghezza e altezza del testo.
+    - *Soluzione applicata*: Estesa la dichiarazione Google Fonts con tutti i pesi e stili sia normali che corsivi: `Outfit:ital,wght@0,300..900;1,300..900`.
+    - Eliminati tutti i fallback a `"Inter"` o ad altri font sparsi nel canvas: ora `Outfit` è il font unico, nativo e fedele 1:1 sia nel DOM che nei frame esportati.
+  - 📏 **Sincronizzazione Geometrica Distanze Verticali (Header Villaggio V1-V3, P1-P3, LM1)**:
+    - *Causa individuata*: Nel canvas per V1-V3 era presente un doppio incremento su `ty` (`ty += 12 * s` sommato al precedente `ty += subFontSize + (5 * s)`), creando un salto spropositato di quasi 46px sotto `Village`. Inoltre, per P1-P3 e V1-V3 i passi verticali erano hardcoded (`22 * s`, `28 * s`) anziché legati all'effettivo `fontSize + interlinea`.
+    - *Soluzione applicata*: Ricalibrato l'avanzamento verticale `ty` in modo che ogni riga avanzi esattamente di `fontSize + padding`, riproducendo millimetricamente le classi Tailwind dell'anteprima DOM (`pt-1.5 mt-0.5`, `pt-2`, `leading-tight`).
+    - Il colore di `DIRECT BOOKING` è stato uniformato a `#6ee7b7` (verde smeraldo brillante `text-emerald-300`, identico al DOM).
+  - 📝 **Wrapping Intelligente Descrizione Thai Alloggi (V1, V2, V3, LM1)**:
+    - *Causa individuata*: Le descrizioni poetiche in lingua Thai per gli alloggi del villaggio venivano stampate su un'unica riga orizzontale su canvas, finendo fuori dallo schermo verso destra nei testi più lunghi, mentre nel DOM andavano a capo in modo naturale.
+    - *Soluzione applicata*: Implementata la misurazione vettoriale preventiva con suddivisione intelligente su 2 righe (`maxTextW = w - bx - 25 * s`). Se il testo eccede l'area utile, viene spezzato sugli spazi (o al punto mediano naturale), e l'altezza complessiva della card (`totalCardH`) e l'ancoraggio inferiore `by = h - (47 * s) - totalCardH` si auto-adattano istantaneamente senza sovrapposizioni.
+- **Effetto reale:** Tutti i video esportati (via Telegram, download o pubblicazione) presentano ora lo stesso identico aspetto estetico, gli stessi font raffinati Outfit, il logo aziendale ufficiale a 512px e le distanze verticali perfettamente proporzionate dell'anteprima Social Studio.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e consolidato su branch locale `staging`.
+
+---
+
+### 🟩 [25/10/2026 - ORE 18:00] · SINCRONIZZAZIONE GENERAZIONE DEEPSEEK AI SU CLICK ESPLICITO & PERSISTENZA LOCALSTORAGE
+- **Cosa abbiamo fatto:** Unificata la generazione di nuovi contenuti in [AutoCutLabView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabView.tsx) e [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx):
+  - 🤖 **DeepSeek AI Automatico su Click "Genera Nuovo Video" (Zero Click Separati)**:
+    - Collegato il trigger di generazione utente (`aiGenTrigger`) dal pulsante principale *"Genera Nuovo Video"* direttamente a `handleGenerateDeepSeekAi()`.
+    - Quando l'utente clicca per generare una nuova sessione, il sistema genera il video E contemporaneamente chiama DeepSeek in background, mostrando lo stato *"DeepSeek AI sta scrivendo il copy..."* e applicando il testo fresco non appena pronto.
+  - 🛡️ **Blindatura Persistenza & Zero Chiamate al Refresh (Regola 21)**:
+    - Il testo generato da DeepSeek viene memorizzato istantaneamente in `localStorage` con la chiave univoca del video (`autocut_ai_copy_${testRunSignature}`).
+    - Al ricaricamento del browser (F5), riavvio dell'IDE o cambio scheda tra i 9 formati, il sistema recupera il testo salvato a 0ms: **ZERO chiamate API, zero token consumati a vuoto**.
+    - La chiamata a DeepSeek parte **SOLO ED ESCLUSIVAMENTE** quando l'utente preme il pulsante di generazione, esattamente come da architettura di progetto.
+- **Effetto reale:** Ogni volta che generi un nuovo video ottieni subito anche il testo DeepSeek personalizzato, fresco e biculturale con i prompt dedicati (R1, LM1, V1-V3, P1-P3, DS). Se ricarichi la pagina o passi da una modalità all'altra, non rispende token e mantiene intatto il lavoro.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e attivo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 17:45] · LOGO UFFICIALE VILLAGE 512 PRECARICATO IN LM1, BADGE LAST MINUTE VETTORIALE ULTRA-NITIDO & DISTANZIAMENTO TESTI (+5PX)
 - **Cosa abbiamo fatto:** Risolti i 3 punti cardine sollevati dall'utente per il formato **LM1** (Stories Last Minute) e blindata l'esportazione video universale in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   - 👑 **Risoluzione Definitiva Logo Mancante nell'Esportazione LM1 (e Formati Villaggio)**:

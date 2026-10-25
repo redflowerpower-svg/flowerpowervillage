@@ -37,6 +37,7 @@ interface AutoCutPostCopywriterProps {
   channelFormats?: ChannelFormatMap;
   onChangeChannelFormat?: (channel: DistributionChannelId, format: any) => void;
   onCaptionsChange?: (captions: PostCaptionsBundle) => void;
+  aiGenTrigger?: number;
 }
 
 export function AutoCutPostCopywriter({ 
@@ -45,7 +46,8 @@ export function AutoCutPostCopywriter({
   onSelectChannel,
   channelFormats,
   onChangeChannelFormat,
-  onCaptionsChange
+  onCaptionsChange,
+  aiGenTrigger
 }: AutoCutPostCopywriterProps) {
   const [copiedType, setCopiedType] = useState<string | null>(null);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
@@ -247,11 +249,9 @@ export function AutoCutPostCopywriter({
   }, [basePostData, aiOverride, testRun.brand]);
 
   // 🛡️ REGOLA 21 AGENTS.MD: ZERO SPRECO TOKEN & PERSISTENZA AL REFRESH E AL CAMBIO SCHEDA
-  // Quando cambia il piatto o il video:
   // 1. Controlla prima se per questa signature esiste già un copy AI salvato in localStorage
   // 2. Se esiste, caricalo all'istante a 0ms e ZERO CHIAMATE API (zero token consumati)
-  // 3. Se NON esiste, mostra il copy base autonomo deterministico (SENZA chiamare DeepSeek)
-  // 4. DeepSeek viene invocato SOLO SE l'utente clicca esplicitamente il tasto "Rigenera Copy AI" o dalla programmazione!
+  // 3. Se NON esiste, mostra il copy base autonomo deterministico
   React.useEffect(() => {
     const cacheKey = `autocut_ai_copy_${testRunSignature}`;
     if (typeof window !== 'undefined') {
@@ -269,9 +269,27 @@ export function AutoCutPostCopywriter({
       }
     }
 
-    // Nessuna cache precedente: mostra il copy base senza chiamare DeepSeek
+    // Nessuna cache precedente: mostra il copy base senza chiamare DeepSeek a vuoto
     setAiOverride(null);
   }, [testRunSignature]);
+
+  // 🚀 CHIAMATA ESPLICITA DEEPSEEK AI SU CLICK GENERAZIONE:
+  // Viene eseguita SOLO quando l'utente clicca sul pulsante "Genera Nuovo Video"!
+  // Al primo avvio/F5/refresh del browser isFirstMountRef protegge da qualsiasi chiamata automatica.
+  const isFirstMountRef = React.useRef(true);
+  const prevTriggerRef = React.useRef(aiGenTrigger);
+
+  React.useEffect(() => {
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      return;
+    }
+
+    if (aiGenTrigger !== undefined && aiGenTrigger > 0 && aiGenTrigger !== prevTriggerRef.current) {
+      prevTriggerRef.current = aiGenTrigger;
+      handleGenerateDeepSeekAi();
+    }
+  }, [aiGenTrigger, handleGenerateDeepSeekAi]);
 
   // Gestione copia negli appunti con feedback visivo
   const handleCopy = (text: string, type: string) => {
