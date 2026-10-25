@@ -4,22 +4,21 @@ import { AutoCutTestRun, AutoCutScene, getCategoryThaiName } from '../services/a
 import { LINE_QR_CODE_BASE64 } from '../services/lineQrData';
 import { autoCutSoundEngine } from '../services/autoCutSoundEffects';
 import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
+import { VILLAGE_LOGO_512_BASE64, PIZZA_LOGO_512_BASE64 } from '../services/brandLogosBase64';
 
 // Immagine QR Code Base64 precaricata e decodificata in memoria all'avvio (zero CORS, zero latenza)
 const globalLineQrImg = new Image();
 globalLineQrImg.src = LINE_QR_CODE_BASE64;
 
-// Loghi Ufficiali precaricati e decodificati all'avvio per watermark e export istantaneo sul canvas (512x512 ad altissima definizione)
+// Loghi Ufficiali precaricati e decodificati all'avvio garantiti al 100% da Data URI Base64 in memoria (zero CORS, zero fetch di rete, zero latenza, mai vuoti)
 const globalPizzaLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
 if (globalPizzaLogoImg instanceof Image) {
-  globalPizzaLogoImg.crossOrigin = 'anonymous';
-  globalPizzaLogoImg.src = '/flower-power-pizza-logo-512.png';
+  globalPizzaLogoImg.src = PIZZA_LOGO_512_BASE64;
 }
 
 const globalVillageLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
 if (globalVillageLogoImg instanceof Image) {
-  globalVillageLogoImg.crossOrigin = 'anonymous';
-  globalVillageLogoImg.src = '/flower-power-village-logo-512.png';
+  globalVillageLogoImg.src = VILLAGE_LOGO_512_BASE64;
 }
 
 // SVG Path ufficiale WhatsApp per rendering fedele su Canvas 2D
@@ -239,13 +238,10 @@ export function AutoCutLabPlayer({
       }
     }
 
-    // Riferimento al logo ufficiale precaricato per Watermark e Outro finale (Pizza / Villaggio)
+    // Riferimento al logo ufficiale precaricato in Base64 (Pizza / Villaggio)
     const logoImg = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
-    if (logoImg instanceof Image) {
-      if (!logoImg.crossOrigin) logoImg.crossOrigin = 'anonymous';
-      if (!logoImg.src) {
-        logoImg.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png';
-      }
+    if (logoImg instanceof Image && !logoImg.src) {
+      logoImg.src = brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64;
     }
 
     // QR Code ufficiale LINE della Pizzeria garantito da istanza Base64 in memoria
@@ -1115,30 +1111,31 @@ export function AutoCutLabPlayer({
       // Blocco Testi Header (a destra del logo, sempre centrato)
       let ty = logoY + (2 * s);
 
-      // Helper universale per testo ad altissimo contrasto con contorno scuro e ombra profonda (leggibile su qualsiasi sfondo)
+      // Helper universale per testo ad altissimo contrasto con contorno nero solido a 360° e ombra profonda (leggibile al 100% su qualsiasi sfondo)
       const drawTextWithShadow = (
         text: string,
         x: number,
         y: number,
         fillStyle: string,
-        strokeWidth: number = 3.2 * s
+        strokeWidth: number = 3.6 * s
       ) => {
-        // Passaggio 1: contorno scuro profondo per staccare nettamente da qualsiasi sfondo (paglia, sole, muri chiari)
+        // Passaggio 1: contorno nero solido e ombra profonda
         oCtx.save();
-        oCtx.strokeStyle = 'rgba(0, 0, 0, 0.98)';
+        oCtx.strokeStyle = '#000000';
         oCtx.lineWidth = strokeWidth;
         oCtx.lineJoin = 'round';
-        oCtx.shadowColor = '#000000';
-        oCtx.shadowBlur = 8 * s;
-        oCtx.shadowOffsetY = 2 * s;
+        oCtx.miterLimit = 2;
+        oCtx.shadowColor = 'rgba(0, 0, 0, 1)';
+        oCtx.shadowBlur = 10 * s;
+        oCtx.shadowOffsetY = 2.5 * s;
         oCtx.strokeText(text, x, y);
         oCtx.restore();
 
         // Passaggio 2: testo pieno netto, vivo e brillante
         oCtx.save();
-        oCtx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-        oCtx.shadowBlur = 3 * s;
-        oCtx.shadowOffsetY = 1 * s;
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+        oCtx.shadowBlur = 4 * s;
+        oCtx.shadowOffsetY = 1.5 * s;
         oCtx.fillStyle = fillStyle;
         oCtx.fillText(text, x, y);
         oCtx.restore();
@@ -1467,12 +1464,13 @@ export function AutoCutLabPlayer({
         const dbFontSize = Math.round(19.5 * s);
         oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
-        ty += dbFontSize + (4 * s);
+        ty += dbFontSize + (8 * s); // Distanziato di 4 pixel ulteriori dal blocco sito/link sotto (totale 8 * s)
 
+        // Blocco unico compatto: flowerpowervillage.com + Link in Bio
         const siteFontSize = Math.round(14.5 * s);
         oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('flowerpowervillage.com', tx, ty, 'rgba(255,255,255,0.95)', 2.8 * s);
-        ty += siteFontSize + (5 * s);
+        ty += siteFontSize + (2 * s); // Legato in blocco unico compatto
 
         const bioFontSize = Math.round(14.5 * s);
         oCtx.font = `700 ${bioFontSize}px "Outfit", sans-serif`;
@@ -2074,11 +2072,8 @@ export function AutoCutLabPlayer({
         try {
           const domLogoEl = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
           const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
-          if (targetLogo instanceof Image) {
-            if (!targetLogo.crossOrigin) targetLogo.crossOrigin = 'anonymous';
-            if (!targetLogo.src) {
-              targetLogo.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png';
-            }
+          if (targetLogo instanceof Image && !targetLogo.src) {
+            targetLogo.src = brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64;
           }
 
           const imgsToDecode: HTMLImageElement[] = [
@@ -2941,8 +2936,7 @@ export function AutoCutLabPlayer({
         <div className="absolute top-6 left-1/2 -translate-x-1/2 w-max z-30 flex items-start gap-3 pointer-events-none transition-all duration-300">
           <img
             id="autoCutHeaderLogoImg"
-            crossOrigin="anonymous"
-            src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png'}
+            src={brand === 'pizza' ? PIZZA_LOGO_512_BASE64 : VILLAGE_LOGO_512_BASE64}
             alt="Logo"
             className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
           />
@@ -3107,25 +3101,26 @@ export function AutoCutLabPlayer({
 
           {/* 🌴 FORMATO VILLAGE REGULAR (V1, V2, V3) */}
           {brand === 'village' && mode !== 'R1' && mode !== 'LM1' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
-              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]">
+              <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 FLOWER POWER
               </span>
-              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_0_10px_rgba(0,0,0,1)]">
+              <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 Village
               </span>
               {/* DIRECT BOOKING (+20%, allontanato di 2px netti dalla parola Village: pt-1.5 mt-0.5) */}
-              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_10px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
-              {/* flowerpowervillage.com (+20%) */}
-              <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
-                flowerpowervillage.com
-              </span>
-              {/* Link in bio (+20%) */}
-              <span className="mt-1 text-[14px] sm:text-[15px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_0_10px_rgba(0,0,0,1),_0_2px_6px_rgba(0,0,0,1),_0_1px_2px_rgba(0,0,0,1)]">
-                Link in Bio
-              </span>
+              {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato di 4 pixel da DIRECT BOOKING: mt-1 */}
+              <div className="flex flex-col gap-0.5 mt-1">
+                <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  flowerpowervillage.com
+                </span>
+                <span className="text-[14px] sm:text-[15px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  Link in Bio
+                </span>
+              </div>
             </div>
           )}
         </div>

@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 18:30] · LOGHI UFFICIALI BASE64 INCORPORATI A 0MS IN MEMORIA, BLOCCO SITO/BIO DISTANZIATO (+4PX) & OMBRE NERE PROFONDE A 360°
+- **Cosa abbiamo fatto:** Risolto alla radice il problema del logo e allineata la geometria di V3 in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) e [brandLogosBase64.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/brandLogosBase64.ts):
+  - 👑 **Loghi Ufficiali HD 512x512 in Base64 (Zero Dipendenza da Rete, Zero Latenza, Impossibile Mancare)**:
+    - *Causa individuata*: Quando il video veniva esportato su canvas headless o in sessioni rapide prima che la richiesta di rete HTTP per `/flower-power-village-logo-512.png` completasse il ciclo di fetch/decode nel browser, l'immagine del logo non era ancora pronta. Il cerchio clippato rimaneva trasparente lasciando trasparire le foglie verdi dell'albero della Jungle Villa sullo sfondo, dando l'impressione visiva di un "cerchio a tinta unita verde".
+    - *Soluzione definitiva*: Incorporati entrambi i loghi ufficiali HD 512x512 (Village e Pizza) come Data URI Base64 in memoria in [brandLogosBase64.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/brandLogosBase64.ts) (stessa tecnica usata con successo per il QR code LINE).
+    - L'immagine è ora istantaneamente disponibile in memoria a 0 millisecondi: niente chiamate HTTP, niente problemi CORS, niente tempi di attesa. Il logo rotondo Flower Power Village è **garantito al 100% su ogni singolo fotogramma sia in DOM che in qualsiasi esportazione Telegram/MP4**.
+  - 📏 **Distanziamento Blocco flowerpowervillage.com + Link in Bio (+4px da DIRECT BOOKING)**:
+    - Nel formato V1, V2, V3: la riga del sito `flowerpowervillage.com` e `Link in Bio` sono ora aggregate in un blocco unico compatto (`mt-1` / `ty += siteFontSize + (2 * s)`) e distanziate di **+4 pixel ulteriori** rispetto a `DIRECT BOOKING` (portando l'avanzamento su canvas a `ty += dbFontSize + (8 * s)` e nel DOM con `mt-[4px]`).
+  - 🖤 **Ombra Nera Profonda a 360° per Tutte le Scritte (`drawTextWithShadow`)**:
+    - Perfezionato `drawTextWithShadow` con contorno solido nero puro `#000000`, `lineJoin = 'round'`, `shadowBlur = 10 * s` e `shadowOffsetY = 2.5 * s`, seguito dal riempimento netto brillante con drop shadow serrata.
+    - Tutte le scritte (`FLOWER POWER`, `Village`, `DIRECT BOOKING`, `flowerpowervillage.com`, `Link in Bio` e card Jungle Villa in basso) presentano una leggibilità netta, solida e impeccabile anche sopra foglie, alberi, tetti o muri chiari.
+- **Effetto reale:** Nel video esportato di V3 (e in tutti i formati), il logo ufficiale giallo del villaggio compare sempre con assoluta certezza, le scritte staccano con ombra nera densa e contrastata, e il blocco del sito con Link in Bio ha il distacco armonioso di 4px richiesto.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato nel browser live con subagent e consolidato.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 18:25] · POTENZIAMENTO OMBRE NERE PROFONDE (HEADER E CARD ALLOGGI), TOP VIGNETTE AD ALTO CONTRASTO E DISTANZIAMENTO +3PX THAI LM1
 - **Cosa abbiamo fatto:** Potenziata radicalmente la leggibilità di tutti i testi e corretto il distanziamento nel formato LM1 in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   - 📏 **Distanziamento Scritta Thai LM1 (+3px in Basso sotto LAST MINUTE)**:
