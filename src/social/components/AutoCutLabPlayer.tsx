@@ -1190,8 +1190,7 @@ export function AutoCutLabPlayer({
         oCtx.fillStyle = '#ffffff';
         oCtx.fillText('Koh Phayam', tx, ty);
       } else if (mode === 'DS') {
-        // Formato DS Daily Special: live showcase distanziato di 5px dalla parola Pizza
-        ty += 5 * s;
+        // Formato DS Daily Special: live showcase distanziato esattamente di 5px dalla parola Pizza (già applicato da ty += subFontSize + 5*s)
         const isLive = !!scene.isLiveShowcase;
         const dsBadgeText = isLive ? 'LIVE SHOWCASE' : 'CHEF SPECIALS';
         const dsBadgeFontSize = Math.round(14.5 * s);
@@ -1213,7 +1212,7 @@ export function AutoCutLabPlayer({
         oCtx.textAlign = 'center';
         oCtx.fillText(dsBadgeText, tx + (dsBadgeW / 2), ty + (4 * s));
         oCtx.restore();
-        ty += dsBadgeH + (5 * s); // e fast delivery con la sua traduzione in Thai altri 5px più in basso
+        ty += dsBadgeH + (5 * s); // Le due scritte successive (Thai e Fast Delivery) distanziate di ulteriori 5px dal badge live showcase
 
         // Scritta Thai (+20%)
         const dsThaiText = isLive ? 'สดใหม่ในตู้โชว์' : 'เมนูพิเศษประจำวัน';
@@ -2473,7 +2472,7 @@ export function AutoCutLabPlayer({
 
           {/* ⚡ FORMATO DS DAILY SPECIAL */}
           {mode === 'DS' && (
-            <div className="flex-1 min-w-0 flex flex-col text-left gap-0.5 drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
+            <div className="flex-1 min-w-0 flex flex-col text-left drop-shadow-[0_3px_12px_rgba(0,0,0,0.85)]">
               <span className="text-[26px] sm:text-[27.5px] font-black text-white uppercase tracking-normal leading-none whitespace-nowrap font-['Outfit',sans-serif] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 FLOWER POWER
               </span>
@@ -2481,8 +2480,8 @@ export function AutoCutLabPlayer({
                 Pizza
               </span>
 
-              {/* Riga 2: LIVE SHOWCASE su una riga sola (distanziato di 5px da pizza: pt-[5px]) */}
-              <div className="pt-[5px]">
+              {/* Riga 2: LIVE SHOWCASE su una riga sola (distanziato esattamente di 5px da pizza: mt-[5px]) */}
+              <div className="mt-[5px]">
                 <span className={`inline-flex items-center px-3.5 py-1 rounded-lg border text-[14px] sm:text-[15px] font-black text-white tracking-wider uppercase shadow-[0_4px_16px_rgba(0,0,0,0.8)] whitespace-nowrap animate-pulse ${
                   currentScene?.isLiveShowcase
                     ? 'bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 border-yellow-200'
@@ -2498,7 +2497,7 @@ export function AutoCutLabPlayer({
               </span>
 
               {/* Riga 4: Solo Fast Delivery più grosso con bagliore scuro (+20%) */}
-              <span className="text-[14px] sm:text-[16px] font-black text-emerald-400 tracking-wider uppercase whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              <span className="mt-0.5 text-[14px] sm:text-[16px] font-black text-emerald-400 tracking-wider uppercase whitespace-nowrap [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 FAST DELIVERY
               </span>
             </div>
