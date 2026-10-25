@@ -696,7 +696,7 @@ export function AutoCutLabPlayer({
 
           targetCtx.font = '700 22px "Inter", sans-serif';
           targetCtx.fillStyle = '#e2e8f0';
-          targetCtx.fillText('🌺 Eco Wooden Bungalows & Sunset Suites', cx, boxY + 360);
+          targetCtx.fillText('🌺 Eco Wooden Bungalows & Breezy Suites', cx, boxY + 360);
         }
 
         // Payoff Footer Card (Sicuro all'interno del box)

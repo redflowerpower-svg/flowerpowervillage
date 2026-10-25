@@ -194,14 +194,14 @@ export const VILLAGE_LODGINGS = [
     id: 'villa-penthouse',
     motherId: 421511,
     folder: '11_penthouse_villa',
-    nameEn: 'Villa Penthouse Sunset Suite',
+    nameEn: 'Villa Penthouse Breezy Suite',
     lodgingTitle: 'Villa Penthouse',
-    lodgingSubtitle: 'Sunset Suite',
-    nameTh: 'เพนต์เฮาส์วิลล่า ดาดฟ้าชมวิวพระอาทิตย์ตกเกาะพยาม',
+    lodgingSubtitle: 'Breezy Suite',
+    nameTh: 'เพนต์เฮาส์วิลล่า ดาดฟ้าชมวิวรับลมธรรมชาติเกาะพยาม',
     category: 'VILLE',
     mainImage: `${STORAGE_ACC}/11_penthouse_villa/01-Main.jpg`,
     gallery: [
-      { file: '01-Main.jpg', labelEn: 'Panoramic Sunset Wooden Deck', labelTh: 'วิลล่า 2 ชั้น ดาดฟ้าชมวิวพาโนรามา' },
+      { file: '01-Main.jpg', labelEn: 'Panoramic Breezy Wooden Deck', labelTh: 'วิลล่า 2 ชั้น ดาดฟ้าชมวิวรับลมพาโนรามา' },
       { file: '06-Bed1.jpg', labelEn: 'King Size Master Bedroom', labelTh: 'ห้องนอนใหญ่เตียงคิงไซส์แสนสบาย' },
       { file: '05-Sofa.jpg', labelEn: 'Private Lounge & Living Area', labelTh: 'มุมนั่งเล่นและโซฟาพักผ่อนส่วนตัว' },
       { file: '03-Kitchen.jpg', labelEn: 'Fully Equipped Kitchen & Dining', labelTh: 'ครัวส่วนตัวพร้อมอุปกรณ์ทำอาหาร' },
@@ -275,7 +275,7 @@ export const VILLAGE_LODGINGS = [
     gallery: [
       { file: '01-Main.jpg', labelEn: 'Charming Wooden Villa by Pool', labelTh: 'วิลล่าไม้บรรยากาศอบอุ่นริมสระว่ายน้ำ' },
       { file: '06-Bed.jpg', labelEn: 'Romantic King Bedroom with Organic Accents', labelTh: 'ห้องนอนเตียงคิงไซส์ ตกแต่งสไตล์ธรรมชาติ' },
-      { file: '03-Balcony.jpg', labelEn: 'Spacious Wooden Balcony for Sunset Sips', labelTh: 'ระเบียงไม้กว้างขวางสำหรับนั่งจิบค็อกเทล' },
+      { file: '03-Balcony.jpg', labelEn: 'Spacious Wooden Balcony for Breezy Sips', labelTh: 'ระเบียงไม้กว้างขวางสำหรับนั่งจิบค็อกเทล' },
       { file: '05-Kitcken.jpg', labelEn: 'Open Kitchen & Coffee Corner', labelTh: 'มุมครัวและชงกาแฟส่วนตัว' },
       { file: '07-Bedroom.jpg', labelEn: 'Second Garden Bedroom Sanctuary', labelTh: 'ห้องนอนโปร่งสบายมองเห็นสวนธรรมชาติ' }
     ]

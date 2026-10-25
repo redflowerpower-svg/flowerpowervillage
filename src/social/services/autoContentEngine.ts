@@ -44,11 +44,11 @@ export interface ScheduledSocialPost {
 export const VILLAGE_SOCIAL_ASSETS = [
   {
     id: 'villa-penthouse',
-    name: 'Villa Penthouse Panoramica Vista Tramonto',
-    nameTh: 'เพนต์เฮาส์วิลล่า ดาดฟ้าชมวิวพระอาทิตย์ตกเกาะพยาม',
+    name: 'Villa Penthouse Panoramica Breezy Suite',
+    nameTh: 'เพนต์เฮาส์วิลล่า ดาดฟ้าชมวิวรับลมธรรมชาติเกาะพยาม',
     category: 'VILLE',
-    description: 'High vantage point, expansive wooden sunset terrace and magical starry nights on Koh Phayam.',
-    descriptionTh: 'ดาดฟ้ากว้างชมวิวท้องฟ้ายามเย็นและหมู่ดาวยามค่ำคืน เอกสิทธิ์การพักผ่อนที่คุณจะหลงรัก',
+    description: 'High vantage point, expansive wooden breezy terrace and magical starry nights on Koh Phayam.',
+    descriptionTh: 'ดาดฟ้ากว้างรับลมธรรมชาติและชมหมู่ดาวยามค่ำคืน เอกสิทธิ์การพักผ่อนที่คุณจะหลงรัก',
     price: 2400,
     image: 'https://gjqevgkbjkharczhikcl.supabase.co/storage/v1/object/public/accommodations/11_penthouse_villa/01-Main.jpg',
     cta_url: 'https://flowerpowervillage.com',
@@ -191,7 +191,7 @@ export function getCurrentSeasonalContext(date: Date = new Date()): {
     return {
       holidayName: 'Island High Season',
       thaiCallout: '☀️ ทะเลใส ท้องฟ้าเปิด เกาะพยามสวยที่สุดในรอบปี ห้ามพลาดเลยนะคะ! 🏖️',
-      engCallout: '☀️ Crystal waters & golden sunsets — Koh Phayam high season at its absolute best! 🏝️'
+      engCallout: '☀️ Crystal waters & lush tropical breezes — Koh Phayam high season at its absolute best! 🏝️'
     };
   } else {
     return {

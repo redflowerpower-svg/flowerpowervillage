@@ -99,22 +99,22 @@ export const VILLAGE_AUTOCUT_CONCEPTS: AutoCutConcept[] = [
   {
     id: 'village-penthouse-villa',
     brand: 'village',
-    titleTh: 'เพนต์เฮาส์วิลล่า ดาดฟ้าชมวิวพระอาทิตย์ตกเกาะพยาม',
-    titleEn: 'Villa Penthouse | Sunset Panoramic Deck Koh Phayam',
-    conceptName: 'Villa Penthouse Sunset Suite',
+    titleTh: 'เพนต์เฮาส์วิลล่า ดาดฟ้าชมวิวรับลมธรรมชาติเกาะพยาม',
+    titleEn: 'Villa Penthouse | Breezy Panoramic Deck Koh Phayam',
+    conceptName: 'Villa Penthouse Breezy Suite',
     category: 'VILLE',
-    descriptionTh: 'ดาดฟ้ากว้างชมวิวพระอาทิตย์ตกและหมู่ดาวยามค่ำคืน วิลล่า 2 ชั้นสุดเอ็กซ์คลูซีฟ พร้อมห้องนั่งเล่นและครัวส่วนตัว 🌅✨',
-    descriptionEn: 'Expansive private wooden deck with panoramic sunset views, two floors of eco-luxury, private lounge and fully equipped kitchen on Koh Phayam! 🌴',
+    descriptionTh: 'ดาดฟ้ากว้างรับลมธรรมชาติและชมหมู่ดาวยามค่ำคืน วิลล่า 2 ชั้นสุดเอ็กซ์คลูซีฟ พร้อมห้องนั่งเล่นและครัวส่วนตัว 🌿✨',
+    descriptionEn: 'Expansive private wooden deck with panoramic breezy views, two floors of eco-luxury, private lounge and fully equipped kitchen on Koh Phayam! 🌴',
     audioTrackId: 'village_01',
     audioTrackName: 'Island Disco Paradise (Disco Funk Anni 70)',
     audioTrackSrc: '/audio/village/01%20Flower%20Power%20Village%20-%20Island%20Disco%20Paradise%20(Disco%20Funk).mp3',
     audioDuration: '25.7s',
-    tags: ['#VillaPenthouse', '#KohPhayamSunset', '#EcoLuxury', '#RanongResort', '#ThailandTravel'],
+    tags: ['#VillaPenthouse', '#KohPhayamResort', '#EcoLuxury', '#RanongResort', '#ThailandTravel'],
     slides: [
       {
         imageUrl: `${STORAGE_ACC}/11_penthouse_villa/01-Main.jpg`,
-        labelTh: 'วิลล่า 2 ชั้น ดาดฟ้าชมวิวพาโนรามา',
-        labelEn: '2-Story Villa with Panoramic Sunset Deck',
+        labelTh: 'วิลล่า 2 ชั้น ดาดฟ้าชมวิวรับลมพาโนรามา',
+        labelEn: '2-Story Villa with Panoramic Breezy Deck',
         badge: 'PANORAMIC VIEW',
         price: 2400,
         trajectory: 'pan_left_to_right'
@@ -123,7 +123,7 @@ export const VILLAGE_AUTOCUT_CONCEPTS: AutoCutConcept[] = [
         imageUrl: `${STORAGE_ACC}/11_penthouse_villa/02-Table.jpg`,
         labelTh: 'โต๊ะรับประทานอาหารดาดฟ้ารับลมทะเล',
         labelEn: 'Open-Air Dining Table under the Stars',
-        badge: 'SUNSET DECK',
+        badge: 'BREEZY DECK',
         price: 2400,
         trajectory: 'diagonal_up_right'
       },
@@ -301,8 +301,8 @@ export const VILLAGE_AUTOCUT_CONCEPTS: AutoCutConcept[] = [
       {
         imageUrl: `${STORAGE_ACC}/41_peace_and_love_villa/03-Balcony.jpg`,
         labelTh: 'ระเบียงไม้กว้างขวางสำหรับนั่งจิบค็อกเทล',
-        labelEn: 'Spacious Wooden Balcony for Sunset Sips',
-        badge: 'SUNSET BALCONY',
+        labelEn: 'Spacious Wooden Balcony for Breezy Sips',
+        badge: 'BREEZY BALCONY',
         price: 2400,
         trajectory: 'pan_right_to_left'
       },

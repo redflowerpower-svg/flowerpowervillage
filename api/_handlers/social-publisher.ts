@@ -980,7 +980,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
 1. DIVIETO DI MONOTONIA:
    Varia sempre l'attacco: a volte il rumore del mare e la brezza marina, a volte la magia del bungalow in legno tra le palme, a volte la fuga dal caos cittadino (slow life), a volte il buon cibo all'ombra dei giardini tropicali.
 2. CULTURA SLOW LIFE DI KOH PHAYAM:
-   Evoca la pace autentica dell'isola, il dondolarsi sull'amaca, il tramonto a Buffalo Bay, il piacere di staccare la spina.
+   Evoca la pace autentica dell'isola, il dondolarsi sull'amaca nella brezza tropicale, la quiete a Buffalo Bay, il piacere di staccare la spina.
 3. STRUTTURA & LUNGHEZZA:
    - MASSIMO 3-4 RIGHE per lingua. Spaziatura ariosa, zero muri di parole.
    - Nomi alloggi: REGOLA IMMODIFICABILE: il nome dell'alloggio NON DEVE MAI andare a capo a metà!
@@ -989,6 +989,7 @@ REGOLE FONDAMENTALI DI SCRITTURA:
     - Hashtag: NON scrivere alcun hashtag (#) nei testi: vengono aggiunti dal sistema in fondo al post, dopo le due lingue.
     - Bandiera: ogni testo (thaiContent / englishContent) DEVE iniziare con la propria bandiera prima della prima lettera (🇹🇭 per il Thai, 🇬🇧 per l'Inglese).
     - DIVIETO CATEGORICO FORNO A LEGNA: NON ABBIAMO IL FORNO A LEGNA! È severamente vietato parlare di forno a legna o "wood-fired" o "เตาฟืน".
+    - DIVIETO CATEGORICO E ASSOLUTO PAROLA SUNSET / TRAMONTO: IL NOSTRO VILLAGGIO NON VEDE IL TRAMONTO (ZERO SUNSET)! È TASSATIVAMENTE E SEVERAMENTE VIETATO usare le parole "sunset", "tramonto", "พระอาทิตย์ตก" o parlare di tramonto per Flower Power Village e per qualsiasi alloggio! Per la Villa Penthouse in particolare, parlare TASSATIVAMENTE di "Breezy Suite" / suite ventilata con terrazza panoramica fresca e arieggiata.
     - REGOLA EMOJI CONTESTUALI (DIVIETO EMOJI A FINE FRASE): DIVIETO ASSOLUTO di piazzare 3 o 4 emoji raggruppate alla fine della frase. Le emoji devono essere DISTRIBUITE IN MODO NATURALE NEL CORPO DEL TESTO, accompagnando le singole parole (es. "natura tropicale 🌴", "brezza sul mare 🌊", "suono delle onde 🌺", "relax sull'amaca 🥥").
 
 Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
@@ -1034,6 +1035,19 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
       };
       thaiContent = scrubWoodFired(thaiContent);
       englishContent = scrubWoodFired(englishContent);
+
+      // 🛡️ REGOLA IMMODIFICABILE: Sanitizzazione automatica zero sunset per Flower Power Village
+      const scrubSunset = (t: string) => {
+        return t
+          .replace(/\b(sunset\s+deck|sunset\s+terrace|sunset\s+suite|sunset\s+view|sunset\s+balcony)\b/gi, 'breezy deck')
+          .replace(/\b(sunset|sunsets)\b/gi, 'tropical breezes')
+          .replace(/พระอาทิตย์ตก/g, 'รับลมธรรมชาติ')
+          .replace(/\b(tramonto|tramonti)\b/gi, 'aria fresca tropicale');
+      };
+      if (!isPizza) {
+        thaiContent = scrubSunset(thaiContent);
+        englishContent = scrubSunset(englishContent);
+      }
 
       if (parsed.proverbThai && !thaiContent.includes(parsed.proverbThai)) {
         const pLabel = parsed.proverbThai.startsWith('📜') ? parsed.proverbThai : `📜 สุภาษิตประจำวัน: "${parsed.proverbThai}"`;

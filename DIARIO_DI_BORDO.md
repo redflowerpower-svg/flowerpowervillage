@@ -5,6 +5,20 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 14:16] · REGOLA IMMODIFICABILE 24: DIVIETO ASSOLUTO "SUNSET" E VILLA PENTHOUSE "BREEZY SUITE"
+- **Cosa abbiamo fatto:** Su indicazione geografica tassativa dell'utente (*il villaggio non vede il tramonto/sunset*), abbiamo bonificato l'intero sistema eliminando qualsiasi uso della parola "sunset", "tramonto" o "พระอาทิตย์ตก" per Flower Power Village:
+  - 🌬️ **Villa Penthouse Rinominata "Breezy Suite"**:
+    - Sottotitolo aggiornato a **"Breezy Suite"** (ventilata).
+    - Descrizione inglese: *Panoramic Breezy Wooden Deck* (anziché Sunset Deck).
+    - Descrizione Thai: *เพนต์เฮาส์วิลล่า ดาดฟ้าชมวิวรับลมธรรมชาติเกาะพยาม* (anziché พระอาทิตย์ตก).
+    - Badge: **"BREEZY DECK"** (anziché Sunset Deck).
+  - 🛡️ **Bonifica Totale del Codebase**: Aggiornati tutti i servizi e cataloghi del social studio ([autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts), [autoCutIntelligence.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutIntelligence.ts), [visualMotionEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/visualMotionEngine.ts), [autoContentEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoContentEngine.ts) e [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)).
+  - 🤖 **Blindatura Prompt & Sanitizzatore DeepSeek AI**: Inserita in [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts) la regola categorica di divieto per DeepSeek e il filtro regex `scrubSunset` che neutralizza all'istante qualsiasi menzione residua di tramonto trasformandola in brezza tropicale.
+  - 📜 **Codificata la Regola Immodificabile 24** in [.agents/AGENTS.md](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/.agents/AGENTS.md).
+- **Effetto reale:** Nessun post, video, didascalia o anteprima del Villaggio parlerà mai più di sunset o tramonto; per la Villa Penthouse viene valorizzata la sua vera caratteristica: una suite fresca, sopraelevata e ventilata con terrazza panoramica arieggiata.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+
 ### 🟩 [25/10/2026 - ORE 14:10] · LAST MINUTE LM1: PREZZO PULITO "LAST MINUTE" (ZERO "TODAY") & HEADER ALTO DISTANZIATO (+6PX DA VILLAGE)
 - **Cosa abbiamo fatto:** Perfezionati due dettagli chiave nel formato **LM1** (Stories Last Minute Villaggio) sia su Canvas sia nel DOM ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) e [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts)):
   - 🏷️ **Prezzo in Basso Pulito**: Rimossa la parola "Today" dall'etichetta del prezzo: ora mostra esclusivamente `Last Minute: 711 ฿` (solo last minute e prezzo, come richiesto). Il filtro applicato pulisce all'istante anche le sessioni già in memoria.
