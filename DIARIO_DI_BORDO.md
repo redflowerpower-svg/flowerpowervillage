@@ -3,6 +3,26 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 21:15] · DINING TABLET & KDS: BLINDATURA 2 ORE, ESPOSIZIONE IMPORTO CARRELLO E SANDBOX LOCALE A CIRCUITO CHIUSO (ISOLAMENTO TOTALE DALLA THAILANDIA)
+- **Cosa abbiamo fatto:** Risolto il problema degli ordini fantasma e creato una sandbox locale ermetica per collaudare tutto il ciclo comande su `localhost` senza contaminare il ristorante reale a Ranong:
+  - ⏱️ **Auto-Chiusura Categorica a 2 Ore (Anti-Ghost Orders)**:
+    - In [DiningCheckoutModal.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/components/DiningCheckoutModal.tsx), [KitchenTabletKDS.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/pizza/components/KitchenTabletKDS.tsx) e [DiningTabletSite.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/pages/DiningTabletSite.tsx): introdotto il limite massimo inviolabile di 2 ore (`MAX_ORDER_AGE_MS = 2 * 60 * 60 * 1000`). Ordini più vecchi di 2 ore vengono auto-completati su Supabase in background e non possono più essere riagganciati come integrazioni né restare nel KDS.
+  - ⚠️ **Avviso di Sicurezza Tavolo Occupato (Conto Attivo)**:
+    - Se un tavolo ha già una comanda attiva in cucina (pallino giallo), toccandolo dal selettore tavoli compare un modale di sicurezza in 9 lingue (IT, EN, TH, DE, MM, ES, FR, RU, ZH) con il riepilogo del conto, minuti trascorsi, lista portate e tre azioni: *Aggiungi Piatti (Integrazione)*, *Salda Conto Subito* o *Annulla*.
+  - 🛒 **Rimozione Parola "Bozza" ed Esposizione Valore Reale nel Carrello**:
+    - Rimossa categoricamente la parola "bozza". Quando un tavolo ha prodotti selezionati non ancora inviati, il pulsante del tavolo mostra direttamente l'importo in Baht calcolato con la formula universale: `🛒 ฿[Totale]` (es. `🛒 ฿520`, `🛒 ฿780`).
+    - Cliccandoci si apre il modale *"NON ANCORA INVIATO ALLA CASSA"* che elenca i piatti e permette di proseguire l'ordine o cancellarlo azzerando il carrello.
+    - **Doppio Timer Anti-Dimenticanza**: 3 minuti di inattività sul pop-up tavoli azzerano il carrello; 4 minuti di inattività all'interno del menu cancellano la comanda e riportano il tablet alla selezione iniziale.
+  - 🛡️ **Sandbox Locale a Circuito Chiuso (Zero Leak verso Ranong)**:
+    - Creato [localSandboxOrderService.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/services/localSandboxOrderService.ts): quando l'app gira su `localhost` o `127.0.0.1`, gli ordini vengono salvati in `localStorage` e sincronizzati tra schede del browser a 0ms tramite `BroadcastChannel`.
+    - [KitchenTabletKDS.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/pizza/components/KitchenTabletKDS.tsx) e [usePizzaAdminStore.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/admin/pizza/store/usePizzaAdminStore.ts): su `localhost` il KDS riceve subito le comande di test con suono campana, cartellino verde `[TEST SANDBOX]` e spia verde `SANDBOX LOCALE` in testata.
+    - [TableSettlementModal.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/pizza/components/TableSettlementModal.tsx): permette di saldare il conto di prova localmente e liberare il tavolo.
+    - [pizza-order-submit.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/pizza-order-submit.ts) e [telegram.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/telegram.ts): doppia barriera backend che intercetta e sterilizza le chiamate da localhost, bloccando al 100% messaggi Telegram allo staff ed email ai clienti.
+- **Effetto reale:** Sviluppatore e gestore possono testare l'intero flusso di ordinazione (dal tablet sala alla cassa al KDS fino al saldo) sul proprio computer in totale serenità a qualunque ora, con zero contaminazione del database di produzione e zero disturbi allo staff in Thailandia.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 19:35] · 10% OFF: CALIBRAZIONE E RIDUZIONE AURA DEL BAGLIORE (PIÙ PICCOLA, NITIDA E DISCRETA)
 - **Cosa abbiamo fatto:** Ridotta l'intensità e il raggio dell'alone luminoso di **"10% OFF"** in tutti i formati Villaggio (`V1`, `V2`, `V3`) e Stories Last Minute (`LM1`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   - 🔍 **Riduzione Raggio & Opacità Bagliore su Canvas**:

@@ -26,6 +26,7 @@ import {
   Plus,
   Minus,
   X,
+  Trash2,
   QrCode,
   Smartphone,
   Printer
@@ -63,6 +64,12 @@ import CartDrawer from '../components/CartDrawer';
 import PizzaSlideshow from '../../components/PizzaSlideshow';
 import { DiningAdminAuth } from '../components/DiningAdminAuth';
 import { DINING_TABLES, formatTableStationName, getCanonicalTableKey, extractTableFromAddress } from '../utils/tableUtils';
+import { 
+  isLocalSandbox, 
+  getSandboxOrders, 
+  subscribeToSandboxOrders, 
+  updateSandboxOrderStatus 
+} from '../services/localSandboxOrderService';
 
 const DINING_LEAD_BANNER: Record<Language, { title: string; subtitle: string }> = {
   IT: {
@@ -375,6 +382,230 @@ const LOCATION_BY_LANG: Record<Language, string> = {
   FR: 'RANONG, THAÏLANDE',
   RU: 'РАНОНГ, ТАИЛАНД',
   ZH: '泰国拉廊'
+};
+
+const I18N_OCCUPIED_WARNING: Record<Language, {
+  title: string;
+  badge: string;
+  billPrefix: string;
+  orderAgo: (mins: number) => string;
+  prompt: string;
+  actionAddItems: string;
+  actionSettle: string;
+  actionCancel: string;
+  itemsSummaryTitle: string;
+}> = {
+  IT: {
+    title: "Tavolo Occupato",
+    badge: "CONTO ATTIVO IN CORSO",
+    billPrefix: "Conto Attuale:",
+    orderAgo: (m) => `Comanda inviata ${m} min fa`,
+    prompt: "Questo tavolo ha già una comanda attiva in corso. Cosa desideri fare?",
+    actionAddItems: "Aggiungi Piatti (Integrazione)",
+    actionSettle: "Salda Conto Subito",
+    actionCancel: "Annulla (Torna ai Tavoli)",
+    itemsSummaryTitle: "Piatti già ordinati:"
+  },
+  EN: {
+    title: "Table Occupied",
+    badge: "ACTIVE BILL IN PROGRESS",
+    billPrefix: "Current Bill:",
+    orderAgo: (m) => `Order sent ${m} mins ago`,
+    prompt: "This table already has an active order in progress. What would you like to do?",
+    actionAddItems: "Add Dishes (Integration)",
+    actionSettle: "Settle Bill Now",
+    actionCancel: "Cancel (Back to Tables)",
+    itemsSummaryTitle: "Already ordered items:"
+  },
+  TH: {
+    title: "โต๊ะนี้มีลูกค้าอยู่",
+    badge: "มีบิลที่กำลังเปิดอยู่",
+    billPrefix: "ยอดรวมปัจจุบัน:",
+    orderAgo: (m) => `ส่งออเดอร์เมื่อ ${m} นาทีที่แล้ว`,
+    prompt: "โต๊ะนี้มีรายการสั่งอาหารที่กำลังดำเนินการอยู่ คุณต้องการทำอะไร?",
+    actionAddItems: "สั่งอาหารเพิ่ม (รวมบิล)",
+    actionSettle: "เช็คบิลทันที",
+    actionCancel: "ยกเลิก (กลับหน้ารายการโต๊ะ)",
+    itemsSummaryTitle: "รายการที่สั่งไปแล้ว:"
+  },
+  DE: {
+    title: "Tisch Besetzt",
+    badge: "AKTIVE RECHNUNG OFFEN",
+    billPrefix: "Aktueller Rechnungsbetrag:",
+    orderAgo: (m) => `Bestellung vor ${m} Min. gesendet`,
+    prompt: "Dieser Tisch hat bereits eine aktive Bestellung. Was möchten Sie tun?",
+    actionAddItems: "Gerichte hinzufügen",
+    actionSettle: "Jetzt abrechnen",
+    actionCancel: "Abbrechen",
+    itemsSummaryTitle: "Bereits bestellte Gerichte:"
+  },
+  MM: {
+    title: "စားပွဲတွင် လူရှိသည်",
+    badge: "အော်ဒါဖွင့်ထားပါသည်",
+    billPrefix: "လက်ရှိဘေလ်:",
+    orderAgo: (m) => `လွန်ခဲ့သော ${m} မိနစ်က မှာယူထားသည်`,
+    prompt: "ဤစားပွဲတွင် လက်ရှိအော်ဒါရှိနေပါသည်။ ဘာလုပ်လိုပါသနည်း?",
+    actionAddItems: "အစားအစာ ထပ်မှာမည်",
+    actionSettle: "ဘေလ်ရှင်းမည်",
+    actionCancel: "ပယ်ဖျက်မည်",
+    itemsSummaryTitle: "မှာယူပြီးသော အစားအစာများ:"
+  },
+  ES: {
+    title: "Mesa Ocupada",
+    badge: "CUENTA ACTIVA EN CURSO",
+    billPrefix: "Cuenta Actual:",
+    orderAgo: (m) => `Pedido enviado hace ${m} min`,
+    prompt: "Esta mesa ya tiene un pedido activo en curso. ¿Qué deseas hacer?",
+    actionAddItems: "Añadir Platos (Integración)",
+    actionSettle: "Cobrar Cuenta Ahora",
+    actionCancel: "Cancelar",
+    itemsSummaryTitle: "Platos ya pedidos:"
+  },
+  FR: {
+    title: "Table Occupée",
+    badge: "ADDITION ACTIVE EN COURS",
+    billPrefix: "Addition Actuelle :",
+    orderAgo: (m) => `Commande envoyée il y a ${m} min`,
+    prompt: "Cette table a déjà une commande active en cours. Que souhaitez-vous faire ?",
+    actionAddItems: "Ajouter des Plats",
+    actionSettle: "Régler l'Addition",
+    actionCancel: "Annuler",
+    itemsSummaryTitle: "Plats déjà commandés :"
+  },
+  RU: {
+    title: "Стол Занят",
+    badge: "АКТИВНЫЙ СЧЁТ",
+    billPrefix: "Текущий счёт:",
+    orderAgo: (m) => `Заказ отправлен ${m} мин назад`,
+    prompt: "Для этого столика уже есть активный заказ. Что вы хотите сделать?",
+    actionAddItems: "Добавить блюда (Дозаказ)",
+    actionSettle: "Оплатить счёт",
+    actionCancel: "Отмена",
+    itemsSummaryTitle: "Уже заказанные блюда:"
+  },
+  ZH: {
+    title: "餐桌占用中",
+    badge: "账单进行中",
+    billPrefix: "当前账单：",
+    orderAgo: (m) => `已下单 ${m} 分钟前`,
+    prompt: "该桌已有进行中的订单。您想要执行什么操作？",
+    actionAddItems: "加菜（合并加单）",
+    actionSettle: "立即结账",
+    actionCancel: "取消",
+    itemsSummaryTitle: "已点菜品："
+  }
+};
+
+const I18N_DRAFT_WARNING: Record<Language, {
+  title: string;
+  badge: string;
+  billPrefix: string;
+  cardLabel: string;
+  prompt: string;
+  actionContinue: string;
+  actionDiscard: string;
+  actionCancel: string;
+  itemsSummaryTitle: string;
+}> = {
+  IT: {
+    title: "Ordinazione in Corso",
+    badge: "NON ANCORA INVIATO ALLA CASSA",
+    billPrefix: "Totale nel Carrello:",
+    cardLabel: "Nel Carrello:",
+    prompt: "Questo tavolo ha piatti selezionati nel carrello non ancora inviati alla cassa. Vuoi continuare questa ordinazione o cancellarla e ripartire da zero?",
+    actionContinue: "Continua Ordinazione",
+    actionDiscard: "Cancella e Svuota Carrello",
+    actionCancel: "Annulla (Torna ai Tavoli)",
+    itemsSummaryTitle: "Piatti attualmente nel carrello:"
+  },
+  EN: {
+    title: "Order in Progress",
+    badge: "NOT YET SENT TO COUNTER",
+    billPrefix: "Cart Total:",
+    cardLabel: "In Cart:",
+    prompt: "This table has items selected in the cart not yet sent to the counter. Do you want to continue this order or discard it and start fresh?",
+    actionContinue: "Continue Order",
+    actionDiscard: "Discard & Clear Cart",
+    actionCancel: "Cancel (Back to Tables)",
+    itemsSummaryTitle: "Items currently in cart:"
+  },
+  TH: {
+    title: "รายการอาหารกำลังดำเนินการ",
+    badge: "ยังไม่ได้ส่งรายการเข้าครัว",
+    billPrefix: "ยอดรวมในตะกร้า:",
+    cardLabel: "ในตะกร้า:",
+    prompt: "โต๊ะนี้มีรายการอาหารที่เลือกไว้ในตะกร้าแต่ยังไม่ได้กดส่งไปยังเคาน์เตอร์ คุณต้องการสั่งต่อหรือล้างตะกร้าทิ้ง?",
+    actionContinue: "ทำรายการต่อ",
+    actionDiscard: "ล้างตะกร้าและเริ่มใหม่",
+    actionCancel: "ยกเลิก (กลับหน้ารายการโต๊ะ)",
+    itemsSummaryTitle: "รายการที่เลือกไว้ในตะกร้า:"
+  },
+  DE: {
+    title: "Bestellung in Bearbeitung",
+    badge: "NOCH NICHT GESENDET",
+    billPrefix: "Warenkorb-Summe:",
+    cardLabel: "Im Warenkorb:",
+    prompt: "Dieser Tisch hat Artikel im Warenkorb, die noch nicht abgeschickt wurden. Möchten Sie fortfahren oder verwerfen?",
+    actionContinue: "Bestellung fortsetzen",
+    actionDiscard: "Verwerfen & Warenkorb leeren",
+    actionCancel: "Abbrechen",
+    itemsSummaryTitle: "Aktuelle Artikel im Warenkorb:"
+  },
+  MM: {
+    title: "အော်ဒါ ဆောင်ရွက်ဆဲ",
+    badge: "ကောင်တာသို့ မပို့ရသေးပါ",
+    billPrefix: "ခြင်းထဲရှိ စုစုပေါင်း:",
+    cardLabel: "ခြင်းထဲတွင်:",
+    prompt: "ဤစားပွဲတွင် ရွေးချယ်ထားသော်လည်း ကောင်တာသို့ မပို့ရသေးသော အစားအစာများရှိပါသည်။ ဆက်လက်မှာယူမည်လား သို့မဟုတ် ပယ်ဖျက်မည်လား?",
+    actionContinue: "ဆက်လက်မှာယူမည်",
+    actionDiscard: "ပယ်ဖျက်ပြီး အသစ်စမည်",
+    actionCancel: "မလုပ်တော့ပါ",
+    itemsSummaryTitle: "လက်ရှိ ခြင်းထဲရှိ အစားအစာများ:"
+  },
+  ES: {
+    title: "Pedido en Curso",
+    badge: "NO ENVIADO A CAJA",
+    billPrefix: "Total en Cesta:",
+    cardLabel: "En la Cesta:",
+    prompt: "Esta mesa tiene platos seleccionados en la cesta aún no enviados a caja. ¿Deseas continuar este pedido o descartarlo y empezar de cero?",
+    actionContinue: "Continuar Pedido",
+    actionDiscard: "Descartar y Vaciar Cesta",
+    actionCancel: "Cancelar",
+    itemsSummaryTitle: "Platos actualmente en la cesta:"
+  },
+  FR: {
+    title: "Commande en Cours",
+    badge: "NON ENVOYÉ EN CAISSE",
+    billPrefix: "Total Panier :",
+    cardLabel: "Dans le Panier :",
+    prompt: "Cette table a des articles dans le panier pas encore envoyés en caisse. Voulez-vous continuer ou recommencer à zéro ?",
+    actionContinue: "Continuer la Commande",
+    actionDiscard: "Effacer et Vider le Panier",
+    actionCancel: "Annuler",
+    itemsSummaryTitle: "Articles actuellement dans le panier :"
+  },
+  RU: {
+    title: "Заказ в Процессе",
+    badge: "НЕ ОТПРАВЛЕНО НА КАССУ",
+    billPrefix: "В корзине:",
+    cardLabel: "В корзине:",
+    prompt: "Для этого столика есть выбранные в корзине блюда, ещё не отправленные на кассу. Продолжить оформление или очистить корзину?",
+    actionContinue: "Продолжить Заказ",
+    actionDiscard: "Очистить Корзину",
+    actionCancel: "Отмена",
+    itemsSummaryTitle: "Блюда в корзине:"
+  },
+  ZH: {
+    title: "点餐进行中",
+    badge: "未发送至前台",
+    billPrefix: "购物车总额：",
+    cardLabel: "购物车内：",
+    prompt: "该桌已有选好在购物车但未发送至收银台的菜品。您想继续点餐还是清空重新开始？",
+    actionContinue: "继续点餐",
+    actionDiscard: "清空并重置购物车",
+    actionCancel: "取消",
+    itemsSummaryTitle: "购物车内菜品："
+  }
 };
 
 // Centralized 9-language definitions for category sub-sections, summaries and filters
@@ -873,6 +1104,8 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
 
   // Active Orders per Table for Table Selection Status
   const [activeTableOrderMap, setActiveTableOrderMap] = useState<Record<string, any[]>>({});
+  const [occupiedWarningTable, setOccupiedWarningTable] = useState<string | null>(null);
+  const [draftWarningTable, setDraftWarningTable] = useState<string | null>(null);
 
   const fetchActiveDineInOrders = async () => {
     try {
@@ -892,12 +1125,33 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
 
       const map: Record<string, any[]> = {};
       const now = Date.now();
-      const MAX_ORDER_AGE_MS = 16 * 60 * 60 * 1000; // 16 ore: ignora ordini di turni passati rimasti aperti
+      const MAX_ORDER_AGE_MS = 2 * 60 * 60 * 1000; // 2 ore: limite categorico ordini tavolo aperti
 
-      (data || []).forEach((order: any) => {
+      let combinedOrders = (data || []);
+      if (isLocalSandbox()) {
+        const sandboxOrders = getSandboxOrders().filter(o => 
+          o.status !== 'completed' && o.status !== 'cancelled' && o.status !== 'rejected' && o.status !== 'settled'
+        );
+        combinedOrders = [...sandboxOrders, ...combinedOrders];
+      }
+
+      combinedOrders.forEach((order: any) => {
         if (order.created_at) {
           const ageMs = now - new Date(order.created_at).getTime();
-          if (ageMs > MAX_ORDER_AGE_MS) return;
+          if (ageMs > MAX_ORDER_AGE_MS) {
+            if (String(order.id).startsWith('sb-')) {
+              updateSandboxOrderStatus(String(order.id), 'completed');
+            } else {
+              // Auto-archiviazione in background su Supabase per ordini rimasti aperti oltre 2 ore
+              supabase
+                .from('pizza_orders')
+                .update({ status: 'completed' })
+                .eq('id', order.id)
+                .then(() => {})
+                .catch(() => {});
+            }
+            return;
+          }
         }
 
         const rawTable = extractTableFromAddress(order.address) || order.table_number || '';
@@ -916,6 +1170,12 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
 
   useEffect(() => {
     fetchActiveDineInOrders();
+
+    const unsubSandbox = isLocalSandbox()
+      ? subscribeToSandboxOrders(() => {
+          fetchActiveDineInOrders();
+        })
+      : () => {};
 
     const sub = supabase
       .channel('dining_orders_realtime')
@@ -1009,6 +1269,7 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
 
     return () => {
       supabase.removeChannel(sub);
+      unsubSandbox();
       if (bc1) bc1.close();
       if (bc2) bc2.close();
       if (bcTable) bcTable.close();
@@ -1180,6 +1441,56 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
     setIsResetConfirming(false);
     if (resetConfirmTimerRef.current) clearTimeout(resetConfirmTimerRef.current);
   }, [currentTable, isTableSelected]);
+
+  // ─── INACTIVITY AUTO-RESET CONTROLLERS ─────────────────────────────────────
+  // 1. Popup d'inizio (Selezione Tavoli): Se ci sono articoli non inviati nel carrello
+  //    e si rimane sul popup iniziale per più di 3 minuti, resetta il carrello e deseleziona il tavolo.
+  useEffect(() => {
+    if (isTableSelected || items.length === 0) return;
+
+    const timeoutInitialPicker = setTimeout(() => {
+      clearCart();
+      if (!isGuestMobile) {
+        setCurrentTable('');
+      }
+    }, 3 * 60 * 1000); // 3 minuti
+
+    return () => clearTimeout(timeoutInitialPicker);
+  }, [isTableSelected, items.length, clearCart, isGuestMobile]);
+
+  // 2. Durante l'ordinazione (Menu Tavolo): Se nessuno tocca lo schermo per più di 4 minuti,
+  //    cancella tutto e torna alla schermata iniziale dei tavoli (tablet di sala).
+  useEffect(() => {
+    if (isGuestMobile || !isTableSelected) return;
+
+    let timer: NodeJS.Timeout;
+
+    const handleResetInactivity = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        // Nessuna interazione per 4 minuti: azzera tutto e torna al menu iniziale
+        clearCart();
+        setCurrentTable('');
+        setIsTableSelected(false);
+        setIsCheckoutModalOpen(false);
+        setOccupiedWarningTable(null);
+        setDraftWarningTable(null);
+        setCustomTableInput('');
+      }, 4 * 60 * 1000); // 4 minuti
+    };
+
+    // Avvia timer iniziale
+    handleResetInactivity();
+
+    // Eventi di interazione utente (tocco, click, scroll, tastiera)
+    const events = ['pointerdown', 'touchstart', 'click', 'keydown', 'scroll'];
+    events.forEach(evt => window.addEventListener(evt, handleResetInactivity, { passive: true }));
+
+    return () => {
+      clearTimeout(timer);
+      events.forEach(evt => window.removeEventListener(evt, handleResetInactivity));
+    };
+  }, [isGuestMobile, isTableSelected, clearCart]);
 
   // Cloud Wine Collection Sync
   const [cloudWines, setCloudWines] = useState<WineCardData[]>([]);
@@ -2170,6 +2481,12 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
               </div>
 
               <div className="shrink-0 flex items-center gap-2">
+                {isLocalSandbox() && (
+                  <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[10px] font-black uppercase tracking-wider font-mono shadow-inner">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span>SANDBOX LOCALE</span>
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => setIsQrStudioOpen(true)}
@@ -2225,6 +2542,24 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                     const isOccupied = orders.length > 0;
                     const openTotal = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
                     
+                    // Unsubmitted draft cart on this table
+                    const hasDraftCart = Boolean(
+                      currentTable &&
+                      getCanonicalTableKey(currentTable) === canonical &&
+                      items.length > 0 &&
+                      !isOccupied
+                    );
+                    const draftCartTotal = hasDraftCart ? (Math.round(
+                      items.reduce((sum, it: any) => {
+                        const base = Number(it.basePrice || it.price || 0);
+                        const variantMod = Number(it.selectedVariant?.priceModifier || 0);
+                        const extrasTotal = Array.isArray(it.selectedExtras)
+                          ? it.selectedExtras.reduce((es: number, ex: any) => es + Number(ex.price || 0), 0)
+                          : 0;
+                        return sum + ((base + variantMod + extrasTotal) * (Number(it.quantity) || 1));
+                      }, 0)
+                    ) || Math.round(getTotal())) : 0;
+
                     // Check active guest presence on this table (strictly with freshness TTL < 20s)
                     const guestPresence = hallPresence[canonical];
                     const isGuestOccupied = !!(guestPresence && guestPresence.guestCount > 0 && (Date.now() - (guestPresence.lastActive || 0) < 20000));
@@ -2234,7 +2569,15 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                       <button
                         key={t}
                         type="button"
-                        onClick={() => handleSelectTable(t)}
+                        onClick={() => {
+                          if (isOccupied) {
+                            setOccupiedWarningTable(t);
+                          } else if (hasDraftCart) {
+                            setDraftWarningTable(t);
+                          } else {
+                            handleSelectTable(t);
+                          }
+                        }}
                         className={`p-2 sm:p-2.5 rounded-xl text-left transition-all cursor-pointer border flex flex-col justify-between gap-1 relative overflow-hidden ${
                           isSelected
                             ? 'bg-gradient-to-br from-amber-950/90 to-stone-900 border-amber-400 text-white shadow-lg ring-1 ring-amber-400/50'
@@ -2242,7 +2585,9 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                               ? 'bg-gradient-to-br from-amber-950/80 to-stone-900 border-amber-400 text-white shadow-lg ring-1 ring-amber-400/70 hover:bg-amber-900/60'
                               : isOccupied
                                 ? 'bg-amber-950/50 border-amber-500/70 text-stone-200 hover:border-amber-400 hover:bg-amber-950/70'
-                                : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850'
+                                : hasDraftCart
+                                  ? 'bg-amber-950/40 border-amber-400/80 text-stone-200 hover:border-amber-300 hover:bg-amber-900/50 ring-1 ring-amber-400/40'
+                                  : 'bg-stone-950/80 border-stone-800 text-stone-200 hover:border-amber-400/60 hover:bg-stone-850'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1">
@@ -2251,6 +2596,11 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                             {isGuestOccupied ? (
                               <>
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                              </>
+                            ) : hasDraftCart ? (
+                              <>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
                               </>
                             ) : (
@@ -2269,13 +2619,17 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                             ? 'text-amber-300 font-black animate-pulse'
                             : isOccupied 
                               ? 'text-amber-400 font-extrabold' 
-                              : 'text-emerald-400/90'
+                              : hasDraftCart
+                                ? 'text-amber-300 font-extrabold animate-pulse'
+                                : 'text-emerald-400/90'
                         }`}>
                           {isGuestOccupied
                             ? `📱 ${guestCount} ${lang === 'TH' ? 'ลูกค้าเชื่อมต่อ' : lang === 'EN' ? (guestCount > 1 ? 'Guests Live' : 'Guest Live') : lang === 'DE' ? 'Gast live' : lang === 'MM' ? 'အော်ဒါမှာနေသည်' : (guestCount > 1 ? 'Ospiti Live' : 'Ospite Live')}`
                             : isOccupied 
                               ? `${I18N_TABLE_PICKER[lang]?.activeCardPrefix || I18N_TABLE_PICKER.IT.activeCardPrefix} ฿${Math.round(openTotal)}`
-                              : (I18N_TABLE_PICKER[lang]?.freeCard || I18N_TABLE_PICKER.IT.freeCard)}
+                              : hasDraftCart
+                                ? `🛒 ฿${draftCartTotal}`
+                                : (I18N_TABLE_PICKER[lang]?.freeCard || I18N_TABLE_PICKER.IT.freeCard)}
                         </div>
                       </button>
                     );
@@ -2294,7 +2648,16 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                     onChange={(e) => setCustomTableInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && customTableInput.trim()) {
-                        handleSelectTable(customTableInput.trim());
+                        const can = getCanonicalTableKey(customTableInput.trim());
+                        const isOcc = (activeTableOrderMap[can] || []).length > 0;
+                        const hasDraft = Boolean(currentTable && getCanonicalTableKey(currentTable) === can && items.length > 0 && !isOcc);
+                        if (isOcc) {
+                          setOccupiedWarningTable(customTableInput.trim());
+                        } else if (hasDraft) {
+                          setDraftWarningTable(customTableInput.trim());
+                        } else {
+                          handleSelectTable(customTableInput.trim());
+                        }
                       }
                     }}
                     placeholder={I18N_TABLE_PICKER[lang]?.customPlaceholder || I18N_TABLE_PICKER.IT.customPlaceholder}
@@ -2304,7 +2667,16 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
                     type="button"
                     onClick={() => {
                       if (customTableInput.trim()) {
-                        handleSelectTable(customTableInput.trim());
+                        const can = getCanonicalTableKey(customTableInput.trim());
+                        const isOcc = (activeTableOrderMap[can] || []).length > 0;
+                        const hasDraft = Boolean(currentTable && getCanonicalTableKey(currentTable) === can && items.length > 0 && !isOcc);
+                        if (isOcc) {
+                          setOccupiedWarningTable(customTableInput.trim());
+                        } else if (hasDraft) {
+                          setDraftWarningTable(customTableInput.trim());
+                        } else {
+                          handleSelectTable(customTableInput.trim());
+                        }
                       }
                     }}
                     className="px-4 py-1.5 sm:py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 font-black text-xs uppercase tracking-wider cursor-pointer transition-all active:scale-95 shrink-0"
@@ -2317,6 +2689,259 @@ function DiningTabletSiteContent({ onLogout }: { onLogout?: () => Promise<void> 
           </div>
         </div>
       )}
+
+      {/* ⚠️ OCCUPIED TABLE WARNING & CONFIRMATION MODAL */}
+      {occupiedWarningTable && (() => {
+        const warningCanonical = getCanonicalTableKey(occupiedWarningTable);
+        const warningOrders = activeTableOrderMap[warningCanonical] || [];
+        const warningOpenTotal = warningOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+        const latestWarningOrder = warningOrders[0];
+        const elapsedMinutes = latestWarningOrder?.created_at 
+          ? Math.max(1, Math.floor((Date.now() - new Date(latestWarningOrder.created_at).getTime()) / 60000))
+          : 0;
+        const tWarn = I18N_OCCUPIED_WARNING[lang] || I18N_OCCUPIED_WARNING.IT;
+        const allItems: any[] = [];
+        warningOrders.forEach(o => {
+          if (Array.isArray(o.items)) {
+            o.items.forEach((it: any) => allItems.push(it));
+          }
+        });
+
+        return (
+          <div className="fixed inset-0 z-[100003] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+            <div className="bg-stone-900 border-2 border-amber-400/80 rounded-3xl w-full max-w-md p-5 sm:p-6 text-white shadow-2xl space-y-4 relative">
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setOccupiedWarningTable(null)}
+                className="absolute top-4 right-4 p-2 text-stone-400 hover:text-white rounded-full bg-stone-800/80 hover:bg-stone-700 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Header */}
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center text-amber-300 shadow-inner shrink-0">
+                  <AlertTriangle className="w-6 h-6 stroke-[2.5]" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 px-2 py-0.5 rounded bg-amber-400/10 border border-amber-400/30">
+                    {tWarn.badge}
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase mt-1 leading-none">
+                    {formatTableStationName(occupiedWarningTable, lang)}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Bill Details Card */}
+              <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">
+                    {tWarn.billPrefix}
+                  </span>
+                  <span className="text-xl sm:text-2xl font-black text-amber-400 font-mono">
+                    ฿{Math.round(warningOpenTotal)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-stone-300 font-semibold">
+                  <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>{tWarn.orderAgo(elapsedMinutes)}</span>
+                </div>
+
+                {/* Items Summary preview */}
+                {allItems.length > 0 && (
+                  <div className="pt-2 border-t border-stone-850">
+                    <span className="text-[10.5px] text-stone-400 font-bold uppercase tracking-wide block mb-1">
+                      {tWarn.itemsSummaryTitle}
+                    </span>
+                    <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto pr-1">
+                      {allItems.map((it: any, idx: number) => {
+                        const itName = it.nameTh && lang === 'TH' ? it.nameTh : (it.nameIt || it.name || 'Prodotto');
+                        return (
+                          <span key={idx} className="text-[11px] font-medium bg-stone-900 border border-stone-800 text-stone-200 px-2 py-0.5 rounded-lg">
+                            {it.quantity > 1 ? `${it.quantity}x ` : ''}{itName}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Prompt Question */}
+              <p className="text-xs sm:text-sm text-stone-200 font-bold text-center px-1 leading-snug">
+                {tWarn.prompt}
+              </p>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-1">
+                {/* 1. Enter and Add Items */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const tbl = occupiedWarningTable;
+                    setOccupiedWarningTable(null);
+                    handleSelectTable(tbl);
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-98 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wide shadow-lg cursor-pointer flex items-center justify-center gap-2 transition-transform"
+                >
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>{tWarn.actionAddItems}</span>
+                </button>
+
+                {/* 2. Settle Bill directly */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const tbl = occupiedWarningTable;
+                    setOccupiedWarningTable(null);
+                    setCurrentTable(warningCanonical);
+                    setIsTableSelected(true);
+                    setIsSettlementModalOpen(true);
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 active:scale-98 text-white font-black text-xs sm:text-sm uppercase tracking-wide shadow-lg cursor-pointer flex items-center justify-center gap-2 transition-transform"
+                >
+                  <span>💳</span>
+                  <span>{tWarn.actionSettle} (฿{Math.round(warningOpenTotal)})</span>
+                </button>
+
+                {/* 3. Cancel */}
+                <button
+                  type="button"
+                  onClick={() => setOccupiedWarningTable(null)}
+                  className="w-full py-2.5 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-bold text-xs uppercase cursor-pointer transition-colors"
+                >
+                  {tWarn.actionCancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ⚠️ DRAFT CART WARNING & CONFIRMATION MODAL */}
+      {draftWarningTable && (() => {
+        const draftTotal = Math.round(
+          items.reduce((sum, it: any) => {
+            const base = Number(it.basePrice || it.price || 0);
+            const variantMod = Number(it.selectedVariant?.priceModifier || 0);
+            const extrasTotal = Array.isArray(it.selectedExtras)
+              ? it.selectedExtras.reduce((es: number, ex: any) => es + Number(ex.price || 0), 0)
+              : 0;
+            return sum + ((base + variantMod + extrasTotal) * (Number(it.quantity) || 1));
+          }, 0)
+        ) || Math.round(getTotal());
+        const tDraft = I18N_DRAFT_WARNING[lang] || I18N_DRAFT_WARNING.IT;
+
+        return (
+          <div className="fixed inset-0 z-[100003] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-fadeIn">
+            <div className="bg-stone-900 border-2 border-amber-400/80 rounded-3xl w-full max-w-md p-5 sm:p-6 text-white shadow-2xl space-y-4 relative">
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setDraftWarningTable(null)}
+                className="absolute top-4 right-4 p-2 text-stone-400 hover:text-white rounded-full bg-stone-800/80 hover:bg-stone-700 transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              {/* Header */}
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-amber-400/20 border border-amber-400/50 flex items-center justify-center text-amber-300 shadow-inner shrink-0">
+                  <AlertTriangle className="w-6 h-6 stroke-[2.5]" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-400 px-2 py-0.5 rounded bg-amber-400/10 border border-amber-400/30">
+                    {tDraft.badge}
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-black text-white tracking-tight uppercase mt-1 leading-none">
+                    {formatTableStationName(draftWarningTable, lang)}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Cart Draft Details Card */}
+              <div className="bg-stone-950 p-3.5 rounded-2xl border border-stone-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-stone-400 font-bold uppercase tracking-wider">
+                    {tDraft.billPrefix}
+                  </span>
+                  <span className="text-xl sm:text-2xl font-black text-amber-400 font-mono">
+                    ฿{Math.round(draftTotal)}
+                  </span>
+                </div>
+
+                {/* Items Summary preview */}
+                {items.length > 0 && (
+                  <div className="pt-2 border-t border-stone-850">
+                    <span className="text-[10.5px] text-stone-400 font-bold uppercase tracking-wide block mb-1">
+                      {tDraft.itemsSummaryTitle}
+                    </span>
+                    <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto pr-1">
+                      {items.map((it: any, idx: number) => {
+                        const itName = it.nameTh && lang === 'TH' ? it.nameTh : (it.nameIt || it.name || 'Prodotto');
+                        return (
+                          <span key={idx} className="text-[11px] font-medium bg-stone-900 border border-stone-800 text-stone-200 px-2 py-0.5 rounded-lg">
+                            {it.quantity > 1 ? `${it.quantity}x ` : ''}{itName}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Prompt Question */}
+              <p className="text-xs sm:text-sm text-stone-200 font-bold text-center px-1 leading-snug">
+                {tDraft.prompt}
+              </p>
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-1">
+                {/* 1. Continue Order */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const tbl = draftWarningTable;
+                    setDraftWarningTable(null);
+                    setCurrentTable(tbl);
+                    setIsTableSelected(true);
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 active:scale-98 text-stone-950 font-black text-xs sm:text-sm uppercase tracking-wide shadow-lg cursor-pointer flex items-center justify-center gap-2 transition-transform"
+                >
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>{tDraft.actionContinue}</span>
+                </button>
+
+                {/* 2. Discard & Clear Cart */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraftWarningTable(null);
+                    clearCart();
+                    setCurrentTable('');
+                    setIsTableSelected(false);
+                  }}
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-rose-700 to-rose-600 hover:from-rose-600 hover:to-rose-500 active:scale-98 text-white font-black text-xs sm:text-sm uppercase tracking-wide shadow-lg cursor-pointer flex items-center justify-center gap-2 transition-transform"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>{tDraft.actionDiscard}</span>
+                </button>
+
+                {/* 3. Cancel */}
+                <button
+                  type="button"
+                  onClick={() => setDraftWarningTable(null)}
+                  className="w-full py-2.5 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white font-bold text-xs uppercase cursor-pointer transition-colors"
+                >
+                  {tDraft.actionCancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
           {/* MAIN CONTAINER */}
           <main className="pt-16 max-w-6xl mx-auto px-2 sm:px-4">

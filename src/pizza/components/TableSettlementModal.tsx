@@ -21,6 +21,7 @@ import { supabase } from '../../lib/supabase';
 import { Language } from '../config/languages';
 import { formatTableStationName } from '../utils/tableUtils';
 import { revokeDiningTableSession } from '../services/diningSessionService';
+import { isLocalSandbox, updateSandboxOrderStatus } from '../services/localSandboxOrderService';
 
 const QR_KSHOP_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/receipts/qr_promptpay.jpg`;
 
@@ -230,6 +231,13 @@ export const TableSettlementModal: React.FC<TableSettlementModalProps> = ({
 
     try {
       for (const id of orderIds) {
+        if (String(id).startsWith('sb-') || isLocalSandbox()) {
+          updateSandboxOrderStatus(String(id), 'completed');
+          if (String(id).startsWith('sb-')) {
+            continue;
+          }
+        }
+
         try {
           await fetch('/api/pizza-order-status', {
             method: 'POST',
