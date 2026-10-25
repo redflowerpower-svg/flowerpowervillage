@@ -5,6 +5,20 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 11:53] · FAVICON CON SIGLE GIGANTI (SS, AD, DT, KM, PIZ, VLG, WR)
+- **Cosa abbiamo fatto:** Sostituite le parole per esteso (che a 16px nei tab risultavano compresse e poco leggibili) con **sigle giganti ad altissimo contrasto (2-3 lettere) con font extra-bold a 35px**:
+  - 🟣 **SS**: Social Studio (`/social`, `/autocut`) — Viola Profondo con scritta SS bianca.
+  - 🟡 **AD**: Admin Console (`/admin`) — Titanio/Ardesia con scritta AD in oro caldo.
+  - 🔵 **DT**: Dining Table (`/dining`, `/tavoli`) — Blu Mare con scritta DT bianca.
+  - 🟠 **KM**: Kitchen Monitor (`/kitchen`, `/kds`) — Arancio Fiamma con scritta KM bianca.
+  - 🔴 **PIZ**: Pizzeria (`/pizza`, delivery) — Rosso Tradizionale con scritta PIZ in giallo pizza.
+  - 🟢 **VLG**: Village (`/village`, booking) — Smeraldo Tropicale con scritta VLG bianca.
+  - 🔷 **WR**: Web Reader (`/docs`, `/reader`) — Blu Notte con scritta WR in celeste ghiaccio.
+- **Effetto reale:** Ora anche nei micro-tab da 16x16 pixel di Chrome e cellulari le 2 lettere giganti risaltano con nitidezza assoluta senza alcun effetto sfocato o illeggibile.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 11:50] · FAVICON REPARTI RIVISTE CON NOME CHIARO E VISIBILE
 - **Cosa abbiamo fatto:** Riprogettato interamente il motore dinamico delle favicon in `src/utils/environmentFavicon.ts`: eliminati i vecchi cerchietti neri e le micro-scritte illegibili.
 - **Cosa è cambiato:** Ogni singolo reparto ora possiede un badge sagomato ad altissimo contrasto con il proprio **nome scritto chiaro a caratteri cubitali extra-bold (900)** e con colore tematico univoco:
