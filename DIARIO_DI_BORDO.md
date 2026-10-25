@@ -3,6 +3,19 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 23:18] · SOCIAL STUDIO SCHEDULER: MASTER SWITCH DI SICUREZZA (STANDBY ⏸️ vs IN PRODUZIONE 🟢)
+- **Cosa abbiamo fatto:** Integrato un interruttore generale di sicurezza (Master Switch) per controllare lo stato di operatività dello Scheduler in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx):
+  - 🛡️ **Pulsante Interattivo nella Toolbar Superiore (Accanto al Mese)**:
+    - **Modalità Standby / Fermo (Default)**: `⏸️ STATO: FERMO (STANDBY)` con badge ambra e led fisso. Garantisce che l'utente possa generare, spostare e ispezionare il calendario in totale sicurezza senza alcun rischio di invio accidentale.
+    - **Modalità In Produzione (Attivo)**: `🟢 STATO: IN PRODUZIONE` con badge smeraldo e led verde pulsante.
+    - **Persistenza Immediata**: Lo stato viene salvato istantaneamente in `localStorage` (`fp_social_scheduler_mode`) e ricordato a ogni riavvio della pagina.
+  - 🔒 **Blocco di Sicurezza sul Pulsante di Invio Post**:
+    - All'interno del modale di ispezione del post: se lo scheduler è in stato *Standby*, il pulsante "Pubblica Subito" è fisicamente **disabilitato e bloccato** (`Pubblicazione Bloccata (In Standby)` con icona scudo `ShieldCheck`), impedendo qualsiasi invio accidentale verso le API social finché non viene esplicitamente attivato lo stato di Produzione.
+- **Effetto reale:** Marco ha ora il controllo totale e visivo con un solo clic: finché il tasto è su "Fermo", il calendario funziona come una lavagna di simulazione protetta al 100%. Solo quando viene cliccato e acceso su "In Produzione", i post possono essere inviati.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 23:10] · SOCIAL STUDIO SCHEDULER: ROUTINE QUOTIDIANA SFALSATA, PERNI ORARI MANUALI (08:00, 12:00, 17:00), TIKTOK MANUALE & BONIFICA 01_..22_ DOCUMENTI
 - **Cosa abbiamo fatto:** Completata la riorganizzazione strategica del Social Studio Scheduler e bonificata l'intera documentazione tecnica in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) e `documentation_reports/`:
   - 🔄 **Addio al Bombardamento Simultaneo (Nuova Routine Sfalsata)**:
