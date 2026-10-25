@@ -5,6 +5,13 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 12:35] · ALLONTANAMENTO MILLIMETRICO DS (+10PX PIZZA-BADGE & +10PX BADGE-TESTI)
+- **Cosa abbiamo fatto:** Aumentata nettamente la spaziatura nel formato **DS** sia sul Canvas sia nel DOM in `AutoCutLabPlayer.tsx` in risposta al feedback visivo:
+  - 📏 **Live Showcase allontanato di ulteriori 10px da Pizza (totale 15px)**: Nel DOM applicato `mt-[15px]` e su Canvas `ty += 10 * s` (totale 15*s). Il badge rettangolare scende verso il basso creando una separazione netta e visibile da *Pizza*.
+  - 📐 **Thai & Fast Delivery allontanati di ulteriori 10px dal Badge (totale 15px)**: Nel DOM applicato `mt-[15px]` al testo Thai e `mt-1` a Fast Delivery; su Canvas impostato `ty += dsBadgeH + (15 * s)` e `+ 4*s` prima di Fast Delivery.
+- **Effetto reale:** Il banner superiore del formato DS guadagna respiro immediato: il badge non soffoca più la scritta *Pizza* e il blocco informativo sottostante gode di piena leggibilità e risalto.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 12:22] · IMPAGINAZIONE MILLIMETRICA FORMATO DS (5PX DA PIZZA & 5PX DA LIVE SHOWCASE)
 - **Cosa abbiamo fatto:** Ottimizzato il posizionamento e l'impaginazione dei testi nel formato **DS** (Daily Specials / Chef Showcase) sia nel motore Canvas (`renderOverlaysToContext`) sia nell'anteprima DOM in `AutoCutLabPlayer.tsx`:
   - 📏 **Distanziamento Badge LIVE SHOWCASE (5px netti da Pizza)**: Rimosso il doppio conteggio dell'offset su Canvas e calibrato il margine nel DOM (`mt-[5px]` senza gap flexbox parassiti). Il rettangolo pulsante `LIVE SHOWCASE` / `CHEF SPECIALS` poggia ora esattamente a **5 pixel di distanza** al di sotto della parola *Pizza*.
