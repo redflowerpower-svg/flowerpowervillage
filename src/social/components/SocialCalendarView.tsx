@@ -325,6 +325,7 @@ export function SocialCalendarView({
         cta_url: 'https://flowerpowerpizza.com',
         title_en: pizzaItem.name,
         badge: '🍕 48H NATURAL PROOFING'
+      });
     }
 
     onUpdatePosts(routinePosts);
