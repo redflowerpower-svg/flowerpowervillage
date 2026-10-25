@@ -1226,7 +1226,7 @@ export function generateLM1Test(customRooms?: LiveLastMinuteRoomEntry[]): AutoCu
     priceLabel: `Last Minute: ${entry.livePrice.toLocaleString('en-US')} ฿`,
     priceValue: entry.livePrice,
     trajectory: TRAJECTORIES_SEQUENCE[idx % TRAJECTORIES_SEQUENCE.length],
-    badgeCategory: '🔥 AVAILABLE TONIGHT · ว่างวันนี้',
+    badgeCategory: '🔥 AVAILABLE TONIGHT',
     sourceName: entry.lodging.nameEn
   }));
 

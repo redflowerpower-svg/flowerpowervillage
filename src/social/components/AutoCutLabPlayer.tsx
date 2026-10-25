@@ -1658,7 +1658,10 @@ export function AutoCutLabPlayer({
         if (hasBadge) {
           oCtx.font = `800 ${Math.round(16.2 * s)}px "Inter", sans-serif`;
           oCtx.fillStyle = '#34d399';
-          oCtx.fillText(scene.badgeCategory!.toUpperCase(), bx, by);
+          const badgeClean = mode === 'LM1'
+            ? scene.badgeCategory!.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim().toUpperCase()
+            : scene.badgeCategory!.toUpperCase();
+          oCtx.fillText(badgeClean, bx, by);
           by += 28 * s;
         }
 
@@ -2893,7 +2896,9 @@ export function AutoCutLabPlayer({
             <div className="space-y-1.5 w-full">
               {currentScene.badgeCategory && (
                 <span className="inline-block px-3 py-0.5 rounded-full bg-emerald-600/90 text-white text-[13px] font-bold tracking-wide shadow-md uppercase">
-                  {currentScene.badgeCategory}
+                  {mode === 'LM1'
+                    ? currentScene.badgeCategory.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim()
+                    : currentScene.badgeCategory}
                 </span>
               )}
 
@@ -3313,7 +3318,9 @@ export function AutoCutLabPlayer({
                     <div className="flex-1 min-w-0 pr-1 space-y-0.5">
                       {currentScene.badgeCategory && (
                         <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide shadow-md uppercase">
-                          {currentScene.badgeCategory}
+                          {mode === 'LM1'
+                            ? currentScene.badgeCategory.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim()
+                            : currentScene.badgeCategory}
                         </span>
                       )}
 

@@ -5,6 +5,13 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 14:35] · LAST MINUTE LM1: CATEGORIA SOLO INGLESE "AVAILABLE TONIGHT" (RIMOSSO THAI)
+- **Cosa abbiamo fatto:** Su indicazione dell'utente, rimosso il testo Thai (`ว่างวันนี้`) dal badge di categoria del formato **LM1** (Stories Last Minute Villaggio) sia a livello di motore dati ([autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts)) sia in tutti i player DOM e Canvas ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)):
+  - 🇬🇧 **Badge Esclusivamente Inglese**: Mostra ora con chiarezza e brevità **`🔥 AVAILABLE TONIGHT`**, senza alcuna appendice in lingua Thai.
+  - 🔄 **Filtro Istantaneo Retroattivo**: La pulizia agisce all'istante sia sul player verticale 9:16 sia sul nuovo player orizzontale 4:3 e sul rendering Canvas, anche per i video già caricati in memoria.
+- **Effetto reale:** Il badge verde di disponibilità è più compatto, elegante e leggibile, comunicando subito al viaggiatore internazionale che l'alloggio è libero per la notte.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
 ### 🟩 [25/10/2026 - ORE 14:31] · LAST MINUTE LM1: PLAYER COMPANION 4:3 GOOGLE BUSINESS ATTIVATO CON PREZZO REALE
 - **Cosa abbiamo fatto:** Integrato il lettore orizzontale companion **4:3 per Google Business & Facebook** anche per il formato **LM1** (Stories Last Minute Villaggio) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
   - 🖥️ **Abilitato `mode === 'LM1'` in `isCompanionEligible`**: Ora sotto il player 9:16 compare automaticamente la versione orizzontale 4:3 ottimizzata per Google Maps.
