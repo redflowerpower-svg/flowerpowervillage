@@ -9,12 +9,18 @@ import { Muxer, ArrayBufferTarget } from 'mp4-muxer';
 const globalLineQrImg = new Image();
 globalLineQrImg.src = LINE_QR_CODE_BASE64;
 
-// Loghi Ufficiali precaricati all'avvio per watermark istantaneo sul canvas (senza crossOrigin per file locali)
-const globalPizzaLogoImg = new Image();
-globalPizzaLogoImg.src = '/flower-power-pizza-logo-512.png';
+// Loghi Ufficiali precaricati e decodificati all'avvio per watermark e export istantaneo sul canvas (512x512 ad altissima definizione)
+const globalPizzaLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
+if (globalPizzaLogoImg instanceof Image) {
+  globalPizzaLogoImg.crossOrigin = 'anonymous';
+  globalPizzaLogoImg.src = '/flower-power-pizza-logo-512.png';
+}
 
-const globalVillageLogoImg = new Image();
-globalVillageLogoImg.src = '/FP_04_-_LOGO_OFFICIAL_HD.png';
+const globalVillageLogoImg = typeof Image !== 'undefined' ? new Image() : ({} as HTMLImageElement);
+if (globalVillageLogoImg instanceof Image) {
+  globalVillageLogoImg.crossOrigin = 'anonymous';
+  globalVillageLogoImg.src = '/flower-power-village-logo-512.png';
+}
 
 // SVG Path ufficiale WhatsApp per rendering fedele su Canvas 2D
 const WA_PHONE_PATH_DATA =
@@ -235,8 +241,11 @@ export function AutoCutLabPlayer({
 
     // Riferimento al logo ufficiale precaricato per Watermark e Outro finale (Pizza / Villaggio)
     const logoImg = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
-    if (!logoImg.src) {
-      logoImg.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png';
+    if (logoImg instanceof Image) {
+      if (!logoImg.crossOrigin) logoImg.crossOrigin = 'anonymous';
+      if (!logoImg.src) {
+        logoImg.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png';
+      }
     }
 
     // QR Code ufficiale LINE della Pizzeria garantito da istanza Base64 in memoria
@@ -1068,16 +1077,25 @@ export function AutoCutLabPlayer({
       const logoX = Math.round((w - totalBlockW) / 2);
       const tx = logoX + logoSize + gap;
 
+      const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
       const domLogo = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
-      const effectiveLogo = (domLogo && domLogo.complete && domLogo.naturalWidth > 0) ? domLogo : logoImg;
+      const effectiveLogo = (targetLogo && (targetLogo.complete || (targetLogo as any).naturalWidth > 0))
+        ? targetLogo
+        : (domLogo && (domLogo.complete || (domLogo as any).naturalWidth > 0))
+          ? domLogo
+          : logoImg;
 
-      if (effectiveLogo && (effectiveLogo.complete || (effectiveLogo as any).naturalWidth > 0)) {
+      if (effectiveLogo) {
         oCtx.save();
         oCtx.beginPath();
         oCtx.arc(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2, 0, Math.PI * 2);
         oCtx.closePath();
         oCtx.clip();
-        oCtx.drawImage(effectiveLogo, logoX, logoY, logoSize, logoSize);
+        try {
+          oCtx.drawImage(effectiveLogo, logoX, logoY, logoSize, logoSize);
+        } catch (drawErr) {
+          console.warn('[AutoCutLabPlayer] Header logo draw exception:', drawErr);
+        }
         oCtx.restore();
 
         oCtx.save();
@@ -1270,21 +1288,27 @@ export function AutoCutLabPlayer({
         const pillH = 24 * s;
 
         oCtx.save();
-        // Alone luminescente dorato vivo che pulsa attorno alla pillola
-        oCtx.shadowColor = `rgba(251, 191, 36, ${0.80 + 0.20 * pulseCycle})`;
-        oCtx.shadowBlur = 16 * s;
+        // 🌟 BADGE LAST MINUTE: Vettoriale ad altissima definizione con ombra netta e zero sfocatura rasterizzata
+        oCtx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+        oCtx.shadowBlur = 3 * s;
+        oCtx.shadowOffsetY = 2 * s;
 
         const pillGrad = oCtx.createLinearGradient(tx, ty, tx + pillW, ty + pillH);
         pillGrad.addColorStop(0, '#f59e0b');
         pillGrad.addColorStop(0.5, '#fbbf24');
         pillGrad.addColorStop(1, '#facc15');
         oCtx.fillStyle = pillGrad;
+        oCtx.beginPath();
         if (typeof oCtx.roundRect === 'function') {
           oCtx.roundRect(tx, ty, pillW, pillH, 7.5 * s);
         } else {
           oCtx.rect(tx, ty, pillW, pillH);
         }
         oCtx.fill();
+
+        // Contorno dorato nitidissimo vettoriale senza dispersione sfocata
+        oCtx.shadowColor = 'transparent';
+        oCtx.shadowBlur = 0;
         oCtx.lineWidth = 1.6 * s;
         oCtx.strokeStyle = '#fef08a';
         oCtx.stroke();
@@ -1364,7 +1388,7 @@ export function AutoCutLabPlayer({
 
         oCtx.restore(); // restore gemma
 
-        // 🔥 SCRITTA LAST MINUTE PULSANTE AD ALTISSIMA VISIBILITÀ
+        // 🔥 SCRITTA LAST MINUTE PULSANTE AD ALTISSIMA VISIBILITÀ E NITIDEZZA
         const textCenterRelX = tx + pillPadX + (dotR * 2) + (6 * s) + (lmTextW / 2);
         const textCenterRelY = dotCy;
 
@@ -1376,12 +1400,8 @@ export function AutoCutLabPlayer({
         oCtx.textAlign = 'center';
         oCtx.textBaseline = 'middle';
 
-        // Glow caldo pulsante sotto la scritta
-        oCtx.shadowColor = `rgba(254, 240, 138, ${0.85 + 0.15 * pulseCycle})`;
-        oCtx.shadowBlur = 8 * s;
-
-        // Contorno chiaro protettivo per staccare dal gradiente
-        oCtx.lineWidth = 2.2 * s;
+        // Contorno chiaro protettivo per staccare dal gradiente (nitido senza blur)
+        oCtx.lineWidth = 1.8 * s;
         oCtx.strokeStyle = '#fef9c3';
         oCtx.lineJoin = 'round';
         oCtx.strokeText(lmPillText, 0, Math.round(0.5 * s));
@@ -1398,14 +1418,14 @@ export function AutoCutLabPlayer({
         oCtx.font = `900 ${thaiFontSize}px "Prompt", "Kanit", sans-serif`;
         oCtx.fillStyle = '#fcd34d';
         oCtx.fillText('ห้องว่างวันนี้', tx, ty);
-        ty += thaiFontSize + (5 * s); // Esattamente 5 pixel di distacco dalla scritta sopra in Thai
+        ty += thaiFontSize + (10 * s); // Distanziato di 5 pixel ulteriori (totale 10 * s) dalla scritta sopra in Thai
 
         // DIRECT BOOKING (verde smeraldo brillante Outfit 900)
         const dbFontSize = Math.round(18.5 * s);
         oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
         oCtx.fillStyle = '#6ee7b7';
         oCtx.fillText('DIRECT BOOKING', tx, ty);
-        ty += dbFontSize + (5 * s); // Esattamente 5 pixel di distacco dalla scritta sopra DIRECT BOOKING
+        ty += dbFontSize + (5 * s); // Distanziata di 5 pixel dalla scritta sopra DIRECT BOOKING
 
         // flowerpowervillage.com (Outfit 600)
         const siteFontSize = Math.round(14.5 * s);
@@ -1994,7 +2014,16 @@ export function AutoCutLabPlayer({
         if (onProgress) onProgress(18, 1, 'Decodifica e preriscaldamento logo ufficiale e fotogrammi Full HD...');
         try {
           const domLogoEl = typeof document !== 'undefined' ? (document.getElementById('autoCutHeaderLogoImg') as HTMLImageElement | null) : null;
+          const targetLogo = brand === 'pizza' ? globalPizzaLogoImg : globalVillageLogoImg;
+          if (targetLogo instanceof Image) {
+            if (!targetLogo.crossOrigin) targetLogo.crossOrigin = 'anonymous';
+            if (!targetLogo.src) {
+              targetLogo.src = brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png';
+            }
+          }
+
           const imgsToDecode: HTMLImageElement[] = [
+            targetLogo,
             domLogoEl,
             logoImg,
             globalVillageLogoImg,
@@ -2005,12 +2034,15 @@ export function AutoCutLabPlayer({
           await Promise.all(imgsToDecode.map(img => {
             if (!img) return Promise.resolve();
             if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-            if (typeof img.decode === 'function') {
-              return img.decode().catch(() => {});
-            }
-            return new Promise(res => {
-              img.onload = img.onerror = res;
-              setTimeout(res, 2500);
+            return new Promise<void>(res => {
+              const onDone = () => {
+                img.removeEventListener('load', onDone);
+                img.removeEventListener('error', onDone);
+                res();
+              };
+              img.addEventListener('load', onDone);
+              img.addEventListener('error', onDone);
+              setTimeout(onDone, 3000);
             });
           }));
         } catch (e) {
@@ -2850,7 +2882,8 @@ export function AutoCutLabPlayer({
         <div className="absolute top-6 left-1/2 -translate-x-1/2 w-max z-30 flex items-start gap-3 pointer-events-none transition-all duration-300">
           <img
             id="autoCutHeaderLogoImg"
-            src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
+            crossOrigin="anonymous"
+            src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png'}
             alt="Logo"
             className="w-[90px] h-[90px] rounded-full object-cover border-2 border-amber-400 shadow-[0_6px_22px_rgba(0,0,0,0.95)] shrink-0 bg-black/60 mt-0.5"
           />
@@ -2971,7 +3004,7 @@ export function AutoCutLabPlayer({
               </span>
               {/* Last minute su una sola riga con pallino rosso scintillante e testo pulsante */}
               <div className="pt-[10px]">
-                <span className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-black text-xs shadow-[0_0_22px_rgba(251,191,36,0.95)] tracking-wider border-2 border-yellow-200 whitespace-nowrap">
+                <span className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-stone-950 font-black text-xs shadow-[0_3px_8px_rgba(0,0,0,0.45)] tracking-wider border border-yellow-200/90 whitespace-nowrap">
                   {/* 💎 🔴 Pallino rosso luccicante con bagliore e stella di diamante rotante */}
                   <span className="relative flex items-center justify-center h-3.5 w-3.5 shrink-0">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-80" />
@@ -3002,8 +3035,8 @@ export function AutoCutLabPlayer({
               <span className="mt-1 text-base sm:text-lg font-black text-amber-300 leading-tight whitespace-nowrap [text-shadow:_0_0_14px_rgba(0,0,0,1),_0_2px_12px_rgba(0,0,0,1),_0_1px_4px_rgba(0,0,0,1)]">
                 ห้องว่างวันนี้
               </span>
-              {/* Sotto DIRECT BOOKING distanziata esattamente 5px dalla scritta Thai sopra */}
-              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[5px] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
+              {/* Sotto DIRECT BOOKING distanziata 5px ulteriori (totale 10px) dalla scritta Thai sopra */}
+              <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap mt-[10px] [text-shadow:_0_0_12px_rgba(0,0,0,1),_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,1)]">
                 DIRECT BOOKING
               </span>
               {/* Sotto flowerpowervillage.com distanziata esattamente 5px dalla scritta DIRECT BOOKING sopra */}
@@ -3498,7 +3531,8 @@ export function AutoCutLabPlayer({
               isInOutro ? 'opacity-0 -translate-y-2' : 'opacity-100 translate-y-0'
             }`}>
               <img
-                src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/FP_04_-_LOGO_OFFICIAL_HD.png'}
+                crossOrigin="anonymous"
+                src={brand === 'pizza' ? '/flower-power-pizza-logo-512.png' : '/flower-power-village-logo-512.png'}
                 alt="Logo"
                 className="w-[60px] h-[60px] rounded-full object-cover border-[2.5px] border-amber-400/80 shadow-[0_4px_16px_rgba(0,0,0,0.9)] shrink-0 bg-black/40"
               />

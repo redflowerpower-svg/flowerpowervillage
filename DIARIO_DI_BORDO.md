@@ -3,6 +3,22 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 17:45] · LOGO UFFICIALE VILLAGE 512 PRECARICATO IN LM1, BADGE LAST MINUTE VETTORIALE ULTRA-NITIDO & DISTANZIAMENTO TESTI (+5PX)
+- **Cosa abbiamo fatto:** Risolti i 3 punti cardine sollevati dall'utente per il formato **LM1** (Stories Last Minute) e blindata l'esportazione video universale in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx):
+  - 👑 **Risoluzione Definitiva Logo Mancante nell'Esportazione LM1 (e Formati Villaggio)**:
+    - *Causa individuata*: Il file originale `/FP_04_-_LOGO_OFFICIAL_HD.png` era un file da 1,7 MB (risoluzione 3054x3054) caricato senza attributo `crossOrigin = 'anonymous'` e con un meccanismo di decode che, in caso di mancato download istantaneo, bypassava l'attesa e causava la mancata esecuzione del blocco di disegno del logo su canvas (`effectiveLogo.complete` risultava falso). Inoltre mancava la garanzia di precaricamento sincrono prima del frame loop.
+    - *Soluzione applicata*: Generata in `public/` e `dist/` la versione ottimizzata ad altissima definizione **`/flower-power-village-logo-512.png`** (230 KB, 512x512 con ricampionamento bicubico di precisione, identica alla gemella della Pizzeria).
+    - Precaricati sia il logo Pizza che il logo Village con `crossOrigin = 'anonymous'`, garantita l'attesa asincrona (`Promise.all` con listener `load`/`error`) prima dell'inizio della cattura video in `__autoCutGetVideo`, e resa incondizionata la chiamata `drawImage` con try/catch protettivo.
+  - 💎 **Badge LAST MINUTE: Vettoriale Ultra-Nitido ad Alta Risoluzione (Eliminato Effetto Sfocato)**:
+    - *Causa individuata*: La presenza di un `shadowBlur = 16 * s` (~44px su 1080p) applicato direttamente sullo stroke del canvas 2D e un `shadow-[0_0_22px_...]` nel DOM creava un alone rasterizzato pesante che sbavava i bordi e gli angoli arrotondati della pillola, facendola apparire sfocata / a bassa risoluzione.
+    - *Soluzione applicata*: Sostituito l'alone pesante con una discreta ombra di profondità vettoriale (`shadowBlur = 3 * s`, `shadowOffsetY = 2 * s`), applicato un contorno chiaro dorato nitidissimo (`lineWidth = 1.6 * s`, zero blur residuo) e nel DOM adottata la classe `shadow-[0_3px_8px_rgba(0,0,0,0.45)] border border-yellow-200/90`. Il rettangolo appare ora scolpito, cristallino e perfettamente definito in Retina HD.
+  - 📏 **Distanziamento Testi (+5px Aggiuntivi sotto 'ห้องว่างวันนี้')**:
+    - Distanziate la riga `DIRECT BOOKING` e `flowerpowervillage.com` di ulteriori 5 pixel verso il basso rispetto alla scritta in Thai `ห้องว่างวันนี้` (portando l'offset su canvas da `5 * s` a `10 * s` e nel DOM da `mt-[5px]` a `mt-[10px]`), garantendo aria, eleganza e leggibilità impeccabile.
+- **Effetto reale:** Nel video esportato e nell'anteprima DOM il logo del villaggio compare sempre nitido al 100%, il badge Last Minute è un elemento grafico vettoriale pulitissimo e i testi godono della corretta spaziatura ariosa richiesta.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato nel browser live e registrato.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 17:20] · TRACCIA 09 VILLAGGIO AGGIORNATA (30.2s), SINCRONIZZAZIONE AUDIO & CORREZIONE SINTASSI PROMPT
 - **Cosa abbiamo fatto:** Convalidata e sincronizzata la nuova versione della traccia musicale del Villaggio e corretto l'errore di template string nel server in [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts) e [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts):
   - 🎵 **Traccia 09 Village Aggiornata a 30.2s (Zero File Eccessivamente Lunghi)**:
