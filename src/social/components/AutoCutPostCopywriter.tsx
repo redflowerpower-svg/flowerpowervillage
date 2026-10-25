@@ -687,115 +687,123 @@ REGOLE FONDAMENTALI DI SCRITTURA:
           </div>
         </div>
 
-        {/* RIGA 2: CONTESTO METEO/FESTA A SINISTRA + DEEPSEEK & BOTTONI A DESTRA */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 items-stretch">
-          {/* A SINISTRA: BOX CONTESTO TEMPORALE IN 3 RIGHE */}
-          <div className="px-3 py-2 rounded-xl bg-slate-950/90 border border-slate-800 text-xs shadow-inner flex flex-col justify-between gap-1.5">
-            {/* RIGA 1: METEO LIVE */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-12 shrink-0">Meteo</span>
-              <div className="flex items-center gap-1.5 font-bold text-slate-200 text-xs" title={`Meteo Live: ${liveWeather?.sensoryAngle}`}>
-                <span className="text-xs">{liveWeather?.isRaining ? '🌧️' : liveWeather?.isNight ? '🌙' : '☀️'}</span>
-                <span>{liveWeather ? `${liveWeather.city} ${liveWeather.tempC}°C` : 'Ranong 27°C'}</span>
-                {liveWeather?.isRaining && (
-                  <span className="px-1.5 py-0.2 rounded bg-rose-600 text-[8px] font-black text-white leading-none animate-pulse">
-                    RAIN
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* RIGA 2: PERIODO (MESE & STAGIONE SOTTO) */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider w-12 shrink-0">Periodo</span>
-              <div className="flex items-center gap-1.5 text-xs">
-                <span className="font-extrabold text-white capitalize">{currentMonthName}</span>
-                <span className="text-slate-600 font-bold">·</span>
-                <span className="font-bold text-emerald-400 text-[10px] flex items-center gap-1">
-                  {currentSeasonTag}
+        {/* RIGA 2: CARD CONTESTO TEMPORALE A 3 RIGHE PULITE (Zero Troncamenti & Zero A Capo Forzati) */}
+        <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-2 text-xs shadow-inner">
+          {/* RIGA 1: METEO LIVE */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs">🌤️</span>
+              <span>Meteo Live</span>
+            </span>
+            <div className="flex items-center gap-2 font-bold text-slate-200 text-xs" title={`Meteo Live: ${liveWeather?.sensoryAngle}`}>
+              <span>{liveWeather?.isRaining ? '🌧️' : liveWeather?.isNight ? '🌙' : '☀️'}</span>
+              <span>{liveWeather ? `${liveWeather.city} ${liveWeather.tempC}°C` : 'Ranong 27°C'}</span>
+              {liveWeather?.isRaining && (
+                <span className="px-1.5 py-0.2 rounded bg-rose-600 text-[8px] font-black text-white leading-none animate-pulse">
+                  RAIN
                 </span>
-              </div>
-            </div>
-
-            {/* RIGA 3: PROSSIMA FESTIVITÀ (CON DATA E COUNTDOWN) */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider w-12 shrink-0">Festa</span>
-              <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-xs">{upcomingHoliday.emoji}</span>
-                <span className="font-black text-amber-300">{upcomingHoliday.name}</span>
-                <span className="px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-200 font-mono text-[9px] font-bold border border-amber-500/30">
-                  {upcomingHoliday.dateStr}
-                </span>
-                <span className="text-[10px] text-slate-400 font-medium">
-                  ({upcomingHoliday.daysAway === 0 ? 'Oggi!' : upcomingHoliday.daysAway === 1 ? 'Domani' : `${upcomingHoliday.daysAway} gg`})
-                </span>
-              </div>
+              )}
             </div>
           </div>
 
-          {/* A DESTRA: BANNER DEEPSEEK AI (SOPRA) + DUE TASTI AZIONE SOTTO */}
-          <div className="flex flex-col justify-between gap-1.5">
-            {/* BANNER DEEPSEEK AI */}
-            <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-slate-950/90 border border-blue-500/25 text-xs shadow-inner">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-400/30 flex items-center justify-center shrink-0 shadow-sm" title="DeepSeek-Chat V3 AI Engine">
-                  <DeepSeekWhaleLogo className="w-5 h-5" />
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-black text-xs text-white tracking-wide">
-                      DeepSeek AI
-                    </span>
-                    <span className="text-[10px] font-mono font-bold text-blue-300 bg-blue-950/80 px-1.5 py-0.2 rounded border border-blue-500/30">
-                      V3
-                    </span>
-                    <span 
-                      className={`w-2 h-2 rounded-full ${
-                        aiOverride 
-                          ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse' 
-                          : 'bg-emerald-400/80 shadow-[0_0_6px_rgba(52,211,153,0.6)]'
-                      }`} 
-                      title={aiOverride ? "DeepSeek AI: Copy personalizzato attivo" : "DeepSeek AI: Motore biculturale pronto"} 
-                    />
-                  </div>
-                  <span className="text-[10px] text-slate-400 font-medium">
-                    {isGeneratingAi 
-                      ? 'DeepSeek sta scrivendo il copy...' 
-                      : (aiOverride ? 'Copy DeepSeek Sincronizzato Live' : 'Copy Bilingue DeepSeek Pronto')}
-                  </span>
-                </div>
+          <div className="h-px bg-slate-800/60" />
+
+          {/* RIGA 2: PERIODO (MESE & STAGIONE) */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Calendar className="w-3 h-3 text-indigo-400" />
+              <span>Periodo</span>
+            </span>
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="font-extrabold text-white capitalize">{currentMonthName}</span>
+              <span className="text-slate-600 font-bold">·</span>
+              <span className="font-bold text-emerald-400 text-xs flex items-center gap-1">
+                {currentSeasonTag}
+              </span>
+            </div>
+          </div>
+
+          <div className="h-px bg-slate-800/60" />
+
+          {/* RIGA 3: PROSSIMA FESTIVITÀ (NOME, DATA E COUNTDOWN) */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>Prossima Festività</span>
+            </span>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-xs">{upcomingHoliday.emoji}</span>
+              <span className="font-black text-amber-300">{upcomingHoliday.name}</span>
+              <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-200 font-mono text-[10px] font-bold border border-amber-500/30">
+                {upcomingHoliday.dateStr}
+              </span>
+              <span className="text-[11px] text-slate-400 font-medium">
+                ({upcomingHoliday.daysAway === 0 ? 'Oggi!' : upcomingHoliday.daysAway === 1 ? 'Domani' : `tra ${upcomingHoliday.daysAway} giorni`})
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGA 3: BARRA DEEPSEEK AI & AZIONI (Tutto Allineato, Elegante e Senza Tagli) */}
+        <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1">
+          {/* BADGE MOTORE DEEPSEEK AI CON LOGO BALENOTTERO 🐋 */}
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-950/90 border border-blue-500/25 text-xs shadow-inner">
+            <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-400/30 flex items-center justify-center shrink-0 shadow-sm" title="DeepSeek-Chat V3 AI Engine">
+              <DeepSeekWhaleLogo className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="font-black text-xs text-white tracking-wide">
+                  DeepSeek AI
+                </span>
+                <span className="text-[10px] font-mono font-bold text-blue-300 bg-blue-950/80 px-1.5 py-0.2 rounded border border-blue-500/30">
+                  V3
+                </span>
+                <span 
+                  className={`w-2 h-2 rounded-full ${
+                    aiOverride 
+                      ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse' 
+                      : 'bg-emerald-400/80 shadow-[0_0_6px_rgba(52,211,153,0.6)]'
+                  }`} 
+                  title={aiOverride ? "DeepSeek AI: Copy personalizzato attivo" : "DeepSeek AI: Motore biculturale pronto"} 
+                />
               </div>
+              <span className="text-[10px] text-slate-400 font-medium">
+                {isGeneratingAi 
+                  ? 'DeepSeek AI sta scrivendo il copy...' 
+                  : (aiOverride ? 'Copy DeepSeek Sincronizzato Live' : 'Copy Bilingue DeepSeek Pronto')}
+              </span>
             </div>
+          </div>
 
-            {/* DUE TASTI SOTTO: PROMPT DEEPSEEK AI & RIGENERA COPY AI */}
-            <div className="grid grid-cols-2 gap-2">
-              {/* Tasto Ispezione Prompt DeepSeek */}
-              <button
-                type="button"
-                onClick={() => setShowPromptInspector(!showPromptInspector)}
-                className={`flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl border text-[11px] font-bold transition cursor-pointer whitespace-nowrap ${
-                  showPromptInspector
-                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
-                    : 'bg-slate-950 hover:bg-slate-850 border-slate-750 text-slate-300 hover:text-white'
-                }`}
-                title="Visualizza il prompt ingegnerizzato completo inviato a DeepSeek AI"
-              >
-                <FileText className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                <span>{showPromptInspector ? 'Chiudi' : 'Prompt AI'}</span>
-              </button>
+          {/* BOTTONI D'AZIONE PROMPT & RIGENERA */}
+          <div className="flex items-center gap-2">
+            {/* Tasto Ispezione Prompt DeepSeek */}
+            <button
+              type="button"
+              onClick={() => setShowPromptInspector(!showPromptInspector)}
+              className={`flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                showPromptInspector
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-md'
+                  : 'bg-slate-950 hover:bg-slate-850 border-slate-750 text-slate-300 hover:text-white'
+              }`}
+              title="Visualizza il prompt ingegnerizzato completo inviato a DeepSeek AI"
+            >
+              <FileText className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <span>{showPromptInspector ? 'Nascondi Prompt' : 'Prompt DeepSeek AI'}</span>
+            </button>
 
-              {/* Tasto Rigenera Copy AI */}
-              <button
-                type="button"
-                onClick={() => handleGenerateDeepSeekAi()}
-                disabled={isGeneratingAi}
-                className="flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-[11px] font-black text-white shadow-md transition disabled:opacity-50 active:scale-95 cursor-pointer border border-blue-400/30 whitespace-nowrap"
-                title="Rigenera un nuovo copy ad effetto con DeepSeek AI per questo piatto o alloggio"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 text-white shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
-                <span>{isGeneratingAi ? 'Scrittura...' : 'Rigenera'}</span>
-              </button>
-            </div>
+            {/* Tasto Rigenera Copy AI */}
+            <button
+              type="button"
+              onClick={() => handleGenerateDeepSeekAi()}
+              disabled={isGeneratingAi}
+              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs font-black text-white shadow-md transition disabled:opacity-50 active:scale-95 cursor-pointer border border-blue-400/30"
+              title="Rigenera un nuovo copy ad effetto con DeepSeek AI per questo piatto o alloggio"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-white shrink-0 ${isGeneratingAi ? 'animate-spin' : ''}`} />
+              <span>{isGeneratingAi ? 'Scrittura in corso...' : 'Rigenera Copy AI'}</span>
+            </button>
           </div>
         </div>
 
