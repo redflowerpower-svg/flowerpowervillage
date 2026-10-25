@@ -5,6 +5,13 @@
 
 ---
 
+### 🟩 [25/10/2026 - ORE 14:02] · GOOGLE BUSINESS 4:3: SCRITTA "PIZZA" INGRANDITA DEL +20%
+- **Cosa abbiamo fatto:** Ingrandita ulteriormente del +20% la scritta in corsivo *"Pizza"* (e *"Village"*) nel watermark in alto a sinistra del player 4:3 Google Business ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)):
+  - 🍕 **Dimensione Font Portata a 21px/22px**: Da 17.5px/18px a **`text-[21px] sm:text-[22px]`** (+20%), donando alla parola chiave gastronomica del brand un risalto corsivo ancora più evidente e armonioso a fianco di `FLOWER POWER` e sopra il claim delivery.
+- **Effetto reale:** La parola "Pizza" spicca con grande fascino e immediata leggibilità, attirando subito l'occhio sul tipo di cucina offerta a Ranong.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato sicuro (0 secrets) e consolidato su branch locale `staging`.
+
+
 ### 🟩 [25/10/2026 - ORE 14:00] · GOOGLE BUSINESS 4:3: WATERMARK ALTO-SX INGRANDITO DI UN ULTERIORE +20%
 - **Cosa abbiamo fatto:** Su richiesta dell'utente, incrementato ulteriormente del +20% l'intero gruppo in alto a sinistra (Logo, Brand e Ranong Delivery) nel player 4:3 ([AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx)):
   - 🍕 **Logo a 60px**: Diametro logo portato a **60px** (`w-[60px] h-[60px]`, +20% rispetto ai precedenti 50px) con bordo oro a 2.5px e ombra rinforzata.

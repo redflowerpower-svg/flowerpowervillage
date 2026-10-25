@@ -3208,7 +3208,7 @@ export function AutoCutLabPlayer({
                   <span className="text-[19px] sm:text-[21.5px] font-black text-white uppercase tracking-wide leading-none whitespace-nowrap [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.95)]">
                     FLOWER POWER
                   </span>
-                  <span className={`font-light italic text-[17.5px] sm:text-[18px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
+                  <span className={`font-light italic text-[21px] sm:text-[22px] capitalize tracking-normal leading-none whitespace-nowrap mt-0.5 ${brand === 'pizza' ? 'text-[#f87171]' : 'text-[#34d399]'}`}>
                     {brand === 'pizza' ? 'Pizza' : 'Village'}
                   </span>
                 </div>
