@@ -3,6 +3,60 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [26/10/2026 - ORE 01:00] · SOCIAL STUDIO SCHEDULER: RILASCIO PALINSESTO SCIENTIFICO 14 AZIONI (4 MANUALI DIURNE, 10 AUTOMATICHE & ALTERNANZA MASSICCIA CC1 NELLE STORIES E REEL)
+- **Cosa abbiamo fatto:** Aggiornato e rilasciato il motore di schedulazione in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) implementando la griglia a 14 azioni basata sui dati reali di mercato e risolvendo l'etichettatura REEL per i gruppi Facebook:
+  - 🎬 **Correzione Priorità REEL nei Gruppi Facebook (Addio Cartellino Story a Phayam)**:
+    - Risolto il bug in `getContentBadge`: per tutti i post destinati ai gruppi Facebook (`GruppiPhayam`, `R1`, o `format: 'reel'`) viene stampata tassativamente l'etichetta viola **`REEL`**, azzerando la vecchia forzatura "STORY".
+  - 🔄 **Integrazione Massiccia Anti-Monotonia dei Filmini Spontanei `CC1`**:
+    - Invece di comparire solo 1 volta ogni 3 giorni, `CC1` entra stabilmente nella quotidianità:
+      - Ore 09:30: Story Risveglio Tropicale alternata 1:1 con clip video spontanei `CC1` (brezza e palme).
+      - Ore 14:30: Reel Pomeridiano alternato 1:1 tra Suite Tour $V_2$ e video cinematografici $CC_1$.
+      - Ore 15:45: Story Merenda alternata 1:1 tra foto dolci e clip cucina/laboratorio $CC_1$.
+      - Ore 18:30: Story Tramonto presidiata stabilmente dal filmato reale Golden Hour $CC_1$.
+  - 🍕 **Integrazione Pranzo e Cena Ristorante Phayam & Pizzeria Ranong**:
+    - Ore 11:00: Reel Pranzo Ranong Pasta Fresca ($P_2$), 45 min prima del picco 11:45 evidenziato dai dati Grab/LineMan.
+    - Ore 17:00: Reel Ristorante & Cena $R_1$ sul gruppo Facebook di Koh Phayam (cerchio giallo `🟡`), intercettando i turisti che rientrano dalla spiaggia.
+  - 🌙 **Reel Internazionale Notturno Sincronizzato con l'Europa (Ore 23:00)**:
+    - Ore 23:00 (Thai Time): Reel automatico $V_3$ per Instagram e Facebook nel momento di massimo traffico serale europeo (17:00-18:00 CET).
+- **Effetto reale:** Il calendario mensile mostra ora una griglia completa a 14 eventi giornalieri perfettamente bilanciati: 4 sole azioni manuali per Marco (08:00 TikTok x2, 08:45 Gruppo Phayam, 17:00 Gruppo Phayam R1, 17:15 TikTok Cena), tutte tra le 08:00 e le 17:15, e 10 pubblicazioni automatiche senza alcun rischio di cannibalizzazione algoritmica.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
+### 🟩 [26/10/2026 - ORE 00:55] · SOCIAL STUDIO AUTOCUT: OMBRA NERA PROFONDA SUL FONDO E SU TUTTE LE SCRITTE (PROTEZIONE TOTALE CATEGORIE CIBI, TITOLI E WATERMARK IN TUTTI I RENDERING)
+- **Cosa abbiamo fatto:** Potenziata ed estesa l'ombra nera protettiva sul fondo (vignette gradient) e dietro a tutte le scritte in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) per tutti i formati (P1, P2, P3, DS, R1, V1, V2, V3, LM1), sia nell'anteprima DOM che nel rendering Canvas per l'esportazione:
+  - 🌑 **Sfondo Sfumato Nero Profondo in Basso (Bottom Vignette da 340px a 520px)**:
+    - Estesa l'altezza dell'ombra nera inferiore a `520px` (in DOM: `h-[520px]`; su Canvas: `btmFadeH = 520 * s`) con gradiente ad alta densità (`from-black/95 via-black/85 via-45% via-black/55 via-72%`).
+    - L'ombra nera sul fondo copre ora generosamente l'intera card, proteggendo le categorie bilingui dei cibi (`✦ อาหารจานหลัก · Primi Piatti`) e la prima riga del titolo anche contro foto con piatti bianchi, farina, tovaglie luminose o bagliori di luce.
+  - 🌌 **Top Vignette Potenziata e Bottom Vignette Aggiunta nel Player 4:3**:
+    - Header superiore esteso a `h-80` (`340 * s`) con gradiente nero profondo.
+    - Nel player companion 4:3 inserito il gradiente nero inferiore (`h-48`) precedentemente assente, garantendo massimo contrasto ai testi.
+  - ✒️ **Ombra Nera e Contorno Solido a 360° su Tutte le Scritte (`drawTextWithShadow`)**:
+    - Nel rendering Canvas, convertite tutte le scritte delle categorie del cibo (`✦`, Thai ed English), i testi di R1 e di DS (`สดใหม่ในตู้โชว์`, `FAST DELIVERY`, `เดลิเวอรี่`, WhatsApp, `Koh Phayam`) all'uso di `drawTextWithShadow`: ora possiedono un contorno nero solido e drop shadow profonda a 360°.
+    - Nel DOM, potenziato il `text-shadow` multi-livello su categorie cibi, titoli delle pietanze e alloggi villaggio.
+- **Effetto reale:** Non ci sono più scritte sbiadite o difficili da leggere: le categorie dei cibi e i titoli dei piatti risaltano con un'ombra nera profonda e un contrasto cinematografico netto e impeccabile, sia guardando il video nel social studio sia nei file video esportati.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
+### 🟩 [26/10/2026 - ORE 00:45] · SOCIAL STUDIO AUTOCUT: FORMATI VILLAGGIO V1, V2, V3 & LM1 (RIMOZIONE PILLOLA CATEGORIA VERDE & RIBILANCIAMENTO BLOCCO DIRECT BOOKING: +3PX OFFSET & +10% DIMENSIONI)
+- **Cosa abbiamo fatto:** Applicata l'ottimizzazione grafica richiesta su tutti i formati video del Villaggio (`V1`, `V2`, `V3` e `LM1`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) sia nel player di anteprima DOM che nel rendering/esportazione Canvas:
+  - 🚫 **Rimozione Pillola Rettangolare Verde della Categoria (Glamping / Bungalow / Ville)**:
+    - Eliminato definitivamente il rettangolo smussato verde smeraldo (`badgeCategory`) che sovrastava i titoli degli alloggi (es. `GLAMPING`).
+    - Ora la card inferiore mostra direttamente il nome dell'alloggio in grande (es. `Lagoon Tent`) con il suo sottotitolo descrittivo ambra (es. `Glamping Sanctuary`) e la dicitura in Thai, con una resa visiva pulita, ariosa ed elegante.
+    - Pillola rimossa da: Anteprima 9:16 (`mode === 'V1' || mode === 'V2' || mode === 'V3' || mode === 'LM1'`), Player Companion 4:3 e Motore di esportazione video Canvas (`renderOverlaysToContext`).
+  - 📐 **Ribilanciamento Blocco Header DIRECT BOOKING (V1, V2, V3)**:
+    - Abbassato l'intero blocco di 3 pixel netti rispetto alla parola `Village` (in DOM: da `mt-0.5` a `mt-[5px]`; su Canvas: da `3*s` a `6*s`).
+    - Ingranditi del +10% tutti gli elementi del blocco per garantire massima leggibilità ed equilibrio con il logo:
+      - `DIRECT BOOKING`: portato a `text-[20.5px] sm:text-[23px]` (Canvas: `21.5 * s`).
+      - `10% OFF`: portato a `text-[17px] sm:text-[19.5px]` (Canvas: `17.5 * s`).
+      - `flowerpowervillage.com`: portato a `text-[15.5px] sm:text-[17px]` (Canvas: `16 * s`).
+      - `Link in Bio`: portato a `text-[15.5px] sm:text-[16.5px]` (Canvas: `16 * s`).
+- **Effetto reale:** Guardando i video di V1, V2 e V3, non c'è più il fastidioso rettangolo verde sopra il nome dell'alloggio, e l'intestazione sotto "Village" risulta più staccata, ariosa e proporzionata, con i testi del 10% più grandi e perfettamente allineati tra anteprima a schermo ed esportazione finale.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [26/10/2026 - ORE 00:30] · SOCIAL STUDIO SCHEDULER: PALINSESTO PERFEZIONATO (GRUPPO PHAYAM ALLOGGI ORE 08:45, TIKTOK CENA ORE 17:15 & REEL NOTTURNO INTERNAZIONALE ORE 23:00 PER L'EUROPA)
 - **Cosa abbiamo fatto:** Ottimizzato il palinsesto del Social Studio in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) armonizzando i compiti manuali dello staff con i flussi turistici reali e integrando lo slot notturno automatico per il pubblico europeo:
   - 🏝️ **Post Gruppo Facebook Koh Phayam al Mattino (Ore 08:45)**:
