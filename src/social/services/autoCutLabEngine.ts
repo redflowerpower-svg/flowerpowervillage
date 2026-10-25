@@ -166,7 +166,7 @@ export const VILLAGE_AUDIO_TRACKS_LAB: AutoCutAudioTrack[] = [
     id: 'village_09',
     title: 'Love in Koh Phayam (Vocal Jazz Bossa)',
     src: '/audio/village/09%20Flower%20Power%20Village%20-%20Love%20in%20Koh%20Phayam%20(Vocal%20Jazz%20Bossa).mp3',
-    duration: 43.7
+    duration: 30.2
   },
   {
     id: 'village_10',

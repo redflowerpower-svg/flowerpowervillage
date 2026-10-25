@@ -990,7 +990,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
   "englishContent": "...",
   "proverbThai": "...",
   "proverbEnglish": "..."
-};
+}`;
 
       const villagePrompt = `Sei il copywriter creativo di Flower Power Village a Koh Phayam, Thailandia (eco-resort tropicale e ristorante a Buffalo Bay / อ่าวเขาควาย).
 Scrivi un micro-post social biculturale (INGLESE in alto + THAI in basso) evocativo, rilassante e magnetico.
@@ -1026,7 +1026,7 @@ Rispondi ESCLUSIVAMENTE con un JSON valido con questa struttura esatta:
   "englishContent": "...",
   "proverbThai": "...",
   "proverbEnglish": "..."
-};
+}`;
 
       // 🍽️ R1: RESTAURANT & ISLAND DELIVERY A KOH PHAYAM (TOUR 5 PIATTI)
       const r1Prompt = `Sei il copywriter creativo di Flower Power Restaurant & Island Delivery a Koh Phayam, Thailandia (Buffalo Bay / อ่าวเขาควาย).

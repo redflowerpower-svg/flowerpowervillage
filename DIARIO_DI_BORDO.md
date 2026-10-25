@@ -3,6 +3,23 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [25/10/2026 - ORE 17:20] · TRACCIA 09 VILLAGGIO AGGIORNATA (30.2s), SINCRONIZZAZIONE AUDIO & CORREZIONE SINTASSI PROMPT
+- **Cosa abbiamo fatto:** Convalidata e sincronizzata la nuova versione della traccia musicale del Villaggio e corretto l'errore di template string nel server in [autoCutLabEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutLabEngine.ts) e [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts):
+  - 🎵 **Traccia 09 Village Aggiornata a 30.2s (Zero File Eccessivamente Lunghi)**:
+    - Verificato con FFmpeg il nuovo file MP3 inserito dall'utente in `scratch/Flower Power Village - Soundtrack/`:
+      - *Nome*: `09 Flower Power Village - Love in Koh Phayam (Vocal Jazz Bossa).mp3`
+      - *Dimensione*: `670.272 byte`
+      - *Durata esatta*: **00:00:30.22** (30,22 secondi, perfetto allineamento con le altre 10 tracce del villaggio).
+    - Copiato automaticamente il file in `public/audio/village/` e `dist/audio/village/`.
+    - Aggiornato `autoCutLabEngine.ts` impostando `duration: 30.2` (invece dei precedenti 43.7s).
+  - 🛠️ **Riparazione Sintassi Template Strings (`pizzaPrompt` e `villagePrompt`)**:
+    - Ripristinati i backtick di chiusura nelle template literals di DeepSeek AI su `social-publisher.ts` che causavano errore di compilazione Vite (`Expected ";" but found "Sei"`).
+    - Riavviato il server di sviluppo Vercel (`Ready in 327ms`).
+- **Effetto reale:** Tutte le 11 tracce del Villaggio durano ora tra 18s e 31s. I video generati mantengono ritmo energico, bitrate cristallino e peso contenuto, garantendo zero overflow e consegna istantanea via Telegram.
+- **Stato:** ✅ Compilato (0 errori TypeScript), server attivo e sincronizzato.
+
+---
+
 ### 🟩 [25/10/2026 - ORE 17:15] · INTEGRAZIONE PROMPT MODULARI (R1, LM1, V3), COPY CORALE 5 PIATTI IN R1 & LIVE PROMPT INSPECTOR
 - **Cosa abbiamo fatto:** Potenziata la suite di copywriting e prompt engineering per i formati specifici del Villaggio e del Ristorante in [autoCutCopywriterEngine.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/services/autoCutCopywriterEngine.ts), [social-publisher.ts](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/api/_handlers/social-publisher.ts) e [AutoCutPostCopywriter.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutPostCopywriter.tsx):
   - 🍝 **R1: Copywriter Corale 5 Piatti (Zero Monopolio del Primo Piatto)**:
