@@ -1606,15 +1606,15 @@ export function AutoCutLabPlayer({
         drawTextWithShadow('flowerpowervillage.com', tx, ty, 'rgba(255,255,255,0.95)', 2.8 * s);
       } else {
         // Formato Villaggio Regular (V1, V2, V3) - Identico al DOM React dell'Editor
-        // Distacco pt-1.5 mt-0.5 rispetto a 'Village' (3 * s)
-        ty += 3 * s;
-        const dbFontSize = Math.round(19.5 * s);
+        // Distacco abbassato di 3 pixel rispetto a Village (da 3*s a 6*s)
+        ty += 6 * s;
+        const dbFontSize = Math.round(21.5 * s); // Ingrandito del 10% (era 19.5 * s)
         oCtx.font = `900 ${dbFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('DIRECT BOOKING', tx, ty, '#6ee7b7', 3.4 * s);
         ty += dbFontSize + (1 * s); // Avvicinato di 2px a DIRECT BOOKING
 
         // 10% OFF con BAGLIORE DORATO DELICATO e PULSAZIONE COMPATTA (Aura ridotta e raffinata)
-        const offFontSize = Math.round(16 * s);
+        const offFontSize = Math.round(17.5 * s); // Ingrandito del 10% (era 16 * s)
         oCtx.font = `900 ${offFontSize}px "Outfit", sans-serif`;
         const offCycle = 0.5 + 0.5 * Math.sin(tElapsed * Math.PI * 2.2);
         const offScale = 0.98 + 0.03 * offCycle;
@@ -1647,13 +1647,13 @@ export function AutoCutLabPlayer({
 
         ty += offFontSize + (7 * s); // Distanziato verso il blocco sito/link sotto
 
-        // Blocco unico compatto: flowerpowervillage.com + Link in Bio
-        const siteFontSize = Math.round(14.5 * s);
+        // Blocco unico compatto: flowerpowervillage.com + Link in Bio - Ingrandito del 10%
+        const siteFontSize = Math.round(16 * s); // Ingrandito del 10% (era 14.5 * s)
         oCtx.font = `600 ${siteFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('flowerpowervillage.com', tx, ty, 'rgba(255,255,255,0.95)', 2.8 * s);
         ty += siteFontSize + (6 * s); // Distanziato di esattamente 4px extra (da 2*s a 6*s) sotto flowerpowervillage.com
 
-        const bioFontSize = Math.round(14.5 * s);
+        const bioFontSize = Math.round(16 * s); // Ingrandito del 10% (era 14.5 * s)
         oCtx.font = `700 ${bioFontSize}px "Outfit", sans-serif`;
         drawTextWithShadow('Link in Bio', tx, ty, '#fcd34d', 2.8 * s);
       }
@@ -2028,8 +2028,6 @@ export function AutoCutLabPlayer({
         // Modalità Alloggi Villaggio (V1, V2, V3, LM1) - Sincronizzata 1:1 con il DOM React dell'Editor
         const bx = 25 * s;
         const maxTextW = w - bx - (25 * s);
-        const hasBadge = !!scene.badgeCategory;
-        const badgeH = hasBadge ? (33 * s) : 0;
         const titleH = 28 * s + (3 * s);
         const subtitleH = scene.lodgingSubtitle ? (24 * s + 3 * s) : 0;
 
@@ -2063,7 +2061,7 @@ export function AutoCutLabPlayer({
         const thaiH = thaiLines.length > 0 ? (thaiLines.length * (20 * s) + (3 * s)) : 0;
         const hasPrice = !!scene.priceLabel && mode === 'LM1';
         const priceH = hasPrice ? (46 * s) : 0;
-        const totalCardH = badgeH + titleH + subtitleH + thaiH + priceH;
+        const totalCardH = titleH + subtitleH + thaiH + priceH;
 
         // Ancoraggio inferiore sicuro identico a bottom-[47px]
         let by = h - (47 * s) - totalCardH;
@@ -2073,36 +2071,6 @@ export function AutoCutLabPlayer({
         oCtx.textBaseline = 'top';
         oCtx.shadowColor = 'rgba(0, 0, 0, 0.95)';
         oCtx.shadowBlur = 10 * s;
-
-        // 1. Pillola Categoria Alloggio (Smeraldo con testo bianco centrato Outfit 800)
-        if (hasBadge) {
-          const badgeClean = mode === 'LM1'
-            ? scene.badgeCategory!.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim().toUpperCase()
-            : scene.badgeCategory!.toUpperCase();
-
-          const badgeFontSize = Math.round(13 * s);
-          oCtx.font = `800 ${badgeFontSize}px "Outfit", sans-serif`;
-          const badgeTextW = oCtx.measureText(badgeClean).width;
-          const badgePillW = badgeTextW + (20 * s);
-          const badgePillH = 22 * s;
-
-          oCtx.save();
-          oCtx.fillStyle = 'rgba(5, 150, 105, 0.92)';
-          if (typeof oCtx.roundRect === 'function') {
-            oCtx.roundRect(bx, by, badgePillW, badgePillH, 11 * s);
-          } else {
-            oCtx.rect(bx, by, badgePillW, badgePillH);
-          }
-          oCtx.fill();
-
-          oCtx.fillStyle = '#ffffff';
-          oCtx.textAlign = 'center';
-          oCtx.textBaseline = 'middle';
-          oCtx.fillText(badgeClean, bx + (badgePillW / 2), by + (badgePillH / 2) + Math.round(0.5 * s));
-          oCtx.restore();
-
-          by += badgePillH + (11 * s); // +3 pixel di distacco verso il titolo
-        }
 
         // 2. Titolo Alloggio (Inglese Strutturato Bianco Outfit 900 con ombra protettiva ad alto contrasto)
         const lTitle = scene.lodgingTitle || scene.titlePrimary || '';
@@ -3349,13 +3317,13 @@ export function AutoCutLabPlayer({
                 <span className="font-medium italic text-[#34d399] text-[25px] sm:text-[26.5px] capitalize tracking-normal leading-none whitespace-nowrap mt-1 font-['Outfit',sans-serif] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                   Village
                 </span>
-                {/* DIRECT BOOKING (+20%, allontanato di 2px netti dalla parola Village: pt-1.5 mt-0.5) */}
-                <span className="text-[18.5px] sm:text-[21px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-0.5 [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                {/* DIRECT BOOKING (spostato in basso di 3px rispetto a Village: pt-1.5 mt-[5px], ingrandito del 10%) */}
+                <span className="text-[20.5px] sm:text-[23px] font-black text-emerald-300 uppercase tracking-wide leading-tight whitespace-nowrap pt-1.5 mt-[5px] [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                   DIRECT BOOKING
                 </span>
-                {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo */}
+                {/* Sotto DIRECT BOOKING: 10% OFF con bagliore dorato lampeggiante continuo (+10%) */}
                 <span
-                  className="text-[15.5px] sm:text-[17.5px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-0 inline-block origin-left font-['Outfit',sans-serif]"
+                  className="text-[17px] sm:text-[19.5px] font-black uppercase tracking-wider leading-tight whitespace-nowrap mt-0 inline-block origin-left font-['Outfit',sans-serif]"
                   style={{
                     animation: 'discountGlowPulse 1.1s ease-in-out infinite alternate',
                     textShadow: '0 2px 4px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,0.95), 1px 1px 2px rgba(0,0,0,1)'
@@ -3363,12 +3331,12 @@ export function AutoCutLabPlayer({
                 >
                   10% OFF
                 </span>
-                {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1.5, con Link in Bio distanziato 4px in più (gap-[6px]) */}
+                {/* Blocco unico flowerpowervillage.com + Link in Bio distanziato da 10% OFF: mt-1.5, con Link in Bio distanziato 4px in più (gap-[6px]) (+10%) */}
                 <div className="flex flex-col gap-[6px] mt-1.5">
-                  <span className="text-[14px] sm:text-[15.5px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  <span className="text-[15.5px] sm:text-[17px] font-semibold text-white/95 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                     flowerpowervillage.com
                   </span>
-                  <span className="text-[14px] sm:text-[15px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
+                  <span className="text-[15.5px] sm:text-[16.5px] font-bold text-amber-300/90 leading-tight whitespace-nowrap [text-shadow:_0_2px_4px_rgba(0,0,0,1),_0_0_10px_rgba(0,0,0,1),_0_0_20px_rgba(0,0,0,0.95),_1px_1px_2px_rgba(0,0,0,1)]">
                     Link in Bio
                   </span>
                 </div>
@@ -3521,17 +3489,9 @@ export function AutoCutLabPlayer({
             </div>
           )}
 
-          {/* Caso ALLOGGI (V1, V2, V3, LM1): Categoria, Titolo Bungalow e Sottotitolo Giallo Ingranditi +20% con distacco extra 3px */}
+          {/* Caso ALLOGGI (V1, V2, V3, LM1): Titolo Bungalow e Sottotitolo Giallo Ingranditi +20% con distacco extra 3px */}
           {(mode === 'V1' || mode === 'V2' || mode === 'V3' || mode === 'LM1') && (
             <div className="space-y-2.5 w-full">
-              {currentScene.badgeCategory && (
-                <span className="inline-block px-3 py-0.5 rounded-full bg-emerald-600/90 text-white text-[13px] font-bold tracking-wide shadow-md uppercase mb-[3px]">
-                  {mode === 'LM1'
-                    ? currentScene.badgeCategory.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim()
-                    : currentScene.badgeCategory}
-                </span>
-              )}
-
               {/* INGLESE STRUTTURATO SEMANTICO (+20% con distacco +3px) */}
               <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                 {currentScene.lodgingTitle ? (
@@ -3942,19 +3902,11 @@ export function AutoCutLabPlayer({
                   </div>
                 )}
 
-                {/* Caso ALLOGGI (V1, LM1): Categoria, Nome Alloggio, Sottotitolo, Thai + Prezzo Last Minute a destra (se LM1) */}
+                {/* Caso ALLOGGI (V1, LM1): Nome Alloggio, Sottotitolo, Thai + Prezzo Last Minute a destra (se LM1) */}
                 {(mode === 'V1' || mode === 'LM1') && (
                   <div className="w-full flex items-end justify-between gap-2">
                     {/* Blocco Titoli (Sinistra) */}
                     <div className="flex-1 min-w-0 pr-1 space-y-0.5">
-                      {currentScene.badgeCategory && (
-                        <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-600/90 text-white text-[11px] font-bold tracking-wide shadow-md uppercase">
-                          {mode === 'LM1'
-                            ? currentScene.badgeCategory.replace(/\s*·\s*[\u0E00-\u0E7F]+.*$/, '').trim()
-                            : currentScene.badgeCategory}
-                        </span>
-                      )}
-
                       <div className="leading-tight [text-shadow:_0_2px_8px_rgba(0,0,0,1),_0_1px_3px_rgba(0,0,0,0.95)] drop-shadow-[0_2px_6px_rgba(0,0,0,1)]">
                         <h3 className="text-[17.5px] sm:text-[20px] font-black text-white leading-tight">
                           {currentScene.lodgingTitle || currentScene.titlePrimary}

@@ -3,6 +3,24 @@
 > **Modalità:** Accumulo cronologico banner dopo banner (Zero auto-cancellazione, 100% gratuito, zero token extra).  
 > *Questo documento rimane sempre aperto e consultabile all'interno dell'IDE per avere la traccia trasparente e sintetica di ogni singola operazione svolta.*
 
+### 🟩 [26/10/2026 - ORE 00:45] · SOCIAL STUDIO AUTOCUT: FORMATI VILLAGGIO V1, V2, V3 & LM1 (RIMOZIONE PILLOLA CATEGORIA VERDE & RIBILANCIAMENTO BLOCCO DIRECT BOOKING: +3PX OFFSET & +10% DIMENSIONI)
+- **Cosa abbiamo fatto:** Applicata l'ottimizzazione grafica richiesta su tutti i formati video del Villaggio (`V1`, `V2`, `V3` e `LM1`) in [AutoCutLabPlayer.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/AutoCutLabPlayer.tsx) sia nel player di anteprima DOM che nel rendering/esportazione Canvas:
+  - 🚫 **Rimozione Pillola Rettangolare Verde della Categoria (Glamping / Bungalow / Ville)**:
+    - Eliminato definitivamente il rettangolo smussato verde smeraldo (`badgeCategory`) che sovrastava i titoli degli alloggi (es. `GLAMPING`).
+    - Ora la card inferiore mostra direttamente il nome dell'alloggio in grande (es. `Lagoon Tent`) con il suo sottotitolo descrittivo ambra (es. `Glamping Sanctuary`) e la dicitura in Thai, con una resa visiva pulita, ariosa ed elegante.
+    - Pillola rimossa da: Anteprima 9:16 (`mode === 'V1' || mode === 'V2' || mode === 'V3' || mode === 'LM1'`), Player Companion 4:3 e Motore di esportazione video Canvas (`renderOverlaysToContext`).
+  - 📐 **Ribilanciamento Blocco Header DIRECT BOOKING (V1, V2, V3)**:
+    - Abbassato l'intero blocco di 3 pixel netti rispetto alla parola `Village` (in DOM: da `mt-0.5` a `mt-[5px]`; su Canvas: da `3*s` a `6*s`).
+    - Ingranditi del +10% tutti gli elementi del blocco per garantire massima leggibilità ed equilibrio con il logo:
+      - `DIRECT BOOKING`: portato a `text-[20.5px] sm:text-[23px]` (Canvas: `21.5 * s`).
+      - `10% OFF`: portato a `text-[17px] sm:text-[19.5px]` (Canvas: `17.5 * s`).
+      - `flowerpowervillage.com`: portato a `text-[15.5px] sm:text-[17px]` (Canvas: `16 * s`).
+      - `Link in Bio`: portato a `text-[15.5px] sm:text-[16.5px]` (Canvas: `16 * s`).
+- **Effetto reale:** Guardando i video di V1, V2 e V3, non c'è più il fastidioso rettangolo verde sopra il nome dell'alloggio, e l'intestazione sotto "Village" risulta più staccata, ariosa e proporzionata, con i testi del 10% più grandi e perfettamente allineati tra anteprima a schermo ed esportazione finale.
+- **Stato:** ✅ Compilato (0 errori TypeScript), testato e operativo.
+
+---
+
 ### 🟩 [26/10/2026 - ORE 00:30] · SOCIAL STUDIO SCHEDULER: PALINSESTO PERFEZIONATO (GRUPPO PHAYAM ALLOGGI ORE 08:45, TIKTOK CENA ORE 17:15 & REEL NOTTURNO INTERNAZIONALE ORE 23:00 PER L'EUROPA)
 - **Cosa abbiamo fatto:** Ottimizzato il palinsesto del Social Studio in [SocialCalendarView.tsx](file:///d:/01%20ANTIGRAVITY/flower-power-village-com/flowerpowervillage/src/social/components/SocialCalendarView.tsx) armonizzando i compiti manuali dello staff con i flussi turistici reali e integrando lo slot notturno automatico per il pubblico europeo:
   - 🏝️ **Post Gruppo Facebook Koh Phayam al Mattino (Ore 08:45)**:
